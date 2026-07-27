@@ -44,6 +44,36 @@ function uniqueSorted<T extends string>(values: T[]): T[] {
 }
 
 /**
+ * Resolves `{{placeholder}}` tokens in a campaign.content.faq answer against
+ * live derived facts. A published FAQ answer's numbers (dates, subject
+ * lists, price/effectif ranges) must stay derived from the same sources as
+ * the rest of the page — never re-frozen as static editorial text.
+ */
+function resolveFaqTemplate(template: string, vars: Record<string, string>): string {
+  return template.replace(/\{\{(\w+)\}\}/g, (match, key: string) => {
+    if (!(key in vars)) throw new Error(`Unknown FAQ template placeholder: ${match}`);
+    return vars[key]!;
+  });
+}
+
+/**
+ * Explicit publication order for the public FAQ section — campaign.content.faq
+ * is not itself ordered for display (it interleaves the 17 reserved/unpublished
+ * entries with the 7 live ones), so the order a parent actually sees is
+ * declared here, once, and checked against the `published` flag (fail-closed:
+ * a listed id that isn't published, or an id that doesn't exist, is a bug).
+ */
+const PUBLISHED_FAQ_ORDER = [
+  'faq-public-cible',
+  'faq-date-lieu',
+  'faq-matieres-seconde',
+  'faq-contenu-dix-heures',
+  'faq-effectifs-groupes',
+  'faq-reservation-paiement',
+  'faq-tarif-exact',
+] as const;
+
+/**
  * Resolve the public label of a subject for a given level. Uses the campaign's
  * per-level label when present (e.g. Seconde NSI is branded "Initiation
  * informatique, algorithmique et SNT", distinct from the NSI specialty of
@@ -264,18 +294,11 @@ export function compilePreRentreeReviewSurfaceDTO() {
     },
     programs: publicModules,
     documents: PRE_RENTREE_DOCUMENTS.map((document) => ({ ...document })),
-    method: [
-      'Faire un point rapide sur les acquis',
-      'Reprendre les notions essentielles',
-      'S’entraîner avec des exercices progressifs',
-      'Comprendre les corrections et les méthodes',
-      'Repartir avec des repères clairs pour la rentrée',
-    ],
+    method: campaign.content.method.map((step) => ({ ...step })),
     reservation: {
       enabled: false,
       depositPercentage: 30,
-      rule: 'La demande en ligne n’engage aucun paiement.',
-      explanation: 'Indiquez la classe de rentrée et les matières souhaitées. Notre équipe vous confirme les créneaux disponibles et vous guide vers la formule adaptée.',
+      rule: campaign.content.practical.preRegistrationNotice,
     },
     contact: {
       whatsappDisplay: getWhatsAppDisplayNumber(),
@@ -293,36 +316,28 @@ export function compilePreRentreeReviewSurfaceDTO() {
       canonical: campaign.canonicalPath,
       image: '/images/logo_slogan_nexus.webp',
     },
-    faq: [
-      {
-        question: 'À qui s’adressent les stages de pré-rentrée 2026 ?',
-        answer: 'Les offres s’adressent aux élèves du système français en Tunisie et aux candidats libres, selon le niveau et les matières proposées.',
-      },
-      {
-        question: 'Quand et où commence la pré-rentrée Nexus ?',
-        answer: `Les stages commencent à partir du ${firstDate} dans les locaux de Nexus Réussite à Mutuelleville. Le créneau précis est communiqué lors de la qualification de la demande.`,
-      },
-      {
-        question: 'Quelles matières sont proposées pour une entrée en Seconde ?',
-        answer: `Les matières proposées pour une entrée en Seconde sont ${subjectIdsByLevel.SECONDE.map((subject) => subjectLabelFor(campaign, 'SECONDE', subject)).join(', ')}.`,
-      },
-      {
-        question: 'Que comprennent les dix heures par matière ?',
-        answer: 'Chaque matière comprend cinq séances structurées de deux heures, avec un objectif clair à chaque séance, de l’entraînement et de la correction, ainsi que les consignes et exercices utilisés pendant le stage.',
-      },
-      {
-        question: 'Quels sont les effectifs des groupes ?',
-        answer: `Les offres Fondations accueillent de ${Math.min(...foundationExamples.map((offer) => offer.groupMin))} à ${Math.max(...foundationExamples.map((offer) => offer.groupMax))} élèves. Les offres Premium accueillent de ${Math.min(...premiumExamples.map((offer) => offer.groupMin))} à ${Math.max(...premiumExamples.map((offer) => offer.groupMax))} élèves. La capacité exacte figure sur chaque offre.`,
-      },
-      {
-        question: 'Puis-je réserver ou payer depuis le site ?',
-        answer: 'Non. Le site permet uniquement de demander une information. Les montants d’acompte et de solde correspondent à la grille tarifaire, mais aucune réservation ni collecte de paiement n’est activée en ligne : notre équipe vous recontacte pour finaliser l’inscription.',
-      },
-      {
-        question: 'Comment connaître le tarif exact du parcours ?',
-        answer: `Les tarifs sont affichés offre par offre. À titre de repère, les offres publiées vont de ${formatAmount(Math.min(...offers.map((offer) => offer.price)))} à ${formatAmount(Math.max(...offers.map((offer) => offer.price)))} selon le niveau et le nombre de matières.`,
-      },
-    ],
+    faq: (() => {
+      const faqVars: Record<string, string> = {
+        firstDate,
+        secondeMatieres: subjectIdsByLevel.SECONDE.map((subject) => subjectLabelFor(campaign, 'SECONDE', subject)).join(', '),
+        effectifFondationsMin: String(Math.min(...foundationExamples.map((offer) => offer.groupMin))),
+        effectifFondationsMax: String(Math.max(...foundationExamples.map((offer) => offer.groupMax))),
+        effectifPremiumMin: String(Math.min(...premiumExamples.map((offer) => offer.groupMin))),
+        effectifPremiumMax: String(Math.max(...premiumExamples.map((offer) => offer.groupMax))),
+        tarifMin: formatAmount(Math.min(...offers.map((offer) => offer.price))),
+        tarifMax: formatAmount(Math.max(...offers.map((offer) => offer.price))),
+      };
+      const byId = new Map(campaign.content.faq.map((entry) => [entry.id, entry]));
+      return PUBLISHED_FAQ_ORDER.map((id) => {
+        const entry = byId.get(id);
+        if (!entry) throw new Error(`PUBLISHED_FAQ_ORDER references unknown FAQ id: ${id}`);
+        if (!entry.published) throw new Error(`PUBLISHED_FAQ_ORDER references unpublished FAQ id: ${id}`);
+        return {
+          question: entry.question,
+          answer: resolveFaqTemplate(entry.answer, faqVars),
+        };
+      });
+    })(),
   } as const;
 }
 

@@ -298,7 +298,11 @@
       ]
     }
   ],
-  "rooms": ["salle-1", "salle-2", "salle-3"],
+  "rooms": [
+    "salle-1",
+    "salle-2",
+    "salle-3"
+  ],
   "teacherRoles": {
     "TEACHER_A_MATHS_NSI": {
       "subjects": [
@@ -491,7 +495,7 @@
         "description": "Chaque séance alterne méthode, exercices progressifs et correction explicite pour consolider les réflexes."
       },
       {
-        "title": "Bilan et recommandations de rentrée",
+        "title": "Synthèse et recommandations de rentrée",
         "description": "Le stage se termine par une synthèse des acquis observés et des recommandations de travail pour la rentrée."
       }
     ],
@@ -533,80 +537,148 @@
     },
     "faq": [
       {
+        "id": "faq-multi-matieres",
         "question": "Mon enfant entrant en 3e, Seconde, Première ou Terminale peut-il suivre plusieurs matières ?",
-        "answer": "Oui. Fondations permet de choisir les matières disponibles au niveau concerné, sans remise multimatières. Premium propose des packs d’une à quatre matières. Le planning définitif reste soumis aux validations opérationnelles."
+        "answer": "Oui. Fondations permet de choisir les matières disponibles au niveau concerné, sans remise multimatières. Premium propose des packs d’une à quatre matières. Le planning définitif reste soumis aux validations opérationnelles.",
+        "published": false
       },
       {
+        "id": "faq-duree-stage",
         "question": "Le stage dure-t-il une ou deux semaines ?",
-        "answer": "La campagne s'étend sur deux semaines. Chaque matière est organisée sur une semaine avec cinq séances de deux heures ; la présence dépend donc des matières choisies."
+        "answer": "La campagne s'étend sur deux semaines. Chaque matière est organisée sur une semaine avec cinq séances de deux heures ; la présence dépend donc des matières choisies.",
+        "published": false
       },
       {
+        "id": "faq-matieres-seconde",
         "question": "Quelles matières sont proposées pour une entrée en Seconde ?",
-        "answer": "Pour une entrée en Seconde, Nexus Fondations propose Mathématiques et Français. Chaque matière comprend cinq séances de deux heures et peut être choisie séparément."
+        "answer": "Les matières proposées pour une entrée en Seconde sont {{secondeMatieres}}.",
+        "published": true
       },
       {
+        "id": "faq-profil-maths-premiere",
         "question": "Comment choisir le profil de Mathématiques pour une entrée en Première ?",
-        "answer": "Le parent déclare Maths EDS ou Maths hors EDS pour la classe de rentrée. Le créneau est commun, puis la composition pédagogique du groupe est validée selon les profils et les effectifs. SVT est proposée pour une entrée en Première ou Terminale selon les groupes formés."
+        "answer": "Le parent déclare Maths EDS ou Maths hors EDS pour la classe de rentrée. Le créneau est commun, puis la composition pédagogique du groupe est validée selon les profils et les effectifs. SVT est proposée pour une entrée en Première ou Terminale selon les groupes formés.",
+        "published": false
       },
       {
+        "id": "faq-eaf-premiere",
         "question": "Y a-t-il une épreuve de mathématiques en fin de Première ?",
-        "answer": "Oui. Une épreuve terminale anticipée de mathématiques est passée en fin de Première. Le module de stage propose des priorités et des méthodes de rentrée utiles à sa préparation progressive ; il ne promet ni couverture du programme annuel ni résultat."
+        "answer": "Oui. Une épreuve terminale anticipée de mathématiques est passée en fin de Première. Le module de stage propose des priorités et des méthodes de rentrée utiles à sa préparation progressive ; il ne promet ni couverture du programme annuel ni résultat.",
+        "published": false
       },
       {
+        "id": "faq-francais-eaf-voies",
         "question": "Le Français EAF convient-il aux voies générale et technologique ?",
-        "answer": "Les deux profils sont prévus. La voie déclarée permet à l'équipe d'adapter les exercices et de confirmer une composition de groupe cohérente."
+        "answer": "Les deux profils sont prévus. La voie déclarée permet à l'équipe d'adapter les exercices et de confirmer une composition de groupe cohérente.",
+        "published": false
       },
       {
+        "id": "faq-options-maths-terminale",
         "question": "Quelles options de Mathématiques sont prévues pour une entrée en Terminale ?",
-        "answer": "Le formulaire distingue l'absence d'option, Maths expertes et Maths complémentaires pour la classe de rentrée. La spécialité Mathématiques conservée est déclarée séparément."
+        "answer": "Le formulaire distingue l'absence d'option, Maths expertes et Maths complémentaires pour la classe de rentrée. La spécialité Mathématiques conservée est déclarée séparément.",
+        "published": false
       },
       {
+        "id": "faq-maths-expertes-terminale",
         "question": "Le stage de pré-rentrée propose-t-il un module Maths expertes en Terminale ?",
-        "answer": "Oui. Pour l'entrée en Terminale, Maths expertes est proposée comme matière de stage à part entière, en plus des Mathématiques, du NSI, de la Physique-Chimie et de la SVT. Le Français n'est pas proposé au niveau Terminale."
+        "answer": "Oui. Pour l'entrée en Terminale, Maths expertes est proposée comme matière de stage à part entière, en plus des Mathématiques, du NSI, de la Physique-Chimie et de la SVT. Le Français n'est pas proposé au niveau Terminale.",
+        "published": false
       },
       {
+        "id": "faq-svt-niveaux",
         "question": "La SVT est-elle proposée, et à quels niveaux ?",
-        "answer": "La SVT est proposée en Première et en Terminale uniquement ; elle ne fait pas partie des matières de 3e et de Seconde. Elle compte comme l'une des matières du pack Premium : le parcours réunit de 1 à 4 matières au choix parmi les cinq disponibles à ces niveaux. Le seuil d'ouverture d'un groupe SVT est identique à celui des autres matières et la décision d'ouverture est communiquée au plus tard le 10 août à 18 h."
+        "answer": "La SVT est proposée en Première et en Terminale uniquement ; elle ne fait pas partie des matières de 3e et de Seconde. Elle compte comme l'une des matières du pack Premium : le parcours réunit de 1 à 4 matières au choix parmi les cinq disponibles à ces niveaux. Le seuil d'ouverture d'un groupe SVT est identique à celui des autres matières et la décision d'ouverture est communiquée au plus tard le 10 août à 18 h.",
+        "published": false
       },
       {
+        "id": "faq-seuil-ouverture-groupe",
         "question": "À partir de combien d'élèves un groupe ouvre-t-il ?",
-        "answer": "Un groupe Fondations ouvre à partir de quatre inscriptions confirmées et accueille au maximum six élèves. Un groupe Premium ouvre à partir de trois inscriptions confirmées et accueille au maximum cinq élèves."
+        "answer": "Un groupe Fondations ouvre à partir de quatre inscriptions confirmées et accueille au maximum six élèves. Un groupe Premium ouvre à partir de trois inscriptions confirmées et accueille au maximum cinq élèves.",
+        "published": false
       },
       {
+        "id": "faq-reservation-paiement",
         "question": "Puis-je réserver ou payer depuis le site ?",
-        "answer": "Non. Le site permet uniquement une demande d’information sans paiement. Les acomptes et soldes affichés sont des éléments de la grille tarifaire ; aucune réservation ni collecte n’est activée avant validation des conditions contractuelles, du reçu et du rapprochement."
+        "answer": "Non. Le site permet uniquement de demander une information. Les montants d’acompte et de solde correspondent à la grille tarifaire, mais aucune réservation ni collecte de paiement n’est activée en ligne : notre équipe vous recontacte pour finaliser l’inscription.",
+        "published": true
       },
       {
+        "id": "faq-groupe-non-ouvert",
         "question": "Que se passe-t-il si le groupe n'ouvre pas ?",
-        "answer": "Si Nexus Réussite décide de ne pas ouvrir le groupe, la famille est informée. Les conditions applicables sont communiquées avant toute confirmation."
+        "answer": "Si Nexus Réussite décide de ne pas ouvrir le groupe, la famille est informée. Les conditions applicables sont communiquées avant toute confirmation.",
+        "published": false
       },
       {
+        "id": "faq-report-stage",
         "question": "Un report vers un autre stage est-il possible ?",
-        "answer": "Les modalités d’annulation, d’absence, de report et d’interruption sont communiquées avant toute confirmation."
+        "answer": "Les modalités d’annulation, d’absence, de report et d’interruption sont communiquées avant toute confirmation.",
+        "published": false
       },
       {
+        "id": "faq-liste-attente",
         "question": "Existe-t-il une liste d'attente ?",
-        "answer": "Une demande peut être placée en liste d'attente si un groupe atteint sa capacité. Cela ne constitue pas une confirmation de place."
+        "answer": "Une demande peut être placée en liste d'attente si un groupe atteint sa capacité. Cela ne constitue pas une confirmation de place.",
+        "published": false
       },
       {
+        "id": "faq-absence",
         "question": "Que se passe-t-il en cas d'absence ?",
-        "answer": "Les modalités applicables aux absences et au rattrapage éventuel sont communiquées avant toute confirmation. Aucun rattrapage n’est garanti au stade de la demande d’information."
+        "answer": "Les modalités applicables aux absences et au rattrapage éventuel sont communiquées avant toute confirmation. Aucun rattrapage n’est garanti au stade de la demande d’information.",
+        "published": false
       },
       {
+        "id": "faq-materiel",
         "question": "Quel matériel faut-il apporter ?",
-        "answer": "Un cahier et une trousse complète sont utiles dans toutes les matières. En SVT : calculatrice scientifique simple recommandée, non obligatoire sauf consigne de l'enseignant. Pour le module NSI (Première, Terminale), l’élève apporte un ordinateur portable. Deux postes de secours sont disponibles en nombre limité ; contactez Nexus avant le stage si nécessaire. En Physique-Chimie, les séances sont théoriques et méthodologiques ; aucune activité pratique en laboratoire n’est annoncée."
+        "answer": "Un cahier et une trousse complète sont utiles dans toutes les matières. En SVT : calculatrice scientifique simple recommandée, non obligatoire sauf consigne de l'enseignant. Pour le module NSI (Première, Terminale), l’élève apporte un ordinateur portable. Deux postes de secours sont disponibles en nombre limité ; contactez Nexus avant le stage si nécessaire. En Physique-Chimie, les séances sont théoriques et méthodologiques ; aucune activité pratique en laboratoire n’est annoncée.",
+        "published": false
       },
       {
+        "id": "faq-groupe-complet",
         "question": "Que faire si le groupe demandé est complet ?",
-        "answer": "L'équipe peut proposer une liste d'attente ou une autre solution pédagogique. Aucune disponibilité en temps réel n'est annoncée sur cette page."
+        "answer": "L'équipe peut proposer une liste d'attente ou une autre solution pédagogique. Aucune disponibilité en temps réel n'est annoncée sur cette page.",
+        "published": false
       },
       {
+        "id": "faq-engagement-financier",
         "question": "La demande d’information engage-t-elle financièrement ?",
-        "answer": "Non. La demande est transmise sans paiement, ne réserve pas une place et ne forme pas un contrat. L’activation d’une réservation dépend de validations contractuelles et opérationnelles qui ne sont pas acquises."
+        "answer": "Non. La demande est transmise sans paiement, ne réserve pas une place et ne forme pas un contrat. L’activation d’une réservation dépend de validations contractuelles et opérationnelles qui ne sont pas acquises.",
+        "published": false
       },
       {
+        "id": "faq-conseil-personnalise",
         "question": "Comment obtenir un conseil personnalisé ?",
-        "answer": "Vous pouvez demander un conseil ou écrire sur WhatsApp. L'équipe vérifie alors les matières et le profil les plus adaptés."
+        "answer": "Vous pouvez demander un conseil ou écrire sur WhatsApp. L'équipe vérifie alors les matières et le profil les plus adaptés.",
+        "published": false
+      },
+      {
+        "id": "faq-public-cible",
+        "question": "À qui s’adressent les stages de pré-rentrée 2026 ?",
+        "answer": "Les offres s’adressent aux élèves du système français en Tunisie et aux candidats libres, selon le niveau et les matières proposées.",
+        "published": true
+      },
+      {
+        "id": "faq-date-lieu",
+        "question": "Quand et où commence la pré-rentrée Nexus ?",
+        "answer": "Les stages commencent à partir du {{firstDate}} dans les locaux de Nexus Réussite à Mutuelleville. Le créneau précis est communiqué lors de la qualification de la demande.",
+        "published": true
+      },
+      {
+        "id": "faq-contenu-dix-heures",
+        "question": "Que comprennent les dix heures par matière ?",
+        "answer": "Chaque matière comprend cinq séances structurées de deux heures, avec un objectif clair à chaque séance, de l’entraînement et de la correction, ainsi que les consignes et exercices utilisés pendant le stage.",
+        "published": true
+      },
+      {
+        "id": "faq-effectifs-groupes",
+        "question": "Quels sont les effectifs des groupes ?",
+        "answer": "Les offres Fondations accueillent de {{effectifFondationsMin}} à {{effectifFondationsMax}} élèves. Les offres Premium accueillent de {{effectifPremiumMin}} à {{effectifPremiumMax}} élèves. La capacité exacte figure sur chaque offre.",
+        "published": true
+      },
+      {
+        "id": "faq-tarif-exact",
+        "question": "Comment connaître le tarif exact du parcours ?",
+        "answer": "Les tarifs sont affichés offre par offre. À titre de repère, les offres publiées vont de {{tarifMin}} à {{tarifMax}} selon le niveau et le nombre de matières.",
+        "published": true
       }
     ]
   },
