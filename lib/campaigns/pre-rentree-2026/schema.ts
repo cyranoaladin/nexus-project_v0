@@ -168,10 +168,20 @@ const CampaignContent = z.object({
     adaptationNotice: z.string().min(1),
     recordingConsentNotice: z.string().min(1),
   }),
+  // `id` is a stable slug (never renamed once assigned — PDFs/tests may
+  // reference it). `published` gates public rendering: only entries with
+  // published: true are compiled into the site's FAQ (public-surface.ts
+  // filters on this flag rather than re-declaring a parallel hardcoded list).
+  // `answer` may contain `{{placeholder}}` tokens resolved at compile time
+  // against live derived facts (dates, subject lists, price ranges) — see
+  // resolveFaqTemplate in public-surface.ts. A published entry's static text
+  // must never freeze a number that is meant to stay derived.
   faq: z.array(z.object({
+    id: z.string().min(1),
     question: z.string().min(1),
     answer: z.string().min(1),
-  })).length(19),
+    published: z.boolean(),
+  })).length(24),
 });
 
 const SeoContract = z.object({

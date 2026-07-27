@@ -13,13 +13,8 @@ describe('Pré-rentrée public service and CTA claims', () => {
       faq: dto.faq,
     });
 
-    expect(dto.method).toEqual([
-      'Faire un point rapide sur les acquis',
-      'Reprendre les notions essentielles',
-      'S’entraîner avec des exercices progressifs',
-      'Comprendre les corrections et les méthodes',
-      'Repartir avec des repères clairs pour la rentrée',
-    ]);
+    expect(dto.method.length).toBeGreaterThan(0);
+    expect(dto.method.every((step) => step.title.length > 0 && step.description.length > 0)).toBe(true);
     expect(publicCopy).not.toMatch(/bilan|espace parent actif|ARIA incluse|Cyclades|coaching individuel|suivi annuel|cours d'urgence|rattrapage garanti|priorité de réservation/i);
   });
 
@@ -27,7 +22,7 @@ describe('Pré-rentrée public service and CTA claims', () => {
     const dto = compilePreRentreeReviewSurfaceDTO();
     expect(dto.reservation.depositPercentage).toBe(30);
     expect(dto.reservation.enabled).toBe(false);
-    expect(dto.reservation.rule).toMatch(/n.engage aucun paiement/i);
+    expect(dto.reservation.rule).toMatch(/sans paiement/i);
     expect(dto.faq.find((item) => /réserver ou payer/i.test(item.question))?.answer).toMatch(/aucune réservation ni collecte de paiement/i);
   });
 

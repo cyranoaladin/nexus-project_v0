@@ -297,7 +297,12 @@ export const PublicationSnapshotSchema = z.object({
     hero: z.object({ eyebrow: z.string(), h1: z.string(), subtitle: z.string() }).strict(),
     method: z.array(z.object({ title: z.string(), description: z.string() }).strict()),
     practical: z.record(z.unknown()),
-    faq: z.array(z.object({ question: z.string(), answer: z.string() }).strict()),
+    faq: z.array(z.object({
+      id: z.string(),
+      question: z.string(),
+      answer: z.string(),
+      published: z.boolean(),
+    }).strict()),
     adaptationNotice: z.string().min(1),
     recordingConsentNotice: z.string().min(1),
   }).strict(),

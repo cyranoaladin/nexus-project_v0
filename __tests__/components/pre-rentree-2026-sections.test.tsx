@@ -11,6 +11,7 @@ import { ScheduleSection } from '@/components/pre-rentree-2026/ScheduleSection';
 import { ProgramsSection } from '@/components/pre-rentree-2026/ProgramsSection';
 import { CampaignFAQ } from '@/components/pre-rentree-2026/CampaignFAQ';
 import { PRE_RENTREE_DOCUMENTS } from '@/lib/campaigns/pre-rentree-2026/documents';
+import { compilePreRentreeReviewSurfaceDTO } from '@/lib/campaigns/pre-rentree-2026/public-surface';
 
 jest.mock('@/lib/analytics', () => ({
   toPreRentreeEntryLevel: (level: string) => level.toLowerCase(),
@@ -249,11 +250,13 @@ describe('Pré-rentrée landing sections', () => {
     });
   });
 
-  it('renders all nineteen contract FAQ items as accessible accordions', async () => {
+  it('renders exactly the published FAQ items as accessible accordions (never the reserved entries)', async () => {
     const user = userEvent.setup();
-    render(<CampaignFAQ items={dto.content.faq} />);
+    const publicFaq = compilePreRentreeReviewSurfaceDTO().faq;
+    render(<CampaignFAQ items={publicFaq} />);
     const buttons = screen.getAllByRole('button');
-    expect(buttons).toHaveLength(19);
+    expect(buttons).toHaveLength(publicFaq.length);
+    expect(campaign.content.faq.filter((entry) => entry.published)).toHaveLength(publicFaq.length);
     await user.click(buttons[0]);
     expect(buttons[0]).toHaveAttribute('aria-expanded', 'true');
   });

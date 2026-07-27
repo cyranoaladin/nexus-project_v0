@@ -23,7 +23,8 @@ describe('Pré-rentrée 2026 campaign source', () => {
       'Deux semaines pour préparer sérieusement la rentrée',
     );
     expect(campaign.content.method).toHaveLength(4);
-    expect(campaign.content.faq).toHaveLength(19);
+    expect(campaign.content.faq).toHaveLength(24);
+    expect(campaign.content.faq.filter((entry) => entry.published)).toHaveLength(7);
     expect(campaign.content.practical.preRegistrationNotice).toContain('ne réserve pas une place');
     expect(campaign.content.practical.preRegistrationNotice).toContain('ne forme pas un contrat');
     expect(campaign.seo.canonical).toBe('/stages/pre-rentree-2026');
