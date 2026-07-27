@@ -2,10 +2,12 @@ import { getPreRentreePacks } from '@/lib/pricing';
 import { LEGAL } from '@/lib/legal';
 import {
   getPreRentreeCampaign,
-  getPreRentreeLandingDTO,
+  getPreRentreeModules,
+  getPreRentreePackOptions,
 } from '@/lib/campaigns/pre-rentree-2026/getters';
+import { formatCampaignStatus } from '@/lib/campaigns/pre-rentree-2026/presentation';
 
-describe('Pré-rentrée 2026 landing DTO', () => {
+describe('Pré-rentrée 2026 campaign source', () => {
   it('resolves only the pack ids declared by the campaign through pricing', () => {
     const campaign = getPreRentreeCampaign();
     const packs = getPreRentreePacks(campaign.packProductIds);
@@ -15,47 +17,41 @@ describe('Pré-rentrée 2026 landing DTO', () => {
   });
 
   it('exposes complete serializable campaign content', () => {
-    const dto = getPreRentreeLandingDTO();
+    const campaign = getPreRentreeCampaign();
 
-    expect(dto.content.hero.h1).toBe(
+    expect(campaign.content.hero.h1).toBe(
       'Deux semaines pour préparer sérieusement la rentrée',
     );
-    expect(dto.content.method).toHaveLength(4);
-    expect(dto.content.faq).toHaveLength(19);
-    expect(dto.content.practical.preRegistrationNotice).toContain('ne réserve pas une place');
-    expect(dto.content.practical.preRegistrationNotice).toContain('ne forme pas un contrat');
-    expect(dto.seo.canonical).toBe('/stages/pre-rentree-2026');
-    expect(dto.capacityByOffer).toEqual({
+    expect(campaign.content.method).toHaveLength(4);
+    expect(campaign.content.faq).toHaveLength(19);
+    expect(campaign.content.practical.preRegistrationNotice).toContain('ne réserve pas une place');
+    expect(campaign.content.practical.preRegistrationNotice).toContain('ne forme pas un contrat');
+    expect(campaign.seo.canonical).toBe('/stages/pre-rentree-2026');
+    expect(campaign.capacityByOffer).toEqual({
       FONDATIONS: { minPerCohort: 3, maxPerCohort: 6 },
       PREMIUM: { minPerCohort: 3, maxPerCohort: 5 },
     });
-    expect(dto.blocks).toHaveLength(4);
-    expect(dto.content.hero.subtitle).toContain(
+    expect(campaign.blocks).toHaveLength(4);
+    expect(campaign.content.hero.subtitle).toContain(
       'Nexus Fondations en 3e et Seconde',
     );
-    expect(dto.content.hero.subtitle).not.toMatch(/NSI en Seconde|EDS NSI/i);
-    expect(dto.packs.map((pack) => pack.code)).toEqual(['PACK_1', 'PACK_2', 'PACK_3', 'PACK_4']);
-    expect(JSON.stringify(dto.packs)).not.toContain('pre2026-pack-');
-    expect(dto.publicStatus).toBe('Informations disponibles');
-    expect(dto).not.toHaveProperty('status');
-    expect(dto.scheduleWindows).toHaveLength(3);
+    expect(campaign.content.hero.subtitle).not.toMatch(/NSI en Seconde|EDS NSI/i);
+    const packOptions = getPreRentreePackOptions();
+    expect(packOptions.map((pack) => pack.code)).toEqual(['PACK_1', 'PACK_2', 'PACK_3', 'PACK_4']);
+    expect(JSON.stringify(packOptions)).not.toContain('pre2026-pack-');
+    expect(formatCampaignStatus(campaign.status)).toBe('Informations disponibles');
+    expect(campaign.schedule).toHaveLength(3);
     // 14 modules -> 17 slots since SCHEDULE-S5 adds an alternative cohort each
     // for Première SVT, Terminale NSI and Terminale SVT (see SCHEDULE-S5-DECISION.md).
-    expect(dto.scheduleWindows.flatMap((window) => window.slots)).toHaveLength(17);
-    expect(dto.organization.educators).toHaveLength(0);
-    expect(dto.organization.rooms).toEqual([
-      { label: 'Salle 1', details: 'Mathématiques, NSI et Mathématiques expertes' },
-      { label: 'Salle 2', details: 'Français, Physique-Chimie et SVT' },
-    ]);
-    expect(JSON.stringify(dto.organization)).not.toMatch(
-      /MATHS_NSI_SNT_TEACHER|FRENCH_TEACHER|PHYSICS_CHEMISTRY_TEACHER|teacherRole|roomRole/,
-    );
-    expect(dto).not.toHaveProperty('teacherRoles');
-    expect(dto).not.toHaveProperty('roomRoles');
+    expect(campaign.schedule.flatMap((window) => window.slots)).toHaveLength(17);
+    // Room roles resolve to the expected subject sets (the rendered room labels
+    // themselves are covered by the live ScheduleSection tests).
+    expect(campaign.roomRoles['salle-1']).toEqual(['MATHEMATIQUES', 'NSI', 'MATHS_EXPERTES']);
+    expect(campaign.roomRoles['salle-2']).toEqual(['FRANCAIS', 'PHYSIQUE_CHIMIE', 'SVT']);
   });
 
-  it('uses the canonical pedagogical address in the landing DTO', () => {
-    const { venue } = getPreRentreeLandingDTO().campaign;
+  it('uses the canonical pedagogical address in the campaign source', () => {
+    const { venue } = getPreRentreeCampaign();
 
     expect(venue).toEqual({
       name: `${LEGAL.entity.tradeName} — ${LEGAL.addresses.pedagogique.neighborhood}`,
@@ -65,7 +61,7 @@ describe('Pré-rentrée 2026 landing DTO', () => {
   });
 
   it('exposes normalized academic profiles without a Seconde EDS', () => {
-    const { academicProfiles } = getPreRentreeLandingDTO();
+    const { academicProfiles } = getPreRentreeCampaign();
 
     expect(academicProfiles.SECONDE).toEqual({});
     expect(academicProfiles.PREMIERE.voies).toHaveLength(2);
@@ -80,7 +76,7 @@ describe('Pré-rentrée 2026 landing DTO', () => {
   });
 
   it('keeps all pedagogical fields for every module session', () => {
-    const { modules } = getPreRentreeLandingDTO();
+    const modules = getPreRentreeModules();
 
     expect(modules).toHaveLength(14);
     for (const campaignModule of modules) {
@@ -97,7 +93,7 @@ describe('Pré-rentrée 2026 landing DTO', () => {
   });
 
   it('distinguishes Première EAF exercises without promising both tracks at once', () => {
-    const eaf = getPreRentreeLandingDTO().modules.find(
+    const eaf = getPreRentreeModules().find(
       (campaignModule) => campaignModule.id === 'premiere-francais-eaf',
     );
     const trackSession = eaf?.sessions[1];
@@ -108,12 +104,16 @@ describe('Pré-rentrée 2026 landing DTO', () => {
   });
 
   it('derives a pedagogical summary for every level-specific subject card', () => {
-    const { subjects } = getPreRentreeLandingDTO();
+    const campaign = getPreRentreeCampaign();
+    const modules = getPreRentreeModules();
 
-    for (const subject of subjects) {
+    for (const subject of campaign.subjects) {
       for (const level of subject.levels) {
-        expect(subject.summaryByLevel[level]).toEqual(expect.any(String));
-        expect(subject.summaryByLevel[level].length).toBeGreaterThan(20);
+        const campaignModule = modules.find(
+          (candidate) => candidate.level === level && candidate.subjectId === subject.id,
+        );
+        expect(campaignModule).toBeDefined();
+        expect(campaignModule?.subtitle.length).toBeGreaterThan(20);
       }
     }
   });

@@ -2,7 +2,11 @@ import '@testing-library/jest-dom';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { StagePlanningSelector } from '@/components/pre-rentree-2026/StagePlanningSelector';
-import { getPreRentreeLandingDTO, getPreRentreeSchedule } from '@/lib/campaigns/pre-rentree-2026/getters';
+import {
+  getPreRentreeCampaign,
+  getPreRentreeSchedule,
+  getPreRentreeOfferOptions,
+} from '@/lib/campaigns/pre-rentree-2026/getters';
 import type { EntryLevelCode } from '@/lib/campaigns/pre-rentree-2026/schema';
 
 jest.mock('@/lib/analytics', () => ({
@@ -12,7 +16,14 @@ jest.mock('@/lib/analytics', () => ({
   },
 }));
 
-const dto = getPreRentreeLandingDTO();
+const campaign = getPreRentreeCampaign();
+const dto = {
+  levels: campaign.levels,
+  subjects: campaign.subjects,
+  capacityByOffer: campaign.capacityByOffer,
+  schedule: getPreRentreeSchedule(),
+  offerOptions: getPreRentreeOfferOptions(),
+};
 
 function renderSelector() {
   return render(

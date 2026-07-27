@@ -3,7 +3,7 @@ import {
   isAcademicProfileComplete,
   type AcademicProfileSelection,
 } from '@/lib/campaigns/pre-rentree-2026/configurator';
-import { getPreRentreeLandingDTO } from '@/lib/campaigns/pre-rentree-2026/getters';
+import { getPreRentreeCampaign } from '@/lib/campaigns/pre-rentree-2026/getters';
 import type { EntryLevelCode } from '@/lib/campaigns/pre-rentree-2026/schema';
 
 // SVT is commercialized in Première exactly like NSI/Physique-Chimie (offers.json)
@@ -189,7 +189,7 @@ describe('Pré-rentrée profile × subject compatibility', () => {
     // profile the code claimed to support. Every subject the check gates via
     // retainedSpecialties (NSI, PHYSIQUE_CHIMIE, SVT — not MATHEMATIQUES, which
     // uses the separate mathsOption field) must be a selectable option.
-    const { academicProfiles } = getPreRentreeLandingDTO();
+    const { academicProfiles } = getPreRentreeCampaign();
     const optionIds = new Set(
       academicProfiles.TERMINALE.retainedSpecialties.options.map((option: { id: string }) => option.id),
     );

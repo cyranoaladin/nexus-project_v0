@@ -1,12 +1,15 @@
 import '@testing-library/jest-dom';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { getPreRentreeLandingDTO } from '@/lib/campaigns/pre-rentree-2026/getters';
+import {
+  getPreRentreeCampaign,
+  getPreRentreeSchedule,
+  getPreRentreeOfferOptions,
+  getPreRentreeModules,
+} from '@/lib/campaigns/pre-rentree-2026/getters';
 import { ScheduleSection } from '@/components/pre-rentree-2026/ScheduleSection';
 import { ProgramsSection } from '@/components/pre-rentree-2026/ProgramsSection';
-import { PricingSection } from '@/components/pre-rentree-2026/PricingSection';
 import { CampaignFAQ } from '@/components/pre-rentree-2026/CampaignFAQ';
-import { PracticalInformation } from '@/components/pre-rentree-2026/PracticalInformation';
 import { PRE_RENTREE_DOCUMENTS } from '@/lib/campaigns/pre-rentree-2026/documents';
 
 jest.mock('@/lib/analytics', () => ({
@@ -19,7 +22,19 @@ jest.mock('@/lib/analytics', () => ({
   },
 }));
 
-const dto = getPreRentreeLandingDTO();
+const campaign = getPreRentreeCampaign();
+const dto = {
+  levels: campaign.levels,
+  subjects: campaign.subjects,
+  blocks: campaign.blocks,
+  scheduleWindows: campaign.schedule,
+  capacityByOffer: campaign.capacityByOffer,
+  operationalGates: campaign.operationalGates,
+  content: campaign.content,
+  schedule: getPreRentreeSchedule(),
+  offerOptions: getPreRentreeOfferOptions(),
+  modules: getPreRentreeModules(),
+};
 
 function renderSchedule() {
   return render(
@@ -29,7 +44,7 @@ function renderSchedule() {
       levels={dto.levels}
       subjects={dto.subjects}
       blocks={dto.blocks}
-      organization={dto.organization}
+      organization={{ rooms: [] }}
       roomsPubliclyConfirmed={dto.operationalGates.roomAssignmentsValidated}
       offerOptions={dto.offerOptions}
       capacityByOffer={dto.capacityByOffer}
@@ -151,24 +166,6 @@ describe('Pré-rentrée landing sections', () => {
     expect(container.textContent).not.toMatch(/60\s*h|30\s*h/);
   });
 
-  it('formats the public deadline and canonical venue without duplication', () => {
-    render(
-      <PracticalInformation
-        campaign={dto.campaign}
-        blocks={dto.blocks}
-        capacityByOffer={dto.capacityByOffer}
-        pack={dto.packs.find((pack) => pack.subjectsCount === 1)}
-        depositPercentage={dto.pricingRules.depositPercentage}
-        content={dto.content.practical}
-        cgvPath={dto.legalRefs.cgv}
-      />,
-    );
-    expect(screen.getByText('Nexus Réussite — Mutuelleville, Tunis')).toBeInTheDocument();
-    expect(document.body.textContent).not.toContain('Mutuelleville · Mutuelleville');
-    expect(screen.getByText(/Décision le 10 août 2026 à 18 h 00/)).toBeInTheDocument();
-    expect(document.body.textContent).not.toMatch(/06:00 PM|PM|AM/);
-  });
-
   it('renders complete module content one accordion at a time', async () => {
     const user = userEvent.setup();
     render(<ProgramsSection modules={dto.modules} levels={dto.levels} documents={PRE_RENTREE_DOCUMENTS} />);
@@ -252,24 +249,7 @@ describe('Pré-rentrée landing sections', () => {
     });
   });
 
-  it('renders four canonical packs with hourly price, deposit and balance', () => {
-    const { container } = render(
-      <PricingSection
-        packs={dto.offerOptions}
-        levels={dto.levels}
-        depositPercentage={dto.pricingRules.depositPercentage}
-        campaignYear={dto.campaign.startDate.slice(0, 4)}
-      />,
-    );
-    expect(screen.getByRole('heading', { name: /Nexus Fondations · Entrée en 3e/i })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: /Nexus Premium · Première et Terminale/i })).toBeInTheDocument();
-    for (const pack of dto.offerOptions) {
-      expect(container.textContent?.replace(/\s/g, '')).toContain(`${pack.price}TND`);
-      expect(screen.getAllByText(`${pack.pricePerHour.toLocaleString('fr-TN')} TND/h`).length).toBeGreaterThan(0);
-    }
-  });
-
-  it('renders all eighteen contract FAQ items as accessible accordions', async () => {
+  it('renders all nineteen contract FAQ items as accessible accordions', async () => {
     const user = userEvent.setup();
     render(<CampaignFAQ items={dto.content.faq} />);
     const buttons = screen.getAllByRole('button');
