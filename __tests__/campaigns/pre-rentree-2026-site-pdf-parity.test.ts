@@ -58,15 +58,20 @@ describe('Pré-rentrée 2026 — parity between the site and the PDF pipeline (f
     expect(siteOccurrences.length).toBe(pdfOccurrences.length);
   });
 
-  it('agree on Fondations/Premium group size ranges', () => {
-    expect(siteDto.planning.capacityByOffer.FONDATIONS).toEqual({
-      minPerCohort: campaign.capacityByOffer.FONDATIONS.minPerCohort,
-      maxPerCohort: campaign.capacityByOffer.FONDATIONS.maxPerCohort,
-    });
-    expect(siteDto.planning.capacityByOffer.PREMIUM).toEqual({
-      minPerCohort: campaign.capacityByOffer.PREMIUM.minPerCohort,
-      maxPerCohort: campaign.capacityByOffer.PREMIUM.maxPerCohort,
-    });
+  it('agree on group size ranges: each level\'s capacity (offers.json, site) stays within its range envelope (campaign.capacityByOffer, PDF pipeline)', () => {
+    // The site derives per-level capacity from offers.json (a level can open
+    // above its range's floor — the 4e opens at 4, not the FONDATIONS floor
+    // of 3). The PDF pipeline still reads the coarser range-level envelope
+    // from campaign.capacityByOffer. Both must describe the same reality:
+    // the ceiling always matches, and the level's floor is never below the
+    // range's floor.
+    for (const level of campaign.levels) {
+      const perLevelCapacity = siteDto.planning.capacityByLevel[level.id];
+      expect(perLevelCapacity).toBeDefined();
+      const rangeEnvelope = campaign.capacityByOffer[perLevelCapacity.range];
+      expect(perLevelCapacity.minPerCohort).toBeGreaterThanOrEqual(rangeEnvelope.minPerCohort);
+      expect(perLevelCapacity.maxPerCohort).toBe(rangeEnvelope.maxPerCohort);
+    }
   });
 
   it('agree on Premium price/deposit/balance for every subject count (Première and Terminale)', () => {

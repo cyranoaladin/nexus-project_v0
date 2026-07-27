@@ -143,7 +143,7 @@ export default function PreRentree2026Page() {
           organization={dto.planning.organization}
           roomsPubliclyConfirmed={dto.planning.roomsPubliclyConfirmed}
           offerOptions={dto.planning.offerOptions}
-          capacityByOffer={dto.planning.capacityByOffer}
+          capacityByLevel={dto.planning.capacityByLevel}
         />
 
       <section className="bg-lux-ink px-4 py-14 md:px-6 md:py-20" aria-labelledby="method-heading">

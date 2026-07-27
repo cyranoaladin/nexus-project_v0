@@ -2,7 +2,7 @@
   "schemaVersion": "1.0.0",
   "version": "2026-pre-rentree-proofs-v1",
   "campaignId": "pre-rentree-2026",
-  "lastRevisedAt": "2026-07-25",
+  "lastRevisedAt": "2026-07-27",
   "proofs": [
     {
       "proofId": "PRF-PRE2026-DATES-VENUE",
@@ -38,7 +38,7 @@
       "proofId": "PRF-PRE2026-3E-350-APPROVED",
       "claim": "En 3e, une matière de 10 heures coûte 350 TND dans un groupe de 3 à 6 élèves.",
       "evidenceType": "OWNER_PRICING_EXCEPTION",
-      "sourceRef": "data/pricing.canonical.json#/pre_rentree_foundations/0/commercial_exception",
+      "sourceRef": "data/pricing.canonical.json#/pre_rentree_foundations/id=pre2026-foundations-3e-subject/commercial_exception",
       "status": "APPROVED",
       "approvedByRole": "DIRECTION_NEXUS_REUSSITE",
       "approvedAt": "2026-07-20",
@@ -48,7 +48,7 @@
       "proofId": "PRF-PRE2026-SECONDE-400",
       "claim": "En Seconde, une matière de 10 heures coûte 400 TND dans un groupe de 3 à 6 élèves.",
       "evidenceType": "CANONICAL_PRICING",
-      "sourceRef": "data/pricing.canonical.json#/pre_rentree_foundations/1",
+      "sourceRef": "data/pricing.canonical.json#/pre_rentree_foundations/id=pre2026-foundations-seconde-subject",
       "status": "APPROVED",
       "approvedByRole": "DIRECTION_NEXUS_REUSSITE",
       "approvedAt": "2026-07-20",
@@ -83,6 +83,116 @@
       "approvedByRole": "DIRECTION_NEXUS_REUSSITE",
       "approvedAt": "2026-07-20",
       "scope": "pre-rentree-2026"
+    },
+    {
+      "proofId": "PRF-PRE2026-4E-350-APPROVED",
+      "claim": "En 4e, une matière de 10 heures coûte 350 TND, avec un acompte de 105 TND et un solde de 245 TND.",
+      "evidenceType": "OWNER_PRICING_EXCEPTION",
+      "sourceRef": "data/pricing.canonical.json#/pre_rentree_foundations/id=pre2026-foundations-4e-subject/commercial_exception",
+      "status": "APPROVED",
+      "approvedByRole": "DIRECTION_NEXUS_REUSSITE",
+      "approvedAt": "2026-07-27",
+      "scope": "pre-rentree-2026:QUATRIEME"
+    },
+    {
+      "proofId": "PRF-PRE2026-4E-COHORT-4-6",
+      "claim": "Le groupe d’entrée en 4e accueille de quatre à six élèves ; le seuil d’ouverture est fixé à quatre.",
+      "evidenceType": "OWNER_CAPACITY_DECISION",
+      "sourceRef": "content/pre-rentree-2026/offers.json#/levels/level=QUATRIEME/capacity",
+      "status": "APPROVED",
+      "approvedByRole": "DIRECTION_NEXUS_REUSSITE",
+      "approvedAt": "2026-07-27",
+      "scope": "pre-rentree-2026:QUATRIEME"
+    },
+    {
+      "proofId": "PRF-PRE2026-4E-VOLUME",
+      "claim": "En 4e, chaque matière représente cinq séances de deux heures, soit dix heures par matière.",
+      "evidenceType": "CANONICAL_SCHEDULE",
+      "sourceRef": "content/pre-rentree-2026/modules.json#/modules/id=quatrieme-mathematiques",
+      "status": "APPROVED",
+      "approvedByRole": "DIRECTION_NEXUS_REUSSITE",
+      "approvedAt": "2026-07-27",
+      "scope": "pre-rentree-2026:QUATRIEME"
+    },
+    {
+      "proofId": "PRF-PRE2026-4E-MODULE-CONTENT",
+      "claim": "Les modules d’entrée en 4e consolident les acquis de 5e et installent les attendus de 4e, sans référence au DNB.",
+      "evidenceType": "VALIDATED_PEDAGOGICAL_MODULE",
+      "sourceRef": "content/pre-rentree-2026/modules.json#/modules/id=quatrieme-mathematiques,id=quatrieme-francais",
+      "status": "APPROVED",
+      "approvedByRole": "DIRECTION_NEXUS_REUSSITE",
+      "approvedAt": "2026-07-27",
+      "scope": "pre-rentree-2026:QUATRIEME"
+    },
+    {
+      "proofId": "PRF-PRE2026-4E-MATERIEL",
+      "claim": "En 4e, le matériel demandé est un cahier et une trousse complète, avec une calculatrice en Mathématiques.",
+      "evidenceType": "CAMPAIGN_PRACTICAL_CONTENT",
+      "sourceRef": "data/campaigns/pre-rentree-2026.json#/content/practical/materialsBySubject",
+      "status": "APPROVED",
+      "approvedByRole": "DIRECTION_NEXUS_REUSSITE",
+      "approvedAt": "2026-07-27",
+      "scope": "pre-rentree-2026:QUATRIEME"
+    },
+    {
+      "proofId": "PRF-PRE2026-PHILO-NO-PREREQUISITE",
+      "claim": "Le stage de Philosophie n’exige aucun prérequis : la discipline est nouvelle en Terminale et le stage part de zéro.",
+      "evidenceType": "VALIDATED_PEDAGOGICAL_MODULE",
+      "sourceRef": "content/pre-rentree-2026/modules.json#/modules/id=terminale-philosophie/prerequisites",
+      "status": "APPROVED",
+      "approvedByRole": "DIRECTION_NEXUS_REUSSITE",
+      "approvedAt": "2026-07-27",
+      "scope": "pre-rentree-2026:TERMINALE"
+    },
+    {
+      "proofId": "PRF-PRE2026-PHILO-MODULE-CONTENT",
+      "claim": "Le stage de Philosophie couvre la question philosophique et la notion, la lecture d’un texte court, la problématisation, la dissertation et l’explication de texte.",
+      "evidenceType": "VALIDATED_PEDAGOGICAL_MODULE",
+      "sourceRef": "content/pre-rentree-2026/modules.json#/modules/id=terminale-philosophie",
+      "status": "APPROVED",
+      "approvedByRole": "DIRECTION_NEXUS_REUSSITE",
+      "approvedAt": "2026-07-27",
+      "scope": "pre-rentree-2026:TERMINALE"
+    },
+    {
+      "proofId": "PRF-PRE2026-PHILO-VOLUME",
+      "claim": "Le stage de Philosophie représente cinq séances de deux heures, soit dix heures.",
+      "evidenceType": "CANONICAL_SCHEDULE",
+      "sourceRef": "content/pre-rentree-2026/modules.json#/modules/id=terminale-philosophie/sessions",
+      "status": "APPROVED",
+      "approvedByRole": "DIRECTION_NEXUS_REUSSITE",
+      "approvedAt": "2026-07-27",
+      "scope": "pre-rentree-2026:TERMINALE"
+    },
+    {
+      "proofId": "PRF-PRE2026-PHILO-MATERIEL",
+      "claim": "En Philosophie, le matériel demandé est un cahier et une trousse complète ; aucun ouvrage n’est à acheter avant le stage.",
+      "evidenceType": "CAMPAIGN_PRACTICAL_CONTENT",
+      "sourceRef": "data/campaigns/pre-rentree-2026.json#/content/practical/materialsBySubject/PHILOSOPHIE",
+      "status": "APPROVED",
+      "approvedByRole": "DIRECTION_NEXUS_REUSSITE",
+      "approvedAt": "2026-07-27",
+      "scope": "pre-rentree-2026:TERMINALE"
+    },
+    {
+      "proofId": "PRF-PRE2026-TERMINALE-TWO-WINDOWS",
+      "claim": "En Terminale, la Philosophie se déroule pendant la fenêtre du 17 au 21 août et les spécialités pendant la fenêtre du 24 au 28 août : deux semaines distinctes, sans chevauchement possible.",
+      "evidenceType": "CANONICAL_SCHEDULE",
+      "sourceRef": "data/campaigns/pre-rentree-2026.json#/schedule",
+      "status": "APPROVED",
+      "approvedByRole": "DIRECTION_NEXUS_REUSSITE",
+      "approvedAt": "2026-07-27",
+      "scope": "pre-rentree-2026:TERMINALE"
+    },
+    {
+      "proofId": "PRF-PRE2026-TERMINALE-POOL-SIX",
+      "claim": "En Terminale, six matières sont proposées et un même élève peut en retenir jusqu’à quatre.",
+      "evidenceType": "OWNER_OFFER_DECISION",
+      "sourceRef": "content/pre-rentree-2026/offers.json#/levels/level=TERMINALE",
+      "status": "APPROVED",
+      "approvedByRole": "DIRECTION_NEXUS_REUSSITE",
+      "approvedAt": "2026-07-27",
+      "scope": "pre-rentree-2026:TERMINALE"
     }
   ],
   "decisions": [

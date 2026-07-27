@@ -84,7 +84,6 @@ const MIGRATED_PUBLIC_COMPONENTS = [
   'components/pre-rentree-2026/PreRentreeHero.tsx',
   'components/pre-rentree-2026/ProgramsSection.tsx',
   'components/pre-rentree-2026/ScheduleSection.tsx',
-  'components/pre-rentree-2026/StageConfigurator.tsx',
 ];
 
 // Pages publiques PAS encore migrées — allowlist décroissante

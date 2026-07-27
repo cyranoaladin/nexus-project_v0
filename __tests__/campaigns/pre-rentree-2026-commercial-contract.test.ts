@@ -50,14 +50,23 @@ describe('Pré-rentrée 2026 canonical commercial publication contract', () => {
     );
 
     expect(getRules().price_floor_per_student_hour_tnd.stage_college).toBe(40);
-    expect(compiled.pricingExceptions).toEqual([expect.objectContaining({
+    // Deux exceptions désormais : 3e (préexistante) et 4e (mission 4e/Philosophie,
+    // même mécanisme). Vérifie la présence de chacune sans exiger l'exclusivité.
+    expect(compiled.pricingExceptions).toContainEqual(expect.objectContaining({
       exceptionId: 'PRE2026-3E-350',
       editionId: 'pre-rentree-2026',
       approvedAt: '2026-07-20',
       status: 'APPROVED',
       pricePerStudentHour: 35,
       standardFloorPerStudentHour: 40,
-    })]);
+    }));
+    expect(compiled.pricingExceptions).toContainEqual(expect.objectContaining({
+      exceptionId: 'PRE2026-4E-350',
+      editionId: 'pre-rentree-2026',
+      status: 'APPROVED',
+      pricePerStudentHour: 35,
+      standardFloorPerStudentHour: 40,
+    }));
     expect(exception).toMatchObject({ status: 'APPROVED', approvedAt: '2026-07-20' });
   });
 

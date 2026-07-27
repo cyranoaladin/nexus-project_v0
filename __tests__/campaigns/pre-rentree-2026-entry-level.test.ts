@@ -1,9 +1,11 @@
 import campaignManifest from '@/data/campaigns/pre-rentree-2026.json';
 import modulesData from '@/content/pre-rentree-2026/modules.json';
 import { getPreRentreeCampaign } from '@/lib/campaigns/pre-rentree-2026/getters';
+import { compilePreRentreeReviewSurfaceDTO } from '@/lib/campaigns/pre-rentree-2026/public-surface';
 import type { EntryLevelCode } from '@/lib/campaigns/pre-rentree-2026/schema';
 
 const entryLabels = {
+  QUATRIEME: 'Entrée en 4e',
   TROISIEME: 'Entrée en 3e',
   SECONDE: 'Entrée en Seconde',
   PREMIERE: 'Entrée en Première',
@@ -13,6 +15,7 @@ const entryLabels = {
 describe('Pré-rentrée 2026 entry-level invariant', () => {
   it('defines stable level codes as 2026-2027 entry classes', () => {
     expect(campaignManifest.levels).toEqual([
+      { id: 'QUATRIEME', label: entryLabels.QUATRIEME },
       { id: 'TROISIEME', label: entryLabels.TROISIEME },
       { id: 'SECONDE', label: entryLabels.SECONDE },
       { id: 'PREMIERE', label: entryLabels.PREMIERE },
@@ -22,6 +25,7 @@ describe('Pré-rentrée 2026 entry-level invariant', () => {
       kind: 'ENTRY_LEVEL',
       schoolYear: '2026-2027',
       currentToEntry: {
+        CINQUIEME: 'QUATRIEME',
         QUATRIEME: 'TROISIEME',
         TROISIEME: 'SECONDE',
         SECONDE: 'PREMIERE',
@@ -31,24 +35,23 @@ describe('Pré-rentrée 2026 entry-level invariant', () => {
     expect(getPreRentreeCampaign().entryLevelSemantics.kind).toBe('ENTRY_LEVEL');
   });
 
-  it('keeps hero, SEO, FAQ and practical information explicit', () => {
+  it('keeps hero, SEO, FAQ and practical information explicit, resolved from the live level list', () => {
     const campaign = getPreRentreeCampaign();
-    expect(campaign.content.hero.subtitle).toContain(
-      'élèves entrant en 3e, Seconde, Première ou Terminale',
-    );
-    expect(campaign.seo.description).toContain(
-      'élèves entrant en 3e, Seconde, Première ou Terminale',
-    );
-    expect(campaign.content.practical.audience).toContain(
-      'élèves entrant en 3e, Seconde, Première ou Terminale',
-    );
-    expect(JSON.stringify(campaign.content.faq)).toContain('entrant en 3e, Seconde, Première ou Terminale');
+    const dto = compilePreRentreeReviewSurfaceDTO();
+    expect(dto.seo.description).toContain('entrant en 4e, 3e, Seconde, Première ou Terminale');
+    // Editorial source stores {{niveauxOu}} rather than a frozen level list —
+    // adding a level updates every surface without touching this string.
+    expect(campaign.content.hero.subtitle).toContain('{{niveauxOu}}');
+    expect(campaign.content.practical.audience).toContain('{{niveauxOu}}');
   });
 
   it('presents every module as preparation for its entry class', () => {
     for (const campaignModule of modulesData.modules) {
       const entryLabel = entryLabels[campaignModule.level as EntryLevelCode];
       expect(`${campaignModule.title} ${campaignModule.subtitle}`).toContain(entryLabel);
+      if (campaignModule.level === 'QUATRIEME') {
+        expect(campaignModule.prerequisites).toMatch(/5e/i);
+      }
       if (campaignModule.level === 'TROISIEME') {
         expect(campaignModule.prerequisites).toMatch(/4e/i);
       }
@@ -60,9 +63,16 @@ describe('Pré-rentrée 2026 entry-level invariant', () => {
         expect(campaignModule.prerequisites).toMatch(/Seconde/i);
         expect(campaignModule.prerequisites).not.toMatch(/acquis de Première|programme de Première/i);
       }
-      if (campaignModule.level === 'TERMINALE') {
+      // Philosophie (mission 4e/Philosophie) n'a délibérément AUCUN prérequis —
+      // c'est une discipline nouvelle, jamais étudiée avant la Terminale — donc
+      // exclue de l'invariant "référence Première" qui s'applique aux autres
+      // matières Terminale (qui, elles, prolongent un programme de Première).
+      if (campaignModule.level === 'TERMINALE' && campaignModule.subjectId !== 'PHILOSOPHIE') {
         expect(campaignModule.prerequisites).toMatch(/Première/i);
         expect(campaignModule.prerequisites).not.toMatch(/acquis de Terminale|programme de Terminale/i);
+      }
+      if (campaignModule.level === 'TERMINALE' && campaignModule.subjectId === 'PHILOSOPHIE') {
+        expect(campaignModule.prerequisites).toMatch(/aucun prérequis/i);
       }
     }
   });
@@ -88,9 +98,12 @@ describe('Pré-rentrée 2026 entry-level invariant', () => {
     expect(terminaleMaths?.differentiation).toMatch(
       /Maths expertes et Maths complémentaires sont des options/i,
     );
-    // Philosophie n'est plus une matière du stage pré-rentrée (retirée au profit de
-    // Maths expertes, en cohérence avec la nouvelle grille fenêtres + week-end).
-    expect(modulesData.modules.find((candidate) => candidate.id === 'terminale-philosophie')).toBeUndefined();
+    // Philosophie et Maths expertes coexistent désormais comme deux matières
+    // Terminale distinctes (mission 4e/Philosophie) — Philosophie ne compte
+    // jamais comme une spécialité (tronc commun, jamais dans le quota de 2).
+    const terminalePhilosophie = modulesData.modules.find((candidate) => candidate.id === 'terminale-philosophie');
+    expect(terminalePhilosophie?.title).toBe('Philosophie — Entrée en Terminale');
+    expect(terminalePhilosophie?.prerequisites).toMatch(/aucun prérequis/i);
     expect(terminaleMathsExpertes?.title).toBe('Mathématiques expertes — Entrée en Terminale');
   });
 

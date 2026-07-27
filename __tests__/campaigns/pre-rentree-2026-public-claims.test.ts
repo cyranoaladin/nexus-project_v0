@@ -15,7 +15,11 @@ describe('Pré-rentrée public service and CTA claims', () => {
 
     expect(dto.method.length).toBeGreaterThan(0);
     expect(dto.method.every((step) => step.title.length > 0 && step.description.length > 0)).toBe(true);
-    expect(publicCopy).not.toMatch(/bilan|espace parent actif|ARIA incluse|Cyclades|coaching individuel|suivi annuel|cours d'urgence|rattrapage garanti|priorité de réservation/i);
+    // "ni bilan diagnostique" est le disclaimer explicitement exigé par la
+    // mission (le stage N'INCLUT PAS de bilan) — on l'exclut du texte avant
+    // de chercher une PROMESSE de bilan, jamais sa négation explicite.
+    const publicCopyWithoutDisclaimer = publicCopy.replace(/ni suivi individuel régulier, ni accompagnement annuel, ni bilan diagnostique/gi, '');
+    expect(publicCopyWithoutDisclaimer).not.toMatch(/bilan|espace parent actif|ARIA incluse|Cyclades|coaching individuel|suivi annuel|cours d'urgence|rattrapage garanti|priorité de réservation/i);
   });
 
   it('qualifies absence, wait-list and pre-registration statements without promising a place', () => {

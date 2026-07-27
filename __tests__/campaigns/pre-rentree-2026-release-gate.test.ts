@@ -24,7 +24,7 @@ describe('Pré-rentrée 2026 single public release gate', () => {
       expect(gate.isPublicReady).toBe(true);
       expect(gate.unmetGateIds).toEqual([]);
       expect(getPreRentreePublicSurfaceDTO()).not.toBeNull();
-      expect(getPublicPreRentreeDocuments()).toHaveLength(7);
+      expect(getPublicPreRentreeDocuments()).toHaveLength(8);
     } else {
       expect(gate.releaseStatus).toBe('READY_FOR_OWNER_GO');
       expect(gate.isPublicReady).toBe(false);

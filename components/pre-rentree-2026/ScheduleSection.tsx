@@ -347,7 +347,7 @@ export function ScheduleSection({
   organization,
   roomsPubliclyConfirmed,
   offerOptions,
-  capacityByOffer,
+  capacityByLevel,
 }: {
   schedule: readonly PublicScheduleSlot[];
   scheduleWindows: readonly PublicScheduleWindow[];
@@ -357,7 +357,7 @@ export function ScheduleSection({
   organization: { rooms: readonly { label: string; details: string }[] };
   roomsPubliclyConfirmed: boolean;
   offerOptions: readonly PublicPlanningPack[];
-  capacityByOffer: Record<'FONDATIONS' | 'PREMIUM', { minPerCohort: number; maxPerCohort: number }>;
+  capacityByLevel: Record<EntryLevelCode, { minPerCohort: number; maxPerCohort: number }>;
 }) {
   const { configuredEntryLevel } = useCampaignExperience();
   const initialLevel = levels[0]?.id ?? 'SECONDE';
@@ -385,7 +385,7 @@ export function ScheduleSection({
           subjects={subjects}
           schedule={schedule}
           offerOptions={offerOptions}
-          capacityByOffer={capacityByOffer}
+          capacityByLevel={capacityByLevel}
           exposeRooms={roomsPubliclyConfirmed}
         />
 
