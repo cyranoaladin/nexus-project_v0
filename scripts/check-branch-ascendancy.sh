@@ -17,6 +17,19 @@
 #   3 — usage/git error.
 #
 # Usage: scripts/check-branch-ascendancy.sh [ref]   (defaults to HEAD)
+#
+# PORTABILITY LIMITATION — read before trusting "no signature" as "safe":
+# Structural signal 2 (the reflog checkout-adjacency check) reads refs/heads/*
+# reflogs, which are LOCAL to this checkout, expire after ~90 days by default
+# (gc.reflogExpire), and DO NOT EXIST AT ALL in a fresh clone, a fresh CI runner,
+# or any other machine's checkout. A clean exit here on a fresh clone proves
+# NOTHING about whether the commit was originally an automated snapshot — it
+# only proves this specific reflog has no such entry (or never had one to begin
+# with). The only signal in this script that is NOT local and NOT time-limited
+# is structural signal 1 (remote-branch visibility, via git branch --remotes
+# --contains) — "invisible from any remote branch" is a fact about the object
+# graph, true from any clone, forever. Treat exit 2 as strong evidence when it
+# fires; do not treat its absence as strong evidence of safety.
 
 set -euo pipefail
 

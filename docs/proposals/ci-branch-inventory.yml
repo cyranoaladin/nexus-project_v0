@@ -1,0 +1,55 @@
+# PROPOSITION — non activée. À déplacer vers .github/workflows/ pour l'activer,
+# uniquement après validation explicite du propriétaire du projet.
+#
+# Objectif : transformer l'inventaire manuel produit dans
+# docs/audits/2026-07-28-branch-inventory-report.md en vérification périodique,
+# non bloquante (elle ne doit jamais faire échouer une PR ou un déploiement —
+# elle informe, elle ne gate rien tant que ce n'est pas explicitement décidé).
+#
+# Ce que fait ce job :
+# - pour chaque branche distante, appelle scripts/check-work-delivered.sh ;
+# - poste un résumé (nombre de STALE, top 10 par âge) en résumé de run GitHub
+#   Actions (job summary), sans notifier personne par défaut ;
+# - ne modifie rien, ne supprime rien, ne merge rien.
+
+name: branch-inventory (proposal — not active)
+
+on:
+  # Proposition : hebdomadaire, jamais sur push/PR (ce n'est pas un gate).
+  schedule:
+    - cron: '0 6 * * 1' # lundi 06:00 UTC
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  inventory:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # historique complet requis pour merge-base sur toutes les branches
+
+      - name: Run check-work-delivered.sh on every remote branch
+        run: |
+          set -euo pipefail
+          echo "## Inventaire des branches non fusionnées" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Âge (j) | Statut | Branche |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|---|---|---|" >> "$GITHUB_STEP_SUMMARY"
+          stale_count=0
+          for ref in $(git branch -r | grep -v ' -> ' | sed 's/^ *origin\///'); do
+            sha=$(git rev-parse "origin/$ref" 2>/dev/null) || continue
+            if git merge-base --is-ancestor "$sha" origin/main 2>/dev/null; then
+              continue
+            fi
+            ct=$(git show -s --format=%ct "$sha")
+            age=$(( ($(date +%s) - ct) / 86400 ))
+            status="OPEN"
+            if [ "$age" -gt 14 ]; then status="STALE"; stale_count=$((stale_count+1)); fi
+            echo "| $age | $status | $ref |" >> "$GITHUB_STEP_SUMMARY"
+          done
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "Total STALE (>14 jours) : $stale_count" >> "$GITHUB_STEP_SUMMARY"
+          # Intentionally never exits non-zero: this is a report, not a gate.

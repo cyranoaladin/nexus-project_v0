@@ -426,12 +426,14 @@ Pour toute mission :
 2. Identifier les fichiers concernés.
 3. Lire l’état actuel avant modification.
 4. Repérer les sources de vérité.
+4bis. Si la mission reprend une branche existante (autre que `main` fraîchement récupéré) : lancer `scripts/check-branch-ascendancy.sh <ref>` avant de traiter son contenu comme l'état réel du dépôt. Un exit 2 (signature de checkpoint automatique) signifie que le contenu est un brouillon, pas une base fiable — le diffuser fichier par fichier contre `origin/main` avant toute réutilisation. Un exit 1 (invisible depuis tout remote) signifie que rien ne protège ce travail — le pousser ou le tagger avant de continuer.
 5. Vérifier le rendu réel si la mission touche au frontend public.
 6. Faire les changements les plus petits compatibles avec une vraie correction.
 7. Ne pas multiplier les abstractions sans besoin.
 8. Ajouter ou adapter les tests pertinents.
 9. Lancer les vérifications.
-10. Produire un rapport final factuel.
+10. Avant de déclarer un lot terminé : lancer `scripts/check-work-delivered.sh <ref>`. Un exit différent de 0 (non fusionné, ou fusionné nulle part et poussé au-delà du seuil de péremption) signifie que le lot n'est pas livré — vert en local ne suffit pas.
+11. Produire un rapport final factuel.
 
 Ne jamais :
 
@@ -441,7 +443,8 @@ Ne jamais :
 - laisser un CTA vers une page cassée ;
 - laisser une promesse marketing non prouvée ;
 - ignorer le mobile ;
-- masquer les erreurs de build ou de test.
+- masquer les erreurs de build ou de test ;
+- supprimer une branche tant que son contenu n'est pas soit entièrement dans `main`, soit protégé par un tag poussé — vérifié par `scripts/check-work-delivered.sh`, jamais à l'œil (voir `docs/audits/2026-07-28-bilan-gratuit-cemetery-and-account-creation-bug.md` pour l'incident qui justifie cette règle).
 
 ---
 
