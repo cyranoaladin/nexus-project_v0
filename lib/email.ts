@@ -105,6 +105,62 @@ export async function sendWelcomeParentEmail(
   }
 }
 
+// Email envoyé lorsqu'une demande de bilan gratuit arrive sur un email de parent déjà client.
+// Ne doit jamais ressembler à une erreur ni inviter à créer un second compte.
+export async function sendExistingAccountBilanEmail(
+  parentEmail: string,
+  parentName: string
+) {
+  const baseUrl = process.env.NEXTAUTH_URL || 'https://nexusreussite.academy';
+  const signInUrl = `${baseUrl}/auth/signin`;
+  const forgotPasswordUrl = `${baseUrl}/auth/mot-de-passe-oublie`;
+
+  const mailOptions = {
+    from: process.env.SMTP_FROM || `Nexus Réussite <${LEGAL.contact.email}>`,
+    to: parentEmail,
+    subject: 'Votre demande de bilan a été enregistrée',
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <div style="background: linear-gradient(135deg, #0f172a, #2563EB); padding: 30px; text-align: center;">
+          <h1 style="color: white; margin: 0;">Votre demande de bilan a bien été enregistrée</h1>
+        </div>
+
+        <div style="padding: 30px; background: #f9f9f9;">
+          <h2>Bonjour ${parentName},</h2>
+
+          <p>Nous avons bien reçu votre nouvelle demande de bilan stratégique gratuit.</p>
+          <p>Vous disposez déjà d'un espace Nexus Réussite avec cette adresse email. Notre équipe pédagogique va également examiner cette nouvelle demande et vous recontacter.</p>
+
+          <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <h3>🔑 Accéder à votre espace :</h3>
+            <p><a href="${signInUrl}" style="color:#2563EB;">Me connecter</a></p>
+            <p>Mot de passe oublié ? <a href="${forgotPasswordUrl}" style="color:#2563EB;">Réinitialiser mon mot de passe</a></p>
+          </div>
+
+          <p>Une question ? Contactez-nous :</p>
+          <ul>
+            <li>📞 ${LEGAL.contact.phone}</li>
+            <li>📧 ${LEGAL.contact.email}</li>
+          </ul>
+
+          <p>À très bientôt,<br><strong>L'équipe Nexus Réussite</strong></p>
+        </div>
+      </div>
+    `
+  };
+
+  try {
+    const transporter = createTransporter();
+    await transporter.sendMail(mailOptions);
+  } catch (error) {
+    console.error('Erreur envoi email:', serializeError(error));
+    if ((process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test')) {
+      return;
+    }
+    throw error;
+  }
+}
+
 // Email de rappel d'expiration des crédits
 export async function sendCreditExpirationReminder(
   parentEmail: string,

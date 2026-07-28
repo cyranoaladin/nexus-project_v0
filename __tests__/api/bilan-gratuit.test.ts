@@ -1,7 +1,8 @@
 import { NextRequest } from 'next/server';
 import { POST } from '../../app/api/bilan-gratuit/route';
 import { prisma } from '../../lib/prisma';
-import { sendWelcomeParentEmail } from '../../lib/email';
+import { sendWelcomeParentEmail, sendExistingAccountBilanEmail } from '../../lib/email';
+import { captureContactLead } from '../../lib/crm/contact-leads';
 
 jest.mock('bcryptjs');
 
@@ -21,9 +22,17 @@ jest.mock('@paralleldrive/cuid2', () => ({
 
 jest.mock('../../lib/email', () => ({
   sendWelcomeParentEmail: jest.fn().mockResolvedValue(undefined),
+  sendExistingAccountBilanEmail: jest.fn().mockResolvedValue(undefined),
+}));
+
+jest.mock('../../lib/crm/contact-leads', () => ({
+  captureContactLead: jest.fn().mockResolvedValue({ id: 'lead-existing-123' }),
+  ContactLeadValidationError: class ContactLeadValidationError extends Error {},
 }));
 
 const mockSendWelcomeParentEmail = sendWelcomeParentEmail as jest.Mock;
+const mockSendExistingAccountBilanEmail = sendExistingAccountBilanEmail as jest.Mock;
+const mockCaptureContactLead = captureContactLead as jest.Mock;
 
 describe('/api/bilan-gratuit', () => {
   const validRequestData = {
@@ -97,7 +106,7 @@ describe('/api/bilan-gratuit', () => {
 
     expect(response.status).toBe(200);
     expect(body.success).toBe(true);
-    expect(body.message).toBe('Votre demande a bien été enregistrée. Un lien d’activation a été envoyé.');
+    expect(body.message).toBe('Votre demande a bien été enregistrée. Vous allez recevoir un e-mail avec la marche à suivre.');
     expect(body.parentId).toBe('parent-123');
     expect(body.studentId).toBe('student-profile-123');
 
@@ -241,18 +250,70 @@ describe('/api/bilan-gratuit', () => {
     );
   });
 
-  it('returns 400 when parent email already exists', async () => {
-    jest.spyOn(prisma.user, 'findUnique').mockResolvedValue({
-      id: 'existing-user',
-      email: 'jean.dupont@test.com',
-    } as never);
+  describe('when the parent email already belongs to an existing account (H1-H4 hotfix)', () => {
+    function mockExistingParent() {
+      jest.spyOn(prisma.user, 'findUnique').mockResolvedValue({
+        id: 'existing-user-123',
+        email: 'jean.dupont@test.com',
+      } as never);
+      jest.spyOn(prisma.parentProfile, 'findUnique').mockResolvedValue({
+        id: 'existing-parent-profile-123',
+        children: [{ id: 'existing-student-123' }],
+      } as never);
+    }
 
-    const response = await POST(buildRequest(validRequestData));
-    const body = await response.json();
+    it('returns a response indistinguishable from the account-creation success response', async () => {
+      mockExistingParent();
 
-    expect(response.status).toBe(400);
-    expect(body.error).toBe('Un compte existe déjà avec cet email');
-    expect(prisma.$transaction).not.toHaveBeenCalled();
+      const response = await POST(buildRequest(validRequestData));
+      const body = await response.json();
+
+      // Same status, same shape, same message as the "new account" success path —
+      // an attacker probing this public endpoint must not be able to tell the two apart.
+      expect(response.status).toBe(200);
+      expect(body).toEqual({
+        success: true,
+        message: 'Votre demande a bien été enregistrée. Vous allez recevoir un e-mail avec la marche à suivre.',
+        parentId: expect.any(String),
+        studentId: expect.any(String),
+      });
+      expect(body.error).toBeUndefined();
+
+      // No second account is ever created for an email that already exists.
+      expect(prisma.$transaction).not.toHaveBeenCalled();
+    });
+
+    it('fires an internal notification without any minor PII', async () => {
+      mockExistingParent();
+
+      await POST(buildRequest(validRequestData));
+
+      expect(mockCaptureContactLead).toHaveBeenCalledTimes(1);
+      const leadPayload = mockCaptureContactLead.mock.calls[0][0];
+
+      // Parent identity/contact channel: allowed.
+      expect(leadPayload.email).toBe(validRequestData.parentEmail);
+      expect(leadPayload.phone).toBe(validRequestData.parentPhone);
+      expect(leadPayload.source).toBe('bilan-gratuit-existing-account');
+
+      // No minor PII anywhere in the payload: no student first name, no grade, no school.
+      const serializedPayload = JSON.stringify(leadPayload);
+      expect(serializedPayload).not.toContain(validRequestData.studentFirstName);
+      expect(serializedPayload).not.toContain(validRequestData.studentGrade);
+      expect(serializedPayload).not.toContain(validRequestData.studentSchool);
+    });
+
+    it('sends the existing parent a coherent access email, not an error and not a duplicate-account invite', async () => {
+      mockExistingParent();
+
+      await POST(buildRequest(validRequestData));
+
+      expect(mockSendExistingAccountBilanEmail).toHaveBeenCalledWith(
+        'jean.dupont@test.com',
+        'Jean Dupont',
+      );
+      expect(mockSendWelcomeParentEmail).not.toHaveBeenCalled();
+    });
   });
 
   it('returns 400 when validation fails (invalid email)', async () => {

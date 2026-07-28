@@ -8,9 +8,16 @@ import { guardRateLimitAsync } from '@/lib/rate-limit';
 import { checkCsrf, checkBodySize } from '@/lib/csrf';
 import { serializeError } from '@/lib/utils/serialize-error';
 import { synchronizePreRentreeCampaignContext } from '@/lib/campaigns/pre-rentree-2026/bilan-prefill';
+import { captureContactLead } from '@/lib/crm/contact-leads';
 import { createId } from '@paralleldrive/cuid2';
 import crypto from 'crypto';
 import { NextRequest, NextResponse } from 'next/server';
+
+// Réponse générique : ne doit jamais permettre de distinguer, depuis l'extérieur,
+// une création de compte d'une demande reçue sur un email de parent déjà client
+// (énumération de comptes sur un endpoint public non authentifié).
+const GENERIC_SUCCESS_MESSAGE =
+  'Votre demande a bien été enregistrée. Vous allez recevoir un e-mail avec la marche à suivre.';
 
 export async function POST(request: NextRequest) {
   try {
@@ -55,10 +62,64 @@ export async function POST(request: NextRequest) {
     }
 
     if (existingUser) {
-      return NextResponse.json(
-        { error: 'Un compte existe déjà avec cet email' },
-        { status: 400 }
-      );
+      // Ne jamais révéler qu'un compte existe déjà (énumération de comptes) :
+      // même statut, même forme de réponse, même ordre de grandeur de travail
+      // que le chemin de création — voir docs/audits/2026-07-28-bilan-gratuit-cemetery-and-account-creation-bug.md.
+      let existingParentId = existingUser.id;
+      let existingStudentId = existingUser.id;
+      try {
+        const parentProfile = await prisma.parentProfile.findUnique({
+          where: { userId: existingUser.id },
+          include: { children: { take: 1, select: { id: true } } },
+        });
+        if (parentProfile?.children?.[0]?.id) {
+          existingStudentId = parentProfile.children[0].id;
+        }
+      } catch (lookupErr) {
+        if (!isTestEnv) {
+          console.error('Erreur résolution profil parent existant:', serializeError(lookupErr));
+        }
+      }
+
+      // Notification interne — aucune donnée personnelle du mineur (pas de prénom
+      // élève, pas de niveau, pas d'établissement), seulement l'identité du parent
+      // et le canal technique de la demande.
+      try {
+        await captureContactLead({
+          name: `${validatedData.parentFirstName} ${validatedData.parentLastName}`.trim(),
+          email: validatedData.parentEmail,
+          phone: validatedData.parentPhone,
+          profile: 'Parent (compte existant)',
+          interest: 'Bilan gratuit - nouvelle demande sur compte existant',
+          source: 'bilan-gratuit-existing-account',
+          type: 'bilan_gratuit_existing_account',
+          consent: validatedData.acceptTerms,
+        });
+      } catch (leadError) {
+        if (!isTestEnv) {
+          console.error('Erreur notification interne (compte existant):', serializeError(leadError));
+        }
+      }
+
+      // Email cohérent pour le parent : ni une erreur, ni une invitation à créer un doublon.
+      try {
+        const { sendExistingAccountBilanEmail } = await import('@/lib/email');
+        await sendExistingAccountBilanEmail(
+          existingUser.email,
+          `${validatedData.parentFirstName} ${validatedData.parentLastName}`
+        );
+      } catch (emailError) {
+        if (!isTestEnv) {
+          console.error('Erreur envoi email (compte existant):', serializeError(emailError));
+        }
+      }
+
+      return NextResponse.json({
+        success: true,
+        message: GENERIC_SUCCESS_MESSAGE,
+        parentId: existingParentId,
+        studentId: existingStudentId,
+      });
     }
 
     const resolvedStudentLastName = validatedData.studentLastName ?? validatedData.parentLastName;
@@ -162,7 +223,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: 'Votre demande a bien été enregistrée. Un lien d’activation a été envoyé.',
+      message: GENERIC_SUCCESS_MESSAGE,
       parentId: result.parentUser.id,
       studentId: result.student.id
     });
