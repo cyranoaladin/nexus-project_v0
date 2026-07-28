@@ -62,3 +62,77 @@ Le même mécanisme — travail réel produit sur une branche, jamais mergé, ja
 **Constat le plus actionnable** : les commits `ea2b26eb8` (« feat(marketing): link pre-rentree campaign across public navigation », 2026-07-12) et `6e54c6c9f` (« fix(navigation): prioritize pre-rentree campaign on mobile ») câblent explicitement « Pré-rentrée 2026 » comme premier élément du menu déroulant « Programmes » de `CorporateNavbar.tsx`, avec la note de commit « Direct access in one click from navbar on all pages ». C'est exactement le lien de navigation constaté absent de `origin/main` en A0.7 — pas parce qu'il n'a jamais été fait, mais parce que la branche qui le contenait n'a pas été celle qui a été retenue. Reste un constat factuel, remonté au propriétaire du projet conformément à sa consigne : rien n'a été branché.
 
 Le reste du contenu de cette branche (174 fichiers) n'a pas été audité en détail au-delà de ce point précis — une revue dédiée serait nécessaire avant toute réutilisation. Tag de préservation : `archive/pre-rentree-2026-final-rc-20260713`.
+
+**Correction (2026-07-28, tour suivant)** : le constat ci-dessus décrit fidèlement `ea2b26eb8`/`6e54c6c9f` sur la branche RC, mais ne doit pas être lu comme « `origin/main` n'a jamais eu ce lien ». En réalité, `main` a eu sa **propre** entrée navbar, ajoutée indépendamment par `5ab7df3cd` (13/07, avec tracking analytics — implémentation différente de celle de la RC), puis **retirée délibérément** par `d67b3de37` (« fix(release): close campaign leaks before owner go », 23/07, confirmé ancêtre de `main`), qui a aussi ajouté un test verrouillant cette absence (`__tests__/components/corporate-navbar.test.tsx`, « does not expose the gated Pré-rentrée campaign from permanent navigation ») et filtré la campagne du calendrier générique de `/stages`. Ce n'est donc pas un cas de perte de topologie comme le reste de ce document — c'est une porte fermée intentionnellement et testée, jamais rouverte depuis le feu vert du 26/07. Détail : `docs/audits/2026-07-28-pre-rentree-navbar-and-discoverability.md`.
+
+## Vérification exhaustive RBAC — 61/61 fichiers de `eb0d6630f` (2026-07-28)
+
+Un rapport précédent avait cité « 24 fichiers » et vérifié un échantillon de 1. Les deux étaient insuffisants. Compte exact via `git show eb0d6630f --name-only --format="" | wc -l` : **61 fichiers**. Les 61 ont été comparés mécaniquement à `origin/main`, sans échantillonnage : pour chaque fichier, chaque ligne de garde ajoutée par `eb0d6630f` (motifs `requireRole`, `requireAnyRole`, `UserRole.`, `auth()`, `.strict()`, `select:`, `401`/`403`, regex de validation de paramètres, etc.) est recherchée telle quelle dans la version actuelle du fichier sur `main`.
+
+**Résultat : 60/61 MAIN ÉQUIVALENT, 1/61 MAIN PLUS ABOUTI, 0/61 MAIN EN RETARD.**
+
+| Fichier | Verdict | Preuve |
+|---|---|---|
+| `app/api/admin/config/rollback/route.ts` | ÉQUIVALENT | 1 marqueur, présent |
+| `app/api/admin/config/route.ts` | ÉQUIVALENT | 1 marqueur, présent |
+| `app/api/admin/directeur/stats/route.ts` | ÉQUIVALENT | 3 marqueurs, présents |
+| `app/api/admin/documents/route.ts` | ÉQUIVALENT | 2 marqueurs, présents |
+| `app/api/admin/invoices/route.ts` | ÉQUIVALENT | 8 marqueurs, présents |
+| `app/api/admin/recompute-ssn/route.ts` | ÉQUIVALENT | 3 marqueurs, présents |
+| `app/api/admin/subscriptions/route.ts` | ÉQUIVALENT | 12 marqueurs, présents |
+| `app/api/admin/test-email/route.ts` | ÉQUIVALENT | 5 marqueurs, présents |
+| `app/api/assistante/credit-requests/route.ts` | ÉQUIVALENT | 1 marqueur, présent |
+| `app/api/assistante/quotes/pdf/route.ts` | ÉQUIVALENT | 4 marqueurs, présents |
+| `app/api/assistante/students/credits/route.ts` | ÉQUIVALENT | 2 marqueurs, présents |
+| `app/api/assistante/subscription-requests/route.ts` | ÉQUIVALENT | 2 marqueurs, présents |
+| `app/api/assistante/subscriptions/route.ts` | ÉQUIVALENT | 1 marqueur, présent |
+| `app/api/bilans/[id]/export/route.ts` | ÉQUIVALENT | 3 marqueurs, présents |
+| `app/api/bilans/[id]/route.ts` | ÉQUIVALENT | 2 marqueurs, présents |
+| `app/api/bilans/generate/route.ts` | ÉQUIVALENT | 2 marqueurs, présents |
+| `app/api/bilans/route.ts` | ÉQUIVALENT | 2 marqueurs, présents |
+| `app/api/coach/eaf-stage-printemps/students/[studentId]/report/regenerate/route.ts` | ÉQUIVALENT | 1 marqueur, présent |
+| `app/api/coach/maths-premiere-stage-printemps/students/[studentId]/regenerate-parent/route.ts` | ÉQUIVALENT | 1 marqueur, présent |
+| `app/api/coach/maths-premiere-stage-printemps/students/[studentId]/regenerate-student/route.ts` | ÉQUIVALENT | 1 marqueur, présent |
+| `app/api/coach/students/[studentId]/bilan-diagnostic-maths-terminale/route.ts` | ÉQUIVALENT | 2 marqueurs, présents |
+| `app/api/coach/students/[studentId]/documents/route.ts` | ÉQUIVALENT | 3 marqueurs, présents |
+| `app/api/coach/students/[studentId]/eaf-preparation-report/validate/route.ts` | ÉQUIVALENT | 1 marqueur, présent |
+| `app/api/coach/students/[studentId]/generated-reports/[reportId]/regenerate/route.ts` | ÉQUIVALENT | 1 marqueur, présent |
+| `app/api/coach/students/[studentId]/notes/route.ts` | ÉQUIVALENT | 2 marqueurs, présents |
+| `app/api/coach/students/[studentId]/survival-mode/route.ts` | ÉQUIVALENT | 2 marqueurs, présents |
+| `app/api/coach/trajectory/route.ts` | ÉQUIVALENT | 2 marqueurs, présents |
+| `app/api/documents/[id]/route.ts` | ÉQUIVALENT | 2 marqueurs, présents |
+| `app/api/eleve/bilan-diagnostic-maths-terminale/route.ts` | ÉQUIVALENT | 3 marqueurs, présents |
+| `app/api/invoices/[id]/pdf/route.ts` | ÉQUIVALENT | `buildInvoiceAccessWhere` vérifié manuellement (hors motif générique), présent |
+| `app/api/invoices/[id]/receipt/pdf/route.ts` | ÉQUIVALENT | idem, présent |
+| `app/api/lamis/teacher-report/route.ts` | **PLUS ABOUTI** | absent de `main` — supprimé comme route morte par `b2ea32f0b` (PR #62, mergée), zéro consommateur client, pas un oubli |
+| `app/api/npc/submissions/[submissionId]/documents/[documentId]/route.ts` | ÉQUIVALENT | 2 marqueurs, présents |
+| `app/api/npc/submissions/[submissionId]/documents/route.ts` | ÉQUIVALENT | 1 marqueur, présent |
+| `app/api/npc/submissions/[submissionId]/generate/route.ts` | ÉQUIVALENT | 1 marqueur, présent |
+| `app/api/npc/submissions/route.ts` | ÉQUIVALENT | 2 marqueurs, présents |
+| `app/api/npc/uploads/route.ts` | ÉQUIVALENT | 1 marqueur, présent |
+| `app/api/parent/children/route.ts` | ÉQUIVALENT | 1 marqueur, présent |
+| `app/api/parent/subscription-requests/route.ts` | ÉQUIVALENT | 2 marqueurs, présents |
+| `app/api/parent/subscriptions/route.ts` | ÉQUIVALENT | 1 marqueur, présent |
+| `app/api/programme/maths-1ere-stmg/stage-progress/route.ts` | ÉQUIVALENT | 3 marqueurs, présents |
+| `app/api/sessions/cancel/route.ts` | ÉQUIVALENT | 1 marqueur, présent |
+| `app/api/sessions/video/route.ts` | ÉQUIVALENT | 5 marqueurs, présents |
+| `app/api/stages/[stageSlug]/inscrire/route.ts` | ÉQUIVALENT | 1 marqueur, présent |
+| `app/api/stages/[stageSlug]/reservations/[reservationId]/confirm/route.ts` | ÉQUIVALENT | 1 marqueur, présent |
+| `app/api/stages/[stageSlug]/route.ts` | ÉQUIVALENT | regex `paramsSchema.stageSlug` vérifiée manuellement, présente |
+| `app/api/student/activate/route.ts` | ÉQUIVALENT | 1 marqueur, présent |
+| `app/api/student/automatismes/attempts/route.ts` | ÉQUIVALENT | 1 marqueur, présent |
+| `app/api/student/automatismes/check-answer/route.ts` | ÉQUIVALENT | 1 marqueur, présent |
+| `app/api/student/automatismes/series/[id]/route.ts` | ÉQUIVALENT | regex `paramsSchema.id` vérifiée manuellement, présente |
+| `app/api/student/documents/[id]/download/route.ts` | ÉQUIVALENT | logging d'erreur `ErrnoException` vérifié manuellement, présent |
+| `app/api/student/nexus-index/route.ts` | ÉQUIVALENT | 1 marqueur, présent |
+| `app/api/student/survival/phrases/[phraseId]/copied/route.ts` | ÉQUIVALENT | 1 marqueur, présent |
+| `app/api/student/survival/progress/route.ts` | ÉQUIVALENT | 2 marqueurs, présents |
+| `app/api/student/survival/qcm/attempt/route.ts` | ÉQUIVALENT | 1 marqueur, présent |
+| `app/api/student/survival/reflexes/[reflexId]/attempt/route.ts` | ÉQUIVALENT | 2 marqueurs, présents |
+| `app/api/student/trajectory/route.ts` | ÉQUIVALENT | 1 marqueur, présent |
+| `lib/invoice/index.ts` | ÉQUIVALENT | export `buildInvoiceAccessWhere` vérifié manuellement, présent |
+| `lib/invoice/not-found.ts` | ÉQUIVALENT | 2 marqueurs, présents |
+| `lib/stages/inscription-schema.ts` | ÉQUIVALENT | `stageTermsAccepted`/`dataProcessingAccepted` en `z.literal(true)` vérifiés manuellement, présents |
+| `lib/validations.ts` | ÉQUIVALENT | aucune ligne de garde ajoutée par ce commit dans ce fichier (touché pour une autre raison) |
+
+**Conclusion** : aucun écart de sécurité RBAC entre `pr58-archive` et `origin/main`. Le contenu a été livré par un chemin différent (PR #62, mergée 2026-07-11), pas oublié.
