@@ -7,6 +7,7 @@ import { Menu, X, Phone, ChevronDown, LogIn, UserPlus } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { PREPARATION_LINKS } from '@/content/marketing/preparation-links';
 import { LEGAL } from '@/lib/legal';
+import { PRE_RENTREE_2026_NAVIGATION, SHOW_PRE_RENTREE_IN_PERMANENT_NAV } from '@/lib/campaigns/pre-rentree-2026/navigation';
 
 export function CorporateNavbar() {
   const pathname = usePathname();
@@ -178,6 +179,15 @@ export function CorporateNavbar() {
     {
       title: 'Programmes',
       items: [
+        ...(SHOW_PRE_RENTREE_IN_PERMANENT_NAV
+          ? [{
+              label: PRE_RENTREE_2026_NAVIGATION.label,
+              href: PRE_RENTREE_2026_NAVIGATION.path,
+              desc: '17–28 août · Mutuelleville',
+              isPage: true,
+              testId: 'pre-rentree-nav',
+            }]
+          : []),
         { label: 'Stages intensifs', href: '/stages', desc: 'Toutes les vacances', isPage: true },
         { label: 'Plateforme ARIA', href: '/plateforme-aria', desc: 'Ressources & parcours en ligne', isPage: true },
         { label: 'Accompagnement scolaire', href: '/accompagnement-scolaire', desc: 'Suivi personnalisé', isPage: true },
@@ -283,6 +293,7 @@ export function CorporateNavbar() {
                           onClick={() => setOpenDesktopGroup(null)}
                           className={`${chromeMenuItem} ${pathname === item.href ? chromeMenuItemActive : ''}`}
                           role="menuitem"
+                          {...('testId' in item && item.testId ? { 'data-testid': `${item.testId}-desktop` } : {})}
                         >
                           <span className="text-sm font-medium">{item.label}</span>
                           <span className="text-xs text-neutral-500 group-hover/item:text-neutral-400 mt-0.5 transition-colors">
@@ -445,6 +456,7 @@ export function CorporateNavbar() {
                                 href={item.href}
                                 onClick={() => setIsOpen(false)}
                                 aria-current={pathname === item.href ? "page" : undefined}
+                                {...('testId' in item && item.testId ? { 'data-testid': `${item.testId}-mobile` } : {})}
                                 className="font-display text-3xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-b from-white to-neutral-400
                                             hover:to-lux-gold-wash transition-all duration-300
                                             relative group"
