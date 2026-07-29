@@ -13,6 +13,11 @@ const customJestConfig = {
   ],
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   testEnvironment: '<rootDir>/jest-environment-jsdom-with-fetch.js',
+  testEnvironmentOptions: {
+    // Unit suites exercise server-only modules; prefer Node package exports
+    // instead of browser ESM fallbacks that Jest's CJS runtime cannot load.
+    customExportConditions: ['node', 'node-addons'],
+  },
   transformIgnorePatterns: [
     '/node_modules/(?!.pnpm)(?!(next-auth|@auth|framer-motion|geist|lucide-react|@react-pdf|react-pdf)/)',
     '/node_modules/.pnpm/(?!(next-auth|@auth|framer-motion|geist|lucide-react|@react-pdf|react-pdf)@)',

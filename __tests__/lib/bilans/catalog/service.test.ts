@@ -1,6 +1,6 @@
 import {
   CatalogError,
-  allPacks,
+  getDefaultPacks,
   resolveEligiblePack,
   validatePack,
   type CurriculumPack,
@@ -81,13 +81,40 @@ describe('versioned curriculum catalogue', () => {
   });
 
   it('does not allow importers to promote a review-required catalogue pack', () => {
-    const nsiTerminalePack = allPacks.find((pack) => pack.selection.subject === 'NSI' && pack.selection.grade === 'TERMINALE');
+    const nsiTerminalePack = getDefaultPacks().find(
+      (pack) => pack.selection.subject === 'NSI'
+        && pack.selection.grade === 'TERMINALE',
+    );
     expect(nsiTerminalePack).toBeDefined();
 
     expect(() => {
       (nsiTerminalePack as CurriculumPack).status = 'PUBLISHED';
     }).toThrow(TypeError);
     expectCatalogError(() => resolveEligiblePack(selection), 'PACK_NOT_PUBLISHED');
+  });
+
+  it('derives all default packs and immutable provenance from the canonical pedagogy catalog', () => {
+    const packs = getDefaultPacks();
+    const canonical = packs.find(({ id }) => id === 'nsi-entree-terminale');
+
+    expect(packs).toHaveLength(17);
+    expect(canonical).toMatchObject({
+      id: 'nsi-entree-terminale',
+      status: 'REVIEW_REQUIRED',
+      selection: {
+        subject: 'NSI',
+        grade: 'TERMINALE',
+        schoolYear: '2026-2027',
+      },
+      versions: {
+        assessment: 'pre-rentree-2026:manifest-1:edition-2026',
+      },
+      checksums: {
+        assessment: 'sha256:3597c891ea2679a22db58e599c29727a2cad04a3824e40a3ed9efd598a301928',
+      },
+    });
+    expect(Object.isFrozen(packs)).toBe(true);
+    expect(Object.isFrozen(canonical)).toBe(true);
   });
 
   it('reports NSI seconde as not eligible', () => {

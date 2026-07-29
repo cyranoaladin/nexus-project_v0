@@ -55,8 +55,15 @@ export type CatalogSubject =
   | 'NSI'
   | 'FRANCAIS'
   | 'SVT'
+  | 'MATHS_EXPERTES'
+  | 'PHILOSOPHIE'
   | 'SES';
-export type SchoolLevel = 'SECONDE' | 'PREMIERE' | 'TERMINALE';
+export type SchoolLevel =
+  | 'QUATRIEME'
+  | 'TROISIEME'
+  | 'SECONDE'
+  | 'PREMIERE'
+  | 'TERMINALE';
 export type EvidenceStatus = 'MASTERED' | 'IN_PROGRESS' | 'NOT_ACQUIRED';
 export type NotificationType = 'QUESTIONNAIRE_SUBMITTED' | 'BILAN_GENERATED' | 'BILAN_PUBLISHED';
 export type NotificationChannel = 'WHATSAPP';
