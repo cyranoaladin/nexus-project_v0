@@ -17,13 +17,22 @@
  *
  * Usage:
  *   node scripts/marketing/public-content-audit.mjs --base-url http://127.0.0.1:3000
- *   node scripts/marketing/public-content-audit.mjs --base-url http://127.0.0.1:3000 --pages app/notre-centre/page.tsx
+ *
+ * Optional: --save-html <dir> also saves each page's raw HTML under <dir>,
+ * making this script double as the missing producer for
+ * final-public-release-audit.mjs's `--rendered <capture-directory>` mode
+ * (that mode has never had anything build its required input — see
+ * docs/audits/2026-07-29-existing-auditors-inventory.md, section F1/I).
+ * Example, running both audits against the same capture in one pass:
+ *   node scripts/marketing/public-content-audit.mjs --base-url http://127.0.0.1:3000 --save-html /tmp/capture
+ *   node scripts/pre-rentree/final-public-release-audit.mjs --rendered /tmp/capture
  *
  * Exit codes: 0 = no finding, 1 = at least one finding, 2 = usage/fetch error.
  */
 
-import { readFileSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { execSync } from 'node:child_process';
+import { dirname, join } from 'node:path';
 
 const args = process.argv.slice(2);
 function argValue(flag, fallback) {
@@ -32,6 +41,12 @@ function argValue(flag, fallback) {
 }
 
 const baseUrl = argValue('--base-url', 'http://127.0.0.1:3000').replace(/\/$/, '');
+const saveHtmlDir = argValue('--save-html', null);
+
+function htmlCapturePath(dir, pagePath) {
+  const safeName = pagePath === '/' ? 'index' : pagePath.replace(/^\//, '').replace(/\//g, '__');
+  return join(dir, `${safeName}.html`);
+}
 
 // Pages excluded from the "commercial page" siège/centre check — they are
 // legal/administrative documents that AGENTS.md §2 explicitly allows to cite
@@ -171,10 +186,10 @@ function stripToVisibleText(html) {
 async function fetchRenderedText(path) {
   const response = await fetch(`${baseUrl}${path}`, { redirect: 'follow' });
   if (!response.ok && response.status !== 404) {
-    return { ok: false, status: response.status, text: '' };
+    return { ok: false, status: response.status, text: '', html: '' };
   }
   const html = await response.text();
-  return { ok: response.ok, status: response.status, text: stripToVisibleText(html) };
+  return { ok: response.ok, status: response.status, text: stripToVisibleText(html), html };
 }
 
 async function main() {
@@ -198,19 +213,34 @@ async function main() {
       continue;
     }
 
+    if (saveHtmlDir) {
+      const capturePath = htmlCapturePath(saveHtmlDir, path);
+      mkdirSync(dirname(capturePath), { recursive: true });
+      writeFileSync(capturePath, result.html, 'utf8');
+    }
+
     for (const check of CHECKS) {
       if (check.commercialOnly && !isCommercial) continue;
       if (check.excludeLegal && isLegal) continue;
+
+      // Collect every pattern's match first, then drop any match whose range
+      // overlaps a match already kept for this (page, category) — several
+      // patterns in the same category can match the same underlying phrase
+      // (e.g. a specific "Réponse sous Xh" pattern and a generic "sous Xh"
+      // one both firing on "Réponse sous 24 h ouvrées"), which must count as
+      // ONE occurrence, not one per pattern.
+      const rangesKept = [];
       for (const pattern of check.patterns) {
         pattern.lastIndex = 0;
         const match = pattern.exec(result.text);
-        if (match) {
-          const context = result.text.slice(
-            Math.max(0, match.index - 60),
-            match.index + match[0].length + 60,
-          );
-          findings.push(`${check.category}: ${path}: "${match[0]}" … context: "${context.trim()}"`);
-        }
+        if (!match) continue;
+        const start = match.index;
+        const end = match.index + match[0].length;
+        const overlaps = rangesKept.some(([keptStart, keptEnd]) => start < keptEnd && end > keptStart);
+        if (overlaps) continue;
+        rangesKept.push([start, end]);
+        const context = result.text.slice(Math.max(0, start - 60), end + 60);
+        findings.push(`${check.category}: ${path}: "${match[0]}" … context: "${context.trim()}"`);
       }
     }
   }

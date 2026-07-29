@@ -58,9 +58,25 @@ Colonne « Exécuté automatiquement » : **oui** = tourne réellement dans un p
 
 **Pourquoi `--rendered` n'est pas câblé** : aucune tâche ne produit son entrée. Ce n'est pas qu'il soit cassé — il n'a simplement jamais eu de producteur. C'est exactement le type de « travail écrit, jamais appelé » documenté ailleurs dans ce dossier, à un niveau plus fin (un mode de script, pas une branche entière).
 
-**Proposition (non appliquée)** :
-1. `--artifacts` : restreindre le scan aux chunks applicatifs (`app/**`), exclure `chunks/webpack.js` et les chunks `node_modules`/vendor identifiés par leur chemin, avant de l'ajouter à `npm run build` ou à une étape CI post-build.
-2. `--rendered` : écrire un petit script producteur (`next start` local + `fetch()` des pages listées dans `publicSourceRoots`, sauvegarde du HTML dans un répertoire), puis appeler `--rendered` dessus en CI après le build. C'est exactement le mécanisme que `scripts/marketing/public-content-audit.mjs` (F2) implémente déjà pour son propre usage — les deux pourraient à terme partager le même producteur de capture plutôt que d'en avoir deux.
+## I — `--rendered` : coquille vide, résolue ; `--artifacts` : recommandation tranchée
+
+**I1 — le nouvel auditeur peut-il alimenter `--rendered` ?** Oui, directement, sans doublon : `scripts/marketing/public-content-audit.mjs` récupère déjà le rendu réel de chaque page ; `--rendered` (dans `final-public-release-audit.mjs`) vérifie une chose **différente** de l'auditeur marketing — les fuites de vocabulaire interne (`internalTokenPatterns` : identifiants de gate, rôles internes, `TODO`/`FIXME`), pas les promesses commerciales. Ce ne sont pas deux outils qui se recouvrent, ce sont deux contrôles complémentaires qui avaient besoin de la même matière première (une capture de rendu), que rien ne produisait.
+
+**I2 — deux issues, pas trois. Décision : brancher, pas supprimer.** `scripts/marketing/public-content-audit.mjs` a reçu un flag `--save-html <dir>` qui sauvegarde le HTML brut de chaque page pendant qu'il scanne son propre contenu — il devient le producteur manquant. Vérifié de bout en bout, en local :
+
+```
+$ node scripts/marketing/public-content-audit.mjs --base-url http://127.0.0.1:3910 --save-html /tmp/capture
+→ 37 pages capturées
+$ node scripts/pre-rentree/final-public-release-audit.mjs --rendered /tmp/capture
+internal-token: .../capture/stages.html:2: pre2026-pack-
+exit: 1
+```
+
+**`--rendered`, une fois alimenté, trouve un vrai résultat** : l'identifiant de pack interne `pre2026-pack-` fuit dans le HTML rendu de `/stages` (probablement un attribut `data-*` ou un id/className non nettoyé). C'est exactement le genre de choses qu'un scan de sources seules ne peut pas voir. `--rendered` n'était pas une coquille vide par défaut de conception — juste par absence de producteur, maintenant comblée.
+
+**I3 — `--artifacts` : recommandation = corriger et brancher, pas supprimer.** Le diagnostic (bruit `TODO`/`todo` dans `webpack.js` et un chunk vendor) est localisé et peu coûteux à corriger : restreindre `relevantArtifactFiles()` aux chunks sous `chunks/app/**`, exclure explicitement `chunks/webpack.js` et tout chemin contenant `node_modules`. Le script fonctionne déjà et son signal utile (le mode existe, cite ses propres tests de couverture) ne justifie pas une suppression — seulement un filtrage. Argument : supprimer un détecteur qui marche à 90 % pour un problème de filtrage à 10 % jette le travail avec le bruit ; c'est le même raisonnement qui a permis de sauver `--rendered` plutôt que de l'abandonner.
+
+Aucun des deux n'a été branché en CI ni rendu bloquant — modifications de scripts uniquement, aucun contenu marketing touché, conformément à H4.
 
 Aucun des deux n'a été branché — proposition seulement, conformément à la consigne.
 
@@ -72,9 +88,10 @@ Aucun des deux n'a été branché — proposition seulement, conformément à la
 
 **6 catégories de contrôle**, dérivées d'AGENTS.md §3 et de la demande : résultat/garantie/taux de réussite, "essayer gratuitement" sans accès gratuit (signalé pour revue humaine — le script ne peut pas lui-même prouver l'absence d'accès gratuit), compte à rebours/rareté artificielle, confusion Centre Urbain Nord/Mutuelleville sur page commerciale, promesse de délai non instrumentée, nom d'enseignant publié (heuristique, chaque correspondance exige une relecture humaine).
 
-**Testé localement (serveur `next dev` local, jamais contre la production) — résultat réel, 34 findings sur 37 pages atteignables** :
-- **`siege-centre-confusion` sur la quasi-totalité des pages commerciales** (`/`, `/offres`, `/contact`, `/bilan-gratuit`, `/stages`, etc.) : confirme, en conditions réelles et indépendamment, le bug déjà connu du panneau de contact rapide mobile (`CorporateNavbar.tsx`) qui affiche « Centre Urbain Nord » au lieu de Mutuelleville sur les pages commerciales — première validation externe de ce constat par un outil différent.
-- **`delai-non-instrumente` : « Réponse sous 24 h ouvrées »** apparaît sur une dizaine de pages — un seul composant partagé (bloc CTA/footer), pas dix promesses indépendantes ; une promesse de délai jamais mesurée ni instrumentée.
+**Testé localement (serveur `next dev` local, jamais contre la production) — résultat réel, 29 findings sur 37 pages atteignables après correctif de déduplication** (34 bruts avant correctif — voir `docs/audits/2026-07-29-marketing-content-findings-triage.md` pour le triage complet) :
+- **`siege-centre-confusion` sur 21 pages, 1 seule cause racine** : confirme, en conditions réelles et indépendamment, le bug déjà connu du panneau de contact rapide mobile (`CorporateNavbar.tsx`) qui affiche « Centre Urbain Nord » au lieu de Mutuelleville sur les pages commerciales — première validation externe de ce constat par un outil différent.
+- **`delai-non-instrumente` : 8 occurrences réelles, 2 textes distincts** (« Réponse sous 24 h ouvrées » sur 6 pages, un bloc CTA/footer partagé ; « Être rappelé(e) sous 24 h » sur 2 pages) — une promesse de délai jamais mesurée ni instrumentée.
 - 2 pages non atteignables en local (`/admin/directeur`, `/programme/maths-1ere-stmg`) — nécessitent probablement une session ou des données de seed absentes en dev ; limite connue, pas un défaut du script.
+- 0 finding sur les 4 autres catégories (résultat garanti, essai gratuit sans accès, urgence artificielle, nom d'enseignant publié).
 
 **Non branché** : ni en CI, ni en `package.json`, ni bloquant. Prêt à être revu et, sur décision, activé en mode non bloquant d'abord (comme le job d'inventaire de branches).
