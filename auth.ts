@@ -113,22 +113,25 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         token: { label: 'Jeton', type: 'password' },
       },
       async authorize(credentials, request) {
+        if (!credentials) {
+          return null;
+        }
+        const authJsCredentials: Record<string, unknown> = credentials;
         if (
-          !credentials
-          || Object.keys(credentials).some((key) => !BILAN_MAGIC_AUTH_JS_FIELDS.has(key))
-          || typeof credentials.token !== 'string'
+          Object.keys(authJsCredentials).some((key) => !BILAN_MAGIC_AUTH_JS_FIELDS.has(key))
+          || typeof authJsCredentials.token !== 'string'
           || !isOptionalBoundedNonBlankString(
-            credentials.csrfToken,
+            authJsCredentials.csrfToken,
             MAX_AUTH_JS_CSRF_TOKEN_LENGTH,
           )
-          || !isSafeAuthJsCallbackUrl(credentials.callbackUrl, request)
+          || !isSafeAuthJsCallbackUrl(authJsCredentials.callbackUrl, request)
         ) {
           return null;
         }
 
         return consumeBilanMagicLink({
           prisma,
-          rawToken: credentials.token,
+          rawToken: authJsCredentials.token,
         });
       },
     }),
