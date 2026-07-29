@@ -1,5 +1,10 @@
+import { execFileSync } from 'child_process';
+import { randomUUID } from 'crypto';
 import fs from 'fs';
+import os from 'os';
 import path from 'path';
+
+import { PrismaClient } from '@prisma/client';
 
 import {
   canConnectToTestDb,
@@ -16,6 +21,94 @@ const migrationPath = path.resolve(
   process.cwd(),
   'prisma/migrations/20260729_add_canonical_bilan_requests/migration.sql',
 );
+const migrationsPath = path.resolve(process.cwd(), 'prisma/migrations');
+const prismaBinaryPath = path.resolve(process.cwd(), 'node_modules/.bin/prisma');
+const targetMigrationName = '20260729_add_canonical_bilan_requests';
+
+function disposableDatabaseUrl(databaseName: string): string {
+  const rawUrl = process.env.TEST_DATABASE_URL || process.env.DATABASE_URL;
+  if (!rawUrl) {
+    throw new Error('An explicit disposable TEST_DATABASE_URL is required');
+  }
+
+  const url = new URL(rawUrl);
+  if (
+    !['localhost', '127.0.0.1'].includes(url.hostname)
+    || url.port !== '5434'
+    || url.pathname !== '/nexus_test'
+  ) {
+    throw new Error('Migration harness is restricted to localhost:5434/nexus_test');
+  }
+  if (!/^nexus_bilan_(fresh|upgrade)_[a-f0-9]+$/.test(databaseName)) {
+    throw new Error(`Unsafe disposable database name: ${databaseName}`);
+  }
+
+  url.pathname = `/${databaseName}`;
+  url.searchParams.set('schema', 'public');
+  return url.toString();
+}
+
+function migrationDatabaseName(kind: 'fresh' | 'upgrade'): string {
+  return `nexus_bilan_${kind}_${randomUUID().replaceAll('-', '')}`;
+}
+
+function quotedDatabase(databaseName: string): string {
+  if (!/^nexus_bilan_(fresh|upgrade)_[a-f0-9]+$/.test(databaseName)) {
+    throw new Error(`Unsafe disposable database name: ${databaseName}`);
+  }
+  return `"${databaseName}"`;
+}
+
+async function createDisposableDatabase(databaseName: string) {
+  await prisma.$executeRawUnsafe(`CREATE DATABASE ${quotedDatabase(databaseName)} TEMPLATE template0`);
+}
+
+async function dropDisposableDatabase(databaseName: string) {
+  await prisma.$executeRawUnsafe(`DROP DATABASE IF EXISTS ${quotedDatabase(databaseName)} WITH (FORCE)`);
+}
+
+function deployMigrations(schemaPath: string, databaseUrl: string) {
+  execFileSync(
+    prismaBinaryPath,
+    ['migrate', 'deploy', '--schema', schemaPath],
+    {
+      cwd: process.cwd(),
+      env: { ...process.env, DATABASE_URL: databaseUrl },
+      encoding: 'utf8',
+      stdio: 'pipe',
+      timeout: 120_000,
+    },
+  );
+}
+
+function createPreviousMigrationWorkspace(): { root: string; schemaPath: string; migrationsPath: string } {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'nexus-bilan-upgrade-'));
+  const isolatedPrismaPath = path.join(root, 'prisma');
+  const isolatedMigrationsPath = path.join(isolatedPrismaPath, 'migrations');
+  fs.mkdirSync(isolatedMigrationsPath, { recursive: true });
+  fs.copyFileSync(path.resolve(process.cwd(), 'prisma/schema.prisma'), path.join(isolatedPrismaPath, 'schema.prisma'));
+  fs.copyFileSync(
+    path.resolve(migrationsPath, 'migration_lock.toml'),
+    path.join(isolatedMigrationsPath, 'migration_lock.toml'),
+  );
+
+  for (const entry of fs.readdirSync(migrationsPath, { withFileTypes: true })) {
+    if (!entry.isDirectory() || entry.name === targetMigrationName) {
+      continue;
+    }
+    fs.cpSync(
+      path.join(migrationsPath, entry.name),
+      path.join(isolatedMigrationsPath, entry.name),
+      { recursive: true },
+    );
+  }
+
+  return {
+    root,
+    schemaPath: path.join(isolatedPrismaPath, 'schema.prisma'),
+    migrationsPath: isolatedMigrationsPath,
+  };
+}
 
 const requestData = {
   provisionalChildFirstName: 'Lina',
@@ -95,6 +188,10 @@ describe('canonical free assessment request persistence', () => {
     expect(migration).toContain('WHERE "revokedAt" IS NULL');
     expect(migration).toContain('canonical_notification_outbox_destination_check');
     expect(migration).toContain('canonical_report_artifacts_current_revision_same_artifact_fkey');
+    expect(migration).toContain('canonical_bilan_request_events_append_only');
+    expect(migration).toContain('canonical_bilan_requests_attempt_student_check');
+    expect(migration).toContain('canonical_bilan_requests_attempt_student_fkey');
+    expect(schema).toContain('references: [id, studentId]');
     expect(migration).not.toMatch(/\bDROP\s+TABLE\b/i);
     expect(migration).not.toMatch(/\bDROP\s+COLUMN\b/i);
 
@@ -124,6 +221,31 @@ describe('canonical free assessment request persistence', () => {
 
     await prisma.bilanRequest.create({ data });
     await expect(prisma.bilanRequest.create({ data })).rejects.toMatchObject({ code: 'P2002' });
+  });
+
+  it('keeps request events append-only at the database boundary', async () => {
+    const request = await prisma.bilanRequest.create({
+      data: { ...requestData, submissionHash: 'sha256:append-only-request' },
+    });
+    const event = await prisma.bilanRequestEvent.create({
+      data: {
+        requestId: request.id,
+        type: 'REQUEST_CREATED',
+        actor: 'SYSTEM',
+        correlationId: 'correlation-append-only',
+        payload: { source: 'test' },
+      },
+    });
+
+    await expect(
+      prisma.bilanRequestEvent.update({
+        where: { id: event.id },
+        data: { payload: { source: 'mutated' } },
+      }),
+    ).rejects.toThrow(/append-only|immutable/i);
+    await expect(
+      prisma.bilanRequestEvent.delete({ where: { id: event.id } }),
+    ).rejects.toThrow(/append-only|immutable/i);
   });
 
   it('never allows raw flow or magic-link token hashes to collide', async () => {
@@ -224,6 +346,28 @@ describe('canonical free assessment request persistence', () => {
     await expect(
       prisma.reportArtifact.create({ data: { ...artifact, audience: 'NEXUS' } }),
     ).resolves.toBeDefined();
+  });
+
+  it('rejects linking a request to another student canonical attempt', async () => {
+    const { parentProfile } = await createTestParent();
+    const { student: requestStudent } = await createTestStudent(parentProfile.id, {
+      student: { gradeLevel: 'TERMINALE' },
+    });
+    const { student: attemptStudent } = await createTestStudent(parentProfile.id, {
+      student: { gradeLevel: 'TERMINALE' },
+    });
+    const foreignAttempt = await createCanonicalAttempt(attemptStudent.id);
+
+    await expect(
+      prisma.bilanRequest.create({
+        data: {
+          ...requestData,
+          studentId: requestStudent.id,
+          canonicalAttemptId: foreignAttempt.id,
+          submissionHash: 'sha256:cross-student-request',
+        },
+      }),
+    ).rejects.toBeDefined();
   });
 
   it('cannot publish a parent artifact from a Nexus artifact revision', async () => {
@@ -358,4 +502,210 @@ describe('canonical free assessment request persistence', () => {
       code: 'P2002',
     });
   });
+
+  it('deploys the complete migration history into a fresh disposable database', async () => {
+    const databaseName = migrationDatabaseName('fresh');
+    const databaseUrl = disposableDatabaseUrl(databaseName);
+    let isolatedPrisma: PrismaClient | undefined;
+
+    await createDisposableDatabase(databaseName);
+    try {
+      deployMigrations(path.resolve(process.cwd(), 'prisma/schema.prisma'), databaseUrl);
+      isolatedPrisma = new PrismaClient({ datasources: { db: { url: databaseUrl } } });
+      const tables = await isolatedPrisma.$queryRaw<Array<{ table_name: string }>>`
+        SELECT table_name
+        FROM information_schema.tables
+        WHERE table_schema = current_schema()
+          AND table_name IN (
+            'canonical_bilan_requests',
+            'canonical_bilan_request_events',
+            'canonical_bilan_flow_sessions',
+            'canonical_bilan_magic_links'
+          )
+        ORDER BY table_name
+      `;
+
+      expect(tables.map(({ table_name }) => table_name)).toEqual([
+        'canonical_bilan_flow_sessions',
+        'canonical_bilan_magic_links',
+        'canonical_bilan_request_events',
+        'canonical_bilan_requests',
+      ]);
+    } finally {
+      await isolatedPrisma?.$disconnect();
+      await dropDisposableDatabase(databaseName);
+    }
+  }, 120_000);
+
+  it('upgrades preserved legacy and canonical rows with private audience and stable recipient backfills', async () => {
+    const databaseName = migrationDatabaseName('upgrade');
+    const databaseUrl = disposableDatabaseUrl(databaseName);
+    const workspace = createPreviousMigrationWorkspace();
+    let isolatedPrisma: PrismaClient | undefined;
+
+    await createDisposableDatabase(databaseName);
+    try {
+      deployMigrations(workspace.schemaPath, databaseUrl);
+      isolatedPrisma = new PrismaClient({ datasources: { db: { url: databaseUrl } } });
+
+      await isolatedPrisma.$executeRawUnsafe(`
+        INSERT INTO "users" ("id", "email", "role", "updatedAt")
+        VALUES ('upgrade-parent-user', 'upgrade-parent@example.test', 'PARENT', NOW())
+      `);
+      await isolatedPrisma.$executeRawUnsafe(`
+        INSERT INTO "parent_profiles" ("id", "userId")
+        VALUES ('upgrade-parent-profile', 'upgrade-parent-user')
+      `);
+      await isolatedPrisma.$executeRawUnsafe(`
+        INSERT INTO "users" ("id", "email", "role", "updatedAt")
+        VALUES ('upgrade-child-user', 'upgrade-child@example.test', 'ELEVE', NOW())
+      `);
+      await isolatedPrisma.$executeRawUnsafe(`
+        INSERT INTO "students" ("id", "parentId", "userId", "gradeLevel", "updatedAt")
+        VALUES (
+          'upgrade-student',
+          'upgrade-parent-profile',
+          'upgrade-child-user',
+          'TERMINALE',
+          NOW()
+        )
+      `);
+      await isolatedPrisma.$executeRawUnsafe(`
+        INSERT INTO "assessments"
+          ("id", "publicShareId", "subject", "grade", "studentEmail", "studentName", "answers", "updatedAt")
+        VALUES (
+          'upgrade-assessment',
+          'upgrade-assessment-share',
+          'MATHEMATIQUES',
+          'TERMINALE',
+          'upgrade-child@example.test',
+          'Upgrade Child',
+          '{}'::jsonb,
+          NOW()
+        )
+      `);
+      await isolatedPrisma.$executeRawUnsafe(`
+        INSERT INTO "bilans"
+          ("id", "publicShareId", "type", "subject", "studentEmail", "studentName", "updatedAt")
+        VALUES (
+          'upgrade-bilan',
+          'upgrade-bilan-share',
+          'ASSESSMENT_QCM',
+          'MATHEMATIQUES',
+          'upgrade-child@example.test',
+          'Upgrade Child',
+          NOW()
+        )
+      `);
+      await isolatedPrisma.$executeRawUnsafe(`
+        INSERT INTO "canonical_assessment_attempts"
+          (
+            "id",
+            "studentId",
+            "status",
+            "subject",
+            "gradeLevel",
+            "answers",
+            "submittedAt",
+            "curriculumId",
+            "curriculumVersion",
+            "assessmentPackId",
+            "assessmentPackVersion",
+            "assessmentPackChecksum",
+            "scoringPolicyId",
+            "scoringPolicyVersion",
+            "updatedAt"
+          )
+        VALUES (
+          'upgrade-attempt',
+          'upgrade-student',
+          'SUBMITTED',
+          'MATHEMATIQUES',
+          'TERMINALE',
+          '{}'::jsonb,
+          NOW(),
+          'lycee-general',
+          '2026.1',
+          'upgrade-pack',
+          '1',
+          'sha256:upgrade-pack',
+          'upgrade-policy',
+          '1',
+          NOW()
+        )
+      `);
+      await isolatedPrisma.$executeRawUnsafe(`
+        INSERT INTO "canonical_report_artifacts"
+          ("id", "studentId", "assessmentAttemptId", "updatedAt")
+        VALUES ('upgrade-report-artifact', 'upgrade-student', 'upgrade-attempt', NOW())
+      `);
+      await isolatedPrisma.$executeRawUnsafe(`
+        INSERT INTO "canonical_notification_outbox"
+          (
+            "id",
+            "eventType",
+            "sourceEventKey",
+            "recipientUserId",
+            "channel",
+            "payload",
+            "updatedAt"
+          )
+        VALUES (
+          'upgrade-notification',
+          'REPORT_PUBLISHED',
+          'upgrade-report.published',
+          'upgrade-parent-user',
+          'WHATSAPP',
+          '{}'::jsonb,
+          NOW()
+        )
+      `);
+      await isolatedPrisma.$disconnect();
+      isolatedPrisma = undefined;
+
+      fs.cpSync(
+        path.join(migrationsPath, targetMigrationName),
+        path.join(workspace.migrationsPath, targetMigrationName),
+        { recursive: true },
+      );
+      deployMigrations(workspace.schemaPath, databaseUrl);
+
+      isolatedPrisma = new PrismaClient({ datasources: { db: { url: databaseUrl } } });
+      const preserved = await isolatedPrisma.$queryRaw<Array<{
+        assessment_exists: boolean;
+        bilan_exists: boolean;
+        audience: string;
+        recipient_key: string;
+      }>>`
+        SELECT
+          EXISTS (
+            SELECT 1 FROM "assessments" WHERE "id" = 'upgrade-assessment'
+          ) AS assessment_exists,
+          EXISTS (
+            SELECT 1 FROM "bilans" WHERE "id" = 'upgrade-bilan'
+          ) AS bilan_exists,
+          (
+            SELECT "audience"::text
+            FROM "canonical_report_artifacts"
+            WHERE "id" = 'upgrade-report-artifact'
+          ) AS audience,
+          (
+            SELECT "recipientKey"
+            FROM "canonical_notification_outbox"
+            WHERE "id" = 'upgrade-notification'
+          ) AS recipient_key
+      `;
+
+      expect(preserved).toEqual([{
+        assessment_exists: true,
+        bilan_exists: true,
+        audience: 'NEXUS',
+        recipient_key: 'user:upgrade-parent-user',
+      }]);
+    } finally {
+      await isolatedPrisma?.$disconnect();
+      await dropDisposableDatabase(databaseName);
+      fs.rmSync(workspace.root, { recursive: true, force: true });
+    }
+  }, 120_000);
 });
