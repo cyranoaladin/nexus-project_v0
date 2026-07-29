@@ -4,9 +4,7 @@
 from __future__ import annotations
 
 import argparse
-import os
 import sys
-import tempfile
 from pathlib import Path
 from typing import Any
 
@@ -14,7 +12,7 @@ import yaml
 
 from validate_cps import validate as validate_cps
 from validate_session_kits import validate as validate_session_kits
-from output_contract import assert_exact_output_tree
+from output_contract import assert_exact_output_tree, write_output_text
 
 
 STATUS = "HUMAN_VALIDATION_REQUIRED"
@@ -50,21 +48,11 @@ def _resolve_output(repo_root: Path, output_root: Path | None) -> Path:
     return candidate
 
 
-def _write_text(path: Path, content: str) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    _reject_symlink_components(path)
-    if path.exists() and not path.is_file():
-        raise ValueError(f"sortie non régulière interdite : {path}")
-    descriptor, temporary = tempfile.mkstemp(prefix=f".{path.name}.", dir=path.parent)
-    try:
-        with os.fdopen(descriptor, "w", encoding="utf-8", newline="\n") as stream:
-            stream.write(content)
-            if content and not content.endswith("\n"):
-                stream.write("\n")
-        os.replace(temporary, path)
-    finally:
-        if os.path.exists(temporary):
-            os.unlink(temporary)
+def _write_text(output_root: Path, path: Path, content: str) -> None:
+    relative = path.relative_to(output_root).as_posix()
+    if content and not content.endswith("\n"):
+        content += "\n"
+    write_output_text(output_root, relative, content)
 
 
 def _section(title: str, source: Path) -> list[str]:
@@ -154,10 +142,12 @@ def generate(repo_root: Path, output_root: Path | None = None) -> dict[str, int]
         student_output = module_output / "CAHIER-ELEVE.md"
         teacher_output = module_output / "GUIDE-ENSEIGNANT.md"
         _write_text(
+            destination,
             student_output,
             _compile_student(module, repo_root),
         )
         _write_text(
+            destination,
             teacher_output,
             _compile_teacher(module, repo_root),
         )
