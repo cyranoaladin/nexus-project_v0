@@ -97,7 +97,7 @@ describe('canonical bilan request intake — real PostgreSQL', () => {
 
   beforeEach(async () => {
     await cleanDatabase();
-  });
+  }, 30_000);
 
   afterAll(async () => {
     if (prisma) await prisma.$disconnect();

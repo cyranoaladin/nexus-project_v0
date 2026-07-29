@@ -255,7 +255,12 @@ Trois écarts ont été révélés sans affaiblir les garanties de sécurité :
    Les identifiants de base et noms jetables restent strictement bornés. Les
    valeurs factices des tests historiques de rate limiting ont aussi été
    remplacées par des adresses IP syntaxiquement valides ; aucun fallback
-   runtime n'a été réintroduit.
+   runtime n'a été réintroduit. Le replay distant suivant a réussi 139 tests
+   sur 140 ; son seul échec était un nettoyage PostgreSQL dépassant le timeout
+   Jest implicite de 5 s sur le runner. Les hooks de nettoyage des deux
+   harnais jetables sont désormais bornés explicitement à 30 s, sans changer
+   les assertions métier ; le job exact repasse localement à 13 suites et
+   140 tests réussis.
 2. **E2E Tests** : le serveur de test était lancé avec `NODE_ENV=production`
    sans Redis. Le 503 observé était donc le comportement fail-closed attendu.
    Le job E2E provisionne maintenant `redis:7.4-alpine`, attend son healthcheck
