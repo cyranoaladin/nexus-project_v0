@@ -1,0 +1,506 @@
+id: physique-chimie-entree-premiere
+niveauEntree: PREMIERE
+matiere: PHYSIQUE_CHIMIE
+edition: 2026
+dureeCibleMinutes: 24
+gamme: PREMIUM
+intitulePublic: Physique-Chimie — Entrée en Première
+cadrage: Le test vérifie les acquis de Seconde et les méthodes transversales nécessaires aux cinq séances publiées.
+statutValidation: HUMAN_VALIDATION_REQUIRED
+noeuds:
+- id: n01
+  ordre: 1
+  evalueParTest: true
+  acquisN1: Unités, puissances de dix et chiffres significatifs
+  usageN: Calculer quantité de matière, concentration, énergie et puissance (séances 1 et 4)
+  obstacles:
+  - Les préfixes d'unité sont confondus
+  - Une unité disparaît pendant le calcul
+  critereMaitrise: Convertir une grandeur et contrôler l'unité du résultat.
+  seanceRattachement: 1
+  items:
+  - type: qcm_unique
+    enonce: '250 mL valent :'
+    propositions:
+    - texte: 0,250 L
+      correcte: true
+    - texte: 2,50 L
+      correcte: false
+      obstacleVise: 0
+    - texte: 0,025 L
+      correcte: false
+      obstacleVise: 1
+    - texte: 250 L
+      correcte: false
+      obstacleVise: 0
+    justification: 1 L = 1000 mL.
+    id: n01-i1
+    palier: A
+  - type: qcm_unique
+    enonce: '3,2 × 10⁻³ g valent :'
+    propositions:
+    - texte: 32 mg
+      correcte: false
+      obstacleVise: 0
+    - texte: 3,2 mg
+      correcte: true
+    - texte: 0,32 mg
+      correcte: false
+      obstacleVise: 1
+    - texte: 3200 mg
+      correcte: false
+      obstacleVise: 0
+    justification: 10⁻³ g = 1 mg.
+    id: n01-i2
+    palier: B
+  - type: qcm_unique
+    enonce: 'Une vitesse en m·s⁻¹ est une grandeur de dimension :'
+    propositions:
+    - texte: masse divisée par temps
+      correcte: false
+      obstacleVise: 1
+    - texte: sans unité
+      correcte: false
+      obstacleVise: 0
+    - texte: longueur divisée par temps
+      correcte: true
+    - texte: temps divisé par longueur
+      correcte: false
+      obstacleVise: 0
+    justification: v = distance / durée.
+    id: n01-i3
+    palier: C
+- id: n02
+  ordre: 2
+  evalueParTest: true
+  acquisN1: Proportionnalité et lecture graphique
+  usageN: Exploiter concentrations et documents scientifiques (séances 1 et 5)
+  obstacles:
+  - Toute courbe est supposée proportionnelle
+  - La pente est confondue avec une valeur lue
+  critereMaitrise: Reconnaître une proportionnalité et calculer/interpréter un coefficient.
+  seanceRattachement: 5
+  items:
+  - type: qcm_unique
+    enonce: 'Une relation proportionnelle est représentée par :'
+    propositions:
+    - texte: une droite horizontale obligatoire
+      correcte: false
+      obstacleVise: 0
+    - texte: toute droite
+      correcte: false
+      obstacleVise: 0
+    - texte: une parabole
+      correcte: false
+      obstacleVise: 1
+    - texte: une droite passant par l'origine
+      correcte: true
+    justification: Pour y = kx, l'origine appartient à la droite.
+    id: n02-i1
+    palier: A
+  - type: qcm_unique
+    enonce: 'Si 2 L contiennent 6 g de soluté, 5 L à même concentration contiennent :'
+    propositions:
+    - texte: 15 g
+      correcte: true
+    - texte: 12 g
+      correcte: false
+      obstacleVise: 0
+    - texte: 30 g
+      correcte: false
+      obstacleVise: 1
+    - texte: 3 g
+      correcte: false
+      obstacleVise: 0
+    justification: 6/2 = 3 g·L⁻¹, puis 3 × 5.
+    id: n02-i2
+    palier: B
+  - type: qcm_unique
+    enonce: 'Sur un graphique distance-temps, la pente représente :'
+    propositions:
+    - texte: une masse
+      correcte: false
+      obstacleVise: 0
+    - texte: une vitesse
+      correcte: true
+    - texte: une concentration
+      correcte: false
+      obstacleVise: 1
+    - texte: une énergie
+      correcte: false
+      obstacleVise: 0
+    justification: Δdistance/Δtemps est une vitesse.
+    id: n02-i3
+    palier: C
+- id: n03
+  ordre: 3
+  evalueParTest: true
+  acquisN1: Atomes, ions et électroneutralité
+  usageN: Interpréter espèces chimiques et transformations (séances 1 et 2)
+  obstacles:
+  - Atome et ion sont confondus
+  - La charge totale n'est pas contrôlée
+  critereMaitrise: Relier protons, électrons et charge d'une espèce.
+  seanceRattachement: 2
+  items:
+  - type: qcm_unique
+    enonce: 'Un cation a :'
+    propositions:
+    - texte: gagné des électrons
+      correcte: false
+      obstacleVise: 1
+    - texte: perdu son noyau
+      correcte: false
+      obstacleVise: 0
+    - texte: perdu un ou plusieurs électrons
+      correcte: true
+    - texte: gagné des protons
+      correcte: false
+      obstacleVise: 0
+    justification: La perte d'électrons donne une charge positive.
+    id: n03-i1
+    palier: A
+  - type: qcm_unique
+    enonce: 'L''ion Cl⁻ possède, par rapport à l''atome Cl :'
+    propositions:
+    - texte: deux neutrons de moins
+      correcte: false
+      obstacleVise: 0
+    - texte: un proton de moins
+      correcte: false
+      obstacleVise: 0
+    - texte: un électron de moins
+      correcte: false
+      obstacleVise: 1
+    - texte: un électron de plus
+      correcte: true
+    justification: La charge -1 correspond à un électron supplémentaire.
+    id: n03-i2
+    palier: B
+  - type: qcm_unique
+    enonce: 'Une solution contenant Ca²⁺ est électroneutre si elle contient aussi par ion calcium :'
+    propositions:
+    - texte: deux charges négatives
+      correcte: true
+    - texte: une charge négative
+      correcte: false
+      obstacleVise: 0
+    - texte: deux charges positives
+      correcte: false
+      obstacleVise: 1
+    - texte: aucun anion
+      correcte: false
+      obstacleVise: 0
+    justification: La somme des charges doit être nulle.
+    id: n03-i3
+    palier: C
+- id: n04
+  ordre: 4
+  evalueParTest: true
+  acquisN1: Concentration massique et dilution
+  usageN: Maîtriser concentrations molaire/massique et préparation de solutions (séance 1)
+  obstacles:
+  - Concentration et quantité totale sont confondues
+  - Lors d'une dilution, la quantité prélevée est supposée changer
+  critereMaitrise: Calculer une concentration et raisonner sur une dilution.
+  seanceRattachement: 1
+  items:
+  - type: qcm_unique
+    enonce: 'Dissoudre 5 g dans 0,50 L donne une concentration massique de :'
+    propositions:
+    - texte: 2,5 g·L⁻¹
+      correcte: false
+      obstacleVise: 0
+    - texte: 10 g·L⁻¹
+      correcte: true
+    - texte: 5,5 g·L⁻¹
+      correcte: false
+      obstacleVise: 1
+    - texte: 0,10 g·L⁻¹
+      correcte: false
+      obstacleVise: 0
+    justification: Cm = m/V.
+    id: n04-i1
+    palier: A
+  - type: qcm_unique
+    enonce: 'Lors d''une dilution, la concentration :'
+    propositions:
+    - texte: reste toujours égale
+      correcte: false
+      obstacleVise: 1
+    - texte: devient nulle
+      correcte: false
+      obstacleVise: 0
+    - texte: diminue
+      correcte: true
+    - texte: augmente toujours
+      correcte: false
+      obstacleVise: 0
+    justification: Le volume augmente à quantité prélevée conservée.
+    id: n04-i2
+    palier: B
+  - type: qcm_unique
+    enonce: 'Pour diluer précisément, on utilise notamment :'
+    propositions:
+    - texte: éprouvette sèche sans mesure
+      correcte: false
+      obstacleVise: 0
+    - texte: bécher seul
+      correcte: false
+      obstacleVise: 0
+    - texte: balance et thermomètre
+      correcte: false
+      obstacleVise: 1
+    - texte: pipette jaugée et fiole jaugée
+      correcte: true
+    justification: Ces verreries fixent les volumes.
+    id: n04-i3
+    palier: C
+- id: n05
+  ordre: 5
+  evalueParTest: true
+  acquisN1: Équation chimique et conservation
+  usageN: Équilibrer une réaction et établir un bilan de matière (séance 2)
+  obstacles:
+  - Les indices des formules sont modifiés
+  - Le nombre d'atomes n'est pas vérifié des deux côtés
+  critereMaitrise: Ajuster les coefficients sans changer les espèces.
+  seanceRattachement: 2
+  items:
+  - type: qcm_unique
+    enonce: 'Équilibrer H₂ + O₂ → H₂O donne :'
+    propositions:
+    - texte: 2 H₂ + O₂ → 2 H₂O
+      correcte: true
+    - texte: H₂ + O₂ → H₂O₂
+      correcte: false
+      obstacleVise: 0
+    - texte: H₂ + 2 O₂ → H₂O
+      correcte: false
+      obstacleVise: 1
+    - texte: 2 H + O → H₂O
+      correcte: false
+      obstacleVise: 0
+    justification: On conserve H et O sans modifier les formules.
+    id: n05-i1
+    palier: A
+  - type: qcm_unique
+    enonce: 'Dans une équation chimique équilibrée, on conserve :'
+    propositions:
+    - texte: le nombre de molécules
+      correcte: false
+      obstacleVise: 0
+    - texte: le nombre d'atomes de chaque élément
+      correcte: true
+    - texte: le volume total toujours
+      correcte: false
+      obstacleVise: 1
+    - texte: la température
+      correcte: false
+      obstacleVise: 0
+    justification: La transformation réarrange les atomes.
+    id: n05-i2
+    palier: B
+  - type: qcm_unique
+    enonce: 'Le réactif limitant est celui :'
+    propositions:
+    - texte: ayant le plus grand coefficient
+      correcte: false
+      obstacleVise: 1
+    - texte: restant après réaction
+      correcte: false
+      obstacleVise: 0
+    - texte: entièrement consommé en premier
+      correcte: true
+    - texte: présent en plus grande masse
+      correcte: false
+      obstacleVise: 0
+    justification: Il fixe l'avancement maximal.
+    id: n05-i3
+    palier: C
+- id: n06
+  ordre: 6
+  evalueParTest: true
+  acquisN1: Vecteurs et forces
+  usageN: Caractériser champs et forces (séance 3)
+  obstacles:
+  - Une force est réduite à sa valeur
+  - Action et réaction sont confondues sur le même objet
+  critereMaitrise: Représenter une force par direction, sens, point d'application et valeur.
+  seanceRattachement: 3
+  items:
+  - type: qcm_unique
+    enonce: 'Une force est une grandeur :'
+    propositions:
+    - texte: toujours horizontale
+      correcte: false
+      obstacleVise: 0
+    - texte: scalaire uniquement
+      correcte: false
+      obstacleVise: 0
+    - texte: sans unité
+      correcte: false
+      obstacleVise: 1
+    - texte: vectorielle
+      correcte: true
+    justification: Elle possède direction et sens.
+    id: n06-i1
+    palier: A
+  - type: qcm_unique
+    enonce: 'L''unité d''une force est :'
+    propositions:
+    - texte: le newton
+      correcte: true
+    - texte: le joule
+      correcte: false
+      obstacleVise: 0
+    - texte: le watt
+      correcte: false
+      obstacleVise: 1
+    - texte: le pascal par seconde
+      correcte: false
+      obstacleVise: 0
+    justification: La force s'exprime en N.
+    id: n06-i2
+    palier: B
+  - type: qcm_unique
+    enonce: 'Le poids d''un objet près de la Terre est dirigé :'
+    propositions:
+    - texte: verticalement vers le haut
+      correcte: false
+      obstacleVise: 0
+    - texte: verticalement vers le centre de la Terre
+      correcte: true
+    - texte: selon le mouvement
+      correcte: false
+      obstacleVise: 1
+    - texte: horizontalement
+      correcte: false
+      obstacleVise: 0
+    justification: Le champ de pesanteur fixe sa direction.
+    id: n06-i3
+    palier: C
+- id: n07
+  ordre: 7
+  evalueParTest: true
+  acquisN1: Énergie, travail et puissance
+  usageN: Établir des bilans d'énergie et de transferts (séance 4)
+  obstacles:
+  - Énergie et puissance sont confondues
+  - Une conversion est supposée créer de l'énergie
+  critereMaitrise: Distinguer énergie et puissance et appliquer une conservation.
+  seanceRattachement: 4
+  items:
+  - type: qcm_unique
+    enonce: 'L''unité de l''énergie est :'
+    propositions:
+    - texte: le newton
+      correcte: false
+      obstacleVise: 1
+    - texte: le volt par seconde
+      correcte: false
+      obstacleVise: 0
+    - texte: le joule
+      correcte: true
+    - texte: le watt
+      correcte: false
+      obstacleVise: 0
+    justification: L'énergie s'exprime en J.
+    id: n07-i1
+    palier: A
+  - type: qcm_unique
+    enonce: 'La puissance mesure :'
+    propositions:
+    - texte: une masse par volume
+      correcte: false
+      obstacleVise: 0
+    - texte: une énergie totale sans durée
+      correcte: false
+      obstacleVise: 0
+    - texte: une force par distance
+      correcte: false
+      obstacleVise: 1
+    - texte: une énergie transférée par unité de temps
+      correcte: true
+    justification: P = E/Δt.
+    id: n07-i2
+    palier: B
+  - type: qcm_unique
+    enonce: 'Un appareil de 100 W fonctionnant 10 s transfère :'
+    propositions:
+    - texte: 1000 J
+      correcte: true
+    - texte: 10 J
+      correcte: false
+      obstacleVise: 0
+    - texte: 100 J
+      correcte: false
+      obstacleVise: 1
+    - texte: 10 000 J
+      correcte: false
+      obstacleVise: 0
+    justification: E = P × Δt.
+    id: n07-i3
+    palier: C
+- id: n08
+  ordre: 8
+  evalueParTest: true
+  acquisN1: Exploitation de données et démarche scientifique
+  usageN: Résoudre un problème à partir de documents (séance 5)
+  obstacles:
+  - Les données sont recopiées sans mise en relation
+  - Une conclusion est formulée sans preuve quantitative
+  critereMaitrise: Sélectionner des données, choisir une relation, calculer et conclure avec unité.
+  seanceRattachement: 5
+  items:
+  - type: qcm_unique
+    enonce: 'Avant de calculer, il faut d''abord :'
+    propositions:
+    - texte: utiliser toutes les valeurs
+      correcte: false
+      obstacleVise: 0
+    - texte: identifier la question et les données utiles
+      correcte: true
+    - texte: supprimer les unités
+      correcte: false
+      obstacleVise: 1
+    - texte: arrondir chaque donnée
+      correcte: false
+      obstacleVise: 0
+    justification: Le modèle dépend de la question.
+    id: n08-i1
+    palier: A
+  - type: qcm_unique
+    enonce: 'Une conclusion scientifique solide contient :'
+    propositions:
+    - texte: la formule seule
+      correcte: false
+      obstacleVise: 1
+    - texte: une opinion non reliée aux données
+      correcte: false
+      obstacleVise: 0
+    - texte: résultat, unité et interprétation
+      correcte: true
+    - texte: un nombre seul
+      correcte: false
+      obstacleVise: 0
+    justification: Le résultat doit répondre au problème.
+    id: n08-i2
+    palier: B
+  - type: qcm_unique
+    enonce: 'Pour vérifier un résultat numérique, on peut notamment :'
+    propositions:
+    - texte: garder toutes les décimales
+      correcte: false
+      obstacleVise: 0
+    - texte: changer la question
+      correcte: false
+      obstacleVise: 0
+    - texte: retirer les données gênantes
+      correcte: false
+      obstacleVise: 1
+    - texte: contrôler ordre de grandeur et unité
+      correcte: true
+    justification: Cohérence dimensionnelle et ordre de grandeur détectent des erreurs.
+    id: n08-i3
+    palier: C

@@ -1,0 +1,518 @@
+id: maths-entree-seconde
+niveauEntree: SECONDE
+matiere: MATHEMATIQUES
+edition: 2026
+dureeCibleMinutes: 22
+gamme: FONDATIONS
+intitulePublic: Mathématiques — Entrée en Seconde
+cadrage: 'Consolider les acquis de 3e et installer les attendus de Seconde. Le programme publié prévoit un diagnostic
+  en début de module : le test de positionnement l''anticipe sans le remplacer.
+
+  '
+noeuds:
+- id: n01
+  ordre: 1
+  evalueParTest: true
+  acquisN1: Calcul littéral, identités remarquables, factorisation
+  usageN: Factorisation et résolution d'équations produit (séance 1)
+  obstacles:
+  - Les identités remarquables ne sont reconnues que dans le sens du développement
+  - Le facteur commun n'est pas repéré lorsqu'il est une parenthèse
+  critereMaitrise: Développer, réduire et factoriser une expression du second degré
+  seanceRattachement: 1
+  items:
+  - id: n01-i1
+    palier: A
+    type: qcm_unique
+    enonce: Développer et réduire (2x - 1)(x + 3).
+    propositions:
+    - texte: 2x² + 5x - 3
+      correcte: true
+    - texte: 2x² - 3
+      correcte: false
+      obstacleVise: 0
+    - texte: 2x² + 6x - 3
+      correcte: false
+      obstacleVise: 0
+    - texte: 2x² + 5x + 3
+      correcte: false
+      obstacleVise: 0
+    justification: 2x² + 6x - x - 3 = 2x² + 5x - 3.
+  - id: n01-i2
+    palier: B
+    type: qcm_unique
+    enonce: Factoriser x² - 49.
+    propositions:
+    - texte: (x - 7)²
+      correcte: false
+      obstacleVise: 0
+    - texte: (x - 7)(x + 7)
+      correcte: true
+    - texte: x(x - 49)
+      correcte: false
+      obstacleVise: 0
+    - texte: (x - 49)(x + 49)
+      correcte: false
+      obstacleVise: 0
+    justification: a² - b² = (a - b)(a + b) avec b = 7.
+  - id: n01-i3
+    palier: C
+    type: qcm_unique
+    enonce: Factoriser (x + 2)(x - 1) + (x + 2) × 3x.
+    propositions:
+    - texte: (x + 2)(4x + 1)
+      correcte: false
+      obstacleVise: 1
+    - texte: (x + 2)(3x - 1)
+      correcte: false
+      obstacleVise: 1
+    - texte: (x + 2)(4x - 1)
+      correcte: true
+    - texte: 4x - 1
+      correcte: false
+      obstacleVise: 1
+    justification: 'Le facteur commun (x + 2) se met en évidence : (x + 2)[(x - 1) + 3x] = (x + 2)(4x - 1).'
+- id: n02
+  ordre: 2
+  evalueParTest: true
+  acquisN1: Équations, équation produit nul, mise en équation
+  usageN: Résolution de problèmes modélisés (séance 3)
+  obstacles:
+  - Les solutions d'une équation produit sont lues sans changer le signe
+  - L'inconnue n'est pas définie avant la mise en équation
+  critereMaitrise: Résoudre une équation produit nul et traduire un problème
+  seanceRattachement: 3
+  items:
+  - id: n02-i1
+    palier: A
+    type: qcm_unique
+    enonce: Résoudre (x - 3)(x + 5) = 0.
+    propositions:
+    - texte: x = 3 ou x = 5
+      correcte: false
+      obstacleVise: 0
+    - texte: x = -3 ou x = 5
+      correcte: false
+      obstacleVise: 0
+    - texte: x = -3 ou x = -5
+      correcte: false
+      obstacleVise: 0
+    - texte: x = 3 ou x = -5
+      correcte: true
+    justification: Un produit est nul si l'un de ses facteurs est nul.
+  - id: n02-i2
+    palier: B
+    type: qcm_unique
+    enonce: Résoudre 2x + 1 = 5x - 8.
+    propositions:
+    - texte: x = 3
+      correcte: true
+    - texte: x = -3
+      correcte: false
+      obstacleVise: 0
+    - texte: x = 7/3
+      correcte: false
+      obstacleVise: 0
+    - texte: x = 9/7
+      correcte: false
+      obstacleVise: 0
+    justification: 9 = 3x, donc x = 3.
+  - id: n02-i3
+    palier: C
+    type: qcm_unique
+    enonce: 'Un rectangle a une longueur supérieure de 4 cm à sa largeur, et un périmètre de 36 cm. Si x désigne
+      la largeur, quelle équation traduit la situation ?
+
+      '
+    propositions:
+    - texte: x(x + 4) = 36
+      correcte: false
+      obstacleVise: 1
+    - texte: 2x + 2(x + 4) = 36
+      correcte: true
+    - texte: x + (x + 4) = 36
+      correcte: false
+      obstacleVise: 1
+    - texte: 2x + 4 = 36
+      correcte: false
+      obstacleVise: 1
+    justification: Le périmètre vaut deux fois la longueur plus deux fois la largeur.
+- id: n03
+  ordre: 3
+  evalueParTest: true
+  acquisN1: Fractions, puissances, racines carrées
+  usageN: Calcul exact et manipulation de radicaux (séance 1)
+  obstacles:
+  - Le calcul exact est abandonné au profit d'une valeur décimale approchée
+  - Les puissances d'exposant négatif ne sont pas interprétées
+  critereMaitrise: Simplifier une fraction, un radical et une puissance négative
+  seanceRattachement: 1
+  items:
+  - id: n03-i1
+    palier: A
+    type: qcm_unique
+    enonce: Simplifier 12/18.
+    propositions:
+    - texte: 6/9
+      correcte: false
+      obstacleVise: 0
+    - texte: 1/6
+      correcte: false
+      obstacleVise: 0
+    - texte: 2/3
+      correcte: true
+    - texte: 4/6
+      correcte: false
+      obstacleVise: 0
+    justification: On divise numérateur et dénominateur par 6.
+  - id: n03-i2
+    palier: B
+    type: qcm_unique
+    enonce: Écrire √8 sous la forme a√b avec b le plus petit possible.
+    propositions:
+    - texte: 4√2
+      correcte: false
+      obstacleVise: 0
+    - texte: 2√4
+      correcte: false
+      obstacleVise: 0
+    - texte: '8'
+      correcte: false
+      obstacleVise: 0
+    - texte: 2√2
+      correcte: true
+    justification: √8 = √(4 × 2) = 2√2.
+  - id: n03-i3
+    palier: C
+    type: qcm_unique
+    enonce: Écrire 2⁻³ sous forme de fraction.
+    propositions:
+    - texte: 1/8
+      correcte: true
+    - texte: '-8'
+      correcte: false
+      obstacleVise: 1
+    - texte: '-6'
+      correcte: false
+      obstacleVise: 1
+    - texte: 1/6
+      correcte: false
+      obstacleVise: 1
+    justification: 'Un exposant négatif donne l''inverse : 2⁻³ = 1/2³.'
+- id: n04
+  ordre: 4
+  evalueParTest: true
+  acquisN1: Inéquations, ordre, signe d'un produit
+  usageN: Intervalles, valeur absolue, tableau de signes (séances 1 et 3)
+  obstacles:
+  - Le sens de l'inégalité n'est pas inversé lors d'une division par un négatif
+  - Le signe d'un produit n'est pas étudié facteur par facteur
+  critereMaitrise: Résoudre une inéquation et déterminer le signe d'un produit
+  seanceRattachement: 3
+  items:
+  - id: n04-i1
+    palier: A
+    type: qcm_unique
+    enonce: Résoudre x + 3 < 7.
+    propositions:
+    - texte: x > 4
+      correcte: false
+      obstacleVise: 0
+    - texte: x < 4
+      correcte: true
+    - texte: x < 10
+      correcte: false
+      obstacleVise: 0
+    - texte: x < -4
+      correcte: false
+      obstacleVise: 0
+    justification: On retire 3 des deux membres.
+  - id: n04-i2
+    palier: B
+    type: qcm_unique
+    enonce: Résoudre -2x > 6.
+    propositions:
+    - texte: x > -3
+      correcte: false
+      obstacleVise: 0
+    - texte: x < 3
+      correcte: false
+      obstacleVise: 0
+    - texte: x < -3
+      correcte: true
+    - texte: x > 3
+      correcte: false
+      obstacleVise: 0
+    justification: La division par -2 inverse le sens de l'inégalité.
+  - id: n04-i3
+    palier: C
+    type: qcm_unique
+    enonce: Pour quelles valeurs de x le produit (x - 2)(x + 1) est-il strictement positif ?
+    propositions:
+    - texte: -1 < x < 2
+      correcte: false
+      obstacleVise: 1
+    - texte: x > 2 uniquement
+      correcte: false
+      obstacleVise: 1
+    - texte: Pour toute valeur de x
+      correcte: false
+      obstacleVise: 1
+    - texte: x < -1 ou x > 2
+      correcte: true
+    justification: Un produit de deux facteurs est positif quand les deux sont de même signe.
+- id: n05
+  ordre: 5
+  evalueParTest: true
+  acquisN1: Fonctions linéaires et affines
+  usageN: Fonctions de référence et sens de variation (séance 2)
+  obstacles:
+  - La fonction est confondue avec sa formule ou avec son image
+  - Linéaire et affine ne sont pas distinguées
+  critereMaitrise: Identifier le coefficient directeur et reconnaître une situation de proportionnalité
+  seanceRattachement: 2
+  items:
+  - id: n05-i1
+    palier: A
+    type: qcm_unique
+    enonce: Soit f(x) = 3x - 2. Quel est le coefficient directeur de sa représentation graphique ?
+    propositions:
+    - texte: '3'
+      correcte: true
+    - texte: '-2'
+      correcte: false
+      obstacleVise: 0
+    - texte: 3x
+      correcte: false
+      obstacleVise: 0
+    - texte: '1'
+      correcte: false
+      obstacleVise: 0
+    justification: Dans f(x) = ax + b, le coefficient directeur est a.
+  - id: n05-i2
+    palier: B
+    type: qcm_unique
+    enonce: Quelle est l'expression de la fonction affine dont la droite passe par (0 ; 4) et a pour coefficient
+      directeur -2 ?
+    propositions:
+    - texte: f(x) = 4x - 2
+      correcte: false
+      obstacleVise: 0
+    - texte: f(x) = -2x + 4
+      correcte: true
+    - texte: f(x) = -2x - 4
+      correcte: false
+      obstacleVise: 1
+    - texte: f(x) = 2x + 4
+      correcte: false
+      obstacleVise: 1
+    justification: L'ordonnée à l'origine vaut 4, le coefficient directeur -2.
+  - id: n05-i3
+    palier: C
+    type: qcm_unique
+    enonce: Laquelle de ces fonctions modélise une situation de proportionnalité ?
+    propositions:
+    - texte: f(x) = 5x + 2
+      correcte: false
+      obstacleVise: 1
+    - texte: f(x) = 5
+      correcte: false
+      obstacleVise: 1
+    - texte: f(x) = 5x
+      correcte: true
+    - texte: f(x) = x²
+      correcte: false
+      obstacleVise: 0
+    justification: Seule une fonction linéaire, sans terme constant, traduit une proportionnalité.
+- id: n06
+  ordre: 6
+  evalueParTest: true
+  acquisN1: Lecture graphique d'une courbe
+  usageN: Tableau de variations et vocabulaire des fonctions (séance 2)
+  obstacles:
+  - « Négative » et « décroissante » sont confondues
+  - La variation est lue comme une valeur ponctuelle
+  critereMaitrise: Distinguer le signe et le sens de variation d'une fonction
+  seanceRattachement: 2
+  items:
+  - id: n06-i1
+    palier: A
+    type: qcm_unique
+    enonce: Sur l'intervalle [0 ; 3], la courbe de f monte de gauche à droite. Que peut-on dire ?
+    propositions:
+    - texte: f est positive sur [0 ; 3]
+      correcte: false
+      obstacleVise: 0
+    - texte: f est croissante sur ℝ
+      correcte: false
+      obstacleVise: 0
+    - texte: f(3) est le maximum de f
+      correcte: false
+      obstacleVise: 1
+    - texte: f est croissante sur [0 ; 3]
+      correcte: true
+    justification: Monter signifie croître ; cela ne dit rien du signe.
+  - id: n06-i2
+    palier: B
+    type: qcm_unique
+    enonce: 'Dans un tableau de variations, une flèche descendante sur [1 ; 5] signifie :'
+    propositions:
+    - texte: f est décroissante sur [1 ; 5]
+      correcte: true
+    - texte: f est négative sur [1 ; 5]
+      correcte: false
+      obstacleVise: 0
+    - texte: f(1) < f(5)
+      correcte: false
+      obstacleVise: 1
+    - texte: f s'annule sur [1 ; 5]
+      correcte: false
+      obstacleVise: 0
+    justification: La flèche indique le sens de variation, pas le signe.
+  - id: n06-i3
+    palier: C
+    type: qcm_unique
+    enonce: 'Une fonction f est décroissante sur [0 ; 4] et vérifie f(0) = -1. Que peut-on affirmer ?
+
+      '
+    propositions:
+    - texte: f est positive sur [0 ; 4]
+      correcte: false
+      obstacleVise: 0
+    - texte: f est négative sur [0 ; 4]
+      correcte: true
+    - texte: f change de signe sur [0 ; 4]
+      correcte: false
+      obstacleVise: 0
+    - texte: On ne peut rien dire du signe
+      correcte: false
+      obstacleVise: 0
+    justification: Si f décroît à partir de -1, toutes ses valeurs suivantes sont inférieures à -1.
+- id: n07
+  ordre: 7
+  evalueParTest: true
+  acquisN1: Repérage dans le plan, coordonnées
+  usageN: Géométrie repérée et vecteurs (séance 4)
+  obstacles:
+  - Les coordonnées d'un vecteur sont confondues avec celles d'un point
+  - Le milieu est calculé par une somme sans division
+  critereMaitrise: Calculer un milieu, une distance et les coordonnées d'un vecteur
+  seanceRattachement: 4
+  items:
+  - id: n07-i1
+    palier: A
+    type: qcm_unique
+    enonce: Quelles sont les coordonnées du milieu de [AB] avec A(1 ; 2) et B(5 ; 8) ?
+    propositions:
+    - texte: (6 ; 10)
+      correcte: false
+      obstacleVise: 1
+    - texte: (4 ; 6)
+      correcte: false
+      obstacleVise: 0
+    - texte: (3 ; 5)
+      correcte: true
+    - texte: (2 ; 3)
+      correcte: false
+      obstacleVise: 0
+    justification: On calcule la demi-somme des abscisses et des ordonnées.
+  - id: n07-i2
+    palier: B
+    type: qcm_unique
+    enonce: Quelle est la distance AB avec A(0 ; 0) et B(3 ; 4) ?
+    propositions:
+    - texte: '7'
+      correcte: false
+      obstacleVise: 1
+    - texte: '25'
+      correcte: false
+      obstacleVise: 1
+    - texte: '12'
+      correcte: false
+      obstacleVise: 1
+    - texte: '5'
+      correcte: true
+    justification: √(3² + 4²) = √25 = 5.
+  - id: n07-i3
+    palier: C
+    type: qcm_unique
+    enonce: Quelles sont les coordonnées du vecteur AB avec A(1 ; 2) et B(4 ; 6) ?
+    propositions:
+    - texte: (3 ; 4)
+      correcte: true
+    - texte: (5 ; 8)
+      correcte: false
+      obstacleVise: 0
+    - texte: (4 ; 6)
+      correcte: false
+      obstacleVise: 0
+    - texte: (-3 ; -4)
+      correcte: false
+      obstacleVise: 0
+    justification: On soustrait les coordonnées de A à celles de B.
+- id: n08
+  ordre: 8
+  evalueParTest: true
+  acquisN1: Statistiques et probabilités simples
+  usageN: Séries continues, tableaux croisés, probabilité conditionnelle (séance 5)
+  obstacles:
+  - L'effectif et la fréquence sont confondus
+  - La médiane est calculée sans ordonner la série
+  critereMaitrise: Déterminer une médiane et une probabilité élémentaire
+  seanceRattachement: 5
+  items:
+  - id: n08-i1
+    palier: A
+    type: qcm_unique
+    enonce: Quelle est la médiane de la série 3 ; 5 ; 8 ; 9 ; 20 ?
+    propositions:
+    - texte: '9'
+      correcte: false
+      obstacleVise: 1
+    - texte: '8'
+      correcte: true
+    - texte: '5'
+      correcte: false
+      obstacleVise: 1
+    - texte: 8,75
+      correcte: false
+      obstacleVise: 0
+    justification: 'La série comporte 5 valeurs ordonnées : la médiane est la troisième.'
+  - id: n08-i2
+    palier: B
+    type: qcm_unique
+    enonce: On lance un dé équilibré à six faces. Quelle est la probabilité d'obtenir un nombre pair ?
+    propositions:
+    - texte: 1/6
+      correcte: false
+      obstacleVise: 0
+    - texte: 1/3
+      correcte: false
+      obstacleVise: 0
+    - texte: 1/2
+      correcte: true
+    - texte: '3'
+      correcte: false
+      obstacleVise: 0
+    justification: Trois issues favorables sur six.
+  - id: n08-i3
+    palier: C
+    type: qcm_unique
+    enonce: 'Dans un groupe de 40 personnes, 16 portent des lunettes. Quelle est la fréquence des porteurs de lunettes
+      ?
+
+      '
+    propositions:
+    - texte: '16'
+      correcte: false
+      obstacleVise: 0
+    - texte: 2,5
+      correcte: false
+      obstacleVise: 0
+    - texte: '24'
+      correcte: false
+      obstacleVise: 1
+    - texte: 0,4
+      correcte: true
+    justification: 16 ÷ 40 = 0,4, soit 40 %.
+statutValidation: HUMAN_VALIDATION_REQUIRED

@@ -1,0 +1,510 @@
+id: maths-entree-quatrieme
+niveauEntree: QUATRIEME
+matiere: MATHEMATIQUES
+edition: 2026
+dureeCibleMinutes: 20
+gamme: FONDATIONS
+intitulePublic: Mathématiques — Entrée en 4e
+cadrage: 'Consolider les acquis de 5e et installer les attendus de 4e. Aucune référence au DNB : ce jalon appartient
+  à la 3e.
+
+  '
+noeuds:
+- id: n01
+  ordre: 1
+  evalueParTest: true
+  acquisN1: 'Nombres relatifs : somme, différence, produit'
+  usageN: Calcul littéral et équations du premier degré (séance 2)
+  obstacles:
+  - La règle des signes du produit est appliquée à l'addition
+  - La soustraction d'un nombre négatif n'est pas convertie en addition
+  - Les priorités opératoires sont ignorées en présence de signes
+  critereMaitrise: Calculer une expression numérique mêlant relatifs, produits et priorités
+  seanceRattachement: 1
+  items:
+  - id: n01-i1
+    palier: A
+    type: qcm_unique
+    enonce: Combien vaut (-7) + (-5) ?
+    propositions:
+    - texte: '-12'
+      correcte: true
+    - texte: '-2'
+      correcte: false
+      obstacleVise: 0
+    - texte: '12'
+      correcte: false
+      obstacleVise: 0
+    - texte: '35'
+      correcte: false
+      obstacleVise: 2
+    justification: 'Deux nombres négatifs s''additionnent : -7 - 5 = -12.'
+  - id: n01-i2
+    palier: B
+    type: qcm_unique
+    enonce: Combien vaut (-5) - (-8) ?
+    propositions:
+    - texte: '-13'
+      correcte: false
+      obstacleVise: 1
+    - texte: '3'
+      correcte: true
+    - texte: '-3'
+      correcte: false
+      obstacleVise: 1
+    - texte: '13'
+      correcte: false
+      obstacleVise: 2
+    justification: 'Soustraire -8 revient à ajouter 8 : -5 + 8 = 3.'
+  - id: n01-i3
+    palier: C
+    type: qcm_unique
+    enonce: Combien vaut -2 + 3 × (-4) ?
+    propositions:
+    - texte: '4'
+      correcte: false
+      obstacleVise: 2
+    - texte: '-20'
+      correcte: false
+      obstacleVise: 2
+    - texte: '-14'
+      correcte: true
+    - texte: '10'
+      correcte: false
+      obstacleVise: 2
+    justification: 'La multiplication est prioritaire : -2 + (-12) = -14.'
+- id: n02
+  ordre: 2
+  evalueParTest: true
+  acquisN1: 'Fractions : somme, différence, produit, dénominateur commun'
+  usageN: Équations à coefficients fractionnaires (séance 2)
+  obstacles:
+  - Les numérateurs et les dénominateurs sont additionnés séparément
+  - Le dénominateur commun n'est pas cherché
+  critereMaitrise: Additionner et soustraire deux fractions de dénominateurs différents
+  seanceRattachement: 1
+  items:
+  - id: n02-i1
+    palier: A
+    type: qcm_unique
+    enonce: Combien vaut 1/2 + 1/3 ?
+    propositions:
+    - texte: 2/5
+      correcte: false
+      obstacleVise: 0
+    - texte: 1/6
+      correcte: false
+      obstacleVise: 1
+    - texte: 2/6
+      correcte: false
+      obstacleVise: 0
+    - texte: 5/6
+      correcte: true
+    justification: 3/6 + 2/6 = 5/6.
+  - id: n02-i2
+    palier: B
+    type: qcm_unique
+    enonce: Combien vaut 2/3 × 3/4 ?
+    propositions:
+    - texte: 1/2
+      correcte: true
+    - texte: 6/7
+      correcte: false
+      obstacleVise: 0
+    - texte: 8/9
+      correcte: false
+      obstacleVise: 0
+    - texte: 5/7
+      correcte: false
+      obstacleVise: 0
+    justification: 6/12 se simplifie en 1/2.
+  - id: n02-i3
+    palier: C
+    type: qcm_unique
+    enonce: Combien vaut 3/4 - 1/6 ?
+    propositions:
+    - texte: '-1'
+      correcte: false
+      obstacleVise: 0
+    - texte: 7/12
+      correcte: true
+    - texte: 2/10
+      correcte: false
+      obstacleVise: 0
+    - texte: 11/12
+      correcte: false
+      obstacleVise: 1
+    justification: 9/12 - 2/12 = 7/12.
+- id: n03
+  ordre: 3
+  evalueParTest: true
+  acquisN1: Puissances d'exposant entier positif
+  usageN: Écriture scientifique et ordres de grandeur (séance 1)
+  obstacles:
+  - L'exposant est interprété comme un facteur multiplicatif
+  - Les règles sur les produits de puissances ne sont pas disponibles
+  critereMaitrise: Calculer une puissance et utiliser la règle du produit de puissances de même base
+  seanceRattachement: 1
+  items:
+  - id: n03-i1
+    palier: A
+    type: qcm_unique
+    enonce: Combien vaut 2³ ?
+    propositions:
+    - texte: '6'
+      correcte: false
+      obstacleVise: 0
+    - texte: '9'
+      correcte: false
+      obstacleVise: 0
+    - texte: '8'
+      correcte: true
+    - texte: '5'
+      correcte: false
+      obstacleVise: 0
+    justification: 2³ = 2 × 2 × 2 = 8.
+  - id: n03-i2
+    palier: B
+    type: qcm_unique
+    enonce: Combien vaut 10⁴ ?
+    propositions:
+    - texte: '40'
+      correcte: false
+      obstacleVise: 0
+    - texte: 1 000
+      correcte: false
+      obstacleVise: 1
+    - texte: 100 000
+      correcte: false
+      obstacleVise: 1
+    - texte: 10 000
+      correcte: true
+    justification: 10⁴ = 1 suivi de 4 zéros.
+  - id: n03-i3
+    palier: C
+    type: qcm_unique
+    enonce: Sous quelle forme peut-on écrire 3² × 3³ ?
+    propositions:
+    - texte: 3⁵
+      correcte: true
+    - texte: 3⁶
+      correcte: false
+      obstacleVise: 1
+    - texte: 9⁵
+      correcte: false
+      obstacleVise: 1
+    - texte: 6⁵
+      correcte: false
+      obstacleVise: 0
+    justification: 'Les exposants s''ajoutent, la base ne change pas : 3²⁺³ = 3⁵.'
+- id: n04
+  ordre: 4
+  evalueParTest: true
+  acquisN1: Distributivité simple, développement et réduction
+  usageN: Développement, réduction et factorisation (séance 2)
+  obstacles:
+  - Le facteur n'est distribué qu'au premier terme
+  - Le signe du facteur n'est pas distribué
+  critereMaitrise: Développer et réduire une expression du premier degré
+  seanceRattachement: 2
+  items:
+  - id: n04-i1
+    palier: A
+    type: qcm_unique
+    enonce: Développer 3(x + 4).
+    propositions:
+    - texte: 3x + 4
+      correcte: false
+      obstacleVise: 0
+    - texte: 3x + 12
+      correcte: true
+    - texte: x + 12
+      correcte: false
+      obstacleVise: 0
+    - texte: 3x × 12
+      correcte: false
+      obstacleVise: 0
+    justification: 3 × x + 3 × 4 = 3x + 12.
+  - id: n04-i2
+    palier: B
+    type: qcm_unique
+    enonce: Développer -2(x - 5).
+    propositions:
+    - texte: -2x - 10
+      correcte: false
+      obstacleVise: 1
+    - texte: -2x - 5
+      correcte: false
+      obstacleVise: 0
+    - texte: -2x + 10
+      correcte: true
+    - texte: 2x + 10
+      correcte: false
+      obstacleVise: 1
+    justification: -2 × (-5) = +10.
+  - id: n04-i3
+    palier: C
+    type: qcm_unique
+    enonce: Développer et réduire 5(2x + 1) - 3x.
+    propositions:
+    - texte: 10x + 5
+      correcte: false
+      obstacleVise: 0
+    - texte: 7x + 1
+      correcte: false
+      obstacleVise: 0
+    - texte: 2x + 5
+      correcte: false
+      obstacleVise: 1
+    - texte: 7x + 5
+      correcte: true
+    justification: 10x + 5 - 3x = 7x + 5.
+- id: n05
+  ordre: 5
+  evalueParTest: true
+  acquisN1: Notion d'inconnue, test d'une égalité
+  usageN: Résolution d'équations du premier degré et mise en équation (séance 2)
+  obstacles:
+  - Le signe = est lu comme « donne » et non comme une équivalence
+  - L'opération inverse n'est pas identifiée
+  critereMaitrise: Résoudre une équation du premier degré à une inconnue
+  seanceRattachement: 2
+  items:
+  - id: n05-i1
+    palier: A
+    type: qcm_unique
+    enonce: Résoudre x + 7 = 12.
+    propositions:
+    - texte: x = 5
+      correcte: true
+    - texte: x = 19
+      correcte: false
+      obstacleVise: 1
+    - texte: x = 7
+      correcte: false
+      obstacleVise: 0
+    - texte: x = -5
+      correcte: false
+      obstacleVise: 1
+    justification: On retire 7 des deux côtés.
+  - id: n05-i2
+    palier: B
+    type: qcm_unique
+    enonce: Résoudre 3x = 21.
+    propositions:
+    - texte: x = 63
+      correcte: false
+      obstacleVise: 1
+    - texte: x = 7
+      correcte: true
+    - texte: x = 18
+      correcte: false
+      obstacleVise: 1
+    - texte: x = 24
+      correcte: false
+      obstacleVise: 1
+    justification: On divise les deux membres par 3.
+  - id: n05-i3
+    palier: C
+    type: qcm_unique
+    enonce: Résoudre 2x + 3 = 11.
+    propositions:
+    - texte: x = 7
+      correcte: false
+      obstacleVise: 1
+    - texte: x = 5,5
+      correcte: false
+      obstacleVise: 1
+    - texte: x = 4
+      correcte: true
+    - texte: x = 3
+      correcte: false
+      obstacleVise: 1
+    justification: 2x = 8 puis x = 4.
+- id: n06
+  ordre: 6
+  evalueParTest: true
+  acquisN1: Proportionnalité, quatrième proportionnelle
+  usageN: Pourcentages, vitesses, distance et durée (séance 4)
+  obstacles:
+  - Les pourcentages sont supposés additifs
+  - Le rapport de proportionnalité est inversé
+  critereMaitrise: Résoudre un problème de proportionnalité, de pourcentage ou de vitesse
+  seanceRattachement: 4
+  items:
+  - id: n06-i1
+    palier: A
+    type: qcm_unique
+    enonce: 4 stylos identiques coûtent 6 €. Combien coûtent 10 stylos ?
+    propositions:
+    - texte: 12 €
+      correcte: false
+      obstacleVise: 1
+    - texte: 24 €
+      correcte: false
+      obstacleVise: 1
+    - texte: 10 €
+      correcte: false
+      obstacleVise: 0
+    - texte: 15 €
+      correcte: true
+    justification: Un stylo coûte 1,50 €, donc 10 stylos coûtent 15 €.
+  - id: n06-i2
+    palier: B
+    type: qcm_unique
+    enonce: Un article coûte 40 €. Son prix augmente de 10 %. Quel est le nouveau prix ?
+    propositions:
+    - texte: 44 €
+      correcte: true
+    - texte: 50 €
+      correcte: false
+      obstacleVise: 0
+    - texte: 41 €
+      correcte: false
+      obstacleVise: 0
+    - texte: 400 €
+      correcte: false
+      obstacleVise: 1
+    justification: 10 % de 40 vaut 4, donc 40 + 4 = 44 €.
+  - id: n06-i3
+    palier: C
+    type: qcm_unique
+    enonce: Une voiture parcourt 150 km en 2 heures. Quelle est sa vitesse moyenne ?
+    propositions:
+    - texte: 300 km/h
+      correcte: false
+      obstacleVise: 1
+    - texte: 75 km/h
+      correcte: true
+    - texte: 152 km/h
+      correcte: false
+      obstacleVise: 1
+    - texte: 1,33 km/h
+      correcte: false
+      obstacleVise: 1
+    justification: 150 ÷ 2 = 75.
+- id: n07
+  ordre: 7
+  evalueParTest: true
+  acquisN1: Triangle rectangle, vocabulaire, hypoténuse
+  usageN: Théorème de Pythagore et sa réciproque (séance 3)
+  obstacles:
+  - L'hypoténuse est identifiée par la position sur la figure, non par l'angle droit
+  - Le carré de la longueur est confondu avec la longueur
+  critereMaitrise: Identifier l'hypoténuse et calculer une longueur dans un triangle rectangle
+  seanceRattachement: 3
+  items:
+  - id: n07-i1
+    palier: A
+    type: qcm_unique
+    enonce: Le triangle ABC est rectangle en A. Quel côté est l'hypoténuse ?
+    propositions:
+    - texte: '[AB]'
+      correcte: false
+      obstacleVise: 0
+    - texte: '[AC]'
+      correcte: false
+      obstacleVise: 0
+    - texte: '[BC]'
+      correcte: true
+    - texte: Le côté le plus court
+      correcte: false
+      obstacleVise: 0
+    justification: L'hypoténuse est le côté opposé à l'angle droit.
+  - id: n07-i2
+    palier: B
+    type: qcm_unique
+    enonce: ABC est rectangle en A, avec AB = 3 cm et AC = 4 cm. Combien vaut BC ?
+    propositions:
+    - texte: 7 cm
+      correcte: false
+      obstacleVise: 1
+    - texte: 25 cm
+      correcte: false
+      obstacleVise: 1
+    - texte: 12 cm
+      correcte: false
+      obstacleVise: 1
+    - texte: 5 cm
+      correcte: true
+    justification: BC² = 9 + 16 = 25, donc BC = 5.
+  - id: n07-i3
+    palier: C
+    type: qcm_unique
+    enonce: ABC est rectangle en A, avec BC = 13 cm et AB = 5 cm. Combien vaut AC ?
+    propositions:
+    - texte: 12 cm
+      correcte: true
+    - texte: 18 cm
+      correcte: false
+      obstacleVise: 1
+    - texte: 8 cm
+      correcte: false
+      obstacleVise: 1
+    - texte: 14 cm
+      correcte: false
+      obstacleVise: 1
+    justification: AC² = 169 - 25 = 144, donc AC = 12.
+- id: n08
+  ordre: 8
+  evalueParTest: true
+  acquisN1: Moyenne, effectifs, fréquences
+  usageN: Statistiques et premières probabilités (séance 5)
+  obstacles:
+  - La moyenne de moyennes est calculée sans pondération
+  - L'effectif et la fréquence sont confondus
+  critereMaitrise: Calculer une moyenne pondérée et une fréquence
+  seanceRattachement: 5
+  items:
+  - id: n08-i1
+    palier: A
+    type: qcm_unique
+    enonce: Quelle est la moyenne de 4, 7 et 10 ?
+    propositions:
+    - texte: '21'
+      correcte: false
+      obstacleVise: 1
+    - texte: '7'
+      correcte: true
+    - texte: '6'
+      correcte: false
+      obstacleVise: 0
+    - texte: '10'
+      correcte: false
+      obstacleVise: 0
+    justification: 21 ÷ 3 = 7.
+  - id: n08-i2
+    palier: B
+    type: qcm_unique
+    enonce: 10 élèves ont obtenu 12 et 20 élèves ont obtenu 15. Quelle est la moyenne de la classe ?
+    propositions:
+    - texte: 13,5
+      correcte: false
+      obstacleVise: 0
+    - texte: '27'
+      correcte: false
+      obstacleVise: 1
+    - texte: '14'
+      correcte: true
+    - texte: 14,5
+      correcte: false
+      obstacleVise: 0
+    justification: (120 + 300) ÷ 30 = 14. La moyenne des deux notes donnerait 13,5, ce qui est faux.
+  - id: n08-i3
+    palier: C
+    type: qcm_unique
+    enonce: Dans une classe de 25 élèves, 10 pratiquent un sport. Quelle est la fréquence des sportifs ?
+    propositions:
+    - texte: '10'
+      correcte: false
+      obstacleVise: 1
+    - texte: 2,5
+      correcte: false
+      obstacleVise: 1
+    - texte: 25 %
+      correcte: false
+      obstacleVise: 1
+    - texte: 0,4
+      correcte: true
+    justification: 10 ÷ 25 = 0,4, soit 40 %.
+statutValidation: HUMAN_VALIDATION_REQUIRED

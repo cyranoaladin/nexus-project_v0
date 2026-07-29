@@ -1,0 +1,508 @@
+id: nsi-entree-premiere
+niveauEntree: PREMIERE
+matiere: NSI
+edition: 2026
+dureeCibleMinutes: 24
+gamme: PREMIUM
+intitulePublic: NSI — Entrée en Première
+cadrage: Aucun prérequis Python n'est exigé. Le test vérifie uniquement la logique, la lecture d'instructions et
+  les représentations nécessaires pour débuter ; aucun item ne demande d'écrire du code.
+statutValidation: HUMAN_VALIDATION_REQUIRED
+noeuds:
+- id: n01
+  ordre: 1
+  evalueParTest: true
+  acquisN1: Suivre une suite d'instructions
+  usageN: Exécuter pas à pas un algorithme et un premier programme (séance 1)
+  obstacles:
+  - Les instructions sont lues globalement
+  - L'ordre d'exécution est ignoré
+  critereMaitrise: Déterminer l'état obtenu après une suite ordonnée d'instructions.
+  seanceRattachement: 1
+  items:
+  - type: qcm_unique
+    enonce: On part de 3, on ajoute 4 puis on double le résultat. Quel nombre obtient-on ?
+    propositions:
+    - texte: '14'
+      correcte: true
+    - texte: '10'
+      correcte: false
+      obstacleVise: 0
+    - texte: '11'
+      correcte: false
+      obstacleVise: 1
+    - texte: '17'
+      correcte: false
+      obstacleVise: 0
+    justification: (3 + 4) × 2 = 14.
+    id: n01-i1
+    palier: A
+  - type: qcm_unique
+    enonce: 'Instruction 1 : écrire A. Instruction 2 : effacer A. Instruction 3 : écrire B. Que reste-t-il ?'
+    propositions:
+    - texte: A
+      correcte: false
+      obstacleVise: 0
+    - texte: B
+      correcte: true
+    - texte: AB
+      correcte: false
+      obstacleVise: 1
+    - texte: Rien
+      correcte: false
+      obstacleVise: 0
+    justification: Les instructions sont exécutées dans l'ordre.
+    id: n01-i2
+    palier: B
+  - type: qcm_unique
+    enonce: Un robot avance de 2 cases, tourne à droite, puis avance d'une case. Combien de déplacements effectue-t-il
+      ?
+    propositions:
+    - texte: Un déplacement
+      correcte: false
+      obstacleVise: 1
+    - texte: Quatre déplacements
+      correcte: false
+      obstacleVise: 0
+    - texte: Deux déplacements
+      correcte: true
+    - texte: Trois déplacements
+      correcte: false
+      obstacleVise: 0
+    justification: Tourner modifie l'orientation, pas la position.
+    id: n01-i3
+    palier: C
+- id: n02
+  ordre: 2
+  evalueParTest: true
+  acquisN1: 'Logique : et, ou, non, négation'
+  usageN: Construire et interpréter des conditions booléennes (séance 2)
+  obstacles:
+  - La négation d'un « et » est mal construite
+  - Le « ou » est compris comme exclusif
+  critereMaitrise: Évaluer une proposition logique et formuler sa négation.
+  seanceRattachement: 2
+  items:
+  - type: qcm_unique
+    enonce: 'La condition « âge ≥ 15 et autorisation = oui » est vraie quand :'
+    propositions:
+    - texte: exactement une est vraie
+      correcte: false
+      obstacleVise: 0
+    - texte: une seule suffit
+      correcte: false
+      obstacleVise: 0
+    - texte: aucune n'est vraie
+      correcte: false
+      obstacleVise: 1
+    - texte: les deux conditions sont vraies
+      correcte: true
+    justification: Une conjonction exige les deux propositions.
+    id: n02-i1
+    palier: A
+  - type: qcm_unique
+    enonce: Quelle est la négation de « x > 2 et x < 7 » ?
+    propositions:
+    - texte: x ≤ 2 ou x ≥ 7
+      correcte: true
+    - texte: x ≤ 2 et x ≥ 7
+      correcte: false
+      obstacleVise: 0
+    - texte: x > 2 ou x < 7
+      correcte: false
+      obstacleVise: 1
+    - texte: 2 ≤ x ≤ 7
+      correcte: false
+      obstacleVise: 0
+    justification: La négation d'une conjonction devient une disjonction des négations.
+    id: n02-i2
+    palier: B
+  - type: qcm_unique
+    enonce: '« Le fichier est une image ou un PDF » accepte :'
+    propositions:
+    - texte: seulement une image
+      correcte: false
+      obstacleVise: 0
+    - texte: une image, un PDF, ou les deux
+      correcte: true
+    - texte: seulement un PDF
+      correcte: false
+      obstacleVise: 1
+    - texte: ni image ni PDF
+      correcte: false
+      obstacleVise: 0
+    justification: En logique, le ou est inclusif sauf indication contraire.
+    id: n02-i3
+    palier: C
+- id: n03
+  ordre: 3
+  evalueParTest: true
+  acquisN1: Comparaison et ordre
+  usageN: Écrire des tests et comprendre une condition d'arrêt (séance 2)
+  obstacles:
+  - < et ≤ sont confondus
+  - Les bornes sont testées dans le mauvais sens
+  critereMaitrise: Distinguer strict et large et vérifier l'appartenance à un intervalle.
+  seanceRattachement: 2
+  items:
+  - type: qcm_unique
+    enonce: Quelle condition accepte 10 mais refuse 11 ?
+    propositions:
+    - texte: x ≥ 10
+      correcte: false
+      obstacleVise: 1
+    - texte: x > 10
+      correcte: false
+      obstacleVise: 0
+    - texte: x ≤ 10
+      correcte: true
+    - texte: x < 10
+      correcte: false
+      obstacleVise: 0
+    justification: La borne 10 doit être incluse.
+    id: n03-i1
+    palier: A
+  - type: qcm_unique
+    enonce: 'Pour vérifier que x est entre 0 et 5 inclus :'
+    propositions:
+    - texte: x = 0 ou x = 5
+      correcte: false
+      obstacleVise: 0
+    - texte: x > 0 ou x < 5
+      correcte: false
+      obstacleVise: 0
+    - texte: x ≤ 0 et x ≥ 5
+      correcte: false
+      obstacleVise: 1
+    - texte: x ≥ 0 et x ≤ 5
+      correcte: true
+    justification: Les deux bornes doivent être respectées.
+    id: n03-i2
+    palier: B
+  - type: qcm_unique
+    enonce: 'Une répétition continue tant que compteur < 4. Pour compteur = 4 :'
+    propositions:
+    - texte: elle s'arrête
+      correcte: true
+    - texte: elle recommence une fois
+      correcte: false
+      obstacleVise: 0
+    - texte: elle repart à zéro
+      correcte: false
+      obstacleVise: 1
+    - texte: elle devient infinie
+      correcte: false
+      obstacleVise: 0
+    justification: 4 < 4 est faux.
+    id: n03-i3
+    palier: C
+- id: n04
+  ordre: 4
+  evalueParTest: true
+  acquisN1: Notion de variable
+  usageN: Comprendre l'affectation et l'état d'un programme (séance 1)
+  obstacles:
+  - La variable est lue comme une inconnue mathématique
+  - L'ancienne valeur n'est pas remplacée
+  critereMaitrise: Suivre des affectations successives sans les confondre avec une égalité.
+  seanceRattachement: 1
+  items:
+  - type: qcm_unique
+    enonce: Une boîte x contient 5. On remplace son contenu par 8. Que contient x ?
+    propositions:
+    - texte: '5'
+      correcte: false
+      obstacleVise: 0
+    - texte: '8'
+      correcte: true
+    - texte: '13'
+      correcte: false
+      obstacleVise: 1
+    - texte: x
+      correcte: false
+      obstacleVise: 0
+    justification: Une affectation remplace la valeur mémorisée.
+    id: n04-i1
+    palier: A
+  - type: qcm_unique
+    enonce: 'x vaut 4. L''instruction « x reçoit x + 1 » donne :'
+    propositions:
+    - texte: Une impossibilité
+      correcte: false
+      obstacleVise: 1
+    - texte: '1'
+      correcte: false
+      obstacleVise: 0
+    - texte: '5'
+      correcte: true
+    - texte: '4'
+      correcte: false
+      obstacleVise: 0
+    justification: La valeur courante est lue, augmentée puis remplacée.
+    id: n04-i2
+    palier: B
+  - type: qcm_unique
+    enonce: a vaut 2 et b vaut 7. Après « a reçoit b », quelles valeurs ?
+    propositions:
+    - texte: a = 9 et b = 7
+      correcte: false
+      obstacleVise: 0
+    - texte: a = 2 et b = 2
+      correcte: false
+      obstacleVise: 0
+    - texte: a = 7 et b = 2
+      correcte: false
+      obstacleVise: 1
+    - texte: a = 7 et b = 7
+      correcte: true
+    justification: Lire b ne modifie pas b.
+    id: n04-i3
+    palier: C
+- id: n05
+  ordre: 5
+  evalueParTest: true
+  acquisN1: Répétition d'une action
+  usageN: Comprendre les boucles bornées et conditionnelles (séance 2)
+  obstacles:
+  - Le nombre d'itérations est mal compté
+  - La condition d'arrêt n'est pas réévaluée
+  critereMaitrise: Compter les répétitions et identifier ce qui évolue à chaque tour.
+  seanceRattachement: 2
+  items:
+  - type: qcm_unique
+    enonce: On répète une action pour les nombres 1, 2 et 3. Combien de fois ?
+    propositions:
+    - texte: '3'
+      correcte: true
+    - texte: '2'
+      correcte: false
+      obstacleVise: 0
+    - texte: '4'
+      correcte: false
+      obstacleVise: 1
+    - texte: '1'
+      correcte: false
+      obstacleVise: 0
+    justification: Il y a trois valeurs parcourues.
+    id: n05-i1
+    palier: A
+  - type: qcm_unique
+    enonce: Un compteur part de 0 et augmente de 1 jusqu'à atteindre 3. Combien d'augmentations ?
+    propositions:
+    - texte: '2'
+      correcte: false
+      obstacleVise: 0
+    - texte: '3'
+      correcte: true
+    - texte: '4'
+      correcte: false
+      obstacleVise: 1
+    - texte: Une infinité
+      correcte: false
+      obstacleVise: 0
+    justification: 0 → 1 → 2 → 3.
+    id: n05-i2
+    palier: B
+  - type: qcm_unique
+    enonce: 'Pour éviter une boucle sans fin, il faut notamment :'
+    propositions:
+    - texte: une condition toujours vraie
+      correcte: false
+      obstacleVise: 1
+    - texte: supprimer le compteur
+      correcte: false
+      obstacleVise: 0
+    - texte: qu'une donnée rende finalement la condition fausse
+      correcte: true
+    - texte: ne jamais modifier les données
+      correcte: false
+      obstacleVise: 0
+    justification: La condition doit pouvoir devenir fausse.
+    id: n05-i3
+    palier: C
+- id: n06
+  ordre: 6
+  evalueParTest: true
+  acquisN1: Décomposer un problème
+  usageN: Structurer une solution en fonctions, paramètres et retours (séance 3)
+  obstacles:
+  - Tout est traité dans un seul bloc
+  - Une sous-tâche est confondue avec son résultat
+  critereMaitrise: Identifier des sous-problèmes cohérents et leurs entrées/sorties.
+  seanceRattachement: 3
+  items:
+  - type: qcm_unique
+    enonce: 'Pour calculer le prix TTC de plusieurs produits, une sous-tâche utile est :'
+    propositions:
+    - texte: répéter le problème entier
+      correcte: false
+      obstacleVise: 0
+    - texte: afficher tout le magasin
+      correcte: false
+      obstacleVise: 0
+    - texte: changer la monnaie au hasard
+      correcte: false
+      obstacleVise: 1
+    - texte: calculer le TTC d'un prix donné
+      correcte: true
+    justification: La sous-tâche est réutilisable et possède une entrée claire.
+    id: n06-i1
+    palier: A
+  - type: qcm_unique
+    enonce: 'Une fonction « maximum de deux nombres » doit recevoir :'
+    propositions:
+    - texte: deux nombres
+      correcte: true
+    - texte: le résultat maximum
+      correcte: false
+      obstacleVise: 0
+    - texte: aucune donnée
+      correcte: false
+      obstacleVise: 1
+    - texte: un texte complet
+      correcte: false
+      obstacleVise: 0
+    justification: Les paramètres sont les données nécessaires au calcul.
+    id: n06-i2
+    palier: B
+  - type: qcm_unique
+    enonce: 'Le retour d''une fonction correspond :'
+    propositions:
+    - texte: au nom de la fonction
+      correcte: false
+      obstacleVise: 0
+    - texte: au résultat transmis au reste du programme
+      correcte: true
+    - texte: à un commentaire
+      correcte: false
+      obstacleVise: 1
+    - texte: à l'écran uniquement
+      correcte: false
+      obstacleVise: 0
+    justification: Le retour rend le résultat réutilisable.
+    id: n06-i3
+    palier: C
+- id: n07
+  ordre: 7
+  evalueParTest: true
+  acquisN1: Suivre un tableau de valeurs
+  usageN: Tracer l'exécution et déboguer un algorithme (séances 1 et 5)
+  obstacles:
+  - Aucune trace méthodique n'est tenue
+  - Plusieurs états successifs sont mélangés
+  critereMaitrise: Compléter une trace avec une ligne par étape et une colonne par variable.
+  seanceRattachement: 1
+  items:
+  - type: qcm_unique
+    enonce: 'Dans une trace, une colonne correspond le plus souvent :'
+    propositions:
+    - texte: au titre du problème
+      correcte: false
+      obstacleVise: 1
+    - texte: à une erreur seulement
+      correcte: false
+      obstacleVise: 0
+    - texte: à une variable
+      correcte: true
+    - texte: à toutes les instructions
+      correcte: false
+      obstacleVise: 0
+    justification: La colonne suit les valeurs successives d'une variable.
+    id: n07-i1
+    palier: A
+  - type: qcm_unique
+    enonce: 'x vaut 1, puis 3, puis 6. La trace correcte est :'
+    propositions:
+    - texte: 1 | 3
+      correcte: false
+      obstacleVise: 0
+    - texte: 6 | 3 | 1
+      correcte: false
+      obstacleVise: 0
+    - texte: 1 | 4 | 10
+      correcte: false
+      obstacleVise: 1
+    - texte: 1 | 3 | 6
+      correcte: true
+    justification: La trace conserve l'ordre des états.
+    id: n07-i2
+    palier: B
+  - type: qcm_unique
+    enonce: 'Pour localiser une erreur, la meilleure première action est :'
+    propositions:
+    - texte: comparer la trace attendue à la trace obtenue
+      correcte: true
+    - texte: réécrire tout sans observer
+      correcte: false
+      obstacleVise: 0
+    - texte: supprimer les tests
+      correcte: false
+      obstacleVise: 1
+    - texte: changer toutes les valeurs
+      correcte: false
+      obstacleVise: 0
+    justification: La divergence localise l'étape fautive.
+    id: n07-i3
+    palier: C
+- id: n08
+  ordre: 8
+  evalueParTest: true
+  acquisN1: Numération binaire
+  usageN: Comprendre la représentation des entiers et des données (séance 1)
+  obstacles:
+  - Les écritures en base 2 et en base 10 sont confondues
+  - Les poids des bits ne sont pas pris en compte
+  critereMaitrise: Convertir de petits entiers entre bases 2 et 10.
+  seanceRattachement: 1
+  items:
+  - type: qcm_unique
+    enonce: 'En binaire, les seuls chiffres utilisés sont :'
+    propositions:
+    - texte: 0 à 9
+      correcte: false
+      obstacleVise: 0
+    - texte: 0 et 1
+      correcte: true
+    - texte: 1 et 2
+      correcte: false
+      obstacleVise: 1
+    - texte: 0, 1 et 2
+      correcte: false
+      obstacleVise: 0
+    justification: La base 2 utilise deux chiffres.
+    id: n08-i1
+    palier: A
+  - type: qcm_unique
+    enonce: 'Le binaire 101 vaut en décimal :'
+    propositions:
+    - texte: '6'
+      correcte: false
+      obstacleVise: 1
+    - texte: '3'
+      correcte: false
+      obstacleVise: 0
+    - texte: '5'
+      correcte: true
+    - texte: '101'
+      correcte: false
+      obstacleVise: 0
+    justification: 1×4 + 0×2 + 1×1 = 5.
+    id: n08-i2
+    palier: B
+  - type: qcm_unique
+    enonce: 'Le décimal 10 s''écrit en binaire :'
+    propositions:
+    - texte: '1111'
+      correcte: false
+      obstacleVise: 0
+    - texte: '10'
+      correcte: false
+      obstacleVise: 0
+    - texte: '1001'
+      correcte: false
+      obstacleVise: 1
+    - texte: '1010'
+      correcte: true
+    justification: 10 = 8 + 2.
+    id: n08-i3
+    palier: C

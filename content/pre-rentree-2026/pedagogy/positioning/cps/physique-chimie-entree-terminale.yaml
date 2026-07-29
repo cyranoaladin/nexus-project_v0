@@ -1,0 +1,506 @@
+id: physique-chimie-entree-terminale
+niveauEntree: TERMINALE
+matiere: PHYSIQUE_CHIMIE
+edition: 2026
+dureeCibleMinutes: 24
+gamme: PREMIUM
+intitulePublic: Physique-Chimie — Entrée en Terminale
+cadrage: Le test vérifie les acquis de Première nécessaires aux cinq séances publiées de spécialité.
+statutValidation: HUMAN_VALIDATION_REQUIRED
+noeuds:
+- id: n01
+  ordre: 1
+  evalueParTest: true
+  acquisN1: Quantité de matière et tableau d'avancement
+  usageN: Étudier réactions acido-basiques et cinétique (séances 1 et 2)
+  obstacles:
+  - Masse et quantité de matière sont confondues
+  - Le réactif limitant est choisi par la seule masse
+  critereMaitrise: Calculer n = m/M et exploiter un avancement simple.
+  seanceRattachement: 1
+  items:
+  - type: qcm_unique
+    enonce: 'Pour m = 18 g et M = 18 g·mol⁻¹, n vaut :'
+    propositions:
+    - texte: 1,0 mol
+      correcte: true
+    - texte: 18 mol
+      correcte: false
+      obstacleVise: 0
+    - texte: 324 mol
+      correcte: false
+      obstacleVise: 1
+    - texte: 0,056 mol
+      correcte: false
+      obstacleVise: 0
+    justification: n = m/M.
+    id: n01-i1
+    palier: A
+  - type: qcm_unique
+    enonce: 'L''avancement maximal est fixé par :'
+    propositions:
+    - texte: le réactif de plus grande masse
+      correcte: false
+      obstacleVise: 0
+    - texte: le premier réactif épuisé selon la stœchiométrie
+      correcte: true
+    - texte: le produit le plus lourd
+      correcte: false
+      obstacleVise: 1
+    - texte: la température seule
+      correcte: false
+      obstacleVise: 0
+    justification: On compare n initial/coefficient.
+    id: n01-i2
+    palier: B
+  - type: qcm_unique
+    enonce: 'Dans 2 A + B → C, 4 mol de A exigent :'
+    propositions:
+    - texte: 8 mol de B
+      correcte: false
+      obstacleVise: 1
+    - texte: 1 mol de B
+      correcte: false
+      obstacleVise: 0
+    - texte: 2 mol de B
+      correcte: true
+    - texte: 4 mol de B
+      correcte: false
+      obstacleVise: 0
+    justification: Le rapport stœchiométrique A:B est 2:1.
+    id: n01-i3
+    palier: C
+- id: n02
+  ordre: 2
+  evalueParTest: true
+  acquisN1: Acides, bases et transfert de proton
+  usageN: Comprendre couples acide-base et pH (séance 1)
+  obstacles:
+  - Acide et solution acide sont confondus
+  - Le conjugué est construit en ajoutant la mauvaise particule
+  critereMaitrise: Identifier un couple et écrire un transfert de proton.
+  seanceRattachement: 1
+  items:
+  - type: qcm_unique
+    enonce: 'Un acide de Brønsted est une espèce capable de :'
+    propositions:
+    - texte: augmenter toujours le pH
+      correcte: false
+      obstacleVise: 0
+    - texte: céder un électron seulement
+      correcte: false
+      obstacleVise: 0
+    - texte: recevoir un neutron
+      correcte: false
+      obstacleVise: 1
+    - texte: céder un proton H⁺
+      correcte: true
+    justification: Définition de Brønsted.
+    id: n02-i1
+    palier: A
+  - type: qcm_unique
+    enonce: 'La base conjuguée de NH₄⁺ est :'
+    propositions:
+    - texte: NH₃
+      correcte: true
+    - texte: NH₅²⁺
+      correcte: false
+      obstacleVise: 0
+    - texte: N⁴⁺
+      correcte: false
+      obstacleVise: 1
+    - texte: H₃O⁺
+      correcte: false
+      obstacleVise: 0
+    justification: On retire un proton.
+    id: n02-i2
+    palier: B
+  - type: qcm_unique
+    enonce: 'Quand [H₃O⁺] augmente, le pH :'
+    propositions:
+    - texte: augmente
+      correcte: false
+      obstacleVise: 0
+    - texte: diminue
+      correcte: true
+    - texte: reste constant
+      correcte: false
+      obstacleVise: 1
+    - texte: devient toujours 7
+      correcte: false
+      obstacleVise: 0
+    justification: pH = -log[H₃O⁺].
+    id: n02-i3
+    palier: C
+- id: n03
+  ordre: 3
+  evalueParTest: true
+  acquisN1: Lecture d'une évolution temporelle
+  usageN: Décrire vitesse et temps de demi-réaction (séance 2)
+  obstacles:
+  - La pente et la valeur sont confondues
+  - Le temps de demi-réaction est pris comme la moitié de la durée totale
+  critereMaitrise: Lire une courbe, comparer des vitesses et déterminer une demi-évolution.
+  seanceRattachement: 2
+  items:
+  - type: qcm_unique
+    enonce: 'Une transformation plus rapide présente au début une courbe :'
+    propositions:
+    - texte: horizontale
+      correcte: false
+      obstacleVise: 1
+    - texte: sans unité de temps
+      correcte: false
+      obstacleVise: 0
+    - texte: de pente en valeur absolue plus grande
+      correcte: true
+    - texte: toujours plus haute
+      correcte: false
+      obstacleVise: 0
+    justification: La vitesse est reliée à la pente.
+    id: n03-i1
+    palier: A
+  - type: qcm_unique
+    enonce: 'Le temps de demi-réaction correspond au temps où :'
+    propositions:
+    - texte: la température est divisée par deux
+      correcte: false
+      obstacleVise: 0
+    - texte: la durée totale est divisée par deux
+      correcte: false
+      obstacleVise: 0
+    - texte: tous les réactifs ont disparu
+      correcte: false
+      obstacleVise: 1
+    - texte: l'avancement atteint la moitié de sa valeur finale
+      correcte: true
+    justification: Définition de t₁/₂.
+    id: n03-i2
+    palier: B
+  - type: qcm_unique
+    enonce: 'Augmenter la température rend souvent la réaction :'
+    propositions:
+    - texte: plus rapide
+      correcte: true
+    - texte: plus lente dans tous les cas
+      correcte: false
+      obstacleVise: 0
+    - texte: impossible
+      correcte: false
+      obstacleVise: 1
+    - texte: indépendante du temps
+      correcte: false
+      obstacleVise: 0
+    justification: Les collisions efficaces sont plus fréquentes.
+    id: n03-i3
+    palier: C
+- id: n04
+  ordre: 4
+  evalueParTest: true
+  acquisN1: Cinématique vectorielle
+  usageN: Appliquer les lois de Newton (séance 3)
+  obstacles:
+  - Vitesse et accélération sont confondues
+  - La somme vectorielle des forces est remplacée par une somme de valeurs
+  critereMaitrise: Relier variation de vitesse, accélération et résultante des forces.
+  seanceRattachement: 3
+  items:
+  - type: qcm_unique
+    enonce: 'Si la vitesse est constante en direction et valeur, l''accélération est :'
+    propositions:
+    - texte: égale à la vitesse
+      correcte: false
+      obstacleVise: 0
+    - texte: nulle
+      correcte: true
+    - texte: maximale
+      correcte: false
+      obstacleVise: 1
+    - texte: opposée au mouvement
+      correcte: false
+      obstacleVise: 0
+    justification: Le vecteur vitesse ne varie pas.
+    id: n04-i1
+    palier: A
+  - type: qcm_unique
+    enonce: 'La deuxième loi de Newton s''écrit :'
+    propositions:
+    - texte: E = mc
+      correcte: false
+      obstacleVise: 1
+    - texte: P = F/t
+      correcte: false
+      obstacleVise: 0
+    - texte: ΣF⃗ = m a⃗
+      correcte: true
+    - texte: ΣF = m/v
+      correcte: false
+      obstacleVise: 0
+    justification: La résultante est reliée à l'accélération.
+    id: n04-i2
+    palier: B
+  - type: qcm_unique
+    enonce: 'Si la résultante des forces est nulle dans un référentiel galiléen, le mouvement est :'
+    propositions:
+    - texte: nécessairement vertical
+      correcte: false
+      obstacleVise: 0
+    - texte: circulaire accéléré
+      correcte: false
+      obstacleVise: 0
+    - texte: toujours immobile
+      correcte: false
+      obstacleVise: 1
+    - texte: rectiligne uniforme ou repos
+      correcte: true
+    justification: Principe d'inertie.
+    id: n04-i3
+    palier: C
+- id: n05
+  ordre: 5
+  evalueParTest: true
+  acquisN1: Énergie mécanique
+  usageN: Résoudre un problème de mécanique newtonienne (séance 3)
+  obstacles:
+  - Le signe du travail est ignoré
+  - Conservation et dissipation sont confondues
+  critereMaitrise: Établir un bilan énergétique cohérent.
+  seanceRattachement: 3
+  items:
+  - type: qcm_unique
+    enonce: 'L''énergie cinétique vaut :'
+    propositions:
+    - texte: ½mv²
+      correcte: true
+    - texte: mv
+      correcte: false
+      obstacleVise: 0
+    - texte: mgh
+      correcte: false
+      obstacleVise: 1
+    - texte: F/v
+      correcte: false
+      obstacleVise: 0
+    justification: Expression de l'énergie cinétique.
+    id: n05-i1
+    palier: A
+  - type: qcm_unique
+    enonce: 'Sans frottement, l''énergie mécanique d''un système adapté :'
+    propositions:
+    - texte: augmente toujours
+      correcte: false
+      obstacleVise: 0
+    - texte: se conserve
+      correcte: true
+    - texte: devient nulle
+      correcte: false
+      obstacleVise: 1
+    - texte: est égale à la puissance
+      correcte: false
+      obstacleVise: 0
+    justification: Les forces conservatives échangent Ec et Ep.
+    id: n05-i2
+    palier: B
+  - type: qcm_unique
+    enonce: 'Le travail d''une force opposée au déplacement est généralement :'
+    propositions:
+    - texte: nul toujours
+      correcte: false
+      obstacleVise: 1
+    - texte: sans unité
+      correcte: false
+      obstacleVise: 0
+    - texte: négatif
+      correcte: true
+    - texte: positif
+      correcte: false
+      obstacleVise: 0
+    justification: Le cosinus de l'angle obtus est négatif.
+    id: n05-i3
+    palier: C
+- id: n06
+  ordre: 6
+  evalueParTest: true
+  acquisN1: Période, fréquence et célérité
+  usageN: Caractériser une onde (séance 4)
+  obstacles:
+  - Période et fréquence sont confondues
+  - La propagation de l'onde est confondue avec un transport global de matière
+  critereMaitrise: Utiliser f = 1/T et relier distance, durée et célérité.
+  seanceRattachement: 4
+  items:
+  - type: qcm_unique
+    enonce: 'Une période de 0,020 s correspond à :'
+    propositions:
+    - texte: 500 Hz
+      correcte: false
+      obstacleVise: 0
+    - texte: 20 Hz
+      correcte: false
+      obstacleVise: 0
+    - texte: 0,020 Hz
+      correcte: false
+      obstacleVise: 1
+    - texte: 50 Hz
+      correcte: true
+    justification: f = 1/T.
+    id: n06-i1
+    palier: A
+  - type: qcm_unique
+    enonce: 'Une onde parcourt 340 m en 1 s. Sa célérité vaut :'
+    propositions:
+    - texte: 340 m·s⁻¹
+      correcte: true
+    - texte: 1/340 m·s⁻¹
+      correcte: false
+      obstacleVise: 0
+    - texte: 341 m·s⁻¹
+      correcte: false
+      obstacleVise: 1
+    - texte: 340 s·m⁻¹
+      correcte: false
+      obstacleVise: 0
+    justification: c = d/Δt.
+    id: n06-i2
+    palier: B
+  - type: qcm_unique
+    enonce: 'Une onde mécanique progressive transporte :'
+    propositions:
+    - texte: toute la matière jusqu'au récepteur
+      correcte: false
+      obstacleVise: 0
+    - texte: de l'énergie sans transport global de matière
+      correcte: true
+    - texte: uniquement de la masse
+      correcte: false
+      obstacleVise: 1
+    - texte: aucune information
+      correcte: false
+      obstacleVise: 0
+    justification: La perturbation se propage.
+    id: n06-i3
+    palier: C
+- id: n07
+  ordre: 7
+  evalueParTest: true
+  acquisN1: Optique géométrique
+  usageN: Comprendre diffraction, interférences et lois de Snell-Descartes (séance 4)
+  obstacles:
+  - Les angles sont mesurés par rapport à la surface
+  - Réflexion et réfraction sont confondues
+  critereMaitrise: Construire un rayon et appliquer une relation optique simple.
+  seanceRattachement: 4
+  items:
+  - type: qcm_unique
+    enonce: 'Les angles d''incidence et de réfraction se mesurent par rapport :'
+    propositions:
+    - texte: au rayon réfléchi uniquement
+      correcte: false
+      obstacleVise: 1
+    - texte: à l'horizontale
+      correcte: false
+      obstacleVise: 0
+    - texte: à la normale
+      correcte: true
+    - texte: à la surface
+      correcte: false
+      obstacleVise: 0
+    justification: La normale est la référence.
+    id: n07-i1
+    palier: A
+  - type: qcm_unique
+    enonce: 'La loi de la réflexion donne :'
+    propositions:
+    - texte: aucun angle
+      correcte: false
+      obstacleVise: 0
+    - texte: angle réfléchi = 90°
+      correcte: false
+      obstacleVise: 0
+    - texte: angle réfracté = angle incident toujours
+      correcte: false
+      obstacleVise: 1
+    - texte: angle réfléchi = angle incident
+      correcte: true
+    justification: Les angles sont égaux par rapport à la normale.
+    id: n07-i2
+    palier: B
+  - type: qcm_unique
+    enonce: 'La diffraction est plus marquée quand l''ouverture est :'
+    propositions:
+    - texte: du même ordre que la longueur d'onde
+      correcte: true
+    - texte: infiniment grande
+      correcte: false
+      obstacleVise: 0
+    - texte: indépendante de la longueur d'onde
+      correcte: false
+      obstacleVise: 1
+    - texte: toujours carrée
+      correcte: false
+      obstacleVise: 0
+    justification: Le rapport longueur d'onde/taille contrôle le phénomène.
+    id: n07-i3
+    palier: C
+- id: n08
+  ordre: 8
+  evalueParTest: true
+  acquisN1: Résolution de problème et incertitudes
+  usageN: Rédiger un problème scientifique type Bac (séance 5)
+  obstacles:
+  - Un écart est commenté sans incertitude
+  - Le résultat est livré sans modèle ni unité
+  critereMaitrise: Choisir un modèle, calculer, évaluer la cohérence et conclure.
+  seanceRattachement: 5
+  items:
+  - type: qcm_unique
+    enonce: 'Deux mesures sont compatibles si leurs intervalles d''incertitude :'
+    propositions:
+    - texte: ont la même largeur seulement
+      correcte: false
+      obstacleVise: 0
+    - texte: se recouvrent
+      correcte: true
+    - texte: sont centrés sur zéro
+      correcte: false
+      obstacleVise: 1
+    - texte: n'ont aucune unité
+      correcte: false
+      obstacleVise: 0
+    justification: Le recouvrement indique des valeurs plausibles communes.
+    id: n08-i1
+    palier: A
+  - type: qcm_unique
+    enonce: 'Un résultat doit être arrondi :'
+    propositions:
+    - texte: à l'entier systématiquement
+      correcte: false
+      obstacleVise: 1
+    - texte: avant chaque opération
+      correcte: false
+      obstacleVise: 0
+    - texte: en cohérence avec l'incertitude ou les données
+      correcte: true
+    - texte: toujours à dix décimales
+      correcte: false
+      obstacleVise: 0
+    justification: La précision doit rester signifiante.
+    id: n08-i2
+    palier: B
+  - type: qcm_unique
+    enonce: 'Une résolution complète se termine par :'
+    propositions:
+    - texte: une opinion
+      correcte: false
+      obstacleVise: 0
+    - texte: la formule générale seulement
+      correcte: false
+      obstacleVise: 0
+    - texte: la liste des données
+      correcte: false
+      obstacleVise: 1
+    - texte: une réponse interprétée avec unité et cohérence
+      correcte: true
+    justification: La conclusion répond à la question posée.
+    id: n08-i3
+    palier: C

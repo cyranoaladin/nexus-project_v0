@@ -1,0 +1,551 @@
+id: francais-entree-quatrieme
+niveauEntree: QUATRIEME
+matiere: FRANCAIS
+edition: 2026
+dureeCibleMinutes: 22
+gamme: FONDATIONS
+statutValidation: HUMAN_VALIDATION_REQUIRED
+intitulePublic: Français — Entrée en 4e
+cadrage: 'Huit nœuds évalués par vingt-quatre items. Le test porte sur des opérations de lecture, de langue et d''écriture
+  ; trois réponses courtes sont corrigées manuellement et exclues du scoring automatique. Les nœuds sont rattachés
+  aux cinq séances validées du module Français — Entrée en 4e.
+
+  '
+noeuds:
+- id: n01
+  ordre: 1
+  evalueParTest: true
+  acquisN1: Prélever une information explicite dans un texte
+  usageN: Formuler une interprétation de l'implicite et la justifier par le texte (séance 1)
+  obstacles:
+  - La réponse recopie une phrase sans sélectionner l'information utile
+  - Une interprétation est proposée sans indice textuel
+  - L'élève confond ce qui est dit explicitement et ce qui doit être déduit
+  critereMaitrise: 'Distinguer une information explicite d''une inférence et sélectionner l''indice textuel qui
+    justifie cette inférence.
+
+    '
+  seanceRattachement: 1
+  items:
+  - id: n01-i1
+    palier: A
+    type: qcm_unique
+    enonce: 'Lina referma son parapluie dans l''entrée. Des gouttes tombaient encore de son manteau. Quelle information
+      est dite explicitement ?
+
+      '
+    propositions:
+    - texte: Le manteau de Lina est encore mouillé.
+      correcte: true
+    - texte: Il a plu toute la journée.
+      correcte: false
+      obstacleVise: 2
+    - texte: Lina déteste la pluie.
+      correcte: false
+      obstacleVise: 1
+    - texte: Lina a oublié son parapluie.
+      correcte: false
+      obstacleVise: 0
+    justification: Les gouttes qui tombent encore du manteau rendent son humidité explicite.
+  - id: n01-i2
+    palier: B
+    type: qcm_unique
+    enonce: 'À l''annonce des résultats, Sami relut trois fois la même ligne avant de sourire. Que peut-on raisonnablement
+      déduire ?
+
+      '
+    propositions:
+    - texte: Sami ne sait pas lire.
+      correcte: false
+      obstacleVise: 1
+    - texte: Le résultat qu'il lit lui est favorable.
+      correcte: true
+    - texte: La feuille contient exactement trois lignes.
+      correcte: false
+      obstacleVise: 0
+    - texte: Sami connaissait déjà le résultat.
+      correcte: false
+      obstacleVise: 2
+    justification: La relecture suivie du sourire constitue un faisceau d'indices, sans rendre le résultat explicite.
+  - id: n01-i3
+    palier: C
+    type: reponse_courte
+    correctionManuelle: true
+    excluScoringAutomatique: true
+    longueurMaxCaracteres: 280
+    enonce: '« Noura posa le livre neuf sur la table, mais garda longtemps la main sur la couverture avant de l''ouvrir.
+      » Formulez une interprétation de son attitude et justifiez-la par un indice précis du texte.
+
+      '
+    criteresCorrection:
+    - Une interprétation plausible de l'hésitation ou de l'importance accordée au livre est formulée.
+    - L'expression « garda longtemps la main sur la couverture » est citée ou précisément reformulée.
+    - Le lien entre l'indice et l'interprétation est explicité.
+    exempleReponseAdmissible: 'Noura semble hésiter ou donner une grande importance à ce livre, car elle garde longtemps
+      la main sur la couverture avant de l''ouvrir.
+
+      '
+    justification: L'item vérifie la chaîne indice → inférence → justification, non une interprétation unique.
+- id: n02
+  ordre: 2
+  evalueParTest: true
+  acquisN1: Citer un texte pour appuyer une réponse
+  usageN: Justifier une interprétation par une citation intégrée et commentée (séance 1)
+  obstacles:
+  - La citation est posée sans être reliée à l'idée défendue
+  - La citation choisie ne prouve pas l'affirmation
+  - La réponse paraphrase le texte sans prélever de preuve précise
+  critereMaitrise: Choisir une citation pertinente, l'intégrer à une phrase et expliquer ce qu'elle prouve.
+  seanceRattachement: 1
+  items:
+  - id: n02-i1
+    palier: A
+    type: qcm_unique
+    enonce: 'Pour montrer que le personnage est pressé, quelle citation est la plus pertinente ? « Il saisit son
+      sac, dévala l''escalier et laissa la porte entrouverte. »
+
+      '
+    propositions:
+    - texte: « son sac »
+      correcte: false
+      obstacleVise: 1
+    - texte: « la porte »
+      correcte: false
+      obstacleVise: 1
+    - texte: « dévala l'escalier »
+      correcte: true
+    - texte: « Il saisit »
+      correcte: false
+      obstacleVise: 2
+    justification: Le verbe « dévala » exprime directement la rapidité du déplacement.
+  - id: n02-i2
+    palier: B
+    type: qcm_unique
+    enonce: Quelle phrase intègre correctement une citation à l'analyse ?
+    propositions:
+    - texte: Le personnage est inquiet. « sursauta ».
+      correcte: false
+      obstacleVise: 0
+    - texte: Le personnage sursauta parce qu'il est un personnage.
+      correcte: false
+      obstacleVise: 2
+    - texte: Le texte dit qu'il est inquiet, mais aucune citation n'est nécessaire.
+      correcte: false
+      obstacleVise: 2
+    - texte: Le personnage paraît inquiet, comme le montre le verbe « sursauta », qui traduit une réaction brusque.
+      correcte: true
+    justification: La première réponse annonce l'idée, cite un indice et en explique l'effet.
+  - id: n02-i3
+    palier: C
+    type: qcm_unique
+    enonce: '« La salle se tut dès qu''Amel entra ; plusieurs regards se détournèrent. » Quelle justification est
+      la plus complète pour montrer qu''Amel met les autres mal à l''aise ?
+
+      '
+    propositions:
+    - texte: Le silence soudain et les « regards [qui] se détournèrent » montrent que sa présence provoque une gêne
+        collective.
+      correcte: true
+    - texte: Amel entre dans une salle.
+      correcte: false
+      obstacleVise: 1
+    - texte: « La salle se tut ». Cette citation est dans le texte.
+      correcte: false
+      obstacleVise: 0
+    - texte: Les autres regardent Amel avec admiration.
+      correcte: false
+      obstacleVise: 1
+    justification: La réponse croise deux indices et explicite l'interprétation qu'ils soutiennent.
+- id: n03
+  ordre: 3
+  evalueParTest: true
+  acquisN1: Identifier les principales classes grammaticales
+  usageN: Analyser la phrase complexe en distinguant classes, fonctions et propositions (séance 2)
+  obstacles:
+  - La classe grammaticale est confondue avec la fonction dans la phrase
+  - Le déterminant, le pronom et la préposition sont confondus
+  - La classe d'un mot est déduite de sa place plutôt que de son fonctionnement
+  critereMaitrise: Identifier la classe d'un mot dans son emploi et la distinguer de sa fonction.
+  seanceRattachement: 2
+  items:
+  - id: n03-i1
+    palier: A
+    type: qcm_unique
+    enonce: Dans « Ces élèves relisent leur texte », quelle est la classe grammaticale de « Ces » ?
+    propositions:
+    - texte: Pronom démonstratif
+      correcte: false
+      obstacleVise: 1
+    - texte: Déterminant démonstratif
+      correcte: true
+    - texte: Adjectif qualificatif
+      correcte: false
+      obstacleVise: 2
+    - texte: Sujet du verbe
+      correcte: false
+      obstacleVise: 0
+    justification: « Ces » détermine le nom « élèves » ; « sujet » serait une fonction.
+  - id: n03-i2
+    palier: B
+    type: qcm_unique
+    enonce: Dans « Le roman que tu lis est passionnant », quelle est la classe de « que » ?
+    propositions:
+    - texte: Conjonction de coordination
+      correcte: false
+      obstacleVise: 1
+    - texte: Déterminant interrogatif
+      correcte: false
+      obstacleVise: 1
+    - texte: Pronom relatif
+      correcte: true
+    - texte: Complément d'objet direct
+      correcte: false
+      obstacleVise: 0
+    justification: « Que » reprend l'antécédent « roman » et introduit une proposition subordonnée relative.
+  - id: n03-i3
+    palier: C
+    type: qcm_unique
+    enonce: Dans « Malgré la fatigue, elle poursuit son travail », quelle est la classe de « Malgré » ?
+    propositions:
+    - texte: Adverbe
+      correcte: false
+      obstacleVise: 2
+    - texte: Conjonction de subordination
+      correcte: false
+      obstacleVise: 1
+    - texte: Complément circonstanciel
+      correcte: false
+      obstacleVise: 0
+    - texte: Préposition
+      correcte: true
+    justification: « Malgré » introduit le groupe nominal « la fatigue » ; l'ensemble exerce une fonction circonstancielle.
+- id: n04
+  ordre: 4
+  evalueParTest: true
+  acquisN1: Identifier le verbe conjugué et les fonctions dans la phrase simple
+  usageN: Repérer et analyser les propositions et la subordination dans une phrase complexe (séance 2)
+  obstacles:
+  - Tout groupe placé avant le verbe est considéré comme sujet
+  - Un infinitif est compté comme le noyau d'une nouvelle proposition
+  - Le mot subordonnant est repéré sans délimiter la proposition qu'il introduit
+  critereMaitrise: Repérer les verbes conjugués, délimiter les propositions et identifier leur relation.
+  seanceRattachement: 2
+  items:
+  - id: n04-i1
+    palier: A
+    type: qcm_unique
+    enonce: Dans « Demain, les élèves présenteront leur travail », quel groupe est sujet ?
+    propositions:
+    - texte: les élèves
+      correcte: true
+    - texte: Demain
+      correcte: false
+      obstacleVise: 0
+    - texte: leur travail
+      correcte: false
+      obstacleVise: 0
+    - texte: présenteront
+      correcte: false
+      obstacleVise: 2
+    justification: Ce sont « les élèves » qui présenteront ; « demain » est un complément circonstanciel.
+  - id: n04-i2
+    palier: B
+    type: qcm_unique
+    enonce: Combien de propositions contient « Je pense que tu réussiras » ?
+    propositions:
+    - texte: Une, car la phrase ne contient qu'un point
+      correcte: false
+      obstacleVise: 2
+    - texte: Deux, organisées autour de « pense » et « réussiras »
+      correcte: true
+    - texte: Trois, car « que » compte comme un verbe
+      correcte: false
+      obstacleVise: 2
+    - texte: Deux, organisées autour de « Je » et « tu »
+      correcte: false
+      obstacleVise: 0
+    justification: Chaque proposition s'organise autour d'un verbe conjugué.
+  - id: n04-i3
+    palier: C
+    type: qcm_unique
+    enonce: 'Dans « Le livre que tu m''as conseillé me plaît », quelle suite délimite exactement la proposition
+      subordonnée relative ?
+
+      '
+    propositions:
+    - texte: Le livre que
+      correcte: false
+      obstacleVise: 2
+    - texte: tu m'as conseillé me plaît
+      correcte: false
+      obstacleVise: 2
+    - texte: que tu m'as conseillé
+      correcte: true
+    - texte: m'as conseillé
+      correcte: false
+      obstacleVise: 1
+    justification: La relative est introduite par « que » et s'arrête avant le verbe principal « plaît ».
+- id: n05
+  ordre: 5
+  evalueParTest: true
+  acquisN1: Réaliser les accords dans le groupe nominal
+  usageN: Maintenir les accords dans des groupes complexes et lors d'une réécriture (séance 3)
+  obstacles:
+  - L'accord se fait avec le mot le plus proche plutôt qu'avec le nom noyau
+  - Le genre ou le nombre du nom noyau n'est pas repéré
+  - Une transformation au pluriel n'est pas propagée à tous les éléments du groupe
+  critereMaitrise: Identifier le nom noyau et propager correctement genre et nombre dans le groupe nominal.
+  seanceRattachement: 3
+  items:
+  - id: n05-i1
+    palier: A
+    type: qcm_unique
+    enonce: Quelle forme est correcte ?
+    propositions:
+    - texte: des histoire passionnantes
+      correcte: false
+      obstacleVise: 2
+    - texte: des histoires passionnant
+      correcte: false
+      obstacleVise: 1
+    - texte: des histoires passionnante
+      correcte: false
+      obstacleVise: 0
+    - texte: des histoires passionnantes
+      correcte: true
+    justification: Le déterminant, le nom et l'adjectif portent tous la marque du pluriel.
+  - id: n05-i2
+    palier: B
+    type: qcm_unique
+    enonce: 'Complétez : « Une série de questions difficiles ___ proposée. »'
+    propositions:
+    - texte: est
+      correcte: true
+    - texte: sont
+      correcte: false
+      obstacleVise: 0
+    - texte: étaient
+      correcte: false
+      obstacleVise: 0
+    - texte: seront
+      correcte: false
+      obstacleVise: 1
+    justification: Le noyau du groupe sujet est « série », féminin singulier.
+  - id: n05-i3
+    palier: C
+    type: qcm_unique
+    enonce: 'Mettez mentalement au pluriel « Cette longue histoire surprenante est terminée ». Quelle réécriture
+      est correcte ?
+
+      '
+    propositions:
+    - texte: Ces longue histoires surprenante sont terminée.
+      correcte: false
+      obstacleVise: 2
+    - texte: Ces longues histoires surprenantes sont terminées.
+      correcte: true
+    - texte: Cette longues histoires surprenantes est terminées.
+      correcte: false
+      obstacleVise: 1
+    - texte: Ces longues histoire surprenantes sont terminées.
+      correcte: false
+      obstacleVise: 2
+    justification: La transformation au pluriel se propage au déterminant, au nom, aux adjectifs et au verbe.
+- id: n06
+  ordre: 6
+  evalueParTest: true
+  acquisN1: Accorder le verbe avec son sujet
+  usageN: Accorder le verbe avec un sujet inversé, éloigné ou enrichi (séance 3)
+  obstacles:
+  - Le verbe est accordé avec le nom placé immédiatement avant lui
+  - Le sujet inversé n'est pas identifié après le verbe
+  - Un pronom complément est pris pour le sujet
+  critereMaitrise: Identifier le donneur d'accord du verbe, quelle que soit sa place.
+  seanceRattachement: 3
+  items:
+  - id: n06-i1
+    palier: A
+    type: qcm_unique
+    enonce: 'Complétez : « Les élèves de cette classe ___ attentivement. »'
+    propositions:
+    - texte: écoute
+      correcte: false
+      obstacleVise: 0
+    - texte: écoutes
+      correcte: false
+      obstacleVise: 2
+    - texte: écoutent
+      correcte: true
+    - texte: écoutant
+      correcte: false
+      obstacleVise: 1
+    justification: Le noyau du sujet est « élèves », au pluriel.
+  - id: n06-i2
+    palier: B
+    type: qcm_unique
+    enonce: 'Complétez : « Au fond du jardin ___ deux vieux arbres. »'
+    propositions:
+    - texte: se dresse
+      correcte: false
+      obstacleVise: 1
+    - texte: se dresses
+      correcte: false
+      obstacleVise: 2
+    - texte: dressent
+      correcte: false
+      obstacleVise: 0
+    - texte: se dressent
+      correcte: true
+    justification: Le sujet inversé « deux vieux arbres » impose le pluriel.
+  - id: n06-i3
+    palier: C
+    type: qcm_unique
+    enonce: 'Complétez : « La liste des ouvrages que nous avons choisis ___ sur le bureau. »'
+    propositions:
+    - texte: reste
+      correcte: true
+    - texte: restent
+      correcte: false
+      obstacleVise: 0
+    - texte: restes
+      correcte: false
+      obstacleVise: 2
+    - texte: rester
+      correcte: false
+      obstacleVise: 1
+    justification: Le sujet de « reste » est le noyau singulier « liste », malgré les pluriels intercalés.
+- id: n07
+  ordre: 7
+  evalueParTest: true
+  acquisN1: Employer le passé simple et l'imparfait dans un récit
+  usageN: Structurer un récit en choisissant les temps selon leur valeur (séances 3 et 4)
+  obstacles:
+  - Le passé simple et l'imparfait alternent au hasard
+  - L'imparfait est limité à la description, sans prise en compte de la durée ou de l'habitude
+  - Le passé simple est choisi pour toute action, même répétée ou en cours
+  critereMaitrise: Distinguer arrière-plan, action en cours, habitude et événement de premier plan.
+  seanceRattachement: 3
+  items:
+  - id: n07-i1
+    palier: A
+    type: qcm_unique
+    enonce: 'Complétez : « Chaque soir, il ___ le même chemin. »'
+    propositions:
+    - texte: emprunta
+      correcte: false
+      obstacleVise: 2
+    - texte: empruntait
+      correcte: true
+    - texte: empruntera
+      correcte: false
+      obstacleVise: 0
+    - texte: a emprunté
+      correcte: false
+      obstacleVise: 1
+    justification: « Chaque soir » indique une habitude passée, exprimée à l'imparfait.
+  - id: n07-i2
+    palier: B
+    type: qcm_unique
+    enonce: 'Complétez : « La pluie tombait lorsque le téléphone ___. »'
+    propositions:
+    - texte: sonnait
+      correcte: false
+      obstacleVise: 0
+    - texte: sonne
+      correcte: false
+      obstacleVise: 1
+    - texte: sonna
+      correcte: true
+    - texte: avait sonné
+      correcte: false
+      obstacleVise: 2
+    justification: L'imparfait installe l'arrière-plan ; le passé simple marque l'événement soudain.
+  - id: n07-i3
+    palier: C
+    type: qcm_unique
+    enonce: 'Quelle suite convient le mieux ? « Pendant que les voyageurs ___, le train ___ brusquement. »
+
+      '
+    propositions:
+    - texte: dormirent / s'arrêtait
+      correcte: false
+      obstacleVise: 0
+    - texte: dormaient / s'arrêtait
+      correcte: false
+      obstacleVise: 2
+    - texte: dormirent / s'arrêta
+      correcte: false
+      obstacleVise: 1
+    - texte: dormaient / s'arrêta
+      correcte: true
+    justification: L'action en cours est à l'imparfait ; l'événement bref qui la coupe est au passé simple.
+- id: n08
+  ordre: 8
+  evalueParTest: true
+  acquisN1: Écrire un paragraphe cohérent
+  usageN: Construire un récit ou une description organisé, puis un texte en plusieurs paragraphes (séances 4 et
+    5)
+  obstacles:
+  - Les idées sont juxtaposées sans ordre ni connecteur
+  - Le paragraphe mélange plusieurs idées sans phrase directrice
+  - La rédaction commence sans analyse de la consigne ni plan minimal
+  critereMaitrise: Organiser une idée directrice, des détails cohérents et des connecteurs dans un paragraphe.
+  seanceRattachement: 5
+  items:
+  - id: n08-i1
+    palier: A
+    type: qcm_unique
+    enonce: Quel connecteur marque le mieux une conséquence ?
+    propositions:
+    - texte: donc
+      correcte: true
+    - texte: cependant
+      correcte: false
+      obstacleVise: 0
+    - texte: d'abord
+      correcte: false
+      obstacleVise: 2
+    - texte: par exemple
+      correcte: false
+      obstacleVise: 1
+    justification: « Donc » introduit une conséquence.
+  - id: n08-i2
+    palier: B
+    type: qcm_unique
+    enonce: 'Pour décrire progressivement une maison abandonnée, quel ordre est le plus cohérent ?
+
+      '
+    propositions:
+    - texte: Porte, souvenir personnel, toit, conclusion sans lien
+      correcte: false
+      obstacleVise: 0
+    - texte: Vue d'ensemble, façade, porte, puis intérieur
+      correcte: true
+    - texte: Intérieur, titre, façade, retour à l'intérieur
+      correcte: false
+      obstacleVise: 1
+    - texte: Écrire immédiatement sans choisir d'ordre
+      correcte: false
+      obstacleVise: 2
+    justification: Un parcours du général au particulier donne une progression lisible à la description.
+  - id: n08-i3
+    palier: C
+    type: reponse_courte
+    correctionManuelle: true
+    excluScoringAutomatique: true
+    longueurMaxCaracteres: 420
+    enonce: 'Rédigez un paragraphe de trois ou quatre phrases montrant qu''un lieu paraît inquiétant. Employez une
+      phrase directrice, deux détails précis et au moins un connecteur.
+
+      '
+    criteresCorrection:
+    - 'Le paragraphe développe une seule impression dominante : l''inquiétude.'
+    - Au moins deux détails concrets soutiennent cette impression.
+    - Un connecteur organise la progression.
+    - Les phrases sont syntaxiquement complètes et cohérentes.
+    exempleReponseAdmissible: 'Dès l''entrée, le lieu semblait inquiétant. D''abord, aucune lumière ne traversait
+      les fenêtres couvertes de poussière. Puis un bruit régulier venait du couloir vide. Ainsi, chaque pas donnait
+      envie de rebrousser chemin.
+
+      '
+    justification: L'item observe directement l'organisation du paragraphe, impossible à réduire à un QCM.

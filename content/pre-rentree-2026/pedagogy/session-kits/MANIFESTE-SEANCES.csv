@@ -1,0 +1,86 @@
+moduleId,niveau,matiere,seance,intitule,noeudsCPS,ressourceSpecifique,banques,exercices,questionsVerification,statut,dossier
+quatrieme-mathematiques,QUATRIEME,MATHEMATIQUES,1,"Nombres relatifs, fractions et puissances",n01|n02|n03,NON,3,9,3,HUMAN_VALIDATION_REQUIRED,modules/quatrieme-mathematiques/s01-nombres-relatifs-fractions-et-puissances
+quatrieme-mathematiques,QUATRIEME,MATHEMATIQUES,2,Calcul littéral et équations du premier degré,n04|n05,NON,3,9,3,HUMAN_VALIDATION_REQUIRED,modules/quatrieme-mathematiques/s02-calcul-litteral-et-equations-du-premier-degre
+quatrieme-mathematiques,QUATRIEME,MATHEMATIQUES,3,"Pythagore, réciproque, agrandissement et réduction",n07,NON,3,9,3,HUMAN_VALIDATION_REQUIRED,modules/quatrieme-mathematiques/s03-pythagore-reciproque-agrandissement-et-reduction
+quatrieme-mathematiques,QUATRIEME,MATHEMATIQUES,4,"Proportionnalité, pourcentages et vitesses",n06,NON,3,9,3,HUMAN_VALIDATION_REQUIRED,modules/quatrieme-mathematiques/s04-proportionnalite-pourcentages-et-vitesses
+quatrieme-mathematiques,QUATRIEME,MATHEMATIQUES,5,"Statistiques, premières probabilités et synthèse",n08,NON,3,9,3,HUMAN_VALIDATION_REQUIRED,modules/quatrieme-mathematiques/s05-statistiques-premieres-probabilites-et-synthese
+quatrieme-francais,QUATRIEME,FRANCAIS,1,Comprendre et interpréter un texte,n01|n02,NON,3,9,3,HUMAN_VALIDATION_REQUIRED,modules/quatrieme-francais/s01-comprendre-et-interpreter-un-texte
+quatrieme-francais,QUATRIEME,FRANCAIS,2,"Grammaire de la phrase : classes, fonctions, propositions",n03|n04,NON,3,9,3,HUMAN_VALIDATION_REQUIRED,modules/quatrieme-francais/s02-grammaire-de-la-phrase-classes-fonctions-propositions
+quatrieme-francais,QUATRIEME,FRANCAIS,3,Accords et conjugaison des temps du récit,n05|n06|n07,NON,3,9,3,HUMAN_VALIDATION_REQUIRED,modules/quatrieme-francais/s03-accords-et-conjugaison-des-temps-du-recit
+quatrieme-francais,QUATRIEME,FRANCAIS,4,"Récit, description et point de vue",,OUI,3,9,3,HUMAN_VALIDATION_REQUIRED,modules/quatrieme-francais/s04-recit-description-et-point-de-vue
+quatrieme-francais,QUATRIEME,FRANCAIS,5,Expression écrite construite en paragraphes,n08,NON,3,9,3,HUMAN_VALIDATION_REQUIRED,modules/quatrieme-francais/s05-expression-ecrite-construite-en-paragraphes
+troisieme-mathematiques,TROISIEME,MATHEMATIQUES,1,"Nombres, fractions, puissances et calcul",n01,NON,3,9,3,HUMAN_VALIDATION_REQUIRED,modules/troisieme-mathematiques/s01-nombres-fractions-puissances-et-calcul
+troisieme-mathematiques,TROISIEME,MATHEMATIQUES,2,"Calcul littéral, équations et problèmes",n03|n04,NON,3,9,3,HUMAN_VALIDATION_REQUIRED,modules/troisieme-mathematiques/s02-calcul-litteral-equations-et-problemes
+troisieme-mathematiques,TROISIEME,MATHEMATIQUES,3,Géométrie et théorèmes,n05|n06,NON,3,9,3,HUMAN_VALIDATION_REQUIRED,modules/troisieme-mathematiques/s03-geometrie-et-theoremes
+troisieme-mathematiques,TROISIEME,MATHEMATIQUES,4,"Fonctions, statistiques et probabilités",n07|n08,NON,3,9,3,HUMAN_VALIDATION_REQUIRED,modules/troisieme-mathematiques/s04-fonctions-statistiques-et-probabilites
+troisieme-mathematiques,TROISIEME,MATHEMATIQUES,5,Méthodologie DNB et sujet d'entraînement,n10,NON,3,9,3,HUMAN_VALIDATION_REQUIRED,modules/troisieme-mathematiques/s05-methodologie-dnb-et-sujet-d-entrainement
+troisieme-francais,TROISIEME,FRANCAIS,1,Compréhension et interprétation,n01|n02,NON,3,9,3,HUMAN_VALIDATION_REQUIRED,modules/troisieme-francais/s01-comprehension-et-interpretation
+troisieme-francais,TROISIEME,FRANCAIS,2,"Grammaire, accords et réécriture",n03|n04|n05,NON,3,9,3,HUMAN_VALIDATION_REQUIRED,modules/troisieme-francais/s02-grammaire-accords-et-reecriture
+troisieme-francais,TROISIEME,FRANCAIS,3,Dictée et maîtrise de la langue,n07|n09,NON,3,9,3,HUMAN_VALIDATION_REQUIRED,modules/troisieme-francais/s03-dictee-et-maitrise-de-la-langue
+troisieme-francais,TROISIEME,FRANCAIS,4,Rédaction et organisation des idées,n08,NON,3,9,3,HUMAN_VALIDATION_REQUIRED,modules/troisieme-francais/s04-redaction-et-organisation-des-idees
+troisieme-francais,TROISIEME,FRANCAIS,5,Méthodologie DNB et sujet d'entraînement,,OUI,3,9,3,HUMAN_VALIDATION_REQUIRED,modules/troisieme-francais/s05-methodologie-dnb-et-sujet-d-entrainement
+seconde-mathematiques,SECONDE,MATHEMATIQUES,1,"Nombres réels, valeur absolue et calcul littéral",n01|n03,NON,3,9,3,HUMAN_VALIDATION_REQUIRED,modules/seconde-mathematiques/s01-nombres-reels-valeur-absolue-et-calcul-litteral
+seconde-mathematiques,SECONDE,MATHEMATIQUES,2,"Fonctions : représentations, variations et modélisation",n05|n06,NON,3,9,3,HUMAN_VALIDATION_REQUIRED,modules/seconde-mathematiques/s02-fonctions-representations-variations-et-modelisation
+seconde-mathematiques,SECONDE,MATHEMATIQUES,3,"Équations, inéquations et résolution de problèmes",n02|n04,NON,3,9,3,HUMAN_VALIDATION_REQUIRED,modules/seconde-mathematiques/s03-equations-inequations-et-resolution-de-problemes
+seconde-mathematiques,SECONDE,MATHEMATIQUES,4,Géométrie repérée et vecteurs,n07,NON,3,9,3,HUMAN_VALIDATION_REQUIRED,modules/seconde-mathematiques/s04-geometrie-reperee-et-vecteurs
+seconde-mathematiques,SECONDE,MATHEMATIQUES,5,Statistiques et probabilités,n08,NON,3,9,3,HUMAN_VALIDATION_REQUIRED,modules/seconde-mathematiques/s05-statistiques-et-probabilites
+seconde-francais,SECONDE,FRANCAIS,1,Expression écrite structurée : le paragraphe argumenté,n03,NON,3,9,3,HUMAN_VALIDATION_REQUIRED,modules/seconde-francais/s01-expression-ecrite-structuree-le-paragraphe-argumente
+seconde-francais,SECONDE,FRANCAIS,2,Compréhension et analyse de texte littéraire,n01|n02|n08,NON,3,9,3,HUMAN_VALIDATION_REQUIRED,modules/seconde-francais/s02-comprehension-et-analyse-de-texte-litteraire
+seconde-francais,SECONDE,FRANCAIS,3,Argumentation : convaincre et persuader,n04,NON,3,9,3,HUMAN_VALIDATION_REQUIRED,modules/seconde-francais/s03-argumentation-convaincre-et-persuader
+seconde-francais,SECONDE,FRANCAIS,4,Grammaire au service de l'expression,n05|n06,NON,3,9,3,HUMAN_VALIDATION_REQUIRED,modules/seconde-francais/s04-grammaire-au-service-de-l-expression
+seconde-francais,SECONDE,FRANCAIS,5,Initiation au commentaire de texte,n07,NON,3,9,3,HUMAN_VALIDATION_REQUIRED,modules/seconde-francais/s05-initiation-au-commentaire-de-texte
+premiere-mathematiques,PREMIERE,MATHEMATIQUES,1,Second degré et discriminant,n01|n02,NON,3,9,3,HUMAN_VALIDATION_REQUIRED,modules/premiere-mathematiques/s01-second-degre-et-discriminant
+premiere-mathematiques,PREMIERE,MATHEMATIQUES,2,Suites et évolution exponentielle,n05,NON,3,9,3,HUMAN_VALIDATION_REQUIRED,modules/premiere-mathematiques/s02-suites-et-evolution-exponentielle
+premiere-mathematiques,PREMIERE,MATHEMATIQUES,3,"Dérivation, tangente et variations",n03|n04|n07,NON,3,9,3,HUMAN_VALIDATION_REQUIRED,modules/premiere-mathematiques/s03-derivation-tangente-et-variations
+premiere-mathematiques,PREMIERE,MATHEMATIQUES,4,Produit scalaire et géométrie,n06,NON,3,9,3,HUMAN_VALIDATION_REQUIRED,modules/premiere-mathematiques/s04-produit-scalaire-et-geometrie
+premiere-mathematiques,PREMIERE,MATHEMATIQUES,5,Trigonométrie et méthode de l'épreuve anticipée,n08,NON,3,9,3,HUMAN_VALIDATION_REQUIRED,modules/premiere-mathematiques/s05-trigonometrie-et-methode-de-l-epreuve-anticipee
+premiere-francais-eaf,PREMIERE,FRANCAIS,1,Le commentaire composé : méthode complète,n01|n02|n08,NON,3,9,3,HUMAN_VALIDATION_REQUIRED,modules/premiere-francais-eaf/s01-le-commentaire-compose-methode-complete
+premiere-francais-eaf,PREMIERE,FRANCAIS,2,"Dissertation ou contraction de texte, selon la voie",n05,NON,3,9,3,HUMAN_VALIDATION_REQUIRED,modules/premiere-francais-eaf/s02-dissertation-ou-contraction-de-texte-selon-la-voie
+premiere-francais-eaf,PREMIERE,FRANCAIS,3,Explication linéaire : technique et pratique,n03|n04,NON,3,9,3,HUMAN_VALIDATION_REQUIRED,modules/premiere-francais-eaf/s03-explication-lineaire-technique-et-pratique
+premiere-francais-eaf,PREMIERE,FRANCAIS,4,Grammaire stylistique et question de grammaire,n06,NON,3,9,3,HUMAN_VALIDATION_REQUIRED,modules/premiere-francais-eaf/s04-grammaire-stylistique-et-question-de-grammaire
+premiere-francais-eaf,PREMIERE,FRANCAIS,5,Oral des EAF : explication et entretien,n07,NON,3,9,3,HUMAN_VALIDATION_REQUIRED,modules/premiere-francais-eaf/s05-oral-des-eaf-explication-et-entretien
+premiere-nsi,PREMIERE,NSI,1,Algorithmique et premiers programmes Python,n01|n04|n07|n08,NON,3,9,3,HUMAN_VALIDATION_REQUIRED,modules/premiere-nsi/s01-algorithmique-et-premiers-programmes-python
+premiere-nsi,PREMIERE,NSI,2,Conditions et boucles,n02|n03|n05,NON,3,9,3,HUMAN_VALIDATION_REQUIRED,modules/premiere-nsi/s02-conditions-et-boucles
+premiere-nsi,PREMIERE,NSI,3,Fonctions et décomposition d’un problème,n06,NON,3,9,3,HUMAN_VALIDATION_REQUIRED,modules/premiere-nsi/s03-fonctions-et-decomposition-d-un-probleme
+premiere-nsi,PREMIERE,NSI,4,"Listes, parcours et recherche",,OUI,3,9,3,HUMAN_VALIDATION_REQUIRED,modules/premiere-nsi/s04-listes-parcours-et-recherche
+premiere-nsi,PREMIERE,NSI,5,Mini-projet intégrateur NSI,,OUI,3,9,3,HUMAN_VALIDATION_REQUIRED,modules/premiere-nsi/s05-mini-projet-integrateur-nsi
+premiere-physique-chimie,PREMIERE,PHYSIQUE_CHIMIE,1,Quantité de matière et concentration,n01|n04,NON,3,9,3,HUMAN_VALIDATION_REQUIRED,modules/premiere-physique-chimie/s01-quantite-de-matiere-et-concentration
+premiere-physique-chimie,PREMIERE,PHYSIQUE_CHIMIE,2,Réactions chimiques et stœchiométrie,n03|n05,NON,3,9,3,HUMAN_VALIDATION_REQUIRED,modules/premiere-physique-chimie/s02-reactions-chimiques-et-stochiometrie
+premiere-physique-chimie,PREMIERE,PHYSIQUE_CHIMIE,3,Champs et forces : gravitation et électrostatique,n06,NON,3,9,3,HUMAN_VALIDATION_REQUIRED,modules/premiere-physique-chimie/s03-champs-et-forces-gravitation-et-electrostatique
+premiere-physique-chimie,PREMIERE,PHYSIQUE_CHIMIE,4,"Aspects énergétiques : travail, énergie et transferts",n07,NON,3,9,3,HUMAN_VALIDATION_REQUIRED,modules/premiere-physique-chimie/s04-aspects-energetiques-travail-energie-et-transferts
+premiere-physique-chimie,PREMIERE,PHYSIQUE_CHIMIE,5,Exploitation de documents scientifiques,n02|n08,NON,3,9,3,HUMAN_VALIDATION_REQUIRED,modules/premiere-physique-chimie/s05-exploitation-de-documents-scientifiques
+terminale-mathematiques,TERMINALE,MATHEMATIQUES,1,Limites et continuité,n04,NON,3,9,3,HUMAN_VALIDATION_REQUIRED,modules/terminale-mathematiques/s01-limites-et-continuite
+terminale-mathematiques,TERMINALE,MATHEMATIQUES,2,Dérivation avancée et fonctions composées,n01|n02,NON,3,9,3,HUMAN_VALIDATION_REQUIRED,modules/terminale-mathematiques/s02-derivation-avancee-et-fonctions-composees
+terminale-mathematiques,TERMINALE,MATHEMATIQUES,3,Suites récurrentes et convergence,n03|n08,NON,3,9,3,HUMAN_VALIDATION_REQUIRED,modules/terminale-mathematiques/s03-suites-recurrentes-et-convergence
+terminale-mathematiques,TERMINALE,MATHEMATIQUES,4,Probabilités : loi binomiale et espérance,n05,NON,3,9,3,HUMAN_VALIDATION_REQUIRED,modules/terminale-mathematiques/s04-probabilites-loi-binomiale-et-esperance
+terminale-mathematiques,TERMINALE,MATHEMATIQUES,5,Géométrie dans l'espace,n06|n07,NON,3,9,3,HUMAN_VALIDATION_REQUIRED,modules/terminale-mathematiques/s05-geometrie-dans-l-espace
+terminale-maths-expertes,TERMINALE,MATHS_EXPERTES,1,Arithmétique : divisibilité et nombres premiers,n01,NON,3,9,3,HUMAN_VALIDATION_REQUIRED,modules/terminale-maths-expertes/s01-arithmetique-divisibilite-et-nombres-premiers
+terminale-maths-expertes,TERMINALE,MATHS_EXPERTES,2,Congruences et applications,n02,NON,3,9,3,HUMAN_VALIDATION_REQUIRED,modules/terminale-maths-expertes/s02-congruences-et-applications
+terminale-maths-expertes,TERMINALE,MATHS_EXPERTES,3,Nombres complexes approfondis,n03|n04,NON,3,9,3,HUMAN_VALIDATION_REQUIRED,modules/terminale-maths-expertes/s03-nombres-complexes-approfondis
+terminale-maths-expertes,TERMINALE,MATHS_EXPERTES,4,Matrices et systèmes linéaires,n05|n06,NON,3,9,3,HUMAN_VALIDATION_REQUIRED,modules/terminale-maths-expertes/s04-matrices-et-systemes-lineaires
+terminale-maths-expertes,TERMINALE,MATHS_EXPERTES,5,Graphes : notions et parcours,n07|n08,NON,3,9,3,HUMAN_VALIDATION_REQUIRED,modules/terminale-maths-expertes/s05-graphes-notions-et-parcours
+terminale-nsi,TERMINALE,NSI,1,"Structures de données : piles, files et arbres",n01|n03,NON,3,9,3,HUMAN_VALIDATION_REQUIRED,modules/terminale-nsi/s01-structures-de-donnees-piles-files-et-arbres
+terminale-nsi,TERMINALE,NSI,2,Récursivité : principes et applications,n02,NON,3,9,3,HUMAN_VALIDATION_REQUIRED,modules/terminale-nsi/s02-recursivite-principes-et-applications
+terminale-nsi,TERMINALE,NSI,3,Bases de données et SQL,n04|n06,NON,3,9,3,HUMAN_VALIDATION_REQUIRED,modules/terminale-nsi/s03-bases-de-donnees-et-sql
+terminale-nsi,TERMINALE,NSI,4,Protocoles réseaux et sécurité,n07,NON,3,9,3,HUMAN_VALIDATION_REQUIRED,modules/terminale-nsi/s04-protocoles-reseaux-et-securite
+terminale-nsi,TERMINALE,NSI,5,Méthodologie de l'épreuve pratique NSI,n05|n08,NON,3,9,3,HUMAN_VALIDATION_REQUIRED,modules/terminale-nsi/s05-methodologie-de-l-epreuve-pratique-nsi
+terminale-physique-chimie,TERMINALE,PHYSIQUE_CHIMIE,1,Acides-bases et pH,n01|n02,NON,3,9,3,HUMAN_VALIDATION_REQUIRED,modules/terminale-physique-chimie/s01-acides-bases-et-ph
+terminale-physique-chimie,TERMINALE,PHYSIQUE_CHIMIE,2,Cinétique chimique : vitesse et facteurs,n03,NON,3,9,3,HUMAN_VALIDATION_REQUIRED,modules/terminale-physique-chimie/s02-cinetique-chimique-vitesse-et-facteurs
+terminale-physique-chimie,TERMINALE,PHYSIQUE_CHIMIE,3,Mécanique newtonienne,n04|n05,NON,3,9,3,HUMAN_VALIDATION_REQUIRED,modules/terminale-physique-chimie/s03-mecanique-newtonienne
+terminale-physique-chimie,TERMINALE,PHYSIQUE_CHIMIE,4,Ondes et optique,n06|n07,NON,3,9,3,HUMAN_VALIDATION_REQUIRED,modules/terminale-physique-chimie/s04-ondes-et-optique
+terminale-physique-chimie,TERMINALE,PHYSIQUE_CHIMIE,5,Résolution de problèmes scientifiques,n08,NON,3,9,3,HUMAN_VALIDATION_REQUIRED,modules/terminale-physique-chimie/s05-resolution-de-problemes-scientifiques
+premiere-svt,PREMIERE,SVT,1,"Transmission, expression et variation du patrimoine génétique",n01|n02|n03,NON,3,9,3,HUMAN_VALIDATION_REQUIRED,modules/premiere-svt/s01-transmission-expression-et-variation-du-patrimoine-genetique
+premiere-svt,PREMIERE,SVT,2,Dynamique interne de la Terre,n04,NON,3,9,3,HUMAN_VALIDATION_REQUIRED,modules/premiere-svt/s02-dynamique-interne-de-la-terre
+premiere-svt,PREMIERE,SVT,3,Écosystèmes et services environnementaux,n05|n06,NON,3,9,3,HUMAN_VALIDATION_REQUIRED,modules/premiere-svt/s03-ecosystemes-et-services-environnementaux
+premiere-svt,PREMIERE,SVT,4,"Variation génétique, santé et immunité",n07,NON,3,9,3,HUMAN_VALIDATION_REQUIRED,modules/premiere-svt/s04-variation-genetique-sante-et-immunite
+premiere-svt,PREMIERE,SVT,5,Méthodes transversales sur les trois thèmes officiels,n08,NON,3,9,3,HUMAN_VALIDATION_REQUIRED,modules/premiere-svt/s05-methodes-transversales-sur-les-trois-themes-officiels
+terminale-svt,TERMINALE,SVT,1,Génétique et évolution,n01|n02|n03,NON,3,9,3,HUMAN_VALIDATION_REQUIRED,modules/terminale-svt/s01-genetique-et-evolution
+terminale-svt,TERMINALE,SVT,2,À la recherche du passé géologique,n04,NON,3,9,3,HUMAN_VALIDATION_REQUIRED,modules/terminale-svt/s02-a-la-recherche-du-passe-geologique
+terminale-svt,TERMINALE,SVT,3,"Plantes, climat et enjeux contemporains",n05|n06,NON,3,9,3,HUMAN_VALIDATION_REQUIRED,modules/terminale-svt/s03-plantes-climat-et-enjeux-contemporains
+terminale-svt,TERMINALE,SVT,4,"Mouvement, énergie et stress",n07,NON,3,9,3,HUMAN_VALIDATION_REQUIRED,modules/terminale-svt/s04-mouvement-energie-et-stress
+terminale-svt,TERMINALE,SVT,5,Méthodes transversales sur les trois thèmes officiels,n08,NON,3,9,3,HUMAN_VALIDATION_REQUIRED,modules/terminale-svt/s05-methodes-transversales-sur-les-trois-themes-officiels
+terminale-philosophie,TERMINALE,PHILOSOPHIE,1,Qu’est-ce qu’une question philosophique ? Qu’est-ce qu’une notion ?,n01|n02,NON,3,9,3,HUMAN_VALIDATION_REQUIRED,modules/terminale-philosophie/s01-qu-est-ce-qu-une-question-philosophique-qu-est-ce-qu-une-notion
+terminale-philosophie,TERMINALE,PHILOSOPHIE,2,Lire et rendre compte d’un texte philosophique court,n03|n04,NON,3,9,3,HUMAN_VALIDATION_REQUIRED,modules/terminale-philosophie/s02-lire-et-rendre-compte-d-un-texte-philosophique-court
+terminale-philosophie,TERMINALE,PHILOSOPHIE,3,Construire une problématique,n05,NON,3,9,3,HUMAN_VALIDATION_REQUIRED,modules/terminale-philosophie/s03-construire-une-problematique
+terminale-philosophie,TERMINALE,PHILOSOPHIE,4,Méthode de la dissertation,n06|n07,NON,3,9,3,HUMAN_VALIDATION_REQUIRED,modules/terminale-philosophie/s04-methode-de-la-dissertation
+terminale-philosophie,TERMINALE,PHILOSOPHIE,5,Méthode de l’explication de texte,n08,NON,3,9,3,HUMAN_VALIDATION_REQUIRED,modules/terminale-philosophie/s05-methode-de-l-explication-de-texte

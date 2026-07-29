@@ -1,0 +1,432 @@
+id: philosophie-entree-terminale
+niveauEntree: TERMINALE
+matiere: PHILOSOPHIE
+edition: 2026
+dureeCibleMinutes: 25
+gamme: PREMIUM
+intitulePublic: Philosophie — Entrée en Terminale
+cadrage: 'La philosophie est une discipline nouvelle : aucun savoir philosophique préalable n''est exigé. La carte
+  observe des compétences transférées du français. Les vingt-quatre réponses très brèves sont corrigées manuellement
+  et exclues du scoring automatique.'
+statutValidation: HUMAN_VALIDATION_REQUIRED
+noeuds:
+- id: n01
+  ordre: 1
+  evalueParTest: true
+  acquisN1: Analyser une consigne
+  usageN: Distinguer, définir et illustrer une notion (séance 1)
+  obstacles:
+  - Le verbe de consigne est ignoré
+  - La réponse traite un thème voisin
+  critereMaitrise: Reformuler précisément l'opération demandée.
+  seanceRattachement: 1
+  items:
+  - type: reponse_courte
+    correctionManuelle: true
+    excluScoringAutomatique: true
+    longueurMaxCaracteres: 420
+    enonce: Reformulez la consigne « Distinguez désir et besoin ».
+    criteresCorrection:
+    - Les deux termes sont conservés
+    - L'opposition demandée est explicite
+    - Aucune réponse de fond n'est inventée
+    exempleReponseAdmissible: Montrer par quels critères le désir diffère du besoin.
+    justification: La reformulation isole l'opération.
+    id: n01-i1
+    palier: A
+  - type: reponse_courte
+    correctionManuelle: true
+    excluScoringAutomatique: true
+    longueurMaxCaracteres: 420
+    enonce: Que demande « Peut-on toujours dire la vérité ? » ? Répondez en une phrase.
+    criteresCorrection:
+    - La possibilité est repérée
+    - Le mot « toujours » est pris en compte
+    - La réponse ouvre une discussion
+    exempleReponseAdmissible: La question demande s'il existe des situations où dire la vérité serait impossible
+      ou contestable.
+    justification: Le quantificateur doit être analysé.
+    id: n01-i2
+    palier: B
+  - type: reponse_courte
+    correctionManuelle: true
+    excluScoringAutomatique: true
+    longueurMaxCaracteres: 420
+    enonce: Reformulez « Être libre, est-ce faire tout ce que l'on veut ? » sans répondre.
+    criteresCorrection:
+    - Liberté et volonté sont reliées
+    - La question d'équivalence apparaît
+    - Aucune opinion personnelle
+    exempleReponseAdmissible: Il faut examiner si la liberté se réduit à l'accomplissement de tous nos désirs.
+    justification: Le problème est conservé sans être tranché.
+    id: n01-i3
+    palier: C
+- id: n02
+  ordre: 2
+  evalueParTest: true
+  acquisN1: Définir un terme sans simple synonymie
+  usageN: Construire des définitions philosophiques de départ (séance 1)
+  obstacles:
+  - La définition répète le mot
+  - Un exemple isolé remplace la définition
+  critereMaitrise: Proposer genre, différence ou critère, puis un exemple.
+  seanceRattachement: 1
+  items:
+  - type: reponse_courte
+    correctionManuelle: true
+    excluScoringAutomatique: true
+    longueurMaxCaracteres: 420
+    enonce: Définissez brièvement « choix » sans employer le mot « choisir ».
+    criteresCorrection:
+    - Une situation avec plusieurs possibilités
+    - Une décision ou sélection
+    - Formulation générale
+    exempleReponseAdmissible: Un choix est une décision par laquelle une possibilité est retenue parmi plusieurs.
+    justification: La définition évite la circularité.
+    id: n02-i1
+    palier: A
+  - type: reponse_courte
+    correctionManuelle: true
+    excluScoringAutomatique: true
+    longueurMaxCaracteres: 420
+    enonce: Définissez « règle » en une phrase.
+    criteresCorrection:
+    - Norme ou prescription
+    - Orientation de l'action
+    - Portée suffisamment générale
+    exempleReponseAdmissible: Une règle est une prescription générale qui indique ce qui doit être fait dans une
+      situation.
+    justification: La définition distingue règle et exemple.
+    id: n02-i2
+    palier: B
+  - type: reponse_courte
+    correctionManuelle: true
+    excluScoringAutomatique: true
+    longueurMaxCaracteres: 420
+    enonce: Donnez un contre-exemple à « Toute contrainte supprime la liberté ».
+    criteresCorrection:
+    - Contrainte identifiable
+    - Liberté maintenue ou rendue possible
+    - Lien explicite
+    exempleReponseAdmissible: Le code de la route limite certains gestes, mais rend possible une circulation plus
+      sûre pour tous.
+    justification: Le contre-exemple teste l'universalité.
+    id: n02-i3
+    palier: C
+- id: n03
+  ordre: 3
+  evalueParTest: true
+  acquisN1: Distinguer opinion, thèse et argument
+  usageN: Identifier la structure d'un texte bref (séance 2)
+  obstacles:
+  - Toute phrase affirmative est prise pour un argument
+  - Une préférence personnelle est tenue pour une preuve
+  critereMaitrise: Nommer une thèse et la raison qui la soutient.
+  seanceRattachement: 2
+  items:
+  - type: reponse_courte
+    correctionManuelle: true
+    excluScoringAutomatique: true
+    longueurMaxCaracteres: 420
+    enonce: Dans « Il faut apprendre à douter, car nos premières impressions peuvent tromper », indiquez la thèse
+      et l'argument.
+    criteresCorrection:
+    - Thèse correctement isolée
+    - Argument après « car »
+    - Lien logique explicite
+    exempleReponseAdmissible: 'Thèse : il faut apprendre à douter. Argument : les premières impressions peuvent
+      tromper.'
+    justification: Le connecteur signale la justification.
+    id: n03-i1
+    palier: A
+  - type: reponse_courte
+    correctionManuelle: true
+    excluScoringAutomatique: true
+    longueurMaxCaracteres: 420
+    enonce: Transformez « Je préfère travailler seul » en thèse discutable sur le travail.
+    criteresCorrection:
+    - Portée générale
+    - Formulation discutable
+    - Pas de simple préférence
+    exempleReponseAdmissible: Le travail solitaire favorise davantage la concentration que le travail collectif.
+    justification: Une thèse peut être argumentée.
+    id: n03-i2
+    palier: B
+  - type: reponse_courte
+    correctionManuelle: true
+    excluScoringAutomatique: true
+    longueurMaxCaracteres: 420
+    enonce: Ajoutez un argument à « Une règle peut être juste même si elle déplaît ».
+    criteresCorrection:
+    - Raison pertinente
+    - Lien avec la justice
+    - Phrase complète
+    exempleReponseAdmissible: Une règle peut être juste même si elle déplaît, car elle peut protéger également les
+      droits de chacun.
+    justification: L'argument justifie la thèse.
+    id: n03-i3
+    palier: C
+- id: n04
+  ordre: 4
+  evalueParTest: true
+  acquisN1: Reformuler fidèlement
+  usageN: Rendre compte d'un texte philosophique court (séance 2)
+  obstacles:
+  - La reformulation ajoute un jugement
+  - Des nuances importantes disparaissent
+  critereMaitrise: Exprimer la même idée avec d'autres mots et sans ajout.
+  seanceRattachement: 2
+  items:
+  - type: reponse_courte
+    correctionManuelle: true
+    excluScoringAutomatique: true
+    longueurMaxCaracteres: 420
+    enonce: 'Reformulez : « Nos habitudes rendent parfois invisibles les règles que nous suivons. »'
+    criteresCorrection:
+    - Habitude conservée
+    - Règles peu perçues
+    - Aucun jugement ajouté
+    exempleReponseAdmissible: À force d'agir de la même manière, nous pouvons ne plus remarquer les normes qui guident
+      nos actions.
+    justification: La reformulation reste fidèle.
+    id: n04-i1
+    palier: A
+  - type: reponse_courte
+    correctionManuelle: true
+    excluScoringAutomatique: true
+    longueurMaxCaracteres: 420
+    enonce: 'Reformulez : « Une réponse certaine peut fermer une recherche trop tôt. »'
+    criteresCorrection:
+    - Certitude conservée
+    - Recherche interrompue prématurément
+    - Formulation personnelle fidèle
+    exempleReponseAdmissible: Se croire déjà certain risque d'arrêter l'enquête avant qu'elle soit suffisamment
+      menée.
+    justification: Le rapport logique est conservé.
+    id: n04-i2
+    palier: B
+  - type: reponse_courte
+    correctionManuelle: true
+    excluScoringAutomatique: true
+    longueurMaxCaracteres: 420
+    enonce: 'Résumez en une phrase : « Nous dépendons des autres pour apprendre à parler ; pourtant la parole nous
+      permet ensuite de penser par nous-mêmes. »'
+    criteresCorrection:
+    - Dépendance initiale
+    - Autonomie ultérieure
+    - Opposition articulée
+    exempleReponseAdmissible: Le langage reçu des autres devient un moyen de construire une pensée autonome.
+    justification: La tension centrale est synthétisée.
+    id: n04-i3
+    palier: C
+- id: n05
+  ordre: 5
+  evalueParTest: true
+  acquisN1: Repérer présupposé et tension
+  usageN: Construire une problématique (séance 3)
+  obstacles:
+  - Le sujet est simplement répété
+  - Une contradiction artificielle est inventée
+  critereMaitrise: Faire apparaître deux réponses plausibles et leur difficulté.
+  seanceRattachement: 3
+  items:
+  - type: reponse_courte
+    correctionManuelle: true
+    excluScoringAutomatique: true
+    longueurMaxCaracteres: 420
+    enonce: Quel présupposé contient « Peut-on apprendre à être heureux ? » ?
+    criteresCorrection:
+    - L'apprentissage du bonheur est interrogé
+    - Le bonheur n'est pas supposé seulement spontané
+    - Réponse non tranchée
+    exempleReponseAdmissible: La question suppose qu'être heureux pourrait dépendre d'un apprentissage, et pas seulement
+      des circonstances.
+    justification: Le présupposé ouvre l'enquête.
+    id: n05-i1
+    palier: A
+  - type: reponse_courte
+    correctionManuelle: true
+    excluScoringAutomatique: true
+    longueurMaxCaracteres: 420
+    enonce: Formulez la tension dans « Obéir, est-ce renoncer à sa liberté ? ».
+    criteresCorrection:
+    - Obéissance comme contrainte
+    - Obéissance possiblement compatible avec la liberté
+    - Opposition explicite
+    exempleReponseAdmissible: Obéir semble limiter notre action, mais l'obéissance à une loi commune peut aussi
+      rendre la liberté possible.
+    justification: Deux réponses plausibles sont opposées.
+    id: n05-i2
+    palier: B
+  - type: reponse_courte
+    correctionManuelle: true
+    excluScoringAutomatique: true
+    longueurMaxCaracteres: 420
+    enonce: Transformez « La technique nous libère-t-elle ? » en problème.
+    criteresCorrection:
+    - Bénéfice de la technique
+    - Nouvelle dépendance possible
+    - Question non fermée
+    exempleReponseAdmissible: La technique réduit certaines contraintes, mais peut-elle créer des dépendances qui
+      limitent à leur tour notre autonomie ?
+    justification: Le problème naît d'une difficulté interne.
+    id: n05-i3
+    palier: C
+- id: n06
+  ordre: 6
+  evalueParTest: true
+  acquisN1: Construire un paragraphe argumenté
+  usageN: Développer un argument de dissertation (séance 4)
+  obstacles:
+  - L'idée est donnée sans justification
+  - L'exemple n'est pas expliqué
+  critereMaitrise: Enchaîner idée, raison, exemple et portée.
+  seanceRattachement: 4
+  items:
+  - type: reponse_courte
+    correctionManuelle: true
+    excluScoringAutomatique: true
+    longueurMaxCaracteres: 420
+    enonce: 'Complétez en deux phrases : « Une règle commune peut protéger la liberté parce que… »'
+    criteresCorrection:
+    - Raison explicite
+    - Lien avec la liberté
+    - Exemple ou conséquence
+    exempleReponseAdmissible: …elle empêche que la force de l'un décide pour tous. Par exemple, une même règle de
+      circulation protège chaque usager.
+    justification: La raison est illustrée.
+    id: n06-i1
+    palier: A
+  - type: reponse_courte
+    correctionManuelle: true
+    excluScoringAutomatique: true
+    longueurMaxCaracteres: 420
+    enonce: 'Donnez un exemple puis expliquez-le pour défendre : « Douter peut être utile. »'
+    criteresCorrection:
+    - Exemple précis
+    - Explication du rôle du doute
+    - Lien avec la thèse
+    exempleReponseAdmissible: Vérifier une information avant de la partager évite de diffuser une erreur ; le doute
+      déclenche ici une enquête utile.
+    justification: L'exemple devient une preuve analysée.
+    id: n06-i2
+    palier: B
+  - type: reponse_courte
+    correctionManuelle: true
+    excluScoringAutomatique: true
+    longueurMaxCaracteres: 420
+    enonce: Rédigez une objection à « La majorité a toujours raison ».
+    criteresCorrection:
+    - Objection réelle
+    - Cas ou principe pertinent
+    - Mot « toujours » contesté
+    exempleReponseAdmissible: Une majorité peut partager un préjugé ; le nombre de personnes convaincues ne suffit
+      donc pas à rendre une idée vraie.
+    justification: L'objection vise l'universalité.
+    id: n06-i3
+    palier: C
+- id: n07
+  ordre: 7
+  evalueParTest: true
+  acquisN1: Organiser une progression
+  usageN: Bâtir un plan et des transitions (séance 4)
+  obstacles:
+  - Le plan juxtapose des thèmes
+  - La transition répète sans faire progresser
+  critereMaitrise: Ordonner des étapes qui répondent progressivement au problème.
+  seanceRattachement: 4
+  items:
+  - type: reponse_courte
+    correctionManuelle: true
+    excluScoringAutomatique: true
+    longueurMaxCaracteres: 420
+    enonce: Proposez deux étapes pour traiter « Sommes-nous responsables de toutes nos actions ? ».
+    criteresCorrection:
+    - Première réponse plausible
+    - Limite ou nuance
+    - Progression logique
+    exempleReponseAdmissible: 1. Nous sommes responsables lorsque nous agissons consciemment. 2. Cette responsabilité
+      doit être nuancée lorsque notre liberté ou notre connaissance est fortement limitée.
+    justification: Le plan avance par distinction.
+    id: n07-i1
+    palier: A
+  - type: reponse_courte
+    correctionManuelle: true
+    excluScoringAutomatique: true
+    longueurMaxCaracteres: 420
+    enonce: Rédigez une transition entre « la règle limite » et « la règle protège ».
+    criteresCorrection:
+    - Bilan de la limite
+    - Question ou difficulté
+    - Annonce de la protection
+    exempleReponseAdmissible: La règle restreint donc certains choix immédiats. Mais cette restriction ne peut-elle
+      pas garantir à chacun un espace de liberté ?
+    justification: La transition fait naître l'étape suivante.
+    id: n07-i2
+    palier: B
+  - type: reponse_courte
+    correctionManuelle: true
+    excluScoringAutomatique: true
+    longueurMaxCaracteres: 420
+    enonce: 'Quel ordre est le plus logique : exemple, thèse, explication ? Justifiez.'
+    criteresCorrection:
+    - Ordre cohérent
+    - Rôle de chaque étape
+    - Justification brève
+    exempleReponseAdmissible: On peut annoncer la thèse, donner l'exemple puis l'expliquer, afin que l'exemple serve
+      réellement de preuve.
+    justification: La structure est fonctionnelle.
+    id: n07-i3
+    palier: C
+- id: n08
+  ordre: 8
+  evalueParTest: true
+  acquisN1: Citer et commenter
+  usageN: Expliquer précisément un passage (séances 2 et 5)
+  obstacles:
+  - La citation remplace l'analyse
+  - Le commentaire paraphrase
+  critereMaitrise: Intégrer une citation brève et expliciter son rôle argumentatif.
+  seanceRattachement: 5
+  items:
+  - type: reponse_courte
+    correctionManuelle: true
+    excluScoringAutomatique: true
+    longueurMaxCaracteres: 420
+    enonce: Commentez « la peur conseille parfois la prudence » en une phrase.
+    criteresCorrection:
+    - Idée reformulée
+    - Fonction de la peur
+    - Nuance « parfois » conservée
+    exempleReponseAdmissible: 'La peur n''est pas seulement un obstacle : dans certaines situations, elle alerte
+      sur un danger et oriente une décision prudente.'
+    justification: Le commentaire explicite et nuance.
+    id: n08-i1
+    palier: A
+  - type: reponse_courte
+    correctionManuelle: true
+    excluScoringAutomatique: true
+    longueurMaxCaracteres: 420
+    enonce: Intégrez la citation « penser par soi-même » dans une phrase d'analyse.
+    criteresCorrection:
+    - Citation intégrée grammaticalement
+    - Interprétation
+    - Pas de citation isolée
+    exempleReponseAdmissible: L'expression « penser par soi-même » désigne l'effort de juger une idée par des raisons
+      plutôt que de la répéter.
+    justification: La citation est expliquée.
+    id: n08-i2
+    palier: B
+  - type: reponse_courte
+    correctionManuelle: true
+    excluScoringAutomatique: true
+    longueurMaxCaracteres: 420
+    enonce: 'Expliquez le rôle de « pourtant » dans : « Il connaît la règle ; pourtant il la transgresse. »'
+    criteresCorrection:
+    - Opposition identifiée
+    - Deux propositions reliées
+    - Effet argumentatif
+    exempleReponseAdmissible: « Pourtant » souligne que la connaissance de la règle ne suffit pas à déterminer l'action.
+    justification: Le connecteur révèle une difficulté.
+    id: n08-i3
+    palier: C

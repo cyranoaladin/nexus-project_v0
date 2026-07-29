@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://nexusreussite.academy/schemas/pre-rentree-2026/session-kit.schema.json",
+  "title": "Ligne du manifeste des séances Pré-rentrée 2026",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "moduleId",
+    "niveau",
+    "matiere",
+    "seance",
+    "intitule",
+    "noeudsCPS",
+    "ressourceSpecifique",
+    "banques",
+    "exercices",
+    "questionsVerification",
+    "statut",
+    "dossier"
+  ],
+  "properties": {
+    "moduleId": {"type": "string", "pattern": "^[a-z0-9-]+$"},
+    "niveau": {
+      "enum": ["QUATRIEME", "TROISIEME", "SECONDE", "PREMIERE", "TERMINALE"]
+    },
+    "matiere": {
+      "enum": [
+        "MATHEMATIQUES",
+        "FRANCAIS",
+        "NSI",
+        "PHYSIQUE_CHIMIE",
+        "SVT",
+        "MATHS_EXPERTES",
+        "PHILOSOPHIE"
+      ]
+    },
+    "seance": {"type": "integer", "minimum": 1, "maximum": 5},
+    "intitule": {"type": "string", "minLength": 1},
+    "noeudsCPS": {"type": "string", "pattern": "^(|n[0-9]{2}(\\|n[0-9]{2})*)$"},
+    "ressourceSpecifique": {"enum": ["OUI", "NON"]},
+    "banques": {"const": 3},
+    "exercices": {"const": 9},
+    "questionsVerification": {"const": 3},
+    "statut": {"const": "HUMAN_VALIDATION_REQUIRED"},
+    "dossier": {
+      "type": "string",
+      "pattern": "^modules/[a-z0-9-]+/s0[1-5]-[a-z0-9-]+$"
+    }
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"ressourceSpecifique": {"const": "OUI"}}},
+      "then": {"properties": {"noeudsCPS": {"const": ""}}},
+      "else": {"properties": {"noeudsCPS": {"minLength": 3}}}
+    }
+  ]
+}
