@@ -78,13 +78,16 @@ function isTextFile(path) {
 // Each entry is matched against the finding's own surrounding context, not
 // just the bare token, so a NEW, unrelated occurrence of the same word still
 // triggers a real finding. See docs/audits/2026-07-29-existing-auditors-inventory.md.
-const ARTIFACT_KNOWN_EXCEPTIONS = [
-  'the config object is internal only', // @auth/core (NextAuth), vendor code inlined by webpack
-  '@todo class group will be renamed', // Tailwind CSS's own utility generator comment
-  '/** @todo */ class ClientFetchError', // @auth/core (NextAuth), vendor code inlined by webpack
-  "PRE_REGISTRATION_OPEN: 'Pré-inscriptions ouvertes'", // Nexus's own status->label map; only the label is ever displayed
-  "DRAFT: 'Campagne en préparation'", // same map, same reasoning
+// Each entry: [signature, reason, date reviewed]. No entry may be added
+// without a reason and a date — an unreasoned exception is a permanent hole.
+const ARTIFACT_KNOWN_EXCEPTIONS_DATED = [
+  ['the config object is internal only', '@auth/core (NextAuth), vendor code inlined by webpack', '2026-07-29'],
+  ['@todo class group will be renamed', "Tailwind CSS's own utility generator comment", '2026-07-29'],
+  ['/** @todo */ class ClientFetchError', '@auth/core (NextAuth), vendor code inlined by webpack', '2026-07-29'],
+  ["PRE_REGISTRATION_OPEN: 'Pré-inscriptions ouvertes'", "Nexus's own status->label map; only the label is ever displayed", '2026-07-29'],
+  ["DRAFT: 'Campagne en préparation'", 'same map, same reasoning', '2026-07-29'],
 ];
+const ARTIFACT_KNOWN_EXCEPTIONS = ARTIFACT_KNOWN_EXCEPTIONS_DATED.map(([signature]) => signature);
 
 function scan(files, patterns, category, stripStyleTokens = false, { exceptions = [] } = {}) {
   const findings = [];

@@ -922,15 +922,8 @@ jobs:
       - name: Generate Prisma Client
         run: npx prisma generate
 
-      # NOTE: every other actions/* reference in this file is pinned to a full
-      # commit SHA (repo convention, supply-chain hardening). I do not have a
-      # verified SHA for actions/download-artifact to pin here — inventing one
-      # would be worse than not pinning at all. This tag reference must be
-      # replaced with a verified SHA (checked against the action's real release
-      # history) before this job is treated as matching the rest of this file's
-      # security posture.
       - name: Download build artifacts
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: nextjs-build
           path: .next/
