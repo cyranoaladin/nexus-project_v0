@@ -234,9 +234,30 @@ describe('POST /api/auth/bilan-magic/request', () => {
   });
 
   it('rejects malformed JSON without an internal error', async () => {
-    const response = await POST(request({}, '{'));
+    const privateMarker = 'minor.parent@example.com';
+    const consoleError = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+    const response = await POST(request({}, `{"email":"${privateMarker}"`));
     expect(response.status).toBe(400);
     await expect(response.json()).resolves.toEqual({ error: 'Requête invalide.' });
+    expect(JSON.stringify(consoleError.mock.calls)).not.toContain(privateMarker);
+    consoleError.mockRestore();
+  });
+
+  it('rejects an under-declared actual body over one megabyte before DB or email', async () => {
+    const oversized = request(
+      {},
+      JSON.stringify({
+        email: 'registered.parent@example.com',
+        padding: 'x'.repeat(1024 * 1024),
+      }),
+    );
+    oversized.headers.set('content-length', '32');
+
+    const response = await POST(oversized);
+    expect(response.status).toBe(413);
+    await expect(response.json()).resolves.toEqual({ error: 'Payload too large' });
+    expect(mockPrisma.$transaction).not.toHaveBeenCalled();
+    expect(mockSendMail).not.toHaveBeenCalled();
   });
 
   it('applies distributed IP and hashed-email quotas after strict parsing', async () => {

@@ -108,11 +108,33 @@ describe('MemoryStore', () => {
 // ── Key generation ─────────────────────────────────────────────────────────
 
 describe('Key generation', () => {
-  it('getClientIp extracts x-forwarded-for (first entry)', () => {
+  it('getClientIp uses the last valid x-forwarded-for entry appended by nginx', () => {
     const req = new NextRequest('http://localhost', {
-      headers: { 'x-forwarded-for': '1.2.3.4, 5.6.7.8' },
+      headers: { 'x-forwarded-for': 'forged.invalid, 1.2.3.4, 5.6.7.8' },
+    });
+    expect(getClientIp(req)).toBe('5.6.7.8');
+  });
+
+  it('getClientIp skips invalid and empty x-forwarded-for entries from the trusted tail', () => {
+    const req = new NextRequest('http://localhost', {
+      headers: { 'x-forwarded-for': '1.2.3.4, still.invalid, ' },
     });
     expect(getClientIp(req)).toBe('1.2.3.4');
+  });
+
+  it('getClientIp rejects unbounded forwarded headers and validates x-real-ip', () => {
+    const oversized = new NextRequest('http://localhost', {
+      headers: {
+        'x-forwarded-for': `${'1'.repeat(2050)}, 5.6.7.8`,
+        'x-real-ip': '9.8.7.6',
+      },
+    });
+    const invalidRealIp = new NextRequest('http://localhost', {
+      headers: { 'x-real-ip': 'not-an-ip' },
+    });
+
+    expect(getClientIp(oversized)).toBe('9.8.7.6');
+    expect(getClientIp(invalidRealIp)).toBe('anonymous');
   });
 
   it('getClientIp falls back to x-real-ip', () => {

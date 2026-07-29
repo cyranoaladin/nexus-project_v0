@@ -70,6 +70,25 @@ describe('/api/bilan-gratuit', () => {
     });
   }
 
+  it('rejects an under-declared actual legacy body over one megabyte before persistence', async () => {
+    const request = new NextRequest('http://localhost:3000/api/bilan-gratuit', {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        'content-length': '32',
+      },
+      body: JSON.stringify({
+        ...validRequestData,
+        padding: 'x'.repeat(1024 * 1024),
+      }),
+    });
+
+    const response = await POST(request);
+    expect(response.status).toBe(413);
+    await expect(response.json()).resolves.toEqual({ error: 'Payload too large' });
+    expect(prisma.$transaction).not.toHaveBeenCalled();
+  });
+
   it('creates inactive parent/student records and sends an activation link without password', async () => {
     const userCreate = jest.fn()
       .mockResolvedValueOnce({

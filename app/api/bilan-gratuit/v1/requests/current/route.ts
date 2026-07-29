@@ -23,6 +23,22 @@ function denied(): NextResponse {
   });
 }
 
+function publicCurrentRequest(request: unknown) {
+  const record = request as Readonly<Record<string, unknown>>;
+  return {
+    status: record.status,
+    accountVerificationState: record.accountVerificationState,
+    subject: record.subject,
+    gradeLevel: record.gradeLevel,
+    schoolYear: record.schoolYear,
+    hasChild: typeof record.studentId === 'string',
+    hasAssessment: typeof record.canonicalAttemptId === 'string',
+    lastActivityAt: record.lastActivityAt,
+    submittedAt: record.submittedAt,
+    publishedAt: record.publishedAt,
+  };
+}
+
 export async function GET(request: NextRequest): Promise<NextResponse> {
   const now = new Date();
   let principal = null;
@@ -67,7 +83,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   if (!accessible || !accessible.capabilities.readCurrentRequest) return denied();
 
   return NextResponse.json(
-    { request: accessible.request },
+    { request: publicCurrentRequest(accessible.request) },
     { headers: { 'Cache-Control': 'private, no-store' } },
   );
 }

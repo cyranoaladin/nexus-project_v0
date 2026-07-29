@@ -24,6 +24,12 @@ fournie par le client.
   sans recherche du « dernier dossier » d'un parent ;
 - la sélection d'enfant devait traiter distinctement le parent authentifié par
   lien magique et le parent déjà connecté disposant du cookie de parcours exact.
+- la première projection de reprise réutilisait une sélection interne sûre pour
+  la base, mais exposait encore des identifiants techniques dans la réponse ;
+- le contrôle de taille initial utilisait `Content-Length`, qui peut être absent
+  ou sous-déclaré alors que le proxy accepte des corps sensiblement plus grands ;
+- la première entrée de `X-Forwarded-For` était contrôlable par le client avec
+  la configuration nginx actuelle utilisant `$proxy_add_x_forwarded_for`.
 
 ## Décisions prises
 
@@ -63,6 +69,22 @@ fournie par le client.
 - toutes les mutations conditionnelles contrôlent `count === 1` et les conflits
   `P2034` sont rejoués au maximum trois fois.
 
+### Correctifs issus de la revue de sécurité
+
+- la reprise publique passe désormais par un DTO explicite ne contenant que les
+  états, codes métier, indicateurs et horodatages utiles. Les identifiants de
+  demande, enfant, tentative et coach restent confinés à la couche d'accès ;
+- un lecteur JSON réutilisable compte les octets réellement reçus avant tout
+  parsing et interrompt la lecture au-delà de 1 Mio. `checkBodySize` reste un
+  précontrôle rapide, mais ne constitue plus la limite effective ;
+- cette lecture bornée couvre l'admission v1, l'association enfant, la route
+  historique lorsque le flag est désactivé et la demande de lien magique. Les
+  corps trop grands répondent 413 avant persistance ou email, et les JSON
+  malformés répondent 400 sans journalisation de leur contenu ;
+- l'identité réseau utilise la dernière IP valide ajoutée par nginx dans
+  `X-Forwarded-For`, avec validation IP et bornes sur l'en-tête et le nombre
+  d'entrées. Un préfixe fourni par le client ne modifie plus la clé distribuée.
+
 ## Fichiers modifiés
 
 - `app/api/bilan-gratuit/route.ts`
@@ -71,6 +93,8 @@ fournie par le client.
 - `app/api/bilan-gratuit/v1/requests/current/child/route.ts`
 - `app/api/auth/bilan-magic/request/route.ts`
 - `lib/rate-limit/index.ts`
+- `lib/rate-limit/keys.ts`
+- `lib/http/bounded-json.ts`
 - `lib/bilans/requests/access.ts`
 - `lib/bilans/requests/attach-child.ts`
 - `lib/bilans/requests/schemas.ts`
@@ -87,13 +111,22 @@ fournie par le client.
 - RED parent connecté : 2 tests en échec attendu, session sans claim refusée et
   demande encore non vérifiée.
 - RED TOCTOU : 3 tests en échec attendu, seul un booléen quittait la route.
-- GREEN ciblé final : 16 suites, 281 tests réussis.
+- RED revue sécurité : fuite de la projection publique reproduite (2 tests),
+  corps réels sous-déclarés acceptés sur les quatre mutations (5 suites) et
+  préfixe `X-Forwarded-For` forgé utilisé par Redis (3 tests).
+- GREEN revue sécurité : DTO public, lecture JSON réellement bornée et clé
+  réseau de confiance validés par leurs suites ciblées.
+- GREEN ciblé initial : 16 suites, 281 tests réussis.
+- GREEN final après revue : 18 suites, 311 tests réussis.
 - PostgreSQL réel : 9 scénarios réussis, dont rejeu concurrent, rollback,
   création concurrente d'enfant, parent déjà connecté et flow révoqué.
 - `npm run typecheck` : réussi.
 - `npm run lint` : réussi, avertissements historiques uniquement.
+- `npm run build` : réussi ; artefact standalone validé.
 - `npm run security:repo` : réussi.
 - `git diff --check` : réussi.
+- revue production indépendante du correctif : aucun constat critique,
+  important ou mineur ; verdict prêt à intégrer.
 
 ## Résultats
 

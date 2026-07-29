@@ -156,6 +156,20 @@ describe('distributed/public rate limit hardening', () => {
     expect(mockRedisTtl).toHaveBeenCalledWith(expect.any(String));
   });
 
+  it('keys distributed counters with the trusted proxy-appended IP, not a forged prefix', async () => {
+    process.env.REDIS_URL = 'redis://127.0.0.1:6379';
+    mockRedisIncrement.mockResolvedValueOnce(1);
+    mockRedisExpire.mockResolvedValueOnce(true);
+    mockRedisTtl.mockResolvedValueOnce(60);
+
+    const request = makeRequest('198.51.100.66, 203.0.113.77');
+    await checkRateLimitAsync(request, { preset: 'api' });
+
+    const redisKey = String(mockRedisIncrement.mock.calls[0]?.[0]);
+    expect(redisKey).toContain('203.0.113.77');
+    expect(redisKey).not.toContain('198.51.100.66');
+  });
+
   it('falls back to memory when Redis is unavailable', async () => {
     process.env.REDIS_URL = 'redis://127.0.0.1:6379';
     mockRedisIncrement.mockRejectedValueOnce(new Error('redis unavailable'));
