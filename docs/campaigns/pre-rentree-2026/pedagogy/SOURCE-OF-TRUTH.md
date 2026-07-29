@@ -16,10 +16,16 @@
 | Outils | `scripts/pre-rentree/pedagogy/` | import, validation, génération et reproductibilité |
 | Gouvernance | `docs/campaigns/pre-rentree-2026/pedagogy/` | provenance, décisions, conflits et statuts |
 | Sorties internes | `.artifacts/pre-rentree-2026/pedagogy/` | reconstructibles, non suivies par Git |
+| Frontière applicative | `lib/pre-rentree/pedagogy/` | lecture serveur, validation, relations, versions, hashes et droits d'usage |
+| État utilisateur | Prisma | demandes, authentification, tentatives, réponses, corrections, résultats, historiques et outbox ; jamais le corpus éditable |
 
 Les prix, offres et règles commerciales restent respectivement dans
 `data/pricing.canonical.json`, `content/pre-rentree-2026/offers.json` et
 `data/campaigns/pre-rentree-2026.json`. Le lot 1 ne les modifie pas.
+
+Les compteurs écrits dans les README sont des constats. Ils ne sont pas une
+source indépendante : le manifeste les vérifie et les validateurs les
+recalculent depuis `modules.json`, les CPS et les fichiers unitaires.
 
 ## Source historique
 
@@ -57,11 +63,71 @@ pédagogique n'est copié sous `public/` dans ce lot. Une publication future
 exigera au minimum `CLASSROOM_READY`, puis `PUBLICATION_APPROVED`, accordés par
 des humains autorisés et traçables.
 
+Le statut `VALIDATED` présent dans `modules.json` valide la structure du
+catalogue de campagne. Il ne remplace pas le statut éditorial du manifeste et
+du CPS. Au 29 juillet 2026, les 17 modules sont
+`HUMAN_VALIDATION_REQUIRED` : ils sont accessibles en revue interne, mais
+inutilisables pour une affectation réelle ou une publication.
+
+La validation technique n'est jamais une validation disciplinaire.
+
+## Ce qui est stocké en base
+
+Prisma ne reçoit pas les énoncés, corrigés, banques ou YAML en tant que
+définitions éditables. Pour chaque état utilisateur dépendant du corpus, il
+conserve au minimum :
+
+- l'identifiant stable de la définition ;
+- la version du manifeste et de l'édition ;
+- l'empreinte SHA-256 de la définition utilisée ;
+- les données utilisateur et les événements nécessaires à l'audit.
+
+Les champs `assessmentPackId`, `assessmentPackVersion` et
+`assessmentPackChecksum` de `CanonicalAssessmentAttempt` portent cette preuve.
+Ils rendent les tentatives historiques indépendantes d'une évolution future
+des sources.
+
+## Procédure de modification
+
+1. Modifier uniquement `modules.json`, un CPS, un fichier unitaire de séance
+   ou une autre source répertoriée dans le manifeste.
+2. Ne jamais corriger durablement une sortie sous `.artifacts/`.
+3. Mettre à jour le manifeste et ses empreintes avec les scripts canoniques.
+4. Exécuter les validateurs CPS et kits, puis la reproductibilité.
+5. Vérifier les compteurs dérivés, les liens, les duplications et les secrets.
+6. Faire relire la modification par les rôles pédagogiques requis.
+7. Enregistrer le relecteur, la date, le nouveau statut, la version et les
+   nouvelles empreintes.
+8. Seulement après ces contrôles, préparer une affectation ou une publication
+   via l'interface serveur.
+
+Toute modification générée directement, toute copie manuelle dans Prisma ou
+TypeScript et toute exposition sous `public/` sont refusées.
+
+## Procédure de validation
+
+La validation comporte deux niveaux non substituables :
+
+- validation technique : schémas, relations, hashes, compteurs, hygiène et
+  reproductibilité ;
+- validation humaine nominative : responsable pédagogique et enseignant de la
+  discipline concernée.
+
+Pour les réponses courtes, une tentative soumise reste
+`EN_ATTENTE_CORRECTION_MANUELLE` jusqu'à correction de chaque réponse. Une
+réponse en attente n'est pas fausse et bloque score final, groupe définitif et
+bilan final.
+
+Le module Physique-Chimie Seconde reste absent. Il ne peut être ajouté qu'à
+partir d'une entrée canonique complète dans `modules.json`, cinq séances, un
+CPS, les hashes correspondants et les deux validations humaines.
+
 ## Contrôle
 
 ```bash
 npm run pre-rentree:pedagogy:validate
 npm run pre-rentree:pedagogy:verify
+npm run test -- --runInBand __tests__/lib/pre-rentree/pedagogy
 git ls-files '.artifacts/pre-rentree-2026/pedagogy/**'
 git diff --name-only c6e055fb82216e46aab00f121f7817aed00e62ca -- public/
 ```
