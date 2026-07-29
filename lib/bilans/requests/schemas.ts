@@ -72,6 +72,17 @@ export const bilanRequestAdmissionSchema = z.object({
   consentVersion: z.literal(CURRENT_BILAN_CONSENT_VERSION),
 }).strict();
 
+export const bilanVerifiedParentChildCommandSchema = z.discriminatedUnion('action', [
+  z.object({
+    action: z.literal('SELECT_EXISTING'),
+    studentId: compactIdentifierSchema,
+  }).strict(),
+  z.object({
+    action: z.literal('CREATE_NEW'),
+    child: bilanChildSchema,
+  }).strict(),
+]);
+
 export const bilanTeamAssignmentSchema = z.object({
   coachId: compactIdentifierSchema,
 }).strict();
@@ -96,6 +107,9 @@ export const bilanTeamOperationalActionSchema = z.object({
 
 export type BilanRequestAdmission = z.infer<typeof bilanRequestAdmissionSchema>;
 export type BilanChildInput = z.infer<typeof bilanChildSchema>;
+export type BilanVerifiedParentChildCommand = z.infer<
+  typeof bilanVerifiedParentChildCommandSchema
+>;
 export type BilanTeamAssignmentInput = z.infer<typeof bilanTeamAssignmentSchema>;
 export type BilanTeamReviewInput = z.infer<typeof bilanTeamReviewSchema>;
 export type BilanTeamOperationalActionInput = z.infer<typeof bilanTeamOperationalActionSchema>;

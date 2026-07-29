@@ -68,21 +68,26 @@ describe('bilan request access predicates', () => {
         id: 'request_1',
         parentUserId: 'parent_1',
         accountVerificationState: 'VERIFIED',
-        student: {
-          is: {
-            parentLinks: {
-              some: {
-                parentUserId: 'parent_1',
-                state: 'VERIFIED',
-                revokedAt: null,
-                OR: [
-                  { expiresAt: null },
-                  { expiresAt: { gt: now } },
-                ],
+        OR: [
+          { studentId: null },
+          {
+            student: {
+              is: {
+                parentLinks: {
+                  some: {
+                    parentUserId: 'parent_1',
+                    state: 'VERIFIED',
+                    revokedAt: null,
+                    OR: [
+                      { expiresAt: null },
+                      { expiresAt: { gt: now } },
+                    ],
+                  },
+                },
               },
             },
           },
-        },
+        ],
       },
     }));
     expect(result?.projection).toBe('FAMILY');
@@ -92,6 +97,26 @@ describe('bilan request access predicates', () => {
     expect(result?.capabilities.readStudentHistory).toBe(false);
   });
 
+  it('allows only the verified owner to resume an unattached request', async () => {
+    const { repository, findFirst } = createRepository();
+    const principal = createAuthenticatedBilanPrincipal({
+      requestId: 'request_1',
+      now,
+      sessionUser: sessionUser('parent_1', 'PARENT'),
+    });
+
+    await findAccessibleBilanRequest(repository, principal!);
+
+    expect(findFirst).toHaveBeenCalledWith(expect.objectContaining({
+      where: expect.objectContaining({
+        id: 'request_1',
+        parentUserId: 'parent_1',
+        accountVerificationState: 'VERIFIED',
+        OR: expect.arrayContaining([{ studentId: null }]),
+      }),
+    }));
+  });
+
   it.each([
     [null, true],
     [new Date('2026-07-29T10:00:00.001Z'), true],
@@ -99,7 +124,7 @@ describe('bilan request access predicates', () => {
     [new Date('2026-07-29T09:59:59.999Z'), false],
   ])('accepts a parent link expiry %s only while it is live', async (expiresAt, accepted) => {
     const findFirst = jest.fn(async ({ where }: { where: Record<string, any> }) => {
-      const expiryRules = where.student.is.parentLinks.some.OR;
+      const expiryRules = where.OR[1].student.is.parentLinks.some.OR;
       const matchesNull = expiryRules[0].expiresAt === null && expiresAt === null;
       const threshold = expiryRules[1].expiresAt.gt as Date;
       const matchesFuture = expiresAt !== null && expiresAt.getTime() > threshold.getTime();

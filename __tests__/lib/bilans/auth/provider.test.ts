@@ -72,6 +72,7 @@ describe('bilan-magic Auth.js provider', () => {
       role: 'PARENT',
       firstName: 'Amina',
       lastName: 'Ben Salah',
+      bilanRequestId: 'crequest0000000000000001',
     };
     mockConsumeBilanMagicLink.mockResolvedValue(safeParent);
     const magic = authOptions.providers.find(

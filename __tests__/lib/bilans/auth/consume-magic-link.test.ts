@@ -109,6 +109,7 @@ describe('consumeBilanMagicLink', () => {
       role: 'PARENT',
       firstName: 'Amina',
       lastName: 'Ben Salah',
+      bilanRequestId: REQUEST_ID,
     });
 
     const lookup = repository.tx.bilanMagicLink.findUnique.mock.calls[0][0] as {

@@ -37,6 +37,27 @@ describe('auth module', () => {
     expect(authConfig.pages?.signIn).toBe('/auth/signin');
   });
 
+  it('propagates a server-issued bilan request binding into JWT and session', async () => {
+    const jwt = authConfig.callbacks!.jwt! as any;
+    const session = authConfig.callbacks!.session! as any;
+    const token = await jwt({
+      token: {},
+      user: {
+        id: 'parent_1',
+        email: 'parent@example.com',
+        role: 'PARENT',
+        bilanRequestId: 'request_magic_1',
+      },
+    });
+    expect(token.bilanRequestId).toBe('request_magic_1');
+
+    const exposed = await session({
+      session: { user: {} },
+      token,
+    });
+    expect(exposed.user.bilanRequestId).toBe('request_magic_1');
+  });
+
   it('authConfig authorized callback rejects unauthenticated dashboard access', async () => {
     const authorized = authConfig.callbacks!.authorized! as any;
     const req = { nextUrl: new URL('http://localhost/dashboard') } as any;

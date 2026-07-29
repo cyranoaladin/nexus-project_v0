@@ -18,6 +18,7 @@ export type SafeBilanParentUser = Readonly<{
   role: 'PARENT';
   firstName?: string;
   lastName?: string;
+  bilanRequestId: string;
 }>;
 
 type ConsumeBilanMagicLinkInput = Readonly<{
@@ -200,6 +201,7 @@ async function consumeInTransaction(
       id: magicLink.parentUser.id,
       email: magicLink.parentUser.email,
       role: 'PARENT',
+      bilanRequestId: magicLink.requestId,
       ...(magicLink.parentUser.firstName
         ? { firstName: magicLink.parentUser.firstName }
         : {}),

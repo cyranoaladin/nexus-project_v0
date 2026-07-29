@@ -4,6 +4,7 @@ import {
   checkRateLimit,
   checkRateLimitAsync,
   getRateLimitRuntimeMode,
+  guardRateLimitAsync,
 } from '@/lib/rate-limit';
 import { RedisStore } from '@/lib/rate-limit/redis-store';
 
@@ -167,6 +168,70 @@ describe('distributed/public rate limit hardening', () => {
       expect(checkRateLimit(req, { preset: 'auth' }).success).toBe(true);
     }
     expect(checkRateLimit(req, { preset: 'auth' }).success).toBe(false);
+  });
+
+  it('fails closed in production when a required distributed store is not configured', async () => {
+    Object.assign(process.env, { NODE_ENV: 'production' });
+
+    const result = await checkRateLimitAsync(makeRequest('203.0.113.16'), {
+      preset: 'api',
+      requireDistributed: true,
+    });
+
+    expect(result).toEqual(expect.objectContaining({
+      success: false,
+      unavailable: true,
+    }));
+  });
+
+  it('fails closed in production when the configured required store fails', async () => {
+    Object.assign(process.env, { NODE_ENV: 'production' });
+    process.env.REDIS_URL = 'redis://127.0.0.1:6379';
+    mockRedisIncrement.mockRejectedValueOnce(new Error('redis unavailable'));
+
+    const result = await checkRateLimitAsync(makeRequest('203.0.113.17'), {
+      preset: 'auth',
+      requireDistributed: true,
+    });
+
+    expect(result).toEqual(expect.objectContaining({
+      success: false,
+      unavailable: true,
+    }));
+  });
+
+  it('never lets the production bypass override required distributed mode', async () => {
+    Object.assign(process.env, { NODE_ENV: 'production' });
+    process.env.RATE_LIMIT_DISABLE = '1';
+
+    const result = await checkRateLimitAsync(makeRequest('203.0.113.18'), {
+      preset: 'api',
+      requireDistributed: true,
+    });
+
+    expect(result.unavailable).toBe(true);
+  });
+
+  it('returns a stable sober 503 without infrastructure details when required protection is unavailable', async () => {
+    Object.assign(process.env, { NODE_ENV: 'production' });
+
+    const response = await guardRateLimitAsync(makeRequest('203.0.113.19'), {
+      preset: 'api',
+      requireDistributed: true,
+    });
+
+    expect(response?.status).toBe(503);
+    const body = await response?.json();
+    expect(body).toEqual({
+      ok: false,
+      error: {
+        code: 'SERVICE_TEMPORARILY_UNAVAILABLE',
+        message: 'Service temporairement indisponible. Veuillez réessayer plus tard.',
+      },
+    });
+    expect(JSON.stringify(body).toLowerCase()).not.toMatch(
+      /redis|upstash|memory/,
+    );
   });
 
   it('increments Redis counters with expiration semantics', async () => {

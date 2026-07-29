@@ -515,11 +515,11 @@ git commit -m "feat(auth): resume parent bilans with one-time magic links"
 - Test: `__tests__/api/bilan-gratuit.v1.child.security.test.ts`
 - Modify: `__tests__/api/public-rate-limit.coverage.test.ts`
 
-- [ ] **Step 1: Write failing API and distributed-rate-limit tests.**
+- [x] **Step 1: Write failing API and distributed-rate-limit tests.**
 
 Test strict schemas, body size, CSRF, honeypot, generic public contracts, idempotency, current-request projection, temporary-session scope, verified parent child selection, cross-parent denial and unavailable distributed limiter behavior.
 
-- [ ] **Step 2: Run and verify failures.**
+- [x] **Step 2: Run and verify failures.**
 
 Run:
 
@@ -533,13 +533,13 @@ npx jest --config jest.unit.config.js \
 
 Expected: FAIL because v1 routes and fail-closed distributed mode do not exist.
 
-- [ ] **Step 3: Implement thin routes and fail-closed rate limiting.**
+- [x] **Step 3: Implement thin routes and fail-closed rate limiting.**
 
 Add `requireDistributed?: boolean` to the async rate-limit options. When true in production and Redis/Upstash is unavailable, return a stable 503 rather than falling back to process memory. Use it on intake, magic-link request and submit endpoints.
 
 The compatibility route delegates to v1 only when `BILAN_CANONICAL_INTAKE_ENABLED`; interim anti-enumeration remains unconditional when the flag is off. Current request GET returns only the request-bound public projection.
 
-- [ ] **Step 4: Re-run route tests and typecheck.**
+- [x] **Step 4: Re-run route tests and typecheck.**
 
 Run:
 
@@ -554,7 +554,7 @@ npm run typecheck
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit API boundaries.**
+- [x] **Step 5: Commit API boundaries.**
 
 ```bash
 git add app/api/bilan-gratuit lib/rate-limit/index.ts \

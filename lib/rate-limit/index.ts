@@ -96,6 +96,8 @@ function getDistributedStore(): RedisStore | UpstashStore | null {
 
 export interface RateLimitResult {
   success: boolean;
+  /** Required distributed protection could not be enforced. */
+  unavailable?: boolean;
   limit: number;
   remaining: number;
   /** Absolute timestamp (ms) when the window resets. */
@@ -111,6 +113,22 @@ export interface CheckRateLimitOptions {
   userId?: string | null;
   /** Optional extra key suffix for sub-scoping (e.g. route path). */
   keySuffix?: string;
+  /**
+   * In production, refuse the request when no distributed store can enforce
+   * the quota. Non-production environments retain the memory fallback.
+   */
+  requireDistributed?: boolean;
+}
+
+function distributedUnavailableResult(): RateLimitResult {
+  return {
+    success: false,
+    unavailable: true,
+    limit: 0,
+    remaining: 0,
+    resetAt: 0,
+    retryAfter: 0,
+  };
 }
 
 /**
@@ -172,7 +190,18 @@ export async function checkRateLimitAsync(
         _distributedWarned = true;
         // Distributed store unavailable, falling back to memory store
       }
+      if (options.requireDistributed && process.env.NODE_ENV === 'production') {
+        return distributedUnavailableResult();
+      }
     }
+  }
+
+  if (
+    !distributedStore
+    && options.requireDistributed
+    && process.env.NODE_ENV === 'production'
+  ) {
+    return distributedUnavailableResult();
   }
 
   return checkRateLimit(request, options);
@@ -183,6 +212,19 @@ export async function checkRateLimitAsync(
  * Includes standard rate limit headers + Retry-After.
  */
 export function rateLimitResponse(result: RateLimitResult): NextResponse {
+  if (result.unavailable) {
+    return NextResponse.json(
+      {
+        ok: false,
+        error: {
+          code: 'SERVICE_TEMPORARILY_UNAVAILABLE',
+          message: 'Service temporairement indisponible. Veuillez réessayer plus tard.',
+        },
+      },
+      { status: 503 },
+    );
+  }
+
   const body = {
     ok: false,
     error: {

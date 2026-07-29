@@ -25,6 +25,7 @@ const mockTransaction = {
 jest.mock('@/lib/prisma', () => ({ prisma: { $transaction: jest.fn() } }));
 jest.mock('@/lib/rate-limit', () => ({
   guardRateLimitAsync: jest.fn().mockResolvedValue(null),
+  hashForKey: jest.fn((value: string) => `hashed-${value.length}`),
 }));
 jest.mock('@/lib/csrf', () => ({
   checkCsrf: jest.fn().mockReturnValue(null),
@@ -238,14 +239,34 @@ describe('POST /api/auth/bilan-magic/request', () => {
     await expect(response.json()).resolves.toEqual({ error: 'Requête invalide.' });
   });
 
-  it('applies the existing CSRF, body-size and public auth rate-limit guards', async () => {
+  it('applies distributed IP and hashed-email quotas after strict parsing', async () => {
     await POST(request({ email: 'registered.parent@example.com' }));
 
     expect(mockCheckCsrf).toHaveBeenCalledTimes(1);
     expect(mockCheckBodySize).toHaveBeenCalledTimes(1);
-    expect(mockGuardRateLimitAsync).toHaveBeenCalledWith(
+    expect(mockGuardRateLimitAsync).toHaveBeenNthCalledWith(
+      1,
       expect.any(NextRequest),
-      { preset: 'auth', keySuffix: 'bilan-magic-request' },
+      {
+        preset: 'auth',
+        keySuffix: 'bilan-magic-request',
+        requireDistributed: true,
+      },
     );
+    expect(mockGuardRateLimitAsync).toHaveBeenNthCalledWith(
+      2,
+      expect.any(NextRequest),
+      {
+        preset: 'auth',
+        keySuffix: 'bilan-magic-request-email',
+        userId: 'hashed-29',
+        requireDistributed: true,
+      },
+    );
+  });
+
+  it('does not derive an email quota key until strict parsing succeeds', async () => {
+    await POST(request({ email: 'invalid' }));
+    expect(mockGuardRateLimitAsync).toHaveBeenCalledTimes(1);
   });
 });
