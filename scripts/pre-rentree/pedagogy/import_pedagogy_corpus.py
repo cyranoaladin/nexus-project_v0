@@ -6,9 +6,11 @@ from __future__ import annotations
 import argparse
 import csv
 import hashlib
+import io
 import json
 import os
 import sys
+import tempfile
 import zipfile
 from pathlib import Path, PurePosixPath
 from typing import Iterator
@@ -112,9 +114,14 @@ def build_inventory(import_root: Path) -> dict:
 
     tree_entries = list(_iter_tree(root))
     ambiguous_paths = _ambiguous_paths(tree_entries)
+    non_empty_directories = {
+        relative.parent.as_posix()
+        for _, relative, _ in tree_entries
+    }
     directories = [
         {
             "relative_path": ".",
+            "is_empty": "." not in non_empty_directories,
             "is_hidden": False,
             "is_ambiguous_name": False,
         }
@@ -130,6 +137,7 @@ def build_inventory(import_root: Path) -> dict:
             directories.append(
                 {
                     "relative_path": relative_string,
+                    "is_empty": relative_string not in non_empty_directories,
                     "is_hidden": hidden,
                     "is_ambiguous_name": ambiguous,
                 }
@@ -182,6 +190,7 @@ def build_inventory(import_root: Path) -> dict:
         "schema_version": 1,
         "summary": {
             "directory_count": len(directories),
+            "empty_directory_count": sum(item["is_empty"] for item in directories),
             "file_count": len(files),
             "hash_count": sum(bool(item["sha256"]) for item in files),
             "total_bytes": sum(item["size_bytes"] for item in files),
@@ -216,33 +225,46 @@ def write_inventory(inventory: dict, import_root: Path, output_root: Path) -> No
     output.mkdir(parents=True, exist_ok=True)
 
     csv_path = output / "INVENTAIRE-IMPORT.csv"
-    csv_temp = output / ".INVENTAIRE-IMPORT.csv.tmp"
-    with csv_temp.open("w", encoding="utf-8", newline="") as handle:
-        writer = csv.DictWriter(handle, fieldnames=CSV_FIELDS, lineterminator="\n")
-        writer.writeheader()
-        writer.writerows(inventory["files"])
-    csv_temp.replace(csv_path)
+    csv_buffer = io.StringIO(newline="")
+    writer = csv.DictWriter(csv_buffer, fieldnames=CSV_FIELDS, lineterminator="\n")
+    writer.writeheader()
+    writer.writerows(inventory["files"])
+    _atomic_write_text(csv_path, csv_buffer.getvalue())
 
     json_path = output / "INVENTAIRE-IMPORT.json"
-    json_temp = output / ".INVENTAIRE-IMPORT.json.tmp"
-    json_temp.write_text(
+    _atomic_write_text(
+        json_path,
         json.dumps(inventory, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
-        encoding="utf-8",
-        newline="\n",
     )
-    json_temp.replace(json_path)
 
     manifest_path = output / "MANIFEST-SHA256.txt"
-    manifest_temp = output / ".MANIFEST-SHA256.txt.tmp"
-    manifest_temp.write_text(
+    _atomic_write_text(
+        manifest_path,
         "".join(
             f'{item["sha256"]}  {item["relative_path"]}\n'
             for item in inventory["files"]
         ),
-        encoding="utf-8",
-        newline="\n",
     )
-    manifest_temp.replace(manifest_path)
+
+
+def _atomic_write_text(destination: Path, content: str) -> None:
+    descriptor, temporary_name = tempfile.mkstemp(
+        dir=destination.parent,
+        prefix=f".{destination.name}.",
+        suffix=".tmp",
+    )
+    temporary_path = Path(temporary_name)
+    try:
+        with os.fdopen(descriptor, "w", encoding="utf-8", newline="") as handle:
+            descriptor = -1
+            handle.write(content)
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.replace(temporary_path, destination)
+    finally:
+        if descriptor >= 0:
+            os.close(descriptor)
+        temporary_path.unlink(missing_ok=True)
 
 
 def main() -> int:
@@ -258,6 +280,7 @@ def main() -> int:
 
     summary = inventory["summary"]
     print(f'DIRECTORY_COUNT={summary["directory_count"]}')
+    print(f'EMPTY_DIRECTORY_COUNT={summary["empty_directory_count"]}')
     print(f'FILE_COUNT={summary["file_count"]}')
     print(f'HASH_COUNT={summary["hash_count"]}')
     print(f'EMPTY_FILE_COUNT={summary["empty_file_count"]}')
