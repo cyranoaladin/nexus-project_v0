@@ -38,6 +38,9 @@ Le constructeur `scripts/pre-rentree/pedagogy/build_pedagogy_manifest.py` :
 
 Les nombres de groupes et copies ne sont pas des constantes métier : ils sont
 recalculés depuis les SHA de l'inventaire à chaque exécution.
+La politique Task 2 interdit tout lien symbolique, qu'il soit déjà déclaré
+dans l'inventaire ou ajouté dans l'arbre courant. Le refus intervient avant
+toute copie temporaire ou exécution d'un outil historique.
 
 ## Matrice finale
 
@@ -183,10 +186,12 @@ est absent ou échoue, l'évaluation échoue fermée. Le lanceur impose en plus 
 limites par processus abaissées à 20 secondes CPU, 512 Mio d'espace d'adressage
 et 1 Mio par fichier, ainsi qu'un délai maximal de 60 secondes. Une supervision
 hôte agrégée interrompt le groupe au-delà de 64 Mio dans le workspace,
-32 processus, 1 Gio de RSS ou 30 secondes de CPU. Stdout et stderr sont capturés
-dans des fichiers anonymes hôte, invisibles et non remplaçables depuis le bac à
-sable, avec une lecture bornée après terminaison. Le groupe de processus et ses
-descendants sont supprimés au timeout ou au dépassement.
+5 000 entrées (fichiers, répertoires et liens symboliques, sans suivre ces
+derniers), 32 processus, 1 Gio de RSS ou 30 secondes de CPU. Le résultat expose
+le maximum observé sous `peak_workspace_entries`. Stdout et stderr sont
+capturés dans des fichiers anonymes hôte, invisibles et non remplaçables depuis
+le bac à sable, avec une lecture bornée après terminaison. Le groupe de
+processus et ses descendants sont supprimés au timeout ou au dépassement.
 
 Pour la chaîne des séances, une copie temporaire fidèle du paquet livré
 reproduit le défaut des deux scripts :

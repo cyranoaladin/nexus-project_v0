@@ -26,6 +26,7 @@ RESOURCE_LIMITS = {
 }
 AGGREGATE_LIMITS = {
     "workspace_bytes": 64 * 1024 * 1024,
+    "workspace_entries": 5000,
     "process_count": 32,
     "rss_bytes": 1024 * 1024 * 1024,
     "cpu_seconds": 30,
@@ -71,8 +72,9 @@ def _read_bounded(handle: BinaryIO) -> tuple[str, int, bool]:
     )
 
 
-def _workspace_size_bytes(root: Path) -> int:
-    total = 0
+def _workspace_usage(root: Path) -> dict[str, int]:
+    total_bytes = 0
+    total_entries = 1
     pending = [root]
     while pending:
         directory = pending.pop()
@@ -87,10 +89,17 @@ def _workspace_size_bytes(root: Path) -> int:
             except FileNotFoundError:
                 continue
             if stat.S_ISDIR(metadata.st_mode):
+                total_entries += 1
                 pending.append(Path(entry.path))
             elif stat.S_ISREG(metadata.st_mode):
-                total += metadata.st_size
-    return total
+                total_entries += 1
+                total_bytes += metadata.st_size
+            elif stat.S_ISLNK(metadata.st_mode):
+                total_entries += 1
+    return {
+        "workspace_bytes": total_bytes,
+        "workspace_entries": total_entries,
+    }
 
 
 def _parse_proc_stat(raw: str) -> tuple[int, int, int, int] | None:
@@ -154,7 +163,7 @@ def _aggregate_process_usage(root_pid: int) -> dict[str, int | float]:
 
 def _aggregate_usage(root_pid: int, workspace: Path) -> dict[str, int | float]:
     return {
-        "workspace_bytes": _workspace_size_bytes(workspace),
+        **_workspace_usage(workspace),
         **_aggregate_process_usage(root_pid),
     }
 
@@ -163,7 +172,13 @@ def _resource_violation(
     usage: dict[str, int | float],
     limits: dict[str, int | float],
 ) -> str | None:
-    for metric in ("workspace_bytes", "process_count", "rss_bytes", "cpu_seconds"):
+    for metric in (
+        "workspace_bytes",
+        "workspace_entries",
+        "process_count",
+        "rss_bytes",
+        "cpu_seconds",
+    ):
         if usage[metric] > limits[metric]:
             return metric
     return None
@@ -217,6 +232,7 @@ def run_copied_python_tool(
             "stderr_bytes": 0,
             "stdout_truncated": False,
             "stderr_truncated": False,
+            "peak_workspace_entries": 0,
         }
 
     script_in_sandbox = (
@@ -341,6 +357,7 @@ def run_copied_python_tool(
             "exception_type": exception_type,
             "resource_violation": resource_violation,
             "peak_aggregate_usage": peak_usage,
+            "peak_workspace_entries": peak_usage["workspace_entries"],
             "stdout_bytes": stdout_size,
             "stderr_bytes": stderr_size,
             "stdout_truncated": stdout_truncated,
