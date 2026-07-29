@@ -20,7 +20,7 @@ jest.mock('@/lib/bilans/requests/tokens', () => ({
         httpOnly: true,
         sameSite: 'lax',
         secure: false,
-        path: '/bilan-gratuit',
+        path: '/api/bilan-gratuit',
         maxAge: 1_800,
       },
     },
@@ -61,6 +61,7 @@ const requestId = 'crequest0000000000000001';
 
 type FakeOptions = Readonly<{
   existingParent?: boolean;
+  matchingUsers?: ReadonlyArray<Readonly<{ id: string; role: string }>>;
   existingRequest?: boolean;
   failAt?: 'notification';
 }>;
@@ -87,11 +88,8 @@ function fakePrisma(options: FakeOptions = {}) {
       }),
     },
     user: {
-      findFirst: jest.fn(async () => options.existingParent ? {
-        id: parentId,
-        email: 'Parent@Example.COM',
-        role: 'PARENT',
-      } : null),
+      findMany: jest.fn(async () => options.matchingUsers
+        ?? (options.existingParent ? [{ id: parentId, role: 'PARENT' }] : [])),
       create: jest.fn(async (value) => {
         const data = record('user', value);
         return data.role === 'PARENT'
@@ -211,7 +209,7 @@ describe('createBilanRequestIntake', () => {
       production: false,
     });
 
-    expect(repository.tx.user.findFirst).toHaveBeenCalledWith({
+    expect(repository.tx.user.findMany).toHaveBeenCalledWith({
       where: {
         email: {
           equals: 'parent@example.com',
@@ -219,6 +217,7 @@ describe('createBilanRequestIntake', () => {
         },
       },
       select: { id: true, role: true },
+      take: 2,
     });
     expect(repository.tx.user.create).not.toHaveBeenCalled();
     expect(repository.tx.student.create).not.toHaveBeenCalled();
@@ -242,7 +241,7 @@ describe('createBilanRequestIntake', () => {
       options: expect.objectContaining({
         httpOnly: true,
         sameSite: 'lax',
-        path: '/bilan-gratuit',
+        path: '/api/bilan-gratuit',
       }),
     }));
   });
@@ -347,6 +346,84 @@ describe('createBilanRequestIntake', () => {
     expect(JSON.stringify(fresh.public)).not.toContain(requestId);
     expect(JSON.stringify(fresh.public)).not.toContain('parent');
   });
+
+  it('fails closed when multiple case-insensitive accounts match the parent email', async () => {
+    const repository = fakePrisma({
+      matchingUsers: [
+        { id: parentId, role: 'PARENT' },
+        { id: 'cparent000000000000000002', role: 'PARENT' },
+      ],
+    });
+
+    const result = await createBilanRequestIntake({
+      prisma: repository.client as never,
+      admission,
+      idempotencyKey: 'intake_ambiguous_0123456',
+    });
+
+    const request = repository.writes.find(({ model }) => model === 'bilanRequest')?.data;
+    expect(request).toMatchObject({
+      parentUserId: null,
+      studentId: null,
+      status: 'HUMAN_FOLLOWUP_REQUIRED',
+      accountVerificationState: 'UNVERIFIED',
+    });
+    expect(repository.tx.user.create).not.toHaveBeenCalled();
+    expect(repository.tx.bilanMagicLink.create).not.toHaveBeenCalled();
+    expect(result.internal.magicLinkToken).toBeNull();
+    expect(repository.writes
+      .filter(({ model }) => model === 'bilanRequestEvent')
+      .map(({ data }) => ({ type: data.type, payload: data.payload })))
+      .toEqual([
+        {
+          type: 'REQUEST_CREATED',
+          payload: {
+            acquisitionChannelCode: 'WEBSITE',
+            subjectCode: 'MATHEMATIQUES',
+            gradeCode: 'TERMINALE',
+          },
+        },
+        {
+          type: 'HUMAN_FOLLOWUP_REQUIRED',
+          payload: { reasonCode: 'OPERATIONAL_FOLLOWUP' },
+        },
+      ]);
+  });
+
+  it.each(['ELEVE', 'COACH', 'ASSISTANTE', 'ADMIN'])(
+    'keeps a unique %s account unlinked and requests human follow-up without a magic link',
+    async (role) => {
+      const repository = fakePrisma({
+        matchingUsers: [{ id: 'cunrelated000000000000001', role }],
+      });
+
+      const result = await createBilanRequestIntake({
+        prisma: repository.client as never,
+        admission,
+        idempotencyKey: `intake_role_${role}_012345`,
+      });
+
+      const request = repository.writes.find(({ model }) => model === 'bilanRequest')?.data;
+      expect(result.public).toEqual({
+        success: true,
+        message: GENERIC_SUCCESS_MESSAGE,
+        next: 'ASSESSMENT_OR_EMAIL',
+      });
+      expect(request).toMatchObject({
+        parentUserId: null,
+        studentId: null,
+        status: 'HUMAN_FOLLOWUP_REQUIRED',
+        accountVerificationState: 'UNVERIFIED',
+      });
+      expect(result.internal.flowSessionToken).not.toBeNull();
+      expect(result.internal.magicLinkToken).toBeNull();
+      expect(repository.tx.bilanMagicLink.create).not.toHaveBeenCalled();
+      expect(repository.writes
+        .filter(({ model }) => model === 'bilanRequestEvent')
+        .map(({ data }) => data.type))
+        .toEqual(['REQUEST_CREATED', 'HUMAN_FOLLOWUP_REQUIRED']);
+    },
+  );
 
   it('propagates a transaction failure', async () => {
     const repository = fakePrisma({ failAt: 'notification' });

@@ -46,7 +46,6 @@ type CreateBilanRequestInput = Readonly<{
   idempotencyKey: unknown;
   now?: Date;
   production?: boolean;
-  notificationRecipientAddress?: string;
 }>;
 
 type InternalIntakeEnvelope = Readonly<{
@@ -73,9 +72,9 @@ function hashIdempotencyKey(value: string): string {
   return `${IDEMPOTENCY_HASH_PREFIX}${createHash('sha256').update(value, 'utf8').digest('hex')}`;
 }
 
-function resolveTeamNotificationAddress(value?: string): string {
+function resolveTeamNotificationAddress(): string {
   return teamNotificationAddressSchema.parse(
-    value ?? process.env.BILAN_TEAM_NOTIFICATION_EMAIL ?? DEFAULT_TEAM_NOTIFICATION_ADDRESS,
+    process.env.BILAN_TEAM_NOTIFICATION_EMAIL ?? DEFAULT_TEAM_NOTIFICATION_ADDRESS,
   );
 }
 
@@ -121,7 +120,7 @@ async function createInTransaction(
       return replayResult(existingRequest.id);
     }
 
-    const existingUser = await transaction.user.findFirst({
+    const matchingUsers = await transaction.user.findMany({
       where: {
         email: {
           equals: admission.parent.email,
@@ -132,15 +131,22 @@ async function createInTransaction(
         id: true,
         role: true,
       },
+      take: 2,
     });
+    const existingParent = matchingUsers.length === 1
+      && matchingUsers[0].role === 'PARENT'
+      ? matchingUsers[0]
+      : null;
+    const needsHumanFollowup = matchingUsers.length > 1
+      || (matchingUsers.length === 1 && matchingUsers[0].role !== 'PARENT');
 
     let parentUserId: string | null = null;
     let studentId: string | null = null;
-    const isExistingAccount = existingUser !== null;
+    const isExistingAccount = matchingUsers.length > 0;
 
-    if (existingUser?.role === 'PARENT') {
-      parentUserId = existingUser.id;
-    } else if (!existingUser) {
+    if (existingParent) {
+      parentUserId = existingParent.id;
+    } else if (matchingUsers.length === 0) {
       const parentUser = await transaction.user.create({
         data: {
           email: admission.parent.email,
@@ -196,8 +202,8 @@ async function createInTransaction(
         consent: admission.consent,
         consentVersion: admission.consentVersion,
         consentedAt: now,
-        status: 'NEW',
-        accountVerificationState: 'VERIFICATION_PENDING',
+        status: needsHumanFollowup ? 'HUMAN_FOLLOWUP_REQUIRED' : 'NEW',
+        accountVerificationState: needsHumanFollowup ? 'UNVERIFIED' : 'VERIFICATION_PENDING',
         submissionHash,
         lastActivityAt: now,
       },
@@ -222,9 +228,24 @@ async function createInTransaction(
       },
       { now },
     );
+    if (needsHumanFollowup) {
+      await appendBilanRequestEvent(
+        transaction as unknown as BilanRequestEventClient,
+        {
+          requestId: request.id,
+          type: 'HUMAN_FOLLOWUP_REQUIRED',
+          actor: 'SYSTEM',
+          correlationId,
+          payload: {
+            reasonCode: 'OPERATIONAL_FOLLOWUP',
+          },
+        },
+        { now },
+      );
+    }
 
     const flowSessionToken = createBilanFlowSessionToken({ now, production });
-    const magicLinkToken = createBilanMagicLinkToken({ now });
+    const magicLinkToken = needsHumanFollowup ? null : createBilanMagicLinkToken({ now });
 
     await transaction.bilanFlowSession.create({
       data: {
@@ -233,14 +254,16 @@ async function createInTransaction(
         expiresAt: flowSessionToken.expiresAt,
       },
     });
-    await transaction.bilanMagicLink.create({
-      data: {
-        requestId: request.id,
-        parentUserId,
-        tokenHash: magicLinkToken.tokenHash,
-        expiresAt: magicLinkToken.expiresAt,
-      },
-    });
+    if (magicLinkToken) {
+      await transaction.bilanMagicLink.create({
+        data: {
+          requestId: request.id,
+          parentUserId,
+          tokenHash: magicLinkToken.tokenHash,
+          expiresAt: magicLinkToken.expiresAt,
+        },
+      });
+    }
     await transaction.notificationOutbox.create({
       data: {
         eventType: 'BILAN_REQUEST_CREATED',
@@ -282,9 +305,7 @@ export async function createBilanRequestIntake(
   if (!Number.isFinite(now.getTime())) {
     throw new Error('Invalid bilan request date');
   }
-  const notificationRecipientAddress = resolveTeamNotificationAddress(
-    input.notificationRecipientAddress,
-  );
+  const notificationRecipientAddress = resolveTeamNotificationAddress();
 
   for (let attempt = 0; attempt < 3; attempt += 1) {
     try {

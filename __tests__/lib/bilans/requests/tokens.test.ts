@@ -37,7 +37,7 @@ describe('bilan request tokens', () => {
         httpOnly: true,
         sameSite: 'lax',
         secure: false,
-        path: '/bilan-gratuit',
+        path: '/api/bilan-gratuit',
         maxAge: BILAN_FLOW_SESSION_TTL_SECONDS,
       },
     });
@@ -46,6 +46,29 @@ describe('bilan request tokens', () => {
     expect(development.expiresAt.getTime() - now.getTime()).toBe(
       BILAN_FLOW_SESSION_TTL_SECONDS * 1_000,
     );
+  });
+
+  it('scopes the cookie to canonical bilan APIs without exposing it to unrelated APIs', () => {
+    const cookiePath = createBilanFlowSessionToken({
+      now,
+      production: false,
+    }).cookie.options.path;
+
+    expect('/api/bilan-gratuit/v1/requests/current'.startsWith(cookiePath)).toBe(true);
+    expect('/api/contact'.startsWith(cookiePath)).toBe(false);
+  });
+
+  it('does not allow a test override to downgrade Secure in the production environment', () => {
+    const nodeEnvironment = jest.replaceProperty(process.env, 'NODE_ENV', 'production');
+
+    try {
+      expect(createBilanFlowSessionToken({
+        now,
+        production: false,
+      }).cookie.options.secure).toBe(true);
+    } finally {
+      nodeEnvironment.restore();
+    }
   });
 
   it('compares token hashes deterministically without accepting malformed hashes', () => {
