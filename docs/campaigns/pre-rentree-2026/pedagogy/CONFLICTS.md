@@ -53,10 +53,11 @@ Toutes ces exécutions sont réalisées deux fois dans des espaces temporaires
 distincts et uniquement sous `/usr/bin/bwrap` avec environnement vidé, réseau
 isolé, racine en lecture seule, ressources et sorties bornées. Les captures
 stdout/stderr sont des fichiers anonymes hôte ; une supervision agrégée impose
-64 Mio de workspace, 5 000 entrées sans suivi des liens, 32 processus, 1 Gio
-de RSS et 30 secondes de CPU. Le pic d'entrées est conservé dans
-`peak_workspace_entries`. L'absence ou l'échec du bac à sable ferme la
-vérification : aucune exécution directe de repli n'est autorisée.
+64 Mio de workspace, 5 000 entrées de tout type (`DirEntry`, dont FIFO, socket
+et device) sans suivi des liens, 32 processus, 1 Gio de RSS et 30 secondes de
+CPU. Le pic d'entrées est conservé dans `peak_workspace_entries`. L'absence ou
+l'échec du bac à sable ferme la vérification : aucune exécution directe de
+repli n'est autorisée.
 
 ## Validation pédagogique non déléguable
 

@@ -477,6 +477,42 @@ def test_sandbox_kills_a_real_workspace_entry_storm(tmp_path: Path):
     assert result["peak_workspace_entries"] > 5000
 
 
+def test_sandbox_counts_fifo_entries_toward_the_workspace_limit(tmp_path: Path):
+    workspace = tmp_path / "workspace"
+    workspace.mkdir()
+    script = workspace / "fifo-storm.py"
+    script.write_text(
+        "\n".join(
+            [
+                "import os, time",
+                "for index in range(5200):",
+                "    os.mkfifo(f'/workspace/fifo-{index}')",
+                "time.sleep(10)",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    forbidden_root = tmp_path / "forbidden-import"
+    forbidden_root.mkdir()
+    started = time.monotonic()
+
+    result = sandbox_runner.run_copied_python_tool(
+        script,
+        workspace=workspace,
+        forbidden_root=forbidden_root,
+        timeout_seconds=3,
+    )
+
+    if not Path("/usr/bin/bwrap").is_file():
+        assert result["status"] == "FAIL_CLOSED_SANDBOX_UNAVAILABLE"
+        return
+    assert time.monotonic() - started < 3
+    assert result["status"] == "FAIL_RESOURCE_LIMIT"
+    assert result["resource_violation"] == "workspace_entries"
+    assert result["peak_workspace_entries"] > 5000
+
+
 def test_bubblewrap_absence_fails_closed_without_running_script(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -931,5 +967,6 @@ def test_reports_disclose_session_tool_path_adaptation_and_isolated_proof():
         "interdit tout lien symbolique",
         "5 000 entrées",
         "`peak_workspace_entries`",
+        "FIFO, sockets et devices",
     ):
         assert expected in deduplication
