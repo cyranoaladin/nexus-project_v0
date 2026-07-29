@@ -72,6 +72,15 @@ export async function POST(request: NextRequest) {
 
     // Validation des données
     const validatedData = bilanGratuitSchema.parse(body);
+    const gTrack = normalizeStudentLevelAndTrack(validatedData.studentGrade);
+
+    if (!gTrack) {
+      return NextResponse.json(
+        { error: `Niveau scolaire non reconnu : ${validatedData.studentGrade}` },
+        { status: 400 },
+      );
+    }
+
     const campaignContext = synchronizePreRentreeCampaignContext({
       campaignContext: validatedData.campaignContext ?? undefined,
       studentGrade: validatedData.studentGrade,
@@ -110,16 +119,6 @@ export async function POST(request: NextRequest) {
     const rawActivationToken = `act_${createId()}_${crypto.randomBytes(16).toString('hex')}`;
     const hashedActivationToken = crypto.createHash('sha256').update(rawActivationToken).digest('hex');
     const activationExpiry = new Date(Date.now() + 72 * 60 * 60 * 1000);
-
-    // Normaliser le niveau scolaire AVANT la transaction
-    const gTrack = normalizeStudentLevelAndTrack(validatedData.studentGrade);
-    
-    if (!gTrack) {
-      return NextResponse.json(
-        { error: `Niveau scolaire non reconnu : ${validatedData.studentGrade}` },
-        { status: 400 }
-      );
-    }
 
     // Transaction pour créer parent et élève
     const result = await prisma.$transaction(async (tx) => {
