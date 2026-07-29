@@ -159,7 +159,7 @@ export async function sendMail(options: SendMailOptions): Promise<SendMailResult
     const messageId = typeof info?.messageId === 'string' ? info.messageId : undefined;
     return { ok: true, messageId };
   } catch (error) {
-    console.error('[mailer] Send failed:', error instanceof Error ? error.message : 'unknown');
+    console.error('[mailer] Send failed');
 
     if (process.env.NODE_ENV === 'development') {
       return { ok: false };
@@ -183,7 +183,7 @@ export async function verifySmtp(): Promise<{ ok: boolean; error?: string }> {
     return { ok: true };
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    console.error('[mailer] SMTP verify failed:', message);
+    console.error('[mailer] SMTP verify failed');
     return { ok: false, error: message };
   }
 }

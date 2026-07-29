@@ -35,6 +35,10 @@ reprise du parcours sans mot de passe, sans exposer l’existence d’un compte.
   champ métier fourni par le client est refusé.
 - La demande d’un nouveau lien retourne un contrat identique pour les comptes
   absents, ambigus, inéligibles ou pour les échecs SMTP.
+- En production, les liens email sont limités à l’origine canonique
+  `https://nexusreussite.academy`. Les erreurs SMTP sont journalisées avec un
+  message statique, sans reprendre le message potentiellement sensible du
+  transport.
 - La page exacte `/auth/bilan-magic` est exemptée de la redirection des pages
   d’authentification et reçoit `Referrer-Policy: no-referrer`.
 
