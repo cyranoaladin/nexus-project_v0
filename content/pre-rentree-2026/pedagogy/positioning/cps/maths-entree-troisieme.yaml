@@ -1,0 +1,556 @@
+id: maths-entree-troisieme
+niveauEntree: TROISIEME
+matiere: MATHEMATIQUES
+edition: 2026
+dureeCibleMinutes: 22
+gamme: FONDATIONS
+intitulePublic: Mathématiques — Entrée en 3e
+cadrage: 'Consolider les acquis de 4e et préparer progressivement les attendus du DNB. Dix nœuds dans la carte,
+  huit évalués par le test ; les deux autres sont couverts par le test flash de la séance 1.
+
+  '
+noeuds:
+- id: n01
+  ordre: 1
+  evalueParTest: true
+  acquisN1: Priorités opératoires et nombres relatifs
+  usageN: Tout le calcul de 3e, y compris le calcul littéral (séance 1)
+  obstacles:
+  - Les erreurs sont attribuées à l'étourderie, jamais à une règle non maîtrisée
+  - Le carré d'un nombre négatif est calculé sans parenthèses
+  critereMaitrise: Calculer une expression numérique mêlant priorités, relatifs et puissances
+  seanceRattachement: 1
+  items:
+  - id: n01-i1
+    palier: A
+    type: qcm_unique
+    enonce: Combien vaut 5 - 3 × 2 ?
+    propositions:
+    - texte: '-1'
+      correcte: true
+    - texte: '4'
+      correcte: false
+      obstacleVise: 0
+    - texte: '7'
+      correcte: false
+      obstacleVise: 0
+    - texte: '-6'
+      correcte: false
+      obstacleVise: 1
+    justification: 'La multiplication est prioritaire : 5 - 6 = -1.'
+  - id: n01-i2
+    palier: B
+    type: qcm_unique
+    enonce: Combien vaut -4 + 6 ÷ (-2) ?
+    propositions:
+    - texte: '-1'
+      correcte: false
+      obstacleVise: 0
+    - texte: '-7'
+      correcte: true
+    - texte: '1'
+      correcte: false
+      obstacleVise: 0
+    - texte: '-5'
+      correcte: false
+      obstacleVise: 1
+    justification: 6 ÷ (-2) = -3, donc -4 - 3 = -7.
+  - id: n01-i3
+    palier: C
+    type: qcm_unique
+    enonce: Combien vaut (-2)² - 3 × (-1) ?
+    propositions:
+    - texte: '1'
+      correcte: false
+      obstacleVise: 1
+    - texte: '-7'
+      correcte: false
+      obstacleVise: 1
+    - texte: '7'
+      correcte: true
+    - texte: '-1'
+      correcte: false
+      obstacleVise: 1
+    justification: (-2)² = 4 et -3 × (-1) = +3, donc 4 + 3 = 7.
+- id: n02
+  ordre: 2
+  evalueParTest: false
+  motifNonEvalue: Couvert par le test flash de la séance 1 ; moins bloquant que le calcul littéral.
+  acquisN1: Puissances et écriture scientifique
+  usageN: Grandeurs composées et sciences physiques
+  obstacles:
+  - Les puissances d'exposant négatif ne sont pas interprétées
+  critereMaitrise: Écrire un nombre en notation scientifique
+  seanceRattachement: 1
+- id: n03
+  ordre: 3
+  evalueParTest: true
+  acquisN1: Développement, réduction, distributivité double
+  usageN: Factorisation et identités remarquables (séance 2)
+  obstacles:
+  - La double distributivité perd un des quatre produits
+  - L'identité remarquable n'est reconnue que dans le sens du développement
+  - Le carré d'une somme est calculé comme la somme des carrés
+  critereMaitrise: Développer un produit de deux binômes et factoriser une différence de carrés
+  seanceRattachement: 2
+  items:
+  - id: n03-i1
+    palier: A
+    type: qcm_unique
+    enonce: Développer et réduire (x + 3)(x - 2).
+    propositions:
+    - texte: x² - 6
+      correcte: false
+      obstacleVise: 0
+    - texte: x² + 5x - 6
+      correcte: false
+      obstacleVise: 0
+    - texte: x² - x - 6
+      correcte: false
+      obstacleVise: 0
+    - texte: x² + x - 6
+      correcte: true
+    justification: x² - 2x + 3x - 6 = x² + x - 6.
+  - id: n03-i2
+    palier: B
+    type: qcm_unique
+    enonce: Développer (x + 5)².
+    propositions:
+    - texte: x² + 10x + 25
+      correcte: true
+    - texte: x² + 25
+      correcte: false
+      obstacleVise: 2
+    - texte: x² + 5x + 25
+      correcte: false
+      obstacleVise: 0
+    - texte: x² + 10x + 5
+      correcte: false
+      obstacleVise: 2
+    justification: (a + b)² = a² + 2ab + b².
+  - id: n03-i3
+    palier: C
+    type: qcm_unique
+    enonce: Factoriser 4x² - 9.
+    propositions:
+    - texte: (4x - 9)(4x + 9)
+      correcte: false
+      obstacleVise: 1
+    - texte: (2x - 3)(2x + 3)
+      correcte: true
+    - texte: (2x - 3)²
+      correcte: false
+      obstacleVise: 1
+    - texte: (x - 3)(x + 3)
+      correcte: false
+      obstacleVise: 1
+    justification: 4x² = (2x)² et 9 = 3², donc a² - b² = (a - b)(a + b).
+- id: n04
+  ordre: 4
+  evalueParTest: true
+  acquisN1: Équation du premier degré
+  usageN: Mise en équation d'un problème (séance 2)
+  obstacles:
+  - Le passage de l'énoncé à l'équation n'est pas outillé
+  - La parenthèse n'est pas développée avant résolution
+  critereMaitrise: Traduire un énoncé par une équation et la résoudre
+  seanceRattachement: 2
+  items:
+  - id: n04-i1
+    palier: A
+    type: qcm_unique
+    enonce: Résoudre 5x - 3 = 12.
+    propositions:
+    - texte: x = 1,8
+      correcte: false
+      obstacleVise: 1
+    - texte: x = 15
+      correcte: false
+      obstacleVise: 1
+    - texte: x = 3
+      correcte: true
+    - texte: x = 9
+      correcte: false
+      obstacleVise: 0
+    justification: 5x = 15 puis x = 3.
+  - id: n04-i2
+    palier: B
+    type: qcm_unique
+    enonce: Résoudre 3(x - 2) = 9.
+    propositions:
+    - texte: x = 3
+      correcte: false
+      obstacleVise: 1
+    - texte: x = 11
+      correcte: false
+      obstacleVise: 1
+    - texte: x = 1
+      correcte: false
+      obstacleVise: 1
+    - texte: x = 5
+      correcte: true
+    justification: 3x - 6 = 9, donc 3x = 15 et x = 5.
+  - id: n04-i3
+    palier: C
+    type: qcm_unique
+    enonce: '« Je pense à un nombre, je le multiplie par 4, puis j''ajoute 5. J''obtiens 33. » Quelle équation traduit
+      cet énoncé ?
+
+      '
+    propositions:
+    - texte: 4x + 5 = 33
+      correcte: true
+    - texte: 4(x + 5) = 33
+      correcte: false
+      obstacleVise: 0
+    - texte: 4x - 5 = 33
+      correcte: false
+      obstacleVise: 0
+    - texte: x/4 + 5 = 33
+      correcte: false
+      obstacleVise: 0
+    justification: 'L''ordre des opérations de l''énoncé est respecté : d''abord ×4, puis +5.'
+- id: n05
+  ordre: 5
+  evalueParTest: true
+  acquisN1: Théorème de Pythagore et sa réciproque
+  usageN: Trigonométrie et rédaction d'une démonstration (séance 3)
+  obstacles:
+  - Le théorème direct et sa réciproque sont employés indifféremment
+  - L'hypoténuse n'est pas identifiée avant le calcul
+  critereMaitrise: Choisir entre le théorème et sa réciproque selon ce qui est cherché
+  seanceRattachement: 3
+  items:
+  - id: n05-i1
+    palier: A
+    type: qcm_unique
+    enonce: ABC est rectangle en B, avec AB = 6 cm et BC = 8 cm. Combien vaut AC ?
+    propositions:
+    - texte: 14 cm
+      correcte: false
+      obstacleVise: 1
+    - texte: 10 cm
+      correcte: true
+    - texte: 100 cm
+      correcte: false
+      obstacleVise: 1
+    - texte: 2 cm
+      correcte: false
+      obstacleVise: 1
+    justification: AC² = 36 + 64 = 100.
+  - id: n05-i2
+    palier: B
+    type: qcm_unique
+    enonce: Un triangle a pour côtés 5 cm, 12 cm et 13 cm. Que peut-on affirmer ?
+    propositions:
+    - texte: Il n'est pas rectangle
+      correcte: false
+      obstacleVise: 0
+    - texte: Il est rectangle, l'angle droit étant opposé au côté de 5 cm
+      correcte: false
+      obstacleVise: 1
+    - texte: Il est rectangle, l'angle droit étant opposé au côté de 13 cm
+      correcte: true
+    - texte: On ne peut pas le savoir sans figure
+      correcte: false
+      obstacleVise: 0
+    justification: '25 + 144 = 169, donc la réciproque s''applique : l''angle droit est opposé au plus grand côté.'
+  - id: n05-i3
+    palier: C
+    type: qcm_unique
+    enonce: 'On connaît les trois longueurs d''un triangle et on veut savoir s''il est rectangle. Quel outil utilise-t-on
+      ?
+
+      '
+    propositions:
+    - texte: Le théorème de Pythagore
+      correcte: false
+      obstacleVise: 0
+    - texte: Le théorème de Thalès
+      correcte: false
+      obstacleVise: 0
+    - texte: La réciproque du théorème de Thalès
+      correcte: false
+      obstacleVise: 0
+    - texte: La réciproque du théorème de Pythagore
+      correcte: true
+    justification: Le théorème direct calcule une longueur ; la réciproque démontre l'angle droit.
+- id: n06
+  ordre: 6
+  evalueParTest: true
+  acquisN1: Théorème de Thalès, configuration, agrandissement et réduction
+  usageN: Rapports de longueurs, aires et volumes dans un agrandissement (séance 3)
+  obstacles:
+  - La correspondance des sommets n'est pas respectée dans les rapports
+  - Le coefficient d'agrandissement est appliqué tel quel aux aires
+  critereMaitrise: Écrire les rapports de Thalès et appliquer un coefficient d'agrandissement aux aires
+  seanceRattachement: 3
+  items:
+  - id: n06-i1
+    palier: A
+    type: qcm_unique
+    enonce: 'Les points A, B, D sont alignés, ainsi que A, C, E. Les droites (BC) et (DE) sont parallèles. On a
+      AB = 3, AD = 9 et BC = 4. Combien vaut DE ?
+
+      '
+    propositions:
+    - texte: '12'
+      correcte: true
+    - texte: '10'
+      correcte: false
+      obstacleVise: 0
+    - texte: '6'
+      correcte: false
+      obstacleVise: 0
+    - texte: 1,33
+      correcte: false
+      obstacleVise: 0
+    justification: Le rapport vaut 9/3 = 3, donc DE = 4 × 3 = 12.
+  - id: n06-i2
+    palier: B
+    type: qcm_unique
+    enonce: Dans cette même configuration, quelle égalité de rapports est correcte ?
+    propositions:
+    - texte: AB/AD = AE/AC = BC/DE
+      correcte: false
+      obstacleVise: 0
+    - texte: AB/AD = AC/AE = BC/DE
+      correcte: true
+    - texte: AB/BD = AC/CE = BC/DE
+      correcte: false
+      obstacleVise: 0
+    - texte: AB/AC = AD/AE = BC/DE
+      correcte: false
+      obstacleVise: 0
+    justification: Les rapports respectent l'ordre des sommets homologues.
+  - id: n06-i3
+    palier: C
+    type: qcm_unique
+    enonce: Une figure subit un agrandissement de coefficient 3. Par combien son aire est-elle multipliée ?
+    propositions:
+    - texte: '3'
+      correcte: false
+      obstacleVise: 1
+    - texte: '6'
+      correcte: false
+      obstacleVise: 1
+    - texte: '9'
+      correcte: true
+    - texte: '27'
+      correcte: false
+      obstacleVise: 1
+    justification: Les aires sont multipliées par k², soit 3² = 9.
+- id: n07
+  ordre: 7
+  evalueParTest: true
+  acquisN1: Proportionnalité, pourcentages
+  usageN: Évolutions successives et coefficient multiplicateur (séance 4)
+  obstacles:
+  - Les taux d'évolution successifs sont additionnés
+  - Le coefficient multiplicateur est confondu avec le taux
+  critereMaitrise: Utiliser un coefficient multiplicateur pour enchaîner deux évolutions
+  seanceRattachement: 4
+  items:
+  - id: n07-i1
+    palier: A
+    type: qcm_unique
+    enonce: Combien vaut 30 % de 80 ?
+    propositions:
+    - texte: 2 400
+      correcte: false
+      obstacleVise: 1
+    - texte: '50'
+      correcte: false
+      obstacleVise: 1
+    - texte: 26,7
+      correcte: false
+      obstacleVise: 1
+    - texte: '24'
+      correcte: true
+    justification: 0,30 × 80 = 24.
+  - id: n07-i2
+    palier: B
+    type: qcm_unique
+    enonce: Quel est le coefficient multiplicateur associé à une hausse de 15 % ?
+    propositions:
+    - texte: 1,15
+      correcte: true
+    - texte: 0,15
+      correcte: false
+      obstacleVise: 1
+    - texte: '15'
+      correcte: false
+      obstacleVise: 1
+    - texte: 1,015
+      correcte: false
+      obstacleVise: 1
+    justification: Une hausse de 15 % revient à multiplier par 1 + 0,15.
+  - id: n07-i3
+    palier: C
+    type: qcm_unique
+    enonce: 'Un prix augmente de 20 %, puis diminue de 20 %. Que peut-on dire du prix final ?
+
+      '
+    propositions:
+    - texte: Il est égal au prix initial
+      correcte: false
+      obstacleVise: 0
+    - texte: Il est inférieur au prix initial
+      correcte: true
+    - texte: Il est supérieur au prix initial
+      correcte: false
+      obstacleVise: 0
+    - texte: Cela dépend du prix initial
+      correcte: false
+      obstacleVise: 0
+    justification: '1,20 × 0,80 = 0,96 : le prix final vaut 96 % du prix initial.'
+- id: n08
+  ordre: 8
+  evalueParTest: true
+  acquisN1: Image, antécédent, lecture graphique
+  usageN: Fonctions linéaires et affines (séance 4)
+  obstacles:
+  - x et f(x) sont confondus
+  - L'image et l'antécédent sont inversés
+  critereMaitrise: Distinguer image et antécédent, et les lire sur un graphique
+  seanceRattachement: 4
+  items:
+  - id: n08-i1
+    palier: A
+    type: qcm_unique
+    enonce: Soit f(x) = 2x + 1. Combien vaut f(3) ?
+    propositions:
+    - texte: '6'
+      correcte: false
+      obstacleVise: 0
+    - texte: '5'
+      correcte: false
+      obstacleVise: 0
+    - texte: '7'
+      correcte: true
+    - texte: '3'
+      correcte: false
+      obstacleVise: 0
+    justification: 2 × 3 + 1 = 7.
+  - id: n08-i2
+    palier: B
+    type: qcm_unique
+    enonce: Soit f(x) = 2x + 1. Quel est l'antécédent de 9 par f ?
+    propositions:
+    - texte: '19'
+      correcte: false
+      obstacleVise: 1
+    - texte: '9'
+      correcte: false
+      obstacleVise: 1
+    - texte: '5'
+      correcte: false
+      obstacleVise: 1
+    - texte: '4'
+      correcte: true
+    justification: On résout 2x + 1 = 9, donc x = 4.
+  - id: n08-i3
+    palier: C
+    type: qcm_unique
+    enonce: Le point de coordonnées (2 ; 5) appartient à la courbe de f. Que peut-on écrire ?
+    propositions:
+    - texte: f(2) = 5
+      correcte: true
+    - texte: f(5) = 2
+      correcte: false
+      obstacleVise: 1
+    - texte: f(2) = 2
+      correcte: false
+      obstacleVise: 0
+    - texte: 2 = 5
+      correcte: false
+      obstacleVise: 0
+    justification: L'abscisse est l'antécédent, l'ordonnée est l'image.
+- id: n09
+  ordre: 9
+  evalueParTest: false
+  motifNonEvalue: Couvert par le test flash de la séance 1 et travaillé en séance 4.
+  acquisN1: Moyenne, médiane, étendue
+  usageN: Traitement de données du DNB
+  obstacles:
+  - La médiane est confondue avec la moyenne
+  critereMaitrise: Déterminer une médiane sur une série ordonnée
+  seanceRattachement: 4
+- id: n10
+  ordre: 10
+  evalueParTest: true
+  acquisN1: Rédiger une justification
+  usageN: Démonstration rédigée, exigence transversale du DNB (séance 5)
+  obstacles:
+  - Le résultat est donné sans justification
+  - La justification cite un calcul sans énoncer la propriété utilisée
+  - La conclusion est absente
+  critereMaitrise: 'Reconnaître une justification complète : propriété citée, calcul, conclusion'
+  seanceRattachement: 5
+  commentairePedagogique: 'Nœud le plus rentable du niveau. Le DNB n''évalue pas seulement des résultats mais leur
+    justification. Évalué ici par sélection de rédaction, format qui teste la compétence sans exiger de production
+    écrite au test.
+
+    '
+  items:
+  - id: n10-i1
+    palier: A
+    type: qcm_unique
+    enonce: 'On veut montrer qu''un triangle de côtés 9, 12 et 15 est rectangle. Quelle rédaction est complète ?
+
+      '
+    propositions:
+    - texte: 9² + 12² = 15², donc c'est un triangle rectangle.
+      correcte: false
+      obstacleVise: 1
+    - texte: 9² + 12² = 81 + 144 = 225 et 15² = 225. Comme 9² + 12² = 15², d'après la réciproque du théorème de
+        Pythagore, le triangle est rectangle.
+      correcte: true
+    - texte: 225 = 225, le triangle est rectangle.
+      correcte: false
+      obstacleVise: 1
+    - texte: D'après la réciproque du théorème de Pythagore, le triangle est rectangle.
+      correcte: false
+      obstacleVise: 1
+    justification: Une justification complète comporte le calcul, la propriété nommée et la conclusion.
+  - id: n10-i2
+    palier: B
+    type: qcm_unique
+    enonce: 'Un sac de terreau couvre 10 m². On veut couvrir 25 m². Quelle réponse est acceptable au DNB ?
+
+      '
+    propositions:
+    - texte: Il faut 3 sacs.
+      correcte: false
+      obstacleVise: 0
+    - texte: 2,5 sacs.
+      correcte: false
+      obstacleVise: 2
+    - texte: Il faut 3 sacs, car 25 ÷ 10 = 2,5 et on ne peut pas acheter un demi-sac.
+      correcte: true
+    - texte: 25 ÷ 10 = 2,5
+      correcte: false
+      obstacleVise: 2
+    justification: Le calcul seul ne répond pas à la question posée ; la conclusion doit être formulée et adaptée
+      au contexte.
+  - id: n10-i3
+    palier: C
+    type: qcm_unique
+    enonce: 'Un élève écrit : « Les droites (BC) et (DE) sont parallèles, donc AB/AD = AC/AE. » Que manque-t-il
+      ?
+
+      '
+    propositions:
+    - texte: Rien, la rédaction est complète
+      correcte: false
+      obstacleVise: 1
+    - texte: Le calcul numérique
+      correcte: false
+      obstacleVise: 1
+    - texte: La figure
+      correcte: false
+      obstacleVise: 0
+    - texte: L'alignement des points et le nom du théorème utilisé
+      correcte: true
+    justification: Le théorème de Thalès exige que les conditions d'alignement soient énoncées et le théorème nommé.
+statutValidation: HUMAN_VALIDATION_REQUIRED

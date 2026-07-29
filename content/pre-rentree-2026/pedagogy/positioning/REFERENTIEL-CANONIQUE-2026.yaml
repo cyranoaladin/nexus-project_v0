@@ -1,0 +1,48 @@
+edition: 2026
+source:
+  depot: cyranoaladin/nexus-project_v0
+  branche: main
+  fichier: content/pre-rentree-2026/modules.json
+  blobGit: 237df5c80c290dcef8dfee8f5d5e5bbef0e0c9eb
+  verifieLe: 2026-07-29
+  versionDeclaree: 2026-pre-rentree-v5-planning-windows
+
+regles:
+  nombreModulesPublies: 17
+  nombreSeancesParModule: 5
+  nombreNoeudsEvaluesParTest: 8
+  nombreItemsParNoeud: 3
+  dureeCibleMinutes: "20 à 25"
+  statutAvantRelecture: HUMAN_VALIDATION_REQUIRED
+
+modules:
+  - { moduleId: quatrieme-mathematiques, niveau: QUATRIEME, matiere: MATHEMATIQUES, cps: maths-entree-quatrieme.yaml }
+  - { moduleId: quatrieme-francais, niveau: QUATRIEME, matiere: FRANCAIS, cps: francais-entree-quatrieme.yaml }
+  - { moduleId: troisieme-mathematiques, niveau: TROISIEME, matiere: MATHEMATIQUES, cps: maths-entree-troisieme.yaml }
+  - { moduleId: troisieme-francais, niveau: TROISIEME, matiere: FRANCAIS, cps: francais-entree-troisieme.yaml }
+  - { moduleId: seconde-mathematiques, niveau: SECONDE, matiere: MATHEMATIQUES, cps: maths-entree-seconde.yaml }
+  - { moduleId: seconde-francais, niveau: SECONDE, matiere: FRANCAIS, cps: francais-entree-seconde.yaml }
+  - { moduleId: premiere-mathematiques, niveau: PREMIERE, matiere: MATHEMATIQUES, cps: maths-entree-premiere.yaml }
+  - { moduleId: premiere-francais-eaf, niveau: PREMIERE, matiere: FRANCAIS, cps: francais-entree-premiere.yaml }
+  - { moduleId: premiere-nsi, niveau: PREMIERE, matiere: NSI, cps: nsi-entree-premiere.yaml }
+  - { moduleId: premiere-physique-chimie, niveau: PREMIERE, matiere: PHYSIQUE_CHIMIE, cps: physique-chimie-entree-premiere.yaml }
+  - { moduleId: premiere-svt, niveau: PREMIERE, matiere: SVT, cps: svt-entree-premiere.yaml }
+  - { moduleId: terminale-mathematiques, niveau: TERMINALE, matiere: MATHEMATIQUES, cps: maths-entree-terminale.yaml }
+  - { moduleId: terminale-maths-expertes, niveau: TERMINALE, matiere: MATHS_EXPERTES, cps: maths-expertes-entree-terminale.yaml }
+  - { moduleId: terminale-nsi, niveau: TERMINALE, matiere: NSI, cps: nsi-entree-terminale.yaml }
+  - { moduleId: terminale-physique-chimie, niveau: TERMINALE, matiere: PHYSIQUE_CHIMIE, cps: physique-chimie-entree-terminale.yaml }
+  - { moduleId: terminale-svt, niveau: TERMINALE, matiere: SVT, cps: svt-entree-terminale.yaml }
+  - { moduleId: terminale-philosophie, niveau: TERMINALE, matiere: PHILOSOPHIE, cps: philosophie-entree-terminale.yaml }
+
+ecartsNonResolus:
+  - id: OFFRE-SECONDE-PC-SANS-MODULE
+    severite: BLOQUANT_PUBLICATION
+    description: >
+      Des documents d'offre antérieurs mentionnent Physique-Chimie en Seconde,
+      mais le référentiel canonique vérifié ne contient ni module
+      seconde-physique-chimie ni cinq séances publiées. Aucune CPS ne peut donc
+      recevoir de seanceRattachement contractuel pour cette combinaison.
+    resolutionAttendue: >
+      Décider si la matière est retirée de l'offre Seconde ou créer, valider et
+      publier d'abord son module de cinq séances, puis produire sa CPS.
+

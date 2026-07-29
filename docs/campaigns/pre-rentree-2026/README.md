@@ -5,10 +5,10 @@
 ```text
 RELEASE_STATUS=SEE data/campaigns/pre-rentree-2026.json
 CAMPAIGN_VERSION=2.1.0
-PEDAGOGICAL_MODULES=14
-PEDAGOGICAL_SESSION_TEMPLATES=70
-OPERATIONAL_COHORTS=17
-SCHEDULED_SESSION_OCCURRENCES=85
+PEDAGOGICAL_MODULES=17
+PEDAGOGICAL_SESSION_TEMPLATES=85
+OPERATIONAL_COHORTS=20
+SCHEDULED_SESSION_OCCURRENCES=100
 STUDENT_SESSIONS_PER_SUBJECT=5
 STUDENT_HOURS_PER_SUBJECT=10
 PUBLIC_PDF_COUNT=7
@@ -28,7 +28,8 @@ portent pas simultanément `PUBLIC_READY` et toutes les gates résolues.
 ## Sources
 
 - campagne, planning, CTA et modalités : `data/campaigns/pre-rentree-2026.json` ;
-- quatorze programmes : `content/pre-rentree-2026/modules.json` ;
+- dix-sept programmes : `content/pre-rentree-2026/modules.json` ;
+- corpus pédagogique canonique : `content/pre-rentree-2026/pedagogy/` ;
 - prix et acomptes : `data/pricing.canonical.json` ;
 - offres Fondations/Premium : `content/pre-rentree-2026/offers.json` ;
 - capacités et garde-fous : `content/pre-rentree-2026/capabilities.json` ;
@@ -80,3 +81,4 @@ disponibilité ; il ne réserve ni ne bloque une place.
 - [Checklist propriétaire](OWNER-REVIEW-CHECKLIST.md)
 - [Décisions restantes](DECISIONS-REQUIRED.md)
 - [Journal des changements](CHANGELOG.md)
+- [Corpus pédagogique canonique](pedagogy/README.md)

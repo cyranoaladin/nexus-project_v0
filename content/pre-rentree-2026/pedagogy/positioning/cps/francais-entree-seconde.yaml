@@ -1,0 +1,555 @@
+id: francais-entree-seconde
+niveauEntree: SECONDE
+matiere: FRANCAIS
+edition: 2026
+dureeCibleMinutes: 23
+gamme: FONDATIONS
+statutValidation: HUMAN_VALIDATION_REQUIRED
+intitulePublic: Français — Entrée en Seconde
+cadrage: 'Huit nœuds évalués par vingt-quatre items. La carte vérifie les opérations de lecture, d''analyse, de
+  langue et d''écriture qui conditionnent les méthodes du lycée. Les réponses courtes sont corrigées manuellement
+  et exclues du scoring automatique. Chaque nœud renvoie à une séance validée du module.
+
+  '
+noeuds:
+- id: n01
+  ordre: 1
+  evalueParTest: true
+  acquisN1: Citer un texte et justifier une réponse
+  usageN: Construire une analyse littéraire qui relie citation, procédé et interprétation (séances 2 et 5)
+  obstacles:
+  - La réponse paraphrase le texte sans citer
+  - La citation est posée sans analyse
+  - L'interprétation n'est reliée à aucun indice précis
+  critereMaitrise: Intégrer une citation brève et expliquer précisément ce qu'elle permet d'interpréter.
+  seanceRattachement: 2
+  items:
+  - id: n01-i1
+    palier: A
+    type: qcm_unique
+    enonce: 'Pour montrer que le paysage semble hostile, quelle citation est la plus pertinente ? « Le vent rabattait
+      la poussière contre les vitres ; aucun arbre ne rompait l''horizon. »
+
+      '
+    propositions:
+    - texte: « Le vent rabattait la poussière contre les vitres »
+      correcte: true
+    - texte: « les vitres »
+      correcte: false
+      obstacleVise: 1
+    - texte: « l'horizon »
+      correcte: false
+      obstacleVise: 2
+    - texte: Le paysage est hostile.
+      correcte: false
+      obstacleVise: 0
+    justification: Le mouvement violent du vent et de la poussière soutient directement l'idée d'hostilité.
+  - id: n01-i2
+    palier: B
+    type: qcm_unique
+    enonce: Quelle phrase construit une justification complète ?
+    propositions:
+    - texte: Le lieu est oppressant parce qu'il est oppressant.
+      correcte: false
+      obstacleVise: 0
+    - texte: 'Le lieu paraît oppressant : l''expression « aucun arbre ne rompait l''horizon » suggère un espace
+        vide, sans repère ni refuge.'
+      correcte: true
+    - texte: « aucun arbre ne rompait l'horizon ».
+      correcte: false
+      obstacleVise: 1
+    - texte: Le lieu est magnifique, même si aucun indice ne le montre.
+      correcte: false
+      obstacleVise: 2
+    justification: La première réponse associe idée, citation et explication de l'effet.
+  - id: n01-i3
+    palier: C
+    type: reponse_courte
+    correctionManuelle: true
+    excluScoringAutomatique: true
+    longueurMaxCaracteres: 320
+    enonce: '« Elle répondit d''une voix égale, mais ses doigts froissaient le bord de la feuille. » Montrez en
+      deux ou trois phrases que le personnage dissimule son émotion.
+
+      '
+    criteresCorrection:
+    - L'opposition entre la voix égale et le geste nerveux est identifiée.
+    - Au moins une citation courte est intégrée.
+    - L'analyse explique que le geste révèle l'émotion contenue.
+    exempleReponseAdmissible: 'Le personnage cherche à paraître calme grâce à sa « voix égale ». Pourtant, ses doigts
+      qui « froissaient » la feuille trahissent une nervosité qu''elle tente de cacher.
+
+      '
+    justification: L'item évalue le passage de l'indice contradictoire à l'interprétation.
+- id: n02
+  ordre: 2
+  evalueParTest: true
+  acquisN1: Repérer un procédé d'écriture
+  usageN: Analyser l'effet produit par un procédé dans un texte littéraire (séances 2 et 5)
+  obstacles:
+  - Le procédé est nommé sans que son effet soit expliqué
+  - Un mot de vocabulaire technique est attribué au hasard
+  - L'effet annoncé est générique et pourrait convenir à n'importe quel passage
+  critereMaitrise: Identifier un procédé exact et relier sa forme à un effet contextualisé.
+  seanceRattachement: 2
+  items:
+  - id: n02-i1
+    palier: A
+    type: qcm_unique
+    enonce: Quel procédé apparaît dans « La ville s'éveillait lentement » ?
+    propositions:
+    - texte: Une comparaison
+      correcte: false
+      obstacleVise: 1
+    - texte: Une hyperbole
+      correcte: false
+      obstacleVise: 1
+    - texte: Une personnification
+      correcte: true
+    - texte: Une rime
+      correcte: false
+      obstacleVise: 2
+    justification: Le verbe humain « s'éveillait » est attribué à la ville.
+  - id: n02-i2
+    palier: B
+    type: qcm_unique
+    enonce: 'Quel effet produit la répétition dans « Jamais il ne céderait, jamais il ne renoncerait » ?
+
+      '
+    propositions:
+    - texte: Elle ralentit toujours le récit, quel que soit le contexte.
+      correcte: false
+      obstacleVise: 2
+    - texte: Elle prouve que le personnage a peur.
+      correcte: false
+      obstacleVise: 1
+    - texte: Elle crée uniquement une rime.
+      correcte: false
+      obstacleVise: 0
+    - texte: Elle insiste sur la détermination du personnage.
+      correcte: true
+    justification: La répétition de « jamais » renforce ici le refus de céder.
+  - id: n02-i3
+    palier: C
+    type: qcm_unique
+    enonce: '« Les secondes s''étiraient, immenses, dans le silence. » Quelle analyse est la plus précise ?
+
+      '
+    propositions:
+    - texte: L'hyperbole « immenses » et la métaphore « s'étiraient » traduisent une attente ressentie comme interminable.
+      correcte: true
+    - texte: Le texte contient une figure de style qui rend la phrase plus jolie.
+      correcte: false
+      obstacleVise: 2
+    - texte: Les secondes deviennent réellement plus longues.
+      correcte: false
+      obstacleVise: 1
+    - texte: La comparaison montre que le personnage court vite.
+      correcte: false
+      obstacleVise: 1
+    justification: La réponse identifie deux procédés et les relie à la perception subjective de l'attente.
+- id: n03
+  ordre: 3
+  evalueParTest: true
+  acquisN1: Rédiger un paragraphe argumenté
+  usageN: Construire un paragraphe de commentaire ou un développement argumentatif au lycée (séance 1)
+  obstacles:
+  - L'idée est affirmée sans exemple ni preuve
+  - L'exemple est donné sans être analysé
+  - Plusieurs idées sont juxtaposées sans phrase directrice ni connecteur
+  critereMaitrise: Organiser une idée, une preuve ou un exemple, puis une explication qui les relie.
+  seanceRattachement: 1
+  items:
+  - id: n03-i1
+    palier: A
+    type: qcm_unique
+    enonce: Quel ordre convient à un paragraphe argumenté simple ?
+    propositions:
+    - texte: Exemple / nouvelle idée / conclusion sans explication
+      correcte: false
+      obstacleVise: 1
+    - texte: Idée / exemple ou citation / explication
+      correcte: true
+    - texte: Citation / citation / citation
+      correcte: false
+      obstacleVise: 0
+    - texte: Idées successives sans connecteur
+      correcte: false
+      obstacleVise: 2
+    justification: La structure attendue rend visible le raisonnement entre l'idée et sa preuve.
+  - id: n03-i2
+    palier: B
+    type: qcm_unique
+    enonce: 'Quelle phrase explique réellement l''exemple « le personnage ferme la porte à clé » pour défendre l''idée
+      qu''il se méfie ?
+
+      '
+    propositions:
+    - texte: Il ferme la porte à clé, donc il ferme la porte à clé.
+      correcte: false
+      obstacleVise: 1
+    - texte: Le personnage se méfie, sans qu'il soit nécessaire d'expliquer le geste.
+      correcte: false
+      obstacleVise: 0
+    - texte: Ce geste de protection montre qu'il anticipe une menace et ne se sent pas en sécurité.
+      correcte: true
+    - texte: La porte est probablement en bois.
+      correcte: false
+      obstacleVise: 2
+    justification: La réponse met en relation le geste concret et l'idée de méfiance.
+  - id: n03-i3
+    palier: C
+    type: reponse_courte
+    correctionManuelle: true
+    excluScoringAutomatique: true
+    longueurMaxCaracteres: 480
+    enonce: 'Rédigez un paragraphe de quatre phrases défendant l''idée suivante : « Le silence peut être plus expressif
+      qu''une longue réponse. » Donnez un exemple précis et expliquez-le.
+
+      '
+    criteresCorrection:
+    - Une phrase directrice reprend ou reformule clairement l'idée.
+    - Un exemple précis et pertinent est proposé.
+    - L'exemple est analysé, et non simplement raconté.
+    - Un connecteur organise le raisonnement.
+    exempleReponseAdmissible: 'Le silence peut révéler une émotion plus fortement qu''un discours. Par exemple,
+      après une accusation injuste, un personnage peut rester muet et détourner le regard. Cette absence de réponse
+      suggère alors une blessure ou un refus de se justifier. Ainsi, le lecteur doit interpréter le geste et comprend
+      la tension de la scène.
+
+      '
+    justification: La compétence de construction d'un paragraphe doit être observée dans une production.
+- id: n04
+  ordre: 4
+  evalueParTest: true
+  acquisN1: Distinguer convaincre et persuader
+  usageN: Identifier et mobiliser des stratégies argumentatives directes ou indirectes (séance 3)
+  obstacles:
+  - Convaincre et persuader sont réduits à la même opération
+  - Un exemple émouvant est pris pour une preuve logique
+  - La thèse est confondue avec le thème général du texte
+  critereMaitrise: Identifier une thèse et distinguer raisonnement logique, émotion et exemple.
+  seanceRattachement: 3
+  items:
+  - id: n04-i1
+    palier: A
+    type: qcm_unique
+    enonce: Quelle proposition définit le mieux une thèse ?
+    propositions:
+    - texte: Le sujet général dont parle le texte
+      correcte: false
+      obstacleVise: 2
+    - texte: Un exemple choisi par l'auteur
+      correcte: false
+      obstacleVise: 1
+    - texte: Une émotion ressentie par le lecteur
+      correcte: false
+      obstacleVise: 0
+    - texte: L'idée principale que l'auteur défend
+      correcte: true
+    justification: La thèse est une position défendue à propos d'un thème.
+  - id: n04-i2
+    palier: B
+    type: qcm_unique
+    enonce: 'Un auteur présente des données chiffrées vérifiables pour soutenir sa position. Quelle stratégie domine
+      ?
+
+      '
+    propositions:
+    - texte: Convaincre par un raisonnement et des preuves
+      correcte: true
+    - texte: Persuader uniquement par l'émotion
+      correcte: false
+      obstacleVise: 0
+    - texte: Raconter sans défendre de position
+      correcte: false
+      obstacleVise: 2
+    - texte: Utiliser un exemple comme s'il prouvait tout
+      correcte: false
+      obstacleVise: 1
+    justification: Les données vérifiables s'adressent prioritairement à la raison.
+  - id: n04-i3
+    palier: C
+    type: qcm_unique
+    enonce: 'Un texte raconte l''histoire d''une seule famille pour défendre une réforme concernant toute la population.
+      Quelle vigilance est nécessaire ?
+
+      '
+    propositions:
+    - texte: Un récit individuel constitue toujours une preuve générale.
+      correcte: false
+      obstacleVise: 1
+    - texte: Le récit peut persuader, mais ce cas particulier ne suffit pas à démontrer une règle générale.
+      correcte: true
+    - texte: Le texte ne défend aucune thèse puisqu'il raconte une histoire.
+      correcte: false
+      obstacleVise: 2
+    - texte: Toute émotion rend automatiquement l'argument faux.
+      correcte: false
+      obstacleVise: 0
+    justification: L'item distingue la force persuasive d'un exemple de sa valeur probante.
+- id: n05
+  ordre: 5
+  evalueParTest: true
+  acquisN1: Identifier les classes et les fonctions grammaticales
+  usageN: Mobiliser la grammaire pour analyser la construction et les effets d'une phrase (séance 4)
+  obstacles:
+  - Classe et fonction sont confondues
+  - La proposition subordonnée n'est pas délimitée
+  - L'analyse grammaticale reste isolée du sens de la phrase
+  critereMaitrise: Identifier la structure d'une phrase et expliquer un effet simple produit par cette structure.
+  seanceRattachement: 4
+  items:
+  - id: n05-i1
+    palier: A
+    type: qcm_unique
+    enonce: Dans « Cette réponse paraît sincère », quelle est la fonction de « sincère » ?
+    propositions:
+    - texte: Adjectif qualificatif
+      correcte: false
+      obstacleVise: 0
+    - texte: Complément d'objet direct
+      correcte: false
+      obstacleVise: 2
+    - texte: Attribut du sujet « Cette réponse »
+      correcte: true
+    - texte: Sujet du verbe
+      correcte: false
+      obstacleVise: 1
+    justification: « Adjectif qualificatif » est la classe ; après le verbe attributif « paraît », la fonction est
+      attribut.
+  - id: n05-i2
+    palier: B
+    type: qcm_unique
+    enonce: 'Dans « Je comprends ce que tu veux dire », quelle suite constitue la proposition subordonnée ?
+
+      '
+    propositions:
+    - texte: ce que
+      correcte: false
+      obstacleVise: 1
+    - texte: tu veux
+      correcte: false
+      obstacleVise: 1
+    - texte: Je comprends ce
+      correcte: false
+      obstacleVise: 0
+    - texte: ce que tu veux dire
+      correcte: true
+    justification: La proposition inclut son introducteur et tous les mots organisés autour de « veux ».
+  - id: n05-i3
+    palier: C
+    type: qcm_unique
+    enonce: 'Quel effet produit l''accumulation de propositions très brèves dans « Il avance. Il écoute. Il s''arrête.
+      » ?
+
+      '
+    propositions:
+    - texte: Elle crée un rythme coupé qui met chaque action en relief.
+      correcte: true
+    - texte: Elle prouve que le texte est grammaticalement faux.
+      correcte: false
+      obstacleVise: 2
+    - texte: Elle crée nécessairement une description lente.
+      correcte: false
+      obstacleVise: 2
+    - texte: Elle transforme les verbes en compléments d'objet.
+      correcte: false
+      obstacleVise: 0
+    justification: La juxtaposition de phrases simples produit ici un rythme saccadé.
+- id: n06
+  ordre: 6
+  evalueParTest: true
+  acquisN1: Maîtriser l'orthographe grammaticale et les accords usuels
+  usageN: Maintenir une expression correcte dans les productions écrites du lycée (séance 4)
+  obstacles:
+  - Le verbe s'accorde avec le nom le plus proche
+  - Le participe passé est accordé sans identifier l'auxiliaire et le COD
+  - La relecture n'utilise aucun test de remplacement ou de transformation
+  critereMaitrise: Justifier un accord en identifiant le donneur d'accord et la règle appliquée.
+  seanceRattachement: 4
+  items:
+  - id: n06-i1
+    palier: A
+    type: qcm_unique
+    enonce: 'Complétez : « La liste des exercices ___ affichée au tableau. »'
+    propositions:
+    - texte: sont
+      correcte: false
+      obstacleVise: 0
+    - texte: est
+      correcte: true
+    - texte: êtes
+      correcte: false
+      obstacleVise: 2
+    - texte: étaient
+      correcte: false
+      obstacleVise: 1
+    justification: Le noyau féminin singulier « liste » commande « est » et l'accord du participe « affichée ».
+  - id: n06-i2
+    palier: B
+    type: qcm_unique
+    enonce: 'Complétez : « Les remarques qu''elle a ___ ont amélioré le texte. »'
+    propositions:
+    - texte: noté
+      correcte: false
+      obstacleVise: 1
+    - texte: noter
+      correcte: false
+      obstacleVise: 2
+    - texte: notées
+      correcte: true
+    - texte: notez
+      correcte: false
+      obstacleVise: 2
+    justification: Le COD « les remarques » est placé avant le participe passé employé avec avoir.
+  - id: n06-i3
+    palier: C
+    type: qcm_unique
+    enonce: Quelle justification d'accord est correcte ?
+    propositions:
+    - texte: Dans « ils avancent », le verbe s'accorde avec le mot qui le suit.
+      correcte: false
+      obstacleVise: 0
+    - texte: Dans « elle a parlé », « parlé » s'accorde avec le sujet féminin.
+      correcte: false
+      obstacleVise: 1
+    - texte: Dans « à vérifier », on écrit « a » parce que le mot se prononce ainsi.
+      correcte: false
+      obstacleVise: 2
+    - texte: Dans « les décisions prises », « prises » s'accorde avec le nom féminin pluriel « décisions ».
+      correcte: true
+    justification: La première réponse identifie correctement le donneur d'accord.
+- id: n07
+  ordre: 7
+  evalueParTest: true
+  acquisN1: Organiser un devoir selon un plan
+  usageN: Construire un axe et une sous-partie dans une initiation au commentaire de texte (séance 5)
+  obstacles:
+  - Le plan suit l'ordre des lignes sans idée directrice
+  - Les axes sont des thèmes vagues et non des propositions interprétatives
+  - Les parties se répètent au lieu de faire progresser l'analyse
+  critereMaitrise: Regrouper des observations sous une idée directrice et organiser une progression.
+  seanceRattachement: 5
+  items:
+  - id: n07-i1
+    palier: A
+    type: qcm_unique
+    enonce: Quel intitulé constitue un axe d'analyse plutôt qu'un simple thème ?
+    propositions:
+    - texte: Une description qui transforme la ville en espace menaçant
+      correcte: true
+    - texte: La ville
+      correcte: false
+      obstacleVise: 1
+    - texte: Les lignes 1 à 8
+      correcte: false
+      obstacleVise: 0
+    - texte: Quelques figures de style
+      correcte: false
+      obstacleVise: 2
+    justification: Un axe formule une interprétation et annonce la direction de l'analyse.
+  - id: n07-i2
+    palier: B
+    type: qcm_unique
+    enonce: 'Deux observations montrent d''abord le silence du lieu, puis son obscurité. Sous quel axe peut-on les
+      regrouper ?
+
+      '
+    propositions:
+    - texte: Le silence puis l'obscurité, dans l'ordre du texte
+      correcte: false
+      obstacleVise: 0
+    - texte: Un décor qui efface les repères et installe l'inquiétude
+      correcte: true
+    - texte: Les sensations
+      correcte: false
+      obstacleVise: 1
+    - texte: Un lieu agréable et rassurant
+      correcte: false
+      obstacleVise: 2
+    justification: L'axe relie les observations à une interprétation commune.
+  - id: n07-i3
+    palier: C
+    type: reponse_courte
+    correctionManuelle: true
+    excluScoringAutomatique: true
+    longueurMaxCaracteres: 360
+    enonce: 'Un texte présente d''abord un personnage sûr de lui, puis montre ses gestes hésitants. Proposez deux
+      axes d''analyse distincts et progressifs.
+
+      '
+    criteresCorrection:
+    - Le premier axe analyse l'assurance affichée ou construite.
+    - Le second axe analyse la fragilité révélée par les gestes.
+    - Les axes sont formulés comme des idées interprétatives, non comme des thèmes.
+    - La progression entre apparence et révélation est perceptible.
+    exempleReponseAdmissible: 'I. Une assurance mise en scène par la parole et l''attitude. II. Des gestes involontaires
+      qui révèlent une fragilité dissimulée.
+
+      '
+    justification: L'item observe directement la capacité à hiérarchiser des observations.
+- id: n08
+  ordre: 8
+  evalueParTest: true
+  acquisN1: Employer un vocabulaire élémentaire de l'analyse littéraire
+  usageN: Formuler une analyse précise sans remplacer l'explication par des termes techniques (séance 2)
+  obstacles:
+  - Le terme technique est choisi approximativement
+  - Le mot technique remplace l'analyse de l'effet
+  - Le vocabulaire de l'analyse est confondu avec un jugement personnel
+  critereMaitrise: Employer le terme exact et le compléter par une analyse contextualisée.
+  seanceRattachement: 2
+  items:
+  - id: n08-i1
+    palier: A
+    type: qcm_unique
+    enonce: Comment nomme-t-on la personne ou la voix qui raconte une histoire ?
+    propositions:
+    - texte: L'auteur réel dans tous les cas
+      correcte: false
+      obstacleVise: 0
+    - texte: Le lecteur
+      correcte: false
+      obstacleVise: 2
+    - texte: Le narrateur
+      correcte: true
+    - texte: Le personnage principal nécessairement
+      correcte: false
+      obstacleVise: 0
+    justification: Le narrateur est l'instance qui prend en charge le récit ; il ne se confond pas toujours avec
+      l'auteur.
+  - id: n08-i2
+    palier: B
+    type: qcm_unique
+    enonce: Quelle proposition définit correctement un champ lexical ?
+    propositions:
+    - texte: Des mots qui riment entre eux
+      correcte: false
+      obstacleVise: 0
+    - texte: Tous les verbes d'un paragraphe
+      correcte: false
+      obstacleVise: 1
+    - texte: Les mots que le lecteur trouve beaux
+      correcte: false
+      obstacleVise: 2
+    - texte: Un ensemble de mots liés à une même idée ou un même domaine
+      correcte: true
+    justification: Le champ lexical se construit par la proximité sémantique.
+  - id: n08-i3
+    palier: C
+    type: qcm_unique
+    enonce: Quelle analyse emploie le vocabulaire technique sans s'y limiter ?
+    propositions:
+    - texte: L'antithèse entre « lumière » et « ombre » rend visible le conflit intérieur du personnage.
+      correcte: true
+    - texte: Il y a une antithèse.
+      correcte: false
+      obstacleVise: 1
+    - texte: Le texte est très beau et profond.
+      correcte: false
+      obstacleVise: 2
+    - texte: « lumière » et « ombre » forment une comparaison.
+      correcte: false
+      obstacleVise: 0
+    justification: Le terme exact est relié à un effet interprétatif propre au passage.

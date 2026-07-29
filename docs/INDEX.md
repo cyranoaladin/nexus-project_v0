@@ -5,10 +5,12 @@ Ce répertoire documente l’application, son exploitation et les campagnes édi
 ## Navigation
 
 - Architecture : [`docs/architecture/`](architecture/)
-- Exploitation : [`docs/operations/`](operations/)
+- Exploitation : [`docs/runbooks/`](runbooks/)
 - Sécurité : [`docs/security/`](security/)
-- Conformité : [`docs/legal/`](legal/)
+- Conformité : [`docs/33_SECURITE_ET_CONFORMITE.md`](33_SECURITE_ET_CONFORMITE.md)
 - Campagnes : [`docs/campaigns/`](campaigns/)
 - Pré-rentrée 2026 : [`docs/campaigns/pre-rentree-2026/README.md`](campaigns/pre-rentree-2026/README.md)
+- Corpus pédagogique Pré-rentrée 2026 :
+  [`docs/campaigns/pre-rentree-2026/pedagogy/`](campaigns/pre-rentree-2026/pedagogy/)
 
 Les audits archivés décrivent un état historique et ne remplacent pas les sources canoniques courantes.
