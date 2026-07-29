@@ -27,6 +27,10 @@ const excludedDirectories = new Set([
   'node_modules',
 ]);
 
+const nonPublicPedagogyRoots = [
+  'content/pre-rentree-2026/pedagogy/',
+];
+
 const forbiddenTrustClaims = [
   /Nous garantissons/i,
   /Garantie Bac/i,
@@ -113,11 +117,15 @@ function isAllowlisted(file: string): boolean {
   return scanAllowlist.some((entry) => entry.file === file);
 }
 
-function matchingFiles(patterns: RegExp[]): string[] {
+function matchingFiles(
+  patterns: RegExp[],
+  excludedPrefixes: string[] = [],
+): string[] {
   return recursiveScanRoots
     .flatMap(listScannedFiles)
     .filter((file, index, files) => files.indexOf(file) === index)
     .filter((file) => !isAllowlisted(file))
+    .filter((file) => !excludedPrefixes.some((prefix) => file.startsWith(prefix)))
     .filter((file) => patterns.some((pattern) => pattern.test(sourceFor(file))));
 }
 
@@ -131,7 +139,7 @@ describe('Lot 1 T1.2 brand trust guardrails', () => {
   });
 
   test('public group-size claims interpolate pricing rules instead of hardcoding 5/4/3 in copy', () => {
-    expect(matchingFiles(hardcodedGroupSizeClaims)).toEqual([]);
+    expect(matchingFiles(hardcodedGroupSizeClaims, nonPublicPedagogyRoots)).toEqual([]);
   });
 
   test('group opening thresholds use canonical keys and never read the missing brevet key', () => {
