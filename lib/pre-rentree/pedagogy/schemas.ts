@@ -186,6 +186,32 @@ const assessmentNodeSchema = z.object({
       message: 'non-evaluated nodes require a reason and no items',
     });
   }
+  if (node.items && node.items.map(({ palier }) => palier).join(',') !== 'A,B,C') {
+    context.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'evaluated nodes require ordered A/B/C tiers',
+    });
+  }
+  for (const item of node.items ?? []) {
+    if (item.type !== 'qcm_unique') continue;
+    if (item.propositions.filter(({ correcte }) => correcte).length !== 1) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'qcm_unique requires exactly one correct option',
+      });
+    }
+    const invalidObstacle = item.propositions.some((option) => (
+      !option.correcte
+      && (option.obstacleVise === undefined
+        || option.obstacleVise >= node.obstacles.length)
+    ));
+    if (invalidObstacle) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'incorrect qcm options require a valid targeted obstacle',
+      });
+    }
+  }
 });
 
 export const assessmentDefinitionSchema = z.object({
@@ -199,7 +225,14 @@ export const assessmentDefinitionSchema = z.object({
   cadrage: nonEmptyString,
   statutValidation: publicationStatusSchema,
   noeuds: z.array(assessmentNodeSchema).min(1),
-}).strict();
+}).strict().superRefine((assessment, context) => {
+  if (assessment.noeuds.filter(({ evalueParTest }) => evalueParTest).length !== 8) {
+    context.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'assessment requires exactly eight evaluated nodes',
+    });
+  }
+});
 
 export type RawModuleCatalog = z.infer<typeof moduleCatalogSchema>;
 export type RawPedagogyManifest = z.infer<typeof pedagogyManifestSchema>;
