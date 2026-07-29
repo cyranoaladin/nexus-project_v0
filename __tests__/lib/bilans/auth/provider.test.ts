@@ -77,12 +77,16 @@ describe('bilan-magic Auth.js provider', () => {
     const magic = authOptions.providers.find(
       (provider: { id: string }) => provider.id === 'bilan-magic',
     );
+    const authRequest = new Request(
+      'https://nexusreussite.academy/api/auth/callback/bilan-magic',
+      { method: 'POST' },
+    );
 
     await expect(magic.authorize({
       token: 'raw-secret',
       csrfToken: 'authjs-managed',
-      callbackUrl: '/bilan-gratuit',
-    })).resolves.toEqual(safeParent);
+      callbackUrl: 'https://nexusreussite.academy/bilan-gratuit',
+    }, authRequest)).resolves.toEqual(safeParent);
     expect(mockConsumeBilanMagicLink).toHaveBeenCalledWith({
       prisma: expect.any(Object),
       rawToken: 'raw-secret',
@@ -91,12 +95,89 @@ describe('bilan-magic Auth.js provider', () => {
     await expect(magic.authorize({
       token: 'raw-secret',
       requestId: 'attacker-controlled',
-    })).resolves.toBeNull();
+    }, authRequest)).resolves.toBeNull();
     expect(mockConsumeBilanMagicLink).toHaveBeenCalledTimes(1);
     expect(JSON.stringify([
       (logger.info as jest.Mock).mock.calls,
       (logger.error as jest.Mock).mock.calls,
       (logger.warn as jest.Mock).mock.calls,
     ])).not.toContain('raw-secret');
+  });
+
+  it('accepts optional bounded Auth.js fields and ignores them before the consume service', async () => {
+    const safeParent = {
+      id: 'cparent000000000000000001',
+      email: 'parent@example.com',
+      role: 'PARENT',
+    };
+    mockConsumeBilanMagicLink.mockResolvedValue(safeParent);
+    const magic = authOptions.providers.find(
+      (provider: { id: string }) => provider.id === 'bilan-magic',
+    );
+    const authRequest = new Request(
+      'https://nexusreussite.academy/api/auth/callback/bilan-magic',
+      { method: 'POST' },
+    );
+
+    await expect(magic.authorize({
+      token: 'raw-secret',
+      callbackUrl: '/bilan-gratuit',
+    }, authRequest)).resolves.toEqual(safeParent);
+    expect(mockConsumeBilanMagicLink).toHaveBeenCalledWith({
+      prisma: expect.any(Object),
+      rawToken: 'raw-secret',
+    });
+  });
+
+  it.each([
+    ['empty csrf token', { csrfToken: '' }],
+    ['blank csrf token', { csrfToken: '   ' }],
+    ['non-string csrf token', { csrfToken: 42 }],
+    ['oversized csrf token', { csrfToken: 'x'.repeat(513) }],
+    ['empty callback', { callbackUrl: '' }],
+    ['non-string callback', { callbackUrl: 42 }],
+    ['oversized callback', { callbackUrl: `/${'a'.repeat(2048)}` }],
+    ['protocol-relative callback', { callbackUrl: '//evil.example/steal' }],
+    ['external callback', { callbackUrl: 'https://evil.example/steal' }],
+    ['non-http callback', { callbackUrl: 'javascript:alert(1)' }],
+    ['credential URL callback', {
+      callbackUrl: 'https://user:password@nexusreussite.academy/bilan-gratuit',
+    }],
+    ['invalid callback', { callbackUrl: 'http://[' }],
+  ])('refuses %s before token consumption', async (_label, technicalField) => {
+    mockConsumeBilanMagicLink.mockResolvedValue({
+      id: 'cparent000000000000000001',
+      email: 'parent@example.com',
+      role: 'PARENT',
+    });
+    const magic = authOptions.providers.find(
+      (provider: { id: string }) => provider.id === 'bilan-magic',
+    );
+    const authRequest = new Request(
+      'https://nexusreussite.academy/api/auth/callback/bilan-magic',
+      { method: 'POST' },
+    );
+
+    await expect(magic.authorize({
+      token: 'raw-secret',
+      ...technicalField,
+    }, authRequest)).resolves.toBeNull();
+    expect(mockConsumeBilanMagicLink).not.toHaveBeenCalled();
+  });
+
+  it('refuses a forged Auth.js request origin before token consumption', async () => {
+    const magic = authOptions.providers.find(
+      (provider: { id: string }) => provider.id === 'bilan-magic',
+    );
+    const forgedRequest = new Request(
+      'https://evil.example/api/auth/callback/bilan-magic',
+      { method: 'POST' },
+    );
+
+    await expect(magic.authorize({
+      token: 'raw-secret',
+      callbackUrl: 'https://nexusreussite.academy/bilan-gratuit',
+    }, forgedRequest)).resolves.toBeNull();
+    expect(mockConsumeBilanMagicLink).not.toHaveBeenCalled();
   });
 });

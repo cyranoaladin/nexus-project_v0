@@ -174,6 +174,44 @@ describe('bilan magic auth — real PostgreSQL', () => {
     })).resolves.toBe(1);
   });
 
+  it('refuses a cancelled request without consuming or mutating its family', async () => {
+    const intake = await createPendingRequest('magic_real_cancelled_01234');
+    const rawToken = intake.internal.magicLinkToken!.rawToken;
+    const before = await prisma.bilanRequest.findUniqueOrThrow({
+      where: { id: intake.internal.requestId },
+    });
+    await prisma.bilanRequest.update({
+      where: { id: before.id },
+      data: { status: 'CANCELLED' },
+    });
+
+    await expect(consumeBilanMagicLink({
+      prisma,
+      rawToken,
+      now: new Date('2026-07-29T12:05:00.000Z'),
+    })).resolves.toBeNull();
+
+    const [request, magic, parent, familyLink, verifiedEvents] = await Promise.all([
+      prisma.bilanRequest.findUniqueOrThrow({ where: { id: before.id } }),
+      prisma.bilanMagicLink.findFirstOrThrow({ where: { requestId: before.id } }),
+      prisma.user.findUniqueOrThrow({ where: { id: before.parentUserId! } }),
+      prisma.parentStudentLink.findFirstOrThrow({
+        where: { parentUserId: before.parentUserId!, studentId: before.studentId! },
+      }),
+      prisma.bilanRequestEvent.count({
+        where: { requestId: before.id, type: 'ACCOUNT_VERIFIED' },
+      }),
+    ]);
+    expect(request).toMatchObject({
+      status: 'CANCELLED',
+      accountVerificationState: 'VERIFICATION_PENDING',
+    });
+    expect(magic.consumedAt).toBeNull();
+    expect(parent.activatedAt).toBeNull();
+    expect(familyLink.state).toBe('PENDING_PARENT_CONSENT');
+    expect(verifiedEvents).toBe(0);
+  });
+
   it('rolls back token consumption and every verification mutation when event append fails', async () => {
     const intake = await createPendingRequest('magic_real_rollback_012345');
     const rawToken = intake.internal.magicLinkToken!.rawToken;

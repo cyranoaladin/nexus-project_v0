@@ -64,6 +64,7 @@ async function consumeInTransaction(
             parentUserId: true,
             studentId: true,
             accountVerificationState: true,
+            status: true,
           },
         },
       },
@@ -77,6 +78,8 @@ async function consumeInTransaction(
       || magicLink.requestId !== magicLink.request.id
       || magicLink.request.parentUserId !== magicLink.parentUserId
       || magicLink.request.accountVerificationState !== 'VERIFICATION_PENDING'
+      || magicLink.request.status === 'CANCELLED'
+      || magicLink.request.status === 'HUMAN_FOLLOWUP_REQUIRED'
       || magicLink.consumedAt !== null
       || magicLink.revokedAt !== null
       || !Number.isFinite(magicLink.expiresAt.getTime())
@@ -144,6 +147,9 @@ async function consumeInTransaction(
         id: magicLink.requestId,
         parentUserId: magicLink.parentUserId,
         accountVerificationState: 'VERIFICATION_PENDING',
+        status: {
+          notIn: ['CANCELLED', 'HUMAN_FOLLOWUP_REQUIRED'],
+        },
       },
       data: {
         accountVerificationState: 'VERIFIED',
