@@ -128,6 +128,22 @@ def test_cps_and_manifest_schemas_reject_unknown_fields() -> None:
     unknown_manifest = load_yaml(PEDAGOGY_ROOT / "manifest.yaml")
     unknown_manifest["publicationApproved"] = True
     assert list(jsonschema.Draft202012Validator(manifest_schema).iter_errors(unknown_manifest))
+    source_manifest = load_yaml(PEDAGOGY_ROOT / "manifest.yaml")
+    for required_key in (
+        "publicationStatus",
+        "positioning",
+        "sessionKits",
+        "generatedOutputs",
+        "humanValidation",
+    ):
+        missing = deepcopy(source_manifest)
+        missing.pop(required_key)
+        assert list(jsonschema.Draft202012Validator(manifest_schema).iter_errors(missing))
+    wrong_output_root = deepcopy(source_manifest)
+    wrong_output_root["generatedOutputs"]["root"] = "public/documents/pre-rentree-2026"
+    assert list(
+        jsonschema.Draft202012Validator(manifest_schema).iter_errors(wrong_output_root)
+    )
 
 
 def test_manifest_is_strict_complete_and_hashes_every_source() -> None:
@@ -137,11 +153,25 @@ def test_manifest_is_strict_complete_and_hashes_every_source() -> None:
     )
     jsonschema.Draft202012Validator(schema).validate(manifest)
 
+    assert manifest["version"] == 1
     assert manifest["campaignId"] == "pre-rentree-2026"
-    assert manifest["moduleCatalog"] == "content/pre-rentree-2026/modules.json"
-    assert manifest["generatedRoot"] == ".artifacts/pre-rentree-2026/pedagogy"
+    assert manifest["publicationStatus"] == "HUMAN_VALIDATION_REQUIRED"
+    assert manifest["moduleCatalog"] == "../modules.json"
+    assert manifest["positioning"] == {
+        "cpsDirectory": "positioning/cps",
+        "expectedCps": 17,
+    }
+    assert manifest["sessionKits"] == {
+        "modulesDirectory": "session-kits/modules",
+        "expectedModules": 17,
+        "expectedSessions": 85,
+    }
+    assert manifest["generatedOutputs"] == {
+        "root": ".artifacts/pre-rentree-2026/pedagogy/generated"
+    }
     assert manifest["counts"] == {
         "modules": 17,
+        "sessionsPerModule": 5,
         "sessions": 85,
         "cps": 17,
         "nodes": 141,
@@ -150,6 +180,7 @@ def test_manifest_is_strict_complete_and_hashes_every_source() -> None:
         "manualResponses": 33,
         "sessionUnitFiles": 340,
     }
+    assert manifest["humanValidation"]["required"] is True
     assert manifest["humanValidation"]["status"] == "HUMAN_VALIDATION_REQUIRED"
     assert manifest["humanValidation"]["reviewer"] is None
     assert manifest["humanValidation"]["validatedAt"] is None

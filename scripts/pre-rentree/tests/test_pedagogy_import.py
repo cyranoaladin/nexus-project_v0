@@ -5,7 +5,7 @@ import os
 import subprocess
 import sys
 import zipfile
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 
 import pytest
 
@@ -19,6 +19,7 @@ from classification import (
     FINAL_CLASSIFICATIONS,
     HISTORICAL_PACKAGES,
     PENDING_DEDUPLICATION,
+    classify,
 )
 from import_pedagogy_corpus import build_inventory, write_inventory
 
@@ -79,6 +80,45 @@ def test_classification_contract_exposes_only_the_nine_final_classes():
         }
     )
     assert PENDING_DEDUPLICATION not in FINAL_CLASSIFICATIONS
+
+
+@pytest.mark.parametrize(
+    ("source", "destination"),
+    [
+        (
+            "Nexus-PreRentree-2026-positionnement-17-modules-v3/maths-entree-quatrieme.yaml",
+            "content/pre-rentree-2026/pedagogy/positioning/cps/maths-entree-quatrieme.yaml",
+        ),
+        (
+            "Nexus-PreRentree-2026-positionnement-17-modules-v3/REFERENTIEL-CANONIQUE-2026.yaml",
+            "content/pre-rentree-2026/pedagogy/positioning/REFERENTIEL-CANONIQUE-2026.yaml",
+        ),
+        (
+            "Nexus-PreRentree-2026-positionnement-17-modules-v3/SPEC-tests-positionnement-pre-stage-2026.md",
+            "content/pre-rentree-2026/pedagogy/positioning/SPEC-tests-positionnement-pre-stage-2026.md",
+        ),
+        (
+            "Nexus-PreRentree-2026-85-seances/sources/curriculum-anchors.yaml",
+            "content/pre-rentree-2026/pedagogy/positioning/curriculum-anchors.yaml",
+        ),
+        (
+            "Nexus-PreRentree-2026-85-seances/corpus/MANIFESTE-SEANCES.csv",
+            "content/pre-rentree-2026/pedagogy/session-kits/MANIFESTE-SEANCES.csv",
+        ),
+        (
+            "Nexus-PreRentree-2026-85-seances/corpus/modules/quatrieme-mathematiques/README.md",
+            "content/pre-rentree-2026/pedagogy/session-kits/modules/quatrieme-mathematiques/README.md",
+        ),
+        (
+            "Nexus-PreRentree-2026-85-seances/corpus/modules/quatrieme-mathematiques/s01-test/banques-eleve.md",
+            "content/pre-rentree-2026/pedagogy/session-kits/modules/quatrieme-mathematiques/s01-test/banques-eleve.md",
+        ),
+    ],
+)
+def test_classification_proposes_actual_canonical_destinations(
+    source: str, destination: str
+) -> None:
+    assert classify(PurePosixPath(source)).proposed_destination == destination
 
 
 def test_inventory_is_deterministic_and_records_required_file_metadata(tmp_path: Path):

@@ -701,6 +701,16 @@ def test_real_corpus_finalizes_all_534_rows_with_proven_decisions(tmp_path: Path
         row["final_classification"] != PENDING_DEDUPLICATION
         for row in final_rows
     )
+    canonical_rows = [
+        row for row in final_rows if row["final_classification"] == "CANONICAL_SOURCE"
+    ]
+    assert len(canonical_rows) == 378
+    for row in canonical_rows:
+        destination = REPO_ROOT / row["proposed_destination"]
+        assert destination.is_file(), row["proposed_destination"]
+        assert destination.read_bytes() == (
+            import_root / row["relative_path"]
+        ).read_bytes(), row["relative_path"]
     first_pending_path = next(
         (
             row["relative_path"]

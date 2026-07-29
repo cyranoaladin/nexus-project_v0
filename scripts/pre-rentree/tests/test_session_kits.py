@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import csv
+import hashlib
 import json
 import re
 import subprocess
@@ -8,6 +9,7 @@ import sys
 from pathlib import Path
 
 import jsonschema
+import pytest
 import yaml
 
 
@@ -26,6 +28,27 @@ def modules() -> list[dict]:
 def manifest_rows() -> list[dict[str, str]]:
     with (SESSION_ROOT / "MANIFESTE-SEANCES.csv").open(encoding="utf-8", newline="") as stream:
         return list(csv.DictReader(stream))
+
+
+def _update_manifest_hash(repo_root: Path, relative_path: Path) -> None:
+    manifest_path = repo_root / "content/pre-rentree-2026/pedagogy/manifest.yaml"
+    manifest = yaml.safe_load(manifest_path.read_text(encoding="utf-8"))
+    relative = relative_path.as_posix()
+    digest = hashlib.sha256((repo_root / relative_path).read_bytes()).hexdigest()
+    for source in manifest["sharedSources"]:
+        if source["path"] == relative:
+            source["sha256"] = digest
+    for module in manifest["modules"]:
+        if module["readme"]["path"] == relative:
+            module["readme"]["sha256"] = digest
+        for session in module["sessions"]:
+            for source in session["files"]:
+                if source["path"] == relative:
+                    source["sha256"] = digest
+    manifest_path.write_text(
+        yaml.safe_dump(manifest, allow_unicode=True, sort_keys=False),
+        encoding="utf-8",
+    )
 
 
 def test_session_manifest_is_strict_and_covers_17_modules_85_sessions() -> None:
@@ -210,3 +233,104 @@ def test_session_validator_rejects_promoted_status_without_human_proof(
     )
     assert failing.returncode != 0
     assert "HUMAN_VALIDATION_REQUIRED" in failing.stderr
+
+
+def test_session_validator_cross_checks_csv_metadata_against_module_catalog(
+    tmp_path: Path,
+) -> None:
+    import shutil
+
+    script = REPO_ROOT / "scripts/pre-rentree/pedagogy/validate_session_kits.py"
+    tampered_root = tmp_path / "repo"
+    shutil.copytree(REPO_ROOT / "content/pre-rentree-2026", tampered_root / "content/pre-rentree-2026")
+    shutil.copytree(
+        REPO_ROOT / "scripts/pre-rentree/pedagogy/schemas",
+        tampered_root / "scripts/pre-rentree/pedagogy/schemas",
+    )
+    relative = Path("content/pre-rentree-2026/pedagogy/session-kits/MANIFESTE-SEANCES.csv")
+    csv_path = tampered_root / relative
+    text = csv_path.read_text(encoding="utf-8")
+    csv_path.write_text(text.replace("QUATRIEME,MATHEMATIQUES,1", "TROISIEME,MATHEMATIQUES,1", 1), encoding="utf-8")
+    _update_manifest_hash(tampered_root, relative)
+
+    failing = subprocess.run(
+        [sys.executable, str(script), "--repo-root", str(tampered_root)],
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    assert failing.returncode != 0
+    assert "niveau incohérent" in failing.stderr
+
+
+@pytest.mark.parametrize(
+    ("student_filename", "leak"),
+    [
+        ("banques-eleve.md", "\n**Solution :** 42\n"),
+        ("verification-eleve.md", "\n**Barème enseignant :** 2 points pour la méthode\n"),
+        ("verification-eleve.md", "\n**Diagnostic attendu :** maîtrise fragile\n"),
+    ],
+)
+def test_session_validator_detects_semantic_student_leaks_after_hash_refresh(
+    tmp_path: Path,
+    student_filename: str,
+    leak: str,
+) -> None:
+    import shutil
+
+    script = REPO_ROOT / "scripts/pre-rentree/pedagogy/validate_session_kits.py"
+    tampered_root = tmp_path / "repo"
+    shutil.copytree(REPO_ROOT / "content/pre-rentree-2026", tampered_root / "content/pre-rentree-2026")
+    shutil.copytree(
+        REPO_ROOT / "scripts/pre-rentree/pedagogy/schemas",
+        tampered_root / "scripts/pre-rentree/pedagogy/schemas",
+    )
+    student = next(
+        (tampered_root / "content/pre-rentree-2026/pedagogy/session-kits/modules").glob(
+            f"*/s01-*/{student_filename}"
+        )
+    )
+    student.write_text(student.read_text(encoding="utf-8") + leak, encoding="utf-8")
+    _update_manifest_hash(tampered_root, student.relative_to(tampered_root))
+
+    failing = subprocess.run(
+        [sys.executable, str(script), "--repo-root", str(tampered_root)],
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    assert failing.returncode != 0
+    assert "fuite élève" in failing.stderr
+
+
+def test_session_validator_allows_legitimate_student_response_instruction(
+    tmp_path: Path,
+) -> None:
+    import shutil
+
+    script = REPO_ROOT / "scripts/pre-rentree/pedagogy/validate_session_kits.py"
+    tampered_root = tmp_path / "repo"
+    shutil.copytree(REPO_ROOT / "content/pre-rentree-2026", tampered_root / "content/pre-rentree-2026")
+    shutil.copytree(
+        REPO_ROOT / "scripts/pre-rentree/pedagogy/schemas",
+        tampered_root / "scripts/pre-rentree/pedagogy/schemas",
+    )
+    student = next(
+        (tampered_root / "content/pre-rentree-2026/pedagogy/session-kits/modules").glob(
+            "*/s01-*/banques-eleve.md"
+        )
+    )
+    student.write_text(
+        student.read_text(encoding="utf-8")
+        + "\nNote : utilisez le libellé « Réponse : » dans votre brouillon.\n",
+        encoding="utf-8",
+    )
+    _update_manifest_hash(tampered_root, student.relative_to(tampered_root))
+
+    passing = subprocess.run(
+        [sys.executable, str(script), "--repo-root", str(tampered_root)],
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    assert passing.returncode == 0, passing.stderr
