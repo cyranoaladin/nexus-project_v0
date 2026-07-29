@@ -62,7 +62,7 @@ describe('canonical bilans persistence schema', () => {
     expect(schema).toContain('corpusManifestVersion');
     expect(schema).toContain('contextChecksum');
     expect(schema).toContain('currentPublishedRevisionId');
-    expect(schema).toContain('@@unique([eventType, sourceEventKey, recipientUserId])');
+    expect(schema).toContain('@@unique([eventType, sourceEventKey, recipientKey])');
     expect(migration).toContain('canonical_parent_student_links_one_active_idx');
     expect(migration).toContain("WHERE \"state\" IN ('PENDING_PARENT_CONSENT', 'VERIFIED')");
     expect(integrityMigration).toContain('canonical_bilans_reject_append_only_mutation');
@@ -179,6 +179,7 @@ describe('canonical bilans persistence schema', () => {
     const notification = {
       eventType: 'REPORT_PUBLISHED',
       sourceEventKey: 'report-revision-1.published',
+      recipientKey: `user:${parentUser.id}`,
       recipientUserId: parentUser.id,
       channel: 'WHATSAPP',
       payload: {},
@@ -384,10 +385,10 @@ describe('canonical bilans persistence schema', () => {
       },
     });
     const firstArtifact = await prisma.reportArtifact.create({
-      data: { studentId: student.id, assessmentAttemptId: attempt.id },
+      data: { studentId: student.id, assessmentAttemptId: attempt.id, audience: 'NEXUS' },
     });
     const secondArtifact = await prisma.reportArtifact.create({
-      data: { studentId: student.id, assessmentAttemptId: attempt.id },
+      data: { studentId: student.id, assessmentAttemptId: attempt.id, audience: 'PARENT' },
     });
     const firstRevision = await prisma.reportRevision.create({
       data: {
@@ -431,8 +432,8 @@ describe('canonical bilans persistence schema', () => {
       curriculumId: 'lycee-general', curriculumVersion: '2026.1', assessmentPackId: 'maths-terminal', assessmentPackVersion: '1', assessmentPackChecksum: 'checksum', scoringPolicyId: 'policy', scoringPolicyVersion: '1', submittedAt: new Date(), answers: {},
     } });
     const score = await prisma.scoreSnapshot.create({ data: { assessmentAttemptId: attempt.id, scoringPolicyId: 'policy', scoringPolicyVersion: '1', scoringPolicyChecksum: 'checksum', score: 50, result: {} } });
+    const artifact = await prisma.reportArtifact.create({ data: { studentId: student.id, assessmentAttemptId: attempt.id } });
     const createRevision = async (status: 'DRAFT' | 'PENDING_REVIEW' | 'REJECTED') => {
-      const artifact = await prisma.reportArtifact.create({ data: { studentId: student.id, assessmentAttemptId: attempt.id } });
       const revision = await prisma.reportRevision.create({ data: { reportArtifactId: artifact.id, scoreSnapshotId: score.id, status, reportPackId: 'report', reportPackVersion: '1', corpusManifestId: 'corpus', corpusManifestVersion: '1', promptRevision: 'prompt', contextChecksum: `${status}-checksum`, content: {} } });
       return { artifact, revision };
     };
