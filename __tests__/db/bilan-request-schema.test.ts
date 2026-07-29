@@ -191,6 +191,10 @@ describe('canonical free assessment request persistence', () => {
     expect(migration).toContain('canonical_bilan_request_events_append_only');
     expect(migration).toContain('canonical_bilan_requests_attempt_student_check');
     expect(migration).toContain('canonical_bilan_requests_attempt_student_fkey');
+    expect(migration).toContain('canonical_parent_student_links_terminal_revoked_check');
+    expect(schema).toMatch(
+      /BilanRequest\s+@relation\(fields: \[requestId\], references: \[id\], onDelete: Restrict\)/,
+    );
     expect(schema).toContain('references: [id, studentId]');
     expect(migration).not.toMatch(/\bDROP\s+TABLE\b/i);
     expect(migration).not.toMatch(/\bDROP\s+COLUMN\b/i);
@@ -248,6 +252,33 @@ describe('canonical free assessment request persistence', () => {
     ).rejects.toThrow(/append-only|immutable/i);
   });
 
+  it('retains an audited request and its events instead of cascading deletion', async () => {
+    const request = await prisma.bilanRequest.create({
+      data: { ...requestData, submissionHash: 'sha256:retained-request' },
+    });
+    const event = await prisma.bilanRequestEvent.create({
+      data: {
+        requestId: request.id,
+        type: 'REQUEST_CREATED',
+        actor: 'SYSTEM',
+        correlationId: 'correlation-retained-request',
+      },
+    });
+    const foreignKey = await prisma.$queryRaw<Array<{ delete_action: string }>>`
+      SELECT confdeltype::text AS delete_action
+      FROM pg_constraint
+      WHERE conname = 'canonical_bilan_request_events_requestId_fkey'
+    `;
+
+    expect(foreignKey).toEqual([{ delete_action: 'r' }]);
+    await expect(
+      prisma.bilanRequest.delete({ where: { id: request.id } }),
+    ).rejects.toBeDefined();
+    await expect(
+      prisma.bilanRequestEvent.findUnique({ where: { id: event.id } }),
+    ).resolves.toMatchObject({ requestId: request.id });
+  });
+
   it('never allows raw flow or magic-link token hashes to collide', async () => {
     const request = await prisma.bilanRequest.create({
       data: { ...requestData, submissionHash: 'sha256:token-request' },
@@ -288,33 +319,76 @@ describe('canonical free assessment request persistence', () => {
     ).rejects.toMatchObject({ code: 'P2002' });
   });
 
-  it('rejects a second non-revoked parent-student link', async () => {
+  it('rejects terminal parent-student link creation without a revocation timestamp', async () => {
     const { parentUser, parentProfile } = await createTestParent();
     const { student } = await createTestStudent(parentProfile.id, {
       student: { gradeLevel: 'TERMINALE' },
     });
 
-    await prisma.parentStudentLink.create({
-      data: {
-        parentUserId: parentUser.id,
-        studentId: student.id,
-        state: 'EXPIRED',
-        expiresAt: new Date(Date.now() - 60_000),
-      },
-    });
     await expect(
       prisma.parentStudentLink.create({
         data: {
           parentUserId: parentUser.id,
           studentId: student.id,
-          state: 'PENDING_PARENT_CONSENT',
+          state: 'EXPIRED',
+          expiresAt: new Date(Date.now() - 60_000),
+        },
+      }),
+    ).rejects.toThrow(/revokedAt|terminal|check constraint/i);
+  });
+
+  it('rejects terminal parent-student link updates without a revocation timestamp', async () => {
+    const { parentUser, parentProfile } = await createTestParent();
+    const { student } = await createTestStudent(parentProfile.id, {
+      student: { gradeLevel: 'TERMINALE' },
+    });
+    const link = await prisma.parentStudentLink.create({
+      data: {
+        parentUserId: parentUser.id,
+        studentId: student.id,
+        state: 'PENDING_PARENT_CONSENT',
+      },
+    });
+
+    await expect(
+      prisma.parentStudentLink.update({
+        where: { id: link.id },
+        data: { state: 'EXPIRED', expiresAt: new Date(Date.now() - 60_000) },
+      }),
+    ).rejects.toThrow(/revokedAt|terminal|check constraint/i);
+  });
+
+  it('allows a new link only after the previous link is atomically closed', async () => {
+    const { parentUser, parentProfile } = await createTestParent();
+    const { student } = await createTestStudent(parentProfile.id, {
+      student: { gradeLevel: 'TERMINALE' },
+    });
+    const firstLink = await prisma.parentStudentLink.create({
+      data: {
+        parentUserId: parentUser.id,
+        studentId: student.id,
+        state: 'PENDING_PARENT_CONSENT',
+      },
+    });
+
+    await expect(
+      prisma.parentStudentLink.create({
+        data: {
+          parentUserId: parentUser.id,
+          studentId: student.id,
+          state: 'VERIFIED',
         },
       }),
     ).rejects.toMatchObject({ code: 'P2002' });
 
-    await prisma.parentStudentLink.updateMany({
-      where: { parentUserId: parentUser.id, studentId: student.id },
-      data: { state: 'REVOKED', revokedAt: new Date(), revokedReason: 'Replaced during test.' },
+    await prisma.parentStudentLink.update({
+      where: { id: firstLink.id },
+      data: {
+        state: 'EXPIRED',
+        expiresAt: new Date(Date.now() - 60_000),
+        revokedAt: new Date(),
+        revokedReason: 'Expired and replaced during test.',
+      },
     });
     await expect(
       prisma.parentStudentLink.create({
@@ -640,6 +714,18 @@ describe('canonical free assessment request persistence', () => {
         VALUES ('upgrade-report-artifact', 'upgrade-student', 'upgrade-attempt', NOW())
       `);
       await isolatedPrisma.$executeRawUnsafe(`
+        INSERT INTO "canonical_parent_student_links"
+          ("id", "parentUserId", "studentId", "state", "expiresAt", "updatedAt")
+        VALUES (
+          'upgrade-expired-parent-link',
+          'upgrade-parent-user',
+          'upgrade-student',
+          'EXPIRED',
+          NOW() - INTERVAL '1 day',
+          NOW()
+        )
+      `);
+      await isolatedPrisma.$executeRawUnsafe(`
         INSERT INTO "canonical_notification_outbox"
           (
             "id",
@@ -676,6 +762,7 @@ describe('canonical free assessment request persistence', () => {
         bilan_exists: boolean;
         audience: string;
         recipient_key: string;
+        expired_link_backfilled: boolean;
       }>>`
         SELECT
           EXISTS (
@@ -693,7 +780,12 @@ describe('canonical free assessment request persistence', () => {
             SELECT "recipientKey"
             FROM "canonical_notification_outbox"
             WHERE "id" = 'upgrade-notification'
-          ) AS recipient_key
+          ) AS recipient_key,
+          (
+            SELECT "revokedAt" IS NOT NULL
+            FROM "canonical_parent_student_links"
+            WHERE "id" = 'upgrade-expired-parent-link'
+          ) AS expired_link_backfilled
       `;
 
       expect(preserved).toEqual([{
@@ -701,6 +793,7 @@ describe('canonical free assessment request persistence', () => {
         bilan_exists: true,
         audience: 'NEXUS',
         recipient_key: 'user:upgrade-parent-user',
+        expired_link_backfilled: true,
       }]);
     } finally {
       await isolatedPrisma?.$disconnect();

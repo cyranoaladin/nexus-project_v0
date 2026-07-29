@@ -210,7 +210,7 @@ ALTER TABLE "canonical_bilan_requests"
 ALTER TABLE "canonical_bilan_request_events"
   ADD CONSTRAINT "canonical_bilan_request_events_requestId_fkey"
   FOREIGN KEY ("requestId") REFERENCES "canonical_bilan_requests"("id")
-  ON DELETE CASCADE ON UPDATE CASCADE;
+  ON DELETE RESTRICT ON UPDATE CASCADE;
 CREATE TRIGGER "canonical_bilan_request_events_append_only"
   BEFORE UPDATE OR DELETE ON "canonical_bilan_request_events"
   FOR EACH ROW EXECUTE FUNCTION canonical_bilans_reject_append_only_mutation();
@@ -283,6 +283,13 @@ SET
   "revokedReason" = COALESCE("revokedReason", 'Canonical link closed before non-revoked uniqueness')
 WHERE "revokedAt" IS NULL
   AND "state" IN ('REVOKED', 'EXPIRED');
+
+ALTER TABLE "canonical_parent_student_links"
+  ADD CONSTRAINT "canonical_parent_student_links_terminal_revoked_check"
+  CHECK (
+    "state" NOT IN ('REVOKED', 'EXPIRED')
+    OR "revokedAt" IS NOT NULL
+  );
 
 DROP INDEX "canonical_parent_student_links_one_active_idx";
 CREATE UNIQUE INDEX "canonical_parent_student_links_one_active_idx"
