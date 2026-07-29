@@ -15,6 +15,7 @@ PEDAGOGY_SCRIPTS = REPO_ROOT / "scripts/pre-rentree/pedagogy"
 MANIFEST_SCRIPT = PEDAGOGY_SCRIPTS / "build_pedagogy_manifest.py"
 sys.path.insert(0, str(PEDAGOGY_SCRIPTS))
 
+import build_pedagogy_manifest as manifest_builder
 import sandbox_runner
 from build_pedagogy_manifest import (
     FINAL_CSV_NAME,
@@ -197,6 +198,52 @@ def test_cps_diff_reports_changes_outside_the_allow_list(tmp_path: Path):
     assert diff["unexpected_paths"] == ["module.yaml:root.titre"]
 
 
+def test_cps_diff_fails_closed_when_the_proven_v2_set_is_absent(tmp_path: Path):
+    (tmp_path / "v3").mkdir()
+
+    diff = compute_v3_diffs(
+        tmp_path,
+        v2_package="missing-v2",
+        v3_package="v3",
+    )
+
+    assert diff["computed"] is False
+    assert diff["unexpected_change_count"] > 0
+    assert any("missing-v2" in path for path in diff["unexpected_paths"])
+
+
+def test_divergent_cps_outside_the_nine_proven_modules_is_a_conflict(
+    tmp_path: Path,
+):
+    old = tmp_path / "old.yaml"
+    candidate = tmp_path / "candidate.yaml"
+    old.write_text("id: nsi\nversion: 2\n", encoding="utf-8")
+    candidate.write_text("id: nsi\nversion: 3\n", encoding="utf-8")
+    fallback = manifest_builder._diff_evidence_for_module(
+        {},
+        "nsi-entree-premiere",
+    )
+
+    result = compare_candidate_group(
+        [old, candidate],
+        preferred_path=candidate,
+        evidence={
+            "structural_validation_passed": True,
+            "qa_report": {
+                "inventory_present": True,
+                "sha256_matches": True,
+                "assertions_verified": True,
+            },
+            "computed_diff": fallback,
+        },
+    )
+
+    assert fallback["computed"] is False
+    assert fallback["unexpected_change_count"] > 0
+    assert result["selected"] is None
+    assert result["classification"] == "CONFLICT_REVIEW_REQUIRED"
+
+
 def test_bubblewrap_probe_clears_environment_blocks_network_and_outside_writes(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -261,6 +308,142 @@ def test_bubblewrap_probe_clears_environment_blocks_network_and_outside_writes(
     assert not Path("/escape-from-sandbox").exists()
 
 
+def test_sandbox_capture_descriptors_cannot_be_replaced_with_workspace_fifos(
+    tmp_path: Path,
+):
+    workspace = tmp_path / "workspace"
+    workspace.mkdir()
+    script = workspace / "replace-captures.py"
+    script.write_text(
+        "\n".join(
+            [
+                "import os",
+                "from pathlib import Path",
+                "for path in Path('/workspace').glob('.sandbox-*.log'):",
+                "    path.unlink()",
+                "    os.mkfifo(path)",
+                "print('completed', flush=True)",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    forbidden_root = tmp_path / "forbidden-import"
+    forbidden_root.mkdir()
+    driver = tmp_path / "driver.py"
+    driver.write_text(
+        "\n".join(
+            [
+                "import json, sys",
+                "from pathlib import Path",
+                f"sys.path.insert(0, {str(PEDAGOGY_SCRIPTS)!r})",
+                "import sandbox_runner",
+                "result = sandbox_runner.run_copied_python_tool(",
+                f"    Path({str(script)!r}),",
+                f"    workspace=Path({str(workspace)!r}),",
+                f"    forbidden_root=Path({str(forbidden_root)!r}),",
+                "    timeout_seconds=2,",
+                ")",
+                "print(json.dumps(result))",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    try:
+        completed = subprocess.run(
+            [sys.executable, str(driver)],
+            capture_output=True,
+            text=True,
+            timeout=5,
+        )
+    except subprocess.TimeoutExpired:
+        pytest.fail("workspace FIFO replacement blocked sandbox output collection")
+
+    assert completed.returncode == 0, completed.stderr
+    result = json.loads(completed.stdout)
+    if not Path("/usr/bin/bwrap").is_file():
+        assert result["status"] == "FAIL_CLOSED_SANDBOX_UNAVAILABLE"
+        return
+    assert result["status"] == "PASS"
+    assert not list(workspace.glob(".sandbox-*.log"))
+
+
+def test_aggregate_resource_violation_checks_each_limit():
+    limits = sandbox_runner.AGGREGATE_LIMITS
+    within_limits = {
+        "workspace_bytes": limits["workspace_bytes"],
+        "process_count": limits["process_count"],
+        "rss_bytes": limits["rss_bytes"],
+        "cpu_seconds": limits["cpu_seconds"],
+    }
+    assert sandbox_runner._resource_violation(within_limits, limits) is None
+
+    for metric in within_limits:
+        exceeded = {**within_limits, metric: limits[metric] + 1}
+        assert sandbox_runner._resource_violation(exceeded, limits) == metric
+
+
+def test_proc_stat_parser_aggregates_live_and_reaped_child_cpu():
+    fields = ["S", "1", "321", *(["0"] * 19)]
+    fields[11] = "10"
+    fields[12] = "20"
+    fields[13] = "30"
+    fields[14] = "40"
+    fields[21] = "5"
+    raw = f"123 (worker with spaces) {' '.join(fields)}"
+
+    assert sandbox_runner._parse_proc_stat(raw) == (1, 321, 100, 5)
+
+
+def test_sandbox_kills_a_real_workspace_size_storm(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+):
+    workspace = tmp_path / "workspace"
+    workspace.mkdir()
+    script = workspace / "workspace-storm.py"
+    script.write_text(
+        "\n".join(
+            [
+                "import time",
+                "from pathlib import Path",
+                "payload = b'x' * (128 * 1024)",
+                "for index in range(10):",
+                "    Path(f'/workspace/storm-{index}.bin').write_bytes(payload)",
+                "    time.sleep(0.02)",
+                "time.sleep(10)",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    forbidden_root = tmp_path / "forbidden-import"
+    forbidden_root.mkdir()
+    monkeypatch.setattr(
+        sandbox_runner,
+        "AGGREGATE_LIMITS",
+        {
+            **sandbox_runner.AGGREGATE_LIMITS,
+            "workspace_bytes": 512 * 1024,
+        },
+    )
+
+    result = sandbox_runner.run_copied_python_tool(
+        script,
+        workspace=workspace,
+        forbidden_root=forbidden_root,
+        timeout_seconds=2,
+    )
+
+    if not Path("/usr/bin/bwrap").is_file():
+        assert result["status"] == "FAIL_CLOSED_SANDBOX_UNAVAILABLE"
+        return
+    assert result["status"] == "FAIL_RESOURCE_LIMIT"
+    assert result["resource_violation"] == "workspace_bytes"
+
+
 def test_bubblewrap_absence_fails_closed_without_running_script(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -297,6 +480,29 @@ def _make_complete_synthetic_import(import_root: Path) -> None:
         package = import_root / package_name
         package.mkdir(parents=True)
         (package / "fixture.md").write_text(f"# {package_name}\n", encoding="utf-8")
+
+
+@pytest.mark.parametrize("added_kind", ["file", "symlink", "directory"])
+def test_inventory_tree_reconciliation_rejects_added_entries(
+    tmp_path: Path,
+    added_kind: str,
+):
+    import_root = tmp_path / "import"
+    package = import_root / "package"
+    package.mkdir(parents=True)
+    source = package / "source.md"
+    source.write_text("source\n", encoding="utf-8")
+    inventory = build_inventory(import_root)
+    added = package / f"added-{added_kind}"
+    if added_kind == "file":
+        added.write_text("unexpected\n", encoding="utf-8")
+    elif added_kind == "symlink":
+        added.symlink_to(source.name)
+    else:
+        added.mkdir()
+
+    with pytest.raises(ValueError, match="inventory/tree mismatch"):
+        manifest_builder._verify_inventory_tree(inventory, import_root)
 
 
 def _run_manifest_cli(
@@ -641,5 +847,12 @@ def test_reports_disclose_session_tool_path_adaptation_and_isolated_proof():
         "changements inattendus : 0",
         "PRE_RENTREE_PEDAGOGY_IMPORT_ROOT",
         "n’est pas un gate CI autonome",
+        "fichiers anonymes",
+        "64 Mio",
+        "32 processus",
+        "1 Gio de RSS",
+        "30 secondes de CPU",
+        "fichiers réguliers, répertoires et liens symboliques",
+        "`computed: false`",
     ):
         assert expected in deduplication

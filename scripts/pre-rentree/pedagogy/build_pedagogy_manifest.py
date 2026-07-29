@@ -22,7 +22,7 @@ from typing import Any, Iterable
 import yaml
 
 from classification import FINAL_CLASSIFICATIONS
-from cps_diff import compute_v3_diffs
+from cps_diff import PROVEN_V2_MODULES, compute_v3_diffs
 from import_pedagogy_corpus import (
     _assert_output_outside_import,
     build_inventory,
@@ -210,6 +210,21 @@ def _selection_evidence_complete(evidence: dict[str, Any] | None) -> bool:
         and isinstance(computed_diff, dict)
         and computed_diff.get("computed") is True
         and computed_diff.get("unexpected_change_count") == 0
+    )
+
+
+def _diff_evidence_for_module(
+    diffs_by_module: dict[str, dict[str, Any]],
+    module: str,
+) -> dict[str, Any]:
+    return diffs_by_module.get(
+        module,
+        {
+            "computed": False,
+            "unexpected_change_count": 1,
+            "unexpected_paths": [f"{module}:diff-evidence-missing"],
+            "allowed_change_counts": {},
+        },
     )
 
 
@@ -1024,6 +1039,51 @@ def _verify_inventory_files(inventory: dict[str, Any], import_root: Path) -> Non
             raise ValueError(f"inventory hash mismatch: {row['relative_path']}")
 
 
+def _inventory_path_types(inventory: dict[str, Any]) -> dict[str, str]:
+    typed_paths: dict[str, str] = {}
+    for collection, entry_type in (
+        ("directories", "directory"),
+        ("files", "file"),
+        ("symlinks", "symlink"),
+    ):
+        for item in inventory.get(collection, []):
+            relative_path = item["relative_path"]
+            if relative_path in typed_paths:
+                raise ValueError(
+                    f"inventory/tree mismatch: duplicate path {relative_path}"
+                )
+            typed_paths[relative_path] = entry_type
+    return typed_paths
+
+
+def _verify_inventory_tree(inventory: dict[str, Any], import_root: Path) -> None:
+    current_inventory = build_inventory(import_root)
+    expected = _inventory_path_types(inventory)
+    current = _inventory_path_types(current_inventory)
+    missing = sorted(set(expected) - set(current))
+    added = sorted(set(current) - set(expected))
+    changed = sorted(
+        path
+        for path in set(expected) & set(current)
+        if expected[path] != current[path]
+    )
+    if missing or added or changed:
+        details = []
+        if missing:
+            details.append(f"missing={','.join(missing)}")
+        if added:
+            details.append(f"added={','.join(added)}")
+        if changed:
+            details.append(
+                "type_changed="
+                + ",".join(
+                    f"{path}:{expected[path]}->{current[path]}"
+                    for path in changed
+                )
+            )
+        raise ValueError(f"inventory/tree mismatch: {'; '.join(details)}")
+
+
 def build_pedagogy_manifest(
     *,
     inventory: dict[str, Any],
@@ -1036,6 +1096,7 @@ def build_pedagogy_manifest(
     repository = repo_root.resolve(strict=True)
     final_inventory = copy.deepcopy(inventory)
     rows = final_inventory["files"]
+    _verify_inventory_tree(final_inventory, source_root)
     _verify_inventory_files(final_inventory, source_root)
 
     by_path = {row["relative_path"]: row for row in rows}
@@ -1094,6 +1155,7 @@ def build_pedagogy_manifest(
         source_root,
         v2_package=POSITIONING_PACKAGE_V2,
         v3_package=POSITIONING_PACKAGE_V3,
+        expected_modules=PROVEN_V2_MODULES,
     )
     diffs_by_module = {
         item["module"]: item
@@ -1120,14 +1182,9 @@ def build_pedagogy_manifest(
         ):
             candidate_name = PurePosixPath(preferred_row["relative_path"]).name
             validation = v3_validation[candidate_name]
-            computed_diff = diffs_by_module.get(
+            computed_diff = _diff_evidence_for_module(
+                diffs_by_module,
                 candidate_name.removesuffix(".yaml"),
-                {
-                    "computed": True,
-                    "unexpected_change_count": 0,
-                    "unexpected_paths": [],
-                    "allowed_change_counts": {},
-                },
             )
             evidence = {
                 "structural_validation_passed": (
@@ -1180,6 +1237,7 @@ def build_pedagogy_manifest(
         not qa_report_evidence["inventory_present"]
         or not qa_report_evidence["sha256_matches"]
         or not qa_report_evidence["assertions_verified"]
+        or not computed_v3_diffs["computed"]
         or computed_v3_diffs["unexpected_change_count"]
     ):
         for row in rows:
@@ -1224,6 +1282,7 @@ def build_pedagogy_manifest(
                 row["decision_reason"] = (
                     "chaîne positionnement non reproductible dans le layout temporaire"
                 )
+    _verify_inventory_tree(final_inventory, source_root)
     _verify_inventory_files(final_inventory, source_root)
 
     script_assessments = []

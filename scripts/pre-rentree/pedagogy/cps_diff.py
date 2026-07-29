@@ -3,10 +3,26 @@
 from __future__ import annotations
 
 from collections import Counter
+from collections.abc import Collection
 from pathlib import Path
 from typing import Any
 
 import yaml
+
+
+PROVEN_V2_MODULES = frozenset(
+    {
+        "francais-entree-premiere.yaml",
+        "francais-entree-quatrieme.yaml",
+        "francais-entree-seconde.yaml",
+        "francais-entree-troisieme.yaml",
+        "maths-entree-premiere.yaml",
+        "maths-entree-quatrieme.yaml",
+        "maths-entree-seconde.yaml",
+        "maths-entree-terminale.yaml",
+        "maths-entree-troisieme.yaml",
+    }
+)
 
 
 def _objects_by_id(
@@ -29,6 +45,7 @@ def compute_v3_diffs(
     *,
     v2_package: str,
     v3_package: str,
+    expected_modules: Collection[str] | None = None,
 ) -> dict[str, Any]:
     """Compare all v2 CPS with v3 and reject every undocumented category."""
 
@@ -38,6 +55,22 @@ def compute_v3_diffs(
     total_counts: Counter[str] = Counter()
     all_unexpected: list[str] = []
     v2_names = sorted(path.name for path in v2_root.glob("*.yaml"))
+    actual_v2_names = set(v2_names)
+    expected_names = set(expected_modules) if expected_modules is not None else set()
+    missing_v2_names = sorted(expected_names - actual_v2_names)
+    extra_v2_names = sorted(actual_v2_names - expected_names) if expected_names else []
+    if not v2_names:
+        all_unexpected.append(f"{v2_package}:no-v2-cps-found")
+    if missing_v2_names:
+        all_unexpected.extend(
+            f"{v2_package}/{name}:source-missing"
+            for name in missing_v2_names
+        )
+    if extra_v2_names:
+        all_unexpected.extend(
+            f"{v2_package}/{name}:unproven-source"
+            for name in extra_v2_names
+        )
 
     for name in v2_names:
         old = yaml.safe_load((v2_root / name).read_text(encoding="utf-8"))
@@ -168,7 +201,7 @@ def compute_v3_diffs(
                 "module": name.removesuffix(".yaml"),
                 "source": f"{v2_package}/{name}",
                 "candidate": f"{v3_package}/{name}",
-                "computed": True,
+                "computed": candidate_path.is_file(),
                 "allowed_change_counts": dict(sorted(counts.items())),
                 "unexpected_change_count": len(unexpected),
                 "unexpected_paths": unexpected,
@@ -176,7 +209,12 @@ def compute_v3_diffs(
         )
 
     return {
-        "computed": True,
+        "computed": (
+            bool(v2_names)
+            and not missing_v2_names
+            and not extra_v2_names
+            and all(module["computed"] for module in modules)
+        ),
         "module_count": len(modules),
         "allowed_change_counts": dict(sorted(total_counts.items())),
         "unexpected_change_count": len(set(all_unexpected)),

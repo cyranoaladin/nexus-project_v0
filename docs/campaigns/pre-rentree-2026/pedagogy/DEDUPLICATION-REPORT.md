@@ -20,7 +20,9 @@ Le constructeur `scripts/pre-rentree/pedagogy/build_pedagogy_manifest.py` :
 
 1. relit `INVENTAIRE-IMPORT.json`, ou reconstruit l'inventaire avec l'importeur
    si ce fichier est absent ;
-2. vérifie chaque fichier régulier et son SHA-256 avant toute décision ;
+2. reconstruit les métadonnées courantes et réconcilie les ensembles exacts de
+   fichiers réguliers, répertoires et liens symboliques avec l'inventaire,
+   puis vérifie chaque SHA-256 avant toute décision ;
 3. regroupe d'abord par rôle logique et identité stable ;
 4. compare d'abord les SHA-256 ;
 5. en cas de SHA différent, normalise les YAML/JSON après parsing, les CSV par
@@ -121,6 +123,11 @@ modules français. Les seules transformations observées sont :
 Les changements inattendus : 0. Toute autre transformation ferait basculer le
 groupe concerné en `CONFLICT_REVIEW_REQUIRED`.
 
+Le diff n'autorise que les neuf modules v2 inventoriés. Si un module divergent
+ne possède pas de preuve calculée, le fallback porte explicitement
+`computed: false`, au moins un changement inattendu, et impose
+`CONFLICT_REVIEW_REQUIRED`.
+
 Les cinq couples historiques mathématiques v1/v2 divergent donc de v3 pour des
 raisons calculées et explicites :
 
@@ -173,9 +180,13 @@ sable ne monte en lecture seule que `/usr`, `/lib` et `/lib64`, fournit ses
 propres `/proc` et `/dev`, coupe le réseau, remonte la racine en lecture seule
 et n'accorde l'écriture qu'à l'espace temporaire `/workspace`. Si Bubblewrap
 est absent ou échoue, l'évaluation échoue fermée. Le lanceur impose en plus des
-limites de CPU, mémoire, taille de fichier et processus, un délai maximal de
-60 secondes, une capture bornée de stdout/stderr vers fichiers et la
-terminaison du groupe de processus et de ses descendants.
+limites par processus abaissées à 20 secondes CPU, 512 Mio d'espace d'adressage
+et 1 Mio par fichier, ainsi qu'un délai maximal de 60 secondes. Une supervision
+hôte agrégée interrompt le groupe au-delà de 64 Mio dans le workspace,
+32 processus, 1 Gio de RSS ou 30 secondes de CPU. Stdout et stderr sont capturés
+dans des fichiers anonymes hôte, invisibles et non remplaçables depuis le bac à
+sable, avec une lecture bornée après terminaison. Le groupe de processus et ses
+descendants sont supprimés au timeout ou au dépassement.
 
 Pour la chaîne des séances, une copie temporaire fidèle du paquet livré
 reproduit le défaut des deux scripts :
