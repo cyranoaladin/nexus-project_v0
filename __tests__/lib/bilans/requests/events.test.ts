@@ -14,9 +14,9 @@ function createClient() {
 
 describe('minimized bilan request events', () => {
   const now = new Date('2026-07-29T10:00:00.000Z');
-  const requestId = 'request_00000001';
-  const correlationId = 'correlation_0001';
-  const attemptId = 'attempt_000000001';
+  const requestId = 'c0123456789abcdefghijklmn';
+  const correlationId = 'corr_Nf8j2Yx7Lq4pV9mK';
+  const attemptId = 'c1123456789abcdefghijklmn';
 
   it('appends only an allowlisted technical payload with a server timestamp', async () => {
     const { client, create } = createClient();
@@ -62,6 +62,49 @@ describe('minimized bilan request events', () => {
         assessmentPackId: 'pack_maths_terminale_v1',
         assessmentPackVersion: 'legacy-v1.3',
       },
+    }, { now });
+
+    expect(create).toHaveBeenCalledTimes(1);
+  });
+
+  it.each([
+    '1',
+    '1.2',
+    '1.2.3',
+    'v1',
+    'v1.3',
+    'legacy-v1.3',
+    'deterministic-v2',
+  ])('accepts bounded technical version %s', async (version) => {
+    const { client, create } = createClient();
+
+    await appendBilanRequestEvent(client, {
+      requestId,
+      type: 'ASSESSMENT_SCORED',
+      actor: 'WORKER',
+      correlationId,
+      payload: {
+        attemptId,
+        scoringVersion: version,
+      },
+    }, { now });
+
+    expect(create).toHaveBeenCalledTimes(1);
+  });
+
+  it.each([
+    '550e8400-e29b-41d4-a716-446655440000',
+    'c2123456789abcdefghijklmn',
+    'b123456789abcdefghijklmn',
+  ])('accepts canonical Prisma reference %s', async (studentId) => {
+    const { client, create } = createClient();
+
+    await appendBilanRequestEvent(client, {
+      requestId,
+      type: 'CHILD_SELECTED',
+      actor: 'PARENT_FLOW',
+      correlationId,
+      payload: { studentId },
     }, { now });
 
     expect(create).toHaveBeenCalledTimes(1);
@@ -195,7 +238,14 @@ describe('minimized bilan request events', () => {
     ['REPORT_PUBLISHED', 'artifactId'],
     ['TECHNICAL_ACTION_REQUIRED', 'errorCode'],
   ])('rejects PII disguised as %s.%s', async (type, key) => {
-    for (const pii of ['Amine', '99192829', 'parent@example.test']) {
+    for (const pii of [
+      'Amine',
+      'Mohamed-Ben-Ali-2026',
+      'PrenomNomBeaucoupTropLongPourEtreUnIdentifiant',
+      '99192829',
+      'parent@example.test',
+      'lycee-pierre-mendes-france',
+    ]) {
       const { client, create } = createClient();
 
       await expect(appendBilanRequestEvent(client, {
@@ -261,6 +311,53 @@ describe('minimized bilan request events', () => {
       correlationId,
       payload: { acquisitionChannelCode: 'WEBSITE' },
     }, { now: new Date(Number.NaN) })).rejects.toThrow('Invalid bilan request event date');
+    expect(create).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    ['Mohamed-Ben-Ali-2026', correlationId],
+    ['99192829', correlationId],
+    ['parent@example.test', correlationId],
+    ['lycee-pierre-mendes-france', correlationId],
+    [requestId, 'Mohamed-Ben-Ali-2026'],
+    [requestId, '99192829'],
+    [requestId, 'parent@example.test'],
+    [requestId, 'lycee-pierre-mendes-france'],
+  ])('rejects identity-like event envelope request=%s correlation=%s', async (
+    unsafeRequestId,
+    unsafeCorrelationId,
+  ) => {
+    const { client, create } = createClient();
+
+    await expect(appendBilanRequestEvent(client, {
+      requestId: unsafeRequestId,
+      type: 'REQUEST_CREATED',
+      actor: 'SYSTEM',
+      correlationId: unsafeCorrelationId,
+      payload: { acquisitionChannelCode: 'WEBSITE' },
+    }, { now })).rejects.toThrow('Invalid bilan request event envelope');
+    expect(create).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    'maths_terminale_v1',
+    'pack_Maths_terminale_v1',
+    'pack_maths-terminale-v1',
+    `pack_${'a'.repeat(81)}`,
+  ])('rejects non-catalog assessment pack id %s', async (assessmentPackId) => {
+    const { client, create } = createClient();
+
+    await expect(appendBilanRequestEvent(client, {
+      requestId,
+      type: 'ASSESSMENT_STARTED',
+      actor: 'PARENT_FLOW',
+      correlationId,
+      payload: {
+        attemptId,
+        assessmentPackId,
+        assessmentPackVersion: 'v1.3',
+      },
+    }, { now })).rejects.toThrow('Invalid minimized event payload');
     expect(create).not.toHaveBeenCalled();
   });
 });
