@@ -124,16 +124,61 @@ const PAYLOAD_KEYS = {
   REQUEST_CANCELLED: ['reasonCode'],
 } as const satisfies Record<BilanRequestEventType, readonly string[]>;
 
-const NUMERIC_PAYLOAD_KEYS = new Set([
-  'sequence',
-  'responseCount',
-  'durationMs',
-  'scoreBasisPoints',
-  'retryCount',
-  'attemptCount',
+const ACQUISITION_CODES = new Set([
+  'WEBSITE',
+  'WHATSAPP',
+  'PHONE',
+  'EMAIL',
+  'REFERRAL',
+  'CAMPAIGN',
+  'OTHER',
 ]);
 
-const TECHNICAL_IDENTIFIER = /^[A-Za-z0-9][A-Za-z0-9._:/-]{0,159}$/;
+const SUBJECT_CODES = new Set([
+  'MATHEMATIQUES',
+  'NSI',
+  'FRANCAIS',
+  'PHILOSOPHIE',
+  'HISTOIRE_GEO',
+  'ANGLAIS',
+  'ESPAGNOL',
+  'PHYSIQUE_CHIMIE',
+  'SVT',
+  'SES',
+]);
+
+const GRADE_CODES = new Set([
+  'TROISIEME',
+  'SECONDE',
+  'PREMIERE',
+  'TERMINALE',
+  'POSTBAC',
+  'AUTRE',
+]);
+
+const DELIVERY_CHANNEL_CODES = new Set(['EMAIL', 'WHATSAPP']);
+const VERIFICATION_METHOD_CODES = new Set(['MAGIC_LINK', 'EXISTING_SESSION']);
+const AUDIENCE_CODES = new Set(['STUDENT', 'PARENT', 'NEXUS']);
+const REASON_CODES = new Set([
+  'NO_PUBLISHED_PACK',
+  'MANUAL_REVIEW_REQUIRED',
+  'RETRY_EXHAUSTED',
+  'REQUESTED_BY_FAMILY',
+  'REQUESTED_BY_TEAM',
+  'INVALID_ASSESSMENT',
+  'OPERATIONAL_FOLLOWUP',
+]);
+const ERROR_CODES = new Set([
+  'SCORING_FAILED',
+  'REPORT_GENERATION_FAILED',
+  'NOTIFICATION_FAILED',
+  'RATE_LIMIT_UNAVAILABLE',
+  'INVALID_SUBMISSION',
+  'PROVIDER_UNAVAILABLE',
+]);
+
+const OPAQUE_IDENTIFIER = /^[A-Za-z0-9_-]{16,160}$/;
+const VERSION_IDENTIFIER = /^(?=.*\d)(?=.*[._-])[A-Za-z0-9][A-Za-z0-9._-]*$/;
 const SENSITIVE_KEY = /(?:e.?mail|phone|telephone|tel|(?:child|student|minor).*name|name.*(?:child|student|minor)|school|establishment|main.?need|(?:^|_)need|message|free.?text|answer|solution|report.*content|content.*report)/i;
 
 function containsSensitiveKey(value: unknown): boolean {
@@ -161,16 +206,54 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
     && Object.getPrototypeOf(value) === Object.prototype;
 }
 
-function isValidTechnicalValue(key: string, value: unknown): value is string | number {
-  if (NUMERIC_PAYLOAD_KEYS.has(key)) {
-    return typeof value === 'number'
-      && Number.isSafeInteger(value)
-      && value >= 0
-      && value <= 86_400_000;
-  }
-
-  return typeof value === 'string' && TECHNICAL_IDENTIFIER.test(value);
+function isBoundedInteger(value: unknown, maximum: number): value is number {
+  return typeof value === 'number'
+    && Number.isSafeInteger(value)
+    && value >= 0
+    && value <= maximum;
 }
+
+function isClosedCode(value: unknown, codes: ReadonlySet<string>): value is string {
+  return typeof value === 'string' && codes.has(value);
+}
+
+function isOpaqueIdentifier(value: unknown): value is string {
+  return typeof value === 'string' && OPAQUE_IDENTIFIER.test(value);
+}
+
+function isVersionIdentifier(value: unknown): value is string {
+  return typeof value === 'string'
+    && value.length <= 64
+    && VERSION_IDENTIFIER.test(value);
+}
+
+const PAYLOAD_VALUE_VALIDATORS: Readonly<Record<
+  string,
+  (value: unknown) => value is string | number
+>> = {
+  acquisitionChannelCode: (value): value is string => isClosedCode(value, ACQUISITION_CODES),
+  subjectCode: (value): value is string => isClosedCode(value, SUBJECT_CODES),
+  gradeCode: (value): value is string => isClosedCode(value, GRADE_CODES),
+  deliveryChannelCode: (value): value is string => isClosedCode(value, DELIVERY_CHANNEL_CODES),
+  methodCode: (value): value is string => isClosedCode(value, VERIFICATION_METHOD_CODES),
+  audienceCode: (value): value is string => isClosedCode(value, AUDIENCE_CODES),
+  reasonCode: (value): value is string => isClosedCode(value, REASON_CODES),
+  errorCode: (value): value is string => isClosedCode(value, ERROR_CODES),
+  studentId: isOpaqueIdentifier,
+  attemptId: isOpaqueIdentifier,
+  assessmentPackId: isOpaqueIdentifier,
+  revisionId: isOpaqueIdentifier,
+  reviewerId: isOpaqueIdentifier,
+  artifactId: isOpaqueIdentifier,
+  assessmentPackVersion: isVersionIdentifier,
+  scoringVersion: isVersionIdentifier,
+  scoreBasisPoints: (value): value is number => isBoundedInteger(value, 10_000),
+  responseCount: (value): value is number => isBoundedInteger(value, 500),
+  retryCount: (value): value is number => isBoundedInteger(value, 20),
+  attemptCount: (value): value is number => isBoundedInteger(value, 20),
+  sequence: (value): value is number => isBoundedInteger(value, 10_000),
+  durationMs: (value): value is number => isBoundedInteger(value, 14_400_000),
+};
 
 function minimizedPayload(
   type: BilanRequestEventType,
@@ -186,7 +269,8 @@ function minimizedPayload(
   const result: Record<string, string | number> = {};
 
   for (const [key, item] of Object.entries(payload)) {
-    if (!allowedKeys.has(key) || !isValidTechnicalValue(key, item)) {
+    const validate = PAYLOAD_VALUE_VALIDATORS[key];
+    if (!allowedKeys.has(key) || !validate || !validate(item)) {
       throw new Error('Invalid minimized event payload');
     }
     result[key] = item;
@@ -196,7 +280,7 @@ function minimizedPayload(
 }
 
 function validIdentifier(value: string): boolean {
-  return TECHNICAL_IDENTIFIER.test(value);
+  return OPAQUE_IDENTIFIER.test(value);
 }
 
 function validateEnvelope(input: AppendBilanRequestEventInput): void {
@@ -215,6 +299,10 @@ export async function appendBilanRequestEvent(
 ): Promise<unknown> {
   validateEnvelope(input);
   const payload = minimizedPayload(input.type, input.payload);
+  const occurredAt = options.now ?? new Date();
+  if (!Number.isFinite(occurredAt.getTime())) {
+    throw new Error('Invalid bilan request event date');
+  }
 
   return client.bilanRequestEvent.create({
     data: {
@@ -223,7 +311,7 @@ export async function appendBilanRequestEvent(
       actor: input.actor,
       correlationId: input.correlationId,
       payload,
-      occurredAt: options.now ?? new Date(),
+      occurredAt,
     },
   });
 }

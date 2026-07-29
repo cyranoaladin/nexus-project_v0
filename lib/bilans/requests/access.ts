@@ -24,21 +24,95 @@ export type BilanAccessCapabilities = Readonly<{
   readStudentHistory: boolean;
 }>;
 
+const bilanPrincipalBrand: unique symbol = Symbol('BilanRequestAccessPrincipal');
+
+type TrustedPrincipal = Readonly<{
+  [bilanPrincipalBrand]: true;
+}>;
+
 type TemporaryFlowPrincipal = Readonly<{
   kind: 'TEMPORARY_FLOW';
   requestId: string;
   tokenHash: string;
   now: Date;
-}>;
+}> & TrustedPrincipal;
 
 type AuthenticatedPrincipal = Readonly<{
   kind: 'PARENT' | 'ASSISTANTE' | 'COACH' | 'ADMIN' | 'ELEVE';
   requestId: string;
   userId: string;
   now: Date;
-}>;
+}> & TrustedPrincipal;
 
 export type BilanRequestAccessPrincipal = TemporaryFlowPrincipal | AuthenticatedPrincipal;
+
+type AuthenticatedBilanSessionUser = Readonly<{
+  id?: unknown;
+  role?: unknown;
+}> | null | undefined;
+
+const AUTHENTICATED_BILAN_ROLES = new Set([
+  'PARENT',
+  'ASSISTANTE',
+  'COACH',
+  'ADMIN',
+  'ELEVE',
+] as const);
+
+function isValidPrincipalIdentifier(value: unknown): value is string {
+  return typeof value === 'string'
+    && /^[A-Za-z0-9][A-Za-z0-9._:/-]{0,159}$/.test(value);
+}
+
+function isValidDate(value: unknown): value is Date {
+  return value instanceof Date && Number.isFinite(value.getTime());
+}
+
+export function createTemporaryBilanPrincipal(input: Readonly<{
+  requestId: string;
+  tokenHash: string;
+  now: Date;
+}>): TemporaryFlowPrincipal | null {
+  if (!isValidPrincipalIdentifier(input.requestId)
+    || !/^[a-f0-9]{64}$/.test(input.tokenHash)
+    || !isValidDate(input.now)) {
+    return null;
+  }
+
+  return Object.freeze({
+    [bilanPrincipalBrand]: true as const,
+    kind: 'TEMPORARY_FLOW' as const,
+    requestId: input.requestId,
+    tokenHash: input.tokenHash,
+    now: input.now,
+  });
+}
+
+export function createAuthenticatedBilanPrincipal(input: Readonly<{
+  requestId: string;
+  now: Date;
+  sessionUser: AuthenticatedBilanSessionUser;
+}>): AuthenticatedPrincipal | null {
+  const { sessionUser } = input;
+  if (!isValidPrincipalIdentifier(input.requestId)
+    || !isValidDate(input.now)
+    || !sessionUser
+    || !isValidPrincipalIdentifier(sessionUser.id)
+    || typeof sessionUser.role !== 'string'
+    || !AUTHENTICATED_BILAN_ROLES.has(
+      sessionUser.role as 'PARENT' | 'ASSISTANTE' | 'COACH' | 'ADMIN' | 'ELEVE',
+    )) {
+    return null;
+  }
+
+  return Object.freeze({
+    [bilanPrincipalBrand]: true as const,
+    kind: sessionUser.role as AuthenticatedPrincipal['kind'],
+    requestId: input.requestId,
+    userId: sessionUser.id,
+    now: input.now,
+  });
+}
 
 type FindFirstArguments = Readonly<{
   where: Readonly<Record<string, unknown>>;
@@ -179,6 +253,10 @@ function accessPredicate(
                   parentUserId: principal.userId,
                   state: 'VERIFIED',
                   revokedAt: null,
+                  OR: [
+                    { expiresAt: null },
+                    { expiresAt: { gt: principal.now } },
+                  ],
                 },
               },
             },
