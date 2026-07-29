@@ -1,0 +1,53 @@
+# Inventaire pédagogique Pré-rentrée 2026
+
+Ce dossier contient l’importeur en lecture seule du corpus pédagogique historique.
+Il inventorie l’entrée fournie explicitement, sans copier ni modifier son contenu,
+et écrit uniquement les rapports demandés sous une racine de sortie distincte.
+
+## Commande
+
+```bash
+python scripts/pre-rentree/pedagogy/import_pedagogy_corpus.py \
+  --import-root "$PRE_RENTREE_PEDAGOGY_IMPORT_ROOT" \
+  --output-root .artifacts/pre-rentree-2026/pedagogy/import
+```
+
+Les deux options sont obligatoires. L’importeur refuse une sortie égale à la
+racine d’import ou située sous celle-ci. Aucun chemin machine n’est inscrit dans
+les rapports.
+
+## Sorties
+
+- `INVENTAIRE-IMPORT.csv` : une ligne déterministe par fichier régulier ;
+- `INVENTAIRE-IMPORT.json` : fichiers, répertoires racine incluse, liens
+  symboliques et compteurs de contrôle ;
+- `MANIFEST-SHA256.txt` : une empreinte SHA-256 par fichier régulier.
+
+Chaque fichier porte son chemin relatif, sa taille, son extension, son type
+MIME déterministe, son SHA-256, son paquet historique de premier niveau, son
+rôle logique, sa destination proposée et sa classification provisoire. Les
+fichiers vides, entrées cachées, liens symboliques, noms ambigus et archives ZIP
+invalides sont signalés. Chaque ZIP est ouvert et contrôlé intégralement avant
+l’écriture des rapports. La cible d’un lien symbolique absolu est expurgée afin
+de ne jamais inscrire un chemin machine dans l’inventaire.
+
+## Classification
+
+Les neuf classes finales sont déclarées dans `classification.py` :
+`CANONICAL_SOURCE`, `GENERATOR`, `VALIDATOR`, `GENERATED_OUTPUT`,
+`HISTORICAL_VERSION`, `ARCHIVE_PACKAGE`, `DUPLICATE_IDENTICAL`,
+`CONFLICT_REVIEW_REQUIRED` et `UNCLASSIFIED`.
+
+L’inventaire initial emploie `PENDING_DEDUPLICATION` lorsque la sélection d’une
+source exige encore la comparaison de la Task 2. Ce statut interne n’est pas une
+classe finale.
+
+Les quatre paquets historiques reconnus sont :
+
+- `Nexus-PreRentree-2026-85-seances` ;
+- `Nexus-PreRentree-2026-positionnement-17-modules-v3` ;
+- `Nexus-positionnement` ;
+- `Nexus-positionnement-2026-maths-francais-v2`.
+
+L’inventaire n’autorise ni publication ni promotion automatique d’une source au
+statut canonique.
