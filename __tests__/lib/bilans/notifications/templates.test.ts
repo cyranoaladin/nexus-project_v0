@@ -37,6 +37,10 @@ describe('bilan notification templates', () => {
       nodeEnv: 'production',
       nextAuthUrl: 'https://user:secret@nexusreussite.academy/path?leak=yes',
     })).toThrow('Invalid bilan public origin');
+    expect(() => resolveBilanPublicOrigin({
+      nodeEnv: 'production',
+      nextAuthUrl: 'https://clean-but-untrusted.example',
+    })).toThrow('Invalid bilan public origin');
   });
 
   it('allows explicit local HTTP origins only outside production', () => {

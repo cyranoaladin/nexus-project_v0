@@ -53,8 +53,10 @@ export function resolveBilanPublicOrigin(
       && (url.pathname === '' || url.pathname === '/')
       && !url.search
       && !url.hash;
+    const allowedProductionOrigin = environment.nodeEnv !== 'production'
+      || url.origin === CANONICAL_PUBLIC_ORIGIN;
 
-    if (!allowedProtocol || !cleanOrigin) {
+    if (!allowedProtocol || !cleanOrigin || !allowedProductionOrigin) {
       throw new Error('Invalid bilan public origin');
     }
     return url.origin;
