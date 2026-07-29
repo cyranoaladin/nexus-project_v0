@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
 import { createBilanRequestIntake } from '@/lib/bilans/requests/create-request';
+import { getBilanFeatureFlags } from '@/lib/bilans/requests/feature-flags';
 import { bilanRequestAdmissionSchema } from '@/lib/bilans/requests/schemas';
 import {
   buildBilanMagicLinkEmail,
@@ -22,18 +23,33 @@ const idempotencyKeySchema = z.string()
 
 const HONEYPOT_FIELDS = ['website', 'url', 'honeypot'] as const;
 const INVALID_RESPONSE = { error: 'Requête invalide.' } as const;
+const NOT_FOUND_RESPONSE = { error: 'Ressource indisponible.' } as const;
 const INTERNAL_ERROR_RESPONSE = {
   error: 'Service temporairement indisponible.',
 } as const;
 
-function hasFilledHoneypot(body: unknown): boolean {
-  if (typeof body !== 'object' || body === null || Array.isArray(body)) return false;
-  return HONEYPOT_FIELDS.some((field) => Boolean(
-    (body as Readonly<Record<string, unknown>>)[field],
-  ));
+function inspectAndStripHoneypots(body: unknown): Readonly<{
+  body: unknown;
+  filled: boolean;
+}> {
+  if (typeof body !== 'object' || body === null || Array.isArray(body)) {
+    return { body, filled: false };
+  }
+
+  const sanitized = { ...(body as Readonly<Record<string, unknown>>) };
+  let filled = false;
+  for (const field of HONEYPOT_FIELDS) {
+    if (Boolean(sanitized[field])) filled = true;
+    delete sanitized[field];
+  }
+  return { body: sanitized, filled };
 }
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
+  if (!getBilanFeatureFlags().canonicalIntakeEnabled) {
+    return NextResponse.json(NOT_FOUND_RESPONSE, { status: 404 });
+  }
+
   const csrfResponse = checkCsrf(request);
   if (csrfResponse) return csrfResponse;
 
@@ -54,16 +70,16 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
     return NextResponse.json(INVALID_RESPONSE, { status: 400 });
   }
-  const body = boundedBody.value;
+  const inspectedBody = inspectAndStripHoneypots(boundedBody.value);
 
-  if (hasFilledHoneypot(body)) {
+  if (inspectedBody.filled) {
     const { BILAN_REQUEST_CREATED_PUBLIC_RESPONSE } = await import(
       '@/lib/bilans/requests/create-request'
     );
     return NextResponse.json(BILAN_REQUEST_CREATED_PUBLIC_RESPONSE);
   }
 
-  const admission = bilanRequestAdmissionSchema.safeParse(body);
+  const admission = bilanRequestAdmissionSchema.safeParse(inspectedBody.body);
   const idempotencyKey = idempotencyKeySchema.safeParse(
     request.headers.get('idempotency-key'),
   );

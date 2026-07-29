@@ -79,6 +79,22 @@ describe('POST /api/bilan-gratuit/v1/requests/current/child', () => {
     mockGuardRateLimitAsync.mockResolvedValue(null);
   });
 
+  afterEach(() => {
+    delete process.env.BILAN_CANONICAL_INTAKE_ENABLED;
+  });
+
+  it('keeps child association available for existing dossiers when intake is disabled', async () => {
+    process.env.BILAN_CANONICAL_INTAKE_ENABLED = 'false';
+
+    const response = await POST(request({
+      action: 'SELECT_EXISTING',
+      studentId: STUDENT_ID,
+    }));
+
+    expect(response.status).toBe(200);
+    expect(mockAttachChild).toHaveBeenCalledTimes(1);
+  });
+
   it('uses the magic-auth session claim on another device without a flow cookie', async () => {
     const response = await POST(request({
       action: 'SELECT_EXISTING',
