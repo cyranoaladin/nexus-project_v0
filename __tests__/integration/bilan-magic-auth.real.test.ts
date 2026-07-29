@@ -119,7 +119,7 @@ describe('bilan magic auth — real PostgreSQL', () => {
     await prisma.$connect();
   }, 150_000);
 
-  beforeEach(cleanDatabase);
+  beforeEach(cleanDatabase, 30_000);
 
   afterAll(async () => {
     if (prisma) await prisma.$disconnect();
