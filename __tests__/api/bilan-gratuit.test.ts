@@ -329,6 +329,49 @@ describe('/api/bilan-gratuit', () => {
     expect(body.error).toBe('Données invalides');
   });
 
+  it('rejects an unknown business grade identically before looking up either a new or existing email', async () => {
+    const invalidGrade = 'Classe inconnue';
+    const findUnique = jest.spyOn(prisma.user, 'findUnique')
+      .mockResolvedValueOnce(null as never)
+      .mockResolvedValueOnce({
+        id: 'existing-user',
+        email: 'existing.parent@test.com',
+      } as never);
+
+    const newEmailResponse = await POST(buildRequest({
+      ...validRequestData,
+      parentEmail: 'new.parent@test.com',
+      studentGrade: invalidGrade,
+    }));
+    const newEmailBody = await newEmailResponse.json();
+    const existingEmailResponse = await POST(buildRequest({
+      ...validRequestData,
+      parentEmail: 'existing.parent@test.com',
+      studentGrade: invalidGrade,
+    }));
+    const existingEmailBody = await existingEmailResponse.json();
+
+    const expectedResponse = {
+      status: 400,
+      body: { error: `Niveau scolaire non reconnu : ${invalidGrade}` },
+      setCookie: null,
+    };
+    expect({
+      status: newEmailResponse.status,
+      body: newEmailBody,
+      setCookie: newEmailResponse.headers.get('set-cookie'),
+    }).toEqual(expectedResponse);
+    expect({
+      status: existingEmailResponse.status,
+      body: existingEmailBody,
+      setCookie: existingEmailResponse.headers.get('set-cookie'),
+    }).toEqual(expectedResponse);
+    expect(findUnique).not.toHaveBeenCalled();
+    expect(prisma.$transaction).not.toHaveBeenCalled();
+    expect(mockCaptureContactLead).not.toHaveBeenCalled();
+    expect(mockSendExistingAccountBilanEmail).not.toHaveBeenCalled();
+  });
+
   it('returns 500 when database error occurs', async () => {
     jest.spyOn(prisma.user, 'findUnique').mockResolvedValue(null as never);
     jest.spyOn(prisma, '$transaction').mockRejectedValue(new Error('Database connection failed'));
