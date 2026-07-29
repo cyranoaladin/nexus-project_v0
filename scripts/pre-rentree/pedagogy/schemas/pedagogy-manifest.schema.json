@@ -79,6 +79,13 @@
       "type": "array",
       "minItems": 4,
       "maxItems": 4,
+      "uniqueItems": true,
+      "allOf": [
+        {"contains": {"properties": {"path": {"const": "content/pre-rentree-2026/pedagogy/positioning/SPEC-tests-positionnement-pre-stage-2026.md"}}}, "minContains": 1, "maxContains": 1},
+        {"contains": {"properties": {"path": {"const": "content/pre-rentree-2026/pedagogy/positioning/REFERENTIEL-CANONIQUE-2026.yaml"}}}, "minContains": 1, "maxContains": 1},
+        {"contains": {"properties": {"path": {"const": "content/pre-rentree-2026/pedagogy/positioning/curriculum-anchors.yaml"}}}, "minContains": 1, "maxContains": 1},
+        {"contains": {"properties": {"path": {"const": "content/pre-rentree-2026/pedagogy/session-kits/MANIFESTE-SEANCES.csv"}}}, "minContains": 1, "maxContains": 1}
+      ],
       "items": {"$ref": "#/$defs/fileSource"}
     },
     "modules": {
@@ -97,7 +104,7 @@
       "properties": {
         "path": {
           "type": "string",
-          "pattern": "^content/pre-rentree-2026/pedagogy/"
+          "pattern": "^content/pre-rentree-2026/pedagogy/(?:positioning/(?:SPEC-tests-positionnement-pre-stage-2026\\.md|REFERENTIEL-CANONIQUE-2026\\.yaml|curriculum-anchors\\.yaml|cps/[a-z0-9-]+\\.yaml)|session-kits/(?:MANIFESTE-SEANCES\\.csv|modules/[a-z0-9-]+/(?:README\\.md|s0[1-5]-[a-z0-9-]+/(?:banques-eleve|corrige-commente|verification-eleve|verification-correction)\\.md)))$"
         },
         "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
       }
@@ -184,7 +191,7 @@
           "uniqueItems": true,
           "items": {
             "type": "string",
-            "pattern": "^\\.artifacts/pre-rentree-2026/pedagogy/generated/"
+            "pattern": "^\\.artifacts/pre-rentree-2026/pedagogy/generated/(?:positioning/(?:tests-eleves|corrections|pilotage-enseignant|cartes-parent)/[a-z0-9-]+\\.md|session-kits/modules/[a-z0-9-]+/(?:CAHIER-ELEVE|GUIDE-ENSEIGNANT)\\.md)$"
           }
         },
         "editorialStatus": {"const": "HUMAN_VALIDATION_REQUIRED"},

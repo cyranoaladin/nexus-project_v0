@@ -250,3 +250,111 @@ def test_cps_validator_cli_passes_and_detects_tampering(tmp_path: Path) -> None:
     )
     assert failing.returncode != 0
     assert "HUMAN_VALIDATION_REQUIRED" in failing.stderr
+
+
+def _copy_cps_validation_repo(tmp_path: Path) -> Path:
+    import shutil
+
+    target = tmp_path / "repo"
+    shutil.copytree(REPO_ROOT / "content/pre-rentree-2026", target / "content/pre-rentree-2026")
+    shutil.copytree(
+        REPO_ROOT / "scripts/pre-rentree/pedagogy/schemas",
+        target / "scripts/pre-rentree/pedagogy/schemas",
+    )
+    return target
+
+
+def _run_cps_validator(repo_root: Path) -> subprocess.CompletedProcess[str]:
+    return subprocess.run(
+        [
+            sys.executable,
+            str(REPO_ROOT / "scripts/pre-rentree/pedagogy/validate_cps.py"),
+            "--repo-root",
+            str(repo_root),
+        ],
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+
+
+def test_cps_validator_requires_exact_shared_source_set(tmp_path: Path) -> None:
+    target = _copy_cps_validation_repo(tmp_path)
+    manifest_path = target / "content/pre-rentree-2026/pedagogy/manifest.yaml"
+    manifest = load_yaml(manifest_path)
+    manifest["sharedSources"][-1] = deepcopy(manifest["sharedSources"][0])
+    manifest_path.write_text(
+        yaml.safe_dump(manifest, allow_unicode=True, sort_keys=False), encoding="utf-8"
+    )
+
+    failing = _run_cps_validator(target)
+    assert failing.returncode != 0
+    assert "sources partagées" in failing.stderr
+
+
+def test_cps_validator_cross_checks_manifest_module_metadata(tmp_path: Path) -> None:
+    target = _copy_cps_validation_repo(tmp_path)
+    manifest_path = target / "content/pre-rentree-2026/pedagogy/manifest.yaml"
+    manifest = load_yaml(manifest_path)
+    manifest["modules"][0]["level"] = "TROISIEME"
+    manifest["modules"][0]["subject"] = "FRANCAIS"
+    manifest_path.write_text(
+        yaml.safe_dump(manifest, allow_unicode=True, sort_keys=False), encoding="utf-8"
+    )
+
+    failing = _run_cps_validator(target)
+    assert failing.returncode != 0
+    assert "métadonnées module" in failing.stderr
+
+
+@pytest.mark.parametrize("kind", ["source-traversal", "output-traversal", "output-symlink"])
+def test_cps_validator_confines_manifest_paths(tmp_path: Path, kind: str) -> None:
+    target = _copy_cps_validation_repo(tmp_path)
+    manifest_path = target / "content/pre-rentree-2026/pedagogy/manifest.yaml"
+    manifest = load_yaml(manifest_path)
+    if kind == "source-traversal":
+        manifest["sharedSources"][0]["path"] = (
+            "content/pre-rentree-2026/pedagogy/positioning/../positioning/"
+            "SPEC-tests-positionnement-pre-stage-2026.md"
+        )
+    elif kind == "output-traversal":
+        manifest["modules"][0]["expectedOutputs"][0] = (
+            ".artifacts/pre-rentree-2026/pedagogy/generated/../escape.md"
+        )
+    else:
+        generated_parent = target / ".artifacts/pre-rentree-2026/pedagogy"
+        generated_parent.mkdir(parents=True)
+        (target / "redirected-output").mkdir()
+        (generated_parent / "generated").symlink_to(
+            target / "redirected-output", target_is_directory=True
+        )
+    manifest_path.write_text(
+        yaml.safe_dump(manifest, allow_unicode=True, sort_keys=False), encoding="utf-8"
+    )
+
+    failing = _run_cps_validator(target)
+    assert failing.returncode != 0
+    assert "chemin" in failing.stderr or "symbolique" in failing.stderr
+
+
+@pytest.mark.parametrize(
+    "relative",
+    [
+        "manifest.yaml",
+        "positioning/cps/maths-entree-quatrieme.yaml",
+        "positioning/curriculum-anchors.yaml",
+    ],
+)
+def test_cps_validator_rejects_canonical_symlinks(
+    tmp_path: Path, relative: str
+) -> None:
+    target = _copy_cps_validation_repo(tmp_path)
+    pedagogy = target / "content/pre-rentree-2026/pedagogy"
+    source = pedagogy / relative
+    backing = target / f"backing-{source.name}"
+    source.rename(backing)
+    source.symlink_to(backing)
+
+    failing = _run_cps_validator(target)
+    assert failing.returncode != 0
+    assert "lien symbolique interdit" in failing.stderr
