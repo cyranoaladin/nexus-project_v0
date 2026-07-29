@@ -2,17 +2,14 @@
 
 ## Verdict de remise
 
-`BLOCKED` dans l'attente des gates finaux au SHA de remise. L'inventaire des
-534 fichiers, la classification sans conflit, le pipeline pédagogique et la
-suite Python complète sont verts. La première exécution TypeScript finale a
-échoué sur la taxonomie obsolète de documents actifs. Le test ciblé est
-désormais vert après correction ; la suite TypeScript complète, `lint`,
-`typecheck`, `build` et le checkout propre doivent encore tous être verts avant
-de promouvoir ce verdict en `PASS`.
+`PASS` pour l'organisation technique du lot 1. L'inventaire des 534 fichiers,
+la classification sans conflit, le pipeline reproductible, les suites Python
+et TypeScript, `lint`, `typecheck`, les tests Jest globaux, le build de
+production et la reconstruction depuis un checkout propre sont verts.
 
-Ce blocage de remise ne vaut ni conflit pédagogique, ni régression du corpus.
-Les 17 modules restent `HUMAN_VALIDATION_REQUIRED` ; aucune utilisation en
-classe ou publication n'est autorisée.
+Ce verdict ne constitue pas une validation disciplinaire ou une autorisation
+de publication. Les 17 modules restent `HUMAN_VALIDATION_REQUIRED` ; aucune
+utilisation en classe ou publication n'est autorisée.
 
 ## Périmètre
 

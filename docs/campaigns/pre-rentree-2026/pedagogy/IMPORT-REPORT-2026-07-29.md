@@ -6,17 +6,13 @@
 
 ## Verdict
 
-`BLOCKED` dans l'attente des gates finaux au SHA de remise. L'import,
-l'inventaire, la classification, le pipeline reproductible et la suite Python
-complète sont verts. La première suite TypeScript finale a produit 403 tests
-verts sur 404 : le seul échec provient des compteurs obsolètes de six documents
-de gouvernance actifs. Après leur correction, le test ciblé est vert. La suite
-TypeScript complète, `lint`, `typecheck`, `build` et la vérification depuis un
-checkout propre doivent encore être verts avant de déclarer le lot `PASS`.
+`PASS` pour les phases 0 à 6 du lot 1. L'import, l'inventaire, la
+classification, le pipeline reproductible et tous les gates finaux sont verts,
+y compris la reconstruction indépendante depuis un checkout propre.
 
-Ce verdict de remise ne crée aucun conflit de sélection. Les 17 modules
-requièrent toujours une validation humaine et ne sont pas autorisés à
-l'utilisation en classe ou à la publication.
+Ce verdict technique ne crée aucune validation pédagogique humaine. Les
+17 modules requièrent toujours une validation disciplinaire et ne sont pas
+autorisés à l'utilisation en classe ou à la publication.
 
 ## Préflight
 
@@ -211,10 +207,14 @@ docs/campaigns/pre-rentree-2026/pedagogy/
 | `npm run pre-rentree:test:py` au gate final | vert : 257 tests réussis, 2 ignorés en 804.08 s |
 | première exécution de `npm run pre-rentree:test:ts` au gate final | rouge : 403/404 tests ; taxonomie active obsolète (`17 cohortes`, `14 programmes`, `70 fiches`) |
 | `npm test -- --runInBand __tests__/campaigns/pre-rentree-2026-director-contract.test.ts` après correction | vert : 4/4 tests |
-
-La suite TypeScript complète doit encore être rejouée. `lint`, `typecheck`,
-`build` et le checkout propre restent également à relever au SHA final ; un
-résultat historique ne doit pas être présenté comme une preuve du commit final.
+| seconde exécution de `npm run pre-rentree:test:ts` | vert : 404/404 tests, 53/53 suites |
+| `npm run lint` | vert, avertissements préexistants autorisés |
+| `npm run typecheck` | vert |
+| première exécution de `npm run test -- --runInBand` | rouge : 7200 tests verts sur 7205, un faux positif du garde-fou marketing sur la SPEC non publique |
+| test ciblé du garde-fou marketing après correction de périmètre | vert : 9/9 tests |
+| seconde exécution de `npm run test -- --runInBand` | vert : 7201 tests réussis, 4 ignorés, 591 suites réussies et une suite ignorée |
+| `npm run build` | vert : 144 pages statiques, traces et artefact standalone valides |
+| `npm run pre-rentree:pedagogy:verify` depuis un worktree détaché propre | vert : 103 fichiers reproductibles, sans dépendance à l'import historique |
 
 ## Sécurité et données de mineurs
 
