@@ -84,18 +84,15 @@ def _workspace_usage(root: Path) -> dict[str, int]:
         except FileNotFoundError:
             continue
         for entry in children:
+            total_entries += 1
             try:
                 metadata = entry.stat(follow_symlinks=False)
             except FileNotFoundError:
                 continue
             if stat.S_ISDIR(metadata.st_mode):
-                total_entries += 1
                 pending.append(Path(entry.path))
             elif stat.S_ISREG(metadata.st_mode):
-                total_entries += 1
                 total_bytes += metadata.st_size
-            elif stat.S_ISLNK(metadata.st_mode):
-                total_entries += 1
     return {
         "workspace_bytes": total_bytes,
         "workspace_entries": total_entries,

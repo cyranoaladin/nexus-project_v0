@@ -186,9 +186,10 @@ est absent ou échoue, l'évaluation échoue fermée. Le lanceur impose en plus 
 limites par processus abaissées à 20 secondes CPU, 512 Mio d'espace d'adressage
 et 1 Mio par fichier, ainsi qu'un délai maximal de 60 secondes. Une supervision
 hôte agrégée interrompt le groupe au-delà de 64 Mio dans le workspace,
-5 000 entrées (fichiers, répertoires et liens symboliques, sans suivre ces
-derniers), 32 processus, 1 Gio de RSS ou 30 secondes de CPU. Le résultat expose
-le maximum observé sous `peak_workspace_entries`. Stdout et stderr sont
+5 000 entrées (tout `DirEntry` rencontré : fichiers, répertoires, liens
+symboliques, FIFO, sockets et devices, sans suivi), 32 processus, 1 Gio de RSS
+ou 30 secondes de CPU. Le résultat expose le maximum observé sous
+`peak_workspace_entries`. Stdout et stderr sont
 capturés dans des fichiers anonymes hôte, invisibles et non remplaçables depuis
 le bac à sable, avec une lecture bornée après terminaison. Le groupe de
 processus et ses descendants sont supprimés au timeout ou au dépassement.
