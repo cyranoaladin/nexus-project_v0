@@ -8,9 +8,43 @@ import { guardRateLimitAsync } from '@/lib/rate-limit';
 import { checkCsrf, checkBodySize } from '@/lib/csrf';
 import { serializeError } from '@/lib/utils/serialize-error';
 import { synchronizePreRentreeCampaignContext } from '@/lib/campaigns/pre-rentree-2026/bilan-prefill';
+import { captureContactLead } from '@/lib/crm/contact-leads';
 import { createId } from '@paralleldrive/cuid2';
 import crypto from 'crypto';
 import { NextRequest, NextResponse } from 'next/server';
+
+const PUBLIC_SUCCESS_RESPONSE = {
+  success: true,
+  message: 'Votre demande a bien été enregistrée. Consultez votre email pour poursuivre.',
+} as const;
+
+async function notifyStaffOfValidatedSubmission(
+  data: {
+    parentFirstName: string;
+    parentLastName: string;
+    parentEmail: string;
+    parentPhone: string;
+    acceptTerms: boolean;
+  },
+  isTestEnv: boolean,
+) {
+  try {
+    await captureContactLead({
+      name: `${data.parentFirstName} ${data.parentLastName}`.trim(),
+      email: data.parentEmail,
+      phone: data.parentPhone,
+      profile: 'Parent',
+      interest: 'Bilan gratuit - nouvelle demande',
+      source: 'bilan-gratuit',
+      type: 'bilan_gratuit',
+      consent: data.acceptTerms,
+    });
+  } catch (leadError) {
+    if (!isTestEnv) {
+      console.error('Erreur notification interne bilan gratuit:', serializeError(leadError));
+    }
+  }
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -55,10 +89,21 @@ export async function POST(request: NextRequest) {
     }
 
     if (existingUser) {
-      return NextResponse.json(
-        { error: 'Un compte existe déjà avec cet email' },
-        { status: 400 }
-      );
+      await notifyStaffOfValidatedSubmission(validatedData, isTestEnv);
+
+      try {
+        const { sendExistingAccountBilanEmail } = await import('@/lib/email');
+        await sendExistingAccountBilanEmail(
+          existingUser.email,
+          `${validatedData.parentFirstName} ${validatedData.parentLastName}`,
+        );
+      } catch (emailError) {
+        if (!isTestEnv) {
+          console.error('Erreur envoi email de continuation:', serializeError(emailError));
+        }
+      }
+
+      return NextResponse.json(PUBLIC_SUCCESS_RESPONSE);
     }
 
     const resolvedStudentLastName = validatedData.studentLastName ?? validatedData.parentLastName;
@@ -143,6 +188,8 @@ export async function POST(request: NextRequest) {
       return { parentUser, studentUser, student, campaignLead };
     });
 
+    await notifyStaffOfValidatedSubmission(validatedData, isTestEnv);
+
     // Envoyer email de bienvenue
     try {
       const { sendWelcomeParentEmail } = await import('@/lib/email');
@@ -160,12 +207,7 @@ export async function POST(request: NextRequest) {
       // Ne pas faire échouer l'inscription si l'email ne part pas
     }
 
-    return NextResponse.json({
-      success: true,
-      message: 'Votre demande a bien été enregistrée. Un lien d’activation a été envoyé.',
-      parentId: result.parentUser.id,
-      studentId: result.student.id
-    });
+    return NextResponse.json(PUBLIC_SUCCESS_RESPONSE);
 
   } catch (error) {
     if (process.env.NODE_ENV !== 'test') {
