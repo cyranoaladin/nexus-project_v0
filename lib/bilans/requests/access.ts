@@ -20,6 +20,8 @@ export type BilanAccessCapabilities = Readonly<{
   publish: boolean;
   readFamilyFinal: boolean;
   readFamilyHistory: boolean;
+  readStudentFinal: boolean;
+  readStudentHistory: boolean;
 }>;
 
 type TemporaryFlowPrincipal = Readonly<{
@@ -82,6 +84,8 @@ const NO_PRIVILEGES: BilanAccessCapabilities = {
   publish: false,
   readFamilyFinal: false,
   readFamilyHistory: false,
+  readStudentFinal: false,
+  readStudentHistory: false,
 };
 
 export function accessPolicyForProjection(
@@ -94,12 +98,18 @@ export function accessPolicyForProjection(
         readCurrentRequest: true,
       };
     case 'FAMILY':
-    case 'STUDENT':
       return {
         ...NO_PRIVILEGES,
         readCurrentRequest: true,
         readFamilyFinal: true,
         readFamilyHistory: true,
+      };
+    case 'STUDENT':
+      return {
+        ...NO_PRIVILEGES,
+        readCurrentRequest: true,
+        readStudentFinal: true,
+        readStudentHistory: true,
       };
     case 'OPERATIONAL':
       return {
@@ -127,6 +137,8 @@ export function accessPolicyForProjection(
         publish: true,
         readFamilyFinal: true,
         readFamilyHistory: true,
+        readStudentFinal: true,
+        readStudentHistory: true,
       };
     default: {
       const exhaustive: never = projection;

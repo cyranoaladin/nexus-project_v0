@@ -41,6 +41,8 @@ describe('bilan request access predicates', () => {
     expect(result?.projection).toBe('TEMPORARY_FLOW');
     expect(result?.capabilities.readFamilyHistory).toBe(false);
     expect(result?.capabilities.readFamilyFinal).toBe(false);
+    expect(result?.capabilities.readStudentHistory).toBe(false);
+    expect(result?.capabilities.readStudentFinal).toBe(false);
   });
 
   it('requires a verified parent account and a verified non-revoked child relation in the predicate', async () => {
@@ -74,6 +76,8 @@ describe('bilan request access predicates', () => {
     expect(result?.projection).toBe('FAMILY');
     expect(result?.capabilities.readFamilyFinal).toBe(true);
     expect(result?.capabilities.readFamilyHistory).toBe(true);
+    expect(result?.capabilities.readStudentFinal).toBe(false);
+    expect(result?.capabilities.readStudentHistory).toBe(false);
   });
 
   it('requires coach ownership through the assigned coach user in the predicate', async () => {
@@ -124,6 +128,8 @@ describe('bilan request access predicates', () => {
       publish: false,
       readFamilyFinal: false,
       readFamilyHistory: false,
+      readStudentFinal: false,
+      readStudentHistory: false,
     }));
   });
 
@@ -147,6 +153,8 @@ describe('bilan request access predicates', () => {
       publish: true,
       readFamilyFinal: true,
       readFamilyHistory: true,
+      readStudentFinal: true,
+      readStudentHistory: true,
     });
   });
 
@@ -177,6 +185,12 @@ describe('bilan request access predicates', () => {
       },
     }));
     expect(result?.projection).toBe('STUDENT');
+    expect(result?.capabilities).toEqual(expect.objectContaining({
+      readFamilyFinal: false,
+      readFamilyHistory: false,
+      readStudentFinal: true,
+      readStudentHistory: true,
+    }));
   });
 
   it('returns the same null result for missing and unauthorized requests without identity fields', async () => {
@@ -210,6 +224,20 @@ describe('bilan request access predicates', () => {
       readCurrentRequest: true,
       readFamilyFinal: false,
       readFamilyHistory: false,
+      readStudentFinal: false,
+      readStudentHistory: false,
+    }));
+    expect(accessPolicyForProjection('FAMILY')).toEqual(expect.objectContaining({
+      readFamilyFinal: true,
+      readFamilyHistory: true,
+      readStudentFinal: false,
+      readStudentHistory: false,
+    }));
+    expect(accessPolicyForProjection('STUDENT')).toEqual(expect.objectContaining({
+      readFamilyFinal: false,
+      readFamilyHistory: false,
+      readStudentFinal: true,
+      readStudentHistory: true,
     }));
     expect(accessPolicyForProjection('ASSIGNED_COACH')).toEqual(expect.objectContaining({
       readOperational: true,
