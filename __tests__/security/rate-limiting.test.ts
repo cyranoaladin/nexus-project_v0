@@ -36,7 +36,7 @@ describe('Rate Limiting', () => {
     });
 
     it('should block the (limit+1)th request with success=false', () => {
-      const ip = '10.0.0.2-auth-test';
+      const ip = '10.0.0.2';
       for (let i = 0; i < 5; i++) {
         const req = createMockRequest(ip);
         const result = checkRateLimit(req, { preset: 'auth' });
@@ -61,8 +61,8 @@ describe('Rate Limiting', () => {
     });
 
     it('should rate limit per IP address (different IPs get separate limits)', () => {
-      const ipA = '10.0.0.4-separate';
-      const ipB = '10.0.0.5-separate';
+      const ipA = '10.0.0.4';
+      const ipB = '10.0.0.5';
 
       for (let i = 0; i < 5; i++) {
         const req = createMockRequest(ipA);
@@ -108,13 +108,13 @@ describe('Rate Limiting', () => {
 
   describe('guardRateLimit helper', () => {
     it('should return null when within limits', () => {
-      const req = createMockRequest('10.0.0.10-check');
+      const req = createMockRequest('10.0.0.10');
       const result = guardRateLimit(req, { preset: 'api' });
       expect(result).toBeNull();
     });
 
     it('should return 429 response when limit exceeded', () => {
-      const ip = '10.0.0.11-check-exceed';
+      const ip = '10.0.0.11';
       for (let i = 0; i < 5; i++) {
         const req = createMockRequest(ip);
         guardRateLimit(req, { preset: 'auth' });
@@ -128,7 +128,7 @@ describe('Rate Limiting', () => {
 
   describe('Rate Limit Configuration', () => {
     it('should enforce auth limit of 5 requests per 15 minutes', () => {
-      const ip = '10.0.0.20-auth-config';
+      const ip = '10.0.0.20';
       let blocked = false;
       for (let i = 0; i < 6; i++) {
         const req = createMockRequest(ip);
@@ -139,7 +139,7 @@ describe('Rate Limiting', () => {
     });
 
     it('should enforce notifyEmail limit of 5 requests per hour', () => {
-      const ip = '10.0.0.21-email-config';
+      const ip = '10.0.0.21';
       let blocked = false;
       for (let i = 0; i < 6; i++) {
         const req = createMockRequest(ip);

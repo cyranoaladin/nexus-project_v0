@@ -176,7 +176,7 @@ gardes.
 | Gate | Résultat |
 |---|---|
 | `npm ci` | réussi, 1 272 paquets ; audit npm inchangé : 37 vulnérabilités de dépendances historiques, dont 36 élevées |
-| `npm run test -- --runInBand --silent` | réussi : 611 suites, 1 ignorée ; 7 557 tests réussis, 4 ignorés ; 7 snapshots |
+| `npm run test -- --runInBand --silent` | réussi après corrections CI : 612 suites, 1 ignorée ; 7 558 tests réussis, 4 ignorés ; 7 snapshots |
 | `python -m pytest scripts/pre-rentree/tests -q` | réussi : 265 tests, 2 ignorés, en 767,39 s |
 | `npm run pre-rentree:test:ts` | réussi : 53 suites, 404 tests |
 | `npm run pre-rentree:pedagogy:verify` | réussi : tous les compteurs, 103 sorties, reproductibilité vraie et hash attendu |
@@ -218,7 +218,7 @@ Les fichiers d'intégration propres passent `git diff --check`.
 La reproduction depuis un worktree détaché propre du SHA final est consignée
 dans la section suivante avant le push.
 
-## Reproduction du SHA final
+## Reproduction du candidat avant draft PR
 
 Un worktree détaché propre a été créé au SHA
 `ef8dcf2cb4f620ee62a60ba025487f4c3b6e421d`, qui inclut la première version
@@ -238,6 +238,53 @@ Le commit suivant ne modifie que ce rapport de preuve. Un second checkout
 détaché de la tête finale est utilisé avant le push pour confirmer le SHA
 exact.
 
+## Validation de la draft PR et corrections CI
+
+La branche a été poussée au SHA candidat
+`e6983a529003eade35ff9c8f60b9a506f858bb3b` et la draft PR
+[#87](https://github.com/cyranoaladin/nexus-project_v0/pull/87) a déclenché la
+CI réelle. Les jobs Unit Tests, Real DB Integration, Lint, TypeScript Type
+Check, Production Build, Documents, CodeQL et GitGuardian ont réussi.
+
+Trois écarts ont été révélés sans affaiblir les garanties de sécurité :
+
+1. **Integration Tests** : les deux nouveaux harnais PostgreSQL n'acceptaient
+   que `127.0.0.1:5434/nexus_test`, tandis que le job officiel utilise
+   `localhost:5432/nexus_test`. Un garde partagé accepte désormais le port
+   local dédié, ou le port 5432 sur loopback uniquement lorsque `CI=true`.
+   Les identifiants de base et noms jetables restent strictement bornés. Les
+   valeurs factices des tests historiques de rate limiting ont aussi été
+   remplacées par des adresses IP syntaxiquement valides ; aucun fallback
+   runtime n'a été réintroduit.
+2. **E2E Tests** : le serveur de test était lancé avec `NODE_ENV=production`
+   sans Redis. Le 503 observé était donc le comportement fail-closed attendu.
+   Le job E2E provisionne maintenant `redis:7.4-alpine`, attend son healthcheck
+   et fournit `REDIS_URL` au serveur. Le faux bypass
+   `RATE_LIMIT_DISABLE=1`, volontairement inopérant en production, est
+   supprimé. Le test du bilan vérifie la création en base mais exige que la
+   réponse publique reste générique, sans `parentId` ni `studentId`.
+3. **Dependency Integrity / Security Scan** : le secret GitHub
+   `PRE_RENTREE_DEV_TOOLING_EXCEPTION_JSON` est lié à un ancien SHA approuvé
+   de la PR 79. Le validateur refuse correctement la tête de la PR 87 avec
+   `BOUND_SHA_MISMATCH`. Aucun secret n'est lisible depuis la branche et le
+   contrôle n'est pas assoupli. Une nouvelle décision d'exception, liée au SHA
+   final et approuvée selon la politique existante, reste une action externe
+   obligatoire tant que la dépendance concernée n'est pas corrigée.
+
+Vérifications locales des corrections :
+
+| Commande / périmètre | Résultat |
+|---|---|
+| garde PostgreSQL + rate limiting | 2 suites, 20 tests réussis |
+| workflow Redis E2E + preuve CI PR79 | 2 suites, 19 tests réussis |
+| job Integration Tests avec PostgreSQL jetable | 13 suites, 140 tests réussis |
+| scénario E2E de soumission bilan avec Redis jetable | 1 test réussi ; HTTP 200, réponse publique sans identifiants |
+| suite Playwright CI complète avec Redis et PostgreSQL jetables | 169 tests réussis |
+
+Le conteneur Redis, les bases `nexus_e2e` et
+`nexus_e2e_integration`, ainsi que le serveur local utilisés pour cette preuve
+ont été supprimés après l'exécution.
+
 ## Risques résiduels
 
 - les 17 modules attendent une validation humaine nominative ;
@@ -251,6 +298,10 @@ exact.
 - l'audit `npm` conserve 37 vulnérabilités de dépendances historiques ;
 - la présence du corpus dans le standalone augmente l'artefact serveur mais ne
   le rend pas public.
+- la CI Dependency Integrity / Security reste bloquée jusqu'à une décision
+  externe dont l'empreinte correspond exactement au SHA final, ou jusqu'à la
+  suppression de la vulnérabilité de dépendance qui rend l'exception
+  nécessaire.
 
 ## Rollback
 

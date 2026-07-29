@@ -36,6 +36,9 @@ doit être écrit dans Git, un log, un ticket ou une capture.
 ## Préconditions bloquantes
 
 - branche validée et SHA de release enregistré ;
+- gates Dependency Integrity et Security verts avec une décision d'exception
+  cryptographiquement liée à ce SHA, si la dépendance vulnérable n'a pas
+  encore été corrigée ;
 - sauvegarde PostgreSQL récente et restauration testée ;
 - migration `20260729_add_canonical_bilan_requests` revue ;
 - Redis/Upstash joignable depuis l'application ;

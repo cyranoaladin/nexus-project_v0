@@ -25,6 +25,8 @@
 | Rate limiting distribué fail-closed | INTÉGRÉ ET TESTÉ | `lib/rate-limit`, route v1 | Redis/Upstash indisponible → refus | backend réel configuré et test 503 | P0 activation |
 | Transaction métier + outbox | INTÉGRÉ ET TESTÉ | `create-request.ts`, migration | rollback forcé et déduplication | worker/monitoring d'outbox opérationnel | P0 activation |
 | Schéma et migration des demandes | INTÉGRÉ ET TESTÉ | Prisma + migration 20260729 | fresh deploy + upgrade préservant les lignes | preflight puis `migrate deploy` autorisé | P0 activation |
+| CI E2E avec rate limiting distribué | INTÉGRÉ ET TESTÉ | job `e2e` de `.github/workflows/ci.yml` | Redis sain, réponse bilan générique et 169 tests Playwright locaux | run GitHub vert sur la tête finale | P0 merge |
+| Décision d'exception de dépendance liée au SHA | BLOQUÉ | secret GitHub + politique d'exception pré-rentrée | le validateur refuse l'ancien secret avec `BOUND_SHA_MISMATCH` | approuver une décision liée au SHA final, ou corriger la dépendance sans exception | P0 merge externe |
 | Catalogue serveur canonique | INTÉGRÉ ET TESTÉ | `lib/pre-rentree/pedagogy` | schémas, relations, hashes et IDs | conserver comme seul import applicatif | acquis |
 | Catalogue bilan par défaut | INTÉGRÉ ET TESTÉ | `lib/bilans/catalog/service.ts` | 17 packs dérivés, tous non publiés | aucun adaptateur pédagogique concurrent | acquis |
 | 17 modules et 85 séances | INTÉGRÉ ET TESTÉ | `modules.json`, manifeste, kits | validateurs et hash reproductible | validation humaine module par module | éditorial |
