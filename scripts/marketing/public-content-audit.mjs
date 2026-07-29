@@ -186,6 +186,113 @@ const CHECKS = [
   },
 ];
 
+// ─── Orphan payload strings — inverted detection (Decision 1) ──────────────
+//
+// Every check above matches a KNOWN word/pattern — it will always miss the
+// next one (it missed `rationale`, only found by a manual field-name scan).
+// This inverts the logic: extract every string VALUE actually present in the
+// page's React Server Components hydration payload
+// (self.__next_f.push([n,"..."])), and flag any one that is long enough and
+// phrase-like enough to plausibly be prose, but does NOT appear anywhere in
+// the page's own visible rendered text. It doesn't need to know what a leak
+// looks like in advance — it only needs to know what's actually displayed.
+
+function decodeHtmlEntities(str) {
+  return str
+    .replace(/&#x27;/gi, "'")
+    .replace(/&#39;/g, "'")
+    .replace(/&quot;/g, '"')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&nbsp;/g, ' ')
+    // The RSC payload is a JS string literal, not HTML — it encodes some
+    // characters (e.g. "&" inside JSON string values) as \uXXXX JS escapes
+    // rather than HTML entities. Decode those too, or every such character
+    // produces a spurious mismatch against the HTML-entity-encoded visible
+    // text.
+    .replace(/\\u([0-9a-fA-F]{4})/g, (_, hex) => String.fromCharCode(parseInt(hex, 16)));
+}
+
+// Next.js includes a reference to the shared not-found boundary in every
+// route's RSC tree (for fast client-side navigation to a 404) — its text
+// rides along on literally every page, never as a page-specific leak.
+// Reviewed 2026-07-29.
+const SHARED_BOILERPLATE_VALUES = new Set([
+  'Page introuvable',
+  "La page que vous cherchez n'existe pas ou a été déplacée.",
+  'Contacter Nexus',
+]);
+
+// A first attempt extracted every quoted substring in the RSC stream — that
+// matches SVG icon path data, array-serialization boundaries, and other
+// protocol-internal fragments (React's flight format is a structured
+// protocol, not plain JSON — full syntactic parsing would need a real
+// parser for it, not a regex). Result: ~5600 findings on the current 37
+// pages, unusable. Narrowed to the intermediate approach point 1.2
+// anticipated: only "key":"value" PAIRS whose key looks like a real
+// identifier (data field names look like this; SVG path arrays and RSC
+// structural tokens don't) — this is "compare serialized keys against
+// rendered content", not full inversion, and it is what actually found
+// `notes` and `rationale` without needing to name them in advance.
+function extractFlightPayloadKeyValues(html) {
+  const pushBlocks = [...html.matchAll(/self\.__next_f\.push\(\[[0-9]+,"((?:[^"\\]|\\.)*)"\]\)/g)]
+    .map((m) => m[1]);
+  const combined = pushBlocks.join('\n');
+  const unescapedOnce = combined.replace(/\\n/g, '\n').replace(/\\\\/g, '\\');
+  return [...unescapedOnce.matchAll(/\\"([a-zA-Z][a-zA-Z0-9_]{2,40})\\":\\"((?:[^"\\]|\\.){4,400}?)\\"/g)]
+    .map((m) => ({ key: m[1], value: m[2] }));
+}
+
+// Keys that are structural/technical by nature — their values are never
+// expected to match visible text verbatim (an href isn't displayed text, an
+// SVG path's `d` isn't prose) — excluded regardless of value content.
+const STRUCTURAL_KEYS = new Set([
+  'className', 'href', 'src', 'id', 'key', 'type', 'style', 'role', 'name',
+  'viewBox', 'd', 'fill', 'stroke', 'xmlns', 'width', 'height', 'points',
+  'x', 'y', 'cx', 'cy', 'r', 'x1', 'y1', 'x2', 'y2', 'rx', 'ry',
+  'strokeWidth', 'strokeLinecap', 'strokeLinejoin', 'strokeDasharray',
+  'testId', 'htmlFor', 'rel', 'target', 'method', 'action', 'encType',
+  'placeholder', 'autoComplete', 'inputMode', 'pattern', 'as', 'ref',
+  'content', // <meta content="..."> — SEO description/keywords/OG tags, an
+             // attribute value by nature, never a visible text node.
+  'ariaLabel', 'aria-label', 'aria-labelledby', 'aria-describedby',
+]);
+
+const NOISE_VALUE_PATTERNS = [
+  /^https?:\/\//i,
+  /^\//,
+  /^[a-z0-9_-]+$/i,
+  /^#[0-9a-f]{3,8}$/i,
+  /^\d+(?:[.,]\d+)?$/,
+  /^[A-Z0-9_]+$/,
+  /^[a-zA-Z0-9+/=]{20,}$/, // base64/hash-looking blobs
+];
+
+function isLikelyNoiseValue(value) {
+  if (value.length < 15) return true;
+  if (!/\s/.test(value)) return true;
+  return NOISE_VALUE_PATTERNS.some((pattern) => pattern.test(value));
+}
+
+function findOrphanPayloadStrings(html, visibleText) {
+  const decodedVisible = decodeHtmlEntities(visibleText);
+  const seen = new Set();
+  const orphans = [];
+  for (const { key, value } of extractFlightPayloadKeyValues(html)) {
+    if (STRUCTURAL_KEYS.has(key)) continue;
+    const dedupeKey = `${key}:${value}`;
+    if (seen.has(dedupeKey) || isLikelyNoiseValue(value)) continue;
+    seen.add(dedupeKey);
+    const decodedValue = decodeHtmlEntities(value.replace(/\\n/g, ' ').trim());
+    if (SHARED_BOILERPLATE_VALUES.has(decodedValue)) continue;
+    if (!decodedVisible.includes(decodedValue)) {
+      orphans.push(`${key}: "${decodedValue}"`);
+    }
+  }
+  return orphans;
+}
+
 function stripToVisibleText(html) {
   return html
     .replace(/<script[\s\S]*?<\/script>/gi, ' ')
@@ -256,6 +363,10 @@ async function main() {
         const context = result.text.slice(Math.max(0, start - 60), end + 60);
         findings.push(`${check.category}: ${path}: "${match[0]}" … context: "${context.trim()}"`);
       }
+    }
+
+    for (const orphan of findOrphanPayloadStrings(result.html, result.text)) {
+      findings.push(`orphan-payload-string: ${path}: "${orphan}"`);
     }
   }
 
