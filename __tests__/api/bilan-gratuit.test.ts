@@ -372,6 +372,30 @@ describe('/api/bilan-gratuit', () => {
     expect(mockSendExistingAccountBilanEmail).not.toHaveBeenCalled();
   });
 
+  it.each([
+    ['parentFirstName', 'A'.repeat(100)],
+    ['parentLastName', 'B'.repeat(100)],
+    ['parentEmail', `${'a'.repeat(309)}@example.com`],
+    ['parentPhone', '1'.repeat(33)],
+  ])('rejects parent field %s beyond the CRM-safe boundary before side effects', async (field, value) => {
+    const findUnique = jest.spyOn(prisma.user, 'findUnique').mockResolvedValue(null as never);
+    const transaction = jest.spyOn(prisma, '$transaction').mockRejectedValue(
+      new Error('must not reach transaction'),
+    );
+
+    const response = await POST(buildRequest({
+      ...validRequestData,
+      [field]: value,
+    }));
+
+    expect(response.status).toBe(400);
+    expect(await response.json()).toEqual(expect.objectContaining({ error: 'Données invalides' }));
+    expect(findUnique).not.toHaveBeenCalled();
+    expect(transaction).not.toHaveBeenCalled();
+    expect(mockCaptureContactLead).not.toHaveBeenCalled();
+    expect(mockSendExistingAccountBilanEmail).not.toHaveBeenCalled();
+  });
+
   it('returns 500 when database error occurs', async () => {
     jest.spyOn(prisma.user, 'findUnique').mockResolvedValue(null as never);
     jest.spyOn(prisma, '$transaction').mockRejectedValue(new Error('Database connection failed'));
