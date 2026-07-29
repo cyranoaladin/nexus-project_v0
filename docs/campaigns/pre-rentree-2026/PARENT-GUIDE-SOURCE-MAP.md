@@ -13,7 +13,7 @@
 | Entrée en Seconde | `/levels/1`, modules et planning `SECONDE` | Mathématiques et Français uniquement |
 | Entrée en Première | `/levels/2`, profils, modules et planning `PREMIERE` | Mathématiques, Français EAF, NSI, Physique-Chimie et SVT |
 | Entrée en Terminale | `/levels/3`, profils, modules et planning `TERMINALE` | Mathématiques, Mathématiques expertes, NSI, Physique-Chimie et SVT |
-| Quatorze programmes | `/modules` | cinq séances, objectifs, notions, méthodes et livrables sans omission |
+| Dix-sept programmes | `/modules` | cinq séances, objectifs, notions, méthodes et livrables sans omission |
 | Planning | `/schedule`, `/campaign/operationalGates` | cohortes alternatives sans double comptage ; disponibilité à confirmer |
 | Tarifs et acompte | `/offerPricing`, `/offers/depositRate` | 30 % exact, aucun ancien arrondi |
 | Demande d'information | `/content/practical`, `/approvedPublicClaims`, `/legal` | aucune réservation, aucun paiement et aucune place garantie sur la surface publique |

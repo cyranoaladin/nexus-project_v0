@@ -39,7 +39,7 @@ Branche `feat/pre-rentree-pedagogy-corpus`, worktree `/home/alaeddine/.config/su
 
 Commande exécutée dans la source originale :
 
-`(cd docs/bilans/dossiers_tests_prerentree && find . -type f -print0 | LC_ALL=C sort -z | xargs -0 sha256sum) > "$(mktemp /tmp/nexus-pre-rentree-import-sha256.XXXXXX)"`
+`(cd docs/bilans/dossiers_tests_prerentree && find ./Nexus-positionnement ./Nexus-positionnement-2026-maths-francais-v2 ./Nexus-PreRentree-2026-positionnement-17-modules-v3 ./Nexus-PreRentree-2026-85-seances -type f -print0 | LC_ALL=C sort -z | xargs -0 sha256sum) > "$(mktemp /tmp/nexus-pre-rentree-import-sha256.XXXXXX)"`
 
 Résultat : 119 répertoires racine incluse, 534 fichiers, manifeste temporaire `/tmp/nexus-pre-rentree-import-sha256.NEFxIF`, SHA-256 `077bce2a8737acb07134902f5815321f2dcb97fca435a6d14035db1d39357005`, aucun fichier vide/caché/lien symbolique, ZIP testé avec `unzip -t`.
 

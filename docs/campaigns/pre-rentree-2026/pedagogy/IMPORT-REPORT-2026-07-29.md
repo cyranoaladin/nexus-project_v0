@@ -6,11 +6,17 @@
 
 ## Verdict
 
-`PASS` pour les phases 0 à 6 du lot 1 : inventaire exhaustif, classification
-complète, zéro conflit de sélection ouvert, sources canoniques structurées et
-pipeline indépendant de l'import historique. Le verdict reste strictement
-technique ; les 17 modules requièrent encore une validation humaine et ne sont
-pas autorisés à la publication.
+`BLOCKED` dans l'attente des gates finaux au SHA de remise. L'import,
+l'inventaire, la classification, le pipeline reproductible et la suite Python
+complète sont verts. La première suite TypeScript finale a produit 403 tests
+verts sur 404 : le seul échec provient des compteurs obsolètes de six documents
+de gouvernance actifs. Après leur correction, le test ciblé est vert. La suite
+TypeScript complète, `lint`, `typecheck`, `build` et la vérification depuis un
+checkout propre doivent encore être verts avant de déclarer le lot `PASS`.
+
+Ce verdict de remise ne crée aucun conflit de sélection. Les 17 modules
+requièrent toujours une validation humaine et ne sont pas autorisés à
+l'utilisation en classe ou à la publication.
 
 ## Préflight
 
@@ -34,7 +40,12 @@ Le snapshot a été calculé avant toute copie canonique :
 
 ```bash
 (cd docs/bilans/dossiers_tests_prerentree &&
-  find . -type f -print0 |
+  find \
+    ./Nexus-positionnement \
+    ./Nexus-positionnement-2026-maths-francais-v2 \
+    ./Nexus-PreRentree-2026-positionnement-17-modules-v3 \
+    ./Nexus-PreRentree-2026-85-seances \
+    -type f -print0 |
   LC_ALL=C sort -z |
   xargs -0 sha256sum) > /tmp/nexus-pre-rentree-import-sha256.NEFxIF
 sha256sum /tmp/nexus-pre-rentree-import-sha256.NEFxIF
@@ -51,8 +62,12 @@ Résultat :
 - SHA-256 du manifeste trié :
   `077bce2a8737acb07134902f5815321f2dcb97fca435a6d14035db1d39357005`.
 
-Le même hash a été retrouvé après inventaire et déduplication. Aucun écart
-n'est observé par rapport aux nombres annoncés.
+Le même hash a été retrouvé après inventaire et déduplication. Le README racine
+ajouté ensuite comme redirection versionnée est une métadonnée explicitement
+autorisée et exclue par le CLI : toutes les commandes d'inventaire et de hash
+ciblent uniquement les quatre paquets. Les 119 répertoires, 534 fichiers et le
+SHA de référence restent inchangés. Aucun écart n'est observé par rapport aux
+nombres annoncés.
 
 ### Répartition par paquet
 
@@ -191,10 +206,15 @@ docs/campaigns/pre-rentree-2026/pedagogy/
 | oracle historique de positionnement | vert : 51 Markdown exacts, 18 CSV avec LF seul |
 | `python -m pytest scripts/pre-rentree/tests/test_pedagogy_hygiene.py -q` | vert : 2 tests |
 | `npm run pre-rentree:pedagogy:verify` | vert : 103 fichiers, arbre reproductible `282bd45a97115fcf9b177b4b22430c1bbd9415a79a54d5c56f463564f19e2408` |
+| `npm run pre-rentree:pedagogy:import-check` | vert : 119 répertoires, 534 fichiers, hash inchangé |
+| `python -m pytest scripts/pre-rentree/tests/test_pedagogy_import.py -q -k 'import_redirect'` | vert : 3 tests, README régulier exclu et autres types refusés |
+| `npm run pre-rentree:test:py` au gate final | vert : 257 tests réussis, 2 ignorés en 804.08 s |
+| première exécution de `npm run pre-rentree:test:ts` au gate final | rouge : 403/404 tests ; taxonomie active obsolète (`17 cohortes`, `14 programmes`, `70 fiches`) |
+| `npm test -- --runInBand __tests__/campaigns/pre-rentree-2026-director-contract.test.ts` après correction | vert : 4/4 tests |
 
-Les résultats de `lint`, `typecheck`, tests complets et `build` sont à relever
-de nouveau au SHA final de remise ; un résultat historique ne doit pas être
-présenté comme une preuve du commit final.
+La suite TypeScript complète doit encore être rejouée. `lint`, `typecheck`,
+`build` et le checkout propre restent également à relever au SHA final ; un
+résultat historique ne doit pas être présenté comme une preuve du commit final.
 
 ## Sécurité et données de mineurs
 
