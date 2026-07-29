@@ -890,6 +890,8 @@ rag-ingestor, Korrigo) tournent en Docker.
 
 ### Déploiement Nexus (PM2)
 
+**Procédure unique** — toujours relire `ecosystem.config.js`, jamais un `pm2 restart <name>` seul (qui relance le process avec sa dernière configuration enregistrée par `pm2 save`, SANS relire le fichier — si `ecosystem.config.js` a changé depuis, ce changement n'est pris en compte qu'au prochain `startOrRestart`). C'est la même commande que `scripts/deploy-incremental.sh`/`scripts/deploy-files-only.sh` :
+
 ```bash
 # Sur <PROCESS_NAME> (ssh <PROCESS_NAME>)
 cd <APP_DIR>
@@ -897,8 +899,23 @@ git fetch origin && git reset --hard origin/main
 npx next build
 cp -r .next/static .next/standalone/.next/static
 cp -r public .next/standalone/public
-pm2 restart <PROCESS_NAME>
+pm2 startOrRestart ecosystem.config.js --env production --update-env
 pm2 save
+
+# Garde post-déploiement : exactement 1 instance en fork mode.
+# ecosystem.config.js fixe instances: 1 précisément parce que le rate
+# limiting (lib/rate-limit/index.ts) tombe en mode mémoire par processus
+# sans REDIS_URL/UPSTASH_REDIS_REST_URL — correct à 1 instance,
+# silencieusement fragmenté au-delà (voir
+# docs/audits/2026-07-29-production-rate-limit-mode.md). Si ce qui suit
+# affiche autre chose que "1 fork_mode", ARRÊTER et investiguer avant de
+# considérer le déploiement terminé.
+pm2 jlist | node -e '
+  const data = JSON.parse(require("fs").readFileSync(0, "utf8"));
+  const procs = data.filter((p) => p.name === (process.env.PM2_APP_NAME || "nexus-app"));
+  console.log(procs.length, procs[0]?.pm2_env?.exec_mode ?? "absent");
+  if (procs.length !== 1 || procs[0]?.pm2_env?.exec_mode !== "fork_mode") process.exit(1);
+'
 ```
 
 - **PM2 process** : `<PROCESS_NAME>`, mode **fork, 1 instance** (pas cluster — voir note ci-dessus sur le rate limiting en mémoire), port 3001
