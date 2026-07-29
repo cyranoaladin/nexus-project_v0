@@ -7,14 +7,38 @@
  */
 
 import { createHash } from 'crypto';
+import { isIP } from 'node:net';
+
+const MAX_FORWARDED_HEADER_LENGTH = 2048;
+const MAX_FORWARDED_ENTRIES = 32;
+const MAX_IP_LENGTH = 64;
+
+function validatedIp(value: string | null): string | null {
+  const candidate = value?.trim();
+  if (!candidate || candidate.length > MAX_IP_LENGTH || isIP(candidate) === 0) {
+    return null;
+  }
+  return candidate;
+}
+
 /**
  * Extract client IP from request headers.
- * Respects x-forwarded-for (first entry) and x-real-ip set by nginx.
+ *
+ * nginx appends its observed peer to x-forwarded-for. The right-most valid
+ * entry is therefore the value the application can use without trusting a
+ * client-supplied prefix. Invalid or unreasonably large headers are ignored.
  */
 export function getClientIp(request: Request): string {
   const forwarded = request.headers.get('x-forwarded-for');
-  if (forwarded) return forwarded.split(',')[0].trim();
-  return request.headers.get('x-real-ip') || 'anonymous';
+  if (forwarded && forwarded.length <= MAX_FORWARDED_HEADER_LENGTH) {
+    const entries = forwarded.split(',').slice(-MAX_FORWARDED_ENTRIES);
+    for (let index = entries.length - 1; index >= 0; index -= 1) {
+      const ip = validatedIp(entries[index]);
+      if (ip) return ip;
+    }
+  }
+
+  return validatedIp(request.headers.get('x-real-ip')) || 'anonymous';
 }
 
 /**

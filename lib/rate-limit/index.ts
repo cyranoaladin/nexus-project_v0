@@ -20,6 +20,7 @@ import { RedisStore } from './redis-store';
 import { UpstashStore } from './upstash-store';
 import { PRESETS, type PresetName, type RateLimitPresetConfig } from './presets';
 import { buildKey } from './keys';
+import { getDistributedRateLimitTimeoutMs } from './timeout';
 
 // ── Singleton store ────────────────────────────────────────────────
 let _store: MemoryStore | null = null;
@@ -70,12 +71,12 @@ export function getRateLimitRuntimeMode(): RateLimitRuntimeMode {
   return 'memory';
 }
 
-function getDistributedStore(): RedisStore | UpstashStore | null {
+function getDistributedStore(timeoutMs: number): RedisStore | UpstashStore | null {
   const mode = getRateLimitRuntimeMode();
 
   if (mode === 'redis') {
     if (!_redisStore) {
-      _redisStore = new RedisStore(process.env.REDIS_URL!);
+      _redisStore = new RedisStore(process.env.REDIS_URL!, { timeoutMs });
     }
     return _redisStore;
   }
@@ -92,10 +93,45 @@ function getDistributedStore(): RedisStore | UpstashStore | null {
   return _upstashStore;
 }
 
+type DistributedIncrementResult = Readonly<{
+  success: boolean;
+  limit: number;
+  remaining: number;
+  resetAt: number;
+}>;
+
+async function incrementDistributedWithTimeout(
+  store: RedisStore | UpstashStore,
+  key: string,
+  limit: number,
+  windowMs: number,
+  timeoutMs: number,
+): Promise<DistributedIncrementResult> {
+  const controller = new AbortController();
+  let timeoutId: ReturnType<typeof setTimeout> | undefined;
+  const timeout = new Promise<never>((_resolve, reject) => {
+    timeoutId = setTimeout(() => {
+      controller.abort();
+      reject(new Error('Distributed rate limit timeout'));
+    }, timeoutMs);
+  });
+
+  try {
+    return await Promise.race([
+      store.increment(key, limit, windowMs, { signal: controller.signal }),
+      timeout,
+    ]);
+  } finally {
+    if (timeoutId !== undefined) clearTimeout(timeoutId);
+  }
+}
+
 // ── Public API ─────────────────────────────────────────────────────
 
 export interface RateLimitResult {
   success: boolean;
+  /** Required distributed protection could not be enforced. */
+  unavailable?: boolean;
   limit: number;
   remaining: number;
   /** Absolute timestamp (ms) when the window resets. */
@@ -111,6 +147,22 @@ export interface CheckRateLimitOptions {
   userId?: string | null;
   /** Optional extra key suffix for sub-scoping (e.g. route path). */
   keySuffix?: string;
+  /**
+   * In production, refuse the request when no distributed store can enforce
+   * the quota. Non-production environments retain the memory fallback.
+   */
+  requireDistributed?: boolean;
+}
+
+function distributedUnavailableResult(): RateLimitResult {
+  return {
+    success: false,
+    unavailable: true,
+    limit: 0,
+    remaining: 0,
+    resetAt: 0,
+    retryAfter: 0,
+  };
 }
 
 /**
@@ -157,13 +209,16 @@ export async function checkRateLimitAsync(
     : options.preset;
   const key = buildKey(request, prefix, options.userId);
 
-  const distributedStore = getDistributedStore();
+  const distributedTimeoutMs = getDistributedRateLimitTimeoutMs();
+  const distributedStore = getDistributedStore(distributedTimeoutMs);
   if (distributedStore) {
     try {
-      const { success, limit, remaining, resetAt } = await distributedStore.increment(
+      const { success, limit, remaining, resetAt } = await incrementDistributedWithTimeout(
+        distributedStore,
         key,
         config.limit,
         config.windowMs,
+        distributedTimeoutMs,
       );
       const retryAfter = success ? 0 : Math.max(0, Math.ceil((resetAt - Date.now()) / 1000));
       return { success, limit, remaining, resetAt, retryAfter };
@@ -172,7 +227,18 @@ export async function checkRateLimitAsync(
         _distributedWarned = true;
         // Distributed store unavailable, falling back to memory store
       }
+      if (options.requireDistributed && process.env.NODE_ENV === 'production') {
+        return distributedUnavailableResult();
+      }
     }
+  }
+
+  if (
+    !distributedStore
+    && options.requireDistributed
+    && process.env.NODE_ENV === 'production'
+  ) {
+    return distributedUnavailableResult();
   }
 
   return checkRateLimit(request, options);
@@ -183,6 +249,19 @@ export async function checkRateLimitAsync(
  * Includes standard rate limit headers + Retry-After.
  */
 export function rateLimitResponse(result: RateLimitResult): NextResponse {
+  if (result.unavailable) {
+    return NextResponse.json(
+      {
+        ok: false,
+        error: {
+          code: 'SERVICE_TEMPORARILY_UNAVAILABLE',
+          message: 'Service temporairement indisponible. Veuillez réessayer plus tard.',
+        },
+      },
+      { status: 503 },
+    );
+  }
+
   const body = {
     ok: false,
     error: {
@@ -233,3 +312,9 @@ export { buildKey, getClientIp, hashForKey } from './keys';
 export { MemoryStore } from './memory-store';
 export { RedisStore } from './redis-store';
 export { UpstashStore } from './upstash-store';
+export {
+  DEFAULT_DISTRIBUTED_RATE_LIMIT_TIMEOUT_MS,
+  MAX_DISTRIBUTED_RATE_LIMIT_TIMEOUT_MS,
+  MIN_DISTRIBUTED_RATE_LIMIT_TIMEOUT_MS,
+  getDistributedRateLimitTimeoutMs,
+} from './timeout';

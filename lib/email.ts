@@ -1,5 +1,6 @@
 import nodemailer from 'nodemailer9';
 import { LEGAL, compactBankIdentifier } from '@/lib/legal';
+import { escapeHtml } from '@/lib/email/templates';
 import { serializeError } from '@/lib/utils/serialize-error';
 
 // Configuration SMTP avec fallback pour développement
@@ -99,6 +100,50 @@ export async function sendWelcomeParentEmail(
     console.error('Erreur envoi email:', serializeError(error));
     // En développement, ne pas faire échouer l'application si l'email ne part pas
     if ((process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test')) {
+      return;
+    }
+    throw error;
+  }
+}
+
+// Acknowledges a new request for a parent who already has access, without
+// inviting them to create a duplicate account.
+export async function sendExistingAccountBilanEmail(
+  parentEmail: string,
+  parentName: string,
+) {
+  const mailOptions = {
+    from: process.env.SMTP_FROM || `Nexus Réussite <${LEGAL.contact.email}>`,
+    to: parentEmail,
+    subject: 'Votre demande de bilan a été enregistrée',
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <div style="background: #0f172a; padding: 30px; text-align: center;">
+          <h1 style="color: white; margin: 0;">Votre demande de bilan a bien été enregistrée</h1>
+        </div>
+
+        <div style="padding: 30px; background: #f9f9f9;">
+          <h2>Bonjour ${escapeHtml(parentName)},</h2>
+          <p>Nous avons bien reçu votre demande. Notre équipe pédagogique va l’examiner et vous recontacter.</p>
+
+          <p>Besoin d’aide ? Contactez-nous :</p>
+          <ul>
+            <li>📞 ${LEGAL.contact.phone}</li>
+            <li>📧 ${LEGAL.contact.email}</li>
+          </ul>
+
+          <p>À très bientôt,<br><strong>L'équipe Nexus Réussite</strong></p>
+        </div>
+      </div>
+    `,
+  };
+
+  try {
+    const transporter = createTransporter();
+    await transporter.sendMail(mailOptions);
+  } catch (error) {
+    console.error('Erreur envoi email:', serializeError(error));
+    if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test') {
       return;
     }
     throw error;
