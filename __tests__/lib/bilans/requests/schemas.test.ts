@@ -38,9 +38,22 @@ describe('bilan request schemas', () => {
   });
 
   it.each([
+    ['PREMIERE', 'NSI'],
+    ['TROISIEME', 'FRANCAIS'],
+  ] as const)('accepts the recognized %s + %s intake outside the pilot', (level, subject) => {
+    expect(
+      bilanRequestAdmissionSchema.safeParse({
+        ...validAdmission,
+        level,
+        subject,
+      }).success,
+    ).toBe(true);
+  });
+
+  it.each([
     ['school year', { schoolYear: '2025-2026' }],
-    ['level', { level: 'PREMIERE' }],
-    ['subject', { subject: 'NSI' }],
+    ['level', { level: 'UNKNOWN' }],
+    ['subject', { subject: 'UNKNOWN' }],
   ])('rejects an unrecognized %s', (_label, replacement) => {
     expect(
       bilanRequestAdmissionSchema.safeParse({ ...validAdmission, ...replacement }).success,
