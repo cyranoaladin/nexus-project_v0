@@ -100,7 +100,7 @@ modules:
   - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/tests-eleves/maths-entree-quatrieme-test.md
   - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/corrections/maths-entree-quatrieme-correction.md
   - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/pilotage-enseignant/maths-entree-quatrieme-pilotage.md
-  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/cartes-parent/maths-entree-quatrieme-carte-parent.md
+  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/cartes-groupe/maths-entree-quatrieme-groupe.csv
   - .artifacts/pre-rentree-2026/pedagogy/generated/session-kits/modules/quatrieme-mathematiques/CAHIER-ELEVE.md
   - .artifacts/pre-rentree-2026/pedagogy/generated/session-kits/modules/quatrieme-mathematiques/GUIDE-ENSEIGNANT.md
   editorialStatus: HUMAN_VALIDATION_REQUIRED
@@ -181,7 +181,7 @@ modules:
   - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/tests-eleves/francais-entree-quatrieme-test.md
   - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/corrections/francais-entree-quatrieme-correction.md
   - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/pilotage-enseignant/francais-entree-quatrieme-pilotage.md
-  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/cartes-parent/francais-entree-quatrieme-carte-parent.md
+  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/cartes-groupe/francais-entree-quatrieme-groupe.csv
   - .artifacts/pre-rentree-2026/pedagogy/generated/session-kits/modules/quatrieme-francais/CAHIER-ELEVE.md
   - .artifacts/pre-rentree-2026/pedagogy/generated/session-kits/modules/quatrieme-francais/GUIDE-ENSEIGNANT.md
   editorialStatus: HUMAN_VALIDATION_REQUIRED
@@ -255,7 +255,7 @@ modules:
   - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/tests-eleves/maths-entree-troisieme-test.md
   - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/corrections/maths-entree-troisieme-correction.md
   - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/pilotage-enseignant/maths-entree-troisieme-pilotage.md
-  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/cartes-parent/maths-entree-troisieme-carte-parent.md
+  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/cartes-groupe/maths-entree-troisieme-groupe.csv
   - .artifacts/pre-rentree-2026/pedagogy/generated/session-kits/modules/troisieme-mathematiques/CAHIER-ELEVE.md
   - .artifacts/pre-rentree-2026/pedagogy/generated/session-kits/modules/troisieme-mathematiques/GUIDE-ENSEIGNANT.md
   editorialStatus: HUMAN_VALIDATION_REQUIRED
@@ -329,7 +329,7 @@ modules:
   - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/tests-eleves/francais-entree-troisieme-test.md
   - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/corrections/francais-entree-troisieme-correction.md
   - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/pilotage-enseignant/francais-entree-troisieme-pilotage.md
-  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/cartes-parent/francais-entree-troisieme-carte-parent.md
+  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/cartes-groupe/francais-entree-troisieme-groupe.csv
   - .artifacts/pre-rentree-2026/pedagogy/generated/session-kits/modules/troisieme-francais/CAHIER-ELEVE.md
   - .artifacts/pre-rentree-2026/pedagogy/generated/session-kits/modules/troisieme-francais/GUIDE-ENSEIGNANT.md
   editorialStatus: HUMAN_VALIDATION_REQUIRED
@@ -403,7 +403,7 @@ modules:
   - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/tests-eleves/maths-entree-seconde-test.md
   - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/corrections/maths-entree-seconde-correction.md
   - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/pilotage-enseignant/maths-entree-seconde-pilotage.md
-  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/cartes-parent/maths-entree-seconde-carte-parent.md
+  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/cartes-groupe/maths-entree-seconde-groupe.csv
   - .artifacts/pre-rentree-2026/pedagogy/generated/session-kits/modules/seconde-mathematiques/CAHIER-ELEVE.md
   - .artifacts/pre-rentree-2026/pedagogy/generated/session-kits/modules/seconde-mathematiques/GUIDE-ENSEIGNANT.md
   editorialStatus: HUMAN_VALIDATION_REQUIRED
@@ -477,7 +477,7 @@ modules:
   - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/tests-eleves/francais-entree-seconde-test.md
   - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/corrections/francais-entree-seconde-correction.md
   - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/pilotage-enseignant/francais-entree-seconde-pilotage.md
-  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/cartes-parent/francais-entree-seconde-carte-parent.md
+  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/cartes-groupe/francais-entree-seconde-groupe.csv
   - .artifacts/pre-rentree-2026/pedagogy/generated/session-kits/modules/seconde-francais/CAHIER-ELEVE.md
   - .artifacts/pre-rentree-2026/pedagogy/generated/session-kits/modules/seconde-francais/GUIDE-ENSEIGNANT.md
   editorialStatus: HUMAN_VALIDATION_REQUIRED
@@ -551,7 +551,7 @@ modules:
   - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/tests-eleves/maths-entree-premiere-test.md
   - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/corrections/maths-entree-premiere-correction.md
   - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/pilotage-enseignant/maths-entree-premiere-pilotage.md
-  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/cartes-parent/maths-entree-premiere-carte-parent.md
+  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/cartes-groupe/maths-entree-premiere-groupe.csv
   - .artifacts/pre-rentree-2026/pedagogy/generated/session-kits/modules/premiere-mathematiques/CAHIER-ELEVE.md
   - .artifacts/pre-rentree-2026/pedagogy/generated/session-kits/modules/premiere-mathematiques/GUIDE-ENSEIGNANT.md
   editorialStatus: HUMAN_VALIDATION_REQUIRED
@@ -625,7 +625,7 @@ modules:
   - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/tests-eleves/francais-entree-premiere-test.md
   - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/corrections/francais-entree-premiere-correction.md
   - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/pilotage-enseignant/francais-entree-premiere-pilotage.md
-  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/cartes-parent/francais-entree-premiere-carte-parent.md
+  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/cartes-groupe/francais-entree-premiere-groupe.csv
   - .artifacts/pre-rentree-2026/pedagogy/generated/session-kits/modules/premiere-francais-eaf/CAHIER-ELEVE.md
   - .artifacts/pre-rentree-2026/pedagogy/generated/session-kits/modules/premiere-francais-eaf/GUIDE-ENSEIGNANT.md
   editorialStatus: HUMAN_VALIDATION_REQUIRED
@@ -699,7 +699,7 @@ modules:
   - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/tests-eleves/nsi-entree-premiere-test.md
   - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/corrections/nsi-entree-premiere-correction.md
   - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/pilotage-enseignant/nsi-entree-premiere-pilotage.md
-  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/cartes-parent/nsi-entree-premiere-carte-parent.md
+  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/cartes-groupe/nsi-entree-premiere-groupe.csv
   - .artifacts/pre-rentree-2026/pedagogy/generated/session-kits/modules/premiere-nsi/CAHIER-ELEVE.md
   - .artifacts/pre-rentree-2026/pedagogy/generated/session-kits/modules/premiere-nsi/GUIDE-ENSEIGNANT.md
   editorialStatus: HUMAN_VALIDATION_REQUIRED
@@ -773,7 +773,7 @@ modules:
   - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/tests-eleves/physique-chimie-entree-premiere-test.md
   - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/corrections/physique-chimie-entree-premiere-correction.md
   - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/pilotage-enseignant/physique-chimie-entree-premiere-pilotage.md
-  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/cartes-parent/physique-chimie-entree-premiere-carte-parent.md
+  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/cartes-groupe/physique-chimie-entree-premiere-groupe.csv
   - .artifacts/pre-rentree-2026/pedagogy/generated/session-kits/modules/premiere-physique-chimie/CAHIER-ELEVE.md
   - .artifacts/pre-rentree-2026/pedagogy/generated/session-kits/modules/premiere-physique-chimie/GUIDE-ENSEIGNANT.md
   editorialStatus: HUMAN_VALIDATION_REQUIRED
@@ -847,7 +847,7 @@ modules:
   - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/tests-eleves/maths-entree-terminale-test.md
   - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/corrections/maths-entree-terminale-correction.md
   - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/pilotage-enseignant/maths-entree-terminale-pilotage.md
-  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/cartes-parent/maths-entree-terminale-carte-parent.md
+  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/cartes-groupe/maths-entree-terminale-groupe.csv
   - .artifacts/pre-rentree-2026/pedagogy/generated/session-kits/modules/terminale-mathematiques/CAHIER-ELEVE.md
   - .artifacts/pre-rentree-2026/pedagogy/generated/session-kits/modules/terminale-mathematiques/GUIDE-ENSEIGNANT.md
   editorialStatus: HUMAN_VALIDATION_REQUIRED
@@ -921,7 +921,7 @@ modules:
   - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/tests-eleves/maths-expertes-entree-terminale-test.md
   - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/corrections/maths-expertes-entree-terminale-correction.md
   - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/pilotage-enseignant/maths-expertes-entree-terminale-pilotage.md
-  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/cartes-parent/maths-expertes-entree-terminale-carte-parent.md
+  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/cartes-groupe/maths-expertes-entree-terminale-groupe.csv
   - .artifacts/pre-rentree-2026/pedagogy/generated/session-kits/modules/terminale-maths-expertes/CAHIER-ELEVE.md
   - .artifacts/pre-rentree-2026/pedagogy/generated/session-kits/modules/terminale-maths-expertes/GUIDE-ENSEIGNANT.md
   editorialStatus: HUMAN_VALIDATION_REQUIRED
@@ -995,7 +995,7 @@ modules:
   - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/tests-eleves/nsi-entree-terminale-test.md
   - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/corrections/nsi-entree-terminale-correction.md
   - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/pilotage-enseignant/nsi-entree-terminale-pilotage.md
-  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/cartes-parent/nsi-entree-terminale-carte-parent.md
+  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/cartes-groupe/nsi-entree-terminale-groupe.csv
   - .artifacts/pre-rentree-2026/pedagogy/generated/session-kits/modules/terminale-nsi/CAHIER-ELEVE.md
   - .artifacts/pre-rentree-2026/pedagogy/generated/session-kits/modules/terminale-nsi/GUIDE-ENSEIGNANT.md
   editorialStatus: HUMAN_VALIDATION_REQUIRED
@@ -1069,7 +1069,7 @@ modules:
   - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/tests-eleves/physique-chimie-entree-terminale-test.md
   - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/corrections/physique-chimie-entree-terminale-correction.md
   - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/pilotage-enseignant/physique-chimie-entree-terminale-pilotage.md
-  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/cartes-parent/physique-chimie-entree-terminale-carte-parent.md
+  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/cartes-groupe/physique-chimie-entree-terminale-groupe.csv
   - .artifacts/pre-rentree-2026/pedagogy/generated/session-kits/modules/terminale-physique-chimie/CAHIER-ELEVE.md
   - .artifacts/pre-rentree-2026/pedagogy/generated/session-kits/modules/terminale-physique-chimie/GUIDE-ENSEIGNANT.md
   editorialStatus: HUMAN_VALIDATION_REQUIRED
@@ -1143,7 +1143,7 @@ modules:
   - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/tests-eleves/svt-entree-premiere-test.md
   - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/corrections/svt-entree-premiere-correction.md
   - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/pilotage-enseignant/svt-entree-premiere-pilotage.md
-  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/cartes-parent/svt-entree-premiere-carte-parent.md
+  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/cartes-groupe/svt-entree-premiere-groupe.csv
   - .artifacts/pre-rentree-2026/pedagogy/generated/session-kits/modules/premiere-svt/CAHIER-ELEVE.md
   - .artifacts/pre-rentree-2026/pedagogy/generated/session-kits/modules/premiere-svt/GUIDE-ENSEIGNANT.md
   editorialStatus: HUMAN_VALIDATION_REQUIRED
@@ -1217,7 +1217,7 @@ modules:
   - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/tests-eleves/svt-entree-terminale-test.md
   - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/corrections/svt-entree-terminale-correction.md
   - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/pilotage-enseignant/svt-entree-terminale-pilotage.md
-  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/cartes-parent/svt-entree-terminale-carte-parent.md
+  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/cartes-groupe/svt-entree-terminale-groupe.csv
   - .artifacts/pre-rentree-2026/pedagogy/generated/session-kits/modules/terminale-svt/CAHIER-ELEVE.md
   - .artifacts/pre-rentree-2026/pedagogy/generated/session-kits/modules/terminale-svt/GUIDE-ENSEIGNANT.md
   editorialStatus: HUMAN_VALIDATION_REQUIRED
@@ -1291,7 +1291,7 @@ modules:
   - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/tests-eleves/philosophie-entree-terminale-test.md
   - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/corrections/philosophie-entree-terminale-correction.md
   - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/pilotage-enseignant/philosophie-entree-terminale-pilotage.md
-  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/cartes-parent/philosophie-entree-terminale-carte-parent.md
+  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/cartes-groupe/philosophie-entree-terminale-groupe.csv
   - .artifacts/pre-rentree-2026/pedagogy/generated/session-kits/modules/terminale-philosophie/CAHIER-ELEVE.md
   - .artifacts/pre-rentree-2026/pedagogy/generated/session-kits/modules/terminale-philosophie/GUIDE-ENSEIGNANT.md
   editorialStatus: HUMAN_VALIDATION_REQUIRED

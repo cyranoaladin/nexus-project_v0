@@ -14,6 +14,7 @@ import yaml
 
 from validate_cps import validate as validate_cps
 from validate_session_kits import validate as validate_session_kits
+from output_contract import assert_exact_output_tree
 
 
 STATUS = "HUMAN_VALIDATION_REQUIRED"
@@ -127,6 +128,7 @@ def generate(repo_root: Path, output_root: Path | None = None) -> dict[str, int]
     manifest = yaml.safe_load((canonical_root / "manifest.yaml").read_text(encoding="utf-8"))
     destination = _resolve_output(repo_root, output_root)
     generated = 0
+    expected_files: set[str] = set()
     for module in manifest["modules"]:
         if module["editorialStatus"] != STATUS:
             raise ValueError(f"statut ou conflit interdit pour {module['id']}")
@@ -149,15 +151,22 @@ def generate(repo_root: Path, output_root: Path | None = None) -> dict[str, int]
                 f"sorties attendues incohérentes pour {module['id']}"
             )
         module_output = destination / "modules" / module["id"]
+        student_output = module_output / "CAHIER-ELEVE.md"
+        teacher_output = module_output / "GUIDE-ENSEIGNANT.md"
         _write_text(
-            module_output / "CAHIER-ELEVE.md",
+            student_output,
             _compile_student(module, repo_root),
         )
         _write_text(
-            module_output / "GUIDE-ENSEIGNANT.md",
+            teacher_output,
             _compile_teacher(module, repo_root),
         )
+        expected_files.update(
+            path.relative_to(destination).as_posix()
+            for path in (student_output, teacher_output)
+        )
         generated += 2
+    assert_exact_output_tree(destination, expected_files)
     return {
         **counts,
         "cahiers": len(manifest["modules"]),

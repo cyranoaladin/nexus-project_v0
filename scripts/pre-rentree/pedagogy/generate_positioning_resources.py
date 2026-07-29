@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import csv
 import hashlib
+import io
 import os
 import sys
 import tempfile
@@ -15,6 +16,7 @@ from typing import Any
 import yaml
 
 from validate_cps import validate as validate_cps
+from output_contract import assert_exact_output_tree
 
 
 STATUS = "HUMAN_VALIDATION_REQUIRED"
@@ -200,21 +202,39 @@ def _teacher_guide(cps: dict[str, Any], module: dict[str, Any]) -> str:
     return "\n".join(lines)
 
 
-def _parent_card(cps: dict[str, Any], module: dict[str, Any]) -> str:
-    lines = [
-        f"# Carte de suivi — {cps['intitulePublic']}",
-        "",
-        f"Module : `{module['id']}` · statut : **{STATUS}**.",
-        "",
-        "Cette grille est complétée après analyse pédagogique ; aucun résultat n'est prérempli.",
-        "",
-        "| Domaine | État après revue | Priorité de travail |",
-        "|---|---|---|",
-    ]
+def _group_card(cps: dict[str, Any]) -> str:
+    stream = io.StringIO(newline="")
+    writer = csv.writer(stream, lineterminator="\n")
+    writer.writerow(
+        [
+            "nodeId",
+            "acquisN1",
+            "seance",
+            "ACQUIS",
+            "FRAGILE",
+            "NON_ACQUIS",
+            "ERREUR_CONFIANTE",
+            "PENDING_REVIEW",
+            "decision",
+            "notes_enseignant",
+        ]
+    )
     for node in cps["noeuds"]:
-        if node.get("evalueParTest") is True:
-            lines.append(f"| {node['acquisN1']} | À renseigner | À renseigner |")
-    return "\n".join(lines)
+        writer.writerow(
+            [
+                node["id"],
+                node["acquisN1"],
+                node.get("seanceRattachement", "PERSONNALISATION"),
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+            ]
+        )
+    return stream.getvalue()
 
 
 def generate(repo_root: Path, output_root: Path | None = None) -> dict[str, int]:
@@ -233,6 +253,7 @@ def generate(repo_root: Path, output_root: Path | None = None) -> dict[str, int]
     module_by_id = {module["id"]: module for module in manifest["modules"]}
     destination = _resolve_output(repo_root, output_root)
     rows: list[dict[str, str | int]] = []
+    expected_files: set[str] = set()
 
     for reference_module in reference["modules"]:
         module = module_by_id[reference_module["moduleId"]]
@@ -259,8 +280,8 @@ def generate(repo_root: Path, output_root: Path | None = None) -> dict[str, int]
             ).as_posix(),
             (
                 DEFAULT_OUTPUT_RELATIVE
-                / "cartes-parent"
-                / f"{stem}-carte-parent.md"
+                / "cartes-groupe"
+                / f"{stem}-groupe.csv"
             ).as_posix(),
         }
         if not expected_contract.issubset(set(module["expectedOutputs"])):
@@ -271,12 +292,15 @@ def generate(repo_root: Path, output_root: Path | None = None) -> dict[str, int]
             "test": destination / "tests-eleves" / f"{stem}-test.md",
             "correction": destination / "corrections" / f"{stem}-correction.md",
             "pilotage": destination / "pilotage-enseignant" / f"{stem}-pilotage.md",
-            "carte": destination / "cartes-parent" / f"{stem}-carte-parent.md",
+            "carte": destination / "cartes-groupe" / f"{stem}-groupe.csv",
         }
         _write_text(paths["test"], _student_test(cps, module))
         _write_text(paths["correction"], _teacher_correction(cps, module))
         _write_text(paths["pilotage"], _teacher_guide(cps, module))
-        _write_text(paths["carte"], _parent_card(cps, module))
+        _write_text(paths["carte"], _group_card(cps))
+        expected_files.update(
+            path.relative_to(destination).as_posix() for path in paths.values()
+        )
         rows.append(
             {
                 "moduleId": module["id"],
@@ -309,6 +333,8 @@ def generate(repo_root: Path, output_root: Path | None = None) -> dict[str, int]
         writer.writerows(rows)
         stream.seek(0)
         _write_text(destination / "MANIFESTE.csv", stream.read())
+    expected_files.add("MANIFESTE.csv")
+    assert_exact_output_tree(destination, expected_files)
     return {
         **counts,
         "tests": len(rows),

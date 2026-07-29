@@ -1,11 +1,13 @@
 from __future__ import annotations
 
+import csv
 import hashlib
 import shutil
 import subprocess
 import sys
 from pathlib import Path
 
+import pytest
 import yaml
 
 
@@ -13,9 +15,6 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 PEDAGOGY_SCRIPTS = REPO_ROOT / "scripts/pre-rentree/pedagogy"
 POSITIONING_GENERATOR = PEDAGOGY_SCRIPTS / "generate_positioning_resources.py"
 SESSION_GENERATOR = PEDAGOGY_SCRIPTS / "generate_session_kits.py"
-REPRODUCIBILITY_VERIFIER = (
-    PEDAGOGY_SCRIPTS / "verify_pedagogy_reproducibility.py"
-)
 
 
 def _run(script: Path, repo_root: Path, output_root: Path) -> subprocess.CompletedProcess[str]:
@@ -69,7 +68,24 @@ def test_generators_build_expected_resources_from_canonical_content(tmp_path: Pa
     assert len(list((positioning / "tests-eleves").glob("*.md"))) == 17
     assert len(list((positioning / "corrections").glob("*.md"))) == 17
     assert len(list((positioning / "pilotage-enseignant").glob("*.md"))) == 17
-    assert len(list((positioning / "cartes-parent").glob("*.md"))) == 17
+    cards = list((positioning / "cartes-groupe").glob("*.csv"))
+    assert len(cards) == 17
+    assert not (positioning / "cartes-parent").exists()
+    with cards[0].open(encoding="utf-8", newline="") as stream:
+        reader = csv.DictReader(stream)
+        assert reader.fieldnames == [
+            "nodeId",
+            "acquisN1",
+            "seance",
+            "ACQUIS",
+            "FRAGILE",
+            "NON_ACQUIS",
+            "ERREUR_CONFIANTE",
+            "PENDING_REVIEW",
+            "decision",
+            "notes_enseignant",
+        ]
+        assert list(reader)
     assert (positioning / "MANIFESTE.csv").is_file()
     assert len(list((sessions / "modules").glob("*/CAHIER-ELEVE.md"))) == 17
     assert len(list((sessions / "modules").glob("*/GUIDE-ENSEIGNANT.md"))) == 17
@@ -200,6 +216,45 @@ def test_generators_reject_conflicting_expected_output_contract(tmp_path: Path):
     assert "sorties attendues" in (result.stderr + result.stdout).lower()
 
 
+@pytest.mark.parametrize("stale_type", ["file", "directory", "symlink"])
+def test_generators_reject_stale_output_entries_without_removing_them(
+    tmp_path: Path, stale_type: str
+):
+    output = tmp_path / "positioning"
+    first = _run(POSITIONING_GENERATOR, REPO_ROOT, output)
+    assert first.returncode == 0, first.stderr
+
+    stale = output / f"unexpected-{stale_type}"
+    if stale_type == "file":
+        stale.write_text("stale\n", encoding="utf-8")
+    elif stale_type == "directory":
+        stale.mkdir()
+    else:
+        target = tmp_path / "outside"
+        target.mkdir()
+        stale.symlink_to(target, target_is_directory=True)
+
+    second = _run(POSITIONING_GENERATOR, REPO_ROOT, output)
+    assert second.returncode != 0
+    assert "inattendue" in (second.stderr + second.stdout).lower()
+    assert stale.is_symlink() if stale_type == "symlink" else stale.exists()
+
+
+def test_session_generator_rejects_stale_output_file_without_removing_it(
+    tmp_path: Path,
+):
+    output = tmp_path / "session-kits"
+    first = _run(SESSION_GENERATOR, REPO_ROOT, output)
+    assert first.returncode == 0, first.stderr
+    stale = output / "stale.md"
+    stale.write_text("stale\n", encoding="utf-8")
+
+    second = _run(SESSION_GENERATOR, REPO_ROOT, output)
+    assert second.returncode != 0
+    assert "inattendue" in (second.stderr + second.stdout).lower()
+    assert stale.is_file()
+
+
 def test_generator_manifests_describe_every_output(tmp_path: Path):
     positioning = tmp_path / "positioning"
     sessions = tmp_path / "sessions"
@@ -224,15 +279,33 @@ def test_generator_manifests_describe_every_output(tmp_path: Path):
     assert len(list((sessions / "modules").glob("*/*.md"))) == 34
 
 
-def test_reproducibility_verifier_compares_two_clean_generations():
+def test_reproducibility_verifier_compares_two_clean_generations(tmp_path: Path):
+    repo = _minimal_repo(tmp_path)
+    positioning = (
+        repo / ".artifacts/pre-rentree-2026/pedagogy/generated/positioning"
+    )
+    sessions = repo / ".artifacts/pre-rentree-2026/pedagogy/generated/session-kits"
+    assert _run(
+        repo / "scripts/pre-rentree/pedagogy/generate_positioning_resources.py",
+        repo,
+        positioning,
+    ).returncode == 0
+    assert _run(
+        repo / "scripts/pre-rentree/pedagogy/generate_session_kits.py",
+        repo,
+        sessions,
+    ).returncode == 0
     result = subprocess.run(
         [
             sys.executable,
-            str(REPRODUCIBILITY_VERIFIER),
+            str(
+                repo
+                / "scripts/pre-rentree/pedagogy/verify_pedagogy_reproducibility.py"
+            ),
             "--repo-root",
-            str(REPO_ROOT),
+            str(repo),
         ],
-        cwd=REPO_ROOT,
+        cwd=repo,
         text=True,
         capture_output=True,
         check=False,
@@ -240,3 +313,42 @@ def test_reproducibility_verifier_compares_two_clean_generations():
     assert result.returncode == 0, result.stderr
     assert '"fileCount": 103' in result.stdout
     assert '"reproducible": true' in result.stdout
+
+
+def test_reproducibility_verifier_rejects_stale_real_generated_root(tmp_path: Path):
+    repo = _minimal_repo(tmp_path)
+    positioning = (
+        repo / ".artifacts/pre-rentree-2026/pedagogy/generated/positioning"
+    )
+    sessions = repo / ".artifacts/pre-rentree-2026/pedagogy/generated/session-kits"
+    assert _run(
+        repo / "scripts/pre-rentree/pedagogy/generate_positioning_resources.py",
+        repo,
+        positioning,
+    ).returncode == 0
+    assert _run(
+        repo / "scripts/pre-rentree/pedagogy/generate_session_kits.py",
+        repo,
+        sessions,
+    ).returncode == 0
+    stale = repo / ".artifacts/pre-rentree-2026/pedagogy/generated/stale.txt"
+    stale.write_text("stale\n", encoding="utf-8")
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(
+                repo
+                / "scripts/pre-rentree/pedagogy/verify_pedagogy_reproducibility.py"
+            ),
+            "--repo-root",
+            str(repo),
+        ],
+        cwd=repo,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    assert result.returncode != 0
+    assert "inattendue" in (result.stderr + result.stdout).lower()
+    assert stale.is_file()

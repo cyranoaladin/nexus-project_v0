@@ -20,6 +20,11 @@ def test_generators_encode_only_canonical_sources_and_artifact_defaults():
         assert "assets/" not in text
         assert "rmtree" not in text
         assert "datetime" not in text
+    positioning = (
+        SCRIPT_ROOT / "generate_positioning_resources.py"
+    ).read_text(encoding="utf-8")
+    assert "cartes-groupe" in positioning
+    assert "cartes-parent" not in positioning
 
 
 def test_default_build_creates_only_generated_review_and_packages(tmp_path: Path):
