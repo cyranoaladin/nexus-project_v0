@@ -28,6 +28,10 @@ en conflit. De même, toute différence entre l'inventaire et l'arbre courant
 (ajout, suppression ou changement de type d'un fichier, répertoire ou lien)
 arrête la construction avant sélection.
 
+La politique fail-closed interdit tout lien symbolique dans l'inventaire comme
+dans l'arbre courant. Cette vérification précède `copytree`, afin qu'une cible
+externe ne puisse jamais être suivie pendant l'évaluation fonctionnelle.
+
 ## Défaut de layout des outils de séances
 
 Le paquet livré présente un défaut opérationnel prouvé, mais pas un conflit de
@@ -49,9 +53,10 @@ Toutes ces exécutions sont réalisées deux fois dans des espaces temporaires
 distincts et uniquement sous `/usr/bin/bwrap` avec environnement vidé, réseau
 isolé, racine en lecture seule, ressources et sorties bornées. Les captures
 stdout/stderr sont des fichiers anonymes hôte ; une supervision agrégée impose
-64 Mio de workspace, 32 processus, 1 Gio de RSS et 30 secondes de CPU.
-L'absence ou l'échec du bac à sable ferme la vérification : aucune exécution
-directe de repli n'est autorisée.
+64 Mio de workspace, 5 000 entrées sans suivi des liens, 32 processus, 1 Gio
+de RSS et 30 secondes de CPU. Le pic d'entrées est conservé dans
+`peak_workspace_entries`. L'absence ou l'échec du bac à sable ferme la
+vérification : aucune exécution directe de repli n'est autorisée.
 
 ## Validation pédagogique non déléguable
 

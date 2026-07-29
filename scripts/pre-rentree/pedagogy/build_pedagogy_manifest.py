@@ -998,6 +998,8 @@ def _evaluate_imported_tools(
 ) -> dict[str, Any]:
     manifest_before = _actual_source_manifest_digest(source_root, rows)
     complete_tree_before = _complete_tree_digest(source_root)
+    if complete_tree_before["symlink_count"]:
+        raise ValueError("symlinks are forbidden in the historical import")
     with tempfile.TemporaryDirectory(prefix="nexus-pedagogy-tool-evaluation-") as name:
         temporary_root = Path(name)
         session_tools = _evaluate_session_tools(source_root, temporary_root)
@@ -1057,7 +1059,11 @@ def _inventory_path_types(inventory: dict[str, Any]) -> dict[str, str]:
 
 
 def _verify_inventory_tree(inventory: dict[str, Any], import_root: Path) -> None:
+    if inventory.get("symlinks"):
+        raise ValueError("symlinks are forbidden in the historical inventory")
     current_inventory = build_inventory(import_root)
+    if current_inventory.get("symlinks"):
+        raise ValueError("symlinks are forbidden in the historical import")
     expected = _inventory_path_types(inventory)
     current = _inventory_path_types(current_inventory)
     missing = sorted(set(expected) - set(current))

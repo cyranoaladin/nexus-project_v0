@@ -372,12 +372,7 @@ def test_sandbox_capture_descriptors_cannot_be_replaced_with_workspace_fifos(
 
 def test_aggregate_resource_violation_checks_each_limit():
     limits = sandbox_runner.AGGREGATE_LIMITS
-    within_limits = {
-        "workspace_bytes": limits["workspace_bytes"],
-        "process_count": limits["process_count"],
-        "rss_bytes": limits["rss_bytes"],
-        "cpu_seconds": limits["cpu_seconds"],
-    }
+    within_limits = dict(limits)
     assert sandbox_runner._resource_violation(within_limits, limits) is None
 
     for metric in within_limits:
@@ -444,6 +439,44 @@ def test_sandbox_kills_a_real_workspace_size_storm(
     assert result["resource_violation"] == "workspace_bytes"
 
 
+def test_sandbox_kills_a_real_workspace_entry_storm(tmp_path: Path):
+    workspace = tmp_path / "workspace"
+    workspace.mkdir()
+    script = workspace / "entry-storm.py"
+    script.write_text(
+        "\n".join(
+            [
+                "import time",
+                "from pathlib import Path",
+                "for index in range(5200):",
+                "    Path(f'/workspace/empty-{index}').touch()",
+                "time.sleep(10)",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    forbidden_root = tmp_path / "forbidden-import"
+    forbidden_root.mkdir()
+    started = time.monotonic()
+
+    result = sandbox_runner.run_copied_python_tool(
+        script,
+        workspace=workspace,
+        forbidden_root=forbidden_root,
+        timeout_seconds=3,
+    )
+
+    if not Path("/usr/bin/bwrap").is_file():
+        assert result["status"] == "FAIL_CLOSED_SANDBOX_UNAVAILABLE"
+        return
+    assert time.monotonic() - started < 3
+    assert result["status"] == "FAIL_RESOURCE_LIMIT"
+    assert result["resource_violation"] == "workspace_entries"
+    assert result["aggregate_limits"]["workspace_entries"] == 5000
+    assert result["peak_workspace_entries"] > 5000
+
+
 def test_bubblewrap_absence_fails_closed_without_running_script(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -501,8 +534,49 @@ def test_inventory_tree_reconciliation_rejects_added_entries(
     else:
         added.mkdir()
 
-    with pytest.raises(ValueError, match="inventory/tree mismatch"):
+    expected_error = (
+        "symlinks are forbidden"
+        if added_kind == "symlink"
+        else "inventory/tree mismatch"
+    )
+    with pytest.raises(ValueError, match=expected_error):
         manifest_builder._verify_inventory_tree(inventory, import_root)
+
+
+def test_inventory_tree_rejects_an_inventoried_symlink_after_its_target_changes(
+    tmp_path: Path,
+):
+    import_root = tmp_path / "import"
+    package = import_root / "package"
+    package.mkdir(parents=True)
+    outside = tmp_path / "outside.md"
+    outside.write_text("before\n", encoding="utf-8")
+    (package / "external-link.md").symlink_to(outside)
+    inventory = build_inventory(import_root)
+    assert inventory["summary"]["symlink_count"] == 1
+    outside.write_text("after\n", encoding="utf-8")
+
+    with pytest.raises(ValueError, match="symlinks are forbidden"):
+        manifest_builder._verify_inventory_tree(inventory, import_root)
+
+
+def test_functional_assessment_rejects_symlinks_before_copytree(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+):
+    import_root = tmp_path / "import"
+    import_root.mkdir()
+    target = tmp_path / "outside"
+    target.mkdir()
+    (import_root / "external-package").symlink_to(target, target_is_directory=True)
+
+    def fail_if_copytree_runs(*args, **kwargs):
+        pytest.fail("copytree ran before the symlink policy check")
+
+    monkeypatch.setattr(manifest_builder.shutil, "copytree", fail_if_copytree_runs)
+
+    with pytest.raises(ValueError, match="symlinks are forbidden"):
+        manifest_builder._evaluate_imported_tools(import_root, [])
 
 
 def _run_manifest_cli(
@@ -854,5 +928,8 @@ def test_reports_disclose_session_tool_path_adaptation_and_isolated_proof():
         "30 secondes de CPU",
         "fichiers réguliers, répertoires et liens symboliques",
         "`computed: false`",
+        "interdit tout lien symbolique",
+        "5 000 entrées",
+        "`peak_workspace_entries`",
     ):
         assert expected in deduplication
