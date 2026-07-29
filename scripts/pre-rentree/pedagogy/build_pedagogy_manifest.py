@@ -663,8 +663,16 @@ def _actual_source_manifest_digest(
     return hashlib.sha256(manifest.encode("utf-8")).hexdigest()
 
 
-def _complete_tree_digest(root: Path) -> dict[str, Any]:
+def _complete_tree_digest(
+    root: Path,
+    *,
+    excluded_regular_files: Iterable[str | PurePosixPath] = (),
+) -> dict[str, Any]:
     resolved_root = root.resolve(strict=True)
+    excluded_paths = {
+        PurePosixPath(path).as_posix()
+        for path in excluded_regular_files
+    }
     entries: list[tuple[str, str, str]] = [(".", "directory", "")]
 
     def visit(directory: Path, relative_directory: PurePosixPath) -> None:
@@ -679,6 +687,8 @@ def _complete_tree_digest(root: Path) -> dict[str, Any]:
                 else relative_directory / entry.name
             )
             path = Path(entry.path)
+            if relative.as_posix() in excluded_paths:
+                continue
             if entry.is_symlink():
                 entries.append((relative.as_posix(), "symlink", os.readlink(path)))
             elif entry.is_dir(follow_symlinks=False):
@@ -995,9 +1005,14 @@ def _evaluate_positioning_tools(
 def _evaluate_imported_tools(
     source_root: Path,
     rows: list[dict[str, Any]],
+    *,
+    excluded_regular_files: Iterable[str | PurePosixPath] = (),
 ) -> dict[str, Any]:
     manifest_before = _actual_source_manifest_digest(source_root, rows)
-    complete_tree_before = _complete_tree_digest(source_root)
+    complete_tree_before = _complete_tree_digest(
+        source_root,
+        excluded_regular_files=excluded_regular_files,
+    )
     if complete_tree_before["symlink_count"]:
         raise ValueError("symlinks are forbidden in the historical import")
     with tempfile.TemporaryDirectory(prefix="nexus-pedagogy-tool-evaluation-") as name:
@@ -1005,7 +1020,10 @@ def _evaluate_imported_tools(
         session_tools = _evaluate_session_tools(source_root, temporary_root)
         positioning_tools = _evaluate_positioning_tools(source_root, temporary_root)
     manifest_after = _actual_source_manifest_digest(source_root, rows)
-    complete_tree_after = _complete_tree_digest(source_root)
+    complete_tree_after = _complete_tree_digest(
+        source_root,
+        excluded_regular_files=excluded_regular_files,
+    )
     unchanged = (
         manifest_before == manifest_after
         and complete_tree_before == complete_tree_after
@@ -1058,10 +1076,18 @@ def _inventory_path_types(inventory: dict[str, Any]) -> dict[str, str]:
     return typed_paths
 
 
-def _verify_inventory_tree(inventory: dict[str, Any], import_root: Path) -> None:
+def _verify_inventory_tree(
+    inventory: dict[str, Any],
+    import_root: Path,
+    *,
+    excluded_regular_files: Iterable[str | PurePosixPath] = (),
+) -> None:
     if inventory.get("symlinks"):
         raise ValueError("symlinks are forbidden in the historical inventory")
-    current_inventory = build_inventory(import_root)
+    current_inventory = build_inventory(
+        import_root,
+        excluded_regular_files=excluded_regular_files,
+    )
     if current_inventory.get("symlinks"):
         raise ValueError("symlinks are forbidden in the historical import")
     expected = _inventory_path_types(inventory)
@@ -1095,6 +1121,7 @@ def build_pedagogy_manifest(
     inventory: dict[str, Any],
     import_root: Path,
     repo_root: Path,
+    excluded_regular_files: Iterable[str | PurePosixPath] = (),
 ) -> dict[str, Any]:
     """Finalize every inventory row and return reports without copying content."""
 
@@ -1102,7 +1129,11 @@ def build_pedagogy_manifest(
     repository = repo_root.resolve(strict=True)
     final_inventory = copy.deepcopy(inventory)
     rows = final_inventory["files"]
-    _verify_inventory_tree(final_inventory, source_root)
+    _verify_inventory_tree(
+        final_inventory,
+        source_root,
+        excluded_regular_files=excluded_regular_files,
+    )
     _verify_inventory_files(final_inventory, source_root)
 
     by_path = {row["relative_path"]: row for row in rows}
@@ -1264,7 +1295,11 @@ def build_pedagogy_manifest(
                     "preuve QA ou diff v2→v3 incomplète ou inattendue"
                 )
 
-    toolchain_evaluations = _evaluate_imported_tools(source_root, rows)
+    toolchain_evaluations = _evaluate_imported_tools(
+        source_root,
+        rows,
+        excluded_regular_files=excluded_regular_files,
+    )
     if toolchain_evaluations["session_kits"]["isolated_execution"]["status"] != "PASS":
         for row in rows:
             if PurePosixPath(row["relative_path"]).name in {
@@ -1288,7 +1323,11 @@ def build_pedagogy_manifest(
                 row["decision_reason"] = (
                     "chaîne positionnement non reproductible dans le layout temporaire"
                 )
-    _verify_inventory_tree(final_inventory, source_root)
+    _verify_inventory_tree(
+        final_inventory,
+        source_root,
+        excluded_regular_files=excluded_regular_files,
+    )
     _verify_inventory_files(final_inventory, source_root)
 
     script_assessments = []
@@ -1477,17 +1516,21 @@ def main() -> int:
     args = parser.parse_args()
     try:
         _assert_output_outside_import(args.import_root, args.output_root)
-        validate_complete_import_root(args.import_root)
+        excluded_regular_files = validate_complete_import_root(args.import_root)
         inventory_path = args.inventory or args.output_root / "INVENTAIRE-IMPORT.json"
         if inventory_path.is_file():
             inventory = json.loads(inventory_path.read_text(encoding="utf-8"))
         else:
-            inventory = build_inventory(args.import_root)
+            inventory = build_inventory(
+                args.import_root,
+                excluded_regular_files=excluded_regular_files,
+            )
         validate_complete_inventory(inventory)
         result = build_pedagogy_manifest(
             inventory=inventory,
             import_root=args.import_root,
             repo_root=args.repo_root,
+            excluded_regular_files=excluded_regular_files,
         )
         write_manifest_outputs(result, args.output_root)
     except (FileNotFoundError, NotADirectoryError, OSError, ValueError, yaml.YAMLError) as error:

@@ -370,6 +370,45 @@ def test_cli_rejects_unexpected_top_level_entry(tmp_path: Path):
     assert not output.exists()
 
 
+def test_cli_excludes_exact_regular_import_redirect_readme(tmp_path: Path):
+    import_root = tmp_path / "import"
+    _make_complete_import_root(import_root)
+    baseline_output = tmp_path / "baseline"
+    baseline = _run_import_cli(import_root, baseline_output)
+    assert baseline.returncode == 0, baseline.stderr
+
+    (import_root / "README.md").write_text("# Import redirect\n", encoding="utf-8")
+    readme_output = tmp_path / "with-readme"
+    result = _run_import_cli(import_root, readme_output)
+
+    assert result.returncode == 0, result.stderr
+    assert "DIRECTORY_COUNT=5" in result.stdout
+    assert "FILE_COUNT=4" in result.stdout
+    assert "HASH_COUNT=4" in result.stdout
+    for name in ("INVENTAIRE-IMPORT.csv", "INVENTAIRE-IMPORT.json", "MANIFEST-SHA256.txt"):
+        assert (readme_output / name).read_bytes() == (baseline_output / name).read_bytes()
+        assert b"README.md" not in (readme_output / name).read_bytes()
+
+
+@pytest.mark.parametrize("readme_kind", ["directory", "symlink"])
+def test_cli_rejects_non_regular_import_redirect_readme(
+    tmp_path: Path,
+    readme_kind: str,
+):
+    import_root = tmp_path / "import"
+    _make_complete_import_root(import_root)
+    readme = import_root / "README.md"
+    if readme_kind == "directory":
+        readme.mkdir()
+    else:
+        readme.symlink_to(HISTORICAL_PACKAGES[0], target_is_directory=True)
+
+    result = _run_import_cli(import_root, tmp_path / "output")
+
+    assert result.returncode != 0
+    assert "import redirect metadata must be a regular non-symlink file: README.md" in result.stderr
+
+
 def test_cli_rejects_control_characters_but_programmatic_inventory_flags_them(tmp_path: Path):
     import_root = tmp_path / "import"
     _make_complete_import_root(import_root)

@@ -18,10 +18,13 @@ les rapports.
 
 Le CLI valide strictement la racine avant toute écriture : elle doit contenir
 exactement les quatre paquets historiques déclarés dans `classification.py`,
-chacun sous forme de répertoire réel avec au moins un fichier régulier. Toute
-entrée top-level supplémentaire et tout caractère de contrôle dans un nom sont
-refusés. L’API Python `build_inventory` reste générique afin de permettre
-l’inspection de mini-corpus et le signalement programmatique des anomalies.
+chacun sous forme de répertoire réel avec au moins un fichier régulier. Le seul
+fichier racine supplémentaire autorisé est `README.md`, métadonnée documentaire
+de redirection qui doit être un fichier régulier non symbolique et qui est
+explicitement exclue de l’inventaire, des empreintes et de la classification.
+Toute autre entrée top-level et tout caractère de contrôle dans un nom sont
+refusés. L’API Python `build_inventory` reste générique : une exclusion n’y est
+appliquée que si l’appelant fournit explicitement `excluded_regular_files`.
 
 ## Sorties
 

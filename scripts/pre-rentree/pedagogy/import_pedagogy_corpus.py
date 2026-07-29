@@ -13,7 +13,7 @@ import sys
 import tempfile
 import zipfile
 from pathlib import Path, PurePosixPath
-from typing import Iterator
+from typing import Iterable, Iterator
 
 from classification import (
     HISTORICAL_PACKAGES,
@@ -52,6 +52,7 @@ MIME_TYPES = {
     ".yml": "application/yaml",
     ".zip": "application/zip",
 }
+IMPORT_REDIRECT_METADATA = PurePosixPath("README.md")
 
 
 def _iter_tree(root: Path) -> Iterator[tuple[Path, PurePosixPath, str]]:
@@ -112,14 +113,46 @@ def _ambiguous_paths(entries: list[tuple[Path, PurePosixPath, str]]) -> set[str]
     return ambiguous
 
 
-def build_inventory(import_root: Path) -> dict:
+def _excluded_regular_file_paths(
+    root: Path,
+    relative_paths: Iterable[str | PurePosixPath],
+) -> set[str]:
+    excluded: set[str] = set()
+    for value in relative_paths:
+        relative = PurePosixPath(value)
+        if (
+            relative.is_absolute()
+            or relative == PurePosixPath(".")
+            or ".." in relative.parts
+        ):
+            raise ValueError(f"unsafe excluded inventory path: {_safe_name(str(value))}")
+        path = root.joinpath(*relative.parts)
+        if path.is_symlink() or not path.is_file():
+            raise ValueError(
+                "excluded inventory path must be a regular non-symlink file: "
+                f"{_safe_name(relative.as_posix())}"
+            )
+        excluded.add(relative.as_posix())
+    return excluded
+
+
+def build_inventory(
+    import_root: Path,
+    *,
+    excluded_regular_files: Iterable[str | PurePosixPath] = (),
+) -> dict:
     """Return deterministic metadata for regular files, directories and symlinks."""
 
     root = import_root.resolve(strict=True)
     if not root.is_dir():
         raise NotADirectoryError(import_root)
 
-    tree_entries = list(_iter_tree(root))
+    excluded_paths = _excluded_regular_file_paths(root, excluded_regular_files)
+    tree_entries = [
+        entry
+        for entry in _iter_tree(root)
+        if entry[1].as_posix() not in excluded_paths
+    ]
     ambiguous_paths = _ambiguous_paths(tree_entries)
     non_empty_directories = {
         relative.parent.as_posix()
@@ -215,7 +248,9 @@ def build_inventory(import_root: Path) -> dict:
     }
 
 
-def validate_complete_import_root(import_root: Path) -> None:
+def validate_complete_import_root(
+    import_root: Path,
+) -> tuple[PurePosixPath, ...]:
     """Fail closed unless the CLI receives the complete historical package set."""
 
     root = import_root.resolve(strict=True)
@@ -226,8 +261,22 @@ def validate_complete_import_root(import_root: Path) -> None:
 
     expected = set(HISTORICAL_PACKAGES)
     actual = set(top_level_entries)
+    redirect_entry = top_level_entries.get(IMPORT_REDIRECT_METADATA.as_posix())
+    if redirect_entry is not None and (
+        redirect_entry.is_symlink()
+        or not redirect_entry.is_file(follow_symlinks=False)
+    ):
+        raise ValueError(
+            "import redirect metadata must be a regular non-symlink file: "
+            f"{IMPORT_REDIRECT_METADATA.as_posix()}"
+        )
     missing = [name for name in HISTORICAL_PACKAGES if name not in actual]
-    unexpected = sorted(actual - expected)
+    allowed_metadata = (
+        {IMPORT_REDIRECT_METADATA.as_posix()}
+        if redirect_entry is not None
+        else set()
+    )
+    unexpected = sorted(actual - expected - allowed_metadata)
     if missing:
         raise ValueError(f"missing top-level packages: {', '.join(missing)}")
     if unexpected:
@@ -257,6 +306,7 @@ def validate_complete_import_root(import_root: Path) -> None:
             "control characters in entry names: "
             f"{', '.join(_safe_name(path) for path in sorted(unsafe_paths))}"
         )
+    return (IMPORT_REDIRECT_METADATA,) if redirect_entry is not None else ()
 
 
 def validate_complete_inventory(inventory: dict) -> None:
@@ -345,8 +395,11 @@ def main() -> int:
     parser.add_argument("--output-root", required=True, type=Path)
     args = parser.parse_args()
     try:
-        validate_complete_import_root(args.import_root)
-        inventory = build_inventory(args.import_root)
+        excluded_regular_files = validate_complete_import_root(args.import_root)
+        inventory = build_inventory(
+            args.import_root,
+            excluded_regular_files=excluded_regular_files,
+        )
         validate_complete_inventory(inventory)
         write_inventory(inventory, args.import_root, args.output_root)
     except (FileNotFoundError, NotADirectoryError, OSError, ValueError) as error:

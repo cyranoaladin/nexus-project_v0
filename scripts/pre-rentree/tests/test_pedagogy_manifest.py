@@ -33,7 +33,7 @@ from classification import (
     PENDING_DEDUPLICATION,
 )
 from cps_diff import compute_v3_diffs
-from import_pedagogy_corpus import build_inventory
+from import_pedagogy_corpus import build_inventory, validate_complete_import_root
 
 
 def test_normalized_comparisons_cover_structured_csv_and_markdown_content(tmp_path: Path):
@@ -596,6 +596,29 @@ def test_inventory_tree_rejects_an_inventoried_symlink_after_its_target_changes(
         manifest_builder._verify_inventory_tree(inventory, import_root)
 
 
+def test_inventory_tree_allows_explicit_regular_import_metadata_exclusion(
+    tmp_path: Path,
+):
+    import_root = tmp_path / "import"
+    package = import_root / "package"
+    package.mkdir(parents=True)
+    (package / "source.md").write_text("source\n", encoding="utf-8")
+    (import_root / "README.md").write_text("# Import redirect\n", encoding="utf-8")
+    excluded = ("README.md",)
+    inventory = build_inventory(import_root, excluded_regular_files=excluded)
+
+    manifest_builder._verify_inventory_tree(
+        inventory,
+        import_root,
+        excluded_regular_files=excluded,
+    )
+
+    assert inventory["summary"]["file_count"] == 1
+    assert [row["relative_path"] for row in inventory["files"]] == [
+        "package/source.md"
+    ]
+
+
 def test_functional_assessment_rejects_symlinks_before_copytree(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -662,6 +685,7 @@ def _historical_root() -> Path:
 
 def test_real_corpus_finalizes_all_534_rows_with_proven_decisions(tmp_path: Path):
     import_root = _historical_root()
+    excluded_regular_files = validate_complete_import_root(import_root)
     inventory_path = (
         REPO_ROOT
         / ".artifacts/pre-rentree-2026/pedagogy/import/INVENTAIRE-IMPORT.json"
@@ -669,13 +693,17 @@ def test_real_corpus_finalizes_all_534_rows_with_proven_decisions(tmp_path: Path
     inventory = (
         json.loads(inventory_path.read_text(encoding="utf-8"))
         if inventory_path.is_file()
-        else build_inventory(import_root)
+        else build_inventory(
+            import_root,
+            excluded_regular_files=excluded_regular_files,
+        )
     )
 
     result = build_pedagogy_manifest(
         inventory=inventory,
         import_root=import_root,
         repo_root=REPO_ROOT,
+        excluded_regular_files=excluded_regular_files,
     )
     summary = result["decisions"]["summary"]
     final_rows = result["inventory"]["files"]
