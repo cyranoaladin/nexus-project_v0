@@ -269,8 +269,13 @@ def test_session_validator_cross_checks_csv_metadata_against_module_catalog(
         ("banques-eleve.md", "\n**Solution :** 42\n"),
         ("banques-eleve.md", "\n**Réponse :** 42\n"),
         ("banques-eleve.md", "\n**Réponse correcte :** 42\n"),
+        ("banques-eleve.md", "\nRéponse correcte : 42\n"),
+        ("banques-eleve.md", "\n### Réponse correcte\n"),
         ("verification-eleve.md", "\n**Bonne réponse :** B\n"),
+        ("verification-eleve.md", "\nBonne réponse : B\n"),
+        ("verification-eleve.md", "\n- **Bonne réponse :** B\n"),
         ("verification-eleve.md", "\n**Barème :** 2 points pour la méthode\n"),
+        ("verification-eleve.md", "\nBarème : 2 points\n"),
         ("verification-eleve.md", "\n**Réponse :** maîtrise fragile\n"),
         ("verification-eleve.md", "\n**Barème enseignant :** 2 points pour la méthode\n"),
         ("verification-eleve.md", "\n**Diagnostic attendu :** maîtrise fragile\n"),
@@ -327,7 +332,9 @@ def test_session_validator_allows_legitimate_student_response_instruction(
     )
     student.write_text(
         student.read_text(encoding="utf-8")
-        + "\nNote : utilisez le libellé « Réponse : » dans votre brouillon.\n",
+        + "\nNote : utilisez le libellé « Réponse : » dans votre brouillon.\n"
+        + "\n**Réponse :**\n"
+        + "\nRéponse :\n",
         encoding="utf-8",
     )
     _update_manifest_hash(tampered_root, student.relative_to(tampered_root))

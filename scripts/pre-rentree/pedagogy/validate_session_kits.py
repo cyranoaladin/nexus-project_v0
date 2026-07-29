@@ -23,16 +23,19 @@ UNIT_FILENAMES = {
     "verification-eleve.md",
     "verification-correction.md",
 }
-STUDENT_LEAK_MARKERS = re.compile(
-    r"^\s*(?:(?:#{1,6}\s+)(?:solution|réponse attendue|corrigé|barème enseignant|"
-    r"diagnostic attendu|éléments de correction|décision pédagogique)\b|"
-    r"(?:\*\*)?(?:solution|réponse attendue|corrigé|barème enseignant|"
-    r"diagnostic attendu|éléments de correction|décision pédagogique)\s*:\s*(?:\*\*)?)",
+STUDENT_SOLUTION_HEADING = re.compile(
+    r"^[ \t]*#{1,6}[ \t]+(?:\*\*)?(?:solution|réponse[ \t]+correcte|"
+    r"réponse[ \t]+attendue|bonne[ \t]+réponse|corrigé|barème(?:[ \t]+enseignant)?|"
+    r"diagnostic[ \t]+attendu|éléments[ \t]+de[ \t]+correction|"
+    r"décision[ \t]+pédagogique)(?:\*\*)?(?:[ \t]*:)?(?:[ \t].*)?$",
     flags=re.IGNORECASE | re.MULTILINE,
 )
-EXPLICIT_ANSWER_LEAK = re.compile(
-    r"^[ \t]*\*\*(?:réponse(?:[ \t]+correcte)?|bonne[ \t]+réponse|barème)"
-    r"[ \t]*:[ \t]*\*\*[ \t]*\S.*$",
+STUDENT_SOLUTION_VALUE = re.compile(
+    r"^[ \t]*(?:[-+*][ \t]+)?(?:\*\*)?(?:solution|réponse(?:[ \t]+correcte|"
+    r"[ \t]+attendue)?|bonne[ \t]+réponse|corrigé|barème(?:[ \t]+enseignant)?|"
+    r"diagnostic[ \t]+attendu|éléments[ \t]+de[ \t]+correction|"
+    r"décision[ \t]+pédagogique)[ \t]*:[ \t]*(?!(?:\*\*)?[ \t]*$)"
+    r"(?:\*\*)?[ \t]*\S.*$",
     flags=re.IGNORECASE | re.MULTILINE,
 )
 
@@ -250,9 +253,9 @@ def validate(repo_root: Path) -> tuple[list[str], dict[str, int]]:
                 ("banques-eleve.md", student),
                 ("verification-eleve.md", exit_student),
             ):
-                marker = STUDENT_LEAK_MARKERS.search(
+                marker = STUDENT_SOLUTION_HEADING.search(
                     student_text
-                ) or EXPLICIT_ANSWER_LEAK.search(student_text)
+                ) or STUDENT_SOLUTION_VALUE.search(student_text)
                 if marker:
                     errors.append(
                         f"{key}: fuite élève dans {student_name} ({marker.group(0).strip()})"
