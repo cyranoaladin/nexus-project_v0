@@ -21,6 +21,7 @@ type FakeOptions = Readonly<{
     requestParentUserId: string | null;
     studentId: string | null;
     verificationState: string;
+    requestStatus: string;
   }>;
   familyLink?: Partial<{
     state: string;
@@ -52,6 +53,7 @@ function fakePrisma(options: FakeOptions = {}) {
       parentUserId: options.magic?.requestParentUserId ?? PARENT_ID,
       studentId: options.magic?.studentId === undefined ? STUDENT_ID : options.magic.studentId,
       accountVerificationState: options.magic?.verificationState ?? 'VERIFICATION_PENDING',
+      status: options.magic?.requestStatus ?? 'NEW',
     },
     ...options.magic,
   };
@@ -135,6 +137,9 @@ describe('consumeBilanMagicLink', () => {
         id: REQUEST_ID,
         parentUserId: PARENT_ID,
         accountVerificationState: 'VERIFICATION_PENDING',
+        status: {
+          notIn: ['CANCELLED', 'HUMAN_FOLLOWUP_REQUIRED'],
+        },
       },
       data: {
         accountVerificationState: 'VERIFIED',
@@ -188,6 +193,8 @@ describe('consumeBilanMagicLink', () => {
     ['wrong role', { parentRole: 'ELEVE' }],
     ['different request parent', { requestParentUserId: 'cparent000000000000000002' }],
     ['already verified request', { verificationState: 'VERIFIED' }],
+    ['cancelled request', { requestStatus: 'CANCELLED' }],
+    ['human follow-up request', { requestStatus: 'HUMAN_FOLLOWUP_REQUIRED' }],
   ])('refuses an %s link without mutation', async (_label, magic) => {
     const repository = fakePrisma({ magic });
 
@@ -199,6 +206,8 @@ describe('consumeBilanMagicLink', () => {
 
     expect(repository.tx.bilanMagicLink.updateMany).not.toHaveBeenCalled();
     expect(repository.tx.user.updateMany).not.toHaveBeenCalled();
+    expect(repository.tx.bilanRequest.updateMany).not.toHaveBeenCalled();
+    expect(repository.tx.parentStudentLink.updateMany).not.toHaveBeenCalled();
     expect(repository.tx.bilanRequestEvent.create).not.toHaveBeenCalled();
   });
 

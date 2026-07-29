@@ -24,11 +24,15 @@ reprise du parcours sans mot de passe, sans exposer l’existence d’un compte.
   `/auth/bilan-magic#token=<jeton>` et n’est jamais persisté.
 - La consommation recherche exclusivement le hash SHA-256 puis vérifie le rôle,
   le parent de la demande et le lien parent-enfant avant toute mutation.
+- Les demandes annulées ou placées en suivi humain sont refusées avant
+  consommation ; le même prédicat est répété dans la mutation conditionnelle
+  pour couvrir un changement d’état concurrent.
 - La consommation, l’activation, les vérifications et l’événement
   `ACCOUNT_VERIFIED` partagent une transaction `Serializable`.
 - Le provider `bilan-magic` ignore uniquement les champs techniques ajoutés par
-  Auth.js (`csrfToken`, `callbackUrl`) et refuse tout champ métier fourni par le
-  client.
+  Auth.js (`csrfToken`, `callbackUrl`) après contrôle de taille et de format. Le
+  callback doit rester relatif sûr ou same-origin avec la requête Auth.js. Tout
+  champ métier fourni par le client est refusé.
 - La demande d’un nouveau lien retourne un contrat identique pour les comptes
   absents, ambigus, inéligibles ou pour les échecs SMTP.
 - La page exacte `/auth/bilan-magic` est exemptée de la redirection des pages
