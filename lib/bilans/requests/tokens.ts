@@ -67,6 +67,49 @@ type MagicLinkValidation = Readonly<{
   now?: Date;
 }>;
 
+type MagicLinkUpdateManyArguments = Readonly<{
+  where: Readonly<{
+    tokenHash: string;
+    requestId: string;
+    parentUserId?: string;
+    consumedAt: null;
+    revokedAt: null;
+    expiresAt: Readonly<{ gt: Date }>;
+  }>;
+  data: Readonly<{ consumedAt: Date }>;
+}>;
+
+export type BilanMagicLinkConsumptionRepository = Readonly<{
+  bilanMagicLink: Readonly<{
+    updateMany: (
+      arguments_: MagicLinkUpdateManyArguments,
+    ) => Promise<Readonly<{ count: number }>>;
+  }>;
+}>;
+
+function isValidDate(value: unknown): value is Date {
+  return value instanceof Date && Number.isFinite(value.getTime());
+}
+
+function assertValidDate(value: Date): void {
+  if (!isValidDate(value)) {
+    throw new Error('Invalid date');
+  }
+}
+
+function isCanonicalBilanToken(rawToken: unknown): rawToken is string {
+  if (typeof rawToken !== 'string' || !/^[A-Za-z0-9_-]{43}$/.test(rawToken)) {
+    return false;
+  }
+
+  try {
+    const decoded = Buffer.from(rawToken, 'base64url');
+    return decoded.length === 32 && decoded.toString('base64url') === rawToken;
+  } catch {
+    return false;
+  }
+}
+
 function createRawBilanToken(): string {
   return randomBytes(32).toString('base64url');
 }
@@ -76,6 +119,10 @@ function expiresAfter(now: Date, ttlSeconds: number): Date {
 }
 
 export function hashBilanToken(rawToken: string): string {
+  if (!isCanonicalBilanToken(rawToken)) {
+    throw new Error('Invalid bilan token');
+  }
+
   return createHash('sha256').update(rawToken, 'utf8').digest('hex');
 }
 
@@ -91,6 +138,7 @@ export function createBilanFlowSessionToken(
   options: FlowTokenCreationOptions = {},
 ): BilanFlowSessionToken {
   const now = options.now ?? new Date();
+  assertValidDate(now);
   const rawToken = createRawBilanToken();
   const production = options.production ?? process.env.NODE_ENV === 'production';
 
@@ -116,6 +164,7 @@ export function createBilanMagicLinkToken(
   options: TokenCreationOptions = {},
 ): BilanTokenMaterial {
   const now = options.now ?? new Date();
+  assertValidDate(now);
   const rawToken = createRawBilanToken();
 
   return {
@@ -131,22 +180,65 @@ export function isValidBilanFlowSession(
 ): boolean {
   const now = expected.now ?? new Date();
 
-  return record.requestId === expected.requestId
+  return isCanonicalBilanToken(expected.rawToken)
+    && isValidDate(now)
+    && isValidDate(record.expiresAt)
+    && record.requestId === expected.requestId
     && record.revokedAt === null
     && record.expiresAt.getTime() > now.getTime()
     && isBilanTokenHashEqual(record.tokenHash, hashBilanToken(expected.rawToken));
 }
 
-export function isValidBilanMagicLink(
+export function isEligibleBilanMagicLink(
   record: MagicLinkRecord,
   expected: MagicLinkValidation,
 ): boolean {
   const now = expected.now ?? new Date();
 
-  return record.requestId === expected.requestId
+  return isCanonicalBilanToken(expected.rawToken)
+    && isValidDate(now)
+    && isValidDate(record.expiresAt)
+    && record.requestId === expected.requestId
     && (expected.parentUserId === undefined || record.parentUserId === expected.parentUserId)
     && record.revokedAt === null
     && record.consumedAt === null
     && record.expiresAt.getTime() > now.getTime()
     && isBilanTokenHashEqual(record.tokenHash, hashBilanToken(expected.rawToken));
+}
+
+export async function consumeBilanMagicLinkAtomically(
+  repository: BilanMagicLinkConsumptionRepository,
+  input: Readonly<{
+    rawToken: string;
+    requestId: string;
+    parentUserId?: string;
+    now?: Date;
+  }>,
+): Promise<boolean> {
+  const now = input.now ?? new Date();
+  if (!isCanonicalBilanToken(input.rawToken)
+    || !isValidDate(now)
+    || typeof input.requestId !== 'string'
+    || input.requestId.length < 1
+    || input.requestId.length > 160
+    || (input.parentUserId !== undefined
+      && (input.parentUserId.length < 1 || input.parentUserId.length > 160))) {
+    return false;
+  }
+
+  const result = await repository.bilanMagicLink.updateMany({
+    where: {
+      tokenHash: hashBilanToken(input.rawToken),
+      requestId: input.requestId,
+      ...(input.parentUserId === undefined ? {} : { parentUserId: input.parentUserId }),
+      consumedAt: null,
+      revokedAt: null,
+      expiresAt: { gt: now },
+    },
+    data: {
+      consumedAt: now,
+    },
+  });
+
+  return result.count === 1;
 }

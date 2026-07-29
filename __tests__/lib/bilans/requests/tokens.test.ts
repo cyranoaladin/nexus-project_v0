@@ -1,12 +1,16 @@
+import { createHash } from 'crypto';
+
 import {
   BILAN_FLOW_COOKIE_NAME,
   BILAN_FLOW_SESSION_TTL_SECONDS,
+  consumeBilanMagicLinkAtomically,
   createBilanFlowSessionToken,
   createBilanMagicLinkToken,
   hashBilanToken,
   isBilanTokenHashEqual,
+  isEligibleBilanMagicLink,
   isValidBilanFlowSession,
-  isValidBilanMagicLink,
+  type BilanMagicLinkConsumptionRepository,
 } from '@/lib/bilans/requests/tokens';
 
 describe('bilan request tokens', () => {
@@ -45,12 +49,68 @@ describe('bilan request tokens', () => {
   });
 
   it('compares token hashes deterministically without accepting malformed hashes', () => {
-    const hash = hashBilanToken('opaque-token');
+    const token = createBilanFlowSessionToken({ now, production: false });
+    const anotherToken = createBilanFlowSessionToken({ now, production: false });
+    const hash = hashBilanToken(token.rawToken);
 
-    expect(hashBilanToken('opaque-token')).toBe(hash);
+    expect(hashBilanToken(token.rawToken)).toBe(hash);
     expect(isBilanTokenHashEqual(hash, hash)).toBe(true);
-    expect(isBilanTokenHashEqual(hash, hashBilanToken('another-token'))).toBe(false);
+    expect(isBilanTokenHashEqual(hash, hashBilanToken(anotherToken.rawToken))).toBe(false);
     expect(isBilanTokenHashEqual(hash, 'not-a-sha-256-hash')).toBe(false);
+  });
+
+  it.each([
+    '',
+    'a'.repeat(42),
+    'a'.repeat(44),
+    'a'.repeat(43) + '=',
+    'a'.repeat(10_000),
+    'a'.repeat(42) + '+',
+  ])('rejects non-canonical raw token %s', (rawToken) => {
+    expect(() => hashBilanToken(rawToken)).toThrow('Invalid bilan token');
+
+    const invalidHash = createHash('sha256').update(rawToken).digest('hex');
+    expect(isValidBilanFlowSession({
+      requestId: 'request_1',
+      tokenHash: invalidHash,
+      expiresAt: new Date(now.getTime() + 60_000),
+      revokedAt: null,
+    }, {
+      rawToken,
+      requestId: 'request_1',
+      now,
+    })).toBe(false);
+  });
+
+  it('rejects invalid creation and validation dates', () => {
+    const invalidDate = new Date(Number.NaN);
+    expect(() => createBilanFlowSessionToken({
+      now: invalidDate,
+      production: false,
+    })).toThrow('Invalid date');
+    expect(() => createBilanMagicLinkToken({ now: invalidDate })).toThrow('Invalid date');
+
+    const token = createBilanFlowSessionToken({ now, production: false });
+    expect(isValidBilanFlowSession({
+      requestId: 'request_1',
+      tokenHash: token.tokenHash,
+      expiresAt: invalidDate,
+      revokedAt: null,
+    }, {
+      rawToken: token.rawToken,
+      requestId: 'request_1',
+      now,
+    })).toBe(false);
+    expect(isValidBilanFlowSession({
+      requestId: 'request_1',
+      tokenHash: token.tokenHash,
+      expiresAt: token.expiresAt,
+      revokedAt: null,
+    }, {
+      rawToken: token.rawToken,
+      requestId: 'request_1',
+      now: invalidDate,
+    })).toBe(false);
   });
 
   it('accepts only the expected live request-scoped flow session', () => {
@@ -100,11 +160,88 @@ describe('bilan request tokens', () => {
     };
 
     expect(Buffer.from(token.rawToken, 'base64url')).toHaveLength(32);
-    expect(isValidBilanMagicLink(record, expected)).toBe(true);
-    expect(isValidBilanMagicLink({ ...record, consumedAt: now }, expected)).toBe(false);
-    expect(isValidBilanMagicLink({ ...record, revokedAt: now }, expected)).toBe(false);
-    expect(isValidBilanMagicLink({ ...record, expiresAt: now }, expected)).toBe(false);
-    expect(isValidBilanMagicLink(record, { ...expected, requestId: 'request_2' })).toBe(false);
-    expect(isValidBilanMagicLink(record, { ...expected, parentUserId: 'parent_2' })).toBe(false);
+    expect(isEligibleBilanMagicLink(record, expected)).toBe(true);
+    expect(isEligibleBilanMagicLink({ ...record, consumedAt: now }, expected)).toBe(false);
+    expect(isEligibleBilanMagicLink({ ...record, revokedAt: now }, expected)).toBe(false);
+    expect(isEligibleBilanMagicLink({ ...record, expiresAt: now }, expected)).toBe(false);
+    expect(isEligibleBilanMagicLink(record, { ...expected, requestId: 'request_2' })).toBe(false);
+    expect(isEligibleBilanMagicLink(record, { ...expected, parentUserId: 'parent_2' })).toBe(false);
+  });
+
+  it('consumes a magic link atomically with hash, scope and live-state predicates', async () => {
+    const token = createBilanMagicLinkToken({ now });
+    const updateMany = jest.fn().mockResolvedValue({ count: 1 });
+    const repository: BilanMagicLinkConsumptionRepository = {
+      bilanMagicLink: { updateMany },
+    };
+
+    await expect(consumeBilanMagicLinkAtomically(repository, {
+      rawToken: token.rawToken,
+      requestId: 'request_00000001',
+      parentUserId: 'parent_000000001',
+      now,
+    })).resolves.toBe(true);
+    expect(updateMany).toHaveBeenCalledWith({
+      where: {
+        tokenHash: token.tokenHash,
+        requestId: 'request_00000001',
+        parentUserId: 'parent_000000001',
+        consumedAt: null,
+        revokedAt: null,
+        expiresAt: { gt: now },
+      },
+      data: {
+        consumedAt: now,
+      },
+    });
+  });
+
+  it('allows only one successful atomic consumption under concurrent replay', async () => {
+    const token = createBilanMagicLinkToken({ now });
+    let consumed = false;
+    const updateMany = jest.fn(async () => {
+      if (consumed) {
+        return { count: 0 };
+      }
+      consumed = true;
+      return { count: 1 };
+    });
+    const repository: BilanMagicLinkConsumptionRepository = {
+      bilanMagicLink: { updateMany },
+    };
+
+    const results = await Promise.all([
+      consumeBilanMagicLinkAtomically(repository, {
+        rawToken: token.rawToken,
+        requestId: 'request_00000001',
+        now,
+      }),
+      consumeBilanMagicLinkAtomically(repository, {
+        rawToken: token.rawToken,
+        requestId: 'request_00000001',
+        now,
+      }),
+    ]);
+
+    expect(results.sort()).toEqual([false, true]);
+  });
+
+  it('does not query storage for malformed tokens or invalid dates', async () => {
+    const updateMany = jest.fn();
+    const repository: BilanMagicLinkConsumptionRepository = {
+      bilanMagicLink: { updateMany },
+    };
+
+    await expect(consumeBilanMagicLinkAtomically(repository, {
+      rawToken: 'invalid',
+      requestId: 'request_00000001',
+      now,
+    })).resolves.toBe(false);
+    await expect(consumeBilanMagicLinkAtomically(repository, {
+      rawToken: createBilanMagicLinkToken({ now }).rawToken,
+      requestId: 'request_00000001',
+      now: new Date(Number.NaN),
+    })).resolves.toBe(false);
+    expect(updateMany).not.toHaveBeenCalled();
   });
 });
