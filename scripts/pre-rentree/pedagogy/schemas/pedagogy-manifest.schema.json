@@ -191,7 +191,7 @@
           "uniqueItems": true,
           "items": {
             "type": "string",
-            "pattern": "^\\.artifacts/pre-rentree-2026/pedagogy/generated/(?:positioning/(?:tests-eleves|corrections|pilotage-enseignant|cartes-parent)/[a-z0-9-]+\\.md|session-kits/modules/[a-z0-9-]+/(?:CAHIER-ELEVE|GUIDE-ENSEIGNANT)\\.md)$"
+            "pattern": "^\\.artifacts/pre-rentree-2026/pedagogy/generated/(?:positioning/(?:(?:tests-eleves|corrections|pilotage-enseignant)/[a-z0-9-]+\\.md|cartes-groupe/[a-z0-9-]+-groupe\\.csv)|session-kits/modules/[a-z0-9-]+/(?:CAHIER-ELEVE|GUIDE-ENSEIGNANT)\\.md)$"
           }
         },
         "editorialStatus": {"const": "HUMAN_VALIDATION_REQUIRED"},

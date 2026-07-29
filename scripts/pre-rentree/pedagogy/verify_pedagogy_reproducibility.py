@@ -12,6 +12,7 @@ from pathlib import Path
 
 from generate_positioning_resources import generate as generate_positioning
 from generate_session_kits import generate as generate_sessions
+from output_contract import assert_exact_output_tree
 
 
 EXPECTED_FILE_COUNT = 103
@@ -36,7 +37,22 @@ def verify(repo_root: Path) -> dict[str, object]:
                     repo_root, root / "generated/positioning"
                 )
                 generate_sessions(repo_root, root / "generated/session-kits")
-                trees.append(_hash_tree(root))
+                trees.append(_hash_tree(root / "generated"))
+    actual_root = (
+        repo_root / ".artifacts/pre-rentree-2026/pedagogy/generated"
+    )
+    assert_exact_output_tree(actual_root, set(trees[0]))
+    actual_tree = _hash_tree(actual_root)
+    if actual_tree != trees[0]:
+        differing = sorted(
+            path
+            for path in set(actual_tree) | set(trees[0])
+            if actual_tree.get(path) != trees[0].get(path)
+        )
+        raise ValueError(
+            "sortie generated réelle non reproductible : "
+            + ", ".join(differing[:20])
+        )
     reproducible = trees[0] == trees[1]
     result: dict[str, object] = {
         "reproducible": reproducible,
