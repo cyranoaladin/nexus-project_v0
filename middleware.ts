@@ -9,10 +9,11 @@ import {
 
 const { auth } = NextAuth(authConfig);
 
-export default auth((req) => {
+export function bilanMagicMiddleware(req: Parameters<Parameters<typeof auth>[0]>[0]) {
   const pathname = req.nextUrl.pathname;
   const isLoggedIn = !!req.auth?.user;
   const role = (req.auth?.user as any)?.role;
+  const isBilanMagicConsumption = pathname === '/auth/bilan-magic';
 
   if (
     !getPreRentreeReleaseGate().isPublicReady
@@ -66,7 +67,7 @@ export default auth((req) => {
   }
 
   // Redirect logged-in users away from auth pages
-  if (isLoggedIn && pathname.startsWith('/auth')) {
+  if (isLoggedIn && pathname.startsWith('/auth') && !isBilanMagicConsumption) {
     const roleDashboardMap: Record<string, string> = {
       ADMIN: '/dashboard/admin',
       ASSISTANTE: '/dashboard/assistante',
@@ -80,6 +81,9 @@ export default auth((req) => {
 
   const response = NextResponse.next();
   applySecurityHeaders(response);
+  if (isBilanMagicConsumption) {
+    response.headers.set('Referrer-Policy', 'no-referrer');
+  }
 
   if (pathname.startsWith('/dashboard/assistante/devis/app')) {
     response.headers.set('X-Frame-Options', 'SAMEORIGIN');
@@ -105,7 +109,9 @@ export default auth((req) => {
   }
 
   return response;
-});
+}
+
+export default auth(bilanMagicMiddleware);
 
 export const config = {
   // https://nextjs.org/docs/app/building-your-application/routing/middleware#matcher
