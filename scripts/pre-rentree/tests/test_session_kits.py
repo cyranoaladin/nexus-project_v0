@@ -267,6 +267,8 @@ def test_session_validator_cross_checks_csv_metadata_against_module_catalog(
     ("student_filename", "leak"),
     [
         ("banques-eleve.md", "\n**Solution :** 42\n"),
+        ("banques-eleve.md", "\n**Réponse :** 42\n"),
+        ("verification-eleve.md", "\n**Réponse :** maîtrise fragile\n"),
         ("verification-eleve.md", "\n**Barème enseignant :** 2 points pour la méthode\n"),
         ("verification-eleve.md", "\n**Diagnostic attendu :** maîtrise fragile\n"),
     ],
