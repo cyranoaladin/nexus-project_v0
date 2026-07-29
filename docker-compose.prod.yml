@@ -116,9 +116,10 @@ services:
       CLICTOPAY_BASE_URL: ${CLICTOPAY_BASE_URL:-}
       CLICTOPAY_WEBHOOK_SECRET: ${CLICTOPAY_WEBHOOK_SECRET:-}
 
-      # Rate Limiting - Upstash Redis (Optional - falls back to in-memory)
+      # Rate limiting - Redis/Upstash (required by fail-closed public routes)
       UPSTASH_REDIS_REST_URL: ${UPSTASH_REDIS_REST_URL:-}
       UPSTASH_REDIS_REST_TOKEN: ${UPSTASH_REDIS_REST_TOKEN:-}
+      RATE_LIMIT_DISTRIBUTED_TIMEOUT_MS: ${RATE_LIMIT_DISTRIBUTED_TIMEOUT_MS:-1500}
 
       # Jitsi Video Conferencing
       NEXT_PUBLIC_JITSI_SERVER_URL: ${NEXT_PUBLIC_JITSI_SERVER_URL:-https://meet.jit.si}

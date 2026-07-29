@@ -18,6 +18,7 @@ export class UpstashStore {
     key: string,
     limit: number,
     windowMs: number,
+    options: Readonly<{ signal?: AbortSignal }> = {},
   ): Promise<{
     success: boolean;
     limit: number;
@@ -35,6 +36,7 @@ export class UpstashStore {
         ['PEXPIRE', key, windowMs, 'NX'],
         ['PTTL', key],
       ]),
+      signal: options.signal,
     });
 
     if (!response.ok) {

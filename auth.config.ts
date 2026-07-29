@@ -15,6 +15,7 @@ export const authConfig = {
                           nextUrl.pathname.startsWith('/coach');
       
       const isOnAuth = nextUrl.pathname.startsWith('/auth');
+      const isBilanMagicConsumption = nextUrl.pathname === '/auth/bilan-magic';
       const role = (auth?.user as any)?.role;
 
       const roleDashboardMap: Record<string, string> = {
@@ -51,7 +52,7 @@ export const authConfig = {
         }
 
         return true;
-      } else if (isLoggedIn && isOnAuth) {
+      } else if (isLoggedIn && isOnAuth && !isBilanMagicConsumption) {
         // Redirect logged-in users away from auth pages to their dashboard
         let redirectPath = '/dashboard';
         
@@ -73,6 +74,7 @@ export const authConfig = {
         token.id = user.id;
         token.firstName = user.firstName;
         token.lastName = user.lastName;
+        token.bilanRequestId = user.bilanRequestId;
       }
       return token;
     },
@@ -82,6 +84,7 @@ export const authConfig = {
         session.user.role = token.role as any;
         session.user.firstName = token.firstName as string;
         session.user.lastName = token.lastName as string;
+        session.user.bilanRequestId = token.bilanRequestId as string | undefined;
       }
       return session;
     },

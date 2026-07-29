@@ -196,6 +196,32 @@ describe('lib/email/mailer', () => {
       ).rejects.toThrow('SMTP down');
     });
 
+    it('never logs details from a rejected SMTP error', async () => {
+      process.env.MAIL_DISABLED = 'false';
+      (process.env as any).NODE_ENV = 'production';
+      const rawToken = 'MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM';
+      const recipient = 'parent.leak@example.test';
+      const smtpError = new Error(`Delivery rejected for ${recipient} token=${rawToken}`);
+      mockSendMail.mockRejectedValueOnce(smtpError);
+      const consoleError = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+
+      try {
+        await expect(sendMail({
+          to: recipient,
+          subject: 'Test',
+          html: '<p>Hi</p>',
+        })).rejects.toBe(smtpError);
+
+        const serializedLogs = JSON.stringify(consoleError.mock.calls);
+        expect(serializedLogs).not.toContain(recipient);
+        expect(serializedLogs).not.toContain(rawToken);
+        expect(serializedLogs).not.toContain(smtpError.message);
+        expect(consoleError).toHaveBeenCalledWith('[mailer] Send failed');
+      } finally {
+        consoleError.mockRestore();
+      }
+    });
+
     it('swallows errors in development', async () => {
       process.env.MAIL_DISABLED = 'false';
       (process.env as any).NODE_ENV = 'development';

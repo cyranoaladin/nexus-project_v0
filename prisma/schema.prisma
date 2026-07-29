@@ -80,10 +80,10 @@ enum StmgPathway {
 
 // Enums pour les assignations coach-élève
 enum AssignmentType {
-  PRIMARY    // Coach référent principal
-  SECONDARY  // Spécialiste (maths, français...)
-  STAGE      // Assignation stage uniquement
-  TEMPORARY  // Remplacement temporaire
+  PRIMARY // Coach référent principal
+  SECONDARY // Spécialiste (maths, français...)
+  STAGE // Assignation stage uniquement
+  TEMPORARY // Remplacement temporaire
 }
 
 enum AssignmentStatus {
@@ -190,8 +190,10 @@ model User {
   notifications SessionNotification[] @relation("UserNotifications")
 
   // Canonical bilans audit trail
-  parentStudentLinks ParentStudentLink[] @relation("CanonicalParentUser")
-  notificationOutbox NotificationOutbox[]
+  parentStudentLinks ParentStudentLink[]  @relation("CanonicalParentUser")
+  bilanRequests      BilanRequest[]       @relation("BilanRequestParentUser")
+  bilanMagicLinks    BilanMagicLink[]     @relation("BilanMagicLinkParentUser")
+  notificationOutbox NotificationOutbox[] @relation("CanonicalNotificationRecipient")
 
   // Entitlements (product access rights)
   entitlements Entitlement[]
@@ -219,9 +221,9 @@ model User {
   coachStudentAssignmentsCreated CoachStudentAssignment[] @relation("CoachStudentAssignmentAssignedBy")
 
   // 2FA TOTP (Admin only)
-  totpSecret      String?   // AES-256-GCM encrypted, format: v1:iv:tag:ciphertext
+  totpSecret      String? // AES-256-GCM encrypted, format: v1:iv:tag:ciphertext
   totpEnabledAt   DateTime? // non-null = 2FA active (canonical check)
-  totpBackupCodes String?   // JSON array of hashed backup codes
+  totpBackupCodes String? // JSON array of hashed backup codes
   totpLastUsedAt  DateTime? // last successful TOTP verification
 
   @@index([role])
@@ -259,18 +261,18 @@ model Student {
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   // Informations scolaires
-  grade          String? // Classe legacy, conservée pour compatibilité
-  gradeLevel     GradeLevel
-  academicTrack  AcademicTrack @default(EDS_GENERALE)
-  specialties    Subject[]     @default([])
-  stmgPathway    StmgPathway?
-  updatedTrackAt DateTime?
-  survivalMode       Boolean   @default(false)
+  grade              String? // Classe legacy, conservée pour compatibilité
+  gradeLevel         GradeLevel
+  academicTrack      AcademicTrack @default(EDS_GENERALE)
+  specialties        Subject[]     @default([])
+  stmgPathway        StmgPathway?
+  updatedTrackAt     DateTime?
+  survivalMode       Boolean       @default(false)
   survivalModeReason String?
   survivalModeBy     String?
   survivalModeAt     DateTime?
-  school         String?
-  birthDate      DateTime?
+  school             String?
+  birthDate          DateTime?
 
   // Crédits et sessions
   credits           Int @default(0)
@@ -318,6 +320,7 @@ model Student {
   parentLinks                 ParentStudentLink[]
   canonicalAssessmentAttempts CanonicalAssessmentAttempt[]
   reportArtifacts             ReportArtifact[]
+  bilanRequests               BilanRequest[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -373,7 +376,8 @@ model CoachProfile {
   generatedReports GeneratedPedagogicalReport[]
 
   // Canonical bilans audit trail
-  reportReviews ReportReview[]
+  reportReviews         ReportReview[]
+  assignedBilanRequests BilanRequest[] @relation("BilanRequestAssignedCoach")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -1356,6 +1360,65 @@ enum ParentStudentLinkState {
   EXPIRED
 }
 
+enum BilanAccountVerificationState {
+  UNVERIFIED
+  VERIFICATION_PENDING
+  VERIFIED
+}
+
+enum BilanRequestStatus {
+  NEW
+  READY_FOR_ASSESSMENT
+  ASSESSMENT_IN_PROGRESS
+  ASSESSMENT_SUBMITTED
+  SCORED
+  REVIEW_PENDING
+  PUBLISHED
+  HUMAN_FOLLOWUP_REQUIRED
+  TECHNICAL_ACTION_REQUIRED
+  CANCELLED
+}
+
+enum BilanRequestActor {
+  SYSTEM
+  PARENT_FLOW
+  WORKER
+  ASSISTANTE
+  COACH
+  ADMIN
+}
+
+enum BilanRequestEventType {
+  REQUEST_CREATED
+  ACCOUNT_VERIFICATION_REQUESTED
+  ACCOUNT_VERIFIED
+  CHILD_SELECTED
+  CHILD_CREATED
+  ASSESSMENT_STARTED
+  ASSESSMENT_AUTOSAVE_CHECKPOINTED
+  ASSESSMENT_SUBMITTED
+  ASSESSMENT_SCORED
+  ASSESSMENT_SCORING_FAILED
+  REPORT_READY_FOR_REVIEW
+  REPORT_APPROVED
+  REPORT_REJECTED
+  REPORT_PUBLISHED
+  HUMAN_FOLLOWUP_REQUIRED
+  TECHNICAL_ACTION_REQUIRED
+  NOTIFICATION_DELIVERY_FAILED
+  REQUEST_CANCELLED
+}
+
+enum BilanAcquisitionChannel {
+  WEBSITE
+  WHATSAPP
+  PHONE
+  EMAIL
+  REFERRAL
+  CAMPAIGN
+  OTHER
+}
+
 enum CanonicalAssessmentAttemptStatus {
   IN_PROGRESS
   DRAFT
@@ -1398,6 +1461,12 @@ enum ReportReviewDecision {
   CHANGES_REQUESTED
 }
 
+enum ReportAudience {
+  STUDENT
+  PARENT
+  NEXUS
+}
+
 enum CanonicalOutboxStatus {
   PENDING
   LEASED
@@ -1420,10 +1489,14 @@ enum CanonicalNotificationEventType {
   REPORT_GENERATED
   REPORT_REVIEW_REQUESTED
   REPORT_PUBLISHED
+  BILAN_REQUEST_CREATED
+  ASSESSMENT_SUBMITTED
+  TECHNICAL_ACTION_REQUIRED
 }
 
 enum NotificationChannel {
   WHATSAPP
+  EMAIL
 }
 
 model ParentStudentLink {
@@ -1448,6 +1521,113 @@ model ParentStudentLink {
   @@map("canonical_parent_student_links")
 }
 
+model BilanRequest {
+  id                 String                      @id @default(cuid())
+  parentUserId       String?
+  parentUser         User?                       @relation("BilanRequestParentUser", fields: [parentUserId], references: [id], onDelete: Restrict)
+  studentId          String?
+  student            Student?                    @relation(fields: [studentId], references: [id], onDelete: Restrict)
+  canonicalAttemptId String?                     @unique
+  canonicalAttempt   CanonicalAssessmentAttempt? @relation(fields: [canonicalAttemptId, studentId], references: [id, studentId], onDelete: Restrict, map: "canonical_bilan_requests_attempt_student_fkey")
+
+  provisionalChildFirstName  String? @db.VarChar(80)
+  provisionalChildLastName   String? @db.VarChar(80)
+  provisionalChildSchoolName String? @db.VarChar(160)
+
+  subject       Subject
+  gradeLevel    GradeLevel
+  schoolYear    String         @db.VarChar(20)
+  academicTrack AcademicTrack?
+  speciality    Subject?
+
+  mainNeed String  @db.VarChar(500)
+  message  String? @db.VarChar(1000)
+
+  campaignKey         String?                 @db.VarChar(160)
+  offerKey            String?                 @db.VarChar(160)
+  sourcePath          String?                 @db.VarChar(300)
+  acquisitionChannel  BilanAcquisitionChannel @default(WEBSITE)
+  acquisitionMetadata Json?
+
+  consent        Boolean
+  consentVersion String   @db.VarChar(80)
+  consentedAt    DateTime
+
+  status                   BilanRequestStatus            @default(NEW)
+  accountVerificationState BilanAccountVerificationState @default(UNVERIFIED)
+
+  assignedCoachId String?
+  assignedCoach   CoachProfile? @relation("BilanRequestAssignedCoach", fields: [assignedCoachId], references: [id], onDelete: Restrict)
+  submissionHash  String        @unique
+
+  events       BilanRequestEvent[]
+  flowSessions BilanFlowSession[]
+  magicLinks   BilanMagicLink[]
+
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  lastActivityAt DateTime  @default(now())
+  submittedAt    DateTime?
+  reviewedAt     DateTime?
+  publishedAt    DateTime?
+
+  @@unique([canonicalAttemptId, studentId], map: "canonical_bilan_requests_attempt_student_key")
+  @@index([parentUserId, createdAt])
+  @@index([studentId, createdAt])
+  @@index([assignedCoachId, status, lastActivityAt])
+  @@index([status, lastActivityAt])
+  @@index([subject, gradeLevel, schoolYear])
+  @@map("canonical_bilan_requests")
+}
+
+model BilanRequestEvent {
+  id            String                @id @default(cuid())
+  requestId     String
+  request       BilanRequest          @relation(fields: [requestId], references: [id], onDelete: Restrict)
+  type          BilanRequestEventType
+  actor         BilanRequestActor
+  correlationId String                @db.VarChar(160)
+  payload       Json                  @default("{}")
+  occurredAt    DateTime              @default(now())
+
+  @@index([requestId, occurredAt])
+  @@index([requestId, type, occurredAt])
+  @@map("canonical_bilan_request_events")
+}
+
+model BilanFlowSession {
+  id         String       @id @default(cuid())
+  requestId  String
+  request    BilanRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  tokenHash  String       @unique
+  expiresAt  DateTime
+  revokedAt  DateTime?
+  lastUsedAt DateTime?
+  createdAt  DateTime     @default(now())
+
+  @@index([requestId, expiresAt])
+  @@index([expiresAt, revokedAt])
+  @@map("canonical_bilan_flow_sessions")
+}
+
+model BilanMagicLink {
+  id           String       @id @default(cuid())
+  requestId    String
+  request      BilanRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  parentUserId String?
+  parentUser   User?        @relation("BilanMagicLinkParentUser", fields: [parentUserId], references: [id], onDelete: Restrict)
+  tokenHash    String       @unique
+  expiresAt    DateTime
+  consumedAt   DateTime?
+  revokedAt    DateTime?
+  createdAt    DateTime     @default(now())
+
+  @@index([requestId, expiresAt])
+  @@index([parentUserId, createdAt])
+  @@index([expiresAt, consumedAt, revokedAt])
+  @@map("canonical_bilan_magic_links")
+}
+
 model CanonicalAssessmentAttempt {
   id        String                           @id @default(cuid())
   studentId String
@@ -1470,13 +1650,14 @@ model CanonicalAssessmentAttempt {
 
   scoreSnapshots  ScoreSnapshot[]
   reportArtifacts ReportArtifact[]
+  bilanRequest    BilanRequest?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@unique([id, studentId])
   @@index([studentId, status, createdAt])
   @@index([assessmentPackId, assessmentPackVersion])
-  @@unique([id, studentId])
   @@map("canonical_assessment_attempts")
 }
 
@@ -1520,13 +1701,14 @@ model ReportArtifact {
   studentId           String
   student             Student                    @relation(fields: [studentId], references: [id], onDelete: Restrict)
   assessmentAttemptId String
-  assessmentAttempt   CanonicalAssessmentAttempt @relation(fields: [assessmentAttemptId, studentId], references: [id, studentId], onDelete: Restrict)
+  assessmentAttempt   CanonicalAssessmentAttempt @relation(fields: [assessmentAttemptId, studentId], references: [id, studentId], onDelete: Restrict, map: "canonical_report_artifacts_attempt_student_fkey")
   status              ReportArtifactStatus       @default(DRAFT)
+  audience            ReportAudience             @default(NEXUS)
 
   // This pointer is set only after a reviewed revision is published. SetNull
   // protects the artifact if a deliberately purged revision is ever removed.
   currentPublishedRevisionId String?         @unique
-  currentPublishedRevision   ReportRevision? @relation("ReportArtifactCurrentPublishedRevision", fields: [currentPublishedRevisionId, id], references: [id, reportArtifactId], onDelete: Restrict)
+  currentPublishedRevision   ReportRevision? @relation("ReportArtifactCurrentPublishedRevision", fields: [currentPublishedRevisionId, id], references: [id, reportArtifactId], onDelete: Restrict, map: "canonical_report_artifacts_current_revision_same_artifact_fkey")
   publishedAt                DateTime?
 
   revisions ReportRevision[] @relation("ReportArtifactRevisions")
@@ -1534,9 +1716,10 @@ model ReportArtifact {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@unique([assessmentAttemptId, audience])
+  @@unique([currentPublishedRevisionId, id])
   @@index([studentId, status, createdAt])
   @@index([assessmentAttemptId])
-  @@unique([currentPublishedRevisionId, id])
   @@map("canonical_report_artifacts")
 }
 
@@ -1562,9 +1745,9 @@ model ReportRevision {
 
   createdAt DateTime @default(now())
 
+  @@unique([id, reportArtifactId])
   @@index([reportArtifactId, createdAt])
   @@index([scoreSnapshotId])
-  @@unique([id, reportArtifactId])
   @@map("canonical_report_revisions")
 }
 
@@ -1609,24 +1792,26 @@ model JobOutbox {
 }
 
 model NotificationOutbox {
-  id              String                         @id @default(cuid())
-  eventType       CanonicalNotificationEventType
-  sourceEventKey  String
-  recipientUserId String
-  recipientUser   User                           @relation(fields: [recipientUserId], references: [id], onDelete: Restrict)
-  channel         NotificationChannel
-  status          CanonicalOutboxStatus          @default(PENDING)
-  payload         Json
-  availableAt     DateTime                       @default(now())
-  leaseOwner      String?
-  leaseExpiresAt  DateTime?
-  attemptCount    Int                            @default(0)
-  sentAt          DateTime?
-  lastError       String?                        @db.Text
-  createdAt       DateTime                       @default(now())
-  updatedAt       DateTime                       @updatedAt
+  id               String                         @id @default(cuid())
+  eventType        CanonicalNotificationEventType
+  sourceEventKey   String
+  recipientKey     String
+  recipientUserId  String?
+  recipientUser    User?                          @relation("CanonicalNotificationRecipient", fields: [recipientUserId], references: [id], onDelete: Restrict)
+  recipientAddress String?
+  channel          NotificationChannel
+  status           CanonicalOutboxStatus          @default(PENDING)
+  payload          Json
+  availableAt      DateTime                       @default(now())
+  leaseOwner       String?
+  leaseExpiresAt   DateTime?
+  attemptCount     Int                            @default(0)
+  sentAt           DateTime?
+  lastError        String?                        @db.Text
+  createdAt        DateTime                       @default(now())
+  updatedAt        DateTime                       @updatedAt
 
-  @@unique([eventType, sourceEventKey, recipientUserId])
+  @@unique([eventType, sourceEventKey, recipientKey])
   @@index([status, availableAt])
   @@index([status, leaseExpiresAt])
   @@index([recipientUserId, createdAt])
@@ -2033,9 +2218,9 @@ enum MathsLevel {
 }
 
 model MathsProgress {
-  id     String     @id @default(cuid())
+  id     String        @id @default(cuid())
   userId String
-  user   User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user   User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   level  MathsLevel // PREMIERE or TERMINALE — prevents collision between levels
   track  AcademicTrack @default(EDS_GENERALE)
 
@@ -2099,7 +2284,7 @@ model NsiPracticeProgress {
   id        String   @id @default(cuid())
   userId    String   @unique
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  data      Json     // Full NsiProgress object (same structure as localStorage)
+  data      Json // Full NsiProgress object (same structure as localStorage)
   version   Int      @default(1)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -2121,7 +2306,7 @@ model CoachNote {
 
   // Author of the note (the coach, by User.id)
   coachId String
-  coach   User    @relation("CoachNoteAuthor", fields: [coachId], references: [id], onDelete: Cascade)
+  coach   User   @relation("CoachNoteAuthor", fields: [coachId], references: [id], onDelete: Cascade)
 
   body   String  @db.Text
   pinned Boolean @default(false)
@@ -2141,28 +2326,28 @@ model CoachNote {
 /// in migration 20260425230000_add_coach_student_assignments:
 /// coachId + studentId + assignmentType WHERE status = 'ACTIVE'
 model CoachStudentAssignment {
-  id             String           @id @default(cuid())
+  id String @id @default(cuid())
 
-  coachId        String
-  coach          CoachProfile     @relation(fields: [coachId], references: [id], onDelete: Cascade)
+  coachId String
+  coach   CoachProfile @relation(fields: [coachId], references: [id], onDelete: Cascade)
 
-  studentId      String
-  student        Student          @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  studentId String
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
-  assignedById   String?
-  assignedBy     User?            @relation("CoachStudentAssignmentAssignedBy", fields: [assignedById], references: [id], onDelete: SetNull)
+  assignedById String?
+  assignedBy   User?   @relation("CoachStudentAssignmentAssignedBy", fields: [assignedById], references: [id], onDelete: SetNull)
 
   assignmentType AssignmentType   @default(PRIMARY)
   status         AssignmentStatus @default(ACTIVE)
 
-  subjects       Subject[]        @default([])
-  notes          String?
+  subjects Subject[] @default([])
+  notes    String?
 
-  startsAt       DateTime         @default(now())
-  endsAt         DateTime?
+  startsAt DateTime  @default(now())
+  endsAt   DateTime?
 
-  createdAt      DateTime         @default(now())
-  updatedAt      DateTime         @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([coachId, status])
   @@index([studentId, status])
@@ -2185,7 +2370,7 @@ model SurvivalProgress {
   rituals       Json
 
   notePotentielle Float?
-  updatedAt        DateTime @updatedAt
+  updatedAt       DateTime @updatedAt
 
   attempts SurvivalAttempt[]
 
@@ -2214,25 +2399,25 @@ model SurvivalAttempt {
 // Generic EAF preparation reports that coaches can fill for their assigned students
 // Separate from StageBilan (stage-specific) and Bilan (canonical assessment)
 model EafPreparationReport {
-  id        String   @id @default(cuid())
+  id        String  @id @default(cuid())
   studentId String
-  student   Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
   coachId String
   coach   CoachProfile @relation(fields: [coachId], references: [id], onDelete: Cascade)
 
   // EAF rubrics (text fields, max 5000 chars each)
-  linearReading        String?  @db.Text
-  workPresentation     String?  @db.Text
-  interview            String?  @db.Text
-  oralExpression       String?  @db.Text
-  writingMethod        String?  @db.Text
-  languageMastery      String?  @db.Text
-  literaryCulture      String?  @db.Text
-  strengths            String?  @db.Text
-  areasToImprove       String?  @db.Text
-  nextSessionGoals     String?  @db.Text
-  coachFreeComment     String?  @db.Text
+  linearReading    String? @db.Text
+  workPresentation String? @db.Text
+  interview        String? @db.Text
+  oralExpression   String? @db.Text
+  writingMethod    String? @db.Text
+  languageMastery  String? @db.Text
+  literaryCulture  String? @db.Text
+  strengths        String? @db.Text
+  areasToImprove   String? @db.Text
+  nextSessionGoals String? @db.Text
+  coachFreeComment String? @db.Text
 
   status          String    @default("DRAFT")
   completionRatio Int       @default(0)
@@ -2270,14 +2455,14 @@ enum CopySubmissionStatus {
 }
 
 enum AssessmentSourceType {
-  DS          // Devoir surveillé
-  DM          // Devoir maison
-  BILAN       // Bilan périodique
-  STAGE       // Stage intensif
-  ANNALES     // Annales
-  EXERCICE    // Exercice
+  DS // Devoir surveillé
+  DM // Devoir maison
+  BILAN // Bilan périodique
+  STAGE // Stage intensif
+  ANNALES // Annales
+  EXERCICE // Exercice
   COMPOSITION // Composition
-  AUTRE       // Autre type
+  AUTRE // Autre type
 }
 
 enum CopyPageStatus {
@@ -2300,11 +2485,11 @@ enum CorrectionDocumentType {
 }
 
 enum AiJobType {
-  VISION_OCR            // Extraction texte/image
+  VISION_OCR // Extraction texte/image
   PEDAGOGICAL_DIAGNOSIS // Analyse pédagogique
-  COMPETENCE_MATRIX     // Matrice de compétences
-  REMEDIATION_ROADMAP   // Plan de remédiation
-  MENTOR_ADVICE         // Conseils mentor
+  COMPETENCE_MATRIX // Matrice de compétences
+  REMEDIATION_ROADMAP // Plan de remédiation
+  MENTOR_ADVICE // Conseils mentor
 }
 
 enum AiJobStatus {
@@ -2364,7 +2549,7 @@ model CopySubmission {
   coachId String?
   coach   CoachProfile? @relation(fields: [coachId], references: [id], onDelete: SetNull)
 
-  subject   Subject
+  subject    Subject
   gradeLevel GradeLevel?
 
   title       String
@@ -2372,7 +2557,7 @@ model CopySubmission {
 
   sourceType AssessmentSourceType @default(AUTRE)
   sourceId   String?
-  source     AssessmentSource? @relation(fields: [sourceId], references: [id], onDelete: SetNull)
+  source     AssessmentSource?    @relation(fields: [sourceId], references: [id], onDelete: SetNull)
 
   status CopySubmissionStatus @default(PENDING_UPLOAD)
 
@@ -2382,9 +2567,9 @@ model CopySubmission {
   ocrError String?
 
   aiJob   AiProcessingJob?
-  aiJobId String? @unique
+  aiJobId String?          @unique
 
-  report  PedagogicalReport?
+  report PedagogicalReport?
 
   storedFilePath String?
   fileSizeBytes  Int?
@@ -2408,12 +2593,12 @@ model AssessmentSource {
   type        AssessmentSourceType
 
   isOfficialAnnale Boolean @default(false)
-  year            Int?
-  examType        String?
+  year             Int?
+  examType         String?
 
-  subject      Subject
-  gradeLevel   GradeLevel?
-  academicTrack  AcademicTrack?
+  subject       Subject
+  gradeLevel    GradeLevel?
+  academicTrack AcademicTrack?
 
   submittedCopies CopySubmission[]
 
@@ -2432,17 +2617,17 @@ model CopyPage {
 
   pageNumber Int
 
-  status CopyPageStatus @default(UPLOADED)
+  status       CopyPageStatus         @default(UPLOADED)
   documentType CorrectionDocumentType @default(STUDENT_COPY)
 
-  originalFilePath    String
-  originalFilename    String?
-  mimeType            String?
-  sizeBytes           Int?
-  uploadedById        String?
-  convertedFilePaths  String[]
-  ocrText             String? @db.Text
-  ocrConfidence       Float?
+  originalFilePath   String
+  originalFilename   String?
+  mimeType           String?
+  sizeBytes          Int?
+  uploadedById       String?
+  convertedFilePaths String[]
+  ocrText            String?  @db.Text
+  ocrConfidence      Float?
 
   width  Int?
   height Int?
@@ -2463,7 +2648,7 @@ model AiProcessingJob {
   status   AiJobStatus   @default(PENDING)
   priority AiJobPriority @default(NORMAL)
 
-  copySubmissionId String?        @unique
+  copySubmissionId String?         @unique
   copySubmission   CopySubmission? @relation(fields: [copySubmissionId], references: [id], onDelete: SetNull)
 
   inputData  Json?
@@ -2473,11 +2658,11 @@ model AiProcessingJob {
   retryCount   Int     @default(0)
   maxRetries   Int     @default(3)
 
-  claimedAt      DateTime?
-  claimedBy      String?
-  startedAt      DateTime?
-  completedAt    DateTime?
-  nextRetryAt    DateTime?
+  claimedAt   DateTime?
+  claimedBy   String?
+  startedAt   DateTime?
+  completedAt DateTime?
+  nextRetryAt DateTime?
 
   processingDurationMs Int?
 
@@ -2512,7 +2697,7 @@ model PedagogicalReport {
   strengths  String[]
   weaknesses String[]
 
-  rawAiOutput Json?
+  rawAiOutput       Json?
   validatedAiOutput Json?
 
   competenceMatrix   CompetenceMatrix?
@@ -2521,10 +2706,10 @@ model PedagogicalReport {
   sentToStudentAt DateTime?
   readByStudentAt DateTime?
 
-  coachNotes      String? @db.Text
-  studentSummary  String? @db.Text
+  coachNotes     String? @db.Text
+  studentSummary String? @db.Text
 
-  feedback ReportFeedback[]
+  feedback  ReportFeedback[]
   auditLogs NpcAuditLog[]
 
   @@index([studentId, status])
@@ -2538,7 +2723,7 @@ model CompetenceMatrix {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  reportId String  @unique
+  reportId String            @unique
   report   PedagogicalReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
 
   matrixData Json
@@ -2554,7 +2739,7 @@ model RemediationRoadmap {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  reportId String  @unique
+  reportId String            @unique
   report   PedagogicalReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
 
   title       String
@@ -2580,11 +2765,11 @@ model RoadmapTask {
   description String
   order       Int
 
-  type        String
-  resourceIds   String[]
-  externalUrls  String[]
+  type         String
+  resourceIds  String[]
+  externalUrls String[]
 
-  isCompleted Boolean @default(false)
+  isCompleted Boolean   @default(false)
   completedAt DateTime?
 
   @@index([roadmapId, order])
@@ -2600,12 +2785,12 @@ model ReportFeedback {
 
   submittedById String
 
-  type        FeedbackType
-  comment     String?
-  severity    Int?        @default(1)
+  type     FeedbackType
+  comment  String?
+  severity Int?         @default(1)
 
-  isResolved Boolean  @default(false)
-  resolvedAt DateTime?
+  isResolved     Boolean   @default(false)
+  resolvedAt     DateTime?
   resolutionNote String?
 
   @@index([reportId, type])
@@ -2659,34 +2844,34 @@ model GeneratedPedagogicalReport {
   coachId String?
   coach   CoachProfile? @relation(fields: [coachId], references: [id], onDelete: SetNull)
 
-  subject     String
-  stageSlug   String?
-  studentBilanId String?
-  coachReportId  String?
-  kind        String
+  subject         String
+  stageSlug       String?
+  studentBilanId  String?
+  coachReportId   String?
+  kind            String
   promptVersion   String
   templateVersion String
 
   status GeneratedReportStatus @default(PENDING)
 
-  errorCode    String?
-  errorMessage String?
-  retryCount   Int     @default(0)
+  errorCode     String?
+  errorMessage  String?
+  retryCount    Int     @default(0)
   inputChecksum String?
 
-  contextJson    Json?
-  llmJson        Json?
-  validatedJson  Json?
-  modelUsed      String?
-  validatedAt    DateTime?
+  contextJson   Json?
+  llmJson       Json?
+  validatedJson Json?
+  modelUsed     String?
+  validatedAt   DateTime?
 
-  latexSource  String?  @db.Text
-  generatedAt  DateTime?
-  pdfUrl       String?
+  latexSource String?   @db.Text
+  generatedAt DateTime?
+  pdfUrl      String?
 
+  @@unique([studentId, stageSlug, subject, kind, inputChecksum])
   @@index([studentId, status])
   @@index([status, createdAt])
-  @@unique([studentId, stageSlug, subject, kind, inputChecksum])
   @@map("generated_pedagogical_reports")
 }
 
@@ -2696,13 +2881,13 @@ model GeneratedPedagogicalReport {
 /// to static values from pricing.canonical.json / PRODUCT_REGISTRY.
 model BusinessConfig {
   id            String   @id @default(dbgenerated("(gen_random_uuid())::text"))
-  namespace     String   // e.g. "pricing.rules", "products.credits"
-  key           String   // e.g. "group_max", "IMMERSION.grantsCredits"
+  namespace     String // e.g. "pricing.rules", "products.credits"
+  key           String // e.g. "group_max", "IMMERSION.grantsCredits"
   value         Json     @db.JsonB
-  schemaVersion String   // Zod schema version for this namespace
+  schemaVersion String // Zod schema version for this namespace
   version       Int      @default(1) // Incremented on each update
   previousValue Json?    @db.JsonB
-  updatedBy     String   // userId of the admin who wrote
+  updatedBy     String // userId of the admin who wrote
   updatedAt     DateTime @default(now()) @updatedAt
   createdAt     DateTime @default(now())
 
@@ -2720,8 +2905,8 @@ model BusinessConfigAudit {
   key       String
   oldValue  Json?    @db.JsonB
   newValue  Json     @db.JsonB
-  version   Int      // version of the BusinessConfig row after this change
-  changedBy String   // userId
+  version   Int // version of the BusinessConfig row after this change
+  changedBy String // userId
   changedAt DateTime @default(now())
 
   @@unique([namespace, key, version])

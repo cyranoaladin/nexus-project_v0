@@ -8,11 +8,13 @@ import { createClient, type RedisClientType } from 'redis';
  */
 export class RedisStore {
   private readonly url: string;
+  private readonly timeoutMs: number;
   private client: RedisClientType | null = null;
   private connecting: Promise<RedisClientType> | null = null;
 
-  constructor(url: string) {
+  constructor(url: string, options: Readonly<{ timeoutMs?: number }> = {}) {
     this.url = url;
+    this.timeoutMs = options.timeoutMs ?? 1_500;
   }
 
   private async getClient(): Promise<RedisClientType> {
@@ -20,7 +22,14 @@ export class RedisStore {
     if (this.connecting) return this.connecting;
 
     this.connecting = (async () => {
-      const client = createClient({ url: this.url }) as RedisClientType;
+      const client = createClient({
+        url: this.url,
+        socket: {
+          connectTimeout: this.timeoutMs,
+          reconnectStrategy: false,
+        },
+        disableOfflineQueue: true,
+      }) as RedisClientType;
       client.on('error', () => {
         // Errors are surfaced through command failures and handled by caller.
       });
@@ -42,6 +51,7 @@ export class RedisStore {
     key: string,
     limit: number,
     windowMs: number,
+    options: Readonly<{ signal?: AbortSignal }> = {},
   ): Promise<{
     success: boolean;
     limit: number;
@@ -49,11 +59,22 @@ export class RedisStore {
     resetAt: number;
   }> {
     const client = await this.getClient();
-    const count = await client.incr(key);
+    const commandOptions = options.signal
+      ? client.commandOptions({ signal: options.signal })
+      : null;
+    const count = commandOptions
+      ? await client.incr(commandOptions, key)
+      : await client.incr(key);
     const windowSeconds = Math.max(1, Math.ceil(windowMs / 1000));
-    await client.expire(key, windowSeconds, 'NX');
+    if (commandOptions) {
+      await client.expire(commandOptions, key, windowSeconds, 'NX');
+    } else {
+      await client.expire(key, windowSeconds, 'NX');
+    }
 
-    const ttlSeconds = await client.ttl(key);
+    const ttlSeconds = commandOptions
+      ? await client.ttl(commandOptions, key)
+      : await client.ttl(key);
     const ttlMs = Number.isFinite(ttlSeconds) && ttlSeconds > 0
       ? ttlSeconds * 1000
       : windowMs;

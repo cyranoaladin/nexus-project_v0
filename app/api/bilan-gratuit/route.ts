@@ -8,11 +8,47 @@ import { guardRateLimitAsync } from '@/lib/rate-limit';
 import { checkCsrf, checkBodySize } from '@/lib/csrf';
 import { serializeError } from '@/lib/utils/serialize-error';
 import { synchronizePreRentreeCampaignContext } from '@/lib/campaigns/pre-rentree-2026/bilan-prefill';
+import { captureContactLead } from '@/lib/crm/contact-leads';
 import { createId } from '@paralleldrive/cuid2';
 import crypto from 'crypto';
 import { NextRequest, NextResponse } from 'next/server';
+import { getBilanFeatureFlags } from '@/lib/bilans/requests/feature-flags';
+import { readBoundedJson } from '@/lib/http/bounded-json';
 
-export async function POST(request: NextRequest) {
+const PUBLIC_SUCCESS_RESPONSE = {
+  success: true,
+  message: 'Votre demande a bien été enregistrée. Consultez votre email pour poursuivre.',
+} as const;
+
+async function notifyStaffOfValidatedSubmission(
+  data: {
+    parentFirstName: string;
+    parentLastName: string;
+    parentEmail: string;
+    parentPhone: string;
+    acceptTerms: boolean;
+  },
+  isTestEnv: boolean,
+) {
+  try {
+    await captureContactLead({
+      name: `${data.parentFirstName} ${data.parentLastName}`.trim(),
+      email: data.parentEmail,
+      phone: data.parentPhone,
+      profile: 'Parent',
+      interest: 'Bilan gratuit - nouvelle demande',
+      source: 'bilan-gratuit',
+      type: 'bilan_gratuit',
+      consent: data.acceptTerms,
+    });
+  } catch (leadError) {
+    if (!isTestEnv) {
+      console.error('Erreur notification interne bilan gratuit:', serializeError(leadError));
+    }
+  }
+}
+
+async function legacyPost(request: NextRequest) {
   try {
     const isTestEnv = process.env.NODE_ENV === 'test';
 
@@ -25,10 +61,21 @@ export async function POST(request: NextRequest) {
     if (bodySizeResponse) return bodySizeResponse;
 
     // Rate limiting
-    const blocked = await guardRateLimitAsync(request, { preset: 'api', keySuffix: 'bilan-gratuit' });
+    const blocked = await guardRateLimitAsync(request, {
+      preset: 'api',
+      keySuffix: 'bilan-gratuit',
+      requireDistributed: true,
+    });
     if (blocked) return blocked;
 
-    const body = await request.json();
+    const boundedBody = await readBoundedJson(request);
+    if (!boundedBody.ok) {
+      if (boundedBody.kind === 'TOO_LARGE') {
+        return NextResponse.json({ error: 'Payload too large' }, { status: 413 });
+      }
+      return NextResponse.json({ error: 'Requête invalide.' }, { status: 400 });
+    }
+    const body = boundedBody.value as Record<string, unknown>;
 
     // Honeypot check — bots fill hidden fields, humans don't
     if (body.website || body.url || body.honeypot) {
@@ -38,6 +85,15 @@ export async function POST(request: NextRequest) {
 
     // Validation des données
     const validatedData = bilanGratuitSchema.parse(body);
+    const gTrack = normalizeStudentLevelAndTrack(validatedData.studentGrade);
+
+    if (!gTrack) {
+      return NextResponse.json(
+        { error: `Niveau scolaire non reconnu : ${validatedData.studentGrade}` },
+        { status: 400 },
+      );
+    }
+
     const campaignContext = synchronizePreRentreeCampaignContext({
       campaignContext: validatedData.campaignContext ?? undefined,
       studentGrade: validatedData.studentGrade,
@@ -55,26 +111,27 @@ export async function POST(request: NextRequest) {
     }
 
     if (existingUser) {
-      return NextResponse.json(
-        { error: 'Un compte existe déjà avec cet email' },
-        { status: 400 }
-      );
+      await notifyStaffOfValidatedSubmission(validatedData, isTestEnv);
+
+      try {
+        const { sendExistingAccountBilanEmail } = await import('@/lib/email');
+        await sendExistingAccountBilanEmail(
+          existingUser.email,
+          `${validatedData.parentFirstName} ${validatedData.parentLastName}`,
+        );
+      } catch (emailError) {
+        if (!isTestEnv) {
+          console.error('Erreur envoi email de continuation:', serializeError(emailError));
+        }
+      }
+
+      return NextResponse.json(PUBLIC_SUCCESS_RESPONSE);
     }
 
     const resolvedStudentLastName = validatedData.studentLastName ?? validatedData.parentLastName;
     const rawActivationToken = `act_${createId()}_${crypto.randomBytes(16).toString('hex')}`;
     const hashedActivationToken = crypto.createHash('sha256').update(rawActivationToken).digest('hex');
     const activationExpiry = new Date(Date.now() + 72 * 60 * 60 * 1000);
-
-    // Normaliser le niveau scolaire AVANT la transaction
-    const gTrack = normalizeStudentLevelAndTrack(validatedData.studentGrade);
-    
-    if (!gTrack) {
-      return NextResponse.json(
-        { error: `Niveau scolaire non reconnu : ${validatedData.studentGrade}` },
-        { status: 400 }
-      );
-    }
 
     // Transaction pour créer parent et élève
     const result = await prisma.$transaction(async (tx) => {
@@ -143,6 +200,8 @@ export async function POST(request: NextRequest) {
       return { parentUser, studentUser, student, campaignLead };
     });
 
+    await notifyStaffOfValidatedSubmission(validatedData, isTestEnv);
+
     // Envoyer email de bienvenue
     try {
       const { sendWelcomeParentEmail } = await import('@/lib/email');
@@ -160,12 +219,7 @@ export async function POST(request: NextRequest) {
       // Ne pas faire échouer l'inscription si l'email ne part pas
     }
 
-    return NextResponse.json({
-      success: true,
-      message: 'Votre demande a bien été enregistrée. Un lien d’activation a été envoyé.',
-      parentId: result.parentUser.id,
-      studentId: result.student.id
-    });
+    return NextResponse.json(PUBLIC_SUCCESS_RESPONSE);
 
   } catch (error) {
     if (process.env.NODE_ENV !== 'test') {
@@ -184,4 +238,13 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
+}
+
+export async function POST(request: NextRequest) {
+  if (getBilanFeatureFlags().canonicalIntakeEnabled) {
+    const canonical = await import('@/app/api/bilan-gratuit/v1/requests/route');
+    return canonical.POST(request);
+  }
+
+  return legacyPost(request);
 }
