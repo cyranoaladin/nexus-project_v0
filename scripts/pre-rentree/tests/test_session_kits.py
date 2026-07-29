@@ -268,6 +268,9 @@ def test_session_validator_cross_checks_csv_metadata_against_module_catalog(
     [
         ("banques-eleve.md", "\n**Solution :** 42\n"),
         ("banques-eleve.md", "\n**Réponse :** 42\n"),
+        ("banques-eleve.md", "\n**Réponse correcte :** 42\n"),
+        ("verification-eleve.md", "\n**Bonne réponse :** B\n"),
+        ("verification-eleve.md", "\n**Barème :** 2 points pour la méthode\n"),
         ("verification-eleve.md", "\n**Réponse :** maîtrise fragile\n"),
         ("verification-eleve.md", "\n**Barème enseignant :** 2 points pour la méthode\n"),
         ("verification-eleve.md", "\n**Diagnostic attendu :** maîtrise fragile\n"),
@@ -336,3 +339,36 @@ def test_session_validator_allows_legitimate_student_response_instruction(
         check=False,
     )
     assert passing.returncode == 0, passing.stderr
+
+
+def test_session_validator_rejects_symlinked_unit_source(tmp_path: Path) -> None:
+    import shutil
+
+    target = tmp_path / "repo"
+    shutil.copytree(REPO_ROOT / "content/pre-rentree-2026", target / "content/pre-rentree-2026")
+    shutil.copytree(
+        REPO_ROOT / "scripts/pre-rentree/pedagogy/schemas",
+        target / "scripts/pre-rentree/pedagogy/schemas",
+    )
+    source = next(
+        (target / "content/pre-rentree-2026/pedagogy/session-kits/modules").glob(
+            "*/s01-*/verification-eleve.md"
+        )
+    )
+    backing = target / "unit-backing.md"
+    source.rename(backing)
+    source.symlink_to(backing)
+
+    failing = subprocess.run(
+        [
+            sys.executable,
+            str(REPO_ROOT / "scripts/pre-rentree/pedagogy/validate_session_kits.py"),
+            "--repo-root",
+            str(target),
+        ],
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    assert failing.returncode != 0
+    assert "lien symbolique interdit" in failing.stderr

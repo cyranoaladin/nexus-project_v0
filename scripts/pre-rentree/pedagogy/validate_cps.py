@@ -7,7 +7,7 @@ import argparse
 import hashlib
 import json
 import sys
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from typing import Any
 
 import yaml
@@ -15,6 +15,15 @@ from jsonschema import Draft202012Validator
 
 
 STATUS = "HUMAN_VALIDATION_REQUIRED"
+EXPECTED_SHARED_SOURCES = {
+    "content/pre-rentree-2026/pedagogy/positioning/SPEC-tests-positionnement-pre-stage-2026.md",
+    "content/pre-rentree-2026/pedagogy/positioning/REFERENTIEL-CANONIQUE-2026.yaml",
+    "content/pre-rentree-2026/pedagogy/positioning/curriculum-anchors.yaml",
+    "content/pre-rentree-2026/pedagogy/session-kits/MANIFESTE-SEANCES.csv",
+}
+GENERATED_ROOT = PurePosixPath(
+    ".artifacts/pre-rentree-2026/pedagogy/generated"
+)
 
 
 def _load_yaml(path: Path) -> Any:
@@ -36,6 +45,77 @@ def _schema_errors(document: Any, schema_path: Path) -> list[str]:
     ]
 
 
+def _symlink_component(repo_root: Path, path: Path) -> Path | None:
+    try:
+        relative = path.relative_to(repo_root)
+    except ValueError:
+        return path
+    current = repo_root
+    for part in relative.parts:
+        current /= part
+        if current.is_symlink():
+            return current
+    return None
+
+
+def _validate_source_path(
+    repo_root: Path,
+    content_root: Path,
+    raw: Any,
+    label: str,
+    errors: list[str],
+) -> Path | None:
+    if not isinstance(raw, str):
+        errors.append(f"{label}: chemin source invalide")
+        return None
+    lexical = PurePosixPath(raw)
+    if lexical.is_absolute() or "." in lexical.parts or ".." in lexical.parts or "\\" in raw:
+        errors.append(f"{label}: chemin source lexicalement invalide")
+        return None
+    path = repo_root / raw
+    symlink = _symlink_component(repo_root, path)
+    if symlink is not None:
+        errors.append(f"{label}: lien symbolique interdit ({symlink})")
+        return None
+    try:
+        resolved = path.resolve(strict=True)
+    except FileNotFoundError:
+        errors.append(f"{label}: source manquante ({raw})")
+        return None
+    if not resolved.is_file() or not resolved.is_relative_to(content_root.resolve()):
+        errors.append(f"{label}: chemin source hors content/pre-rentree-2026")
+        return None
+    return path
+
+
+def _validate_output_path(
+    repo_root: Path, raw: Any, label: str, errors: list[str]
+) -> None:
+    if not isinstance(raw, str):
+        errors.append(f"{label}: chemin de sortie invalide")
+        return
+    lexical = PurePosixPath(raw)
+    if (
+        lexical.is_absolute()
+        or "." in lexical.parts
+        or ".." in lexical.parts
+        or "\\" in raw
+        or not lexical.is_relative_to(GENERATED_ROOT)
+        or lexical == GENERATED_ROOT
+    ):
+        errors.append(f"{label}: chemin de sortie hors generated")
+        return
+    path = repo_root / raw
+    symlink = _symlink_component(repo_root, path)
+    if symlink is not None:
+        errors.append(f"{label}: lien symbolique interdit ({symlink})")
+        return
+    if not path.resolve(strict=False).is_relative_to(
+        (repo_root / GENERATED_ROOT.as_posix()).resolve(strict=False)
+    ):
+        errors.append(f"{label}: chemin de sortie résolu hors generated")
+
+
 def validate(repo_root: Path) -> tuple[list[str], dict[str, int]]:
     """Return validation errors and deterministic corpus counts."""
 
@@ -55,6 +135,8 @@ def validate(repo_root: Path) -> tuple[list[str], dict[str, int]]:
     for label, path in required.items():
         if not path.is_file():
             errors.append(f"{label} manquant : {path.relative_to(repo_root)}")
+        elif _symlink_component(repo_root, path) is not None:
+            errors.append(f"{label}: lien symbolique interdit")
     if errors:
         return errors, {}
 
@@ -76,8 +158,24 @@ def validate(repo_root: Path) -> tuple[list[str], dict[str, int]]:
     for message in _schema_errors(manifest, required["manifest schema"]):
         errors.append(f"manifest.yaml: {message}")
     manifest_modules = {entry.get("id"): entry for entry in manifest.get("modules", [])}
+    declared_catalog = manifest.get("moduleCatalog")
+    catalog_path = (
+        pedagogy_root / declared_catalog
+        if isinstance(declared_catalog, str)
+        else pedagogy_root
+    )
+    if (
+        declared_catalog != "../modules.json"
+        or _symlink_component(repo_root, catalog_path) is not None
+        or catalog_path.resolve(strict=False) != required["module catalog"].resolve()
+        or not catalog_path.resolve(strict=False).is_relative_to(content_root.resolve())
+    ):
+        errors.append("manifest.yaml/moduleCatalog: chemin source invalide ou hors content")
     if set(manifest_modules) != set(module_by_id):
         errors.append("manifest.yaml ne couvre pas exactement les modules de modules.json")
+    shared_paths = [source.get("path") for source in manifest.get("sharedSources", [])]
+    if len(shared_paths) != 4 or set(shared_paths) != EXPECTED_SHARED_SOURCES:
+        errors.append("manifest.yaml: ensemble exact des sources partagées requis")
     global_validation = manifest.get("humanValidation", {})
     if global_validation.get("status") != STATUS:
         errors.append(f"statut global doit rester {STATUS}")
@@ -161,6 +259,13 @@ def validate(repo_root: Path) -> tuple[list[str], dict[str, int]]:
                             errors.append(f"{filename}/{item_id}: obstacleVise invalide")
 
         manifest_entry = manifest_modules.get(module_id, {})
+        if (
+            manifest_entry.get("level") != module.get("level")
+            or manifest_entry.get("subject") != module.get("subjectId")
+            or [session.get("number") for session in manifest_entry.get("sessions", [])]
+            != [session.get("number") for session in module.get("sessions", [])]
+        ):
+            errors.append(f"manifest.yaml/{module_id}: métadonnées module incohérentes")
         if manifest_entry.get("editorialStatus") != STATUS:
             errors.append(f"manifest.yaml/{module_id}: statut éditorial doit rester {STATUS}")
         human = manifest_entry.get("humanValidation", {})
@@ -193,10 +298,25 @@ def validate(repo_root: Path) -> tuple[list[str], dict[str, int]]:
         if manifest.get("counts", {}).get(key) != expected:
             errors.append(f"manifest.yaml/counts/{key}: {expected} attendu")
 
-    for source in manifest.get("sharedSources", []):
-        path = repo_root / source.get("path", "")
-        if not path.is_file() or source.get("sha256") != _sha256(path):
-            errors.append(f"source partagée absente ou hash divergent : {source.get('path')}")
+    all_sources = list(manifest.get("sharedSources", []))
+    for module in manifest.get("modules", []):
+        all_sources.extend((module.get("cps", {}), module.get("readme", {})))
+        for session in module.get("sessions", []):
+            all_sources.extend(session.get("files", []))
+        for index, output in enumerate(module.get("expectedOutputs", [])):
+            _validate_output_path(
+                repo_root, output, f"manifest.yaml/{module.get('id')}/expectedOutputs/{index}", errors
+            )
+    for source in all_sources:
+        path = _validate_source_path(
+            repo_root,
+            content_root,
+            source.get("path"),
+            f"manifest.yaml/source/{source.get('path')}",
+            errors,
+        )
+        if path is None or source.get("sha256") != _sha256(path):
+            errors.append(f"source canonique absente ou hash divergent : {source.get('path')}")
     return errors, counts
 
 

@@ -31,7 +31,8 @@ STUDENT_LEAK_MARKERS = re.compile(
     flags=re.IGNORECASE | re.MULTILINE,
 )
 EXPLICIT_ANSWER_LEAK = re.compile(
-    r"^[ \t]*\*\*réponse[ \t]*:[ \t]*\*\*[ \t]*\S.*$",
+    r"^[ \t]*\*\*(?:réponse(?:[ \t]+correcte)?|bonne[ \t]+réponse|barème)"
+    r"[ \t]*:[ \t]*\*\*[ \t]*\S.*$",
     flags=re.IGNORECASE | re.MULTILINE,
 )
 
@@ -40,7 +41,26 @@ def _sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def _symlink_component(repo_root: Path, path: Path) -> Path | None:
+    try:
+        relative = path.relative_to(repo_root)
+    except ValueError:
+        return path
+    current = repo_root
+    for part in relative.parts:
+        current /= part
+        if current.is_symlink():
+            return current
+    return None
+
+
 def _file_text(path: Path, errors: list[str], repo_root: Path) -> str:
+    symlink = _symlink_component(repo_root, path)
+    if symlink is not None:
+        errors.append(
+            f"lien symbolique interdit : {path.relative_to(repo_root)}"
+        )
+        return ""
     if not path.is_file():
         errors.append(f"fichier manquant : {path.relative_to(repo_root)}")
         return ""
@@ -69,6 +89,8 @@ def validate(repo_root: Path) -> tuple[list[str], dict[str, int]]:
     for path in required + [manifest_path]:
         if not path.is_file():
             errors.append(f"fichier manquant : {path.relative_to(repo_root)}")
+        elif _symlink_component(repo_root, path) is not None:
+            errors.append(f"lien symbolique interdit : {path.relative_to(repo_root)}")
     if errors:
         return errors, {}
 
