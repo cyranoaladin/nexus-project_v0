@@ -10,7 +10,7 @@ type TokenCookieOptions = Readonly<{
   httpOnly: true;
   sameSite: 'lax';
   secure: boolean;
-  path: '/bilan-gratuit';
+  path: '/api/bilan-gratuit';
   maxAge: number;
 }>;
 
@@ -140,7 +140,7 @@ export function createBilanFlowSessionToken(
   const now = options.now ?? new Date();
   assertValidDate(now);
   const rawToken = createRawBilanToken();
-  const production = options.production ?? process.env.NODE_ENV === 'production';
+  const production = process.env.NODE_ENV === 'production' || options.production === true;
 
   return {
     rawToken,
@@ -153,7 +153,7 @@ export function createBilanFlowSessionToken(
         httpOnly: true,
         sameSite: 'lax',
         secure: production,
-        path: '/bilan-gratuit',
+        path: '/api/bilan-gratuit',
         maxAge: BILAN_FLOW_SESSION_TTL_SECONDS,
       },
     },

@@ -253,7 +253,7 @@ describe('canonical bilan request intake — real PostgreSQL', () => {
     expect(result.internal.flowSessionToken?.cookie.options).toMatchObject({
       httpOnly: true,
       sameSite: 'lax',
-      path: '/bilan-gratuit',
+      path: '/api/bilan-gratuit',
       maxAge: 1_800,
     });
   });
@@ -308,6 +308,116 @@ describe('canonical bilan request intake — real PostgreSQL', () => {
       prisma.bilanMagicLink.count(),
       prisma.notificationOutbox.count(),
     ])).resolves.toEqual([2, 1, 1, 1, 1, 1, 1]);
+  });
+
+  it('does not choose between duplicate case-insensitive parent accounts', async () => {
+    const first = await prisma.user.create({
+      data: { email: 'Case.Parent@example.com', role: 'PARENT' },
+    });
+    const second = await prisma.user.create({
+      data: { email: 'case.parent@example.com', role: 'PARENT' },
+    });
+    await prisma.parentProfile.createMany({
+      data: [{ userId: first.id }, { userId: second.id }],
+    });
+
+    const result = await createBilanRequestIntake({
+      prisma,
+      admission: {
+        ...admission,
+        parent: { ...admission.parent, email: 'CASE.PARENT@example.com' },
+      },
+      idempotencyKey: 'intake_real_ambiguous_0123',
+    });
+
+    await expect(prisma.bilanRequest.findUniqueOrThrow({
+      where: { id: result.internal.requestId },
+    })).resolves.toMatchObject({
+      parentUserId: null,
+      studentId: null,
+      status: 'HUMAN_FOLLOWUP_REQUIRED',
+      accountVerificationState: 'UNVERIFIED',
+    });
+    await expect(prisma.bilanRequestEvent.findMany({
+      where: { requestId: result.internal.requestId },
+      orderBy: { occurredAt: 'asc' },
+    })).resolves.toEqual([
+      expect.objectContaining({ type: 'REQUEST_CREATED' }),
+      expect.objectContaining({
+        type: 'HUMAN_FOLLOWUP_REQUIRED',
+        payload: { reasonCode: 'OPERATIONAL_FOLLOWUP' },
+      }),
+    ]);
+    expect(result.internal.flowSessionToken).not.toBeNull();
+    expect(result.internal.magicLinkToken).toBeNull();
+    expect(await prisma.bilanMagicLink.count()).toBe(0);
+    expect(await prisma.user.count()).toBe(2);
+    expect(await prisma.student.count()).toBe(0);
+  });
+
+  it('keeps a unique non-parent account unlinked and requests human follow-up', async () => {
+    await prisma.user.create({
+      data: { email: 'parent.intake@example.com', role: 'COACH' },
+    });
+
+    const result = await createBilanRequestIntake({
+      prisma,
+      admission,
+      idempotencyKey: 'intake_real_non_parent_0123',
+    });
+
+    await expect(prisma.bilanRequest.findUniqueOrThrow({
+      where: { id: result.internal.requestId },
+    })).resolves.toMatchObject({
+      parentUserId: null,
+      studentId: null,
+      status: 'HUMAN_FOLLOWUP_REQUIRED',
+      accountVerificationState: 'UNVERIFIED',
+    });
+    expect(result.internal.flowSessionToken).not.toBeNull();
+    expect(result.internal.magicLinkToken).toBeNull();
+    expect(await prisma.bilanMagicLink.count()).toBe(0);
+    expect(await prisma.bilanRequestEvent.count({
+      where: {
+        requestId: result.internal.requestId,
+        type: 'HUMAN_FOLLOWUP_REQUIRED',
+      },
+    })).toBe(1);
+  });
+
+  it('converges concurrent differently-cased submissions on one parent and two coherent requests', async () => {
+    const [first, second] = await Promise.all([
+      createBilanRequestIntake({
+        prisma,
+        admission: {
+          ...admission,
+          parent: { ...admission.parent, email: 'Race.Parent@Example.com' },
+        },
+        idempotencyKey: 'intake_real_email_race_first',
+      }),
+      createBilanRequestIntake({
+        prisma,
+        admission: {
+          ...admission,
+          parent: { ...admission.parent, email: 'race.parent@example.COM' },
+        },
+        idempotencyKey: 'intake_real_email_race_second',
+      }),
+    ]);
+
+    const requests = await prisma.bilanRequest.findMany({
+      orderBy: { createdAt: 'asc' },
+    });
+    const parentUsers = await prisma.user.findMany({ where: { role: 'PARENT' } });
+    expect(new Set([first.internal.requestId, second.internal.requestId]).size).toBe(2);
+    expect(parentUsers).toHaveLength(1);
+    expect(requests).toHaveLength(2);
+    expect(requests.every(({ parentUserId }) => parentUserId === parentUsers[0].id)).toBe(true);
+    expect(requests.filter(({ studentId }) => studentId !== null)).toHaveLength(1);
+    expect(await prisma.student.count()).toBe(1);
+    expect(await prisma.parentStudentLink.count()).toBe(1);
+    expect(await prisma.bilanRequestEvent.count()).toBe(2);
+    expect(await prisma.notificationOutbox.count()).toBe(2);
   });
 
   it('rolls every write back when the notification outbox insert fails', async () => {
