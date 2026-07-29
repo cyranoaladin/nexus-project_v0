@@ -121,7 +121,8 @@ supprimer automatiquement une ligne pour passer la garde.
   réussie ;
 - conservation des lignes, backfills privés et clés destinataires :
   réussie ;
-- `prisma validate` et `prisma generate` : à rejouer au gate final.
+- `prisma validate` : réussi au gate final ;
+- `prisma generate` : réussi avec Prisma Client 6.19.3.
 
 Aucune migration n'a été exécutée sur une base de production.
 

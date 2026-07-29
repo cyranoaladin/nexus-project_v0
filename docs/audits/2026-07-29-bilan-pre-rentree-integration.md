@@ -103,7 +103,8 @@ décrits dans la matrice.
 
 1. `lib/pre-rentree/pedagogy/` est l'unique lecteur applicatif du corpus.
 2. Le chargeur est `server-only`, valide Zod + YAML borné, vérifie tous les
-   hashes, les relations et les compteurs.
+   hashes, les relations, les compteurs, les huit nœuds évalués par CPS,
+   l'ordre A/B/C et l'unicité de la bonne réponse des QCM.
 3. Les usages revue, affectation et publication sont distincts et fail-closed.
 4. `lib/bilans/catalog` dépend de l'interface canonique ; l'ancien adaptateur
    TypeScript est supprimé.
@@ -160,7 +161,7 @@ des migrations étaient déjà verts.
 | `npm run pre-rentree:pedagogy:verify` | compteurs exacts, 103 fichiers, hash `282bd45a97115fcf9b177b4b22430c1bbd9415a79a54d5c56f463564f19e2408` |
 | Pytest pédagogique ciblé | 103 réussis, 2 ignorés |
 | TypeScript pré-rentrée après merge B | 53 suites, 404 tests réussis |
-| nouveau catalogue + correction manuelle + catalogue bilan | 3 suites, 27 tests réussis |
+| nouveau catalogue + correction manuelle + catalogue bilan | 3 suites, 28 tests réussis |
 | configuration/flags | 2 suites, 15 tests réussis |
 | typecheck et lint ciblé | réussis |
 
@@ -172,18 +173,59 @@ gardes.
 
 ## Gates finaux
 
-Cette section est mise à jour au SHA final avant push :
+| Gate | Résultat |
+|---|---|
+| `npm ci` | réussi, 1 272 paquets ; audit npm inchangé : 37 vulnérabilités de dépendances historiques, dont 36 élevées |
+| `npm run test -- --runInBand --silent` | réussi : 611 suites, 1 ignorée ; 7 557 tests réussis, 4 ignorés ; 7 snapshots |
+| `python -m pytest scripts/pre-rentree/tests -q` | réussi : 265 tests, 2 ignorés, en 767,39 s |
+| `npm run pre-rentree:test:ts` | réussi : 53 suites, 404 tests |
+| `npm run pre-rentree:pedagogy:verify` | réussi : tous les compteurs, 103 sorties, reproductibilité vraie et hash attendu |
+| `npm run lint` | réussi avec les avertissements historiques du dépôt ; aucun avertissement ajouté dans la frontière |
+| `npm run typecheck` | réussi |
+| `npm run build` | réussi : 145 pages ; traces, audit et standalone valides |
+| corpus dans le standalone | 380 fichiers internes tracés ; aucun chemin sous `public/pre-rentree-2026/pedagogy` |
+| `npx prisma validate` | réussi |
+| `npx prisma generate` | réussi, client 6.19.3 |
+| migration fresh + upgrade | réussi : 15 tests ; 52 migrations sur PostgreSQL jetable |
+| PostgreSQL intake + magic réel | réussi : 2 suites, 17 tests |
+| `npm run test:db` | baseline historique conservée : 7 suites en échec, 5 réussies ; 45 tests en échec, 130 réussis sur 175 |
+| `npm run security:repo` | réussi : clés privées, infrastructure publique et Telegram |
+| tests d'hygiène Python | réussi : 6 tests ; faux positif du marqueur de clé corrigé sans réduire le motif |
+| tests ciblés sécurité/raccordement | réussi : 27 suites, 449 tests avant l'ajout du dernier invariant QCM |
+| `git ls-files '.artifacts/pre-rentree-2026/pedagogy/**'` | vide |
+| tests supprimés | aucun |
+| chemins corpus sous `public/` | aucun |
+| chemins absolus de worktree dans `app`, `lib`, `scripts`, `content` | aucun |
+| parsing YAML dans `app/api` | aucun |
 
-- [ ] suite Jest globale ;
-- [ ] Pytest pré-rentrée complet ;
+La suite Jest gagne exactement trois suites et dix-neuf tests par rapport au
+lot A annoncé. La suite Python gagne huit tests par rapport au lot B annoncé.
+Aucun test n'a été supprimé ou ignoré pour obtenir ces compteurs.
+
+Le gate DB global échoue pour les mêmes 45 tests que la baseline :
+`createTestStudent` omet `gradeLevel` et le stress test ARIA référence encore
+la colonne pgvector `embedding`. Les nouvelles suites
+`canonical-bilans-schema` et `bilan-request-schema` sont vertes. Le passage de
+11 à 12 suites et de 159 à 175 tests provient de l'ajout du lot A.
+
+`git diff --check origin/main...HEAD` signale les fins de ligne et espaces
+terminaux déjà livrés dans les 340 fichiers canoniques du lot B, notamment le
+CSV CRLF explicitement autorisé par les tests d'hygiène. Ils ne sont pas
+normalisés dans cette convergence : une normalisation modifierait l'ensemble
+de hashes du manifeste et le hash reproductible sans décision pédagogique.
+Les fichiers d'intégration propres passent `git diff --check`.
+
+La reproduction depuis un worktree détaché propre du SHA final est consignée
+dans la section suivante avant le push.
+
+## Reproduction du SHA final
+
+- [ ] `npm ci` ;
+- [ ] catalogue/raccordement/sécurité ciblés ;
 - [ ] pipeline pédagogique et hash ;
-- [ ] lint ;
 - [ ] typecheck ;
-- [ ] build et audit standalone ;
-- [ ] Prisma validate/generate/migrations ;
-- [ ] tests DB comparés à la baseline ;
-- [ ] sécurité, secrets et hygiène ;
-- [ ] reproduction depuis un worktree détaché propre.
+- [ ] Prisma validate/generate ;
+- [ ] build et audit standalone.
 
 ## Risques résiduels
 
@@ -191,8 +233,11 @@ Cette section est mise à jour au SHA final avant push :
 - le moteur affectation/réponse/correction/score n'est pas implémenté ;
 - la migration de production, Redis/Upstash, SMTP, déploiement, activation et
   surveillance ne sont pas exécutés dans ce lot ;
-- la suite DB globale conserve ses échecs historiques, à comparer strictement
-  au gate final ;
+- la suite DB globale conserve 45 échecs historiques, sans nouvel échec ;
+- le corpus canonique conserve ses fins de ligne et espaces historiques
+  couverts par ses hashes ; toute normalisation doit être un changement
+  éditorial explicite avec régénération du manifeste ;
+- l'audit `npm` conserve 37 vulnérabilités de dépendances historiques ;
 - la présence du corpus dans le standalone augmente l'artefact serveur mais ne
   le rend pas public.
 
@@ -204,9 +249,10 @@ Cette section est mise à jour au SHA final avant push :
 - ne jamais corriger une sortie générée ou recopier le corpus en base ;
 - reconstruire `.artifacts/` depuis les sources.
 
-## Verdict provisoire
+## Verdict
 
-`PASS WITH BLOCKERS` jusqu'aux gates finaux et à la reproduction du SHA final.
-Les bloqueurs de production attendus sont la validation humaine, la migration
-autorisée, la configuration Redis/Upstash/SMTP, le déploiement, les smoke tests
-et l'activation contrôlée.
+`PASS WITH BLOCKERS`. Le raccordement est fonctionnel et les gates de
+convergence sont verts, sous réserve de la reproduction du SHA final cochée
+ci-dessus. Les bloqueurs de production sont la validation humaine, la
+migration autorisée, la configuration Redis/Upstash/SMTP, le déploiement, les
+smoke tests et l'activation contrôlée.
