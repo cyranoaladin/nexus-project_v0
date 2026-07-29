@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { getStageCalendar, getStageFormat, isFormatPriceValidated, getPacks, getRules } from '@/lib/pricing';
+import { getPublicStageCalendar, getStageFormat, isFormatPriceValidated, getPacks, getRules } from '@/lib/pricing';
 import Stages2026Page from './Stages2026Page';
 import { getPreRentreePublicSurfaceDTO } from '@/lib/campaigns/pre-rentree-2026/public-surface';
 import { PRE_RENTREE_2026_NAVIGATION } from '@/lib/campaigns/pre-rentree-2026/navigation';
@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 };
 
 export default function StagesPage() {
-  const calendar = getStageCalendar();
+  const calendar = getPublicStageCalendar();
   const rules = getRules();
   const passIntensifs = getPacks().filter((pack) => pack.id.startsWith('pass-intensifs'));
   const campaign = getPreRentreePublicSurfaceDTO();

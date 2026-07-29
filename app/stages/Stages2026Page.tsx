@@ -8,7 +8,7 @@ import { CorporateFooter } from '@/components/layout/CorporateFooter';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import type { StageCalendarEntry, StageFormat, Pack, Rules } from '@/lib/pricing';
+import type { PublicStageCalendarEntry, StageFormat, Pack, Rules } from '@/lib/pricing';
 import { fmtTND } from '@/components/premium/format';
 import { StagePriceLabel } from './_components/StagePriceLabel';
 import { buildWhatsAppUrl } from '@/lib/whatsapp';
@@ -23,7 +23,7 @@ const pillars = [
 ];
 
 interface Stages2026PageProps {
-  calendar: StageCalendarEntry[];
+  calendar: PublicStageCalendarEntry[];
   rules: Rules;
   passIntensifs: Pack[];
   formatMap: Record<string, { format: StageFormat; priceValidated: boolean }>;

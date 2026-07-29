@@ -17,7 +17,7 @@ import {
   getPonctuelOffers,
   getCoachingOffers,
   getPacks,
-  getCarte,
+  getPublicCarte,
   getRules,
   getEffectivePrice,
   getAnnualOfferPaymentSchedule,
@@ -137,7 +137,7 @@ export default function OffresPage() {
   const ponctuelOffers = getPonctuelOffers();
   const coachingOffers = getCoachingOffers();
   const packs = getPacks();
-  const carte = getCarte();
+  const carte = getPublicCarte();
   const preRentree = getPreRentreePublicSurfaceDTO();
 
   return (

@@ -447,6 +447,40 @@ export function getStageCalendar(): StageCalendarEntry[] {
   return data.stage_calendar ?? [];
 }
 
+export type PublicStageCalendarEntry = StageCalendarEntry;
+
+/**
+ * Same data as getStageCalendar(), reconstructed field-by-field rather than
+ * filtered, so a raw JSON field not even in StageCalendarEntry's type
+ * (`pack_product_ids`, present in data/pricing.canonical.json but absent from
+ * the interface — TypeScript doesn't strip untyped fields at runtime) never
+ * reaches a client component's serialized props.
+ *
+ * `notes` is kept: it IS a real, displayed field for several entries (e.g.
+ * "Horaires aménagés Ramadan : matinées ou post-iftar" is rendered on
+ * /stages today) — an earlier version of this function stripped it
+ * entirely, which would have been a real regression. The pre-rentree-2026
+ * entry's specific `notes` value ("Produit dédié avec packs 1-4 matières.
+ * Ne pas confondre avec les formats intensifs génériques.") reads like an
+ * internal catalogue-maintenance reminder rather than a customer-facing
+ * caveat — but that is a content-authoring question for whoever maintains
+ * data/pricing.canonical.json, not something this function should decide by
+ * filtering the field for everyone. See
+ * docs/audits/2026-07-29-stages-page-internal-data-leak.md.
+ *
+ * Use this, not getStageCalendar(), anywhere the result is passed to a
+ * "use client" component.
+ */
+export function getPublicStageCalendar(): PublicStageCalendarEntry[] {
+  return getStageCalendar().map(({
+    id, title, format_id, format_label, half_days, hours,
+    date_start, date_end, dates_display, weeks, objective, audience, subjects, notes,
+  }) => ({
+    id, title, format_id, format_label, half_days, hours,
+    date_start, date_end, dates_display, weeks, objective, audience, subjects, notes,
+  }));
+}
+
 /**
  * Returns the next upcoming stage from the calendar (date_start >= today).
  * Auto-advances as time passes — no hardcoded stage name needed.
@@ -502,6 +536,27 @@ export function getPack(id: string): Pack | undefined {
 
 export function getCarte(): CarteNexus {
   return data.carte_nexus;
+}
+
+export type PublicCarteNexus = Omit<CarteNexus, 'rationale'>;
+
+/**
+ * Same data as getCarte(), reconstructed field-by-field so `rationale` — an
+ * internal pricing-strategy note (e.g. "Loss-leader assumé par décision
+ * Shark...") never displayed by CarteNexusCard or anywhere else — never
+ * reaches a client component's serialized props. Use this, not getCarte(),
+ * anywhere the result is passed to a "use client" component.
+ * See docs/audits/2026-07-29-stages-page-internal-data-leak.md.
+ */
+export function getPublicCarte(): PublicCarteNexus {
+  const {
+    id, title, price_annual, includes, discount_pct,
+    discount_applies_to, discount_excludes, non_cumulable, member_floor_per_student_hour,
+  } = getCarte();
+  return {
+    id, title, price_annual, includes, discount_pct,
+    discount_applies_to, discount_excludes, non_cumulable, member_floor_per_student_hour,
+  };
 }
 
 export function getUrgence(): PricingData['urgence'] {
