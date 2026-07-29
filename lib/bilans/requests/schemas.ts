@@ -5,15 +5,47 @@ const compactIdentifierSchema = z.string().trim().min(1).max(160);
 const shortTextSchema = z.string().trim().min(1).max(80);
 const boundedReasonSchema = z.string().trim().min(1).max(1_000);
 
+export const CURRENT_BILAN_CONSENT_VERSION = 'bilan-public-v1' as const;
+
+function emptyStringToUndefined<T extends z.ZodTypeAny>(schema: T) {
+  return z.preprocess((value) => {
+    if (typeof value !== 'string') {
+      return value;
+    }
+
+    const trimmed = value.trim();
+    return trimmed === '' ? undefined : trimmed;
+  }, schema.optional());
+}
+
+function normalizeParentPhone(value: string): string {
+  const compact = value.replace(/[\s()-]/g, '');
+
+  if (/^[2-9]\d{7}$/.test(compact)) {
+    return `+216${compact}`;
+  }
+
+  if (/^216[2-9]\d{7}$/.test(compact)) {
+    return `+${compact}`;
+  }
+
+  return compact;
+}
+
+function isValidE164ParentPhone(value: string): boolean {
+  if (value.startsWith('+216')) {
+    return /^\+216[2-9]\d{7}$/.test(value);
+  }
+
+  return /^\+[1-9]\d{7,14}$/.test(value);
+}
+
 const parentPhoneSchema = z.string()
   .trim()
   .min(8)
   .max(32)
-  .refine((value) => {
-    const normalized = value.replace(/[\s()-]/g, '');
-    return /^\+?[1-9]\d{7,14}$/.test(normalized);
-  }, 'Numéro de téléphone invalide')
-  .transform((value) => value.replace(/[\s()-]/g, ''));
+  .transform(normalizeParentPhone)
+  .refine(isValidE164ParentPhone, 'Numéro de téléphone invalide');
 
 export const bilanParentContactSchema = z.object({
   firstName: shortTextSchema,
@@ -24,8 +56,8 @@ export const bilanParentContactSchema = z.object({
 
 export const bilanChildSchema = z.object({
   firstName: shortTextSchema,
-  lastName: shortTextSchema.optional(),
-  schoolName: z.string().trim().min(1).max(160).optional(),
+  lastName: emptyStringToUndefined(shortTextSchema),
+  schoolName: emptyStringToUndefined(z.string().trim().min(1).max(160)),
 }).strict();
 
 export const bilanRequestAdmissionSchema = z.object({
@@ -35,9 +67,9 @@ export const bilanRequestAdmissionSchema = z.object({
   level: z.nativeEnum(GradeLevel),
   subject: z.nativeEnum(Subject),
   mainNeed: z.string().trim().min(1).max(500),
-  message: z.string().trim().min(1).max(1_000).optional(),
+  message: emptyStringToUndefined(z.string().trim().min(1).max(1_000)),
   consent: z.literal(true),
-  consentVersion: z.string().trim().min(1).max(64),
+  consentVersion: z.literal(CURRENT_BILAN_CONSENT_VERSION),
 }).strict();
 
 export const bilanTeamAssignmentSchema = z.object({
