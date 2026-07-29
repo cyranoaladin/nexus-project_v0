@@ -384,16 +384,8 @@ describe('GET /api/bilan-gratuit/v1/requests/current', () => {
     expect(response.status).toBe(200);
     const body = await response.json();
     expect(body).toEqual({ request: {
-      status: 'NEW',
-      accountVerificationState: 'VERIFICATION_PENDING',
-      subject: 'MATHEMATIQUES',
-      gradeLevel: 'TERMINALE',
-      schoolYear: '2026-2027',
-      hasChild: true,
-      hasAssessment: true,
-      lastActivityAt: safeRequest.lastActivityAt.toISOString(),
-      submittedAt: null,
-      publishedAt: null,
+      resumeAvailable: true,
+      next: 'VERIFY_PARENT_ACCOUNT',
     } });
     for (const forbidden of [
       'id',
@@ -432,6 +424,48 @@ describe('GET /api/bilan-gratuit/v1/requests/current', () => {
     expect(serialized).not.toContain('parentUser');
   });
 
+  it('makes new-account, existing-parent and role-conflict temporary flows publicly indistinguishable', async () => {
+    const internalVariants = [
+      {
+        ...safeRequest,
+        status: 'NEW',
+        accountVerificationState: 'VERIFICATION_PENDING',
+        studentId: STUDENT_ID,
+      },
+      {
+        ...safeRequest,
+        status: 'NEW',
+        accountVerificationState: 'VERIFICATION_PENDING',
+        studentId: null,
+      },
+      {
+        ...safeRequest,
+        status: 'HUMAN_FOLLOWUP_REQUIRED',
+        accountVerificationState: 'UNVERIFIED',
+        studentId: null,
+      },
+    ];
+    const publicBodies = [];
+
+    for (const internalRequest of internalVariants) {
+      mockBilanRequestFindFirst.mockResolvedValueOnce(internalRequest);
+      const response = await getCurrentRequest(getCurrent(`nr_bf_s=${RAW_FLOW_TOKEN}`));
+      expect(response.status).toBe(200);
+      publicBodies.push(await response.json());
+    }
+
+    expect(publicBodies).toEqual([
+      { request: { resumeAvailable: true, next: 'VERIFY_PARENT_ACCOUNT' } },
+      { request: { resumeAvailable: true, next: 'VERIFY_PARENT_ACCOUNT' } },
+      { request: { resumeAvailable: true, next: 'VERIFY_PARENT_ACCOUNT' } },
+    ]);
+    const serialized = JSON.stringify(publicBodies);
+    expect(serialized).not.toMatch(
+      /studentId|hasChild|status|accountVerificationState|HUMAN_FOLLOWUP_REQUIRED|UNVERIFIED/,
+    );
+    expect(serialized).not.toContain(STUDENT_ID);
+  });
+
   it.each([
     ['missing cookie', undefined],
     ['malformed cookie', 'nr_bf_s=not-a-canonical-token'],
@@ -468,9 +502,25 @@ describe('GET /api/bilan-gratuit/v1/requests/current', () => {
         bilanRequestId: REQUEST_ID,
       },
     });
+    mockBilanRequestFindFirst.mockResolvedValueOnce({
+      ...safeRequest,
+      accountVerificationState: 'VERIFIED',
+    });
     const response = await getCurrentRequest(getCurrent());
     expect(response.status).toBe(200);
     const body = await response.json();
+    expect(body).toEqual({ request: {
+      status: 'NEW',
+      accountVerificationState: 'VERIFIED',
+      subject: 'MATHEMATIQUES',
+      gradeLevel: 'TERMINALE',
+      schoolYear: '2026-2027',
+      hasChild: true,
+      hasAssessment: true,
+      lastActivityAt: safeRequest.lastActivityAt.toISOString(),
+      submittedAt: null,
+      publishedAt: null,
+    } });
     for (const forbidden of [
       'id',
       'requestId',

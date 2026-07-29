@@ -7,6 +7,7 @@ import {
   createAuthenticatedBilanPrincipal,
   createTemporaryBilanPrincipal,
   findAccessibleBilanRequest,
+  type AccessibleBilanRequest,
 } from '@/lib/bilans/requests/access';
 import {
   BILAN_FLOW_COOKIE_NAME,
@@ -23,8 +24,15 @@ function denied(): NextResponse {
   });
 }
 
-function publicCurrentRequest(request: unknown) {
-  const record = request as Readonly<Record<string, unknown>>;
+function publicCurrentRequest(accessible: AccessibleBilanRequest) {
+  if (accessible.projection === 'TEMPORARY_FLOW') {
+    return {
+      resumeAvailable: true,
+      next: 'VERIFY_PARENT_ACCOUNT',
+    } as const;
+  }
+
+  const record = accessible.request as Readonly<Record<string, unknown>>;
   return {
     status: record.status,
     accountVerificationState: record.accountVerificationState,
@@ -83,7 +91,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   if (!accessible || !accessible.capabilities.readCurrentRequest) return denied();
 
   return NextResponse.json(
-    { request: publicCurrentRequest(accessible.request) },
+    { request: publicCurrentRequest(accessible) },
     { headers: { 'Cache-Control': 'private, no-store' } },
   );
 }

@@ -30,6 +30,9 @@ fournie par le client.
   ou sous-déclaré alors que le proxy accepte des corps sensiblement plus grands ;
 - la première entrée de `X-Forwarded-For` était contrôlable par le client avec
   la configuration nginx actuelle utilisant `$proxy_add_x_forwarded_for`.
+- même sans identifiants bruts, la première projection temporaire révélait par
+  `hasChild`, `status` et `accountVerificationState` si l'email appartenait à un
+  parent existant, à un nouveau parent ou à un compte d'un autre rôle.
 
 ## Décisions prises
 
@@ -71,9 +74,13 @@ fournie par le client.
 
 ### Correctifs issus de la revue de sécurité
 
-- la reprise publique passe désormais par un DTO explicite ne contenant que les
-  états, codes métier, indicateurs et horodatages utiles. Les identifiants de
-  demande, enfant, tentative et coach restent confinés à la couche d'accès ;
+- la reprise `TEMPORARY_FLOW` passe désormais par un contrat constant limité à
+  « reprise disponible » et « vérifier le compte parent ». Il ne dépend d'aucun
+  état, rôle, lien familial ou identifiant interne ;
+- après authentification, la projection `FAMILY` conserve un DTO allowlisté
+  utile contenant uniquement les états métier, indicateurs et horodatages
+  nécessaires. Les identifiants de demande, enfant, tentative et coach restent
+  confinés à la couche d'accès ;
 - un lecteur JSON réutilisable compte les octets réellement reçus avant tout
   parsing et interrompt la lecture au-delà de 1 Mio. `checkBodySize` reste un
   précontrôle rapide, mais ne constitue plus la limite effective ;
@@ -118,6 +125,10 @@ fournie par le client.
   réseau de confiance validés par leurs suites ciblées.
 - GREEN ciblé initial : 16 suites, 281 tests réussis.
 - GREEN final après revue : 18 suites, 311 tests réussis.
+- RED oracle email : les trois variantes temporaires produisaient trois réponses
+  distinctes ; GREEN : elles produisent le même contrat neutre, tandis que le
+  parent authentifié reprend toujours le dossier exact via son claim serveur.
+- GREEN final après neutralisation de l'oracle : 18 suites, 312 tests réussis.
 - PostgreSQL réel : 9 scénarios réussis, dont rejeu concurrent, rollback,
   création concurrente d'enfant, parent déjà connecté et flow révoqué.
 - `npm run typecheck` : réussi.
@@ -127,6 +138,8 @@ fournie par le client.
 - `git diff --check` : réussi.
 - revue production indépendante du correctif : aucun constat critique,
   important ou mineur ; verdict prêt à intégrer.
+- revue indépendante fraîche de la neutralisation de l'oracle : aucun constat
+  critique, important ou mineur ; verdict prêt à intégrer.
 
 ## Résultats
 
