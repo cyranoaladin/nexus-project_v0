@@ -15,7 +15,14 @@ import zipfile
 from pathlib import Path, PurePosixPath
 from typing import Iterator
 
-from classification import classify, has_ambiguous_name, is_hidden_path, normalized_name
+from classification import (
+    HISTORICAL_PACKAGES,
+    classify,
+    has_ambiguous_name,
+    has_control_characters,
+    is_hidden_path,
+    normalized_name,
+)
 
 
 CSV_FIELDS = (
@@ -208,6 +215,71 @@ def build_inventory(import_root: Path) -> dict:
     }
 
 
+def validate_complete_import_root(import_root: Path) -> None:
+    """Fail closed unless the CLI receives the complete historical package set."""
+
+    root = import_root.resolve(strict=True)
+    if not root.is_dir():
+        raise NotADirectoryError(import_root)
+    with os.scandir(root) as entries:
+        top_level_entries = {entry.name: entry for entry in entries}
+
+    expected = set(HISTORICAL_PACKAGES)
+    actual = set(top_level_entries)
+    missing = [name for name in HISTORICAL_PACKAGES if name not in actual]
+    unexpected = sorted(actual - expected)
+    if missing:
+        raise ValueError(f"missing top-level packages: {', '.join(missing)}")
+    if unexpected:
+        raise ValueError(
+            "unexpected top-level entries: "
+            f"{', '.join(_safe_name(name) for name in unexpected)}"
+        )
+
+    wrong_type = [
+        name
+        for name in HISTORICAL_PACKAGES
+        if not top_level_entries[name].is_dir(follow_symlinks=False)
+    ]
+    if wrong_type:
+        raise ValueError(
+            "top-level packages must be real directories: "
+            f"{', '.join(wrong_type)}"
+        )
+
+    unsafe_paths = [
+        relative.as_posix()
+        for _, relative, _ in _iter_tree(root)
+        if has_control_characters(relative.name)
+    ]
+    if unsafe_paths:
+        raise ValueError(
+            "control characters in entry names: "
+            f"{', '.join(_safe_name(path) for path in sorted(unsafe_paths))}"
+        )
+
+
+def validate_complete_inventory(inventory: dict) -> None:
+    packages_with_files = {
+        item["top_level_package"]
+        for item in inventory["files"]
+    }
+    empty_packages = [
+        name
+        for name in HISTORICAL_PACKAGES
+        if name not in packages_with_files
+    ]
+    if empty_packages:
+        raise ValueError(
+            "top-level packages without regular files: "
+            f"{', '.join(empty_packages)}"
+        )
+
+
+def _safe_name(name: str) -> str:
+    return name.encode("unicode_escape").decode("ascii")
+
+
 def _assert_output_outside_import(import_root: Path, output_root: Path) -> tuple[Path, Path]:
     root = import_root.resolve(strict=True)
     output = output_root.resolve()
@@ -273,7 +345,9 @@ def main() -> int:
     parser.add_argument("--output-root", required=True, type=Path)
     args = parser.parse_args()
     try:
+        validate_complete_import_root(args.import_root)
         inventory = build_inventory(args.import_root)
+        validate_complete_inventory(inventory)
         write_inventory(inventory, args.import_root, args.output_root)
     except (FileNotFoundError, NotADirectoryError, OSError, ValueError) as error:
         parser.error(str(error))

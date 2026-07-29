@@ -59,9 +59,13 @@ def has_ambiguous_name(name: str) -> bool:
 
     return (
         name != name.strip()
-        or any(unicodedata.category(character).startswith("C") for character in name)
+        or has_control_characters(name)
         or _AMBIGUOUS_COPY_MARKER.search(name) is not None
     )
+
+
+def has_control_characters(name: str) -> bool:
+    return any(unicodedata.category(character).startswith("C") for character in name)
 
 
 def is_hidden_path(relative_path: PurePosixPath) -> bool:
