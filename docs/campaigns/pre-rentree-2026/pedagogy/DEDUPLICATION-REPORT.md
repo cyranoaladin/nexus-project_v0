@@ -28,7 +28,10 @@ Le constructeur `scripts/pre-rentree/pedagogy/build_pedagogy_manifest.py` :
    Markdown par Unicode, fins de ligne et espaces terminaux ;
 6. refuse la sélection d'un candidat divergent si la validation structurelle,
    la référence QA et le résumé de diff ne sont pas tous présents ;
-7. attribue exactement une des neuf classes finales à chaque ligne.
+7. exécute les générateurs et validateurs retenus uniquement depuis une copie
+   temporaire, compare chaque sortie au corpus importé par chemin et SHA-256,
+   puis recalcule le SHA global de la source ;
+8. attribue exactement une des neuf classes finales à chaque ligne.
 
 Les nombres de groupes et copies ne sont pas des constantes métier : ils sont
 recalculés depuis les SHA de l'inventaire à chaque exécution.
@@ -132,15 +135,52 @@ L'archive ZIP est `ARCHIVE_PACKAGE`.
 | Script | Dépendances et entrées | Sorties et effets | Décision |
 |---|---|---|---|
 | `generate_operational_resources.py` | PyYAML, CSV, référentiel et 17 CPS | 69 ressources ; recrée sa destination | `GENERATOR`, utile à porter |
-| `generate_session_kits.py` | PyYAML, JSON, ancres, catalogue, 17 CPS et 4 banques spécifiques | 85 kits, 17 index, 34 compilations, manifeste ; remplace sa destination | `GENERATOR`, utile à porter |
+| `generate_session_kits.py` | PyYAML, JSON, ancres, catalogue, 17 CPS et 4 banques spécifiques | 85 kits, 17 index, 34 compilations, manifeste ; remplace sa destination | `GENERATOR` candidat à porter, `REQUIRES_PATH_ADAPTATION` |
 | `validate_cps.py` | PyYAML, référentiel et 17 CPS | diagnostic/code retour, aucun effet | `VALIDATOR`, déterministe |
-| `validate_session_kits.py` | JSON/CSV, catalogue et corpus de séances | diagnostic/compteurs/code retour, aucun effet | `VALIDATOR`, déterministe |
+| `validate_session_kits.py` | JSON/CSV, catalogue et corpus de séances | diagnostic/compteurs/code retour, aucun effet | `VALIDATOR` candidat à porter, `REQUIRES_PATH_ADAPTATION` |
 | `repair_math_cps.py` | 5 CPS et table de 100 décisions | mutation YAML en place | `HISTORICAL_VERSION`, migration |
 | `balance_answer_positions.py` | référentiel et CPS | mutation YAML en place | `HISTORICAL_VERSION`, migration |
 | `generate_missing_cps.py` | contenu encodé dans le script | écrit 8 CPS | `HISTORICAL_VERSION`, migration |
 
+### Évaluation fonctionnelle isolée
+
+Aucun générateur n'a été exécuté dans la source importée. Le constructeur
+interdit explicitement tout chemin d'exécution situé sous la racine historique.
+
+Pour la chaîne des séances, une copie temporaire fidèle du paquet livré
+reproduit le défaut des deux scripts :
+
+- état du paquet livré : `FAIL_PATH_LAYOUT` ;
+- `generate_session_kits.py` : code retour 1, `FileNotFoundError` ;
+- `validate_session_kits.py` : code retour 1, `FileNotFoundError` ;
+- les scripts situés sous `outils/` cherchent
+  `outils/source-modules.json`, `outils/curriculum-anchors.yaml`,
+  `outils/corpus-85-seances/` et `positionnement/`, alors que les données
+  livrées se trouvent sous `sources/`, `corpus/` et dans un paquet frère.
+
+Ils ne sont donc pas directement utilisables depuis le layout importé. Leur
+statut de portabilité est `REQUIRES_PATH_ADAPTATION`.
+
+Dans une seconde copie temporaire, le layout attendu a été reconstitué sans
+modifier les scripts : 17 CPS v3 sous `positionnement/`, catalogue et ancres
+sous `outils/`. Le générateur et le validateur terminent alors avec un code
+retour 0. Les 393 fichiers générés sont identiques par chemin et SHA-256 aux
+393 fichiers du corpus importé : zéro fichier manquant, supplémentaire ou
+différent.
+
+Pour la chaîne positionnement, une copie temporaire des 17 CPS, du référentiel,
+de `generate_operational_resources.py` et de `validate_cps.py` conserve le
+layout attendu. Le validateur et le générateur terminent avec un code retour 0 ;
+les 69 sorties sont identiques par chemin et SHA-256 aux 69 ressources
+importées.
+
+Le SHA global de la source vaut
+`077bce2a8737acb07134902f5815321f2dcb97fca435a6d14035db1d39357005`
+avant et après ces exécutions isolées.
+
 Le détail des imports, entrées, sorties, effets de bord, reproductibilité et
-couverture de chaque script est conservé dans
+couverture de chaque script, ainsi que les codes retour et comparaisons, est
+conservé dans
 `DECISIONS-DEDUPLICATION.json`.
 
 ## Sorties
