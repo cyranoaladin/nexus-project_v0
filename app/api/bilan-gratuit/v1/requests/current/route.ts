@@ -28,7 +28,8 @@ function publicCurrentRequest(accessible: AccessibleBilanRequest) {
   if (accessible.projection === 'TEMPORARY_FLOW') {
     return {
       resumeAvailable: true,
-      next: 'VERIFY_PARENT_ACCOUNT',
+      next: 'ASSESSMENT',
+      accountVerificationRequired: true,
     } as const;
   }
 
@@ -65,6 +66,23 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
           tokenHash,
           now,
         });
+
+        try {
+          const session = await auth();
+          if (
+            session?.user?.role === 'PARENT'
+            && session.user.bilanRequestId === flowSession.requestId
+          ) {
+            const familyPrincipal = createAuthenticatedBilanPrincipal({
+              requestId: flowSession.requestId,
+              sessionUser: session.user,
+              now,
+            });
+            if (familyPrincipal) principal = familyPrincipal;
+          }
+        } catch {
+          // A valid exact flow remains usable as a temporary principal.
+        }
       }
     } catch {
       return denied();
