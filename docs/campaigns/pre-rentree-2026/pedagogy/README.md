@@ -1,15 +1,18 @@
 # Corpus pédagogique Pré-rentrée 2026
 
-## Verdict du lot 1
+## Verdict de remise
 
-`PASS` pour l'organisation technique du corpus : 534 fichiers inventoriés,
-zéro fichier non classé, zéro conflit de sélection ouvert, sources canoniques
-alignées sur les 17 modules et pipeline reproductible. Ce verdict ne vaut ni
-validation pédagogique humaine, ni autorisation d'utilisation en classe, ni
-autorisation de publication.
+`BLOCKED` dans l'attente des gates finaux au SHA de remise. L'inventaire des
+534 fichiers, la classification sans conflit, le pipeline pédagogique et la
+suite Python complète sont verts. La première exécution TypeScript finale a
+échoué sur la taxonomie obsolète de documents actifs. Le test ciblé est
+désormais vert après correction ; la suite TypeScript complète, `lint`,
+`typecheck`, `build` et le checkout propre doivent encore tous être verts avant
+de promouvoir ce verdict en `PASS`.
 
-Les 17 modules restent `HUMAN_VALIDATION_REQUIRED`. Les gates finales du dépôt
-doivent être rejouées au SHA remis avant intégration.
+Ce blocage de remise ne vaut ni conflit pédagogique, ni régression du corpus.
+Les 17 modules restent `HUMAN_VALIDATION_REQUIRED` ; aucune utilisation en
+classe ou publication n'est autorisée.
 
 ## Périmètre
 
