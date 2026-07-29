@@ -30,6 +30,10 @@ STUDENT_LEAK_MARKERS = re.compile(
     r"diagnostic attendu|éléments de correction|décision pédagogique)\s*:\s*(?:\*\*)?)",
     flags=re.IGNORECASE | re.MULTILINE,
 )
+EXPLICIT_ANSWER_LEAK = re.compile(
+    r"^[ \t]*\*\*réponse[ \t]*:[ \t]*\*\*[ \t]*\S.*$",
+    flags=re.IGNORECASE | re.MULTILINE,
+)
 
 
 def _sha256(path: Path) -> str:
@@ -224,7 +228,9 @@ def validate(repo_root: Path) -> tuple[list[str], dict[str, int]]:
                 ("banques-eleve.md", student),
                 ("verification-eleve.md", exit_student),
             ):
-                marker = STUDENT_LEAK_MARKERS.search(student_text)
+                marker = STUDENT_LEAK_MARKERS.search(
+                    student_text
+                ) or EXPLICIT_ANSWER_LEAK.search(student_text)
                 if marker:
                     errors.append(
                         f"{key}: fuite élève dans {student_name} ({marker.group(0).strip()})"
