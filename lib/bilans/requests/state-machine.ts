@@ -34,11 +34,9 @@ export const BILAN_REQUEST_TRANSITIONS: readonly BilanRequestTransition[] = [
   {
     from: 'TECHNICAL_ACTION_REQUIRED',
     to: 'ASSESSMENT_SUBMITTED',
-    actor: 'ASSISTANTE',
+    actor: 'WORKER',
   },
-  { from: 'TECHNICAL_ACTION_REQUIRED', to: 'ASSESSMENT_SUBMITTED', actor: 'ADMIN' },
-  { from: 'TECHNICAL_ACTION_REQUIRED', to: 'SCORED', actor: 'ASSISTANTE' },
-  { from: 'TECHNICAL_ACTION_REQUIRED', to: 'SCORED', actor: 'ADMIN' },
+  { from: 'TECHNICAL_ACTION_REQUIRED', to: 'SCORED', actor: 'WORKER' },
 
   ...ACTIVE_STATUSES.map((from): BilanRequestTransition => ({
     from,

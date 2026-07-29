@@ -1,3 +1,4 @@
+import { GradeLevel, Subject } from '@prisma/client';
 import { z } from 'zod';
 
 const compactIdentifierSchema = z.string().trim().min(1).max(160);
@@ -31,8 +32,8 @@ export const bilanRequestAdmissionSchema = z.object({
   parent: bilanParentContactSchema,
   child: bilanChildSchema,
   schoolYear: z.literal('2026-2027'),
-  level: z.literal('TERMINALE'),
-  subject: z.literal('MATHEMATIQUES'),
+  level: z.nativeEnum(GradeLevel),
+  subject: z.nativeEnum(Subject),
   mainNeed: z.string().trim().min(1).max(500),
   message: z.string().trim().min(1).max(1_000).optional(),
   consent: z.literal(true),
