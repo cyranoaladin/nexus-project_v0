@@ -353,6 +353,13 @@ describe('POST /api/bilan-gratuit/v1/requests', () => {
 });
 
 describe('GET /api/bilan-gratuit/v1/requests/current', () => {
+  const temporaryResponse = {
+    request: {
+      resumeAvailable: true,
+      next: 'ASSESSMENT',
+      accountVerificationRequired: true,
+    },
+  };
   const safeRequest = {
     id: REQUEST_ID,
     status: 'NEW',
@@ -383,10 +390,7 @@ describe('GET /api/bilan-gratuit/v1/requests/current', () => {
 
     expect(response.status).toBe(200);
     const body = await response.json();
-    expect(body).toEqual({ request: {
-      resumeAvailable: true,
-      next: 'VERIFY_PARENT_ACCOUNT',
-    } });
+    expect(body).toEqual(temporaryResponse);
     for (const forbidden of [
       'id',
       'requestId',
@@ -455,15 +459,91 @@ describe('GET /api/bilan-gratuit/v1/requests/current', () => {
     }
 
     expect(publicBodies).toEqual([
-      { request: { resumeAvailable: true, next: 'VERIFY_PARENT_ACCOUNT' } },
-      { request: { resumeAvailable: true, next: 'VERIFY_PARENT_ACCOUNT' } },
-      { request: { resumeAvailable: true, next: 'VERIFY_PARENT_ACCOUNT' } },
+      temporaryResponse,
+      temporaryResponse,
+      temporaryResponse,
     ]);
     const serialized = JSON.stringify(publicBodies);
     expect(serialized).not.toMatch(
       /studentId|hasChild|status|accountVerificationState|HUMAN_FOLLOWUP_REQUIRED|UNVERIFIED/,
     );
     expect(serialized).not.toContain(STUDENT_ID);
+  });
+
+  it('promotes an exact cookie plus the same verified parent claim to the FAMILY projection', async () => {
+    mockAuth.mockResolvedValue({
+      user: {
+        id: 'parent_1',
+        email: 'parent@example.com',
+        role: 'PARENT',
+        bilanRequestId: REQUEST_ID,
+      },
+    });
+    mockBilanRequestFindFirst.mockResolvedValueOnce({
+      ...safeRequest,
+      accountVerificationState: 'VERIFIED',
+    });
+
+    const response = await getCurrentRequest(getCurrent(`nr_bf_s=${RAW_FLOW_TOKEN}`));
+
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toEqual({ request: {
+      status: 'NEW',
+      accountVerificationState: 'VERIFIED',
+      subject: 'MATHEMATIQUES',
+      gradeLevel: 'TERMINALE',
+      schoolYear: '2026-2027',
+      hasChild: true,
+      hasAssessment: true,
+      lastActivityAt: safeRequest.lastActivityAt.toISOString(),
+      submittedAt: null,
+      publishedAt: null,
+    } });
+    expect(mockBilanRequestFindFirst).toHaveBeenCalledWith(expect.objectContaining({
+      where: expect.objectContaining({
+        id: REQUEST_ID,
+        parentUserId: 'parent_1',
+        accountVerificationState: 'VERIFIED',
+      }),
+    }));
+  });
+
+  it('keeps the exact fresh cookie temporary when the parent claim targets a stale request', async () => {
+    mockAuth.mockResolvedValue({
+      user: {
+        id: 'parent_1',
+        email: 'parent@example.com',
+        role: 'PARENT',
+        bilanRequestId: 'request_historic',
+      },
+    });
+
+    const response = await getCurrentRequest(getCurrent(`nr_bf_s=${RAW_FLOW_TOKEN}`));
+
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toEqual(temporaryResponse);
+    expect(mockBilanRequestFindFirst).toHaveBeenCalledWith(expect.objectContaining({
+      where: expect.objectContaining({
+        id: REQUEST_ID,
+        flowSessions: expect.any(Object),
+      }),
+    }));
+  });
+
+  it('keeps the exact cookie temporary when auth has no bound claim or fails', async () => {
+    mockAuth.mockResolvedValueOnce({
+      user: { id: 'parent_1', email: 'parent@example.com', role: 'PARENT' },
+    }).mockRejectedValueOnce(new Error('auth unavailable'));
+
+    const responses = await Promise.all([
+      getCurrentRequest(getCurrent(`nr_bf_s=${RAW_FLOW_TOKEN}`)),
+      getCurrentRequest(getCurrent(`nr_bf_s=${RAW_FLOW_TOKEN}`)),
+    ]);
+
+    for (const response of responses) {
+      expect(response.status).toBe(200);
+      await expect(response.json()).resolves.toEqual(temporaryResponse);
+    }
   });
 
   it.each([

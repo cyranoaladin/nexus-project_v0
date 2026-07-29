@@ -33,6 +33,12 @@ fournie par le client.
 - même sans identifiants bruts, la première projection temporaire révélait par
   `hasChild`, `status` et `accountVerificationState` si l'email appartenait à un
   parent existant, à un nouveau parent ou à un compte d'un autre rôle.
+- l'étape temporaire « vérifier le compte parent » rendait implicitement l'email
+  bloquant, alors que le diagnostic doit pouvoir commencer immédiatement et en
+  parallèle de cette vérification ;
+- sur le même appareil après consommation du lien magique, la présence du
+  cookie forçait encore la projection temporaire malgré un claim familial
+  vérifié portant exactement la même demande.
 
 ## Décisions prises
 
@@ -75,12 +81,18 @@ fournie par le client.
 ### Correctifs issus de la revue de sécurité
 
 - la reprise `TEMPORARY_FLOW` passe désormais par un contrat constant limité à
-  « reprise disponible » et « vérifier le compte parent ». Il ne dépend d'aucun
-  état, rôle, lien familial ou identifiant interne ;
+  « reprise disponible », « évaluation » et « vérification du compte requise ».
+  L'évaluation reste donc immédiate et la vérification se poursuit en parallèle.
+  Ce contrat ne dépend d'aucun état, rôle, lien familial ou identifiant interne ;
 - après authentification, la projection `FAMILY` conserve un DTO allowlisté
   utile contenant uniquement les états métier, indicateurs et horodatages
   nécessaires. Les identifiants de demande, enfant, tentative et coach restent
   confinés à la couche d'accès ;
+- lorsque le cookie exact et un claim `PARENT` vérifié désignent la même
+  demande, la route promeut la requête vers `FAMILY`. Un claim absent ou portant
+  une demande historique ne supplante jamais le cookie frais : la réponse reste
+  temporaire et neutre. Une panne d'authentification conserve également ce
+  fallback temporaire sans élargir l'accès ;
 - un lecteur JSON réutilisable compte les octets réellement reçus avant tout
   parsing et interrompt la lecture au-delà de 1 Mio. `checkBodySize` reste un
   précontrôle rapide, mais ne constitue plus la limite effective ;
@@ -129,6 +141,9 @@ fournie par le client.
   distinctes ; GREEN : elles produisent le même contrat neutre, tandis que le
   parent authentifié reprend toujours le dossier exact via son claim serveur.
 - GREEN final après neutralisation de l'oracle : 18 suites, 312 tests réussis.
+- RED promotion/étape : 5 échecs ciblés reproduisaient l'absence de promotion
+  familiale et l'étape email bloquante ; GREEN ciblé : 30 tests réussis.
+- GREEN final après promotion exacte : 18 suites, 315 tests réussis.
 - PostgreSQL réel : 9 scénarios réussis, dont rejeu concurrent, rollback,
   création concurrente d'enfant, parent déjà connecté et flow révoqué.
 - `npm run typecheck` : réussi.
@@ -139,6 +154,8 @@ fournie par le client.
 - revue production indépendante du correctif : aucun constat critique,
   important ou mineur ; verdict prêt à intégrer.
 - revue indépendante fraîche de la neutralisation de l'oracle : aucun constat
+  critique, important ou mineur ; verdict prêt à intégrer.
+- revue indépendante fraîche de la promotion cookie/claim : aucun constat
   critique, important ou mineur ; verdict prêt à intégrer.
 
 ## Résultats
