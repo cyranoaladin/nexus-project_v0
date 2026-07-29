@@ -1,5 +1,11 @@
+import { createHash } from 'node:crypto';
+
+import {
+  loadPedagogyCatalog,
+  type PedagogyCatalog,
+} from '@/lib/pre-rentree/pedagogy';
+
 import type { CatalogSubject, SchoolLevel } from '../core/types';
-import { MATHS_NSI_V1_PACKS } from './fixtures/maths-nsi.v1';
 
 export const CATALOG_ERROR_CODES = [
   'PACK_NOT_ELIGIBLE',
@@ -70,11 +76,13 @@ export class CatalogError extends Error {
   }
 }
 
-/** The complete catalogue is intentionally consulted before publication filtering. */
-export const allPacks: readonly CurriculumPack[] = MATHS_NSI_V1_PACKS;
-
 const sha256Checksum = /^sha256:[a-f0-9]{64}$/;
 const isoDate = /^\d{4}-\d{2}-\d{2}$/;
+const SCHOOL_YEAR = '2026-2027';
+const SCORING_CONTRACT_VERSION = 'manual-grading-gate-v1';
+const REPORT_CONTRACT_VERSION = 'canonical-bilan-report-v1';
+
+let defaultPacks: readonly CurriculumPack[] | undefined;
 
 function fail(code: CatalogErrorCode): never {
   throw new CatalogError(code);
@@ -96,6 +104,70 @@ function isValidDate(value: string | undefined): value is string {
 
 function isChecksum(value: string | undefined): value is string {
   return Boolean(value && sha256Checksum.test(value));
+}
+
+function checksum(value: unknown): string {
+  return `sha256:${createHash('sha256').update(JSON.stringify(value)).digest('hex')}`;
+}
+
+function deepFreeze<T>(value: T): T {
+  if (value && typeof value === 'object' && !Object.isFrozen(value)) {
+    for (const nested of Object.values(value)) deepFreeze(nested);
+    Object.freeze(value);
+  }
+  return value;
+}
+
+function adaptCanonicalCatalog(catalog: PedagogyCatalog): readonly CurriculumPack[] {
+  return deepFreeze(catalog.assessments.map((assessment) => {
+    const moduleDefinition = catalog.getModule(assessment.moduleId);
+    const competencies = assessment.nodes
+      .filter(({ evaluated }) => evaluated)
+      .map((node) => ({
+        id: `${assessment.id}:${node.id}`,
+        questionIds: [...node.itemIds],
+      }));
+    const questionIds = assessment.items.map(({ id }) => id);
+
+    return {
+      id: assessment.id,
+      status: assessment.publicationStatus === 'PUBLICATION_APPROVED'
+        ? 'PUBLISHED'
+        : 'REVIEW_REQUIRED',
+      selection: {
+        subject: moduleDefinition.subject as CatalogSubject,
+        grade: moduleDefinition.level as SchoolLevel,
+        schoolYear: SCHOOL_YEAR,
+      },
+      versions: {
+        curriculum: catalog.version.moduleCatalogVersion,
+        assessment: assessment.ref.version,
+        scoring: SCORING_CONTRACT_VERSION,
+        report: REPORT_CONTRACT_VERSION,
+        corpus: `manifest-${catalog.version.manifestVersion}`,
+      },
+      checksums: {
+        curriculum: catalog.version.moduleCatalogSha256,
+        assessment: assessment.ref.sha256,
+        scoring: checksum(SCORING_CONTRACT_VERSION),
+        report: checksum(REPORT_CONTRACT_VERSION),
+        corpus: catalog.version.manifestSha256,
+      },
+      regulatory: {},
+      competencies,
+      questionIds,
+      minimumCoverage: {
+        competencies: competencies.length,
+        questions: questionIds.length,
+      },
+    } satisfies CurriculumPack;
+  }));
+}
+
+/** Builds the bilan view exclusively from the canonical server-side corpus boundary. */
+export function getDefaultPacks(): readonly CurriculumPack[] {
+  defaultPacks ??= adaptCanonicalCatalog(loadPedagogyCatalog());
+  return defaultPacks;
 }
 
 function matchesSelection(pack: CurriculumPack, selection: PackSelection): boolean {
@@ -200,7 +272,7 @@ export function validatePack(pack: CurriculumPack): void {
  */
 export function resolveEligiblePack(
   selection: PackSelection,
-  packs: readonly CurriculumPack[] = allPacks,
+  packs: readonly CurriculumPack[] = getDefaultPacks(),
 ): CurriculumPack {
   const matchingPacks = packs.filter((candidate) => matchesSelection(candidate, selection));
   if (!matchingPacks.length) fail('PACK_NOT_ELIGIBLE');
