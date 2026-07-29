@@ -1528,7 +1528,7 @@ model BilanRequest {
   studentId          String?
   student            Student?                    @relation(fields: [studentId], references: [id], onDelete: Restrict)
   canonicalAttemptId String?                     @unique
-  canonicalAttempt   CanonicalAssessmentAttempt? @relation(fields: [canonicalAttemptId], references: [id], onDelete: Restrict)
+  canonicalAttempt   CanonicalAssessmentAttempt? @relation(fields: [canonicalAttemptId, studentId], references: [id, studentId], onDelete: Restrict, map: "canonical_bilan_requests_attempt_student_fkey")
 
   provisionalChildFirstName  String? @db.VarChar(80)
   provisionalChildLastName   String? @db.VarChar(80)
@@ -1576,6 +1576,7 @@ model BilanRequest {
   @@index([assignedCoachId, status, lastActivityAt])
   @@index([status, lastActivityAt])
   @@index([subject, gradeLevel, schoolYear])
+  @@unique([canonicalAttemptId, studentId], map: "canonical_bilan_requests_attempt_student_key")
   @@map("canonical_bilan_requests")
 }
 

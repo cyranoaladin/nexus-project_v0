@@ -109,7 +109,9 @@ CREATE TABLE "canonical_bilan_requests" (
   "publishedAt" TIMESTAMP(3),
 
   CONSTRAINT "canonical_bilan_requests_pkey" PRIMARY KEY ("id"),
-  CONSTRAINT "canonical_bilan_requests_consent_check" CHECK ("consent" IS TRUE)
+  CONSTRAINT "canonical_bilan_requests_consent_check" CHECK ("consent" IS TRUE),
+  CONSTRAINT "canonical_bilan_requests_attempt_student_check"
+    CHECK ("canonicalAttemptId" IS NULL OR "studentId" IS NOT NULL)
 );
 
 CREATE TABLE "canonical_bilan_request_events" (
@@ -153,6 +155,8 @@ CREATE UNIQUE INDEX "canonical_bilan_requests_canonicalAttemptId_key"
   ON "canonical_bilan_requests"("canonicalAttemptId");
 CREATE UNIQUE INDEX "canonical_bilan_requests_submissionHash_key"
   ON "canonical_bilan_requests"("submissionHash");
+CREATE UNIQUE INDEX "canonical_bilan_requests_attempt_student_key"
+  ON "canonical_bilan_requests"("canonicalAttemptId", "studentId");
 CREATE INDEX "canonical_bilan_requests_parentUserId_createdAt_idx"
   ON "canonical_bilan_requests"("parentUserId", "createdAt");
 CREATE INDEX "canonical_bilan_requests_studentId_createdAt_idx"
@@ -194,8 +198,9 @@ ALTER TABLE "canonical_bilan_requests"
   FOREIGN KEY ("studentId") REFERENCES "students"("id")
   ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE "canonical_bilan_requests"
-  ADD CONSTRAINT "canonical_bilan_requests_canonicalAttemptId_fkey"
-  FOREIGN KEY ("canonicalAttemptId") REFERENCES "canonical_assessment_attempts"("id")
+  ADD CONSTRAINT "canonical_bilan_requests_attempt_student_fkey"
+  FOREIGN KEY ("canonicalAttemptId", "studentId")
+  REFERENCES "canonical_assessment_attempts"("id", "studentId")
   ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE "canonical_bilan_requests"
   ADD CONSTRAINT "canonical_bilan_requests_assignedCoachId_fkey"
@@ -206,6 +211,9 @@ ALTER TABLE "canonical_bilan_request_events"
   ADD CONSTRAINT "canonical_bilan_request_events_requestId_fkey"
   FOREIGN KEY ("requestId") REFERENCES "canonical_bilan_requests"("id")
   ON DELETE CASCADE ON UPDATE CASCADE;
+CREATE TRIGGER "canonical_bilan_request_events_append_only"
+  BEFORE UPDATE OR DELETE ON "canonical_bilan_request_events"
+  FOR EACH ROW EXECUTE FUNCTION canonical_bilans_reject_append_only_mutation();
 ALTER TABLE "canonical_bilan_flow_sessions"
   ADD CONSTRAINT "canonical_bilan_flow_sessions_requestId_fkey"
   FOREIGN KEY ("requestId") REFERENCES "canonical_bilan_requests"("id")
