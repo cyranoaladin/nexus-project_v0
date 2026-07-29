@@ -12,6 +12,7 @@ lib/rate-limit/
   memory-store.ts   # Bounded in-memory store with TTL cleanup
   redis-store.ts    # Optional Redis backend for local VPS distributed limits
   upstash-store.ts  # Optional Upstash REST backend for distributed limits
+  timeout.ts        # Validated timeout bounds for distributed backends
 ```
 
 The legacy `lib/middleware/rateLimit.ts` is a **compatibility facade** that delegates to the unified system. New code should import directly from `@/lib/rate-limit`.
@@ -28,6 +29,21 @@ The legacy `lib/middleware/rateLimit.ts` is a **compatibility facade** that dele
 | Production with `RATE_LIMIT_DISABLE=1` | Protection remains active | The disable flag is ignored in production |
 
 Runtime priority is `REDIS_URL` first, then Upstash REST, then memory fallback.
+Routes qui définissent `requireDistributed: true` échouent fermées en 503 en
+production si le backend manque, échoue ou dépasse son délai.
+
+## Timeout distribué
+
+`RATE_LIMIT_DISTRIBUTED_TIMEOUT_MS` configure le délai maximal Redis/Upstash.
+La valeur doit être un entier compris entre 100 et 10 000 ms ; toute valeur
+absente ou invalide utilise 1 500 ms.
+
+- Upstash reçoit un `AbortSignal` et la requête HTTP est réellement annulée.
+- Redis utilise le même signal sur les commandes, un délai de connexion borné,
+  aucune file hors ligne et aucune reconnexion automatique.
+- Le timer applicatif est toujours nettoyé. Une route
+  `requireDistributed: true` ne retombe jamais en mémoire en production après
+  un timeout.
 
 ## Usage
 
@@ -105,7 +121,8 @@ if (!result.success) return rateLimitResponse(result);
 
 ## Key strategy
 
-- **Public routes**: IP-based (`x-forwarded-for` > `x-real-ip` > `anonymous`)
+- **Public routes**: dernière IP valide ajoutée par nginx dans
+  `x-forwarded-for`, puis `x-real-ip`, puis `anonymous`
 - **Authenticated routes**: `userId` preferred for fairness
 - **PII in keys**: Use `hashForKey()` (SHA-256, truncated to 16 hex chars)
 
@@ -135,7 +152,7 @@ During unification, two presets were tightened:
 ## Limitations
 
 - **In-memory fallback**: Each PM2 worker has its own store. Effective limits are multiplied by worker count. This remains acceptable for development/test and controlled beta fallback only.
-- **Distributed production**: configure `REDIS_URL` for local VPS Redis, or `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` for Upstash REST. `REDIS_URL` takes priority when both are present.
+- **Distributed production**: configure `REDIS_URL` for local VPS Redis, or `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` for Upstash REST. `REDIS_URL` takes priority when both are present. Configure optional `RATE_LIMIT_DISTRIBUTED_TIMEOUT_MS` only within the validated 100–10,000 ms range.
 - **Process restart**: Counters reset on restart (by design for rate limiting).
 - **No per-key clearing**: Tests use `_resetStoreForTests()` to reset the full store.
 

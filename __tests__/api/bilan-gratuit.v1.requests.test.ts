@@ -119,6 +119,7 @@ function getCurrent(cookie?: string): NextRequest {
 describe('POST /api/bilan-gratuit/v1/requests', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    process.env.BILAN_CANONICAL_INTAKE_ENABLED = 'true';
     mockGuardRateLimitAsync.mockResolvedValue(null);
     mockCheckCsrf.mockReturnValue(null);
     mockCheckBodySize.mockReturnValue(null);
@@ -159,6 +160,27 @@ describe('POST /api/bilan-gratuit/v1/requests', () => {
 
   afterEach(() => {
     delete process.env.BILAN_CANONICAL_INTAKE_ENABLED;
+  });
+
+  it('returns a sober 404 before guards or side effects when direct v1 intake is disabled', async () => {
+    delete process.env.BILAN_CANONICAL_INTAKE_ENABLED;
+
+    const response = await createRequest(post(admission));
+
+    expect(response.status).toBe(404);
+    await expect(response.json()).resolves.toEqual({ error: 'Ressource indisponible.' });
+    expect(mockCheckCsrf).not.toHaveBeenCalled();
+    expect(mockCheckBodySize).not.toHaveBeenCalled();
+    expect(mockGuardRateLimitAsync).not.toHaveBeenCalled();
+    expect(mockCreateBilanRequestIntake).not.toHaveBeenCalled();
+    expect(mockSendMail).not.toHaveBeenCalled();
+  });
+
+  it('accepts direct v1 intake when the canonical flag is enabled', async () => {
+    const response = await createRequest(post(admission));
+
+    expect(response.status).toBe(200);
+    expect(mockCreateBilanRequestIntake).toHaveBeenCalledTimes(1);
   });
 
   it('uses strict guards, a required bounded header idempotency key and the intake service', async () => {
@@ -339,9 +361,25 @@ describe('POST /api/bilan-gratuit/v1/requests', () => {
         next: 'ASSESSMENT_OR_EMAIL',
       });
       expect(mockCreateBilanRequestIntake).not.toHaveBeenCalled();
+      expect(mockSendMail).not.toHaveBeenCalled();
       expect(response.headers.get('set-cookie')).toBeNull();
     },
   );
+
+  it.each([
+    ['website', { website: '' }],
+    ['url', { url: '' }],
+    ['honeypot', { honeypot: '' }],
+    ['all honeypots', { website: '', url: '', honeypot: '' }],
+  ])('strips empty %s fields before strict admission', async (_label, honeypots) => {
+    const response = await createRequest(post({ ...admission, ...honeypots }));
+
+    expect(response.status).toBe(200);
+    expect(mockCreateBilanRequestIntake).toHaveBeenCalledWith(expect.objectContaining({
+      admission,
+    }));
+    expect(mockSendMail).toHaveBeenCalledTimes(1);
+  });
 
   it('delegates the compatibility endpoint only when the canonical flag is enabled', async () => {
     process.env.BILAN_CANONICAL_INTAKE_ENABLED = 'true';
@@ -383,6 +421,15 @@ describe('GET /api/bilan-gratuit/v1/requests/current', () => {
     mockAuth.mockResolvedValue(null);
     mockFlowSessionFindUnique.mockResolvedValue({ requestId: REQUEST_ID });
     mockBilanRequestFindFirst.mockResolvedValue(safeRequest);
+  });
+
+  it('keeps exact existing-flow resume available while canonical intake is disabled', async () => {
+    delete process.env.BILAN_CANONICAL_INTAKE_ENABLED;
+
+    const response = await getCurrentRequest(getCurrent(`nr_bf_s=${RAW_FLOW_TOKEN}`));
+
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toEqual(temporaryResponse);
   });
 
   it('resolves only the exact live flow cookie hash and returns a safe no-store projection', async () => {

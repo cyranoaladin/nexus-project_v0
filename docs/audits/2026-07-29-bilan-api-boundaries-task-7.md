@@ -39,6 +39,12 @@ fournie par le client.
 - sur le même appareil après consommation du lien magique, la présence du
   cookie forçait encore la projection temporaire malgré un claim familial
   vérifié portant exactement la même demande.
+- l'URL v1 directe acceptait encore une admission lorsque le flag canonique
+  était désactivé, ce qui contournait le rollback prévu par la route compatible ;
+- les honeypots vides, présents dans la forme publique courante, n'étaient pas
+  remplis mais restaient des champs inconnus pour le schéma strict ;
+- Redis ou Upstash pouvaient suspendre indéfiniment une écriture publique malgré
+  le mode distribué fail-closed.
 
 ## Décisions prises
 
@@ -51,6 +57,10 @@ fournie par le client.
 - délégation de `/api/bilan-gratuit` vers la v1 seulement lorsque
   `BILAN_CANONICAL_INTAKE_ENABLED` est actif. Le chemin historique reste inchangé
   lorsque le flag est désactivé ;
+- l'URL v1 directe applique le même flag avant CSRF, taille, rate-limit,
+  persistance ou email et répond 404 lorsqu'il est désactivé. Les routes de
+  reprise et d'association enfant restent disponibles pour les dossiers déjà
+  créés ;
 - ajout d'un mode `requireDistributed` au rate-limit asynchrone. En production,
   l'absence ou la panne du backend distribué produit un contrat 503 stable et
   sobre, sans fallback mémoire ;
@@ -103,6 +113,14 @@ fournie par le client.
 - l'identité réseau utilise la dernière IP valide ajoutée par nginx dans
   `X-Forwarded-For`, avec validation IP et bornes sur l'en-tête et le nombre
   d'entrées. Un préfixe fourni par le client ne modifie plus la clé distribuée.
+- les trois champs honeypot sont inspectés puis retirés avant le schéma strict :
+  une valeur remplie obtient le succès neutre sans effet, une valeur vide suit
+  l'admission normale, et tout autre champ inconnu reste refusé ;
+- Redis et Upstash partagent un timeout court, configurable et validé
+  (`RATE_LIMIT_DISTRIBUTED_TIMEOUT_MS`, 1 500 ms par défaut, borné entre 100 et
+  10 000 ms). Upstash reçoit un signal d'annulation ; Redis borne connexion et
+  commandes. Les timers sont nettoyés et `requireDistributed` reste fail-closed
+  sans fallback mémoire en production.
 
 ## Fichiers modifiés
 
@@ -113,6 +131,9 @@ fournie par le client.
 - `app/api/auth/bilan-magic/request/route.ts`
 - `lib/rate-limit/index.ts`
 - `lib/rate-limit/keys.ts`
+- `lib/rate-limit/timeout.ts`
+- `lib/rate-limit/redis-store.ts`
+- `lib/rate-limit/upstash-store.ts`
 - `lib/http/bounded-json.ts`
 - `lib/bilans/requests/access.ts`
 - `lib/bilans/requests/attach-child.ts`
@@ -144,6 +165,11 @@ fournie par le client.
 - RED promotion/étape : 5 échecs ciblés reproduisaient l'absence de promotion
   familiale et l'étape email bloquante ; GREEN ciblé : 30 tests réussis.
 - GREEN final après promotion exacte : 18 suites, 315 tests réussis.
+- RED revue qualité finale : 8 échecs ciblés reproduisaient le contournement du
+  flag, les honeypots vides rejetés et les backends distribués suspendus.
+- GREEN final après revue qualité : 18 suites, 326 tests réussis.
+- Revue indépendante du correctif : `APPROVE`, confiance haute, aucun constat
+  critique, important ou mineur.
 - PostgreSQL réel : 9 scénarios réussis, dont rejeu concurrent, rollback,
   création concurrente d'enfant, parent déjà connecté et flow révoqué.
 - `npm run typecheck` : réussi.
@@ -181,7 +207,10 @@ fournie par le client.
 
 ## Rollback
 
-Laisser `BILAN_CANONICAL_INTAKE_ENABLED` désactivé conserve le chemin historique.
+Laisser `BILAN_CANONICAL_INTAKE_ENABLED` désactivé conserve le chemin historique
+sur `/api/bilan-gratuit` et fait répondre 404 à l'admission v1 directe. Les
+routes GET de reprise et POST d'association enfant restent disponibles pour les
+dossiers existants.
 Le rollback code consiste à retirer les routes v1, le claim de demande et le
 mode `requireDistributed`, puis à restaurer les trois appels de rate-limit. Ne
 pas supprimer les demandes ou événements déjà créés : ils constituent la trace
