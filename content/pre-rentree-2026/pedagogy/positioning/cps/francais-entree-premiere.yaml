@@ -1,0 +1,557 @@
+id: francais-entree-premiere
+niveauEntree: PREMIERE
+matiere: FRANCAIS
+edition: 2026
+dureeCibleMinutes: 25
+gamme: PREMIUM
+statutValidation: HUMAN_VALIDATION_REQUIRED
+intitulePublic: Français — Entrée en Première · préparation EAF
+cadrage: 'Huit nœuds évalués par vingt-quatre items. Le test ne mesure pas une connaissance des œuvres au programme
+  de Première : il vérifie les opérations de lecture, de langue, d''argumentation, d''écriture et d''oral acquises
+  en Seconde qui conditionnent l''entrée dans la préparation aux EAF. Les réponses courtes sont corrigées manuellement
+  et exclues du scoring automatique.
+
+  '
+noeuds:
+- id: n01
+  ordre: 1
+  evalueParTest: true
+  acquisN1: Citer, analyser et interpréter dans un commentaire
+  usageN: Construire un commentaire organisé fondé sur des analyses précises (séance 1)
+  obstacles:
+  - Le développement paraphrase le texte
+  - Le procédé est nommé sans analyse de son effet
+  - L'interprétation est affirmée sans preuve textuelle
+  critereMaitrise: Articuler une idée interprétative, une citation brève, un procédé et son effet.
+  seanceRattachement: 1
+  items:
+  - id: n01-i1
+    palier: A
+    type: qcm_unique
+    enonce: '« La pièce retenait son souffle. » Quelle analyse est la plus précise ?
+
+      '
+    propositions:
+    - texte: La personnification de la pièce transforme le silence en attente tendue.
+      correcte: true
+    - texte: La pièce est silencieuse parce qu'elle ne fait pas de bruit.
+      correcte: false
+      obstacleVise: 0
+    - texte: Il y a une personnification.
+      correcte: false
+      obstacleVise: 1
+    - texte: La phrase montre que quelqu'un ouvre une fenêtre.
+      correcte: false
+      obstacleVise: 2
+    justification: La réponse complète identifie le procédé et son effet dans le contexte.
+  - id: n01-i2
+    palier: B
+    type: qcm_unique
+    enonce: Quelle formulation évite la paraphrase ?
+    propositions:
+    - texte: 'Il avance puis il hésite : le texte dit qu''il avance et qu''il hésite.'
+      correcte: false
+      obstacleVise: 0
+    - texte: Le rythme binaire de « il avance, il hésite » matérialise le conflit entre volonté et peur.
+      correcte: true
+    - texte: Le rythme est binaire, ce qui est un procédé.
+      correcte: false
+      obstacleVise: 1
+    - texte: Le personnage a peur, mais aucune citation n'est nécessaire.
+      correcte: false
+      obstacleVise: 2
+    justification: L'analyse transforme une observation formelle en interprétation.
+  - id: n01-i3
+    palier: C
+    type: reponse_courte
+    correctionManuelle: true
+    excluScoringAutomatique: true
+    longueurMaxCaracteres: 420
+    enonce: 'Analysez en trois ou quatre phrases : « Il promit de revenir. Pourtant, sa main demeura sur la poignée
+      comme si elle refusait de partir. »
+
+      '
+    criteresCorrection:
+    - L'opposition introduite par « Pourtant » est relevée.
+    - La comparaison ou la personnification de la main est analysée.
+    - Une interprétation cohérente de l'hésitation ou du conflit intérieur est formulée.
+    - Au moins une citation courte est intégrée.
+    exempleReponseAdmissible: 'Le connecteur « Pourtant » oppose la promesse de revenir au geste d''hésitation.
+      La main qui « refusait de partir » est personnifiée : elle révèle un attachement que le personnage ne formule
+      pas. Le départ apparaît ainsi plus douloureux que ses paroles ne le laissent croire.
+
+      '
+    justification: L'item observe directement l'enchaînement citation → procédé → effet → interprétation.
+- id: n02
+  ordre: 2
+  evalueParTest: true
+  acquisN1: Rédiger un paragraphe argumenté
+  usageN: Construire une sous-partie de commentaire ou un développement de dissertation (séances 1 et 2)
+  obstacles:
+  - L'idée est annoncée sans preuve ni exemple
+  - L'exemple ou la citation n'est pas expliqué
+  - La transition change de sujet au lieu de faire progresser le raisonnement
+  critereMaitrise: Construire un paragraphe démonstratif cohérent et relier ses étapes par des connecteurs.
+  seanceRattachement: 1
+  items:
+  - id: n02-i1
+    palier: A
+    type: qcm_unique
+    enonce: Quelle structure convient à une sous-partie de commentaire ?
+    propositions:
+    - texte: Citation / résumé du passage / nouvelle citation
+      correcte: false
+      obstacleVise: 1
+    - texte: Opinion personnelle / exemple extérieur / conclusion
+      correcte: false
+      obstacleVise: 0
+    - texte: Idée interprétative / citation / analyse du procédé et de l'effet / bilan local
+      correcte: true
+    - texte: Liste de procédés sans phrase directrice
+      correcte: false
+      obstacleVise: 2
+    justification: La sous-partie doit démontrer une idée par l'analyse du texte.
+  - id: n02-i2
+    palier: B
+    type: qcm_unique
+    enonce: 'Quel connecteur introduit le mieux une nuance ou une concession avant de maintenir une thèse ?
+
+      '
+    propositions:
+    - texte: D'abord..., enfin...
+      correcte: false
+      obstacleVise: 2
+    - texte: Par exemple..., donc...
+      correcte: false
+      obstacleVise: 1
+    - texte: Parce que..., puisque...
+      correcte: false
+      obstacleVise: 0
+    - texte: Certes..., cependant...
+      correcte: true
+    justification: Le couple « certes / cependant » reconnaît une objection avant de la dépasser.
+  - id: n02-i3
+    palier: C
+    type: reponse_courte
+    correctionManuelle: true
+    excluScoringAutomatique: true
+    longueurMaxCaracteres: 520
+    enonce: 'Rédigez un paragraphe argumenté de quatre à cinq phrases défendant l''idée suivante : « Un personnage
+      de fiction peut nous aider à comprendre une situation réelle. » Donnez un exemple et expliquez-le.
+
+      '
+    criteresCorrection:
+    - Une thèse claire est formulée.
+    - Un exemple littéraire, fictif ou générique est pertinent.
+    - L'exemple est analysé et relié à la thèse.
+    - Le paragraphe comporte une progression logique et au moins un connecteur.
+    exempleReponseAdmissible: 'Un personnage de fiction peut rendre une situation réelle plus facile à comprendre.
+      Par exemple, le récit d''un élève partagé entre deux choix montre concrètement les effets du doute. En suivant
+      ses pensées et ses décisions, le lecteur perçoit des conséquences qu''une explication abstraite laisserait
+      moins visibles. Ainsi, la fiction donne une forme sensible à un problème réel.
+
+      '
+    justification: L'item évalue la compétence rédactionnelle commune au commentaire et à l'argumentation.
+- id: n03
+  ordre: 3
+  evalueParTest: true
+  acquisN1: Suivre la progression d'un passage
+  usageN: Construire les mouvements d'une explication linéaire pour l'oral (séance 3)
+  obstacles:
+  - Le passage est découpé selon la longueur des lignes
+  - Les mouvements sont résumés sans enjeu interprétatif
+  - La progression logique ou énonciative n'est pas repérée
+  critereMaitrise: Délimiter des mouvements et formuler pour chacun une fonction dans la progression du texte.
+  seanceRattachement: 3
+  items:
+  - id: n03-i1
+    palier: A
+    type: qcm_unique
+    enonce: Qu'est-ce qu'un mouvement dans une explication linéaire ?
+    propositions:
+    - texte: Une étape cohérente de la progression du texte, définie par une fonction ou un enjeu
+      correcte: true
+    - texte: Un groupe de cinq lignes exactement
+      correcte: false
+      obstacleVise: 0
+    - texte: La liste de tous les verbes du passage
+      correcte: false
+      obstacleVise: 2
+    - texte: Un résumé sans interprétation
+      correcte: false
+      obstacleVise: 1
+    justification: Un mouvement correspond à une évolution du sens, de l'argumentation ou de l'énonciation.
+  - id: n03-i2
+    palier: B
+    type: qcm_unique
+    enonce: 'Un passage commence par une certitude, introduit « mais », puis se termine par une question. Quel découpage
+      est le plus pertinent ?
+
+      '
+    propositions:
+    - texte: Trois parties de même longueur
+      correcte: false
+      obstacleVise: 0
+    - texte: Affirmation initiale / remise en cause / ouverture interrogative
+      correcte: true
+    - texte: Début / milieu / fin
+      correcte: false
+      obstacleVise: 1
+    - texte: Une seule partie, car le passage forme un paragraphe
+      correcte: false
+      obstacleVise: 2
+    justification: Le connecteur d'opposition et la modalité interrogative signalent deux évolutions.
+  - id: n03-i3
+    palier: C
+    type: qcm_unique
+    enonce: 'Quelle annonce de mouvement est la plus interprétative ?
+
+      '
+    propositions:
+    - texte: Dans les lignes 1 à 4, le locuteur parle.
+      correcte: false
+      obstacleVise: 1
+    - texte: Première partie du texte.
+      correcte: false
+      obstacleVise: 0
+    - texte: Le locuteur passe de l'assurance à l'aveu d'une fragilité.
+      correcte: true
+    - texte: On trouve des pronoms et des verbes.
+      correcte: false
+      obstacleVise: 2
+    justification: La formulation décrit une transformation et prépare l'analyse.
+- id: n04
+  ordre: 4
+  evalueParTest: true
+  acquisN1: Repérer et nommer un procédé d'écriture
+  usageN: Analyser les procédés au fil d'un commentaire ou d'une explication linéaire (séances 1 et 3)
+  obstacles:
+  - Le procédé est nommé au hasard à partir d'un mot isolé
+  - Le procédé est relevé sans effet ni interprétation
+  - L'effet annoncé est une formule générique non liée au passage
+  critereMaitrise: Identifier le procédé exact et expliquer son effet local dans le mouvement du texte.
+  seanceRattachement: 3
+  items:
+  - id: n04-i1
+    palier: A
+    type: qcm_unique
+    enonce: Quel procédé apparaît dans « Cette douce violence de la mémoire » ?
+    propositions:
+    - texte: Une comparaison
+      correcte: false
+      obstacleVise: 0
+    - texte: Une gradation
+      correcte: false
+      obstacleVise: 0
+    - texte: Une question rhétorique
+      correcte: false
+      obstacleVise: 2
+    - texte: Un oxymore
+      correcte: true
+    justification: Les termes contradictoires « douce » et « violence » sont rapprochés.
+  - id: n04-i2
+    palier: B
+    type: qcm_unique
+    enonce: 'Quel effet produit l''anaphore « Je veux comprendre, je veux agir, je veux convaincre » ?
+
+      '
+    propositions:
+    - texte: Elle donne un rythme insistant et souligne la détermination du locuteur.
+      correcte: true
+    - texte: Elle crée seulement une décoration sonore.
+      correcte: false
+      obstacleVise: 2
+    - texte: Elle prouve que le locuteur hésite.
+      correcte: false
+      obstacleVise: 0
+    - texte: Elle remplace toute analyse du passage.
+      correcte: false
+      obstacleVise: 1
+    justification: La répétition en tête de proposition intensifie ici une volonté.
+  - id: n04-i3
+    palier: C
+    type: qcm_unique
+    enonce: '« La foule grossit, gronde, puis déferle. » Quelle analyse est la plus complète ?
+
+      '
+    propositions:
+    - texte: Il y a trois verbes, donc une figure de style.
+      correcte: false
+      obstacleVise: 1
+    - texte: La gradation des verbes transforme progressivement la foule en force menaçante et incontrôlable.
+      correcte: true
+    - texte: Le verbe « gronde » constitue une comparaison.
+      correcte: false
+      obstacleVise: 0
+    - texte: La phrase crée du suspense, comme toutes les phrases courtes.
+      correcte: false
+      obstacleVise: 2
+    justification: L'analyse identifie la progression et l'interprète dans le contexte.
+- id: n05
+  ordre: 5
+  evalueParTest: true
+  acquisN1: Argumenter une thèse
+  usageN: Problématiser et construire un raisonnement pour la dissertation ou l'essai, selon la voie (séance 2)
+  obstacles:
+  - Le sujet est reformulé sans tension ni problème
+  - L'exemple remplace l'argument
+  - L'objection est ignorée au lieu d'être examinée
+  critereMaitrise: Distinguer thèse, argument, exemple et objection, puis formuler une tension.
+  seanceRattachement: 2
+  items:
+  - id: n05-i1
+    palier: A
+    type: qcm_unique
+    enonce: Dans une argumentation, qu'est-ce qu'un argument ?
+    propositions:
+    - texte: Un cas particulier qui illustre une idée
+      correcte: false
+      obstacleVise: 1
+    - texte: Le thème général du sujet
+      correcte: false
+      obstacleVise: 0
+    - texte: Une raison générale avancée pour soutenir une thèse
+      correcte: true
+    - texte: Une objection à éviter absolument
+      correcte: false
+      obstacleVise: 2
+    justification: L'exemple illustre ; l'argument justifie de manière générale.
+  - id: n05-i2
+    palier: B
+    type: qcm_unique
+    enonce: 'Pour le sujet « La littérature doit-elle toujours être utile ? », quelle formulation fait apparaître
+      une tension ?
+
+      '
+    propositions:
+    - texte: La littérature est utile.
+      correcte: false
+      obstacleVise: 0
+    - texte: Nous parlerons de littérature puis d'utilité.
+      correcte: false
+      obstacleVise: 0
+    - texte: Un roman célèbre a beaucoup de lecteurs.
+      correcte: false
+      obstacleVise: 1
+    - texte: La littérature peut éclairer le monde, mais peut-on réduire sa valeur à une utilité immédiate ?
+      correcte: true
+    justification: La question oppose une fonction possible à la liberté propre de l'œuvre.
+  - id: n05-i3
+    palier: C
+    type: qcm_unique
+    enonce: Quelle démarche traite réellement une objection ?
+    propositions:
+    - texte: Reconnaître sa part de validité, en examiner la limite, puis reformuler la thèse.
+      correcte: true
+    - texte: Ignorer l'objection pour ne pas affaiblir la thèse.
+      correcte: false
+      obstacleVise: 2
+    - texte: Remplacer l'argument par un exemple émouvant.
+      correcte: false
+      obstacleVise: 1
+    - texte: Répéter la thèse avec des synonymes.
+      correcte: false
+      obstacleVise: 0
+    justification: Une concession raisonnée renforce la précision du raisonnement.
+- id: n06
+  ordre: 6
+  evalueParTest: true
+  acquisN1: Analyser les propositions et les formes de phrase
+  usageN: Répondre à la question de grammaire de l'oral des EAF (séance 4)
+  obstacles:
+  - La négation est limitée au seul mot « ne »
+  - Interrogation directe et indirecte sont confondues
+  - La nature et la fonction d'une subordonnée sont confondues
+  critereMaitrise: Décrire une construction grammaticale avec une procédure et un vocabulaire exacts.
+  seanceRattachement: 4
+  items:
+  - id: n06-i1
+    palier: A
+    type: qcm_unique
+    enonce: Dans « Il ne répond jamais », quelle est la négation complète ?
+    propositions:
+    - texte: ne uniquement
+      correcte: false
+      obstacleVise: 0
+    - texte: ne... jamais
+      correcte: true
+    - texte: répond jamais
+      correcte: false
+      obstacleVise: 2
+    - texte: Il ne
+      correcte: false
+      obstacleVise: 1
+    justification: La négation est construite avec deux éléments discontinus.
+  - id: n06-i2
+    palier: B
+    type: qcm_unique
+    enonce: Quelle phrase contient une interrogation indirecte ?
+    propositions:
+    - texte: Pourquoi part-il ?
+      correcte: false
+      obstacleVise: 1
+    - texte: Il part parce qu'il est tard.
+      correcte: false
+      obstacleVise: 2
+    - texte: Je me demande pourquoi il part.
+      correcte: true
+    - texte: Je connais la raison de son départ.
+      correcte: false
+      obstacleVise: 0
+    justification: La question est intégrée à une phrase déclarative, sans inversion ni point d'interrogation.
+  - id: n06-i3
+    palier: C
+    type: qcm_unique
+    enonce: 'Dans « Je souhaite que tu viennes », quelle analyse de « que tu viennes » est correcte ?
+
+      '
+    propositions:
+    - texte: Proposition relative, car elle commence par « que »
+      correcte: false
+      obstacleVise: 2
+    - texte: Proposition principale, car elle contient un verbe
+      correcte: false
+      obstacleVise: 0
+    - texte: Groupe nominal sujet de « souhaite »
+      correcte: false
+      obstacleVise: 2
+    - texte: Proposition subordonnée conjonctive, complément d'objet direct de « souhaite »
+      correcte: true
+    justification: « Que » est ici une conjonction et l'ensemble répond à « je souhaite quoi ? ».
+- id: n07
+  ordre: 7
+  evalueParTest: true
+  acquisN1: S'exprimer oralement de façon construite
+  usageN: Présenter une explication et participer à l'entretien de l'oral des EAF (séance 5)
+  obstacles:
+  - L'oral récite un texte écrit sans s'adresser à l'auditeur
+  - La réponse est une suite d'idées sans annonce ni transition
+  - Une question imprévue provoque une réponse immédiate non structurée
+  critereMaitrise: Formuler une réponse orale brève, structurée et explicitement reliée à la question.
+  seanceRattachement: 5
+  items:
+  - id: n07-i1
+    palier: A
+    type: qcm_unique
+    enonce: Quel début de réponse orale est le plus structuré ?
+    propositions:
+    - texte: 'Je retiens deux éléments : d''abord..., puis...'
+      correcte: true
+    - texte: Alors, euh, je ne sais pas trop, peut-être que...
+      correcte: false
+      obstacleVise: 2
+    - texte: Je vais lire entièrement mes notes.
+      correcte: false
+      obstacleVise: 0
+    - texte: Il y a beaucoup de choses à dire.
+      correcte: false
+      obstacleVise: 1
+    justification: L'annonce de deux éléments donne immédiatement une structure audible.
+  - id: n07-i2
+    palier: B
+    type: qcm_unique
+    enonce: 'Pendant un oral, que faire après une question imprévue du jury ?
+
+      '
+    propositions:
+    - texte: Répondre immédiatement, même sans avoir compris la question.
+      correcte: false
+      obstacleVise: 2
+    - texte: Prendre quelques secondes, reformuler la question, puis annoncer l'idée principale de la réponse.
+      correcte: true
+    - texte: Réciter un passage préparé sans lien avec la question.
+      correcte: false
+      obstacleVise: 0
+    - texte: Donner plusieurs idées sans choisir d'ordre.
+      correcte: false
+      obstacleVise: 1
+    justification: La reformulation vérifie la compréhension et prépare une réponse organisée.
+  - id: n07-i3
+    palier: C
+    type: qcm_unique
+    enonce: 'Quelle réponse défend le mieux un choix d''œuvre lors d''un entretien ?
+
+      '
+    propositions:
+    - texte: J'ai choisi cette œuvre parce qu'elle était sur la liste.
+      correcte: false
+      obstacleVise: 1
+    - texte: Cette œuvre est bien et intéressante.
+      correcte: false
+      obstacleVise: 2
+    - texte: J'ai choisi cette œuvre pour le conflit moral du personnage ; deux scènes m'ont particulièrement conduit
+        à reconsidérer mon jugement.
+      correcte: true
+    - texte: Je vais résumer toute l'intrigue sans expliquer mon choix.
+      correcte: false
+      obstacleVise: 0
+    justification: La réponse formule un critère personnel précis et annonce des exemples exploitables.
+- id: n08
+  ordre: 8
+  evalueParTest: true
+  acquisN1: Gérer un temps d'écriture long
+  usageN: Planifier, rédiger et relire un devoir écrit d'EAF en quatre heures (séances 1 et 2)
+  obstacles:
+  - La rédaction commence avant l'analyse du sujet ou du texte
+  - Le brouillon absorbe trop de temps et empêche la relecture
+  - La gestion du temps est identique quel que soit l'exercice
+  critereMaitrise: Répartir le temps entre lecture, analyse, plan, rédaction et relecture en conservant une marge.
+  seanceRattachement: 1
+  items:
+  - id: n08-i1
+    palier: A
+    type: qcm_unique
+    enonce: Quelle étape doit précéder la rédaction d'un commentaire ?
+    propositions:
+    - texte: Rédiger immédiatement l'introduction définitive
+      correcte: false
+      obstacleVise: 0
+    - texte: Copier toutes les citations au brouillon sans les classer
+      correcte: false
+      obstacleVise: 1
+    - texte: Choisir un temps au hasard pour chaque partie
+      correcte: false
+      obstacleVise: 2
+    - texte: Lire, annoter le texte et dégager un projet de lecture et un plan
+      correcte: true
+    justification: L'analyse et l'organisation précèdent la rédaction pour éviter un développement sans direction.
+  - id: n08-i2
+    palier: B
+    type: qcm_unique
+    enonce: 'Pourquoi réserver un temps de relecture distinct à la fin d''un devoir ?
+
+      '
+    propositions:
+    - texte: Pour contrôler séparément cohérence, citations, syntaxe, accords et présentation.
+      correcte: true
+    - texte: Pour ajouter une nouvelle grande partie au dernier moment.
+      correcte: false
+      obstacleVise: 1
+    - texte: Parce que le brouillon n'a aucune utilité.
+      correcte: false
+      obstacleVise: 0
+    - texte: Pour appliquer la même correction à tous les types d'exercices.
+      correcte: false
+      obstacleVise: 2
+    justification: La relecture ciblée nécessite une marge de temps dédiée.
+  - id: n08-i3
+    palier: C
+    type: qcm_unique
+    enonce: 'Un élève a déjà utilisé les trois quarts du temps disponible et n''a rédigé qu''une partie sur trois.
+      Quelle décision est la plus rationnelle ?
+
+      '
+    propositions:
+    - texte: Continuer la première partie jusqu'à ce qu'elle soit parfaite.
+      correcte: false
+      obstacleVise: 1
+    - texte: Réduire le niveau de détail, rédiger les idées essentielles des parties restantes et préserver une
+        courte relecture.
+      correcte: true
+    - texte: Supprimer toute relecture, quel que soit l'état de la copie.
+      correcte: false
+      obstacleVise: 1
+    - texte: Changer d'exercice et recommencer depuis le début.
+      correcte: false
+      obstacleVise: 2
+    justification: La stratégie limite la perte de couverture tout en maintenant un contrôle final minimal.

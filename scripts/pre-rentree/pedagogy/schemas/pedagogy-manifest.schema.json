@@ -1,0 +1,162 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://nexusreussite.academy/schemas/pre-rentree-2026/pedagogy-manifest.schema.json",
+  "title": "Manifeste canonique pédagogique Pré-rentrée 2026",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "version",
+    "campaignId",
+    "moduleCatalog",
+    "generatedRoot",
+    "counts",
+    "sharedSources",
+    "modules",
+    "humanValidation"
+  ],
+  "properties": {
+    "version": {"const": "2026.1"},
+    "campaignId": {"const": "pre-rentree-2026"},
+    "moduleCatalog": {"const": "content/pre-rentree-2026/modules.json"},
+    "generatedRoot": {"const": ".artifacts/pre-rentree-2026/pedagogy"},
+    "counts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "modules",
+        "sessions",
+        "cps",
+        "nodes",
+        "evaluatedNodes",
+        "items",
+        "manualResponses",
+        "sessionUnitFiles"
+      ],
+      "properties": {
+        "modules": {"const": 17},
+        "sessions": {"const": 85},
+        "cps": {"const": 17},
+        "nodes": {"const": 141},
+        "evaluatedNodes": {"const": 136},
+        "items": {"const": 408},
+        "manualResponses": {"const": 33},
+        "sessionUnitFiles": {"const": 340}
+      }
+    },
+    "sharedSources": {
+      "type": "array",
+      "minItems": 4,
+      "maxItems": 4,
+      "items": {"$ref": "#/$defs/fileSource"}
+    },
+    "modules": {
+      "type": "array",
+      "minItems": 17,
+      "maxItems": 17,
+      "items": {"$ref": "#/$defs/module"}
+    },
+    "humanValidation": {"$ref": "#/$defs/humanValidation"}
+  },
+  "$defs": {
+    "fileSource": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": {
+          "type": "string",
+          "pattern": "^content/pre-rentree-2026/pedagogy/"
+        },
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      }
+    },
+    "session": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["number", "path", "files"],
+      "properties": {
+        "number": {"type": "integer", "minimum": 1, "maximum": 5},
+        "path": {
+          "type": "string",
+          "pattern": "^content/pre-rentree-2026/pedagogy/session-kits/modules/[a-z0-9-]+/s0[1-5]-[a-z0-9-]+$"
+        },
+        "files": {
+          "type": "array",
+          "minItems": 4,
+          "maxItems": 4,
+          "items": {"$ref": "#/$defs/fileSource"}
+        }
+      }
+    },
+    "humanValidation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "reviewer", "validatedAt", "requiredRoles"],
+      "properties": {
+        "status": {"const": "HUMAN_VALIDATION_REQUIRED"},
+        "reviewer": {"type": "null"},
+        "validatedAt": {"type": "null"},
+        "requiredRoles": {
+          "type": "array",
+          "minItems": 2,
+          "uniqueItems": true,
+          "items": {
+            "enum": ["RESPONSABLE_PEDAGOGIQUE", "ENSEIGNANT_DISCIPLINAIRE"]
+          }
+        }
+      }
+    },
+    "module": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "level",
+        "subject",
+        "cps",
+        "readme",
+        "sessions",
+        "expectedOutputs",
+        "editorialStatus",
+        "humanValidation"
+      ],
+      "properties": {
+        "id": {"type": "string", "pattern": "^[a-z0-9-]+$"},
+        "level": {
+          "enum": ["QUATRIEME", "TROISIEME", "SECONDE", "PREMIERE", "TERMINALE"]
+        },
+        "subject": {
+          "enum": [
+            "MATHEMATIQUES",
+            "FRANCAIS",
+            "NSI",
+            "PHYSIQUE_CHIMIE",
+            "SVT",
+            "MATHS_EXPERTES",
+            "PHILOSOPHIE"
+          ]
+        },
+        "cps": {"$ref": "#/$defs/fileSource"},
+        "readme": {"$ref": "#/$defs/fileSource"},
+        "sessions": {
+          "type": "array",
+          "minItems": 5,
+          "maxItems": 5,
+          "items": {"$ref": "#/$defs/session"}
+        },
+        "expectedOutputs": {
+          "type": "array",
+          "minItems": 6,
+          "maxItems": 6,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^\\.artifacts/pre-rentree-2026/pedagogy/generated/"
+          }
+        },
+        "editorialStatus": {"const": "HUMAN_VALIDATION_REQUIRED"},
+        "humanValidation": {"$ref": "#/$defs/humanValidation"}
+      }
+    }
+  }
+}

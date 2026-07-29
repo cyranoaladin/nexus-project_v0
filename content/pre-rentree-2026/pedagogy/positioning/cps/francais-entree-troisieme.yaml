@@ -1,0 +1,563 @@
+id: francais-entree-troisieme
+niveauEntree: TROISIEME
+matiere: FRANCAIS
+edition: 2026
+dureeCibleMinutes: 22
+gamme: FONDATIONS
+statutValidation: HUMAN_VALIDATION_REQUIRED
+intitulePublic: Français — Entrée en 3e
+cadrage: 'Neuf nœuds dans la carte, huit évalués par vingt-quatre items. Le nœud sur les homophones grammaticaux
+  est observé dans le test flash de la séance 3 et dans le nœud transversal de relecture afin de préserver une durée
+  compatible avec vingt-deux minutes. Les réponses courtes sont corrigées manuellement et exclues du scoring automatique.
+
+  '
+noeuds:
+- id: n01
+  ordre: 1
+  evalueParTest: true
+  acquisN1: Comprendre l'implicite d'un texte
+  usageN: Formuler une interprétation justifiée dans les exercices de compréhension du DNB (séance 1)
+  obstacles:
+  - La réponse reste littérale et ne formule aucune inférence
+  - L'interprétation repose sur une impression sans indice textuel
+  - Une déduction possible est présentée comme une certitude absolue
+  critereMaitrise: Formuler une inférence prudente et l'appuyer sur au moins un indice précis.
+  seanceRattachement: 1
+  items:
+  - id: n01-i1
+    palier: A
+    type: qcm_unique
+    enonce: '« Quand la porte s''ouvrit, Mehdi cacha rapidement la lettre sous son cahier. » Que suggère surtout
+      ce geste ?
+
+      '
+    propositions:
+    - texte: Mehdi ne veut pas que la personne qui entre voie la lettre.
+      correcte: true
+    - texte: Mehdi a fini de lire la lettre.
+      correcte: false
+      obstacleVise: 0
+    - texte: La lettre appartient au professeur.
+      correcte: false
+      obstacleVise: 1
+    - texte: Mehdi cache toujours toutes ses affaires.
+      correcte: false
+      obstacleVise: 2
+    justification: L'adverbe « rapidement » et le geste de cacher autorisent une inférence de dissimulation.
+  - id: n01-i2
+    palier: B
+    type: qcm_unique
+    enonce: '« Le couloir était vide. Pourtant, Inès ralentit devant la dernière porte et retint sa respiration.
+      » Quelle interprétation est la mieux fondée ?
+
+      '
+    propositions:
+    - texte: Inès est certaine qu'un danger l'attend.
+      correcte: false
+      obstacleVise: 2
+    - texte: Inès appréhende ce qui peut se trouver derrière la porte.
+      correcte: true
+    - texte: Inès cherche son souffle après une course.
+      correcte: false
+      obstacleVise: 1
+    - texte: Le couloir est plein de monde.
+      correcte: false
+      obstacleVise: 0
+    justification: Ralentir et retenir sa respiration sont des indices d'appréhension, non la preuve certaine d'un
+      danger.
+  - id: n01-i3
+    palier: C
+    type: reponse_courte
+    correctionManuelle: true
+    excluScoringAutomatique: true
+    longueurMaxCaracteres: 300
+    enonce: '« Lorsque son nom fut appelé, Yasmine resta immobile une seconde, puis avança en serrant les poings.
+      » Interprétez son état d''esprit et justifiez votre réponse par deux indices.
+
+      '
+    criteresCorrection:
+    - Une interprétation plausible, par exemple la tension, l'appréhension ou la détermination, est formulée.
+    - 'Deux indices distincts sont mobilisés : l''immobilité et les poings serrés.'
+    - Le lien entre les indices et l'interprétation est explicité.
+    exempleReponseAdmissible: 'Yasmine semble tendue mais déterminée : elle reste d''abord immobile, puis serre
+      les poings avant d''avancer.
+
+      '
+    justification: L'item évalue l'articulation entre plusieurs indices et une interprétation nuancée.
+- id: n02
+  ordre: 2
+  evalueParTest: true
+  acquisN1: Citer et commenter un passage
+  usageN: Justifier systématiquement une réponse d'interprétation au DNB (séance 1)
+  obstacles:
+  - La citation est reproduite sans commentaire
+  - Le commentaire répète la citation avec des synonymes
+  - La preuve choisie ne soutient pas l'idée annoncée
+  critereMaitrise: Intégrer une citation pertinente et expliquer l'effet ou l'information qu'elle apporte.
+  seanceRattachement: 1
+  items:
+  - id: n02-i1
+    palier: A
+    type: qcm_unique
+    enonce: 'Pour montrer qu''un personnage parle avec hésitation, quelle citation est la plus pertinente ?
+
+      '
+    propositions:
+    - texte: « Il entra dans la pièce. »
+      correcte: false
+      obstacleVise: 2
+    - texte: « La table était ronde. »
+      correcte: false
+      obstacleVise: 2
+    - texte: « Je... je ne sais pas », murmura-t-il.
+      correcte: true
+    - texte: « Il répondit. »
+      correcte: false
+      obstacleVise: 0
+    justification: Les points de suspension et la répétition matérialisent l'hésitation.
+  - id: n02-i2
+    palier: B
+    type: qcm_unique
+    enonce: Quelle formulation commente réellement la citation ?
+    propositions:
+    - texte: 'Le personnage fait un mouvement : il « bondit ».'
+      correcte: false
+      obstacleVise: 1
+    - texte: « bondit » est une citation du texte.
+      correcte: false
+      obstacleVise: 0
+    - texte: Le personnage est triste, comme le montre « bondit ».
+      correcte: false
+      obstacleVise: 2
+    - texte: Le verbe « bondit » traduit un mouvement soudain et énergique.
+      correcte: true
+    justification: La première proposition identifie précisément l'effet produit par le choix du verbe.
+  - id: n02-i3
+    palier: C
+    type: qcm_unique
+    enonce: '« La réponse tomba, brève et sèche. » Quelle analyse est la plus précise ?
+
+      '
+    propositions:
+    - texte: Les adjectifs « brève et sèche » suggèrent une parole coupante et peu disposée au dialogue.
+      correcte: true
+    - texte: La réponse tombe réellement sur le sol.
+      correcte: false
+      obstacleVise: 1
+    - texte: « brève et sèche » signifie seulement que la réponse est courte.
+      correcte: false
+      obstacleVise: 1
+    - texte: Le personnage est joyeux, car la réponse est brève.
+      correcte: false
+      obstacleVise: 2
+    justification: L'analyse prend en compte la métaphore et la valeur connotée de « sèche ».
+- id: n03
+  ordre: 3
+  evalueParTest: true
+  acquisN1: Identifier les classes grammaticales et les fonctions
+  usageN: Réussir l'analyse grammaticale et les transformations demandées au DNB (séance 2)
+  obstacles:
+  - La classe d'un mot est confondue avec sa fonction
+  - Le pronom relatif est confondu avec une conjonction
+  - La fonction est attribuée à partir de la position du groupe
+  critereMaitrise: Nommer séparément la classe d'un mot et sa fonction dans la phrase.
+  seanceRattachement: 2
+  items:
+  - id: n03-i1
+    palier: A
+    type: qcm_unique
+    enonce: Dans « Le jeune lecteur referme son livre », quelle est la fonction de « Le jeune lecteur » ?
+    propositions:
+    - texte: Groupe nominal
+      correcte: false
+      obstacleVise: 0
+    - texte: Sujet du verbe « referme »
+      correcte: true
+    - texte: Complément d'objet direct
+      correcte: false
+      obstacleVise: 2
+    - texte: Attribut du sujet
+      correcte: false
+      obstacleVise: 2
+    justification: « Groupe nominal » désigne la nature du groupe ; sa fonction est sujet.
+  - id: n03-i2
+    palier: B
+    type: qcm_unique
+    enonce: Dans « La décision dont il parle est importante », quelle est la classe de « dont » ?
+    propositions:
+    - texte: Conjonction de subordination
+      correcte: false
+      obstacleVise: 1
+    - texte: Adverbe
+      correcte: false
+      obstacleVise: 0
+    - texte: Pronom relatif
+      correcte: true
+    - texte: Complément du nom
+      correcte: false
+      obstacleVise: 0
+    justification: « Dont » reprend l'antécédent « décision » et introduit une relative.
+  - id: n03-i3
+    palier: C
+    type: qcm_unique
+    enonce: 'Dans « À la fin du cours, la professeure leur rend les copies », quelle est la fonction de « leur »
+      ?
+
+      '
+    propositions:
+    - texte: Déterminant possessif
+      correcte: false
+      obstacleVise: 0
+    - texte: Sujet du verbe
+      correcte: false
+      obstacleVise: 2
+    - texte: Complément circonstanciel de temps
+      correcte: false
+      obstacleVise: 2
+    - texte: Complément d'objet indirect du verbe « rend »
+      correcte: true
+    justification: Le pronom « leur » répond à « rend à qui ? ».
+- id: n04
+  ordre: 4
+  evalueParTest: true
+  acquisN1: Repérer les propositions dans une phrase complexe
+  usageN: Analyser et transformer une phrase complexe lors d'un exercice de réécriture (séance 2)
+  obstacles:
+  - Le nombre de propositions est déduit de la ponctuation
+  - La subordonnée n'est pas délimitée jusqu'à son dernier constituant
+  - Coordination et subordination sont confondues
+  critereMaitrise: Repérer les verbes conjugués, délimiter les propositions et identifier leur relation.
+  seanceRattachement: 2
+  items:
+  - id: n04-i1
+    palier: A
+    type: qcm_unique
+    enonce: Combien de propositions contient « Il attend parce que le bus est en retard » ?
+    propositions:
+    - texte: Deux
+      correcte: true
+    - texte: Une
+      correcte: false
+      obstacleVise: 0
+    - texte: Trois
+      correcte: false
+      obstacleVise: 1
+    - texte: Quatre
+      correcte: false
+      obstacleVise: 2
+    justification: Les deux verbes conjugués « attend » et « est » organisent deux propositions.
+  - id: n04-i2
+    palier: B
+    type: qcm_unique
+    enonce: 'Dans « Nous partirons quand la pluie aura cessé », quelle suite correspond à la subordonnée ?
+
+      '
+    propositions:
+    - texte: quand la pluie
+      correcte: false
+      obstacleVise: 1
+    - texte: quand la pluie aura cessé
+      correcte: true
+    - texte: la pluie aura cessé
+      correcte: false
+      obstacleVise: 1
+    - texte: Nous partirons quand
+      correcte: false
+      obstacleVise: 0
+    justification: La subordonnée est introduite par « quand » et inclut tous ses constituants.
+  - id: n04-i3
+    palier: C
+    type: qcm_unique
+    enonce: Dans quelle phrase les deux propositions sont-elles coordonnées ?
+    propositions:
+    - texte: Il répond parce qu'il a compris.
+      correcte: false
+      obstacleVise: 2
+    - texte: Le livre que tu lis est court.
+      correcte: false
+      obstacleVise: 2
+    - texte: Il hésite, mais il répond.
+      correcte: true
+    - texte: Après son départ, le silence revient.
+      correcte: false
+      obstacleVise: 0
+    justification: La conjonction de coordination « mais » relie deux propositions indépendantes.
+- id: n05
+  ordre: 5
+  evalueParTest: true
+  acquisN1: Maîtriser les accords dans le groupe nominal et l'accord sujet-verbe
+  usageN: Maintenir les accords lors d'une dictée ou d'une réécriture sous contrainte de temps (séances 2 et 3)
+  obstacles:
+  - L'accord se fait avec le mot le plus proche
+  - Le noyau du groupe sujet n'est pas identifié
+  - Une transformation en nombre ou en genre n'est pas propagée
+  critereMaitrise: Identifier le donneur d'accord et propager une transformation à tous les mots concernés.
+  seanceRattachement: 2
+  items:
+  - id: n05-i1
+    palier: A
+    type: qcm_unique
+    enonce: 'Complétez : « Les élèves de la classe ___ prêts. »'
+    propositions:
+    - texte: est
+      correcte: false
+      obstacleVise: 0
+    - texte: êtes
+      correcte: false
+      obstacleVise: 1
+    - texte: sera
+      correcte: false
+      obstacleVise: 2
+    - texte: sont
+      correcte: true
+    justification: Le noyau du sujet est « élèves », au pluriel.
+  - id: n05-i2
+    palier: B
+    type: qcm_unique
+    enonce: Quelle phrase est correctement accordée ?
+    propositions:
+    - texte: Une foule de visiteurs attend devant l'entrée.
+      correcte: true
+    - texte: Une foule de visiteurs attendent devant l'entrée.
+      correcte: false
+      obstacleVise: 0
+    - texte: Une foules de visiteur attend devant l'entrée.
+      correcte: false
+      obstacleVise: 2
+    - texte: Une foule de visiteurs attends devant l'entrée.
+      correcte: false
+      obstacleVise: 1
+    justification: Le noyau singulier « foule » commande l'accord du verbe.
+  - id: n05-i3
+    palier: C
+    type: qcm_unique
+    enonce: 'Mettez au féminin pluriel « Ce candidat attentif est resté concentré ». Quelle réécriture est correcte
+      ?
+
+      '
+    propositions:
+    - texte: Ces candidate attentif sont resté concentré.
+      correcte: false
+      obstacleVise: 2
+    - texte: Ces candidates attentives sont restées concentrées.
+      correcte: true
+    - texte: Ces candidates attentive est restées concentrée.
+      correcte: false
+      obstacleVise: 0
+    - texte: Cette candidates attentives sont restée concentrées.
+      correcte: false
+      obstacleVise: 1
+    justification: La transformation concerne le déterminant, le nom, les adjectifs, le verbe et le participe.
+- id: n06
+  ordre: 6
+  evalueParTest: false
+  motifNonEvalue: 'Observé dans le test flash de la séance 3 et dans les items du nœud n09 sur la relecture. Son
+    retrait du test en ligne maintient vingt-quatre items sans sacrifier les nœuds structurants de compréhension
+    et d''écriture.
+
+    '
+  acquisN1: Distinguer les homophones grammaticaux fréquents
+  usageN: Mobiliser les homophones grammaticaux en dictée et en rédaction au DNB (séance 3)
+  obstacles:
+  - Le choix se fait à l'oreille sans test de remplacement
+  - La classe grammaticale des deux formes n'est pas identifiée
+  critereMaitrise: Choisir la forme correcte à l'aide d'un test de remplacement explicite.
+  seanceRattachement: 3
+- id: n07
+  ordre: 7
+  evalueParTest: true
+  acquisN1: Choisir les terminaisons verbales usuelles
+  usageN: Sécuriser les terminaisons en dictée, réécriture et rédaction au DNB (séance 3)
+  obstacles:
+  - Les terminaisons -er, -é et -ez sont choisies uniquement à l'oreille
+  - Le test de remplacement par un verbe du troisième groupe n'est pas utilisé
+  - Le sujet ou l'auxiliaire n'est pas pris en compte
+  critereMaitrise: Distinguer infinitif, participe passé et verbe conjugué par un test syntaxique.
+  seanceRattachement: 3
+  items:
+  - id: n07-i1
+    palier: A
+    type: qcm_unique
+    enonce: 'Complétez : « Vous devez ___ votre réponse. »'
+    propositions:
+    - texte: justifié
+      correcte: false
+      obstacleVise: 0
+    - texte: justifiez
+      correcte: false
+      obstacleVise: 2
+    - texte: justifier
+      correcte: true
+    - texte: justifiait
+      correcte: false
+      obstacleVise: 1
+    justification: Après « devez », on emploie l'infinitif ; on peut remplacer par « prendre ».
+  - id: n07-i2
+    palier: B
+    type: qcm_unique
+    enonce: 'Complétez : « Elle a ___ son texte avant de le rendre. »'
+    propositions:
+    - texte: relue
+      correcte: false
+      obstacleVise: 2
+    - texte: relire
+      correcte: false
+      obstacleVise: 1
+    - texte: relus
+      correcte: false
+      obstacleVise: 0
+    - texte: relu
+      correcte: true
+    justification: 'Avec l''auxiliaire avoir, le COD « son texte » est placé après : le participe reste au masculin
+      singulier, « relu ».'
+  - id: n07-i3
+    palier: C
+    type: qcm_unique
+    enonce: 'Complétez : « Les réponses qu''elle a ___ étaient précises. »'
+    propositions:
+    - texte: rédigées
+      correcte: true
+    - texte: rédiger
+      correcte: false
+      obstacleVise: 0
+    - texte: rédigé
+      correcte: false
+      obstacleVise: 2
+    - texte: rédigez
+      correcte: false
+      obstacleVise: 1
+    justification: Le COD « les réponses », placé avant le verbe, commande l'accord du participe passé.
+- id: n08
+  ordre: 8
+  evalueParTest: true
+  acquisN1: Rédiger un texte organisé
+  usageN: Traiter un sujet de rédaction du DNB avec un plan, des paragraphes et des exemples précis (séance 4)
+  obstacles:
+  - La rédaction commence sans analyse du sujet
+  - Les idées sont juxtaposées sans progression
+  - Le texte s'éloigne partiellement de la consigne
+  critereMaitrise: Dégager les contraintes du sujet et organiser un plan cohérent avant la rédaction.
+  seanceRattachement: 4
+  items:
+  - id: n08-i1
+    palier: A
+    type: qcm_unique
+    enonce: 'Le sujet demande : « Racontez une décision difficile prise par un personnage et ses conséquences. »
+      Quel élément est obligatoire ?
+
+      '
+    propositions:
+    - texte: Un dialogue de dix lignes
+      correcte: false
+      obstacleVise: 0
+    - texte: Une décision difficile et au moins une conséquence
+      correcte: true
+    - texte: Une histoire qui se termine bien
+      correcte: false
+      obstacleVise: 2
+    - texte: La description détaillée d'un paysage
+      correcte: false
+      obstacleVise: 1
+    justification: Les deux contraintes explicites du sujet sont la décision et ses conséquences.
+  - id: n08-i2
+    palier: B
+    type: qcm_unique
+    enonce: Quel plan répond le mieux au sujet précédent ?
+    propositions:
+    - texte: Portrait physique / météo / souvenir sans décision
+      correcte: false
+      obstacleVise: 2
+    - texte: Conséquences / nouvelle histoire / décision à la fin
+      correcte: false
+      obstacleVise: 1
+    - texte: Situation et choix / décision / conséquences
+      correcte: true
+    - texte: Écrire au fil des idées sans prévoir d'étapes
+      correcte: false
+      obstacleVise: 0
+    justification: Le plan suit la logique narrative et traite toutes les contraintes.
+  - id: n08-i3
+    palier: C
+    type: reponse_courte
+    correctionManuelle: true
+    excluScoringAutomatique: true
+    longueurMaxCaracteres: 420
+    enonce: 'Pour le sujet « Un personnage découvre qu''il s''est trompé sur un ami », proposez un plan en trois
+      étapes. Chaque étape doit tenir en une phrase.
+
+      '
+    criteresCorrection:
+    - La situation initiale et l'erreur de jugement sont identifiables.
+    - Un événement révèle l'erreur.
+    - La dernière étape montre une conséquence ou une évolution du personnage.
+    - Les trois étapes restent centrées sur le sujet.
+    exempleReponseAdmissible: '1. Le personnage soupçonne son ami à partir d''un indice mal compris. 2. Une preuve
+      révèle que l''ami cherchait en réalité à l''aider. 3. Le personnage reconnaît son erreur et répare leur relation.
+
+      '
+    justification: L'item évalue la planification, distincte de la qualité stylistique de la rédaction.
+- id: n09
+  ordre: 9
+  evalueParTest: true
+  acquisN1: Se relire avec une méthode
+  usageN: Corriger efficacement une copie de DNB avant de la rendre (séances 3 et 5)
+  obstacles:
+  - La relecture est globale et non orientée par catégories d'erreurs
+  - L'élève relit seulement le sens et ne vérifie pas les chaînes d'accord
+  - Une correction est choisie sans test grammatical
+  critereMaitrise: Relire successivement le sens, la syntaxe, les accords et les homophones à l'aide de tests.
+  seanceRattachement: 3
+  items:
+  - id: n09-i1
+    palier: A
+    type: qcm_unique
+    enonce: Pour vérifier l'accord sujet-verbe, quelle méthode est la plus fiable ?
+    propositions:
+    - texte: Relire plus vite l'ensemble du texte.
+      correcte: false
+      obstacleVise: 0
+    - texte: Accorder avec le mot placé juste avant le verbe.
+      correcte: false
+      obstacleVise: 1
+    - texte: Choisir la forme qui sonne le mieux.
+      correcte: false
+      obstacleVise: 2
+    - texte: Repérer chaque verbe conjugué puis chercher son sujet.
+      correcte: true
+    justification: Une relecture ciblée impose d'identifier le donneur d'accord.
+  - id: n09-i2
+    palier: B
+    type: qcm_unique
+    enonce: Quelle correction est justifiée par un test de remplacement ?
+    propositions:
+    - texte: « Il a commencer » devient « Il a commencé », car on peut remplacer par « pris ».
+      correcte: true
+    - texte: « Ils sont arrivé » reste inchangé, car on entend le même son.
+      correcte: false
+      obstacleVise: 2
+    - texte: « Tu va » reste inchangé, car les deux formes se prononcent de la même façon.
+      correcte: false
+      obstacleVise: 2
+    - texte: « C'est amis » reste inchangé, car le sens est compréhensible.
+      correcte: false
+      obstacleVise: 0
+    justification: Le remplacement par « pris » distingue le participe passé de l'infinitif.
+  - id: n09-i3
+    palier: C
+    type: qcm_unique
+    enonce: 'Quelle procédure de relecture est la plus efficace pour un texte de plusieurs paragraphes ?
+
+      '
+    propositions:
+    - texte: Une seule lecture silencieuse du début à la fin.
+      correcte: false
+      obstacleVise: 0
+    - texte: Une lecture pour le sens, puis des passages ciblés sur verbes, accords, homophones et ponctuation.
+      correcte: true
+    - texte: Corriger uniquement les mots soulignés par le correcteur.
+      correcte: false
+      obstacleVise: 1
+    - texte: Changer toutes les phrases longues sans vérifier leur structure.
+      correcte: false
+      obstacleVise: 2
+    justification: Des passes successives réduisent la charge cognitive et rendent chaque contrôle explicite.

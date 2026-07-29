@@ -1,0 +1,506 @@
+id: svt-entree-terminale
+niveauEntree: TERMINALE
+matiere: SVT
+edition: 2026
+dureeCibleMinutes: 24
+gamme: PREMIUM
+intitulePublic: SVT — Entrée en Terminale
+cadrage: Le test vérifie les acquis de Première nécessaires aux quatre domaines et à la méthode transversale publiés.
+statutValidation: HUMAN_VALIDATION_REQUIRED
+noeuds:
+- id: n01
+  ordre: 1
+  evalueParTest: true
+  acquisN1: Expression du génome
+  usageN: Comprendre régulation génique et évolution (séance 1)
+  obstacles:
+  - Transcription et traduction sont confondues
+  - Un gène est supposé s'exprimer de la même manière dans toutes les cellules
+  critereMaitrise: Relier ADN, ARN, protéine et phénotype.
+  seanceRattachement: 1
+  items:
+  - type: qcm_unique
+    enonce: 'La transcription produit :'
+    propositions:
+    - texte: un ARN à partir d'un ADN
+      correcte: true
+    - texte: un ADN à partir d'une protéine
+      correcte: false
+      obstacleVise: 0
+    - texte: une protéine à partir d'un lipide
+      correcte: false
+      obstacleVise: 1
+    - texte: un chromosome à partir d'ATP
+      correcte: false
+      obstacleVise: 0
+    justification: L'ARN polymérase copie un brin d'ADN.
+    id: n01-i1
+    palier: A
+  - type: qcm_unique
+    enonce: 'La traduction se déroule au niveau :'
+    propositions:
+    - texte: des chromosomes uniquement
+      correcte: false
+      obstacleVise: 0
+    - texte: des ribosomes
+      correcte: true
+    - texte: de la membrane plasmique uniquement
+      correcte: false
+      obstacleVise: 1
+    - texte: du noyau terrestre
+      correcte: false
+      obstacleVise: 0
+    justification: Le ribosome lit l'ARN messager.
+    id: n01-i2
+    palier: B
+  - type: qcm_unique
+    enonce: 'Deux cellules d''un même organisme peuvent différer parce qu''elles :'
+    propositions:
+    - texte: n'ont aucun ADN
+      correcte: false
+      obstacleVise: 1
+    - texte: créent leurs chromosomes selon leur fonction
+      correcte: false
+      obstacleVise: 0
+    - texte: n'expriment pas les mêmes gènes
+      correcte: true
+    - texte: ont toujours des génomes entièrement différents
+      correcte: false
+      obstacleVise: 0
+    justification: La spécialisation repose sur l'expression différentielle.
+    id: n01-i3
+    palier: C
+- id: n02
+  ordre: 2
+  evalueParTest: true
+  acquisN1: Méiose, fécondation et diversité génétique
+  usageN: Expliquer variabilité et dynamique des populations (séance 1)
+  obstacles:
+  - Mitose et méiose sont confondues
+  - Le brassage est supposé produire des clones
+  critereMaitrise: Relier méiose, fécondation et nouvelles combinaisons d'allèles.
+  seanceRattachement: 1
+  items:
+  - type: qcm_unique
+    enonce: 'La méiose produit généralement :'
+    propositions:
+    - texte: huit cellules diploïdes
+      correcte: false
+      obstacleVise: 0
+    - texte: deux cellules diploïdes identiques
+      correcte: false
+      obstacleVise: 0
+    - texte: une cellule sans ADN
+      correcte: false
+      obstacleVise: 1
+    - texte: quatre cellules haploïdes
+      correcte: true
+    justification: Deux divisions suivent une réplication.
+    id: n02-i1
+    palier: A
+  - type: qcm_unique
+    enonce: 'Le brassage interchromosomique résulte :'
+    propositions:
+    - texte: de la répartition aléatoire des chromosomes homologues
+      correcte: true
+    - texte: de la traduction
+      correcte: false
+      obstacleVise: 0
+    - texte: de la mitose des cellules somatiques
+      correcte: false
+      obstacleVise: 1
+    - texte: de la photosynthèse
+      correcte: false
+      obstacleVise: 0
+    justification: Les paires se répartissent indépendamment.
+    id: n02-i2
+    palier: B
+  - type: qcm_unique
+    enonce: 'La fécondation contribue à la diversité en :'
+    propositions:
+    - texte: copiant un seul gamète
+      correcte: false
+      obstacleVise: 0
+    - texte: associant aléatoirement deux gamètes
+      correcte: true
+    - texte: supprimant les allèles
+      correcte: false
+      obstacleVise: 1
+    - texte: produisant des clones
+      correcte: false
+      obstacleVise: 0
+    justification: Elle réunit deux génomes haploïdes.
+    id: n02-i3
+    palier: C
+- id: n03
+  ordre: 3
+  evalueParTest: true
+  acquisN1: Allèles et évolution des populations
+  usageN: Interpréter mutations, sélection et dérive (séance 1)
+  obstacles:
+  - Sélection et dérive sont confondues
+  - Une mutation est supposée apparaître parce qu'elle est utile
+  critereMaitrise: Distinguer mécanismes aléatoires et sélection différentielle.
+  seanceRattachement: 1
+  items:
+  - type: qcm_unique
+    enonce: 'La dérive génétique est particulièrement forte dans :'
+    propositions:
+    - texte: les cellules sans ADN
+      correcte: false
+      obstacleVise: 1
+    - texte: les milieux sans reproduction
+      correcte: false
+      obstacleVise: 0
+    - texte: les petites populations
+      correcte: true
+    - texte: les populations infinies
+      correcte: false
+      obstacleVise: 0
+    justification: L'échantillonnage aléatoire y pèse davantage.
+    id: n03-i1
+    palier: A
+  - type: qcm_unique
+    enonce: 'Une mutation apparaît :'
+    propositions:
+    - texte: seulement dans les protéines
+      correcte: false
+      obstacleVise: 0
+    - texte: toujours pour adapter l'organisme
+      correcte: false
+      obstacleVise: 0
+    - texte: uniquement après sélection
+      correcte: false
+      obstacleVise: 1
+    - texte: sans être dirigée par les besoins futurs
+      correcte: true
+    justification: La mutation précède le tri éventuel.
+    id: n03-i2
+    palier: B
+  - type: qcm_unique
+    enonce: 'La sélection naturelle modifie les fréquences alléliques si :'
+    propositions:
+    - texte: le succès reproducteur diffère selon des caractères héréditaires
+      correcte: true
+    - texte: tous les individus ont exactement le même succès
+      correcte: false
+      obstacleVise: 0
+    - texte: aucun caractère n'est transmissible
+      correcte: false
+      obstacleVise: 1
+    - texte: il n'y a pas de générations
+      correcte: false
+      obstacleVise: 0
+    justification: La contribution à la génération suivante varie.
+    id: n03-i3
+    palier: C
+- id: n04
+  ordre: 4
+  evalueParTest: true
+  acquisN1: Chronologie relative et tectonique
+  usageN: Reconstituer le passé géologique (séance 2)
+  obstacles:
+  - Superposition et recoupement sont appliqués sans observer la géométrie
+  - Datation relative et âge numérique sont confondus
+  critereMaitrise: Ordonner des événements à partir d'indices géologiques.
+  seanceRattachement: 2
+  items:
+  - type: qcm_unique
+    enonce: 'Dans une série non renversée, une couche située sous une autre est en général :'
+    propositions:
+    - texte: plus récente
+      correcte: false
+      obstacleVise: 0
+    - texte: plus ancienne
+      correcte: true
+    - texte: du même âge obligatoire
+      correcte: false
+      obstacleVise: 1
+    - texte: sans fossile
+      correcte: false
+      obstacleVise: 0
+    justification: Principe de superposition.
+    id: n04-i1
+    palier: A
+  - type: qcm_unique
+    enonce: 'Une faille qui recoupe une couche est :'
+    propositions:
+    - texte: toujours du même âge
+      correcte: false
+      obstacleVise: 1
+    - texte: sans relation chronologique
+      correcte: false
+      obstacleVise: 0
+    - texte: plus récente que la couche
+      correcte: true
+    - texte: plus ancienne que la couche
+      correcte: false
+      obstacleVise: 0
+    justification: Principe de recoupement.
+    id: n04-i2
+    palier: B
+  - type: qcm_unique
+    enonce: 'La datation relative fournit :'
+    propositions:
+    - texte: la température actuelle
+      correcte: false
+      obstacleVise: 0
+    - texte: un âge en années obligatoire
+      correcte: false
+      obstacleVise: 0
+    - texte: la masse des roches
+      correcte: false
+      obstacleVise: 1
+    - texte: un ordre des événements
+      correcte: true
+    justification: Elle classe sans nécessairement chiffrer.
+    id: n04-i3
+    palier: C
+- id: n05
+  ordre: 5
+  evalueParTest: true
+  acquisN1: Organisation et nutrition des plantes
+  usageN: Relier fonctionnement, reproduction et domestication (séance 3)
+  obstacles:
+  - La plante est supposée se nourrir de matière organique du sol
+  - Sève brute et sève élaborée sont confondues
+  critereMaitrise: Relier organes, échanges et production de matière organique.
+  seanceRattachement: 3
+  items:
+  - type: qcm_unique
+    enonce: 'La photosynthèse utilise notamment :'
+    propositions:
+    - texte: CO₂, eau et énergie lumineuse
+      correcte: true
+    - texte: O₂ et glucose seulement
+      correcte: false
+      obstacleVise: 0
+    - texte: azote gazeux uniquement
+      correcte: false
+      obstacleVise: 1
+    - texte: ATP musculaire
+      correcte: false
+      obstacleVise: 0
+    justification: Elle produit de la matière organique.
+    id: n05-i1
+    palier: A
+  - type: qcm_unique
+    enonce: 'La sève brute transporte principalement :'
+    propositions:
+    - texte: sucres des feuilles vers tous les organes
+      correcte: false
+      obstacleVise: 0
+    - texte: eau et ions minéraux des racines vers les feuilles
+      correcte: true
+    - texte: oxygène vers le sol
+      correcte: false
+      obstacleVise: 1
+    - texte: ADN entre cellules
+      correcte: false
+      obstacleVise: 0
+    justification: Elle circule dans le xylème.
+    id: n05-i2
+    palier: B
+  - type: qcm_unique
+    enonce: 'Les stomates permettent surtout :'
+    propositions:
+    - texte: la circulation sanguine
+      correcte: false
+      obstacleVise: 1
+    - texte: la réplication de l'ADN
+      correcte: false
+      obstacleVise: 0
+    - texte: les échanges gazeux de la feuille
+      correcte: true
+    - texte: la division des racines
+      correcte: false
+      obstacleVise: 0
+    justification: Ils contrôlent CO₂ et vapeur d'eau.
+    id: n05-i3
+    palier: C
+- id: n06
+  ordre: 6
+  evalueParTest: true
+  acquisN1: Archives et indicateurs climatiques
+  usageN: Reconstituer et interpréter l'évolution des climats (séance 3)
+  obstacles:
+  - Un indicateur local est pris pour une mesure directe globale
+  - Corrélation et causalité sont confondues
+  critereMaitrise: Interpréter un proxy et croiser plusieurs archives.
+  seanceRattachement: 3
+  items:
+  - type: qcm_unique
+    enonce: 'Un proxy climatique est :'
+    propositions:
+    - texte: une opinion
+      correcte: false
+      obstacleVise: 0
+    - texte: une mesure directe par satellite ancien
+      correcte: false
+      obstacleVise: 0
+    - texte: une prévision certaine
+      correcte: false
+      obstacleVise: 1
+    - texte: un indicateur indirect d'une variable climatique passée
+      correcte: true
+    justification: Les archives enregistrent indirectement le climat.
+    id: n06-i1
+    palier: A
+  - type: qcm_unique
+    enonce: 'Croiser plusieurs archives permet :'
+    propositions:
+    - texte: de renforcer ou nuancer une reconstitution
+      correcte: true
+    - texte: de supprimer toute incertitude
+      correcte: false
+      obstacleVise: 0
+    - texte: de choisir uniquement celle qui confirme l'hypothèse
+      correcte: false
+      obstacleVise: 1
+    - texte: d'ignorer les datations
+      correcte: false
+      obstacleVise: 0
+    justification: Les indices indépendants se confrontent.
+    id: n06-i2
+    palier: B
+  - type: qcm_unique
+    enonce: 'Une corrélation entre deux variables :'
+    propositions:
+    - texte: prouve toujours une cause unique
+      correcte: false
+      obstacleVise: 0
+    - texte: ne prouve pas à elle seule une causalité
+      correcte: true
+    - texte: signifie qu'elles sont identiques
+      correcte: false
+      obstacleVise: 1
+    - texte: interdit toute hypothèse
+      correcte: false
+      obstacleVise: 0
+    justification: Un mécanisme et d'autres tests sont nécessaires.
+    id: n06-i3
+    palier: C
+- id: n07
+  ordre: 7
+  evalueParTest: true
+  acquisN1: Message nerveux, muscle et ATP
+  usageN: Relier mouvement, énergie et stress (séance 4)
+  obstacles:
+  - Message nerveux et hormone sont confondus
+  - L'ATP est supposée être stockée en quantité illimitée
+  critereMaitrise: Relier commande nerveuse, contraction et renouvellement de l'ATP.
+  seanceRattachement: 4
+  items:
+  - type: qcm_unique
+    enonce: 'Le message nerveux se propage le long d''un neurone sous forme :'
+    propositions:
+    - texte: d'une circulation d'ADN
+      correcte: false
+      obstacleVise: 1
+    - texte: de lumière uniquement
+      correcte: false
+      obstacleVise: 0
+    - texte: de variations électriques de membrane
+      correcte: true
+    - texte: d'un déplacement du noyau
+      correcte: false
+      obstacleVise: 0
+    justification: Le potentiel d'action est électrique.
+    id: n07-i1
+    palier: A
+  - type: qcm_unique
+    enonce: 'La contraction musculaire nécessite directement :'
+    propositions:
+    - texte: du CO₂ comme seul carburant
+      correcte: false
+      obstacleVise: 0
+    - texte: de l'ADN supplémentaire
+      correcte: false
+      obstacleVise: 0
+    - texte: une plaque tectonique
+      correcte: false
+      obstacleVise: 1
+    - texte: de l'ATP
+      correcte: true
+    justification: Les cycles actine-myosine consomment de l'ATP.
+    id: n07-i2
+    palier: B
+  - type: qcm_unique
+    enonce: 'L''ATP musculaire doit être :'
+    propositions:
+    - texte: régénérée continuellement
+      correcte: true
+    - texte: stockée pour toute la vie
+      correcte: false
+      obstacleVise: 0
+    - texte: remplacée par l'ADN
+      correcte: false
+      obstacleVise: 1
+    - texte: produite uniquement au repos
+      correcte: false
+      obstacleVise: 0
+    justification: Les réserves immédiates sont faibles.
+    id: n07-i3
+    palier: C
+- id: n08
+  ordre: 8
+  evalueParTest: true
+  acquisN1: Raisonnement à plusieurs documents
+  usageN: Traiter un exercice transversal de Terminale (séance 5)
+  obstacles:
+  - Une coïncidence est transformée en preuve
+  - Les connaissances sont récitées sans résoudre le problème
+  critereMaitrise: Formuler une stratégie, exploiter les données et produire une conclusion argumentée.
+  seanceRattachement: 5
+  items:
+  - type: qcm_unique
+    enonce: 'La première étape utile est :'
+    propositions:
+    - texte: réciter tout le cours
+      correcte: false
+      obstacleVise: 0
+    - texte: reformuler le problème et identifier les informations nécessaires
+      correcte: true
+    - texte: calculer toutes les données
+      correcte: false
+      obstacleVise: 1
+    - texte: écrire la conclusion
+      correcte: false
+      obstacleVise: 0
+    justification: La stratégie guide la sélection.
+    id: n08-i1
+    palier: A
+  - type: qcm_unique
+    enonce: 'Une preuve documentaire solide associe :'
+    propositions:
+    - texte: valeur sans unité
+      correcte: false
+      obstacleVise: 1
+    - texte: connaissance sans document
+      correcte: false
+      obstacleVise: 0
+    - texte: donnée précise et interprétation
+      correcte: true
+    - texte: titre et opinion
+      correcte: false
+      obstacleVise: 0
+    justification: La donnée soutient l'inférence.
+    id: n08-i2
+    palier: B
+  - type: qcm_unique
+    enonce: 'Si deux documents semblent contradictoires, il faut :'
+    propositions:
+    - texte: faire leur moyenne systématiquement
+      correcte: false
+      obstacleVise: 0
+    - texte: supprimer l'un d'eux
+      correcte: false
+      obstacleVise: 0
+    - texte: choisir le plus récent sans analyse
+      correcte: false
+      obstacleVise: 1
+    - texte: examiner échelles, protocoles et incertitudes
+      correcte: true
+    justification: Le contexte peut expliquer l'écart.
+    id: n08-i3
+    palier: C

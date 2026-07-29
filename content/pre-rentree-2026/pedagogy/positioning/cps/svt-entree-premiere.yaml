@@ -1,0 +1,506 @@
+id: svt-entree-premiere
+niveauEntree: PREMIERE
+matiere: SVT
+edition: 2026
+dureeCibleMinutes: 24
+gamme: PREMIUM
+intitulePublic: SVT — Entrée en Première
+cadrage: Le test vérifie les acquis de Seconde et du cycle 4 nécessaires aux cinq séances publiées de spécialité.
+statutValidation: HUMAN_VALIDATION_REQUIRED
+noeuds:
+- id: n01
+  ordre: 1
+  evalueParTest: true
+  acquisN1: Cellule, noyau, chromosome et ADN
+  usageN: Relier transmission et expression du patrimoine génétique (séance 1)
+  obstacles:
+  - Cellule, noyau et chromosome sont placés au même niveau
+  - Gène et chromosome sont confondus
+  critereMaitrise: Situer l'ADN et relier gène, chromosome et cellule.
+  seanceRattachement: 1
+  items:
+  - type: qcm_unique
+    enonce: 'Dans une cellule eucaryote, l''essentiel de l''ADN se trouve :'
+    propositions:
+    - texte: dans le noyau
+      correcte: true
+    - texte: dans la membrane
+      correcte: false
+      obstacleVise: 0
+    - texte: dans le milieu extérieur
+      correcte: false
+      obstacleVise: 1
+    - texte: dans chaque protéine
+      correcte: false
+      obstacleVise: 0
+    justification: Les chromosomes nucléaires portent l'ADN.
+    id: n01-i1
+    palier: A
+  - type: qcm_unique
+    enonce: 'Un chromosome est constitué notamment :'
+    propositions:
+    - texte: d'une cellule complète
+      correcte: false
+      obstacleVise: 0
+    - texte: d'une longue molécule d'ADN associée à des protéines
+      correcte: true
+    - texte: d'un seul acide aminé
+      correcte: false
+      obstacleVise: 1
+    - texte: d'une membrane seule
+      correcte: false
+      obstacleVise: 0
+    justification: L'ADN compacté forme la chromatine.
+    id: n01-i2
+    palier: B
+  - type: qcm_unique
+    enonce: 'Un gène est :'
+    propositions:
+    - texte: une cellule spécialisée
+      correcte: false
+      obstacleVise: 1
+    - texte: une molécule d'ATP
+      correcte: false
+      obstacleVise: 0
+    - texte: une portion d'ADN portant une information
+      correcte: true
+    - texte: un chromosome entier toujours
+      correcte: false
+      obstacleVise: 0
+    justification: Un gène occupe un locus sur l'ADN.
+    id: n01-i3
+    palier: C
+- id: n02
+  ordre: 2
+  evalueParTest: true
+  acquisN1: Division cellulaire et conservation de l'information
+  usageN: Comprendre réplication, mitose et stabilité du génome (séance 1)
+  obstacles:
+  - La mitose crée volontairement de nouveaux gènes
+  - Réplication et division sont confondues
+  critereMaitrise: Ordonner réplication et séparation des chromosomes.
+  seanceRattachement: 1
+  items:
+  - type: qcm_unique
+    enonce: 'Avant une mitose, l''ADN est :'
+    propositions:
+    - texte: expulsé du noyau
+      correcte: false
+      obstacleVise: 0
+    - texte: détruit
+      correcte: false
+      obstacleVise: 0
+    - texte: traduit en protéines uniquement
+      correcte: false
+      obstacleVise: 1
+    - texte: répliqué
+      correcte: true
+    justification: La duplication prépare deux lots identiques.
+    id: n02-i1
+    palier: A
+  - type: qcm_unique
+    enonce: 'La mitose produit généralement :'
+    propositions:
+    - texte: deux cellules filles génétiquement proches
+      correcte: true
+    - texte: quatre gamètes
+      correcte: false
+      obstacleVise: 0
+    - texte: une seule cellule sans noyau
+      correcte: false
+      obstacleVise: 1
+    - texte: des cellules toujours différentes
+      correcte: false
+      obstacleVise: 0
+    justification: Les chromatides sont réparties.
+    id: n02-i2
+    palier: B
+  - type: qcm_unique
+    enonce: 'La réplication correspond :'
+    propositions:
+    - texte: à la séparation des cellules
+      correcte: false
+      obstacleVise: 0
+    - texte: à la copie de l'ADN
+      correcte: true
+    - texte: à la synthèse d'ATP
+      correcte: false
+      obstacleVise: 1
+    - texte: au déplacement des plaques
+      correcte: false
+      obstacleVise: 0
+    justification: Elle double la quantité d'ADN.
+    id: n02-i3
+    palier: C
+- id: n03
+  ordre: 3
+  evalueParTest: true
+  acquisN1: Gène, allèle et mutation
+  usageN: Expliquer variation génétique, santé et immunité (séances 1 et 4)
+  obstacles:
+  - Allèle et gène sont synonymes
+  - Toute mutation est supposée visible ou défavorable
+  critereMaitrise: Distinguer gène et allèle et prévoir un effet possible d'une mutation.
+  seanceRattachement: 1
+  items:
+  - type: qcm_unique
+    enonce: 'Deux allèles sont :'
+    propositions:
+    - texte: deux cellules
+      correcte: false
+      obstacleVise: 1
+    - texte: deux protéines identiques par définition
+      correcte: false
+      obstacleVise: 0
+    - texte: deux versions d'un même gène
+      correcte: true
+    - texte: deux chromosomes d'espèces différentes
+      correcte: false
+      obstacleVise: 0
+    justification: Ils diffèrent par leur séquence.
+    id: n03-i1
+    palier: A
+  - type: qcm_unique
+    enonce: 'Une mutation est :'
+    propositions:
+    - texte: une migration
+      correcte: false
+      obstacleVise: 0
+    - texte: un changement volontaire du milieu
+      correcte: false
+      obstacleVise: 0
+    - texte: une division cellulaire
+      correcte: false
+      obstacleVise: 1
+    - texte: une modification de la séquence d'ADN
+      correcte: true
+    justification: Elle crée une variation génétique.
+    id: n03-i2
+    palier: B
+  - type: qcm_unique
+    enonce: 'Une mutation peut être :'
+    propositions:
+    - texte: sans effet observable, défavorable ou avantageuse selon le contexte
+      correcte: true
+    - texte: toujours mortelle
+      correcte: false
+      obstacleVise: 0
+    - texte: toujours avantageuse
+      correcte: false
+      obstacleVise: 1
+    - texte: toujours réparée
+      correcte: false
+      obstacleVise: 0
+    justification: L'effet dépend du site, du produit et du milieu.
+    id: n03-i3
+    palier: C
+- id: n04
+  ordre: 4
+  evalueParTest: true
+  acquisN1: Structure du globe et tectonique des plaques
+  usageN: Construire un modèle de la dynamique interne de la Terre (séance 2)
+  obstacles:
+  - Plaque et continent sont confondus
+  - Les données sont forcées pour confirmer un modèle
+  critereMaitrise: Relier séismes, volcanisme et limites de plaques.
+  seanceRattachement: 2
+  items:
+  - type: qcm_unique
+    enonce: 'Les plaques lithosphériques comprennent :'
+    propositions:
+    - texte: uniquement les continents
+      correcte: false
+      obstacleVise: 0
+    - texte: croûte et partie supérieure rigide du manteau
+      correcte: true
+    - texte: uniquement les océans
+      correcte: false
+      obstacleVise: 1
+    - texte: le noyau externe
+      correcte: false
+      obstacleVise: 0
+    justification: La lithosphère est rigide.
+    id: n04-i1
+    palier: A
+  - type: qcm_unique
+    enonce: 'Une dorsale océanique correspond à une zone :'
+    propositions:
+    - texte: sans activité géologique
+      correcte: false
+      obstacleVise: 1
+    - texte: de disparition du noyau
+      correcte: false
+      obstacleVise: 0
+    - texte: de divergence
+      correcte: true
+    - texte: de collision continentale uniquement
+      correcte: false
+      obstacleVise: 0
+    justification: Deux plaques s'écartent.
+    id: n04-i2
+    palier: B
+  - type: qcm_unique
+    enonce: 'L''alignement de séismes profonds sous une marge suggère :'
+    propositions:
+    - texte: une érosion seule
+      correcte: false
+      obstacleVise: 0
+    - texte: une dorsale
+      correcte: false
+      obstacleVise: 0
+    - texte: une absence de mouvement
+      correcte: false
+      obstacleVise: 1
+    - texte: une subduction
+      correcte: true
+    justification: La plaque plongeante porte les foyers.
+    id: n04-i3
+    palier: C
+- id: n05
+  ordre: 5
+  evalueParTest: true
+  acquisN1: Écosystème, réseau trophique et flux
+  usageN: Analyser fonctionnement et services d'un écosystème (séance 3)
+  obstacles:
+  - Chaîne et réseau trophiques sont confondus
+  - La matière et l'énergie sont supposées circuler de la même façon
+  critereMaitrise: Construire un réseau simple et distinguer flux de matière et d'énergie.
+  seanceRattachement: 3
+  items:
+  - type: qcm_unique
+    enonce: 'Dans un réseau trophique, une flèche va conventionnellement :'
+    propositions:
+    - texte: de la ressource vers le consommateur
+      correcte: true
+    - texte: du consommateur vers la ressource
+      correcte: false
+      obstacleVise: 0
+    - texte: toujours vers le Soleil
+      correcte: false
+      obstacleVise: 1
+    - texte: sans signification
+      correcte: false
+      obstacleVise: 0
+    justification: Elle représente un transfert de matière.
+    id: n05-i1
+    palier: A
+  - type: qcm_unique
+    enonce: 'L''énergie d''un écosystème provient majoritairement :'
+    propositions:
+    - texte: des consommateurs
+      correcte: false
+      obstacleVise: 0
+    - texte: du rayonnement solaire capté par les producteurs
+      correcte: true
+    - texte: du noyau des cellules
+      correcte: false
+      obstacleVise: 1
+    - texte: des décomposeurs seulement
+      correcte: false
+      obstacleVise: 0
+    justification: La photosynthèse introduit l'énergie.
+    id: n05-i2
+    palier: B
+  - type: qcm_unique
+    enonce: 'Les décomposeurs contribuent surtout à :'
+    propositions:
+    - texte: supprimer les producteurs
+      correcte: false
+      obstacleVise: 1
+    - texte: arrêter les cycles
+      correcte: false
+      obstacleVise: 0
+    - texte: recycler la matière minérale
+      correcte: true
+    - texte: créer toute l'énergie
+      correcte: false
+      obstacleVise: 0
+    justification: Ils minéralisent la matière organique.
+    id: n05-i3
+    palier: C
+- id: n06
+  ordre: 6
+  evalueParTest: true
+  acquisN1: Biodiversité et évolution
+  usageN: Comprendre variation génétique et dynamique des écosystèmes (séances 1 et 3)
+  obstacles:
+  - L'évolution est pensée comme un progrès orienté
+  - Un individu est supposé évoluer au cours de sa vie pour s'adapter
+  critereMaitrise: Relier variation héréditaire, sélection et fréquence dans une population.
+  seanceRattachement: 3
+  items:
+  - type: qcm_unique
+    enonce: 'La sélection naturelle agit directement sur :'
+    propositions:
+    - texte: tous les caractères de manière identique
+      correcte: false
+      obstacleVise: 0
+    - texte: les besoins futurs de l'espèce
+      correcte: false
+      obstacleVise: 0
+    - texte: la volonté des individus
+      correcte: false
+      obstacleVise: 1
+    - texte: des variations phénotypiques héréditaires
+      correcte: true
+    justification: Le succès reproducteur diffère.
+    id: n06-i1
+    palier: A
+  - type: qcm_unique
+    enonce: 'Une population évolue quand :'
+    propositions:
+    - texte: les fréquences d'allèles changent au fil des générations
+      correcte: true
+    - texte: chaque individu change volontairement
+      correcte: false
+      obstacleVise: 0
+    - texte: le milieu reste toujours stable
+      correcte: false
+      obstacleVise: 1
+    - texte: aucune reproduction n'a lieu
+      correcte: false
+      obstacleVise: 0
+    justification: L'évolution se mesure au niveau populationnel.
+    id: n06-i2
+    palier: B
+  - type: qcm_unique
+    enonce: 'Une adaptation est :'
+    propositions:
+    - texte: un effort acquis par un individu et transmis
+      correcte: false
+      obstacleVise: 0
+    - texte: un caractère héréditaire favorisé dans un contexte donné
+      correcte: true
+    - texte: toujours avantageuse partout
+      correcte: false
+      obstacleVise: 1
+    - texte: une mutation nécessairement dirigée
+      correcte: false
+      obstacleVise: 0
+    justification: L'avantage dépend du milieu.
+    id: n06-i3
+    palier: C
+- id: n07
+  ordre: 7
+  evalueParTest: true
+  acquisN1: 'Immunité : reconnaissance et mémoire'
+  usageN: Relier variation génétique, santé et immunité (séance 4)
+  obstacles:
+  - Immunité innée et adaptative sont confondues
+  - La mémoire immunitaire est supposée immédiate dès la première rencontre
+  critereMaitrise: Distinguer réponse innée, réponse adaptative et mémoire.
+  seanceRattachement: 4
+  items:
+  - type: qcm_unique
+    enonce: 'La réponse immunitaire innée est :'
+    propositions:
+    - texte: absente à la naissance
+      correcte: false
+      obstacleVise: 1
+    - texte: fondée sur la mémoire seule
+      correcte: false
+      obstacleVise: 0
+    - texte: rapide et non spécifique d'un antigène précis
+      correcte: true
+    - texte: toujours lente et spécifique
+      correcte: false
+      obstacleVise: 0
+    justification: Elle constitue la première ligne de défense.
+    id: n07-i1
+    palier: A
+  - type: qcm_unique
+    enonce: 'La mémoire immunitaire appartient surtout à :'
+    propositions:
+    - texte: la mitose seule
+      correcte: false
+      obstacleVise: 0
+    - texte: la digestion
+      correcte: false
+      obstacleVise: 0
+    - texte: la tectonique
+      correcte: false
+      obstacleVise: 1
+    - texte: la réponse adaptative
+      correcte: true
+    justification: Des lymphocytes mémoires persistent.
+    id: n07-i2
+    palier: B
+  - type: qcm_unique
+    enonce: 'La vaccination vise à :'
+    propositions:
+    - texte: installer une mémoire sans provoquer la maladie ciblée
+      correcte: true
+    - texte: supprimer toute immunité
+      correcte: false
+      obstacleVise: 0
+    - texte: agir seulement comme antibiotique
+      correcte: false
+      obstacleVise: 1
+    - texte: modifier toutes les cellules
+      correcte: false
+      obstacleVise: 0
+    justification: Elle prépare une réponse secondaire efficace.
+    id: n07-i3
+    palier: C
+- id: n08
+  ordre: 8
+  evalueParTest: true
+  acquisN1: Lecture de documents et argumentation scientifique
+  usageN: Mobiliser plusieurs documents dans une réponse structurée (séance 5)
+  obstacles:
+  - Le document est paraphrasé sans donnée précise
+  - Connaissances et preuves documentaires ne sont pas articulées
+  critereMaitrise: Extraire, mettre en relation et conclure avec preuves.
+  seanceRattachement: 5
+  items:
+  - type: qcm_unique
+    enonce: 'Une exploitation de graphique doit citer :'
+    propositions:
+    - texte: le titre seulement
+      correcte: false
+      obstacleVise: 0
+    - texte: une tendance et au moins une donnée pertinente
+      correcte: true
+    - texte: toutes les valeurs sans sélection
+      correcte: false
+      obstacleVise: 1
+    - texte: une opinion
+      correcte: false
+      obstacleVise: 0
+    justification: La donnée étaye l'interprétation.
+    id: n08-i1
+    palier: A
+  - type: qcm_unique
+    enonce: 'Mettre deux documents en relation consiste à :'
+    propositions:
+    - texte: choisir le plus long
+      correcte: false
+      obstacleVise: 1
+    - texte: ignorer leurs unités
+      correcte: false
+      obstacleVise: 0
+    - texte: combiner leurs informations pour répondre au problème
+      correcte: true
+    - texte: les résumer séparément seulement
+      correcte: false
+      obstacleVise: 0
+    justification: Le lien produit une inférence.
+    id: n08-i2
+    palier: B
+  - type: qcm_unique
+    enonce: 'Une conclusion scientifique répond :'
+    propositions:
+    - texte: sans mentionner les preuves
+      correcte: false
+      obstacleVise: 0
+    - texte: uniquement au document 1
+      correcte: false
+      obstacleVise: 0
+    - texte: par une nouvelle question
+      correcte: false
+      obstacleVise: 1
+    - texte: au problème en s'appuyant sur les résultats
+      correcte: true
+    justification: Elle synthétise le raisonnement.
+    id: n08-i3
+    palier: C

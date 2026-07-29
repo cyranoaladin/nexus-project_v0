@@ -1,0 +1,438 @@
+quatrieme-mathematiques:
+  1:
+    prompt: "Calculez E = -3 + (5/2), puis écrivez 0,0042 en notation scientifique."
+    answer: "E = -6/2 + 5/2 = -1/2. De plus, 0,0042 = 4,2 × 10⁻³."
+    method: "Mettre les termes fractionnaires au même dénominateur et déplacer la virgule pour obtenir un coefficient compris entre 1 et 10."
+    pitfall: "Oublier que l'exposant est négatif pour un nombre compris entre 0 et 1."
+  2:
+    prompt: "Réduisez 3(2x − 5) − 2(x + 1), puis résolvez l'équation obtenue lorsqu'elle vaut 7."
+    answer: "3(2x − 5) − 2(x + 1) = 6x − 15 − 2x − 2 = 4x − 17. Résoudre 4x − 17 = 7 donne 4x = 24, donc x = 6."
+    method: "Distribuer chaque facteur, réduire les termes semblables, puis conserver l'équivalence à chaque étape de l'équation."
+    pitfall: "Oublier de distribuer le signe moins au second terme."
+  3:
+    prompt: "Un triangle a pour côtés 6 cm, 8 cm et 10 cm. Justifiez qu'il est rectangle, puis donnez les côtés de son agrandissement de rapport 1,5."
+    answer: "10² = 100 et 6² + 8² = 36 + 64 = 100 : par la réciproque de Pythagore, le triangle est rectangle. L'agrandissement a pour côtés 9 cm, 12 cm et 15 cm."
+    method: "Comparer le carré du plus grand côté à la somme des carrés des deux autres, puis multiplier toutes les longueurs par le même rapport."
+    pitfall: "Appliquer Pythagore sans avoir d'abord identifié le plus grand côté."
+  4:
+    prompt: "Un article coûte 80 TND et augmente de 15 %. Calculez le nouveau prix. Un trajet de 150 km dure 2 h : calculez la vitesse moyenne."
+    answer: "Le coefficient multiplicateur est 1,15, donc le prix vaut 80 × 1,15 = 92 TND. La vitesse moyenne vaut 150/2 = 75 km·h⁻¹."
+    method: "Pour un pourcentage, utiliser un coefficient multiplicateur ; pour une vitesse, diviser la distance par la durée."
+    pitfall: "Ajouter 15 au prix au lieu de calculer 15 % de 80."
+  5:
+    prompt: "Pour la série 8, 10, 10, 12, 15, calculez la moyenne et l'étendue. Avec un dé équilibré, calculez la probabilité d'obtenir un nombre pair."
+    answer: "La moyenne vaut (8 + 10 + 10 + 12 + 15)/5 = 11 et l'étendue 15 − 8 = 7. Les issues paires sont 2, 4 et 6, donc la probabilité vaut 3/6 = 1/2."
+    method: "Distinguer somme divisée par effectif, différence maximum-minimum et rapport cas favorables/cas possibles."
+    pitfall: "Confondre moyenne et médiane ou compter une issue deux fois."
+
+quatrieme-francais:
+  1:
+    prompt: "Lisez : « Inès replia la lettre avant que son frère n'entre. Elle la glissa sous le livre et se mit à sourire. » Quelle intention implicite peut-on formuler ? Justifiez-la par deux indices."
+    answer: "Inès veut probablement cacher la lettre à son frère. Elle la replie avant son entrée puis la « glissa sous le livre », geste de dissimulation."
+    method: "Formuler une hypothèse prudente, puis relier deux indices précis à cette interprétation."
+    pitfall: "Inventer le contenu de la lettre, qui n'est pas donné."
+  2:
+    prompt: "Analysez la phrase « Lorsque la pluie cessa, les enfants sortirent dans la cour. » : donnez la nature de « lorsque » et délimitez les deux propositions."
+    answer: "« lorsque » est une conjonction de subordination. La proposition subordonnée circonstancielle de temps est « Lorsque la pluie cessa » ; la principale est « les enfants sortirent dans la cour »."
+    method: "Repérer les verbes conjugués, le mot subordonnant, puis la relation de sens."
+    pitfall: "Donner la fonction d'un groupe sans avoir d'abord identifié les propositions."
+  3:
+    prompt: "Réécrivez au pluriel et au passé simple : « Le jeune voyageur avance, observe la route et choisit un passage étroit. »"
+    answer: "« Les jeunes voyageurs avancèrent, observèrent la route et choisirent des passages étroits. »"
+    method: "Modifier le déterminant et le nom, répercuter les accords, puis conjuguer chaque verbe au même temps."
+    pitfall: "Transformer le sujet sans accorder les adjectifs ou tous les verbes."
+  5:
+    prompt: "Organisez en un paragraphe ces idées : la lecture développe le vocabulaire ; elle permet de découvrir d'autres points de vue ; un roman historique fait comprendre une époque. Ajoutez deux connecteurs."
+    answer: "Exemple : « D'abord, la lecture enrichit le vocabulaire grâce à la diversité des mots rencontrés. De plus, elle fait découvrir d'autres points de vue ; ainsi, un roman historique permet de mieux comprendre une époque. »"
+    method: "Choisir une idée directrice, ordonner les arguments et relier l'exemple à l'idée qu'il illustre."
+    pitfall: "Juxtaposer les trois idées sans hiérarchie ni connecteur."
+
+troisieme-mathematiques:
+  1:
+    prompt: "Calculez F = 2 − (3/4) × (−8), puis donnez un ordre de grandeur permettant de contrôler le signe du résultat."
+    answer: "(3/4) × (−8) = −6, donc F = 2 − (−6) = 8. Le produit est négatif ; le soustraire doit augmenter 2, ce qui confirme un résultat positif supérieur à 2."
+    method: "Effectuer la multiplication avant la soustraction et contrôler le résultat par le signe."
+    pitfall: "Lire 2 − (−6) comme 2 − 6."
+  2:
+    prompt: "Résolvez 3(x − 2) + 5 = 2x + 7 et vérifiez la solution dans l'équation initiale."
+    answer: "3x − 6 + 5 = 2x + 7, donc 3x − 1 = 2x + 7 et x = 8. Vérification : 3 × 6 + 5 = 23 et 16 + 7 = 23."
+    method: "Développer, regrouper les inconnues, isoler x, puis remplacer x dans les deux membres."
+    pitfall: "Vérifier dans une équation transformée plutôt que dans l'équation initiale."
+  3:
+    prompt: "Dans un triangle ABC, AB = 5 cm, AC = 12 cm et BC = 13 cm. Justifiez la nature du triangle. Quel théorème choisiriez-vous si une droite parallèle à BC coupait AB et AC ?"
+    answer: "13² = 169 et 5² + 12² = 25 + 144 = 169 : ABC est rectangle en A par la réciproque de Pythagore. Avec une droite parallèle à BC, on mobiliserait le théorème de Thalès."
+    method: "Choisir le théorème à partir des données : trois longueurs pour Pythagore, parallélisme et rapports pour Thalès."
+    pitfall: "Utiliser un théorème parce que son nom est connu sans vérifier ses hypothèses."
+  4:
+    prompt: "Soit f(x) = 2x − 3. Calculez f(4) et l'antécédent de 7. Pour la série 2, 3, 3, 5, 9, donnez la médiane."
+    answer: "f(4) = 5. Résoudre 2x − 3 = 7 donne x = 5. La série est ordonnée et comporte cinq valeurs : la médiane est 3."
+    method: "Distinguer calcul d'image, résolution d'une équation d'antécédent et lecture de la valeur centrale."
+    pitfall: "Échanger image et antécédent."
+  5:
+    prompt: "Un exercice DNB comporte trois questions valant 1, 2 et 5 points. Proposez un ordre de traitement et deux contrôles finaux, en justifiant votre stratégie."
+    answer: "Une stratégie recevable consiste à sécuriser d'abord les questions de 1 et 2 points, puis consacrer le temps principal à la question de 5 points. Contrôles : unités et cohérence de l'ordre de grandeur, puis présence des justifications demandées."
+    method: "Lire le barème, plafonner le temps par question et réserver une marge de contrôle."
+    pitfall: "Rester bloqué sur la première question rencontrée."
+
+troisieme-francais:
+  1:
+    prompt: "Lisez : « Le hall était désert. Mehdi ralentit, puis rangea brusquement son téléphone lorsqu'une porte grinça. » Montrez que le personnage se sent observé."
+    answer: "Le hall « désert » installe l'isolement. Mehdi « ralentit » puis cache « brusquement » son téléphone à l'écoute d'une porte : ses gestes traduisent sa méfiance."
+    method: "Associer une interprétation à au moins deux indices brefs et commentés."
+    pitfall: "Affirmer qu'une personne l'observe réellement alors que le texte ne le prouve pas."
+  2:
+    prompt: "Réécrivez au pluriel : « La candidate que le jury interroge paraît concentrée. » Puis donnez la fonction de « que »."
+    answer: "« Les candidates que le jury interroge paraît concentrées » est incorrect : la forme correcte est « Les candidates que le jury interroge paraissent concentrées. » « que » est COD de « interroge »."
+    method: "Répercuter le nombre sur le déterminant, le nom, le verbe principal et l'attribut ; analyser le relatif dans sa proposition."
+    pitfall: "Accorder « interroge » avec l'antécédent alors que son sujet est « le jury »."
+  3:
+    prompt: "Corrigez et justifiez : « Ces élèves ce sont entraîné, mais leurs réponses son encore hésitante. »"
+    answer: "« Ces élèves se sont entraînés, mais leurs réponses sont encore hésitantes. » On distingue se/ce et son/sont ; le participe s'accorde ici avec le sujet dans la forme pronominale, et « hésitantes » avec « réponses »."
+    method: "Identifier la classe grammaticale de chaque homophone puis contrôler les chaînes d'accord."
+    pitfall: "Corriger à l'oreille sans justifier la nature des mots."
+  4:
+    prompt: "Sujet : « Une erreur peut-elle devenir utile ? » Proposez une thèse, deux arguments distincts et un exemple précis pour l'un d'eux."
+    answer: "Thèse possible : une erreur devient utile lorsqu'elle est analysée. Argument 1 : elle révèle une méthode inadéquate. Argument 2 : sa correction construit un contrôle réutilisable. Exemple : après une erreur de signe, un élève vérifie systématiquement l'ordre de grandeur."
+    method: "Éviter la répétition en donnant à chaque argument une fonction différente, puis expliquer l'exemple."
+    pitfall: "Présenter deux formulations de la même idée comme deux arguments."
+
+seconde-mathematiques:
+  1:
+    prompt: "Factorisez x² − 9, puis résolvez |x − 2| ≤ 3 en interprétant la valeur absolue comme une distance."
+    answer: "x² − 9 = (x − 3)(x + 3). L'inégalité |x − 2| ≤ 3 signifie que la distance de x à 2 est au plus 3, donc x ∈ [−1 ; 5]."
+    method: "Reconnaître une différence de deux carrés et traduire |x − a| ≤ r par [a − r ; a + r]."
+    pitfall: "Écrire une seule borne pour une inégalité de distance."
+  2:
+    prompt: "Pour f(x) = −x + 4, calculez l'image de −2, l'antécédent de 1 et le sens de variation de f."
+    answer: "f(−2) = 6. Résoudre −x + 4 = 1 donne x = 3. Le coefficient directeur −1 est négatif, donc f est strictement décroissante."
+    method: "Substituer pour une image, résoudre pour un antécédent et lire le signe du coefficient directeur."
+    pitfall: "Déduire les variations d'une seule valeur calculée."
+  3:
+    prompt: "Résolvez (2x − 3)(x + 1) ≤ 0 à l'aide d'un tableau de signes."
+    answer: "Les zéros sont −1 et 3/2. Le produit de deux facteurs affines de coefficients directeurs positifs est positif à l'extérieur et négatif entre les racines. Solution : [−1 ; 3/2]."
+    method: "Trouver les zéros, ordonner les valeurs critiques, déterminer le signe de chaque facteur puis celui du produit."
+    pitfall: "Multiplier les inégalités sans contrôler le signe des facteurs."
+  4:
+    prompt: "Dans un repère orthonormé, A(1 ; 2) et B(5 ; −1). Calculez les coordonnées de AB, la distance AB et le milieu I."
+    answer: "AB = (4 ; −3). AB = √(4² + (−3)²) = 5. I((1 + 5)/2 ; (2 − 1)/2) = I(3 ; 1/2)."
+    method: "Soustraire arrivée moins départ, appliquer la norme, puis moyenner séparément les coordonnées."
+    pitfall: "Soustraire les coordonnées dans des ordres différents."
+  5:
+    prompt: "Dans un groupe de 40 élèves, 25 pratiquent un sport, dont 15 sont des filles. Le groupe compte 24 filles. Calculez la fréquence des sportifs et la fréquence des sportives parmi les filles."
+    answer: "La fréquence des sportifs vaut 25/40 = 62,5 %. Parmi les filles, la fréquence conditionnelle vaut 15/24 = 62,5 %."
+    method: "Identifier le bon univers de référence : tout le groupe pour la première fréquence, les filles pour la seconde."
+    pitfall: "Conserver 40 comme dénominateur dans une fréquence conditionnelle."
+
+seconde-francais:
+  1:
+    prompt: "Rédigez un paragraphe de cinq phrases défendant l'idée que le travail en groupe peut améliorer un apprentissage, avec argument, exemple et analyse."
+    answer: "Réponse ouverte. Un modèle recevable formule l'idée directrice, explique que la confrontation des démarches rend les erreurs visibles, donne un exemple précis de résolution comparée et analyse pourquoi cet exemple confirme l'argument."
+    method: "Enchaîner idée, raison, exemple précis, analyse de l'exemple et phrase de bilan."
+    pitfall: "Donner un exemple sans expliquer ce qu'il prouve."
+  2:
+    prompt: "Analysez : « La ville s'éveillait à peine ; déjà les fenêtres avalaient la lumière grise. » Identifiez un procédé et interprétez son effet."
+    answer: "La personnification « les fenêtres avalaient la lumière » anime la ville. Elle transforme le lever du jour en mouvement progressif et donne au décor une présence presque vivante."
+    method: "Nommer précisément le procédé, citer peu, puis relier la forme à une interprétation."
+    pitfall: "Nommer la personnification sans analyser son effet."
+  3:
+    prompt: "Thèse : « Les devoirs doivent être limités. » Formulez une concession, une réfutation et un argument personnel soutenu par un exemple."
+    answer: "Exemple : « Certes, un travail régulier aide à mémoriser. Toutefois, une charge excessive réduit le temps de repos et devient contre-productive. Ainsi, un devoir bref et ciblé permet de vérifier une méthode sans épuiser l'élève. »"
+    method: "Reconnaître une part de validité à l'objection, en montrer la limite, puis reconstruire la thèse."
+    pitfall: "Faire une concession qui annule totalement la position défendue."
+  4:
+    prompt: "Analysez la phrase « Bien qu'il soit fatigué, il poursuit le travail qu'il a commencé. » : nature et fonction des deux subordonnées, puis valeur du subjonctif."
+    answer: "« Bien qu'il soit fatigué » est une subordonnée circonstancielle de concession ; « qu'il a commencé » est une relative complément de l'antécédent « travail ». Le subjonctif est imposé par la locution concessive « bien que »."
+    method: "Repérer le subordonnant, déterminer la relation avec la principale et observer le mode verbal."
+    pitfall: "Classer toutes les propositions introduites par « que » comme complétives."
+  5:
+    prompt: "À partir de « Il referma la porte sans bruit », rédigez une micro-analyse de quatre phrases comprenant idée, citation, procédé et effet."
+    answer: "Le geste du personnage révèle sa volonté de ne pas être remarqué. Le complément « sans bruit » insiste sur la discrétion de l'action. Cette négation implicite du son crée une tension. Le lecteur comprend que le personnage craint une présence ou prépare une fuite."
+    method: "Passer du sens littéral à l'effet produit sans inventer des faits absents du texte."
+    pitfall: "Paraphraser la phrase en remplaçant seulement quelques mots."
+
+premiere-mathematiques:
+  1:
+    prompt: "Pour P(x) = x² − 5x + 6, calculez le discriminant, les racines et la forme factorisée."
+    answer: "Δ = (−5)² − 4 × 1 × 6 = 1. Les racines sont (5 − 1)/2 = 2 et (5 + 1)/2 = 3. Donc P(x) = (x − 2)(x − 3)."
+    method: "Identifier a, b, c, calculer Δ, appliquer la formule puis contrôler par développement."
+    pitfall: "Utiliser b = 5 au lieu de b = −5."
+  2:
+    prompt: "Une quantité vaut 100 au rang 0 et augmente de 5 % par rang. Donnez la nature de la suite, une formule explicite et u₃."
+    answer: "La suite est géométrique de raison 1,05 : uₙ = 100 × 1,05ⁿ. Ainsi u₃ = 115,7625, soit environ 115,76."
+    method: "Transformer le taux en coefficient multiplicateur et distinguer rang initial et nombre d'évolutions."
+    pitfall: "Ajouter 5 à chaque rang ou utiliser l'exposant n − 1 avec u₀."
+  3:
+    prompt: "Soit f(x) = x² − 4x + 1. Calculez f′, donnez les variations de f et l'équation de la tangente en x = 1."
+    answer: "f′(x) = 2x − 4. Elle est négative si x < 2 et positive si x > 2 : f décroît puis croît, avec minimum en 2. f(1) = −2 et f′(1) = −2, donc la tangente est y = −2(x − 1) − 2 = −2x."
+    method: "Dériver, étudier le signe de f′, puis utiliser y = f′(a)(x − a) + f(a)."
+    pitfall: "Confondre f(a), ordonnée du point, et f′(a), pente."
+  4:
+    prompt: "Pour u = (2 ; 1) et v = (1 ; −2), calculez u·v et interprétez le résultat."
+    answer: "u·v = 2 × 1 + 1 × (−2) = 0. Les deux vecteurs non nuls sont donc orthogonaux."
+    method: "Multiplier les coordonnées correspondantes, additionner et relier un produit scalaire nul à l'orthogonalité."
+    pitfall: "Confondre produit scalaire et produit coordonnée par coordonnée sans somme."
+  5:
+    prompt: "Sur le cercle trigonométrique, donnez cos(π/3), sin(π/3), puis les coordonnées du point associé à −π/2."
+    answer: "cos(π/3) = 1/2 et sin(π/3) = √3/2. Pour −π/2, le point a pour coordonnées (0 ; −1)."
+    method: "Relier cosinus à l'abscisse, sinus à l'ordonnée et utiliser les valeurs remarquables."
+    pitfall: "Échanger sinus et cosinus ou oublier le signe selon le quadrant."
+
+premiere-francais-eaf:
+  1:
+    prompt: "Analysez « La foule grondait, mer sombre au pied du palais » en formulant une idée, une citation, un procédé et un effet."
+    answer: "La foule apparaît comme une force collective menaçante. La métaphore « mer sombre » transforme le groupe humain en masse mouvante et difficile à contenir ; le verbe « grondait » renforce cette impression de puissance."
+    method: "Construire chaque analyse par le lien preuve textuelle-procédé-interprétation."
+    pitfall: "Énumérer les procédés sans construire d'axe de lecture."
+  2:
+    prompt: "Sujet général : « La littérature doit-elle seulement divertir ? » Formulez une problématique et un plan en trois mouvements."
+    answer: "Problématique possible : le plaisir de lire suffit-il à définir la fonction de la littérature, ou ce plaisir permet-il aussi de comprendre et de questionner le monde ? Plan : I divertir et captiver ; II instruire, dénoncer ou interroger ; III articuler plaisir esthétique et réflexion."
+    method: "Faire apparaître une tension réelle, puis construire des étapes qui y répondent progressivement."
+    pitfall: "Juxtaposer trois genres littéraires sans répondre au problème."
+  3:
+    prompt: "Découpez en deux mouvements et proposez une transition : « D'abord il refuse de partir. Puis la lettre lui révèle le danger ; dès lors, chaque minute devient une menace. »"
+    answer: "Mouvement 1 : le refus initial, jusqu'à « partir ». Mouvement 2 : la révélation et le basculement vers l'urgence. Transition : « Le refus immobile du personnage cède lorsque la lettre transforme la situation en menace immédiate. »"
+    method: "Repérer un changement d'action, de ton, d'idée ou de rapport de force et le formuler."
+    pitfall: "Découper uniquement selon la longueur des phrases."
+  4:
+    prompt: "Dans « Je ne crois pas qu'il vienne, bien qu'il ait promis », identifiez les deux subordonnées et justifiez les modes employés."
+    answer: "« qu'il vienne » est une complétive COD de « crois », au subjonctif dans le cadre négatif du doute. « bien qu'il ait promis » est une circonstancielle de concession, au subjonctif imposé par « bien que »."
+    method: "Déterminer d'abord la fonction de la proposition, puis expliquer le mode par le sens ou le subordonnant."
+    pitfall: "Justifier un mode seulement par sa terminaison."
+  5:
+    prompt: "Préparez une réponse d'entretien de 45 secondes à la question : « Pourquoi avoir choisi cette œuvre ? » avec choix, raison précise et exemple."
+    answer: "Réponse ouverte. Elle doit nommer l'œuvre sans résumé long, formuler une raison personnelle mais argumentée, s'appuyer sur un passage, un personnage ou une question précise, puis conclure sur l'effet durable de la lecture."
+    method: "Répondre directement, illustrer par un élément exact et parler de manière organisée."
+    pitfall: "Réciter une fiche générale sans exprimer ni justifier un choix."
+
+premiere-nsi:
+  1:
+    prompt: "Prédisez l'affichage puis expliquez l'affectation : `x = 3; y = x + 2; x = 7; print(y)`."
+    answer: "Le programme affiche 5. Lors de `y = x + 2`, la valeur 5 est calculée et affectée à y ; modifier ensuite x ne modifie pas rétroactivement y."
+    method: "Tracer les valeurs après chaque instruction dans l'ordre d'exécution."
+    pitfall: "Lire l'affectation comme une égalité mathématique permanente."
+  2:
+    prompt: "Écrivez une fonction qui renvoie la somme des entiers de 1 à n avec une boucle `for`, puis donnez le résultat pour n = 4."
+    answer: "```python\ndef somme_entiers(n):\n    total = 0\n    for k in range(1, n + 1):\n        total += k\n    return total\n```\nPour n = 4, le résultat vaut 10."
+    method: "Initialiser un accumulateur, choisir des bornes incluant n et renvoyer après la boucle."
+    pitfall: "Utiliser `range(1, n)`, qui exclut n."
+  3:
+    prompt: "Écrivez `est_pair(n)` avec une valeur de retour booléenne et proposez trois tests, dont un cas négatif."
+    answer: "```python\ndef est_pair(n):\n    return n % 2 == 0\n```\nTests possibles : `est_pair(4)` vrai, `est_pair(7)` faux, `est_pair(-2)` vrai."
+    method: "Définir un contrat simple, renvoyer l'expression booléenne et tester des classes de cas."
+    pitfall: "Afficher le résultat dans la fonction au lieu de le renvoyer."
+
+premiere-physique-chimie:
+  1:
+    prompt: "On dissout 5,85 g de NaCl de masse molaire 58,5 g·mol⁻¹ dans 0,500 L. Calculez la quantité de matière puis la concentration molaire."
+    answer: "n = m/M = 5,85/58,5 = 0,100 mol. c = n/V = 0,100/0,500 = 0,200 mol·L⁻¹."
+    method: "Convertir les unités, calculer n = m/M, puis c = n/V en conservant les unités."
+    pitfall: "Utiliser le volume en millilitres dans la formule avec une concentration en mol·L⁻¹."
+  2:
+    prompt: "Pour 2 H₂ + O₂ → 2 H₂O, on dispose de 3,0 mol de H₂ et 1,0 mol de O₂. Déterminez le réactif limitant et la quantité maximale d'eau."
+    answer: "Les rapports n/coefficient valent 3,0/2 = 1,5 pour H₂ et 1,0/1 = 1,0 pour O₂ : O₂ est limitant et xmax = 1,0 mol. On forme 2xmax = 2,0 mol d'eau."
+    method: "Comparer les quantités initiales divisées par leurs coefficients stœchiométriques."
+    pitfall: "Choisir le réactif limitant par la seule plus petite quantité."
+  3:
+    prompt: "Un objet de masse 2,0 kg est placé dans un champ de pesanteur uniforme g = 9,81 N·kg⁻¹. Donnez la valeur, la direction et le sens de son poids."
+    answer: "P = mg = 19,62 N, soit 19,6 N. Le poids est vertical et dirigé vers le bas, vers le centre de la Terre."
+    method: "Distinguer le champ g, en N·kg⁻¹, et la force P = mg, en newtons."
+    pitfall: "Donner seulement une valeur sans caractéristiques vectorielles."
+  4:
+    prompt: "Un objet de 2,0 kg se déplace à 3,0 m·s⁻¹. Calculez son énergie cinétique. Une machine fournit 18 J en 3,0 s : calculez sa puissance."
+    answer: "Ec = (1/2)mv² = 0,5 × 2,0 × 3,0² = 9,0 J. P = E/Δt = 18/3,0 = 6,0 W."
+    method: "Identifier la grandeur demandée, choisir la relation homogène et contrôler l'unité."
+    pitfall: "Confondre énergie en joules et puissance en watts."
+  5:
+    prompt: "Un mobile parcourt 12,0 m en 4,0 s puis 18,0 m en 6,0 s. Exploitez ces données pour comparer les vitesses et conclure."
+    answer: "v₁ = 12,0/4,0 = 3,0 m·s⁻¹ et v₂ = 18,0/6,0 = 3,0 m·s⁻¹. Les deux vitesses moyennes sont égales ; les données sont compatibles avec un mouvement uniforme sur ces intervalles, sans le prouver entre les mesures."
+    method: "Calculer deux indicateurs comparables puis formuler une conclusion limitée par les données."
+    pitfall: "Affirmer un mouvement uniforme continu à partir de deux seules moyennes."
+
+terminale-mathematiques:
+  1:
+    prompt: "Calculez la limite en +∞ de (3x² − 1)/(x² + 2) et donnez l'asymptote horizontale correspondante."
+    answer: "En divisant numérateur et dénominateur par x², la limite vaut (3 − 1/x²)/(1 + 2/x²) → 3. La courbe admet l'asymptote horizontale y = 3 en +∞."
+    method: "Comparer les degrés ou diviser par la plus grande puissance, puis traduire la limite finie en asymptote."
+    pitfall: "Conclure à une forme indéterminée sans la lever."
+  2:
+    prompt: "Soit f(x) = e^(2x − 1). Calculez f′ et étudiez le sens de variation de f sur R."
+    answer: "Par dérivation d'une composée, f′(x) = 2e^(2x − 1). Comme l'exponentielle est strictement positive, f′ est positive et f est strictement croissante sur R."
+    method: "Dériver la fonction extérieure puis multiplier par la dérivée de la fonction intérieure."
+    pitfall: "Oublier le facteur 2 issu de la dérivée de 2x − 1."
+  3:
+    prompt: "On définit u₀ = 1 et uₙ₊₁ = (uₙ + 3)/2. Si la suite converge vers L, déterminez L et calculez u₁, u₂."
+    answer: "L doit vérifier L = (L + 3)/2, donc L = 3. u₁ = 2 et u₂ = 2,5. Ces valeurs sont compatibles avec une convergence croissante vers 3, qui reste à démontrer."
+    method: "Calculer les premiers termes, résoudre l'équation du point fixe et distinguer conjecture et preuve."
+    pitfall: "Affirmer la convergence uniquement parce que les premiers termes se rapprochent de 3."
+  4:
+    prompt: "Une variable X suit B(10 ; 0,3). Calculez P(X = 0) et l'espérance de X."
+    answer: "P(X = 0) = 0,7¹⁰ ≈ 0,02825. E(X) = np = 10 × 0,3 = 3."
+    method: "Identifier n et p, utiliser la formule binomiale et interpréter l'espérance comme moyenne théorique."
+    pitfall: "Confondre P(X = 0) avec 1 − p."
+  5:
+    prompt: "Dans l'espace, A(1 ; 0 ; 2), B(3 ; −1 ; 5) et n = (1 ; 2 ; −1). Calculez AB et dites si AB est orthogonal à n."
+    answer: "AB = (2 ; −1 ; 3). AB·n = 2 × 1 + (−1) × 2 + 3 × (−1) = −3, non nul : AB n'est pas orthogonal à n."
+    method: "Calculer le vecteur par différence de coordonnées puis tester l'orthogonalité par produit scalaire."
+    pitfall: "Tester l'orthogonalité en comparant visuellement les coordonnées."
+
+terminale-maths-expertes:
+  1:
+    prompt: "Appliquez l'algorithme d'Euclide à 252 et 198, puis donnez leur PGCD."
+    answer: "252 = 198 + 54 ; 198 = 3 × 54 + 36 ; 54 = 36 + 18 ; 36 = 2 × 18. Le dernier reste non nul est 18, donc PGCD(252,198) = 18."
+    method: "Répéter les divisions euclidiennes jusqu'au reste nul."
+    pitfall: "Prendre le dernier quotient au lieu du dernier reste non nul."
+  2:
+    prompt: "Résolvez 3x ≡ 1 [7] et donnez la plus petite solution naturelle."
+    answer: "L'inverse de 3 modulo 7 est 5 car 3 × 5 = 15 ≡ 1 [7]. Donc x ≡ 5 [7] ; la plus petite solution naturelle est 5."
+    method: "Chercher un inverse modulo le module, puis multiplier les deux membres."
+    pitfall: "Diviser une congruence sans vérifier l'inversibilité."
+  3:
+    prompt: "Écrivez z = 1 + i sous forme trigonométrique et calculez z²."
+    answer: "|z| = √2 et un argument est π/4, donc z = √2(cos(π/4) + i sin(π/4)). Alors z² = 2(cos(π/2) + i sin(π/2)) = 2i."
+    method: "Calculer module et argument, puis appliquer la formule de Moivre."
+    pitfall: "Élever le module au carré sans doubler l'argument."
+  4:
+    prompt: "Résolvez le système x + y = 5 et 2x − y = 1 par calcul matriciel ou élimination, puis vérifiez."
+    answer: "En additionnant, 3x = 6 donc x = 2 ; puis y = 3. Vérification : 2 + 3 = 5 et 4 − 3 = 1."
+    method: "Choisir une élimination ou une matrice inverse, puis contrôler dans les deux équations."
+    pitfall: "Inverser une matrice sans vérifier qu'elle est inversible."
+  5:
+    prompt: "Un graphe pondéré possède AB = 4, AC = 2, CB = 1, BD = 3 et CD = 6. Déterminez un plus court chemin de A à D."
+    answer: "A-C-B-D a un poids 2 + 1 + 3 = 6. A-B-D vaut 7 et A-C-D vaut 8. Un plus court chemin est donc A-C-B-D, de longueur 6."
+    method: "Comparer les coûts cumulés des chemins admissibles ou appliquer Dijkstra."
+    pitfall: "Choisir à chaque étape l'arête la plus courte sans tenir compte du coût total."
+
+terminale-nsi:
+  1:
+    prompt: "On empile successivement 4, 7, 2 puis on dépile une fois. Quel élément sort et quel est l'état de la pile ? Comparez avec une file."
+    answer: "Dans une pile LIFO, 2 sort et il reste [4, 7] du bas vers le sommet. Dans une file FIFO contenant 4, 7, 2, le premier élément sorti serait 4."
+    method: "Identifier l'extrémité d'insertion et celle de retrait."
+    pitfall: "Confondre LIFO et FIFO."
+  2:
+    prompt: "Donnez le résultat de `puissance(2, 4)` pour `puissance(a, n) = 1 si n = 0, sinon a × puissance(a, n−1)`, et explicitez les appels."
+    answer: "Les appels sont puissance(2,4) → 2×puissance(2,3) → 2²×puissance(2,2) → 2³×puissance(2,1) → 2⁴×puissance(2,0) = 16."
+    method: "Identifier le cas de base et vérifier que chaque appel s'en rapproche."
+    pitfall: "Oublier le cas de base, ce qui empêche la terminaison."
+  3:
+    prompt: "Tables `Eleve(id, nom)` et `Note(eleve_id, valeur)`. Écrivez une requête donnant les noms et notes supérieures ou égales à 15, triées par note décroissante."
+    answer: "```sql\nSELECT Eleve.nom, Note.valeur\nFROM Eleve\nJOIN Note ON Eleve.id = Note.eleve_id\nWHERE Note.valeur >= 15\nORDER BY Note.valeur DESC;\n```"
+    method: "Relier les clés, filtrer avec WHERE, puis trier avec ORDER BY."
+    pitfall: "Faire un produit cartésien en oubliant la condition de jointure."
+  4:
+    prompt: "Expliquez le trajet d'une requête vers `https://exemple.fr` en mobilisant DNS, IP, TCP et HTTP, dans l'ordre logique."
+    answer: "DNS traduit le nom en adresse IP. IP permet l'acheminement des paquets ; TCP établit un transport fiable avec le serveur ; HTTP porte ensuite la requête et la réponse applicatives, protégées par TLS dans le cas de HTTPS."
+    method: "Séparer résolution de nom, routage, transport et protocole applicatif."
+    pitfall: "Présenter DNS comme le protocole qui transporte la page web."
+  5:
+    prompt: "Pour un exercice pratique, ordonnez ces actions : coder, lire les tests fournis, identifier le contrat, tester les cas limites, corriger. Justifiez."
+    answer: "Ordre robuste : identifier le contrat, lire les tests fournis, coder une première solution, exécuter et compléter les tests par des cas limites, puis corriger. Le contrat et les tests guident l'implémentation."
+    method: "Transformer l'énoncé en contrat avant d'écrire et utiliser les tests comme preuves partielles."
+    pitfall: "Coder immédiatement puis modifier au hasard jusqu'à obtenir un résultat."
+
+terminale-physique-chimie:
+  1:
+    prompt: "Une solution a [H₃O⁺] = 1,0 × 10⁻³ mol·L⁻¹. Calculez son pH. Donnez l'acide conjugué de NH₃."
+    answer: "pH = −log(1,0 × 10⁻³) = 3,00. L'acide conjugué de NH₃ est NH₄⁺, obtenu par gain d'un proton H⁺."
+    method: "Appliquer la définition du pH et construire un couple par ajout ou retrait d'un proton."
+    pitfall: "Ajouter une charge sans ajouter le proton correspondant."
+  2:
+    prompt: "Une concentration passe de 1,00 à 0,50 mol·L⁻¹ en 2,0 min, puis à 0,25 mol·L⁻¹ en 4,0 min. Déterminez le temps de demi-réaction."
+    answer: "La concentration atteint la moitié de sa valeur initiale à 2,0 min : le temps de demi-réaction vaut 2,0 min. La seconde valeur confirme un nouveau facteur 1/2 après deux minutes supplémentaires."
+    method: "Repérer la valeur à mi-chemin de l'évolution pertinente et lire le temps correspondant."
+    pitfall: "Prendre la moitié de la durée totale de l'expérience."
+  3:
+    prompt: "Un système de masse 0,50 kg a une accélération de 2,0 m·s⁻². Calculez la résultante des forces et précisez sa direction."
+    answer: "D'après la deuxième loi de Newton, ΣF = ma : la valeur vaut 0,50 × 2,0 = 1,0 N. La résultante a la même direction et le même sens que l'accélération."
+    method: "Définir le système et le référentiel, sommer vectoriellement les forces puis appliquer ΣF = ma."
+    pitfall: "Additionner seulement les valeurs des forces sans tenir compte des directions."
+  4:
+    prompt: "Une onde sonore de fréquence 500 Hz se propage à 340 m·s⁻¹. Calculez sa longueur d'onde et indiquez quand une diffraction marquée est attendue."
+    answer: "λ = v/f = 340/500 = 0,68 m. Une diffraction marquée apparaît lorsque la dimension de l'ouverture ou de l'obstacle est du même ordre de grandeur que λ."
+    method: "Relier célérité, fréquence et longueur d'onde, puis comparer deux longueurs."
+    pitfall: "Utiliser f/v au lieu de v/f."
+  5:
+    prompt: "Un résultat expérimental vaut 9,8 ± 0,2 m·s⁻² et un modèle prévoit 10,0 m·s⁻². Concluez sur la compatibilité et rédigez la justification."
+    answer: "L'intervalle expérimental est [9,6 ; 10,0] m·s⁻². La valeur du modèle 10,0 appartient à cet intervalle : elle est compatible avec la mesure au niveau d'incertitude annoncé."
+    method: "Construire l'intervalle, tester l'appartenance et conclure sans surinterpréter."
+    pitfall: "Déclarer les valeurs incompatibles parce qu'elles ne sont pas strictement égales."
+
+premiere-svt:
+  1:
+    prompt: "Expliquez en cinq lignes le lien entre ADN, gène, transcription, traduction et protéine."
+    answer: "Un gène est une portion d'ADN. Lors de la transcription, sa séquence sert de modèle à un ARN messager. Le ribosome traduit ensuite l'ARN en une séquence d'acides aminés formant une protéine. L'activité de cette protéine peut contribuer au phénotype."
+    method: "Construire une chaîne causale avec les bons niveaux d'organisation."
+    pitfall: "Confondre transcription et traduction."
+  2:
+    prompt: "Des séismes superficiels et un volcanisme sont alignés au milieu d'un océan, avec un âge des roches croissant de part et d'autre. Quel modèle proposez-vous ?"
+    answer: "Ces indices sont compatibles avec une dorsale océanique : les plaques divergent, du matériau remonte et forme une nouvelle lithosphère, ce qui explique la symétrie des âges."
+    method: "Mettre en relation plusieurs indices avant de nommer le modèle tectonique."
+    pitfall: "Conclure à partir d'un seul document."
+  3:
+    prompt: "Dans un écosystème, les producteurs stockent 10 000 unités d'énergie et les herbivores 1 000. Calculez le rendement de transfert et expliquez la différence entre flux d'énergie et cycle de matière."
+    answer: "Le rendement vaut 1 000/10 000 = 10 %. L'énergie se dissipe en partie sous forme thermique à chaque niveau, tandis que la matière est transformée et recyclée dans les cycles biogéochimiques."
+    method: "Calculer un rapport puis distinguer circulation de matière et dissipation d'énergie."
+    pitfall: "Affirmer que l'énergie se recycle intégralement."
+  4:
+    prompt: "Comparez réponse immunitaire innée et adaptative selon rapidité, spécificité et mémoire."
+    answer: "L'innée est rapide, reconnaît des motifs généraux et ne construit pas de mémoire spécifique durable. L'adaptative est plus lente lors du premier contact, très spécifique et produit des cellules mémoires responsables d'une réponse secondaire plus rapide."
+    method: "Comparer les deux réponses selon les mêmes critères."
+    pitfall: "Opposer les réponses comme si elles ne coopéraient pas."
+  5:
+    prompt: "Un document montre une corrélation entre une variable environnementale et un phénotype. Rédigez une conclusion scientifique qui distingue observation et causalité."
+    answer: "Une conclusion recevable quantifie ou décrit la corrélation observée, indique qu'elle est compatible avec une influence de la variable, mais précise qu'une expérience contrôlée ou d'autres données sont nécessaires pour établir la causalité."
+    method: "Citer la donnée, formuler l'inférence et annoncer la limite probatoire."
+    pitfall: "Transformer automatiquement une corrélation en cause."
+
+terminale-svt:
+  1:
+    prompt: "Dans une population, la fréquence d'un allèle passe de 0,20 à 0,35 après un changement de milieu. Donnez deux mécanismes possibles et la donnée nécessaire pour les distinguer."
+    answer: "Une sélection différentielle ou une dérive génétique peuvent modifier la fréquence. Pour les distinguer, il faut notamment connaître les différences de succès reproducteur associées à l'allèle, la taille de la population et la reproductibilité du changement."
+    method: "Proposer plusieurs mécanismes compatibles puis chercher des prédictions discriminantes."
+    pitfall: "Affirmer que la mutation est apparue parce qu'elle était utile."
+  2:
+    prompt: "Une faille recoupe trois couches sédimentaires mais est recouverte par une quatrième couche non déformée. Ordonnez les événements."
+    answer: "Dépôt des trois premières couches, formation de la faille qui les recoupe, puis dépôt de la quatrième couche. Le principe de recoupement place la faille après les couches recoupées et avant la couche qui la recouvre."
+    method: "Appliquer superposition et recoupement à la géométrie observée."
+    pitfall: "Attribuer un âge numérique à partir de la seule chronologie relative."
+  3:
+    prompt: "Expliquez comment une plante produit de la matière organique en reliant racines, feuilles, stomates, xylème, phloème et lumière."
+    answer: "Les racines absorbent eau et ions, transportés par le xylème vers les feuilles. Le CO₂ entre par les stomates ; l'énergie lumineuse permet la photosynthèse, qui produit de la matière organique. Celle-ci est distribuée par le phloème vers les organes consommateurs ou de réserve."
+    method: "Relier organes, flux et transformation énergétique dans un schéma fonctionnel."
+    pitfall: "Dire que la plante prélève sa matière organique directement dans le sol."
+  4:
+    prompt: "Reliez message nerveux, contraction musculaire et ATP dans une chaîne fonctionnelle concise."
+    answer: "Le message nerveux déclenche, à la jonction neuromusculaire, un signal conduisant à l'augmentation du calcium cytosolique. Les interactions actine-myosine produisent la contraction et consomment de l'ATP, continuellement régénérée par le métabolisme cellulaire."
+    method: "Organiser les événements dans l'ordre et distinguer signal, mécanisme et source d'énergie."
+    pitfall: "Présenter l'ATP comme une réserve illimitée."
+  5:
+    prompt: "Deux documents montrent une association entre un facteur génétique et une réponse au stress. Proposez une stratégie de réponse à plusieurs documents."
+    answer: "La stratégie doit formuler le problème, extraire une donnée précise de chaque document, les mettre en relation avec une connaissance pertinente, discuter une explication possible et conclure avec une limite si la causalité n'est pas démontrée."
+    method: "Faire contribuer chaque document à une étape du raisonnement plutôt que les résumer successivement."
+    pitfall: "Réciter le cours sans exploiter les données."
+
+terminale-philosophie:
+  1:
+    prompt: "Expliquez pourquoi « Préférez-vous la liberté ou la sécurité ? » est une question d'opinion, puis reformulez-la en question philosophique."
+    answer: "La formulation demande une préférence personnelle sans examiner les concepts. Reformulation possible : « La sécurité limite-t-elle nécessairement la liberté ? » Cette question met en tension deux notions et admet plusieurs réponses argumentées."
+    method: "Passer d'un choix subjectif à un problème conceptuel universalisable."
+    pitfall: "Ajouter seulement « selon vous » ou retirer le point d'interrogation."
+  2:
+    prompt: "Texte original : « Une règle n'empêche pas toujours d'agir ; elle peut rendre l'action commune possible. » Dégagez la thèse, l'argument et le rôle de l'opposition."
+    answer: "Thèse : une règle peut rendre possible l'action commune. Argument : toute limite n'est pas un obstacle, car certaines contraintes organisent la coopération. L'opposition « n'empêche pas toujours / peut rendre possible » corrige une conception uniquement négative de la règle."
+    method: "Distinguer ce que l'auteur soutient de la raison qu'il donne."
+    pitfall: "Transformer l'exemple ou la reformulation en thèse différente."
+  3:
+    prompt: "Pour le sujet « Être libre, est-ce n'obéir à personne ? », formulez le présupposé, une objection et la tension centrale."
+    answer: "Le sujet présuppose que l'obéissance pourrait contredire la liberté. Objection : on peut obéir à une loi reconnue comme légitime ou que l'on s'est prescrite. Tension : la liberté exige-t-elle l'absence de toute règle, ou une autonomie dans le rapport à la règle ?"
+    method: "Faire apparaître deux réponses plausibles et la difficulté propre à chacune."
+    pitfall: "Répondre immédiatement oui ou non sans construire le problème."
+  4:
+    prompt: "Pour « La technique nous rend-elle plus libres ? », proposez un plan en trois moments et une transition entre les deux premiers."
+    answer: "I La technique augmente nos capacités et réduit certaines contraintes. II Elle crée aussi dépendances, risques et nouvelles contraintes. III La liberté dépend donc des usages, des institutions et de la maîtrise collective de la technique. Transition : l'augmentation du pouvoir d'agir ne garantit pas encore l'autonomie de celui qui agit."
+    method: "Faire progresser le raisonnement par réponse, limite, puis dépassement justifié."
+    pitfall: "Construire un catalogue d'objets techniques."
+  5:
+    prompt: "À partir de la phrase « Nous ne désirons pas une chose parce qu'elle est bonne ; nous la jugeons bonne parce que nous la désirons », rédigez thème, thèse et problème."
+    answer: "Thème : le rapport entre désir et valeur. Thèse : le désir ne suit pas nécessairement un bien reconnu ; il peut produire notre jugement de valeur. Problème : la valeur d'une chose est-elle objective ou dépend-elle du désir du sujet ?"
+    method: "Distinguer le thème général, la réponse précise de l'auteur et la difficulté qu'elle soulève."
+    pitfall: "Paraphraser la citation sans formuler son enjeu."
