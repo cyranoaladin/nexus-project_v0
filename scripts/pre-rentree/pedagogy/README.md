@@ -31,6 +31,11 @@ invalides sont signalés. Chaque ZIP est ouvert et contrôlé intégralement ava
 l’écriture des rapports. La cible d’un lien symbolique absolu est expurgée afin
 de ne jamais inscrire un chemin machine dans l’inventaire.
 
+Chaque ligne de répertoire indique également si le répertoire est vide, et le
+résumé expose `empty_directory_count`. Les trois sorties sont écrites depuis des
+fichiers temporaires créés de façon exclusive par le système, puis remplacées
+atomiquement ; un lien symbolique prépositionné n’est jamais ouvert en écriture.
+
 ## Classification
 
 Les neuf classes finales sont déclarées dans `classification.py` :

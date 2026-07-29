@@ -157,6 +157,25 @@ def test_inventory_detects_empty_hidden_symlink_ambiguous_names_and_zip_integrit
     assert archives == {"broken.zip": "INVALID", "valid.zip": "VALID"}
 
 
+def test_inventory_counts_empty_directories_and_marks_every_directory(tmp_path: Path):
+    import_root = tmp_path / "import"
+    package = import_root / HISTORICAL_PACKAGES[0]
+    empty_directory = package / "empty-directory"
+    empty_directory.mkdir(parents=True)
+    (package / "non-empty-directory").mkdir()
+    (package / "non-empty-directory" / "lesson.md").write_text("lesson\n", encoding="utf-8")
+
+    inventory = build_inventory(import_root)
+    directories = {item["relative_path"]: item for item in inventory["directories"]}
+
+    assert inventory["summary"]["directory_count"] == 4
+    assert inventory["summary"]["empty_directory_count"] == 1
+    assert directories["."]["is_empty"] is False
+    assert directories[HISTORICAL_PACKAGES[0]]["is_empty"] is False
+    assert directories[f"{HISTORICAL_PACKAGES[0]}/empty-directory"]["is_empty"] is True
+    assert directories[f"{HISTORICAL_PACKAGES[0]}/non-empty-directory"]["is_empty"] is False
+
+
 def test_known_packages_and_python_tools_receive_explicit_roles(tmp_path: Path):
     import_root = tmp_path / "import"
     for package_name in HISTORICAL_PACKAGES:
@@ -255,3 +274,21 @@ def test_write_inventory_refuses_invalid_archive(tmp_path: Path):
 
     with pytest.raises(ValueError, match="invalid ZIP"):
         write_inventory(inventory, import_root, tmp_path / "output")
+
+
+def test_write_inventory_does_not_follow_predictable_temporary_symlink(tmp_path: Path):
+    import_root = tmp_path / "import"
+    package = import_root / HISTORICAL_PACKAGES[1]
+    package.mkdir(parents=True)
+    victim = package / "source.yaml"
+    victim.write_text("id: immutable\n", encoding="utf-8")
+    inventory = build_inventory(import_root)
+    output = tmp_path / "output"
+    output.mkdir()
+    os.symlink(victim, output / ".INVENTAIRE-IMPORT.csv.tmp")
+
+    write_inventory(inventory, import_root, output)
+
+    assert victim.read_text(encoding="utf-8") == "id: immutable\n"
+    assert not (output / "INVENTAIRE-IMPORT.csv").is_symlink()
+    assert (output / "INVENTAIRE-IMPORT.csv").is_file()
