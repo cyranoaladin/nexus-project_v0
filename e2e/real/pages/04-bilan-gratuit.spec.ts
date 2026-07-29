@@ -1,4 +1,7 @@
 import { test, expect } from '@playwright/test';
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
 
 /**
  * REAL AUDIT — Bilan Gratuit (/bilan-gratuit)
@@ -10,6 +13,10 @@ import { test, expect } from '@playwright/test';
 test.describe('REAL — Bilan Gratuit (/bilan-gratuit)', () => {
   let consoleErrors: string[] = [];
   let networkErrors: string[] = [];
+
+  test.afterAll(async () => {
+    await prisma.$disconnect();
+  });
 
   test.beforeEach(async ({ page }) => {
     consoleErrors = [];
@@ -87,8 +94,47 @@ test.describe('REAL — Bilan Gratuit (/bilan-gratuit)', () => {
       const body = await apiResponse.json();
       console.log('API response:', JSON.stringify(body));
       expect(body.success, 'API ne retourne pas success=true').toBe(true);
-      expect(body.parentId, 'API ne retourne pas parentId').toBeTruthy();
-      expect(body.studentId, 'API ne retourne pas studentId').toBeTruthy();
+      expect(body.message).toBe(
+        'Votre demande a bien été enregistrée. Consultez votre email pour poursuivre.',
+      );
+      expect(body).not.toHaveProperty('parentId');
+      expect(body).not.toHaveProperty('studentId');
+
+      const createdParent = await prisma.user.findUnique({
+        where: { email: uniqueEmail },
+        select: {
+          role: true,
+          activatedAt: true,
+          parentProfile: {
+            select: {
+              children: {
+                select: {
+                  gradeLevel: true,
+                  user: {
+                    select: {
+                      firstName: true,
+                      activatedAt: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      });
+      expect(createdParent).toMatchObject({
+        role: 'PARENT',
+        activatedAt: null,
+      });
+      expect(createdParent?.parentProfile?.children).toEqual([
+        expect.objectContaining({
+          gradeLevel: 'TERMINALE',
+          user: {
+            firstName: 'TestAudit',
+            activatedAt: null,
+          },
+        }),
+      ]);
       await page.waitForURL('**/bilan-gratuit/confirmation', { timeout: 10000 });
     } else {
       const body = await apiResponse.json().catch(() => ({}));

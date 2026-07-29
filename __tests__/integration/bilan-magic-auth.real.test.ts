@@ -7,6 +7,7 @@ import { PrismaClient } from '@prisma/client';
 import { consumeBilanMagicLink } from '@/lib/bilans/auth/consume-magic-link';
 import { attachChildToVerifiedRequest } from '@/lib/bilans/requests/attach-child';
 import { createBilanRequestIntake } from '@/lib/bilans/requests/create-request';
+import { getDisposablePostgresRootUrl } from '../helpers/disposable-postgres-guard';
 
 const prismaBinaryPath = path.resolve(process.cwd(), 'node_modules/.bin/prisma');
 const schemaPath = path.resolve(process.cwd(), 'prisma/schema.prisma');
@@ -18,11 +19,7 @@ let prisma: PrismaClient;
 
 function guardedRootUrl(): URL {
   const raw = process.env.TEST_DATABASE_URL || process.env.DATABASE_URL;
-  if (!raw) throw new Error('An explicit disposable TEST_DATABASE_URL is required');
-  const url = new URL(raw);
-  if (url.hostname !== '127.0.0.1' || url.port !== '5434' || url.pathname !== '/nexus_test') {
-    throw new Error('Magic auth harness is restricted to 127.0.0.1:5434/nexus_test');
-  }
+  const url = getDisposablePostgresRootUrl(raw, 'Magic auth');
   if (!/^nexus_bilan_magic_[a-f0-9]{32}$/.test(databaseName)) {
     throw new Error(`Unsafe disposable database name: ${databaseName}`);
   }

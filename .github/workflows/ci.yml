@@ -466,6 +466,15 @@ jobs:
           --health-interval 5s
           --health-timeout 5s
           --health-retries 20
+      redis-e2e:
+        image: redis:7.4-alpine
+        ports:
+          - 6380:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
 
     steps:
       - name: Checkout code
@@ -531,7 +540,7 @@ jobs:
           AUTH_TRUST_HOST: 'true'
           OPENAI_API_KEY: sk-test-mock-key-for-ci-build-only
           NODE_ENV: production
-          RATE_LIMIT_DISABLE: '1'
+          REDIS_URL: redis://localhost:6380
         run: |
           cp -r .next/static .next/standalone/.next/static 2>/dev/null || true
           cp -r public .next/standalone/public 2>/dev/null || true
