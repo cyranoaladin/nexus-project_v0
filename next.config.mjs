@@ -10,6 +10,10 @@ const nextConfig = {
     '/': [
       './src/static-pages/assistante-devis-v3/**/*',
     ],
+    '/api/bilan-gratuit/v1/**/*': [
+      './content/pre-rentree-2026/modules.json',
+      './content/pre-rentree-2026/pedagogy/**/*',
+    ],
   },
   outputFileTracingExcludes: {
     '*': [
