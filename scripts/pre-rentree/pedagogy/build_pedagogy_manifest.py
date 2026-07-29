@@ -11,6 +11,8 @@ import hashlib
 import io
 import json
 import os
+import shutil
+import subprocess
 import sys
 import tempfile
 import unicodedata
@@ -454,7 +456,12 @@ def _script_dependencies(path: Path) -> list[str]:
     return sorted(dependencies)
 
 
-def _script_assessment(relative_path: str, path: Path, classification: str) -> dict[str, Any]:
+def _script_assessment(
+    relative_path: str,
+    path: Path,
+    classification: str,
+    toolchain_evaluations: dict[str, Any],
+) -> dict[str, Any]:
     name = path.name
     contracts = {
         "generate_operational_resources.py": {
@@ -513,12 +520,52 @@ def _script_assessment(relative_path: str, path: Path, classification: str) -> d
         },
     }
     contract = contracts[name]
-    return {
+    assessment = {
         "relative_path": relative_path,
         "final_classification": classification,
         "dependencies": _script_dependencies(path),
         **contract,
     }
+    if name in {"generate_session_kits.py", "validate_session_kits.py"}:
+        session_evidence = toolchain_evaluations["session_kits"]
+        assessment.update(
+            {
+                "portability_status": session_evidence["portability_status"],
+                "delivered_package_status": session_evidence["delivered_package"][
+                    "status"
+                ],
+                "isolated_execution_status": session_evidence["isolated_execution"][
+                    "status"
+                ],
+                "functional_evidence": "toolchain_evaluations.session_kits",
+            }
+        )
+    elif name in {"generate_operational_resources.py", "validate_cps.py"}:
+        positioning_evidence = toolchain_evaluations["positioning_resources"]
+        assessment.update(
+            {
+                "portability_status": positioning_evidence["portability_status"],
+                "delivered_package_status": positioning_evidence[
+                    "delivered_package"
+                ]["status"],
+                "isolated_execution_status": positioning_evidence[
+                    "isolated_execution"
+                ]["status"],
+                "functional_evidence": (
+                    "toolchain_evaluations.positioning_resources"
+                ),
+            }
+        )
+    else:
+        assessment.update(
+            {
+                "portability_status": "HISTORICAL_MIGRATION_NOT_PORTABLE",
+                "delivered_package_status": "NOT_EXECUTED",
+                "isolated_execution_status": "NOT_EXECUTED",
+                "functional_evidence": "classification based on migration side effects",
+            }
+        )
+    return assessment
 
 
 def _source_manifest_digest(rows: list[dict[str, Any]]) -> str:
@@ -527,6 +574,275 @@ def _source_manifest_digest(rows: list[dict[str, Any]]) -> str:
         for row in sorted(rows, key=lambda item: item["relative_path"])
     )
     return hashlib.sha256(manifest.encode("utf-8")).hexdigest()
+
+
+def _actual_source_manifest_digest(
+    source_root: Path,
+    rows: list[dict[str, Any]],
+) -> str:
+    manifest = "".join(
+        f"{_sha256_file(source_root / row['relative_path'])}  "
+        f"./{row['relative_path']}\n"
+        for row in sorted(rows, key=lambda item: item["relative_path"])
+    )
+    return hashlib.sha256(manifest.encode("utf-8")).hexdigest()
+
+
+def _run_copied_python_tool(script: Path, forbidden_root: Path) -> dict[str, Any]:
+    resolved_script = script.resolve(strict=True)
+    if resolved_script.is_relative_to(forbidden_root.resolve(strict=True)):
+        raise ValueError("refusing to execute an imported generator or validator in place")
+    environment = os.environ.copy()
+    environment["PYTHONDONTWRITEBYTECODE"] = "1"
+    try:
+        completed = subprocess.run(
+            [sys.executable, str(resolved_script)],
+            cwd=resolved_script.parent,
+            capture_output=True,
+            text=True,
+            timeout=120,
+            env=environment,
+        )
+    except subprocess.TimeoutExpired:
+        return {
+            "status": "FAIL_TIMEOUT",
+            "returncode": None,
+            "exception_type": "TimeoutExpired",
+        }
+    exception_type = None
+    if completed.returncode and "FileNotFoundError" in completed.stderr:
+        exception_type = "FileNotFoundError"
+    return {
+        "status": "PASS" if completed.returncode == 0 else "FAIL",
+        "returncode": completed.returncode,
+        "exception_type": exception_type,
+    }
+
+
+def _compare_file_trees(generated_root: Path, imported_root: Path) -> dict[str, Any]:
+    generated = {
+        path.relative_to(generated_root).as_posix(): _sha256_file(path)
+        for path in generated_root.rglob("*")
+        if path.is_file() and not path.is_symlink()
+    }
+    imported = {
+        path.relative_to(imported_root).as_posix(): _sha256_file(path)
+        for path in imported_root.rglob("*")
+        if path.is_file() and not path.is_symlink()
+    }
+    generated_paths = set(generated)
+    imported_paths = set(imported)
+    shared = generated_paths & imported_paths
+    mismatch_count = sum(generated[path] != imported[path] for path in shared)
+    missing_count = len(imported_paths - generated_paths)
+    extra_count = len(generated_paths - imported_paths)
+    identical_count = sum(generated[path] == imported[path] for path in shared)
+    identical = not (missing_count or extra_count or mismatch_count)
+    return {
+        "status": "IDENTICAL_SHA256" if identical else "DIFFERENT",
+        "generated_file_count": len(generated),
+        "imported_file_count": len(imported),
+        "identical_file_count": identical_count,
+        "missing_file_count": missing_count,
+        "extra_file_count": extra_count,
+        "content_mismatch_count": mismatch_count,
+    }
+
+
+def _evaluate_session_tools(source_root: Path, temporary_root: Path) -> dict[str, Any]:
+    imported_package = source_root / SESSION_PACKAGE
+    delivered_package = temporary_root / "delivered" / SESSION_PACKAGE
+    shutil.copytree(imported_package, delivered_package)
+    delivered_generator = _run_copied_python_tool(
+        delivered_package / "outils/generate_session_kits.py",
+        source_root,
+    )
+    delivered_validator = _run_copied_python_tool(
+        delivered_package / "outils/validate_session_kits.py",
+        source_root,
+    )
+
+    expected_paths = [
+        delivered_package / "outils/corpus-85-seances",
+        delivered_package / "outils/curriculum-anchors.yaml",
+        delivered_package / "outils/source-modules.json",
+        delivered_package / "positionnement",
+    ]
+    missing_expected_paths = [
+        f"{SESSION_PACKAGE}/{path.relative_to(delivered_package).as_posix()}"
+        for path in expected_paths
+        if not path.exists()
+    ]
+    delivered_status = (
+        "FAIL_PATH_LAYOUT"
+        if (
+            delivered_generator["exception_type"] == "FileNotFoundError"
+            and delivered_validator["exception_type"] == "FileNotFoundError"
+            and missing_expected_paths
+        )
+        else "UNEXPECTED_DELIVERED_RESULT"
+    )
+
+    isolated_root = temporary_root / "isolated-session"
+    isolated_tools = isolated_root / "outils"
+    isolated_positioning = isolated_root / "positionnement"
+    isolated_tools.mkdir(parents=True)
+    isolated_positioning.mkdir()
+    for name in ("generate_session_kits.py", "validate_session_kits.py"):
+        shutil.copy2(imported_package / "outils" / name, isolated_tools / name)
+    for name in ("source-modules.json", "curriculum-anchors.yaml"):
+        shutil.copy2(imported_package / "sources" / name, isolated_tools / name)
+    for source in sorted((source_root / POSITIONING_PACKAGE_V3).glob("*.yaml")):
+        shutil.copy2(source, isolated_positioning / source.name)
+
+    isolated_generator = _run_copied_python_tool(
+        isolated_tools / "generate_session_kits.py",
+        source_root,
+    )
+    if isolated_generator["status"] == "PASS":
+        isolated_validator = _run_copied_python_tool(
+            isolated_tools / "validate_session_kits.py",
+            source_root,
+        )
+    else:
+        isolated_validator = {
+            "status": "NOT_RUN",
+            "returncode": None,
+            "exception_type": None,
+        }
+    generated_corpus = isolated_tools / "corpus-85-seances"
+    if generated_corpus.is_dir():
+        comparison = _compare_file_trees(
+            generated_corpus,
+            imported_package / "corpus",
+        )
+    else:
+        comparison = {
+            "status": "NOT_GENERATED",
+            "generated_file_count": 0,
+            "imported_file_count": sum(
+                path.is_file()
+                for path in (imported_package / "corpus").rglob("*")
+            ),
+            "identical_file_count": 0,
+            "missing_file_count": 0,
+            "extra_file_count": 0,
+            "content_mismatch_count": 0,
+        }
+    isolated_status = (
+        "PASS"
+        if (
+            isolated_generator["status"] == "PASS"
+            and isolated_validator["status"] == "PASS"
+            and comparison["status"] == "IDENTICAL_SHA256"
+        )
+        else "FAIL"
+    )
+    return {
+        "portability_status": "REQUIRES_PATH_ADAPTATION",
+        "delivered_package": {
+            "status": delivered_status,
+            "generator": delivered_generator,
+            "validator": delivered_validator,
+            "missing_expected_paths": sorted(missing_expected_paths),
+            "execution_context": "TEMPORARY_COPY_OF_DELIVERED_LAYOUT",
+        },
+        "isolated_execution": {
+            "status": isolated_status,
+            "generator_returncode": isolated_generator["returncode"],
+            "validator_returncode": isolated_validator["returncode"],
+            "comparison": comparison,
+            "execution_context": "TEMPORARY_RECONSTRUCTED_LAYOUT",
+        },
+    }
+
+
+def _evaluate_positioning_tools(
+    source_root: Path,
+    temporary_root: Path,
+) -> dict[str, Any]:
+    imported_package = source_root / POSITIONING_PACKAGE_V3
+    isolated_root = temporary_root / "isolated-positioning"
+    isolated_root.mkdir()
+    for source in sorted(imported_package.glob("*.yaml")):
+        shutil.copy2(source, isolated_root / source.name)
+    for name in ("generate_operational_resources.py", "validate_cps.py"):
+        shutil.copy2(imported_package / name, isolated_root / name)
+
+    isolated_validator = _run_copied_python_tool(
+        isolated_root / "validate_cps.py",
+        source_root,
+    )
+    isolated_generator = _run_copied_python_tool(
+        isolated_root / "generate_operational_resources.py",
+        source_root,
+    )
+    generated_resources = isolated_root / "ressources-generees"
+    if generated_resources.is_dir():
+        comparison = _compare_file_trees(
+            generated_resources,
+            imported_package / "ressources-generees",
+        )
+    else:
+        comparison = {
+            "status": "NOT_GENERATED",
+            "generated_file_count": 0,
+            "imported_file_count": sum(
+                path.is_file()
+                for path in (imported_package / "ressources-generees").rglob("*")
+            ),
+            "identical_file_count": 0,
+            "missing_file_count": 0,
+            "extra_file_count": 0,
+            "content_mismatch_count": 0,
+        }
+    isolated_status = (
+        "PASS"
+        if (
+            isolated_generator["status"] == "PASS"
+            and isolated_validator["status"] == "PASS"
+            and comparison["status"] == "IDENTICAL_SHA256"
+        )
+        else "FAIL"
+    )
+    return {
+        "portability_status": "LAYOUT_COMPATIBLE",
+        "delivered_package": {
+            "status": "LAYOUT_COMPATIBLE_NOT_EXECUTED_IN_SOURCE",
+            "execution_context": "STATIC_PATH_CHECK_ONLY",
+        },
+        "isolated_execution": {
+            "status": isolated_status,
+            "generator_returncode": isolated_generator["returncode"],
+            "validator_returncode": isolated_validator["returncode"],
+            "comparison": comparison,
+            "execution_context": "TEMPORARY_COPY",
+        },
+    }
+
+
+def _evaluate_imported_tools(
+    source_root: Path,
+    rows: list[dict[str, Any]],
+) -> dict[str, Any]:
+    before = _actual_source_manifest_digest(source_root, rows)
+    with tempfile.TemporaryDirectory(prefix="nexus-pedagogy-tool-evaluation-") as name:
+        temporary_root = Path(name)
+        session_tools = _evaluate_session_tools(source_root, temporary_root)
+        positioning_tools = _evaluate_positioning_tools(source_root, temporary_root)
+    after = _actual_source_manifest_digest(source_root, rows)
+    if before != after:
+        raise ValueError("historical import mutated during isolated tool evaluation")
+    return {
+        "session_kits": session_tools,
+        "positioning_resources": positioning_tools,
+        "source_integrity": {
+            "before_sha256": before,
+            "after_sha256": after,
+            "unchanged": True,
+            "execution_policy": "GENERATORS_EXECUTED_ONLY_FROM_TEMPORARY_COPIES",
+        },
+    }
 
 
 def _verify_inventory_files(inventory: dict[str, Any], import_root: Path) -> None:
@@ -661,6 +977,32 @@ def build_pedagogy_manifest(
             }
         )
 
+    toolchain_evaluations = _evaluate_imported_tools(source_root, rows)
+    if toolchain_evaluations["session_kits"]["isolated_execution"]["status"] != "PASS":
+        for row in rows:
+            if PurePosixPath(row["relative_path"]).name in {
+                "generate_session_kits.py",
+                "validate_session_kits.py",
+            }:
+                row["final_classification"] = "CONFLICT_REVIEW_REQUIRED"
+                row["decision_reason"] = (
+                    "chaîne séances non reproductible dans le layout temporaire"
+                )
+    if (
+        toolchain_evaluations["positioning_resources"]["isolated_execution"]["status"]
+        != "PASS"
+    ):
+        for row in rows:
+            if PurePosixPath(row["relative_path"]).name in {
+                "generate_operational_resources.py",
+                "validate_cps.py",
+            }:
+                row["final_classification"] = "CONFLICT_REVIEW_REQUIRED"
+                row["decision_reason"] = (
+                    "chaîne positionnement non reproductible dans le layout temporaire"
+                )
+    _verify_inventory_files(final_inventory, source_root)
+
     script_assessments = []
     for row in rows:
         name = PurePosixPath(row["relative_path"]).name
@@ -670,6 +1012,7 @@ def build_pedagogy_manifest(
                     row["relative_path"],
                     source_root / row["relative_path"],
                     row["final_classification"],
+                    toolchain_evaluations,
                 )
             )
     script_assessments.sort(key=lambda item: item["relative_path"])
@@ -772,6 +1115,7 @@ def build_pedagogy_manifest(
             "selection_status": "CANDIDATE_CANONICAL",
         },
         "script_assessments": script_assessments,
+        "toolchain_evaluations": toolchain_evaluations,
         "human_validation": {
             "required": True,
             "publication_approved": False,

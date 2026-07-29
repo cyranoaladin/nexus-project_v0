@@ -19,6 +19,23 @@ rapport QA du paquet v3 et un diff structuré. Les variantes antérieures resten
 `HISTORICAL_VERSION` ou `DUPLICATE_IDENTICAL` lorsqu'elles sont byte-identiques
 entre elles.
 
+## Défaut de layout des outils de séances
+
+Le paquet livré présente un défaut opérationnel prouvé, mais pas un conflit de
+sélection de contenu :
+
+- état livré : `FAIL_PATH_LAYOUT` ;
+- `generate_session_kits.py` et `validate_session_kits.py` cherchent leurs
+  entrées et sorties relativement à `outils/`, alors qu'elles sont rangées sous
+  `sources/`, `corpus/` et dans un paquet frère ;
+- statut de portabilité : `REQUIRES_PATH_ADAPTATION`.
+
+Les deux scripts échouent par `FileNotFoundError` dans une copie temporaire
+fidèle du paquet livré. Dans une copie temporaire au layout attendu, leur
+exécution et la validation passent, et les 393 fichiers produits sont
+byte-à-byte identiques au corpus importé. Ils restent donc des candidats à
+porter, pas des outils directement exécutables depuis le paquet historique.
+
 ## Validation pédagogique non déléguable
 
 L'absence de conflit technique ne vaut pas validation pédagogique. Les 17 CPS,

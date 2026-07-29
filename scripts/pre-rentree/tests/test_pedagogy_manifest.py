@@ -219,6 +219,70 @@ def test_real_corpus_finalizes_all_534_rows_with_proven_decisions(tmp_path: Path
         <= item.keys()
         for item in scripts.values()
     )
+    assert scripts["generate_session_kits.py"]["portability_status"] == (
+        "REQUIRES_PATH_ADAPTATION"
+    )
+    assert scripts["validate_session_kits.py"]["portability_status"] == (
+        "REQUIRES_PATH_ADAPTATION"
+    )
+    assert scripts["generate_session_kits.py"]["delivered_package_status"] == (
+        "FAIL_PATH_LAYOUT"
+    )
+    assert scripts["validate_session_kits.py"]["delivered_package_status"] == (
+        "FAIL_PATH_LAYOUT"
+    )
+    assert scripts["generate_session_kits.py"]["isolated_execution_status"] == "PASS"
+    assert scripts["validate_session_kits.py"]["isolated_execution_status"] == "PASS"
+
+    toolchains = result["decisions"]["toolchain_evaluations"]
+    session_tools = toolchains["session_kits"]
+    assert session_tools["portability_status"] == "REQUIRES_PATH_ADAPTATION"
+    assert session_tools["delivered_package"]["status"] == "FAIL_PATH_LAYOUT"
+    assert session_tools["delivered_package"]["generator"]["exception_type"] == (
+        "FileNotFoundError"
+    )
+    assert session_tools["delivered_package"]["validator"]["exception_type"] == (
+        "FileNotFoundError"
+    )
+    assert session_tools["delivered_package"]["missing_expected_paths"] == [
+        "Nexus-PreRentree-2026-85-seances/outils/corpus-85-seances",
+        "Nexus-PreRentree-2026-85-seances/outils/curriculum-anchors.yaml",
+        "Nexus-PreRentree-2026-85-seances/outils/source-modules.json",
+        "Nexus-PreRentree-2026-85-seances/positionnement",
+    ]
+    assert session_tools["isolated_execution"]["status"] == "PASS"
+    assert session_tools["isolated_execution"]["generator_returncode"] == 0
+    assert session_tools["isolated_execution"]["validator_returncode"] == 0
+    assert session_tools["isolated_execution"]["comparison"] == {
+        "status": "IDENTICAL_SHA256",
+        "generated_file_count": 393,
+        "imported_file_count": 393,
+        "identical_file_count": 393,
+        "missing_file_count": 0,
+        "extra_file_count": 0,
+        "content_mismatch_count": 0,
+    }
+
+    positioning_tools = toolchains["positioning_resources"]
+    assert positioning_tools["portability_status"] == "LAYOUT_COMPATIBLE"
+    assert positioning_tools["isolated_execution"]["status"] == "PASS"
+    assert positioning_tools["isolated_execution"]["validator_returncode"] == 0
+    assert positioning_tools["isolated_execution"]["generator_returncode"] == 0
+    assert positioning_tools["isolated_execution"]["comparison"] == {
+        "status": "IDENTICAL_SHA256",
+        "generated_file_count": 69,
+        "imported_file_count": 69,
+        "identical_file_count": 69,
+        "missing_file_count": 0,
+        "extra_file_count": 0,
+        "content_mismatch_count": 0,
+    }
+    assert toolchains["source_integrity"] == {
+        "before_sha256": "077bce2a8737acb07134902f5815321f2dcb97fca435a6d14035db1d39357005",
+        "after_sha256": "077bce2a8737acb07134902f5815321f2dcb97fca435a6d14035db1d39357005",
+        "unchanged": True,
+        "execution_policy": "GENERATORS_EXECUTED_ONLY_FROM_TEMPORARY_COPIES",
+    }
 
     assert result["decisions"]["human_validation"]["required"] is True
     assert result["decisions"]["human_validation"]["publication_approved"] is False
@@ -242,3 +306,21 @@ def test_real_corpus_finalizes_all_534_rows_with_proven_decisions(tmp_path: Path
         written_csv = list(csv.DictReader(handle))
     assert len(written_json["files"]) == len(written_csv) == 534
     assert written_decisions["summary"]["class_matrix"] == summary["class_matrix"]
+
+
+def test_reports_disclose_session_tool_path_adaptation_and_isolated_proof():
+    report_root = (
+        REPO_ROOT / "docs/campaigns/pre-rentree-2026/pedagogy"
+    )
+    deduplication = (
+        report_root / "DEDUPLICATION-REPORT.md"
+    ).read_text(encoding="utf-8")
+    conflicts = (report_root / "CONFLICTS.md").read_text(encoding="utf-8")
+
+    for report in (deduplication, conflicts):
+        assert "REQUIRES_PATH_ADAPTATION" in report
+        assert "FAIL_PATH_LAYOUT" in report
+        assert "copie temporaire" in report
+    assert "393" in deduplication
+    assert "69" in deduplication
+    assert "FileNotFoundError" in deduplication
