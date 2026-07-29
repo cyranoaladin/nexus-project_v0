@@ -131,6 +131,12 @@ export type AccessibleBilanRequest = Readonly<{
   capabilities: BilanAccessCapabilities;
 }>;
 
+function isTrustedBilanPrincipal(value: unknown): value is BilanRequestAccessPrincipal {
+  return typeof value === 'object'
+    && value !== null
+    && (value as Partial<TrustedPrincipal>)[bilanPrincipalBrand] === true;
+}
+
 const SAFE_REQUEST_SELECT = {
   id: true,
   status: true,
@@ -314,6 +320,10 @@ export async function findAccessibleBilanRequest(
   repository: BilanRequestAccessRepository,
   principal: BilanRequestAccessPrincipal,
 ): Promise<AccessibleBilanRequest | null> {
+  if (!isTrustedBilanPrincipal(principal)) {
+    return null;
+  }
+
   const { where, projection } = accessPredicate(principal);
   const request = await repository.bilanRequest.findFirst({
     where,

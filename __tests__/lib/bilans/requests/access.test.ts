@@ -294,6 +294,22 @@ describe('bilan request access predicates', () => {
     expect(shouldNotCompile.kind).toBe('ADMIN');
   });
 
+  it.each(['ADMIN', 'ASSISTANTE', 'COACH'] as const)(
+    'rejects a runtime-forged %s principal before querying storage',
+    async (kind) => {
+      const { repository, findFirst } = createRepository();
+      const forged = {
+        kind,
+        requestId: 'request_1',
+        userId: 'attacker_1',
+        now,
+      };
+
+      await expect(findAccessibleBilanRequest(repository, forged as never)).resolves.toBeNull();
+      expect(findFirst).not.toHaveBeenCalled();
+    },
+  );
+
   it('keeps projection policies explicit and exhaustive', () => {
     expect(accessPolicyForProjection('TEMPORARY_FLOW')).toEqual(expect.objectContaining({
       readCurrentRequest: true,

@@ -177,8 +177,13 @@ const ERROR_CODES = new Set([
   'PROVIDER_UNAVAILABLE',
 ]);
 
-const OPAQUE_IDENTIFIER = /^[A-Za-z0-9_-]{16,160}$/;
-const VERSION_IDENTIFIER = /^(?=.*\d)(?=.*[._-])[A-Za-z0-9][A-Za-z0-9._-]*$/;
+const UUID_IDENTIFIER = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
+const CUID_V1_IDENTIFIER = /^c[a-z0-9]{24}$/;
+const CUID_V2_IDENTIFIER = /^[a-z][a-z0-9]{23}$/;
+const CORRELATION_IDENTIFIER = /^corr_[A-Za-z0-9_-]{16,128}$/;
+const ASSESSMENT_PACK_IDENTIFIER = /^pack_[a-z0-9]+(?:_[a-z0-9]+)*$/;
+const SIMPLE_VERSION_IDENTIFIER = /^v?\d{1,3}(?:\.\d{1,3}){0,2}$/;
+const PREFIXED_VERSION_IDENTIFIER = /^[a-z][a-z0-9_-]*-v\d{1,3}(?:\.\d{1,3}){0,2}$/;
 const SENSITIVE_KEY = /(?:e.?mail|phone|telephone|tel|(?:child|student|minor).*name|name.*(?:child|student|minor)|school|establishment|main.?need|(?:^|_)need|message|free.?text|answer|solution|report.*content|content.*report)/i;
 
 function containsSensitiveKey(value: unknown): boolean {
@@ -217,14 +222,24 @@ function isClosedCode(value: unknown, codes: ReadonlySet<string>): value is stri
   return typeof value === 'string' && codes.has(value);
 }
 
-function isOpaqueIdentifier(value: unknown): value is string {
-  return typeof value === 'string' && OPAQUE_IDENTIFIER.test(value);
+function isPrismaIdentifier(value: unknown): value is string {
+  return typeof value === 'string'
+    && (UUID_IDENTIFIER.test(value)
+      || CUID_V1_IDENTIFIER.test(value)
+      || CUID_V2_IDENTIFIER.test(value));
+}
+
+function isAssessmentPackIdentifier(value: unknown): value is string {
+  return typeof value === 'string'
+    && value.length <= 80
+    && ASSESSMENT_PACK_IDENTIFIER.test(value);
 }
 
 function isVersionIdentifier(value: unknown): value is string {
   return typeof value === 'string'
     && value.length <= 64
-    && VERSION_IDENTIFIER.test(value);
+    && (SIMPLE_VERSION_IDENTIFIER.test(value)
+      || PREFIXED_VERSION_IDENTIFIER.test(value));
 }
 
 const PAYLOAD_VALUE_VALIDATORS: Readonly<Record<
@@ -239,12 +254,12 @@ const PAYLOAD_VALUE_VALIDATORS: Readonly<Record<
   audienceCode: (value): value is string => isClosedCode(value, AUDIENCE_CODES),
   reasonCode: (value): value is string => isClosedCode(value, REASON_CODES),
   errorCode: (value): value is string => isClosedCode(value, ERROR_CODES),
-  studentId: isOpaqueIdentifier,
-  attemptId: isOpaqueIdentifier,
-  assessmentPackId: isOpaqueIdentifier,
-  revisionId: isOpaqueIdentifier,
-  reviewerId: isOpaqueIdentifier,
-  artifactId: isOpaqueIdentifier,
+  studentId: isPrismaIdentifier,
+  attemptId: isPrismaIdentifier,
+  assessmentPackId: isAssessmentPackIdentifier,
+  revisionId: isPrismaIdentifier,
+  reviewerId: isPrismaIdentifier,
+  artifactId: isPrismaIdentifier,
   assessmentPackVersion: isVersionIdentifier,
   scoringVersion: isVersionIdentifier,
   scoreBasisPoints: (value): value is number => isBoundedInteger(value, 10_000),
@@ -279,13 +294,10 @@ function minimizedPayload(
   return result;
 }
 
-function validIdentifier(value: string): boolean {
-  return OPAQUE_IDENTIFIER.test(value);
-}
-
 function validateEnvelope(input: AppendBilanRequestEventInput): void {
-  if (!validIdentifier(input.requestId)
-    || !validIdentifier(input.correlationId)
+  if (!isPrismaIdentifier(input.requestId)
+    || !(isPrismaIdentifier(input.correlationId)
+      || CORRELATION_IDENTIFIER.test(input.correlationId))
     || !BILAN_REQUEST_EVENT_TYPES.includes(input.type)
     || !BILAN_REQUEST_ACTORS.includes(input.actor)) {
     throw new Error('Invalid bilan request event envelope');
