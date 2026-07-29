@@ -15,6 +15,7 @@ export const authConfig = {
                           nextUrl.pathname.startsWith('/coach');
       
       const isOnAuth = nextUrl.pathname.startsWith('/auth');
+      const isBilanMagicConsumption = nextUrl.pathname === '/auth/bilan-magic';
       const role = (auth?.user as any)?.role;
 
       const roleDashboardMap: Record<string, string> = {
@@ -51,7 +52,7 @@ export const authConfig = {
         }
 
         return true;
-      } else if (isLoggedIn && isOnAuth) {
+      } else if (isLoggedIn && isOnAuth && !isBilanMagicConsumption) {
         // Redirect logged-in users away from auth pages to their dashboard
         let redirectPath = '/dashboard';
         

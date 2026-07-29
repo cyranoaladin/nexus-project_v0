@@ -5,6 +5,7 @@ import { prisma } from '@/lib/prisma';
 import { authConfig } from './auth.config';
 import { UserRole } from '@prisma/client';
 import { logger } from '@/lib/logger';
+import { consumeBilanMagicLink } from '@/lib/bilans/auth/consume-magic-link';
 
 export const { auth, handlers, signIn, signOut } = NextAuth({
   ...authConfig,
@@ -63,6 +64,28 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         
         logger.info('[AUTH] Password mismatch');
         return null;
+      },
+    }),
+    Credentials({
+      id: 'bilan-magic',
+      name: 'Lien bilan sécurisé',
+      credentials: {
+        token: { label: 'Jeton', type: 'password' },
+      },
+      async authorize(credentials) {
+        const allowedAuthJsFields = new Set(['token', 'csrfToken', 'callbackUrl']);
+        if (
+          !credentials
+          || Object.keys(credentials).some((key) => !allowedAuthJsFields.has(key))
+          || typeof credentials.token !== 'string'
+        ) {
+          return null;
+        }
+
+        return consumeBilanMagicLink({
+          prisma,
+          rawToken: credentials.token,
+        });
       },
     }),
   ],
