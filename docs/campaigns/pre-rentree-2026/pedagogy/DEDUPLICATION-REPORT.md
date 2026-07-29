@@ -28,9 +28,10 @@ Le constructeur `scripts/pre-rentree/pedagogy/build_pedagogy_manifest.py` :
    Markdown par Unicode, fins de ligne et espaces terminaux ;
 6. refuse la sélection d'un candidat divergent si la validation structurelle,
    la référence QA et le résumé de diff ne sont pas tous présents ;
-7. exécute les générateurs et validateurs retenus uniquement depuis une copie
-   temporaire, compare chaque sortie au corpus importé par chemin et SHA-256,
-   puis recalcule le SHA global de la source ;
+7. exécute les générateurs et validateurs retenus uniquement depuis deux copies
+   temporaires indépendantes, compare chaque sortie au corpus importé et entre
+   les deux exécutions par chemin et SHA-256, puis recalcule le SHA global et le
+   digest de l’arbre complet de la source ;
 8. attribue exactement une des neuf classes finales à chaque ligne.
 
 Les nombres de groupes et copies ne sont pas des constantes métier : ils sont
@@ -103,7 +104,24 @@ Les 17 CPS v3 passent la validation structurelle : 141 nœuds décrits, 136
 nœuds évalués, 408 items et 33 réponses à correction manuelle. Elles restent
 toutes `HUMAN_VALIDATION_REQUIRED`.
 
-Les cinq couples historiques mathématiques v1/v2 divergent de v3 pour des
+Le rapport QA effectivement inventorié,
+`RAPPORT-QA-COMPLET-17-MODULES-2026.md`, a pour SHA-256
+`2396a31357e8eb39fa011556e1cc25968428f3f4839d980d0afb4e476fc42340`.
+Son appartenance à l'inventaire, son SHA et ses assertions attendues sont
+vérifiés avant qu'il puisse servir de preuve.
+
+Le diff réel v2 → v3 est recalculé sur cinq modules mathématiques et quatre
+modules français. Les seules transformations observées sont :
+
+- ajout du statut racine sur 9 modules ;
+- changement d'ordre des propositions sur 153 items ;
+- ajout de `obstacleVise` sur 100 distracteurs ;
+- correction unique du palier `n10-i1` de `B/B/C` vers `A/B/C`.
+
+Les changements inattendus : 0. Toute autre transformation ferait basculer le
+groupe concerné en `CONFLICT_REVIEW_REQUIRED`.
+
+Les cinq couples historiques mathématiques v1/v2 divergent donc de v3 pour des
 raisons calculées et explicites :
 
 | Preuve | v1/v2 | v3 |
@@ -146,6 +164,18 @@ L'archive ZIP est `ARCHIVE_PACKAGE`.
 
 Aucun générateur n'a été exécuté dans la source importée. Le constructeur
 interdit explicitement tout chemin d'exécution situé sous la racine historique.
+Il refuse aussi une racine de sortie égale à, située sous, ou résolue par lien
+symbolique dans la racine d'import.
+
+Chaque outil historique est lancé obligatoirement avec `/usr/bin/bwrap`,
+`--unshare-all`, `--die-with-parent`, `--new-session` et `--clearenv`. Le bac à
+sable ne monte en lecture seule que `/usr`, `/lib` et `/lib64`, fournit ses
+propres `/proc` et `/dev`, coupe le réseau, remonte la racine en lecture seule
+et n'accorde l'écriture qu'à l'espace temporaire `/workspace`. Si Bubblewrap
+est absent ou échoue, l'évaluation échoue fermée. Le lanceur impose en plus des
+limites de CPU, mémoire, taille de fichier et processus, un délai maximal de
+60 secondes, une capture bornée de stdout/stderr vers fichiers et la
+terminaison du groupe de processus et de ses descendants.
 
 Pour la chaîne des séances, une copie temporaire fidèle du paquet livré
 reproduit le défaut des deux scripts :
@@ -161,22 +191,33 @@ reproduit le défaut des deux scripts :
 Ils ne sont donc pas directement utilisables depuis le layout importé. Leur
 statut de portabilité est `REQUIRES_PATH_ADAPTATION`.
 
-Dans une seconde copie temporaire, le layout attendu a été reconstitué sans
+Dans deux espaces temporaires séparés, le layout attendu a été reconstitué sans
 modifier les scripts : 17 CPS v3 sous `positionnement/`, catalogue et ancres
-sous `outils/`. Le générateur et le validateur terminent alors avec un code
-retour 0. Les 393 fichiers générés sont identiques par chemin et SHA-256 aux
-393 fichiers du corpus importé : zéro fichier manquant, supplémentaire ou
+sous `outils/`. Lors de chacune des deux exécutions, le générateur et le
+validateur terminent avec un code retour 0. Les 393 fichiers générés sont
+identiques par chemin et SHA-256 aux 393 fichiers du corpus importé, ainsi
+qu'entre les deux exécutions : zéro fichier manquant, supplémentaire ou
 différent.
 
 Pour la chaîne positionnement, une copie temporaire des 17 CPS, du référentiel,
 de `generate_operational_resources.py` et de `validate_cps.py` conserve le
-layout attendu. Le validateur et le générateur terminent avec un code retour 0 ;
-les 69 sorties sont identiques par chemin et SHA-256 aux 69 ressources
-importées.
+layout attendu. Deux exécutions dans des espaces distincts terminent chacune
+avec un code retour 0 ; les 69 sorties sont identiques par chemin et SHA-256 aux
+69 ressources importées et entre les deux exécutions.
 
 Le SHA global de la source vaut
 `077bce2a8737acb07134902f5815321f2dcb97fca435a6d14035db1d39357005`
-avant et après ces exécutions isolées.
+avant et après ces exécutions isolées. Le digest de l’arbre complet, qui couvre
+aussi répertoires, liens symboliques et types de fichiers, est également
+identique avant et après.
+
+Le test d'intégration sur les 534 fichiers reconstruit l'inventaire lorsqu'un
+artefact de checkout n'est pas présent. Il exige toutefois que le corpus
+historique externe soit fourni par
+`PRE_RENTREE_PEDAGOGY_IMPORT_ROOT` : ce contrôle n’est pas un gate CI autonome
+sur un checkout dépourvu de cette source. Un test CLI synthétique exerce
+séparément les quatre paquets attendus et le refus des racines de sortie
+chevauchant l'import.
 
 Le détail des imports, entrées, sorties, effets de bord, reproductibilité et
 couverture de chaque script, ainsi que les codes retour et comparaisons, est

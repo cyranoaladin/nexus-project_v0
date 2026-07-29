@@ -1,16 +1,21 @@
 import csv
 import json
 import os
+import subprocess
 import sys
+import time
 from pathlib import Path
 
 import pytest
+import yaml
 
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 PEDAGOGY_SCRIPTS = REPO_ROOT / "scripts/pre-rentree/pedagogy"
+MANIFEST_SCRIPT = PEDAGOGY_SCRIPTS / "build_pedagogy_manifest.py"
 sys.path.insert(0, str(PEDAGOGY_SCRIPTS))
 
+import sandbox_runner
 from build_pedagogy_manifest import (
     FINAL_CSV_NAME,
     FINAL_JSON_NAME,
@@ -21,7 +26,12 @@ from build_pedagogy_manifest import (
     normalized_content,
     write_manifest_outputs,
 )
-from classification import FINAL_CLASSIFICATIONS, PENDING_DEDUPLICATION
+from classification import (
+    FINAL_CLASSIFICATIONS,
+    HISTORICAL_PACKAGES,
+    PENDING_DEDUPLICATION,
+)
+from cps_diff import compute_v3_diffs
 from import_pedagogy_corpus import build_inventory
 
 
@@ -50,6 +60,14 @@ def test_normalized_comparisons_cover_structured_csv_and_markdown_content(tmp_pa
     assert normalized_content(json_a) == normalized_content(json_b)
     assert normalized_content(csv_a) == normalized_content(csv_b)
     assert normalized_content(markdown_a) == normalized_content(markdown_b)
+
+
+def test_csv_normalization_rejects_headers_that_collide_after_trimming(tmp_path: Path):
+    ambiguous = tmp_path / "ambiguous.csv"
+    ambiguous.write_text("id, id \na,b\n", encoding="utf-8")
+
+    with pytest.raises(ValueError, match="duplicate normalized CSV headers"):
+        normalized_content(ambiguous)
 
 
 def test_exact_duplicate_groups_are_derived_from_hashes_not_fixed_counts(tmp_path: Path):
@@ -92,15 +110,228 @@ def test_divergent_candidates_require_explicit_evidence_before_selection(tmp_pat
         [old, candidate],
         preferred_path=candidate,
         evidence={
-            "structural_validation": "PASS",
-            "qa_reference": "fixture QA",
-            "diff_summary": {"status": ["historical", "corrected"]},
+            "structural_validation_passed": True,
+            "qa_report": {
+                "inventory_present": True,
+                "sha256_matches": True,
+                "assertions_verified": True,
+            },
+            "computed_diff": {
+                "computed": True,
+                "unexpected_change_count": 0,
+            },
         },
     )
 
     assert resolved["selected"] == candidate.as_posix()
     assert resolved["classification"] == "CANONICAL_SOURCE"
     assert resolved["comparison"] == "DIVERGENT_WITH_SELECTION_EVIDENCE"
+
+
+def test_truthy_labels_cannot_authorize_a_divergent_selection(tmp_path: Path):
+    old = tmp_path / "old.yaml"
+    candidate = tmp_path / "candidate.yaml"
+    old.write_text("status: old\n", encoding="utf-8")
+    candidate.write_text("status: new\n", encoding="utf-8")
+
+    result = compare_candidate_group(
+        [old, candidate],
+        preferred_path=candidate,
+        evidence={
+            "structural_validation": "PASS",
+            "qa_reference": "report.md",
+            "diff_summary": {"claimed": "safe"},
+        },
+    )
+
+    assert result["selected"] is None
+    assert result["classification"] == "CONFLICT_REVIEW_REQUIRED"
+
+
+def test_cps_diff_reports_changes_outside_the_allow_list(tmp_path: Path):
+    v2 = tmp_path / "v2"
+    v3 = tmp_path / "v3"
+    v2.mkdir()
+    v3.mkdir()
+    source = {
+        "id": "module",
+        "titre": "Titre stable",
+        "noeuds": [
+            {
+                "id": "n1",
+                "items": [
+                    {
+                        "id": "n1-i1",
+                        "palier": "A",
+                        "propositions": [
+                            {"texte": "Réponse A", "correcte": True},
+                            {"texte": "Réponse B", "correcte": False},
+                        ],
+                    }
+                ],
+            }
+        ],
+    }
+    candidate = {
+        **source,
+        "titre": "Titre modifié hors allow-list",
+        "statutValidation": "HUMAN_VALIDATION_REQUIRED",
+    }
+    (v2 / "module.yaml").write_text(
+        yaml.safe_dump(source, allow_unicode=True),
+        encoding="utf-8",
+    )
+    (v3 / "module.yaml").write_text(
+        yaml.safe_dump(candidate, allow_unicode=True),
+        encoding="utf-8",
+    )
+
+    diff = compute_v3_diffs(
+        tmp_path,
+        v2_package="v2",
+        v3_package="v3",
+    )
+
+    assert diff["allowed_change_counts"] == {"status_added": 1}
+    assert diff["unexpected_change_count"] == 1
+    assert diff["unexpected_paths"] == ["module.yaml:root.titre"]
+
+
+def test_bubblewrap_probe_clears_environment_blocks_network_and_outside_writes(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+):
+    workspace = tmp_path / "workspace"
+    workspace.mkdir()
+    marker = "nexus-sandbox-child-survival-check"
+    script = workspace / "malicious.py"
+    script.write_text(
+        "\n".join(
+            [
+                "import json, os, socket, subprocess, time",
+                "from pathlib import Path",
+                "network = False",
+                "try:",
+                "    socket.create_connection(('198.51.100.1', 80), timeout=0.2)",
+                "    network = True",
+                "except OSError:",
+                "    pass",
+                "outside = False",
+                "try:",
+                "    Path('/escape-from-sandbox').write_text('bad')",
+                "    outside = True",
+                "except OSError:",
+                "    pass",
+                "child_code = \"import time; from pathlib import Path; \"",
+                "child_code += \"time.sleep(2); Path('/workspace/child-survived').write_text('bad')\"",
+                f"subprocess.Popen(['/usr/bin/python3', '-c', child_code, '{marker}'])",
+                "Path('/workspace/result.json').write_text(json.dumps({",
+                "    'secret': os.getenv('PEDAGOGY_TEST_SECRET'),",
+                "    'network': network,",
+                "    'outside': outside,",
+                "}))",
+                "while True:",
+                "    print('x' * 4096, flush=True)",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    forbidden_root = tmp_path / "forbidden-import"
+    forbidden_root.mkdir()
+    monkeypatch.setenv("PEDAGOGY_TEST_SECRET", "must-not-cross-clearenv")
+
+    result = sandbox_runner.run_copied_python_tool(
+        script,
+        workspace=workspace,
+        forbidden_root=forbidden_root,
+        timeout_seconds=2,
+    )
+
+    if not Path("/usr/bin/bwrap").is_file():
+        assert result["status"] == "FAIL_CLOSED_SANDBOX_UNAVAILABLE"
+        return
+    observed = json.loads((workspace / "result.json").read_text(encoding="utf-8"))
+    assert observed == {"secret": None, "network": False, "outside": False}
+    assert result["sandbox_backend"] == "bubblewrap"
+    assert result["sandbox_status"] == "PASS"
+    assert result["stdout_bytes"] <= result["resource_limits"]["file_size_bytes"]
+    time.sleep(2.2)
+    assert not (workspace / "child-survived").exists()
+    assert not Path("/escape-from-sandbox").exists()
+
+
+def test_bubblewrap_absence_fails_closed_without_running_script(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+):
+    workspace = tmp_path / "workspace"
+    workspace.mkdir()
+    script = workspace / "must-not-run.py"
+    script.write_text(
+        "from pathlib import Path\nPath('/workspace/ran').write_text('bad')\n",
+        encoding="utf-8",
+    )
+    forbidden_root = tmp_path / "import"
+    forbidden_root.mkdir()
+    monkeypatch.setattr(
+        sandbox_runner,
+        "BWRAP_PATH",
+        tmp_path / "missing-bwrap",
+        raising=False,
+    )
+
+    result = sandbox_runner.run_copied_python_tool(
+        script,
+        workspace=workspace,
+        forbidden_root=forbidden_root,
+        timeout_seconds=1,
+    )
+
+    assert result["status"] == "FAIL_CLOSED_SANDBOX_UNAVAILABLE"
+    assert not (workspace / "ran").exists()
+
+
+def _make_complete_synthetic_import(import_root: Path) -> None:
+    for package_name in HISTORICAL_PACKAGES:
+        package = import_root / package_name
+        package.mkdir(parents=True)
+        (package / "fixture.md").write_text(f"# {package_name}\n", encoding="utf-8")
+
+
+def _run_manifest_cli(
+    import_root: Path,
+    output_root: Path,
+) -> subprocess.CompletedProcess[str]:
+    return subprocess.run(
+        [
+            sys.executable,
+            str(MANIFEST_SCRIPT),
+            "--import-root",
+            str(import_root),
+            "--repo-root",
+            str(REPO_ROOT),
+            "--output-root",
+            str(output_root),
+        ],
+        capture_output=True,
+        text=True,
+    )
+
+
+def test_cli_rejects_output_equal_to_or_resolving_inside_import_root(tmp_path: Path):
+    import_root = tmp_path / "import"
+    _make_complete_synthetic_import(import_root)
+
+    equal_result = _run_manifest_cli(import_root, import_root)
+    symlink_output = tmp_path / "linked-output"
+    symlink_output.symlink_to(import_root / HISTORICAL_PACKAGES[0], target_is_directory=True)
+    linked_result = _run_manifest_cli(import_root, symlink_output)
+
+    assert equal_result.returncode != 0
+    assert "outside --import-root" in equal_result.stderr
+    assert linked_result.returncode != 0
+    assert "outside --import-root" in linked_result.stderr
 
 
 def _historical_root() -> Path:
@@ -119,7 +350,11 @@ def test_real_corpus_finalizes_all_534_rows_with_proven_decisions(tmp_path: Path
         REPO_ROOT
         / ".artifacts/pre-rentree-2026/pedagogy/import/INVENTAIRE-IMPORT.json"
     )
-    inventory = json.loads(inventory_path.read_text(encoding="utf-8"))
+    inventory = (
+        json.loads(inventory_path.read_text(encoding="utf-8"))
+        if inventory_path.is_file()
+        else build_inventory(import_root)
+    )
 
     result = build_pedagogy_manifest(
         inventory=inventory,
@@ -251,9 +486,12 @@ def test_real_corpus_finalizes_all_534_rows_with_proven_decisions(tmp_path: Path
         "Nexus-PreRentree-2026-85-seances/positionnement",
     ]
     assert session_tools["isolated_execution"]["status"] == "PASS"
-    assert session_tools["isolated_execution"]["generator_returncode"] == 0
-    assert session_tools["isolated_execution"]["validator_returncode"] == 0
-    assert session_tools["isolated_execution"]["comparison"] == {
+    assert session_tools["isolated_execution"]["run_count"] == 2
+    assert all(
+        run["generator_returncode"] == run["validator_returncode"] == 0
+        for run in session_tools["isolated_execution"]["runs"]
+    )
+    expected_session_comparison = {
         "status": "IDENTICAL_SHA256",
         "generated_file_count": 393,
         "imported_file_count": 393,
@@ -262,13 +500,24 @@ def test_real_corpus_finalizes_all_534_rows_with_proven_decisions(tmp_path: Path
         "extra_file_count": 0,
         "content_mismatch_count": 0,
     }
+    assert (
+        session_tools["isolated_execution"]["comparison_to_import"]
+        == expected_session_comparison
+    )
+    assert (
+        session_tools["isolated_execution"]["reproducibility_comparison"]
+        == expected_session_comparison
+    )
 
     positioning_tools = toolchains["positioning_resources"]
     assert positioning_tools["portability_status"] == "LAYOUT_COMPATIBLE"
     assert positioning_tools["isolated_execution"]["status"] == "PASS"
-    assert positioning_tools["isolated_execution"]["validator_returncode"] == 0
-    assert positioning_tools["isolated_execution"]["generator_returncode"] == 0
-    assert positioning_tools["isolated_execution"]["comparison"] == {
+    assert positioning_tools["isolated_execution"]["run_count"] == 2
+    assert all(
+        run["generator_returncode"] == run["validator_returncode"] == 0
+        for run in positioning_tools["isolated_execution"]["runs"]
+    )
+    expected_positioning_comparison = {
         "status": "IDENTICAL_SHA256",
         "generated_file_count": 69,
         "imported_file_count": 69,
@@ -277,12 +526,70 @@ def test_real_corpus_finalizes_all_534_rows_with_proven_decisions(tmp_path: Path
         "extra_file_count": 0,
         "content_mismatch_count": 0,
     }
-    assert toolchains["source_integrity"] == {
-        "before_sha256": "077bce2a8737acb07134902f5815321f2dcb97fca435a6d14035db1d39357005",
-        "after_sha256": "077bce2a8737acb07134902f5815321f2dcb97fca435a6d14035db1d39357005",
-        "unchanged": True,
-        "execution_policy": "GENERATORS_EXECUTED_ONLY_FROM_TEMPORARY_COPIES",
+    assert (
+        positioning_tools["isolated_execution"]["comparison_to_import"]
+        == expected_positioning_comparison
+    )
+    assert (
+        positioning_tools["isolated_execution"]["reproducibility_comparison"]
+        == expected_positioning_comparison
+    )
+
+    source_integrity = toolchains["source_integrity"]
+    assert source_integrity["manifest_before_sha256"] == (
+        "077bce2a8737acb07134902f5815321f2dcb97fca435a6d14035db1d39357005"
+    )
+    assert source_integrity["manifest_after_sha256"] == (
+        source_integrity["manifest_before_sha256"]
+    )
+    assert source_integrity["complete_tree_before"] == (
+        source_integrity["complete_tree_after"]
+    )
+    assert source_integrity["complete_tree_before"]["directory_count"] == 119
+    assert source_integrity["complete_tree_before"]["file_count"] == 534
+    assert source_integrity["complete_tree_before"]["symlink_count"] == 0
+    assert source_integrity["complete_tree_before"]["other_count"] == 0
+    assert source_integrity["unchanged"] is True
+    assert source_integrity["execution_policy"] == (
+        "GENERATORS_EXECUTED_ONLY_IN_BWRAP_TEMPORARY_WORKSPACES"
+    )
+
+    selection_evidence = result["decisions"]["v3_selection_evidence"]
+    qa = selection_evidence["qa_report"]
+    assert qa["inventory_present"] is True
+    assert qa["sha256_matches"] is True
+    assert qa["assertions_verified"] is True
+    assert qa["sha256"] == (
+        "2396a31357e8eb39fa011556e1cc25968428f3f4839d980d0afb4e476fc42340"
+    )
+    assert all(qa["assertions"].values())
+    computed_diffs = selection_evidence["computed_diffs"]
+    assert computed_diffs["module_count"] == 9
+    assert computed_diffs["allowed_change_counts"] == {
+        "status_added": 9,
+        "proposition_order_changed": 153,
+        "obstacle_vise_added": 100,
+        "palier_n10_i1_corrected": 1,
     }
+    assert computed_diffs["unexpected_change_count"] == 0
+    assert computed_diffs["unexpected_paths"] == []
+    divergent_groups = [
+        group
+        for group in result["decisions"]["logical_group_decisions"]
+        if group["comparison"] == "DIVERGENT_WITH_SELECTION_EVIDENCE"
+    ]
+    assert len(divergent_groups) == 9
+    assert all(
+        group["selection_evidence"]["structural_validation_passed"] is True
+        and group["selection_evidence"]["qa_report"]["sha256_matches"] is True
+        and group["selection_evidence"]["qa_report"]["assertions_verified"] is True
+        and group["selection_evidence"]["computed_diff"]["computed"] is True
+        and group["selection_evidence"]["computed_diff"][
+            "unexpected_change_count"
+        ]
+        == 0
+        for group in divergent_groups
+    )
 
     assert result["decisions"]["human_validation"]["required"] is True
     assert result["decisions"]["human_validation"]["publication_approved"] is False
@@ -324,3 +631,15 @@ def test_reports_disclose_session_tool_path_adaptation_and_isolated_proof():
     assert "393" in deduplication
     assert "69" in deduplication
     assert "FileNotFoundError" in deduplication
+    for expected in (
+        "/usr/bin/bwrap",
+        "--unshare-all",
+        "--clearenv",
+        "deux exécutions",
+        "digest de l’arbre complet",
+        "153",
+        "changements inattendus : 0",
+        "PRE_RENTREE_PEDAGOGY_IMPORT_ROOT",
+        "n’est pas un gate CI autonome",
+    ):
+        assert expected in deduplication

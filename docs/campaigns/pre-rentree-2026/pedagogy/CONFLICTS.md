@@ -15,7 +15,11 @@ Aucun conflit de sélection requis ne reste ouvert après comparaison :
 Les neuf groupes de CPS dont le contenu historique diverge du candidat v3
 (quatre français et cinq mathématiques) ne sont pas des conflits silencieusement
 écartés. La sélection v3 est justifiée par une validation structurelle PASS, le
-rapport QA du paquet v3 et un diff structuré. Les variantes antérieures restent
+rapport QA inventorié et vérifié par SHA-256, et un diff v2 → v3 recalculé :
+9 statuts ajoutés, 153 changements d'ordre des propositions, 100 ajouts
+`obstacleVise`, une correction du palier `n10-i1` et aucun changement
+inattendu. Toute différence hors de cette liste créerait un
+`CONFLICT_REVIEW_REQUIRED`. Les variantes antérieures restent
 `HISTORICAL_VERSION` ou `DUPLICATE_IDENTICAL` lorsqu'elles sont byte-identiques
 entre elles.
 
@@ -35,6 +39,12 @@ fidèle du paquet livré. Dans une copie temporaire au layout attendu, leur
 exécution et la validation passent, et les 393 fichiers produits sont
 byte-à-byte identiques au corpus importé. Ils restent donc des candidats à
 porter, pas des outils directement exécutables depuis le paquet historique.
+
+Toutes ces exécutions sont réalisées deux fois dans des espaces temporaires
+distincts et uniquement sous `/usr/bin/bwrap` avec environnement vidé, réseau
+isolé, racine en lecture seule, ressources et sorties bornées. L'absence ou
+l'échec du bac à sable ferme la vérification : aucune exécution directe de
+repli n'est autorisée.
 
 ## Validation pédagogique non déléguable
 
