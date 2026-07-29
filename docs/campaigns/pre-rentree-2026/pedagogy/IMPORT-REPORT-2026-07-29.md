@@ -200,7 +200,7 @@ docs/campaigns/pre-rentree-2026/pedagogy/
 | validation CPS/session kits | vert : compteurs canoniques exacts |
 | double génération dans deux sorties propres | vert : sorties byte-identiques |
 | oracle historique de positionnement | vert : 51 Markdown exacts, 18 CSV avec LF seul |
-| `python -m pytest scripts/pre-rentree/tests/test_pedagogy_hygiene.py -q` | vert : 2 tests |
+| `python -m pytest scripts/pre-rentree/tests/test_pedagogy_hygiene.py -q` | vert : 6 tests, dont 340 liens canoniques, 13 blocs Python, UTF-8/fins de ligne/noms et absence de contacts ou secrets |
 | `npm run pre-rentree:pedagogy:verify` | vert : 103 fichiers, arbre reproductible `282bd45a97115fcf9b177b4b22430c1bbd9415a79a54d5c56f463564f19e2408` |
 | `npm run pre-rentree:pedagogy:import-check` | vert : 119 répertoires, 534 fichiers, hash inchangé |
 | `python -m pytest scripts/pre-rentree/tests/test_pedagogy_import.py -q -k 'import_redirect'` | vert : 3 tests, README régulier exclu et autres types refusés |
@@ -232,6 +232,8 @@ Le lot touche uniquement :
 - les sources sous `content/pre-rentree-2026/pedagogy/` ;
 - le pipeline et ses tests sous `scripts/pre-rentree/` ;
 - `package.json` pour les commandes pédagogiques ;
+- `__tests__/marketing/brand-trust-guard.test.ts` pour exclure ce corpus
+  explicitement non public du seul contrôle des tailles de groupes commerciales ;
 - la gouvernance et les index sous `docs/`.
 
 Il ne modifie ni prix, ni offres, ni modèle Prisma, ni API, ni interface
