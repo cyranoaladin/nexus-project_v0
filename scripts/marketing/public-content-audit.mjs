@@ -144,10 +144,23 @@ const CHECKS = [
   },
   {
     category: 'siege-centre-confusion',
-    label: 'Centre Urbain Nord (siège social) mentionné sur une page commerciale',
+    label: 'Centre Urbain Nord (siège social) mentionné sans être distingué de Mutuelleville',
     commercialOnly: true,
     excludeLegal: true,
     patterns: [/centre\s+urbain\s+nord/i],
+    // "Centre Urbain Nord" alone, ambiguously implying it's THE relevant
+    // address, is the bug (e.g. the mobile quick-contact panel this check
+    // was written to catch). A block that names both addresses distinctly
+    // (e.g. CorporateFooter's "Siège social administratif" / "Centre
+    // d'accompagnement pédagogique" cards) is exactly AGENTS.md §2's
+    // required presentation, not a violation — checked via a window wide
+    // enough to cover that block's own layout (see
+    // docs/audits/2026-07-29-marketing-content-findings-triage.md for the
+    // false-positive this suppresses on 15+ pages otherwise).
+    contextGuard: (text, matchIndex) => {
+      const windowText = text.slice(Math.max(0, matchIndex - 200), matchIndex + 200);
+      return /mutuelleville/i.test(windowText);
+    },
   },
   {
     category: 'delai-non-instrumente',
@@ -238,6 +251,7 @@ async function main() {
         const end = match.index + match[0].length;
         const overlaps = rangesKept.some(([keptStart, keptEnd]) => start < keptEnd && end > keptStart);
         if (overlaps) continue;
+        if (check.contextGuard && check.contextGuard(result.text, start)) continue;
         rangesKept.push([start, end]);
         const context = result.text.slice(Math.max(0, start - 60), end + 60);
         findings.push(`${check.category}: ${path}: "${match[0]}" … context: "${context.trim()}"`);
