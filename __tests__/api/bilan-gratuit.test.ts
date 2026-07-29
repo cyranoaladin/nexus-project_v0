@@ -349,6 +349,79 @@ describe('/api/bilan-gratuit', () => {
     expect(body.error).toBe('Erreur interne du serveur');
   });
 
+  // Décision 3 (2026-07-29): staff must be notified of every genuine bilan
+  // submission — success, existing-account, or technical failure — via the
+  // same captureContactLead mechanism, with no minor PII.
+  describe('staff notification on every genuine submission (Décision 3)', () => {
+    it('notifies staff when a new account is created successfully', async () => {
+      const userCreate = jest.fn()
+        .mockResolvedValueOnce({
+          id: 'parent-123',
+          email: 'jean.dupont@test.com',
+          firstName: 'Jean',
+          lastName: 'Dupont',
+        })
+        .mockResolvedValueOnce({
+          id: 'student-123',
+          email: 'marie.dupont.test@nexus-student.local',
+          firstName: 'Marie',
+          lastName: 'Dupont',
+        });
+      jest.spyOn(prisma.user, 'findUnique').mockResolvedValue(null as never);
+      jest.spyOn(prisma, '$transaction').mockImplementation(async (callback: any) => callback({
+        user: { create: userCreate },
+        parentProfile: { create: jest.fn().mockResolvedValue({ id: 'parent-profile-123' }) },
+        student: { create: jest.fn().mockResolvedValue({ id: 'student-profile-123' }) },
+      } as any));
+
+      const response = await POST(buildRequest(validRequestData));
+      expect(response.status).toBe(200);
+
+      expect(mockCaptureContactLead).toHaveBeenCalledTimes(1);
+      const leadPayload = mockCaptureContactLead.mock.calls[0][0];
+      expect(leadPayload.source).toBe('bilan-gratuit-new-account');
+      expect(leadPayload.email).toBe(validRequestData.parentEmail);
+      const serializedPayload = JSON.stringify(leadPayload);
+      expect(serializedPayload).not.toContain(validRequestData.studentFirstName);
+      expect(serializedPayload).not.toContain(validRequestData.studentGrade);
+      expect(serializedPayload).not.toContain(validRequestData.studentSchool);
+    });
+
+    it('notifies staff when account creation fails technically, without PII, and still returns 500', async () => {
+      jest.spyOn(prisma.user, 'findUnique').mockResolvedValue(null as never);
+      jest.spyOn(prisma, '$transaction').mockRejectedValue(new Error('Database connection failed'));
+
+      const response = await POST(buildRequest(validRequestData));
+      const body = await response.json();
+
+      expect(response.status).toBe(500);
+      expect(body.error).toBe('Erreur interne du serveur');
+
+      expect(mockCaptureContactLead).toHaveBeenCalledTimes(1);
+      const leadPayload = mockCaptureContactLead.mock.calls[0][0];
+      expect(leadPayload.source).toBe('bilan-gratuit-error');
+      expect(leadPayload.email).toBe(validRequestData.parentEmail);
+      const serializedPayload = JSON.stringify(leadPayload);
+      expect(serializedPayload).not.toContain(validRequestData.studentFirstName);
+      expect(serializedPayload).not.toContain(validRequestData.studentGrade);
+      expect(serializedPayload).not.toContain(validRequestData.studentSchool);
+    });
+
+    it('does not notify staff for a request that never validates (Zod error)', async () => {
+      const response = await POST(buildRequest({ ...validRequestData, parentEmail: 'invalid-email' }));
+
+      expect(response.status).toBe(400);
+      expect(mockCaptureContactLead).not.toHaveBeenCalled();
+    });
+
+    it('does not notify staff for a silently-rejected bot submission', async () => {
+      const response = await POST(buildRequest({ ...validRequestData, website: 'http://spam.example' }));
+
+      expect(response.status).toBe(200);
+      expect(mockCaptureContactLead).not.toHaveBeenCalled();
+    });
+  });
+
   it('continues even if email sending fails', async () => {
     mockSendWelcomeParentEmail.mockRejectedValueOnce(new Error('Email service unavailable'));
 

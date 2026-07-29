@@ -1,7 +1,7 @@
 export const dynamic = 'force-dynamic';
 
 import { prisma } from '@/lib/prisma';
-import { bilanGratuitSchema } from '@/lib/validations';
+import { bilanGratuitSchema, type BilanGratuitData } from '@/lib/validations';
 import { normalizeStudentLevelAndTrack } from '@/lib/utils/grade-utils';
 import { UserRole } from '@/types/enums';
 import { guardRateLimitAsync } from '@/lib/rate-limit';
@@ -19,9 +19,47 @@ import { NextRequest, NextResponse } from 'next/server';
 const GENERIC_SUCCESS_MESSAGE =
   'Votre demande a bien été enregistrée. Vous allez recevoir un e-mail avec la marche à suivre.';
 
-export async function POST(request: NextRequest) {
+/**
+ * Notifie l'équipe qu'une demande de bilan gratuit vient d'arriver — quel
+ * que soit son issue (nouveau compte, compte existant, échec technique).
+ * Aucune donnée personnelle du mineur (pas de prénom élève, pas de niveau,
+ * pas d'établissement) : seulement l'identité du parent et le canal
+ * technique de la demande. Même mécanisme que les autres canaux
+ * (`captureContactLead`), pas un second système de notification.
+ */
+async function notifyStaffOfBilanSubmission(
+  validatedData: { parentFirstName: string; parentLastName: string; parentEmail: string; parentPhone: string; acceptTerms: boolean },
+  source: 'bilan-gratuit-new-account' | 'bilan-gratuit-existing-account' | 'bilan-gratuit-error',
+  interest: string,
+  isTestEnv: boolean,
+) {
   try {
-    const isTestEnv = process.env.NODE_ENV === 'test';
+    await captureContactLead({
+      name: `${validatedData.parentFirstName} ${validatedData.parentLastName}`.trim(),
+      email: validatedData.parentEmail,
+      phone: validatedData.parentPhone,
+      profile: source === 'bilan-gratuit-existing-account' ? 'Parent (compte existant)' : 'Parent',
+      interest,
+      source,
+      type: source.replace(/-/g, '_'),
+      consent: validatedData.acceptTerms,
+    });
+  } catch (leadError) {
+    if (!isTestEnv) {
+      console.error(`Erreur notification interne (${source}):`, serializeError(leadError));
+    }
+  }
+}
+
+export async function POST(request: NextRequest) {
+  const isTestEnv = process.env.NODE_ENV === 'test';
+  // Hoisted above the try/catch so the failure path (Décision 3) can notify
+  // staff for a genuine, validated submission that failed technically —
+  // without needing to notify for a request that never even parsed (Zod
+  // validation failure, honeypot rejection): those aren't real submissions.
+  let validatedData: BilanGratuitData | undefined;
+
+  try {
 
     // CSRF protection — verify same-origin
     const csrfResponse = checkCsrf(request);
@@ -44,7 +82,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Validation des données
-    const validatedData = bilanGratuitSchema.parse(body);
+    validatedData = bilanGratuitSchema.parse(body);
     const campaignContext = synchronizePreRentreeCampaignContext({
       campaignContext: validatedData.campaignContext ?? undefined,
       studentGrade: validatedData.studentGrade,
@@ -81,25 +119,12 @@ export async function POST(request: NextRequest) {
         }
       }
 
-      // Notification interne — aucune donnée personnelle du mineur (pas de prénom
-      // élève, pas de niveau, pas d'établissement), seulement l'identité du parent
-      // et le canal technique de la demande.
-      try {
-        await captureContactLead({
-          name: `${validatedData.parentFirstName} ${validatedData.parentLastName}`.trim(),
-          email: validatedData.parentEmail,
-          phone: validatedData.parentPhone,
-          profile: 'Parent (compte existant)',
-          interest: 'Bilan gratuit - nouvelle demande sur compte existant',
-          source: 'bilan-gratuit-existing-account',
-          type: 'bilan_gratuit_existing_account',
-          consent: validatedData.acceptTerms,
-        });
-      } catch (leadError) {
-        if (!isTestEnv) {
-          console.error('Erreur notification interne (compte existant):', serializeError(leadError));
-        }
-      }
+      await notifyStaffOfBilanSubmission(
+        validatedData,
+        'bilan-gratuit-existing-account',
+        'Bilan gratuit - nouvelle demande sur compte existant',
+        isTestEnv,
+      );
 
       // Email cohérent pour le parent : ni une erreur, ni une invitation à créer un doublon.
       try {
@@ -122,17 +147,21 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    const resolvedStudentLastName = validatedData.studentLastName ?? validatedData.parentLastName;
+    // Rebind to a const: TypeScript can't carry the "defined past this point"
+    // narrowing of the outer `let validatedData` into the async closures below
+    // (prisma.$transaction's callback).
+    const data = validatedData;
+    const resolvedStudentLastName = data.studentLastName ?? data.parentLastName;
     const rawActivationToken = `act_${createId()}_${crypto.randomBytes(16).toString('hex')}`;
     const hashedActivationToken = crypto.createHash('sha256').update(rawActivationToken).digest('hex');
     const activationExpiry = new Date(Date.now() + 72 * 60 * 60 * 1000);
 
     // Normaliser le niveau scolaire AVANT la transaction
-    const gTrack = normalizeStudentLevelAndTrack(validatedData.studentGrade);
+    const gTrack = normalizeStudentLevelAndTrack(data.studentGrade);
     
     if (!gTrack) {
       return NextResponse.json(
-        { error: `Niveau scolaire non reconnu : ${validatedData.studentGrade}` },
+        { error: `Niveau scolaire non reconnu : ${data.studentGrade}` },
         { status: 400 }
       );
     }
@@ -142,12 +171,12 @@ export async function POST(request: NextRequest) {
       // Créer le compte parent
       const parentUser = await tx.user.create({
         data: {
-          email: validatedData.parentEmail,
+          email: data.parentEmail,
           password: null,
           role: UserRole.PARENT,
-          firstName: validatedData.parentFirstName,
-          lastName: validatedData.parentLastName,
-          phone: validatedData.parentPhone,
+          firstName: data.parentFirstName,
+          lastName: data.parentLastName,
+          phone: data.parentPhone,
           activatedAt: null,
           activationToken: hashedActivationToken,
           activationExpiry,
@@ -163,13 +192,13 @@ export async function POST(request: NextRequest) {
 
       // Créer le compte élève sans accès direct.
       // Email format: prenom.nom.random@nexus-student.local to ensure uniqueness
-      const studentEmailSlug = `${validatedData.studentFirstName.toLowerCase()}.${resolvedStudentLastName.toLowerCase()}.${createId().slice(0, 4)}@nexus-student.local`;
+      const studentEmailSlug = `${data.studentFirstName.toLowerCase()}.${resolvedStudentLastName.toLowerCase()}.${createId().slice(0, 4)}@nexus-student.local`;
       
       const studentUser = await tx.user.create({
         data: {
           email: studentEmailSlug,
           role: UserRole.ELEVE,
-          firstName: validatedData.studentFirstName,
+          firstName: data.studentFirstName,
           lastName: resolvedStudentLastName,
           password: null,
           activatedAt: null,
@@ -180,20 +209,20 @@ export async function POST(request: NextRequest) {
         data: {
           parentId: parentProfile.id,
           userId: studentUser.id,
-          grade: validatedData.studentGrade,
+          grade: data.studentGrade,
           gradeLevel: gTrack.level,
           academicTrack: gTrack.track,
-          school: validatedData.studentSchool,
-          birthDate: validatedData.studentBirthDate ? new Date(validatedData.studentBirthDate) : null
+          school: data.studentSchool,
+          birthDate: data.studentBirthDate ? new Date(data.studentBirthDate) : null
         }
       });
 
       const campaignLead = campaignContext
         ? await tx.contactLead.create({
             data: {
-              name: `${validatedData.parentFirstName} ${validatedData.parentLastName}`,
-              email: validatedData.parentEmail,
-              phone: validatedData.parentPhone,
+              name: `${data.parentFirstName} ${data.parentLastName}`,
+              email: data.parentEmail,
+              phone: data.parentPhone,
               profile: JSON.stringify(campaignContext.profile),
               interest: `${campaignContext.packCode} · ${campaignContext.level} · ${campaignContext.subjectIds.join(', ')}`,
               source: campaignContext.programme,
@@ -203,6 +232,13 @@ export async function POST(request: NextRequest) {
 
       return { parentUser, studentUser, student, campaignLead };
     });
+
+    await notifyStaffOfBilanSubmission(
+      validatedData,
+      'bilan-gratuit-new-account',
+      'Bilan gratuit - nouvelle demande, nouveau compte créé',
+      isTestEnv,
+    );
 
     // Envoyer email de bienvenue
     try {
@@ -233,9 +269,24 @@ export async function POST(request: NextRequest) {
       console.error('Erreur inscription bilan gratuit:', serializeError(error));
     }
 
-    if (error instanceof Error && error.name === 'ZodError') {
+    const isZodError = error instanceof Error && error.name === 'ZodError';
+
+    // Notify staff for a genuine, validated submission that failed
+    // technically (e.g. a transaction error during account creation) — not
+    // for a request that never validated (Zod error) or was silently
+    // rejected as a bot (no validatedData in either case).
+    if (validatedData && !isZodError) {
+      await notifyStaffOfBilanSubmission(
+        validatedData,
+        'bilan-gratuit-error',
+        'Bilan gratuit - nouvelle demande, échec technique de création de compte',
+        isTestEnv,
+      );
+    }
+
+    if (isZodError) {
       return NextResponse.json(
-        { error: 'Données invalides', details: error.message },
+        { error: 'Données invalides', details: (error as Error).message },
         { status: 400 }
       );
     }
