@@ -53,4 +53,13 @@ describe('CorporateNavbar', () => {
     const menu = await screen.findByRole('dialog', { name: 'Menu principal' });
     expect(within(menu).getByRole('link', { name: /se connecter/i })).toHaveAttribute('href', '/auth/signin');
   });
+
+  it('shows the pedagogical centre (Mutuelleville), not the administrative siege, in the mobile quick-contact panel', async () => {
+    render(<CorporateNavbar />);
+    fireEvent.click(screen.getByRole('button', { name: /ouvrir le menu/i }));
+
+    const menu = await screen.findByRole('dialog', { name: 'Menu principal' });
+    expect(within(menu).getByText('Mutuelleville, Tunis')).toBeInTheDocument();
+    expect(within(menu).queryByText(/Centre Urbain Nord/i)).not.toBeInTheDocument();
+  });
 });
