@@ -13,6 +13,7 @@ import { createId } from '@paralleldrive/cuid2';
 import crypto from 'crypto';
 import { NextRequest, NextResponse } from 'next/server';
 import { getBilanFeatureFlags } from '@/lib/bilans/requests/feature-flags';
+import { readBoundedJson } from '@/lib/http/bounded-json';
 
 const PUBLIC_SUCCESS_RESPONSE = {
   success: true,
@@ -67,7 +68,14 @@ async function legacyPost(request: NextRequest) {
     });
     if (blocked) return blocked;
 
-    const body = await request.json();
+    const boundedBody = await readBoundedJson(request);
+    if (!boundedBody.ok) {
+      if (boundedBody.kind === 'TOO_LARGE') {
+        return NextResponse.json({ error: 'Payload too large' }, { status: 413 });
+      }
+      return NextResponse.json({ error: 'Requête invalide.' }, { status: 400 });
+    }
+    const body = boundedBody.value as Record<string, unknown>;
 
     // Honeypot check — bots fill hidden fields, humans don't
     if (body.website || body.url || body.honeypot) {

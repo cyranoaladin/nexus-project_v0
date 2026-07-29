@@ -16,6 +16,7 @@ import {
 } from '@/lib/bilans/notifications/templates';
 import { checkBodySize, checkCsrf } from '@/lib/csrf';
 import { sendMail } from '@/lib/email/mailer';
+import { readBoundedJson } from '@/lib/http/bounded-json';
 import { prisma } from '@/lib/prisma';
 import { guardRateLimitAsync, hashForKey } from '@/lib/rate-limit';
 
@@ -123,14 +124,15 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   });
   if (rateLimitResponse) return rateLimitResponse;
 
-  let body: unknown;
-  try {
-    body = await request.json();
-  } catch {
+  const boundedBody = await readBoundedJson(request);
+  if (!boundedBody.ok) {
+    if (boundedBody.kind === 'TOO_LARGE') {
+      return NextResponse.json({ error: 'Payload too large' }, { status: 413 });
+    }
     return NextResponse.json({ error: 'Requête invalide.' }, { status: 400 });
   }
 
-  const parsed = requestSchema.safeParse(body);
+  const parsed = requestSchema.safeParse(boundedBody.value);
   if (!parsed.success) {
     return NextResponse.json({ error: 'Adresse email invalide.' }, { status: 400 });
   }

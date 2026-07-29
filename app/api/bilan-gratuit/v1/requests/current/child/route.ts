@@ -12,6 +12,7 @@ import {
   hashBilanToken,
 } from '@/lib/bilans/requests/tokens';
 import { checkBodySize, checkCsrf } from '@/lib/csrf';
+import { readBoundedJson } from '@/lib/http/bounded-json';
 import { prisma } from '@/lib/prisma';
 import { guardRateLimitAsync } from '@/lib/rate-limit';
 
@@ -83,13 +84,14 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     return denied();
   }
 
-  let body: unknown;
-  try {
-    body = await request.json();
-  } catch {
+  const boundedBody = await readBoundedJson(request);
+  if (!boundedBody.ok) {
+    if (boundedBody.kind === 'TOO_LARGE') {
+      return NextResponse.json({ error: 'Payload too large' }, { status: 413 });
+    }
     return NextResponse.json(INVALID_RESPONSE, { status: 400 });
   }
-  const command = bilanVerifiedParentChildCommandSchema.safeParse(body);
+  const command = bilanVerifiedParentChildCommandSchema.safeParse(boundedBody.value);
   if (!command.success) {
     return NextResponse.json(INVALID_RESPONSE, { status: 400 });
   }

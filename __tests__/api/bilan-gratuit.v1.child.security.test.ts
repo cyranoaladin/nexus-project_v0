@@ -282,6 +282,20 @@ describe('POST /api/bilan-gratuit/v1/requests/current/child', () => {
     await expect(response.json()).resolves.toEqual({ error: 'Requête invalide.' });
   });
 
+  it('rejects an actual body over one megabyte before child mutation', async () => {
+    const response = await POST(request(
+      {},
+      JSON.stringify({
+        action: 'CREATE_NEW',
+        child: { firstName: 'Inès' },
+        padding: 'x'.repeat(1024 * 1024),
+      }),
+    ));
+    expect(response.status).toBe(413);
+    await expect(response.json()).resolves.toEqual({ error: 'Payload too large' });
+    expect(mockAttachChild).not.toHaveBeenCalled();
+  });
+
   it('requires the server-issued session request binding and never accepts requestId from the body', async () => {
     mockAuth.mockResolvedValue({
       user: { id: PARENT_ID, email: 'x@example.com', role: 'PARENT' },

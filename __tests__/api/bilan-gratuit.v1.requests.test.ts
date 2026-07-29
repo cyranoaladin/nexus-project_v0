@@ -3,6 +3,9 @@ import { NextRequest, NextResponse } from 'next/server';
 const RAW_FLOW_TOKEN = 'MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM';
 const FLOW_TOKEN_HASH = '022639a65546e756623e90f67a4a5f4adf38d8d478b14e9123c64097bd86b9e4';
 const REQUEST_ID = 'crequest0000000000000001';
+const STUDENT_ID = 'cstudent0000000000000001';
+const ATTEMPT_ID = 'cattempt0000000000000001';
+const COACH_ID = 'ccoach000000000000000001';
 
 const mockCreateBilanRequestIntake = jest.fn();
 const mockAuth = jest.fn();
@@ -288,9 +291,32 @@ describe('POST /api/bilan-gratuit/v1/requests', () => {
   });
 
   it('returns a sober 400 for malformed JSON', async () => {
-    const response = await createRequest(post({}, { rawBody: '{' }));
+    const privateMarker = 'minor.parent@example.com';
+    const consoleError = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+    const response = await createRequest(post({}, {
+      rawBody: `{"email":"${privateMarker}"`,
+    }));
     expect(response.status).toBe(400);
     await expect(response.json()).resolves.toEqual({ error: 'Requête invalide.' });
+    expect(JSON.stringify(consoleError.mock.calls)).not.toContain(privateMarker);
+    consoleError.mockRestore();
+  });
+
+  it('rejects an under-declared actual body over one megabyte before intake', async () => {
+    const response = await createRequest(post(
+      {},
+      {
+        rawBody: JSON.stringify({
+          ...admission,
+          padding: 'x'.repeat(1024 * 1024),
+        }),
+        contentLength: '64',
+      },
+    ));
+    expect(response.status).toBe(413);
+    await expect(response.json()).resolves.toEqual({ error: 'Payload too large' });
+    expect(mockCreateBilanRequestIntake).not.toHaveBeenCalled();
+    expect(mockSendMail).not.toHaveBeenCalled();
   });
 
   it('returns the guard response before parsing or persistence', async () => {
@@ -334,9 +360,9 @@ describe('GET /api/bilan-gratuit/v1/requests/current', () => {
     subject: 'MATHEMATIQUES',
     gradeLevel: 'TERMINALE',
     schoolYear: '2026-2027',
-    studentId: null,
-    canonicalAttemptId: null,
-    assignedCoachId: null,
+    studentId: STUDENT_ID,
+    canonicalAttemptId: ATTEMPT_ID,
+    assignedCoachId: COACH_ID,
     createdAt: new Date('2026-07-29T12:00:00.000Z'),
     updatedAt: new Date('2026-07-29T12:00:00.000Z'),
     lastActivityAt: new Date('2026-07-29T12:00:00.000Z'),
@@ -356,12 +382,32 @@ describe('GET /api/bilan-gratuit/v1/requests/current', () => {
     const response = await getCurrentRequest(getCurrent(`nr_bf_s=${RAW_FLOW_TOKEN}`));
 
     expect(response.status).toBe(200);
-    await expect(response.json()).resolves.toEqual({ request: {
-      ...safeRequest,
-      createdAt: safeRequest.createdAt.toISOString(),
-      updatedAt: safeRequest.updatedAt.toISOString(),
+    const body = await response.json();
+    expect(body).toEqual({ request: {
+      status: 'NEW',
+      accountVerificationState: 'VERIFICATION_PENDING',
+      subject: 'MATHEMATIQUES',
+      gradeLevel: 'TERMINALE',
+      schoolYear: '2026-2027',
+      hasChild: true,
+      hasAssessment: true,
       lastActivityAt: safeRequest.lastActivityAt.toISOString(),
+      submittedAt: null,
+      publishedAt: null,
     } });
+    for (const forbidden of [
+      'id',
+      'requestId',
+      'studentId',
+      'canonicalAttemptId',
+      'assignedCoachId',
+      REQUEST_ID,
+      STUDENT_ID,
+      ATTEMPT_ID,
+      COACH_ID,
+    ]) {
+      expect(JSON.stringify(body)).not.toContain(forbidden);
+    }
     expect(response.headers.get('cache-control')).toBe('private, no-store');
     expect(mockFlowSessionFindUnique).toHaveBeenCalledWith({
       where: { tokenHash: FLOW_TOKEN_HASH },
@@ -424,6 +470,20 @@ describe('GET /api/bilan-gratuit/v1/requests/current', () => {
     });
     const response = await getCurrentRequest(getCurrent());
     expect(response.status).toBe(200);
+    const body = await response.json();
+    for (const forbidden of [
+      'id',
+      'requestId',
+      'studentId',
+      'canonicalAttemptId',
+      'assignedCoachId',
+      REQUEST_ID,
+      STUDENT_ID,
+      ATTEMPT_ID,
+      COACH_ID,
+    ]) {
+      expect(JSON.stringify(body)).not.toContain(forbidden);
+    }
     expect(mockFlowSessionFindUnique).not.toHaveBeenCalled();
     expect(mockBilanRequestFindFirst).toHaveBeenCalledWith(expect.objectContaining({
       where: expect.objectContaining({
