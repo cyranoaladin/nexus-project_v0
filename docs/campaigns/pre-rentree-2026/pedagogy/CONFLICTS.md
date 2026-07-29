@@ -23,6 +23,11 @@ inattendu. Toute différence hors de cette liste créerait un
 `HISTORICAL_VERSION` ou `DUPLICATE_IDENTICAL` lorsqu'elles sont byte-identiques
 entre elles.
 
+Une CPS divergente hors de ces neuf preuves reçoit `computed: false` et reste
+en conflit. De même, toute différence entre l'inventaire et l'arbre courant
+(ajout, suppression ou changement de type d'un fichier, répertoire ou lien)
+arrête la construction avant sélection.
+
 ## Défaut de layout des outils de séances
 
 Le paquet livré présente un défaut opérationnel prouvé, mais pas un conflit de
@@ -42,9 +47,11 @@ porter, pas des outils directement exécutables depuis le paquet historique.
 
 Toutes ces exécutions sont réalisées deux fois dans des espaces temporaires
 distincts et uniquement sous `/usr/bin/bwrap` avec environnement vidé, réseau
-isolé, racine en lecture seule, ressources et sorties bornées. L'absence ou
-l'échec du bac à sable ferme la vérification : aucune exécution directe de
-repli n'est autorisée.
+isolé, racine en lecture seule, ressources et sorties bornées. Les captures
+stdout/stderr sont des fichiers anonymes hôte ; une supervision agrégée impose
+64 Mio de workspace, 32 processus, 1 Gio de RSS et 30 secondes de CPU.
+L'absence ou l'échec du bac à sable ferme la vérification : aucune exécution
+directe de repli n'est autorisée.
 
 ## Validation pédagogique non déléguable
 
