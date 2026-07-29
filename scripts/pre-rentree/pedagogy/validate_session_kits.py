@@ -23,6 +23,13 @@ UNIT_FILENAMES = {
     "verification-eleve.md",
     "verification-correction.md",
 }
+STUDENT_LEAK_MARKERS = re.compile(
+    r"^\s*(?:(?:#{1,6}\s+)(?:solution|réponse attendue|corrigé|barème enseignant|"
+    r"diagnostic attendu|éléments de correction|décision pédagogique)\b|"
+    r"(?:\*\*)?(?:solution|réponse attendue|corrigé|barème enseignant|"
+    r"diagnostic attendu|éléments de correction|décision pédagogique)\s*:\s*(?:\*\*)?)",
+    flags=re.IGNORECASE | re.MULTILINE,
+)
 
 
 def _sha256(path: Path) -> str:
@@ -117,6 +124,30 @@ def validate(repo_root: Path) -> tuple[list[str], dict[str, int]]:
     }
     if set(keys) != expected_keys:
         errors.append("MANIFESTE-SEANCES.csv ne couvre pas exactement les 85 séances de modules.json")
+    for row in typed_rows:
+        module = module_by_id.get(row["moduleId"])
+        if module is None:
+            continue
+        session = next(
+            (
+                candidate
+                for candidate in module.get("sessions", [])
+                if candidate.get("number") == row["seance"]
+            ),
+            None,
+        )
+        if row["niveau"] != module.get("level"):
+            errors.append(
+                f"{row['moduleId']}/{row['seance']}: niveau incohérent avec modules.json"
+            )
+        if row["matiere"] != module.get("subjectId"):
+            errors.append(
+                f"{row['moduleId']}/{row['seance']}: matière incohérente avec modules.json"
+            )
+        if session is not None and row["intitule"] != session.get("title"):
+            errors.append(
+                f"{row['moduleId']}/{row['seance']}: intitulé incohérent avec modules.json"
+            )
 
     counts = {
         "modules": len(modules),
@@ -185,8 +216,23 @@ def validate(repo_root: Path) -> tuple[list[str], dict[str, int]]:
                 for token in ("TODO", "TBD", "{{", "}}", "À compléter", "PLACEHOLDER"):
                     if token in text:
                         errors.append(f"{key}: jeton interdit {token!r} dans {filename}")
-            if "correcte: true" in student or "Réponse :" in student or "### Correction" in student:
+            if "correcte: true" in student or re.search(
+                r"^### Correction\b", student, flags=re.MULTILINE
+            ):
                 errors.append(f"{key}: solution exposée dans banques-eleve.md")
+            for student_name, student_text in (
+                ("banques-eleve.md", student),
+                ("verification-eleve.md", exit_student),
+            ):
+                marker = STUDENT_LEAK_MARKERS.search(student_text)
+                if marker:
+                    errors.append(
+                        f"{key}: fuite élève dans {student_name} ({marker.group(0).strip()})"
+                    )
+            if re.search(r"^### Correction\b", exit_student, flags=re.MULTILINE) or (
+                "correcte: true" in exit_student
+            ):
+                errors.append(f"{key}: fuite élève dans verification-eleve.md")
             if "Décision pédagogique" not in exit_correction:
                 errors.append(f"{key}: décision pédagogique absente du corrigé de vérification")
 

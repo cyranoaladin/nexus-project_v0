@@ -1,7 +1,7 @@
-version: '2026.1'
+version: 1
 campaignId: pre-rentree-2026
-moduleCatalog: content/pre-rentree-2026/modules.json
-generatedRoot: .artifacts/pre-rentree-2026/pedagogy
+publicationStatus: HUMAN_VALIDATION_REQUIRED
+moduleCatalog: ../modules.json
 counts:
   modules: 17
   sessions: 85
@@ -11,6 +11,16 @@ counts:
   items: 408
   manualResponses: 33
   sessionUnitFiles: 340
+  sessionsPerModule: 5
+positioning:
+  cpsDirectory: positioning/cps
+  expectedCps: 17
+sessionKits:
+  modulesDirectory: session-kits/modules
+  expectedModules: 17
+  expectedSessions: 85
+generatedOutputs:
+  root: .artifacts/pre-rentree-2026/pedagogy/generated
 sharedSources:
 - path: content/pre-rentree-2026/pedagogy/positioning/SPEC-tests-positionnement-pre-stage-2026.md
   sha256: 6711f62a299811d7fadedb84ccd1347577e24154d0c2199086f53fa45f5bdc8d
@@ -99,8 +109,9 @@ modules:
     reviewer: null
     validatedAt: null
     requiredRoles:
-    - RESPONSABLE_PEDAGOGIQUE
-    - ENSEIGNANT_DISCIPLINAIRE
+    - responsable-pedagogique
+    - enseignant-disciplinaire
+    required: true
 - id: quatrieme-francais
   level: QUATRIEME
   subject: FRANCAIS

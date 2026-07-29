@@ -163,17 +163,44 @@ def _logical_role(relative_path: PurePosixPath) -> str:
 
 def _destination(relative_path: PurePosixPath, logical_role: str) -> str:
     parts = relative_path.parts
+    package = parts[0] if len(parts) > 1 else ""
     package_relative = PurePosixPath(*parts[1:]) if len(parts) > 1 else relative_path
+    package_parts = package_relative.parts
+    name = relative_path.name
+
+    if (
+        package == "Nexus-PreRentree-2026-positionnement-17-modules-v3"
+        and name == "SPEC-tests-positionnement-pre-stage-2026.md"
+    ):
+        return f"content/pre-rentree-2026/pedagogy/positioning/{name}"
 
     if logical_role == "POSITIONING_SOURCE":
-        return f"content/pre-rentree-2026/pedagogy/positioning/{relative_path.name}"
+        subdirectory = (
+            "cps/"
+            if package == "Nexus-PreRentree-2026-positionnement-17-modules-v3"
+            and "-entree-" in name
+            else ""
+        )
+        return f"content/pre-rentree-2026/pedagogy/positioning/{subdirectory}{name}"
     if logical_role.startswith("SESSION_"):
-        session_parts = package_relative.parts
-        if session_parts[:2] == ("corpus", "modules"):
-            session_parts = session_parts[2:]
+        if package_parts == ("corpus", "MANIFESTE-SEANCES.csv"):
+            session_parts = (name,)
+        elif package_parts[:2] == ("corpus", "modules"):
+            session_parts = ("modules", *package_parts[2:])
+        else:
+            session_parts = package_parts
         return (
             "content/pre-rentree-2026/pedagogy/session-kits/"
             f"{PurePosixPath(*session_parts).as_posix()}"
+        )
+    if (
+        package == "Nexus-PreRentree-2026-85-seances"
+        and package_parts[:2] == ("corpus", "modules")
+        and name == "README.md"
+    ):
+        return (
+            "content/pre-rentree-2026/pedagogy/session-kits/modules/"
+            f"{PurePosixPath(*package_parts[2:]).as_posix()}"
         )
     if logical_role == "CHECKSUM_MANIFEST":
         return (
