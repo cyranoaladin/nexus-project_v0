@@ -5,9 +5,7 @@ from __future__ import annotations
 
 import argparse
 import csv
-import hashlib
 import io
-import os
 import sys
 import tempfile
 from pathlib import Path
@@ -16,7 +14,7 @@ from typing import Any
 import yaml
 
 from validate_cps import validate as validate_cps
-from output_contract import assert_exact_output_tree
+from output_contract import assert_exact_output_tree, write_output_text
 
 
 STATUS = "HUMAN_VALIDATION_REQUIRED"
@@ -24,11 +22,6 @@ CANONICAL_RELATIVE = Path("content/pre-rentree-2026/pedagogy")
 DEFAULT_OUTPUT_RELATIVE = Path(
     ".artifacts/pre-rentree-2026/pedagogy/generated/positioning"
 )
-
-
-def _sha256(path: Path) -> str:
-    return hashlib.sha256(path.read_bytes()).hexdigest()
-
 
 def _reject_symlink_components(path: Path) -> None:
     current = Path(path.anchor)
@@ -56,59 +49,53 @@ def _resolve_output(repo_root: Path, output_root: Path | None) -> Path:
     return candidate
 
 
-def _write_text(path: Path, content: str) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    _reject_symlink_components(path)
-    if path.exists() and not path.is_file():
-        raise ValueError(f"sortie non régulière interdite : {path}")
-    descriptor, temporary = tempfile.mkstemp(prefix=f".{path.name}.", dir=path.parent)
-    try:
-        with os.fdopen(descriptor, "w", encoding="utf-8", newline="\n") as stream:
-            stream.write(content)
-            if content and not content.endswith("\n"):
-                stream.write("\n")
-        os.replace(temporary, path)
-    finally:
-        if os.path.exists(temporary):
-            os.unlink(temporary)
+def _write_text(output_root: Path, path: Path, content: str) -> None:
+    relative = path.relative_to(output_root).as_posix()
+    if content and not content.endswith("\n"):
+        content += "\n"
+    write_output_text(output_root, relative, content)
 
 
 def _student_test(cps: dict[str, Any], module: dict[str, Any]) -> str:
     lines = [
         f"# {cps['intitulePublic']} — test de positionnement",
         "",
-        f"**Document élève · durée cible : {cps['dureeCibleMinutes']} minutes**",
+        "**Document élève · durée cible : "
+        f"{cps['dureeCibleMinutes']} minutes · aucune note, aucun classement**",
         "",
-        "Ce test prépare les séances et permet d'adapter les exercices du groupe.",
-        "Après chaque item, indiquer le degré de confiance : sûr, hésitant ou pas su.",
+        "Ce test sert uniquement à préparer les séances et à adapter les exercices du groupe.",
+        "Après chaque réponse, cochez votre degré de confiance : **sûr · hésitant · pas su**.",
         "",
-        f"Référence : `{module['id']}` · édition 2026.",
+        f"Référence interne : `{module['id']}` · édition 2026.",
         "",
     ]
     number = 0
     for node in cps["noeuds"]:
-        if node.get("evalueParTest") is not True:
+        if not node.get("evalueParTest"):
             continue
         lines.extend((f"## Domaine {node['ordre']}", ""))
         for item in node["items"]:
             number += 1
             lines.extend((f"### {number}. {item['enonce']}", ""))
             if item["type"] == "qcm_unique":
-                for label, proposition in zip("ABCD", item["propositions"], strict=True):
+                for label, proposition in zip("ABCD", item["propositions"]):
                     lines.append(f"- [ ] {label}. {proposition['texte']}")
             else:
                 lines.extend(
                     (
-                        "Votre production :",
+                        "Réponse :",
                         "",
                         "................................................................................",
+                        "",
                     )
                 )
-            lines.extend(("", "Confiance : [ ] sûr  [ ] hésitant  [ ] pas su", ""))
+            lines.extend(("Confiance : [ ] sûr  [ ] hésitant  [ ] pas su", ""))
     lines.extend(
         (
             "---",
-            "Ce document ne produit ni note ni classement automatique.",
+            "Votre réponse est enregistrée pour aider l'enseignant à préparer les séances.",
+            "Aucun score n'est affiché à l'issue du test.",
+            "",
         )
     )
     return "\n".join(lines)
@@ -120,19 +107,21 @@ def _teacher_correction(cps: dict[str, Any], module: dict[str, Any]) -> str:
         "",
         f"Référence : `{module['id']}` · statut : **{STATUS}**.",
         "",
-        "Une production courte reste `PENDING_REVIEW` jusqu'à sa correction humaine.",
+        "Ne jamais transmettre de score brut. L'analyse se fait nœud par nœud et croise réussite et confiance.",
+        "Une réponse courte reste `PENDING_REVIEW` jusqu'à correction humaine.",
         "",
     ]
     number = 0
     for node in cps["noeuds"]:
-        if node.get("evalueParTest") is not True:
+        if not node.get("evalueParTest"):
             continue
         lines.extend(
             (
                 f"## {node['id']} — {node['acquisN1']}",
                 "",
-                f"- Critère : {node['critereMaitrise']}",
-                f"- Séance : {node['seanceRattachement']}",
+                f"- Usage dans le niveau d'entrée : {node['usageN']}",
+                f"- Critère de maîtrise : {node['critereMaitrise']}",
+                f"- Séance contractuelle : {node['seanceRattachement']}",
                 "",
             )
         )
@@ -156,8 +145,11 @@ def _teacher_correction(cps: dict[str, Any], module: dict[str, Any]) -> str:
                 )
                 for proposition in item["propositions"]:
                     if proposition["correcte"] is not True:
-                        obstacle = node["obstacles"][proposition["obstacleVise"]]
-                        lines.append(f"- {proposition['texte']} → {obstacle}")
+                        obstacle_index = proposition["obstacleVise"]
+                        lines.append(
+                            f"- « {proposition['texte']} » → obstacle "
+                            f"{obstacle_index + 1} : {node['obstacles'][obstacle_index]}"
+                        )
                 lines.append("")
             else:
                 lines.extend(("**Critères de correction :**", ""))
@@ -176,29 +168,71 @@ def _teacher_guide(cps: dict[str, Any], module: dict[str, Any]) -> str:
     lines = [
         f"# Pilotage enseignant — {cps['intitulePublic']}",
         "",
-        f"Module : `{module['id']}` · statut : **{STATUS}**.",
+        f"Module publié : `{module['id']}` · 5 séances contractuelles.",
         "",
-        "Les productions `PENDING_REVIEW` restent hors du calibrage automatique.",
+        "## Règle de calibrage",
+        "",
+        "- 4–5 élèves fragiles ou non acquis : tronc commun.",
+        "- 2–3 élèves : atelier court avec paliers différenciés.",
+        "- 0–1 élève : personnalisation individuelle.",
+        "- Toute `ERREUR_CONFIANTE` déclenche une confrontation à un contre-exemple.",
+        "- Tout nœud `PENDING_REVIEW` est exclu du calibrage collectif tant que la correction manuelle n'est pas faite.",
+        "",
+        "## Paliers",
+        "",
+        "- A — sécuriser : guidage explicite, procédure décomposée, exemple résolu.",
+        "- B — consolider : application autonome avec aide ponctuelle.",
+        "- C — approfondir : transfert, justification, cas non routinier.",
+        "",
+        "## Carte séance par séance",
         "",
     ]
-    for session in range(1, 6):
-        nodes = [
-            node
-            for node in cps["noeuds"]
-            if node.get("seanceRattachement") == session
-        ]
-        lines.extend((f"## Séance {session}", ""))
+    sessions = {number: [] for number in range(1, 6)}
+    personalised = []
+    for node in cps["noeuds"]:
+        session = node.get("seanceRattachement")
+        if session in sessions:
+            sessions[session].append(node)
+        else:
+            personalised.append(node)
+    for session, nodes in sessions.items():
+        lines.extend((f"### Séance {session}", ""))
         if not nodes:
-            lines.extend(("Aucun nœud CPS rattaché ; utiliser la ressource spécifique canonique.", ""))
+            lines.extend(("Aucun nœud CPS rattaché.", ""))
+            continue
         for node in nodes:
             lines.extend(
                 (
                     f"- **{node['id']} — {node['acquisN1']}**",
-                    f"  - critère : {node['critereMaitrise']}",
+                    f"  - usage : {node['usageN']}",
+                    f"  - maîtrise observable : {node['critereMaitrise']}",
                     f"  - obstacles : {' ; '.join(node['obstacles'])}",
                 )
             )
         lines.append("")
+    if personalised:
+        lines.extend(("### Personnalisation hors séance publiée", ""))
+        for node in personalised:
+            lines.append(
+                f"- **{node['id']} — {node['acquisN1']}** : "
+                f"{node.get('motifNonEvalue', 'à traiter individuellement')}"
+            )
+        lines.append("")
+    lines.extend(
+        (
+            "## Préparation des 120 minutes",
+            "",
+            "| Temps | Fonction | Adaptation |",
+            "|---:|---|---|",
+            "| 0–10 min | Réactivation / test flash | Compléter les non-répondants |",
+            "| 10–35 min | Apport structuré | Commun, calibré par la carte |",
+            "| 35–85 min | Entraînement | Paliers A/B/C |",
+            "| 85–100 min | Atelier ciblé | Nœuds minoritaires |",
+            "| 100–112 min | Livrable publié | Production personnelle |",
+            "| 112–120 min | Vérification | Mise à jour de la carte |",
+            "",
+        )
+    )
     return "\n".join(lines)
 
 
@@ -294,10 +328,10 @@ def generate(repo_root: Path, output_root: Path | None = None) -> dict[str, int]
             "pilotage": destination / "pilotage-enseignant" / f"{stem}-pilotage.md",
             "carte": destination / "cartes-groupe" / f"{stem}-groupe.csv",
         }
-        _write_text(paths["test"], _student_test(cps, module))
-        _write_text(paths["correction"], _teacher_correction(cps, module))
-        _write_text(paths["pilotage"], _teacher_guide(cps, module))
-        _write_text(paths["carte"], _group_card(cps))
+        _write_text(destination, paths["test"], _student_test(cps, module))
+        _write_text(destination, paths["correction"], _teacher_correction(cps, module))
+        _write_text(destination, paths["pilotage"], _teacher_guide(cps, module))
+        _write_text(destination, paths["carte"], _group_card(cps))
         expected_files.update(
             path.relative_to(destination).as_posix() for path in paths.values()
         )
@@ -317,11 +351,7 @@ def generate(repo_root: Path, output_root: Path | None = None) -> dict[str, int]
                     for node in cps["noeuds"]
                     for item in node.get("items", [])
                 ),
-                "cpsSha256": _sha256(cps_path),
-                "testSha256": _sha256(paths["test"]),
-                "correctionSha256": _sha256(paths["correction"]),
-                "pilotageSha256": _sha256(paths["pilotage"]),
-                "carteSha256": _sha256(paths["carte"]),
+                "dureeMinutes": cps["dureeCibleMinutes"],
                 "statut": STATUS,
             }
         )
@@ -332,7 +362,7 @@ def generate(repo_root: Path, output_root: Path | None = None) -> dict[str, int]
         writer.writeheader()
         writer.writerows(rows)
         stream.seek(0)
-        _write_text(destination / "MANIFESTE.csv", stream.read())
+        _write_text(destination, destination / "MANIFESTE.csv", stream.read())
     expected_files.add("MANIFESTE.csv")
     assert_exact_output_tree(destination, expected_files)
     return {

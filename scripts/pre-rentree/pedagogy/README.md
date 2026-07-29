@@ -63,3 +63,24 @@ Les quatre paquets historiques reconnus sont :
 
 L’inventaire n’autorise ni publication ni promotion automatique d’une source au
 statut canonique.
+
+## Génération canonique
+
+Les générateurs `generate_positioning_resources.py` et
+`generate_session_kits.py` lisent exclusivement
+`content/pre-rentree-2026/pedagogy/`. L’import historique n’est utilisé que
+comme oracle optionnel par les tests lorsque
+`PRE_RENTREE_PEDAGOGY_IMPORT_ROOT` est fourni.
+
+Les 69 sorties de positionnement conservent la sémantique du générateur
+historique retenu : les 51 fichiers Markdown sont byte-identiques. Les 18 CSV
+(17 cartes de groupe et le manifeste) sont identiques après l’unique
+normalisation technique autorisée, le remplacement des fins de ligne
+historiques CRLF par LF pour une génération déterministe sur toutes les
+plateformes. Aucune autre normalisation de contenu n’est appliquée.
+
+Les écritures utilisent des descripteurs de répertoire et `O_NOFOLLOW`.
+Chaque composant est ouvert ou créé séparément, puis revérifié avant le
+remplacement atomique du fichier attendu. Un lien symbolique ou une entrée
+résiduelle fait échouer le pipeline sans nettoyage récursif et sans écriture
+dans sa cible.

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import csv
 import hashlib
+import os
 import shutil
 import subprocess
 import sys
@@ -255,6 +256,22 @@ def test_session_generator_rejects_stale_output_file_without_removing_it(
     assert stale.is_file()
 
 
+def test_session_generator_never_creates_through_internal_output_symlink(
+    tmp_path: Path,
+):
+    output = tmp_path / "session-kits"
+    output.mkdir()
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    (output / "modules").symlink_to(outside, target_is_directory=True)
+
+    result = _run(SESSION_GENERATOR, REPO_ROOT, output)
+
+    assert result.returncode != 0
+    assert "symbolique" in (result.stderr + result.stdout).lower()
+    assert list(outside.iterdir()) == []
+
+
 def test_generator_manifests_describe_every_output(tmp_path: Path):
     positioning = tmp_path / "positioning"
     sessions = tmp_path / "sessions"
@@ -269,14 +286,98 @@ def test_generator_manifests_describe_every_output(tmp_path: Path):
     assert len(positioning_manifest) == 17
     assert {
         "moduleId",
-        "cpsSha256",
-        "testSha256",
-        "correctionSha256",
-        "pilotageSha256",
-        "carteSha256",
+        "niveau",
+        "matiere",
+        "cps",
+        "noeuds",
+        "noeudsEvalues",
+        "items",
+        "itemsManuels",
+        "dureeMinutes",
         "statut",
-    } <= set(positioning_manifest[0])
+    } == set(positioning_manifest[0])
     assert len(list((sessions / "modules").glob("*/*.md"))) == 34
+
+
+def test_positioning_outputs_preserve_complete_historical_template(tmp_path: Path):
+    output = tmp_path / "positioning"
+    result = _run(POSITIONING_GENERATOR, REPO_ROOT, output)
+    assert result.returncode == 0, result.stderr
+
+    for path in (output / "tests-eleves").glob("*.md"):
+        text = path.read_text(encoding="utf-8")
+        assert "aucune note, aucun classement" in text
+        assert "Ce test sert uniquement à préparer les séances" in text
+        assert "Référence interne :" in text
+        assert "Votre réponse est enregistrée" in text
+        assert "Aucun score n'est affiché" in text
+    for path in (output / "corrections").glob("*.md"):
+        text = path.read_text(encoding="utf-8")
+        assert "Ne jamais transmettre de score brut." in text
+        assert "- Usage dans le niveau d'entrée :" in text
+        assert "- Critère de maîtrise :" in text
+        assert "- Séance contractuelle :" in text
+        assert (
+            "**Lecture des distracteurs :**" in text
+            or "**Critères de correction :**" in text
+        )
+    for path in (output / "pilotage-enseignant").glob("*.md"):
+        text = path.read_text(encoding="utf-8")
+        for section in (
+            "## Règle de calibrage",
+            "## Paliers",
+            "## Carte séance par séance",
+            "## Préparation des 120 minutes",
+        ):
+            assert section in text
+        assert "4–5 élèves fragiles ou non acquis : tronc commun." in text
+        assert "0–1 élève : personnalisation individuelle." in text
+        assert "usage :" in text
+        assert "maîtrise observable :" in text
+        assert "| 112–120 min | Vérification | Mise à jour de la carte |" in text
+
+
+@pytest.mark.skipif(
+    not os.environ.get("PRE_RENTREE_PEDAGOGY_IMPORT_ROOT"),
+    reason="historical import oracle not provided",
+)
+def test_positioning_outputs_match_historical_generated_output_oracle(
+    tmp_path: Path,
+):
+    import_root = Path(os.environ["PRE_RENTREE_PEDAGOGY_IMPORT_ROOT"])
+    oracle = (
+        import_root
+        / "Nexus-PreRentree-2026-positionnement-17-modules-v3"
+        / "ressources-generees"
+    )
+    assert oracle.is_dir()
+    output = tmp_path / "positioning"
+    result = _run(POSITIONING_GENERATOR, REPO_ROOT, output)
+    assert result.returncode == 0, result.stderr
+    generated = {
+        path.relative_to(output).as_posix(): path
+        for path in output.rglob("*")
+        if path.is_file()
+    }
+    historical = {
+        path.relative_to(oracle).as_posix(): path
+        for path in oracle.rglob("*")
+        if path.is_file()
+    }
+    assert set(generated) == set(historical)
+
+    def normalized(path: Path) -> bytes:
+        content = path.read_bytes()
+        # The retained historical csv.writer used CRLF. Canonical artifacts
+        # force LF for cross-platform determinism; no other normalization is allowed.
+        return content.replace(b"\r\n", b"\n") if path.suffix == ".csv" else content
+
+    divergences = [
+        relative
+        for relative in sorted(generated)
+        if normalized(generated[relative]) != normalized(historical[relative])
+    ]
+    assert divergences == []
 
 
 def test_reproducibility_verifier_compares_two_clean_generations(tmp_path: Path):
