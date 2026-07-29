@@ -1,0 +1,229 @@
+import 'server-only';
+
+import {
+  BILAN_REQUEST_ACTORS,
+  BILAN_REQUEST_EVENT_TYPES,
+  type BilanRequestActor,
+  type BilanRequestEventType,
+} from '@/lib/bilans/requests/types';
+
+type TechnicalCode = string;
+
+export type MinimizedEventPayloads = Readonly<{
+  REQUEST_CREATED: Readonly<{
+    acquisitionChannelCode?: TechnicalCode;
+    subjectCode?: TechnicalCode;
+    gradeCode?: TechnicalCode;
+  }>;
+  ACCOUNT_VERIFICATION_REQUESTED: Readonly<{ deliveryChannelCode?: TechnicalCode }>;
+  ACCOUNT_VERIFIED: Readonly<{ methodCode?: TechnicalCode }>;
+  CHILD_SELECTED: Readonly<{ studentId?: TechnicalCode }>;
+  CHILD_CREATED: Readonly<{ studentId?: TechnicalCode }>;
+  ASSESSMENT_STARTED: Readonly<{
+    attemptId?: TechnicalCode;
+    assessmentPackId?: TechnicalCode;
+    assessmentPackVersion?: TechnicalCode;
+  }>;
+  ASSESSMENT_AUTOSAVE_CHECKPOINTED: Readonly<{
+    attemptId?: TechnicalCode;
+    sequence?: number;
+  }>;
+  ASSESSMENT_SUBMITTED: Readonly<{
+    attemptId?: TechnicalCode;
+    responseCount?: number;
+    durationMs?: number;
+  }>;
+  ASSESSMENT_SCORED: Readonly<{
+    attemptId?: TechnicalCode;
+    scoringVersion?: TechnicalCode;
+    scoreBasisPoints?: number;
+  }>;
+  ASSESSMENT_SCORING_FAILED: Readonly<{
+    attemptId?: TechnicalCode;
+    errorCode?: TechnicalCode;
+    retryCount?: number;
+  }>;
+  REPORT_READY_FOR_REVIEW: Readonly<{
+    revisionId?: TechnicalCode;
+    audienceCode?: TechnicalCode;
+  }>;
+  REPORT_APPROVED: Readonly<{
+    revisionId?: TechnicalCode;
+    reviewerId?: TechnicalCode;
+  }>;
+  REPORT_REJECTED: Readonly<{
+    revisionId?: TechnicalCode;
+    reviewerId?: TechnicalCode;
+    reasonCode?: TechnicalCode;
+  }>;
+  REPORT_PUBLISHED: Readonly<{
+    artifactId?: TechnicalCode;
+    revisionId?: TechnicalCode;
+    audienceCode?: TechnicalCode;
+  }>;
+  HUMAN_FOLLOWUP_REQUIRED: Readonly<{ reasonCode?: TechnicalCode }>;
+  TECHNICAL_ACTION_REQUIRED: Readonly<{
+    reasonCode?: TechnicalCode;
+    errorCode?: TechnicalCode;
+  }>;
+  NOTIFICATION_DELIVERY_FAILED: Readonly<{
+    deliveryChannelCode?: TechnicalCode;
+    errorCode?: TechnicalCode;
+    attemptCount?: number;
+  }>;
+  REQUEST_CANCELLED: Readonly<{ reasonCode?: TechnicalCode }>;
+}>;
+
+type EventInputFor<Type extends BilanRequestEventType> = Readonly<{
+  requestId: string;
+  type: Type;
+  actor: BilanRequestActor;
+  correlationId: string;
+  payload?: MinimizedEventPayloads[Type];
+}>;
+
+export type AppendBilanRequestEventInput = {
+  [Type in BilanRequestEventType]: EventInputFor<Type>;
+}[BilanRequestEventType];
+
+type EventCreateArguments = Readonly<{
+  data: Readonly<{
+    requestId: string;
+    type: BilanRequestEventType;
+    actor: BilanRequestActor;
+    correlationId: string;
+    payload: Readonly<Record<string, string | number>>;
+    occurredAt: Date;
+  }>;
+}>;
+
+export type BilanRequestEventClient = Readonly<{
+  bilanRequestEvent: Readonly<{
+    create: (arguments_: EventCreateArguments) => Promise<unknown>;
+  }>;
+}>;
+
+const PAYLOAD_KEYS = {
+  REQUEST_CREATED: ['acquisitionChannelCode', 'subjectCode', 'gradeCode'],
+  ACCOUNT_VERIFICATION_REQUESTED: ['deliveryChannelCode'],
+  ACCOUNT_VERIFIED: ['methodCode'],
+  CHILD_SELECTED: ['studentId'],
+  CHILD_CREATED: ['studentId'],
+  ASSESSMENT_STARTED: ['attemptId', 'assessmentPackId', 'assessmentPackVersion'],
+  ASSESSMENT_AUTOSAVE_CHECKPOINTED: ['attemptId', 'sequence'],
+  ASSESSMENT_SUBMITTED: ['attemptId', 'responseCount', 'durationMs'],
+  ASSESSMENT_SCORED: ['attemptId', 'scoringVersion', 'scoreBasisPoints'],
+  ASSESSMENT_SCORING_FAILED: ['attemptId', 'errorCode', 'retryCount'],
+  REPORT_READY_FOR_REVIEW: ['revisionId', 'audienceCode'],
+  REPORT_APPROVED: ['revisionId', 'reviewerId'],
+  REPORT_REJECTED: ['revisionId', 'reviewerId', 'reasonCode'],
+  REPORT_PUBLISHED: ['artifactId', 'revisionId', 'audienceCode'],
+  HUMAN_FOLLOWUP_REQUIRED: ['reasonCode'],
+  TECHNICAL_ACTION_REQUIRED: ['reasonCode', 'errorCode'],
+  NOTIFICATION_DELIVERY_FAILED: ['deliveryChannelCode', 'errorCode', 'attemptCount'],
+  REQUEST_CANCELLED: ['reasonCode'],
+} as const satisfies Record<BilanRequestEventType, readonly string[]>;
+
+const NUMERIC_PAYLOAD_KEYS = new Set([
+  'sequence',
+  'responseCount',
+  'durationMs',
+  'scoreBasisPoints',
+  'retryCount',
+  'attemptCount',
+]);
+
+const TECHNICAL_IDENTIFIER = /^[A-Za-z0-9][A-Za-z0-9._:/-]{0,159}$/;
+const SENSITIVE_KEY = /(?:e.?mail|phone|telephone|tel|(?:child|student|minor).*name|name.*(?:child|student|minor)|school|establishment|main.?need|(?:^|_)need|message|free.?text|answer|solution|report.*content|content.*report)/i;
+
+function containsSensitiveKey(value: unknown): boolean {
+  if (value === null || typeof value !== 'object') {
+    return false;
+  }
+
+  for (const [key, nestedValue] of Object.entries(value)) {
+    if (SENSITIVE_KEY.test(key)) {
+      return true;
+    }
+
+    if (containsSensitiveKey(nestedValue)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object'
+    && value !== null
+    && !Array.isArray(value)
+    && Object.getPrototypeOf(value) === Object.prototype;
+}
+
+function isValidTechnicalValue(key: string, value: unknown): value is string | number {
+  if (NUMERIC_PAYLOAD_KEYS.has(key)) {
+    return typeof value === 'number'
+      && Number.isSafeInteger(value)
+      && value >= 0
+      && value <= 86_400_000;
+  }
+
+  return typeof value === 'string' && TECHNICAL_IDENTIFIER.test(value);
+}
+
+function minimizedPayload(
+  type: BilanRequestEventType,
+  value: unknown,
+): Readonly<Record<string, string | number>> {
+  const payload = value ?? {};
+
+  if (!isPlainObject(payload) || containsSensitiveKey(payload)) {
+    throw new Error('Invalid minimized event payload');
+  }
+
+  const allowedKeys = new Set<string>(PAYLOAD_KEYS[type]);
+  const result: Record<string, string | number> = {};
+
+  for (const [key, item] of Object.entries(payload)) {
+    if (!allowedKeys.has(key) || !isValidTechnicalValue(key, item)) {
+      throw new Error('Invalid minimized event payload');
+    }
+    result[key] = item;
+  }
+
+  return result;
+}
+
+function validIdentifier(value: string): boolean {
+  return TECHNICAL_IDENTIFIER.test(value);
+}
+
+function validateEnvelope(input: AppendBilanRequestEventInput): void {
+  if (!validIdentifier(input.requestId)
+    || !validIdentifier(input.correlationId)
+    || !BILAN_REQUEST_EVENT_TYPES.includes(input.type)
+    || !BILAN_REQUEST_ACTORS.includes(input.actor)) {
+    throw new Error('Invalid bilan request event envelope');
+  }
+}
+
+export async function appendBilanRequestEvent(
+  client: BilanRequestEventClient,
+  input: AppendBilanRequestEventInput,
+  options: Readonly<{ now?: Date }> = {},
+): Promise<unknown> {
+  validateEnvelope(input);
+  const payload = minimizedPayload(input.type, input.payload);
+
+  return client.bilanRequestEvent.create({
+    data: {
+      requestId: input.requestId,
+      type: input.type,
+      actor: input.actor,
+      correlationId: input.correlationId,
+      payload,
+      occurredAt: options.now ?? new Date(),
+    },
+  });
+}
