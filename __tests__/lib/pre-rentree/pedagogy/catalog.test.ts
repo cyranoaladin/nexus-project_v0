@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 
@@ -145,6 +146,31 @@ describe('canonical pre-rentree pedagogy catalog', () => {
     expectCatalogError(
       () => loadPedagogyCatalog({ readSource }),
       'CATALOG_RELATION_MISMATCH',
+    );
+  });
+
+  it('rejects a qcm_unique definition without exactly one correct option', () => {
+    const cpsPath = 'content/pre-rentree-2026/pedagogy/positioning/cps/maths-entree-terminale.yaml';
+    const canonicalCps = canonicalReader(cpsPath);
+    const tamperedCps = Buffer.from(
+      canonicalCps.toString('utf8').replace('correcte: false', 'correcte: true'),
+    );
+    const canonicalCpsHash = createHash('sha256').update(canonicalCps).digest('hex');
+    const tamperedCpsHash = createHash('sha256').update(tamperedCps).digest('hex');
+    const readSource: PedagogySourceReader = (relativePath) => {
+      if (relativePath === cpsPath) return tamperedCps;
+      const bytes = canonicalReader(relativePath);
+      if (relativePath !== 'content/pre-rentree-2026/pedagogy/manifest.yaml') {
+        return bytes;
+      }
+      return Buffer.from(
+        bytes.toString('utf8').replace(canonicalCpsHash, tamperedCpsHash),
+      );
+    };
+
+    expectCatalogError(
+      () => loadPedagogyCatalog({ readSource }),
+      'INVALID_SOURCE',
     );
   });
 });

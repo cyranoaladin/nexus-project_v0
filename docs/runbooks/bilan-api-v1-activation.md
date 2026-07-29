@@ -110,7 +110,11 @@ Vérifier que `NEXTAUTH_URL` et `NEXT_PUBLIC_APP_URL` utilisent
 Flags toujours désactivés :
 
 - l'ancienne page `/bilan-gratuit` reste disponible ;
-- l'API v1 répond par son refus contrôlé de feature flag ;
+- la création publique `POST /api/bilan-gratuit/v1/requests` répond par son
+  refus contrôlé de feature flag ;
+- les routes de reprise restent inaccessibles sans un dossier et un principal
+  serveur valides ; la désactivation de l'intake ne révoque pas silencieusement
+  les dossiers déjà créés ;
 - aucun token, email ou payload n'apparaît dans les logs ;
 - la connexion Redis/Upstash et SMTP est saine ;
 - l'outbox peut être observée sans lire de PII.
