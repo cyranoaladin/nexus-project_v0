@@ -48,6 +48,22 @@ Mais deux fragilités réelles demeurent, indépendantes de l'hypothèse cluster
 
 Le Lot A1 doit intégrer, au minimum, la configuration Upstash (déjà présente comme dépendance npm : `@upstash/ratelimit`, `@upstash/redis`) avant toute croissance de trafic ou de nombre d'instances.
 
+## E4 — fréquence réelle des redémarrages (lecture seule)
+
+`pm2 jlist` seul est trompeur ici : `restart_time: 0` et `pm_uptime` ne couvrant que 2h23 min, alors que le processus est enregistré sous PM2 depuis le 14/07 — le compteur `restart_time` ne survit pas à tous les types de redémarrage. Remonté à la source fiable : le propre journal du démon PM2 (`/root/.pm2/pm2.log`, infrastructure, pas un secret), qui log chaque arrêt/démarrage avec horodatage et code de sortie :
+
+```
+2026-07-25T06:53:07: Stopping app:nexus-prod id:10 — exited code [0] via signal [SIGINT] — restarting
+2026-07-27T03:57:29: Stopping app:nexus-prod id:7  — exited code [0] via signal [SIGINT] — restarting
+2026-07-27T05:24:55: Stopping app:nexus-prod id:7  — exited code [0] via signal [SIGINT] — restarting
+2026-07-27T23:23:16: Stopping app:nexus-prod id:7  — exited code [0] via signal [SIGINT] — restarting (coïncide avec le merge PR #85)
+2026-07-29T06:48:10: Stopping app:nexus-prod id:7  — exited code [0] via signal [SIGINT] — restarting
+```
+
+**5 redémarrages en 4 jours (25/07 → 29/07), tous par `exit code 0` / `SIGINT`** — des arrêts propres et volontaires (déploiement ou `pm2 restart` manuel), **aucun crash ni signal d'OOM** dans cette fenêtre (confirmé par grep sur le journal d'erreurs du jour, aucune occurrence de `OOM`/`out of memory`/`SIGKILL`). Le système hôte lui-même n'a pas redémarré depuis le 18/05 (`uptime -s`), donc ces redémarrages sont bien applicatifs, pas des reboots serveur.
+
+**Nuance à apporter à la conclusion « réellement appliqué »** : le magasin en mémoire est remis à zéro à chaque déploiement — environ une fois par jour au rythme actuel, parfois plusieurs fois le même jour. Entre deux redémarrages, la protection est réelle et cohérente (un seul processus). Au moment d'un redémarrage, la fenêtre glissante repart de zéro pour tout le monde — une fenêtre de contournement courte mais réelle, à la cadence des déploiements, pas de l'instabilité. Ce n'est pas un système qui s'effondre, mais ce n'est pas non plus une garantie continue.
+
 ## A3 — le gate lui-même : problème réel ou angle mort de mesure ?
 
 Ni l'un ni l'autre exactement : **le problème sous-jacent (mode memory en production) est déjà détecté aujourd'hui** par le health-check existant sur `main` (`app/api/internal/health/route.ts`, protégé ADMIN/ASSISTANTE) : `checks.redis = { ok: rateLimitMode !== 'memory', detail: rateLimitMode }` — reporterait honnêtement `{ ok: false, detail: 'memory' }` s'il était interrogé aujourd'hui.

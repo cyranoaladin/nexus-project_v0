@@ -865,8 +865,15 @@ SSL: Let's Encrypt (auto-renew)
 Reverse Proxy: Nginx → 127.0.0.1:3001
 
 Application Next.js (PM2 standalone):
-├── <PROCESS_NAME>          PM2 cluster, port 3001, node .next/standalone/server.js
+├── <PROCESS_NAME>          PM2 fork mode, 1 instance, port 3001, node .next/standalone/server.js
 │                       pm2 startup systemd (survie reboot)
+│                       NE PAS passer en cluster / plusieurs instances sans
+│                       configurer d'abord un backend de rate limiting
+│                       distribué (Redis/Upstash) : lib/rate-limit/index.ts
+│                       tombe en mode "memory" (par processus) faute de
+│                       REDIS_URL/UPSTASH_REDIS_REST_URL — correct à 1 seule
+│                       instance, silencieusement fragmenté au-delà. Voir
+│                       docs/audits/2026-07-29-production-rate-limit-mode.md.
 │                       Chemin: <APP_DIR>
 ├── PostgreSQL          port 5435 (DB principale)
 ├── ollama              (llama3.2:latest, phi3:mini, nomic-embed-text)
@@ -894,7 +901,7 @@ pm2 restart <PROCESS_NAME>
 pm2 save
 ```
 
-- **PM2 process** : `<PROCESS_NAME>`, mode cluster, port 3001
+- **PM2 process** : `<PROCESS_NAME>`, mode **fork, 1 instance** (pas cluster — voir note ci-dessus sur le rate limiting en mémoire), port 3001
 - **Persistance reboot** : `pm2 startup systemd` + `pm2 save`
 - **Healthcheck** : `curl http://127.0.0.1:3001/api/health`
 - **Nginx** : reverse proxy TLS → 127.0.0.1:3001 (ne pose aucun en-tête sécurité, tout vient du middleware Next.js)
