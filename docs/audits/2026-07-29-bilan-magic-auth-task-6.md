@@ -56,8 +56,13 @@ reprise du parcours sans mot de passe, sans exposer l’existence d’un compte.
 - Tests unitaires du service, du provider, de la route, de la page et des
   templates.
 - Régressions Auth.js et identifiants/mots de passe existants.
-- Test PostgreSQL jetable : succès, relecture concurrente et rollback.
+- Test PostgreSQL réel : succès atomique, relecture concurrente, refus d’une
+  demande annulée et rollback complet.
 - TypeScript, lint, scanner de sécurité et vérifications de diff.
+- Suite Jest complète : 604 suites réussies, 1 ignorée, 7 444 tests réussis et
+  4 ignorés.
+- Build de production standalone et audit de l’artefact : réussis avec les
+  cinq feature flags bilans désactivés.
 
 ## Résultats
 
@@ -76,6 +81,10 @@ worker de notifications prévu dans la suite du plan.
 Le rate-limit distribué fail-closed en production est prévu avec les frontières
 API versionnées de la tâche suivante. La route utilise déjà le preset public
 `auth`.
+
+Avant activation des flags, la tâche 7 doit également ajouter un quota par hash
+d’email et la tâche 8 doit sortir l’envoi SMTP du temps de réponse public afin
+de supprimer l’oracle temporel d’éligibilité.
 
 ## Rollback
 

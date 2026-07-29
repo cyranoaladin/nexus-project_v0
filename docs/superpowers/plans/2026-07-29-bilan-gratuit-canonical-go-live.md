@@ -447,11 +447,11 @@ git commit -m "feat(bilans): create traceable parent and child requests"
 - Test: `__tests__/api/auth.bilan-magic.request.test.ts`
 - Test: `__tests__/app/bilan-magic-page.test.tsx`
 
-- [ ] **Step 1: Write failing auth tests.**
+- [x] **Step 1: Write failing auth tests.**
 
 Test one-use consumption, expiry, hash-only lookup, concurrent replay, parent-only role, request resumption and generic request-link responses for missing/existing accounts. Assert the raw token is placed in the URL fragment, not query parameters.
 
-- [ ] **Step 2: Run tests and verify failure.**
+- [x] **Step 2: Run tests and verify failure.**
 
 Run:
 
@@ -465,7 +465,7 @@ npx jest --config jest.unit.config.js \
 
 Expected: FAIL because the provider/service/page do not exist.
 
-- [ ] **Step 3: Implement the Auth.js provider and consume service.**
+- [x] **Step 3: Implement the Auth.js provider and consume service.**
 
 Add a distinct credentials provider with ID `bilan-magic` accepting only a raw token. Its `authorize` delegates to a transaction that:
 
@@ -478,7 +478,7 @@ Add a distinct credentials provider with ID `bilan-magic` accepting only a raw t
 
 The email link uses `/auth/bilan-magic#token=<raw>`. The client reads the fragment, clears it immediately with `history.replaceState`, calls `signIn('bilan-magic', { redirect: false, token })`, then navigates to the request continuation. Apply `Referrer-Policy: no-referrer`.
 
-- [ ] **Step 4: Re-run auth tests and existing credentials tests.**
+- [x] **Step 4: Re-run auth tests and existing credentials tests.**
 
 Run:
 
@@ -494,7 +494,7 @@ npm run typecheck
 
 Expected: PASS; password login behavior is unchanged.
 
-- [ ] **Step 5: Commit the magic-link path.**
+- [x] **Step 5: Commit the magic-link path.**
 
 ```bash
 git add auth.ts lib/bilans/auth app/auth/bilan-magic app/api/auth/bilan-magic \
