@@ -1,0 +1,552 @@
+id: maths-entree-premiere
+niveauEntree: PREMIERE
+matiere: MATHEMATIQUES
+edition: 2026
+dureeCibleMinutes: 22
+gamme: PREMIUM
+intitulePublic: Mathématiques — Entrée en Première
+cadrage: 'Dix nœuds dans la carte, huit évalués par le test. Le nœud n07 est le plus rentable du module : un élève
+  qui ne relie pas coefficient directeur et nombre dérivé n''apprendra pas la dérivation, il l''appliquera. Le nœud
+  n10 n''a aucune séance d''accueil dans le programme publié, qui est contractuel : il est traité exclusivement
+  en fiche de reprise personnalisée.
+
+  '
+noeuds:
+- id: n01
+  ordre: 1
+  evalueParTest: true
+  acquisN1: Calcul littéral, factorisation, identités remarquables
+  usageN: Forme canonique et factorisation du trinôme (séance 1)
+  obstacles:
+  - Le développement est automatisé, la factorisation ne l'est pas
+  - Le carré d'une somme est calculé comme la somme des carrés
+  critereMaitrise: Factoriser un trinôme reconnaissable comme identité remarquable
+  seanceRattachement: 1
+  items:
+  - id: n01-i1
+    palier: A
+    type: qcm_unique
+    enonce: Factoriser x² - 5x.
+    propositions:
+    - texte: x(x - 5)
+      correcte: true
+    - texte: x(x + 5)
+      correcte: false
+      obstacleVise: 0
+    - texte: (x - 5)²
+      correcte: false
+      obstacleVise: 0
+    - texte: x² (1 - 5)
+      correcte: false
+      obstacleVise: 0
+    justification: x est facteur commun aux deux termes.
+  - id: n01-i2
+    palier: B
+    type: qcm_unique
+    enonce: Développer (3x - 2)².
+    propositions:
+    - texte: 9x² + 4
+      correcte: false
+      obstacleVise: 1
+    - texte: 9x² - 12x + 4
+      correcte: true
+    - texte: 9x² - 6x + 4
+      correcte: false
+      obstacleVise: 1
+    - texte: 3x² - 12x + 4
+      correcte: false
+      obstacleVise: 1
+    justification: (a - b)² = a² - 2ab + b² avec a = 3x et b = 2.
+  - id: n01-i3
+    palier: C
+    type: qcm_unique
+    enonce: Factoriser x² - 6x + 9.
+    propositions:
+    - texte: (x + 3)²
+      correcte: false
+      obstacleVise: 0
+    - texte: (x - 3)(x + 3)
+      correcte: false
+      obstacleVise: 0
+    - texte: (x - 3)²
+      correcte: true
+    - texte: (x - 9)(x + 1)
+      correcte: false
+      obstacleVise: 0
+    justification: '9 = 3² et 6x = 2 × 3 × x : c''est le carré d''une différence.'
+- id: n02
+  ordre: 2
+  evalueParTest: true
+  acquisN1: Inéquations, signe d'un produit ou d'un quotient
+  usageN: Tableau de signes du trinôme, puis signe de la dérivée (séances 1 et 3)
+  obstacles:
+  - Le sens de l'inégalité n'est pas inversé par un coefficient négatif
+  - Le tableau de signes n'est pas installé comme outil systématique
+  critereMaitrise: Construire un tableau de signes et l'exploiter
+  seanceRattachement: 1
+  items:
+  - id: n02-i1
+    palier: A
+    type: qcm_unique
+    enonce: Résoudre -3x + 6 ≥ 0.
+    propositions:
+    - texte: x ≥ 2
+      correcte: false
+      obstacleVise: 0
+    - texte: x ≤ -2
+      correcte: false
+      obstacleVise: 0
+    - texte: x ≥ -2
+      correcte: false
+      obstacleVise: 0
+    - texte: x ≤ 2
+      correcte: true
+    justification: -3x ≥ -6, puis la division par -3 inverse le sens.
+  - id: n02-i2
+    palier: B
+    type: qcm_unique
+    enonce: Pour quelles valeurs de x l'expression 2x - 6 est-elle strictement positive ?
+    propositions:
+    - texte: x > 3
+      correcte: true
+    - texte: x < 3
+      correcte: false
+      obstacleVise: 0
+    - texte: x > -3
+      correcte: false
+      obstacleVise: 0
+    - texte: x > 6
+      correcte: false
+      obstacleVise: 0
+    justification: 2x > 6, donc x > 3.
+  - id: n02-i3
+    palier: C
+    type: qcm_unique
+    enonce: Pour quelles valeurs de x le quotient (x - 1)/(x + 2) est-il négatif ou nul ?
+    propositions:
+    - texte: -2 ≤ x ≤ 1
+      correcte: false
+      obstacleVise: 1
+    - texte: -2 < x ≤ 1
+      correcte: true
+    - texte: x ≤ 1
+      correcte: false
+      obstacleVise: 1
+    - texte: x < -2 ou x > 1
+      correcte: false
+      obstacleVise: 1
+    justification: 'Le dénominateur doit être non nul : -2 est exclu, 1 est inclus car il annule le numérateur.'
+- id: n03
+  ordre: 3
+  evalueParTest: true
+  acquisN1: 'Fonctions : image, antécédent, lecture graphique'
+  usageN: Lecture des variations et interprétation du nombre dérivé (séance 3)
+  obstacles:
+  - x, f(x) et le point de la courbe sont confondus
+  - Le carré d'un nombre négatif est calculé sans parenthèses
+  critereMaitrise: Calculer une image, déterminer des antécédents, interpréter un point de la courbe
+  seanceRattachement: 3
+  items:
+  - id: n03-i1
+    palier: A
+    type: qcm_unique
+    enonce: Soit f(x) = x² - 4. Combien vaut f(-3) ?
+    propositions:
+    - texte: '-13'
+      correcte: false
+      obstacleVise: 1
+    - texte: '13'
+      correcte: false
+      obstacleVise: 1
+    - texte: '5'
+      correcte: true
+    - texte: '2'
+      correcte: false
+      obstacleVise: 1
+    justification: (-3)² = 9, donc f(-3) = 9 - 4 = 5.
+  - id: n03-i2
+    palier: B
+    type: qcm_unique
+    enonce: Soit f(x) = x² - 4. Quels sont les antécédents de 0 par f ?
+    propositions:
+    - texte: 2 uniquement
+      correcte: false
+      obstacleVise: 0
+    - texte: '4'
+      correcte: false
+      obstacleVise: 0
+    - texte: -4 et 4
+      correcte: false
+      obstacleVise: 0
+    - texte: -2 et 2
+      correcte: true
+    justification: x² = 4 admet deux solutions.
+  - id: n03-i3
+    palier: C
+    type: qcm_unique
+    enonce: La courbe de f passe par le point (2 ; 0). Que peut-on écrire ?
+    propositions:
+    - texte: f(2) = 0, donc 2 est un antécédent de 0
+      correcte: true
+    - texte: f(0) = 2
+      correcte: false
+      obstacleVise: 0
+    - texte: 0 est un antécédent de 2
+      correcte: false
+      obstacleVise: 0
+    - texte: f(2) = 2
+      correcte: false
+      obstacleVise: 0
+    justification: L'abscisse est l'antécédent, l'ordonnée est l'image.
+- id: n04
+  ordre: 4
+  evalueParTest: true
+  acquisN1: Fonctions de référence et leurs allures
+  usageN: Fonctions polynômes, puis exponentielle et logarithme en Terminale (séance 3)
+  obstacles:
+  - Les allures ne sont pas mémorisées et sont reconstruites point par point
+  - L'équation x² = a est résolue avec une seule solution
+  critereMaitrise: Associer une fonction de référence à son allure et résoudre x² = a
+  seanceRattachement: 3
+  items:
+  - id: n04-i1
+    palier: A
+    type: qcm_unique
+    enonce: Quelle est l'allure de la courbe de la fonction x ↦ x² ?
+    propositions:
+    - texte: Une droite passant par l'origine
+      correcte: false
+      obstacleVise: 0
+    - texte: Une parabole tournée vers le haut, sommet à l'origine
+      correcte: true
+    - texte: Une hyperbole en deux branches
+      correcte: false
+      obstacleVise: 0
+    - texte: Une parabole tournée vers le bas
+      correcte: false
+      obstacleVise: 0
+    justification: La fonction carré est positive et décroît puis croît autour de 0.
+  - id: n04-i2
+    palier: B
+    type: qcm_unique
+    enonce: 'Sur l''intervalle ]0 ; +∞[, la fonction inverse x ↦ 1/x est :'
+    propositions:
+    - texte: croissante
+      correcte: false
+      obstacleVise: 0
+    - texte: constante
+      correcte: false
+      obstacleVise: 0
+    - texte: décroissante
+      correcte: true
+    - texte: croissante puis décroissante
+      correcte: false
+      obstacleVise: 0
+    justification: Plus x augmente, plus 1/x diminue.
+  - id: n04-i3
+    palier: C
+    type: qcm_unique
+    enonce: Résoudre l'équation x² = 9.
+    propositions:
+    - texte: x = 3
+      correcte: false
+      obstacleVise: 1
+    - texte: x = 81
+      correcte: false
+      obstacleVise: 1
+    - texte: x = 4,5
+      correcte: false
+      obstacleVise: 1
+    - texte: x = 3 ou x = -3
+      correcte: true
+    justification: Deux nombres ont pour carré 9.
+- id: n05
+  ordre: 5
+  evalueParTest: true
+  acquisN1: Proportionnalité, pourcentages, évolutions
+  usageN: Suites et évolution exponentielle, coefficient multiplicateur (séance 2)
+  obstacles:
+  - Les taux d'évolution successifs sont additionnés
+  - Le coefficient multiplicateur est confondu avec le taux
+  critereMaitrise: Enchaîner deux évolutions par produit de coefficients multiplicateurs
+  seanceRattachement: 2
+  items:
+  - id: n05-i1
+    palier: A
+    type: qcm_unique
+    enonce: Quel est le coefficient multiplicateur associé à une baisse de 25 % ?
+    propositions:
+    - texte: 0,75
+      correcte: true
+    - texte: 0,25
+      correcte: false
+      obstacleVise: 1
+    - texte: 1,25
+      correcte: false
+      obstacleVise: 1
+    - texte: -0,25
+      correcte: false
+      obstacleVise: 1
+    justification: 1 - 0,25 = 0,75.
+  - id: n05-i2
+    palier: B
+    type: qcm_unique
+    enonce: Une quantité augmente de 10 %, puis de nouveau de 10 %. Quelle est l'évolution globale ?
+    propositions:
+    - texte: +20 %
+      correcte: false
+      obstacleVise: 0
+    - texte: +21 %
+      correcte: true
+    - texte: +11 %
+      correcte: false
+      obstacleVise: 0
+    - texte: +100 %
+      correcte: false
+      obstacleVise: 1
+    justification: 1,10 × 1,10 = 1,21.
+  - id: n05-i3
+    palier: C
+    type: qcm_unique
+    enonce: 'Une population est multipliée chaque année par 1,05. Quelle affirmation est exacte ?
+
+      '
+    propositions:
+    - texte: Elle augmente de 1,05 % par an
+      correcte: false
+      obstacleVise: 1
+    - texte: Elle augmente de 105 % par an
+      correcte: false
+      obstacleVise: 1
+    - texte: Elle augmente de 5 % par an
+      correcte: true
+    - texte: Elle augmente de 15 % en trois ans
+      correcte: false
+      obstacleVise: 0
+    justification: Le coefficient 1,05 correspond à un taux de +5 %.
+- id: n06
+  ordre: 6
+  evalueParTest: true
+  acquisN1: Repérage, vecteurs, colinéarité
+  usageN: Produit scalaire et géométrie analytique (séance 4)
+  obstacles:
+  - Les coordonnées d'un vecteur sont confondues avec celles d'un point
+  - La colinéarité est testée sans critère explicite
+  critereMaitrise: Calculer les coordonnées d'un vecteur et tester la colinéarité
+  seanceRattachement: 4
+  items:
+  - id: n06-i1
+    palier: A
+    type: qcm_unique
+    enonce: Quelles sont les coordonnées du vecteur AB avec A(2 ; -1) et B(5 ; 3) ?
+    propositions:
+    - texte: (7 ; 2)
+      correcte: false
+      obstacleVise: 0
+    - texte: (5 ; 3)
+      correcte: false
+      obstacleVise: 0
+    - texte: (-3 ; -4)
+      correcte: false
+      obstacleVise: 0
+    - texte: (3 ; 4)
+      correcte: true
+    justification: On soustrait les coordonnées de A à celles de B.
+  - id: n06-i2
+    palier: B
+    type: qcm_unique
+    enonce: Les vecteurs u(2 ; 6) et v(1 ; 3) sont-ils colinéaires ?
+    propositions:
+    - texte: Oui, car 2 × 3 - 6 × 1 = 0
+      correcte: true
+    - texte: Non, car leurs coordonnées diffèrent
+      correcte: false
+      obstacleVise: 1
+    - texte: Oui, car ils ont la même norme
+      correcte: false
+      obstacleVise: 1
+    - texte: On ne peut pas le savoir sans figure
+      correcte: false
+      obstacleVise: 1
+    justification: Le déterminant est nul, donc u = 2v.
+  - id: n06-i3
+    palier: C
+    type: qcm_unique
+    enonce: Que signifie l'égalité vectorielle AB = DC ?
+    propositions:
+    - texte: ABCD est un losange
+      correcte: false
+      obstacleVise: 1
+    - texte: ABCD est un parallélogramme
+      correcte: true
+    - texte: Les segments [AB] et [DC] ont la même longueur, sans plus
+      correcte: false
+      obstacleVise: 1
+    - texte: A, B, C, D sont alignés
+      correcte: false
+      obstacleVise: 1
+    justification: L'égalité vectorielle impose même direction, même sens et même longueur.
+- id: n07
+  ordre: 7
+  evalueParTest: true
+  prioriteAbsolue: true
+  acquisN1: Équation de droite, coefficient directeur, taux de variation
+  usageN: Nombre dérivé et équation de la tangente en un point (séance 3)
+  obstacles:
+  - La droite est perçue comme un tracé, non comme une fonction affine
+  - Le coefficient directeur est confondu avec l'ordonnée à l'origine
+  - Le taux de variation n'est pas relié à la pente
+  critereMaitrise: 'Déterminer le coefficient directeur d''une droite passant par deux points, et l''interpréter
+    comme un taux de variation.
+
+    '
+  seanceRattachement: 3
+  commentairePedagogique: 'Nœud le plus rentable du module. Le troisième item est délibérément posé dans un contexte
+    non géométrique : c''est ce qui révèle si le taux de variation est compris comme concept ou reproduit comme
+    procédure graphique.
+
+    '
+  items:
+  - id: n07-i1
+    palier: A
+    type: qcm_unique
+    enonce: Une droite passe par A(1 ; 3) et B(4 ; 12). Quel est son coefficient directeur ?
+    propositions:
+    - texte: '9'
+      correcte: false
+      obstacleVise: 2
+    - texte: '0'
+      correcte: false
+      obstacleVise: 1
+    - texte: '3'
+      correcte: true
+    - texte: 1/3
+      correcte: false
+      obstacleVise: 1
+    justification: (12 - 3) / (4 - 1) = 3.
+  - id: n07-i2
+    palier: B
+    type: qcm_unique
+    enonce: 'Sur un graphique, une droite monte de 2 unités verticalement quand on avance de 4 unités horizontalement.
+      Que peut-on dire de son coefficient directeur ?
+
+      '
+    propositions:
+    - texte: Il vaut 2
+      correcte: false
+      obstacleVise: 0
+    - texte: Il vaut 4
+      correcte: false
+      obstacleVise: 2
+    - texte: On ne peut pas le savoir sans l'équation
+      correcte: false
+      obstacleVise: 0
+    - texte: Il vaut 0,5
+      correcte: true
+    justification: Le coefficient directeur est le rapport 2/4 = 0,5.
+  - id: n07-i3
+    palier: C
+    type: qcm_unique
+    enonce: 'Le prix d''un abonnement passe de 20 € la 1re année à 26 € la 4e année. Si l''évolution est régulière,
+      quel est le taux de variation par année ?
+
+      '
+    propositions:
+    - texte: 2 € par an
+      correcte: true
+    - texte: 6 € par an
+      correcte: false
+      obstacleVise: 2
+    - texte: 26 € par an
+      correcte: false
+      obstacleVise: 1
+    - texte: 1,3 € par an
+      correcte: false
+      obstacleVise: 2
+    justification: (26 - 20) / (4 - 1) = 2 — même calcul qu'un coefficient directeur.
+- id: n08
+  ordre: 8
+  evalueParTest: true
+  acquisN1: Fractions, puissances, racines
+  usageN: 'Transversal : silencieusement bloquant dans toutes les séances'
+  obstacles:
+  - Les erreurs sont attribuées à l'étourderie plutôt qu'à une règle non maîtrisée
+  - Les règles sur les exposants sont appliquées de mémoire, sans contrôle
+  critereMaitrise: Manipuler exposants négatifs, radicaux et quotients de puissances
+  seanceRattachement: 5
+  items:
+  - id: n08-i1
+    palier: A
+    type: qcm_unique
+    enonce: Écrire 2⁻³ sous forme de fraction.
+    propositions:
+    - texte: '-8'
+      correcte: false
+      obstacleVise: 1
+    - texte: 1/8
+      correcte: true
+    - texte: '-6'
+      correcte: false
+      obstacleVise: 1
+    - texte: 1/6
+      correcte: false
+      obstacleVise: 1
+    justification: Un exposant négatif donne l'inverse de la puissance.
+  - id: n08-i2
+    palier: B
+    type: qcm_unique
+    enonce: Écrire √50 sous la forme a√b avec b le plus petit possible.
+    propositions:
+    - texte: 2√5
+      correcte: false
+      obstacleVise: 1
+    - texte: 25√2
+      correcte: false
+      obstacleVise: 0
+    - texte: 5√2
+      correcte: true
+    - texte: √25 × √2 sans simplification
+      correcte: false
+      obstacleVise: 0
+    justification: √50 = √(25 × 2) = 5√2.
+  - id: n08-i3
+    palier: C
+    type: qcm_unique
+    enonce: Simplifier (a³)² / a⁴ pour a non nul.
+    propositions:
+    - texte: a⁵
+      correcte: false
+      obstacleVise: 1
+    - texte: a
+      correcte: false
+      obstacleVise: 1
+    - texte: a⁻²
+      correcte: false
+      obstacleVise: 1
+    - texte: a²
+      correcte: true
+    justification: (a³)² = a⁶, puis a⁶ / a⁴ = a².
+- id: n09
+  ordre: 9
+  evalueParTest: false
+  motifNonEvalue: Travaillé en séance 2 ; un test écrit ne mesurerait pas correctement la compétence algorithmique.
+  acquisN1: 'Python : variables, boucles'
+  usageN: Algorithme de seuil sur les suites
+  obstacles:
+  - Les boucles for et while ne sont pas distinguées
+  critereMaitrise: Lire et compléter un algorithme de seuil
+  seanceRattachement: 2
+- id: n10
+  ordre: 10
+  evalueParTest: false
+  motifNonEvalue: 'Aucune séance d''accueil dans le programme publié, qui est contractuel. Ce nœud est traité exclusivement
+    en fiche de reprise personnalisée. Trou assumé et signalé, non masqué.
+
+    '
+  acquisN1: Tableaux croisés, probabilité conditionnelle
+  usageN: Arbres pondérés et probabilités conditionnelles
+  obstacles:
+  - P(A ∩ B) et P(A | B) sont confondues
+  critereMaitrise: Lire une probabilité conditionnelle dans un tableau croisé
+  seanceRattachement: null
+statutValidation: HUMAN_VALIDATION_REQUIRED

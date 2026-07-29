@@ -1,0 +1,507 @@
+id: nsi-entree-terminale
+niveauEntree: TERMINALE
+matiere: NSI
+edition: 2026
+dureeCibleMinutes: 24
+gamme: PREMIUM
+intitulePublic: NSI — Entrée en Terminale
+cadrage: Le test vérifie les acquis de Première NSI qui conditionnent les cinq séances publiées de Terminale.
+statutValidation: HUMAN_VALIDATION_REQUIRED
+noeuds:
+- id: n01
+  ordre: 1
+  evalueParTest: true
+  acquisN1: Listes, parcours et indices
+  usageN: Manipuler piles, files et arbres (séance 1)
+  obstacles:
+  - Indice et valeur sont confondus
+  - Les bornes d'une liste sont mal déterminées
+  critereMaitrise: Suivre un parcours et distinguer position et contenu.
+  seanceRattachement: 1
+  items:
+  - type: qcm_unique
+    enonce: 'Dans [8, 3, 5], la valeur d''indice 1 est :'
+    propositions:
+    - texte: '3'
+      correcte: true
+    - texte: '8'
+      correcte: false
+      obstacleVise: 0
+    - texte: '1'
+      correcte: false
+      obstacleVise: 1
+    - texte: '5'
+      correcte: false
+      obstacleVise: 0
+    justification: Les indices commencent à 0.
+    id: n01-i1
+    palier: A
+  - type: qcm_unique
+    enonce: 'Une pile fonctionne selon le principe :'
+    propositions:
+    - texte: premier entré, premier sorti
+      correcte: false
+      obstacleVise: 0
+    - texte: dernier entré, premier sorti
+      correcte: true
+    - texte: tri automatique
+      correcte: false
+      obstacleVise: 1
+    - texte: accès aléatoire obligatoire
+      correcte: false
+      obstacleVise: 0
+    justification: Une pile est LIFO.
+    id: n01-i2
+    palier: B
+  - type: qcm_unique
+    enonce: 'Une file fonctionne selon le principe :'
+    propositions:
+    - texte: plus grand d'abord
+      correcte: false
+      obstacleVise: 1
+    - texte: ordre inverse systématique
+      correcte: false
+      obstacleVise: 0
+    - texte: premier entré, premier sorti
+      correcte: true
+    - texte: dernier entré, premier sorti
+      correcte: false
+      obstacleVise: 0
+    justification: Une file est FIFO.
+    id: n01-i3
+    palier: C
+- id: n02
+  ordre: 2
+  evalueParTest: true
+  acquisN1: Fonctions, paramètres et retour
+  usageN: Comprendre et concevoir des appels récursifs (séance 2)
+  obstacles:
+  - return et print sont confondus
+  - Le cas de base n'est pas identifié
+  critereMaitrise: Expliquer le rôle d'un paramètre, d'un retour et d'un cas de base.
+  seanceRattachement: 2
+  items:
+  - type: qcm_unique
+    enonce: 'Une fonction qui affiche 5 sans le retourner :'
+    propositions:
+    - texte: est récursive
+      correcte: false
+      obstacleVise: 0
+    - texte: retourne toujours 5
+      correcte: false
+      obstacleVise: 0
+    - texte: modifie tous les paramètres
+      correcte: false
+      obstacleVise: 1
+    - texte: ne fournit pas nécessairement 5 à l'appelant
+      correcte: true
+    justification: Afficher et retourner sont deux actions différentes.
+    id: n02-i1
+    palier: A
+  - type: qcm_unique
+    enonce: 'Dans une fonction récursive, le cas de base sert à :'
+    propositions:
+    - texte: arrêter les appels
+      correcte: true
+    - texte: augmenter indéfiniment les appels
+      correcte: false
+      obstacleVise: 0
+    - texte: afficher le résultat seulement
+      correcte: false
+      obstacleVise: 1
+    - texte: remplacer les paramètres
+      correcte: false
+      obstacleVise: 0
+    justification: Il garantit une terminaison.
+    id: n02-i2
+    palier: B
+  - type: qcm_unique
+    enonce: 'Un appel récursif correct doit généralement porter sur :'
+    propositions:
+    - texte: le même état sans changement
+      correcte: false
+      obstacleVise: 0
+    - texte: un problème plus petit
+      correcte: true
+    - texte: aucun argument
+      correcte: false
+      obstacleVise: 1
+    - texte: une valeur aléatoire
+      correcte: false
+      obstacleVise: 0
+    justification: La réduction rapproche du cas de base.
+    id: n02-i3
+    palier: C
+- id: n03
+  ordre: 3
+  evalueParTest: true
+  acquisN1: Boucles imbriquées
+  usageN: Anticiper le coût d'un parcours de structure (séances 1 et 2)
+  obstacles:
+  - Le coût n'est pas évalué
+  - Seule la boucle externe est comptée
+  critereMaitrise: Compter les opérations d'une double boucle simple.
+  seanceRattachement: 1
+  items:
+  - type: qcm_unique
+    enonce: 'Une boucle de 4 tours contenant une boucle de 3 tours exécute l''action interne :'
+    propositions:
+    - texte: 4 fois
+      correcte: false
+      obstacleVise: 1
+    - texte: 3 fois
+      correcte: false
+      obstacleVise: 0
+    - texte: 12 fois
+      correcte: true
+    - texte: 7 fois
+      correcte: false
+      obstacleVise: 0
+    justification: 4 × 3 = 12.
+    id: n03-i1
+    palier: A
+  - type: qcm_unique
+    enonce: 'Si chacune de deux boucles imbriquées parcourt n éléments, le nombre d''actions est de l''ordre de
+      :'
+    propositions:
+    - texte: log n
+      correcte: false
+      obstacleVise: 0
+    - texte: n
+      correcte: false
+      obstacleVise: 0
+    - texte: '2'
+      correcte: false
+      obstacleVise: 1
+    - texte: n²
+      correcte: true
+    justification: Chaque élément est combiné avec n éléments.
+    id: n03-i2
+    palier: B
+  - type: qcm_unique
+    enonce: 'Pour 1000 données, une recherche dichotomique suppose d''abord :'
+    propositions:
+    - texte: des données triées
+      correcte: true
+    - texte: une double boucle
+      correcte: false
+      obstacleVise: 0
+    - texte: une pile vide
+      correcte: false
+      obstacleVise: 1
+    - texte: aucun ordre
+      correcte: false
+      obstacleVise: 0
+    justification: La dichotomie exploite l'ordre.
+    id: n03-i3
+    palier: C
+- id: n04
+  ordre: 4
+  evalueParTest: true
+  acquisN1: Dictionnaires et couples clé-valeur
+  usageN: Comprendre schéma relationnel, clés et jointures (séance 3)
+  obstacles:
+  - Clé et valeur sont confondues
+  - L'unicité d'une clé n'est pas comprise
+  critereMaitrise: Identifier une clé et retrouver la valeur ou la ligne associée.
+  seanceRattachement: 3
+  items:
+  - type: qcm_unique
+    enonce: 'Dans {nom: ''Lina'', age: 16}, « age » est :'
+    propositions:
+    - texte: une valeur
+      correcte: false
+      obstacleVise: 0
+    - texte: une clé
+      correcte: true
+    - texte: un indice numérique
+      correcte: false
+      obstacleVise: 1
+    - texte: une table
+      correcte: false
+      obstacleVise: 0
+    justification: La clé donne accès à la valeur 16.
+    id: n04-i1
+    palier: A
+  - type: qcm_unique
+    enonce: 'Une clé primaire sert principalement à :'
+    propositions:
+    - texte: dupliquer les lignes
+      correcte: false
+      obstacleVise: 1
+    - texte: calculer une moyenne
+      correcte: false
+      obstacleVise: 0
+    - texte: identifier chaque ligne de manière unique
+      correcte: true
+    - texte: trier seulement par ordre alphabétique
+      correcte: false
+      obstacleVise: 0
+    justification: Elle distingue les enregistrements.
+    id: n04-i2
+    palier: B
+  - type: qcm_unique
+    enonce: 'Une jointure relie deux tables grâce à :'
+    propositions:
+    - texte: leur ordre d'affichage
+      correcte: false
+      obstacleVise: 0
+    - texte: la couleur des colonnes
+      correcte: false
+      obstacleVise: 0
+    - texte: leur nombre de lignes
+      correcte: false
+      obstacleVise: 1
+    - texte: des valeurs de clés correspondantes
+      correcte: true
+    justification: La relation repose sur des attributs communs.
+    id: n04-i3
+    palier: C
+- id: n05
+  ordre: 5
+  evalueParTest: true
+  acquisN1: Tris et recherches simples
+  usageN: Choisir et analyser un algorithme (séances 1 et 5)
+  obstacles:
+  - La dichotomie n'est pas maîtrisée
+  - Le tri est supposé sans coût
+  critereMaitrise: Choisir entre recherche séquentielle et dichotomique selon les préconditions.
+  seanceRattachement: 5
+  items:
+  - type: qcm_unique
+    enonce: 'Sur une liste non triée, une méthode toujours applicable est :'
+    propositions:
+    - texte: la recherche séquentielle
+      correcte: true
+    - texte: la dichotomie directe
+      correcte: false
+      obstacleVise: 0
+    - texte: la recherche par racine
+      correcte: false
+      obstacleVise: 1
+    - texte: une jointure SQL
+      correcte: false
+      obstacleVise: 0
+    justification: La recherche séquentielle ne suppose aucun ordre.
+    id: n05-i1
+    palier: A
+  - type: qcm_unique
+    enonce: 'À chaque étape, la dichotomie :'
+    propositions:
+    - texte: teste tous les éléments
+      correcte: false
+      obstacleVise: 0
+    - texte: élimine environ la moitié de la zone
+      correcte: true
+    - texte: échange deux voisins
+      correcte: false
+      obstacleVise: 1
+    - texte: double la liste
+      correcte: false
+      obstacleVise: 0
+    justification: Le milieu partage la zone de recherche.
+    id: n05-i2
+    palier: B
+  - type: qcm_unique
+    enonce: 'Pour rechercher souvent dans une même liste, il peut être pertinent de :'
+    propositions:
+    - texte: supprimer les indices
+      correcte: false
+      obstacleVise: 1
+    - texte: parcourir deux fois chaque élément
+      correcte: false
+      obstacleVise: 0
+    - texte: la trier puis utiliser la dichotomie
+      correcte: true
+    - texte: la mélanger avant chaque recherche
+      correcte: false
+      obstacleVise: 0
+    justification: Le coût initial du tri peut être amorti.
+    id: n05-i3
+    palier: C
+- id: n06
+  ordre: 6
+  evalueParTest: true
+  acquisN1: Tables de données et filtrage
+  usageN: Écrire et interpréter SELECT, WHERE et JOIN (séance 3)
+  obstacles:
+  - Une requête est pensée séquentiellement comme un programme
+  - Filtrer et projeter sont confondus
+  critereMaitrise: Distinguer lignes filtrées et colonnes sélectionnées.
+  seanceRattachement: 3
+  items:
+  - type: qcm_unique
+    enonce: 'Dans une requête, WHERE sert à :'
+    propositions:
+    - texte: créer une clé primaire
+      correcte: false
+      obstacleVise: 0
+    - texte: choisir le nom de la table
+      correcte: false
+      obstacleVise: 0
+    - texte: trier les colonnes seulement
+      correcte: false
+      obstacleVise: 1
+    - texte: filtrer des lignes
+      correcte: true
+    justification: WHERE exprime une condition sur les lignes.
+    id: n06-i1
+    palier: A
+  - type: qcm_unique
+    enonce: 'SELECT nom demande :'
+    propositions:
+    - texte: la colonne nom
+      correcte: true
+    - texte: uniquement la ligne nom
+      correcte: false
+      obstacleVise: 0
+    - texte: toutes les tables
+      correcte: false
+      obstacleVise: 1
+    - texte: un tri automatique
+      correcte: false
+      obstacleVise: 0
+    justification: SELECT choisit les colonnes projetées.
+    id: n06-i2
+    palier: B
+  - type: qcm_unique
+    enonce: 'Pour relier élèves et classes, il faut généralement :'
+    propositions:
+    - texte: des tables de même longueur
+      correcte: false
+      obstacleVise: 0
+    - texte: un identifiant de classe commun
+      correcte: true
+    - texte: des colonnes de même couleur
+      correcte: false
+      obstacleVise: 1
+    - texte: une seule table vide
+      correcte: false
+      obstacleVise: 0
+    justification: La clé étrangère permet la jointure.
+    id: n06-i3
+    palier: C
+- id: n07
+  ordre: 7
+  evalueParTest: true
+  acquisN1: Réseau et protocole
+  usageN: Comprendre routage, protocoles et sécurité (séance 4)
+  obstacles:
+  - Le vocabulaire réseau n'est pas installé
+  - Adresse, route et protocole sont confondus
+  critereMaitrise: Distinguer le rôle d'une adresse, d'un routeur et d'un protocole.
+  seanceRattachement: 4
+  items:
+  - type: qcm_unique
+    enonce: 'Une adresse IP identifie principalement :'
+    propositions:
+    - texte: un fichier HTML
+      correcte: false
+      obstacleVise: 1
+    - texte: un algorithme de tri
+      correcte: false
+      obstacleVise: 0
+    - texte: une interface sur un réseau
+      correcte: true
+    - texte: un mot de passe
+      correcte: false
+      obstacleVise: 0
+    justification: Elle permet l'acheminement réseau.
+    id: n07-i1
+    palier: A
+  - type: qcm_unique
+    enonce: 'Un routeur sert à :'
+    propositions:
+    - texte: chiffrer toute donnée automatiquement
+      correcte: false
+      obstacleVise: 0
+    - texte: compiler du Python
+      correcte: false
+      obstacleVise: 0
+    - texte: stocker une pile
+      correcte: false
+      obstacleVise: 1
+    - texte: faire suivre des paquets entre réseaux
+      correcte: true
+    justification: Il choisit une route vers le réseau destinataire.
+    id: n07-i2
+    palier: B
+  - type: qcm_unique
+    enonce: 'HTTPS ajoute notamment à HTTP :'
+    propositions:
+    - texte: une protection cryptographique de la communication
+      correcte: true
+    - texte: une adresse IP fixe
+      correcte: false
+      obstacleVise: 0
+    - texte: un tri des pages
+      correcte: false
+      obstacleVise: 1
+    - texte: une base SQL
+      correcte: false
+      obstacleVise: 0
+    justification: TLS protège l'échange.
+    id: n07-i3
+    palier: C
+- id: n08
+  ordre: 8
+  evalueParTest: true
+  acquisN1: Tester un programme
+  usageN: Réussir l'épreuve pratique et valider une solution (séance 5)
+  obstacles:
+  - Aucune stratégie de test n'est construite
+  - Un seul exemple réussi est tenu pour preuve
+  critereMaitrise: Choisir des cas nominaux, limites et invalides pertinents.
+  seanceRattachement: 5
+  items:
+  - type: qcm_unique
+    enonce: 'Pour une fonction maximum, un bon ensemble de tests contient :'
+    propositions:
+    - texte: un seul couple positif
+      correcte: false
+      obstacleVise: 0
+    - texte: positifs, négatifs, égalité et valeurs limites
+      correcte: true
+    - texte: aucun résultat attendu
+      correcte: false
+      obstacleVise: 1
+    - texte: uniquement de grands nombres
+      correcte: false
+      obstacleVise: 0
+    justification: Les classes de cas doivent varier.
+    id: n08-i1
+    palier: A
+  - type: qcm_unique
+    enonce: 'Un test est exploitable s''il précise :'
+    propositions:
+    - texte: uniquement le temps
+      correcte: false
+      obstacleVise: 1
+    - texte: la couleur de l'écran
+      correcte: false
+      obstacleVise: 0
+    - texte: entrée et résultat attendu
+      correcte: true
+    - texte: seulement le nom du fichier
+      correcte: false
+      obstacleVise: 0
+    justification: La comparaison à l'attendu permet de décider.
+    id: n08-i2
+    palier: B
+  - type: qcm_unique
+    enonce: 'Après correction d''un bug, il faut :'
+    propositions:
+    - texte: changer les résultats attendus
+      correcte: false
+      obstacleVise: 0
+    - texte: supprimer le test
+      correcte: false
+      obstacleVise: 0
+    - texte: ne tester que le cas corrigé
+      correcte: false
+      obstacleVise: 1
+    - texte: rejouer le test fautif et les tests de non-régression
+      correcte: true
+    justification: La correction ne doit pas casser d'autres cas.
+    id: n08-i3
+    palier: C

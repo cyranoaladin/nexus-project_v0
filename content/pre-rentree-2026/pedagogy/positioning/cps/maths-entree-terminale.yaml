@@ -1,0 +1,517 @@
+id: maths-entree-terminale
+niveauEntree: TERMINALE
+matiere: MATHEMATIQUES
+edition: 2026
+dureeCibleMinutes: 25
+gamme: PREMIUM
+intitulePublic: Mathématiques — Entrée en Terminale
+cadrage: 'Consolider les acquis de la spécialité de Première et installer les attendus de Terminale. Les groupes
+  de Terminale démarrent le 24 août : la production de ce module dispose d''une semaine de marge sur ceux de la
+  Fenêtre 1.
+
+  '
+noeuds:
+- id: n01
+  ordre: 1
+  evalueParTest: true
+  acquisN1: Dérivation, tangente, sens de variation
+  usageN: Limites, continuité et étude complète de fonction (séances 1 et 2)
+  obstacles:
+  - La dérivée est appliquée comme une recette sans être interprétée
+  - Le lien entre signe de f' et sens de variation de f n'est pas installé
+  critereMaitrise: Dériver un polynôme et relier le signe de la dérivée aux variations
+  seanceRattachement: 2
+  items:
+  - id: n01-i1
+    palier: A
+    type: qcm_unique
+    enonce: Quelle est la dérivée de f(x) = 3x² - 5x + 2 ?
+    propositions:
+    - texte: 6x - 5
+      correcte: true
+    - texte: 6x - 5 + 2
+      correcte: false
+      obstacleVise: 0
+    - texte: 3x - 5
+      correcte: false
+      obstacleVise: 0
+    - texte: 6x² - 5x
+      correcte: false
+      obstacleVise: 0
+    justification: La dérivée d'une constante est nulle.
+  - id: n01-i2
+    palier: B
+    type: qcm_unique
+    enonce: Que représente le nombre dérivé f'(a) ?
+    propositions:
+    - texte: La valeur de f en a
+      correcte: false
+      obstacleVise: 0
+    - texte: Le coefficient directeur de la tangente à la courbe au point d'abscisse a
+      correcte: true
+    - texte: L'ordonnée du point d'abscisse a
+      correcte: false
+      obstacleVise: 0
+    - texte: L'aire sous la courbe jusqu'à a
+      correcte: false
+      obstacleVise: 0
+    justification: Le nombre dérivé est la pente de la tangente.
+  - id: n01-i3
+    palier: C
+    type: qcm_unique
+    enonce: Si f'(x) > 0 pour tout x d'un intervalle I, que peut-on affirmer ?
+    propositions:
+    - texte: f est positive sur I
+      correcte: false
+      obstacleVise: 1
+    - texte: f admet un maximum sur I
+      correcte: false
+      obstacleVise: 1
+    - texte: f est strictement croissante sur I
+      correcte: true
+    - texte: f est convexe sur I
+      correcte: false
+      obstacleVise: 1
+    justification: Le signe de la dérivée donne le sens de variation, jamais le signe de la fonction.
+- id: n02
+  ordre: 2
+  evalueParTest: true
+  acquisN1: Fonctions composées, exponentielle et logarithme
+  usageN: Dérivation avancée et étude de fonctions composées (séance 2)
+  obstacles:
+  - La règle de dérivation composée n'est pas disponible
+  - Les propriétés algébriques du logarithme sont inventées
+  critereMaitrise: Dériver une composée simple et appliquer les propriétés de ln
+  seanceRattachement: 2
+  items:
+  - id: n02-i1
+    palier: A
+    type: qcm_unique
+    enonce: Quelle est la dérivée de la fonction x ↦ eˣ ?
+    propositions:
+    - texte: x eˣ⁻¹
+      correcte: false
+      obstacleVise: 0
+    - texte: '1'
+      correcte: false
+      obstacleVise: 0
+    - texte: ln x
+      correcte: false
+      obstacleVise: 1
+    - texte: eˣ
+      correcte: true
+    justification: La fonction exponentielle est sa propre dérivée.
+  - id: n02-i2
+    palier: B
+    type: qcm_unique
+    enonce: Quelle est la dérivée de la fonction x ↦ e²ˣ ?
+    propositions:
+    - texte: 2e²ˣ
+      correcte: true
+    - texte: e²ˣ
+      correcte: false
+      obstacleVise: 0
+    - texte: 2eˣ
+      correcte: false
+      obstacleVise: 0
+    - texte: 2x e²ˣ⁻¹
+      correcte: false
+      obstacleVise: 0
+    justification: La dérivée de e^u est u' × e^u, avec u' = 2.
+  - id: n02-i3
+    palier: C
+    type: qcm_unique
+    enonce: Pour a et b strictement positifs, à quoi est égal ln(ab) ?
+    propositions:
+    - texte: ln a × ln b
+      correcte: false
+      obstacleVise: 1
+    - texte: ln a + ln b
+      correcte: true
+    - texte: ln(a) ^ ln(b)
+      correcte: false
+      obstacleVise: 1
+    - texte: ln(a + b)
+      correcte: false
+      obstacleVise: 1
+    justification: Le logarithme transforme les produits en sommes.
+- id: n03
+  ordre: 3
+  evalueParTest: true
+  acquisN1: 'Suites : raison, sens de variation, formes explicite et récurrente'
+  usageN: Suites récurrentes et convergence (séance 3)
+  obstacles:
+  - La forme récurrente et la forme explicite ne sont pas distinguées
+  - La raison d'une suite géométrique est confondue avec celle d'une arithmétique
+  critereMaitrise: Distinguer les deux formes et exprimer le terme général d'une suite géométrique
+  seanceRattachement: 3
+  items:
+  - id: n03-i1
+    palier: A
+    type: qcm_unique
+    enonce: Soit uₙ = 3n + 2. Combien vaut u₅ ?
+    propositions:
+    - texte: '15'
+      correcte: false
+      obstacleVise: 1
+    - texte: '32'
+      correcte: false
+      obstacleVise: 0
+    - texte: '17'
+      correcte: true
+    - texte: '10'
+      correcte: false
+      obstacleVise: 1
+    justification: 3 × 5 + 2 = 17.
+  - id: n03-i2
+    palier: B
+    type: qcm_unique
+    enonce: Une suite géométrique a pour premier terme u₀ = 3 et pour raison 2. Quelle est son expression explicite
+      ?
+    propositions:
+    - texte: uₙ = 3 + 2n
+      correcte: false
+      obstacleVise: 1
+    - texte: uₙ = 2 × 3ⁿ
+      correcte: false
+      obstacleVise: 1
+    - texte: uₙ = 3 × 2ⁿ⁻¹
+      correcte: false
+      obstacleVise: 1
+    - texte: uₙ = 3 × 2ⁿ
+      correcte: true
+    justification: Pour une suite géométrique, uₙ = u₀ × qⁿ.
+  - id: n03-i3
+    palier: C
+    type: qcm_unique
+    enonce: Laquelle de ces définitions est une relation de récurrence ?
+    propositions:
+    - texte: uₙ₊₁ = 2uₙ + 1, avec u₀ = 3
+      correcte: true
+    - texte: uₙ = 2n + 1
+      correcte: false
+      obstacleVise: 0
+    - texte: uₙ = 3 × 2ⁿ
+      correcte: false
+      obstacleVise: 0
+    - texte: u₅ = 33
+      correcte: false
+      obstacleVise: 0
+    justification: Une relation de récurrence exprime un terme en fonction du précédent.
+- id: n04
+  ordre: 4
+  evalueParTest: true
+  acquisN1: Second degré, discriminant, signe du trinôme
+  usageN: Signe de la dérivée et positions relatives de courbes (séance 1)
+  obstacles:
+  - Le tableau de signes n'est pas systématique
+  - Le signe du trinôme est déduit du seul discriminant, sans tenir compte de a
+  critereMaitrise: Déterminer le signe d'un trinôme selon Δ et le signe de a
+  seanceRattachement: 1
+  items:
+  - id: n04-i1
+    palier: A
+    type: qcm_unique
+    enonce: Quel est le discriminant de x² - 5x + 6 ?
+    propositions:
+    - texte: '49'
+      correcte: false
+      obstacleVise: 0
+    - texte: '1'
+      correcte: true
+    - texte: '-1'
+      correcte: false
+      obstacleVise: 1
+    - texte: '25'
+      correcte: false
+      obstacleVise: 0
+    justification: Δ = 25 - 24 = 1.
+  - id: n04-i2
+    palier: B
+    type: qcm_unique
+    enonce: Pour quelles valeurs de x le trinôme x² - 5x + 6 est-il strictement négatif ?
+    propositions:
+    - texte: x < 2 ou x > 3
+      correcte: false
+      obstacleVise: 0
+    - texte: Jamais
+      correcte: false
+      obstacleVise: 1
+    - texte: 2 < x < 3
+      correcte: true
+    - texte: Toujours
+      correcte: false
+      obstacleVise: 1
+    justification: Un trinôme de coefficient a > 0 est négatif entre ses racines.
+  - id: n04-i3
+    palier: C
+    type: qcm_unique
+    enonce: Si Δ < 0 et a > 0, que peut-on dire du trinôme ax² + bx + c ?
+    propositions:
+    - texte: Il est strictement négatif pour tout x
+      correcte: false
+      obstacleVise: 1
+    - texte: Il change de signe une fois
+      correcte: false
+      obstacleVise: 0
+    - texte: On ne peut pas conclure
+      correcte: false
+      obstacleVise: 1
+    - texte: Il est strictement positif pour tout x
+      correcte: true
+    justification: Sans racine réelle, le trinôme garde le signe de a.
+- id: n05
+  ordre: 5
+  evalueParTest: true
+  acquisN1: Probabilités conditionnelles, arbres pondérés
+  usageN: Loi binomiale, espérance et variables aléatoires (séance 4)
+  obstacles:
+  - P(A ∩ B) et P_A(B) sont confondues
+  - Les probabilités d'un même niveau d'arbre ne sont pas de somme 1
+  critereMaitrise: Distinguer probabilité conjointe et probabilité conditionnelle
+  seanceRattachement: 4
+  items:
+  - id: n05-i1
+    palier: A
+    type: qcm_unique
+    enonce: Dans un arbre pondéré, que représente le produit des probabilités le long d'un chemin ?
+    propositions:
+    - texte: La probabilité de l'intersection des événements du chemin
+      correcte: true
+    - texte: La probabilité conditionnelle du dernier événement
+      correcte: false
+      obstacleVise: 0
+    - texte: La somme des probabilités du chemin
+      correcte: false
+      obstacleVise: 0
+    - texte: La probabilité de l'union des événements
+      correcte: false
+      obstacleVise: 0
+    justification: Un chemin traduit une intersection.
+  - id: n05-i2
+    palier: B
+    type: qcm_unique
+    enonce: Comment se définit P_A(B), probabilité de B sachant A, pour P(A) ≠ 0 ?
+    propositions:
+    - texte: P(A ∩ B) / P(B)
+      correcte: false
+      obstacleVise: 0
+    - texte: P(A ∩ B) / P(A)
+      correcte: true
+    - texte: P(A) × P(B)
+      correcte: false
+      obstacleVise: 0
+    - texte: P(A ∩ B)
+      correcte: false
+      obstacleVise: 0
+    justification: On ramène l'intersection à l'univers réduit à A.
+  - id: n05-i3
+    palier: C
+    type: qcm_unique
+    enonce: 'Dans une classe, 60 % des élèves sont des filles et 30 % des élèves sont des filles qui font de la
+      musique. Quelle est la probabilité qu''un élève fasse de la musique sachant que c''est une fille ?
+
+      '
+    propositions:
+    - texte: 0,30
+      correcte: false
+      obstacleVise: 0
+    - texte: 0,18
+      correcte: false
+      obstacleVise: 0
+    - texte: 0,5
+      correcte: true
+    - texte: 0,90
+      correcte: false
+      obstacleVise: 1
+    justification: 0,30 / 0,60 = 0,5. La probabilité conjointe n'est pas la conditionnelle.
+- id: n06
+  ordre: 6
+  evalueParTest: true
+  acquisN1: Produit scalaire dans le plan
+  usageN: Géométrie dans l'espace, orthogonalité, plans (séance 5)
+  obstacles:
+  - Le produit scalaire est confondu avec un produit de normes
+  - La condition d'orthogonalité n'est pas reliée à la nullité du produit scalaire
+  critereMaitrise: Calculer un produit scalaire et caractériser l'orthogonalité
+  seanceRattachement: 5
+  items:
+  - id: n06-i1
+    palier: A
+    type: qcm_unique
+    enonce: Quel est le produit scalaire des vecteurs u(2 ; 3) et v(4 ; -1) ?
+    propositions:
+    - texte: '11'
+      correcte: false
+      obstacleVise: 0
+    - texte: (8 ; -3)
+      correcte: false
+      obstacleVise: 0
+    - texte: '-5'
+      correcte: false
+      obstacleVise: 0
+    - texte: '5'
+      correcte: true
+    justification: 2 × 4 + 3 × (-1) = 8 - 3 = 5.
+  - id: n06-i2
+    palier: B
+    type: qcm_unique
+    enonce: 'Deux vecteurs non nuls u et v sont orthogonaux si et seulement si :'
+    propositions:
+    - texte: u · v = 0
+      correcte: true
+    - texte: u · v = 1
+      correcte: false
+      obstacleVise: 1
+    - texte: ‖u‖ = ‖v‖
+      correcte: false
+      obstacleVise: 1
+    - texte: u et v sont colinéaires
+      correcte: false
+      obstacleVise: 1
+    justification: L'orthogonalité équivaut à la nullité du produit scalaire.
+  - id: n06-i3
+    palier: C
+    type: qcm_unique
+    enonce: À quoi est égal u · v en fonction des normes et de l'angle θ entre les vecteurs ?
+    propositions:
+    - texte: ‖u‖ × ‖v‖
+      correcte: false
+      obstacleVise: 0
+    - texte: ‖u‖ × ‖v‖ × cos θ
+      correcte: true
+    - texte: ‖u‖ × ‖v‖ × sin θ
+      correcte: false
+      obstacleVise: 0
+    - texte: ‖u‖ + ‖v‖ × cos θ
+      correcte: false
+      obstacleVise: 0
+    justification: C'est la définition géométrique du produit scalaire.
+- id: n07
+  ordre: 7
+  evalueParTest: true
+  acquisN1: Vecteurs, colinéarité, alignement
+  usageN: Représentation paramétrique de droites et vecteurs normaux de plans (séance 5)
+  obstacles:
+  - Le vecteur directeur et le vecteur normal sont confondus
+  - Le passage du plan à l'espace n'est pas opéré
+  critereMaitrise: Tester la colinéarité en trois dimensions et caractériser l'alignement
+  seanceRattachement: 5
+  items:
+  - id: n07-i1
+    palier: A
+    type: qcm_unique
+    enonce: Les vecteurs u(1 ; 2 ; 3) et v(2 ; 4 ; 6) sont-ils colinéaires ?
+    propositions:
+    - texte: Non, car leurs coordonnées diffèrent
+      correcte: false
+      obstacleVise: 1
+    - texte: Oui, car leur produit scalaire est nul
+      correcte: false
+      obstacleVise: 0
+    - texte: Oui, car v = 2u
+      correcte: true
+    - texte: On ne peut pas le savoir en dimension 3
+      correcte: false
+      obstacleVise: 1
+    justification: Chaque coordonnée de v est le double de celle de u.
+  - id: n07-i2
+    palier: B
+    type: qcm_unique
+    enonce: Que caractérise un vecteur directeur d'une droite ?
+    propositions:
+    - texte: Il est orthogonal à la droite
+      correcte: false
+      obstacleVise: 0
+    - texte: Il relie l'origine à un point de la droite
+      correcte: false
+      obstacleVise: 0
+    - texte: Il est de norme 1 par définition
+      correcte: false
+      obstacleVise: 0
+    - texte: Il donne la direction de la droite
+      correcte: true
+    justification: Le vecteur normal, lui, est orthogonal ; le directeur porte la direction.
+  - id: n07-i3
+    palier: C
+    type: qcm_unique
+    enonce: Comment démontre-t-on que trois points A, B et C sont alignés ?
+    propositions:
+    - texte: En montrant que les vecteurs AB et AC sont colinéaires
+      correcte: true
+    - texte: En montrant que AB · AC = 0
+      correcte: false
+      obstacleVise: 0
+    - texte: En montrant que AB = AC
+      correcte: false
+      obstacleVise: 1
+    - texte: En calculant la distance AB + BC
+      correcte: false
+      obstacleVise: 1
+    justification: L'alignement est la colinéarité de deux vecteurs issus d'un même point.
+- id: n08
+  ordre: 8
+  evalueParTest: true
+  acquisN1: 'Algorithmique : boucles, condition d''arrêt, algorithme de seuil'
+  usageN: Algorithmes sur les suites et les probabilités (séances 3 et 4)
+  obstacles:
+  - La condition d'arrêt d'une boucle while n'est pas interprétée
+  - Le nombre d'itérations est confondu avec la valeur finale
+  critereMaitrise: Lire un algorithme de seuil et en interpréter la sortie
+  seanceRattachement: 3
+  items:
+  - id: n08-i1
+    palier: A
+    type: qcm_unique
+    enonce: 'On exécute : u = 1 ; n = 0 ; tant que u < 10 : u = 2 × u ; n = n + 1. Quelle est la valeur de u à la
+      sortie ?
+
+      '
+    propositions:
+    - texte: '8'
+      correcte: false
+      obstacleVise: 0
+    - texte: '16'
+      correcte: true
+    - texte: '10'
+      correcte: false
+      obstacleVise: 0
+    - texte: '4'
+      correcte: false
+      obstacleVise: 1
+    justification: u prend les valeurs 2, 4, 8 puis 16 ; la boucle s'arrête quand u ≥ 10.
+  - id: n08-i2
+    palier: B
+    type: qcm_unique
+    enonce: Dans l'algorithme précédent, quelle est la valeur de n à la sortie ?
+    propositions:
+    - texte: '16'
+      correcte: false
+      obstacleVise: 1
+    - texte: '3'
+      correcte: false
+      obstacleVise: 0
+    - texte: '4'
+      correcte: true
+    - texte: '10'
+      correcte: false
+      obstacleVise: 1
+    justification: 'n compte les itérations : 4 doublements ont été nécessaires.'
+  - id: n08-i3
+    palier: C
+    type: qcm_unique
+    enonce: Que renvoie un algorithme de seuil appliqué à une suite croissante et à un seuil S ?
+    propositions:
+    - texte: La valeur de uₙ au seuil
+      correcte: false
+      obstacleVise: 1
+    - texte: La limite de la suite
+      correcte: false
+      obstacleVise: 0
+    - texte: Le nombre de termes inférieurs à S, moins un
+      correcte: false
+      obstacleVise: 1
+    - texte: Le plus petit rang n tel que uₙ dépasse S
+      correcte: true
+    justification: L'algorithme de seuil renvoie un rang, pas une valeur.
+statutValidation: HUMAN_VALIDATION_REQUIRED

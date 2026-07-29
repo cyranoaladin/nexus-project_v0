@@ -1,0 +1,507 @@
+id: maths-expertes-entree-terminale
+niveauEntree: TERMINALE
+matiere: MATHS_EXPERTES
+edition: 2026
+dureeCibleMinutes: 24
+gamme: PREMIUM
+intitulePublic: Mathématiques expertes — Entrée en Terminale
+cadrage: Cette option est proposée aux élèves suivant aussi la spécialité Mathématiques. Le test porte sur les acquis
+  de Première qui rendent accessibles arithmétique, complexes, matrices et graphes.
+statutValidation: HUMAN_VALIDATION_REQUIRED
+noeuds:
+- id: n01
+  ordre: 1
+  evalueParTest: true
+  acquisN1: Calcul entier, multiples et diviseurs
+  usageN: Installer divisibilité, division euclidienne et nombres premiers (séance 1)
+  obstacles:
+  - Diviseur et multiple sont inversés
+  - Une affirmation générale est déduite d'un seul exemple
+  critereMaitrise: Reconnaître une divisibilité et raisonner sur des entiers.
+  seanceRattachement: 1
+  items:
+  - type: qcm_unique
+    enonce: Laquelle est vraie ?
+    propositions:
+    - texte: 7 divise 42
+      correcte: true
+    - texte: 42 divise 7
+      correcte: false
+      obstacleVise: 0
+    - texte: 5 divise 42
+      correcte: false
+      obstacleVise: 1
+    - texte: 0 divise 42
+      correcte: false
+      obstacleVise: 0
+    justification: 42 = 7 × 6.
+    id: n01-i1
+    palier: A
+  - type: qcm_unique
+    enonce: 'Le reste de la division de 53 par 7 vaut :'
+    propositions:
+    - texte: '3'
+      correcte: false
+      obstacleVise: 0
+    - texte: '4'
+      correcte: true
+    - texte: '7'
+      correcte: false
+      obstacleVise: 1
+    - texte: '5'
+      correcte: false
+      obstacleVise: 0
+    justification: 53 = 7 × 7 + 4.
+    id: n01-i2
+    palier: B
+  - type: qcm_unique
+    enonce: 'Pour montrer qu''une affirmation est fausse pour tous les entiers, il suffit :'
+    propositions:
+    - texte: d'une figure
+      correcte: false
+      obstacleVise: 1
+    - texte: d'une valeur décimale approchée
+      correcte: false
+      obstacleVise: 0
+    - texte: d'un contre-exemple
+      correcte: true
+    - texte: d'un exemple favorable
+      correcte: false
+      obstacleVise: 0
+    justification: Un contre-exemple réfute une proposition universelle.
+    id: n01-i3
+    palier: C
+- id: n02
+  ordre: 2
+  evalueParTest: true
+  acquisN1: Égalités, implications et raisonnement
+  usageN: Démontrer des propriétés de congruence (séance 2)
+  obstacles:
+  - Équivalence et implication sont confondues
+  - Une propriété est utilisée sans hypothèse
+  critereMaitrise: Enchaîner des implications et vérifier leurs hypothèses.
+  seanceRattachement: 2
+  items:
+  - type: qcm_unique
+    enonce: 'Si n est multiple de 6, alors n est nécessairement :'
+    propositions:
+    - texte: non multiple de 2
+      correcte: false
+      obstacleVise: 0
+    - texte: impair
+      correcte: false
+      obstacleVise: 0
+    - texte: premier
+      correcte: false
+      obstacleVise: 1
+    - texte: multiple de 3
+      correcte: true
+    justification: 6 = 2 × 3.
+    id: n02-i1
+    palier: A
+  - type: qcm_unique
+    enonce: 'L''implication « n pair ⇒ n² pair » se justifie en écrivant :'
+    propositions:
+    - texte: n = 2k, donc n² = 2(2k²)
+      correcte: true
+    - texte: n = k + 2
+      correcte: false
+      obstacleVise: 0
+    - texte: n² = n + n
+      correcte: false
+      obstacleVise: 1
+    - texte: n = 2/k
+      correcte: false
+      obstacleVise: 0
+    justification: La forme 2k caractérise un entier pair.
+    id: n02-i2
+    palier: B
+  - type: qcm_unique
+    enonce: 'La réciproque d''une implication :'
+    propositions:
+    - texte: est toujours vraie
+      correcte: false
+      obstacleVise: 0
+    - texte: doit être démontrée séparément
+      correcte: true
+    - texte: est identique à la contraposée
+      correcte: false
+      obstacleVise: 1
+    - texte: n'a jamais de sens
+      correcte: false
+      obstacleVise: 0
+    justification: Une implication ne donne pas automatiquement sa réciproque.
+    id: n02-i3
+    palier: C
+- id: n03
+  ordre: 3
+  evalueParTest: true
+  acquisN1: Calcul littéral et résolution d'équations
+  usageN: Manipuler les formes algébriques des nombres complexes (séance 3)
+  obstacles:
+  - Les identités remarquables sont mal mobilisées
+  - Une égalité complexe est traitée comme une valeur approchée
+  critereMaitrise: Développer, factoriser et résoudre exactement une équation simple.
+  seanceRattachement: 3
+  items:
+  - type: qcm_unique
+    enonce: 'Développer (a + b)² :'
+    propositions:
+    - texte: a² - 2ab + b²
+      correcte: false
+      obstacleVise: 1
+    - texte: 2a² + 2b²
+      correcte: false
+      obstacleVise: 0
+    - texte: a² + 2ab + b²
+      correcte: true
+    - texte: a² + b²
+      correcte: false
+      obstacleVise: 0
+    justification: Identité remarquable.
+    id: n03-i1
+    palier: A
+  - type: qcm_unique
+    enonce: 'Les solutions de x² + 1 = 0 dans les réels sont :'
+    propositions:
+    - texte: -1 et 1
+      correcte: false
+      obstacleVise: 0
+    - texte: '1'
+      correcte: false
+      obstacleVise: 0
+    - texte: '-1'
+      correcte: false
+      obstacleVise: 1
+    - texte: aucune
+      correcte: true
+    justification: Un carré réel est positif ou nul.
+    id: n03-i2
+    palier: B
+  - type: qcm_unique
+    enonce: 'Si z = 3 + 2i, sa partie réelle est :'
+    propositions:
+    - texte: '3'
+      correcte: true
+    - texte: '2'
+      correcte: false
+      obstacleVise: 0
+    - texte: i
+      correcte: false
+      obstacleVise: 1
+    - texte: '5'
+      correcte: false
+      obstacleVise: 0
+    justification: Dans a + ib, la partie réelle est a.
+    id: n03-i3
+    palier: C
+- id: n04
+  ordre: 4
+  evalueParTest: true
+  acquisN1: Trigonométrie et géométrie repérée
+  usageN: Interpréter la forme trigonométrique et les applications géométriques (séance 3)
+  obstacles:
+  - Degrés et radians sont mélangés
+  - Coordonnées et longueur sont confondues
+  critereMaitrise: Associer angle, coordonnées et norme dans le plan.
+  seanceRattachement: 3
+  items:
+  - type: qcm_unique
+    enonce: 'π radians correspondent à :'
+    propositions:
+    - texte: 90°
+      correcte: false
+      obstacleVise: 0
+    - texte: 180°
+      correcte: true
+    - texte: 360°
+      correcte: false
+      obstacleVise: 1
+    - texte: 60°
+      correcte: false
+      obstacleVise: 0
+    justification: Un demi-tour vaut π radians.
+    id: n04-i1
+    palier: A
+  - type: qcm_unique
+    enonce: 'Le point du cercle trigonométrique d''angle 0 a pour coordonnées :'
+    propositions:
+    - texte: (-1 ; 0)
+      correcte: false
+      obstacleVise: 1
+    - texte: (0 ; -1)
+      correcte: false
+      obstacleVise: 0
+    - texte: (1 ; 0)
+      correcte: true
+    - texte: (0 ; 1)
+      correcte: false
+      obstacleVise: 0
+    justification: cos 0 = 1 et sin 0 = 0.
+    id: n04-i2
+    palier: B
+  - type: qcm_unique
+    enonce: 'La distance de l''origine au point (3 ; 4) vaut :'
+    propositions:
+    - texte: √7
+      correcte: false
+      obstacleVise: 0
+    - texte: '7'
+      correcte: false
+      obstacleVise: 0
+    - texte: '12'
+      correcte: false
+      obstacleVise: 1
+    - texte: '5'
+      correcte: true
+    justification: √(3² + 4²) = 5.
+    id: n04-i3
+    palier: C
+- id: n05
+  ordre: 5
+  evalueParTest: true
+  acquisN1: Systèmes linéaires
+  usageN: Comprendre calcul matriciel et résolution de systèmes (séance 4)
+  obstacles:
+  - Une opération est faite ligne par ligne sans équivalence
+  - Les inconnues et coefficients sont mélangés
+  critereMaitrise: Résoudre un système 2 × 2 et vérifier la solution.
+  seanceRattachement: 4
+  items:
+  - type: qcm_unique
+    enonce: 'Le couple solution de x + y = 5 et x - y = 1 est :'
+    propositions:
+    - texte: (3 ; 2)
+      correcte: true
+    - texte: (2 ; 3)
+      correcte: false
+      obstacleVise: 0
+    - texte: (4 ; 1)
+      correcte: false
+      obstacleVise: 1
+    - texte: (5 ; 0)
+      correcte: false
+      obstacleVise: 0
+    justification: Additionner les équations donne 2x = 6.
+    id: n05-i1
+    palier: A
+  - type: qcm_unique
+    enonce: 'Pour vérifier un couple solution, il faut :'
+    propositions:
+    - texte: tester une seule équation
+      correcte: false
+      obstacleVise: 0
+    - texte: le substituer dans toutes les équations
+      correcte: true
+    - texte: additionner les inconnues
+      correcte: false
+      obstacleVise: 1
+    - texte: inverser les coefficients
+      correcte: false
+      obstacleVise: 0
+    justification: Toutes les égalités doivent être satisfaites.
+    id: n05-i2
+    palier: B
+  - type: qcm_unique
+    enonce: 'Multiplier une équation par un nombre non nul :'
+    propositions:
+    - texte: interdit l'élimination
+      correcte: false
+      obstacleVise: 1
+    - texte: supprime une inconnue automatiquement
+      correcte: false
+      obstacleVise: 0
+    - texte: conserve l'ensemble des solutions
+      correcte: true
+    - texte: change toujours la solution
+      correcte: false
+      obstacleVise: 0
+    justification: On obtient une équation équivalente.
+    id: n05-i3
+    palier: C
+- id: n06
+  ordre: 6
+  evalueParTest: true
+  acquisN1: Suites définies par récurrence
+  usageN: Étudier des suites via des matrices (séance 4)
+  obstacles:
+  - Valeur initiale et relation sont confondues
+  - L'indice est traité comme un facteur
+  critereMaitrise: Calculer des termes successifs à partir d'une relation.
+  seanceRattachement: 4
+  items:
+  - type: qcm_unique
+    enonce: 'u₀ = 2 et uₙ₊₁ = 3uₙ. Alors u₁ vaut :'
+    propositions:
+    - texte: '2'
+      correcte: false
+      obstacleVise: 0
+    - texte: '5'
+      correcte: false
+      obstacleVise: 0
+    - texte: '3'
+      correcte: false
+      obstacleVise: 1
+    - texte: '6'
+      correcte: true
+    justification: u₁ = 3 × u₀.
+    id: n06-i1
+    palier: A
+  - type: qcm_unique
+    enonce: 'Une relation de récurrence permet de calculer :'
+    propositions:
+    - texte: un terme à partir de termes précédents
+      correcte: true
+    - texte: tous les termes sans valeur initiale
+      correcte: false
+      obstacleVise: 0
+    - texte: uniquement la limite
+      correcte: false
+      obstacleVise: 1
+    - texte: la dérivée de la suite
+      correcte: false
+      obstacleVise: 0
+    justification: Il faut une initialisation et une règle.
+    id: n06-i2
+    palier: B
+  - type: qcm_unique
+    enonce: 'Si uₙ₊₁ = uₙ + 4, la suite est :'
+    propositions:
+    - texte: géométrique de raison 4
+      correcte: false
+      obstacleVise: 0
+    - texte: arithmétique de raison 4
+      correcte: true
+    - texte: constante
+      correcte: false
+      obstacleVise: 1
+    - texte: alternée
+      correcte: false
+      obstacleVise: 0
+    justification: La différence est constante.
+    id: n06-i3
+    palier: C
+- id: n07
+  ordre: 7
+  evalueParTest: true
+  acquisN1: Tableaux, relations et graphes simples
+  usageN: Modéliser une situation par un graphe (séance 5)
+  obstacles:
+  - Sommet et arête sont confondus
+  - Le sens d'une relation orientée est ignoré
+  critereMaitrise: Identifier sommets, arêtes et chemins dans une représentation.
+  seanceRattachement: 5
+  items:
+  - type: qcm_unique
+    enonce: 'Dans un graphe de villes reliées par des routes, les villes sont :'
+    propositions:
+    - texte: les poids
+      correcte: false
+      obstacleVise: 1
+    - texte: les cycles
+      correcte: false
+      obstacleVise: 0
+    - texte: les sommets
+      correcte: true
+    - texte: les arêtes
+      correcte: false
+      obstacleVise: 0
+    justification: Les objets deviennent les sommets.
+    id: n07-i1
+    palier: A
+  - type: qcm_unique
+    enonce: 'Un chemin est :'
+    propositions:
+    - texte: une matrice vide
+      correcte: false
+      obstacleVise: 0
+    - texte: un sommet isolé
+      correcte: false
+      obstacleVise: 0
+    - texte: le nombre total d'arêtes
+      correcte: false
+      obstacleVise: 1
+    - texte: une suite de sommets reliés
+      correcte: true
+    justification: Chaque étape utilise une arête ou un arc.
+    id: n07-i2
+    palier: B
+  - type: qcm_unique
+    enonce: 'Dans un graphe orienté, A → B signifie :'
+    propositions:
+    - texte: un arc de A vers B
+      correcte: true
+    - texte: deux arcs opposés
+      correcte: false
+      obstacleVise: 0
+    - texte: A et B sont identiques
+      correcte: false
+      obstacleVise: 1
+    - texte: aucun lien
+      correcte: false
+      obstacleVise: 0
+    justification: L'orientation fixe le sens.
+    id: n07-i3
+    palier: C
+- id: n08
+  ordre: 8
+  evalueParTest: true
+  acquisN1: Algorithmique et stratégie de recherche
+  usageN: Comprendre un parcours et un plus court chemin (séance 5)
+  obstacles:
+  - Une stratégie locale est tenue pour toujours optimale
+  - Les états déjà visités ne sont pas mémorisés
+  critereMaitrise: Suivre un algorithme de parcours simple et comparer des coûts.
+  seanceRattachement: 5
+  items:
+  - type: qcm_unique
+    enonce: 'Le coût d''un chemin est généralement :'
+    propositions:
+    - texte: le nombre de sommets du graphe
+      correcte: false
+      obstacleVise: 0
+    - texte: la somme des poids de ses arêtes
+      correcte: true
+    - texte: le plus grand poids seulement
+      correcte: false
+      obstacleVise: 1
+    - texte: toujours égal à 1
+      correcte: false
+      obstacleVise: 0
+    justification: Les coûts successifs s'additionnent.
+    id: n08-i1
+    palier: A
+  - type: qcm_unique
+    enonce: 'Un plus court chemin est celui :'
+    propositions:
+    - texte: dont la première arête est minimale
+      correcte: false
+      obstacleVise: 1
+    - texte: qui revient au départ
+      correcte: false
+      obstacleVise: 0
+    - texte: de coût total minimal
+      correcte: true
+    - texte: avec le plus de sommets
+      correcte: false
+      obstacleVise: 0
+    justification: On compare le coût total.
+    id: n08-i2
+    palier: B
+  - type: qcm_unique
+    enonce: 'Mémoriser les sommets déjà visités évite notamment :'
+    propositions:
+    - texte: de définir le départ
+      correcte: false
+      obstacleVise: 0
+    - texte: de connaître les voisins
+      correcte: false
+      obstacleVise: 0
+    - texte: de calculer les poids
+      correcte: false
+      obstacleVise: 1
+    - texte: des répétitions inutiles ou des boucles
+      correcte: true
+    justification: Le marquage structure le parcours.
+    id: n08-i3
+    palier: C

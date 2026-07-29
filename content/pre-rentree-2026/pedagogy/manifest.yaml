@@ -1,0 +1,1299 @@
+version: 1
+campaignId: pre-rentree-2026
+publicationStatus: HUMAN_VALIDATION_REQUIRED
+moduleCatalog: ../modules.json
+counts:
+  modules: 17
+  sessions: 85
+  cps: 17
+  nodes: 141
+  evaluatedNodes: 136
+  items: 408
+  manualResponses: 33
+  sessionUnitFiles: 340
+  sessionsPerModule: 5
+positioning:
+  cpsDirectory: positioning/cps
+  expectedCps: 17
+sessionKits:
+  modulesDirectory: session-kits/modules
+  expectedModules: 17
+  expectedSessions: 85
+generatedOutputs:
+  root: .artifacts/pre-rentree-2026/pedagogy/generated
+sharedSources:
+- path: content/pre-rentree-2026/pedagogy/positioning/SPEC-tests-positionnement-pre-stage-2026.md
+  sha256: 6711f62a299811d7fadedb84ccd1347577e24154d0c2199086f53fa45f5bdc8d
+- path: content/pre-rentree-2026/pedagogy/positioning/REFERENTIEL-CANONIQUE-2026.yaml
+  sha256: 5370a60eedc5348685a9085be2e076824e081175d9e962e994781a0626701746
+- path: content/pre-rentree-2026/pedagogy/positioning/curriculum-anchors.yaml
+  sha256: f34737a048f0835a00412580b39dc5673ad66cebbe98629d0d647b6b497ba126
+- path: content/pre-rentree-2026/pedagogy/session-kits/MANIFESTE-SEANCES.csv
+  sha256: 31eccf5704adb7f262f24f379e3fb5634d948ea641fa5b6c66efe4ff19bf70ee
+modules:
+- id: quatrieme-mathematiques
+  level: QUATRIEME
+  subject: MATHEMATIQUES
+  cps:
+    path: content/pre-rentree-2026/pedagogy/positioning/cps/maths-entree-quatrieme.yaml
+    sha256: 59f6c280f780258ba3382665f6947bf2e6cf4d350b045cc67b4060d7d021ae7e
+  readme:
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/quatrieme-mathematiques/README.md
+    sha256: 64a599e6b271a5a78e0bbee30c202f4a7247bf6bede70c90ca0a19a18f1479de
+  sessions:
+  - number: 1
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/quatrieme-mathematiques/s01-nombres-relatifs-fractions-et-puissances
+    files:
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/quatrieme-mathematiques/s01-nombres-relatifs-fractions-et-puissances/banques-eleve.md
+      sha256: f5d9a79e5aea27ecce8b02bf5b957a5b8393539ed6ef9d05409fd8f1ef0c4285
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/quatrieme-mathematiques/s01-nombres-relatifs-fractions-et-puissances/corrige-commente.md
+      sha256: af321758bf661b0afd36562ad6738ac3ad17edfb8c8620e1f4a1cf607d27a0a9
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/quatrieme-mathematiques/s01-nombres-relatifs-fractions-et-puissances/verification-correction.md
+      sha256: 0ec7578c1c1be1088018bade6030827fa4d843a8b0611bb32952a599df435ec2
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/quatrieme-mathematiques/s01-nombres-relatifs-fractions-et-puissances/verification-eleve.md
+      sha256: 7857328216866a9de695fd086d377cd5783c1583ef97f0252219e791abc0cb3f
+  - number: 2
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/quatrieme-mathematiques/s02-calcul-litteral-et-equations-du-premier-degre
+    files:
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/quatrieme-mathematiques/s02-calcul-litteral-et-equations-du-premier-degre/banques-eleve.md
+      sha256: ce670762d5c6945ef74526052c687140bafade3217dfdd75b5eb2a21051e8202
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/quatrieme-mathematiques/s02-calcul-litteral-et-equations-du-premier-degre/corrige-commente.md
+      sha256: b6847066fd680c592943e18cf953ce1635617526c3be854b75f7bceeb4847c49
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/quatrieme-mathematiques/s02-calcul-litteral-et-equations-du-premier-degre/verification-correction.md
+      sha256: f53474a8bfce17dcbefbc03e2816a0d2f3e5ee0d1471d978bd6c1febdc25df71
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/quatrieme-mathematiques/s02-calcul-litteral-et-equations-du-premier-degre/verification-eleve.md
+      sha256: 75d518a24ea9f93104ecf82158d9af1091aaf1fa58757cf41e27c1d82c8ee418
+  - number: 3
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/quatrieme-mathematiques/s03-pythagore-reciproque-agrandissement-et-reduction
+    files:
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/quatrieme-mathematiques/s03-pythagore-reciproque-agrandissement-et-reduction/banques-eleve.md
+      sha256: 66d953e3f920d506ccbf850a1f7983527a13586213ec118c46d8f4287dbb19b6
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/quatrieme-mathematiques/s03-pythagore-reciproque-agrandissement-et-reduction/corrige-commente.md
+      sha256: 54705e714d671ef12cadd66ac38ccc439f739df425f6ca29169846c3cb9f6af6
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/quatrieme-mathematiques/s03-pythagore-reciproque-agrandissement-et-reduction/verification-correction.md
+      sha256: 873cae81bb21b3c3586b2c5a66417c22a1af9738bedc6d705410fd99478fd69e
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/quatrieme-mathematiques/s03-pythagore-reciproque-agrandissement-et-reduction/verification-eleve.md
+      sha256: 094ec949c9b75522815f9109105c875cb3e115a41bd07330dacb5f5a74c46a4f
+  - number: 4
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/quatrieme-mathematiques/s04-proportionnalite-pourcentages-et-vitesses
+    files:
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/quatrieme-mathematiques/s04-proportionnalite-pourcentages-et-vitesses/banques-eleve.md
+      sha256: cd196ea56a4bcc04383a311073000bde357053a748d01b4f4b7226c258e57326
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/quatrieme-mathematiques/s04-proportionnalite-pourcentages-et-vitesses/corrige-commente.md
+      sha256: 5c92e64db740e06b0a3b3838699f491bbd3e4b9c4cebfc97bd9ea2aa0fdb7a00
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/quatrieme-mathematiques/s04-proportionnalite-pourcentages-et-vitesses/verification-correction.md
+      sha256: fec5f50cec25447432a1cab9634a9543ce9094857dc02a981a1d63de254188b8
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/quatrieme-mathematiques/s04-proportionnalite-pourcentages-et-vitesses/verification-eleve.md
+      sha256: 09501faeadcbcac451bd8a4867aa2068f61006f5df6eeaf290d8eead6f9c3c95
+  - number: 5
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/quatrieme-mathematiques/s05-statistiques-premieres-probabilites-et-synthese
+    files:
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/quatrieme-mathematiques/s05-statistiques-premieres-probabilites-et-synthese/banques-eleve.md
+      sha256: 8ffddb8e5016048129ce1b4123b3cb7ba16194ddefe689e3afb2f8bf0b70d0ee
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/quatrieme-mathematiques/s05-statistiques-premieres-probabilites-et-synthese/corrige-commente.md
+      sha256: 7c0ceee80529d16e31b3045e454756846f177b0f2b1c5a67a9e078a36a30b40a
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/quatrieme-mathematiques/s05-statistiques-premieres-probabilites-et-synthese/verification-correction.md
+      sha256: e720733ff93b0229c5369fde9fb1a6273374ed8e1d8c035c684a60d69704c8fa
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/quatrieme-mathematiques/s05-statistiques-premieres-probabilites-et-synthese/verification-eleve.md
+      sha256: 10e77ad65d8fd16a6f9fe554a5783eeb794c2f9aa1f0e32ba8d5bafed6902b5d
+  expectedOutputs:
+  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/tests-eleves/maths-entree-quatrieme-test.md
+  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/corrections/maths-entree-quatrieme-correction.md
+  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/pilotage-enseignant/maths-entree-quatrieme-pilotage.md
+  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/cartes-groupe/maths-entree-quatrieme-groupe.csv
+  - .artifacts/pre-rentree-2026/pedagogy/generated/session-kits/modules/quatrieme-mathematiques/CAHIER-ELEVE.md
+  - .artifacts/pre-rentree-2026/pedagogy/generated/session-kits/modules/quatrieme-mathematiques/GUIDE-ENSEIGNANT.md
+  editorialStatus: HUMAN_VALIDATION_REQUIRED
+  humanValidation: &id001
+    status: HUMAN_VALIDATION_REQUIRED
+    reviewer: null
+    validatedAt: null
+    requiredRoles:
+    - responsable-pedagogique
+    - enseignant-disciplinaire
+    required: true
+- id: quatrieme-francais
+  level: QUATRIEME
+  subject: FRANCAIS
+  cps:
+    path: content/pre-rentree-2026/pedagogy/positioning/cps/francais-entree-quatrieme.yaml
+    sha256: 688c812a29ddc7a0c52931989ad569c92888e5eda2d89a5a27fbec5d05ab004c
+  readme:
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/quatrieme-francais/README.md
+    sha256: e9857b15087bed0e1775a489ff4fe65f4b4b64ce615b3aafdfbc2db9c663a168
+  sessions:
+  - number: 1
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/quatrieme-francais/s01-comprendre-et-interpreter-un-texte
+    files:
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/quatrieme-francais/s01-comprendre-et-interpreter-un-texte/banques-eleve.md
+      sha256: 50c4075f5adbcba909f88ad50a890c1196f62ea1cc9a4d90c627239beb5fb51c
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/quatrieme-francais/s01-comprendre-et-interpreter-un-texte/corrige-commente.md
+      sha256: 7f29588ef96cb70e4652e0fafe8315ad0b3d410955bed02edbdd02181fe083a9
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/quatrieme-francais/s01-comprendre-et-interpreter-un-texte/verification-correction.md
+      sha256: fb8325266a77c78fd37d00b819199f6dfc13f68dcc595e7598267792465c043d
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/quatrieme-francais/s01-comprendre-et-interpreter-un-texte/verification-eleve.md
+      sha256: 8c4c0d3a4f60e5d7443c46cc0ce146596474404f7d63d06f7a45da161d1381e0
+  - number: 2
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/quatrieme-francais/s02-grammaire-de-la-phrase-classes-fonctions-propositions
+    files:
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/quatrieme-francais/s02-grammaire-de-la-phrase-classes-fonctions-propositions/banques-eleve.md
+      sha256: 74b28776a09d1f398196d07b3c99908d4202cfe6e6af752b823664fb00abfee2
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/quatrieme-francais/s02-grammaire-de-la-phrase-classes-fonctions-propositions/corrige-commente.md
+      sha256: be8881926c8df622b53f171966ed3e04facbf40640ac72641a528b4b3a4816bc
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/quatrieme-francais/s02-grammaire-de-la-phrase-classes-fonctions-propositions/verification-correction.md
+      sha256: cb2df8d06d2e03b306af7ac1e92e517a6e407df57a757775a2e8cd00ece879dc
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/quatrieme-francais/s02-grammaire-de-la-phrase-classes-fonctions-propositions/verification-eleve.md
+      sha256: a9358e78b9ec69736db9eff6b0f73444c51c13977f47918533b28344e3965b7c
+  - number: 3
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/quatrieme-francais/s03-accords-et-conjugaison-des-temps-du-recit
+    files:
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/quatrieme-francais/s03-accords-et-conjugaison-des-temps-du-recit/banques-eleve.md
+      sha256: cae1939c72c39e9cddd15767bfd2ac934fd619e5312488e3c2a2352215cf9529
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/quatrieme-francais/s03-accords-et-conjugaison-des-temps-du-recit/corrige-commente.md
+      sha256: 8d4ee72672b92616efd17e81cf4f07b849a50985714862d02601bd19cdd3bb4a
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/quatrieme-francais/s03-accords-et-conjugaison-des-temps-du-recit/verification-correction.md
+      sha256: 12b686bb7eb8e92af348b3cf57bdd62190e56d52998b3222ae8a4578accb3d52
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/quatrieme-francais/s03-accords-et-conjugaison-des-temps-du-recit/verification-eleve.md
+      sha256: 88734040d5b72c8cb3bd81a04633e00fccc9ecda30cf828befdfb85a30c52cce
+  - number: 4
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/quatrieme-francais/s04-recit-description-et-point-de-vue
+    files:
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/quatrieme-francais/s04-recit-description-et-point-de-vue/banques-eleve.md
+      sha256: a2f53f7ecdbeb7cbe3ed80406c01afe36f25ce0f4dd602941f38a83208424ad5
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/quatrieme-francais/s04-recit-description-et-point-de-vue/corrige-commente.md
+      sha256: 26f68fe7cacf736613e58b660cbad499ef761867c628382286f0397f6dd39e30
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/quatrieme-francais/s04-recit-description-et-point-de-vue/verification-correction.md
+      sha256: dbdbd58680920e8a75f8553265a97c226265846192968a24fa4ec60700ed16dc
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/quatrieme-francais/s04-recit-description-et-point-de-vue/verification-eleve.md
+      sha256: c62dae6a61aa85b44ec585ddc6ba9d4f98eaed78499191d35b9e8be094d40609
+  - number: 5
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/quatrieme-francais/s05-expression-ecrite-construite-en-paragraphes
+    files:
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/quatrieme-francais/s05-expression-ecrite-construite-en-paragraphes/banques-eleve.md
+      sha256: 031ab42e2ff5fdb82f40e071834bacd60a31b1a79bd43bd85b746b72d293680c
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/quatrieme-francais/s05-expression-ecrite-construite-en-paragraphes/corrige-commente.md
+      sha256: f71b920dfb08f0258ddb601c0129f82be45a95e3f5a1e1ee2f991cb29e8ef843
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/quatrieme-francais/s05-expression-ecrite-construite-en-paragraphes/verification-correction.md
+      sha256: ccc3917f7d188d99eb5bea4479a8a2cb0914d663190dab1f42d6d2f47ca36987
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/quatrieme-francais/s05-expression-ecrite-construite-en-paragraphes/verification-eleve.md
+      sha256: 323ca12e47e9380986ed1a5fd7ad29654c678f824f1b05d2d090a26d3ccecd84
+  expectedOutputs:
+  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/tests-eleves/francais-entree-quatrieme-test.md
+  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/corrections/francais-entree-quatrieme-correction.md
+  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/pilotage-enseignant/francais-entree-quatrieme-pilotage.md
+  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/cartes-groupe/francais-entree-quatrieme-groupe.csv
+  - .artifacts/pre-rentree-2026/pedagogy/generated/session-kits/modules/quatrieme-francais/CAHIER-ELEVE.md
+  - .artifacts/pre-rentree-2026/pedagogy/generated/session-kits/modules/quatrieme-francais/GUIDE-ENSEIGNANT.md
+  editorialStatus: HUMAN_VALIDATION_REQUIRED
+  humanValidation: *id001
+- id: troisieme-mathematiques
+  level: TROISIEME
+  subject: MATHEMATIQUES
+  cps:
+    path: content/pre-rentree-2026/pedagogy/positioning/cps/maths-entree-troisieme.yaml
+    sha256: f2c913c0c7c3262d6e896e75cf0216300e79bb144f8d0804e36bd9336e74d754
+  readme:
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/troisieme-mathematiques/README.md
+    sha256: eeafe9507f68940d460c26efae87402aeae23c86210aad6884173129bc3e71e2
+  sessions:
+  - number: 1
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/troisieme-mathematiques/s01-nombres-fractions-puissances-et-calcul
+    files:
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/troisieme-mathematiques/s01-nombres-fractions-puissances-et-calcul/banques-eleve.md
+      sha256: 13f2536f04846953720a85583c73b3528b349d11ffee139cbeb5a18ac5db46be
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/troisieme-mathematiques/s01-nombres-fractions-puissances-et-calcul/corrige-commente.md
+      sha256: 0f2201b546bc2e7d6556841cd9388deea6402ec7f0b1d0cdb557c07b91011f05
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/troisieme-mathematiques/s01-nombres-fractions-puissances-et-calcul/verification-correction.md
+      sha256: c6ad5ff30a70dae9addd635a09730afbb3387037e14d8fad383afc07e19a7562
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/troisieme-mathematiques/s01-nombres-fractions-puissances-et-calcul/verification-eleve.md
+      sha256: 7693e0953f551f8746690f4f1343a5f3f4ff5ac03a21bb21b18394b6d35e6a52
+  - number: 2
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/troisieme-mathematiques/s02-calcul-litteral-equations-et-problemes
+    files:
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/troisieme-mathematiques/s02-calcul-litteral-equations-et-problemes/banques-eleve.md
+      sha256: b5ee54919417b020d0a7238ce49e69e282330f19480af4fb642f587ee2768e58
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/troisieme-mathematiques/s02-calcul-litteral-equations-et-problemes/corrige-commente.md
+      sha256: bb92542c288c197785c8287210dffdfbec4b58a5a8fbc8f6c6280f55f9c3929f
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/troisieme-mathematiques/s02-calcul-litteral-equations-et-problemes/verification-correction.md
+      sha256: 2b7272e4d6f3958f36338a1707b0909a1c89fdcfc63d6fe27218bda95ffd4b04
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/troisieme-mathematiques/s02-calcul-litteral-equations-et-problemes/verification-eleve.md
+      sha256: e566d4bf11e3e396298c21fb50a66952f856e8c3dbeda3a2ddc1d2381065847a
+  - number: 3
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/troisieme-mathematiques/s03-geometrie-et-theoremes
+    files:
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/troisieme-mathematiques/s03-geometrie-et-theoremes/banques-eleve.md
+      sha256: 09c506aeb89be7f556b6c389dcbc2b2c135052f1a011acc039f27068ceccb0ed
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/troisieme-mathematiques/s03-geometrie-et-theoremes/corrige-commente.md
+      sha256: b0d4ab75209caf491f0c8d6af2e24ef01a57381ddfe666a9bae00ec5a3a1a11c
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/troisieme-mathematiques/s03-geometrie-et-theoremes/verification-correction.md
+      sha256: 353f852df28351237d7ffd85eb713dc7f55376754130b60634051e9f03a5991b
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/troisieme-mathematiques/s03-geometrie-et-theoremes/verification-eleve.md
+      sha256: b47d8971bb2b363a7b311a55c0086edace9df676697c455f04661a92f84838bb
+  - number: 4
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/troisieme-mathematiques/s04-fonctions-statistiques-et-probabilites
+    files:
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/troisieme-mathematiques/s04-fonctions-statistiques-et-probabilites/banques-eleve.md
+      sha256: f8fe969d53c1fcb55d33e710b7cf74cec5342e89bfd98e56fedaec53927175cb
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/troisieme-mathematiques/s04-fonctions-statistiques-et-probabilites/corrige-commente.md
+      sha256: 5b0e4b8b8c09b5f17aa5126dde16b51dfa08a3d84ed8e57c471698bf59524ae8
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/troisieme-mathematiques/s04-fonctions-statistiques-et-probabilites/verification-correction.md
+      sha256: fe382db062c6fcabf485e77037b819ea131f763294f5d6d516b676e09768825e
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/troisieme-mathematiques/s04-fonctions-statistiques-et-probabilites/verification-eleve.md
+      sha256: 6c8e0ce101627345a29598a857327d72df00d0f6b16606319c7492f46f8e0499
+  - number: 5
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/troisieme-mathematiques/s05-methodologie-dnb-et-sujet-d-entrainement
+    files:
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/troisieme-mathematiques/s05-methodologie-dnb-et-sujet-d-entrainement/banques-eleve.md
+      sha256: 94a8b6d1f4f52111a967517aa92a298baa8613c53db65aac0b37bcec84d858ae
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/troisieme-mathematiques/s05-methodologie-dnb-et-sujet-d-entrainement/corrige-commente.md
+      sha256: 09d7589139e27c47374c6e44d8102592764fa89647ae1bd33dc8ce686e29b2c9
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/troisieme-mathematiques/s05-methodologie-dnb-et-sujet-d-entrainement/verification-correction.md
+      sha256: 0e17a0231d729921c69a2a15ae45c0dced46a92018be22c51acc103430d5da47
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/troisieme-mathematiques/s05-methodologie-dnb-et-sujet-d-entrainement/verification-eleve.md
+      sha256: d67d048b4fe2b92a0211e81d5ebbe6e816cd558d8f3a81170c1ba4404d2a11f9
+  expectedOutputs:
+  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/tests-eleves/maths-entree-troisieme-test.md
+  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/corrections/maths-entree-troisieme-correction.md
+  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/pilotage-enseignant/maths-entree-troisieme-pilotage.md
+  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/cartes-groupe/maths-entree-troisieme-groupe.csv
+  - .artifacts/pre-rentree-2026/pedagogy/generated/session-kits/modules/troisieme-mathematiques/CAHIER-ELEVE.md
+  - .artifacts/pre-rentree-2026/pedagogy/generated/session-kits/modules/troisieme-mathematiques/GUIDE-ENSEIGNANT.md
+  editorialStatus: HUMAN_VALIDATION_REQUIRED
+  humanValidation: *id001
+- id: troisieme-francais
+  level: TROISIEME
+  subject: FRANCAIS
+  cps:
+    path: content/pre-rentree-2026/pedagogy/positioning/cps/francais-entree-troisieme.yaml
+    sha256: eb23866c49e64f6af81b12c71dced04f8dd5b2894a97cadae352864e20234b49
+  readme:
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/troisieme-francais/README.md
+    sha256: 0658fb845c58216019b0880a8954cd81818d875cbe33567e112775f8a97520c2
+  sessions:
+  - number: 1
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/troisieme-francais/s01-comprehension-et-interpretation
+    files:
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/troisieme-francais/s01-comprehension-et-interpretation/banques-eleve.md
+      sha256: a6e7304d935e639e58a83150f860830f4d2a0a99e619befcb30f2ee73e3b61cb
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/troisieme-francais/s01-comprehension-et-interpretation/corrige-commente.md
+      sha256: 544fd8107c3736d28bb3bfbb87b7f2cc0bf59c003550bbaa08d410fccef8f305
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/troisieme-francais/s01-comprehension-et-interpretation/verification-correction.md
+      sha256: f791335b060a8db3857d2e579502cfd2bf0f745b3342cea946a4d58699262ee3
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/troisieme-francais/s01-comprehension-et-interpretation/verification-eleve.md
+      sha256: 005c15e9cca20b731db910c5acd26dd8ab3e1ee38f55b8b3b71669988f3c64f7
+  - number: 2
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/troisieme-francais/s02-grammaire-accords-et-reecriture
+    files:
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/troisieme-francais/s02-grammaire-accords-et-reecriture/banques-eleve.md
+      sha256: 376568beeb2944eb7523a9af4b35d9e1b353225eb4c03bfe94d46d5550e59a16
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/troisieme-francais/s02-grammaire-accords-et-reecriture/corrige-commente.md
+      sha256: e0cddaf7878d08cdf088846c6e9c457623218135aee0c1219ae8e5276b964c5a
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/troisieme-francais/s02-grammaire-accords-et-reecriture/verification-correction.md
+      sha256: 34d2c8ec1bd52e683dc3239a7a10a0617a1d8e6e5bcbc5127471b696dab52e4b
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/troisieme-francais/s02-grammaire-accords-et-reecriture/verification-eleve.md
+      sha256: 3a1264dcec3cb57076e731ba58ff7f61f0e005f7f0726fecefc939bc4e4407e1
+  - number: 3
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/troisieme-francais/s03-dictee-et-maitrise-de-la-langue
+    files:
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/troisieme-francais/s03-dictee-et-maitrise-de-la-langue/banques-eleve.md
+      sha256: 3913e1b388b90d05ccf278b26768b5699bf716dd2960c92d07e7eaae3c82e753
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/troisieme-francais/s03-dictee-et-maitrise-de-la-langue/corrige-commente.md
+      sha256: b8c1c2134174b30d39992c5eb716089beaf484b87295f4f0dbe8fa75227ef943
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/troisieme-francais/s03-dictee-et-maitrise-de-la-langue/verification-correction.md
+      sha256: 1d180ea477c06ac9262a68391db46eb3e2273b01778efc07fd24998943e02205
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/troisieme-francais/s03-dictee-et-maitrise-de-la-langue/verification-eleve.md
+      sha256: dd56ac9688882efdb722ffb0daf889335f347ff56736e93309057cda6f60cc2a
+  - number: 4
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/troisieme-francais/s04-redaction-et-organisation-des-idees
+    files:
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/troisieme-francais/s04-redaction-et-organisation-des-idees/banques-eleve.md
+      sha256: 399cf7358ee2a24a334e03ae080bad633ccc1d36c00eb4b60cef863e3e2ee99e
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/troisieme-francais/s04-redaction-et-organisation-des-idees/corrige-commente.md
+      sha256: 36718bdacea59dfff2732bd21e9140f60493c297e2b3b15de94cac51cdfe91bd
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/troisieme-francais/s04-redaction-et-organisation-des-idees/verification-correction.md
+      sha256: b3837d0c5826d0fea24f963f1e466145766d38ab9abc6abfaff2aa6943d0bdcc
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/troisieme-francais/s04-redaction-et-organisation-des-idees/verification-eleve.md
+      sha256: f9ec92ae7eaa87b43950ff43bf8f5a82482ed9b350bc5e330cd5dfbc48130137
+  - number: 5
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/troisieme-francais/s05-methodologie-dnb-et-sujet-d-entrainement
+    files:
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/troisieme-francais/s05-methodologie-dnb-et-sujet-d-entrainement/banques-eleve.md
+      sha256: 61da5eac727ea4b2064c25149c80042dea0646f6dee3a9f4637f20380c556681
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/troisieme-francais/s05-methodologie-dnb-et-sujet-d-entrainement/corrige-commente.md
+      sha256: b133259540e0b8326f5cad80f7dd23a54163b2be46633213f7cc9b3f45a6fd80
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/troisieme-francais/s05-methodologie-dnb-et-sujet-d-entrainement/verification-correction.md
+      sha256: 7608a2ef5094569ac6653acad35804c6a1c2a3b23d31f405e141beb0b0af1c2d
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/troisieme-francais/s05-methodologie-dnb-et-sujet-d-entrainement/verification-eleve.md
+      sha256: 71a0ad2eab7cef8646ca70f0ce1aa59ae7b279eaafe6cba14f4e3cd97bd15e7f
+  expectedOutputs:
+  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/tests-eleves/francais-entree-troisieme-test.md
+  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/corrections/francais-entree-troisieme-correction.md
+  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/pilotage-enseignant/francais-entree-troisieme-pilotage.md
+  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/cartes-groupe/francais-entree-troisieme-groupe.csv
+  - .artifacts/pre-rentree-2026/pedagogy/generated/session-kits/modules/troisieme-francais/CAHIER-ELEVE.md
+  - .artifacts/pre-rentree-2026/pedagogy/generated/session-kits/modules/troisieme-francais/GUIDE-ENSEIGNANT.md
+  editorialStatus: HUMAN_VALIDATION_REQUIRED
+  humanValidation: *id001
+- id: seconde-mathematiques
+  level: SECONDE
+  subject: MATHEMATIQUES
+  cps:
+    path: content/pre-rentree-2026/pedagogy/positioning/cps/maths-entree-seconde.yaml
+    sha256: a9034380394aefd0260979cf491fc9c390fd5b5cdefc19da7795f4047d50b552
+  readme:
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/seconde-mathematiques/README.md
+    sha256: e57ee0c40a4c06c2ed7b1ccb96c2e355cf25b3df5e1a2f313b7f6c024ab2b252
+  sessions:
+  - number: 1
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/seconde-mathematiques/s01-nombres-reels-valeur-absolue-et-calcul-litteral
+    files:
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/seconde-mathematiques/s01-nombres-reels-valeur-absolue-et-calcul-litteral/banques-eleve.md
+      sha256: 6108cc628c0282ba636701db11553830a1c23548718d84e0d298751322d82ee5
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/seconde-mathematiques/s01-nombres-reels-valeur-absolue-et-calcul-litteral/corrige-commente.md
+      sha256: 9fa909ee70e9f1ce26e6a5c6d044b4a013f68b5742f0864efeadd805a6a76dd4
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/seconde-mathematiques/s01-nombres-reels-valeur-absolue-et-calcul-litteral/verification-correction.md
+      sha256: 7617e02bded4fc1000fc3a15ba0e464820009b15862a72963eefbbd38c735077
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/seconde-mathematiques/s01-nombres-reels-valeur-absolue-et-calcul-litteral/verification-eleve.md
+      sha256: 44125a9fefa8c2cae08b0a5bec951291194b353227a6cc4b02eb0862098be3f6
+  - number: 2
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/seconde-mathematiques/s02-fonctions-representations-variations-et-modelisation
+    files:
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/seconde-mathematiques/s02-fonctions-representations-variations-et-modelisation/banques-eleve.md
+      sha256: 7bc39dee3b02352b35e9ef98faa0d55d98f7cf720b4d67ab091bd46daeb65a7b
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/seconde-mathematiques/s02-fonctions-representations-variations-et-modelisation/corrige-commente.md
+      sha256: b7ef2ed97fd4b6ea131e002fe01c9ebd3582fdb3868c61e6f11ef62f2e21bdba
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/seconde-mathematiques/s02-fonctions-representations-variations-et-modelisation/verification-correction.md
+      sha256: 919d160648de7d6518e610e9483ecbd6181302b3cf76da31e0397d289768f6b1
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/seconde-mathematiques/s02-fonctions-representations-variations-et-modelisation/verification-eleve.md
+      sha256: 6b195c6c1d4567c68b8dbfc35c29fd54f2a3d2d6cb47b0e74176d420d26633cd
+  - number: 3
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/seconde-mathematiques/s03-equations-inequations-et-resolution-de-problemes
+    files:
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/seconde-mathematiques/s03-equations-inequations-et-resolution-de-problemes/banques-eleve.md
+      sha256: 66050d563cee56e687f0dd8b2aeca2d219800524007b654fb7594db7e3daf9c1
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/seconde-mathematiques/s03-equations-inequations-et-resolution-de-problemes/corrige-commente.md
+      sha256: 27e7e9c5e169170f401542b67ad52a99c399b3ad432a04d714de2e42d84200ef
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/seconde-mathematiques/s03-equations-inequations-et-resolution-de-problemes/verification-correction.md
+      sha256: 44e4782195b1e21e6dd3053a0d8d6de87290e03e483d650a7a5b1531820e3f2b
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/seconde-mathematiques/s03-equations-inequations-et-resolution-de-problemes/verification-eleve.md
+      sha256: ef7f19f85e738414e568ec4a4c81d3821cc1fd0c1251344e8753ed8c79013788
+  - number: 4
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/seconde-mathematiques/s04-geometrie-reperee-et-vecteurs
+    files:
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/seconde-mathematiques/s04-geometrie-reperee-et-vecteurs/banques-eleve.md
+      sha256: 8e7c19c52b9e64073f9f0fd926e697cda94f67d6f1fec7527b2d7c1d4d0885b6
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/seconde-mathematiques/s04-geometrie-reperee-et-vecteurs/corrige-commente.md
+      sha256: fadc6e3690c4548d6ab3e37a5b7b2e8298de6012e4a01c6f6fad3ab633203a90
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/seconde-mathematiques/s04-geometrie-reperee-et-vecteurs/verification-correction.md
+      sha256: 59a14efdd2e4cc1a3add98ea93907d25d6a7dddb1a4425409d4808d62647b243
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/seconde-mathematiques/s04-geometrie-reperee-et-vecteurs/verification-eleve.md
+      sha256: 765f52f2e9c879e4226e7ae8cf8041ad358120eb9f7d4bc34ed03b0e366a5143
+  - number: 5
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/seconde-mathematiques/s05-statistiques-et-probabilites
+    files:
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/seconde-mathematiques/s05-statistiques-et-probabilites/banques-eleve.md
+      sha256: c2e963fdd4439d710e9ebe3c4d6bda14dc2d18e0f1eb9ec2684e24cab47729ac
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/seconde-mathematiques/s05-statistiques-et-probabilites/corrige-commente.md
+      sha256: fe0488d542950e6244001b1d1eeb4fea31bc8a21fe6a0d644a032f58afd431b7
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/seconde-mathematiques/s05-statistiques-et-probabilites/verification-correction.md
+      sha256: 19452f7bda4f521db34497331d2fef66167932221ad65b7e41167e23c15d0c93
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/seconde-mathematiques/s05-statistiques-et-probabilites/verification-eleve.md
+      sha256: 4765f2628aef4ff304625e7b2f7072cc074b792d4814594b34979b3a2d3b0a96
+  expectedOutputs:
+  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/tests-eleves/maths-entree-seconde-test.md
+  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/corrections/maths-entree-seconde-correction.md
+  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/pilotage-enseignant/maths-entree-seconde-pilotage.md
+  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/cartes-groupe/maths-entree-seconde-groupe.csv
+  - .artifacts/pre-rentree-2026/pedagogy/generated/session-kits/modules/seconde-mathematiques/CAHIER-ELEVE.md
+  - .artifacts/pre-rentree-2026/pedagogy/generated/session-kits/modules/seconde-mathematiques/GUIDE-ENSEIGNANT.md
+  editorialStatus: HUMAN_VALIDATION_REQUIRED
+  humanValidation: *id001
+- id: seconde-francais
+  level: SECONDE
+  subject: FRANCAIS
+  cps:
+    path: content/pre-rentree-2026/pedagogy/positioning/cps/francais-entree-seconde.yaml
+    sha256: 1a400616f139b471a8d9e7daf0e920dc445abc6502a54925eb1642ff7f43b4a5
+  readme:
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/seconde-francais/README.md
+    sha256: 79a3eb3ab5d70a094988a363b334ad542304016c4582e0059a20d54e4f29791d
+  sessions:
+  - number: 1
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/seconde-francais/s01-expression-ecrite-structuree-le-paragraphe-argumente
+    files:
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/seconde-francais/s01-expression-ecrite-structuree-le-paragraphe-argumente/banques-eleve.md
+      sha256: a41b724ba57280d6c82e26d92a6e3fb77241ae1b3a0a11597b463abc68faa49e
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/seconde-francais/s01-expression-ecrite-structuree-le-paragraphe-argumente/corrige-commente.md
+      sha256: fe5cd98ee6446aac057c0d1e5faca64cdc2709d73376426469317d8f96610e9f
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/seconde-francais/s01-expression-ecrite-structuree-le-paragraphe-argumente/verification-correction.md
+      sha256: aebabeac6e94cd7f514695d61b9fd57a3804d73bb593e65dc2a14213c5d7d7a4
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/seconde-francais/s01-expression-ecrite-structuree-le-paragraphe-argumente/verification-eleve.md
+      sha256: fc3e088512d9fd408fd8d46104f593eeb661f21c0053b7a2c0c7e38fb15580f8
+  - number: 2
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/seconde-francais/s02-comprehension-et-analyse-de-texte-litteraire
+    files:
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/seconde-francais/s02-comprehension-et-analyse-de-texte-litteraire/banques-eleve.md
+      sha256: bc257b0767f512e453cd27489950edee5d35b44e3dcf3d50a9e2792bb65dd3c1
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/seconde-francais/s02-comprehension-et-analyse-de-texte-litteraire/corrige-commente.md
+      sha256: 5abb2bf5b220b1ff8763aa0b664afd8430b936fab8ccc9305a11263235151d2f
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/seconde-francais/s02-comprehension-et-analyse-de-texte-litteraire/verification-correction.md
+      sha256: 9bc05dd6405afd9dbbb02bbf971033165918fa4106a8eab9a0bc17ad2b2cc0a9
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/seconde-francais/s02-comprehension-et-analyse-de-texte-litteraire/verification-eleve.md
+      sha256: ff776ea318b2c5d9376428defde0c6771a748c8cd8c5c8d42fa7d1cca1cf7837
+  - number: 3
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/seconde-francais/s03-argumentation-convaincre-et-persuader
+    files:
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/seconde-francais/s03-argumentation-convaincre-et-persuader/banques-eleve.md
+      sha256: bf7f20f9de3d53997a8cbe1ef634781ec50e757af24930410793c6af608d4e98
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/seconde-francais/s03-argumentation-convaincre-et-persuader/corrige-commente.md
+      sha256: 7a1af87ea54a5fedf797b6e5758bf904a97c98b7c036eae71e2b722c801dba37
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/seconde-francais/s03-argumentation-convaincre-et-persuader/verification-correction.md
+      sha256: 9a13b7c02b06f5666160a526df67e84dc5835e3d6bfb9aa784cf1df814f54493
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/seconde-francais/s03-argumentation-convaincre-et-persuader/verification-eleve.md
+      sha256: a96441e9c4895ddb01d933f37e288d382638779f36ef3da5640ee39046e7242c
+  - number: 4
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/seconde-francais/s04-grammaire-au-service-de-l-expression
+    files:
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/seconde-francais/s04-grammaire-au-service-de-l-expression/banques-eleve.md
+      sha256: 9982b53c6018f008ef4368797cd0fd1de87e6d449f6952ec80c774a1b87bf7c7
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/seconde-francais/s04-grammaire-au-service-de-l-expression/corrige-commente.md
+      sha256: e478a403a84e6370ba2d7fa00ddb880e6357ebef679362ed9f342cd1a19a946a
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/seconde-francais/s04-grammaire-au-service-de-l-expression/verification-correction.md
+      sha256: b724779037efd3f9b4932c5fe163a412b728ae767ec41a42eff8c91eb3eb6b38
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/seconde-francais/s04-grammaire-au-service-de-l-expression/verification-eleve.md
+      sha256: 269808b9070d1b5825770d09ae014d83b620ea81fe4d1c2ae9a16302d96fd651
+  - number: 5
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/seconde-francais/s05-initiation-au-commentaire-de-texte
+    files:
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/seconde-francais/s05-initiation-au-commentaire-de-texte/banques-eleve.md
+      sha256: d8d05ea5421cefd9af14c35e388a185634f6674749f8b14635a713a4ceb0d48e
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/seconde-francais/s05-initiation-au-commentaire-de-texte/corrige-commente.md
+      sha256: ebf602032d96d4e2b4875fc3eaee50beac7bede9e7185ea2e948f8d2e2b992b4
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/seconde-francais/s05-initiation-au-commentaire-de-texte/verification-correction.md
+      sha256: 5ede364436f6a301e620e9fe04c1d2dab12316db05a059d507a24143f444e652
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/seconde-francais/s05-initiation-au-commentaire-de-texte/verification-eleve.md
+      sha256: 6dd2bb07c00445186061c6af66d96645326d913899d0f8d9584fd705170c0ad4
+  expectedOutputs:
+  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/tests-eleves/francais-entree-seconde-test.md
+  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/corrections/francais-entree-seconde-correction.md
+  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/pilotage-enseignant/francais-entree-seconde-pilotage.md
+  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/cartes-groupe/francais-entree-seconde-groupe.csv
+  - .artifacts/pre-rentree-2026/pedagogy/generated/session-kits/modules/seconde-francais/CAHIER-ELEVE.md
+  - .artifacts/pre-rentree-2026/pedagogy/generated/session-kits/modules/seconde-francais/GUIDE-ENSEIGNANT.md
+  editorialStatus: HUMAN_VALIDATION_REQUIRED
+  humanValidation: *id001
+- id: premiere-mathematiques
+  level: PREMIERE
+  subject: MATHEMATIQUES
+  cps:
+    path: content/pre-rentree-2026/pedagogy/positioning/cps/maths-entree-premiere.yaml
+    sha256: 5046fc98815058cdfffc08a35f2e01a0fb4d8f956830ed520b44de8466eab56b
+  readme:
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-mathematiques/README.md
+    sha256: c81614663a2e051a00aed13e6a3a6895c1ca63a1b4c73404c15c635ef9e975a6
+  sessions:
+  - number: 1
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-mathematiques/s01-second-degre-et-discriminant
+    files:
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-mathematiques/s01-second-degre-et-discriminant/banques-eleve.md
+      sha256: fe60aba482aab14ee15f03886f1ac4b1422f44876afc741ac9bf76ec04ccdd3b
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-mathematiques/s01-second-degre-et-discriminant/corrige-commente.md
+      sha256: 187da932093966fdc988c4c071ee46bf05d7207f3a3cba8c47443602a77bf0c0
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-mathematiques/s01-second-degre-et-discriminant/verification-correction.md
+      sha256: 65dcfc8be22aefea63f33c1e61b98b7b31637164304639d25a2557cbafa61bb2
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-mathematiques/s01-second-degre-et-discriminant/verification-eleve.md
+      sha256: fbb2b10c137fc664e35d4247be0bb3edde38e8fc5c9bb65c684f08985968f92c
+  - number: 2
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-mathematiques/s02-suites-et-evolution-exponentielle
+    files:
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-mathematiques/s02-suites-et-evolution-exponentielle/banques-eleve.md
+      sha256: 44c362f7bd43ee4cee4b5e80877238c450645a3f29f30ff366f314cac634c4d8
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-mathematiques/s02-suites-et-evolution-exponentielle/corrige-commente.md
+      sha256: f2e15b561ec722fd350158e6f6ca02dede7f6eee31c17bac8dd7000d31e61f62
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-mathematiques/s02-suites-et-evolution-exponentielle/verification-correction.md
+      sha256: 1d03b05fbd7f2b13753b0d330a89cbb41ee08b64bc68991326c60156ac050e0b
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-mathematiques/s02-suites-et-evolution-exponentielle/verification-eleve.md
+      sha256: cd4ae33a011cc003333dceb9a4f3ff09a1dfe68c26af2f2807d46ed6a5a1073d
+  - number: 3
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-mathematiques/s03-derivation-tangente-et-variations
+    files:
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-mathematiques/s03-derivation-tangente-et-variations/banques-eleve.md
+      sha256: 0d98dd6ede2d4e784eee231b186ec5821fcb15731a7c16675599a30ee9645dce
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-mathematiques/s03-derivation-tangente-et-variations/corrige-commente.md
+      sha256: 31bd6de77daefc4846c03c0acd2e97bb5ad6b7fc2c5a75de5c87b3f72037d21e
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-mathematiques/s03-derivation-tangente-et-variations/verification-correction.md
+      sha256: 6e7bd95fe7b838ec7ffcc537e7497182c0a43d0a57e6ae81d7bfa3b8e777bd21
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-mathematiques/s03-derivation-tangente-et-variations/verification-eleve.md
+      sha256: 9fea7c6680e1af785242436791a2333ec2c1be7b03505e2179566bb1b2483e97
+  - number: 4
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-mathematiques/s04-produit-scalaire-et-geometrie
+    files:
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-mathematiques/s04-produit-scalaire-et-geometrie/banques-eleve.md
+      sha256: cd6808f147501977ffb8f2d635e86ec728475cf5f136a3e0d4680eb4b9012d5d
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-mathematiques/s04-produit-scalaire-et-geometrie/corrige-commente.md
+      sha256: f8b9a913be4b473f36ce78da9fa6f3d8d935f9f0c49a35b0597bd17ae422d21c
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-mathematiques/s04-produit-scalaire-et-geometrie/verification-correction.md
+      sha256: 912b2a4e7f4c757eddaf153ea40246062e1e43eff594bc807a348bf0cca68773
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-mathematiques/s04-produit-scalaire-et-geometrie/verification-eleve.md
+      sha256: ea6449a65c8b9d62067aa8bdd5e2e9fb07b80408234c6ae3866cbe3f45f2ede0
+  - number: 5
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-mathematiques/s05-trigonometrie-et-methode-de-l-epreuve-anticipee
+    files:
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-mathematiques/s05-trigonometrie-et-methode-de-l-epreuve-anticipee/banques-eleve.md
+      sha256: 5405b2d60d1552965a329679090266ef42f5e71801cc8bfc1d4d6d0bf6c50d00
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-mathematiques/s05-trigonometrie-et-methode-de-l-epreuve-anticipee/corrige-commente.md
+      sha256: bcd232d6f4d5b694425305178cfc8bfcb12c8484617f80b0ebc1bcccd04841aa
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-mathematiques/s05-trigonometrie-et-methode-de-l-epreuve-anticipee/verification-correction.md
+      sha256: 9c2835bd21715ac2b7788f5688433aac9da7a0d152d40859ffa5bbba38b1d142
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-mathematiques/s05-trigonometrie-et-methode-de-l-epreuve-anticipee/verification-eleve.md
+      sha256: 80741c7f152ae94572abe12f451b4ed48d0a571e90409edf200f3e401dcfd5c5
+  expectedOutputs:
+  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/tests-eleves/maths-entree-premiere-test.md
+  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/corrections/maths-entree-premiere-correction.md
+  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/pilotage-enseignant/maths-entree-premiere-pilotage.md
+  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/cartes-groupe/maths-entree-premiere-groupe.csv
+  - .artifacts/pre-rentree-2026/pedagogy/generated/session-kits/modules/premiere-mathematiques/CAHIER-ELEVE.md
+  - .artifacts/pre-rentree-2026/pedagogy/generated/session-kits/modules/premiere-mathematiques/GUIDE-ENSEIGNANT.md
+  editorialStatus: HUMAN_VALIDATION_REQUIRED
+  humanValidation: *id001
+- id: premiere-francais-eaf
+  level: PREMIERE
+  subject: FRANCAIS
+  cps:
+    path: content/pre-rentree-2026/pedagogy/positioning/cps/francais-entree-premiere.yaml
+    sha256: d0cbc12eba633b4e710e9b0f0f18fd3339efdb682bc2939802e1abb5ab7ebd4c
+  readme:
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-francais-eaf/README.md
+    sha256: 5df4f3c84bfaccc0e799f364b2d9d1e7fb992a22b300f23c034b3bdadd2c712f
+  sessions:
+  - number: 1
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-francais-eaf/s01-le-commentaire-compose-methode-complete
+    files:
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-francais-eaf/s01-le-commentaire-compose-methode-complete/banques-eleve.md
+      sha256: c0e47c090f6078628a05e58fe478997442a8f120cb5ebf474993fccd7963805c
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-francais-eaf/s01-le-commentaire-compose-methode-complete/corrige-commente.md
+      sha256: 7e08c4cbc09f06c10c69dbdb50b372f6cb91c2b22cb02858e319a93a9fd385ff
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-francais-eaf/s01-le-commentaire-compose-methode-complete/verification-correction.md
+      sha256: ac33614364f36efbb8f1dca47d541b08c6c5953f53e6caabf3d985a388d1dd4f
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-francais-eaf/s01-le-commentaire-compose-methode-complete/verification-eleve.md
+      sha256: bb72fd23b9553b3ad11354e4d947cba8d8fb22142bb4e556444debcffa5f4f13
+  - number: 2
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-francais-eaf/s02-dissertation-ou-contraction-de-texte-selon-la-voie
+    files:
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-francais-eaf/s02-dissertation-ou-contraction-de-texte-selon-la-voie/banques-eleve.md
+      sha256: 1d136b4764ea6505faccac3e22daa9bdc1888cd407a28a29cfb7d90c78aa2350
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-francais-eaf/s02-dissertation-ou-contraction-de-texte-selon-la-voie/corrige-commente.md
+      sha256: 254e7fa8ab2d9282397ad793e84f1d41ef46e0194dfb90d49c80fba44ba10c29
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-francais-eaf/s02-dissertation-ou-contraction-de-texte-selon-la-voie/verification-correction.md
+      sha256: bdfd83a828a2b17cad37bdad03e1e8ad06f8ac63d32793a168e0912e6eff683e
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-francais-eaf/s02-dissertation-ou-contraction-de-texte-selon-la-voie/verification-eleve.md
+      sha256: 0121aba30ce1a84c3662044f90b453ab5ef465fb6885d94f9f9dbe06067f6e6c
+  - number: 3
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-francais-eaf/s03-explication-lineaire-technique-et-pratique
+    files:
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-francais-eaf/s03-explication-lineaire-technique-et-pratique/banques-eleve.md
+      sha256: a6db7c677ce4d3c36be843c0a865261fb85b3c31a112484bbb30dfedaa6541cb
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-francais-eaf/s03-explication-lineaire-technique-et-pratique/corrige-commente.md
+      sha256: b4ed91be222af599fbb4a71adc5e0aaa9e4aa9a228e0a8cf1ed3e3ddf1ade222
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-francais-eaf/s03-explication-lineaire-technique-et-pratique/verification-correction.md
+      sha256: 1e9dc0bd4930234c38c2029c96637430d09940e0ca174848257a92bd56f221d6
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-francais-eaf/s03-explication-lineaire-technique-et-pratique/verification-eleve.md
+      sha256: b38dff83cc251103d07c475c86d01593b634c728f08e8cffc8e9fdb8c4a41f0e
+  - number: 4
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-francais-eaf/s04-grammaire-stylistique-et-question-de-grammaire
+    files:
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-francais-eaf/s04-grammaire-stylistique-et-question-de-grammaire/banques-eleve.md
+      sha256: 56ef9aa65abccafb7a66e50f733372861afe64758fd94c02a9f1a9d6d353a2e9
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-francais-eaf/s04-grammaire-stylistique-et-question-de-grammaire/corrige-commente.md
+      sha256: 465012014448c46d6e7d17a2e607ca76d56f42bb40483daea7f2edd44a5aa6c2
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-francais-eaf/s04-grammaire-stylistique-et-question-de-grammaire/verification-correction.md
+      sha256: c95c338ee4271cb363f827cc0f7657dd89bbfc952ab6c760788ce88d57673264
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-francais-eaf/s04-grammaire-stylistique-et-question-de-grammaire/verification-eleve.md
+      sha256: ec9460f4032719405794af07d054b4ab9816bbfad1f7cd1d329d29c813782a49
+  - number: 5
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-francais-eaf/s05-oral-des-eaf-explication-et-entretien
+    files:
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-francais-eaf/s05-oral-des-eaf-explication-et-entretien/banques-eleve.md
+      sha256: dee2b3259dae9f46a87e9f6731c34fa6963f7119df52ff325755ed105b76959a
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-francais-eaf/s05-oral-des-eaf-explication-et-entretien/corrige-commente.md
+      sha256: 7a21e7aba9916673625f1858d6194a6020147d456a057c873d35b8d1642303dc
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-francais-eaf/s05-oral-des-eaf-explication-et-entretien/verification-correction.md
+      sha256: 390018f6c872fa4359d8fd033c3c9ff4af6eee2896375c15030a90bb3847eb7b
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-francais-eaf/s05-oral-des-eaf-explication-et-entretien/verification-eleve.md
+      sha256: 11e7b7a6b3ea6514a442cc9daab5beeff2dec0376f3d8210ad3ea49551f1d10f
+  expectedOutputs:
+  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/tests-eleves/francais-entree-premiere-test.md
+  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/corrections/francais-entree-premiere-correction.md
+  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/pilotage-enseignant/francais-entree-premiere-pilotage.md
+  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/cartes-groupe/francais-entree-premiere-groupe.csv
+  - .artifacts/pre-rentree-2026/pedagogy/generated/session-kits/modules/premiere-francais-eaf/CAHIER-ELEVE.md
+  - .artifacts/pre-rentree-2026/pedagogy/generated/session-kits/modules/premiere-francais-eaf/GUIDE-ENSEIGNANT.md
+  editorialStatus: HUMAN_VALIDATION_REQUIRED
+  humanValidation: *id001
+- id: premiere-nsi
+  level: PREMIERE
+  subject: NSI
+  cps:
+    path: content/pre-rentree-2026/pedagogy/positioning/cps/nsi-entree-premiere.yaml
+    sha256: db4260b374dc6d4b3388737881282df470d7dcd1534c7723b33e4d68d270bf1e
+  readme:
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-nsi/README.md
+    sha256: b3d4e227909f98b30ea065d3c38988c35513ddc159b37a284d90683f073dad25
+  sessions:
+  - number: 1
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-nsi/s01-algorithmique-et-premiers-programmes-python
+    files:
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-nsi/s01-algorithmique-et-premiers-programmes-python/banques-eleve.md
+      sha256: 7b06d322eb579ab95531b4ec80f00c1f9c279c3e534c4ce09c72743195aaf875
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-nsi/s01-algorithmique-et-premiers-programmes-python/corrige-commente.md
+      sha256: e45f991b74de5d157f58ca6f089e0a22d846d08316d5dda6271e5b70c413d6fb
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-nsi/s01-algorithmique-et-premiers-programmes-python/verification-correction.md
+      sha256: ad5ef97ec59de9a16317ea79f6ef33cf83f8edab2170c6fb0cc8af683e6dc6f2
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-nsi/s01-algorithmique-et-premiers-programmes-python/verification-eleve.md
+      sha256: aa7ec836f6a6d5f3a5e7ef0e18145d068ac99708340888942e16ec55620982b6
+  - number: 2
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-nsi/s02-conditions-et-boucles
+    files:
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-nsi/s02-conditions-et-boucles/banques-eleve.md
+      sha256: 4ed8937cc1583ab17c580fb97290e9481926f9c2045d968cd435056953a0911e
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-nsi/s02-conditions-et-boucles/corrige-commente.md
+      sha256: f4898fa866af151accbd37b9b8d40eb4e1d18322afd456018e6c79cb7b97debb
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-nsi/s02-conditions-et-boucles/verification-correction.md
+      sha256: 0980c05d8b04f1699e1fcb2af70e715eafccef5a5a31600a63b2fe61657a9c56
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-nsi/s02-conditions-et-boucles/verification-eleve.md
+      sha256: 6b90eb275f3ba852aa5aaea649e7d9def231c3ac085a3821939f7d0b804804d3
+  - number: 3
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-nsi/s03-fonctions-et-decomposition-d-un-probleme
+    files:
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-nsi/s03-fonctions-et-decomposition-d-un-probleme/banques-eleve.md
+      sha256: 2405837b29cf24beaf214a1f6da291bafd346ec7091f87d51c1d7778622cc650
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-nsi/s03-fonctions-et-decomposition-d-un-probleme/corrige-commente.md
+      sha256: aa7a9c6b9d8b8f976d19cd057f36361f296908f0d9829a206aef5b984def1183
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-nsi/s03-fonctions-et-decomposition-d-un-probleme/verification-correction.md
+      sha256: f8602c780768da414be8b83b4fd83ea6ca099291bd687c68ddd9782889dedfb1
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-nsi/s03-fonctions-et-decomposition-d-un-probleme/verification-eleve.md
+      sha256: 68a50a12a6d842694e33c9532aa40e4ca74326b384acb4d8015b87be93050277
+  - number: 4
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-nsi/s04-listes-parcours-et-recherche
+    files:
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-nsi/s04-listes-parcours-et-recherche/banques-eleve.md
+      sha256: ccec8cc616beacccd624cab40ab6965d36e4e271fc22f2f112888528ab96a335
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-nsi/s04-listes-parcours-et-recherche/corrige-commente.md
+      sha256: 4abb06fc0dd10643dcdb3e0211d26dc008c17048c9451672bcd119056e34e4bb
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-nsi/s04-listes-parcours-et-recherche/verification-correction.md
+      sha256: 85fa1e90661ce403ce0476a0caaa7c908b92c0ac30d1480ecd2bb0a967f6c394
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-nsi/s04-listes-parcours-et-recherche/verification-eleve.md
+      sha256: 00cd4e5d8b39bdd058e835980a2a17c73ade09bff492cad8e326606f304a0de1
+  - number: 5
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-nsi/s05-mini-projet-integrateur-nsi
+    files:
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-nsi/s05-mini-projet-integrateur-nsi/banques-eleve.md
+      sha256: e1bf9aec5f6c99a329ec72976c7d6f62875e7daa17816feb5e54352bc12db504
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-nsi/s05-mini-projet-integrateur-nsi/corrige-commente.md
+      sha256: bc5770f6f9c57225dcb4e81e34b8117db51836a14bdeee1f289e3f0a1f028a71
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-nsi/s05-mini-projet-integrateur-nsi/verification-correction.md
+      sha256: 47b1ed00c2ac577b93eecfaf6c4e608c005b6add52d457067a9e122cb66b1ff7
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-nsi/s05-mini-projet-integrateur-nsi/verification-eleve.md
+      sha256: 8ba8d88f217b8829b5d987118807ceca8ace5f5002a96d2d01db219a3bd4a2a6
+  expectedOutputs:
+  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/tests-eleves/nsi-entree-premiere-test.md
+  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/corrections/nsi-entree-premiere-correction.md
+  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/pilotage-enseignant/nsi-entree-premiere-pilotage.md
+  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/cartes-groupe/nsi-entree-premiere-groupe.csv
+  - .artifacts/pre-rentree-2026/pedagogy/generated/session-kits/modules/premiere-nsi/CAHIER-ELEVE.md
+  - .artifacts/pre-rentree-2026/pedagogy/generated/session-kits/modules/premiere-nsi/GUIDE-ENSEIGNANT.md
+  editorialStatus: HUMAN_VALIDATION_REQUIRED
+  humanValidation: *id001
+- id: premiere-physique-chimie
+  level: PREMIERE
+  subject: PHYSIQUE_CHIMIE
+  cps:
+    path: content/pre-rentree-2026/pedagogy/positioning/cps/physique-chimie-entree-premiere.yaml
+    sha256: 845bce6b9de5d3752c42226d7320730a81f1913a796a4fd6f229f0d8245d9adf
+  readme:
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-physique-chimie/README.md
+    sha256: b0e3b3614d93577bd52c3b7a719384f58ca7074583a0af1b5fa80a3142faf96c
+  sessions:
+  - number: 1
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-physique-chimie/s01-quantite-de-matiere-et-concentration
+    files:
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-physique-chimie/s01-quantite-de-matiere-et-concentration/banques-eleve.md
+      sha256: 4d940feea8f293d3a126e64f563499f2bf9bd31130db2bd961e95eb14a3368e7
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-physique-chimie/s01-quantite-de-matiere-et-concentration/corrige-commente.md
+      sha256: 964fed6a1d65792431d78b9ffe4f41f35f73f3c10ea0e471502965a1159056ae
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-physique-chimie/s01-quantite-de-matiere-et-concentration/verification-correction.md
+      sha256: 8b5469da919e08bdba52d44587a6149bf498617409e8c86837e1f7c3fb5d8ee4
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-physique-chimie/s01-quantite-de-matiere-et-concentration/verification-eleve.md
+      sha256: 2c1aeb736e8f2c1d4b7718674bb50f7bf14fc05c8b9cad3a51d0c7fbe2fcd7b8
+  - number: 2
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-physique-chimie/s02-reactions-chimiques-et-stochiometrie
+    files:
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-physique-chimie/s02-reactions-chimiques-et-stochiometrie/banques-eleve.md
+      sha256: 8480b7dd557d6a388946084df7f04f7851d224d9f04842bac5a29d9ef6501621
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-physique-chimie/s02-reactions-chimiques-et-stochiometrie/corrige-commente.md
+      sha256: 623eadfa4fa37e11dc28d78555aac7f6e3adf4eece343e55dc588e5af65ac246
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-physique-chimie/s02-reactions-chimiques-et-stochiometrie/verification-correction.md
+      sha256: 5a2a596ab424e5446edecba4c4046e4c379c6912f02332f9f738d3a4d45192e0
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-physique-chimie/s02-reactions-chimiques-et-stochiometrie/verification-eleve.md
+      sha256: 38f42c888ea024d0c380472a7d6a2013522ddd08e935998c333eff746368753f
+  - number: 3
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-physique-chimie/s03-champs-et-forces-gravitation-et-electrostatique
+    files:
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-physique-chimie/s03-champs-et-forces-gravitation-et-electrostatique/banques-eleve.md
+      sha256: feaded1bc100cd4a0be65c4ed4ea1d558cd050d3a8519dd5290b5a600b42134f
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-physique-chimie/s03-champs-et-forces-gravitation-et-electrostatique/corrige-commente.md
+      sha256: 6d5b028cca543034ba40226ebe81367517f46ef35e7e4f2eff4fd009884e9174
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-physique-chimie/s03-champs-et-forces-gravitation-et-electrostatique/verification-correction.md
+      sha256: abdbbcf3a9f3e8a0e2d2466dced97670f1daaa83a2975e8887e52c6753b15c8f
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-physique-chimie/s03-champs-et-forces-gravitation-et-electrostatique/verification-eleve.md
+      sha256: 15ee77b0ccf37dbb8127d05c06c6b6d74120034095df4d1b06799fe7bb742289
+  - number: 4
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-physique-chimie/s04-aspects-energetiques-travail-energie-et-transferts
+    files:
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-physique-chimie/s04-aspects-energetiques-travail-energie-et-transferts/banques-eleve.md
+      sha256: 81d310f3d12403258ae7d3a17b6cfe7a2ff3845d63ae832d68a703a9f8f387a9
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-physique-chimie/s04-aspects-energetiques-travail-energie-et-transferts/corrige-commente.md
+      sha256: d5ef33617a02308c401fc98d993039df9bfb1e387a3fdb4db4a31e30be92ff46
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-physique-chimie/s04-aspects-energetiques-travail-energie-et-transferts/verification-correction.md
+      sha256: 9c5e25f0623d8a6d7d5dcc77bdd13a0496edd328fbe33cb9c104995a5a976d19
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-physique-chimie/s04-aspects-energetiques-travail-energie-et-transferts/verification-eleve.md
+      sha256: 39c354e5e4f552f3ce1058ab3c05c8a653a4eea385951becd5257c1bc9e62bcb
+  - number: 5
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-physique-chimie/s05-exploitation-de-documents-scientifiques
+    files:
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-physique-chimie/s05-exploitation-de-documents-scientifiques/banques-eleve.md
+      sha256: ea9c646bfcafb1970ab84138d8a6a04dbae8f31679007bcc380b47f447ba6229
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-physique-chimie/s05-exploitation-de-documents-scientifiques/corrige-commente.md
+      sha256: f64005321116612d4ed76ec3b5ad5c4d384d6464880c9d5a7cb3f046b2246ba3
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-physique-chimie/s05-exploitation-de-documents-scientifiques/verification-correction.md
+      sha256: bb6b7831107c70bb8f1f53b6c6b7346dd58132705aff9a45cc82325a6624be1e
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-physique-chimie/s05-exploitation-de-documents-scientifiques/verification-eleve.md
+      sha256: a6d82a106cec6f6a55c6c58df68e92648bca03e1e7a62bb0516f3560c8ed6010
+  expectedOutputs:
+  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/tests-eleves/physique-chimie-entree-premiere-test.md
+  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/corrections/physique-chimie-entree-premiere-correction.md
+  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/pilotage-enseignant/physique-chimie-entree-premiere-pilotage.md
+  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/cartes-groupe/physique-chimie-entree-premiere-groupe.csv
+  - .artifacts/pre-rentree-2026/pedagogy/generated/session-kits/modules/premiere-physique-chimie/CAHIER-ELEVE.md
+  - .artifacts/pre-rentree-2026/pedagogy/generated/session-kits/modules/premiere-physique-chimie/GUIDE-ENSEIGNANT.md
+  editorialStatus: HUMAN_VALIDATION_REQUIRED
+  humanValidation: *id001
+- id: terminale-mathematiques
+  level: TERMINALE
+  subject: MATHEMATIQUES
+  cps:
+    path: content/pre-rentree-2026/pedagogy/positioning/cps/maths-entree-terminale.yaml
+    sha256: db723beb770084dc1622f2644e0d64630d21b376c67895b54c58b8457ebde16c
+  readme:
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-mathematiques/README.md
+    sha256: d3bae4fbef1b2b01ab38f1b94789363a6a8f41942264f24490f5beac969d9e70
+  sessions:
+  - number: 1
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-mathematiques/s01-limites-et-continuite
+    files:
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-mathematiques/s01-limites-et-continuite/banques-eleve.md
+      sha256: 47a8060dd54d5302ac9cfb19ce3328031470e4cda5e34e8abb59c84d50943c76
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-mathematiques/s01-limites-et-continuite/corrige-commente.md
+      sha256: 30b081db922f5294040aae9117a933b30cb1433c2f201df1232005d6708ad01e
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-mathematiques/s01-limites-et-continuite/verification-correction.md
+      sha256: d6af80b81725f07be2ad32c812ef448699164ccfb78643ffe85ab761e09a68eb
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-mathematiques/s01-limites-et-continuite/verification-eleve.md
+      sha256: f3499d7aca2ff05ea545febd04add8400f69058fc30cbedeb776251e561d883d
+  - number: 2
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-mathematiques/s02-derivation-avancee-et-fonctions-composees
+    files:
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-mathematiques/s02-derivation-avancee-et-fonctions-composees/banques-eleve.md
+      sha256: 8164cca1933a6f86111adf1abbfcfbe6e1264b912117c146374d7411ce8415c1
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-mathematiques/s02-derivation-avancee-et-fonctions-composees/corrige-commente.md
+      sha256: fa50a5db5b2782e6777341d7145ebd245585bffbae5e60c2a6e8ddec1349647f
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-mathematiques/s02-derivation-avancee-et-fonctions-composees/verification-correction.md
+      sha256: 48910c330c7a957dbf3b3bbc069883cd0ea3aed5801878749fb71ae1a800cfc2
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-mathematiques/s02-derivation-avancee-et-fonctions-composees/verification-eleve.md
+      sha256: 3ad54d2e6d3fd73eab67cd23488e67a4c99d949ce471e488cb5085af3e8e24d5
+  - number: 3
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-mathematiques/s03-suites-recurrentes-et-convergence
+    files:
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-mathematiques/s03-suites-recurrentes-et-convergence/banques-eleve.md
+      sha256: c525544fcab7507604413d8ee637778fadcf83e12f15d162d7bb617785635dc4
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-mathematiques/s03-suites-recurrentes-et-convergence/corrige-commente.md
+      sha256: 5aee3e9bfeb55a2048b3c5c6d4571e69120dbdb2a0302d455d604b711b0e62ad
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-mathematiques/s03-suites-recurrentes-et-convergence/verification-correction.md
+      sha256: 722a44f315132feb277b325414b39771b8ec47b6a584a697ddd1f589092dd80a
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-mathematiques/s03-suites-recurrentes-et-convergence/verification-eleve.md
+      sha256: 6a13cabedcab3e374c1499c88cc584a6e7c5fc25f9ec7ccd8199dbe5370581e0
+  - number: 4
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-mathematiques/s04-probabilites-loi-binomiale-et-esperance
+    files:
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-mathematiques/s04-probabilites-loi-binomiale-et-esperance/banques-eleve.md
+      sha256: 2236b577c42fd2205328aefe52ca3b5ea663844dee6de621e2afc01728b44dad
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-mathematiques/s04-probabilites-loi-binomiale-et-esperance/corrige-commente.md
+      sha256: 40393e5e97398f78fb0a3682007cac0fdb88cd3a0c66ea450e712889da1e41db
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-mathematiques/s04-probabilites-loi-binomiale-et-esperance/verification-correction.md
+      sha256: 7177c3567840d9249acb8955019ee279c5b26a022f17c4f8c0572a811b14cb26
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-mathematiques/s04-probabilites-loi-binomiale-et-esperance/verification-eleve.md
+      sha256: 37e98460be1a193a84a298916063b4324bd89c42bcde256d44b06266391ce908
+  - number: 5
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-mathematiques/s05-geometrie-dans-l-espace
+    files:
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-mathematiques/s05-geometrie-dans-l-espace/banques-eleve.md
+      sha256: 1817436b00821f519a4f8000371e2839cbc1a797020382804e930e9b152386e7
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-mathematiques/s05-geometrie-dans-l-espace/corrige-commente.md
+      sha256: 7fbbc0c577100c808a911b3d036f82e8513f92beee6784aa04b5863794eae017
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-mathematiques/s05-geometrie-dans-l-espace/verification-correction.md
+      sha256: 49e608d8fcfc0429708a5170dc66ed20087b0fbf8c6813ff0aad7b97974820cf
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-mathematiques/s05-geometrie-dans-l-espace/verification-eleve.md
+      sha256: 1758178b05c3c667395de0d7f033e4a75b4478a6a154e81ccbd09346af1e2a4f
+  expectedOutputs:
+  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/tests-eleves/maths-entree-terminale-test.md
+  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/corrections/maths-entree-terminale-correction.md
+  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/pilotage-enseignant/maths-entree-terminale-pilotage.md
+  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/cartes-groupe/maths-entree-terminale-groupe.csv
+  - .artifacts/pre-rentree-2026/pedagogy/generated/session-kits/modules/terminale-mathematiques/CAHIER-ELEVE.md
+  - .artifacts/pre-rentree-2026/pedagogy/generated/session-kits/modules/terminale-mathematiques/GUIDE-ENSEIGNANT.md
+  editorialStatus: HUMAN_VALIDATION_REQUIRED
+  humanValidation: *id001
+- id: terminale-maths-expertes
+  level: TERMINALE
+  subject: MATHS_EXPERTES
+  cps:
+    path: content/pre-rentree-2026/pedagogy/positioning/cps/maths-expertes-entree-terminale.yaml
+    sha256: 406c96ed808ea40195c76906b30ee1c7844c6831acd7045cc4b9d2578e2ac151
+  readme:
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-maths-expertes/README.md
+    sha256: c4852b4816e4e70a9efd15eba660a702c2ba737f22b4f90db982df324a66b96c
+  sessions:
+  - number: 1
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-maths-expertes/s01-arithmetique-divisibilite-et-nombres-premiers
+    files:
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-maths-expertes/s01-arithmetique-divisibilite-et-nombres-premiers/banques-eleve.md
+      sha256: f5cc950d31991cb752575540e061f3214c69602f7b4068d4ccf4245f1fb294f9
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-maths-expertes/s01-arithmetique-divisibilite-et-nombres-premiers/corrige-commente.md
+      sha256: 97dc7c700361d6c667cf0a7c3d3b792926edc311b00118d5a98d0d1a0baac8ec
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-maths-expertes/s01-arithmetique-divisibilite-et-nombres-premiers/verification-correction.md
+      sha256: 675a6bec0925ddddd3e37eee3c7aa0198a44b3ea9dd7a4cbca529579a4c0de8e
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-maths-expertes/s01-arithmetique-divisibilite-et-nombres-premiers/verification-eleve.md
+      sha256: 3c6c73c6afcca38aee09582ddf3dae47a14a54c084d679ba4732c8e58afc7046
+  - number: 2
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-maths-expertes/s02-congruences-et-applications
+    files:
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-maths-expertes/s02-congruences-et-applications/banques-eleve.md
+      sha256: bd806c744ba42dadc102897cb8c858b93284bb1dd24cb8174f82c738f72e8c4c
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-maths-expertes/s02-congruences-et-applications/corrige-commente.md
+      sha256: 15dc994829860079ba3d0deb6dc3c7038fb1d22d098f7cff4e22b09dcaa952d2
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-maths-expertes/s02-congruences-et-applications/verification-correction.md
+      sha256: ddc28bf38f580a2a3702d22ad09a077b917cc1c98e99ef2d9cd2559a25ca8bda
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-maths-expertes/s02-congruences-et-applications/verification-eleve.md
+      sha256: 484c66e5943ea71dc562cb330962b7fd37f95cf6243e8c3be2f82d9f335b327d
+  - number: 3
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-maths-expertes/s03-nombres-complexes-approfondis
+    files:
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-maths-expertes/s03-nombres-complexes-approfondis/banques-eleve.md
+      sha256: 19e4eb1e58d704e2c440587e30bbcdf8233c9cadea611fd4dcde9854bb981774
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-maths-expertes/s03-nombres-complexes-approfondis/corrige-commente.md
+      sha256: 95ef99f9616e2067d0136578fbbaa4ec349243aad6a72b70dbef25dd6667178d
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-maths-expertes/s03-nombres-complexes-approfondis/verification-correction.md
+      sha256: 4b244678ad991d682a1b915d242d43cc894020b1a8c053a433ee890e2a02671e
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-maths-expertes/s03-nombres-complexes-approfondis/verification-eleve.md
+      sha256: 8d4056b858965f7d76727a8736027815b27922ce7555336fb3726b738488a81f
+  - number: 4
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-maths-expertes/s04-matrices-et-systemes-lineaires
+    files:
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-maths-expertes/s04-matrices-et-systemes-lineaires/banques-eleve.md
+      sha256: 60ed2f05b1bef6f89cf57a4f00ac1c979d80f35b2530ca400afcc69f28dfe000
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-maths-expertes/s04-matrices-et-systemes-lineaires/corrige-commente.md
+      sha256: 30c8e16cb61fe084a60a27f56bd51012a7bb9906f38180ee9e4438caa2ad63e9
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-maths-expertes/s04-matrices-et-systemes-lineaires/verification-correction.md
+      sha256: d4fd01cbfc79723dfc29c2f6f0da953e884571434af0f4271b4e5af2cbf66947
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-maths-expertes/s04-matrices-et-systemes-lineaires/verification-eleve.md
+      sha256: 4c281f5387874013e6e3d5dac8b2548c6689e98b0ab32a88ff875d3a4097201a
+  - number: 5
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-maths-expertes/s05-graphes-notions-et-parcours
+    files:
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-maths-expertes/s05-graphes-notions-et-parcours/banques-eleve.md
+      sha256: 683d87ed86b3d4b907ad1016230435fd1b28615a7ba227224c3c53151a69236c
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-maths-expertes/s05-graphes-notions-et-parcours/corrige-commente.md
+      sha256: 5a5f3364d7de4057bfe451f40a90e0162c8c2360d12b185cae22b01886431ea7
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-maths-expertes/s05-graphes-notions-et-parcours/verification-correction.md
+      sha256: 7958210a54adc6fec7e0617f168ec1d163bec4f80822781a5c5ad527d4990e97
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-maths-expertes/s05-graphes-notions-et-parcours/verification-eleve.md
+      sha256: 238e7d4f6cff1d9cb6d5df6d841e445665a83118c3015cd65b1b21b459f27315
+  expectedOutputs:
+  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/tests-eleves/maths-expertes-entree-terminale-test.md
+  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/corrections/maths-expertes-entree-terminale-correction.md
+  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/pilotage-enseignant/maths-expertes-entree-terminale-pilotage.md
+  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/cartes-groupe/maths-expertes-entree-terminale-groupe.csv
+  - .artifacts/pre-rentree-2026/pedagogy/generated/session-kits/modules/terminale-maths-expertes/CAHIER-ELEVE.md
+  - .artifacts/pre-rentree-2026/pedagogy/generated/session-kits/modules/terminale-maths-expertes/GUIDE-ENSEIGNANT.md
+  editorialStatus: HUMAN_VALIDATION_REQUIRED
+  humanValidation: *id001
+- id: terminale-nsi
+  level: TERMINALE
+  subject: NSI
+  cps:
+    path: content/pre-rentree-2026/pedagogy/positioning/cps/nsi-entree-terminale.yaml
+    sha256: 3597c891ea2679a22db58e599c29727a2cad04a3824e40a3ed9efd598a301928
+  readme:
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-nsi/README.md
+    sha256: 1337bc3819a61915c4279371e9386c7a3d4b755addeb16b82d0f9ec277140c8c
+  sessions:
+  - number: 1
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-nsi/s01-structures-de-donnees-piles-files-et-arbres
+    files:
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-nsi/s01-structures-de-donnees-piles-files-et-arbres/banques-eleve.md
+      sha256: af37317299374e3140829da3e8d9c84ccd19b30cfda5b3c3a114186fb8050567
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-nsi/s01-structures-de-donnees-piles-files-et-arbres/corrige-commente.md
+      sha256: 04986f1a2b1ad8e1a3823464d9bd7f58be7788b63f39beed887bbc06be22294d
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-nsi/s01-structures-de-donnees-piles-files-et-arbres/verification-correction.md
+      sha256: 938c47adabf78265115b9af72f69758d08f559be207a303aba198c907d7f5259
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-nsi/s01-structures-de-donnees-piles-files-et-arbres/verification-eleve.md
+      sha256: 049a501066477798f839334a46cc233ba9be74113dcdd44d032d4dda54e5e4ce
+  - number: 2
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-nsi/s02-recursivite-principes-et-applications
+    files:
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-nsi/s02-recursivite-principes-et-applications/banques-eleve.md
+      sha256: c2725157e5343e1e55edff8264ec2388015834bc1365687fa5e9921acd16edcb
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-nsi/s02-recursivite-principes-et-applications/corrige-commente.md
+      sha256: cb8757692e4fced813d4ca5561064eed333208b82b915a67425894512375ed01
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-nsi/s02-recursivite-principes-et-applications/verification-correction.md
+      sha256: 74c158af1dfbfdb339038ebdea371fa0637df6cd4b30933f3f476b4076da17b2
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-nsi/s02-recursivite-principes-et-applications/verification-eleve.md
+      sha256: 8b87f1a15c49564fb68aecb9e68c762ff97870a4cacb0b24a37991968473b809
+  - number: 3
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-nsi/s03-bases-de-donnees-et-sql
+    files:
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-nsi/s03-bases-de-donnees-et-sql/banques-eleve.md
+      sha256: b96ba76335d9f95c1090412d22dc3185e599606b982ad38071272eb16c140aa8
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-nsi/s03-bases-de-donnees-et-sql/corrige-commente.md
+      sha256: 14694fccf8037cd99e4d90d0431eafb8f33827d30f5ce0f04274f47a214d52b1
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-nsi/s03-bases-de-donnees-et-sql/verification-correction.md
+      sha256: 1f08a31b4e18e8be42a0d922b18cd40f1949fb3a6b45e15801549c06fc455083
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-nsi/s03-bases-de-donnees-et-sql/verification-eleve.md
+      sha256: b8e67a3b766adea74faf7817499c5ae8a4a2d7afa8ac97deadf92008a045b546
+  - number: 4
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-nsi/s04-protocoles-reseaux-et-securite
+    files:
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-nsi/s04-protocoles-reseaux-et-securite/banques-eleve.md
+      sha256: a24b2f4b78a74c1231e92fe9d23162ab0bf989e4539c851eb4262c3a16e59621
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-nsi/s04-protocoles-reseaux-et-securite/corrige-commente.md
+      sha256: 15c39e632693a988bb6f5bc01e41c7ed16c65d0f0160637caee7ef14d197e223
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-nsi/s04-protocoles-reseaux-et-securite/verification-correction.md
+      sha256: d3b1cca16f91dc15a19910a2d38068d20f16841a8fabeef9044b7fbbf6d60023
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-nsi/s04-protocoles-reseaux-et-securite/verification-eleve.md
+      sha256: 7b7a4dd682d3f8dfaa887dfe70da89c5cff1c37c755980cc53d6178c82110da4
+  - number: 5
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-nsi/s05-methodologie-de-l-epreuve-pratique-nsi
+    files:
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-nsi/s05-methodologie-de-l-epreuve-pratique-nsi/banques-eleve.md
+      sha256: 1cbe0fb5b529f8822c8df26ce13d6bfb7df2a129819d96597c0cae3b599b4fd2
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-nsi/s05-methodologie-de-l-epreuve-pratique-nsi/corrige-commente.md
+      sha256: 0a3c8200aea9f30208c3b300b30cab38542fa7ce4a8b29303a4147a247d77a57
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-nsi/s05-methodologie-de-l-epreuve-pratique-nsi/verification-correction.md
+      sha256: caf2e44e32872a73a68d3bd68e7ab71ce4839d93dcdef7a0f7718a28d90c6d83
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-nsi/s05-methodologie-de-l-epreuve-pratique-nsi/verification-eleve.md
+      sha256: 4dc42b30008e4635b0d78f09343fda1033a48cd3b5d638827ea3cd50b730546d
+  expectedOutputs:
+  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/tests-eleves/nsi-entree-terminale-test.md
+  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/corrections/nsi-entree-terminale-correction.md
+  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/pilotage-enseignant/nsi-entree-terminale-pilotage.md
+  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/cartes-groupe/nsi-entree-terminale-groupe.csv
+  - .artifacts/pre-rentree-2026/pedagogy/generated/session-kits/modules/terminale-nsi/CAHIER-ELEVE.md
+  - .artifacts/pre-rentree-2026/pedagogy/generated/session-kits/modules/terminale-nsi/GUIDE-ENSEIGNANT.md
+  editorialStatus: HUMAN_VALIDATION_REQUIRED
+  humanValidation: *id001
+- id: terminale-physique-chimie
+  level: TERMINALE
+  subject: PHYSIQUE_CHIMIE
+  cps:
+    path: content/pre-rentree-2026/pedagogy/positioning/cps/physique-chimie-entree-terminale.yaml
+    sha256: fd592175f6ff58e221403322f0e03c11a1c98b512278391225578c8848f91d0b
+  readme:
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-physique-chimie/README.md
+    sha256: 13bf469b58d29a2ad6d0e6f25dc30bcc739d17b6dc1ec32d7c2c98d8f9b00ec8
+  sessions:
+  - number: 1
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-physique-chimie/s01-acides-bases-et-ph
+    files:
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-physique-chimie/s01-acides-bases-et-ph/banques-eleve.md
+      sha256: dd46218a05dd3a837ddc6789fce98f605d6044f76bd4626a6674055f185cab84
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-physique-chimie/s01-acides-bases-et-ph/corrige-commente.md
+      sha256: eeb8cb4e98f45c32605b27428a6aea019f95fbdbe6fe2a6b2d3657a847450c94
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-physique-chimie/s01-acides-bases-et-ph/verification-correction.md
+      sha256: 9ace17bac92185311eccd0e28616a1b29ce17daa57c4481861e3a4403ba6ab68
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-physique-chimie/s01-acides-bases-et-ph/verification-eleve.md
+      sha256: cdbf3800689f29ae25975bc7e2d491707003631c2760ec987b04aadbc196c08b
+  - number: 2
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-physique-chimie/s02-cinetique-chimique-vitesse-et-facteurs
+    files:
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-physique-chimie/s02-cinetique-chimique-vitesse-et-facteurs/banques-eleve.md
+      sha256: fb3127c7a2aa17853b7f0b407b32f31b732fb3be950f4016e252b089766d7a3d
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-physique-chimie/s02-cinetique-chimique-vitesse-et-facteurs/corrige-commente.md
+      sha256: 200a7c1a3833a4373f0a352f65d3d14ee37cd38bbafa8c90257ca27bad70cb47
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-physique-chimie/s02-cinetique-chimique-vitesse-et-facteurs/verification-correction.md
+      sha256: 5b68bf3c17cf6d3608b1bc4487bb1990baf926e1ff956d62cff9e6dc62ac36ed
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-physique-chimie/s02-cinetique-chimique-vitesse-et-facteurs/verification-eleve.md
+      sha256: 63f67cca71df5d61aecad2b208ae0b8814fb0afef637ce0ed9aa6eed1bbea77d
+  - number: 3
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-physique-chimie/s03-mecanique-newtonienne
+    files:
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-physique-chimie/s03-mecanique-newtonienne/banques-eleve.md
+      sha256: 0d97c4920e7c04a96741eb22066fdb2ecfd153a66f2a425c4cdef990252a45c6
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-physique-chimie/s03-mecanique-newtonienne/corrige-commente.md
+      sha256: 4b00d2c8996f1d43e1bbdc5e95fe174e21aacdac6663cc1abf69a0af24f3a2bd
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-physique-chimie/s03-mecanique-newtonienne/verification-correction.md
+      sha256: 5691911960bd882b0701573920080d7e16d93c0ac931e3310366f04949c89e79
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-physique-chimie/s03-mecanique-newtonienne/verification-eleve.md
+      sha256: deeaabfb4e37c8a5c731ae3f9063c0ab7a496ae1d333cf42d0e8aca275a71e49
+  - number: 4
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-physique-chimie/s04-ondes-et-optique
+    files:
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-physique-chimie/s04-ondes-et-optique/banques-eleve.md
+      sha256: 6f85c614206c4ae04e5436bb3956e70ced740c450d0a9e83127d1b668f0a6538
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-physique-chimie/s04-ondes-et-optique/corrige-commente.md
+      sha256: c748882277479861eb0a69a924b393c3be911d0ef8077b6f129be2de8e555eff
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-physique-chimie/s04-ondes-et-optique/verification-correction.md
+      sha256: cc92323812dc41439639e307507cee0fe7d49de6fd8e876ba78b49a5be8c0957
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-physique-chimie/s04-ondes-et-optique/verification-eleve.md
+      sha256: 813f4df8ce480cd7bf8f932bf745dfd4c30ebd630d31dd9f6473e3aedc6af09c
+  - number: 5
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-physique-chimie/s05-resolution-de-problemes-scientifiques
+    files:
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-physique-chimie/s05-resolution-de-problemes-scientifiques/banques-eleve.md
+      sha256: 87c685bab4fbcee48718026716aa193ffca3ab02f0b29d869ab9e2e913b30fe4
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-physique-chimie/s05-resolution-de-problemes-scientifiques/corrige-commente.md
+      sha256: 94ad36baf08dd777fb0a515d04412614576f37a5b3ef42824de1a2f985ce3ca6
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-physique-chimie/s05-resolution-de-problemes-scientifiques/verification-correction.md
+      sha256: c4351bdc90f3930b92308ff095fd83ac86b3e7f7ab018ff0a2bb70a049489d53
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-physique-chimie/s05-resolution-de-problemes-scientifiques/verification-eleve.md
+      sha256: 9efcae8ed7bbf2aeddce1792603716525668f2a841c9eeee8322d8c2f269be43
+  expectedOutputs:
+  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/tests-eleves/physique-chimie-entree-terminale-test.md
+  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/corrections/physique-chimie-entree-terminale-correction.md
+  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/pilotage-enseignant/physique-chimie-entree-terminale-pilotage.md
+  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/cartes-groupe/physique-chimie-entree-terminale-groupe.csv
+  - .artifacts/pre-rentree-2026/pedagogy/generated/session-kits/modules/terminale-physique-chimie/CAHIER-ELEVE.md
+  - .artifacts/pre-rentree-2026/pedagogy/generated/session-kits/modules/terminale-physique-chimie/GUIDE-ENSEIGNANT.md
+  editorialStatus: HUMAN_VALIDATION_REQUIRED
+  humanValidation: *id001
+- id: premiere-svt
+  level: PREMIERE
+  subject: SVT
+  cps:
+    path: content/pre-rentree-2026/pedagogy/positioning/cps/svt-entree-premiere.yaml
+    sha256: c485a45d6d5abbd29aa6908dcf4c1fb7e95a1d25a76c260ceaba143d71221a1a
+  readme:
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-svt/README.md
+    sha256: f13353fd35c994c9669f2481de32e5e1ffa37b537543af2e502b2adee1819723
+  sessions:
+  - number: 1
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-svt/s01-transmission-expression-et-variation-du-patrimoine-genetique
+    files:
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-svt/s01-transmission-expression-et-variation-du-patrimoine-genetique/banques-eleve.md
+      sha256: cec993f701b8ba1d512fe59dfe913b86da5db6c00a13225191fc39d254b4b78f
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-svt/s01-transmission-expression-et-variation-du-patrimoine-genetique/corrige-commente.md
+      sha256: 0d1e5825cb311d247d4156cddef6af0b9933dc3883620b146dd84c3ffab1e0ec
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-svt/s01-transmission-expression-et-variation-du-patrimoine-genetique/verification-correction.md
+      sha256: c934995fc8b6cae0d7d5c305a5fd2d3a7677aeba134047f2540805b30b2a3722
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-svt/s01-transmission-expression-et-variation-du-patrimoine-genetique/verification-eleve.md
+      sha256: 87cb67d59ab60687614ba853fb88ff84da7f3d121eca0728216b00f39abcb973
+  - number: 2
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-svt/s02-dynamique-interne-de-la-terre
+    files:
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-svt/s02-dynamique-interne-de-la-terre/banques-eleve.md
+      sha256: 8bdeb71d9c16d066b4f6a811b8dad19567b90242b15b491160fcf055aa649745
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-svt/s02-dynamique-interne-de-la-terre/corrige-commente.md
+      sha256: c6bfaf876f84e62716342a1bba6e9db80ed8a0fa2e69e425356ef99e186304ec
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-svt/s02-dynamique-interne-de-la-terre/verification-correction.md
+      sha256: 114c71f929709c726feb6911c5f4e4e063f12d5524b28a9b14c6b27aa3308af1
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-svt/s02-dynamique-interne-de-la-terre/verification-eleve.md
+      sha256: 2a4967f79baae879fc086852a183997dd8d2a4a4a13a8221ff14afa845d2539d
+  - number: 3
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-svt/s03-ecosystemes-et-services-environnementaux
+    files:
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-svt/s03-ecosystemes-et-services-environnementaux/banques-eleve.md
+      sha256: 3e80a4632c164f41eec9d67faab161398bc2e2263c39cee7bafcc519e61bcdf7
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-svt/s03-ecosystemes-et-services-environnementaux/corrige-commente.md
+      sha256: c8254922ddd9f53a4d251378f722adcf8ccf84a012d375cd4de6cdb01105949a
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-svt/s03-ecosystemes-et-services-environnementaux/verification-correction.md
+      sha256: 1a1f7df258f71086a9a0b0fff9dc6dc4a48c2e988c75f10231d5ec36a93673f4
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-svt/s03-ecosystemes-et-services-environnementaux/verification-eleve.md
+      sha256: 03e7ebdcc7a83a9cade208c3d80e90479bdd77b02215ed792b33af167ad58e81
+  - number: 4
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-svt/s04-variation-genetique-sante-et-immunite
+    files:
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-svt/s04-variation-genetique-sante-et-immunite/banques-eleve.md
+      sha256: 2048d7a230c3c8b6f702964fdaa542d36a16870e71a0f58775ef96ccdfc62019
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-svt/s04-variation-genetique-sante-et-immunite/corrige-commente.md
+      sha256: 9501477f7e793731fa9f7dd95569e950900da7af84439f7efa7c3dee11e52572
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-svt/s04-variation-genetique-sante-et-immunite/verification-correction.md
+      sha256: a92d426dc19c95c7ffe79d63db5fd9566c7c7418deb569402fc91e13fb09e9fc
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-svt/s04-variation-genetique-sante-et-immunite/verification-eleve.md
+      sha256: cdfc99331ddb42aea53358337022ab831ed6cd8ce109837a0d18c80ab9189c5e
+  - number: 5
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-svt/s05-methodes-transversales-sur-les-trois-themes-officiels
+    files:
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-svt/s05-methodes-transversales-sur-les-trois-themes-officiels/banques-eleve.md
+      sha256: 3c4bdbe47887e8695e5a46b796828d14966080dace0df58c852669091c7e983f
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-svt/s05-methodes-transversales-sur-les-trois-themes-officiels/corrige-commente.md
+      sha256: f693c376dd99728e18770523f10414fd5dc580ca1ec63ade2eddb25975a94c86
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-svt/s05-methodes-transversales-sur-les-trois-themes-officiels/verification-correction.md
+      sha256: 93c691b2eb4122f6f0737b2985506f0127f37720d117174f334e26bd772e9655
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/premiere-svt/s05-methodes-transversales-sur-les-trois-themes-officiels/verification-eleve.md
+      sha256: dc346883e801b05414a4f7f928d99e3d98512c0324c3d3189f0edd20dd6088fa
+  expectedOutputs:
+  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/tests-eleves/svt-entree-premiere-test.md
+  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/corrections/svt-entree-premiere-correction.md
+  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/pilotage-enseignant/svt-entree-premiere-pilotage.md
+  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/cartes-groupe/svt-entree-premiere-groupe.csv
+  - .artifacts/pre-rentree-2026/pedagogy/generated/session-kits/modules/premiere-svt/CAHIER-ELEVE.md
+  - .artifacts/pre-rentree-2026/pedagogy/generated/session-kits/modules/premiere-svt/GUIDE-ENSEIGNANT.md
+  editorialStatus: HUMAN_VALIDATION_REQUIRED
+  humanValidation: *id001
+- id: terminale-svt
+  level: TERMINALE
+  subject: SVT
+  cps:
+    path: content/pre-rentree-2026/pedagogy/positioning/cps/svt-entree-terminale.yaml
+    sha256: 815cba0064429cb8e67f7a1914170eae0bb95017ae9ca82431bf14bb0cffff82
+  readme:
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-svt/README.md
+    sha256: 634c324bdc700a6971b2cc3eaf8bb028454f8ca08a617830f5b8d4e8f9f5b63f
+  sessions:
+  - number: 1
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-svt/s01-genetique-et-evolution
+    files:
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-svt/s01-genetique-et-evolution/banques-eleve.md
+      sha256: a241c9e8dd196c7f5fd39269c2ff675cac38b6ec51ac3df0ba6f545781904aa8
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-svt/s01-genetique-et-evolution/corrige-commente.md
+      sha256: 63c68894db351140c9b3b8d11e8170b18de5647e2435be6459108a2fd78ae0a6
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-svt/s01-genetique-et-evolution/verification-correction.md
+      sha256: 7983dd9c2b288b188b4b7800b7310bbb81d170026479445524fd7977fbc134b2
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-svt/s01-genetique-et-evolution/verification-eleve.md
+      sha256: 980f3ebe07643491937eec05b7b4013c19b3ac4d5ef4a1fc9e0c933b17dcfa6e
+  - number: 2
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-svt/s02-a-la-recherche-du-passe-geologique
+    files:
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-svt/s02-a-la-recherche-du-passe-geologique/banques-eleve.md
+      sha256: c34f994f1ae5e73d5f89a8b8b311cbbbf5e3077c1ee8e1051ae41ea40d36eaf4
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-svt/s02-a-la-recherche-du-passe-geologique/corrige-commente.md
+      sha256: bf2e0070a80b722d8deb248048dfd7bf180e43010f3f0ed2b177f81766641a78
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-svt/s02-a-la-recherche-du-passe-geologique/verification-correction.md
+      sha256: cec9325dfef2a16bdc9d8d4719b76fc4c303d83bedf20d6cb6484a61d9f80126
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-svt/s02-a-la-recherche-du-passe-geologique/verification-eleve.md
+      sha256: 565b078085fdc2b89bc826d5362176e7d31d3c5a7a7abce57a9c66fecef15aef
+  - number: 3
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-svt/s03-plantes-climat-et-enjeux-contemporains
+    files:
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-svt/s03-plantes-climat-et-enjeux-contemporains/banques-eleve.md
+      sha256: 8501a958ac308e88f31556ff620b762df5045a63484d5930597a908947a7c2bc
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-svt/s03-plantes-climat-et-enjeux-contemporains/corrige-commente.md
+      sha256: ca693565697c2bb2d94dc297e045b7fc3c636523158e46a7dda8d68647ce6914
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-svt/s03-plantes-climat-et-enjeux-contemporains/verification-correction.md
+      sha256: 816222bd8d9567739890a7827d698adc846fff065e3634912dced0370c62643c
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-svt/s03-plantes-climat-et-enjeux-contemporains/verification-eleve.md
+      sha256: 71604f409e6c73589e4420ad7316d52dfcd044444265156e549483ad3ea8927f
+  - number: 4
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-svt/s04-mouvement-energie-et-stress
+    files:
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-svt/s04-mouvement-energie-et-stress/banques-eleve.md
+      sha256: 8bc98f9788f24a10dfa6b51275ee90c4dfa224d38b5242c6ef2e3265c65c00fa
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-svt/s04-mouvement-energie-et-stress/corrige-commente.md
+      sha256: c7eabdf5e19e20bd87afc40e1c2826fe272741f78a4964cafa580ed48122ed15
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-svt/s04-mouvement-energie-et-stress/verification-correction.md
+      sha256: db1f16ea5a794955d2bb5d79b5e2b279491ed189767864bd24eeeed7868d4f43
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-svt/s04-mouvement-energie-et-stress/verification-eleve.md
+      sha256: 12c7d3dd8344a825422e2e5a2e92d8b16f078f38696dc59bc40d0b2066d18e3d
+  - number: 5
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-svt/s05-methodes-transversales-sur-les-trois-themes-officiels
+    files:
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-svt/s05-methodes-transversales-sur-les-trois-themes-officiels/banques-eleve.md
+      sha256: 41ce742f9f39fd7758113cf23f3e24d3f20e7ed08bcfd21c4871446050a0c68b
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-svt/s05-methodes-transversales-sur-les-trois-themes-officiels/corrige-commente.md
+      sha256: 16a23c5be7f4f8ada06b9560e5a1ffd80d001ebfe58ee423f47ee10d89bb62dc
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-svt/s05-methodes-transversales-sur-les-trois-themes-officiels/verification-correction.md
+      sha256: 5b808bb0912e7768322d9d0eae7069d35327b8f470602f7645bddbaaecf9f612
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-svt/s05-methodes-transversales-sur-les-trois-themes-officiels/verification-eleve.md
+      sha256: 516eb365e70d99f688ff9b4ae5edcda6d5288666b5095b47d548b0ef69176625
+  expectedOutputs:
+  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/tests-eleves/svt-entree-terminale-test.md
+  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/corrections/svt-entree-terminale-correction.md
+  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/pilotage-enseignant/svt-entree-terminale-pilotage.md
+  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/cartes-groupe/svt-entree-terminale-groupe.csv
+  - .artifacts/pre-rentree-2026/pedagogy/generated/session-kits/modules/terminale-svt/CAHIER-ELEVE.md
+  - .artifacts/pre-rentree-2026/pedagogy/generated/session-kits/modules/terminale-svt/GUIDE-ENSEIGNANT.md
+  editorialStatus: HUMAN_VALIDATION_REQUIRED
+  humanValidation: *id001
+- id: terminale-philosophie
+  level: TERMINALE
+  subject: PHILOSOPHIE
+  cps:
+    path: content/pre-rentree-2026/pedagogy/positioning/cps/philosophie-entree-terminale.yaml
+    sha256: 850fada56b41db592ede7bd8ef4ab2ce9dc72eeb172919bade0d0320e34ee1ec
+  readme:
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-philosophie/README.md
+    sha256: 3e26e9c6b49c92a202695b9f00023b201c049845fe1d7b0c6ac6d06361f741f0
+  sessions:
+  - number: 1
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-philosophie/s01-qu-est-ce-qu-une-question-philosophique-qu-est-ce-qu-une-notion
+    files:
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-philosophie/s01-qu-est-ce-qu-une-question-philosophique-qu-est-ce-qu-une-notion/banques-eleve.md
+      sha256: ffb0593ccb5507a74827741e0078e05b8dfb18e3c020199a6e327f9895f246e8
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-philosophie/s01-qu-est-ce-qu-une-question-philosophique-qu-est-ce-qu-une-notion/corrige-commente.md
+      sha256: ef92b2f452921715cd744b3ff01fcfcf16fd05cf7049e7ed924a9681c3057b66
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-philosophie/s01-qu-est-ce-qu-une-question-philosophique-qu-est-ce-qu-une-notion/verification-correction.md
+      sha256: d2e125052e0810baeca3691e2f36309c27b5262b0bbe817fa9070a2673980e30
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-philosophie/s01-qu-est-ce-qu-une-question-philosophique-qu-est-ce-qu-une-notion/verification-eleve.md
+      sha256: 72d6c469f14e4654f48b0284299009cdedd0f40dfeee0f58280af3933d6c0ea8
+  - number: 2
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-philosophie/s02-lire-et-rendre-compte-d-un-texte-philosophique-court
+    files:
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-philosophie/s02-lire-et-rendre-compte-d-un-texte-philosophique-court/banques-eleve.md
+      sha256: d989a3cb8a4b8273d93bc95638b650164d38a938abf98f650021437da1e68e45
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-philosophie/s02-lire-et-rendre-compte-d-un-texte-philosophique-court/corrige-commente.md
+      sha256: 8a4c3d8bbcc794d0a2e700d6c2b2c9bed244fc7a6a98619131ae502e0641a87f
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-philosophie/s02-lire-et-rendre-compte-d-un-texte-philosophique-court/verification-correction.md
+      sha256: 631d1be29892d5244f55c652a44b40c29f4c3e041ae0f71aa31fe7044bbf7e49
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-philosophie/s02-lire-et-rendre-compte-d-un-texte-philosophique-court/verification-eleve.md
+      sha256: 5eabf6b14c1dc2cad17fee4aefd06bc2bf6fe1f847f2ae0acade86a25f2d0562
+  - number: 3
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-philosophie/s03-construire-une-problematique
+    files:
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-philosophie/s03-construire-une-problematique/banques-eleve.md
+      sha256: 42bb2860fb26a05f0c0e5176c0eae29cef1d9618a17b6a03c0c4d641c98b53f9
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-philosophie/s03-construire-une-problematique/corrige-commente.md
+      sha256: e8ffcbf73307d3afb6b864474ec37b004e787bdb65c92d1c8efeaf391c695865
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-philosophie/s03-construire-une-problematique/verification-correction.md
+      sha256: da789216a3b6854375f5d6d3757979ffe3c3a8666d4d9debac7fd8c1af126dcb
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-philosophie/s03-construire-une-problematique/verification-eleve.md
+      sha256: 71e93c7cc6553dd69c79e270010545ea0125781d982ed9755ba46b32a1cf7ad2
+  - number: 4
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-philosophie/s04-methode-de-la-dissertation
+    files:
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-philosophie/s04-methode-de-la-dissertation/banques-eleve.md
+      sha256: a49773535ec8f43fb2f482f8c51c32725455ef4b65439fc53baaad347f57771b
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-philosophie/s04-methode-de-la-dissertation/corrige-commente.md
+      sha256: 14c746894dcd43bc86717829e5bdf8c84f42e38d01eab3889faef0799de49c37
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-philosophie/s04-methode-de-la-dissertation/verification-correction.md
+      sha256: 722a9108ea555f3942079f37f1d77e2a9d80167d5f4b389aaac192c333767858
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-philosophie/s04-methode-de-la-dissertation/verification-eleve.md
+      sha256: 2781d8b6ada69b4301530236c1211d15676ba211660bafcaba6727cc446a1496
+  - number: 5
+    path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-philosophie/s05-methode-de-l-explication-de-texte
+    files:
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-philosophie/s05-methode-de-l-explication-de-texte/banques-eleve.md
+      sha256: 6d65af5b60da684e4348c97ebd63a276d7925d4673bc029bb2572d95e4ada5cc
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-philosophie/s05-methode-de-l-explication-de-texte/corrige-commente.md
+      sha256: 0ec397cc38fb3bd854feec2337a14be55e8cf60b0e497307c058cf86b501afdb
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-philosophie/s05-methode-de-l-explication-de-texte/verification-correction.md
+      sha256: 53fd23938c1e2ef3931701de72178068ded435f78001e1dee7a6a08bcbe71482
+    - path: content/pre-rentree-2026/pedagogy/session-kits/modules/terminale-philosophie/s05-methode-de-l-explication-de-texte/verification-eleve.md
+      sha256: 0a54bccf99a172b91dfea38e8e8fc06a8c9f4c7f848dea95694d43ad4d9cb211
+  expectedOutputs:
+  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/tests-eleves/philosophie-entree-terminale-test.md
+  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/corrections/philosophie-entree-terminale-correction.md
+  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/pilotage-enseignant/philosophie-entree-terminale-pilotage.md
+  - .artifacts/pre-rentree-2026/pedagogy/generated/positioning/cartes-groupe/philosophie-entree-terminale-groupe.csv
+  - .artifacts/pre-rentree-2026/pedagogy/generated/session-kits/modules/terminale-philosophie/CAHIER-ELEVE.md
+  - .artifacts/pre-rentree-2026/pedagogy/generated/session-kits/modules/terminale-philosophie/GUIDE-ENSEIGNANT.md
+  editorialStatus: HUMAN_VALIDATION_REQUIRED
+  humanValidation: *id001
+humanValidation: *id001
