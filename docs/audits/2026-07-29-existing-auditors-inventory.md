@@ -3,6 +3,12 @@
 Date : 2026-07-29
 Objectif : recenser ce qui existe déjà avant d'envisager d'écrire un nouvel auditeur de contenu (Lot E).
 
+> **`orphan-payload-string` (détection inversée) — LIMITES À LIRE AVANT USAGE, pas en note de bas de page :**
+> 1. **Angle mort structurel : ne couvre que les valeurs de type chaîne, pas les tableaux.** `pack_product_ids` (un tableau de chaînes) est invisible à ce mode par construction — seul le motif nommé (`internalTokenPatterns`) le trouve. Un outil avec un angle mort documenté finit par être utilisé comme s'il était complet : ne jamais le traiter comme une couverture exhaustive des fuites structurées.
+> 2. **Bruit dominant, indissociable d'une fuite sans piloter un vrai navigateur.** 759 findings résiduels sur l'état actuel, dominés par du contenu interactif légitime (catalogues/assistants à divulgation progressive — accordéons, assistants pas à pas) qu'un simple `fetch()` ne peut pas distinguer d'une fuite.
+>
+> **Conséquence retenue (Décision 1bis)** : outil de diagnostic **manuel** uniquement, jamais en CI. La réponse structurelle qui remplace ce rôle détectif est le motif « objet de transfert explicite » (voir Décision 1ter, `docs/audits/2026-07-29-decision-1ter-structural-transfer-objects.md`) : un test par source, à liste blanche, qui échoue sur tout champ non listé — y compris les tableaux. C'est ce contrôle-là qui est branché en CI, pas l'auditeur généralisé.
+
 ## `scripts/pre-rentree/final-public-release-audit.mjs` (C1-C3)
 
 **Périmètre** : une allowlist FIXE de 12 fichiers/dossiers spécifiques à la campagne Pré-rentrée 2026 (`CorporateNavbar.tsx`, `PreRentreeCampaignSpotlight.tsx`, `app/stages/page.tsx`, `app/HomePageClient.tsx`, `lib/analytics.ts`, etc.) — **pas un auditeur général du site.**

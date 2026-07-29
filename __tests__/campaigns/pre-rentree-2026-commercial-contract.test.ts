@@ -70,6 +70,37 @@ describe('Pré-rentrée 2026 canonical commercial publication contract', () => {
     expect(exception).toMatchObject({ status: 'APPROVED', approvedAt: '2026-07-20' });
   });
 
+  // docs/audits/2026-07-29-decision-1ter-structural-transfer-objects.md:
+  // compileCommercialPublicationContract() computes `pricingExceptions`
+  // (carrying `justification`, an internal pricing-strategy note structurally
+  // identical to carte_nexus.rationale) alongside the public `offers`. No
+  // current caller propagates pricingExceptions to a page today — but nothing
+  // enforces that. This is the "one test per source, fails on any unlisted
+  // field" guard for this source: an explicit allowlist, not a blocklist.
+  const PUBLIC_OFFER_ALLOWED_KEYS = new Set([
+    'offerId', 'pricingId', 'pricingKind', 'level', 'subjects', 'subjectCount',
+    'audience', 'objectives', 'included', 'optional', 'excluded', 'supports',
+    'followUp', 'cta', 'proofIds', 'publicStatus', 'approvers', 'validatedAt',
+    'lastRevisedAt', 'hours', 'sessions', 'sessionDurationHours', 'groupMin',
+    'groupMax', 'price', 'deposit', 'balance', 'currency', 'publiclyEligible',
+  ]);
+
+  it('getCommercialPublicOffers() never carries a key outside the public allowlist', () => {
+    const offers = getCommercialPublicOffers();
+    expect(offers.length).toBeGreaterThan(0);
+    const unexpectedKeys = new Set<string>();
+    for (const offer of offers) {
+      for (const key of Object.keys(offer)) {
+        if (!PUBLIC_OFFER_ALLOWED_KEYS.has(key)) unexpectedKeys.add(key);
+      }
+    }
+    expect([...unexpectedKeys]).toEqual([]);
+    // Belt and suspenders: the specific internal fields must never appear,
+    // by name, anywhere in the serialized public offers.
+    const serialized = JSON.stringify(offers);
+    expect(serialized).not.toMatch(/justification|approvedByRole|exceptionId|editionId|standardFloorPerStudentHour/i);
+  });
+
   it('publishes only level-appropriate subjects and approved benefits', () => {
     const offers = getCommercialPublicOffers();
     const secondeSubjects = offers
