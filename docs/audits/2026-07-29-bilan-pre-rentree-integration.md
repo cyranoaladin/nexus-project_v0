@@ -220,12 +220,23 @@ dans la section suivante avant le push.
 
 ## Reproduction du SHA final
 
-- [ ] `npm ci` ;
-- [ ] catalogue/raccordement/sécurité ciblés ;
-- [ ] pipeline pédagogique et hash ;
-- [ ] typecheck ;
-- [ ] Prisma validate/generate ;
-- [ ] build et audit standalone.
+Un worktree détaché propre a été créé au SHA
+`ef8dcf2cb4f620ee62a60ba025487f4c3b6e421d`, qui inclut la première version
+du rapport de gates.
+
+- [x] `npm ci` : 1 272 paquets ;
+- [x] catalogue/raccordement/sécurité : 24 suites, 423 tests ;
+- [x] `npm run security:repo` ;
+- [x] pipeline pédagogique : 103 fichiers et hash
+  `282bd45a97115fcf9b177b4b22430c1bbd9415a79a54d5c56f463564f19e2408` ;
+- [x] typecheck ;
+- [x] Prisma validate/generate ;
+- [x] build : 145 pages, traces et standalone valides, 380 fichiers du
+  corpus côté serveur et aucun sous le répertoire public.
+
+Le commit suivant ne modifie que ce rapport de preuve. Un second checkout
+détaché de la tête finale est utilisé avant le push pour confirmer le SHA
+exact.
 
 ## Risques résiduels
 
@@ -252,7 +263,6 @@ dans la section suivante avant le push.
 ## Verdict
 
 `PASS WITH BLOCKERS`. Le raccordement est fonctionnel et les gates de
-convergence sont verts, sous réserve de la reproduction du SHA final cochée
-ci-dessus. Les bloqueurs de production sont la validation humaine, la
-migration autorisée, la configuration Redis/Upstash/SMTP, le déploiement, les
-smoke tests et l'activation contrôlée.
+convergence sont verts. Les bloqueurs de production sont la validation
+humaine, la migration autorisée, la configuration Redis/Upstash/SMTP, le
+déploiement, les smoke tests et l'activation contrôlée.
