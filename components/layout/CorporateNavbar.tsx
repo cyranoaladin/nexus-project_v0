@@ -7,7 +7,8 @@ import { Menu, X, Phone, ChevronDown, LogIn, UserPlus } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { PREPARATION_LINKS } from '@/content/marketing/preparation-links';
 import { LEGAL } from '@/lib/legal';
-import { PRE_RENTREE_2026_NAVIGATION, SHOW_PRE_RENTREE_IN_PERMANENT_NAV } from '@/lib/campaigns/pre-rentree-2026/navigation';
+import { PRE_RENTREE_2026_NAVIGATION } from '@/lib/campaigns/pre-rentree-2026/navigation';
+import { canShowPreRentreeInPermanentNav } from '@/lib/campaigns/pre-rentree-2026/release-gate';
 
 export function CorporateNavbar() {
   const pathname = usePathname();
@@ -179,11 +180,11 @@ export function CorporateNavbar() {
     {
       title: 'Programmes',
       items: [
-        ...(SHOW_PRE_RENTREE_IN_PERMANENT_NAV
+        ...(canShowPreRentreeInPermanentNav()
           ? [{
               label: PRE_RENTREE_2026_NAVIGATION.label,
               href: PRE_RENTREE_2026_NAVIGATION.path,
-              desc: '17–28 août · Mutuelleville',
+              desc: 'Stage intensif de rentrée',
               isPage: true,
               testId: 'pre-rentree-nav',
             }]

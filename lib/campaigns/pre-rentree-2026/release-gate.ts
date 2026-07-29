@@ -138,3 +138,22 @@ export function canAcceptPreRentreeCampaignSubmission(): boolean {
 export function canPrefillBilanGratuitFromPreRentree(): boolean {
   return false;
 }
+
+/**
+ * Whether the campaign gets its own entry in the permanent site navigation
+ * (CorporateNavbar "Programmes" menu), as opposed to being reachable only via
+ * its dedicated page, the homepage spotlight, and the generic /stages
+ * calendar — all three of which already derive from `isPublicReady` above.
+ * Deliberately NOT derived from `isPublicReady`: being publicly ready does
+ * not by itself mean the campaign should be promoted from every page via a
+ * permanent nav entry (owner decision, 2026-07-23 — see d67b3de37 "fix(release):
+ * close campaign leaks before owner go", which removed an earlier navbar
+ * entry and added the corresponding regression test in
+ * __tests__/components/corporate-navbar.test.tsx). The 2026-07-26
+ * PUBLIC_READY go-live did not revisit this specific gate — it has stayed
+ * `false` since the 23rd. Flipping it to `true` is the entire change needed
+ * to restore the navbar entry.
+ */
+export function canShowPreRentreeInPermanentNav(): boolean {
+  return false;
+}
