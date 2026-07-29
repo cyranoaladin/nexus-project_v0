@@ -16,6 +16,13 @@ Les deux options sont obligatoires. L’importeur refuse une sortie égale à la
 racine d’import ou située sous celle-ci. Aucun chemin machine n’est inscrit dans
 les rapports.
 
+Le CLI valide strictement la racine avant toute écriture : elle doit contenir
+exactement les quatre paquets historiques déclarés dans `classification.py`,
+chacun sous forme de répertoire réel avec au moins un fichier régulier. Toute
+entrée top-level supplémentaire et tout caractère de contrôle dans un nom sont
+refusés. L’API Python `build_inventory` reste générique afin de permettre
+l’inspection de mini-corpus et le signalement programmatique des anomalies.
+
 ## Sorties
 
 - `INVENTAIRE-IMPORT.csv` : une ligne déterministe par fichier régulier ;

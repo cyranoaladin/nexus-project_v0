@@ -15,16 +15,12 @@ PEDAGOGY_SCRIPTS = REPO_ROOT / "scripts/pre-rentree/pedagogy"
 IMPORT_SCRIPT = PEDAGOGY_SCRIPTS / "import_pedagogy_corpus.py"
 sys.path.insert(0, str(PEDAGOGY_SCRIPTS))
 
-from classification import FINAL_CLASSIFICATIONS, PENDING_DEDUPLICATION
-from import_pedagogy_corpus import build_inventory, write_inventory
-
-
-HISTORICAL_PACKAGES = (
-    "Nexus-PreRentree-2026-85-seances",
-    "Nexus-PreRentree-2026-positionnement-17-modules-v3",
-    "Nexus-positionnement",
-    "Nexus-positionnement-2026-maths-francais-v2",
+from classification import (
+    FINAL_CLASSIFICATIONS,
+    HISTORICAL_PACKAGES,
+    PENDING_DEDUPLICATION,
 )
+from import_pedagogy_corpus import build_inventory, write_inventory
 
 
 def _tree_digest(root: Path) -> str:
@@ -44,6 +40,28 @@ def _tree_digest(root: Path) -> str:
 def _make_valid_zip(path: Path) -> None:
     with zipfile.ZipFile(path, "w") as archive:
         archive.writestr("inside.txt", "archive content")
+
+
+def _make_complete_import_root(import_root: Path) -> None:
+    for package_name in HISTORICAL_PACKAGES:
+        package = import_root / package_name
+        package.mkdir(parents=True)
+        (package / "fixture.md").write_text(f"# {package_name}\n", encoding="utf-8")
+
+
+def _run_import_cli(import_root: Path, output_root: Path) -> subprocess.CompletedProcess[str]:
+    return subprocess.run(
+        [
+            sys.executable,
+            str(IMPORT_SCRIPT),
+            "--import-root",
+            str(import_root),
+            "--output-root",
+            str(output_root),
+        ],
+        capture_output=True,
+        text=True,
+    )
 
 
 def test_classification_contract_exposes_only_the_nine_final_classes():
@@ -221,46 +239,24 @@ def test_inventory_redacts_absolute_symlink_targets(tmp_path: Path):
 
 def test_cli_never_writes_inside_import_root_and_preserves_source(tmp_path: Path):
     import_root = tmp_path / "import"
+    _make_complete_import_root(import_root)
     package = import_root / HISTORICAL_PACKAGES[1]
-    package.mkdir(parents=True)
     (package / "source.yaml").write_text("id: source\n", encoding="utf-8")
     _make_valid_zip(package / "bundle.zip")
     before = _tree_digest(import_root)
 
     forbidden_output = import_root / "inventory"
-    rejected = subprocess.run(
-        [
-            sys.executable,
-            str(IMPORT_SCRIPT),
-            "--import-root",
-            str(import_root),
-            "--output-root",
-            str(forbidden_output),
-        ],
-        capture_output=True,
-        text=True,
-    )
+    rejected = _run_import_cli(import_root, forbidden_output)
     assert rejected.returncode != 0
     assert "outside --import-root" in rejected.stderr
     assert not forbidden_output.exists()
 
     output = tmp_path / "output"
-    accepted = subprocess.run(
-        [
-            sys.executable,
-            str(IMPORT_SCRIPT),
-            "--import-root",
-            str(import_root),
-            "--output-root",
-            str(output),
-        ],
-        capture_output=True,
-        text=True,
-    )
+    accepted = _run_import_cli(import_root, output)
     assert accepted.returncode == 0, accepted.stderr
-    assert "DIRECTORY_COUNT=2" in accepted.stdout
-    assert "FILE_COUNT=2" in accepted.stdout
-    assert "HASH_COUNT=2" in accepted.stdout
+    assert "DIRECTORY_COUNT=5" in accepted.stdout
+    assert "FILE_COUNT=6" in accepted.stdout
+    assert "HASH_COUNT=6" in accepted.stdout
     assert "ZIP_VALID_COUNT=1" in accepted.stdout
     assert _tree_digest(import_root) == before
 
@@ -292,3 +288,64 @@ def test_write_inventory_does_not_follow_predictable_temporary_symlink(tmp_path:
     assert victim.read_text(encoding="utf-8") == "id: immutable\n"
     assert not (output / "INVENTAIRE-IMPORT.csv").is_symlink()
     assert (output / "INVENTAIRE-IMPORT.csv").is_file()
+
+
+def test_cli_rejects_empty_import_root(tmp_path: Path):
+    import_root = tmp_path / "import"
+    import_root.mkdir()
+    output = tmp_path / "output"
+
+    result = _run_import_cli(import_root, output)
+
+    assert result.returncode != 0
+    assert "missing top-level packages" in result.stderr
+    assert not output.exists()
+
+
+def test_cli_rejects_missing_top_level_package(tmp_path: Path):
+    import_root = tmp_path / "import"
+    _make_complete_import_root(import_root)
+    missing_package = HISTORICAL_PACKAGES[-1]
+    (import_root / missing_package / "fixture.md").unlink()
+    (import_root / missing_package).rmdir()
+    output = tmp_path / "output"
+
+    result = _run_import_cli(import_root, output)
+
+    assert result.returncode != 0
+    assert f"missing top-level packages: {missing_package}" in result.stderr
+    assert not output.exists()
+
+
+def test_cli_rejects_unexpected_top_level_entry(tmp_path: Path):
+    import_root = tmp_path / "import"
+    _make_complete_import_root(import_root)
+    (import_root / "unexpected-package").mkdir()
+    output = tmp_path / "output"
+
+    result = _run_import_cli(import_root, output)
+
+    assert result.returncode != 0
+    assert "unexpected top-level entries: unexpected-package" in result.stderr
+    assert not output.exists()
+
+
+def test_cli_rejects_control_characters_but_programmatic_inventory_flags_them(tmp_path: Path):
+    import_root = tmp_path / "import"
+    _make_complete_import_root(import_root)
+    unsafe_name = "spoofed\nmanifest.md"
+    (import_root / HISTORICAL_PACKAGES[0] / unsafe_name).write_text("unsafe\n", encoding="utf-8")
+    output = tmp_path / "output"
+
+    inventory = build_inventory(import_root)
+    unsafe_row = next(
+        item
+        for item in inventory["files"]
+        if item["relative_path"].endswith(unsafe_name)
+    )
+    result = _run_import_cli(import_root, output)
+
+    assert unsafe_row["is_ambiguous_name"] is True
+    assert result.returncode != 0
+    assert "control characters in entry names" in result.stderr
+    assert not output.exists()
