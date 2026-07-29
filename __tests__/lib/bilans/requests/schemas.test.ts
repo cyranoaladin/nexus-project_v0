@@ -1,4 +1,5 @@
 import {
+  CURRENT_BILAN_CONSENT_VERSION,
   bilanChildSchema,
   bilanRequestAdmissionSchema,
   bilanTeamAssignmentSchema,
@@ -84,10 +85,43 @@ describe('bilan request schemas', () => {
     ).toBe(false);
   });
 
+  it('accepts only the current canonical consent text version', () => {
+    expect(CURRENT_BILAN_CONSENT_VERSION).toBe('bilan-public-v1');
+    expect(
+      bilanRequestAdmissionSchema.safeParse({
+        ...validAdmission,
+        consentVersion: 'bilan-public-v0',
+      }).success,
+    ).toBe(false);
+    expect(
+      bilanRequestAdmissionSchema.safeParse({
+        ...validAdmission,
+        consentVersion: 'custom-consent',
+      }).success,
+    ).toBe(false);
+  });
+
+  it.each([
+    ['99 19 28 29', '+21699192829'],
+    ['+216 99 19 28 29', '+21699192829'],
+    ['21699192829', '+21699192829'],
+    ['+33612345678', '+33612345678'],
+  ])('normalizes %s to the E.164 number %s', (phone, expected) => {
+    const result = bilanRequestAdmissionSchema.parse({
+      ...validAdmission,
+      parent: { ...validAdmission.parent, phone },
+    });
+
+    expect(result.parent.phone).toBe(expected);
+  });
+
   it.each([
     [{ parent: { ...validAdmission.parent, email: 'not-an-email' } }],
     [{ parent: { ...validAdmission.parent, phone: '123' } }],
     [{ parent: { ...validAdmission.parent, phone: '+000000000' } }],
+    [{ parent: { ...validAdmission.parent, phone: '+216 01 23 45 67' } }],
+    [{ parent: { ...validAdmission.parent, phone: '+216 99 19 28 2' } }],
+    [{ parent: { ...validAdmission.parent, phone: '216991928290' } }],
   ])('rejects invalid parent contact data', (replacement) => {
     expect(
       bilanRequestAdmissionSchema.safeParse({ ...validAdmission, ...replacement }).success,
@@ -113,6 +147,25 @@ describe('bilan request schemas', () => {
       }).success,
     ).toBe(false);
   });
+
+  it.each(['', '   '])(
+    'accepts empty optional child and request fields and removes them',
+    (emptyValue) => {
+      const result = bilanRequestAdmissionSchema.parse({
+        ...validAdmission,
+        child: {
+          firstName: validAdmission.child.firstName,
+          lastName: emptyValue,
+          schoolName: emptyValue,
+        },
+        message: emptyValue,
+      });
+
+      expect(result.child.lastName).toBeUndefined();
+      expect(result.child.schoolName).toBeUndefined();
+      expect(result.message).toBeUndefined();
+    },
+  );
 
   it('validates strict assignment actions', () => {
     expect(bilanTeamAssignmentSchema.safeParse({ coachId: 'coach_123' }).success).toBe(true);
