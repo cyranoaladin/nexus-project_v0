@@ -17,7 +17,7 @@ import {
 import { checkBodySize, checkCsrf } from '@/lib/csrf';
 import { sendMail } from '@/lib/email/mailer';
 import { prisma } from '@/lib/prisma';
-import { guardRateLimitAsync } from '@/lib/rate-limit';
+import { guardRateLimitAsync, hashForKey } from '@/lib/rate-limit';
 
 const requestSchema = z.object({
   email: z.string().trim().toLowerCase().email().max(254),
@@ -119,6 +119,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   const rateLimitResponse = await guardRateLimitAsync(request, {
     preset: 'auth',
     keySuffix: 'bilan-magic-request',
+    requireDistributed: true,
   });
   if (rateLimitResponse) return rateLimitResponse;
 
@@ -133,6 +134,14 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   if (!parsed.success) {
     return NextResponse.json({ error: 'Adresse email invalide.' }, { status: 400 });
   }
+
+  const emailRateLimitResponse = await guardRateLimitAsync(request, {
+    preset: 'auth',
+    keySuffix: 'bilan-magic-request-email',
+    userId: hashForKey(parsed.data.email),
+    requireDistributed: true,
+  });
+  if (emailRateLimitResponse) return emailRateLimitResponse;
 
   try {
     const publicOrigin = resolveBilanPublicOrigin();

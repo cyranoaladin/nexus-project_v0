@@ -252,21 +252,26 @@ function accessPredicate(
           id: principal.requestId,
           parentUserId: principal.userId,
           accountVerificationState: 'VERIFIED',
-          student: {
-            is: {
-              parentLinks: {
-                some: {
-                  parentUserId: principal.userId,
-                  state: 'VERIFIED',
-                  revokedAt: null,
-                  OR: [
-                    { expiresAt: null },
-                    { expiresAt: { gt: principal.now } },
-                  ],
+          OR: [
+            { studentId: null },
+            {
+              student: {
+                is: {
+                  parentLinks: {
+                    some: {
+                      parentUserId: principal.userId,
+                      state: 'VERIFIED',
+                      revokedAt: null,
+                      OR: [
+                        { expiresAt: null },
+                        { expiresAt: { gt: principal.now } },
+                      ],
+                    },
+                  },
                 },
               },
             },
-          },
+          ],
         },
       };
     case 'COACH':

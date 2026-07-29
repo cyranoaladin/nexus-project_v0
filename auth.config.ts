@@ -74,6 +74,7 @@ export const authConfig = {
         token.id = user.id;
         token.firstName = user.firstName;
         token.lastName = user.lastName;
+        token.bilanRequestId = user.bilanRequestId;
       }
       return token;
     },
@@ -83,6 +84,7 @@ export const authConfig = {
         session.user.role = token.role as any;
         session.user.firstName = token.firstName as string;
         session.user.lastName = token.lastName as string;
+        session.user.bilanRequestId = token.bilanRequestId as string | undefined;
       }
       return session;
     },

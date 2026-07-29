@@ -12,6 +12,7 @@ import { captureContactLead } from '@/lib/crm/contact-leads';
 import { createId } from '@paralleldrive/cuid2';
 import crypto from 'crypto';
 import { NextRequest, NextResponse } from 'next/server';
+import { getBilanFeatureFlags } from '@/lib/bilans/requests/feature-flags';
 
 const PUBLIC_SUCCESS_RESPONSE = {
   success: true,
@@ -46,7 +47,7 @@ async function notifyStaffOfValidatedSubmission(
   }
 }
 
-export async function POST(request: NextRequest) {
+async function legacyPost(request: NextRequest) {
   try {
     const isTestEnv = process.env.NODE_ENV === 'test';
 
@@ -59,7 +60,11 @@ export async function POST(request: NextRequest) {
     if (bodySizeResponse) return bodySizeResponse;
 
     // Rate limiting
-    const blocked = await guardRateLimitAsync(request, { preset: 'api', keySuffix: 'bilan-gratuit' });
+    const blocked = await guardRateLimitAsync(request, {
+      preset: 'api',
+      keySuffix: 'bilan-gratuit',
+      requireDistributed: true,
+    });
     if (blocked) return blocked;
 
     const body = await request.json();
@@ -225,4 +230,13 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
+}
+
+export async function POST(request: NextRequest) {
+  if (getBilanFeatureFlags().canonicalIntakeEnabled) {
+    const canonical = await import('@/app/api/bilan-gratuit/v1/requests/route');
+    return canonical.POST(request);
+  }
+
+  return legacyPost(request);
 }

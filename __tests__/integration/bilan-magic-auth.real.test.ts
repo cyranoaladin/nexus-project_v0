@@ -5,6 +5,7 @@ import path from 'path';
 import { PrismaClient } from '@prisma/client';
 
 import { consumeBilanMagicLink } from '@/lib/bilans/auth/consume-magic-link';
+import { attachChildToVerifiedRequest } from '@/lib/bilans/requests/attach-child';
 import { createBilanRequestIntake } from '@/lib/bilans/requests/create-request';
 
 const prismaBinaryPath = path.resolve(process.cwd(), 'node_modules/.bin/prisma');
@@ -82,6 +83,25 @@ async function createPendingRequest(key: string) {
     now: NOW,
     production: false,
   });
+}
+
+async function createVerifiedExistingParentRequest(key: string) {
+  const parent = await prisma.user.create({
+    data: {
+      email: admission.parent.email,
+      role: 'PARENT',
+      activatedAt: new Date('2026-07-29T11:00:00.000Z'),
+      parentProfile: { create: {} },
+    },
+    select: { id: true, parentProfile: { select: { id: true } } },
+  });
+  const intake = await createPendingRequest(key);
+  await consumeBilanMagicLink({
+    prisma,
+    rawToken: intake.internal.magicLinkToken!.rawToken,
+    now: new Date('2026-07-29T12:05:00.000Z'),
+  });
+  return { parent, intake };
 }
 
 describe('bilan magic auth — real PostgreSQL', () => {
@@ -262,5 +282,265 @@ describe('bilan magic auth — real PostgreSQL', () => {
       rawToken,
       now: new Date('2026-07-29T12:06:00.000Z'),
     })).resolves.toMatchObject({ role: 'PARENT' });
+  });
+
+  it('creates and attaches exactly one inactive child for a verified existing parent', async () => {
+    const { parent, intake } = await createVerifiedExistingParentRequest(
+      'magic_real_child_create_0123',
+    );
+
+    const attached = await attachChildToVerifiedRequest({
+      prisma,
+      requestId: intake.internal.requestId,
+      parentUserId: parent.id,
+      command: {
+        action: 'CREATE_NEW',
+        child: {
+          firstName: 'Nour',
+          lastName: 'Ben Salah',
+          schoolName: 'Lycée test',
+        },
+      },
+      now: new Date('2026-07-29T12:06:00.000Z'),
+    });
+
+    const [request, student, link, events] = await Promise.all([
+      prisma.bilanRequest.findUniqueOrThrow({
+        where: { id: intake.internal.requestId },
+      }),
+      prisma.student.findUniqueOrThrow({
+        where: { id: attached.studentId },
+        include: { user: true },
+      }),
+      prisma.parentStudentLink.findFirstOrThrow({
+        where: { parentUserId: parent.id, studentId: attached.studentId },
+      }),
+      prisma.bilanRequestEvent.findMany({
+        where: { requestId: intake.internal.requestId, type: 'CHILD_CREATED' },
+      }),
+    ]);
+    expect(request).toMatchObject({
+      studentId: attached.studentId,
+      status: 'READY_FOR_ASSESSMENT',
+      provisionalChildFirstName: null,
+      provisionalChildLastName: null,
+      provisionalChildSchoolName: null,
+    });
+    expect(student.user).toMatchObject({
+      role: 'ELEVE',
+      activatedAt: null,
+      password: null,
+    });
+    expect(student.user.email).toMatch(
+      /^child\+[a-f0-9]{24}@nexus-student\.local$/,
+    );
+    expect(link).toMatchObject({
+      state: 'VERIFIED',
+      revokedAt: null,
+    });
+    expect(events).toHaveLength(1);
+    expect(events[0].payload).toEqual({ studentId: attached.studentId });
+  });
+
+  it('selects an existing child only through the authenticated parent verified link', async () => {
+    const { parent, intake } = await createVerifiedExistingParentRequest(
+      'magic_real_child_select_0123',
+    );
+    const studentUser = await prisma.user.create({
+      data: {
+        email: 'existing.child@nexus-student.local',
+        role: 'ELEVE',
+      },
+      select: { id: true },
+    });
+    const student = await prisma.student.create({
+      data: {
+        parentId: parent.parentProfile!.id,
+        userId: studentUser.id,
+        gradeLevel: 'TERMINALE',
+      },
+      select: { id: true },
+    });
+    await prisma.parentStudentLink.create({
+      data: {
+        parentUserId: parent.id,
+        studentId: student.id,
+        state: 'VERIFIED',
+        verifiedAt: new Date('2026-07-29T11:30:00.000Z'),
+      },
+    });
+
+    await expect(attachChildToVerifiedRequest({
+      prisma,
+      requestId: intake.internal.requestId,
+      parentUserId: parent.id,
+      command: { action: 'SELECT_EXISTING', studentId: student.id },
+      now: new Date('2026-07-29T12:06:00.000Z'),
+    })).resolves.toEqual({ attached: true, studentId: student.id });
+
+    const foreignParent = await prisma.user.create({
+      data: {
+        email: 'foreign.parent@example.com',
+        role: 'PARENT',
+        activatedAt: NOW,
+        parentProfile: { create: {} },
+      },
+      select: { id: true },
+    });
+    await expect(attachChildToVerifiedRequest({
+      prisma,
+      requestId: intake.internal.requestId,
+      parentUserId: foreignParent.id,
+      command: { action: 'SELECT_EXISTING', studentId: student.id },
+      now: new Date('2026-07-29T12:07:00.000Z'),
+    })).rejects.toMatchObject({ code: 'BILAN_CHILD_ACCESS_DENIED' });
+  });
+
+  it('rolls back losing concurrent child creation without orphan records', async () => {
+    const { parent, intake } = await createVerifiedExistingParentRequest(
+      'magic_real_child_race_012345',
+    );
+    const command = {
+      action: 'CREATE_NEW' as const,
+      child: { firstName: 'Nour' },
+    };
+
+    const results = await Promise.allSettled([
+      attachChildToVerifiedRequest({
+        prisma,
+        requestId: intake.internal.requestId,
+        parentUserId: parent.id,
+        command,
+      }),
+      attachChildToVerifiedRequest({
+        prisma,
+        requestId: intake.internal.requestId,
+        parentUserId: parent.id,
+        command,
+      }),
+    ]);
+    expect(results.filter(({ status }) => status === 'fulfilled')).toHaveLength(1);
+
+    const [request, students, events] = await Promise.all([
+      prisma.bilanRequest.findUniqueOrThrow({
+        where: { id: intake.internal.requestId },
+      }),
+      prisma.student.count({ where: { parentId: parent.parentProfile!.id } }),
+      prisma.bilanRequestEvent.count({
+        where: { requestId: intake.internal.requestId, type: 'CHILD_CREATED' },
+      }),
+    ]);
+    expect(request.status).toBe('READY_FOR_ASSESSMENT');
+    expect(students).toBe(1);
+    expect(events).toBe(1);
+  });
+
+  it('uses a verified password session to verify and attach its exact pending request atomically', async () => {
+    const parent = await prisma.user.create({
+      data: {
+        email: admission.parent.email,
+        role: 'PARENT',
+        activatedAt: new Date('2026-07-29T11:00:00.000Z'),
+        parentProfile: { create: {} },
+      },
+      select: { id: true, parentProfile: { select: { id: true } } },
+    });
+    const studentUser = await prisma.user.create({
+      data: { email: 'password.child@nexus-student.local', role: 'ELEVE' },
+      select: { id: true },
+    });
+    const student = await prisma.student.create({
+      data: {
+        parentId: parent.parentProfile!.id,
+        userId: studentUser.id,
+        gradeLevel: 'TERMINALE',
+      },
+      select: { id: true },
+    });
+    await prisma.parentStudentLink.create({
+      data: {
+        parentUserId: parent.id,
+        studentId: student.id,
+        state: 'VERIFIED',
+        verifiedAt: new Date('2026-07-29T11:30:00.000Z'),
+      },
+    });
+    const intake = await createPendingRequest('password_session_child_0123');
+
+    await attachChildToVerifiedRequest({
+      prisma,
+      requestId: intake.internal.requestId,
+      parentUserId: parent.id,
+      command: { action: 'SELECT_EXISTING', studentId: student.id },
+      existingSessionFlowTokenHash: intake.internal.flowSessionToken!.tokenHash,
+      now: new Date('2026-07-29T12:06:00.000Z'),
+    });
+
+    const [request, events] = await Promise.all([
+      prisma.bilanRequest.findUniqueOrThrow({
+        where: { id: intake.internal.requestId },
+      }),
+      prisma.bilanRequestEvent.findMany({
+        where: {
+          requestId: intake.internal.requestId,
+          type: { in: ['ACCOUNT_VERIFIED', 'CHILD_SELECTED'] },
+        },
+        orderBy: { occurredAt: 'asc' },
+      }),
+    ]);
+    expect(request).toMatchObject({
+      parentUserId: parent.id,
+      studentId: student.id,
+      accountVerificationState: 'VERIFIED',
+      status: 'READY_FOR_ASSESSMENT',
+    });
+    expect(events.map(({ type, payload }) => ({ type, payload }))).toEqual([
+      {
+        type: 'ACCOUNT_VERIFIED',
+        payload: { methodCode: 'EXISTING_SESSION' },
+      },
+      {
+        type: 'CHILD_SELECTED',
+        payload: { studentId: student.id },
+      },
+    ]);
+  });
+
+  it('refuses a revoked flow token inside the existing-parent attachment transaction', async () => {
+    const parent = await prisma.user.create({
+      data: {
+        email: admission.parent.email,
+        role: 'PARENT',
+        activatedAt: NOW,
+        parentProfile: { create: {} },
+      },
+      select: { id: true },
+    });
+    const intake = await createPendingRequest('revoked_password_flow_01234');
+    await prisma.bilanFlowSession.updateMany({
+      where: { requestId: intake.internal.requestId },
+      data: { revokedAt: new Date('2026-07-29T12:05:00.000Z') },
+    });
+
+    await expect(attachChildToVerifiedRequest({
+      prisma,
+      requestId: intake.internal.requestId,
+      parentUserId: parent.id,
+      command: {
+        action: 'CREATE_NEW',
+        child: { firstName: 'Nour' },
+      },
+      existingSessionFlowTokenHash: intake.internal.flowSessionToken!.tokenHash,
+      now: new Date('2026-07-29T12:06:00.000Z'),
+    })).rejects.toMatchObject({ code: 'BILAN_CHILD_ACCESS_DENIED' });
+
+    const request = await prisma.bilanRequest.findUniqueOrThrow({
+      where: { id: intake.internal.requestId },
+    });
+    expect(request).toMatchObject({
+      accountVerificationState: 'VERIFICATION_PENDING',
+      studentId: null,
+      status: 'NEW',
+    });
   });
 });
