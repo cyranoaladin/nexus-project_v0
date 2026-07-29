@@ -18,10 +18,18 @@ const Subject = {
 // Validation pour l'inscription (Bilan Gratuit)
 export const bilanGratuitSchema = z.object({
   // Informations Parent
-  parentFirstName: z.string().min(2, 'Le prénom doit contenir au moins 2 caractères'),
-  parentLastName: z.string().min(2, 'Le nom doit contenir au moins 2 caractères'),
-  parentEmail: z.string().email('Email invalide'),
-  parentPhone: z.string().min(8, 'Numéro de téléphone invalide'),
+  parentFirstName: z.string()
+    .min(2, 'Le prénom doit contenir au moins 2 caractères')
+    .max(99, 'Le prénom est trop long'),
+  parentLastName: z.string()
+    .min(2, 'Le nom doit contenir au moins 2 caractères')
+    .max(99, 'Le nom est trop long'),
+  parentEmail: z.string()
+    .email('Email invalide')
+    .max(320, 'Email trop long'),
+  parentPhone: z.string()
+    .min(8, 'Numéro de téléphone invalide')
+    .max(32, 'Numéro de téléphone trop long'),
   parentPassword: z.string().min(8, 'Le mot de passe doit contenir au moins 8 caractères').optional(),
 
   // Informations Élève
