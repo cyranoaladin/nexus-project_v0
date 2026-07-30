@@ -259,9 +259,16 @@ async function main(): Promise<void> {
   const primaryResult = modelResults[0];
   const fallbackResult = modelResults[1];
   const passed = modelResults.every(({ status }) => status === 'PASS');
+  const preflightStatus = passed
+    ? 'PASS'
+    : primaryResult.status === 'FAIL' && fallbackResult.status === 'PASS'
+      ? 'BLOCKED_BY_PRIMARY_MODEL_PREFLIGHT'
+      : primaryResult.status === 'PASS' && fallbackResult.status === 'FAIL'
+        ? 'BLOCKED_BY_FALLBACK_MODEL_PREFLIGHT'
+        : 'BLOCKED_BY_MODEL_PARAMETER_COMPATIBILITY';
   process.stdout.write(
     [
-      `PREFLIGHT_STATUS=${passed ? 'PASS' : 'FAIL'}`,
+      `PREFLIGHT_STATUS=${preflightStatus}`,
       `PRIMARY_MODEL_STATUS=${primaryResult.status}${
         primaryResult.normalizedErrorCode === null
           ? ''
