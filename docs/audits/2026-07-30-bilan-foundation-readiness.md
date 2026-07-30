@@ -123,6 +123,31 @@ MathInput. Le passage des 257 tests Python annoncés précédemment à 265
 correspond à l'état réellement présent au SHA audité ; aucun test n'a été
 supprimé ou neutralisé.
 
+### Complément : suite Playwright complète
+
+La configuration CI historique ne couvre que `e2e/real/pages`, alors que la
+commande locale complète découvre 228 scénarios. Trois fichiers de cette
+suite complète conservaient des attentes antérieures à la release
+informationnelle active :
+
+- ancien CTA homepage `#planning` au lieu du CTA canonique vers les offres ;
+- entrée permanente Pré-rentrée supposée active malgré le gate propriétaire
+  explicite `canShowPreRentreeInPermanentNav() === false` ;
+- ancien configurateur parent avec préremplissage du bilan, désormais
+  volontairement fermé ;
+- anciens compteurs de matières, de documents et ancien texte de salles.
+
+Les tests ont été réalignés sur les sources actives sans réduire leur nombre
+ni ouvrir une capacité fermée. Ils vérifient désormais le CTA informationnel,
+le plafond de quatre matières, l'absence de préremplissage bilan, l'absence de
+Physique-Chimie Seconde, l'absence de clés de réponse, les huit documents de
+l'allowlist et la fermeture de la navigation permanente.
+
+Résultat terminal :
+
+`npx playwright test --config=playwright.config.ts --project=chromium --reporter=line`
+— **228/228 tests réussis en 5 min 46 s**.
+
 Le corpus conserve :
 
 - 17 modules et 17 CPS ;
