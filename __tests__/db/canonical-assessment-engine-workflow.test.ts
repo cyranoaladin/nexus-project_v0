@@ -1,13 +1,6 @@
-import { randomUUID } from 'node:crypto';
-
-import type {
-  AssessmentDefinition,
-  PedagogyCatalog,
-} from '@/lib/pre-rentree/pedagogy';
 import {
   AssessmentEngineError,
   autosaveAssessmentResponse,
-  createAssessmentAssignment,
   getAssignmentPublicDefinition,
   startAssessmentAttempt,
   submitAssessmentAttempt,
@@ -15,180 +8,17 @@ import {
 import {
   canConnectToTestDb,
   createTestParent,
-  createTestStudent,
   setupTestDatabase,
   testPrisma,
 } from '../setup/test-database';
+import {
+  createCanonicalWorkflowFixture,
+  engineKey as key,
+  publishedAssessmentFixture as definition,
+} from './support/canonical-assessment-fixture';
 
 const prisma = testPrisma;
-const definition: AssessmentDefinition = {
-  id: 'fixture-published-assessment',
-  moduleId: 'fixture-published-module',
-  level: 'TERMINALE',
-  subject: 'MATHEMATIQUES',
-  edition: 1,
-  targetDurationMinutes: 20,
-  title: 'Fixture publiée injectée',
-  framing: 'Réservée au test du service.',
-  publicationStatus: 'PUBLICATION_APPROVED',
-  ref: {
-    definitionId: 'fixture-published-assessment',
-    moduleId: 'fixture-published-module',
-    version: 'fixture-v1',
-    sha256: `sha256:${'1'.repeat(64)}`,
-  },
-  nodes: [{
-    id: 'node-1',
-    order: 1,
-    evaluated: true,
-    priorKnowledge: 'Calcul.',
-    targetUse: 'Résoudre.',
-    obstacles: ['Erreur de calcul.'],
-    masteryCriterion: 'Deux items.',
-    sessionNumber: 1,
-    itemIds: ['qcm', 'manual'],
-  }],
-  items: [
-    {
-      id: 'qcm',
-      nodeId: 'node-1',
-      tier: 'A',
-      prompt: 'Choisir la bonne réponse.',
-      rationale: 'Corrigé interne.',
-      responseMode: 'AUTOMATIC_QCM',
-      options: [
-        { text: 'Faux', correct: false },
-        { text: 'Vrai', correct: true },
-      ],
-    },
-    {
-      id: 'manual',
-      nodeId: 'node-1',
-      tier: 'B',
-      prompt: 'Justifier.',
-      rationale: 'Corrigé interne.',
-      responseMode: 'MANUAL_SHORT_RESPONSE',
-      maxCharacters: 200,
-      gradingCriteria: ['Justification cohérente.'],
-    },
-  ],
-};
-
-const catalog: PedagogyCatalog = {
-  version: {
-    campaignId: 'pre-rentree-2026',
-    manifestVersion: 1,
-    manifestSha256: `sha256:${'2'.repeat(64)}`,
-    moduleCatalogVersion: 'fixture-modules-v1',
-    moduleCatalogSha256: `sha256:${'3'.repeat(64)}`,
-  },
-  counts: {
-    modules: 1,
-    sessions: 1,
-    cps: 1,
-    nodes: 1,
-    evaluatedNodes: 1,
-    items: 2,
-    manualResponses: 1,
-    sessionUnitFiles: 4,
-  },
-  modules: [{
-    id: definition.moduleId,
-    level: definition.level,
-    subject: definition.subject,
-    title: 'Fixture',
-    subtitle: 'Tests seulement',
-    catalogStatus: 'ACTIVE',
-    publicationStatus: 'PUBLICATION_APPROVED',
-    sessions: [],
-    assessmentRef: definition.ref,
-  }],
-  assessments: [definition],
-  getModule(id) {
-    if (id !== definition.moduleId) throw new Error('unknown module');
-    return this.modules[0];
-  },
-  getAssessment(id) {
-    if (id !== definition.id) throw new Error('unknown assessment');
-    return definition;
-  },
-  assertAssessmentRef(ref) {
-    if (
-      ref.definitionId !== definition.ref.definitionId
-      || ref.version !== definition.ref.version
-      || ref.sha256 !== definition.ref.sha256
-    ) {
-      throw new Error('invalid ref');
-    }
-    return definition;
-  },
-};
-
-const key = (prefix: string) => `${prefix}_${randomUUID().replaceAll('-', '')}`;
-
-async function createFixture() {
-  const { parentUser, parentProfile } = await createTestParent();
-  const { student, studentUser } = await createTestStudent(parentProfile.id, {
-    user: { activatedAt: new Date() },
-  });
-  await prisma.parentStudentLink.create({
-    data: {
-      parentUserId: parentUser.id,
-      studentId: student.id,
-      state: 'VERIFIED',
-      consentedAt: new Date(),
-      verifiedAt: new Date(),
-    },
-  });
-  const admin = await prisma.user.create({
-    data: {
-      email: `engine.admin.${randomUUID()}@nexus-test.com`,
-      role: 'ADMIN',
-      firstName: 'Admin',
-      lastName: 'Engine',
-    },
-  });
-  const request = await prisma.bilanRequest.create({
-    data: {
-      parentUserId: parentUser.id,
-      studentId: student.id,
-      subject: 'MATHEMATIQUES',
-      gradeLevel: 'TERMINALE',
-      schoolYear: '2026-2027',
-      mainNeed: 'Fixture de workflow.',
-      consent: true,
-      consentVersion: 'fixture-v1',
-      consentedAt: new Date(),
-      accountVerificationState: 'VERIFIED',
-      status: 'READY_FOR_ASSESSMENT',
-      submissionHash: `sha256:${randomUUID()}`,
-    },
-  });
-  const context = { catalog, prisma };
-  const assignment = await createAssessmentAssignment(context, {
-    actor: { role: 'ADMIN', userId: admin.id },
-    command: {
-      requestId: request.id,
-      studentId: student.id,
-      definitionId: definition.id,
-      definitionVersion: definition.ref.version,
-      definitionChecksum: definition.ref.sha256,
-      opensAt: new Date(Date.now() - 60_000).toISOString(),
-      dueAt: new Date(Date.now() + 3_600_000).toISOString(),
-      maxAttempts: 1,
-    },
-    idempotencyKey: key('assignment'),
-  });
-  return {
-    admin,
-    assignment,
-    context,
-    parentUser,
-    request,
-    student,
-    studentUser,
-  };
-}
+const createFixture = () => createCanonicalWorkflowFixture(prisma);
 
 describe('canonical assessment workflow service', () => {
   beforeAll(async () => {

@@ -38,15 +38,22 @@ export type AssessmentEngineContext = Readonly<{
   now?: () => Date;
 }>;
 
-type IdempotencyScope =
+export type IdempotencyScope =
   | 'CREATE_ASSIGNMENT'
   | 'START_ATTEMPT'
   | 'AUTOSAVE_RESPONSE'
-  | 'SUBMIT_ATTEMPT';
+  | 'SUBMIT_ATTEMPT'
+  | 'CLAIM_MANUAL_REVIEW'
+  | 'COMPLETE_MANUAL_REVIEW'
+  | 'SCORE_ATTEMPT'
+  | 'GENERATE_REPORT'
+  | 'APPROVE_REPORT'
+  | 'PUBLISH_REPORT'
+  | 'REVOKE_REPORT';
 
 type IdempotentResource = Readonly<{ id: string }>;
 
-function engineNow(context: AssessmentEngineContext): Date {
+export function engineNow(context: AssessmentEngineContext): Date {
   return context.now?.() ?? new Date();
 }
 
@@ -54,7 +61,7 @@ function actorKey(actor: AssessmentEngineActor): string {
   return `user:${actor.userId}`;
 }
 
-function auditActor(
+export function auditActor(
   actor: AssessmentEngineActor,
 ): 'PARENT_FLOW' | 'ASSISTANTE' | 'COACH' | 'ADMIN' {
   if (actor.role === 'PARENT' || actor.role === 'ELEVE') return 'PARENT_FLOW';
@@ -67,7 +74,7 @@ function assertIdempotencyKey(value: string): string {
   return parsed.data;
 }
 
-async function assertActorIdentity(
+export async function assertActorIdentity(
   tx: TransactionClient,
   actor: AssessmentEngineActor,
   allowedRoles: readonly AssessmentEngineActor['role'][],
@@ -82,7 +89,7 @@ async function assertActorIdentity(
   if (!identity) throw new AssessmentEngineError('ROLE_FORBIDDEN', 403);
 }
 
-async function runIdempotently<T extends IdempotentResource>(
+export async function runIdempotently<T extends IdempotentResource>(
   tx: TransactionClient,
   input: Readonly<{
     actor: AssessmentEngineActor;
@@ -120,6 +127,7 @@ async function runIdempotently<T extends IdempotentResource>(
       select: {
         requestHash: true,
         resourceId: true,
+        response: true,
         status: true,
       },
     });
@@ -129,9 +137,16 @@ async function runIdempotently<T extends IdempotentResource>(
     if (existing.status !== 'COMPLETED' || !existing.resourceId) {
       throw new AssessmentEngineError('IDEMPOTENCY_IN_PROGRESS');
     }
-    const replayed = await input.load(existing.resourceId);
-    if (!replayed) throw new AssessmentEngineError('IDEMPOTENCY_IN_PROGRESS');
-    return replayed;
+    const accessible = await input.load(existing.resourceId);
+    if (!accessible) throw new AssessmentEngineError('IDEMPOTENCY_IN_PROGRESS');
+    if (
+      typeof existing.response !== 'object'
+      || existing.response === null
+      || Array.isArray(existing.response)
+    ) {
+      return accessible;
+    }
+    return existing.response as T;
   }
 
   const resource = await input.execute();
@@ -140,7 +155,7 @@ async function runIdempotently<T extends IdempotentResource>(
     data: {
       status: 'COMPLETED',
       resourceId: resource.id,
-      response: { resourceId: resource.id },
+      response: JSON.parse(JSON.stringify(resource)) as Prisma.InputJsonValue,
     },
   });
   return resource;
@@ -167,8 +182,8 @@ function assignmentProjection(assignment: Readonly<{
     moduleId: assignment.moduleId,
     definitionVersion: assignment.definitionVersion,
     definitionChecksum: assignment.definitionChecksum,
-    opensAt: assignment.opensAt,
-    dueAt: assignment.dueAt,
+    opensAt: assignment.opensAt.toISOString(),
+    dueAt: assignment.dueAt?.toISOString() ?? null,
     status: assignment.status,
     maxAttempts: assignment.maxAttempts,
   };
@@ -189,10 +204,10 @@ function attemptProjection(attempt: Readonly<{
     assignmentId: attempt.assignmentId,
     attemptNumber: attempt.attemptNumber,
     status: attempt.status,
-    startedAt: attempt.startedAt,
-    lastAutosavedAt: attempt.lastAutosavedAt,
-    submittedAt: attempt.submittedAt,
-    sealedAt: attempt.sealedAt,
+    startedAt: attempt.startedAt.toISOString(),
+    lastAutosavedAt: attempt.lastAutosavedAt?.toISOString() ?? null,
+    submittedAt: attempt.submittedAt?.toISOString() ?? null,
+    sealedAt: attempt.sealedAt?.toISOString() ?? null,
   };
 }
 
@@ -502,7 +517,7 @@ export async function startAssessmentAttempt(
   });
 }
 
-function resolveAttemptDefinition(
+export function resolveAttemptDefinition(
   context: AssessmentEngineContext,
   attempt: Readonly<{
     assessmentPackChecksum: string;
@@ -549,7 +564,10 @@ export async function autosaveAssessmentResponse(
             version: true,
           },
         });
-        return response;
+        return response ? {
+          ...response,
+          lastAutosavedAt: response.lastAutosavedAt.toISOString(),
+        } : null;
       },
       execute: async () => {
         await tx.$queryRaw`
@@ -684,7 +702,7 @@ export async function autosaveAssessmentResponse(
         return {
           id: response.id,
           itemId: response.itemId,
-          lastAutosavedAt: response.lastAutosavedAt,
+          lastAutosavedAt: response.lastAutosavedAt.toISOString(),
           version: response.version,
         };
       },
