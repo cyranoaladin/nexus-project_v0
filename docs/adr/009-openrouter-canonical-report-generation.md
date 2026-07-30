@@ -60,7 +60,9 @@ La politique canonique est
 - `provider.require_parameters=true` ;
 - `provider.data_collection=deny` ;
 - `provider.zdr=true` ;
-- aucun tool, plugin, browsing ou web search.
+- aucun tool, plugin, browsing ou web search ;
+- le paramètre déprécié `usage.include` est absent ; l'objet `usage` de la
+  réponse reste obligatoire.
 
 Une capacité nouvellement annoncée n'est jamais activée automatiquement.
 L'apparition future de `temperature` dans le catalogue ne change donc pas le
@@ -104,6 +106,20 @@ Le client restitue :
 - checksums de capacité et de politique ;
 - versions de politique et de schéma.
 
+Il restitue aussi l'historique sûr de toutes les tentatives, y compris les
+échecs : modèle demandé, dates, latence, code normalisé, caractère retryable
+et seules métadonnées de génération, tokens ou coût déjà connues. Aucun corps
+fournisseur n'est conservé.
+
+Le plan `bilan-retry-policy-v1` est figé dans la politique :
+
+1. `anthropic/claude-sonnet-5` ;
+2. `openai/gpt-5.6-terra` ;
+3. `openai/gpt-5.6-terra`.
+
+Le client consomme ce tableau exact et ne dérive jamais implicitement le
+modèle d'une tentative.
+
 C1 ne persiste pas ces données. La relation immuable entre invocation et
 révision sera traitée dans C2.
 
@@ -130,7 +146,9 @@ contenu métier.
 ## Conséquences
 
 Le contrat échoue de manière sûre lorsque configuration, capacité, schéma,
-budget, identifiant de génération ou usage sont absents ou incohérents.
+budget, identifiant de génération ou usage de réponse sont absents ou
+incohérents. Seule une fin `stop` est complète ; `length`, `error`,
+`content_filter`, `cancelled`, `null` et toute valeur inconnue sont refusées.
 L'activation réelle reste bloquée par le preflight privé, les budgets owner,
 la confidentialité, le worker asynchrone et la revue humaine.
 
@@ -140,4 +158,3 @@ C1 n'a ni migration ni état persistant. Le rollback consiste à conserver
 `BILAN_REPORT_GENERATION_MODE=DISABLED`, ne pas fusionner ou réverter la PR C1,
 et ne démarrer aucun worker. Le scoring, les dashboards et les bilans
 historiques restent indépendants.
-
