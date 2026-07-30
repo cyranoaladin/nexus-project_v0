@@ -35,10 +35,10 @@ function disposableDatabaseUrl(databaseName: string): string {
   if (
     !['localhost', '127.0.0.1'].includes(url.hostname)
     || !['5432', '5434'].includes(url.port)
-    || url.pathname !== '/nexus_test'
+    || !['/nexus_test', '/nexus_bilan_engine_dev'].includes(url.pathname)
   ) {
     throw new Error(
-      'Migration harness is restricted to localhost ports 5432/5434 and database nexus_test',
+      'Migration harness is restricted to localhost ports 5432/5434 and an explicit Nexus test database',
     );
   }
   if (!/^nexus_bilan_(fresh|upgrade)_[a-f0-9]+$/.test(databaseName)) {
@@ -95,7 +95,7 @@ function createPreviousMigrationWorkspace(): { root: string; schemaPath: string;
   );
 
   for (const entry of fs.readdirSync(migrationsPath, { withFileTypes: true })) {
-    if (!entry.isDirectory() || entry.name === targetMigrationName) {
+    if (!entry.isDirectory() || entry.name >= targetMigrationName) {
       continue;
     }
     fs.cpSync(
