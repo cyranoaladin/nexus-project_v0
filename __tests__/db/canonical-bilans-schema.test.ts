@@ -76,7 +76,7 @@ describe('canonical bilans persistence schema', () => {
     const { student } = await createTestStudent(parentProfile.id, {
       student: { gradeLevel: 'TERMINALE' },
     });
-    const { coachProfile } = await createTestCoach();
+    const { coachProfile, coachUser } = await createTestCoach();
 
     const parentLink = await prisma.parentStudentLink.create({
       data: { parentUserId: parentUser.id, studentId: student.id, state: 'VERIFIED' },
@@ -128,6 +128,7 @@ describe('canonical bilans persistence schema', () => {
     const review = await prisma.reportReview.create({
       data: {
         reportRevisionId: revision.id,
+        reviewerUserId: coachUser.id,
         coachId: coachProfile.id,
         decision: 'APPROVED',
         motif: 'Recommandations vérifiées.',
@@ -356,7 +357,7 @@ describe('canonical bilans persistence schema', () => {
     const { student } = await createTestStudent(parentProfile.id, {
       student: { gradeLevel: 'TERMINALE' },
     });
-    const { coachProfile } = await createTestCoach();
+    const { coachProfile, coachUser } = await createTestCoach();
     const attempt = await prisma.canonicalAssessmentAttempt.create({
       data: {
         studentId: student.id,
@@ -405,7 +406,7 @@ describe('canonical bilans persistence schema', () => {
       },
     });
     await prisma.reportReview.create({
-      data: { reportRevisionId: firstRevision.id, coachId: coachProfile.id, decision: 'APPROVED', motif: 'Validé.' },
+      data: { reportRevisionId: firstRevision.id, reviewerUserId: coachUser.id, coachId: coachProfile.id, decision: 'APPROVED', motif: 'Validé.' },
     });
     await prisma.reportRevision.update({
       where: { id: firstRevision.id },
@@ -426,7 +427,7 @@ describe('canonical bilans persistence schema', () => {
   it('blocks publication unless the revision is approved, reviewed, and timestamped', async () => {
     const { parentProfile } = await createTestParent();
     const { student } = await createTestStudent(parentProfile.id, { student: { gradeLevel: 'TERMINALE' } });
-    const { coachProfile } = await createTestCoach();
+    const { coachProfile, coachUser } = await createTestCoach();
     const attempt = await prisma.canonicalAssessmentAttempt.create({ data: {
       studentId: student.id, status: 'SUBMITTED', subject: 'MATHEMATIQUES', gradeLevel: 'TERMINALE',
       curriculumId: 'lycee-general', curriculumVersion: '2026.1', assessmentPackId: 'maths-terminal', assessmentPackVersion: '1', assessmentPackChecksum: 'checksum', scoringPolicyId: 'policy', scoringPolicyVersion: '1', submittedAt: new Date(), answers: {},
@@ -440,12 +441,12 @@ describe('canonical bilans persistence schema', () => {
     const draft = await createRevision('DRAFT');
     await expect(prisma.reportArtifact.update({ where: { id: draft.artifact.id }, data: { status: 'PUBLISHED', currentPublishedRevisionId: draft.revision.id, publishedAt: new Date() } })).rejects.toThrow(/publication|approved|validated/i);
     const rejected = await createRevision('REJECTED');
-    await prisma.reportReview.create({ data: { reportRevisionId: rejected.revision.id, coachId: coachProfile.id, decision: 'REJECTED', motif: 'À corriger.' } });
+    await prisma.reportReview.create({ data: { reportRevisionId: rejected.revision.id, reviewerUserId: coachUser.id, coachId: coachProfile.id, decision: 'REJECTED', motif: 'À corriger.' } });
     await expect(prisma.reportArtifact.update({ where: { id: rejected.artifact.id }, data: { status: 'PUBLISHED', currentPublishedRevisionId: rejected.revision.id, publishedAt: new Date() } })).rejects.toThrow(/publication|approved|validated/i);
     const unreviewed = await createRevision('PENDING_REVIEW');
     await expect(prisma.reportArtifact.update({ where: { id: unreviewed.artifact.id }, data: { status: 'PUBLISHED', currentPublishedRevisionId: unreviewed.revision.id, publishedAt: new Date() } })).rejects.toThrow(/publication|approved|validated/i);
     const approved = await createRevision('PENDING_REVIEW');
-    await prisma.reportReview.create({ data: { reportRevisionId: approved.revision.id, coachId: coachProfile.id, decision: 'APPROVED', motif: 'Validé.' } });
+    await prisma.reportReview.create({ data: { reportRevisionId: approved.revision.id, reviewerUserId: coachUser.id, coachId: coachProfile.id, decision: 'APPROVED', motif: 'Validé.' } });
     await prisma.reportRevision.update({ where: { id: approved.revision.id }, data: { status: 'COACH_VALIDATED' } });
     await expect(prisma.reportArtifact.update({ where: { id: approved.artifact.id }, data: { status: 'PUBLISHED', currentPublishedRevisionId: approved.revision.id } })).rejects.toThrow(/publishedAt|publication/i);
   });
@@ -468,14 +469,14 @@ describe('canonical bilans persistence schema', () => {
   it('keeps report reviews append-only', async () => {
     const { parentProfile } = await createTestParent();
     const { student } = await createTestStudent(parentProfile.id, { student: { gradeLevel: 'SECONDE' } });
-    const { coachProfile } = await createTestCoach();
+    const { coachProfile, coachUser } = await createTestCoach();
     const attempt = await prisma.canonicalAssessmentAttempt.create({ data: {
       studentId: student.id, status: 'SUBMITTED', subject: 'MATHEMATIQUES', gradeLevel: 'SECONDE', curriculumId: 'lycee-general', curriculumVersion: '2026.1', assessmentPackId: 'maths-seconde', assessmentPackVersion: '1', assessmentPackChecksum: 'checksum', scoringPolicyId: 'policy', scoringPolicyVersion: '1', submittedAt: new Date(), answers: {},
     } });
     const score = await prisma.scoreSnapshot.create({ data: { assessmentAttemptId: attempt.id, scoringPolicyId: 'policy', scoringPolicyVersion: '1', scoringPolicyChecksum: 'checksum', score: 50, result: {} } });
     const artifact = await prisma.reportArtifact.create({ data: { studentId: student.id, assessmentAttemptId: attempt.id } });
     const revision = await prisma.reportRevision.create({ data: { reportArtifactId: artifact.id, scoreSnapshotId: score.id, reportPackId: 'report', reportPackVersion: '1', corpusManifestId: 'corpus', corpusManifestVersion: '1', promptRevision: 'prompt', contextChecksum: 'review', content: {} } });
-    const review = await prisma.reportReview.create({ data: { reportRevisionId: revision.id, coachId: coachProfile.id, decision: 'APPROVED', motif: 'Validé.' } });
+    const review = await prisma.reportReview.create({ data: { reportRevisionId: revision.id, reviewerUserId: coachUser.id, coachId: coachProfile.id, decision: 'APPROVED', motif: 'Validé.' } });
     await expect(prisma.reportReview.update({ where: { id: review.id }, data: { motif: 'Modifié.' } })).rejects.toThrow(/append-only|immutable/i);
     await expect(prisma.reportReview.delete({ where: { id: review.id } })).rejects.toThrow(/append-only|immutable/i);
   });

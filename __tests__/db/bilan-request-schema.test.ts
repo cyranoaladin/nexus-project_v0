@@ -451,7 +451,7 @@ describe('canonical free assessment request persistence', () => {
     const { student } = await createTestStudent(parentProfile.id, {
       student: { gradeLevel: 'TERMINALE' },
     });
-    const { coachProfile } = await createTestCoach();
+    const { coachProfile, coachUser } = await createTestCoach();
     const attempt = await createCanonicalAttempt(student.id);
     const score = await prisma.scoreSnapshot.create({
       data: {
@@ -496,6 +496,7 @@ describe('canonical free assessment request persistence', () => {
     await prisma.reportReview.create({
       data: {
         reportRevisionId: nexusRevision.id,
+        reviewerUserId: coachUser.id,
         coachId: coachProfile.id,
         decision: 'APPROVED',
         motif: 'Projection Nexus validée.',

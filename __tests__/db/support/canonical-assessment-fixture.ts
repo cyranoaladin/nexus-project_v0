@@ -6,7 +6,15 @@ import type {
   AssessmentDefinition,
   PedagogyCatalog,
 } from '@/lib/pre-rentree/pedagogy/types';
-import { createAssessmentAssignment } from '@/lib/bilans/engine';
+import {
+  autosaveAssessmentResponse,
+  claimManualReviewTask,
+  completeManualReviewTask,
+  createAssessmentAssignment,
+  scoreAssessmentAttempt,
+  startAssessmentAttempt,
+  submitAssessmentAttempt,
+} from '@/lib/bilans/engine';
 import {
   createTestParent,
   createTestStudent,
@@ -187,5 +195,83 @@ export async function createCanonicalWorkflowFixture(prisma: PrismaClient) {
     request,
     student,
     studentUser,
+  };
+}
+
+export async function createFinalScoredWorkflowFixture(prisma: PrismaClient) {
+  const fixture = await createCanonicalWorkflowFixture(prisma);
+  const parentActor = {
+    role: 'PARENT' as const,
+    userId: fixture.parentUser.id,
+  };
+  const adminActor = {
+    role: 'ADMIN' as const,
+    userId: fixture.admin.id,
+  };
+  const attempt = await startAssessmentAttempt(fixture.context, {
+    actor: parentActor,
+    assignmentId: fixture.assignment.id,
+    idempotencyKey: engineKey('start'),
+  });
+  await autosaveAssessmentResponse(fixture.context, {
+    actor: parentActor,
+    command: {
+      attemptId: attempt.id,
+      itemId: 'qcm',
+      expectedVersion: 0,
+      response: { selectedOptionIndex: 1 },
+    },
+    idempotencyKey: engineKey('save'),
+  });
+  await autosaveAssessmentResponse(fixture.context, {
+    actor: parentActor,
+    command: {
+      attemptId: attempt.id,
+      itemId: 'manual',
+      expectedVersion: 0,
+      response: { textValue: 'Une justification à corriger.' },
+    },
+    idempotencyKey: engineKey('save'),
+  });
+  await submitAssessmentAttempt(fixture.context, {
+    actor: parentActor,
+    command: { attemptId: attempt.id },
+    idempotencyKey: engineKey('submit'),
+  });
+  const task = await prisma.canonicalManualReviewTask.findFirstOrThrow({
+    where: { assessmentAttemptId: attempt.id },
+  });
+  const claimed = await claimManualReviewTask(fixture.context, {
+    actor: adminActor,
+    taskId: task.id,
+    leaseSeconds: 300,
+    idempotencyKey: engineKey('claim'),
+  });
+  await completeManualReviewTask(fixture.context, {
+    actor: adminActor,
+    command: {
+      taskId: task.id,
+      expectedClaimVersion: claimed.claimVersion,
+      awardedPoints: 0.5,
+      internalComment: 'Commentaire interne fixture.',
+      publishableComment: 'La justification est à approfondir.',
+      rubricVersion: 'raw-item-v1',
+    },
+    idempotencyKey: engineKey('complete'),
+  });
+  const score = await scoreAssessmentAttempt(fixture.context, {
+    actor: adminActor,
+    attemptId: attempt.id,
+    resultKind: 'FINAL',
+    provisionalResultsEnabled: false,
+    idempotencyKey: engineKey('score'),
+  });
+  return {
+    ...fixture,
+    adminActor,
+    attempt,
+    parentActor,
+    score,
+    task,
   };
 }

@@ -200,6 +200,7 @@ model User {
   canonicalAssessmentAuditEvents        AssessmentAuditEvent[]          @relation("CanonicalAssessmentAuditActor")
   canonicalReportPublicationsCreated    ReportPublication[]             @relation("CanonicalReportPublicationPublishedBy")
   canonicalReportPublicationsRevoked    ReportPublication[]             @relation("CanonicalReportPublicationRevokedBy")
+  canonicalReportReviews                ReportReview[]                  @relation("CanonicalReportReviewUser")
 
   // Entitlements (product access rights)
   entitlements Entitlement[]
@@ -2062,14 +2063,17 @@ model ReportReview {
   id               String               @id @default(cuid())
   reportRevisionId String
   reportRevision   ReportRevision       @relation(fields: [reportRevisionId], references: [id], onDelete: Restrict)
-  coachId          String
-  coach            CoachProfile         @relation(fields: [coachId], references: [id], onDelete: Restrict)
+  reviewerUserId   String
+  reviewerUser     User                 @relation("CanonicalReportReviewUser", fields: [reviewerUserId], references: [id], onDelete: Restrict)
+  coachId          String?
+  coach            CoachProfile?        @relation(fields: [coachId], references: [id], onDelete: Restrict)
   decision         ReportReviewDecision
   motif            String               @db.Text
   reviewedAt       DateTime             @default(now())
   createdAt        DateTime             @default(now())
 
   @@index([reportRevisionId, reviewedAt])
+  @@index([reviewerUserId, reviewedAt])
   @@index([coachId, reviewedAt])
   @@map("canonical_report_reviews")
 }
