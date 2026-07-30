@@ -115,11 +115,13 @@ export type OpenRouterCompletionInput<T> = Readonly<{
 export type OpenRouterTransportProvenance = Readonly<{
   requestedModel: string;
   returnedModel: string;
+  provider: string | null;
   canonicalSlug: string;
   generationId: string;
   finishReason: string;
   promptTokens: number;
   completionTokens: number;
+  reasoningTokens: number | null;
   totalTokens: number;
   costMicrosUsd: number;
   latencyMs: number;
@@ -144,8 +146,10 @@ export type OpenRouterInvocationAttempt = Readonly<{
   retryable: boolean;
   generationId: string | null;
   returnedModel: string | null;
+  provider: string | null;
   promptTokens: number | null;
   completionTokens: number | null;
+  reasoningTokens: number | null;
   totalTokens: number | null;
   costMicrosUsd: number | null;
   finishReason: string | null;
