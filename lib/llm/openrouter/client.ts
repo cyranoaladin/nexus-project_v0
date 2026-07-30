@@ -30,7 +30,7 @@ export type OpenRouterClientDependencies = Readonly<{
 
 const ResponseEnvelopeSchema = z.object({
   model: z.string().min(1),
-  provider: z.string().optional(),
+  provider: z.string().min(1).optional(),
   choices: z.array(z.object({
     message: z.object({
       content: z.string(),
@@ -40,6 +40,9 @@ const ResponseEnvelopeSchema = z.object({
   usage: z.object({
     prompt_tokens: z.number().int().nonnegative(),
     completion_tokens: z.number().int().nonnegative(),
+    completion_tokens_details: z.object({
+      reasoning_tokens: z.number().int().nonnegative().optional(),
+    }).passthrough().optional(),
     total_tokens: z.number().int().nonnegative(),
     cost: z.union([
       z.string().min(1),
@@ -514,8 +517,10 @@ export class OpenRouterClient {
     const startedAtMs = this.now();
     let generationId: string | null = null;
     let returnedModel: string | null = null;
+    let provider: string | null = null;
     let promptTokens: number | null = null;
     let completionTokens: number | null = null;
+    let reasoningTokens: number | null = null;
     let totalTokens: number | null = null;
     let costMicrosUsd: number | null = null;
     let finishReason: string | null = null;
@@ -564,10 +569,13 @@ export class OpenRouterClient {
         throw new OpenRouterError('OPENROUTER_INVALID_RESPONSE');
       }
       returnedModel = parsed.data.model;
+      provider = parsed.data.provider?.trim() || null;
       const choice = parsed.data.choices[0];
       finishReason = choice.finish_reason;
       promptTokens = parsed.data.usage.prompt_tokens;
       completionTokens = parsed.data.usage.completion_tokens;
+      reasoningTokens =
+        parsed.data.usage.completion_tokens_details?.reasoning_tokens ?? null;
       totalTokens = parsed.data.usage.total_tokens;
       costMicrosUsd = usdCostToMicros(parsed.data.usage.cost);
 
@@ -610,8 +618,10 @@ export class OpenRouterClient {
         retryable: false,
         generationId,
         returnedModel,
+        provider,
         promptTokens,
         completionTokens,
+        reasoningTokens,
         totalTokens,
         costMicrosUsd,
         finishReason,
@@ -621,11 +631,13 @@ export class OpenRouterClient {
         provenance: Object.freeze({
           requestedModel: snapshot.requestedModelId,
           returnedModel,
+          provider,
           canonicalSlug: snapshot.canonicalSlug,
           generationId,
           finishReason,
           promptTokens,
           completionTokens,
+          reasoningTokens,
           totalTokens,
           costMicrosUsd,
           latencyMs: successfulAttempt.latencyMs,
@@ -660,8 +672,10 @@ export class OpenRouterClient {
         retryable: error.retryable,
         generationId,
         returnedModel,
+        provider,
         promptTokens,
         completionTokens,
+        reasoningTokens,
         totalTokens,
         costMicrosUsd,
         finishReason,
@@ -682,8 +696,10 @@ export class OpenRouterClient {
     retryable: boolean;
     generationId: string | null;
     returnedModel: string | null;
+    provider: string | null;
     promptTokens: number | null;
     completionTokens: number | null;
+    reasoningTokens: number | null;
     totalTokens: number | null;
     costMicrosUsd: number | null;
     finishReason: string | null;
@@ -699,8 +715,10 @@ export class OpenRouterClient {
       retryable: input.retryable,
       generationId: input.generationId,
       returnedModel: input.returnedModel,
+      provider: input.provider,
       promptTokens: input.promptTokens,
       completionTokens: input.completionTokens,
+      reasoningTokens: input.reasoningTokens,
       totalTokens: input.totalTokens,
       costMicrosUsd: input.costMicrosUsd,
       finishReason: input.finishReason,

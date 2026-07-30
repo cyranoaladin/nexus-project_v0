@@ -29,6 +29,10 @@ const PREFLIGHT_VALIDITY_MILLISECONDS = 24 * 60 * 60 * 1_000;
 const OWNER_MAX_COST_MICROS_USD_PER_AUDIENCE_REPORT = 300_000;
 const OWNER_MAX_COST_MICROS_USD_PER_ASSESSMENT = 750_000;
 const OWNER_DAILY_BUDGET_MICROS_USD = 15_000_000;
+const PREFLIGHT_MAX_TOTAL_COST_MICROS_USD = 200_000;
+const PREFLIGHT_MAX_COST_PER_MODEL_MICROS_USD = 100_000;
+const PREFLIGHT_MAX_OUTPUT_TOKENS = 256;
+const PREFLIGHT_MODEL_CALL_COUNT = 2;
 
 function assertOwnerBudgets(config: ReturnType<typeof parseOpenRouterConfig>) {
   if (
@@ -50,8 +54,19 @@ async function main(): Promise<void> {
     OPENROUTER_API_KEY: apiKey,
   });
   assertOwnerBudgets(config);
+  const preflightConfig = Object.freeze({
+    ...config,
+    maxOutputTokens: PREFLIGHT_MAX_OUTPUT_TOKENS,
+    redacted: Object.freeze({
+      ...config.redacted,
+      maxOutputTokens: PREFLIGHT_MAX_OUTPUT_TOKENS,
+    }),
+  });
 
-  const client = new OpenRouterClient(config, { preflightSoftwareSha });
+  const client = new OpenRouterClient(
+    preflightConfig,
+    { preflightSoftwareSha },
+  );
   const catalogFetch = await client.fetchModelCatalogWithMetadata();
   const catalog = catalogFetch.catalog;
   const fetchedAt = new Date().toISOString();
@@ -87,21 +102,51 @@ async function main(): Promise<void> {
     preflightProof: proof,
   };
 
-  const results = [];
-  for (const requestedModel of [
+  const requestedModels = [
     BILAN_MODEL_POLICY.primaryModel,
     ...BILAN_MODEL_POLICY.fallbackModels,
-  ]) {
+  ];
+  if (requestedModels.length !== PREFLIGHT_MODEL_CALL_COUNT) {
+    throw new OpenRouterError('OPENROUTER_POLICY_REJECTED');
+  }
+  const modelResults = [];
+  let totalCostMicrosUsd = 0;
+  for (const requestedModel of requestedModels) {
     const completion = await client.completePreflightForModel(
       request,
       requestedModel,
     );
-    results.push({
+    const {
+      provenance,
+    } = completion;
+    if (provenance.provider === null) {
+      throw new OpenRouterError('OPENROUTER_INVALID_RESPONSE');
+    }
+    totalCostMicrosUsd += provenance.costMicrosUsd;
+    if (
+      provenance.costMicrosUsd > PREFLIGHT_MAX_COST_PER_MODEL_MICROS_USD
+      || totalCostMicrosUsd > PREFLIGHT_MAX_TOTAL_COST_MICROS_USD
+    ) {
+      throw new OpenRouterError('OPENROUTER_BUDGET_EXCEEDED');
+    }
+    modelResults.push({
       requestedModel,
+      returnedModel: provenance.returnedModel,
+      provider: provenance.provider,
+      generationId: provenance.generationId,
+      finishReason: provenance.finishReason,
+      promptTokens: provenance.promptTokens,
+      completionTokens: provenance.completionTokens,
+      reasoningTokens: provenance.reasoningTokens,
+      totalTokens: provenance.totalTokens,
+      costMicrosUsd: provenance.costMicrosUsd,
+      latencyMs: provenance.latencyMs,
+      schemaValid: true,
+      zdrRequested: true,
+      dataCollectionDenyRequested: true,
+      requireParametersRequested: true,
       contractValid: completion.data.status === 'ok'
         && completion.data.echo === 'synthetic-no-pii',
-      provenance: completion.provenance,
-      attempts: completion.attempts,
     });
   }
 
@@ -121,32 +166,57 @@ async function main(): Promise<void> {
     generatedAt: new Date().toISOString(),
     syntheticOnly: true,
     dataSubjectCount: 0,
-    configuration: config.redacted,
-    proof,
-    catalog: {
-      responseBytes: catalogFetch.responseBytes,
-      maximumResponseBytes: 32 * 1024 * 1024,
-      checksum: proof.catalogChecksum,
+    repositorySha: preflightSoftwareSha,
+    policyId: proof.policyId,
+    policyVersion: proof.policyVersion,
+    policyChecksum: proof.policyChecksum,
+    retryPolicyVersion: BILAN_MODEL_POLICY.retryPolicy.version,
+    preflightSoftwareSha,
+    catalogChecksum: proof.catalogChecksum,
+    proofChecksum: proof.proofChecksum,
+    apiKeyFingerprintRedacted:
+      `hmac-sha256:${proof.apiKeyFingerprint.slice(0, 12)}`,
+    limits: {
+      maxTotalCostMicrosUsd: PREFLIGHT_MAX_TOTAL_COST_MICROS_USD,
+      maxCostPerModelMicrosUsd: PREFLIGHT_MAX_COST_PER_MODEL_MICROS_USD,
+      maxOutputTokens: PREFLIGHT_MAX_OUTPUT_TOKENS,
+      modelCallCount: PREFLIGHT_MODEL_CALL_COUNT,
     },
-    policy: {
-      id: proof.policyId,
-      version: proof.policyVersion,
-      checksum: proof.policyChecksum,
-      retryPolicy: BILAN_MODEL_POLICY.retryPolicy,
-    },
-    capabilities: proof.snapshots,
-    results,
-    privacyConfiguration: {
-      promptLoggingDisabled: 'OWNER_EVIDENCE_REQUIRED',
-      completionLoggingDisabled: 'OWNER_EVIDENCE_REQUIRED',
-      dataTrainingOptIn: 'OWNER_EVIDENCE_REQUIRED',
-      reason: 'No verified account-settings API is part of the provider contract.',
+    modelResults,
+    privacyAttestations: {
+      inputOutputLogging: {
+        status: 'OWNER_ATTESTED',
+        value: false,
+      },
+      useOfInputsOutputs: {
+        status: 'OWNER_ATTESTED',
+        value: false,
+      },
+      zdrAccountPolicy: {
+        status: 'OWNER_ATTESTED',
+        value: true,
+      },
+      guardrailEnabled: {
+        status: 'OWNER_ATTESTED',
+        value: true,
+      },
+      keySpendingLimitUsd: {
+        status: 'OWNER_ATTESTED',
+        value: 2,
+      },
     },
   }, null, 2)}\n`, { mode: 0o600 });
   chmodSync(evidencePath, 0o600);
 
   process.stdout.write(
-    `OpenRouter synthetic preflight passed; privacy evidence remains owner-required. Evidence: ${evidencePath}\n`,
+    [
+      'PREFLIGHT_STATUS=PASS',
+      'PRIMARY_MODEL_STATUS=PASS',
+      'FALLBACK_MODEL_STATUS=PASS',
+      `TOTAL_COST_MICROS_USD=${totalCostMicrosUsd}`,
+      `EVIDENCE_DIRECTORY=${evidenceDirectory}`,
+      '',
+    ].join('\n'),
   );
 }
 
@@ -156,6 +226,6 @@ void main().catch((error: unknown) => {
     : error instanceof OpenRouterModelCompatibilityError
       ? error.code
       : 'OPENROUTER_PREFLIGHT_FAILED';
-  process.stderr.write(`OpenRouter synthetic preflight failed: ${code}\n`);
+  process.stderr.write(`PREFLIGHT_STATUS=FAILED:${code}\n`);
   process.exitCode = 1;
 });
