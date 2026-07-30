@@ -137,5 +137,5 @@ réapparition de la vulnérabilité est bloquante.
 ## Verdict
 
 Les vulnérabilités de production et d'outillage sont corrigées. Le dépôt ne
-dépend plus d'une exception de risque. Le verdict distant reste conditionné
-aux exécutions CI, Security Scan, CodeQL et GitGuardian de la tête poussée.
+dépend plus d'une exception de risque. Sur la tête qualifiée de #88, CI
+Success, Security Scan, Dependency Integrity, CodeQL et GitGuardian sont verts.
