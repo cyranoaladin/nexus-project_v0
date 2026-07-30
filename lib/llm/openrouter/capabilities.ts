@@ -19,19 +19,21 @@ import type {
 } from './types';
 
 const ModelCatalogSchema = z.object({
-  data: z.array(z.object({
-    id: z.string().min(1),
-    canonical_slug: z.string().min(1),
-    context_length: z.number().int().positive(),
-    supported_parameters: z.array(z.string()),
-    top_provider: z.object({
-      max_completion_tokens: z.number().int().positive(),
-    }),
-    reasoning: z.object({
-      supported_efforts: z.array(z.string()).nullable().optional(),
-    }).optional(),
-  })),
+  data: z.array(z.unknown()),
 }).passthrough();
+
+const ApprovedModelCatalogEntrySchema = z.object({
+  id: z.string().min(1),
+  canonical_slug: z.string().min(1),
+  context_length: z.number().int().positive(),
+  supported_parameters: z.array(z.string()),
+  top_provider: z.object({
+    max_completion_tokens: z.number().int().positive(),
+  }),
+  reasoning: z.object({
+    supported_efforts: z.array(z.string()).nullable().optional(),
+  }).optional(),
+});
 
 const parsedCapabilityBaseline = ModelCatalogSchema.parse(capabilityBaseline);
 const MAX_SNAPSHOT_TO_VERIFICATION_MILLISECONDS = 5 * 60 * 1_000;
@@ -40,11 +42,10 @@ const SHA_256_PATTERN = /^[a-f0-9]{64}$/;
 const GIT_SHA_PATTERN = /^[a-f0-9]{40}$/;
 
 function approvedCanonicalSlug(requestedModelId: string): string {
-  const approved = parsedCapabilityBaseline.data.find(
-    ({ id }) => id === requestedModelId,
-  )?.canonical_slug;
-  if (!approved) throw new OpenRouterModelCompatibilityError();
-  return approved;
+  return approvedModelEntry(
+    parsedCapabilityBaseline.data,
+    requestedModelId,
+  ).canonical_slug;
 }
 
 function requestedModels(): readonly string[] {
@@ -52,6 +53,20 @@ function requestedModels(): readonly string[] {
     BILAN_MODEL_POLICY.primaryModel,
     ...BILAN_MODEL_POLICY.fallbackModels,
   ];
+}
+
+function approvedModelEntry(
+  entries: readonly unknown[],
+  requestedModelId: string,
+) {
+  const candidate = entries.find((entry) =>
+    entry !== null
+    && typeof entry === 'object'
+    && 'id' in entry
+    && entry.id === requestedModelId);
+  const parsed = ApprovedModelCatalogEntrySchema.safeParse(candidate);
+  if (!parsed.success) throw new OpenRouterModelCompatibilityError();
+  return parsed.data;
 }
 
 export function createApiKeyFingerprint(apiKey: string): string {
@@ -103,8 +118,7 @@ export function buildCapabilitySnapshots(
   const fetchedAt = options.fetchedAt ?? new Date().toISOString();
 
   return Object.freeze(requestedModels().map((requestedModelId) => {
-    const model = parsed.data.data.find(({ id }) => id === requestedModelId);
-    if (!model) throw new OpenRouterModelCompatibilityError();
+    const model = approvedModelEntry(parsed.data.data, requestedModelId);
     const supportedParameters = Object.freeze(
       [...new Set(model.supported_parameters)].sort(),
     );
