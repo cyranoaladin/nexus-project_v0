@@ -266,8 +266,10 @@ données JSON validées, rendues par React sans HTML brut.
 - `STUDENT` : uniquement si un artifact distinct a été approuvé ; aucun
   commentaire interne, corrigé ou réponse attendue.
 
-Le flag `BILAN_LLM_ENRICHMENT_ENABLED` reste faux et n'est pas lu par le
-générateur. Le score, le calibrage, la validation et la publication n'ont
+La génération reste désactivée tant que
+`BILAN_REPORT_GENERATION_MODE=DISABLED`. L'ancienne variable
+`BILAN_LLM_ENRICHMENT_ENABLED` est refusée afin d'éviter deux sources de
+configuration. Le score, le calibrage, la validation et la publication n'ont
 aucune dépendance LLM.
 
 ## Observabilité
@@ -299,4 +301,3 @@ La migration est additive et ne modifie aucune migration passée. Elle :
 Le rollback applicatif désactive tous les flags, cesse les workers et conserve
 les nouvelles tables. Le rollback SQL destructif n'est pas prévu après
 écriture de données ; une migration compensatoire serait requise.
-

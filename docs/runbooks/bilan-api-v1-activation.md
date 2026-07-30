@@ -18,7 +18,7 @@ Chaque étape de production requiert une fenêtre et une validation explicites.
 | `BILAN_MATHS_TERMINALE_PILOT_ENABLED` | non | `false` | pilote disciplinaire ultérieur |
 | `BILAN_PROVISIONAL_RESULTS_ENABLED` | non | `false` | résultats provisoires ultérieurs |
 | `BILAN_TEAM_REALTIME_ENABLED` | non | `false` | notifications temps réel ultérieures |
-| `BILAN_LLM_ENRICHMENT_ENABLED` | non | `false` | enrichissement LLM ultérieur |
+| `BILAN_REPORT_GENERATION_MODE` | non | `DISABLED` | narration OpenRouter ; activation séparée après preflight et revue humaine |
 | `BILAN_TEAM_NOTIFICATION_EMAIL` | non | `pedagogie@nexusreussite.academy` | destinataire logique de l'outbox équipe |
 | `REDIS_URL` | oui | vide | backend Redis distribué, option A |
 | `UPSTASH_REDIS_REST_URL` | oui | vide | backend Upstash, option B |
@@ -36,9 +36,9 @@ doit être écrit dans Git, un log, un ticket ou une capture.
 ## Préconditions bloquantes
 
 - branche validée et SHA de release enregistré ;
-- gates Dependency Integrity et Security verts avec une décision d'exception
-  cryptographiquement liée à ce SHA, si la dépendance vulnérable n'a pas
-  encore été corrigée ;
+- gates Dependency Integrity et Security verts sans exception active ;
+- `brace-expansion` résolu exclusivement en version corrigée et audit npm
+  complet/runtime à zéro vulnérabilité ;
 - sauvegarde PostgreSQL récente et restauration testée ;
 - migration `20260729_add_canonical_bilan_requests` revue ;
 - Redis/Upstash joignable depuis l'application ;
