@@ -92,6 +92,34 @@ export type AssessmentDefinition = Readonly<{
   items: readonly AssessmentItem[];
 }>;
 
+export type PublicAssessmentOption = Readonly<{
+  index: number;
+  text: string;
+}>;
+
+export type PublicAssessmentItem = Readonly<{
+  id: string;
+  nodeId: string;
+  tier: 'A' | 'B' | 'C';
+  prompt: string;
+  responseMode: 'AUTOMATIC_QCM' | 'MANUAL_SHORT_RESPONSE';
+  options?: readonly PublicAssessmentOption[];
+  maxCharacters?: number;
+}>;
+
+export type PublicAssessmentDefinition = Readonly<{
+  id: string;
+  moduleId: string;
+  version: string;
+  sha256: `sha256:${string}`;
+  level: string;
+  subject: string;
+  title: string;
+  framing: string;
+  targetDurationMinutes: number;
+  items: readonly PublicAssessmentItem[];
+}>;
+
 export type PedagogyCatalogCounts = Readonly<{
   modules: number;
   sessions: number;
