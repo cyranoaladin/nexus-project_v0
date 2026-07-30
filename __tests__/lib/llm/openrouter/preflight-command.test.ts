@@ -302,4 +302,145 @@ describe('private OpenRouter preflight command', () => {
       rmSync(home, { recursive: true, force: true });
     }
   });
+
+  it('records a model-specific failure and still verifies the other approved model', async () => {
+    const home = mkdtempSync(join(tmpdir(), 'nexus-openrouter-preflight-model-'));
+    chmodSync(home, 0o700);
+    const secretDirectory = join(home, '.config', 'nexus-secrets');
+    mkdirSync(secretDirectory, { recursive: true, mode: 0o700 });
+    chmodSync(join(home, '.config'), 0o700);
+    chmodSync(secretDirectory, 0o700);
+    const keyPath = join(secretDirectory, 'openrouter-api-key');
+    writeFileSync(keyPath, 'synthetic-preflight-key\n', { mode: 0o600 });
+    chmodSync(keyPath, 0o600);
+    const requestedModels: string[] = [];
+    const server = createServer(async (request, response) => {
+      if (request.method === 'GET' && request.url === '/api/v1/models') {
+        response.writeHead(200, { 'content-type': 'application/json' });
+        response.end(JSON.stringify(fixture));
+        return;
+      }
+      const chunks: Buffer[] = [];
+      for await (const chunk of request) chunks.push(Buffer.from(chunk));
+      const body = JSON.parse(
+        Buffer.concat(chunks).toString('utf8'),
+      ) as OpenRouterRequestBody;
+      requestedModels.push(body.model);
+      if (requestedModels.length === 1) {
+        response.writeHead(400, {
+          'content-type': 'application/json',
+          'x-generation-id': 'gen-primary-invalid',
+        });
+        response.end(JSON.stringify({
+          error: {
+            code: 'invalid_request',
+            message: 'raw provider detail must remain private',
+          },
+        }));
+        return;
+      }
+      response.writeHead(200, {
+        'content-type': 'application/json',
+        'x-generation-id': 'gen-fallback-ok',
+      });
+      response.end(JSON.stringify({
+        model: body.model,
+        provider: 'synthetic-provider',
+        choices: [{
+          message: {
+            content: JSON.stringify({
+              schemaVersion: 'openrouter-contract-test-v1',
+              status: 'ok',
+              echo: 'synthetic-no-pii',
+            }),
+          },
+          finish_reason: 'stop',
+        }],
+        usage: {
+          prompt_tokens: 5,
+          completion_tokens: 4,
+          total_tokens: 9,
+          cost: 0.0001,
+        },
+      }));
+    });
+    await new Promise<void>((resolve) =>
+      server.listen(0, '127.0.0.1', resolve));
+    const address = server.address();
+    if (address === null || typeof address === 'string') {
+      throw new Error('Fake OpenRouter server did not bind to a TCP port.');
+    }
+
+    try {
+      const error = await execFileAsync(
+        resolve('node_modules/.bin/tsx'),
+        ['--conditions=react-server', 'scripts/bilans/openrouter-preflight.ts'],
+        {
+          cwd: process.cwd(),
+          env: {
+            PATH: process.env.PATH,
+            HOME: home,
+            NODE_ENV: 'test',
+            BILAN_REPORT_GENERATION_MODE: 'OPENROUTER_REQUIRED',
+            OPENROUTER_BASE_URL:
+              `http://127.0.0.1:${address.port}/api/v1`,
+            BILAN_OPENROUTER_PRIMARY_MODEL: 'anthropic/claude-sonnet-5',
+            BILAN_OPENROUTER_FALLBACK_MODELS:
+              '["openai/gpt-5.6-terra"]',
+            BILAN_OPENROUTER_MODEL_POLICY_VERSION:
+              'bilan-model-policy-v1.1',
+            BILAN_OPENROUTER_TIMEOUT_MS: '2000',
+            BILAN_OPENROUTER_MAX_ATTEMPTS: '3',
+            BILAN_OPENROUTER_MAX_OUTPUT_TOKENS: '2048',
+            BILAN_OPENROUTER_MAX_COST_USD_PER_REPORT: '0.30',
+            BILAN_OPENROUTER_MAX_COST_USD_PER_ASSESSMENT: '0.75',
+            BILAN_OPENROUTER_DAILY_BUDGET_USD: '15.00',
+          },
+        },
+      ).catch((caught: unknown) => caught as {
+        stdout: string;
+        stderr: string;
+      });
+
+      expect(requestedModels).toEqual([
+        'anthropic/claude-sonnet-5',
+        'openai/gpt-5.6-terra',
+      ]);
+      expect(error.stderr).toBe('');
+      expect(error.stdout.trim().split('\n')).toEqual([
+        'PREFLIGHT_STATUS=FAIL',
+        'PRIMARY_MODEL_STATUS=FAIL:OPENROUTER_INVALID_REQUEST',
+        'FALLBACK_MODEL_STATUS=PASS',
+        'TOTAL_COST_MICROS_USD=100',
+        expect.stringMatching(/^EVIDENCE_DIRECTORY=.+$/),
+      ]);
+      expect(error.stdout).not.toContain('raw provider detail');
+      const evidenceDirectory = error.stdout.trim().split('\n')[4]
+        .replace('EVIDENCE_DIRECTORY=', '');
+      const report = JSON.parse(readFileSync(
+        join(evidenceDirectory, 'preflight.redacted.json'),
+        'utf8',
+      ));
+      expect(report.modelResults).toEqual([
+        expect.objectContaining({
+          requestedModel: 'anthropic/claude-sonnet-5',
+          status: 'FAIL',
+          normalizedErrorCode: 'OPENROUTER_INVALID_REQUEST',
+          generationId: 'gen-primary-invalid',
+          contractValid: false,
+        }),
+        expect.objectContaining({
+          requestedModel: 'openai/gpt-5.6-terra',
+          status: 'PASS',
+          normalizedErrorCode: null,
+          contractValid: true,
+        }),
+      ]);
+      expect(JSON.stringify(report)).not.toContain('raw provider detail');
+    } finally {
+      await new Promise<void>((resolve, reject) =>
+        server.close((error) => error ? reject(error) : resolve()));
+      rmSync(home, { recursive: true, force: true });
+    }
+  });
 });
