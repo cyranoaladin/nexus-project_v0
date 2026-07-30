@@ -73,7 +73,7 @@ describe('runtime SBOM policy augmentation', () => {
         component: {
           'bom-ref': 'root',
           type: 'application',
-          name: 'nexus',
+          name: 'checkout-directory-name',
           version: '1.0.0',
         },
       },
@@ -124,6 +124,8 @@ describe('runtime SBOM policy augmentation', () => {
     const lockfile = {
       packages: {
         '': {
+          name: 'nexus',
+          version: '1.0.0',
           dependencies: {
             'parent-a': '1.0.0',
             'parent-b': '1.0.0',
@@ -162,6 +164,7 @@ describe('runtime SBOM policy augmentation', () => {
     );
 
     expect(new Set(references).size).toBe(references.length);
+    expect(normalized.metadata.component.name).toBe('nexus');
     expect(parentA.dependsOn).toHaveLength(1);
     expect(parentA.dependsOn[0]).toContain(
       'node_modules%2Fparent-a%2Fnode_modules%2Fshared',

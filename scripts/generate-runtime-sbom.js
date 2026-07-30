@@ -148,6 +148,13 @@ function normalizeCycloneDxReferences(sbom, lockfile, { omitDev }) {
   if (typeof rootReference !== 'string' || rootReference.length === 0) {
     throw new Error('CYCLONEDX_INVALID_ROOT_REFERENCE');
   }
+  const rootPackage = lockfile.packages?.[''];
+  if (typeof rootPackage?.name === 'string' && rootPackage.name.length > 0) {
+    sbom.metadata.component.name = rootPackage.name;
+  }
+  if (typeof rootPackage?.version === 'string' && rootPackage.version.length > 0) {
+    sbom.metadata.component.version = rootPackage.version;
+  }
 
   const referencesByPath = new Map([['', rootReference]]);
   for (const component of sbom.components || []) {
