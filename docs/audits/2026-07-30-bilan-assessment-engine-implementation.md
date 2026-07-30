@@ -6,7 +6,7 @@
 - branche :
   `feat/bilan-assessment-engine-v1-20260730` ;
 - base stabilisée :
-  `8596dce21f22f9bcad5f3b4583898ef6395a60f9` ;
+  `bb8ee6f7139be1a99fdd1ea21ca15e21663f20ba` ;
 - dépendance : draft PR #88 ;
 - activation et déploiement : non réalisés.
 
