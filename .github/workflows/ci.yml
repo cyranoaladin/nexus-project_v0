@@ -6,8 +6,7 @@
 # document evidence. All jobs must pass for merge into main.
 #
 # Triggers:
-# - Pull requests vers main, la release figée PR #79 ou les deux bases
-#   empilées bilans du 30 juillet 2026
+# - Toute pull request, y compris une PR empilée sur une branche de fonctionnalité
 # - Push sur main (pour verifier apres merge)
 #
 # Jobs:
@@ -30,11 +29,6 @@ on:
   push:
     branches: [main]
   pull_request:
-    branches:
-      - main
-      - release/pre-rentree-2026-public-ready
-      - integration/bilan-pre-rentree-canonical-20260729
-      - fix/bilan-foundation-readiness-20260730
 
 # Cancel in-progress runs when new commits pushed
 concurrency:
@@ -231,6 +225,12 @@ jobs:
 
       - name: Generate Prisma Client
         run: npx prisma generate
+
+      - name: Verify OpenRouter provider contract without network or secret
+        run: |
+          test -z "${OPENROUTER_API_KEY:-}"
+          npm run bilan:openrouter:capabilities
+          npm run test:bilan:openrouter
 
       - name: Run unit tests
         run: npm test -- --ci --coverage --maxWorkers=2
