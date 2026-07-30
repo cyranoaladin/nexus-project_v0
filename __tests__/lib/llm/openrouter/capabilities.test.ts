@@ -102,6 +102,27 @@ describe('OpenRouter capability snapshots', () => {
     )).toBeDefined();
   });
 
+  it('ignores malformed unrelated catalog entries while validating approved models strictly', () => {
+    const copy = cloneFixture() as MutableCapabilityFixture & {
+      data: Array<unknown>;
+    };
+    copy.data.unshift({
+      id: 'unrelated/provider-model',
+      canonical_slug: null,
+      supported_parameters: null,
+      top_provider: null,
+    });
+
+    const snapshots = buildCapabilitySnapshots(copy, {
+      fetchedAt: '2026-07-30T00:00:00.000Z',
+    });
+
+    expect(snapshots.map(({ requestedModelId }) => requestedModelId)).toEqual([
+      'anthropic/claude-sonnet-5',
+      'openai/gpt-5.6-terra',
+    ]);
+  });
+
   it('rejects a capability snapshot whose immutable checksum was altered', () => {
     const snapshots = buildCapabilitySnapshots(fixture, {
       fetchedAt: '2026-07-30T00:00:00.000Z',
