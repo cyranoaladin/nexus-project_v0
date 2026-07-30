@@ -4,6 +4,7 @@ import path from 'node:path';
 
 import {
   PedagogyCatalogError,
+  createPublicAssessmentDefinition,
   loadPedagogyCatalog,
   type PedagogySourceReader,
 } from '@/lib/pre-rentree/pedagogy';
@@ -172,5 +173,37 @@ describe('canonical pre-rentree pedagogy catalog', () => {
       () => loadPedagogyCatalog({ readSource }),
       'INVALID_SOURCE',
     );
+  });
+
+  it('projects a public assessment without answer keys or grading metadata', () => {
+    const assessment = catalog.getAssessment(
+      'francais-entree-seconde',
+      'INTERNAL_REVIEW',
+    );
+    const publicDefinition = createPublicAssessmentDefinition(assessment);
+    const serialized = JSON.stringify(publicDefinition);
+
+    expect(publicDefinition).toMatchObject({
+      id: assessment.id,
+      moduleId: assessment.moduleId,
+      version: assessment.ref.version,
+      sha256: assessment.ref.sha256,
+    });
+    expect(publicDefinition.items).toHaveLength(24);
+    expect(publicDefinition.items.some(
+      ({ responseMode }) => responseMode === 'MANUAL_SHORT_RESPONSE',
+    )).toBe(true);
+    for (const forbidden of [
+      '"correct"',
+      '"rationale"',
+      '"targetedObstacle"',
+      '"gradingCriteria"',
+      '"admissibleAnswerExample"',
+    ]) {
+      expect(serialized).not.toContain(forbidden);
+    }
+    expect(serialized).not.toContain('Réponse ouverte');
+    expect(Object.isFrozen(publicDefinition)).toBe(true);
+    expect(Object.isFrozen(publicDefinition.items)).toBe(true);
   });
 });
