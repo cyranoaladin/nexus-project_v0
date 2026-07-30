@@ -17,8 +17,10 @@
 - run CI audité : `30501190087` ;
 - contrôle documentaire externe : run `30501190086`, vert ;
 - protection classique : API GitHub 404, donc non configurée ;
-- ruleset actif : `main-protection` (`12801316`), sans bypass, mais contrôle
-  initial incomplet : quatre checks requis et zéro revue obligatoire.
+- ruleset actif : `main-protection` (`12801316`), sans bypass. Son état
+  initial était incomplet ; il impose désormais une PR, une revue humaine,
+  l'approbation du dernier push, la résolution des threads et les checks
+  stricts CI, sécurité, CodeQL, GitGuardian, build, DB, E2E et documents.
 
 L'audit a été réalisé avant toute écriture. Le SHA distant ne divergeait pas du
 SHA annoncé.
@@ -75,28 +77,31 @@ fallback React, afin d'éviter la suppression d'un nœud géré par React.
 Résultat :
 
 - audit production au seuil moderate : zéro vulnérabilité ;
-- SBOM runtime CycloneDX 1.6 : 523 composants, MathLive `0.110.0` ;
+- SBOM runtime CycloneDX 1.5 : 513 composants, MathLive `0.110.0` ;
 - standalone : aucun `brace-expansion` ;
 - test MathInput : 1 sur 1 ;
 - typecheck, lint et build : verts.
 
 ### Risque d'outillage supprimé
 
-Les trois chaînes initiales `brace-expansion@1.1.16`, `2.1.2` et `5.0.8`
-résolvent désormais vers la seule version officielle corrigée `5.0.8`.
+Les trois chaînes initiales `brace-expansion@1.1.16`, `2.1.2` et `5.0.8` ont
+été remplacées par un graphe natif qui ne contient plus que la version
+officielle corrigée `5.0.8`.
 
-La compatibilité des consommateurs historiques `minimatch@3.1.5` et
-`minimatch@9.0.9` est assurée par un adaptateur d'installation fail-closed,
-borné à ces versions et à leurs sources attendues. Le test vérifie les API
-CommonJS/ESM et le plafond mémoire officiel.
+Les consommateurs historiques `minimatch@3.1.5` et `minimatch@9.0.9` ont été
+éliminés : ESLint 10, Jest 30, `glob@13.0.6`, `test-exclude@8.0.0` et le
+générateur natif `npm sbom` résolvent uniquement vers `minimatch@10.2.5` ou
+`10.2.6`. Aucun adaptateur, hook `postinstall`, override de
+`brace-expansion` ou changement de `node_modules` n'est utilisé. Le test
+vérifie le graphe installé, l'API native et le plafond mémoire officiel.
 
 Résultats :
 
 - `BRACE_EXPANSION_VULNERABLE_VERSION_COUNT=0` ;
 - audit complet : zéro vulnérabilité ;
 - audit runtime : zéro vulnérabilité ;
-- SBOM complet : 1 235 composants, uniquement `brace-expansion@5.0.8` ;
-- SBOM runtime : 523 composants, aucun `brace-expansion` ;
+- SBOM complet : 1 242 composants, uniquement `brace-expansion@5.0.8` ;
+- SBOM runtime : 513 composants, aucun `brace-expansion` ;
 - demande d'exception :
   `SUPERSEDED_BY_DEPENDENCY_FIX`.
 
@@ -106,8 +111,8 @@ Aucune décision propriétaire et aucun secret SHA-bound ne sont requis.
 
 | Contrôle | Résultat | Compteur ou preuve |
 |---|---|---|
-| installation | vert | 1 269 paquets installés, 1 270 audités |
-| tests unitaires globaux | vert | 614 suites réussies, 1 ignorée ; 7 562 tests réussis, 4 ignorés |
+| installation | vert | 1 129 paquets installés, 1 130 audités |
+| tests unitaires globaux | vert | 614 suites réussies, 1 ignorée ; 7 567 tests réussis, 4 ignorés |
 | tests sécurité bilans ciblés | vert | 8 suites, 195 tests |
 | tests DB globaux | vert | 13 suites, 176 tests |
 | intégration réelle | vert | 14 suites, 149 tests |
@@ -123,7 +128,7 @@ Aucune décision propriétaire et aucun secret SHA-bound ne sont requis.
 | audit production | vert | zéro vulnérabilité |
 | audit complet | vert | zéro vulnérabilité |
 
-Le passage de 7 558 à 7 562 tests unitaires inclut le test MathInput et les
+Le passage de 7 558 à 7 567 tests unitaires inclut le test MathInput et les
 contrôles de remédiation `brace-expansion`. Le passage des 257 tests Python
 annoncés précédemment à 265 correspond à l'état réellement présent au SHA
 audité ; aucun test n'a été supprimé ou neutralisé.
@@ -176,9 +181,9 @@ Physique-Chimie Seconde n'est créé ou référencé.
 ## Environnement et limites observées
 
 - la CI principale ne ciblait initialement que `main` et la branche figée de
-  la PR #79 : les bases des PR empilées #88 et #89 ont été ajoutées
-  explicitement au filtre `pull_request` afin que chaque tête soit soumise
-  aux mêmes jobs avant retargeting ;
+  la PR #79 : le déclenchement a été généralisé aux PR empilées. Le workflow
+  `CodeQL Stacked` exécute les trois langages sur toute PR, indépendamment de
+  sa base et sans upload SARIF concurrent ;
 - les commandes d'intégration et Prisma exigent une `DATABASE_URL`
   explicite ; un premier lancement sans cette variable a échoué avant
   exécution métier, puis le lancement documenté avec PostgreSQL local a
@@ -195,8 +200,6 @@ Physique-Chimie Seconde n'est créé ou référencé.
 
 | Priorité | Élément | Responsable attendu | Dépendance | Critère d'acceptation |
 |---|---|---|---|---|
-| P0 | protection `main` incomplète | propriétaire technique GitHub | mise à jour du ruleset sans bypass | checks sécurité/DB/E2E/docs requis et une revue humaine |
-| P0 | requalification distante | intégrateur | tête #88 poussée | Dependency Integrity, Security Scan, CodeQL, GitGuardian et CI Success verts |
 | P0 production | validation pédagogique des 17 modules | responsable pédagogique et enseignants disciplinaires | paquets de revue liés aux hashes | approbations nominatives et hashes inchangés |
 | P0 production | configuration Redis/SMTP et migrations | équipe d'exploitation | secrets réels et fenêtre autorisée | smoke tests internes réussis, flags toujours désactivés avant décision |
 
@@ -210,7 +213,8 @@ preuve sont locaux et jetables.
 
 ## Verdict technique
 
-Les défauts contrôlables par le code sont réparés et les gates locales
-obligatoires passent sans exception. Le verdict de fusion reste conditionné à
-la requalification distante de la tête poussée et au durcissement vérifiable
-du ruleset `main`.
+Les défauts contrôlables par le code sont réparés sans exception. La tête
+qualifiée de #88 est `CLEAN` : CI Success, Dependency Integrity, Security Scan,
+CodeQL sur les trois langages, GitGuardian, build, DB, E2E et documents sont
+verts. Le ruleset `main` est actif avec les protections et la revue humaine
+obligatoires.
