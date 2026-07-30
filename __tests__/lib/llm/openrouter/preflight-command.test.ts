@@ -66,6 +66,9 @@ describe('private OpenRouter preflight command', () => {
         usage: {
           prompt_tokens: 5,
           completion_tokens: 4,
+          completion_tokens_details: {
+            reasoning_tokens: 2,
+          },
           total_tokens: 9,
           cost: 0.0001,
         },
@@ -107,14 +110,20 @@ describe('private OpenRouter preflight command', () => {
       );
 
       expect(stderr).toBe('');
-      expect(stdout).toContain('OpenRouter synthetic preflight passed;');
-      expect(stdout).toContain('privacy evidence remains owner-required');
+      expect(stdout.trim().split('\n')).toEqual([
+        'PREFLIGHT_STATUS=PASS',
+        'PRIMARY_MODEL_STATUS=PASS',
+        'FALLBACK_MODEL_STATUS=PASS',
+        'TOTAL_COST_MICROS_USD=200',
+        expect.stringMatching(/^EVIDENCE_DIRECTORY=.+$/),
+      ]);
       expect(stdout).not.toContain('synthetic-preflight-key');
       expect(requests.map(({ model }) => model)).toEqual([
         'anthropic/claude-sonnet-5',
         'openai/gpt-5.6-terra',
       ]);
       for (const body of requests) {
+        expect(body.max_tokens).toBe(256);
         expect(body.reasoning).toEqual({ effort: 'low', exclude: true });
         expect(body).not.toHaveProperty('usage');
         expect(body).not.toHaveProperty('temperature');
@@ -135,28 +144,158 @@ describe('private OpenRouter preflight command', () => {
       expect(report).toMatchObject({
         syntheticOnly: true,
         dataSubjectCount: 0,
-        configuration: {
-          apiKeyConfigured: true,
-          maxCostMicrosUsdPerAudienceReport: 300_000,
-          maxCostMicrosUsdPerAssessment: 750_000,
-          dailyBudgetMicrosUsd: 15_000_000,
+        repositorySha: expect.stringMatching(/^[a-f0-9]{40}$/),
+        policyId: 'bilan-model-policy',
+        policyVersion: '1.1',
+        policyChecksum: expect.stringMatching(/^[a-f0-9]{64}$/),
+        retryPolicyVersion: '1',
+        preflightSoftwareSha: expect.stringMatching(/^[a-f0-9]{40}$/),
+        catalogChecksum: expect.stringMatching(/^[a-f0-9]{64}$/),
+        proofChecksum: expect.stringMatching(/^[a-f0-9]{64}$/),
+        apiKeyFingerprintRedacted: expect.stringMatching(
+          /^hmac-sha256:[a-f0-9]{12}$/,
+        ),
+        limits: {
+          maxTotalCostMicrosUsd: 200_000,
+          maxCostPerModelMicrosUsd: 100_000,
+          maxOutputTokens: 256,
+          modelCallCount: 2,
         },
-        proof: {
-          preflightSoftwareSha: expect.stringMatching(/^[a-f0-9]{40}$/),
-          proofChecksum: expect.stringMatching(/^[a-f0-9]{64}$/),
-          apiKeyFingerprint: expect.stringMatching(/^[a-f0-9]{64}$/),
-        },
-        catalog: {
-          responseBytes: expect.any(Number),
-          maximumResponseBytes: 32 * 1024 * 1024,
-        },
-        privacyConfiguration: {
-          promptLoggingDisabled: 'OWNER_EVIDENCE_REQUIRED',
-          completionLoggingDisabled: 'OWNER_EVIDENCE_REQUIRED',
-          dataTrainingOptIn: 'OWNER_EVIDENCE_REQUIRED',
+        privacyAttestations: {
+          inputOutputLogging: {
+            status: 'OWNER_ATTESTED',
+            value: false,
+          },
+          useOfInputsOutputs: {
+            status: 'OWNER_ATTESTED',
+            value: false,
+          },
+          zdrAccountPolicy: {
+            status: 'OWNER_ATTESTED',
+            value: true,
+          },
+          guardrailEnabled: {
+            status: 'OWNER_ATTESTED',
+            value: true,
+          },
+          keySpendingLimitUsd: {
+            status: 'OWNER_ATTESTED',
+            value: 2,
+          },
         },
       });
+      expect(report.modelResults).toHaveLength(2);
+      expect(report.modelResults[0]).toMatchObject({
+        requestedModel: 'anthropic/claude-sonnet-5',
+        returnedModel: 'anthropic/claude-sonnet-5',
+        provider: 'synthetic-provider',
+        finishReason: 'stop',
+        promptTokens: 5,
+        completionTokens: 4,
+        reasoningTokens: 2,
+        totalTokens: 9,
+        costMicrosUsd: 100,
+        schemaValid: true,
+        zdrRequested: true,
+        dataCollectionDenyRequested: true,
+        requireParametersRequested: true,
+        contractValid: true,
+      });
+      expect(report).not.toHaveProperty('proof');
+      expect(report).not.toHaveProperty('configuration');
       expect(JSON.stringify(report)).not.toContain('synthetic-preflight-key');
+    } finally {
+      await new Promise<void>((resolve, reject) =>
+        server.close((error) => error ? reject(error) : resolve()));
+      rmSync(home, { recursive: true, force: true });
+    }
+  });
+
+  it('stops before the fallback call when the primary exceeds its preflight cap', async () => {
+    const home = mkdtempSync(join(tmpdir(), 'nexus-openrouter-preflight-cap-'));
+    chmodSync(home, 0o700);
+    const secretDirectory = join(home, '.config', 'nexus-secrets');
+    mkdirSync(secretDirectory, { recursive: true, mode: 0o700 });
+    chmodSync(join(home, '.config'), 0o700);
+    chmodSync(secretDirectory, 0o700);
+    const keyPath = join(secretDirectory, 'openrouter-api-key');
+    writeFileSync(keyPath, 'synthetic-preflight-key\n', { mode: 0o600 });
+    chmodSync(keyPath, 0o600);
+    let modelCallCount = 0;
+    const server = createServer(async (request, response) => {
+      if (request.method === 'GET' && request.url === '/api/v1/models') {
+        response.writeHead(200, { 'content-type': 'application/json' });
+        response.end(JSON.stringify(fixture));
+        return;
+      }
+      modelCallCount += 1;
+      const chunks: Buffer[] = [];
+      for await (const chunk of request) chunks.push(Buffer.from(chunk));
+      const body = JSON.parse(
+        Buffer.concat(chunks).toString('utf8'),
+      ) as OpenRouterRequestBody;
+      response.writeHead(200, {
+        'content-type': 'application/json',
+        'x-generation-id': 'gen-over-cap',
+      });
+      response.end(JSON.stringify({
+        model: body.model,
+        provider: 'synthetic-provider',
+        choices: [{
+          message: {
+            content: JSON.stringify({
+              schemaVersion: 'openrouter-contract-test-v1',
+              status: 'ok',
+              echo: 'synthetic-no-pii',
+            }),
+          },
+          finish_reason: 'stop',
+        }],
+        usage: {
+          prompt_tokens: 5,
+          completion_tokens: 4,
+          total_tokens: 9,
+          cost: 0.100001,
+        },
+      }));
+    });
+    await new Promise<void>((resolve) =>
+      server.listen(0, '127.0.0.1', resolve));
+    const address = server.address();
+    if (address === null || typeof address === 'string') {
+      throw new Error('Fake OpenRouter server did not bind to a TCP port.');
+    }
+
+    try {
+      await expect(execFileAsync(
+        resolve('node_modules/.bin/tsx'),
+        ['--conditions=react-server', 'scripts/bilans/openrouter-preflight.ts'],
+        {
+          cwd: process.cwd(),
+          env: {
+            PATH: process.env.PATH,
+            HOME: home,
+            NODE_ENV: 'test',
+            BILAN_REPORT_GENERATION_MODE: 'OPENROUTER_REQUIRED',
+            OPENROUTER_BASE_URL:
+              `http://127.0.0.1:${address.port}/api/v1`,
+            BILAN_OPENROUTER_PRIMARY_MODEL: 'anthropic/claude-sonnet-5',
+            BILAN_OPENROUTER_FALLBACK_MODELS:
+              '["openai/gpt-5.6-terra"]',
+            BILAN_OPENROUTER_MODEL_POLICY_VERSION:
+              'bilan-model-policy-v1.1',
+            BILAN_OPENROUTER_TIMEOUT_MS: '2000',
+            BILAN_OPENROUTER_MAX_ATTEMPTS: '3',
+            BILAN_OPENROUTER_MAX_OUTPUT_TOKENS: '2048',
+            BILAN_OPENROUTER_MAX_COST_USD_PER_REPORT: '0.30',
+            BILAN_OPENROUTER_MAX_COST_USD_PER_ASSESSMENT: '0.75',
+            BILAN_OPENROUTER_DAILY_BUDGET_USD: '15.00',
+          },
+        },
+      )).rejects.toMatchObject({
+        stderr: 'PREFLIGHT_STATUS=FAILED:OPENROUTER_BUDGET_EXCEEDED\n',
+      });
+      expect(modelCallCount).toBe(1);
     } finally {
       await new Promise<void>((resolve, reject) =>
         server.close((error) => error ? reject(error) : resolve()));
