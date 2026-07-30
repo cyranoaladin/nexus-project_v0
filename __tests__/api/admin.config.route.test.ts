@@ -313,9 +313,9 @@ describe('Invariants on empty store — must validate against canonical fallback
   // is the canonical fallback (pricing.canonical.json). Invariants must
   // still reject writes that violate constraints against these fallbacks.
 
-  it('rejects group_min_open.lycee=6 on empty store (canonical group_max=5)', async () => {
+  it('rejects group_min_open.lycee=7 on empty store (canonical group_max=6)', async () => {
     // Store is completely empty — no overrides for any key.
-    // canonical group_max = 5. Setting lycee=6 violates 6 > 5.
+    // canonical group_max = 6. Setting lycee=7 violates 7 > 6.
     _resetForTest();
     mockFindMany.mockResolvedValue([]); // DB has no overrides
     mockFindUnique.mockResolvedValue(null);
@@ -323,12 +323,12 @@ describe('Invariants on empty store — must validate against canonical fallback
     const res = await PATCH(makeRequest({
       namespace: 'pricing.rules',
       key: 'group_min_open.lycee',
-      value: 6,
+      value: 7,
     }));
     expect(res.status).toBe(400);
     const body = await res.json();
     expect(body.error).toBe('Invariant violation');
-    expect(body.violations[0]).toContain('group_min_open.lycee (6) > group_max (5)');
+    expect(body.violations[0]).toContain('group_min_open.lycee (7) > group_max (6)');
   });
 
   it('rejects discount=25 on empty store (canonical global_cap_pct=20)', async () => {

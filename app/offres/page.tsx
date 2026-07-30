@@ -158,7 +158,11 @@ export default function OffresPage() {
           <div className="mt-5 inline-flex flex-wrap gap-2 text-sm text-lux-on-dark-muted">
             <span className="rounded-full border border-lux-line/40 bg-white/5 px-3 py-1">Capacité précisée par offre</span>
             <span className="rounded-full border border-lux-line/40 bg-white/5 px-3 py-1">Tarifs en TND</span>
-            <span className="rounded-full border border-lux-line/40 bg-white/5 px-3 py-1">Acompte 30 %</span>
+            <span className="rounded-full border border-lux-line/40 bg-white/5 px-3 py-1">
+              {rules.payment.annual_uses_flat_reservation
+                ? `Réservation ${rules.payment.reservation_flat_tnd} TND`
+                : `Acompte ${rules.payment.deposit_pct_annual} %`}
+            </span>
             <span className="rounded-full border border-lux-line/40 bg-white/5 px-3 py-1">Échéanciers transparents</span>
           </div>
           <div className="mt-8 grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
@@ -199,7 +203,10 @@ export default function OffresPage() {
             <h2 className="mt-2 text-2xl md:text-3xl">Accompagnement annuel — scolarisés</h2>
             <div className="lux-filet-gold mt-3 w-16" />
             <p className="mt-3 text-sm text-lux-slate">
-              {rules.group_max} élèves max, ouverture dès {rules.group_min_open.lycee}. Acompte 30 % + mensualités.
+              {rules.group_max} élèves max, ouverture dès {rules.group_min_open.lycee}.{' '}
+              {rules.payment.annual_uses_flat_reservation
+                ? `Réservation ${rules.payment.reservation_flat_tnd} TND + mensualités.`
+                : `Acompte ${rules.payment.deposit_pct_annual} % + mensualités.`}
             </p>
           </div>
           {(['terminale', 'premiere', 'seconde', 'troisieme'] as const).map((level) => {
@@ -232,7 +239,12 @@ export default function OffresPage() {
                           groupMax={o.group_max ?? rules.group_max}
                           groupMinOpen={o.group_min_open ?? rules.group_min_open.lycee}
                           effectifType="groupe"
-                          payment={payment ? { ...payment, depositPct: rules.payment.deposit_pct_annual } : undefined}
+                          payment={payment ? {
+                            ...payment,
+                            ...(rules.payment.annual_uses_flat_reservation
+                              ? { depositLabel: 'Réservation' }
+                              : { depositPct: rules.payment.deposit_pct_annual }),
+                          } : undefined}
                           ctaText="Demander cette offre"
                           ctaHref={buildWhatsAppUrl(o.title)}
                         />
@@ -277,7 +289,12 @@ export default function OffresPage() {
                     groupMax={o.group_max ?? rules.group_max}
                     groupMinOpen={o.group_min_open ?? rules.group_min_open.online_live}
                     effectifType="groupe"
-                    payment={payment ? { ...payment, depositPct: rules.payment.deposit_pct_annual } : undefined}
+                    payment={payment ? {
+                      ...payment,
+                      ...(rules.payment.annual_uses_flat_reservation
+                        ? { depositLabel: 'Réservation' }
+                        : { depositPct: rules.payment.deposit_pct_annual }),
+                    } : undefined}
                     ctaText="Demander cette offre"
                     ctaHref={buildWhatsAppUrl(o.title)}
                   />

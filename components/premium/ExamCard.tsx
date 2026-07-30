@@ -9,6 +9,8 @@ interface ExamCardPayment {
   solde?: number;
   n_installments?: number;
   depositPct?: number;
+  /** Overrides the "Acompte" wording — e.g. "Réservation" for a flat, non-percentage deposit. */
+  depositLabel?: string;
   full_at_booking?: boolean;
 }
 
@@ -90,6 +92,7 @@ export function ExamCard(props: ExamCardProps) {
   const ctaHref = 'ctaHref' in props ? props.ctaHref : undefined;
   const ctaAction = 'onCta' in props ? props.onCta : undefined;
   const hideCta = 'hideCta' in props && props.hideCta;
+  const depositLabel = payment?.depositLabel ?? 'Acompte';
   return (
     <div
       className={`@container relative flex flex-col overflow-hidden rounded-2xl transition-all duration-300 ${
@@ -177,7 +180,7 @@ export function ExamCard(props: ExamCardProps) {
             ? `, dernière à ${fmtTND(lastInstallment)}`
             : '';
         const scheduleLabel = hasInstallments
-          ? `Acompte ${fmtTND(payment.deposit)}${depositPctLabel}, puis ${payment.installments!.length} mensualité${payment.installments!.length > 1 ? 's' : ''} (${fmtTND(firstInstallment)}${lastInstallmentLabel})`
+          ? `${depositLabel} ${fmtTND(payment.deposit)}${depositPctLabel}, puis ${payment.installments!.length} mensualité${payment.installments!.length > 1 ? 's' : ''} (${fmtTND(firstInstallment)}${lastInstallmentLabel})`
           : undefined;
         const mode = pricingDisplay ?? (hasInstallments ? 'monthly_first' : 'total');
 
@@ -234,7 +237,7 @@ export function ExamCard(props: ExamCardProps) {
           </p>
           <div className="space-y-2 font-dm-sans text-sm">
             <div data-testid="echeancier-acompte" className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-0.5">
-              <span className="text-lux-slate">Acompte</span>
+              <span className="text-lux-slate">{depositLabel}</span>
               <span data-testid="echeancier-acompte-value" className="lux-price font-semibold text-lux-ink whitespace-nowrap">
                 {fmtTND(payment.deposit)}
               </span>

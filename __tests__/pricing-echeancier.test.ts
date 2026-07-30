@@ -9,6 +9,7 @@ import {
   getCoachingOffers,
   getPacks,
   getEffectivePrice,
+  getRules,
   type AnnualOffer,
 } from '../lib/pricing';
 
@@ -96,11 +97,12 @@ describe('Échéancier integrity', () => {
   });
 
   describe('effectif invariants', () => {
-    test('no group_max > 5 in any offer', () => {
+    test('no annual offer exceeds rules.group_max', () => {
       const all = getAllOffers();
+      const { group_max } = getRules();
       for (const o of all) {
         if (o.group_max != null) {
-          expect(o.group_max).toBeLessThanOrEqual(5);
+          expect(o.group_max).toBeLessThanOrEqual(group_max);
         }
       }
     });

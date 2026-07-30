@@ -117,17 +117,23 @@ describe('Échéancier reconciliation — canonical payment data', () => {
     );
   });
 
-  describe('Arithmetic: 30% deposit rule', () => {
-    it('deposit_pct in rules is 30', () => {
+  describe('Arithmetic: stage deposit still 30%, annual offers use the flat reservation', () => {
+    it('deposit_pct in rules is 30 (stages/ponctuels)', () => {
       expect(rules.payment.deposit_pct).toBe(30);
     });
 
-    it('all annual offers with deposit match ~30% of price', () => {
+    it('all stage formats match ~30% of price', () => {
+      for (const format of getStageFormats()) {
+        const expected30pct = Math.round((format.price_per_student * 0.3) / rules.payment.rounding_tnd) * rules.payment.rounding_tnd;
+        expect(Math.abs(format.payment.deposit - expected30pct)).toBeLessThanOrEqual(rules.payment.rounding_tnd);
+      }
+    });
+
+    it('all annual offers with a schedule use the flat reservation_flat_tnd, not 30%', () => {
       for (const offer of getAllOffers()) {
         const price = getEffectivePrice(offer);
         if (price == null || !offer.deposit) continue;
-        const expected30pct = Math.round((price * 0.3) / rules.payment.rounding_tnd) * rules.payment.rounding_tnd;
-        expect(Math.abs(offer.deposit - expected30pct)).toBeLessThanOrEqual(rules.payment.rounding_tnd);
+        expect(offer.deposit).toBe(rules.payment.reservation_flat_tnd);
       }
     });
   });

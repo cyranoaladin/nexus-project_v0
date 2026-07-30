@@ -13,6 +13,8 @@ import {
   getCoachingOffer,
   resolvePackValue,
   getCarte,
+  computeDeposit,
+  computeAnnualSchedule,
   type PricingData,
 } from '@/lib/pricing';
 
@@ -22,13 +24,13 @@ beforeAll(() => {
   data = getFullPricingData();
 });
 
-// ── T1: Effectif — group_max ≤ 5 everywhere ──
+// ── T1: Effectif — group_max ≤ rules.group_max (annual offers) / ≤ 5 (stages, ponctuels, coaching) ──
 
-describe('T1 — Effectif group_max ≤ 5', () => {
-  test('annual offers with group_max must be ≤ 5', () => {
+describe('T1 — Effectif group_max within limits', () => {
+  test('annual offers with group_max must be ≤ rules.group_max', () => {
     for (const offer of data.offers) {
       if (offer.group_max != null) {
-        expect(offer.group_max).toBeLessThanOrEqual(5);
+        expect(offer.group_max).toBeLessThanOrEqual(data.rules.group_max);
       }
     }
   });
@@ -52,6 +54,12 @@ describe('T1 — Effectif group_max ≤ 5', () => {
       if (c.group_max != null) {
         expect(c.group_max).toBeLessThanOrEqual(5);
       }
+    }
+  });
+
+  test('group_min_open never exceeds rules.group_max', () => {
+    for (const minOpen of Object.values(data.rules.group_min_open)) {
+      expect(minOpen).toBeLessThanOrEqual(data.rules.group_max);
     }
   });
 });
@@ -193,9 +201,40 @@ describe('T7 — Échéancier coherence', () => {
     }
   });
 
+  test('annual offers use the flat 250 TND reservation, not the 30% acompte', () => {
+    for (const offer of data.offers) {
+      if (offer.deposit != null) {
+        expect(offer.deposit).toBe(250);
+        expect(offer.deposit).toBe(data.rules.payment.reservation_flat_tnd);
+        expect(offer.n_installments).toBe(10);
+      }
+    }
+  });
+
+  test('annual offer schedules match computeAnnualSchedule(price)', () => {
+    for (const offer of data.offers) {
+      if (offer.deposit != null && offer.price_annual != null) {
+        const schedule = computeAnnualSchedule(offer.price_annual);
+        expect(offer.deposit).toBe(schedule.deposit);
+        expect(offer.installment_amount).toBe(schedule.installments[0]);
+        expect(offer.last_installment).toBe(schedule.lastInstallment);
+      }
+    }
+  });
+
   test('stage formats: deposit + solde = price', () => {
     for (const fmt of data.stage_formats) {
       expect(fmt.payment.deposit + fmt.payment.solde).toBe(fmt.price_per_student);
+    }
+  });
+
+  test('stage formats: deposit still uses the unchanged 30% acompte (within 1 rounding unit)', () => {
+    // Pre-existing on origin/main: 'express-vacances' deposit (126) is exact 30% without
+    // the round-to-nearest-10 applied by the other formats — not introduced by this change.
+    for (const fmt of data.stage_formats) {
+      expect(Math.abs(fmt.payment.deposit - computeDeposit(fmt.price_per_student))).toBeLessThanOrEqual(
+        data.rules.payment.rounding_tnd
+      );
     }
   });
 

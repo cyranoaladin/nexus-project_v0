@@ -34,6 +34,8 @@ export interface Rules {
     deposit_pct_stage: number;
     installments_default: number;
     rounding_tnd: number;
+    reservation_flat_tnd: number;
+    annual_uses_flat_reservation: boolean;
     deposit_non_refundable_except_group_not_opened: boolean;
     deposit_deductible_to_annual: boolean;
     deposit_carryover: boolean;
@@ -534,19 +536,30 @@ export function computeSchedule(price: number, nInstallments?: number): { deposi
   };
 }
 
-/** Build the displayed annual offer payment schedule from canonical fields. */
+/**
+ * Compute the flat-reservation schedule for annual offers:
+ * réservation 250 TND + 10 mensualités (deposit_pct_annual no longer applies here).
+ */
+export function computeAnnualSchedule(price: number): { deposit: number; installments: number[]; lastInstallment: number } {
+  const deposit = data.rules.payment.reservation_flat_tnd;
+  const n = 10;
+  const remaining = price - deposit;
+  const installment = Math.floor(remaining / n);
+  const last = remaining - installment * (n - 1);
+  return {
+    deposit,
+    installments: Array(n - 1).fill(installment).concat([last]),
+    lastInstallment: last,
+  };
+}
+
+/** Build the displayed annual offer payment schedule. Returns null for offers with no échéancier. */
 export function getAnnualOfferPaymentSchedule(offer: AnnualOffer): { deposit: number; installments: number[]; lastInstallment: number } | null {
-  if (offer.deposit == null || offer.n_installments == null || offer.installment_amount == null) {
+  if (offer.deposit == null || offer.n_installments == null || offer.installment_amount == null || offer.price_annual == null) {
     return null;
   }
 
-  const regularInstallments = Math.max(offer.n_installments - 1, 0);
-  const lastInstallment = offer.last_installment ?? offer.installment_amount;
-  return {
-    deposit: offer.deposit,
-    installments: [...Array(regularInstallments).fill(offer.installment_amount), lastInstallment],
-    lastInstallment,
-  };
+  return computeAnnualSchedule(offer.price_annual);
 }
 
 /** Apply a discount percentage, capped at global max, respecting floor */

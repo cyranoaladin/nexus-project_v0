@@ -12,11 +12,11 @@ const data = getFullPricingData();
 
 // ── Groupes ──
 
-describe('T16.1 — Groupes <= 5', () => {
-  test('every annual offer has group_max <= 5', () => {
+describe('T16.1 — Groupes <= rules.group_max', () => {
+  test('every annual offer has group_max <= rules.group_max', () => {
     for (const o of data.offers) {
       if (o.group_max != null) {
-        expect(o.group_max).toBeLessThanOrEqual(5);
+        expect(o.group_max).toBeLessThanOrEqual(data.rules.group_max);
       }
     }
   });

@@ -148,10 +148,10 @@ describe('OfferDetailDialog', () => {
     expect(container.textContent).not.toContain(LEGAL.billing.iban);
   });
 
-  it('group max never exceeds 5', () => {
+  it('group max never exceeds rules.group_max', () => {
     render(<OfferDetailDialog offer={sampleOffer} onClose={jest.fn()} />);
     const text = screen.getByText(/élèves max/);
-    expect(text.textContent).toMatch(/[1-5] élèves max/);
+    expect(text.textContent).toMatch(new RegExp(`${pricingRules.group_max} élèves max`));
   });
 });
 
