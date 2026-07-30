@@ -141,7 +141,7 @@
     "katex": "^0.16.28",
     "lucide-react": "^0.536.0",
     "mafs": "^0.21.0",
-    "mathlive": "^0.108.3",
+    "mathlive": "^0.110.0",
     "next": "15.5.21",
     "next-auth": "5.0.0-beta.32",
     "nodemailer9": "npm:nodemailer@9.0.3",
