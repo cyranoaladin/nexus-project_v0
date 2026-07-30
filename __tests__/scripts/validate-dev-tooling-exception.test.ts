@@ -338,7 +338,7 @@ describe('time-bound development-tooling exception validator', () => {
 });
 
 describe('official compatible brace-expansion remediation', () => {
-  it('resolves every dependency path to the patched 5.x release', () => {
+  it('resolves every dependency path natively to the fixed 5.x release', () => {
     const lock = JSON.parse(readFileSync('package-lock.json', 'utf8'));
     const manifest = JSON.parse(readFileSync('package.json', 'utf8'));
     const installedVersions = Object.entries(lock.packages)
@@ -348,6 +348,13 @@ describe('official compatible brace-expansion remediation', () => {
       ).version);
 
     expect(installedVersions).toEqual(['5.0.8']);
-    expect(manifest.overrides['brace-expansion']).toBe('5.0.8');
+    expect(manifest.overrides['brace-expansion']).toBeUndefined();
+    expect(
+      Object.entries(lock.packages)
+        .filter(([packagePath]) => packagePath.endsWith('node_modules/minimatch'))
+        .every(([, packageMetadata]) => Number(
+          (packageMetadata as { version: string }).version.split('.')[0],
+        ) >= 10),
+    ).toBe(true);
   });
 });

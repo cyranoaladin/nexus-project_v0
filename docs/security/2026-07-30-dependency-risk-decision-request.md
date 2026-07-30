@@ -15,10 +15,11 @@ qualifier une nouvelle tête.
 
 ## Résolution appliquée
 
-- override npm ciblé vers la version officielle corrigée `5.0.8` ;
-- adaptateur d'installation fail-closed pour les consommateurs historiques
-  `minimatch@3.1.5` et `minimatch@9.0.9` ;
-- vérification de l'API CommonJS/ESM de `minimatch` ;
+- migration ESLint 10 flat-config, Jest 30 et générateur natif `npm sbom` ;
+- suppression des consommateurs historiques `minimatch@3` et `minimatch@9` ;
+- suppression de l'override `brace-expansion`, du `postinstall` et de tout
+  adaptateur modifiant `node_modules` ;
+- vérification de l'API native `minimatch@10` / `brace-expansion@5.0.8` ;
 - vérification du plafond mémoire officiel
   `EXPANSION_MAX_LENGTH=4_000_000` ;
 - `BRACE_EXPANSION_VULNERABLE_VERSION_COUNT=0` ;
