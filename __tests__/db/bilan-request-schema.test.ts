@@ -34,10 +34,12 @@ function disposableDatabaseUrl(databaseName: string): string {
   const url = new URL(rawUrl);
   if (
     !['localhost', '127.0.0.1'].includes(url.hostname)
-    || url.port !== '5434'
+    || !['5432', '5434'].includes(url.port)
     || url.pathname !== '/nexus_test'
   ) {
-    throw new Error('Migration harness is restricted to localhost:5434/nexus_test');
+    throw new Error(
+      'Migration harness is restricted to localhost ports 5432/5434 and database nexus_test',
+    );
   }
   if (!/^nexus_bilan_(fresh|upgrade)_[a-f0-9]+$/.test(databaseName)) {
     throw new Error(`Unsafe disposable database name: ${databaseName}`);
