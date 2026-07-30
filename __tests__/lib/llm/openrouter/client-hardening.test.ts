@@ -82,6 +82,9 @@ function validResponse(model: string, cost: string | number = '0.001234') {
     usage: {
       prompt_tokens: 12,
       completion_tokens: 8,
+      completion_tokens_details: {
+        reasoning_tokens: 3,
+      },
       total_tokens: 20,
       cost,
     },
@@ -152,6 +155,14 @@ describe('OpenRouter C1.1 hardened transport', () => {
     try {
       const result = await client(fake.baseUrl).complete(completionInput);
       expect(result.attempts).toHaveLength(1);
+      expect(result.provenance).toMatchObject({
+        provider: 'synthetic-provider',
+        reasoningTokens: 3,
+      });
+      expect(result.attempts[0]).toMatchObject({
+        provider: 'synthetic-provider',
+        reasoningTokens: 3,
+      });
       expect(fake.requests[0]).not.toHaveProperty('usage');
       expect(fake.requests[0]).not.toHaveProperty('temperature');
       expect(fake.requests[0]).not.toHaveProperty('top_p');
