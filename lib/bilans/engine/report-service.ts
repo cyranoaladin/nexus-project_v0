@@ -152,7 +152,11 @@ export async function generateAssessmentReport(
         if (!attempt || !attempt.assignment) {
           throw new AssessmentEngineError('ATTEMPT_NOT_FOUND', 404);
         }
-        if (attempt.status !== 'SCORED' && attempt.status !== 'REPORT_PENDING_REVIEW') {
+        if (
+          attempt.status !== 'SCORED'
+          && attempt.status !== 'REPORT_PENDING_REVIEW'
+          && attempt.status !== 'PUBLISHED'
+        ) {
           throw new AssessmentEngineError('FINAL_SCORE_REQUIRED');
         }
         const scoreSnapshot = attempt.scoreSnapshots[0];
@@ -404,6 +408,12 @@ export async function publishAssessmentReport(
         if (revision.status !== 'COACH_VALIDATED' || !revision.reviews.length) {
           throw new AssessmentEngineError('REPORT_NOT_APPROVED');
         }
+        await tx.$queryRaw`
+          SELECT "id"
+          FROM "canonical_assessment_attempts"
+          WHERE "id" = ${revision.reportArtifact.assessmentAttemptId}
+          FOR UPDATE
+        `;
         await tx.$queryRaw`
           SELECT "id"
           FROM "canonical_report_artifacts"

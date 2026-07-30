@@ -391,6 +391,88 @@ export async function getAssignmentPublicDefinition(
   return createPublicAssessmentDefinition(definition);
 }
 
+export async function listAssessmentAssignments(
+  context: AssessmentEngineContext,
+  input: Readonly<{ actor: AssessmentEngineActor }>,
+) {
+  return context.prisma.$transaction(async (tx) => {
+    await assertActorIdentity(tx, input.actor, ['PARENT', 'ELEVE', 'ADMIN']);
+    const where: Prisma.CanonicalAssessmentAssignmentWhereInput =
+      input.actor.role === 'ADMIN'
+        ? {}
+        : input.actor.role === 'PARENT'
+          ? {
+            bilanRequest: { parentUserId: input.actor.userId },
+            student: {
+              parentLinks: {
+                some: {
+                  parentUserId: input.actor.userId,
+                  state: 'VERIFIED',
+                  revokedAt: null,
+                },
+              },
+            },
+          }
+          : { student: { userId: input.actor.userId } };
+    const assignments = await tx.canonicalAssessmentAssignment.findMany({
+      where,
+      orderBy: [{ opensAt: 'desc' }, { createdAt: 'desc' }],
+      take: 50,
+    });
+    return assignments.map(assignmentProjection);
+  });
+}
+
+export async function getAssessmentAttemptStatus(
+  context: AssessmentEngineContext,
+  input: Readonly<{
+    actor: AssessmentEngineActor;
+    attemptId: string;
+  }>,
+) {
+  return context.prisma.$transaction(async (tx) => {
+    await assertActorIdentity(tx, input.actor, ['PARENT', 'ELEVE', 'ADMIN']);
+    const attempt = await tx.canonicalAssessmentAttempt.findFirst({
+      where: attemptAccessWhere(input.actor, input.attemptId),
+      include: {
+        _count: {
+          select: { responses: true },
+        },
+        manualReviewTasks: {
+          select: { status: true },
+        },
+        responses: {
+          select: {
+            itemId: true,
+            responseType: true,
+            selectedOptionIndex: true,
+            textValue: true,
+            version: true,
+            lastAutosavedAt: true,
+          },
+          orderBy: { itemId: 'asc' },
+        },
+      },
+    });
+    if (!attempt) throw new AssessmentEngineError('ATTEMPT_NOT_FOUND', 404);
+    return {
+      ...attemptProjection(attempt),
+      responseCount: attempt._count.responses,
+      pendingManualReviewCount: attempt.manualReviewTasks.filter(
+        ({ status }) => status !== 'COMPLETED',
+      ).length,
+      responses: attempt.responses.map((response) => ({
+        itemId: response.itemId,
+        responseType: response.responseType,
+        selectedOptionIndex: response.selectedOptionIndex,
+        textValue: response.textValue,
+        version: response.version,
+        lastAutosavedAt: response.lastAutosavedAt.toISOString(),
+      })),
+    };
+  });
+}
+
 export async function startAssessmentAttempt(
   context: AssessmentEngineContext,
   input: Readonly<{
