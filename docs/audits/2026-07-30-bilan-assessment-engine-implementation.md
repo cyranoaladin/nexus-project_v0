@@ -6,9 +6,14 @@
 - branche :
   `feat/bilan-assessment-engine-v1-20260730` ;
 - base stabilisée :
-  `bb8ee6f7139be1a99fdd1ea21ca15e21663f20ba` ;
+  `00c6470ecd0fcd2658d198318b371b4e3a172ffc` ;
 - dépendance : draft PR #88 ;
 - activation et déploiement : non réalisés.
+
+La base stabilisée a été intégrée par le merge explicite
+`e34f14e6dc7789e9a5022d15e359f379087c4242`, sans réécriture de
+l'historique partagé. Elle remplace le mécanisme d'exception de dépendances
+par la correction effective de toutes les lignées `brace-expansion`.
 
 ## Livré
 
@@ -61,7 +66,7 @@ Les gates exécutés avant le checkout final ont donné :
 - corpus Python : 267 tests réussis, 2 ignorés ;
 - build : 146 routes, artefact standalone valide ;
 - audit production : zéro vulnérabilité ;
-- audit complet : 36 entrées high d'outillage, zéro critical ;
+- audit complet : zéro vulnérabilité ;
 - Prisma validate/generate, typecheck, lint et sécurité dépôt : verts.
 
 Le rapport de PR et le rapport final portent les commandes exactes, durées,
@@ -71,5 +76,5 @@ SHA poussé et preuve de reproduction depuis un checkout détaché propre.
 
 Le code moteur est techniquement raccordé. La mise en production reste
 bloquée par la validation humaine des contenus, les secrets/connectivités
-d'exploitation, la migration autorisée et le gate de risque dépendances de la
-fondation.
+d'exploitation et la migration autorisée. Le gate de risque dépendances de la
+fondation est remplacé par une correction vérifiée sans exception.
