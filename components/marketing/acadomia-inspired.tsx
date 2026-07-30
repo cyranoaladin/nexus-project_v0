@@ -11,6 +11,7 @@ import {
   Phone,
   ShieldCheck,
 } from 'lucide-react';
+import { usePathname } from 'next/navigation';
 
 import socialProof from '@/content/social-proof.json';
 import team from '@/content/team.json';
@@ -234,14 +235,15 @@ export function CallbackRequestForm({ source = 'callback-card' }: { source?: str
 }
 
 export function FloatingAdvisorBubble() {
+  const pathname = usePathname();
   const [visible, setVisible] = useState(true);
   const [blocked, setBlocked] = useState(false);
 
   useEffect(() => {
     // Hide where a contextual conversion flow already occupies the page.
     if (
-      window.location.pathname.startsWith('/recommandation') ||
-      window.location.pathname.startsWith('/stages/pre-rentree-2026')
+      pathname.startsWith('/recommandation') ||
+      pathname.startsWith('/stages/pre-rentree-2026')
     ) {
       setBlocked(true);
       return;
@@ -286,7 +288,7 @@ export function FloatingAdvisorBubble() {
     ctaSections.forEach((el) => io.observe(el));
 
     return () => io.disconnect();
-  }, []);
+  }, [pathname]);
 
   if (blocked || !visible) return null;
 

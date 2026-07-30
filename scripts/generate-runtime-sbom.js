@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 
 const fs = require('node:fs');
-const os = require('node:os');
 const path = require('node:path');
 const { spawnSync } = require('node:child_process');
 
@@ -98,6 +97,12 @@ function augmentWithPhysicalException(sbom, { packageJson, lockPackage, exceptio
     ),
     annotation,
   ];
+  if (
+    Array.isArray(sbom.dependencies)
+    && !sbom.dependencies.some((dependency) => dependency.ref === component['bom-ref'])
+  ) {
+    sbom.dependencies.push({ ref: component['bom-ref'], dependsOn: [] });
+  }
 
   return sbom;
 }
@@ -107,10 +112,165 @@ function argument(name, fallback) {
   return index === -1 ? fallback : process.argv[index + 1];
 }
 
+function buildNpmSbomArguments({ omitDev }) {
+  return [
+    'sbom',
+    '--sbom-format',
+    'cyclonedx',
+    '--package-lock-only',
+    ...(omitDev ? ['--omit', 'dev'] : []),
+  ];
+}
+
+function packagePathProperty(component) {
+  return component.properties?.find(
+    (property) => property.name === 'cdx:npm:package:path',
+  )?.value;
+}
+
+function resolvePhysicalDependencyPath(packagePath, dependencyName, referencesByPath) {
+  let currentPath = packagePath;
+
+  while (true) {
+    const candidate = currentPath
+      ? `${currentPath}/node_modules/${dependencyName}`
+      : `node_modules/${dependencyName}`;
+    if (referencesByPath.has(candidate)) return candidate;
+    if (!currentPath) return null;
+
+    const parentPath = path.posix.dirname(currentPath);
+    currentPath = parentPath === '.' ? '' : parentPath;
+  }
+}
+
+function normalizeCycloneDxReferences(sbom, lockfile, { omitDev }) {
+  const rootReference = sbom.metadata?.component?.['bom-ref'];
+  if (typeof rootReference !== 'string' || rootReference.length === 0) {
+    throw new Error('CYCLONEDX_INVALID_ROOT_REFERENCE');
+  }
+
+  const referencesByPath = new Map([['', rootReference]]);
+  for (const component of sbom.components || []) {
+    const packagePath = packagePathProperty(component);
+    if (typeof packagePath !== 'string' || packagePath.length === 0) {
+      throw new Error(`CYCLONEDX_MISSING_PACKAGE_PATH:${component?.['bom-ref']}`);
+    }
+    if (referencesByPath.has(packagePath)) {
+      throw new Error(`CYCLONEDX_DUPLICATE_PACKAGE_PATH:${packagePath}`);
+    }
+
+    const originalReference = component['bom-ref'];
+    if (typeof originalReference !== 'string' || originalReference.length === 0) {
+      throw new Error('CYCLONEDX_INVALID_REFERENCE');
+    }
+    const physicalReference = `${originalReference}#npm-path=${encodeURIComponent(packagePath)}`;
+    component['bom-ref'] = physicalReference;
+    referencesByPath.set(packagePath, physicalReference);
+  }
+
+  const dependencies = [];
+  for (const [packagePath, reference] of referencesByPath) {
+    const lockPackage = lockfile.packages?.[packagePath];
+    if (!lockPackage) {
+      throw new Error(`PACKAGE_LOCK_MISSING_PATH:${packagePath || '<root>'}`);
+    }
+
+    const dependencyNames = new Set([
+      ...Object.keys(lockPackage.dependencies || {}),
+      ...Object.keys(lockPackage.optionalDependencies || {}),
+      ...Object.keys(lockPackage.peerDependencies || {}),
+      ...(!omitDev && packagePath === ''
+        ? Object.keys(lockPackage.devDependencies || {})
+        : []),
+    ]);
+    const dependsOn = [];
+    for (const dependencyName of dependencyNames) {
+      const resolvedPath = resolvePhysicalDependencyPath(
+        packagePath,
+        dependencyName,
+        referencesByPath,
+      );
+      if (resolvedPath) dependsOn.push(referencesByPath.get(resolvedPath));
+    }
+
+    dependencies.push({
+      ref: reference,
+      dependsOn: [...new Set(dependsOn)].sort(),
+    });
+  }
+
+  sbom.dependencies = dependencies.sort((left, right) =>
+    left.ref.localeCompare(right.ref),
+  );
+  return sbom;
+}
+
+function makeCycloneDxReproducible(sbom) {
+  delete sbom.serialNumber;
+  if (sbom.metadata) delete sbom.metadata.timestamp;
+  if (Array.isArray(sbom.components)) {
+    sbom.components.sort((left, right) =>
+      left['bom-ref'].localeCompare(right['bom-ref']),
+    );
+  }
+  if (Array.isArray(sbom.dependencies)) {
+    sbom.dependencies.sort((left, right) => left.ref.localeCompare(right.ref));
+  }
+  return sbom;
+}
+
+function validateCycloneDxGraph(sbom) {
+  if (
+    sbom?.bomFormat !== 'CycloneDX'
+    || typeof sbom.specVersion !== 'string'
+    || sbom.version !== 1
+    || typeof sbom.metadata?.component?.['bom-ref'] !== 'string'
+    || !Array.isArray(sbom.components)
+    || !Array.isArray(sbom.dependencies)
+  ) {
+    throw new Error('CYCLONEDX_INVALID_DOCUMENT');
+  }
+
+  const references = [
+    sbom.metadata.component['bom-ref'],
+    ...sbom.components.map((component) => component?.['bom-ref']),
+  ];
+  const referenceSet = new Set();
+  for (const reference of references) {
+    if (typeof reference !== 'string' || reference.length === 0) {
+      throw new Error('CYCLONEDX_INVALID_REFERENCE');
+    }
+    if (referenceSet.has(reference)) {
+      throw new Error(`CYCLONEDX_DUPLICATE_REFERENCE:${reference}`);
+    }
+    referenceSet.add(reference);
+  }
+
+  for (const dependency of sbom.dependencies) {
+    if (!referenceSet.has(dependency?.ref)) {
+      throw new Error(`CYCLONEDX_DANGLING_REFERENCE:${dependency?.ref}`);
+    }
+    if (!Array.isArray(dependency.dependsOn)) {
+      throw new Error(`CYCLONEDX_INVALID_DEPENDENCY:${dependency.ref}`);
+    }
+    for (const reference of dependency.dependsOn) {
+      if (!referenceSet.has(reference)) {
+        throw new Error(`CYCLONEDX_DANGLING_REFERENCE:${reference}`);
+      }
+    }
+  }
+
+  return sbom;
+}
+
 async function main() {
+  const omitDev = !process.argv.includes('--include-dev');
   const outputPath = path.resolve(
     projectRoot,
-    argument('--output', 'security/sbom/runtime.cdx.json'),
+    argument(
+      '--output',
+      omitDev ? 'security/sbom/runtime.cdx.json' : 'security/sbom/full.cdx.json',
+    ),
   );
   const exceptions = JSON.parse(
     fs.readFileSync(path.join(projectRoot, 'security/npm-tree-exceptions.json'), 'utf8'),
@@ -141,42 +301,36 @@ async function main() {
   }
 
   fs.mkdirSync(path.dirname(outputPath), { recursive: true });
-  const temporaryDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'nexus-sbom-'));
-  const generatedPath = path.join(temporaryDirectory, 'runtime.cdx.json');
-  const cli = path.join(projectRoot, 'node_modules/.bin/cyclonedx-npm');
-  const generated = spawnSync(cli, [
-    '--omit', 'dev',
-    '--output-reproducible',
-    '--spec-version', '1.6',
-    '--validate',
-    '--output-file', generatedPath,
-    path.join(projectRoot, 'package.json'),
-  ], {
-    cwd: projectRoot,
-    encoding: 'utf8',
-  });
+  const npmExecutable = process.platform === 'win32' ? 'npm.cmd' : 'npm';
+  const generated = spawnSync(
+    npmExecutable,
+    buildNpmSbomArguments({ omitDev }),
+    {
+      cwd: projectRoot,
+      encoding: 'utf8',
+      maxBuffer: 16 * 1024 * 1024,
+    },
+  );
   if (generated.status !== 0) {
     process.stderr.write(generated.stdout || '');
     process.stderr.write(generated.stderr || '');
-    throw new Error(`cyclonedx-npm exited with ${generated.status}`);
+    throw new Error(`npm sbom exited with ${generated.status}`);
   }
 
-  const sbom = JSON.parse(fs.readFileSync(generatedPath, 'utf8'));
+  const sbom = normalizeCycloneDxReferences(
+    JSON.parse(generated.stdout),
+    lock,
+    { omitDev },
+  );
   augmentWithPhysicalException(sbom, {
     packageJson: physicalPackage,
     lockPackage,
     exception,
   });
+  makeCycloneDxReproducible(sbom);
+  validateCycloneDxGraph(sbom);
   const serialized = `${JSON.stringify(sbom, null, 2)}\n`;
-  const { Spec, Validation } = require('@cyclonedx/cyclonedx-library');
-  const validationError = await new Validation.JsonValidator(
-    Spec.Version.v1dot6,
-  ).validate(serialized);
-  if (validationError) {
-    throw new Error(`Augmented CycloneDX document is invalid: ${JSON.stringify(validationError)}`);
-  }
   fs.writeFileSync(outputPath, serialized);
-  fs.rmSync(temporaryDirectory, { recursive: true, force: true });
   process.stdout.write(`${JSON.stringify({
     output: outputPath,
     format: `${sbom.bomFormat} ${sbom.specVersion}`,
@@ -187,7 +341,14 @@ async function main() {
   }, null, 2)}\n`);
 }
 
-module.exports = { augmentWithPhysicalException, sriToCycloneDxHash };
+module.exports = {
+  augmentWithPhysicalException,
+  buildNpmSbomArguments,
+  makeCycloneDxReproducible,
+  normalizeCycloneDxReferences,
+  sriToCycloneDxHash,
+  validateCycloneDxGraph,
+};
 
 if (require.main === module) {
   main().catch((error) => {

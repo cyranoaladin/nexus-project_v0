@@ -1,8 +1,202 @@
 import { createHash } from 'node:crypto';
 
-const { augmentWithPhysicalException } = require('../../scripts/generate-runtime-sbom.js');
+const {
+  augmentWithPhysicalException,
+  buildNpmSbomArguments,
+  makeCycloneDxReproducible,
+  normalizeCycloneDxReferences,
+  validateCycloneDxGraph,
+} = require('../../scripts/generate-runtime-sbom.js');
 
 describe('runtime SBOM policy augmentation', () => {
+  it('uses the native npm CycloneDX generator for the runtime graph', () => {
+    expect(buildNpmSbomArguments({ omitDev: true })).toEqual([
+      'sbom',
+      '--sbom-format',
+      'cyclonedx',
+      '--package-lock-only',
+      '--omit',
+      'dev',
+    ]);
+    expect(buildNpmSbomArguments({ omitDev: false })).toEqual([
+      'sbom',
+      '--sbom-format',
+      'cyclonedx',
+      '--package-lock-only',
+    ]);
+  });
+
+  it('rejects a CycloneDX graph containing duplicate or dangling references', () => {
+    const valid = {
+      bomFormat: 'CycloneDX',
+      specVersion: '1.5',
+      version: 1,
+      metadata: {
+        component: {
+          'bom-ref': 'root',
+          type: 'application',
+          name: 'nexus',
+          version: '1.0.0',
+        },
+      },
+      components: [
+        {
+          'bom-ref': 'dep',
+          type: 'library',
+          name: 'dep',
+          version: '1.0.0',
+        },
+      ],
+      dependencies: [
+        { ref: 'root', dependsOn: ['dep'] },
+        { ref: 'dep', dependsOn: [] },
+      ],
+    };
+
+    expect(() => validateCycloneDxGraph(valid)).not.toThrow();
+    expect(() => validateCycloneDxGraph({
+      ...valid,
+      dependencies: [{ ref: 'root', dependsOn: ['missing'] }],
+    })).toThrow('CYCLONEDX_DANGLING_REFERENCE:missing');
+    expect(() => validateCycloneDxGraph({
+      ...valid,
+      components: [...valid.components, valid.components[0]],
+    })).toThrow('CYCLONEDX_DUPLICATE_REFERENCE:dep');
+  });
+
+  it('normalizes duplicate npm references from their physical lockfile paths', () => {
+    const sbom = {
+      bomFormat: 'CycloneDX',
+      specVersion: '1.5',
+      version: 1,
+      metadata: {
+        component: {
+          'bom-ref': 'root',
+          type: 'application',
+          name: 'nexus',
+          version: '1.0.0',
+        },
+      },
+      components: [
+        {
+          'bom-ref': 'parent-a@1.0.0',
+          type: 'library',
+          name: 'parent-a',
+          version: '1.0.0',
+          properties: [{
+            name: 'cdx:npm:package:path',
+            value: 'node_modules/parent-a',
+          }],
+        },
+        {
+          'bom-ref': 'shared@1.0.0',
+          type: 'library',
+          name: 'shared',
+          version: '1.0.0',
+          properties: [{
+            name: 'cdx:npm:package:path',
+            value: 'node_modules/parent-a/node_modules/shared',
+          }],
+        },
+        {
+          'bom-ref': 'parent-b@1.0.0',
+          type: 'library',
+          name: 'parent-b',
+          version: '1.0.0',
+          properties: [{
+            name: 'cdx:npm:package:path',
+            value: 'node_modules/parent-b',
+          }],
+        },
+        {
+          'bom-ref': 'shared@1.0.0',
+          type: 'library',
+          name: 'shared',
+          version: '1.0.0',
+          properties: [{
+            name: 'cdx:npm:package:path',
+            value: 'node_modules/parent-b/node_modules/shared',
+          }],
+        },
+      ],
+      dependencies: [],
+    };
+    const lockfile = {
+      packages: {
+        '': {
+          dependencies: {
+            'parent-a': '1.0.0',
+            'parent-b': '1.0.0',
+          },
+        },
+        'node_modules/parent-a': {
+          dependencies: { shared: '1.0.0' },
+        },
+        'node_modules/parent-a/node_modules/shared': {},
+        'node_modules/parent-b': {
+          dependencies: { shared: '1.0.0' },
+        },
+        'node_modules/parent-b/node_modules/shared': {},
+      },
+    };
+
+    const normalized = normalizeCycloneDxReferences(
+      sbom,
+      lockfile,
+      { omitDev: true },
+    );
+    const references = normalized.components.map(
+      (component: { 'bom-ref': string }) => component['bom-ref'],
+    );
+    const parentA = normalized.dependencies.find(
+      (dependency: { ref: string }) => (
+        dependency.ref.includes('node_modules%2Fparent-a')
+        && !dependency.ref.includes('shared')
+      ),
+    );
+    const parentB = normalized.dependencies.find(
+      (dependency: { ref: string }) => (
+        dependency.ref.includes('node_modules%2Fparent-b')
+        && !dependency.ref.includes('shared')
+      ),
+    );
+
+    expect(new Set(references).size).toBe(references.length);
+    expect(parentA.dependsOn).toHaveLength(1);
+    expect(parentA.dependsOn[0]).toContain(
+      'node_modules%2Fparent-a%2Fnode_modules%2Fshared',
+    );
+    expect(parentB.dependsOn).toHaveLength(1);
+    expect(parentB.dependsOn[0]).toContain(
+      'node_modules%2Fparent-b%2Fnode_modules%2Fshared',
+    );
+    expect(() => validateCycloneDxGraph(normalized)).not.toThrow();
+  });
+
+  it('removes run-specific metadata before hashing a generated graph', () => {
+    const generated = {
+      serialNumber: 'urn:uuid:random',
+      metadata: {
+        timestamp: '2026-07-30T19:00:00.000Z',
+        component: { 'bom-ref': 'root' },
+      },
+      components: [
+        { 'bom-ref': 'z' },
+        { 'bom-ref': 'a' },
+      ],
+    };
+
+    expect(makeCycloneDxReproducible(generated)).toEqual({
+      metadata: {
+        component: { 'bom-ref': 'root' },
+      },
+      components: [
+        { 'bom-ref': 'a' },
+        { 'bom-ref': 'z' },
+      ],
+    });
+  });
+
   it('adds the physically installed exception with hash, license and artifact ban', () => {
     const bytes = Buffer.from('physical-package');
     const digest = createHash('sha512').update(bytes).digest();
