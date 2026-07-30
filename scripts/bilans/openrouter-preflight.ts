@@ -1,4 +1,3 @@
-import { execFileSync } from 'node:child_process';
 import {
   chmodSync,
   mkdirSync,
@@ -24,23 +23,12 @@ import {
 import { sha256Canonical } from '../../lib/llm/openrouter/hash';
 import { BILAN_MODEL_POLICY } from '../../lib/llm/openrouter/policy';
 import { readPrivateOpenRouterApiKey } from '../../lib/llm/openrouter/preflight-secret';
+import { readCleanGitSoftwareSha } from '../../lib/llm/openrouter/preflight-software';
 
 const PREFLIGHT_VALIDITY_MILLISECONDS = 24 * 60 * 60 * 1_000;
 const OWNER_MAX_COST_MICROS_USD_PER_AUDIENCE_REPORT = 300_000;
 const OWNER_MAX_COST_MICROS_USD_PER_ASSESSMENT = 750_000;
 const OWNER_DAILY_BUDGET_MICROS_USD = 15_000_000;
-
-function currentSoftwareSha(): string {
-  const sha = execFileSync('git', ['rev-parse', 'HEAD'], {
-    cwd: process.cwd(),
-    encoding: 'utf8',
-    stdio: ['ignore', 'pipe', 'ignore'],
-  }).trim();
-  if (!/^[a-f0-9]{40}$/.test(sha)) {
-    throw new OpenRouterError('OPENROUTER_POLICY_REJECTED');
-  }
-  return sha;
-}
 
 function assertOwnerBudgets(config: ReturnType<typeof parseOpenRouterConfig>) {
   if (
@@ -56,7 +44,7 @@ function assertOwnerBudgets(config: ReturnType<typeof parseOpenRouterConfig>) {
 
 async function main(): Promise<void> {
   const apiKey = readPrivateOpenRouterApiKey();
-  const preflightSoftwareSha = currentSoftwareSha();
+  const preflightSoftwareSha = readCleanGitSoftwareSha();
   const config = parseOpenRouterConfig({
     ...process.env,
     OPENROUTER_API_KEY: apiKey,
