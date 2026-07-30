@@ -4,6 +4,7 @@ import {
   generateAssessmentReport,
   getPublishedAssessmentReport,
   publishAssessmentReport,
+  reviseManualReviewDecision,
   revokeAssessmentReport,
 } from '@/lib/bilans/engine';
 import {
@@ -183,5 +184,95 @@ describe('canonical audience-scoped report publication service', () => {
       actor: fixture.parentActor,
       attemptId: fixture.attempt.id,
     })).rejects.toThrow(new AssessmentEngineError('REPORT_NOT_PUBLISHED', 404));
+  });
+
+  it('requires every active audience publication to be revoked before revising a correction', async () => {
+    const fixture = await createFinalScoredWorkflowFixture(prisma);
+    const revision = await generateAssessmentReport(fixture.context, {
+      actor: fixture.adminActor,
+      attemptId: fixture.attempt.id,
+      audience: 'PARENT',
+      idempotencyKey: engineKey('generate'),
+    });
+    await approveAssessmentReport(fixture.context, {
+      actor: fixture.adminActor,
+      revisionId: revision.id,
+      motif: 'Données factuelles vérifiées.',
+      idempotencyKey: engineKey('approve'),
+    });
+    await publishAssessmentReport(fixture.context, {
+      actor: fixture.adminActor,
+      revisionId: revision.id,
+      idempotencyKey: engineKey('publish'),
+    });
+
+    await expect(reviseManualReviewDecision(fixture.context, {
+      actor: fixture.adminActor,
+      command: {
+        taskId: fixture.task.id,
+        awardedPoints: 1,
+        internalComment: 'Correction post-publication interdite.',
+        publishableComment: 'Réponse finalement validée.',
+        rubricVersion: 'raw-item-v1',
+      },
+      idempotencyKey: engineKey('revise'),
+    })).rejects.toThrow(
+      new AssessmentEngineError('ACTIVE_PUBLICATION_REQUIRES_REVOCATION'),
+    );
+    expect(await prisma.canonicalManualReviewDecision.count({
+      where: { taskId: fixture.task.id },
+    })).toBe(1);
+  });
+
+  it('regenerates a revoked audience while another audience remains published', async () => {
+    const fixture = await createFinalScoredWorkflowFixture(prisma);
+    const parentRevision = await generateAssessmentReport(fixture.context, {
+      actor: fixture.adminActor,
+      attemptId: fixture.attempt.id,
+      audience: 'PARENT',
+      idempotencyKey: engineKey('generate-parent'),
+    });
+    const nexusRevision = await generateAssessmentReport(fixture.context, {
+      actor: fixture.adminActor,
+      attemptId: fixture.attempt.id,
+      audience: 'NEXUS',
+      idempotencyKey: engineKey('generate-nexus'),
+    });
+    for (const revision of [parentRevision, nexusRevision]) {
+      await approveAssessmentReport(fixture.context, {
+        actor: fixture.adminActor,
+        revisionId: revision.id,
+        motif: 'Données factuelles vérifiées.',
+        idempotencyKey: engineKey('approve'),
+      });
+    }
+    const parentPublication = await publishAssessmentReport(fixture.context, {
+      actor: fixture.adminActor,
+      revisionId: parentRevision.id,
+      idempotencyKey: engineKey('publish-parent'),
+    });
+    await publishAssessmentReport(fixture.context, {
+      actor: fixture.adminActor,
+      revisionId: nexusRevision.id,
+      idempotencyKey: engineKey('publish-nexus'),
+    });
+    await revokeAssessmentReport(fixture.context, {
+      actor: fixture.adminActor,
+      publicationId: parentPublication.id,
+      reason: 'Nouvelle révision parent requise.',
+      idempotencyKey: engineKey('revoke-parent'),
+    });
+
+    const regenerated = await generateAssessmentReport(fixture.context, {
+      actor: fixture.adminActor,
+      attemptId: fixture.attempt.id,
+      audience: 'PARENT',
+      idempotencyKey: engineKey('regenerate-parent'),
+    });
+
+    expect(regenerated.artifactId).toBe(parentRevision.artifactId);
+    expect((await prisma.canonicalAssessmentAttempt.findUniqueOrThrow({
+      where: { id: fixture.attempt.id },
+    })).status).toBe('PUBLISHED');
   });
 });

@@ -63,6 +63,58 @@ function staffTaskWhere(
   return { id: '__forbidden__' };
 }
 
+export async function listManualReviewQueue(
+  context: AssessmentEngineContext,
+  input: Readonly<{ actor: AssessmentEngineActor }>,
+) {
+  return context.prisma.$transaction(async (tx) => {
+    await assertActorIdentity(tx, input.actor, ['COACH', 'ADMIN']);
+    const where: Prisma.CanonicalManualReviewTaskWhereInput =
+      input.actor.role === 'ADMIN'
+        ? { status: { in: ['PENDING', 'CLAIMED'] } }
+        : {
+          status: { in: ['PENDING', 'CLAIMED'] },
+          assessmentAttempt: {
+            assignment: {
+              bilanRequest: {
+                assignedCoach: { userId: input.actor.userId },
+              },
+            },
+          },
+        };
+    const tasks = await tx.canonicalManualReviewTask.findMany({
+      where,
+      include: {
+        assessmentAttempt: {
+          select: {
+            assessmentPackChecksum: true,
+            assessmentPackId: true,
+            assessmentPackVersion: true,
+          },
+        },
+        response: {
+          select: {
+            itemId: true,
+            textValue: true,
+          },
+        },
+      },
+      orderBy: [{ status: 'asc' }, { createdAt: 'asc' }],
+      take: 100,
+    });
+    return tasks.map((task) => ({
+      ...manualTaskProjection(task),
+      itemId: task.response.itemId,
+      textValue: task.response.textValue,
+      definitionRef: {
+        definitionId: task.assessmentAttempt.assessmentPackId,
+        version: task.assessmentAttempt.assessmentPackVersion,
+        sha256: task.assessmentAttempt.assessmentPackChecksum,
+      },
+    }));
+  });
+}
+
 async function createScoringJob(
   tx: Prisma.TransactionClient,
   attemptId: string,
@@ -385,6 +437,25 @@ export async function reviseManualReviewDecision(
           || !task.currentDecision
         ) {
           throw new AssessmentEngineError('MANUAL_REVIEW_NOT_FOUND', 404);
+        }
+        await tx.$queryRaw`
+          SELECT "id"
+          FROM "canonical_assessment_attempts"
+          WHERE "id" = ${task.assessmentAttemptId}
+          FOR UPDATE
+        `;
+        const activePublicationCount = await tx.reportPublication.count({
+          where: {
+            reportArtifact: {
+              assessmentAttemptId: task.assessmentAttemptId,
+            },
+            status: 'PUBLISHED',
+          },
+        });
+        if (activePublicationCount > 0) {
+          throw new AssessmentEngineError(
+            'ACTIVE_PUBLICATION_REQUIRES_REVOCATION',
+          );
         }
         const version = task.currentDecision.version + 1;
         const decision = await tx.canonicalManualReviewDecision.create({

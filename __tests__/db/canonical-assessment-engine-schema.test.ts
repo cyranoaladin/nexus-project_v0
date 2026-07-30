@@ -14,7 +14,7 @@ import {
   testPrisma,
 } from '../setup/test-database';
 
-const prisma = testPrisma as any;
+const prisma = testPrisma;
 const schemaPath = path.resolve(process.cwd(), 'prisma/schema.prisma');
 const migrationPath = path.resolve(
   process.cwd(),
@@ -269,7 +269,7 @@ describe('canonical assessment engine v1 persistence', () => {
     const response = {
       assessmentAttemptId: attempt.id,
       itemId: 'n01-i1',
-      responseType: 'AUTOMATIC_QCM',
+      responseType: 'AUTOMATIC_QCM' as const,
       selectedOptionIndex: 1,
       version: 1,
       lastAutosavedAt: new Date(),
@@ -457,7 +457,7 @@ describe('canonical assessment engine v1 persistence', () => {
       where: { taskId: task.id },
       orderBy: { version: 'asc' },
     });
-    expect(decisions.map(({ awardedPoints }: { awardedPoints: number }) => awardedPoints))
+    expect(decisions.map(({ awardedPoints }) => awardedPoints))
       .toEqual([0.5, 1]);
   });
 

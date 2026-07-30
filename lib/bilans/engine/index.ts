@@ -35,6 +35,7 @@ export {
 export {
   claimManualReviewTask,
   completeManualReviewTask,
+  listManualReviewQueue,
   reviseManualReviewDecision,
 } from './manual-review-service';
 export {
@@ -49,9 +50,15 @@ export {
   revokeAssessmentReport,
 } from './report-service';
 export {
+  listTeamBilanRequests,
+  listTeamPedagogyDefinitions,
+} from './team-service';
+export {
   autosaveAssessmentResponse,
   createAssessmentAssignment,
+  getAssessmentAttemptStatus,
   getAssignmentPublicDefinition,
+  listAssessmentAssignments,
   startAssessmentAttempt,
   submitAssessmentAttempt,
   type AssessmentEngineActor,
