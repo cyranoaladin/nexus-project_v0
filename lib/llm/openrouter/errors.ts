@@ -1,5 +1,7 @@
 import 'server-only';
 
+import type { OpenRouterInvocationAttempt } from './types';
+
 export const OPENROUTER_ERROR_CODES = [
   'OPENROUTER_NOT_CONFIGURED',
   'OPENROUTER_INVALID_CREDENTIALS',
@@ -9,6 +11,8 @@ export const OPENROUTER_ERROR_CODES = [
   'OPENROUTER_RATE_LIMITED',
   'OPENROUTER_PROVIDER_UNAVAILABLE',
   'OPENROUTER_NO_COMPLIANT_PROVIDER',
+  'OPENROUTER_INVALID_REQUEST',
+  'OPENROUTER_INCOMPLETE_RESPONSE',
   'OPENROUTER_INVALID_RESPONSE',
   'OPENROUTER_SCHEMA_FAILURE',
   'OPENROUTER_BUDGET_EXCEEDED',
@@ -25,6 +29,8 @@ const SAFE_MESSAGES: Record<OpenRouterErrorCode, string> = {
   OPENROUTER_RATE_LIMITED: 'OpenRouter rate limit was reached.',
   OPENROUTER_PROVIDER_UNAVAILABLE: 'OpenRouter provider is temporarily unavailable.',
   OPENROUTER_NO_COMPLIANT_PROVIDER: 'No compliant OpenRouter provider is available.',
+  OPENROUTER_INVALID_REQUEST: 'OpenRouter rejected the request contract.',
+  OPENROUTER_INCOMPLETE_RESPONSE: 'OpenRouter returned an incomplete response.',
   OPENROUTER_INVALID_RESPONSE: 'OpenRouter returned an invalid response.',
   OPENROUTER_SCHEMA_FAILURE: 'OpenRouter structured output validation failed.',
   OPENROUTER_BUDGET_EXCEEDED: 'OpenRouter report budget was exceeded.',
@@ -35,6 +41,7 @@ export class OpenRouterError extends Error {
   readonly retryable: boolean;
   readonly status: number | null;
   readonly retryAfterMs: number | null;
+  readonly attempts: readonly OpenRouterInvocationAttempt[];
 
   constructor(
     code: OpenRouterErrorCode,
@@ -42,6 +49,7 @@ export class OpenRouterError extends Error {
       retryable?: boolean;
       status?: number | null;
       retryAfterMs?: number | null;
+      attempts?: readonly OpenRouterInvocationAttempt[];
     }> = {},
   ) {
     super(SAFE_MESSAGES[code]);
@@ -50,6 +58,7 @@ export class OpenRouterError extends Error {
     this.retryable = options.retryable ?? false;
     this.status = options.status ?? null;
     this.retryAfterMs = options.retryAfterMs ?? null;
+    this.attempts = Object.freeze([...(options.attempts ?? [])]);
   }
 }
 

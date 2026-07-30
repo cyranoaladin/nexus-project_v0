@@ -3,6 +3,7 @@ import {
   buildCapabilitySnapshots,
   verifyModelPolicyCapabilities,
 } from '@/lib/llm/openrouter/capabilities';
+import { sha256Canonical } from '@/lib/llm/openrouter/hash';
 import { BILAN_MODEL_POLICY_CHECKSUM } from '@/lib/llm/openrouter/policy';
 
 type MutableCapabilityFixture = {
@@ -17,6 +18,15 @@ type MutableCapabilityFixture = {
 
 const cloneFixture = (): MutableCapabilityFixture =>
   JSON.parse(JSON.stringify(fixture)) as MutableCapabilityFixture;
+const proofOptions = (verifiedAt = '2026-07-30T00:00:01.000Z') => ({
+  verifiedAt,
+  expiresAt: new Date(
+    Date.parse(verifiedAt) + (24 * 60 * 60 * 1_000),
+  ).toISOString(),
+  apiKey: 'synthetic-capability-key',
+  preflightSoftwareSha: 'd'.repeat(40),
+  catalogChecksum: sha256Canonical(fixture),
+});
 
 const incompatibleCases: ReadonlyArray<readonly [
   string,
@@ -42,7 +52,7 @@ describe('OpenRouter capability snapshots', () => {
       fetchedAt: '2026-07-30T00:00:00.000Z',
     });
     const proof = verifyModelPolicyCapabilities(snapshots, {
-      verifiedAt: '2026-07-30T00:00:01.000Z',
+      ...proofOptions(),
     });
 
     expect(proof.policyChecksum).toBe(BILAN_MODEL_POLICY_CHECKSUM);
@@ -68,6 +78,7 @@ describe('OpenRouter capability snapshots', () => {
         buildCapabilitySnapshots(copy, {
           fetchedAt: '2026-07-30T00:00:00.000Z',
         }),
+        proofOptions(),
       ),
     ).toThrow(
       expect.objectContaining({
@@ -84,7 +95,11 @@ describe('OpenRouter capability snapshots', () => {
     });
 
     expect(snapshot.temperatureDeclaredSupported).toBe(true);
-    expect(verifyModelPolicyCapabilities(buildCapabilitySnapshots(copy))).toBeDefined();
+    const fetchedAt = '2026-07-30T00:00:00.000Z';
+    expect(verifyModelPolicyCapabilities(
+      buildCapabilitySnapshots(copy, { fetchedAt }),
+      proofOptions(),
+    )).toBeDefined();
   });
 
   it('rejects a capability snapshot whose immutable checksum was altered', () => {
@@ -96,7 +111,10 @@ describe('OpenRouter capability snapshots', () => {
         ? { ...snapshot, capabilityChecksum: '0'.repeat(64) }
         : snapshot);
 
-    expect(() => verifyModelPolicyCapabilities(altered)).toThrow(
+    expect(() => verifyModelPolicyCapabilities(
+      altered,
+      proofOptions(),
+    )).toThrow(
       expect.objectContaining({
         code: 'BLOCKED_BY_MODEL_PARAMETER_COMPATIBILITY',
       }),

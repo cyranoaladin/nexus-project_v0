@@ -33,9 +33,21 @@ describe('bilan OpenRouter model policy v1.1', () => {
         dataCollection: 'deny',
         zdr: true,
       },
+      retryPolicy: {
+        id: 'bilan-retry-policy',
+        version: '1',
+        attemptPlan: [
+          'anthropic/claude-sonnet-5',
+          'openai/gpt-5.6-terra',
+          'openai/gpt-5.6-terra',
+        ],
+        maxAttempts: 3,
+      },
       automaticCapabilityEnablement: false,
     });
-    expect(BILAN_MODEL_POLICY_CHECKSUM).toMatch(/^[a-f0-9]{64}$/);
+    expect(BILAN_MODEL_POLICY_CHECKSUM).toBe(
+      '4f8633be4e26949ebdec408f3ce1fe9ef0f4ee094d2e63fb6145caa488c3c1a7',
+    );
   });
 
   it('deep-freezes every payload-affecting policy value', () => {
@@ -47,6 +59,10 @@ describe('bilan OpenRouter model policy v1.1', () => {
     expect(Object.isFrozen(BILAN_MODEL_POLICY.seed)).toBe(true);
     expect(Object.isFrozen(BILAN_MODEL_POLICY.reasoning)).toBe(true);
     expect(Object.isFrozen(BILAN_MODEL_POLICY.providerPolicy)).toBe(true);
+    expect(Object.isFrozen(BILAN_MODEL_POLICY.retryPolicy)).toBe(true);
+    expect(Object.isFrozen(BILAN_MODEL_POLICY.retryPolicy.attemptPlan)).toBe(
+      true,
+    );
 
     expect(Reflect.set(
       BILAN_MODEL_POLICY.providerPolicy,

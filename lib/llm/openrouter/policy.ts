@@ -29,6 +29,16 @@ const ModelPolicySchema = z.object({
     dataCollection: z.literal('deny'),
     zdr: z.literal(true),
   }).strict(),
+  retryPolicy: z.object({
+    id: z.literal('bilan-retry-policy'),
+    version: z.literal('1'),
+    attemptPlan: z.tuple([
+      z.literal('anthropic/claude-sonnet-5'),
+      z.literal('openai/gpt-5.6-terra'),
+      z.literal('openai/gpt-5.6-terra'),
+    ]),
+    maxAttempts: z.literal(3),
+  }).strict(),
   automaticCapabilityEnablement: z.literal(false),
 }).strict();
 

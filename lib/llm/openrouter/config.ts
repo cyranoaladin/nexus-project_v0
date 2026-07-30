@@ -11,6 +11,9 @@ const DEFAULT_BASE_URL = 'https://openrouter.ai/api/v1';
 const DEFAULT_TIMEOUT_MS = 90_000;
 const DEFAULT_MAX_ATTEMPTS = 3;
 const DEFAULT_MAX_OUTPUT_TOKENS = 2_048;
+const BUDGET_WARNING_PERCENT = 70;
+const BUDGET_HARD_STOP_PERCENT = 100;
+const MICROS_PER_USD = BigInt(1_000_000);
 
 export type OpenRouterEnvironment = Partial<Record<
   | 'NODE_ENV'
@@ -24,6 +27,7 @@ export type OpenRouterEnvironment = Partial<Record<
   | 'BILAN_OPENROUTER_MAX_ATTEMPTS'
   | 'BILAN_OPENROUTER_MAX_OUTPUT_TOKENS'
   | 'BILAN_OPENROUTER_MAX_COST_USD_PER_REPORT'
+  | 'BILAN_OPENROUTER_MAX_COST_USD_PER_ASSESSMENT'
   | 'BILAN_OPENROUTER_DAILY_BUDGET_USD'
   | 'BILAN_LLM_ENRICHMENT_ENABLED'
   | 'BILAN_OPENROUTER_TEMPERATURE'
@@ -47,8 +51,11 @@ export type OpenRouterConfig = Readonly<{
   timeoutMs: number;
   maxAttempts: number;
   maxOutputTokens: number;
-  maxCostUsdPerReport: number | null;
-  dailyBudgetUsd: number | null;
+  maxCostMicrosUsdPerAudienceReport: number | null;
+  maxCostMicrosUsdPerAssessment: number | null;
+  dailyBudgetMicrosUsd: number | null;
+  budgetWarningPercent: 70;
+  budgetHardStopPercent: 100;
   redacted: Readonly<Record<string, unknown>>;
 }>;
 
@@ -66,11 +73,18 @@ function positiveInteger(
   return parsed;
 }
 
-function positiveBudget(value: string | undefined): number | null {
+function positiveBudgetMicros(value: string | undefined): number | null {
   if (value === undefined || value.trim() === '') return null;
-  const parsed = Number(value);
-  if (!Number.isFinite(parsed) || parsed <= 0) policyError();
-  return parsed;
+  const match = /^(0|[1-9]\d*)(?:\.(\d{1,6}))?$/.exec(value);
+  if (!match) policyError();
+  const whole = BigInt(match[1]);
+  const fractional = BigInt((match[2] ?? '').padEnd(6, '0'));
+  const micros = whole * MICROS_PER_USD + fractional;
+  if (
+    micros <= BigInt(0)
+    || micros > BigInt(Number.MAX_SAFE_INTEGER)
+  ) policyError();
+  return Number(micros);
 }
 
 function parseFallbackModels(value: string | undefined): readonly string[] {
@@ -192,28 +206,46 @@ export function parseOpenRouterConfig(
     DEFAULT_MAX_ATTEMPTS,
     3,
   );
+  if (maxAttempts !== BILAN_MODEL_POLICY.retryPolicy.maxAttempts) {
+    policyError();
+  }
   const maxOutputTokens = positiveInteger(
     environment.BILAN_OPENROUTER_MAX_OUTPUT_TOKENS,
     DEFAULT_MAX_OUTPUT_TOKENS,
     128_000,
   );
-  const maxCostUsdPerReport = positiveBudget(
+  if (maxOutputTokens !== DEFAULT_MAX_OUTPUT_TOKENS) policyError();
+  const maxCostMicrosUsdPerAudienceReport = positiveBudgetMicros(
     environment.BILAN_OPENROUTER_MAX_COST_USD_PER_REPORT,
   );
-  const dailyBudgetUsd = positiveBudget(
+  const maxCostMicrosUsdPerAssessment = positiveBudgetMicros(
+    environment.BILAN_OPENROUTER_MAX_COST_USD_PER_ASSESSMENT,
+  );
+  const dailyBudgetMicrosUsd = positiveBudgetMicros(
     environment.BILAN_OPENROUTER_DAILY_BUDGET_USD,
   );
   if (
     environment.NODE_ENV === 'production'
     && mode === 'OPENROUTER_REQUIRED'
-    && (maxCostUsdPerReport === null || dailyBudgetUsd === null)
+    && (
+      maxCostMicrosUsdPerAudienceReport === null
+      || maxCostMicrosUsdPerAssessment === null
+      || dailyBudgetMicrosUsd === null
+    )
   ) {
     throw new OpenRouterError('OPENROUTER_BUDGET_EXCEEDED');
   }
   if (
-    maxCostUsdPerReport !== null
-    && dailyBudgetUsd !== null
-    && maxCostUsdPerReport > dailyBudgetUsd
+    maxCostMicrosUsdPerAudienceReport !== null
+    && maxCostMicrosUsdPerAssessment !== null
+    && maxCostMicrosUsdPerAudienceReport > maxCostMicrosUsdPerAssessment
+  ) {
+    throw new OpenRouterError('OPENROUTER_BUDGET_EXCEEDED');
+  }
+  if (
+    maxCostMicrosUsdPerAssessment !== null
+    && dailyBudgetMicrosUsd !== null
+    && maxCostMicrosUsdPerAssessment > dailyBudgetMicrosUsd
   ) {
     throw new OpenRouterError('OPENROUTER_BUDGET_EXCEEDED');
   }
@@ -227,8 +259,11 @@ export function parseOpenRouterConfig(
     timeoutMs,
     maxAttempts,
     maxOutputTokens,
-    maxCostUsdPerReport,
-    dailyBudgetUsd,
+    maxCostMicrosUsdPerAudienceReport,
+    maxCostMicrosUsdPerAssessment,
+    dailyBudgetMicrosUsd,
+    budgetWarningPercent: BUDGET_WARNING_PERCENT,
+    budgetHardStopPercent: BUDGET_HARD_STOP_PERCENT,
     apiKeyConfigured: apiKey !== null,
   });
 
@@ -242,8 +277,11 @@ export function parseOpenRouterConfig(
     timeoutMs,
     maxAttempts,
     maxOutputTokens,
-    maxCostUsdPerReport,
-    dailyBudgetUsd,
+    maxCostMicrosUsdPerAudienceReport,
+    maxCostMicrosUsdPerAssessment,
+    dailyBudgetMicrosUsd,
+    budgetWarningPercent: BUDGET_WARNING_PERCENT,
+    budgetHardStopPercent: BUDGET_HARD_STOP_PERCENT,
     redacted,
   });
 }

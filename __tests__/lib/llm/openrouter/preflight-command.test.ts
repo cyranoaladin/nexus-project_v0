@@ -1,7 +1,16 @@
 /** @jest-environment node */
 
 import { execFile } from 'node:child_process';
-import { mkdtempSync, readFileSync, readdirSync, rmSync, statSync } from 'node:fs';
+import {
+  chmodSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  readdirSync,
+  rmSync,
+  statSync,
+  writeFileSync,
+} from 'node:fs';
 import { createServer } from 'node:http';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
@@ -15,6 +24,14 @@ const execFileAsync = promisify(execFile);
 describe('private OpenRouter preflight command', () => {
   it('uses only synthetic data and writes redacted evidence with private permissions', async () => {
     const home = mkdtempSync(join(tmpdir(), 'nexus-openrouter-preflight-'));
+    chmodSync(home, 0o700);
+    const secretDirectory = join(home, '.config', 'nexus-secrets');
+    mkdirSync(secretDirectory, { recursive: true, mode: 0o700 });
+    chmodSync(join(home, '.config'), 0o700);
+    chmodSync(secretDirectory, 0o700);
+    const keyPath = join(secretDirectory, 'openrouter-api-key');
+    writeFileSync(keyPath, 'synthetic-preflight-key\n', { mode: 0o600 });
+    chmodSync(keyPath, 0o600);
     const requests: OpenRouterRequestBody[] = [];
     const server = createServer(async (request, response) => {
       if (request.method === 'GET' && request.url === '/api/v1/models') {
@@ -72,7 +89,6 @@ describe('private OpenRouter preflight command', () => {
             HOME: home,
             NODE_ENV: 'test',
             BILAN_REPORT_GENERATION_MODE: 'OPENROUTER_REQUIRED',
-            OPENROUTER_API_KEY: 'synthetic-preflight-key',
             OPENROUTER_BASE_URL:
               `http://127.0.0.1:${address.port}/api/v1`,
             BILAN_OPENROUTER_PRIMARY_MODEL: 'anthropic/claude-sonnet-5',
@@ -81,16 +97,18 @@ describe('private OpenRouter preflight command', () => {
             BILAN_OPENROUTER_MODEL_POLICY_VERSION:
               'bilan-model-policy-v1.1',
             BILAN_OPENROUTER_TIMEOUT_MS: '2000',
-            BILAN_OPENROUTER_MAX_ATTEMPTS: '1',
-            BILAN_OPENROUTER_MAX_OUTPUT_TOKENS: '256',
-            BILAN_OPENROUTER_MAX_COST_USD_PER_REPORT: '0.50',
-            BILAN_OPENROUTER_DAILY_BUDGET_USD: '25',
+            BILAN_OPENROUTER_MAX_ATTEMPTS: '3',
+            BILAN_OPENROUTER_MAX_OUTPUT_TOKENS: '2048',
+            BILAN_OPENROUTER_MAX_COST_USD_PER_REPORT: '0.30',
+            BILAN_OPENROUTER_MAX_COST_USD_PER_ASSESSMENT: '0.75',
+            BILAN_OPENROUTER_DAILY_BUDGET_USD: '15.00',
           },
         },
       );
 
       expect(stderr).toBe('');
-      expect(stdout).toContain('OpenRouter synthetic preflight passed.');
+      expect(stdout).toContain('OpenRouter synthetic preflight passed;');
+      expect(stdout).toContain('privacy evidence remains owner-required');
       expect(stdout).not.toContain('synthetic-preflight-key');
       expect(requests.map(({ model }) => model)).toEqual([
         'anthropic/claude-sonnet-5',
@@ -98,6 +116,7 @@ describe('private OpenRouter preflight command', () => {
       ]);
       for (const body of requests) {
         expect(body.reasoning).toEqual({ effort: 'low', exclude: true });
+        expect(body).not.toHaveProperty('usage');
         expect(body).not.toHaveProperty('temperature');
         expect(body).not.toHaveProperty('top_p');
         expect(body).not.toHaveProperty('seed');
@@ -118,6 +137,23 @@ describe('private OpenRouter preflight command', () => {
         dataSubjectCount: 0,
         configuration: {
           apiKeyConfigured: true,
+          maxCostMicrosUsdPerAudienceReport: 300_000,
+          maxCostMicrosUsdPerAssessment: 750_000,
+          dailyBudgetMicrosUsd: 15_000_000,
+        },
+        proof: {
+          preflightSoftwareSha: expect.stringMatching(/^[a-f0-9]{40}$/),
+          proofChecksum: expect.stringMatching(/^[a-f0-9]{64}$/),
+          apiKeyFingerprint: expect.stringMatching(/^[a-f0-9]{64}$/),
+        },
+        catalog: {
+          responseBytes: expect.any(Number),
+          maximumResponseBytes: 32 * 1024 * 1024,
+        },
+        privacyConfiguration: {
+          promptLoggingDisabled: 'OWNER_EVIDENCE_REQUIRED',
+          completionLoggingDisabled: 'OWNER_EVIDENCE_REQUIRED',
+          dataTrainingOptIn: 'OWNER_EVIDENCE_REQUIRED',
         },
       });
       expect(JSON.stringify(report)).not.toContain('synthetic-preflight-key');
