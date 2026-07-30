@@ -5,7 +5,6 @@ export const BILAN_FEATURE_FLAG_NAMES = [
   'BILAN_MATHS_TERMINALE_PILOT_ENABLED',
   'BILAN_PROVISIONAL_RESULTS_ENABLED',
   'BILAN_TEAM_REALTIME_ENABLED',
-  'BILAN_LLM_ENRICHMENT_ENABLED',
 ] as const;
 
 export type BilanFeatureFlagName = (typeof BILAN_FEATURE_FLAG_NAMES)[number];
@@ -19,7 +18,6 @@ export type BilanFeatureFlags = Readonly<{
   mathsTerminalePilotEnabled: boolean;
   provisionalResultsEnabled: boolean;
   teamRealtimeEnabled: boolean;
-  llmEnrichmentEnabled: boolean;
 }>;
 
 function isEnabled(value: string | undefined): boolean {
@@ -34,6 +32,5 @@ export function getBilanFeatureFlags(
     mathsTerminalePilotEnabled: isEnabled(environment.BILAN_MATHS_TERMINALE_PILOT_ENABLED),
     provisionalResultsEnabled: isEnabled(environment.BILAN_PROVISIONAL_RESULTS_ENABLED),
     teamRealtimeEnabled: isEnabled(environment.BILAN_TEAM_REALTIME_ENABLED),
-    llmEnrichmentEnabled: isEnabled(environment.BILAN_LLM_ENRICHMENT_ENABLED),
   };
 }
