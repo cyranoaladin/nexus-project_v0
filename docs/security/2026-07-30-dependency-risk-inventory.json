@@ -51,22 +51,19 @@
         "node_modules/brace-expansion"
       ],
       "roots": [
-        "eslint@8.57.1",
-        "eslint-config-next@15.5.20",
-        "jest@29.7.0",
-        "@cyclonedx/cyclonedx-npm@6.0.0"
+        "eslint@10.8.0",
+        "jest@30.4.2",
+        "typescript-eslint@8.65.0"
       ],
-      "compatibilityAdapters": [
-        "minimatch@3.1.5",
-        "minimatch@9.0.9"
-      ],
-      "remediationCommit": "70d2be3b6f51f91231d257f65682587e5c154eb2",
+      "compatibilityAdapters": [],
+      "minimumMinimatchMajor": 10,
+      "postinstallDependencyPatchCount": 0,
       "verificationScript": "npm run security:brace-expansion"
     }
   ],
   "runtimeEvidence": {
-    "sbomFormat": "CycloneDX 1.6",
-    "componentCount": 523,
+    "sbomFormat": "CycloneDX 1.5",
+    "componentCount": 513,
     "mathliveVersion": "0.110.0",
     "braceExpansionPresent": false,
     "eslintPresent": false,
@@ -92,6 +89,12 @@
       "high": 27,
       "retained": false,
       "reason": "Audit remains red and the current validated CycloneDX 1.6 augmentation would be lost"
+    },
+    {
+      "change": "ESLint 10 flat config + Jest 30 + npm SBOM + glob/test-exclude maintained parents",
+      "high": 0,
+      "retained": true,
+      "reason": "Native graph contains only minimatch 10 and brace-expansion 5.0.8 without postinstall mutation"
     }
   ]
 }

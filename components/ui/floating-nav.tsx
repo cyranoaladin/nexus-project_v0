@@ -2,6 +2,7 @@
 
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { Brain, Crown, Rocket } from 'lucide-react';
+import Link from 'next/link';
 import { Button } from './button';
 
 interface FloatingNavProps {
@@ -19,18 +20,6 @@ export function FloatingNav({ className = "" }: FloatingNavProps) {
   const opacity = useTransform(scrollYProgress, [0, 0.1, 0.9, 1], [0, 1, 1, 0]);
   const y = useTransform(scrollYProgress, [0, 0.1], [20, 0]);
 
-  const handleClick = (href: string) => {
-    if (!href.startsWith('#')) {
-      window.location.href = href;
-      return;
-    }
-
-    const element = document.querySelector(href);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
   return (
     <motion.div
       className={`fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50 ${className}`}
@@ -42,13 +31,15 @@ export function FloatingNav({ className = "" }: FloatingNavProps) {
           {navItems.map((item) => (
             <Button
               key={item.href}
+              asChild
               variant="ghost"
               size="sm"
-              onClick={() => handleClick(item.href)}
               className="rounded-full px-4 py-2 hover:bg-gradient-to-r hover:from-white hover:to-gray-50 transition-all duration-200"
             >
-              <item.icon className="w-4 h-4 mr-2" />
-              <span className="text-sm font-medium">{item.label}</span>
+              <Link href={item.href}>
+                <item.icon className="w-4 h-4 mr-2" />
+                <span className="text-sm font-medium">{item.label}</span>
+              </Link>
             </Button>
           ))}
         </div>
