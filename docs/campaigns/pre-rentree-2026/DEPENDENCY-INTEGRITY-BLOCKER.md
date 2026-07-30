@@ -1,5 +1,16 @@
 # Qualification Dependency Integrity — Pré-rentrée 2026
 
+## Statut au 30 juillet 2026
+
+`SUPERSEDED_BY_DEPENDENCY_FIX`
+
+Le blocage décrit ci-dessous est conservé comme trace historique. Le commit
+`70d2be3b6f51f91231d257f65682587e5c154eb2` force toutes les chaînes vers la
+version officielle corrigée `brace-expansion@5.0.8`, avec un adaptateur
+fail-closed testé pour les API historiques de `minimatch`. Les audits npm
+complet et runtime sont désormais à zéro vulnérabilité. Aucune exception
+propriétaire ou liée au SHA n'est requise.
+
 ## Date
 
 2026-07-26, Africa/Tunis.
@@ -101,8 +112,10 @@ rapports et n'accepte l'advisory de développement que si l'entrée privée
 schema-validée satisfait tous les contrôles. Sans cette entrée exacte, le job
 échoue.
 
-## Condition de reprise
+## Condition de reprise historique — satisfaite
 
 L'issue GitHub `#83` suit la suppression des deux lignées historiques.
-L'exception, si elle est activée par le propriétaire, expire automatiquement
-et doit être retirée dès publication d'un arbre officiel corrigé.
+Le critère est satisfait par l'unification testée sur `5.0.8`. Toute
+réapparition d'une version inférieure doit faire échouer
+`npm run security:brace-expansion` et les contrôles npm audit. L'ancienne
+exception ne doit pas être activée.

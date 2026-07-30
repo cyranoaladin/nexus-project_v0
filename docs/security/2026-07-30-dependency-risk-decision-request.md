@@ -1,13 +1,33 @@
-# Demande de décision — risque d'outillage npm résiduel
+# Archive de demande de décision — risque d'outillage npm résiduel
 
 ## Statut
 
-`OWNER_DECISION_REQUIRED`
+`SUPERSEDED_BY_DEPENDENCY_FIX`
 
-Ce document prépare une décision ; il ne constitue ni une approbation, ni une
-signature, ni une acceptation de risque.
+La demande a été rendue sans objet par le commit
+`70d2be3b6f51f91231d257f65682587e5c154eb2`. Toutes les chaînes concernées
+résolvent désormais vers `brace-expansion@5.0.8`, l'audit npm complet est à
+zéro vulnérabilité et aucune exception liée au SHA n'est nécessaire.
 
-## Risque soumis
+Ce document reste suivi uniquement pour préserver l'historique exact. Il ne
+doit pas être complété, signé, injecté dans un secret GitHub ou utilisé pour
+qualifier une nouvelle tête.
+
+## Résolution appliquée
+
+- override npm ciblé vers la version officielle corrigée `5.0.8` ;
+- adaptateur d'installation fail-closed pour les consommateurs historiques
+  `minimatch@3.1.5` et `minimatch@9.0.9` ;
+- vérification de l'API CommonJS/ESM de `minimatch` ;
+- vérification du plafond mémoire officiel
+  `EXPANSION_MAX_LENGTH=4_000_000` ;
+- `BRACE_EXPANSION_VULNERABLE_VERSION_COUNT=0` ;
+- audit npm complet et runtime : zéro vulnérabilité.
+
+Le rapport technique actif est
+`docs/security/2026-07-30-dependency-risk-report.md`.
+
+## Archive historique — risque initialement soumis
 
 - avis : `GHSA-mh99-v99m-4gvg` ;
 - package : `brace-expansion <=5.0.7` ;
@@ -22,13 +42,13 @@ signature, ni une acceptation de risque.
 Les détails et expériences figurent dans
 `docs/security/2026-07-30-dependency-risk-report.md`.
 
-## Durée proposée
+## Archive historique — durée proposée
 
 Maximum quatorze jours à partir de l'approbation, sans dépasser
 `2026-08-13T23:59:59+01:00` pour une décision prise le 30 juillet, ni la borne
 absolue de politique `2026-08-31T23:59:59+01:00`.
 
-## SHA auquel lier la décision
+## Archive historique — SHA auquel la décision aurait été liée
 
 La décision doit être liée au **SHA de tête final et poussé** de
 `fix/bilan-foundation-readiness-20260730`.
@@ -44,7 +64,7 @@ git rev-parse HEAD
 dans la draft PR et dans le rapport final. Aucune modification de code ne doit
 suivre l'approbation ; sinon `BOUND_SHA_CHANGED` doit révoquer la décision.
 
-## Champs que le propriétaire doit fournir
+## Archive historique — champs qui auraient été requis
 
 - `ownerName` réel ;
 - `securityApproverName` réel ;
@@ -57,7 +77,7 @@ suivre l'approbation ; sinon `BOUND_SHA_CHANGED` doit révoquer la décision.
 
 L'agent ne renseigne aucun de ces champs.
 
-## Modèle non valide tant qu'il contient des placeholders
+## Archive historique — modèle jamais approuvé
 
 ```json
 {
@@ -122,13 +142,7 @@ dans ce lot.
 
 ## Action exacte requise
 
-1. vérifier le SHA final publié dans la draft PR ;
-2. vérifier les artefacts des jobs Dependency Integrity et Security Scan ;
-3. compléter et signer le JSON ;
-4. remplacer, par une action propriétaire, le secret
-   `PRE_RENTREE_DEV_TOOLING_EXCEPTION_JSON` ;
-5. relancer les jobs sans modifier le code ;
-6. supprimer l'exception dès satisfaction de l'issue #83 ou à l'expiration.
-
-Sans ces six actions, le verdict CI reste rouge et aucune fusion ne doit être
-présentée comme approuvée.
+Aucune approbation de risque et aucune modification de secret ne sont requises
+ou acceptées pour la tête corrigée. Les jobs doivent qualifier directement le
+graphe de dépendances corrigé. Toute réapparition d'une version
+`brace-expansion <=5.0.7` doit faire échouer la CI.
