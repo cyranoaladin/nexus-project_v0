@@ -61,9 +61,11 @@ affichée ; elle ne peut pas être promue implicitement.
 ## Bilan et LLM
 
 Le template `canonical-bilan-template-v1` produit un JSON déterministe par
-audience à partir d'un snapshot final. `BILAN_LLM_ENRICHMENT_ENABLED` reste
-faux et n'est pas consommé par le chemin critique. Un futur enrichissement ne
-pourra ni scorer, ni inventer une compétence, ni approuver, ni publier.
+audience à partir d'un snapshot final. `BILAN_REPORT_GENERATION_MODE` reste
+`DISABLED` tant que le transport OpenRouter, le worker et la revue ne sont pas
+livrés et qualifiés. Il n'est pas consommé par le chemin critique de ce lot.
+Une future narration ne pourra ni scorer, ni inventer une compétence, ni
+approuver, ni publier.
 
 ## Historique et rollback
 

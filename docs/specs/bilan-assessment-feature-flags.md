@@ -10,7 +10,11 @@ par défaut. Seules les chaînes `1` et `true` activent un flag.
 | `BILAN_MATHS_TERMINALE_PILOT_ENABLED` | faux | prépare un futur ciblage pilote | affecter un module non `PUBLICATION_APPROVED` |
 | `BILAN_PROVISIONAL_RESULTS_ENABLED` | faux | autorise un snapshot explicitement provisoire | score/calibrage/bilan final sans correction |
 | `BILAN_TEAM_REALTIME_ENABLED` | faux | réservé au temps réel équipe | remplacer PostgreSQL/outbox ou le contrôle d'accès |
-| `BILAN_LLM_ENRICHMENT_ENABLED` | faux | hors chemin critique v1 | scorer, calibrer, approuver ou publier |
+
+La génération narrative n'est plus un booléen. Elle utilise la configuration
+serveur typée `BILAN_REPORT_GENERATION_MODE=DISABLED|OPENROUTER_REQUIRED`.
+L'ancienne variable `BILAN_LLM_ENRICHMENT_ENABLED`, même définie à `false`,
+est refusée afin d'éviter deux sources de configuration concurrentes.
 
 ## Règles
 
