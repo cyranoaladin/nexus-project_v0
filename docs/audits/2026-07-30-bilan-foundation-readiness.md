@@ -16,7 +16,9 @@
 - PR #87 : ouverte, draft, mergeable, état GitHub `UNSTABLE` ;
 - run CI audité : `30501190087` ;
 - contrôle documentaire externe : run `30501190086`, vert ;
-- règles de protection : non exposées par l'API GitHub, réponse 404.
+- protection classique : API GitHub 404, donc non configurée ;
+- ruleset actif : `main-protection` (`12801316`), sans bypass, mais contrôle
+  initial incomplet : quatre checks requis et zéro revue obligatoire.
 
 L'audit a été réalisé avant toute écriture. Le SHA distant ne divergeait pas du
 SHA annoncé.
@@ -33,11 +35,11 @@ SHA annoncé.
 | Lint | vert | avertissements historiques sous le seuil | oui | vérifier après mise à jour |
 | Typecheck | vert | aucune erreur | oui | vérifier après mise à jour |
 | Documents | vert | contrôles interne et externe réussis | oui | ajouter les rapports factuels |
-| Dependency Integrity | rouge | audit complet + `BOUND_SHA_MISMATCH` | partiellement | corriger le runtime ; préparer la décision propriétaire résiduelle |
-| Security Scan | rouge | même mismatch après Semgrep et OSV | partiellement | conserver les scans ; décision humaine bornée |
+| Dependency Integrity | rouge | audit complet + `BOUND_SHA_MISMATCH` | oui | supprimer toutes les lignées vulnérables sans exception |
+| Security Scan | rouge | même mismatch après Semgrep et OSV | oui | conserver les scans et qualifier directement l'arbre corrigé |
 | CodeQL | vert | trois analyses réussies | non requis | surveiller le nouveau SHA |
 | GitGuardian | vert | aucun secret détecté | non requis | surveiller le nouveau SHA |
-| CI Success | rouge | agrégation des deux jobs rouges | indirectement | ne pas déclarer la CI verte sans décision propriétaire |
+| CI Success | rouge | agrégation des deux jobs rouges | indirectement | requalifier la nouvelle tête sans exception |
 
 ## Réparations contrôlables par le code
 
@@ -78,35 +80,38 @@ Résultat :
 - test MathInput : 1 sur 1 ;
 - typecheck, lint et build : verts.
 
-### Risque d'outillage résiduel
+### Risque d'outillage supprimé
 
-L'audit complet conserve 36 entrées high, zéro critical. Toutes propagent le
-même avis `GHSA-mh99-v99m-4gvg` sur `brace-expansion` via ESLint, Jest et le
-générateur CycloneDX. Ces dépendances :
+Les trois chaînes initiales `brace-expansion@1.1.16`, `2.1.2` et `5.0.8`
+résolvent désormais vers la seule version officielle corrigée `5.0.8`.
 
-- sont exclusivement de développement ;
-- sont absentes de l'audit `--omit=dev` ;
-- sont absentes du SBOM runtime ;
-- sont absentes du standalone ;
-- ne traitent aucune entrée HTTP publique.
+La compatibilité des consommateurs historiques `minimatch@3.1.5` et
+`minimatch@9.0.9` est assurée par un adaptateur d'installation fail-closed,
+borné à ces versions et à leurs sources attendues. Le test vérifie les API
+CommonJS/ESM et le plafond mémoire officiel.
 
-Le risque n'est pas déclaré inexploitable. La demande non signée se trouve
-dans
-`docs/security/2026-07-30-dependency-risk-decision-request.md`.
-Le SHA exact doit être ajouté à la draft PR après le dernier commit, puis lié
-par le propriétaire à une exception de quatorze jours maximum. Aucun nom,
-secret ou accord n'a été fabriqué.
+Résultats :
+
+- `BRACE_EXPANSION_VULNERABLE_VERSION_COUNT=0` ;
+- audit complet : zéro vulnérabilité ;
+- audit runtime : zéro vulnérabilité ;
+- SBOM complet : 1 235 composants, uniquement `brace-expansion@5.0.8` ;
+- SBOM runtime : 523 composants, aucun `brace-expansion` ;
+- demande d'exception :
+  `SUPERSEDED_BY_DEPENDENCY_FIX`.
+
+Aucune décision propriétaire et aucun secret SHA-bound ne sont requis.
 
 ## Résultats locaux de sortie
 
 | Contrôle | Résultat | Compteur ou preuve |
 |---|---|---|
-| installation | vert | 1 273 paquets |
-| tests unitaires globaux | vert | 613 suites réussies, 1 ignorée ; 7 559 tests réussis, 4 ignorés |
+| installation | vert | 1 269 paquets installés, 1 270 audités |
+| tests unitaires globaux | vert | 614 suites réussies, 1 ignorée ; 7 562 tests réussis, 4 ignorés |
 | tests sécurité bilans ciblés | vert | 8 suites, 195 tests |
 | tests DB globaux | vert | 13 suites, 176 tests |
 | intégration réelle | vert | 14 suites, 149 tests |
-| Playwright standalone | vert | 169 tests |
+| Playwright standalone complet | vert | 227 tests |
 | corpus TypeScript | vert | 53 suites, 404 tests |
 | corpus Python | vert | 265 réussis, 2 ignorés |
 | corpus canonique | vert | tous les compteurs et le hash attendus |
@@ -116,12 +121,12 @@ secret ou accord n'a été fabriqué.
 | Prisma | vert | validate et generate |
 | sécurité dépôt | vert | aucun secret ou artefact public interdit |
 | audit production | vert | zéro vulnérabilité |
-| audit complet | décision humaine | 36 high d'outillage, zéro critical |
+| audit complet | vert | zéro vulnérabilité |
 
-Le passage de 7 558 à 7 559 tests unitaires correspond au nouveau test
-MathInput. Le passage des 257 tests Python annoncés précédemment à 265
-correspond à l'état réellement présent au SHA audité ; aucun test n'a été
-supprimé ou neutralisé.
+Le passage de 7 558 à 7 562 tests unitaires inclut le test MathInput et les
+contrôles de remédiation `brace-expansion`. Le passage des 257 tests Python
+annoncés précédemment à 265 correspond à l'état réellement présent au SHA
+audité ; aucun test n'a été supprimé ou neutralisé.
 
 ### Complément : suite Playwright complète
 
@@ -146,7 +151,11 @@ l'allowlist et la fermeture de la navigation permanente.
 Résultat terminal :
 
 `npx playwright test --config=playwright.config.ts --project=chromium --reporter=line`
-— **228/228 tests réussis en 5 min 46 s**.
+— **227/227 tests réussis en 5,8 min**.
+
+Aucun fichier `e2e/` n'a changé depuis la tête initiale #88. Le delta de un
+avec l'ancienne mesure de 228 provient de la découverte courante de la suite,
+pas d'une suppression ou neutralisation dans ce lot.
 
 Le corpus conserve :
 
@@ -186,9 +195,8 @@ Physique-Chimie Seconde n'est créé ou référencé.
 
 | Priorité | Élément | Responsable attendu | Dépendance | Critère d'acceptation |
 |---|---|---|---|---|
-| P0 | décision temporaire `brace-expansion` | propriétaire sécurité/technique | SHA final poussé et preuves CI | décision réelle signée, liée au SHA, expirant sous 14 jours |
-| P0 | remplacement de l'exception | propriétaire GitHub | décision précédente | secret mis à jour par le propriétaire, jobs relancés sans changement de code |
-| P0 | suppression définitive de l'exception | maintenance outillage | correctifs upstream ou remplacement testé | audit complet à zéro high/critical, lint/Jest/SBOM/build verts |
+| P0 | protection `main` incomplète | propriétaire technique GitHub | mise à jour du ruleset sans bypass | checks sécurité/DB/E2E/docs requis et une revue humaine |
+| P0 | requalification distante | intégrateur | tête #88 poussée | Dependency Integrity, Security Scan, CodeQL, GitGuardian et CI Success verts |
 | P0 production | validation pédagogique des 17 modules | responsable pédagogique et enseignants disciplinaires | paquets de revue liés aux hashes | approbations nominatives et hashes inchangés |
 | P0 production | configuration Redis/SMTP et migrations | équipe d'exploitation | secrets réels et fenêtre autorisée | smoke tests internes réussis, flags toujours désactivés avant décision |
 
@@ -202,7 +210,7 @@ preuve sont locaux et jetables.
 
 ## Verdict technique
 
-Les défauts contrôlables par le code sont réparés et toutes les gates locales
-obligatoires passent. La branche ne doit toutefois pas être présentée comme
-fusionnable tant que la décision humaine bornée n'a pas rendu
-`Dependency Integrity`, `Security Scan` et par conséquent `CI Success` verts.
+Les défauts contrôlables par le code sont réparés et les gates locales
+obligatoires passent sans exception. Le verdict de fusion reste conditionné à
+la requalification distante de la tête poussée et au durcissement vérifiable
+du ruleset `main`.

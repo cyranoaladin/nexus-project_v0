@@ -9,7 +9,7 @@ Audit exécuté le 2026-07-30 depuis
 Les preuves machine-readable sont synthétisées dans
 `docs/security/2026-07-30-dependency-risk-inventory.json`. Les runs CI
 archivent en plus les sorties brutes `npm-audit-production.json`,
-`npm-audit-full.json` et le SBOM CycloneDX.
+`npm-audit-full.json` et les SBOM CycloneDX complet et runtime.
 
 ## Résultat
 
@@ -17,10 +17,10 @@ archivent en plus les sorties brutes `npm-audit-production.json`,
 |---|---:|---:|---|
 | production, moderate+ | 1 moderate | 0 | corrigé |
 | production, high/critical | 0 | 0 | vert |
-| arbre complet | 1 moderate + 36 high | 36 high | décision propriétaire requise |
+| arbre complet | 1 moderate + 36 high | 0 | corrigé sans exception |
 
-Les 36 entrées hautes ne représentent pas 36 avis indépendants. Elles
-propagent toutes `GHSA-mh99-v99m-4gvg` dans le graphe d'outillage.
+Les 36 entrées hautes initiales ne représentaient pas 36 avis indépendants.
+Elles propageaient toutes `GHSA-mh99-v99m-4gvg` dans le graphe d'outillage.
 
 ## Risque corrigé : MathLive
 
@@ -48,96 +48,88 @@ Validations :
 - audit production au seuil moderate ;
 - SBOM runtime : `mathlive@0.110.0`.
 
-## Risque résiduel : brace-expansion
+## Risque corrigé : brace-expansion
 
 Avis : `GHSA-mh99-v99m-4gvg`, CVSS 7.5, déni de service par expansion non
 bornée pouvant épuiser la mémoire.
 
-Versions vulnérables présentes :
+Versions vulnérables initiales :
 
 - `1.1.16` via ESLint, plugins ESLint et outils Jest ;
 - `2.1.2` via CycloneDX → node-gyp → cacache → glob → minimatch.
 
-Chemins exacts attendus par le validateur :
+Version finale unique :
 
 ```text
-node_modules/brace-expansion
-node_modules/cacache/node_modules/brace-expansion
+brace-expansion@5.0.8
 ```
 
-Le `5.0.8` présent sous TypeScript-ESLint est corrigé et n'est pas couvert par
-l'exception.
+La version `5.0.8` est la version officielle corrigée. Elle ajoute une limite
+explicite de longueur (`EXPANSION_MAX_LENGTH=4_000_000`) et expose une API
+nommée. Les consommateurs modernes `minimatch@10` utilisent directement cette
+API.
 
-### Atteignabilité
+Les consommateurs historiques ont été traités sans abaisser le contrôle :
 
-Les deux versions vulnérables sont des dépendances de développement. Elles
-traitent des motifs ou arbres issus du dépôt et de la CI, pas une entrée HTTP
-publique. Elles sont absentes :
+- `minimatch@3.1.5` attendait un export CommonJS appelable ;
+- `minimatch@9.0.9` attendait un export ESM par défaut ;
+- un adaptateur d'installation déterministe traduit uniquement ces deux
+  versions connues vers l'export nommé `expand` ;
+- tout autre consommateur historique, contenu source inattendu ou absence de
+  fichier fait échouer l'installation.
 
-- de l'audit `--omit=dev` ;
-- du SBOM runtime CycloneDX 1.6 de 523 composants ;
-- des répertoires `node_modules` du standalone ;
-- du chemin critique de l'application.
+Le script `npm run security:brace-expansion` vérifie après installation :
 
-Le risque résiduel est une indisponibilité du job de lint, test ou SBOM à la
-suite d'un motif malveillant introduit dans une modification du dépôt. Il
-n'est pas déclaré inexploitable.
+- toutes les versions du lockfile sont `>=5.0.8` ;
+- le plafond officiel est présent ;
+- les API CommonJS et ESM de `minimatch` fonctionnent ;
+- le graphe ne contient aucune lignée vulnérable.
 
-## Expériences officielles du 30 juillet
+Résultat :
+
+```text
+BRACE_EXPANSION_VULNERABLE_VERSION_COUNT=0
+BRACE_EXPANSION_5_0_8_OR_HIGHER_COUNT=1
+```
+
+## Expériences de dépendances parentes
 
 Une copie temporaire du manifeste et du lockfile a testé les versions publiées
-à la date du lot :
+le 30 juillet :
 
 | Expérience cumulative | High | Décision |
 |---|---:|---|
-| arbre retenu | 36 | baseline |
-| ESLint 9.39.5 + eslint-config-next 15.5.22 | 33 | non retenu |
-| + Jest 30.4.2 / jsdom 30.4.1 / ts-jest 29.4.12 | 33 | non retenu |
-| + remplacement du CLI CycloneDX | 27 | non retenu |
+| arbre initial | 36 | baseline |
+| ESLint 9.39.5 + eslint-config-next 15.5.22 | 33 | insuffisant |
+| + Jest 30.4.2 / jsdom 30.4.1 / ts-jest 29.4.12 | 33 | insuffisant |
+| + remplacement du CLI CycloneDX | 27 | insuffisant |
 
-L'écart avec l'expérience du 26 juillet, qui indiquait 26, provient de la
-résolution courante du registre et est explicitement conservé : les nombres
-sont des mesures, pas des constantes à falsifier.
+ESLint 9 conserve `minimatch@3`, CycloneDX 6 est la version courante et
+TypeScript-ESLint était déjà sur la lignée corrigée. Un override npm ciblé
+vers `5.0.8` a donc été retenu avec la couche de compatibilité bornée
+ci-dessus. Aucun fork, aucun `npm audit fix`, aucun `--force` et aucune
+exception ne sont appliqués.
 
-Ces migrations ne rendent pas la gate verte. Jest 30 ne réduit plus le nombre
-d'entrées après ESLint 9. Le retrait de CycloneDX supprimerait le générateur
-1.6 validé et son augmentation contrôlée pour les dépendances optionnelles,
-sans éliminer l'avis. ESLint 10 est exclu par le peer range de
-`eslint-config-next@15` et nécessite la migration vers la configuration plate.
+## Preuves de sortie
 
-Aucun override majeur de `brace-expansion`, aucun fork et aucun
-`npm audit fix --force` ne sont appliqués.
+- `npm ci` exécute l'adaptateur et échoue si sa précondition n'est pas
+  satisfaite ;
+- `npm audit --json` : zéro vulnérabilité ;
+- `npm audit --omit=dev --json` : zéro vulnérabilité ;
+- test de régression du graphe et du plafond mémoire ;
+- lint, typecheck et tests des consommateurs exécutés sur l'arbre corrigé ;
+- SBOM complet et runtime régénérés par les gates de sortie.
 
-## Mesures compensatoires exigées
+## Gouvernance de l'ancienne exception
 
-- archivage du raw audit ;
-- audit production sans high/critical, désormais sans moderate ;
-- SBOM runtime validé ;
-- standalone vérifié sans `brace-expansion` ;
-- aucun secret de production dans le job CI ;
-- entrée privée liée au SHA exact ;
-- expiration maximale de quatorze jours ;
-- révocation sur changement d'arbre, de SHA, d'avis, de présence runtime, de
-  sévérité critique, d'atteignabilité publique ou de contrôle.
-
-## Plan de suppression
-
-Priorité P0 sécurité outillage, suivi par l'issue GitHub #83.
-
-Critère d'acceptation :
-
-1. une version officielle de chaque lignée dépendante résout vers
-   `brace-expansion >=5.0.8`, ou les outils concernés sont remplacés sans perte
-   de contrôle ;
-2. `npm audit --audit-level=high` retourne zéro ;
-3. lint, Jest, SBOM et build passent ;
-4. le secret d'exception est supprimé.
-
-Responsable attendu : propriétaire sécurité/technique Nexus Réussite.
+La demande historique
+`docs/security/2026-07-30-dependency-risk-decision-request.md` porte le statut
+`SUPERSEDED_BY_DEPENDENCY_FIX`. Elle ne doit pas être signée ni injectée dans
+un secret. Les workflows qualifient directement l'audit à zéro ; une
+réapparition de la vulnérabilité est bloquante.
 
 ## Verdict
 
-La vulnérabilité de production est corrigée. Le risque restant est absent du
-runtime mais exige une décision humaine explicite et temporaire ; le code seul
-ne peut pas produire une CI complètement verte tant que cette décision n'est
-pas fournie.
+Les vulnérabilités de production et d'outillage sont corrigées. Le dépôt ne
+dépend plus d'une exception de risque. Le verdict distant reste conditionné
+aux exécutions CI, Security Scan, CodeQL et GitGuardian de la tête poussée.
