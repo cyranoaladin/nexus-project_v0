@@ -9,7 +9,7 @@
 - valeur de configuration :
   `bilan-model-policy-v1.1`
 - SHA-256 canonique :
-  `669e194f9cedfdd3131c00652447f0b53ea265babf78b92fa077945278cf0eb9`
+  `4f8633be4e26949ebdec408f3ce1fe9ef0f4ee094d2e63fb6145caa488c3c1a7`
 
 Le checksum est calculé sur le JSON canonique (clés triées, sans espace).
 
@@ -22,6 +22,17 @@ Le checksum est calculé sur le JSON canonique (clés triées, sans espace).
 
 Tout autre slug, `openrouter/auto` et tout suffixe `latest` sont refusés.
 Le fallback est une requête Nexus distincte, jamais un tableau `models`.
+
+## Plan de tentatives
+
+La politique inclut `bilan-retry-policy-v1` :
+
+1. `anthropic/claude-sonnet-5` ;
+2. `openai/gpt-5.6-terra` ;
+3. `openai/gpt-5.6-terra`.
+
+Le maximum est exactement trois. Toute modification du tableau modifie le
+checksum de politique et invalide les preuves existantes.
 
 ## Paramètres
 
@@ -56,6 +67,10 @@ Pour chaque modèle, `OpenRouterModelCapabilitySnapshot` conserve :
 
 Le preflight bloque si le slug canonique change, si une capacité obligatoire
 disparaît, si reasoning `low` n'est pas accepté ou si le checksum est invalide.
+La preuve est aussi liée au checksum du catalogue, à une empreinte HMAC non
+réversible de la clé, au SHA Git exact du logiciel et à une expiration maximale
+de 24 heures. Un snapshot de plus de cinq minutes au moment de la vérification
+ne peut pas être reconditionné en preuve fraîche.
 
 Le baseline
 `content/bilans/model-policies/openrouter-capability-baseline-v1.1.json` est

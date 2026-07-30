@@ -8,7 +8,8 @@ Il n'est jamais lancé automatiquement par la CI.
 
 ## Prérequis privés
 
-- clé OpenRouter Nexus dédiée ;
+- clé OpenRouter Nexus dédiée dans
+  `/home/alaeddine/.config/nexus-secrets/openrouter-api-key` ;
 - allowlist des deux modèles approuvés ;
 - ZDR et collecte fournisseur configurés selon la politique ;
 - budgets owner par bilan et par jour ;
@@ -21,19 +22,23 @@ dans une base, ni dans une preuve.
 
 ```text
 BILAN_REPORT_GENERATION_MODE=OPENROUTER_REQUIRED
-OPENROUTER_API_KEY=<secret privé>
 OPENROUTER_BASE_URL=https://openrouter.ai/api/v1
 BILAN_OPENROUTER_PRIMARY_MODEL=anthropic/claude-sonnet-5
 BILAN_OPENROUTER_FALLBACK_MODELS=["openai/gpt-5.6-terra"]
 BILAN_OPENROUTER_MODEL_POLICY_VERSION=bilan-model-policy-v1.1
 BILAN_OPENROUTER_TIMEOUT_MS=90000
 BILAN_OPENROUTER_MAX_ATTEMPTS=3
-BILAN_OPENROUTER_MAX_OUTPUT_TOKENS=<borne owner>
-BILAN_OPENROUTER_MAX_COST_USD_PER_REPORT=<borne owner>
-BILAN_OPENROUTER_DAILY_BUDGET_USD=<borne owner>
+BILAN_OPENROUTER_MAX_OUTPUT_TOKENS=2048
+BILAN_OPENROUTER_MAX_COST_USD_PER_REPORT=0.30
+BILAN_OPENROUTER_MAX_COST_USD_PER_ASSESSMENT=0.75
+BILAN_OPENROUTER_DAILY_BUDGET_USD=15.00
 ```
 
 Les budgets de production n'ont aucun fallback illimité.
+
+Le dossier de la clé doit être `0700`, le fichier régulier `0600`, appartenir
+à l'utilisateur local, ne pas être un lien symbolique et contenir exactement
+une ligne non vide. La clé n'est jamais passée dans les arguments de commande.
 
 ## Commandes
 
@@ -73,14 +78,25 @@ Le rapport expurgé est écrit sous :
 - répertoire : `0700` ;
 - fichier : `0600`.
 
-Il contient configuration expurgée, politique, snapshots et provenance.
+Il contient configuration expurgée, politique, preuve intègre, snapshots et
+provenance.
 Il ne contient ni clé, ni prompt brut métier, ni réponse brute, ni donnée
 élève.
 
-La preuve est admissible pendant 24 heures au maximum, avec cinq minutes de
-tolérance de dérive d'horloge. Il faut relancer le preflight avant activation
-si cette fenêtre est dépassée. Toute modification de politique ou de capacité
-requise invalide la preuve immédiatement.
+La preuve expire au plus 24 heures après sa vérification. Son checksum lie le
+catalogue, la politique, l'empreinte HMAC non réversible de la clé et le SHA Git
+exact du logiciel. Les snapshots ont cinq minutes au plus. Toute horloge future
+est refusée. Il faut relancer le preflight après changement de clé, logiciel,
+politique, slug ou capacité.
+
+Le catalogue live et une complétion n'ont pas la même limite : 32 MiB pour
+`/models`, 4 MiB pour une réponse de Chat Completions et 64 KiB pour une
+enveloppe d'erreur.
+
+Les réglages de compte `prompt logging`, `completion logging` et entraînement
+ne sont pas déduits du succès du transport. Si aucune API de compte vérifiable
+n'est disponible, la preuve porte explicitement `OWNER_EVIDENCE_REQUIRED`.
+L'activation reste bloquée jusqu'à une preuve privée nominative.
 
 ## Échecs
 

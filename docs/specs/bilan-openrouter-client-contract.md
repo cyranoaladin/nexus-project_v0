@@ -50,16 +50,14 @@ Le payload v1.1 est fermé :
     "data_collection": "deny",
     "zdr": true
   },
-  "stream": false,
-  "usage": {
-    "include": true
-  }
+  "stream": false
 }
 ```
 
 Le schéma réel doit avoir au moins un champ requis. `temperature`, `top_p`,
 `seed`, `tools`, `plugins`, `web_search`, `models` et `openrouter/auto` sont
-absents.
+absents. `usage.include`, désormais déprécié côté requête, est également
+absent. L'objet `usage` de la réponse reste obligatoire.
 
 ## Contrat synthétique C1
 
@@ -81,28 +79,32 @@ le transport et non la qualité d'un bilan.
 | `OPENROUTER_NOT_CONFIGURED` | mode ou clé absent | non |
 | `OPENROUTER_INVALID_CREDENTIALS` | HTTP 401 | non |
 | `OPENROUTER_INSUFFICIENT_CREDITS` | HTTP 402 | non |
-| `OPENROUTER_POLICY_REJECTED` | 400/403, modèle ou contrat incohérent | non |
+| `OPENROUTER_INVALID_REQUEST` | HTTP 400 ou enveloppe 200 équivalente | non |
+| `OPENROUTER_POLICY_REJECTED` | HTTP 403, modèle ou contrat incohérent | non |
 | `OPENROUTER_TIMEOUT` | 408 ou abort réseau | oui |
 | `OPENROUTER_RATE_LIMITED` | 429 | oui |
-| `OPENROUTER_PROVIDER_UNAVAILABLE` | 502, fin en erreur ou réseau temporaire | oui |
-| `OPENROUTER_NO_COMPLIANT_PROVIDER` | 503 | oui |
+| `OPENROUTER_PROVIDER_UNAVAILABLE` | 502/503 générique ou réseau temporaire | oui |
+| `OPENROUTER_NO_COMPLIANT_PROVIDER` | code fournisseur explicite et validé | oui |
+| `OPENROUTER_INCOMPLETE_RESPONSE` | `finish_reason` différent de `stop` | non |
 | `OPENROUTER_INVALID_RESPONSE` | enveloppe, usage ou génération absent | non |
 | `OPENROUTER_SCHEMA_FAILURE` | JSON structuré hors schéma Zod | non |
 | `OPENROUTER_BUDGET_EXCEEDED` | coût ou budget invalide | non |
 
 `Retry-After` est respecté dans une borne maximale de 30 secondes afin qu'une
 valeur fournisseur excessive n'immobilise pas un worker. À défaut, le backoff
-est exponentiel, borné et jitteré. `BILAN_OPENROUTER_MAX_ATTEMPTS` ne peut
-dépasser 3. Les enveloppes HTTP sont lues en flux avec une limite stricte de
-4 MiB, vérifiée aussi via `Content-Length` lorsqu'il est présent. Aucune erreur
+est exponentiel, borné et jitteré. `BILAN_OPENROUTER_MAX_ATTEMPTS` doit valoir
+exactement 3. Une complétion est limitée à 4 MiB, un catalogue à 32 MiB et une
+enveloppe d'erreur à 64 KiB. Ces bornes sont vérifiées en flux et via
+`Content-Length` lorsqu'il est présent. Aucune erreur
 publique ne contient le corps fournisseur, les messages, une réponse, la clé
 ou une donnée élève.
 
 ## Fallback
 
-Une erreur retryable autorise la tentative suivante. Le primaire et le
-fallback ont chacun leur requête et leur provenance. Une erreur non retryable
-arrête immédiatement le flux.
+Une erreur retryable autorise la tentative suivante selon le plan
+`bilan-retry-policy-v1` exact : primaire, fallback, fallback. Le primaire et
+chaque fallback ont une requête et une provenance distinctes. Une erreur non
+retryable arrête immédiatement le flux.
 
 ## Provenance retournée
 
@@ -118,13 +120,29 @@ arrête immédiatement le flux.
 Le prompt, la réponse brute et le corps d'erreur ne font pas partie de la
 provenance.
 
+Le résultat contient aussi `attempts`, y compris pour les tentatives échouées.
+Chaque entrée porte uniquement dates, modèle, issue, code normalisé, retry,
+identifiant de génération, modèle retourné, tokens, coût et raison de fin.
+Les champs inconnus sont `null`. Une erreur finale porte le même historique
+sûr afin que C2 puisse le persister sans perdre les échecs.
+
 ## Budgets et preuve de capacité
 
-Le plafond par rapport ne peut pas dépasser le plafond journalier. C1 vérifie
-la configuration et le coût d'une réponse individuelle. La consommation
+Les montants sont parsés sans conversion flottante et conservés comme entiers
+micro-USD sûrs :
+
+- audience : `300000` ;
+- assessment : `750000` ;
+- journalier : `15000000`.
+
+Le plafond audience ne peut pas dépasser assessment, ni assessment dépasser
+le journalier. C1 vérifie la configuration et le coût d'une réponse
+individuelle. La consommation
 atomique du budget journalier nécessite le stockage partagé et la file du lot
 C2 ; elle n'est donc pas simulée localement ni présentée comme active dans C1.
 
-Une preuve de preflight acceptée a moins de 24 heures et tolère au plus cinq
-minutes de dérive d'horloge vers le futur. Un changement de politique, de slug
-canonique ou de capacité requise la rend également invalide.
+Une preuve de preflight expire au plus 24 heures après vérification. Toute
+horloge future est refusée. Chaque snapshot doit précéder la vérification de
+cinq minutes au plus. Le checksum de preuve lie politique, catalogue, empreinte
+non réversible de clé, SHA logiciel exact, dates et snapshots. Un changement de
+clé, logiciel, politique, slug ou capacité la rend invalide.
