@@ -83,11 +83,13 @@ provenance.
 Il ne contient ni clé, ni prompt brut métier, ni réponse brute, ni donnée
 élève.
 
-La preuve expire au plus 24 heures après sa vérification. Son checksum lie le
-catalogue, la politique, l'empreinte HMAC non réversible de la clé et le SHA Git
-exact du logiciel. Les snapshots ont cinq minutes au plus. Toute horloge future
-est refusée. Il faut relancer le preflight après changement de clé, logiciel,
-politique, slug ou capacité.
+La preuve expire au plus 24 heures après sa vérification. Son checksum est un
+HMAC-SHA-256 authentifié par la clé privée ; il lie le catalogue, la politique,
+l'empreinte non réversible de la clé et le SHA Git exact du logiciel. Les
+snapshots ont cinq minutes au plus. Toute horloge future est refusée. Le
+preflight s'arrête avant l'appel réseau si l'arbre Git contient une
+modification indexée, non indexée ou non suivie. Il faut le relancer après
+changement de clé, logiciel, politique, slug ou capacité.
 
 Le catalogue live et une complétion n'ont pas la même limite : 32 MiB pour
 `/models`, 4 MiB pour une réponse de Chat Completions et 64 KiB pour une
