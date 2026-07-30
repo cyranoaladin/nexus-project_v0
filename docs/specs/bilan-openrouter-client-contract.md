@@ -143,6 +143,10 @@ C2 ; elle n'est donc pas simulée localement ni présentée comme active dans C1
 
 Une preuve de preflight expire au plus 24 heures après vérification. Toute
 horloge future est refusée. Chaque snapshot doit précéder la vérification de
-cinq minutes au plus. Le checksum de preuve lie politique, catalogue, empreinte
-non réversible de clé, SHA logiciel exact, dates et snapshots. Un changement de
-clé, logiciel, politique, slug ou capacité la rend invalide.
+cinq minutes au plus. Le checksum de preuve est un HMAC-SHA-256 calculé avec la
+clé OpenRouter sur la représentation canonique : contrairement aux checksums
+publics, il ne peut pas être reconditionné depuis le rapport expurgé. Il lie
+politique, catalogue, empreinte non réversible de clé, SHA logiciel exact,
+dates et snapshots. Le preflight refuse un arbre Git comportant une
+modification indexée, non indexée ou non suivie. Un changement de clé, logiciel,
+politique, slug ou capacité rend la preuve invalide.
