@@ -4,11 +4,12 @@
 
 `SUPERSEDED_BY_DEPENDENCY_FIX`
 
-Le blocage décrit ci-dessous est conservé comme trace historique. Le commit
-`70d2be3b6f51f91231d257f65682587e5c154eb2` force toutes les chaînes vers la
-version officielle corrigée `brace-expansion@5.0.8`, avec un adaptateur
-fail-closed testé pour les API historiques de `minimatch`. Les audits npm
-complet et runtime sont désormais à zéro vulnérabilité. Aucune exception
+Le blocage décrit ci-dessous est conservé comme trace historique. La résolution
+finale supprime les parents historiques plutôt que de forcer leur graphe :
+ESLint 10 flat-config, Jest 30, `npm sbom`, `glob@13` et `test-exclude@8`
+n'installent plus que `minimatch@10` / `brace-expansion@5.0.8`. Il n'existe
+plus d'override du package, de `postinstall` ni de mutation de `node_modules`.
+Les audits npm complet et runtime sont à zéro vulnérabilité. Aucune exception
 propriétaire ou liée au SHA n'est requise.
 
 ## Date
@@ -66,10 +67,10 @@ Le générateur SBOM officiel de npm fonctionne et a produit un document
 CycloneDX 1.5 comportant 1 385 composants. Son adoption isolée ne résout donc
 pas l'audit complet.
 
-## Pourquoi ESLint 10 n'est pas appliqué
+## Hypothèse historique sur ESLint 10 — invalidée par la résolution
 
-`npm audit fix --force` propose ESLint `10.8.0`. Cette solution n'est pas
-compatible avec la toolchain du dépôt :
+L'audit initial avait écarté ESLint 10 tant que le dépôt dépendait du preset
+legacy `eslint-config-next@15.5.20` :
 
 - `eslint-config-next@15.5.20` déclare ESLint
   `^7.23.0 || ^8.0.0 || ^9.0.0`, donc exclut ESLint 10 ;
@@ -77,6 +78,11 @@ compatible avec la toolchain du dépôt :
   une migration majeure de configuration ;
 - la mission interdit explicitement un override majeur incompatible et
   `npm audit fix --force` non maîtrisé.
+
+La résolution finale ne force pas ce preset : elle migre explicitement la
+configuration vers le format plat, importe les plugins maintenus et conserve
+le périmètre historique `app`, `components`, `lib`, `src`. Cette migration a
+été qualifiée par le lint global, le typecheck, la suite Jest et le build.
 
 ## Sources officielles vérifiées
 
@@ -89,10 +95,10 @@ compatible avec la toolchain du dépôt :
 
 ## Dispositif de décision bornée
 
-Aucune combinaison officielle, publiée et compatible n'a été trouvée au
-2026-07-26 pour rendre l'audit complet vert sans migration majeure hors
-périmètre. La lignée 5.x est corrigée officiellement ; les lignées 1.x et 2.x
-n'ont pas de backport publié.
+Au 2026-07-26, aucune combinaison n'avait été trouvée sans migration majeure.
+Le lot C0.6 autorise et qualifie précisément cette migration de parents. Les
+lignées 1.x et 2.x n'ont pas reçu de backport et ont donc été supprimées du
+graphe plutôt qu'adaptées.
 
 Le dépôt conserve le raw audit rouge et permet uniquement une décision
 propriétaire privée, validée contre un schéma strict :
