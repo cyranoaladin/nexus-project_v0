@@ -1,5 +1,12 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import { FloatingAdvisorBubble } from '@/components/marketing/acadomia-inspired';
+import { usePathname } from 'next/navigation';
+
+jest.mock('next/navigation', () => ({
+  usePathname: jest.fn(),
+}));
+
+const mockUsePathname = jest.mocked(usePathname);
 
 class IntersectionObserverStub implements IntersectionObserver {
   readonly root = null;
@@ -19,10 +26,7 @@ class IntersectionObserverStub implements IntersectionObserver {
 
 describe('FloatingAdvisorBubble on the Pré-rentrée campaign', () => {
   beforeEach(() => {
-    Object.defineProperty(window.location, 'pathname', {
-      configurable: true,
-      value: '/stages/pre-rentree-2026',
-    });
+    mockUsePathname.mockReturnValue('/stages/pre-rentree-2026');
     window.IntersectionObserver = IntersectionObserverStub;
   });
 
