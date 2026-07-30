@@ -1,5 +1,5 @@
 import { FloatingNav } from '@/components/ui/floating-nav';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 
 // Mock framer-motion — filter motion-specific props
 jest.mock('framer-motion', () => {
@@ -27,18 +27,7 @@ jest.mock('framer-motion', () => {
   };
 });
 
-// Mock document.querySelector pour le scroll
-const mockScrollIntoView = jest.fn();
-Object.defineProperty(window, 'scrollIntoView', {
-  value: mockScrollIntoView,
-  writable: true,
-});
-
 describe('FloatingNav', () => {
-  beforeEach(() => {
-    mockScrollIntoView.mockClear();
-  });
-
   it('affiche les trois boutons de navigation', () => {
     render(<FloatingNav />);
 
@@ -50,17 +39,17 @@ describe('FloatingNav', () => {
   it('a les bonnes icônes pour chaque bouton', () => {
     render(<FloatingNav />);
 
-    const buttons = screen.getAllByRole('button');
-    expect(buttons).toHaveLength(3);
+    const links = screen.getAllByRole('link');
+    expect(links).toHaveLength(3);
   });
 
-  it('navigue vers la section canonique des offres quand on clique sur un bouton', () => {
+  it('utilise un lien natif vers la section canonique des offres', () => {
     render(<FloatingNav />);
 
-    const ariaButton = screen.getByText('ARIA');
-    fireEvent.click(ariaButton);
-
-    expect(window.location.href).toBe('/offres#section-plateforme');
+    expect(screen.getByRole('link', { name: 'ARIA' })).toHaveAttribute(
+      'href',
+      '/offres#section-plateforme',
+    );
   });
 
   it('a les bonnes classes CSS', () => {
@@ -74,15 +63,16 @@ describe('FloatingNav', () => {
     expect(navContainer).toHaveClass('left-1/2');
   });
 
-  it('ne tente pas de scroll local pour les liens inter-pages', () => {
-    jest.spyOn(document, 'querySelector').mockReturnValue(null);
-
+  it('expose chaque destination inter-pages sans gestionnaire de navigation', () => {
     render(<FloatingNav />);
 
-    const ariaButton = screen.getByText('ARIA');
-    fireEvent.click(ariaButton);
-
-    expect(document.querySelector).not.toHaveBeenCalled();
-    expect(mockScrollIntoView).not.toHaveBeenCalled();
+    expect(screen.getByRole('link', { name: 'Stages' })).toHaveAttribute(
+      'href',
+      '/offres#section-intensifs',
+    );
+    expect(screen.getByRole('link', { name: 'Parcours' })).toHaveAttribute(
+      'href',
+      '/offres#section-annual',
+    );
   });
 });

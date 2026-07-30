@@ -59,7 +59,7 @@ describe('PR #79 complete CI evidence workflow', () => {
     expect(runCommands).not.toMatch(/--audit-level=(?:low|moderate)/);
   });
 
-  test('accepts only the schema-validated exact exception while preserving raw audits', () => {
+  test('requires clean audits and preserves both SBOMs without any exception path', () => {
     const gate = workflow.jobs['dependency-integrity'];
     const source = jobSource(gate);
     const runCommands = gate.steps
@@ -67,22 +67,24 @@ describe('PR #79 complete CI evidence workflow', () => {
       .map((step) => step.run)
       .join('\n');
 
-    expect(runCommands).toContain(
+    expect(runCommands).toContain('npm run security:brace-expansion');
+    expect(runCommands).toContain('npm run sbom:full');
+    expect(runCommands).toContain('npm run sbom:runtime');
+    expect(runCommands).not.toContain(
       'scripts/security/validate-dev-tooling-exception.mjs',
     );
-    expect(runCommands).toContain('--mode npm');
-    expect(runCommands).toContain('--production-audit');
-    expect(runCommands).toContain('--runtime-sbom');
-    expect(source).toContain('PRE_RENTREE_DEV_TOOLING_EXCEPTION_JSON');
+    expect(source).not.toContain('PRE_RENTREE_DEV_TOOLING_EXCEPTION_JSON');
     expect(source).toContain('npm-audit-production.json');
     expect(source).toContain('npm-audit-full.json');
+    expect(source).toContain('security/sbom/full.cdx.json');
+    expect(source).toContain('security/sbom/runtime.cdx.json');
     expect(
       gate.steps.find((step) => step.name === 'Upload dependency evidence').if,
     ).toBe('always()');
     expect(runCommands).not.toMatch(/exit\s+0\s*(?:#.*)?$/m);
   });
 
-  test('keeps OSV blocking unless the same exact exception validates', () => {
+  test('keeps OSV blocking without any exception path', () => {
     const security = workflow.jobs.security;
     const source = jobSource(security);
     const runCommands = security.steps
@@ -90,11 +92,11 @@ describe('PR #79 complete CI evidence workflow', () => {
       .map((step) => step.run)
       .join('\n');
 
-    expect(runCommands).toContain(
+    expect(runCommands).toContain('./osv-scanner --lockfile=package-lock.json');
+    expect(runCommands).not.toContain(
       'scripts/security/validate-dev-tooling-exception.mjs',
     );
-    expect(runCommands).toContain('--mode osv');
-    expect(source).toContain('PRE_RENTREE_DEV_TOOLING_EXCEPTION_JSON');
+    expect(source).not.toContain('PRE_RENTREE_DEV_TOOLING_EXCEPTION_JSON');
     expect(source).toContain('osv-report.json');
     expect(
       security.steps.find((step) => step.name === 'Upload OSV report').if,

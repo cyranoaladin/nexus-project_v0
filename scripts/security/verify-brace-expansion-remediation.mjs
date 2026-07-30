@@ -2,12 +2,28 @@ import fs from 'node:fs';
 import { createRequire } from 'node:module';
 import path from 'node:path';
 import process from 'node:process';
-import { pathToFileURL } from 'node:url';
 
 const repositoryRoot = process.cwd();
+const manifest = JSON.parse(
+  fs.readFileSync(path.join(repositoryRoot, 'package.json'), 'utf8'),
+);
 const lockfile = JSON.parse(
   fs.readFileSync(path.join(repositoryRoot, 'package-lock.json'), 'utf8'),
 );
+const dependencyPatchScript = path.join(
+  repositoryRoot,
+  'scripts/security/apply-brace-expansion-compat.mjs',
+);
+
+if (manifest.scripts?.postinstall) {
+  throw new Error('POSTINSTALL_DEPENDENCY_PATCH_PRESENT');
+}
+if (manifest.overrides?.['brace-expansion']) {
+  throw new Error('BRACE_EXPANSION_OVERRIDE_PRESENT');
+}
+if (fs.existsSync(dependencyPatchScript)) {
+  throw new Error('DEPENDENCY_PATCH_SCRIPT_PRESENT');
+}
 
 function compareVersions(left, right) {
   const leftParts = left.split('.').map(Number);
@@ -65,6 +81,11 @@ const minimatchPackages = Object.entries(lockfile.packages ?? {})
   ));
 
 for (const [packagePath, metadata] of minimatchPackages) {
+  if (compareVersions(metadata.version, '10.0.0') < 0) {
+    throw new Error(
+      `MINIMATCH_HISTORICAL_LINE_PRESENT:${packagePath}@${metadata.version}`,
+    );
+  }
   const packageDirectory = path.join(repositoryRoot, packagePath);
   const requireFromPackage = createRequire(
     path.join(packageDirectory, 'package.json'),
@@ -85,21 +106,13 @@ for (const [packagePath, metadata] of minimatchPackages) {
     throw new Error(`MINIMATCH_BRACE_API_INCOMPATIBLE:${packagePath}`);
   }
 
-  if (metadata.version === '9.0.9') {
-    const esmEntry = path.join(packageDirectory, 'dist/esm/index.js');
-    const esmImplementation = await import(pathToFileURL(esmEntry).href);
-    if (
-      JSON.stringify(esmImplementation.braceExpand('a{b,c}'))
-      !== JSON.stringify(['ab', 'ac'])
-    ) {
-      throw new Error(`MINIMATCH_ESM_BRACE_API_INCOMPATIBLE:${packagePath}`);
-    }
-  }
 }
 
 process.stdout.write(`${JSON.stringify({
+  POSTINSTALL_DEPENDENCY_PATCH_COUNT: 0,
+  NODE_MODULES_MUTATED_AFTER_INSTALL_COUNT: 0,
   BRACE_EXPANSION_VULNERABLE_VERSION_COUNT: 0,
   BRACE_EXPANSION_5_0_8_OR_HIGHER_COUNT: bracePackages.length,
+  MINIMATCH_HISTORICAL_VERSION_COUNT: 0,
   installed: bracePackages,
 })}\n`);
-
