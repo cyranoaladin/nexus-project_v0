@@ -118,6 +118,15 @@ de cinq séances et d'un CPS validés dans les sources canoniques.
 
 ## Conséquences
 
+### Complément du 30 juillet 2026
+
+L'ADR 007 implémente le moteur annoncé en réutilisant la frontière et les
+champs historiques décrits ici. Elle ajoute une affectation avec provenance,
+des réponses normalisées, la correction manuelle, le scoring et la publication
+par audience. Les décisions de séparation et de publication fail-closed de la
+présente ADR restent inchangées ; seules les formulations « futur » et
+« prochain lot » décrivent désormais le contexte historique du 29 juillet.
+
 ### Positives
 
 - une seule chaîne de vérité pédagogique ;
