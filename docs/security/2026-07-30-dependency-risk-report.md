@@ -69,21 +69,27 @@ explicite de longueur (`EXPANSION_MAX_LENGTH=4_000_000`) et expose une API
 nommée. Les consommateurs modernes `minimatch@10` utilisent directement cette
 API.
 
-Les consommateurs historiques ont été traités sans abaisser le contrôle :
+Les consommateurs historiques ont été éliminés du graphe, sans override de
+`brace-expansion` et sans modification de `node_modules` :
 
-- `minimatch@3.1.5` attendait un export CommonJS appelable ;
-- `minimatch@9.0.9` attendait un export ESM par défaut ;
-- un adaptateur d'installation déterministe traduit uniquement ces deux
-  versions connues vers l'export nommé `expand` ;
-- tout autre consommateur historique, contenu source inattendu ou absence de
-  fichier fait échouer l'installation.
+- ESLint 8 et `eslint-config-next` ont été remplacés par ESLint 10 et les
+  plugins flat-config maintenus nécessaires au périmètre réellement linté ;
+- Jest 29 a été migré vers Jest 30 ;
+- le CLI CycloneDX et sa chaîne native `libxmljs2` / `node-gyp` ont été
+  remplacés par `npm sbom` ;
+- `glob@13.0.6` et `test-exclude@8.0.0` sont sélectionnés pour leurs API
+  compatibles avec Jest 30 ;
+- toutes les occurrences installées de `minimatch` sont en version 10 et
+  consomment nativement `brace-expansion@5.0.8`.
 
 Le script `npm run security:brace-expansion` vérifie après installation :
 
 - toutes les versions du lockfile sont `>=5.0.8` ;
+- aucun `postinstall` ni script de patch n'existe ;
+- aucune version de `minimatch` antérieure à 10 n'existe ;
 - le plafond officiel est présent ;
-- les API CommonJS et ESM de `minimatch` fonctionnent ;
-- le graphe ne contient aucune lignée vulnérable.
+- l'API native du graphe installé fonctionne ;
+- le graphe ne contient aucune lignée vulnérable ni override du package.
 
 Résultat :
 
@@ -95,7 +101,7 @@ BRACE_EXPANSION_5_0_8_OR_HIGHER_COUNT=1
 ## Expériences de dépendances parentes
 
 Une copie temporaire du manifeste et du lockfile a testé les versions publiées
-le 30 juillet :
+le 30 juillet, puis la migration native retenue :
 
 | Expérience cumulative | High | Décision |
 |---|---:|---|
@@ -103,22 +109,22 @@ le 30 juillet :
 | ESLint 9.39.5 + eslint-config-next 15.5.22 | 33 | insuffisant |
 | + Jest 30.4.2 / jsdom 30.4.1 / ts-jest 29.4.12 | 33 | insuffisant |
 | + remplacement du CLI CycloneDX | 27 | insuffisant |
+| ESLint 10 flat config + Jest 30 + npm SBOM + parents glob/test-exclude maintenus | 0 | retenu |
 
-ESLint 9 conserve `minimatch@3`, CycloneDX 6 est la version courante et
-TypeScript-ESLint était déjà sur la lignée corrigée. Un override npm ciblé
-vers `5.0.8` a donc été retenu avec la couche de compatibilité bornée
-ci-dessus. Aucun fork, aucun `npm audit fix`, aucun `--force` et aucune
+ESLint 9 conservait `minimatch@3`; le passage complet à ESLint 10 et à sa
+configuration plate a supprimé cette lignée. Aucun fork, aucun
+`npm audit fix`, aucun `--force`, aucun patch post-installation et aucune
 exception ne sont appliqués.
 
 ## Preuves de sortie
 
-- `npm ci` exécute l'adaptateur et échoue si sa précondition n'est pas
-  satisfaite ;
+- `npm ci` ne contient aucun hook racine de mutation de dépendance ;
 - `npm audit --json` : zéro vulnérabilité ;
 - `npm audit --omit=dev --json` : zéro vulnérabilité ;
-- test de régression du graphe et du plafond mémoire ;
+- test de régression du graphe natif et du plafond mémoire ;
 - lint, typecheck et tests des consommateurs exécutés sur l'arbre corrigé ;
-- SBOM complet et runtime régénérés par les gates de sortie.
+- SBOM CycloneDX complet et runtime régénérés par `npm sbom`, normalisés par
+  chemin physique de lockfile et validés sans référence dupliquée ou pendante.
 
 ## Gouvernance de l'ancienne exception
 

@@ -3,6 +3,13 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
 import React from 'react';
+import { reloadPage } from '@/lib/browser/reload-page';
+
+jest.mock('@/lib/browser/reload-page', () => ({
+  reloadPage: jest.fn(),
+}));
+
+const mockReloadPage = jest.mocked(reloadPage);
 
 const ThrowError = ({ shouldThrow }: { shouldThrow: boolean }) => {
   if (shouldThrow) {
@@ -88,12 +95,6 @@ describe('ErrorBoundary', () => {
 
   describe('Reload Button', () => {
     it('reloads the page when reload button is clicked', async () => {
-      const reloadMock = jest.fn();
-      Object.defineProperty(window, 'location', {
-        value: { reload: reloadMock },
-        writable: true,
-      });
-
       const user = userEvent.setup();
 
       render(
@@ -105,7 +106,7 @@ describe('ErrorBoundary', () => {
       const reloadButton = screen.getByText('Recharger la page');
       await user.click(reloadButton);
 
-      expect(reloadMock).toHaveBeenCalledTimes(1);
+      expect(mockReloadPage).toHaveBeenCalledTimes(1);
     });
   });
 
