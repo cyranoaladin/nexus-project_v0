@@ -24,14 +24,15 @@ function jobSource(job) {
 }
 
 describe('PR #79 complete CI evidence workflow', () => {
-  test('is valid YAML and runs for the stacked PR base branch', () => {
+  test('is valid YAML and runs for every pull request base branch', () => {
     expect(workflow).toBeTruthy();
     expect(workflow.jobs).toBeTruthy();
 
     const pullRequest = workflow.on.pull_request;
-    expect(pullRequest.branches).toEqual(
-      expect.arrayContaining(['main', 'release/pre-rentree-2026-public-ready']),
-    );
+    // A null mapping is the parsed form of `pull_request:` with no branch
+    // filter. This includes main, the historical PR #79 release branch and
+    // every stacked feature base without encoding temporary branch names.
+    expect(pullRequest).toBeNull();
   });
 
   test.each(independentEvidenceJobs)(

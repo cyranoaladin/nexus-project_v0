@@ -1,0 +1,56 @@
+name: CodeQL Stacked
+
+# Default setup produces the canonical uploaded CodeQL result for main.
+# This general PR workflow also executes CodeQL for stacked pull requests,
+# regardless of their base, without attempting a conflicting SARIF upload.
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: codeql-stacked-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  analyze:
+    name: CodeQL Stacked / ${{ matrix.language }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        language:
+          - actions
+          - javascript-typescript
+          - python
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@f205ea1c3313d32999d8d6a48b4f6530d4437b38 # v4.37.4
+        with:
+          languages: ${{ matrix.language }}
+          queries: security-extended
+
+      - name: Analyze without conflicting with default setup
+        uses: github/codeql-action/analyze@f205ea1c3313d32999d8d6a48b4f6530d4437b38 # v4.37.4
+        with:
+          upload: never
+          upload-database: false
+          output: codeql-results
+          post-processed-sarif-path: codeql-results/processed
+
+      - name: Upload stacked CodeQL evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: codeql-stacked-${{ matrix.language }}
+          path: codeql-results/
+          retention-days: 14
+          if-no-files-found: ignore
