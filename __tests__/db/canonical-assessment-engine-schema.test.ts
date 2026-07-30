@@ -24,6 +24,19 @@ const migrationsPath = path.resolve(process.cwd(), 'prisma/migrations');
 const prismaBinaryPath = path.resolve(process.cwd(), 'node_modules/.bin/prisma');
 const statusMigrationName = '20260730_add_canonical_assessment_attempt_statuses';
 const engineMigrationName = '20260730_add_canonical_assessment_engine_v1';
+const reportReviewerMigrationName =
+  '20260730_add_canonical_report_review_actor';
+const prepareReportReviewerMigrationName =
+  '20260730_00_prepare_report_review_actor_backfill';
+const finalizeReportReviewerMigrationName =
+  '20260730_zz_finalize_report_review_actor_backfill';
+const assessmentEngineMigrationNames = new Set([
+  prepareReportReviewerMigrationName,
+  statusMigrationName,
+  engineMigrationName,
+  reportReviewerMigrationName,
+  finalizeReportReviewerMigrationName,
+]);
 
 function migrationDatabaseName(kind: 'fresh' | 'upgrade'): string {
   return `nexus_engine_${kind}_${randomUUID().replaceAll('-', '')}`;
@@ -100,7 +113,11 @@ function createPreviousMigrationWorkspace(): {
   );
 
   for (const entry of fs.readdirSync(migrationsPath, { withFileTypes: true })) {
-    if (!entry.isDirectory() || entry.name >= statusMigrationName) {
+    if (
+      !entry.isDirectory()
+      || assessmentEngineMigrationNames.has(entry.name)
+      || entry.name > finalizeReportReviewerMigrationName
+    ) {
       continue;
     }
     fs.cpSync(
@@ -631,10 +648,71 @@ describe('canonical assessment engine v1 persistence', () => {
           NOW()
         )
       `);
+      await isolatedPrisma.$executeRawUnsafe(`
+        INSERT INTO "users" ("id", "email", "role", "updatedAt")
+        VALUES ('engine-upgrade-coach-user', 'engine-upgrade-coach@example.test', 'COACH', NOW())
+      `);
+      await isolatedPrisma.$executeRawUnsafe(`
+        INSERT INTO "coach_profiles"
+          ("id", "userId", "pseudonym", "subjects", "updatedAt")
+        VALUES (
+          'engine-upgrade-coach',
+          'engine-upgrade-coach-user',
+          'EngineUpgradeCoach',
+          '[]'::jsonb,
+          NOW()
+        )
+      `);
+      await isolatedPrisma.$executeRawUnsafe(`
+        INSERT INTO "canonical_report_revisions"
+          (
+            "id",
+            "reportArtifactId",
+            "scoreSnapshotId",
+            "status",
+            "reportPackId",
+            "reportPackVersion",
+            "corpusManifestId",
+            "corpusManifestVersion",
+            "promptRevision",
+            "contextChecksum",
+            "content"
+          )
+        VALUES (
+          'engine-upgrade-revision',
+          'engine-upgrade-report',
+          'engine-upgrade-score',
+          'PENDING_REVIEW',
+          'legacy-report',
+          '1',
+          'legacy-corpus',
+          '1',
+          'legacy-prompt',
+          'legacy-context',
+          '{}'::jsonb
+        )
+      `);
+      await isolatedPrisma.$executeRawUnsafe(`
+        INSERT INTO "canonical_report_reviews"
+          ("id", "reportRevisionId", "coachId", "decision", "motif")
+        VALUES (
+          'engine-upgrade-review',
+          'engine-upgrade-revision',
+          'engine-upgrade-coach',
+          'APPROVED',
+          'Legacy approved review'
+        )
+      `);
       await isolatedPrisma.$disconnect();
       isolatedPrisma = undefined;
 
-      for (const migrationName of [statusMigrationName, engineMigrationName]) {
+      for (const migrationName of [
+        prepareReportReviewerMigrationName,
+        statusMigrationName,
+        engineMigrationName,
+        reportReviewerMigrationName,
+        finalizeReportReviewerMigrationName,
+      ]) {
         fs.cpSync(
           path.join(migrationsPath, migrationName),
           path.join(workspace.migrationsPath, migrationName),
@@ -650,6 +728,7 @@ describe('canonical assessment engine v1 persistence', () => {
         input_checksum: string | null;
         max_score: number | null;
         report_exists: boolean;
+        reviewer_user_id: string;
         result_kind: string;
         started_at_present: boolean;
       }>>`
@@ -688,7 +767,12 @@ describe('canonical assessment engine v1 persistence', () => {
             SELECT 1
             FROM "canonical_report_artifacts"
             WHERE "id" = 'engine-upgrade-report'
-          ) AS report_exists
+          ) AS report_exists,
+          (
+            SELECT "reviewerUserId"
+            FROM "canonical_report_reviews"
+            WHERE "id" = 'engine-upgrade-review'
+          ) AS reviewer_user_id
       `;
 
       expect(preserved).toEqual([{
@@ -697,6 +781,7 @@ describe('canonical assessment engine v1 persistence', () => {
         input_checksum: null,
         max_score: null,
         report_exists: true,
+        reviewer_user_id: 'engine-upgrade-coach-user',
         result_kind: 'FINAL',
         started_at_present: true,
       }]);

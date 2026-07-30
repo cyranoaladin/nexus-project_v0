@@ -42,6 +42,13 @@ export {
   scoreAssessmentAttempt,
 } from './scoring-service';
 export {
+  approveAssessmentReport,
+  generateAssessmentReport,
+  getPublishedAssessmentReport,
+  publishAssessmentReport,
+  revokeAssessmentReport,
+} from './report-service';
+export {
   autosaveAssessmentResponse,
   createAssessmentAssignment,
   getAssignmentPublicDefinition,

@@ -240,7 +240,7 @@ function assignmentAccessWhere(
   return { id: '__forbidden__' };
 }
 
-function attemptAccessWhere(
+export function attemptAccessWhere(
   actor: AssessmentEngineActor,
   attemptId: string,
 ): Prisma.CanonicalAssessmentAttemptWhereInput {

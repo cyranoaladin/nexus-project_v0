@@ -17,7 +17,7 @@ import {
   type AssessmentEngineContext,
 } from './workflow-service';
 
-function staffAttemptWhere(
+export function staffAttemptWhere(
   actor: AssessmentEngineActor,
   attemptId: string,
 ): Prisma.CanonicalAssessmentAttemptWhereInput {
