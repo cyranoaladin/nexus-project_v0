@@ -166,6 +166,10 @@ Physique-Chimie Seconde n'est créé ou référencé.
 
 ## Environnement et limites observées
 
+- la CI principale ne ciblait initialement que `main` et la branche figée de
+  la PR #79 : les bases des PR empilées #88 et #89 ont été ajoutées
+  explicitement au filtre `pull_request` afin que chaque tête soit soumise
+  aux mêmes jobs avant retargeting ;
 - les commandes d'intégration et Prisma exigent une `DATABASE_URL`
   explicite ; un premier lancement sans cette variable a échoué avant
   exécution métier, puis le lancement documenté avec PostgreSQL local a

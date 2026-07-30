@@ -6,7 +6,8 @@
 # document evidence. All jobs must pass for merge into main.
 #
 # Triggers:
-# - Pull requests vers main or the frozen PR #79 release branch
+# - Pull requests vers main, la release figée PR #79 ou les deux bases
+#   empilées bilans du 30 juillet 2026
 # - Push sur main (pour verifier apres merge)
 #
 # Jobs:
@@ -32,6 +33,8 @@ on:
     branches:
       - main
       - release/pre-rentree-2026-public-ready
+      - integration/bilan-pre-rentree-canonical-20260729
+      - fix/bilan-foundation-readiness-20260730
 
 # Cancel in-progress runs when new commits pushed
 concurrency:
