@@ -27,6 +27,16 @@ export type BilanModelPolicy = Readonly<{
     dataCollection: 'deny';
     zdr: true;
   }>;
+  retryPolicy: Readonly<{
+    id: 'bilan-retry-policy';
+    version: '1';
+    attemptPlan: readonly [
+      'anthropic/claude-sonnet-5',
+      'openai/gpt-5.6-terra',
+      'openai/gpt-5.6-terra',
+    ];
+    maxAttempts: 3;
+  }>;
   automaticCapabilityEnablement: false;
 }>;
 
@@ -44,12 +54,22 @@ export type OpenRouterModelCapabilitySnapshot = Readonly<{
   capabilityChecksum: string;
 }>;
 
+export type OpenRouterModelCatalogFetch = Readonly<{
+  catalog: unknown;
+  responseBytes: number;
+}>;
+
 export type OpenRouterPreflightProof = Readonly<{
   policyId: string;
   policyVersion: string;
   policyChecksum: string;
+  catalogChecksum: string;
+  apiKeyFingerprint: string;
+  preflightSoftwareSha: string;
   verifiedAt: string;
+  expiresAt: string;
   snapshots: readonly OpenRouterModelCapabilitySnapshot[];
+  proofChecksum: string;
 }>;
 
 export type OpenRouterMessage = Readonly<{
@@ -81,7 +101,6 @@ export type OpenRouterRequestBody = Readonly<{
     zdr: true;
   }>;
   stream: false;
-  usage: Readonly<{ include: true }>;
 }>;
 
 export type OpenRouterCompletionInput<T> = Readonly<{
@@ -112,7 +131,28 @@ export type OpenRouterTransportProvenance = Readonly<{
   responseSchemaVersion: string;
 }>;
 
+export type OpenRouterInvocationAttemptOutcome = 'SUCCEEDED' | 'FAILED';
+
+export type OpenRouterInvocationAttempt = Readonly<{
+  attemptNumber: number;
+  requestedModel: string;
+  startedAt: string;
+  completedAt: string;
+  latencyMs: number;
+  outcome: OpenRouterInvocationAttemptOutcome;
+  normalizedErrorCode: string | null;
+  retryable: boolean;
+  generationId: string | null;
+  returnedModel: string | null;
+  promptTokens: number | null;
+  completionTokens: number | null;
+  totalTokens: number | null;
+  costMicrosUsd: number | null;
+  finishReason: string | null;
+}>;
+
 export type OpenRouterCompletion<T> = Readonly<{
   data: T;
   provenance: OpenRouterTransportProvenance;
+  attempts: readonly OpenRouterInvocationAttempt[];
 }>;

@@ -52,8 +52,25 @@ describe('canonical OpenRouter architecture boundary', () => {
     expect(payloadBuilder).not.toMatch(/\btools\s*:/);
     expect(payloadBuilder).not.toMatch(/\bplugins\s*:/);
     expect(payloadBuilder).not.toMatch(/\bmodels\s*:/);
+    expect(payloadBuilder).not.toMatch(/\busage\s*:/);
     expect(payloadBuilder).not.toContain('openrouter/auto');
     expect(payloadBuilder).not.toMatch(/-latest\b/);
+  });
+
+  it('uses the exact versioned retry plan without implicit model derivation', () => {
+    const client = read('lib/llm/openrouter/client.ts');
+    const policy = read(
+      'content/bilans/model-policies/bilan-model-policy-v1.1.json',
+    );
+
+    expect(client).toContain(
+      'BILAN_MODEL_POLICY.retryPolicy.attemptPlan',
+    );
+    expect(client).not.toMatch(
+      /models\s*\[\s*Math\.min\s*\(\s*(?:index|attempt)/,
+    );
+    expect(policy).toContain('"id": "bilan-retry-policy"');
+    expect(policy).toContain('"maxAttempts": 3');
   });
 
   it('keeps provider transport independent from Prisma and report workflows', () => {

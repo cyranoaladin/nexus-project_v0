@@ -1,4 +1,9 @@
-import { chmodSync, mkdirSync, writeFileSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
+import {
+  chmodSync,
+  mkdirSync,
+  writeFileSync,
+} from 'node:fs';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
 
@@ -16,16 +21,64 @@ import {
   OpenRouterError,
   OpenRouterModelCompatibilityError,
 } from '../../lib/llm/openrouter/errors';
+import { sha256Canonical } from '../../lib/llm/openrouter/hash';
 import { BILAN_MODEL_POLICY } from '../../lib/llm/openrouter/policy';
+import { readPrivateOpenRouterApiKey } from '../../lib/llm/openrouter/preflight-secret';
+
+const PREFLIGHT_VALIDITY_MILLISECONDS = 24 * 60 * 60 * 1_000;
+const OWNER_MAX_COST_MICROS_USD_PER_AUDIENCE_REPORT = 300_000;
+const OWNER_MAX_COST_MICROS_USD_PER_ASSESSMENT = 750_000;
+const OWNER_DAILY_BUDGET_MICROS_USD = 15_000_000;
+
+function currentSoftwareSha(): string {
+  const sha = execFileSync('git', ['rev-parse', 'HEAD'], {
+    cwd: process.cwd(),
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'ignore'],
+  }).trim();
+  if (!/^[a-f0-9]{40}$/.test(sha)) {
+    throw new OpenRouterError('OPENROUTER_POLICY_REJECTED');
+  }
+  return sha;
+}
+
+function assertOwnerBudgets(config: ReturnType<typeof parseOpenRouterConfig>) {
+  if (
+    config.maxCostMicrosUsdPerAudienceReport
+      !== OWNER_MAX_COST_MICROS_USD_PER_AUDIENCE_REPORT
+    || config.maxCostMicrosUsdPerAssessment
+      !== OWNER_MAX_COST_MICROS_USD_PER_ASSESSMENT
+    || config.dailyBudgetMicrosUsd !== OWNER_DAILY_BUDGET_MICROS_USD
+  ) {
+    throw new OpenRouterError('OPENROUTER_BUDGET_EXCEEDED');
+  }
+}
 
 async function main(): Promise<void> {
-  const config = parseOpenRouterConfig(process.env);
-  const client = new OpenRouterClient(config);
-  const catalog = await client.fetchModelCatalog();
+  const apiKey = readPrivateOpenRouterApiKey();
+  const preflightSoftwareSha = currentSoftwareSha();
+  const config = parseOpenRouterConfig({
+    ...process.env,
+    OPENROUTER_API_KEY: apiKey,
+  });
+  assertOwnerBudgets(config);
+
+  const client = new OpenRouterClient(config, { preflightSoftwareSha });
+  const catalogFetch = await client.fetchModelCatalogWithMetadata();
+  const catalog = catalogFetch.catalog;
   const fetchedAt = new Date().toISOString();
+  const verifiedAt = new Date().toISOString();
   const proof = verifyModelPolicyCapabilities(
     buildCapabilitySnapshots(catalog, { fetchedAt }),
-    { verifiedAt: new Date().toISOString() },
+    {
+      verifiedAt,
+      expiresAt: new Date(
+        Date.parse(verifiedAt) + PREFLIGHT_VALIDITY_MILLISECONDS,
+      ).toISOString(),
+      apiKey,
+      preflightSoftwareSha,
+      catalogChecksum: sha256Canonical(catalog),
+    },
   );
 
   const request = {
@@ -60,6 +113,7 @@ async function main(): Promise<void> {
       contractValid: completion.data.status === 'ok'
         && completion.data.echo === 'synthetic-no-pii',
       provenance: completion.provenance,
+      attempts: completion.attempts,
     });
   }
 
@@ -80,17 +134,32 @@ async function main(): Promise<void> {
     syntheticOnly: true,
     dataSubjectCount: 0,
     configuration: config.redacted,
+    proof,
+    catalog: {
+      responseBytes: catalogFetch.responseBytes,
+      maximumResponseBytes: 32 * 1024 * 1024,
+      checksum: proof.catalogChecksum,
+    },
     policy: {
       id: proof.policyId,
       version: proof.policyVersion,
       checksum: proof.policyChecksum,
+      retryPolicy: BILAN_MODEL_POLICY.retryPolicy,
     },
     capabilities: proof.snapshots,
     results,
+    privacyConfiguration: {
+      promptLoggingDisabled: 'OWNER_EVIDENCE_REQUIRED',
+      completionLoggingDisabled: 'OWNER_EVIDENCE_REQUIRED',
+      dataTrainingOptIn: 'OWNER_EVIDENCE_REQUIRED',
+      reason: 'No verified account-settings API is part of the provider contract.',
+    },
   }, null, 2)}\n`, { mode: 0o600 });
   chmodSync(evidencePath, 0o600);
 
-  process.stdout.write(`OpenRouter synthetic preflight passed. Evidence: ${evidencePath}\n`);
+  process.stdout.write(
+    `OpenRouter synthetic preflight passed; privacy evidence remains owner-required. Evidence: ${evidencePath}\n`,
+  );
 }
 
 void main().catch((error: unknown) => {

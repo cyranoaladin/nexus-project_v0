@@ -20,8 +20,9 @@ const requiredEnvironment = (
   BILAN_OPENROUTER_TIMEOUT_MS: '90000',
   BILAN_OPENROUTER_MAX_ATTEMPTS: '3',
   BILAN_OPENROUTER_MAX_OUTPUT_TOKENS: '2048',
-  BILAN_OPENROUTER_MAX_COST_USD_PER_REPORT: '0.50',
-  BILAN_OPENROUTER_DAILY_BUDGET_USD: '25',
+  BILAN_OPENROUTER_MAX_COST_USD_PER_REPORT: '0.30',
+  BILAN_OPENROUTER_MAX_COST_USD_PER_ASSESSMENT: '0.75',
+  BILAN_OPENROUTER_DAILY_BUDGET_USD: '15.00',
   ...overrides,
 });
 
@@ -41,6 +42,15 @@ describe('OpenRouter configuration', () => {
     expect(config.mode).toBe('OPENROUTER_REQUIRED');
     expect(config.apiKey).toBe('synthetic-test-key');
     expect(config.baseUrl).toBe('http://127.0.0.1:43123/api/v1/');
+    expect(config).toMatchObject({
+      maxCostMicrosUsdPerAudienceReport: 300_000,
+      maxCostMicrosUsdPerAssessment: 750_000,
+      dailyBudgetMicrosUsd: 15_000_000,
+      budgetWarningPercent: 70,
+      budgetHardStopPercent: 100,
+      maxOutputTokens: 2_048,
+      maxAttempts: 3,
+    });
     expect(JSON.stringify(config.redacted)).not.toContain('synthetic-test-key');
   });
 
@@ -56,10 +66,20 @@ describe('OpenRouter configuration', () => {
     [{ BILAN_REPORT_MISTRAL_ENABLED: 'false' }, 'OPENROUTER_POLICY_REJECTED'],
     [{ OPENROUTER_BASE_URL: 'https://user:password@openrouter.ai/api/v1' }, 'OPENROUTER_POLICY_REJECTED'],
     [{ BILAN_OPENROUTER_MAX_ATTEMPTS: '0' }, 'OPENROUTER_POLICY_REJECTED'],
+    [{ BILAN_OPENROUTER_MAX_ATTEMPTS: '2' }, 'OPENROUTER_POLICY_REJECTED'],
+    [{ BILAN_OPENROUTER_MAX_OUTPUT_TOKENS: '2049' }, 'OPENROUTER_POLICY_REJECTED'],
     [{ BILAN_OPENROUTER_MAX_COST_USD_PER_REPORT: '-1' }, 'OPENROUTER_POLICY_REJECTED'],
+    [{ BILAN_OPENROUTER_MAX_COST_USD_PER_REPORT: '0' }, 'OPENROUTER_POLICY_REJECTED'],
+    [{ BILAN_OPENROUTER_MAX_COST_USD_PER_REPORT: '1e-1' }, 'OPENROUTER_POLICY_REJECTED'],
+    [{ BILAN_OPENROUTER_MAX_COST_USD_PER_REPORT: '0.1234567' }, 'OPENROUTER_POLICY_REJECTED'],
+    [{ BILAN_OPENROUTER_MAX_COST_USD_PER_REPORT: '9007199254.740992' }, 'OPENROUTER_POLICY_REJECTED'],
     [{
-      BILAN_OPENROUTER_MAX_COST_USD_PER_REPORT: '26',
-      BILAN_OPENROUTER_DAILY_BUDGET_USD: '25',
+      BILAN_OPENROUTER_MAX_COST_USD_PER_REPORT: '0.80',
+      BILAN_OPENROUTER_MAX_COST_USD_PER_ASSESSMENT: '0.75',
+    }, 'OPENROUTER_BUDGET_EXCEEDED'],
+    [{
+      BILAN_OPENROUTER_MAX_COST_USD_PER_ASSESSMENT: '16',
+      BILAN_OPENROUTER_DAILY_BUDGET_USD: '15',
     }, 'OPENROUTER_BUDGET_EXCEEDED'],
   ] as const)('rejects unsafe environment %o', (overrides, code: OpenRouterErrorCode) => {
     expect(() => parseOpenRouterConfig(requiredEnvironment(overrides))).toThrow(
@@ -99,5 +119,17 @@ describe('OpenRouter configuration', () => {
     expect(() => parseOpenRouterConfig(environment)).toThrow(
       expect.objectContaining({ code: 'OPENROUTER_BUDGET_EXCEEDED' }),
     );
+  });
+
+  it('parses monetary values exactly without floating-point conversion', () => {
+    const config = parseOpenRouterConfig(requiredEnvironment({
+      BILAN_OPENROUTER_MAX_COST_USD_PER_REPORT: '0.000001',
+      BILAN_OPENROUTER_MAX_COST_USD_PER_ASSESSMENT: '0.000002',
+      BILAN_OPENROUTER_DAILY_BUDGET_USD: '0.000003',
+    }));
+
+    expect(config.maxCostMicrosUsdPerAudienceReport).toBe(1);
+    expect(config.maxCostMicrosUsdPerAssessment).toBe(2);
+    expect(config.dailyBudgetMicrosUsd).toBe(3);
   });
 });

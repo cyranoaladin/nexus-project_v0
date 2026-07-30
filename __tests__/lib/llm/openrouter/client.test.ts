@@ -12,8 +12,12 @@ import {
   OPENROUTER_CONTRACT_TEST_JSON_SCHEMA,
   OpenRouterContractTestSchema,
 } from '@/lib/llm/openrouter/contracts';
-import { OpenRouterClient } from '@/lib/llm/openrouter/client';
+import {
+  OpenRouterClient,
+  type OpenRouterClientDependencies,
+} from '@/lib/llm/openrouter/client';
 import { parseOpenRouterConfig } from '@/lib/llm/openrouter/config';
+import { sha256Canonical } from '@/lib/llm/openrouter/hash';
 import type {
   OpenRouterRequestBody,
 } from '@/lib/llm/openrouter/types';
@@ -26,6 +30,9 @@ type Handler = (
   response: ServerResponse,
   body: OpenRouterRequestBody,
 ) => void | Promise<void>;
+
+const API_KEY = 'synthetic-test-key';
+const SOFTWARE_SHA = 'e'.repeat(40);
 
 const validResponse = (model = 'anthropic/claude-sonnet-5') => ({
   id: 'chatcmpl-synthetic',
@@ -74,11 +81,20 @@ async function listen(handler: Handler) {
 
 function proof(catalog: unknown = fixture) {
   const fetchedAt = new Date().toISOString();
+  const verifiedAt = fetchedAt;
   return verifyModelPolicyCapabilities(
     buildCapabilitySnapshots(catalog, {
       fetchedAt,
     }),
-    { verifiedAt: fetchedAt },
+    {
+      verifiedAt,
+      expiresAt: new Date(
+        Date.parse(verifiedAt) + (24 * 60 * 60 * 1_000),
+      ).toISOString(),
+      apiKey: API_KEY,
+      preflightSoftwareSha: SOFTWARE_SHA,
+      catalogChecksum: sha256Canonical(catalog),
+    },
   );
 }
 
@@ -86,17 +102,29 @@ function config(baseUrl: string, overrides: Record<string, string> = {}) {
   return parseOpenRouterConfig({
     NODE_ENV: 'test',
     BILAN_REPORT_GENERATION_MODE: 'OPENROUTER_REQUIRED',
-    OPENROUTER_API_KEY: 'synthetic-test-key',
+    OPENROUTER_API_KEY: API_KEY,
     OPENROUTER_BASE_URL: baseUrl,
     BILAN_OPENROUTER_PRIMARY_MODEL: 'anthropic/claude-sonnet-5',
     BILAN_OPENROUTER_FALLBACK_MODELS: '["openai/gpt-5.6-terra"]',
     BILAN_OPENROUTER_MODEL_POLICY_VERSION: BILAN_MODEL_POLICY_CONFIG_VERSION,
     BILAN_OPENROUTER_TIMEOUT_MS: '100',
-    BILAN_OPENROUTER_MAX_ATTEMPTS: '1',
-    BILAN_OPENROUTER_MAX_OUTPUT_TOKENS: '256',
-    BILAN_OPENROUTER_MAX_COST_USD_PER_REPORT: '0.50',
-    BILAN_OPENROUTER_DAILY_BUDGET_USD: '25',
+    BILAN_OPENROUTER_MAX_ATTEMPTS: '3',
+    BILAN_OPENROUTER_MAX_OUTPUT_TOKENS: '2048',
+    BILAN_OPENROUTER_MAX_COST_USD_PER_REPORT: '0.30',
+    BILAN_OPENROUTER_MAX_COST_USD_PER_ASSESSMENT: '0.75',
+    BILAN_OPENROUTER_DAILY_BUDGET_USD: '15',
     ...overrides,
+  });
+}
+
+function createClient(
+  baseUrl: string,
+  overrides: Record<string, string> = {},
+  dependencies: OpenRouterClientDependencies = {},
+) {
+  return new OpenRouterClient(config(baseUrl, overrides), {
+    preflightSoftwareSha: SOFTWARE_SHA,
+    ...dependencies,
   });
 }
 
@@ -132,7 +160,7 @@ describe('OpenRouter client', () => {
         'x-generation-id': 'gen-synthetic-1',
       }));
     try {
-      const result = await new OpenRouterClient(config(fake.baseUrl)).complete(
+      const result = await createClient(fake.baseUrl).complete(
         contractRequest,
       );
       expect(result.data.status).toBe('ok');
@@ -161,7 +189,7 @@ describe('OpenRouter client', () => {
       expect(fake.requests[0]).toEqual({
         model: 'anthropic/claude-sonnet-5',
         messages: contractRequest.messages,
-        max_tokens: 256,
+        max_tokens: 2048,
         reasoning: { effort: 'low', exclude: true },
         response_format: {
           type: 'json_schema',
@@ -177,7 +205,6 @@ describe('OpenRouter client', () => {
           zdr: true,
         },
         stream: false,
-        usage: { include: true },
       });
       expect(fake.requests[0]).not.toHaveProperty('temperature');
       expect(fake.requests[0]).not.toHaveProperty('top_p');
@@ -200,10 +227,10 @@ describe('OpenRouter client', () => {
       });
     });
     try {
-      const client = new OpenRouterClient(
-        config(fake.baseUrl, { BILAN_OPENROUTER_MAX_ATTEMPTS: '2' }),
-        { sleep: async () => undefined, random: () => 0 },
-      );
+      const client = createClient(fake.baseUrl, {}, {
+        sleep: async () => undefined,
+        random: () => 0,
+      });
       const result = await client.complete(contractRequest);
 
       expect(fake.requests.map(({ model }) => model)).toEqual([
@@ -218,22 +245,25 @@ describe('OpenRouter client', () => {
   });
 
   it.each([
-    [400, 'OPENROUTER_POLICY_REJECTED', false],
+    [400, 'OPENROUTER_INVALID_REQUEST', false],
     [401, 'OPENROUTER_INVALID_CREDENTIALS', false],
     [402, 'OPENROUTER_INSUFFICIENT_CREDITS', false],
     [403, 'OPENROUTER_POLICY_REJECTED', false],
     [408, 'OPENROUTER_TIMEOUT', true],
     [429, 'OPENROUTER_RATE_LIMITED', true],
     [502, 'OPENROUTER_PROVIDER_UNAVAILABLE', true],
-    [503, 'OPENROUTER_NO_COMPLIANT_PROVIDER', true],
+    [503, 'OPENROUTER_PROVIDER_UNAVAILABLE', true],
   ])('maps HTTP %s to %s', async (status, code, retryable) => {
     const fake = await listen((_request, response) =>
       json(response, status, { error: { code: status, message: 'redacted upstream' } }));
     try {
       await expect(
-        new OpenRouterClient(config(fake.baseUrl)).complete(contractRequest),
+        createClient(fake.baseUrl, {}, {
+          sleep: async () => undefined,
+          random: () => 0,
+        }).complete(contractRequest),
       ).rejects.toMatchObject({ code, retryable });
-      expect(fake.requests).toHaveLength(1);
+      expect(fake.requests).toHaveLength(retryable ? 3 : 1);
     } finally {
       await fake.close();
     }
@@ -246,7 +276,7 @@ describe('OpenRouter client', () => {
     });
     try {
       await expect(
-        new OpenRouterClient(config(fake.baseUrl)).complete(contractRequest),
+        createClient(fake.baseUrl).complete(contractRequest),
       ).rejects.toMatchObject({
         code: 'OPENROUTER_INVALID_CREDENTIALS',
         retryable: false,
@@ -273,10 +303,10 @@ describe('OpenRouter client', () => {
       });
     });
     try {
-      const result = await new OpenRouterClient(
-        config(fake.baseUrl, { BILAN_OPENROUTER_MAX_ATTEMPTS: '2' }),
-        { sleep: async () => undefined, random: () => 0 },
-      ).complete(contractRequest);
+      const result = await createClient(fake.baseUrl, {}, {
+        sleep: async () => undefined,
+        random: () => 0,
+      }).complete(contractRequest);
 
       expect(fake.requests.map(({ model }) => model)).toEqual([
         'anthropic/claude-sonnet-5',
@@ -305,10 +335,10 @@ describe('OpenRouter client', () => {
       });
     });
     try {
-      await new OpenRouterClient(
-        config(fake.baseUrl, { BILAN_OPENROUTER_MAX_ATTEMPTS: '2' }),
-        { sleep, random: () => 0 },
-      ).complete(contractRequest);
+      await createClient(fake.baseUrl, {}, {
+        sleep,
+        random: () => 0,
+      }).complete(contractRequest);
       expect(sleep).toHaveBeenCalledWith(2_000);
     } finally {
       await fake.close();
@@ -330,10 +360,10 @@ describe('OpenRouter client', () => {
       });
     });
     try {
-      await new OpenRouterClient(
-        config(fake.baseUrl, { BILAN_OPENROUTER_MAX_ATTEMPTS: '2' }),
-        { sleep, random: () => 0 },
-      ).complete(contractRequest);
+      await createClient(fake.baseUrl, {}, {
+        sleep,
+        random: () => 0,
+      }).complete(contractRequest);
       expect(sleep).toHaveBeenCalledWith(30_000);
     } finally {
       await fake.close();
@@ -367,7 +397,7 @@ describe('OpenRouter client', () => {
           message: { role: 'assistant', content: '' },
           finish_reason: 'error',
         }],
-      }, { 'x-generation-id': 'gen-finish-error' }), 'OPENROUTER_PROVIDER_UNAVAILABLE'],
+      }, { 'x-generation-id': 'gen-finish-error' }), 'OPENROUTER_INCOMPLETE_RESPONSE'],
     ['missing generation id', (response: ServerResponse) =>
       json(response, 200, validResponse()), 'OPENROUTER_INVALID_RESPONSE'],
     ['missing usage', (response: ServerResponse) => {
@@ -388,7 +418,7 @@ describe('OpenRouter client', () => {
     const fake = await listen((_request, response) => respond(response));
     try {
       await expect(
-        new OpenRouterClient(config(fake.baseUrl)).complete(contractRequest),
+        createClient(fake.baseUrl).complete(contractRequest),
       ).rejects.toMatchObject({ code });
     } finally {
       await fake.close();
@@ -406,8 +436,10 @@ describe('OpenRouter client', () => {
     ];
     try {
       await expect(
-        new OpenRouterClient(
-          config(fake.baseUrl, { BILAN_OPENROUTER_TIMEOUT_MS: '20' }),
+        createClient(
+          fake.baseUrl,
+          { BILAN_OPENROUTER_TIMEOUT_MS: '20' },
+          { sleep: async () => undefined, random: () => 0 },
         ).complete(contractRequest),
       ).rejects.toMatchObject({ code: 'OPENROUTER_TIMEOUT' });
       for (const spy of consoleSpies) expect(spy).not.toHaveBeenCalled();
@@ -427,7 +459,7 @@ describe('OpenRouter client', () => {
     });
     try {
       await expect(
-        new OpenRouterClient(config(fake.baseUrl)).complete(contractRequest),
+        createClient(fake.baseUrl).complete(contractRequest),
       ).rejects.toMatchObject({ code: 'OPENROUTER_INVALID_RESPONSE' });
     } finally {
       await fake.close();
@@ -454,7 +486,7 @@ describe('OpenRouter client', () => {
       json(response, 200, validResponse(), {
         'x-generation-id': 'must-not-be-called',
       }));
-    const client = new OpenRouterClient(config(fake.baseUrl), {
+    const client = createClient(fake.baseUrl, {}, {
       now: () => currentTime,
     });
     try {
@@ -483,7 +515,7 @@ describe('OpenRouter client', () => {
       }, { 'x-generation-id': 'gen-expensive' }));
     try {
       await expect(
-        new OpenRouterClient(config(overBudget.baseUrl)).complete(contractRequest),
+        createClient(overBudget.baseUrl).complete(contractRequest),
       ).rejects.toMatchObject({ code: 'OPENROUTER_BUDGET_EXCEEDED' });
     } finally {
       await overBudget.close();
@@ -495,7 +527,7 @@ describe('OpenRouter client', () => {
       }));
     try {
       await expect(
-        new OpenRouterClient(config(mismatched.baseUrl)).complete(contractRequest),
+        createClient(mismatched.baseUrl).complete(contractRequest),
       ).rejects.toMatchObject({ code: 'OPENROUTER_POLICY_REJECTED' });
     } finally {
       await mismatched.close();
@@ -507,9 +539,7 @@ describe('OpenRouter client', () => {
       json(response, 401, { error: { code: 401 } }));
     try {
       await expect(
-        new OpenRouterClient(
-          config(fake.baseUrl, { BILAN_OPENROUTER_MAX_ATTEMPTS: '3' }),
-        ).complete(contractRequest),
+        createClient(fake.baseUrl).complete(contractRequest),
       ).rejects.toMatchObject({ code: 'OPENROUTER_INVALID_CREDENTIALS' });
       expect(fake.requests).toHaveLength(1);
     } finally {
@@ -524,11 +554,9 @@ describe('OpenRouter client', () => {
       }));
     try {
       await expect(
-        new OpenRouterClient(
-          config(fake.baseUrl, { BILAN_OPENROUTER_MAX_ATTEMPTS: '3' }),
-        ).complete(contractRequest),
+        createClient(fake.baseUrl).complete(contractRequest),
       ).rejects.toMatchObject({
-        code: 'OPENROUTER_POLICY_REJECTED',
+        code: 'OPENROUTER_INVALID_REQUEST',
         retryable: false,
       });
       expect(fake.requests).toHaveLength(1);
@@ -539,7 +567,7 @@ describe('OpenRouter client', () => {
 
   it('refuses an output token limit larger than the capability snapshot', async () => {
     const limitedCatalog = structuredClone(fixture);
-    limitedCatalog.data[0].top_provider.max_completion_tokens = 10_000;
+    limitedCatalog.data[0].top_provider.max_completion_tokens = 1_000;
     const limitedRequest = {
       ...contractRequest,
       preflightProof: proof(limitedCatalog),
@@ -550,11 +578,7 @@ describe('OpenRouter client', () => {
       }));
     try {
       await expect(
-        new OpenRouterClient(
-          config(fake.baseUrl, {
-            BILAN_OPENROUTER_MAX_OUTPUT_TOKENS: '20000',
-          }),
-        ).complete(limitedRequest),
+        createClient(fake.baseUrl).complete(limitedRequest),
       ).rejects.toMatchObject({
         code: 'OPENROUTER_POLICY_REJECTED',
         retryable: false,
