@@ -1,6 +1,14 @@
 import 'server-only';
 
-import { lstatSync, readFileSync } from 'node:fs';
+import {
+  closeSync,
+  constants,
+  fstatSync,
+  lstatSync,
+  openSync,
+  readFileSync,
+  type Stats,
+} from 'node:fs';
 import { homedir } from 'node:os';
 import { dirname, join } from 'node:path';
 
@@ -8,25 +16,36 @@ import { OpenRouterError } from './errors';
 
 const SECRET_DIRECTORY_MODE = 0o700;
 const SECRET_FILE_MODE = 0o600;
+const MAX_SECRET_BYTES = 4_096;
 
-function assertOwnedMode(
-  path: string,
+function hasExpectedOwnershipAndMode(
+  stat: Stats,
   expectedMode: number,
   expectedKind: 'directory' | 'file',
-): void {
-  let stat;
-  try {
-    stat = lstatSync(path);
-  } catch {
-    throw new OpenRouterError('OPENROUTER_NOT_CONFIGURED');
-  }
+): boolean {
   const localUid = process.getuid?.();
-  if (
-    stat.isSymbolicLink()
-    || (expectedKind === 'directory' ? !stat.isDirectory() : !stat.isFile())
+  return !(
+    (expectedKind === 'directory' ? !stat.isDirectory() : !stat.isFile())
     || (stat.mode & 0o777) !== expectedMode
     || (localUid !== undefined && stat.uid !== localUid)
-  ) {
+  );
+}
+
+function assertOwnedDirectory(path: string): void {
+  try {
+    const stat = lstatSync(path);
+    if (
+      stat.isSymbolicLink()
+      || !hasExpectedOwnershipAndMode(
+        stat,
+        SECRET_DIRECTORY_MODE,
+        'directory',
+      )
+    ) {
+      throw new OpenRouterError('OPENROUTER_NOT_CONFIGURED');
+    }
+  } catch (error) {
+    if (error instanceof OpenRouterError) throw error;
     throw new OpenRouterError('OPENROUTER_NOT_CONFIGURED');
   }
 }
@@ -43,9 +62,30 @@ export function defaultOpenRouterApiKeyPath(): string {
 export function readPrivateOpenRouterApiKey(
   keyPath = defaultOpenRouterApiKeyPath(),
 ): string {
-  assertOwnedMode(dirname(keyPath), SECRET_DIRECTORY_MODE, 'directory');
-  assertOwnedMode(keyPath, SECRET_FILE_MODE, 'file');
-  const raw = readFileSync(keyPath, 'utf8');
+  assertOwnedDirectory(dirname(keyPath));
+  let descriptor: number;
+  try {
+    descriptor = openSync(
+      keyPath,
+      constants.O_RDONLY | constants.O_NOFOLLOW,
+    );
+  } catch {
+    throw new OpenRouterError('OPENROUTER_NOT_CONFIGURED');
+  }
+  let raw: string;
+  try {
+    const stat = fstatSync(descriptor);
+    if (
+      !hasExpectedOwnershipAndMode(stat, SECRET_FILE_MODE, 'file')
+      || stat.size <= 0
+      || stat.size > MAX_SECRET_BYTES
+    ) {
+      throw new OpenRouterError('OPENROUTER_NOT_CONFIGURED');
+    }
+    raw = readFileSync(descriptor, 'utf8');
+  } finally {
+    closeSync(descriptor);
+  }
   const lines = raw.endsWith('\n') ? raw.slice(0, -1).split('\n') : raw.split('\n');
   if (
     lines.length !== 1

@@ -8,7 +8,7 @@ import {
   OpenRouterError,
   OpenRouterModelCompatibilityError,
 } from './errors';
-import { sha256Canonical } from './hash';
+import { canonicalJson, sha256Canonical } from './hash';
 import {
   BILAN_MODEL_POLICY,
   BILAN_MODEL_POLICY_CHECKSUM,
@@ -58,6 +58,13 @@ export function createApiKeyFingerprint(apiKey: string): string {
   if (apiKey.trim() === '') throw new OpenRouterModelCompatibilityError();
   return createHmac('sha256', apiKey)
     .update('nexus-openrouter-api-key-fingerprint-v1')
+    .digest('hex');
+}
+
+function createProofChecksum(apiKey: string, values: unknown): string {
+  return createHmac('sha256', apiKey)
+    .update('nexus-openrouter-preflight-proof-v1\0')
+    .update(canonicalJson(values))
     .digest('hex');
 }
 
@@ -211,7 +218,7 @@ export function verifyModelPolicyCapabilities(
   };
   return Object.freeze({
     ...values,
-    proofChecksum: sha256Canonical(values),
+    proofChecksum: createProofChecksum(options.apiKey, values),
   });
 }
 
@@ -241,7 +248,10 @@ export function assertOpenRouterPreflightProof(
     || proof.apiKeyFingerprint !== createApiKeyFingerprint(context.apiKey)
     || proof.preflightSoftwareSha !== context.preflightSoftwareSha
     || !GIT_SHA_PATTERN.test(proof.preflightSoftwareSha)
-    || proof.proofChecksum !== sha256Canonical(proofValues)
+    || proof.proofChecksum !== createProofChecksum(
+      context.apiKey,
+      proofValues,
+    )
     || !Number.isFinite(verifiedAtMs)
     || !Number.isFinite(expiresAtMs)
     || verifiedAtMs > context.currentTime

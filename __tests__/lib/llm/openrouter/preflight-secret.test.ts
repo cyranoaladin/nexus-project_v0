@@ -68,4 +68,12 @@ describe('private OpenRouter preflight key', () => {
       expect.objectContaining({ code: 'OPENROUTER_NOT_CONFIGURED' }),
     );
   });
+
+  it('rejects an oversized key file before reading it', () => {
+    const { path } = fixture('x'.repeat(4_097));
+
+    expect(() => readPrivateOpenRouterApiKey(path)).toThrow(
+      expect.objectContaining({ code: 'OPENROUTER_NOT_CONFIGURED' }),
+    );
+  });
 });

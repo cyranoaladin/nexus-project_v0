@@ -193,12 +193,6 @@ function errorForStatus(
   retryAfterMs: number | null,
   providerCode: string | null,
 ): OpenRouterError {
-  const providerError = errorForRecognizedProviderCode(
-    providerCode,
-    status,
-    retryAfterMs,
-  );
-  if (providerError !== null) return providerError;
   if (status === 400) {
     return new OpenRouterError('OPENROUTER_INVALID_REQUEST', { status });
   }
@@ -211,6 +205,12 @@ function errorForStatus(
   if (status === 403) {
     return new OpenRouterError('OPENROUTER_POLICY_REJECTED', { status });
   }
+  const providerError = errorForRecognizedProviderCode(
+    providerCode,
+    status,
+    retryAfterMs,
+  );
+  if (providerError !== null) return providerError;
   if (status === 408) {
     return new OpenRouterError('OPENROUTER_TIMEOUT', {
       retryable: true,
@@ -282,9 +282,18 @@ function isAbortError(error: unknown): boolean {
 }
 
 function usdCostToMicros(value: string | number): number {
-  const raw = typeof value === 'string'
-    ? value
-    : value.toFixed(12).replace(/(?:\.0+|(\.\d*?)0+)$/, '$1');
+  if (typeof value === 'number') {
+    const micros = Math.ceil(value * 1_000_000);
+    if (
+      !Number.isFinite(value)
+      || value < 0
+      || !Number.isSafeInteger(micros)
+    ) {
+      throw new OpenRouterError('OPENROUTER_INVALID_RESPONSE');
+    }
+    return micros;
+  }
+  const raw = value;
   const match = USD_DECIMAL_PATTERN.exec(raw);
   if (!match) throw new OpenRouterError('OPENROUTER_INVALID_RESPONSE');
   const whole = BigInt(match[1]);
@@ -528,6 +537,7 @@ export class OpenRouterClient {
           signal: controller.signal,
         },
       );
+      generationId = response.headers.get('x-generation-id')?.trim() || null;
       if (!response.ok) {
         const retryAfterMs = retryAfterMilliseconds(response, this.now());
         const providerCode = await readProviderErrorCode(response);
@@ -556,7 +566,6 @@ export class OpenRouterClient {
       returnedModel = parsed.data.model;
       const choice = parsed.data.choices[0];
       finishReason = choice.finish_reason;
-      generationId = response.headers.get('x-generation-id')?.trim() || null;
       promptTokens = parsed.data.usage.prompt_tokens;
       completionTokens = parsed.data.usage.completion_tokens;
       totalTokens = parsed.data.usage.total_tokens;

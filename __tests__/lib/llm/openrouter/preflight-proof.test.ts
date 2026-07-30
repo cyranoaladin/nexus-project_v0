@@ -102,4 +102,27 @@ describe('OpenRouter preflight proof integrity', () => {
       expect.objectContaining({ code: 'OPENROUTER_POLICY_REJECTED' }),
     );
   });
+
+  it('rejects a forged proof even when every public checksum is recomputed', () => {
+    const original = proof();
+    const proofValues = {
+      ...original,
+      verifiedAt: '2026-07-30T12:01:00.000Z',
+      expiresAt: '2026-07-31T12:01:00.000Z',
+      proofChecksum: undefined,
+    };
+    const { proofChecksum: _omitted, ...forgedValues } = proofValues;
+    const forged = {
+      ...forgedValues,
+      proofChecksum: sha256Canonical(forgedValues),
+    };
+
+    expect(() => assertOpenRouterPreflightProof(forged, {
+      apiKey: API_KEY,
+      preflightSoftwareSha: SOFTWARE_SHA,
+      currentTime: Date.parse(forged.verifiedAt),
+    })).toThrow(
+      expect.objectContaining({ code: 'OPENROUTER_POLICY_REJECTED' }),
+    );
+  });
 });
