@@ -6,7 +6,7 @@
 - branche :
   `feat/bilan-assessment-engine-v1-20260730` ;
 - base stabilisée :
-  `be627c788b0b60a6ab63fe7d8f903863fe837278` ;
+  `8596dce21f22f9bcad5f3b4583898ef6395a60f9` ;
 - dépendance : draft PR #88 ;
 - activation et déploiement : non réalisés.
 
@@ -48,8 +48,24 @@ requise pour toute évolution SQL après utilisation.
 
 ## Vérifications
 
-Les compteurs finaux, commandes exactes, durées et SHA propre seront ajoutés
-au rapport de PR après les gates globaux et le checkout de reproduction.
+Les gates exécutés avant le checkout final ont donné :
+
+- tests unitaires globaux : 620 suites réussies, 1 ignorée ; 7 584 tests
+  réussis, 4 ignorés ;
+- tests DB globaux : 17 suites, 205 tests réussis ;
+- intégration PostgreSQL/Redis : 14 suites, 149 tests réussis ;
+- tests moteur DB ciblés : 24 tests réussis ;
+- tests moteur, API et interfaces ciblés : 20 tests réussis ;
+- Playwright complet : 228 tests réussis ;
+- corpus TypeScript : 53 suites, 404 tests réussis ;
+- corpus Python : 267 tests réussis, 2 ignorés ;
+- build : 146 routes, artefact standalone valide ;
+- audit production : zéro vulnérabilité ;
+- audit complet : 36 entrées high d'outillage, zéro critical ;
+- Prisma validate/generate, typecheck, lint et sécurité dépôt : verts.
+
+Le rapport de PR et le rapport final portent les commandes exactes, durées,
+SHA poussé et preuve de reproduction depuis un checkout détaché propre.
 
 ## Verdict intermédiaire
 
