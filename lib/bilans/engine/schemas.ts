@@ -62,8 +62,18 @@ export const manualReviewDecisionCommandSchema = z.object({
   rubricVersion: z.string().trim().min(1).max(160),
 }).strict();
 
+export const manualReviewRevisionCommandSchema = z.object({
+  taskId: identifierSchema,
+  awardedPoints: z.number().min(0).max(1),
+  internalComment: z.string().trim().max(2_000).optional(),
+  publishableComment: z.string().trim().max(1_000).optional(),
+  rubricVersion: z.string().trim().min(1).max(160),
+}).strict();
+
 export type AssignmentCommand = z.infer<typeof assignmentCommandSchema>;
 export type AutosaveCommand = z.infer<typeof autosaveCommandSchema>;
 export type SubmitCommand = z.infer<typeof submitCommandSchema>;
 export type ManualReviewDecisionCommand =
   z.infer<typeof manualReviewDecisionCommandSchema>;
+export type ManualReviewRevisionCommand =
+  z.infer<typeof manualReviewRevisionCommandSchema>;

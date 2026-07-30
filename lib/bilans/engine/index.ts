@@ -24,12 +24,23 @@ export {
   autosaveCommandSchema,
   idempotencyKeySchema,
   manualReviewDecisionCommandSchema,
+  manualReviewRevisionCommandSchema,
   submitCommandSchema,
   type AssignmentCommand,
   type AutosaveCommand,
   type ManualReviewDecisionCommand,
+  type ManualReviewRevisionCommand,
   type SubmitCommand,
 } from './schemas';
+export {
+  claimManualReviewTask,
+  completeManualReviewTask,
+  reviseManualReviewDecision,
+} from './manual-review-service';
+export {
+  parseCanonicalScoreResult,
+  scoreAssessmentAttempt,
+} from './scoring-service';
 export {
   autosaveAssessmentResponse,
   createAssessmentAssignment,
