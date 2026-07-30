@@ -408,7 +408,7 @@ describe('private OpenRouter preflight command', () => {
       ]);
       expect(error.stderr).toBe('');
       expect(error.stdout.trim().split('\n')).toEqual([
-        'PREFLIGHT_STATUS=FAIL',
+        'PREFLIGHT_STATUS=BLOCKED_BY_PRIMARY_MODEL_PREFLIGHT',
         'PRIMARY_MODEL_STATUS=FAIL:OPENROUTER_INVALID_REQUEST',
         'FALLBACK_MODEL_STATUS=PASS',
         'TOTAL_COST_MICROS_USD=100',
