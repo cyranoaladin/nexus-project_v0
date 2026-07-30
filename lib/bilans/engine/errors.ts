@@ -1,0 +1,31 @@
+export const ASSESSMENT_ENGINE_ERROR_CODES = [
+  'ASSIGNMENT_NOT_AVAILABLE',
+  'ASSIGNMENT_NOT_FOUND',
+  'ATTEMPT_LIMIT_REACHED',
+  'ATTEMPT_NOT_EDITABLE',
+  'ATTEMPT_NOT_FOUND',
+  'CATALOG_REFERENCE_MISMATCH',
+  'FINAL_SCORE_REQUIRED',
+  'IDEMPOTENCY_IN_PROGRESS',
+  'IDEMPOTENCY_PAYLOAD_MISMATCH',
+  'INVALID_MANUAL_DECISION',
+  'INVALID_RESPONSE',
+  'ITEM_NOT_IN_DEFINITION',
+  'MANUAL_REVIEW_REQUIRED',
+  'PROVISIONAL_RESULTS_DISABLED',
+  'RESPONSE_VERSION_CONFLICT',
+  'ROLE_FORBIDDEN',
+] as const;
+
+export type AssessmentEngineErrorCode =
+  (typeof ASSESSMENT_ENGINE_ERROR_CODES)[number];
+
+export class AssessmentEngineError extends Error {
+  constructor(
+    public readonly code: AssessmentEngineErrorCode,
+    public readonly status = 409,
+  ) {
+    super(code);
+    this.name = 'AssessmentEngineError';
+  }
+}
