@@ -4,13 +4,12 @@ import {
 } from '@/lib/bilans/requests/feature-flags';
 
 describe('bilan server feature flags', () => {
-  it('defines only the five private server flag names', () => {
+  it('defines only the four boolean private server flag names', () => {
     expect(BILAN_FEATURE_FLAG_NAMES).toEqual([
       'BILAN_CANONICAL_INTAKE_ENABLED',
       'BILAN_MATHS_TERMINALE_PILOT_ENABLED',
       'BILAN_PROVISIONAL_RESULTS_ENABLED',
       'BILAN_TEAM_REALTIME_ENABLED',
-      'BILAN_LLM_ENRICHMENT_ENABLED',
     ]);
     expect(BILAN_FEATURE_FLAG_NAMES.every((name) => !name.startsWith('NEXT_PUBLIC_'))).toBe(true);
   });
@@ -21,14 +20,12 @@ describe('bilan server feature flags', () => {
       mathsTerminalePilotEnabled: false,
       provisionalResultsEnabled: false,
       teamRealtimeEnabled: false,
-      llmEnrichmentEnabled: false,
     });
     expect(getBilanFeatureFlags({ NODE_ENV: 'production' })).toEqual({
       canonicalIntakeEnabled: false,
       mathsTerminalePilotEnabled: false,
       provisionalResultsEnabled: false,
       teamRealtimeEnabled: false,
-      llmEnrichmentEnabled: false,
     });
   });
 
@@ -39,14 +36,12 @@ describe('bilan server feature flags', () => {
         BILAN_MATHS_TERMINALE_PILOT_ENABLED: enabledValue,
         BILAN_PROVISIONAL_RESULTS_ENABLED: enabledValue,
         BILAN_TEAM_REALTIME_ENABLED: enabledValue,
-        BILAN_LLM_ENRICHMENT_ENABLED: enabledValue,
       }),
     ).toEqual({
       canonicalIntakeEnabled: true,
       mathsTerminalePilotEnabled: true,
       provisionalResultsEnabled: true,
       teamRealtimeEnabled: true,
-      llmEnrichmentEnabled: true,
     });
   });
 
@@ -60,10 +55,9 @@ describe('bilan server feature flags', () => {
             BILAN_MATHS_TERMINALE_PILOT_ENABLED: disabledValue,
             BILAN_PROVISIONAL_RESULTS_ENABLED: disabledValue,
             BILAN_TEAM_REALTIME_ENABLED: disabledValue,
-            BILAN_LLM_ENRICHMENT_ENABLED: disabledValue,
           }),
         ),
-      ).toEqual([false, false, false, false, false]);
+      ).toEqual([false, false, false, false]);
     },
   );
 });

@@ -75,7 +75,8 @@ Les noms sans secret sont centralisés dans `.env.example` :
 - `BILAN_MATHS_TERMINALE_PILOT_ENABLED` ;
 - `BILAN_PROVISIONAL_RESULTS_ENABLED` ;
 - `BILAN_TEAM_REALTIME_ENABLED` ;
-- `BILAN_LLM_ENRICHMENT_ENABLED` ;
+- `BILAN_REPORT_GENERATION_MODE=DISABLED` (le contrat OpenRouter reste
+  découplé de l'activation du moteur) ;
 - `UPSTASH_REDIS_REST_URL` et `UPSTASH_REDIS_REST_TOKEN` selon le backend ;
 - `BILAN_TEAM_NOTIFICATION_EMAIL` ;
 - configuration SMTP existante du dépôt.
