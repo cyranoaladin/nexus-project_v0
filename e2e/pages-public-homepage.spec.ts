@@ -119,7 +119,7 @@ test.describe('Homepage (/) - Landing Nexus Reussite', () => {
     await expect(title).toBeVisible();
     expect(await title.evaluate((element) => getComputedStyle(element).color)).toBe('rgb(7, 26, 58)');
     await expect(spotlight.getByRole('link', { name: 'Découvrir la Pré-rentrée 2026' })).toHaveAttribute('href', '/stages/pre-rentree-2026');
-    await expect(spotlight.getByRole('link', { name: 'Voir le planning' })).toHaveAttribute('href', '/stages/pre-rentree-2026#planning');
+    await expect(spotlight.getByRole('link', { name: 'Voir les offres' })).toHaveAttribute('href', '/stages/pre-rentree-2026#offres-pre-rentree');
     expect(await page.evaluate(() => {
       const campaign = document.querySelector('[data-testid="pre-rentree-home-spotlight"]');
       const hero = document.querySelector('[data-hero]');
@@ -143,14 +143,14 @@ test.describe('Homepage (/) - Landing Nexus Reussite', () => {
     }
   });
 
-  test('expose la campagne dans les navbars desktop et mobile tout en gardant Connexion', async ({ page }) => {
+  test('garde la campagne hors des navbars permanentes tout en conservant Connexion', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 1000 });
     await page.goto('/');
-    await expect(page.getByTestId('pre-rentree-nav-desktop')).toBeVisible();
+    await expect(page.getByTestId('pre-rentree-nav-desktop')).toHaveCount(0);
 
     await page.setViewportSize({ width: 320, height: 800 });
     await page.goto('/');
-    await expect(page.getByTestId('pre-rentree-nav-mobile')).toBeVisible();
+    await expect(page.getByTestId('pre-rentree-nav-mobile')).toHaveCount(0);
     await page.getByRole('button', { name: 'Ouvrir le menu' }).click();
     const menu = page.getByRole('dialog', { name: 'Menu principal' });
     await expect(menu.getByRole('link', { name: /Se connecter/i })).toHaveAttribute('href', '/auth/signin');
@@ -215,12 +215,8 @@ test.describe('Homepage (/) - Landing Nexus Reussite', () => {
         eventName: 'pre_rentree_home_spotlight_clicked',
       },
       {
-        selector: '[data-testid="pre-rentree-home-spotlight"] a[href$="#planning"]',
+        selector: '[data-testid="pre-rentree-home-spotlight"] a[href$="#offres-pre-rentree"]',
         eventName: 'pre_rentree_home_planning_clicked',
-      },
-      {
-        selector: '[data-testid="pre-rentree-nav-desktop"]',
-        eventName: 'pre_rentree_nav_clicked',
       },
     ];
 

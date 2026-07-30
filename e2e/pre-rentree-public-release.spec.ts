@@ -61,7 +61,9 @@ test.describe('Candidat public Pré-rentrée 2026', () => {
       await expect(row).not.toContainText('10 séances · 20 h');
     }
 
-    await expect(planning).toContainText('Deux salles permanentes et une troisième salle temporaire');
+    await expect(planning).toContainText(
+      'La disponibilité du groupe est confirmée par notre équipe lors de votre demande.',
+    );
     await expect(planning).not.toContainText(/Salle [123]/);
   });
 
@@ -71,7 +73,7 @@ test.describe('Candidat public Pré-rentrée 2026', () => {
     await selector.getByLabel('Classe de rentrée').selectOption('TERMINALE');
 
     const checkboxes = selector.getByRole('checkbox');
-    await expect(checkboxes).toHaveCount(5);
+    await expect(checkboxes).toHaveCount(6);
     for (let index = 0; index < 5; index += 1) await checkboxes.nth(index).click();
 
     await expect(selector.getByRole('alert')).toHaveText(
@@ -103,7 +105,7 @@ test.describe('Candidat public Pré-rentrée 2026', () => {
     expect(message).toContain('sous réserve de places disponibles');
   });
 
-  test('expose sept PDF et reste lisible, accessible et sans erreur console', async ({ page }) => {
+  test('expose huit PDF allowlistés et reste lisible, accessible et sans erreur console', async ({ page }) => {
     const consoleErrors: string[] = [];
     page.on('console', (message) => {
       if (message.type() === 'error') consoleErrors.push(message.text());
@@ -120,8 +122,10 @@ test.describe('Candidat public Pré-rentrée 2026', () => {
     }
 
     const pdfLinks = page.locator('a[href^="/documents/pre-rentree-2026/"][href$=".pdf"]');
-    await expect(pdfLinks).toHaveCount(7);
-    await expect(page.getByText(/demande d.information sans paiement/i)).toBeVisible();
+    await expect(pdfLinks).toHaveCount(8);
+    await expect(page.locator('section[aria-labelledby="reservation-heading"]')).toContainText(
+      'sans paiement',
+    );
     await expect(page.getByRole('link', { name: /pré-inscrire|réserver|payer/i })).toHaveCount(0);
 
     const axe = await new AxeBuilder({ page }).analyze();
