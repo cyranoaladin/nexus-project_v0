@@ -229,6 +229,9 @@ describe('immutable local-first artifact envelope', () => {
     expect(scanLocalFirstArtifactPayload({
       piiScanResult: { redactionCount: 123_456 },
     }).status).toBe('BLOCKED');
+    expect(scanLocalFirstArtifactPayload({
+      unrelated: { piiScanResult: validScan },
+    }).status).toBe('BLOCKED');
   });
 
   it('allows a bounded decimal percentage on its exact scoreEcho path', () => {
