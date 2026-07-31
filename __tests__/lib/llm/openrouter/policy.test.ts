@@ -5,6 +5,8 @@ import {
   BILAN_MODEL_POLICY,
   BILAN_MODEL_POLICY_CHECKSUM,
   BILAN_MODEL_POLICY_CONFIG_VERSION,
+  BILAN_TRANSPORT_POLICY,
+  BILAN_TRANSPORT_POLICY_CHECKSUM,
 } from '@/lib/llm/openrouter/policy';
 
 describe('bilan OpenRouter model policy v1.1', () => {
@@ -70,6 +72,22 @@ describe('bilan OpenRouter model policy v1.1', () => {
       false,
     )).toBe(false);
     expect(BILAN_MODEL_POLICY.providerPolicy.zdr).toBe(true);
+  });
+
+  it('versions the output token parameter per exact approved model', () => {
+    expect(BILAN_TRANSPORT_POLICY).toEqual({
+      id: 'bilan-openrouter-transport-policy',
+      version: '1',
+      outputTokenParameters: {
+        'anthropic/claude-sonnet-5': 'max_tokens',
+        'openai/gpt-5.6-terra': 'max_completion_tokens',
+      },
+    });
+    expect(BILAN_TRANSPORT_POLICY_CHECKSUM).toMatch(/^[a-f0-9]{64}$/);
+    expect(Object.isFrozen(BILAN_TRANSPORT_POLICY)).toBe(true);
+    expect(Object.isFrozen(
+      BILAN_TRANSPORT_POLICY.outputTokenParameters,
+    )).toBe(true);
   });
 
   it('keeps the checked-in policy free of auto/latest model aliases', () => {

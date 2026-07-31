@@ -677,18 +677,15 @@ export class OpenRouterClient {
       },
       stream: false,
     };
-    const body: OpenRouterRequestBody | OpenRouterDiagnosticRequestBody =
-      diagnosticVariant === undefined
-        ? {
-          ...baseBody,
-          max_tokens: this.config.maxOutputTokens,
-        } as OpenRouterRequestBody
-        : {
-          ...baseBody,
-          model: 'openai/gpt-5.6-terra',
-          [diagnosticVariant.outputTokenParameter]:
-            diagnosticVariant.maxOutputTokens,
-        } as OpenRouterDiagnosticRequestBody;
+    const outputTokenParameter = diagnosticVariant?.outputTokenParameter
+      ?? snapshot.outputTokenParameter;
+    const body: OpenRouterRequestBody | OpenRouterDiagnosticRequestBody = {
+      ...baseBody,
+      ...(diagnosticVariant === undefined
+        ? {}
+        : { model: 'openai/gpt-5.6-terra' as const }),
+      [outputTokenParameter]: requestedMaxOutputTokens,
+    } as OpenRouterRequestBody | OpenRouterDiagnosticRequestBody;
 
     const startedAtMs = this.now();
     let generationId: string | null = null;
@@ -809,6 +806,7 @@ export class OpenRouterClient {
           returnedModel,
           provider,
           canonicalSlug: snapshot.canonicalSlug,
+          outputTokenParameter: snapshot.outputTokenParameter,
           generationId,
           finishReason,
           promptTokens,

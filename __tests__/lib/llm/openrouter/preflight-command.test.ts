@@ -122,8 +122,14 @@ describe('private OpenRouter preflight command', () => {
         'anthropic/claude-sonnet-5',
         'openai/gpt-5.6-terra',
       ]);
+      expect(requests[0]).toHaveProperty('max_tokens', 2_048);
+      expect(requests[0]).not.toHaveProperty('max_completion_tokens');
+      expect(requests[1]).toHaveProperty(
+        'max_completion_tokens',
+        2_048,
+      );
+      expect(requests[1]).not.toHaveProperty('max_tokens');
       for (const body of requests) {
-        expect(body.max_tokens).toBe(256);
         expect(body.reasoning).toEqual({ effort: 'low', exclude: true });
         expect(body).not.toHaveProperty('usage');
         expect(body).not.toHaveProperty('temperature');
@@ -148,6 +154,9 @@ describe('private OpenRouter preflight command', () => {
         policyId: 'bilan-model-policy',
         policyVersion: '1.1',
         policyChecksum: expect.stringMatching(/^[a-f0-9]{64}$/),
+        transportPolicyId: 'bilan-openrouter-transport-policy',
+        transportPolicyVersion: '1',
+        transportPolicyChecksum: expect.stringMatching(/^[a-f0-9]{64}$/),
         retryPolicyVersion: '1',
         preflightSoftwareSha: expect.stringMatching(/^[a-f0-9]{40}$/),
         catalogChecksum: expect.stringMatching(/^[a-f0-9]{64}$/),
@@ -158,7 +167,7 @@ describe('private OpenRouter preflight command', () => {
         limits: {
           maxTotalCostMicrosUsd: 200_000,
           maxCostPerModelMicrosUsd: 100_000,
-          maxOutputTokens: 256,
+          maxOutputTokens: 2_048,
           modelCallCount: 2,
         },
         privacyAttestations: {
@@ -187,6 +196,7 @@ describe('private OpenRouter preflight command', () => {
       expect(report.modelResults).toHaveLength(2);
       expect(report.modelResults[0]).toMatchObject({
         requestedModel: 'anthropic/claude-sonnet-5',
+        outputTokenParameter: 'max_tokens',
         returnedModel: 'anthropic/claude-sonnet-5',
         provider: 'synthetic-provider',
         finishReason: 'stop',
@@ -200,6 +210,10 @@ describe('private OpenRouter preflight command', () => {
         dataCollectionDenyRequested: true,
         requireParametersRequested: true,
         contractValid: true,
+      });
+      expect(report.modelResults[1]).toMatchObject({
+        requestedModel: 'openai/gpt-5.6-terra',
+        outputTokenParameter: 'max_completion_tokens',
       });
       expect(report).not.toHaveProperty('proof');
       expect(report).not.toHaveProperty('configuration');
