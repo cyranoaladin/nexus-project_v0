@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "bilan-synthetic-assessment-v1",
+  "sourceSha": "1111111111111111111111111111111111111111",
+  "inputChecksum": "5426cd867133084b37c7da1812f2fda23aa5291a255d12c40050d5e69a506379",
+  "createdAt": "2026-07-31T07:00:01.000Z",
+  "audience": "PARENT",
+  "classification": "SYNTHETIC_BENCHMARK",
+  "piiStatus": "NO_PII",
+  "fixtureId": "synthetic-simple-01",
+  "complexity": "SIMPLE",
+  "coverage": ["HIGH_SCORE", "NO_MAJOR_DIFFICULTY"],
+  "level": "Troisième",
+  "subject": "Mathématiques",
+  "score": {"points": 18, "maxPoints": 20, "calibrationStatus": "FINAL"},
+  "competencies": [{"competencyId": "cmp:calcul", "title": "Calcul numérique", "status": "MASTERED"}],
+  "evidence": [{"evidenceRef": "ev:s01:calcul", "competencyId": "cmp:calcul", "text": "Les procédures sont appliquées avec régularité.", "trust": "CURATED"}],
+  "priorities": [{"competencyId": "cmp:calcul", "title": "Entretenir les automatismes", "priority": "LOW", "evidenceRefs": ["ev:s01:calcul"]}],
+  "allowedRecommendations": [{"recommendationId": "rec:s01", "title": "Conserver un entraînement régulier", "rationale": "Les acquis sont solides sur la preuve disponible.", "evidenceRefs": ["ev:s01:calcul"]}],
+  "unmeasuredCompetencyIds": [],
+  "internalNotes": ["Profil synthétique sans difficulté majeure."]
+}

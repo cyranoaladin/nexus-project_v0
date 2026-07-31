@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "bilan-synthetic-assessment-v1",
+  "sourceSha": "3333333333333333333333333333333333333333",
+  "inputChecksum": "03e1341e7872f29ba9da57b87d3a698f913e19dd037283a1b5dc84b74a36bca8",
+  "createdAt": "2026-07-31T07:02:02.000Z",
+  "audience": "PARENT",
+  "classification": "SYNTHETIC_BENCHMARK",
+  "piiStatus": "NO_PII",
+  "fixtureId": "synthetic-complex-02",
+  "complexity": "COMPLEX",
+  "coverage": ["LOW_SCORE", "HIGH_PRIORITY", "UNMEASURED_COMPETENCY"],
+  "level": "Terminale",
+  "subject": "Philosophie",
+  "score": {"points": 6, "maxPoints": 20, "calibrationStatus": "FINAL"},
+  "competencies": [
+    {"competencyId": "cmp:problematique", "title": "Problématisation", "status": "PRIORITY"},
+    {"competencyId": "cmp:culture", "title": "Repères philosophiques", "status": "UNMEASURED"}
+  ],
+  "evidence": [{"evidenceRef": "ev:c02:probleme", "competencyId": "cmp:problematique", "text": "La question est reformulée sans tension conceptuelle explicite.", "trust": "CURATED"}],
+  "priorities": [{"competencyId": "cmp:problematique", "title": "Construire une tension conceptuelle", "priority": "HIGH", "evidenceRefs": ["ev:c02:probleme"]}],
+  "allowedRecommendations": [{"recommendationId": "rec:c02", "title": "Distinguer deux réponses possibles", "rationale": "La preuve montre une reformulation sans véritable problème.", "evidenceRefs": ["ev:c02:probleme"]}],
+  "unmeasuredCompetencyIds": ["cmp:culture"],
+  "internalNotes": ["Aucune conclusion ne doit porter sur les repères non mesurés."]
+}

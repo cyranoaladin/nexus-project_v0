@@ -1,0 +1,27 @@
+{
+  "schemaVersion": "bilan-synthetic-assessment-v1",
+  "sourceSha": "3333333333333333333333333333333333333333",
+  "inputChecksum": "fcb2f5203a418d2bf7b8c440e9f19bf497ff6b49e45a0c1430fc8de40bfa453c",
+  "createdAt": "2026-07-31T07:02:03.000Z",
+  "audience": "PARENT",
+  "classification": "SYNTHETIC_BENCHMARK",
+  "piiStatus": "NO_PII",
+  "fixtureId": "synthetic-complex-03",
+  "complexity": "COMPLEX",
+  "coverage": ["HIGH_SCORE", "NO_MAJOR_DIFFICULTY", "MULTIPLE_EVIDENCE_REFS"],
+  "level": "Troisième",
+  "subject": "Français",
+  "score": {"points": 19, "maxPoints": 20, "calibrationStatus": "FINAL"},
+  "competencies": [
+    {"competencyId": "cmp:lecture", "title": "Compréhension de texte", "status": "MASTERED"},
+    {"competencyId": "cmp:ecriture", "title": "Écriture organisée", "status": "MASTERED"}
+  ],
+  "evidence": [
+    {"evidenceRef": "ev:c03:lecture", "competencyId": "cmp:lecture", "text": "Les implicites principaux sont justifiés par le texte.", "trust": "CURATED"},
+    {"evidenceRef": "ev:c03:ecriture", "competencyId": "cmp:ecriture", "text": "Le développement suit une progression claire.", "trust": "CURATED"}
+  ],
+  "priorities": [{"competencyId": "cmp:ecriture", "title": "Affiner les transitions", "priority": "LOW", "evidenceRefs": ["ev:c03:ecriture"]}],
+  "allowedRecommendations": [{"recommendationId": "rec:c03", "title": "Maintenir une pratique variée", "rationale": "Les deux compétences mesurées sont solidement mobilisées.", "evidenceRefs": ["ev:c03:lecture", "ev:c03:ecriture"]}],
+  "unmeasuredCompetencyIds": [],
+  "internalNotes": ["Cas complexe sans difficulté majeure."]
+}

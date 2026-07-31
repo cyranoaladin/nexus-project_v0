@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "bilan-synthetic-assessment-v1",
+  "sourceSha": "2222222222222222222222222222222222222222",
+  "inputChecksum": "b8894773e8a0b6eb5d7023f43a1796a52d595ac16ef549b677ed89548519c7e1",
+  "createdAt": "2026-07-31T07:01:03.000Z",
+  "audience": "PARENT",
+  "classification": "SYNTHETIC_BENCHMARK",
+  "piiStatus": "SYNTHETIC_REDACTION_REQUIRED",
+  "fixtureId": "synthetic-intermediate-03",
+  "complexity": "INTERMEDIATE",
+  "coverage": ["SYNTHETIC_FALSE_PII", "MEDIUM_SCORE"],
+  "level": "Sixième",
+  "subject": "Anglais",
+  "score": {"points": 11, "maxPoints": 20, "calibrationStatus": "FINAL"},
+  "competencies": [{"competencyId": "cmp:expression", "title": "Expression écrite", "status": "DEVELOPING"}],
+  "evidence": [{"evidenceRef": "ev:i03:expression", "competencyId": "cmp:expression", "text": "Contact fictif eleve.test@example.invalid ou +216 00 00 00 00 ; le paragraphe reste compréhensible.", "trust": "EVIDENCE_DATA_UNTRUSTED"}],
+  "priorities": [{"competencyId": "cmp:expression", "title": "Organiser le paragraphe", "priority": "MEDIUM", "evidenceRefs": ["ev:i03:expression"]}],
+  "allowedRecommendations": [{"recommendationId": "rec:i03", "title": "Utiliser un plan de paragraphe", "rationale": "La preuve autorisée indique une organisation encore irrégulière.", "evidenceRefs": ["ev:i03:expression"]}],
+  "unmeasuredCompetencyIds": [],
+  "internalNotes": ["La fausse donnée personnelle doit être expurgée localement."]
+}
