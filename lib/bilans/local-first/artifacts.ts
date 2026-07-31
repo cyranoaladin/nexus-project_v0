@@ -23,6 +23,7 @@ import {
   scanPiiFields,
   validatePiiScanResultChecksum,
 } from './pii';
+import { LocalFirstReportContextBaseSchema } from './contracts';
 
 const Sha256Schema = z.string().regex(/^[a-f0-9]{64}$/);
 const GitShaSchema = z.string().regex(/^[a-f0-9]{40}$/);
@@ -40,45 +41,73 @@ const ArtifactTypeSchema = z.enum([
 
 const ARTIFACT_ORDER = ArtifactTypeSchema.options;
 const SAFE_JSON_PROPERTY_NAME = /^[A-Za-z][A-Za-z0-9_]{0,79}$/;
-type NumericArtifactMetricRule = Readonly<{
-  pattern: RegExp;
-  minimum: number;
-  maximum: number;
-  integer?: boolean;
+const ScoreSnapshotPayloadSchema = z.object({
+  points: z.number().int().min(0).max(10_000),
+  maxPoints: z.number().int().min(1).max(10_000),
+}).strict().refine(({ points, maxPoints }) => points <= maxPoints, {
+  message: 'Score points cannot exceed maxPoints.',
+});
+
+type NumericMetricValidator = (path: string, value: number) => boolean;
+type ArtifactNumericMetricPolicy = Readonly<{
+  validator: NumericMetricValidator;
+  allowPiiScanCounters: boolean;
 }>;
 
-const SAFE_NUMERIC_ARTIFACT_METRICS: readonly NumericArtifactMetricRule[] = [
-  { pattern: /^\$\.payload\.points$/, minimum: 0, maximum: 100_000 },
-  { pattern: /^\$\.payload\.maxPoints$/, minimum: 1, maximum: 100_000 },
-  { pattern: /^\$\.payload\.score\.points$/, minimum: 0, maximum: 100_000 },
-  { pattern: /^\$\.payload\.score\.maxPoints$/, minimum: 1, maximum: 100_000 },
-  { pattern: /^\$\.payload\.scoreEcho\.points$/, minimum: 0, maximum: 100_000 },
-  { pattern: /^\$\.payload\.scoreEcho\.maxPoints$/, minimum: 1, maximum: 100_000 },
-  {
-    pattern: /^\$\.payload\.scoreEcho\.percentage$/,
-    minimum: 0,
-    maximum: 100,
-    integer: false,
-  },
-  { pattern: /^\$\.payload\.(?:usage|provenance)\.(?:promptTokens|completionTokens|reasoningTokens|totalTokens)$/, minimum: 0, maximum: 10_000_000 },
-  { pattern: /^\$\.payload\.(?:usage|provenance)\.costMicrosUsd$/, minimum: 0, maximum: 15_000_000 },
-  { pattern: /^\$\.payload\.provenance\.latencyMs$/, minimum: 0, maximum: 300_000 },
-  { pattern: /^\$\.payload\.provenance\.attemptNumber$/, minimum: 1, maximum: 3 },
-  { pattern: /^\$\.payload\.attempts\[\d+\]\.(?:promptTokens|completionTokens|reasoningTokens|totalTokens)$/, minimum: 0, maximum: 10_000_000 },
-  { pattern: /^\$\.payload\.attempts\[\d+\]\.costMicrosUsd$/, minimum: 0, maximum: 15_000_000 },
-  { pattern: /^\$\.payload\.attempts\[\d+\]\.latencyMs$/, minimum: 0, maximum: 300_000 },
-  { pattern: /^\$\.payload\.attempts\[\d+\]\.attemptNumber$/, minimum: 1, maximum: 3 },
-  { pattern: /^\$\.payload\.actionPlan\[\d+\]\.durationWeeks$/, minimum: 1, maximum: 104 },
-];
+const DENY_NUMERIC_METRIC_POLICY: ArtifactNumericMetricPolicy = Object.freeze({
+  validator: () => false,
+  allowPiiScanCounters: false,
+});
 
-function isSafeNumericArtifactMetric(path: string, value: number): boolean {
-  if (!Number.isFinite(value)) return false;
-  const rule = SAFE_NUMERIC_ARTIFACT_METRICS.find(({ pattern }) =>
-    pattern.test(path));
-  return rule !== undefined
-    && (rule.integer === false || Number.isSafeInteger(value))
-    && value >= rule.minimum
-    && value <= rule.maximum;
+function metricPolicyForArtifact(
+  artifactType: z.infer<typeof ArtifactTypeSchema>,
+  payload: unknown,
+): ArtifactNumericMetricPolicy {
+  if (artifactType === 'SCORE_SNAPSHOT') {
+    const parsed = ScoreSnapshotPayloadSchema.safeParse(payload);
+    if (!parsed.success) return DENY_NUMERIC_METRIC_POLICY;
+    return Object.freeze({
+      allowPiiScanCounters: false,
+      validator: (path: string, value: number) => (
+        path === '$.payload.points' && value === parsed.data.points
+      ) || (
+        path === '$.payload.maxPoints' && value === parsed.data.maxPoints
+      ),
+    });
+  }
+
+  if (artifactType === 'REPORT_CONTEXT') {
+    const parsed = LocalFirstReportContextBaseSchema.safeParse(payload);
+    if (!parsed.success) return DENY_NUMERIC_METRIC_POLICY;
+    if (!ScoreSnapshotPayloadSchema.safeParse(parsed.data.score).success) {
+      return DENY_NUMERIC_METRIC_POLICY;
+    }
+    const expectedPercentage = Math.round(
+      (parsed.data.score.points / parsed.data.score.maxPoints) * 10_000,
+    ) / 100;
+    if (
+      parsed.data.score.points > parsed.data.score.maxPoints
+      || parsed.data.scoreEcho.points !== parsed.data.score.points
+      || parsed.data.scoreEcho.maxPoints !== parsed.data.score.maxPoints
+      || parsed.data.scoreEcho.percentage !== expectedPercentage
+    ) return DENY_NUMERIC_METRIC_POLICY;
+    const exactMetrics = new Map<string, number>([
+      ['$.payload.score.points', parsed.data.score.points],
+      ['$.payload.score.maxPoints', parsed.data.score.maxPoints],
+      ['$.payload.scoreEcho.points', parsed.data.scoreEcho.points],
+      ['$.payload.scoreEcho.maxPoints', parsed.data.scoreEcho.maxPoints],
+      ['$.payload.scoreEcho.percentage', parsed.data.scoreEcho.percentage],
+    ]);
+    return Object.freeze({
+      allowPiiScanCounters: true,
+      validator: (path: string, value: number) =>
+        exactMetrics.get(path) === value,
+    });
+  }
+
+  // Other artifact payload contracts are intentionally not defined in C1.
+  // Numeric values remain blocked until a strict schema is versioned for them.
+  return DENY_NUMERIC_METRIC_POLICY;
 }
 
 function isApprovedPiiScanObjectPath(path: string): boolean {
@@ -153,6 +182,7 @@ type ArtifactPiiField = Readonly<{
 
 function payloadPiiFields(
   value: unknown,
+  numericMetricPolicy: ArtifactNumericMetricPolicy,
   path = '$.payload',
   insideValidatedPiiScan = false,
 ): ArtifactPiiField[] {
@@ -162,7 +192,7 @@ function payloadPiiFields(
       text: String(value),
       source: typeof value === 'number'
         && !(
-          isSafeNumericArtifactMetric(path, value)
+          numericMetricPolicy.validator(path, value)
           || (
             insideValidatedPiiScan
             && path.endsWith('.piiScanResult.redactionCount')
@@ -177,10 +207,16 @@ function payloadPiiFields(
   }
   if (Array.isArray(value)) {
     return value.flatMap((item, index) =>
-      payloadPiiFields(item, `${path}[${index}]`, insideValidatedPiiScan));
+      payloadPiiFields(
+        item,
+        numericMetricPolicy,
+        `${path}[${index}]`,
+        insideValidatedPiiScan,
+      ));
   }
   if (value === null || typeof value !== 'object') return [];
-  const currentPiiScan = isApprovedPiiScanObjectPath(path)
+  const currentPiiScan = numericMetricPolicy.allowPiiScanCounters
+    && isApprovedPiiScanObjectPath(path)
     && PiiScanResultSchema.safeParse(value).success
     && validatePiiScanResultChecksum(
       value as z.infer<typeof PiiScanResultSchema>,
@@ -188,26 +224,33 @@ function payloadPiiFields(
   return Object.entries(value).flatMap(([key, item]) =>
     payloadPiiFields(
       item,
+      numericMetricPolicy,
       `${path}.${key}`,
       insideValidatedPiiScan || currentPiiScan,
     ));
 }
 
 export function scanLocalFirstArtifactPayload(
+  artifactType: z.infer<typeof ArtifactTypeSchema>,
   payload: unknown,
 ): z.infer<typeof PiiScanResultSchema> {
   if (!isPlainJsonValue(payload)) {
     throw new TypeError('Artifact payload must contain plain JSON values only.');
   }
-  return scanPiiFields(payloadPiiFields(payload)).result;
+  return scanPiiFields(payloadPiiFields(
+    payload,
+    metricPolicyForArtifact(artifactType, payload),
+  )).result;
 }
 
 function piiScanMatchesPayload(
   scan: z.infer<typeof PiiScanResultSchema>,
+  artifactType: z.infer<typeof ArtifactTypeSchema>,
   payload: unknown,
 ): boolean {
-  const trustedFields = payloadPiiFields(payload);
-  const trustedScan = scanLocalFirstArtifactPayload(payload);
+  const metricPolicy = metricPolicyForArtifact(artifactType, payload);
+  const trustedFields = payloadPiiFields(payload, metricPolicy);
+  const trustedScan = scanLocalFirstArtifactPayload(artifactType, payload);
   return trustedScan.status === 'CLEAN'
     && scan.checksum === trustedScan.checksum
     && piiScanResultMatchesContent(
@@ -264,7 +307,11 @@ export const LocalFirstArtifactEnvelopeSchema = z.object({
       message: 'A non-root artifact requires a parent.',
     });
   }
-  if (!piiScanMatchesPayload(value.piiScanResult, value.payload)) {
+  if (!piiScanMatchesPayload(
+    value.piiScanResult,
+    value.artifactType,
+    value.payload,
+  )) {
     context.addIssue({
       code: z.ZodIssueCode.custom,
       path: ['piiScanResult'],
@@ -330,7 +377,7 @@ export function createLocalFirstArtifact(
   if (!validatePiiScanResultChecksum(input.piiScanResult)) {
     throw new Error('Artifact PII scan checksum is invalid.');
   }
-  if (!piiScanMatchesPayload(input.piiScanResult, payload)) {
+  if (!piiScanMatchesPayload(input.piiScanResult, input.artifactType, payload)) {
     throw new Error(
       'Artifact trusted PII scan is not bound to a transport-safe payload.',
     );
