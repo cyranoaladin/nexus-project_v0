@@ -10,6 +10,7 @@ import {
 } from '@/components/marketing/acadomia-inspired';
 import socialProof from '@/content/social-proof.json';
 import team from '@/content/team.json';
+import { getRules } from '@/lib/pricing-client';
 
 describe('Acadomia-inspired marketing components', () => {
   it('renders the required process copy and 24h commitment', () => {
@@ -22,16 +23,17 @@ describe('Acadomia-inspired marketing components', () => {
     expect(screen.getByText('Réponse sous 24 h ouvrées.')).toBeInTheDocument();
   });
 
-  it('renders the risk-reversal chips with exact approved copy', () => {
+  it('renders the risk-reversal chips with the réservation-250 copy (no "Acompte" wording)', () => {
     render(<ReassuranceChips />);
 
     // Assert exact typographic characters: \u00A0 (NBSP) before ?, \u2019 (right single quote) for apostrophe.
     // Use normalizer:false to prevent Testing Library from collapsing NBSP to regular space.
     const noNorm = { normalizer: (s: string) => s };
-    expect(screen.getByText(`Groupe non ouvert\u00A0? Acompte intégralement remboursé.`, noNorm)).toBeInTheDocument();
-    expect(screen.getByText('Acompte déductible de votre parcours annuel.')).toBeInTheDocument();
-    expect(screen.getByText(`Acompte reportable sur l\u2019année suivante.`, noNorm)).toBeInTheDocument();
-    expect(screen.getByText('Solde réglé avant chaque prestation.')).toBeInTheDocument();
+    const reservation = getRules().payment.reservation_flat_tnd;
+    expect(screen.getByText(`Groupe non ouvert\u00A0? Réservation intégralement remboursée.`, noNorm)).toBeInTheDocument();
+    expect(screen.getByText(`Réservation de ${reservation} TND déductible de votre parcours annuel.`)).toBeInTheDocument();
+    expect(screen.getByText(`Réservation reportable sur l\u2019année suivante.`, noNorm)).toBeInTheDocument();
+    expect(screen.getByText('Solde en 10 mensualités, réglé au fil des séances.')).toBeInTheDocument();
   });
 
   it('renders the transparency banner with exact approved copy', () => {

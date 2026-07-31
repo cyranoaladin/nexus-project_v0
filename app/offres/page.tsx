@@ -7,7 +7,9 @@ import {
   ExamCard,
   PassCard,
   CarteNexusCard,
+  ComparisonTable,
   FAQAccordion,
+  type ComparisonRow,
 } from '@/components/premium';
 import {
   getOffersByLevel,
@@ -31,6 +33,7 @@ import {
 } from '@/lib/pricing';
 import { CustomQuoteLibre } from '@/components/offres/CustomQuoteLibre';
 import { ReferralProgramNote } from '@/components/offres/ReferralProgramNote';
+import { WhereMoneyGoes } from '@/components/offres/WhereMoneyGoes';
 import {
   ReassuranceChips,
   TransparencyBanner,
@@ -55,6 +58,20 @@ const categories: { id: Category; label: string }[] = [
   { id: 'coaching', label: 'Boussole' },
   { id: 'pass', label: 'Pass' },
   { id: 'carte', label: 'Carte Nexus' },
+];
+
+// ── Nexus vs cours particulier — comparateur (bloc anti-objection prix) ──
+
+const comparisonRows: ComparisonRow[] = [
+  { feature: 'Diagnostic + carte d’examen', nexus: true, traditional: false },
+  { feature: 'Méthode alignée sur le programme officiel', nexus: true, traditional: false },
+  { feature: 'Tableau de bord parent & élève', nexus: true, traditional: false },
+  { feature: 'Accompagnement hors séances', nexus: true, traditional: false },
+  { feature: 'Bilans réguliers', nexus: true, traditional: false },
+  { feature: 'Épreuves blanches sur grille officielle', nexus: true, traditional: false },
+  { feature: 'Studio Grand Oral', nexus: true, traditional: false },
+  { feature: 'Cellule Candidat Libre', nexus: true, traditional: false },
+  { feature: 'Tarifs publics, remboursables', nexus: true, traditional: false },
 ];
 
 // ── Mega-parcours grouping ──
@@ -182,6 +199,24 @@ export default function OffresPage() {
       </section>
 
       <OffersFiltersClient categories={categories} />
+
+      {/* Nexus vs cours particulier — bloc anti-objection prix — bg paper */}
+      <section
+        data-testid="section-comparateur"
+        className="bg-lux-paper py-12 px-4 md:px-6"
+      >
+        <div className="mx-auto max-w-6xl">
+          <div className="mb-8">
+            <span className="lux-eyebrow">Pourquoi Nexus</span>
+            <h2 className="mt-2 text-2xl md:text-3xl">Nexus Réussite vs cours particulier</h2>
+            <div className="lux-filet-gold mt-3 w-16" />
+          </div>
+          <div className="grid gap-6 lg:grid-cols-[1.3fr_1fr] lg:items-start">
+            <ComparisonTable rows={comparisonRows} />
+            <WhereMoneyGoes />
+          </div>
+        </div>
+      </section>
 
       {/* ════════════════════════════════════════════════════════════
          MÉGA-PARCOURS 1 — Accompagnement à l'année

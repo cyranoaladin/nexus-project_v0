@@ -14,6 +14,8 @@ describe('Offres server component guard', () => {
     'components/premium/CarteNexusCard.tsx',
     'components/offres/CustomQuoteLibre.tsx',
     'components/offres/ReferralProgramNote.tsx',
+    'components/offres/WhereMoneyGoes.tsx',
+    'components/premium/ComparisonTable.tsx',
   ];
 
   for (const filePath of SERVER_FILES) {

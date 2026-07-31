@@ -18,14 +18,17 @@ import { getRules } from '@/lib/pricing-client';
 import { buildWhatsAppUrl } from '@/lib/whatsapp';
 import { WhatsAppLogo, WHATSAPP_BRAND_GREEN } from '@/components/ui/whatsapp-logo';
 
-export const reassuranceItems = [
-  'Groupe non ouvert\u00A0? Acompte intégralement remboursé.',
-  'Acompte déductible de votre parcours annuel.',
-  `Acompte reportable sur l\u2019année suivante.`,
-  'Solde réglé avant chaque prestation.',
-];
+function getReassuranceItems(rules: { payment: { reservation_flat_tnd: number } }): string[] {
+  return [
+    'Groupe non ouvert\u00A0? Réservation intégralement remboursée.',
+    `Réservation de ${rules.payment.reservation_flat_tnd} TND déductible de votre parcours annuel.`,
+    `Réservation reportable sur l\u2019année suivante.`,
+    'Solde en 10 mensualités, réglé au fil des séances.',
+  ];
+}
 
 export function ReassuranceChips({ compact = false }: { compact?: boolean }) {
+  const reassuranceItems = getReassuranceItems(getRules());
   return (
     <div className={`grid gap-3 ${compact ? 'sm:grid-cols-2' : 'sm:grid-cols-2 lg:grid-cols-4'}`}>
       {reassuranceItems.map((item) => (
