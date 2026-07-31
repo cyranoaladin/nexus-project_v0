@@ -263,6 +263,10 @@ describe('OpenRouter Terra diagnostic contract', () => {
         variant,
       );
       expect(result.status).toBe('PASS');
+      if (result.status === 'PASS') {
+        expect(result.completion.provenance.outputTokenParameter)
+          .toBe(variant.outputTokenParameter);
+      }
       expect(fake.requests).toHaveLength(1);
       const body = fake.requests[0];
       expect(body.model).toBe('openai/gpt-5.6-terra');

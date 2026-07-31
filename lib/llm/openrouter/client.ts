@@ -892,7 +892,7 @@ export class OpenRouterClient {
           returnedModel,
           provider,
           canonicalSlug: snapshot.canonicalSlug,
-          outputTokenParameter: snapshot.outputTokenParameter,
+          outputTokenParameter,
           generationId,
           finishReason,
           promptTokens,
