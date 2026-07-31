@@ -26,8 +26,8 @@ The audit compares three states which must not be conflated:
 | #88 | open | yes | `053868b3237cd6cb89916255626720672a945330` | `45f3cd92ca8f9caaef1dd86504d3cdc0bdd999d1` | clean | 0 |
 | #89 | open | yes | `45f3cd92ca8f9caaef1dd86504d3cdc0bdd999d1` | `05f99f24ad7de032e0ba527c30705a2eb0deae65` | clean | 0 |
 | #90 | open | yes | `05f99f24ad7de032e0ba527c30705a2eb0deae65` | `ae56389dcf1b92ca4bece39e71961327455e2489` | clean | 0 |
-| #91 | open | no | `ae56389dcf1b92ca4bece39e71961327455e2489` | `75d3443b9cfd7e68709d1d05fe5e13ecb796e727` | unstable while new checks run | 0 |
-| #93 | open | yes | `75d3443b9cfd7e68709d1d05fe5e13ecb796e727` | `00d190003c1ba60ba10b9135670265f10ff8dcbe` | unstable while new checks run | 0 |
+| #91 | open | no | `ae56389dcf1b92ca4bece39e71961327455e2489` | `db78737ee271a361ea3e9ea20ebaa203b43509cb` | unstable while new checks run | 0 |
+| #93 | open | yes | `db78737ee271a361ea3e9ea20ebaa203b43509cb` | `445340569a37a25bb980b8edd862d13cdc83d602` | unstable while new checks run | 0 |
 
 GraphQL `reviewThreads` reports zero unresolved P1 and zero unresolved P2 on
 #91. A fresh review was requested on its exact head. This is not a human
@@ -564,7 +564,7 @@ to the repository unless explicitly marked production read-only.
 
 | Gate | Status |
 | --- | --- |
-| PR91 unresolved P1/P2 | 0/0 on `75d3443b9`; fresh review requested |
+| PR91 unresolved P1/P2 | 0/0 on `db78737ee`; fresh review requested |
 | Email trigger inventory | complete, 17 rows |
 | Auth route inventory | complete, 240 route/method rows |
 | Registration flow inventory | complete |
