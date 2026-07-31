@@ -197,8 +197,12 @@ export type LocalFirstReportContext = z.infer<
 
 const FORBIDDEN_CLAIM_PATTERN =
   /\b(?:diagnostic|dyslexi(?:e|que)|tdah|note garantie|réussite garantie)\b/i;
-const EMAIL_PATTERN = /[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi;
-const TUNISIA_PHONE_PATTERN = /\+216(?:[\s.-]*\d){8}/g;
+const EMAIL_REPLACEMENT_PATTERN =
+  /[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi;
+const EMAIL_DETECTION_PATTERN =
+  /[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i;
+const TUNISIA_PHONE_REPLACEMENT_PATTERN = /\+216(?:[\s.-]*\d){8}/g;
+const TUNISIA_PHONE_DETECTION_PATTERN = /\+216(?:[\s.-]*\d){8}/;
 const PROMPT_INJECTION_PATTERN =
   /ignore (?:les|toutes les) (?:règles|instructions)/i;
 
@@ -220,8 +224,8 @@ function sanitizeEvidenceText(text: string): string {
     return '[PROMPT_INJECTION_REDACTED]';
   }
   return text
-    .replace(EMAIL_PATTERN, '[REDACTED_EMAIL]')
-    .replace(TUNISIA_PHONE_PATTERN, '[REDACTED_PHONE]');
+    .replace(EMAIL_REPLACEMENT_PATTERN, '[REDACTED_EMAIL]')
+    .replace(TUNISIA_PHONE_REPLACEMENT_PATTERN, '[REDACTED_PHONE]');
 }
 
 export function validateLocalFirstReportContext(
@@ -264,8 +268,8 @@ export function validateLocalFirstReportContext(
       [title, rationale]),
   ].join('\n');
   if (
-    EMAIL_PATTERN.test(publicText)
-    || TUNISIA_PHONE_PATTERN.test(publicText)
+    EMAIL_DETECTION_PATTERN.test(publicText)
+    || TUNISIA_PHONE_DETECTION_PATTERN.test(publicText)
     || PROMPT_INJECTION_PATTERN.test(publicText)
     || FORBIDDEN_CLAIM_PATTERN.test(publicText)
   ) {
