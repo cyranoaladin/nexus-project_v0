@@ -51,9 +51,14 @@ async function main(): Promise<void> {
   const client = new OpenRouterClient(config, {
     preflightSoftwareSha: repositorySha,
   });
-  const [modelCatalogFetch, zdrCatalogFetch] = await Promise.all([
+  const [
+    modelCatalogFetch,
+    zdrCatalogFetch,
+    providerCatalogFetch,
+  ] = await Promise.all([
     client.fetchModelCatalogWithMetadata(),
     client.fetchZdrEndpointCatalogWithMetadata(),
+    client.fetchProviderCatalogWithMetadata(),
   ]);
   const fetchedAt = new Date().toISOString();
   const verifiedAt = new Date().toISOString();
@@ -86,11 +91,18 @@ async function main(): Promise<void> {
     validator: OpenRouterContractTestSchema,
     preflightProof: proof,
   };
-  const matrix = buildProviderResilienceMatrix(zdrCatalogFetch.catalog);
-  const routes = selectAlternativeProviderRoutes(zdrCatalogFetch.catalog, {
-    excludedProviderNames: CURRENT_PROVIDER_NAMES,
-    maxCalls: MAX_PROVIDER_AUDIT_CALLS,
-  });
+  const matrix = buildProviderResilienceMatrix(
+    zdrCatalogFetch.catalog,
+    providerCatalogFetch.catalog,
+  );
+  const routes = selectAlternativeProviderRoutes(
+    zdrCatalogFetch.catalog,
+    providerCatalogFetch.catalog,
+    {
+      excludedProviderNames: CURRENT_PROVIDER_NAMES,
+      maxCalls: MAX_PROVIDER_AUDIT_CALLS,
+    },
+  );
   const results = [];
   let totalCostMicrosUsd = 0;
   for (const route of routes) {
@@ -101,7 +113,7 @@ async function main(): Promise<void> {
       const completion = await client.completePreflightForModel(
         request,
         route.model,
-        { providerOnly: [route.providerTag] },
+        { providerOnly: [route.providerRoutingSlug] },
       );
       totalCostMicrosUsd += completion.provenance.costMicrosUsd;
       if (totalCostMicrosUsd > MAX_PROVIDER_AUDIT_COST_MICROS_USD) {
@@ -111,6 +123,7 @@ async function main(): Promise<void> {
         requestedModel: route.model,
         requestedProviderName: route.providerName,
         requestedProviderTag: route.providerTag,
+        requestedProviderRoutingSlug: route.providerRoutingSlug,
         status: 'PASS',
         normalizedErrorCode: null,
         returnedModel: completion.provenance.returnedModel,
@@ -143,6 +156,7 @@ async function main(): Promise<void> {
         requestedModel: route.model,
         requestedProviderName: route.providerName,
         requestedProviderTag: route.providerTag,
+        requestedProviderRoutingSlug: route.providerRoutingSlug,
         status: 'FAIL',
         normalizedErrorCode: error.code,
         returnedModel: attempt?.returnedModel ?? null,
@@ -189,6 +203,7 @@ async function main(): Promise<void> {
     dataSubjectCount: 0,
     modelCatalogChecksum: sha256Canonical(modelCatalogFetch.catalog),
     zdrCatalogChecksum: sha256Canonical(zdrCatalogFetch.catalog),
+    providerCatalogChecksum: sha256Canonical(providerCatalogFetch.catalog),
     proofChecksum: proof.proofChecksum,
     privacyAttestation: toPrivateAttestationEvidence(attestation),
     priorObservedProviders: CURRENT_PROVIDER_NAMES,
