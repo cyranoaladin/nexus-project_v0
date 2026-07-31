@@ -450,6 +450,59 @@ describe('local-first synthetic benchmark contracts', () => {
     );
   });
 
+  it('rejects BLOCKED nested scans even when approval and root checksums match', () => {
+    const context = buildLocalFirstReportContext(fixtures()[0], 'PARENT');
+    const original = context.approvedEvidenceForLlm[0];
+    const path = '$.approvedEvidenceForLlm[0].text';
+    const blockedScan = scanPiiFields([{
+      path,
+      text: original.text,
+      source: 'UNCLASSIFIED_FREE_TEXT',
+    }]);
+    expect(blockedScan.result.status).toBe('BLOCKED');
+    const rawSourceChecksum = '3'.repeat(64);
+    const evidenceWithoutApproval = {
+      evidenceRef: original.evidenceRef,
+      competencyId: original.competencyId,
+      text: original.text,
+      trust: 'UNTRUSTED_QUOTED_DATA' as const,
+      rawSourceChecksum,
+      piiScanResult: blockedScan.result,
+    };
+    const approvalValues = {
+      reviewerId: 'reviewer:synthetic',
+      reviewedAt: '2026-07-31T10:00:00.000Z',
+      sourceChecksum: approvedEvidenceSourceChecksum(evidenceWithoutApproval),
+    };
+    const rebound = bindContextScan({
+      ...context,
+      approvedEvidenceForLlm: [{
+        ...evidenceWithoutApproval,
+        humanApproval: {
+          ...approvalValues,
+          approvalChecksum: sha256Canonical(approvalValues),
+        },
+      }, ...context.approvedEvidenceForLlm.slice(1)],
+    });
+
+    expect(() => validateLocalFirstReportContext(rebound)).toThrow(
+      /transport-safe|approval/i,
+    );
+  });
+
+  it('deep-freezes validated contexts so their PII proof cannot become stale', () => {
+    const context = buildLocalFirstReportContext(fixtures()[0], 'PARENT');
+    expect(Object.isFrozen(context)).toBe(true);
+    expect(Object.isFrozen(context.competencies)).toBe(true);
+    expect(Object.isFrozen(context.competencies[0])).toBe(true);
+    expect(Object.isFrozen(context.approvedEvidenceForLlm[0])).toBe(true);
+
+    expect(() => {
+      (context.competencies[0] as { title: string }).title =
+        'Mutation après validation';
+    }).toThrow(TypeError);
+  });
+
   it('scans an open reviewer identifier even when approval checksums are rebound', () => {
     const context = buildLocalFirstReportContext(fixtures()[0], 'PARENT');
     const original = context.approvedEvidenceForLlm[0];

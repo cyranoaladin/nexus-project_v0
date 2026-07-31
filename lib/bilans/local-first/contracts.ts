@@ -435,6 +435,17 @@ function applySanitizedOutboundStrings(
   return value;
 }
 
+function deepFreeze<T>(value: T, seen = new WeakSet<object>()): T {
+  if (value === null || typeof value !== 'object' || seen.has(value)) {
+    return value;
+  }
+  seen.add(value);
+  for (const key of Reflect.ownKeys(value)) {
+    deepFreeze((value as Record<PropertyKey, unknown>)[key], seen);
+  }
+  return Object.freeze(value);
+}
+
 const FORBIDDEN_CLAIM_PATTERN =
   /\b(?:diagnostic|dyslexi(?:e|que)|tdah|note garantie|réussite garantie)\b/i;
 
@@ -598,7 +609,8 @@ export function validateLocalFirstReportContext(
     if (
       item.trust === 'UNTRUSTED_QUOTED_DATA'
       && (
-        !piiScanResultMatchesContent(
+        !['CLEAN', 'REDACTED'].includes(item.piiScanResult.status)
+        || !piiScanResultMatchesContent(
           item.piiScanResult,
           [{
             path: `$.approvedEvidenceForLlm[${index}].text`,
@@ -661,7 +673,7 @@ export function validateLocalFirstReportContext(
   }
 
   if (issues.length > 0) throw new z.ZodError(issues);
-  return Object.freeze(value);
+  return deepFreeze(value);
 }
 
 export function buildLocalFirstReportContext(
