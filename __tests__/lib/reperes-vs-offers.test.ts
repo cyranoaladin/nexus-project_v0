@@ -19,27 +19,27 @@ function findOffer(id: string) {
 
 describe('Repères tarifaires == canonical offers (no second source)', () => {
   test('brevetMois == brevet-maths installment_amount', () => {
-    expect(rep.brevetMois).toBe(`à partir de ${findOffer('brevet-maths').installment_amount} TND / mois hors acompte`);
+    expect(rep.brevetMois).toBe(`à partir de ${findOffer('brevet-maths').installment_amount} TND / mois hors réservation`);
   });
 
   test('secondeMois == 2nde-maths installment_amount', () => {
-    expect(rep.secondeMois).toBe(`à partir de ${findOffer('2nde-maths').installment_amount} TND / mois hors acompte`);
+    expect(rep.secondeMois).toBe(`à partir de ${findOffer('2nde-maths').installment_amount} TND / mois hors réservation`);
   });
 
   test('premiereSimpleMois == 1re-eaf installment_amount', () => {
-    expect(rep.premiereSimpleMois).toBe(`à partir de ${findOffer('1re-eaf').installment_amount} TND / mois hors acompte`);
+    expect(rep.premiereSimpleMois).toBe(`à partir de ${findOffer('1re-eaf').installment_amount} TND / mois hors réservation`);
   });
 
   test('premiereDuoMois == 1re-double-secu installment_amount', () => {
-    expect(rep.premiereDuoMois).toBe(`à partir de ${findOffer('1re-double-secu').installment_amount} TND / mois hors acompte`);
+    expect(rep.premiereDuoMois).toBe(`à partir de ${findOffer('1re-double-secu').installment_amount} TND / mois hors réservation`);
   });
 
   test('terminaleSimpleMois == term-spe-simple installment_amount', () => {
-    expect(rep.terminaleSimpleMois).toBe(`à partir de ${findOffer('term-spe-simple').installment_amount} TND / mois hors acompte`);
+    expect(rep.terminaleSimpleMois).toBe(`à partir de ${findOffer('term-spe-simple').installment_amount} TND / mois hors réservation`);
   });
 
   test('terminaleDuoMois == term-duo installment_amount', () => {
-    expect(rep.terminaleDuoMois).toBe(`à partir de ${findOffer('term-duo').installment_amount} TND / mois hors acompte`);
+    expect(rep.terminaleDuoMois).toBe(`à partir de ${findOffer('term-duo').installment_amount} TND / mois hors réservation`);
   });
 
   test('plateformeAn == plateforme-autonomie price_annual', () => {

@@ -46,10 +46,20 @@ describe('OffresPage', () => {
     expect(screen.getByText(/capacité précisée par offre/i)).toBeInTheDocument();
     expect(screen.getByText(/accompagnement annuel — scolarisés/i)).toBeInTheDocument();
     expect(screen.getByText(/parcours candidats libres/i)).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: /trois paliers numériques/i })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /deux paliers numériques/i })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: /stages intensifs — toutes les vacances/i })).toBeInTheDocument();
     expect(screen.queryByText(/garantie réussite|mention garantie|100 % réussite|100 % bac|bac garanti/i)).not.toBeInTheDocument();
     expect(container.textContent).not.toMatch(/undefined|NaN/);
+  });
+
+  it('hides the 100%-online offers from every section (candidat libre, plateforme, annuel)', () => {
+    render(<OffresPage />);
+
+    expect(screen.queryByText('Terminale Libre Online')).not.toBeInTheDocument();
+    expect(screen.queryByText('Première Libre Essentiel')).not.toBeInTheDocument();
+    expect(screen.queryByText('ARIA Accompagnée')).not.toBeInTheDocument();
+    expect(screen.queryByText(/100 % en ligne/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/live hebdo/i)).not.toBeInTheDocument();
   });
 
   it('exposes actionable CTAs to the conversion funnel', () => {

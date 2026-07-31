@@ -1813,12 +1813,12 @@
     "note": "Avantage en nature (mois ARIA offert au parrain), pas une remise tarifaire : rules.discounts.parrainage_min_tnd/max_tnd restent à 0 (grille C). Ne réduit ni le prix ni le plancher d'aucune offre et n'est ni convertible en espèces ni déductible d'une réservation ou d'un prix."
   },
   "reperes_tarifaires": {
-    "brevetMois": "à partir de 205 TND / mois hors acompte",
-    "secondeMois": "à partir de 225 TND / mois hors acompte",
-    "premiereSimpleMois": "à partir de 245 TND / mois hors acompte",
-    "premiereDuoMois": "à partir de 455 TND / mois hors acompte",
-    "terminaleSimpleMois": "à partir de 245 TND / mois hors acompte",
-    "terminaleDuoMois": "à partir de 495 TND / mois hors acompte",
+    "brevetMois": "à partir de 205 TND / mois hors réservation",
+    "secondeMois": "à partir de 225 TND / mois hors réservation",
+    "premiereSimpleMois": "à partir de 245 TND / mois hors réservation",
+    "premiereDuoMois": "à partir de 455 TND / mois hors réservation",
+    "terminaleSimpleMois": "à partir de 245 TND / mois hors réservation",
+    "terminaleDuoMois": "à partir de 495 TND / mois hors réservation",
     "plateformeAn": "à partir de 590 TND / an",
     "stagesBase": "dès 420 TND",
     "parrainage": "1 mois ARIA offert par filleul inscrit (jusqu'à 3 mois/an)"

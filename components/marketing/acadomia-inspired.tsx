@@ -119,7 +119,7 @@ export function TransparencyBanner({ compact = false }: { compact?: boolean }) {
     <div className="rounded-2xl border border-lux-line bg-lux-white p-5 lux-shadow">
       <p className="text-lg font-fraunces text-lux-ink">Des tarifs publics, nets, en dinars.</p>
       <p className={`${compact ? 'mt-2 text-sm' : 'mt-3 text-base'} leading-7 text-lux-slate`}>
-        Échéanciers visibles, acompte clair, aucun coût caché. Vous savez exactement ce que vous payez — avant de réserver.
+        Échéanciers visibles, réservation claire, aucun coût caché. Vous savez exactement ce que vous payez — avant de réserver.
       </p>
     </div>
   );

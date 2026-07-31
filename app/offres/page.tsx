@@ -34,6 +34,7 @@ import {
 import { CustomQuoteLibre } from '@/components/offres/CustomQuoteLibre';
 import { ReferralProgramNote } from '@/components/offres/ReferralProgramNote';
 import { WhereMoneyGoes } from '@/components/offres/WhereMoneyGoes';
+import { publicOffers } from '@/lib/config/offers-flags';
 import {
   ReassuranceChips,
   TransparencyBanner,
@@ -105,6 +106,12 @@ function resolvePackComponentLabels(pack: Pack): string[] {
   });
 }
 
+const SMALL_CARDINALS: Record<number, string> = { 1: 'Un', 2: 'Deux', 3: 'Trois', 4: 'Quatre', 5: 'Cinq' };
+
+function platformPaliersCount(n: number): string {
+  return SMALL_CARDINALS[n] ?? String(n);
+}
+
 function filterSectionAttrs(categories: string) {
   return {
     'data-offres-block': '1',
@@ -151,10 +158,12 @@ function NavyBand({
 
 export default function OffresPage() {
   const rules = getRules();
-  const libreOffers = getOffersByTrack('libre');
+  const libreOffers = publicOffers(getOffersByTrack('libre'));
   const customQuoteLibre = getCustomQuoteLibre();
   const referralProgram = getReferralProgram();
-  const platformOffers = getOffersByTrack('plateforme');
+  const platformOffers = publicOffers(getOffersByTrack('plateforme'));
+  const platformPlural = platformOffers.length > 1 ? 's' : '';
+  const platformHeading = `${platformPaliersCount(platformOffers.length)} palier${platformPlural} numérique${platformPlural}`;
   const stageFormats = getStageFormats();
   const stageEditions = getStageEditions();
   const ponctuelOffers = getPonctuelOffers();
@@ -227,7 +236,7 @@ export default function OffresPage() {
         testId="mega-annee"
         eyebrow="Parcours annuels"
         title="Accompagnement à l'année"
-        intro="Scolarisés, candidats libres ou 100 % en ligne — un parcours adapté à chaque profil, de septembre à juin."
+        intro="Scolarisés ou candidats libres — un parcours adapté à chaque profil, de septembre à juin."
         dataCategories={MEGA_ANNEE.join(',')}
       />
 
@@ -251,7 +260,7 @@ export default function OffresPage() {
             </p>
           </div>
           {(['terminale', 'premiere', 'seconde', 'troisieme'] as const).map((level) => {
-            const offers = getOffersByLevel(level).filter((o) => o.track === 'scolarise');
+            const offers = publicOffers(getOffersByLevel(level).filter((o) => o.track === 'scolarise'));
             if (offers.length === 0) return null;
             const displayLevel = {
               terminale: 'Terminale',
@@ -327,6 +336,7 @@ export default function OffresPage() {
                     subtitle={o.subjects}
                     price={price}
                     pricingDisplay={o.pricing_display ?? undefined}
+                    features={o.included}
                     groupMax={o.group_max ?? rules.group_max}
                     groupMinOpen={o.group_min_open ?? rules.group_min_open.online_live}
                     effectifType="groupe"
@@ -359,10 +369,10 @@ export default function OffresPage() {
         <div className="mx-auto max-w-6xl">
           <div className="mb-8">
             <span className="lux-eyebrow">Plateforme</span>
-            <h2 className="mt-2 text-2xl md:text-3xl">Trois paliers numériques</h2>
+            <h2 className="mt-2 text-2xl md:text-3xl">{platformHeading}</h2>
             <div className="lux-filet-gold mt-3 w-16" />
             <p className="mt-3 text-sm text-lux-slate">
-              Ressources, parcours, fiches, exercices — avec ou sans accompagnement live.
+              Ressources, parcours, fiches et exercices.
             </p>
           </div>
           <div className="grid gap-6 md:grid-cols-3">

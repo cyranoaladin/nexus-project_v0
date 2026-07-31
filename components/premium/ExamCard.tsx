@@ -192,7 +192,7 @@ export function ExamCard(props: ExamCardProps) {
                   <span data-testid="price-primary" className="lux-price text-2xl font-bold text-lux-ink">
                     {fmtPrice(firstInstallment)}&nbsp;TND
                   </span>
-                  <span className="text-sm font-medium text-lux-slate">/&nbsp;mois hors acompte</span>
+                  <span className="text-sm font-medium text-lux-slate">/&nbsp;mois hors {depositLabel.toLowerCase()}</span>
                 </div>
                 <p data-testid="price-secondary" className="mt-1 text-sm text-lux-slate">
                   {scheduleLabel}. Total {fmtTND(price)}&nbsp;/&nbsp;an.

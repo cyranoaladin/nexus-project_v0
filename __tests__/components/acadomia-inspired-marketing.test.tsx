@@ -41,7 +41,7 @@ describe('Acadomia-inspired marketing components', () => {
 
     expect(screen.getByText('Des tarifs publics, nets, en dinars.')).toBeInTheDocument();
     expect(
-      screen.getByText(/Échéanciers visibles, acompte clair, aucun coût caché/)
+      screen.getByText(/Échéanciers visibles, réservation claire, aucun coût caché/)
     ).toBeInTheDocument();
   });
 
