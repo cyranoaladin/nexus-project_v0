@@ -15,6 +15,7 @@ import {
   OpenRouterContractTestSchema,
 } from '@/lib/llm/openrouter/contracts';
 import {
+  classifyTerraDiagnosticRootCause,
   normalizeOpenRouterDiagnosticError,
   type OpenRouterDiagnosticVariant,
 } from '@/lib/llm/openrouter/diagnostics';
@@ -138,6 +139,45 @@ const variants: readonly OpenRouterDiagnosticVariant[] = [
 ] as const;
 
 describe('OpenRouter Terra diagnostic contract', () => {
+  it('keeps a transient predecessor failure inconclusive', () => {
+    expect(classifyTerraDiagnosticRootCause([
+      {
+        variantId: 'D1',
+        status: 'FAIL',
+        httpStatus: 503,
+        errorCode: 'provider_unavailable',
+        retryable: true,
+      },
+      { variantId: 'D2', status: 'PASS' },
+    ])).toBe('INCONCLUSIVE_TRANSIENT_FAILURE');
+  });
+
+  it('requires compatible contract failures before assigning a root cause', () => {
+    expect(classifyTerraDiagnosticRootCause([
+      {
+        variantId: 'D1',
+        status: 'FAIL',
+        httpStatus: 400,
+        errorCode: 'token_limit_exceeded',
+        retryable: false,
+      },
+      { variantId: 'D2', status: 'PASS' },
+    ])).toBe('OPENAI_OUTPUT_TOKEN_PARAMETER_ALIAS');
+    expect(classifyTerraDiagnosticRootCause([
+      { variantId: 'D1', status: 'PASS' },
+    ])).toBe('INCONCLUSIVE_PREVIOUS_FAILURE_UNVERIFIED');
+    expect(classifyTerraDiagnosticRootCause([
+      {
+        variantId: 'D1',
+        status: 'FAIL',
+        httpStatus: 400,
+        errorCode: 'invalid_request',
+        retryable: false,
+      },
+      { variantId: 'D2', status: 'PASS' },
+    ])).toBe('NOT_OUTPUT_LIMIT_ONLY');
+  });
+
   it.each([
     ['max_tokens_exceeded', 'max_tokens_exceeded'],
     ['TOKEN_LIMIT_EXCEEDED', 'token_limit_exceeded'],

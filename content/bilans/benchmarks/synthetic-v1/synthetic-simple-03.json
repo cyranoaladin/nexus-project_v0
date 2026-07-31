@@ -1,7 +1,7 @@
 {
   "schemaVersion": "bilan-synthetic-assessment-v2",
   "datasetVersion": "synthetic-v1",
-  "inputChecksum": "eba78a525e823dbac63e8d9bc5b26284d1425da42c138db87c95b2aea216c973",
+  "inputChecksum": "7ce21ec941aa6bd9d49624ac7c2aabbe7126b7353262eb57293b757976381d24",
   "createdAt": "2026-07-31T07:00:03.000Z",
   "audience": "PARENT",
   "classification": "SYNTHETIC_BENCHMARK",
@@ -40,7 +40,8 @@
       "competencyId": "cmp:fractions",
       "text": "Les dénominateurs sont additionnés directement dans plusieurs items.",
       "trust": "CURATED",
-      "templateId": "tpl:synthetic-simple-03:1"
+      "templateId": "tpl:synthetic-simple-03:1",
+      "templateChecksum": "d02bc0903ee6dd06672264ee88f73b6416d613a9fb37ad62a80f8fb50e9076ba"
     }
   ],
   "priorities": [

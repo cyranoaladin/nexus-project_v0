@@ -1,7 +1,7 @@
 {
   "schemaVersion": "bilan-synthetic-assessment-v2",
   "datasetVersion": "synthetic-v1",
-  "inputChecksum": "3ccb4d349f278d6a44569c191a1d1ad4b854267e86561cc0ffa725f99c4fd859",
+  "inputChecksum": "649d29343d08078c27d666a21aceecd711108ba5c18ac6a41a24a3edb18f561f",
   "createdAt": "2026-07-31T07:01:01.000Z",
   "audience": "PARENT",
   "classification": "SYNTHETIC_BENCHMARK",
@@ -46,14 +46,16 @@
       "competencyId": "cmp:derivation",
       "text": "La dérivée usuelle est correcte.",
       "trust": "CURATED",
-      "templateId": "tpl:synthetic-intermediate-01:1"
+      "templateId": "tpl:synthetic-intermediate-01:1",
+      "templateChecksum": "c8194502812fe72ae88a54291ff6cdce73549bb8ae1c8caaa3e0a87a042bee2a"
     },
     {
       "evidenceRef": "ev:i01:variations",
       "competencyId": "cmp:derivation",
       "text": "Le lien entre signe et variations est incomplet.",
       "trust": "CURATED",
-      "templateId": "tpl:synthetic-intermediate-01:2"
+      "templateId": "tpl:synthetic-intermediate-01:2",
+      "templateChecksum": "4be436051b719dabf5764a54e4849992acb6c46dea1dafc64855150dd440a80e"
     }
   ],
   "priorities": [

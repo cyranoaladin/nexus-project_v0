@@ -97,8 +97,10 @@ Le rapport expurgé est écrit sous :
 - répertoire : `0700` ;
 - fichier : `0600`.
 
-Il contient configuration expurgée, politique, preuve intègre, snapshots et
-provenance.
+Il contient configuration expurgée, politique, preuve intègre, résultats par
+modèle et snapshots complets expurgés : slug canonique, paramètres supportés,
+paramètre de sortie, limites, capacités structured output/reasoning,
+`fetchedAt`, checksum de capacité, `verifiedAt` et `expiresAt`.
 Il ne contient ni clé, ni prompt brut métier, ni réponse brute, ni donnée
 élève.
 

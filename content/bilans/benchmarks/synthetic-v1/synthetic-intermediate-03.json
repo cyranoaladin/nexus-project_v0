@@ -1,7 +1,7 @@
 {
   "schemaVersion": "bilan-synthetic-assessment-v2",
   "datasetVersion": "synthetic-v1",
-  "inputChecksum": "ecd1ab3d0339208caa7b31c72a42c46398d0d74f861ed08bb43523bcf3b8e136",
+  "inputChecksum": "879290a525a614d3f6088686ab2e19fa571332d635539a86a4e492b91fe7a4af",
   "createdAt": "2026-07-31T07:01:03.000Z",
   "audience": "PARENT",
   "classification": "SYNTHETIC_BENCHMARK",
@@ -32,15 +32,22 @@
       "competencyId": "cmp:expression",
       "text": "Contact fictif eleve.test@example.invalid ou +216 00 00 00 00 ; le paragraphe reste compréhensible.",
       "source": "UNTRUSTED_FREE_TEXT"
+    },
+    {
+      "evidenceRef": "ev:i03:expression:curated",
+      "competencyId": "cmp:expression",
+      "text": "Le paragraphe présente une organisation encore irrégulière.",
+      "source": "CONTROLLED_TEMPLATE_SOURCE"
     }
   ],
   "approvedEvidenceForLlm": [
     {
-      "evidenceRef": "ev:i03:expression",
+      "evidenceRef": "ev:i03:expression:curated",
       "competencyId": "cmp:expression",
       "text": "Le paragraphe présente une organisation encore irrégulière.",
       "trust": "CURATED",
-      "templateId": "tpl:synthetic-intermediate-03:1"
+      "templateId": "tpl:synthetic-intermediate-03:1",
+      "templateChecksum": "041af282286a907847c2bceea6a6ae02ed17ab8ae01c9e648a913e72dead0353"
     }
   ],
   "priorities": [
@@ -49,7 +56,7 @@
       "title": "Organiser le paragraphe",
       "priority": "MEDIUM",
       "evidenceRefs": [
-        "ev:i03:expression"
+        "ev:i03:expression:curated"
       ]
     }
   ],
@@ -58,7 +65,7 @@
       "recommendationId": "rec:i03",
       "competencyId": "cmp:expression",
       "evidenceRefs": [
-        "ev:i03:expression"
+        "ev:i03:expression:curated"
       ]
     }
   ],

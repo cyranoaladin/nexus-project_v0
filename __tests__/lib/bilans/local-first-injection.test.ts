@@ -16,7 +16,8 @@ const BASE_FIXTURE = JSON.parse(readFileSync(join(
 ), 'utf8'));
 
 function withChecksum(value: Record<string, unknown>) {
-  const { inputChecksum: _checksum, ...values } = value;
+  const values = { ...value };
+  delete values.inputChecksum;
   return {
     ...value,
     inputChecksum: sha256Canonical(values),
@@ -41,10 +42,14 @@ describe('local-first prompt-injection boundary', () => {
 
   it.each(injectionCorpus.cases)(
     'keeps $id in raw local-only evidence and outside every LLM DTO',
-    ({ payload }) => {
+    ({ id, payload }) => {
       const fixture = structuredClone(BASE_FIXTURE);
-      fixture.rawEvidenceLocalOnly[0].text = payload;
-      fixture.rawEvidenceLocalOnly[0].source = 'UNTRUSTED_FREE_TEXT';
+      fixture.rawEvidenceLocalOnly.push({
+        evidenceRef: `ev:injection:${id}`,
+        competencyId: fixture.rawEvidenceLocalOnly[0].competencyId,
+        text: payload,
+        source: 'UNTRUSTED_FREE_TEXT',
+      });
       const parsed = SyntheticBenchmarkFixtureSchema.parse(
         withChecksum(fixture),
       );

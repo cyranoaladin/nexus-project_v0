@@ -239,6 +239,22 @@ async function main(): Promise<void> {
     preflightSoftwareSha,
     catalogChecksum: proof.catalogChecksum,
     proofChecksum: proof.proofChecksum,
+    verifiedAt: proof.verifiedAt,
+    expiresAt: proof.expiresAt,
+    capabilitySnapshots: proof.snapshots.map((snapshot) => ({
+      requestedModelId: snapshot.requestedModelId,
+      canonicalSlug: snapshot.canonicalSlug,
+      outputTokenParameter: snapshot.outputTokenParameter,
+      fetchedAt: snapshot.fetchedAt,
+      supportedParameters: snapshot.supportedParameters,
+      contextLength: snapshot.contextLength,
+      maxCompletionTokens: snapshot.maxCompletionTokens,
+      structuredOutputsSupported: snapshot.structuredOutputsSupported,
+      temperatureDeclaredSupported: snapshot.temperatureDeclaredSupported,
+      reasoningSupported: snapshot.reasoningSupported,
+      reasoningEfforts: snapshot.reasoningEfforts,
+      capabilityChecksum: snapshot.capabilityChecksum,
+    })),
     apiKeyFingerprintRedacted:
       `hmac-sha256:${proof.apiKeyFingerprint.slice(0, 12)}`,
     limits: {

@@ -189,6 +189,32 @@ describe('private OpenRouter preflight command', () => {
         preflightSoftwareSha: expect.stringMatching(/^[a-f0-9]{40}$/),
         catalogChecksum: expect.stringMatching(/^[a-f0-9]{64}$/),
         proofChecksum: expect.stringMatching(/^[a-f0-9]{64}$/),
+        verifiedAt: expect.any(String),
+        expiresAt: expect.any(String),
+        capabilitySnapshots: expect.arrayContaining([
+          expect.objectContaining({
+            requestedModelId: 'anthropic/claude-sonnet-5',
+            canonicalSlug: 'anthropic/claude-sonnet-5-20260630',
+            outputTokenParameter: 'max_tokens',
+            supportedParameters: expect.arrayContaining([
+              'response_format',
+              'structured_outputs',
+              'max_tokens',
+            ]),
+            fetchedAt: expect.any(String),
+          }),
+          expect.objectContaining({
+            requestedModelId: 'openai/gpt-5.6-terra',
+            canonicalSlug: 'openai/gpt-5.6-terra-20260709',
+            outputTokenParameter: 'max_completion_tokens',
+            supportedParameters: expect.arrayContaining([
+              'response_format',
+              'structured_outputs',
+              'max_completion_tokens',
+            ]),
+            fetchedAt: expect.any(String),
+          }),
+        ]),
         apiKeyFingerprintRedacted: expect.stringMatching(
           /^hmac-sha256:[a-f0-9]{12}$/,
         ),
@@ -233,7 +259,6 @@ describe('private OpenRouter preflight command', () => {
         requestedModel: 'openai/gpt-5.6-terra',
         outputTokenParameter: 'max_completion_tokens',
       });
-      expect(report).not.toHaveProperty('proof');
       expect(report).not.toHaveProperty('configuration');
       expect(JSON.stringify(report)).not.toContain('synthetic-preflight-key');
     } finally {

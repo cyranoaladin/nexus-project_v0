@@ -47,6 +47,22 @@ describe('local-first semantic grounding', () => {
     expect(() => SyntheticBenchmarkFixtureSchema.parse(value)).toThrow();
   });
 
+  it('rejects recommendation evidence owned by another competency', () => {
+    const value = structuredClone(FIXTURE);
+    const recommendation = value.allowedRecommendations[0];
+    const foreign = value.approvedEvidenceForLlm.find(
+      ({ competencyId }: { competencyId: string }) =>
+        competencyId !== recommendation.competencyId,
+    );
+    expect(foreign).toBeDefined();
+    recommendation.evidenceRefs = [foreign.evidenceRef];
+    delete recommendation.transversalEvidencePolicy;
+
+    expect(() => SyntheticBenchmarkFixtureSchema.parse(value)).toThrow(
+      /recommendation evidence belongs to another competency/i,
+    );
+  });
+
   it('rejects a mismatch between UNMEASURED status and its exact list', () => {
     const context = buildLocalFirstReportContext(FIXTURE, 'PARENT');
     expect(() => validateLocalFirstReportContext({
