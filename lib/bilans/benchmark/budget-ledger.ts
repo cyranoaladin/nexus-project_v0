@@ -19,7 +19,7 @@ const ModelPriceEntrySchema = z.object({
 }).passthrough();
 
 const CatalogSchema = z.object({
-  data: z.array(ModelPriceEntrySchema),
+  data: z.array(z.unknown()),
 }).passthrough();
 
 export type BenchmarkModelPrice = Readonly<{
@@ -61,10 +61,16 @@ export function extractBenchmarkModelPrices(
   }
   const prices = new Map<string, BenchmarkModelPrice>();
   for (const modelId of requiredModelIds) {
-    const entry = parsed.data.data.find(({ id }) => id === modelId);
-    if (entry === undefined) {
+    const candidate = parsed.data.data.find((entry) =>
+      entry !== null
+      && typeof entry === 'object'
+      && 'id' in entry
+      && entry.id === modelId);
+    const selected = ModelPriceEntrySchema.safeParse(candidate);
+    if (!selected.success) {
       throw new Error('BLOCKED_BY_BENCHMARK_PRICE_METADATA');
     }
+    const entry = selected.data;
     const price = Object.freeze({
       modelId,
       promptUsdPerToken: entry.pricing.prompt,

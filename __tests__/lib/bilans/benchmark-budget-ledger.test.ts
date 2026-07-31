@@ -54,6 +54,15 @@ describe('benchmark budget ledger', () => {
     })).toBe(BigInt(3_385));
   });
 
+  it('ignores unrelated catalogue entries with missing pricing metadata', () => {
+    expect(() => extractBenchmarkModelPrices({
+      data: [
+        { id: 'unrelated/free-model', pricing: null },
+        catalog.data[0],
+      ],
+    }, ['openai/gpt-5.6-luna'])).not.toThrow();
+  });
+
   it.each([
     {},
     { data: [{ id: 'openai/gpt-5.6-luna', pricing: {} }] },
