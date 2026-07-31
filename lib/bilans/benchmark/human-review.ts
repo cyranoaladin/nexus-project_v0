@@ -6,9 +6,82 @@ type ReviewInput = Readonly<{
   fixtureId: string;
   model: string;
   report: unknown;
+  provider?: string | null;
+  generationId?: string | null;
+  costMicrosUsd?: number | null;
+  latencyMs?: number | null;
 }>;
 
 const LABELS = ['MODEL_A', 'MODEL_B', 'MODEL_C'] as const;
+
+export const REVIEW_FORM_SCHEMA = Object.freeze({
+  $schema: 'https://json-schema.org/draft/2020-12/schema',
+  $id: 'nexus://bilans/review-form-v1',
+  title: 'Bilan OpenRouter blind human review form',
+  type: 'object',
+  additionalProperties: false,
+  required: ['reviewerId', 'reviewedAt', 'reviews'],
+  properties: {
+    reviewerId: { type: 'string', minLength: 1, maxLength: 120 },
+    reviewedAt: { type: 'string', format: 'date-time' },
+    reviews: {
+      type: 'array',
+      minItems: 1,
+      items: {
+        type: 'object',
+        additionalProperties: false,
+        required: ['fixtureId', 'candidateLabel', 'scores', 'decision'],
+        properties: {
+          fixtureId: { type: 'string' },
+          candidateLabel: { enum: LABELS },
+          scores: {
+            type: 'object',
+            additionalProperties: false,
+            required: [
+              'fideliteAuxFaits',
+              'clarte',
+              'qualiteDuFrancais',
+              'concision',
+              'actionnabilite',
+              'tonParent',
+            ],
+            properties: Object.fromEntries([
+              'fideliteAuxFaits',
+              'clarte',
+              'qualiteDuFrancais',
+              'concision',
+              'actionnabilite',
+              'tonParent',
+            ].map((field) => [field, {
+              type: 'integer', minimum: 1, maximum: 5,
+            }])),
+          },
+          decision: {
+            enum: ['ACCEPT', 'ACCEPT_WITH_MINOR_EDIT', 'REJECT'],
+          },
+        },
+      },
+    },
+  },
+} as const);
+
+export const REVIEW_FORM_TEMPLATE = Object.freeze({
+  schemaVersion: 'bilan-human-review-form-v1',
+  reviewerId: '',
+  reviewedAt: '',
+  reviews: Object.freeze([]),
+});
+
+export const REVIEW_INSTRUCTIONS = [
+  '# Revue humaine aveugle — benchmark parent',
+  '',
+  'Au moins deux reviewers indépendants doivent remplir chacun une copie du formulaire.',
+  'Noter chaque candidat de 1 à 5 sur fidélité, clarté, qualité du français,',
+  'concision, actionnabilité et ton parent, puis choisir une décision.',
+  'Ne pas chercher à identifier le modèle. Ne pas partager les formulaires entre',
+  'reviewers avant leur clôture. Signaler toute donnée personnelle, affirmation',
+  'non étayée ou incohérence avec les faits synthétiques.',
+].join('\n');
 
 function shuffled<T>(values: readonly T[], seed: string): T[] {
   return [...values].sort((left, right) =>
@@ -39,36 +112,33 @@ export function buildBlindHumanReviewPackage(
         label: LABELS[index],
         report,
       })),
-      scores: [],
-      decision: null,
     });
-    keyEntries.push(...candidates.map(({ model }, index) => ({
+    keyEntries.push(...candidates.map((candidate, index) => ({
       fixtureId,
       label: LABELS[index],
-      model,
+      model: candidate.model,
+      provider: candidate.provider ?? null,
+      generationId: candidate.generationId ?? null,
+      costMicrosUsd: candidate.costMicrosUsd ?? null,
+      latencyMs: candidate.latencyMs ?? null,
     })));
   }
   return Object.freeze({
-    reviewPacket: Object.freeze({
-      schemaVersion: 'bilan-human-review-packet-v1',
-      status: 'HUMAN_REVIEW_PENDING' as const,
-      dimensions: Object.freeze([
-        'FIDELITE_AUX_FAITS',
-        'CLARTE',
-        'QUALITE_DU_FRANCAIS',
-        'CONCISION',
-        'ACTIONNABILITE',
-        'TON_PARENT',
-      ]),
-      allowedDecisions: Object.freeze([
-        'ACCEPT',
-        'ACCEPT_WITH_MINOR_EDIT',
-        'REJECT',
-      ]),
-      entries: Object.freeze(reviewEntries),
+    reviewerPackage: Object.freeze({
+      reviewPacket: Object.freeze({
+        schemaVersion: 'bilan-human-review-packet-v2',
+        status: 'HUMAN_REVIEW_PENDING' as const,
+        audience: 'PARENT' as const,
+        minimumReviewerCount: 2,
+        entries: Object.freeze(reviewEntries),
+      }),
+      reviewFormSchema: REVIEW_FORM_SCHEMA,
+      reviewFormTemplate: REVIEW_FORM_TEMPLATE,
+      reviewInstructions: REVIEW_INSTRUCTIONS,
     }),
-    modelKey: Object.freeze({
-      schemaVersion: 'bilan-human-review-model-key-v1',
+    ownerSealedModelKey: Object.freeze({
+      schemaVersion: 'bilan-human-review-model-key-v2',
+      sealedUntilReviewComplete: true,
       entries: Object.freeze(keyEntries),
     }),
   });
