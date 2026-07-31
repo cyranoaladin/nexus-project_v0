@@ -28,19 +28,12 @@
           },
           "explanation": {
             "type": "string"
-          },
-          "evidenceRefs": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
           }
         },
         "required": [
           "competencyId",
           "title",
-          "explanation",
-          "evidenceRefs"
+          "explanation"
         ],
         "additionalProperties": false
       }
@@ -59,12 +52,6 @@
           "explanation": {
             "type": "string"
           },
-          "evidenceRefs": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
           "priority": {
             "type": "string",
             "enum": [
@@ -78,7 +65,6 @@
           "competencyId",
           "title",
           "explanation",
-          "evidenceRefs",
           "priority"
         ],
         "additionalProperties": false
@@ -109,12 +95,6 @@
           },
           "durationWeeks": {
             "type": "integer"
-          },
-          "evidenceRefs": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
           }
         },
         "required": [
@@ -123,8 +103,7 @@
           "rationale",
           "actions",
           "cadence",
-          "durationWeeks",
-          "evidenceRefs"
+          "durationWeeks"
         ],
         "additionalProperties": false
       }

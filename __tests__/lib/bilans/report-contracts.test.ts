@@ -28,7 +28,6 @@ function validDraft() {
       title: 'Calcul numérique',
       explanation:
         'Les procédures de calcul sont appliquées avec régularité.',
-      evidenceRefs: ['ev:s01:calcul'],
     }],
     priorities: [{
       competencyId: 'cmp:calcul',
@@ -36,7 +35,6 @@ function validDraft() {
       explanation:
         'Une pratique courte et régulière aidera à maintenir ces acquis.',
       priority: 'LOW',
-      evidenceRefs: ['ev:s01:calcul'],
     }],
     actionPlan: [{
       recommendationId: 'rec:s01',
@@ -46,7 +44,6 @@ function validDraft() {
       actions: ['Réaliser deux séries courtes par semaine.'],
       cadence: 'Deux fois par semaine',
       durationWeeks: 3,
-      evidenceRefs: ['ev:s01:calcul'],
     }],
     unmeasuredAreas: [],
     cautionNotes: [
@@ -75,6 +72,9 @@ describe('canonical parent report contracts', () => {
     const report = assembleGroundedParentReport(reportContext, draft);
 
     expect(report.scoreEcho).toEqual(reportContext.scoreEcho);
+    expect(report.strengths[0].evidenceRefs).toEqual(['ev:s01:calcul']);
+    expect(report.priorities[0].evidenceRefs).toEqual(['ev:s01:calcul']);
+    expect(report.actionPlan[0].evidenceRefs).toEqual(['ev:s01:calcul']);
     expect(report.schemaVersion).toBe('bilan-report-parent-v1');
   });
 
@@ -97,17 +97,14 @@ describe('canonical parent report contracts', () => {
     const schema = buildGroundedParentDraftJsonSchema(reportContext);
     const serialized = JSON.stringify(schema);
     expect(serialized).toContain('cmp:calcul');
-    expect(serialized).toContain('ev:s01:calcul');
+    expect(serialized).not.toContain('evidenceRefs');
     expect(serialized).toContain('rec:s01');
     expect(serialized).not.toContain('scoreEcho');
   });
 
   it.each([
-    ['invented evidence', { evidenceRefs: ['ev:foreign:item'] }],
-    ['cross-competency evidence', { competencyId: 'cmp:foreign' }],
-    ['duplicate evidence', {
-      evidenceRefs: ['ev:s01:calcul', 'ev:s01:calcul'],
-    }],
+    ['cross-competency strength', { competencyId: 'cmp:foreign' }],
+    ['unmeasured strength', { competencyId: 'cmp:not-measured' }],
   ])('rejects %s', (_label, strengthPatch) => {
     const draft = validDraft();
     draft.strengths[0] = {
@@ -118,6 +115,17 @@ describe('canonical parent report contracts', () => {
       context(),
       validateParentReportDraft(draft),
     )).toThrow();
+  });
+
+  it('rejects evidence references returned by the model', () => {
+    const draft = validDraft();
+    expect(() => validateParentReportDraft({
+      ...draft,
+      strengths: [{
+        ...draft.strengths[0],
+        evidenceRefs: ['ev:foreign:item'],
+      }],
+    })).toThrow();
   });
 
   it('rejects an unallowlisted recommendation', () => {

@@ -2,7 +2,7 @@
 {
   "id": "bilan-report-student",
   "version": "1",
-  "checksum": "b9389e629c7e3433b691a251628bdcabce484d14858efae1a60f84eaedcf928b",
+  "checksum": "050af5c645ad8c049b81007e0b624895c695969c830ccd7968e62e9e14330cf0",
   "audience": "STUDENT",
   "allowedFields": [
     "schemaVersion",
@@ -27,7 +27,7 @@
     "cross_audience_content"
   ],
   "outputSchemaVersion": "bilan-report-student-draft-v1",
-  "outputSchemaChecksum": "7d9099546dbe0c07c1b9409761e7c0183da92b01bea42ddcaf1990cb4f467b23",
+  "outputSchemaChecksum": "b02158668b5f0cf09b2976b13063661f7877eb4ed11b633fc7c2814a1621e046",
   "compatiblePolicies": [
     "bilan-model-policy-v1.1",
     "bilan-model-benchmark-policy-v1"
@@ -59,7 +59,8 @@ Règles :
   `recommendationId` exact ;
 - reproduis exactement l’ensemble des compétences `UNMEASURED` dans
   `unmeasuredAreas`, sans en ajouter ;
-- cite les `evidenceRefs` autorisées, sans en créer ;
+- n’écris aucun `evidenceRef` dans le brouillon : Nexus rattache localement les
+  références canoniques après validation de la narration ;
 - utilise uniquement les recommandations du catalogue fourni ;
 - mentionne les compétences non mesurées sans les interpréter ;
 - ne fournis aucun score, pourcentage ou calcul : ils seront ajoutés localement ;

@@ -29,24 +29,34 @@ function plainText(maximumLength: number) {
   );
 }
 
-const NarrativeWithEvidenceSchema = z.object({
+const NarrativeDraftSchema = z.object({
   competencyId: IdentifierSchema,
   title: plainText(120),
   explanation: plainText(800),
+}).strict();
+
+const NarrativeWithEvidenceSchema = NarrativeDraftSchema.extend({
   evidenceRefs: z.array(EvidenceRefSchema).min(1).max(6),
+}).strict();
+
+const PriorityDraftSchema = NarrativeDraftSchema.extend({
+  priority: z.enum(['LOW', 'MEDIUM', 'HIGH']),
 }).strict();
 
 const PriorityNarrativeSchema = NarrativeWithEvidenceSchema.extend({
   priority: z.enum(['LOW', 'MEDIUM', 'HIGH']),
 }).strict();
 
-const ActionPlanSchema = z.object({
+const ActionPlanDraftSchema = z.object({
   recommendationId: IdentifierSchema,
   title: plainText(120),
   rationale: plainText(800),
   actions: z.array(plainText(240)).min(1).max(5),
   cadence: plainText(120),
   durationWeeks: z.number().int().min(1).max(12),
+}).strict();
+
+const ActionPlanSchema = ActionPlanDraftSchema.extend({
   evidenceRefs: z.array(EvidenceRefSchema).min(1).max(6),
 }).strict();
 
@@ -65,9 +75,9 @@ function reportDraftSchema<A extends 'PARENT' | 'STUDENT' | 'NEXUS'>(
     audience: z.literal(audience),
     title: plainText(160),
     summary: plainText(800),
-    strengths: z.array(NarrativeWithEvidenceSchema).max(8),
-    priorities: z.array(PriorityNarrativeSchema).max(8),
-    actionPlan: z.array(ActionPlanSchema).max(8),
+    strengths: z.array(NarrativeDraftSchema).max(8),
+    priorities: z.array(PriorityDraftSchema).max(8),
+    actionPlan: z.array(ActionPlanDraftSchema).max(8),
     unmeasuredAreas: z.array(UnmeasuredAreaSchema).max(12),
     cautionNotes: z.array(
       plainText(300),
@@ -107,6 +117,9 @@ function finalReportSchema<A extends 'PARENT' | 'STUDENT' | 'NEXUS'>(
       percentage: z.number().min(0).max(100),
       calibrationStatus: z.literal('FINAL'),
     }).strict(),
+    strengths: z.array(NarrativeWithEvidenceSchema).max(8),
+    priorities: z.array(PriorityNarrativeSchema).max(8),
+    actionPlan: z.array(ActionPlanSchema).max(8),
   }).strict();
 }
 
@@ -225,21 +238,11 @@ export function buildGroundedParentDraftJsonSchema(
   const schema = JSON.parse(
     JSON.stringify(REPORT_PARENT_DRAFT_JSON_SCHEMA),
   ) as Record<string, unknown>;
-  const evidenceRefs = context.approvedEvidenceForLlm.map(
-    ({ evidenceRef }) => evidenceRef,
-  );
-
   const mastered = context.competencies
     .filter(({ status }) => status === 'MASTERED')
     .map(({ competencyId }) => competencyId);
   const strength = arrayItemProperties(schema, 'strengths');
   setEnum(strength.properties, 'competencyId', mastered);
-  const strengthEvidence = recordAt(
-    strength.properties.evidenceRefs,
-    'strengths.evidenceRefs',
-  );
-  setEnum(strengthEvidence, 'items', evidenceRefs);
-
   const priorities = arrayItemProperties(schema, 'priorities');
   setEnum(
     priorities.properties,
@@ -251,12 +254,6 @@ export function buildGroundedParentDraftJsonSchema(
     'priority',
     [...new Set(context.priorities.map(({ priority }) => priority))],
   );
-  setEnum(
-    recordAt(priorities.properties.evidenceRefs, 'priorities.evidenceRefs'),
-    'items',
-    evidenceRefs,
-  );
-
   const actions = arrayItemProperties(schema, 'actionPlan');
   setEnum(
     actions.properties,
@@ -265,12 +262,6 @@ export function buildGroundedParentDraftJsonSchema(
       ({ recommendationId }) => recommendationId,
     ),
   );
-  setEnum(
-    recordAt(actions.properties.evidenceRefs, 'actionPlan.evidenceRefs'),
-    'items',
-    evidenceRefs,
-  );
-
   const unmeasured = arrayItemProperties(schema, 'unmeasuredAreas');
   setEnum(
     unmeasured.properties,
@@ -292,9 +283,6 @@ function assertGroundedDraft(
   const competencyById = new Map(
     context.competencies.map((item) => [item.competencyId, item]),
   );
-  const evidenceById = new Map(
-    context.approvedEvidenceForLlm.map((item) => [item.evidenceRef, item]),
-  );
   const priorityByCompetency = new Map(
     context.priorities.map((item) => [item.competencyId, item]),
   );
@@ -307,18 +295,6 @@ function assertGroundedDraft(
   const issue = (message: string): never => {
     throw new Error(`REPORT_GROUNDING_FAILURE: ${message}`);
   };
-  const assertEvidence = (
-    competencyId: string,
-    evidenceRefs: readonly string[],
-  ): void => {
-    if (duplicates(evidenceRefs)) issue('DUPLICATE_EVIDENCE_REF');
-    for (const evidenceRef of evidenceRefs) {
-      if (evidenceById.get(evidenceRef)?.competencyId !== competencyId) {
-        issue('CROSS_COMPETENCY_EVIDENCE_REF');
-      }
-    }
-  };
-
   if (duplicates(draft.strengths.map(({ competencyId }) => competencyId))) {
     issue('DUPLICATE_STRENGTH_COMPETENCY');
   }
@@ -335,7 +311,6 @@ function assertGroundedDraft(
     if (competencyById.get(strength.competencyId)?.status !== 'MASTERED') {
       issue('INVALID_STRENGTH_COMPETENCY');
     }
-    assertEvidence(strength.competencyId, strength.evidenceRefs);
   }
   for (const priority of draft.priorities) {
     const canonical = priorityByCompetency.get(priority.competencyId);
@@ -346,19 +321,38 @@ function assertGroundedDraft(
     ) {
       issue('PRIORITY_CONTEXT_MISMATCH');
     }
-    assertEvidence(priority.competencyId, priority.evidenceRefs);
   }
   for (const action of draft.actionPlan) {
-    const canonical = recommendationById.get(action.recommendationId)
-      ?? issue('RECOMMENDATION_NOT_ALLOWLISTED');
-    assertEvidence(canonical.competencyId, action.evidenceRefs);
-    if (
-      action.evidenceRefs.some(
-        (reference) => !canonical.evidenceRefs.includes(reference),
-      )
-    ) {
-      issue('RECOMMENDATION_EVIDENCE_NOT_AUTHORIZED');
+    if (!recommendationById.has(action.recommendationId)) {
+      issue('RECOMMENDATION_NOT_ALLOWLISTED');
     }
+  }
+  const expectedStrengths = context.competencies
+    .filter(({ status }) => status === 'MASTERED')
+    .map(({ competencyId }) => competencyId)
+    .sort();
+  const actualStrengths = draft.strengths
+    .map(({ competencyId }) => competencyId)
+    .sort();
+  if (JSON.stringify(actualStrengths) !== JSON.stringify(expectedStrengths)) {
+    issue('STRENGTH_SET_MISMATCH');
+  }
+  const expectedPriorities = [...priorityByCompetency.keys()].sort();
+  const actualPriorities = draft.priorities
+    .map(({ competencyId }) => competencyId)
+    .sort();
+  if (JSON.stringify(actualPriorities) !== JSON.stringify(expectedPriorities)) {
+    issue('PRIORITY_SET_MISMATCH');
+  }
+  const expectedRecommendations = [...recommendationById.keys()].sort();
+  const actualRecommendations = draft.actionPlan
+    .map(({ recommendationId }) => recommendationId)
+    .sort();
+  if (
+    JSON.stringify(actualRecommendations)
+    !== JSON.stringify(expectedRecommendations)
+  ) {
+    issue('RECOMMENDATION_SET_MISMATCH');
   }
   const expectedUnmeasured = [...context.unmeasuredCompetencyIds].sort();
   const actualUnmeasured = draft.unmeasuredAreas
@@ -407,9 +401,38 @@ export function assembleGroundedParentReport(
     throw new Error('REPORT_AUDIENCE_MISMATCH');
   }
   assertGroundedDraft(context, draft);
+  const evidenceByCompetency = new Map<string, string[]>();
+  for (const evidence of context.approvedEvidenceForLlm) {
+    const references = evidenceByCompetency.get(evidence.competencyId) ?? [];
+    references.push(evidence.evidenceRef);
+    evidenceByCompetency.set(evidence.competencyId, references);
+  }
+  const priorityByCompetency = new Map(
+    context.priorities.map((priority) => [priority.competencyId, priority]),
+  );
+  const recommendationById = new Map(
+    context.allowedRecommendations.map((recommendation) => [
+      recommendation.recommendationId,
+      recommendation,
+    ]),
+  );
   return ParentReportSchema.parse({
     ...draft,
     schemaVersion: 'bilan-report-parent-v1',
     scoreEcho: context.scoreEcho,
+    strengths: draft.strengths.map((strength) => ({
+      ...strength,
+      evidenceRefs: evidenceByCompetency.get(strength.competencyId) ?? [],
+    })),
+    priorities: draft.priorities.map((priority) => ({
+      ...priority,
+      evidenceRefs:
+        priorityByCompetency.get(priority.competencyId)?.evidenceRefs ?? [],
+    })),
+    actionPlan: draft.actionPlan.map((action) => ({
+      ...action,
+      evidenceRefs:
+        recommendationById.get(action.recommendationId)?.evidenceRefs ?? [],
+    })),
   });
 }

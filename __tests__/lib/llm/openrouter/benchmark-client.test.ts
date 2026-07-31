@@ -222,7 +222,6 @@ describe('OpenRouter synthetic benchmark client', () => {
           title: 'Calcul numérique',
           explanation:
             'Les procédures sont appliquées avec régularité sur la preuve disponible.',
-          evidenceRefs: ['ev:s01:calcul'],
         }],
         priorities: [{
           competencyId: 'cmp:calcul',
@@ -230,7 +229,6 @@ describe('OpenRouter synthetic benchmark client', () => {
           explanation:
             'Une pratique courte aidera à conserver la régularité observée.',
           priority: 'LOW',
-          evidenceRefs: ['ev:s01:calcul'],
         }],
         actionPlan: [{
           recommendationId: 'rec:s01',
@@ -239,7 +237,6 @@ describe('OpenRouter synthetic benchmark client', () => {
           actions: ['Réaliser deux séries courtes chaque semaine.'],
           cadence: 'Deux fois par semaine',
           durationWeeks: 3,
-          evidenceRefs: ['ev:s01:calcul'],
         }],
         unmeasuredAreas: [],
         cautionNotes: [
