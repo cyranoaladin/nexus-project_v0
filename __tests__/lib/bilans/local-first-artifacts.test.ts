@@ -188,6 +188,7 @@ describe('immutable local-first artifact envelope', () => {
     { studentIdentifier: 123_456 },
     { student_id: 123_456 },
     { studentIdentifier: { value: 123_456 } },
+    { studentIdentifier: { points: 123_456 } },
   ])('blocks unknown numeric paths, including nested identifiers: %j', (payload) => {
     const scan = scanLocalFirstArtifactPayload(payload);
 
