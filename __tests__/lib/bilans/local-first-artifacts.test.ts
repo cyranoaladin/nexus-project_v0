@@ -15,6 +15,7 @@ import {
   createLocalFirstArtifact,
   hasValidArtifactChecksum,
   readLocalFirstArtifact,
+  scanLocalFirstArtifactPayload,
   validateArtifactChain,
   writeLocalFirstArtifactAtomic,
 } from '@/lib/bilans/local-first/artifacts';
@@ -164,6 +165,25 @@ describe('immutable local-first artifact envelope', () => {
     })).toThrow(/trusted PII scan|transport-safe/i);
   });
 
+  it('rejects numeric PII omitted from a caller-provided scan', () => {
+    expect(() => createLocalFirstArtifact({
+      artifactType: 'NORMALIZED_ASSESSMENT',
+      repositorySha: REPOSITORY_SHA,
+      expectedRepositorySha: REPOSITORY_SHA,
+      datasetVersion: 'synthetic-v1',
+      generatorId: 'bilan-local-first',
+      generatorVersion: '1',
+      scoringPolicyChecksum: CHECKSUM,
+      corpusChecksum: CHECKSUM,
+      promptChecksum: null,
+      outputSchemaChecksum: null,
+      audience: 'PARENT',
+      classification: 'SYNTHETIC_BENCHMARK',
+      piiScanResult: scanPiiFields([]).result,
+      payload: { phone: 99_192_829 },
+    })).toThrow(/PII scan|transport-safe/i);
+  });
+
   it('rejects non-JSON payload objects before scanning and checksumming', () => {
     const input = {
       artifactType: 'NORMALIZED_ASSESSMENT',
@@ -232,7 +252,7 @@ describe('immutable local-first artifact envelope', () => {
       outputSchemaChecksum: null,
       audience: 'PARENT',
       classification: 'SYNTHETIC_BENCHMARK',
-      piiScanResult: scanPiiFields([]).result,
+      piiScanResult: scanLocalFirstArtifactPayload({ points: 10 }),
       payload: { points: 10 },
     })).toThrow(/parent/i);
   });
@@ -252,7 +272,10 @@ describe('immutable local-first artifact envelope', () => {
       outputSchemaChecksum: null,
       audience: 'PARENT',
       classification: 'SYNTHETIC_BENCHMARK',
-      piiScanResult: scanPiiFields([]).result,
+      piiScanResult: scanLocalFirstArtifactPayload({
+        points: 10,
+        maxPoints: 20,
+      }),
       payload: { points: 10, maxPoints: 20 },
       parent: root,
     });
@@ -284,7 +307,10 @@ describe('immutable local-first artifact envelope', () => {
       outputSchemaChecksum: null,
       audience: 'PARENT',
       classification: 'SYNTHETIC_BENCHMARK',
-      piiScanResult: scanPiiFields([]).result,
+      piiScanResult: scanLocalFirstArtifactPayload({
+        points: 10,
+        maxPoints: 20,
+      }),
       payload: { points: 10, maxPoints: 20 },
       parent: root,
     });
