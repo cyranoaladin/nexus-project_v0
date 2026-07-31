@@ -2,7 +2,7 @@
 {
   "id": "bilan-report-nexus",
   "version": "1",
-  "checksum": "51f58b50e9ebb5b79dd4e54829f63b45bb4376d5e581b7ac4e57b3f9ef04e50d",
+  "checksum": "f3f039dcdee286f7da2d02cb1d178f1c644c1797f46efa0a9563cbe9888f5035",
   "audience": "NEXUS",
   "allowedFields": [
     "schemaVersion",
@@ -52,6 +52,15 @@ Règles :
 - écris en français professionnel et précis ;
 - fonde chaque force, priorité et action uniquement sur les identifiants
   explicitement fournis ;
+- place dans `strengths` uniquement les compétences dont le statut est
+  `MASTERED` ; si aucune ne l’est, retourne un tableau vide ;
+- reproduis dans `priorities` uniquement les priorités déterministes fournies,
+  avec le même `competencyId`, le même niveau de priorité et uniquement leurs
+  preuves autorisées ;
+- crée au plus une action pour chaque recommandation autorisée et conserve son
+  `recommendationId` exact ;
+- reproduis exactement l’ensemble des compétences `UNMEASURED` dans
+  `unmeasuredAreas`, sans en ajouter ;
 - cite les `evidenceRefs` autorisées, sans en créer ;
 - utilise uniquement les recommandations du catalogue fourni ;
 - distingue strictement ce qui est mesuré de ce qui ne l’est pas ;

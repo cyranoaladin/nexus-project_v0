@@ -1,6 +1,7 @@
 import {
   REPORT_PARENT_DRAFT_JSON_SCHEMA,
   assembleGroundedParentReport,
+  buildGroundedParentDraftJsonSchema,
   buildParentLlmPayload,
   validateParentReportDraft,
 } from '@/lib/bilans/benchmark/report-contracts';
@@ -87,6 +88,16 @@ describe('canonical parent report contracts', () => {
     expect(serialized).not.toContain('scoreEcho');
     expect(serialized).not.toContain('"score"');
     expect(serialized).not.toContain('llmApprovedInternalNotes');
+  });
+
+  it('binds the strict transport schema to deterministic identifiers', () => {
+    const reportContext = context();
+    const schema = buildGroundedParentDraftJsonSchema(reportContext);
+    const serialized = JSON.stringify(schema);
+    expect(serialized).toContain('cmp:calcul');
+    expect(serialized).toContain('ev:s01:calcul');
+    expect(serialized).toContain('rec:s01');
+    expect(serialized).not.toContain('scoreEcho');
   });
 
   it.each([

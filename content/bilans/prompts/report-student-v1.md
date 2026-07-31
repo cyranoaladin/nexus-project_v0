@@ -2,7 +2,7 @@
 {
   "id": "bilan-report-student",
   "version": "1",
-  "checksum": "af1888bc3372253eb8991d4001122dcb24604f21b3bc8b0a9eb70b285c345795",
+  "checksum": "d4c65cb8af17bff22e54f759d9008fb46788150007dd33691eaa12b29f16b259",
   "audience": "STUDENT",
   "allowedFields": [
     "schemaVersion",
@@ -50,6 +50,15 @@ Règles :
 - écris en français direct, respectueux et encourageant ;
 - fonde chaque force, priorité et action uniquement sur les identifiants
   explicitement fournis ;
+- place dans `strengths` uniquement les compétences dont le statut est
+  `MASTERED` ; si aucune ne l’est, retourne un tableau vide ;
+- reproduis dans `priorities` uniquement les priorités déterministes fournies,
+  avec le même `competencyId`, le même niveau de priorité et uniquement leurs
+  preuves autorisées ;
+- crée au plus une action pour chaque recommandation autorisée et conserve son
+  `recommendationId` exact ;
+- reproduis exactement l’ensemble des compétences `UNMEASURED` dans
+  `unmeasuredAreas`, sans en ajouter ;
 - cite les `evidenceRefs` autorisées, sans en créer ;
 - utilise uniquement les recommandations du catalogue fourni ;
 - mentionne les compétences non mesurées sans les interpréter ;

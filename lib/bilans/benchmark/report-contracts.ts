@@ -158,6 +158,114 @@ export const REPORT_PARENT_JSON_SCHEMA = closedJsonSchema(ParentReportSchema);
 export const REPORT_STUDENT_JSON_SCHEMA = closedJsonSchema(StudentReportSchema);
 export const REPORT_NEXUS_JSON_SCHEMA = closedJsonSchema(NexusReportSchema);
 
+function recordAt(
+  value: unknown,
+  label: string,
+): Record<string, unknown> {
+  if (value === null || typeof value !== 'object' || Array.isArray(value)) {
+    throw new Error(`REPORT_SCHEMA_INVALID:${label}`);
+  }
+  return value as Record<string, unknown>;
+}
+
+function arrayItemProperties(
+  root: Record<string, unknown>,
+  field: string,
+): Readonly<{
+  arraySchema: Record<string, unknown>;
+  properties: Record<string, unknown>;
+}> {
+  const rootProperties = recordAt(root.properties, 'root.properties');
+  const arraySchema = recordAt(rootProperties[field], field);
+  const itemSchema = recordAt(arraySchema.items, `${field}.items`);
+  return {
+    arraySchema,
+    properties: recordAt(itemSchema.properties, `${field}.properties`),
+  };
+}
+
+function setEnum(
+  properties: Record<string, unknown>,
+  field: string,
+  values: readonly string[],
+): void {
+  if (values.length === 0) return;
+  recordAt(properties[field], field).enum = [...values];
+}
+
+export function buildGroundedParentDraftJsonSchema(
+  context: LocalFirstReportContext,
+): Readonly<Record<string, unknown>> {
+  if (context.audience !== 'PARENT') {
+    throw new Error('REPORT_AUDIENCE_MISMATCH');
+  }
+  const schema = JSON.parse(
+    JSON.stringify(REPORT_PARENT_DRAFT_JSON_SCHEMA),
+  ) as Record<string, unknown>;
+  const evidenceRefs = context.approvedEvidenceForLlm.map(
+    ({ evidenceRef }) => evidenceRef,
+  );
+
+  const mastered = context.competencies
+    .filter(({ status }) => status === 'MASTERED')
+    .map(({ competencyId }) => competencyId);
+  const strength = arrayItemProperties(schema, 'strengths');
+  strength.arraySchema.minItems = mastered.length;
+  strength.arraySchema.maxItems = mastered.length;
+  setEnum(strength.properties, 'competencyId', mastered);
+  const strengthEvidence = recordAt(
+    strength.properties.evidenceRefs,
+    'strengths.evidenceRefs',
+  );
+  setEnum(strengthEvidence, 'items', evidenceRefs);
+
+  const priorities = arrayItemProperties(schema, 'priorities');
+  priorities.arraySchema.minItems = context.priorities.length;
+  priorities.arraySchema.maxItems = context.priorities.length;
+  setEnum(
+    priorities.properties,
+    'competencyId',
+    context.priorities.map(({ competencyId }) => competencyId),
+  );
+  setEnum(
+    priorities.properties,
+    'priority',
+    [...new Set(context.priorities.map(({ priority }) => priority))],
+  );
+  setEnum(
+    recordAt(priorities.properties.evidenceRefs, 'priorities.evidenceRefs'),
+    'items',
+    evidenceRefs,
+  );
+
+  const actions = arrayItemProperties(schema, 'actionPlan');
+  actions.arraySchema.minItems = context.allowedRecommendations.length;
+  actions.arraySchema.maxItems = context.allowedRecommendations.length;
+  setEnum(
+    actions.properties,
+    'recommendationId',
+    context.allowedRecommendations.map(
+      ({ recommendationId }) => recommendationId,
+    ),
+  );
+  setEnum(
+    recordAt(actions.properties.evidenceRefs, 'actionPlan.evidenceRefs'),
+    'items',
+    evidenceRefs,
+  );
+
+  const unmeasured = arrayItemProperties(schema, 'unmeasuredAreas');
+  unmeasured.arraySchema.minItems = context.unmeasuredCompetencyIds.length;
+  unmeasured.arraySchema.maxItems = context.unmeasuredCompetencyIds.length;
+  setEnum(
+    unmeasured.properties,
+    'competencyId',
+    context.unmeasuredCompetencyIds,
+  );
+
+  return Object.freeze(schema);
+}
+
 function duplicates(values: readonly string[]): boolean {
   return new Set(values).size !== values.length;
 }
@@ -188,29 +296,29 @@ function assertGroundedDraft(
     competencyId: string,
     evidenceRefs: readonly string[],
   ): void => {
-    if (duplicates(evidenceRefs)) issue('duplicate evidence reference');
+    if (duplicates(evidenceRefs)) issue('DUPLICATE_EVIDENCE_REF');
     for (const evidenceRef of evidenceRefs) {
       if (evidenceById.get(evidenceRef)?.competencyId !== competencyId) {
-        issue('evidence does not belong to cited competency');
+        issue('CROSS_COMPETENCY_EVIDENCE_REF');
       }
     }
   };
 
   if (duplicates(draft.strengths.map(({ competencyId }) => competencyId))) {
-    issue('duplicate strength competency');
+    issue('DUPLICATE_STRENGTH_COMPETENCY');
   }
   if (duplicates(draft.priorities.map(({ competencyId }) => competencyId))) {
-    issue('duplicate priority competency');
+    issue('DUPLICATE_PRIORITY_COMPETENCY');
   }
   if (duplicates(
     draft.actionPlan.map(({ recommendationId }) => recommendationId),
   )) {
-    issue('duplicate recommendation');
+    issue('DUPLICATE_RECOMMENDATION');
   }
 
   for (const strength of draft.strengths) {
     if (competencyById.get(strength.competencyId)?.status !== 'MASTERED') {
-      issue('strength is not a measured mastered competency');
+      issue('INVALID_STRENGTH_COMPETENCY');
     }
     assertEvidence(strength.competencyId, strength.evidenceRefs);
   }
@@ -221,20 +329,20 @@ function assertGroundedDraft(
       || canonical.priority !== priority.priority
       || competencyById.get(priority.competencyId)?.status === 'UNMEASURED'
     ) {
-      issue('priority differs from deterministic context');
+      issue('PRIORITY_CONTEXT_MISMATCH');
     }
     assertEvidence(priority.competencyId, priority.evidenceRefs);
   }
   for (const action of draft.actionPlan) {
     const canonical = recommendationById.get(action.recommendationId)
-      ?? issue('recommendation is not allowlisted');
+      ?? issue('RECOMMENDATION_NOT_ALLOWLISTED');
     assertEvidence(canonical.competencyId, action.evidenceRefs);
     if (
       action.evidenceRefs.some(
         (reference) => !canonical.evidenceRefs.includes(reference),
       )
     ) {
-      issue('recommendation cites non-authorized evidence');
+      issue('RECOMMENDATION_EVIDENCE_NOT_AUTHORIZED');
     }
   }
   const expectedUnmeasured = [...context.unmeasuredCompetencyIds].sort();
@@ -245,7 +353,7 @@ function assertGroundedDraft(
     duplicates(actualUnmeasured)
     || JSON.stringify(actualUnmeasured) !== JSON.stringify(expectedUnmeasured)
   ) {
-    issue('unmeasured competency set differs from context');
+    issue('UNMEASURED_STATUS_MISMATCH');
   }
 }
 

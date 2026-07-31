@@ -2,7 +2,7 @@
 {
   "id": "bilan-report-parent",
   "version": "1",
-  "checksum": "9d5b9188ecb2644f544caa6a499b7502a974029ea8aad4ca6148647241791893",
+  "checksum": "e9be7fe2a8f2e7d37813308f8f5ca48c074a4abae5b06ce45c91eadee24ad3eb",
   "audience": "PARENT",
   "allowedFields": [
     "schemaVersion",
@@ -50,6 +50,15 @@ Règles :
 - écris en français clair, sobre et rassurant ;
 - fonde chaque force, priorité et action uniquement sur les identifiants
   explicitement fournis ;
+- place dans `strengths` uniquement les compétences dont le statut est
+  `MASTERED` ; si aucune ne l’est, retourne un tableau vide ;
+- reproduis dans `priorities` uniquement les priorités déterministes fournies,
+  avec le même `competencyId`, le même niveau de priorité et uniquement leurs
+  preuves autorisées ;
+- crée au plus une action pour chaque recommandation autorisée et conserve son
+  `recommendationId` exact ;
+- reproduis exactement l’ensemble des compétences `UNMEASURED` dans
+  `unmeasuredAreas`, sans en ajouter ;
 - cite les `evidenceRefs` autorisées, sans en créer ;
 - utilise uniquement les recommandations du catalogue fourni ;
 - mentionne les compétences non mesurées sans les interpréter ;
