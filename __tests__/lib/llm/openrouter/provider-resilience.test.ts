@@ -2,6 +2,7 @@
 
 import {
   buildProviderResilienceMatrix,
+  reconcileProviderAuditAttemptCost,
   returnedProviderMatchesRoute,
   selectAlternativeProviderRoutes,
 } from '@/lib/llm/openrouter/provider-resilience';
@@ -150,5 +151,18 @@ describe('OpenRouter provider resilience classification', () => {
         tag: '../private',
       }],
     }, PROVIDERS)).toThrow();
+  });
+
+  it('counts a received response cost only once after a provider mismatch', () => {
+    expect(reconcileProviderAuditAttemptCost({
+      currentTotalMicrosUsd: 1_000,
+      attemptCostMicrosUsd: 2_500,
+      responseCostAlreadyCounted: true,
+    })).toBe(1_000);
+    expect(reconcileProviderAuditAttemptCost({
+      currentTotalMicrosUsd: 1_000,
+      attemptCostMicrosUsd: 2_500,
+      responseCostAlreadyCounted: false,
+    })).toBe(3_500);
   });
 });
