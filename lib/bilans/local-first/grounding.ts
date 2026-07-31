@@ -156,6 +156,12 @@ export function validateGrounding(input: GroundingInput): GroundingIssue[] {
       'recommendation evidenceRef',
     );
     const catalogEntry = CATALOG.get(recommendation.recommendationId);
+    if (!competencies.has(recommendation.competencyId)) {
+      issues.push({
+        path: ['recommendations', index, 'competencyId'],
+        message: 'Recommendation references an unknown competency.',
+      });
+    }
     if (
       catalogEntry === undefined
       || catalogEntry.competencyId !== recommendation.competencyId

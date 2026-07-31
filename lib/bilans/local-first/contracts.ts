@@ -284,7 +284,6 @@ type OutboundStringField = Readonly<{
 
 const STRUCTURAL_OUTBOUND_KEYS = new Set([
   'schemaVersion',
-  'datasetVersion',
   'inputChecksum',
   'createdAt',
   'audience',

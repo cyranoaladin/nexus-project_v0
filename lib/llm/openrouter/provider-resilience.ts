@@ -143,6 +143,26 @@ export function buildProviderResilienceMatrix(
   });
 }
 
+export function reconcileProviderAuditAttemptCost(
+  input: Readonly<{
+    currentTotalMicrosUsd: number;
+    attemptCostMicrosUsd: number;
+    responseCostAlreadyCounted: boolean;
+  }>,
+): number {
+  for (const value of [
+    input.currentTotalMicrosUsd,
+    input.attemptCostMicrosUsd,
+  ]) {
+    if (!Number.isSafeInteger(value) || value < 0) {
+      throw new Error('Provider audit costs must be non-negative safe integers.');
+    }
+  }
+  return input.responseCostAlreadyCounted
+    ? input.currentTotalMicrosUsd
+    : input.currentTotalMicrosUsd + input.attemptCostMicrosUsd;
+}
+
 export function selectAlternativeProviderRoutes(
   catalog: unknown,
   providerCatalog: unknown,
