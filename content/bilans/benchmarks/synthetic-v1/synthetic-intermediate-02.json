@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "bilan-synthetic-assessment-v1",
+  "sourceSha": "2222222222222222222222222222222222222222",
+  "inputChecksum": "c97e6b2b2dc408f5f218747f7bb456fef74854736952fd8d94950b4d74e4d456",
+  "createdAt": "2026-07-31T07:01:02.000Z",
+  "audience": "PARENT",
+  "classification": "SYNTHETIC_BENCHMARK",
+  "piiStatus": "NO_PII",
+  "fixtureId": "synthetic-intermediate-02",
+  "complexity": "INTERMEDIATE",
+  "coverage": ["HIGH_PRIORITY", "LOW_SCORE"],
+  "level": "Quatrième",
+  "subject": "Français",
+  "score": {"points": 7, "maxPoints": 20, "calibrationStatus": "FINAL"},
+  "competencies": [{"competencyId": "cmp:syntaxe", "title": "Syntaxe de la phrase", "status": "PRIORITY"}],
+  "evidence": [
+    {"evidenceRef": "ev:i02:accord", "competencyId": "cmp:syntaxe", "text": "Les accords dans le groupe nominal sont irréguliers.", "trust": "CURATED"},
+    {"evidenceRef": "ev:i02:phrase", "competencyId": "cmp:syntaxe", "text": "Plusieurs phrases ne comportent pas de verbe conjugué.", "trust": "CURATED"}
+  ],
+  "priorities": [{"competencyId": "cmp:syntaxe", "title": "Stabiliser la phrase simple", "priority": "HIGH", "evidenceRefs": ["ev:i02:accord", "ev:i02:phrase"]}],
+  "allowedRecommendations": [{"recommendationId": "rec:i02", "title": "Travailler des phrases courtes contrôlées", "rationale": "Les preuves convergent vers un besoin de structuration.", "evidenceRefs": ["ev:i02:accord", "ev:i02:phrase"]}],
+  "unmeasuredCompetencyIds": [],
+  "internalNotes": ["Cas synthétique de remédiation prioritaire."]
+}

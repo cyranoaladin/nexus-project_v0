@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "bilan-synthetic-assessment-v1",
+  "sourceSha": "1111111111111111111111111111111111111111",
+  "inputChecksum": "f74891b054484f8d4476388d27095c480e5408ea1cd9791335716cfe716c70f0",
+  "createdAt": "2026-07-31T07:00:02.000Z",
+  "audience": "PARENT",
+  "classification": "SYNTHETIC_BENCHMARK",
+  "piiStatus": "NO_PII",
+  "fixtureId": "synthetic-simple-02",
+  "complexity": "SIMPLE",
+  "coverage": ["MEDIUM_SCORE"],
+  "level": "Seconde",
+  "subject": "Français",
+  "score": {"points": 12, "maxPoints": 20, "calibrationStatus": "FINAL"},
+  "competencies": [{"competencyId": "cmp:argumentation", "title": "Argumentation", "status": "DEVELOPING"}],
+  "evidence": [{"evidenceRef": "ev:s02:argument", "competencyId": "cmp:argumentation", "text": "La thèse est repérée mais les justifications restent brèves.", "trust": "CURATED"}],
+  "priorities": [{"competencyId": "cmp:argumentation", "title": "Développer les justifications", "priority": "MEDIUM", "evidenceRefs": ["ev:s02:argument"]}],
+  "allowedRecommendations": [{"recommendationId": "rec:s02", "title": "Structurer une justification complète", "rationale": "La preuve montre une réponse juste mais peu développée.", "evidenceRefs": ["ev:s02:argument"]}],
+  "unmeasuredCompetencyIds": [],
+  "internalNotes": ["Profil synthétique de niveau intermédiaire."]
+}

@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "bilan-synthetic-assessment-v1",
+  "sourceSha": "3333333333333333333333333333333333333333",
+  "inputChecksum": "365a3c06feaa720129731faa5624a2069c99d9f7ed92b93b18d37f5e4f4e9bc2",
+  "createdAt": "2026-07-31T07:02:01.000Z",
+  "audience": "PARENT",
+  "classification": "SYNTHETIC_BENCHMARK",
+  "piiStatus": "NO_PII",
+  "fixtureId": "synthetic-complex-01",
+  "complexity": "COMPLEX",
+  "coverage": ["APPARENT_EVIDENCE_CONTRADICTION", "MULTIPLE_EVIDENCE_REFS", "MEDIUM_SCORE"],
+  "level": "Première",
+  "subject": "Physique",
+  "score": {"points": 10, "maxPoints": 20, "calibrationStatus": "FINAL"},
+  "competencies": [{"competencyId": "cmp:modelisation", "title": "Modélisation", "status": "DEVELOPING"}],
+  "evidence": [
+    {"evidenceRef": "ev:c01:modele", "competencyId": "cmp:modelisation", "text": "Le modèle est correctement choisi dans la situation guidée.", "trust": "CURATED"},
+    {"evidenceRef": "ev:c01:transfert", "competencyId": "cmp:modelisation", "text": "Le même modèle n'est pas reconnu dans une situation nouvelle.", "trust": "CURATED"}
+  ],
+  "priorities": [{"competencyId": "cmp:modelisation", "title": "Transférer une méthode", "priority": "MEDIUM", "evidenceRefs": ["ev:c01:modele", "ev:c01:transfert"]}],
+  "allowedRecommendations": [{"recommendationId": "rec:c01", "title": "Comparer plusieurs situations", "rationale": "Les preuves montrent une réussite guidée et une fragilité de transfert.", "evidenceRefs": ["ev:c01:modele", "ev:c01:transfert"]}],
+  "unmeasuredCompetencyIds": [],
+  "internalNotes": ["La contradiction apparente doit être restituée sans la gommer."]
+}
