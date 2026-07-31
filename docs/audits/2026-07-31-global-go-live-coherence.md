@@ -26,12 +26,12 @@ The audit compares three states which must not be conflated:
 | #88 | open | yes | `053868b3237cd6cb89916255626720672a945330` | `45f3cd92ca8f9caaef1dd86504d3cdc0bdd999d1` | clean | 0 |
 | #89 | open | yes | `45f3cd92ca8f9caaef1dd86504d3cdc0bdd999d1` | `05f99f24ad7de032e0ba527c30705a2eb0deae65` | clean | 0 |
 | #90 | open | yes | `05f99f24ad7de032e0ba527c30705a2eb0deae65` | `ae56389dcf1b92ca4bece39e71961327455e2489` | clean | 0 |
-| #91 | open | no | `ae56389dcf1b92ca4bece39e71961327455e2489` | `16e80987ad93a56f9f8b743a621255f73736357d` | checks and exact-head review running | 0 |
-| #93 | open | yes | `16e80987ad93a56f9f8b743a621255f73736357d` | `0a2da0c7c7a6e681f5288ca66cfcb5275daaebc0` | checks running after explicit foundation merge | 0 |
+| #91 | open | no | `ae56389dcf1b92ca4bece39e71961327455e2489` | `cb9237b4cd20ecc14f7f52528fb66c18a6956840` | exact-head review and code CI green; external document job running at audit close | 0 |
+| #93 | open | yes | `cb9237b4cd20ecc14f7f52528fb66c18a6956840` | `9d7349e1888c314a1da9b696635181b2f0313706` | checks running after explicit foundation merge; benchmark invalidated | 0 |
 
 GraphQL `reviewThreads` reports zero unresolved P1 and zero unresolved P2 on
-#91. A fresh review was requested on its exact head. This is not a human
-approval.
+#91. Codex completed its exact-head automated review on `cb9237b4c` without a
+new major finding. This is not a human approval.
 
 The documentation-only audit PR is intentionally based on the exact `main`
 baseline. Its Dependency Integrity and Security Scan jobs reproduce
@@ -583,7 +583,7 @@ to the repository unless explicitly marked production read-only.
 
 | Gate | Status |
 | --- | --- |
-| PR91 unresolved P1/P2 | 0/0 on `16e80987a`; fresh exact-head review requested |
+| PR91 unresolved P1/P2 | 0/0 on `cb9237b4c`; exact-head automated review complete |
 | Email trigger inventory | complete, 17 rows |
 | Auth route inventory | complete, 240 route/method rows |
 | Registration flow inventory | complete |
