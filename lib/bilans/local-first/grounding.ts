@@ -27,6 +27,8 @@ type GroundingInput = Readonly<{
     recommendationId: string;
     competencyId: string;
     evidenceRefs: readonly string[];
+    title?: string;
+    rationale?: string;
     transversalEvidencePolicy?: 'ALLOW_TRANSVERSAL_V1';
   }>[];
   unmeasuredCompetencyIds: readonly string[];
@@ -170,6 +172,19 @@ export function validateGrounding(input: GroundingInput): GroundingIssue[] {
         path: ['recommendations', index, 'recommendationId'],
         message: 'Recommendation is absent from the local catalog.',
       });
+    } else if (
+      recommendation.title !== undefined
+      || recommendation.rationale !== undefined
+    ) {
+      if (
+        recommendation.title !== catalogEntry.title
+        || recommendation.rationale !== catalogEntry.rationale
+      ) {
+        issues.push({
+          path: ['recommendations', index],
+          message: 'Recommendation copy differs from the local catalog.',
+        });
+      }
     }
     recommendation.evidenceRefs.forEach((reference, referenceIndex) => {
       const item = evidence.get(reference);
