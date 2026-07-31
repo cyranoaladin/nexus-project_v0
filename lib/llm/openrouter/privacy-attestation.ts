@@ -61,6 +61,14 @@ function attestationError(): never {
   throw new OpenRouterPrivacyAttestationError();
 }
 
+function accountFingerprint(apiKey: string): string {
+  return `hmac-sha256:${
+    createHmac('sha256', apiKey)
+      .update('nexus-openrouter-owner-account-v1')
+      .digest('hex')
+  }`;
+}
+
 function validateDates(
   attestation: OwnerPrivacyAttestation,
   now: Date,
@@ -105,11 +113,7 @@ export function createOwnerPrivacyAttestation(
     source: 'OWNER_DECLARATION',
     attestedAt: input.attestedAt,
     expiresAt: input.expiresAt,
-    accountFingerprint: `hmac-sha256:${
-      createHmac('sha256', input.apiKey)
-        .update('nexus-openrouter-owner-account-v1')
-        .digest('hex')
-    }`,
+    accountFingerprint: accountFingerprint(input.apiKey),
     guardrailFingerprint:
       `sha256:${sha256Canonical(guardrailValues)}`,
     ...guardrailValues,
@@ -118,6 +122,18 @@ export function createOwnerPrivacyAttestation(
     ...values,
     evidenceChecksum: sha256Canonical(values),
   });
+}
+
+export function assertPrivacyAttestationMatchesApiKey(
+  attestation: OwnerPrivacyAttestation,
+  apiKey: string,
+): void {
+  if (
+    apiKey.length === 0
+    || attestation.accountFingerprint !== accountFingerprint(apiKey)
+  ) {
+    attestationError();
+  }
 }
 
 export function readPrivateOpenRouterPrivacyAttestation(
