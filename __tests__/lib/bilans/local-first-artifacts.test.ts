@@ -191,6 +191,7 @@ describe('immutable local-first artifact envelope', () => {
     { studentIdentifier: { points: 123_456 } },
     { provenance: { points: 123_456 } },
     { score: { costMicrosUsd: 123_456 } },
+    { score: { points: 123_456 } },
   ])('blocks unknown numeric paths, including nested identifiers: %j', (payload) => {
     const scan = scanLocalFirstArtifactPayload(payload);
 
@@ -217,13 +218,23 @@ describe('immutable local-first artifact envelope', () => {
     })).toThrow(/PII scan|transport-safe/i);
   });
 
-  it('allows only the exact report-context PII scan counter path', () => {
+  it('allows a bounded counter only inside a checksum-valid PII scan', () => {
+    const validScan = scanPiiFields([]).result;
     expect(scanLocalFirstArtifactPayload({
-      piiScanResult: { redactionCount: 0 },
+      piiScanResult: validScan,
     }).status).toBe('CLEAN');
     expect(scanLocalFirstArtifactPayload({
-      unrelated: { redactionCount: 0 },
+      piiScanResult: { redactionCount: 0 },
     }).status).toBe('BLOCKED');
+    expect(scanLocalFirstArtifactPayload({
+      piiScanResult: { redactionCount: 123_456 },
+    }).status).toBe('BLOCKED');
+  });
+
+  it('allows a bounded decimal percentage on its exact scoreEcho path', () => {
+    expect(scanLocalFirstArtifactPayload({
+      scoreEcho: { percentage: 33.33 },
+    }).status).toBe('CLEAN');
   });
 
   it('rejects non-JSON payload objects before scanning and checksumming', () => {
