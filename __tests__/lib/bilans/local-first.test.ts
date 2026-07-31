@@ -220,6 +220,28 @@ describe('local-first synthetic benchmark contracts', () => {
     expect(() => validateLocalFirstReportContext(rebound)).toThrow(/PII scan/i);
   });
 
+  it('does not exempt an open fixture identifier from PII detection', () => {
+    const context = buildLocalFirstReportContext(fixtures()[0], 'PARENT');
+    const rebound = bindContextScan({
+      ...context,
+      fixtureId: 'student.synthetic@example.invalid',
+    });
+
+    expect(() => validateLocalFirstReportContext(rebound)).toThrow(/PII scan/i);
+  });
+
+  it('rejects duplicate raw evidence references before deriving approvals', () => {
+    const value = structuredClone(fixtures()[0]) as Record<string, any>;
+    value.rawEvidenceLocalOnly.push({
+      ...value.rawEvidenceLocalOnly[0],
+      text: 'Observation contradictoire sous la même référence.',
+    });
+
+    expect(() => SyntheticBenchmarkFixtureSchema.parse(
+      fixtureWithChecksum(value),
+    )).toThrow(/duplicate raw evidence reference/i);
+  });
+
   it('rejects untrusted raw evidence relabeled as curated', () => {
     const value = structuredClone(fixtures()[0]) as Record<string, any>;
     value.rawEvidenceLocalOnly[0] = {

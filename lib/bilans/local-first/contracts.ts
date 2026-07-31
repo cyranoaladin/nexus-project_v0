@@ -177,6 +177,17 @@ function validateFixture(
   context: z.RefinementCtx,
 ): void {
   groundingIssues(value, context);
+  const seenRawEvidenceRefs = new Set<string>();
+  value.rawEvidenceLocalOnly.forEach((item, index) => {
+    if (seenRawEvidenceRefs.has(item.evidenceRef)) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['rawEvidenceLocalOnly', index, 'evidenceRef'],
+        message: 'Duplicate raw evidence reference.',
+      });
+    }
+    seenRawEvidenceRefs.add(item.evidenceRef);
+  });
   const rawEvidence = new Map(
     value.rawEvidenceLocalOnly.map((item) => [item.evidenceRef, item]),
   );
@@ -288,7 +299,6 @@ const STRUCTURAL_OUTBOUND_KEYS = new Set([
   'createdAt',
   'audience',
   'classification',
-  'fixtureId',
   'competencyId',
   'status',
   'evidenceRef',
