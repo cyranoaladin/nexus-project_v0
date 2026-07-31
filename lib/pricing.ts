@@ -76,6 +76,15 @@ export interface AnnualOffer {
   last_installment: number | null;
   display?: string;
   included: string[];
+  /** Named, direction-approved bypass of the price/hour floor for this offer (see pricing-canonical-validator.test.ts). */
+  commercial_exception?: {
+    exception_id: string;
+    status: 'APPROVED' | 'PENDING' | 'REJECTED';
+    approved_at: string;
+    approved_by_role: string;
+    scope: string;
+    justification: string;
+  };
 }
 
 /** Public shape — no internal `_*` fields. */

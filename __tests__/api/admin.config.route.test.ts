@@ -4,7 +4,7 @@
 import { NextRequest } from 'next/server';
 import { GET, PATCH } from '@/app/api/admin/config/route';
 import { _resetForTest, _setForTest, getOverride } from '@/lib/config/snapshot';
-import { SCHEMA_VERSION } from '@/lib/config/schemas';
+import { SCHEMA_VERSION, getStaticFallback } from '@/lib/config/schemas';
 
 // Mock auth: ADMIN user
 jest.mock('@/lib/guards', () => ({
@@ -331,10 +331,12 @@ describe('Invariants on empty store — must validate against canonical fallback
     expect(body.violations[0]).toContain('group_min_open.lycee (7) > group_max (6)');
   });
 
-  it('rejects discount=25 on empty store (canonical global_cap_pct=20)', async () => {
+  it('rejects discount=25 on empty store (above the canonical global_cap_pct fallback)', async () => {
     _resetForTest();
     mockFindMany.mockResolvedValue([]);
     mockFindUnique.mockResolvedValue(null);
+
+    const cap = getStaticFallback('pricing.rules', 'discounts.global_cap_pct');
 
     const res = await PATCH(makeRequest({
       namespace: 'pricing.rules',
@@ -343,7 +345,7 @@ describe('Invariants on empty store — must validate against canonical fallback
     }));
     expect(res.status).toBe(400);
     const body = await res.json();
-    expect(body.violations[0]).toContain('global_cap_pct (20)');
+    expect(body.violations[0]).toContain(`global_cap_pct (${cap})`);
   });
 
   it('rejects floor=1 on empty store (deposit rounds to 0 at canonical deposit_pct=30)', async () => {

@@ -15,6 +15,7 @@ import {
   getCarte,
   computeDeposit,
   computeAnnualSchedule,
+  applyDiscount,
   type PricingData,
 } from '@/lib/pricing';
 
@@ -90,13 +91,11 @@ describe('T1b — Catalogue identifiers are URL-safe ASCII slugs', () => {
   });
 });
 
-// ── T2: Price floor — stage unitaire ≥ 45 TND/élève/h ──
-// Business-ratified threshold (decision 2026-06-20): 45 TND/h applies to all stage formats.
+// ── T2: Price floor — stage unitaire ≥ rules.price_floor_per_student_hour_tnd.stage ──
 
-describe('T2 — Stage price floor ≥ 45 TND/élève/h', () => {
-  const stageFloor = 45;
-
+describe('T2 — Stage price floor ≥ rules.price_floor_per_student_hour_tnd.stage', () => {
   test('all stage formats respect floor', () => {
+    const stageFloor = data.rules.price_floor_per_student_hour_tnd.stage;
     for (const fmt of data.stage_formats) {
       expect(fmt.price_per_student_hour).toBeGreaterThanOrEqual(stageFloor);
     }
@@ -110,6 +109,7 @@ describe('T2 — Stage price floor ≥ 45 TND/élève/h', () => {
   });
 
   test('ponctuel offers with floor_type=stage respect floor', () => {
+    const stageFloor = data.rules.price_floor_per_student_hour_tnd.stage;
     for (const p of data.ponctuel_offers) {
       if (p.floor_type === 'stage' && p.price_per_student_hour != null) {
         expect(p.price_per_student_hour).toBeGreaterThanOrEqual(stageFloor);
@@ -412,7 +412,15 @@ describe('T12 — French labels keep required accents', () => {
 describe('Price floors per offer type', () => {
   const rules = getRules();
 
-  test('single-subject offers ≥ 50 TND/h', () => {
+  /**
+   * An offer may fall below its floor only if it carries an APPROVED
+   * commercial_exception naming that exact bypass — never a silent gap.
+   */
+  function isApprovedException(offer: PricingData['offers'][number]): boolean {
+    return offer.commercial_exception?.status === 'APPROVED';
+  }
+
+  test('single-subject offers ≥ rules.price_floor_per_student_hour_tnd.single', () => {
     // Single-subject = 1 EDS only (not "Maths + methode" which is multi)
     const singleSubjectIds = ['term-spe-simple', '1re-eaf', '1re-maths-antic'];
     for (const offer of data.offers) {
@@ -422,28 +430,66 @@ describe('Price floors per offer type', () => {
     }
   });
 
-  test('multi-subject offers ≥ 45 TND/h', () => {
+  test('multi-subject offers ≥ rules.price_floor_per_student_hour_tnd.multi, except named commercial exceptions', () => {
     // Multi = 2+ subjects or method combos (excludes college and single-subject)
     const singleSubjectIds = new Set(['term-spe-simple', '1re-eaf', '1re-maths-antic']);
     for (const offer of data.offers) {
       if (offer.price_per_student_hour != null && offer.track === 'scolarise' && offer.level !== 'troisieme' && !singleSubjectIds.has(offer.id)) {
+        if (isApprovedException(offer)) {
+          expect(offer.commercial_exception!.justification.length).toBeGreaterThan(0);
+          continue;
+        }
         expect(offer.price_per_student_hour).toBeGreaterThanOrEqual(rules.price_floor_per_student_hour_tnd.multi);
       }
     }
   });
 
-  test('college offers ≥ 40 TND/h', () => {
+  test('college offers ≥ rules.price_floor_per_student_hour_tnd.college, except named commercial exceptions', () => {
     for (const offer of data.offers) {
       if (offer.level === 'troisieme' && offer.price_per_student_hour != null) {
+        if (isApprovedException(offer)) {
+          expect(offer.commercial_exception!.justification.length).toBeGreaterThan(0);
+          continue;
+        }
         expect(offer.price_per_student_hour).toBeGreaterThanOrEqual(rules.price_floor_per_student_hour_tnd.college);
       }
     }
   });
+
+  test('exactly the direction-approved offers bypass their floor — no silent scope creep', () => {
+    const exceptionOfferIds = data.offers
+      .filter((o) => isApprovedException(o))
+      .map((o) => o.id)
+      .sort();
+    expect(exceptionOfferIds).toEqual(['2nde-sciences', 'brevet-complet']);
+  });
 });
 
-describe('Global discount cap = 20%', () => {
-  test('rules.discounts.global_cap_pct = 20', () => {
-    expect(data.rules.discounts.global_cap_pct).toBe(20);
+describe('Discounts disabled — grille C accessible pricing', () => {
+  test('every discount rate is 0', () => {
+    const d = data.rules.discounts;
+    expect(d.comptant_pct).toBe(0);
+    expect(d.fratrie_2nd_child_pct).toBe(0);
+    expect(d.ancien_eleve_min_pct).toBe(0);
+    expect(d.ancien_eleve_max_pct).toBe(0);
+    expect(d.parrainage_min_tnd).toBe(0);
+    expect(d.parrainage_max_tnd).toBe(0);
+    expect(d.carte_nexus_pct).toBe(0);
+    expect(d.global_cap_pct).toBe(0);
+  });
+
+  test('note documents that discounts are disabled', () => {
+    expect(data.rules.discounts.note.toLowerCase()).toContain('désactiv');
+  });
+
+  test('applyDiscount returns the price unchanged when global_cap_pct = 0', () => {
+    const cap = data.rules.discounts.global_cap_pct;
+    expect(cap).toBe(0);
+    // Even a caller passing a nonzero discountPct must not move the price,
+    // since global_cap_pct=0 caps every discount at 0%.
+    expect(applyDiscount(1000, data.rules.discounts.comptant_pct)).toBe(1000);
+    expect(applyDiscount(1000, 15)).toBe(1000);
+    expect(applyDiscount(2537, 100)).toBe(2537);
   });
 
   test('no offer has deprecated price_annual_public or badge fields', () => {
