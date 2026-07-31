@@ -80,9 +80,11 @@ function mean(values: readonly number[]): number {
 
 function aggregateByModel(
   results: Awaited<ReturnType<typeof runSyntheticParentBenchmark>>['results'],
+  failures: Awaited<ReturnType<typeof runSyntheticParentBenchmark>>['failures'],
 ) {
   return MODELS.map((model) => {
     const modelResults = results.filter((result) => result.model === model);
+    const modelFailures = failures.filter((failure) => failure.model === model);
     const inputTokens = modelResults.map(
       ({ provenance }) => provenance.promptTokens,
     );
@@ -103,7 +105,9 @@ function aggregateByModel(
     );
     return {
       model,
-      callCount: modelResults.length,
+      callCount: modelResults.length + modelFailures.length,
+      successfulCompletionCount: modelResults.length,
+      transportFailureCount: modelFailures.length,
       providers: [...new Set(
         modelResults.map(({ provenance }) => provenance.provider ?? 'UNKNOWN'),
       )].sort(),
@@ -259,6 +263,18 @@ async function main(): Promise<void> {
   const contextByFixture = new Map(
     contexts.map((context) => [context.fixtureId, context]),
   );
+  const evidenceDirectory = privateDirectory();
+  writePrivateJson(evidenceDirectory, 'session.redacted.json', {
+    generatedAt: new Date().toISOString(),
+    repositorySha,
+    syntheticOnly: true,
+    dataSubjectCount: 0,
+    policyId: BILAN_BENCHMARK_POLICY.id,
+    policyVersion: BILAN_BENCHMARK_POLICY.version,
+    policyChecksum: BILAN_BENCHMARK_POLICY_CHECKSUM,
+    catalogChecksum: benchmarkProof.catalogChecksum,
+    priorLunaPreflightSha,
+  });
   const run = await runSyntheticParentBenchmark({
     contexts,
     models: MODELS,
@@ -283,12 +299,60 @@ async function main(): Promise<void> {
         provenance: completion.provenance,
       };
     },
+    onResult: (result, attemptNumber) => writePrivateJson(
+      evidenceDirectory,
+      `attempt-${String(attemptNumber).padStart(2, '0')}-success.json`,
+      {
+        repositorySha,
+        syntheticOnly: true,
+        dataSubjectCount: 0,
+        ...result,
+      },
+    ),
+    onFailure: (failure, attemptNumber) => writePrivateJson(
+      evidenceDirectory,
+      `attempt-${String(attemptNumber).padStart(2, '0')}-failure.json`,
+      {
+        repositorySha,
+        syntheticOnly: true,
+        dataSubjectCount: 0,
+        ...failure,
+      },
+    ),
   });
   if (run.callCount !== EXPECTED_BENCHMARK_CALL_COUNT) {
     throw new Error('BENCHMARK_CALL_COUNT_MISMATCH');
   }
 
-  const aggregate = aggregateByModel(run.results);
+  const aggregate = aggregateByModel(run.results, run.failures);
+  if (run.failures.length > 0) {
+    writePrivateJson(evidenceDirectory, 'benchmark.redacted.json', {
+      generatedAt: new Date().toISOString(),
+      repositorySha,
+      syntheticOnly: true,
+      dataSubjectCount: 0,
+      realStudentDataSentCount: 0,
+      policyId: BILAN_BENCHMARK_POLICY.id,
+      policyVersion: BILAN_BENCHMARK_POLICY.version,
+      policyChecksum: BILAN_BENCHMARK_POLICY_CHECKSUM,
+      catalogChecksum: benchmarkProof.catalogChecksum,
+      benchmarkCallCount: run.callCount,
+      benchmarkTotalCostMicrosUsd: run.totalCostMicrosUsd,
+      warningReached: run.warningReached,
+      aggregate,
+      failures: run.failures,
+    });
+    process.stdout.write([
+      'BENCHMARK_STATUS=INCOMPLETE',
+      `BENCHMARK_CALL_COUNT=${run.callCount}`,
+      `BENCHMARK_FAILURE_COUNT=${run.failures.length}`,
+      `BENCHMARK_TOTAL_COST_MICROS_USD=${run.totalCostMicrosUsd}`,
+      'HUMAN_REVIEW_STATUS=BLOCKED_BY_INCOMPLETE_BENCHMARK',
+      `EVIDENCE_DIRECTORY=${evidenceDirectory}`,
+    ].join('\n') + '\n');
+    process.exitCode = 1;
+    return;
+  }
   const firstLunaResult = run.results.find(
     ({ model }) => model === 'openai/gpt-5.6-luna',
   );
@@ -307,7 +371,6 @@ async function main(): Promise<void> {
       datasetVersion: 'synthetic-v1',
     }),
   );
-  const evidenceDirectory = privateDirectory();
   const common = {
     generatedAt: new Date().toISOString(),
     repositorySha,

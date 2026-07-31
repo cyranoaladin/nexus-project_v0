@@ -60,6 +60,13 @@ export type SyntheticBenchmarkRun = Readonly<{
   totalCostMicrosUsd: number;
   warningReached: boolean;
   results: readonly SyntheticBenchmarkResult[];
+  failures: readonly SyntheticBenchmarkFailure[];
+}>;
+
+export type SyntheticBenchmarkFailure = Readonly<{
+  fixtureId: string;
+  model: string;
+  normalizedErrorCode: string;
 }>;
 
 export class BenchmarkCriticalValidationError extends Error {
@@ -180,6 +187,14 @@ export async function runSyntheticParentBenchmark(
       fixtureId: string;
       payload: ParentLlmPayload;
     }>) => Promise<BenchmarkCompletion>;
+    onResult?: (
+      result: SyntheticBenchmarkResult,
+      attemptNumber: number,
+    ) => void | Promise<void>;
+    onFailure?: (
+      failure: SyntheticBenchmarkFailure,
+      attemptNumber: number,
+    ) => void | Promise<void>;
   }>,
 ): Promise<SyntheticBenchmarkRun> {
   if (
@@ -192,15 +207,47 @@ export async function runSyntheticParentBenchmark(
     throw new Error('BENCHMARK_CONFIGURATION_INVALID');
   }
   const results: SyntheticBenchmarkResult[] = [];
+  const failures: SyntheticBenchmarkFailure[] = [];
+  const consecutiveFailures = new Map<string, number>();
   let totalCostMicrosUsd = 0;
   for (const context of options.contexts) {
     const payload = buildParentLlmPayload(context);
     for (const model of orderedModels(context.fixtureId, options.models)) {
-      const completion = await options.complete({
-        model,
-        fixtureId: context.fixtureId,
-        payload,
-      });
+      let completion: BenchmarkCompletion;
+      try {
+        completion = await options.complete({
+          model,
+          fixtureId: context.fixtureId,
+          payload,
+        });
+      } catch (caught) {
+        const candidateCode = caught !== null
+          && typeof caught === 'object'
+          && 'code' in caught
+          && typeof caught.code === 'string'
+          ? caught.code
+          : 'BENCHMARK_TRANSPORT_FAILURE';
+        const normalizedErrorCode = /^[A-Z][A-Z0-9_]{2,79}$/.test(
+          candidateCode,
+        )
+          ? candidateCode
+          : 'BENCHMARK_TRANSPORT_FAILURE';
+        const failure = Object.freeze({
+          fixtureId: context.fixtureId,
+          model,
+          normalizedErrorCode,
+        });
+        failures.push(failure);
+        const attemptNumber = results.length + failures.length;
+        await options.onFailure?.(failure, attemptNumber);
+        const count = (consecutiveFailures.get(model) ?? 0) + 1;
+        consecutiveFailures.set(model, count);
+        if (count >= 3) {
+          throw new Error('BENCHMARK_THREE_CONSECUTIVE_MODEL_FAILURES');
+        }
+        continue;
+      }
+      consecutiveFailures.set(model, 0);
       totalCostMicrosUsd += completion.provenance.costMicrosUsd;
       if (totalCostMicrosUsd >= options.hardStopMicrosUsd) {
         throw new Error('BENCHMARK_HARD_STOP_REACHED');
@@ -232,7 +279,7 @@ export async function runSyntheticParentBenchmark(
           'BENCHMARK_CRITICAL_VALIDATION_FAILURE: incomplete output',
         );
       }
-      results.push(Object.freeze({
+      const result = Object.freeze({
         fixtureId: context.fixtureId,
         model,
         report,
@@ -250,14 +297,17 @@ export async function runSyntheticParentBenchmark(
           noMarkdown: true,
           finishReasonStop: true,
         }),
-      }));
+      });
+      results.push(result);
+      await options.onResult?.(result, results.length + failures.length);
     }
   }
   return Object.freeze({
     schemaVersion: 'bilan-synthetic-benchmark-run-v1',
-    callCount: results.length,
+    callCount: results.length + failures.length,
     totalCostMicrosUsd,
     warningReached: totalCostMicrosUsd >= options.warningMicrosUsd,
     results: Object.freeze(results),
+    failures: Object.freeze(failures),
   });
 }

@@ -155,4 +155,52 @@ describe('synthetic benchmark runner', () => {
       }),
     })).rejects.toThrow('BENCHMARK_HARD_STOP_REACHED');
   });
+
+  it('records an isolated provider failure and never retries the pair', async () => {
+    const context = buildLocalFirstReportContext(fixtures, 'PARENT');
+    const calls: string[] = [];
+    const run = await runSyntheticParentBenchmark({
+      contexts: [context],
+      models: [
+        'openai/gpt-5.6-luna',
+        'openai/gpt-5.6-terra',
+        'anthropic/claude-sonnet-5',
+      ],
+      hardStopMicrosUsd: 1_500_000,
+      warningMicrosUsd: 1_000_000,
+      complete: async ({ model }) => {
+        calls.push(model);
+        if (model === 'openai/gpt-5.6-terra') {
+          throw Object.assign(new Error('redacted'), {
+            code: 'OPENROUTER_PROVIDER_UNAVAILABLE',
+          });
+        }
+        return {
+          data: draftForFixture(),
+          provenance: {
+            requestedModel: model,
+            returnedModel: model,
+            provider: 'fake',
+            generationId: `fake-${model}`,
+            finishReason: 'stop',
+            promptTokens: 1,
+            completionTokens: 1,
+            reasoningTokens: 0,
+            totalTokens: 2,
+            costMicrosUsd: 1,
+            latencyMs: 1,
+          },
+        };
+      },
+    });
+    expect(calls).toHaveLength(3);
+    expect(new Set(calls).size).toBe(3);
+    expect(run.callCount).toBe(3);
+    expect(run.results).toHaveLength(2);
+    expect(run.failures).toEqual([{
+      fixtureId: 'synthetic-simple-01',
+      model: 'openai/gpt-5.6-terra',
+      normalizedErrorCode: 'OPENROUTER_PROVIDER_UNAVAILABLE',
+    }]);
+  });
 });
