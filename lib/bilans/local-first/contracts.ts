@@ -288,7 +288,7 @@ export type SyntheticBenchmarkFixture = z.infer<
   typeof SyntheticBenchmarkFixtureSchema
 >;
 
-const LocalFirstReportContextBaseSchema = z.object({
+export const LocalFirstReportContextBaseSchema = z.object({
   schemaVersion: z.literal('bilan-report-context-v2'),
   datasetVersion: z.string().min(1).max(80),
   inputChecksum: Sha256Schema,
