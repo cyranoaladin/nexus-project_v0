@@ -41,10 +41,16 @@ const ArtifactTypeSchema = z.enum([
 const ARTIFACT_ORDER = ArtifactTypeSchema.options;
 const SAFE_JSON_PROPERTY_NAME = /^[A-Za-z][A-Za-z0-9_]{0,79}$/;
 const SAFE_NUMERIC_ARTIFACT_PATHS = [
-  /^\$\.payload\.(?:attemptNumber|awardedPoints|completionTokens|costMicrosUsd|durationSeconds|durationWeeks|latencyMs|maxPoints|percentage|points|possiblePoints|promptTokens|reasoningTokens|totalTokens)$/,
-  /^\$\.payload\.(?:score|scoreEcho|usage|provenance)\.(?:attemptNumber|awardedPoints|completionTokens|costMicrosUsd|durationSeconds|durationWeeks|latencyMs|maxPoints|percentage|points|possiblePoints|promptTokens|reasoningTokens|totalTokens)$/,
+  /^\$\.payload\.(?:maxPoints|points)$/,
+  /^\$\.payload\.score\.(?:maxPoints|points)$/,
+  /^\$\.payload\.scoreEcho\.(?:maxPoints|percentage|points)$/,
+  /^\$\.payload\.usage\.(?:completionTokens|costMicrosUsd|promptTokens|reasoningTokens|totalTokens)$/,
+  /^\$\.payload\.provenance\.(?:attemptNumber|completionTokens|costMicrosUsd|latencyMs|promptTokens|reasoningTokens|totalTokens)$/,
   /^\$\.payload\.attempts\[\d+\]\.(?:attemptNumber|completionTokens|costMicrosUsd|latencyMs|promptTokens|reasoningTokens|totalTokens)$/,
   /^\$\.payload\.actionPlan\[\d+\]\.durationWeeks$/,
+  /^\$\.payload\.piiScanResult\.redactionCount$/,
+  /^\$\.payload\.approvedEvidenceForLlm\[\d+\]\.piiScanResult\.redactionCount$/,
+  /^\$\.payload\.llmApprovedInternalNotes\.piiScanResult\.redactionCount$/,
 ] as const;
 
 function isSafeNumericArtifactPath(path: string): boolean {
