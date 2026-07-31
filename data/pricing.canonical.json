@@ -123,7 +123,7 @@
         "Grand Oral : préparation complète incluse",
         "Stages de vacances inclus",
         "Coaching individuel et suivi parent renforcé",
-        "6 h d'urgence en ligne incluses",
+        "6 h de coaching individuel d'urgence incluses",
         "Plateforme ARIA + espace parent",
         "Accompagnement Parcoursup et orientation"
       ]
@@ -325,7 +325,7 @@
       "subjects": "Mathématiques",
       "hours_per_week": 2,
       "hours_per_year": 60,
-      "group_max": 5,
+      "group_max": 6,
       "group_min_open": 4,
       "price_annual": 2300,
       "price_per_student_hour": 38,
@@ -351,7 +351,7 @@
       "subjects": "Maths + Français + méthode",
       "hours_per_week": 4,
       "hours_per_year": 120,
-      "group_max": 5,
+      "group_max": 6,
       "group_min_open": 4,
       "price_annual": 4200,
       "price_per_student_hour": 35,
@@ -505,7 +505,7 @@
         "Cellule Candidat Libre incluse (Cyclades, IFT, convocations)",
         "Tout le parcours Accompagné en groupe réduit",
         "Coaching individuel et suivi parent renforcé",
-        "6 h d'urgence en ligne incluses",
+        "6 h de coaching individuel d'urgence incluses",
         "Priorité de planification sur les stages",
         "Préparation Parcoursup : dossier et entretiens optimisés"
       ]
@@ -555,7 +555,7 @@
       "included": [
         "Tout l'abonnement Autonomie",
         "Compte parent + bilans réguliers",
-        "1 atelier collectif en ligne / mois"
+        "1 atelier collectif présentiel / mois"
       ]
     },
     {
@@ -854,7 +854,7 @@
       "subjects": "Histoire-Géographie + EMC",
       "hours_per_week": 2,
       "hours_per_year": 60,
-      "group_max": 5,
+      "group_max": 6,
       "group_min_open": 4,
       "price_annual": 2300,
       "price_per_student_hour": 38,
