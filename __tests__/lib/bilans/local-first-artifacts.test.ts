@@ -184,6 +184,33 @@ describe('immutable local-first artifact envelope', () => {
     })).toThrow(/PII scan|transport-safe/i);
   });
 
+  it('blocks numeric student identifiers even when they are not phone-shaped', () => {
+    const payload = { studentIdentifier: 123_456 };
+    const scan = scanLocalFirstArtifactPayload(payload);
+
+    expect(scan).toMatchObject({
+      status: 'BLOCKED',
+      detectedCategories: expect.arrayContaining(['FREE_TEXT_UNCLASSIFIED']),
+      requiresHumanReview: true,
+    });
+    expect(() => createLocalFirstArtifact({
+      artifactType: 'NORMALIZED_ASSESSMENT',
+      repositorySha: REPOSITORY_SHA,
+      expectedRepositorySha: REPOSITORY_SHA,
+      datasetVersion: 'synthetic-v1',
+      generatorId: 'bilan-local-first',
+      generatorVersion: '1',
+      scoringPolicyChecksum: CHECKSUM,
+      corpusChecksum: CHECKSUM,
+      promptChecksum: null,
+      outputSchemaChecksum: null,
+      audience: 'PARENT',
+      classification: 'SYNTHETIC_BENCHMARK',
+      piiScanResult: scan,
+      payload,
+    })).toThrow(/PII scan|transport-safe/i);
+  });
+
   it('rejects non-JSON payload objects before scanning and checksumming', () => {
     const input = {
       artifactType: 'NORMALIZED_ASSESSMENT',

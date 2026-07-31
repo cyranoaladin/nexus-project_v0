@@ -40,6 +40,7 @@ const ArtifactTypeSchema = z.enum([
 
 const ARTIFACT_ORDER = ArtifactTypeSchema.options;
 const SAFE_JSON_PROPERTY_NAME = /^[A-Za-z][A-Za-z0-9_]{0,79}$/;
+const NUMERIC_PII_PROPERTY_NAME = /^(?:phone|telephone|mobile|studentId|studentIdentifier|studentNumber|matricule|ine|dateOfBirth|birthDate|dob)$/i;
 
 function isPlainJsonValue(
   value: unknown,
@@ -102,23 +103,32 @@ function deepFreeze<T>(value: T, seen = new WeakSet<object>()): T {
 type ArtifactPiiField = Readonly<{
   path: string;
   text: string;
-  source: 'CONTROLLED_TEMPLATE';
+  source: 'CONTROLLED_TEMPLATE' | 'UNCLASSIFIED_FREE_TEXT';
 }>;
 
 function payloadPiiFields(
   value: unknown,
   path = '$.payload',
+  parentKey?: string,
 ): ArtifactPiiField[] {
   if (typeof value === 'string' || typeof value === 'number') {
-    return [{ path, text: String(value), source: 'CONTROLLED_TEMPLATE' }];
+    return [{
+      path,
+      text: String(value),
+      source: typeof value === 'number'
+        && parentKey !== undefined
+        && NUMERIC_PII_PROPERTY_NAME.test(parentKey)
+        ? 'UNCLASSIFIED_FREE_TEXT'
+        : 'CONTROLLED_TEMPLATE',
+    }];
   }
   if (Array.isArray(value)) {
     return value.flatMap((item, index) =>
-      payloadPiiFields(item, `${path}[${index}]`));
+      payloadPiiFields(item, `${path}[${index}]`, parentKey));
   }
   if (value === null || typeof value !== 'object') return [];
   return Object.entries(value).flatMap(([key, item]) =>
-    payloadPiiFields(item, `${path}.${key}`));
+    payloadPiiFields(item, `${path}.${key}`, key));
 }
 
 export function scanLocalFirstArtifactPayload(
