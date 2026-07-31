@@ -89,6 +89,15 @@ ZDR et `data_collection=deny` sont des exigences de requête et de preflight.
 Ils ne remplacent pas la validation juridique, la configuration privée du
 compte OpenRouter, ni la mise à jour de la notice de confidentialité.
 
+Les déclarations owner sont chargées depuis une attestation privée versionnée,
+expirant en trente jours au plus, liée à la clé par HMAC et jamais codée en
+dur. Leur niveau de preuve reste `OWNER_DECLARATION`.
+
+L'audit de résilience utilise uniquement le catalogue ZDR et des tags
+officiellement retournés. L'absence d'une route alternative conforme devient
+un risque de concentration ; elle n'autorise aucun relâchement de ZDR ou de
+collecte.
+
 ### Structured output et validation
 
 C1 possède un schéma synthétique fermé avec `additionalProperties=false`.
