@@ -40,23 +40,16 @@ const ArtifactTypeSchema = z.enum([
 
 const ARTIFACT_ORDER = ArtifactTypeSchema.options;
 const SAFE_JSON_PROPERTY_NAME = /^[A-Za-z][A-Za-z0-9_]{0,79}$/;
-const SAFE_NUMERIC_ARTIFACT_FIELDS = new Set([
-  'attemptNumber',
-  'awardedPoints',
-  'completionTokens',
-  'costMicrosUsd',
-  'durationSeconds',
-  'durationWeeks',
-  'latencyMs',
-  'maxPoints',
-  'percentage',
-  'points',
-  'possiblePoints',
-  'promptTokens',
-  'reasoningTokens',
-  'redactionCount',
-  'totalTokens',
-]);
+const SAFE_NUMERIC_ARTIFACT_PATHS = [
+  /^\$\.payload\.(?:attemptNumber|awardedPoints|completionTokens|costMicrosUsd|durationSeconds|durationWeeks|latencyMs|maxPoints|percentage|points|possiblePoints|promptTokens|reasoningTokens|totalTokens)$/,
+  /^\$\.payload\.(?:score|scoreEcho|usage|provenance)\.(?:attemptNumber|awardedPoints|completionTokens|costMicrosUsd|durationSeconds|durationWeeks|latencyMs|maxPoints|percentage|points|possiblePoints|promptTokens|reasoningTokens|totalTokens)$/,
+  /^\$\.payload\.attempts\[\d+\]\.(?:attemptNumber|completionTokens|costMicrosUsd|latencyMs|promptTokens|reasoningTokens|totalTokens)$/,
+  /^\$\.payload\.actionPlan\[\d+\]\.durationWeeks$/,
+] as const;
+
+function isSafeNumericArtifactPath(path: string): boolean {
+  return SAFE_NUMERIC_ARTIFACT_PATHS.some((pattern) => pattern.test(path));
+}
 
 function isPlainJsonValue(
   value: unknown,
@@ -125,28 +118,24 @@ type ArtifactPiiField = Readonly<{
 function payloadPiiFields(
   value: unknown,
   path = '$.payload',
-  parentKey?: string,
 ): ArtifactPiiField[] {
   if (typeof value === 'string' || typeof value === 'number') {
     return [{
       path,
       text: String(value),
       source: typeof value === 'number'
-        && (
-          parentKey === undefined
-          || !SAFE_NUMERIC_ARTIFACT_FIELDS.has(parentKey)
-        )
+        && !isSafeNumericArtifactPath(path)
         ? 'UNCLASSIFIED_FREE_TEXT'
         : 'CONTROLLED_TEMPLATE',
     }];
   }
   if (Array.isArray(value)) {
     return value.flatMap((item, index) =>
-      payloadPiiFields(item, `${path}[${index}]`, parentKey));
+      payloadPiiFields(item, `${path}[${index}]`));
   }
   if (value === null || typeof value !== 'object') return [];
   return Object.entries(value).flatMap(([key, item]) =>
-    payloadPiiFields(item, `${path}.${key}`, key));
+    payloadPiiFields(item, `${path}.${key}`));
 }
 
 export function scanLocalFirstArtifactPayload(
