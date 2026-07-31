@@ -10,6 +10,8 @@ import {
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
+import syntheticFixture from '@/content/bilans/benchmarks/synthetic-v1/synthetic-simple-01.json';
+
 import {
   LocalFirstArtifactEnvelopeSchema,
   createLocalFirstArtifact,
@@ -19,6 +21,7 @@ import {
   validateArtifactChain,
   writeLocalFirstArtifactAtomic,
 } from '@/lib/bilans/local-first/artifacts';
+import { buildLocalFirstReportContext } from '@/lib/bilans/local-first/contracts';
 import { scanPiiFields } from '@/lib/bilans/local-first/pii';
 
 const REPOSITORY_SHA = execFileSync(
@@ -193,7 +196,10 @@ describe('immutable local-first artifact envelope', () => {
     { score: { costMicrosUsd: 123_456 } },
     { score: { points: 123_456 } },
   ])('blocks unknown numeric paths, including nested identifiers: %j', (payload) => {
-    const scan = scanLocalFirstArtifactPayload(payload);
+    const scan = scanLocalFirstArtifactPayload(
+      'NORMALIZED_ASSESSMENT',
+      payload,
+    );
 
     expect(scan).toMatchObject({
       status: 'BLOCKED',
@@ -220,24 +226,45 @@ describe('immutable local-first artifact envelope', () => {
 
   it('allows a bounded counter only inside a checksum-valid PII scan', () => {
     const validScan = scanPiiFields([]).result;
-    expect(scanLocalFirstArtifactPayload({
-      piiScanResult: validScan,
-    }).status).toBe('CLEAN');
-    expect(scanLocalFirstArtifactPayload({
-      piiScanResult: { redactionCount: 0 },
-    }).status).toBe('BLOCKED');
-    expect(scanLocalFirstArtifactPayload({
-      piiScanResult: { redactionCount: 123_456 },
-    }).status).toBe('BLOCKED');
-    expect(scanLocalFirstArtifactPayload({
-      unrelated: { piiScanResult: validScan },
-    }).status).toBe('BLOCKED');
+    const reportContext = buildLocalFirstReportContext(
+      syntheticFixture,
+      'PARENT',
+    );
+    expect(scanLocalFirstArtifactPayload(
+      'REPORT_CONTEXT',
+      reportContext,
+    ).status).toBe('CLEAN');
+    expect(scanLocalFirstArtifactPayload(
+      'REPORT_CONTEXT',
+      { piiScanResult: validScan },
+    ).status).toBe('BLOCKED');
+    expect(scanLocalFirstArtifactPayload(
+      'REPORT_CONTEXT',
+      { piiScanResult: { redactionCount: 123_456 } },
+    ).status).toBe('BLOCKED');
+    expect(scanLocalFirstArtifactPayload(
+      'REPORT_CONTEXT',
+      { unrelated: { piiScanResult: validScan } },
+    ).status).toBe('BLOCKED');
   });
 
-  it('allows a bounded decimal percentage on its exact scoreEcho path', () => {
-    expect(scanLocalFirstArtifactPayload({
-      scoreEcho: { percentage: 33.33 },
-    }).status).toBe('CLEAN');
+  it('binds score metrics to the SCORE_SNAPSHOT schema and relationships', () => {
+    expect(scanLocalFirstArtifactPayload(
+      'SCORE_SNAPSHOT',
+      { points: 10, maxPoints: 20 },
+    ).status).toBe('CLEAN');
+    expect(scanLocalFirstArtifactPayload(
+      'SCORE_SNAPSHOT',
+      { points: 12_345, maxPoints: 12_345 },
+    ).status).toBe('BLOCKED');
+    expect(scanLocalFirstArtifactPayload(
+      'SCORE_SNAPSHOT',
+      { points: 12_345 },
+    ).status).toBe('BLOCKED');
+    expect(scanLocalFirstArtifactPayload(
+      'SCORE_SNAPSHOT',
+      { points: 30, maxPoints: 20 },
+    ).status).toBe('BLOCKED');
   });
 
   it('rejects non-JSON payload objects before scanning and checksumming', () => {
@@ -308,8 +335,11 @@ describe('immutable local-first artifact envelope', () => {
       outputSchemaChecksum: null,
       audience: 'PARENT',
       classification: 'SYNTHETIC_BENCHMARK',
-      piiScanResult: scanLocalFirstArtifactPayload({ points: 10 }),
-      payload: { points: 10 },
+      piiScanResult: scanLocalFirstArtifactPayload(
+        'SCORE_SNAPSHOT',
+        { points: 10, maxPoints: 20 },
+      ),
+      payload: { points: 10, maxPoints: 20 },
     })).toThrow(/parent/i);
   });
 
@@ -328,10 +358,10 @@ describe('immutable local-first artifact envelope', () => {
       outputSchemaChecksum: null,
       audience: 'PARENT',
       classification: 'SYNTHETIC_BENCHMARK',
-      piiScanResult: scanLocalFirstArtifactPayload({
-        points: 10,
-        maxPoints: 20,
-      }),
+      piiScanResult: scanLocalFirstArtifactPayload(
+        'SCORE_SNAPSHOT',
+        { points: 10, maxPoints: 20 },
+      ),
       payload: { points: 10, maxPoints: 20 },
       parent: root,
     });
@@ -363,10 +393,10 @@ describe('immutable local-first artifact envelope', () => {
       outputSchemaChecksum: null,
       audience: 'PARENT',
       classification: 'SYNTHETIC_BENCHMARK',
-      piiScanResult: scanLocalFirstArtifactPayload({
-        points: 10,
-        maxPoints: 20,
-      }),
+      piiScanResult: scanLocalFirstArtifactPayload(
+        'SCORE_SNAPSHOT',
+        { points: 10, maxPoints: 20 },
+      ),
       payload: { points: 10, maxPoints: 20 },
       parent: root,
     });
