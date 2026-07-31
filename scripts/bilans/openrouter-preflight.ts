@@ -116,7 +116,6 @@ async function main(): Promise<void> {
       const completion = await client.completePreflightForModel(
         request,
         requestedModel,
-        outputTokenParameter: provenance.outputTokenParameter,
       );
       const {
         provenance,
@@ -181,6 +180,9 @@ async function main(): Promise<void> {
       }
       modelResults.push({
         requestedModel,
+        outputTokenParameter: proof.snapshots.find(
+          ({ requestedModelId }) => requestedModelId === requestedModel,
+        )?.outputTokenParameter ?? null,
         status: 'FAIL',
         normalizedErrorCode: error.code,
         returnedModel: attempt?.returnedModel ?? null,
