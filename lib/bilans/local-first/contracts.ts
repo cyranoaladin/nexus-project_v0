@@ -9,6 +9,7 @@ import { validateGrounding, resolveRecommendation } from './grounding';
 import {
   PiiScanResultSchema,
   PiiStatusSchema,
+  bindPiiScanResultToPayload,
   piiScanResultMatchesContent,
   scanPiiFields,
   validatePiiScanResultChecksum,
@@ -50,7 +51,9 @@ const CuratedEvidenceSchema = z.object({
   competencyId: IdentifierSchema,
   text: z.string().trim().min(1).max(500),
   trust: z.literal('CURATED'),
+  evidenceScopeVersion: z.literal('TRANSVERSAL_V1').optional(),
   templateId: IdentifierSchema,
+  templateChecksum: Sha256Schema,
 }).strict();
 
 const HumanApprovalSchema = z.object({
@@ -65,6 +68,8 @@ const UntrustedApprovedEvidenceSchema = z.object({
   competencyId: IdentifierSchema,
   text: z.string().trim().min(1).max(500),
   trust: z.literal('UNTRUSTED_QUOTED_DATA'),
+  evidenceScopeVersion: z.literal('TRANSVERSAL_V1').optional(),
+  rawSourceChecksum: Sha256Schema,
   piiScanResult: PiiScanResultSchema,
   humanApproval: HumanApprovalSchema,
 }).strict();
@@ -85,6 +90,7 @@ const FixtureRecommendationSchema = z.object({
   recommendationId: IdentifierSchema,
   competencyId: IdentifierSchema,
   evidenceRefs: z.array(EvidenceRefSchema).min(1).max(6),
+  transversalEvidencePolicy: z.literal('ALLOW_TRANSVERSAL_V1').optional(),
 }).strict();
 
 const ResolvedRecommendationSchema = FixtureRecommendationSchema.extend({
@@ -182,10 +188,26 @@ function validateFixture(
         path: ['approvedEvidenceForLlm', index, 'evidenceRef'],
         message: 'Approved evidence must derive from local raw evidence.',
       });
+      return;
+    }
+    if (item.trust === 'CURATED') {
+      if (
+        raw.source !== 'CONTROLLED_TEMPLATE_SOURCE'
+        || raw.text !== item.text
+        || item.templateChecksum !== curatedEvidenceTemplateChecksum(item)
+      ) {
+        context.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['approvedEvidenceForLlm', index, 'trust'],
+          message: 'CURATED evidence requires the exact controlled template source.',
+        });
+      }
     }
     if (item.trust === 'UNTRUSTED_QUOTED_DATA') {
       if (
-        !validatePiiScanResultChecksum(item.piiScanResult)
+        raw.source !== 'UNTRUSTED_FREE_TEXT'
+        || item.rawSourceChecksum !== rawEvidenceSourceChecksum(raw)
+        || !validatePiiScanResultChecksum(item.piiScanResult)
         || !['CLEAN', 'REDACTED'].includes(item.piiScanResult.status)
         || !piiScanResultMatchesContent(
           item.piiScanResult,
@@ -254,6 +276,120 @@ export type LocalFirstReportContext = z.infer<
   typeof LocalFirstReportContextBaseSchema
 >;
 
+type OutboundStringField = Readonly<{
+  path: string;
+  text: string;
+  source: 'CONTROLLED_TEMPLATE' | 'STRUCTURAL_METADATA';
+}>;
+
+const STRUCTURAL_OUTBOUND_KEYS = new Set([
+  'schemaVersion',
+  'datasetVersion',
+  'inputChecksum',
+  'createdAt',
+  'audience',
+  'classification',
+  'fixtureId',
+  'competencyId',
+  'status',
+  'evidenceRef',
+  'evidenceRefs',
+  'trust',
+  'evidenceScopeVersion',
+  'templateId',
+  'templateChecksum',
+  'rawSourceChecksum',
+  'recommendationId',
+  'transversalEvidencePolicy',
+  'priority',
+  'calibrationStatus',
+  'reviewerId',
+  'reviewedAt',
+  'sourceChecksum',
+  'approvalChecksum',
+  'unmeasuredCompetencyIds',
+  'detectorVersion',
+  'detectedCategories',
+  'scannedFieldPaths',
+  'scannedContentChecksum',
+  'sanitizedContentChecksum',
+  'payloadChecksum',
+  'checksum',
+]);
+
+function collectOutboundStrings(
+  value: unknown,
+  path: string,
+  parentKey?: string,
+): OutboundStringField[] {
+  if (typeof value === 'string') {
+    return [{
+      path,
+      text: value,
+      source: parentKey !== undefined
+        && STRUCTURAL_OUTBOUND_KEYS.has(parentKey)
+        ? 'STRUCTURAL_METADATA'
+        : 'CONTROLLED_TEMPLATE',
+    }];
+  }
+  if (Array.isArray(value)) {
+    return value.flatMap((item, index) =>
+      collectOutboundStrings(item, `${path}[${index}]`, parentKey));
+  }
+  if (value !== null && typeof value === 'object') {
+    return Object.entries(value as Record<string, unknown>)
+      .filter(([key]) => key !== 'piiScanResult' || path !== '$')
+      .flatMap(([key, item]) =>
+        collectOutboundStrings(item, `${path}.${key}`, key));
+  }
+  return [];
+}
+
+export function collectAllOutboundStringFields(
+  context: unknown,
+): readonly OutboundStringField[] {
+  return Object.freeze(collectOutboundStrings(context, '$'));
+}
+
+function payloadWithoutRootScan(
+  context: Record<string, unknown>,
+): Record<string, unknown> {
+  const { piiScanResult: _scan, ...payload } = context;
+  return payload;
+}
+
+function applySanitizedOutboundStrings(
+  value: unknown,
+  sanitizedFields: Readonly<Record<string, string>>,
+  path = '$',
+): unknown {
+  if (typeof value === 'string') {
+    const sanitized = sanitizedFields[path];
+    if (sanitized === undefined) {
+      throw new Error(`Missing sanitized outbound field ${path}.`);
+    }
+    return sanitized;
+  }
+  if (Array.isArray(value)) {
+    return value.map((item, index) =>
+      applySanitizedOutboundStrings(item, sanitizedFields, `${path}[${index}]`));
+  }
+  if (value !== null && typeof value === 'object') {
+    return Object.fromEntries(Object.entries(value as Record<string, unknown>)
+      .map(([key, item]) => [
+        key,
+        key === 'piiScanResult'
+          ? item
+          : applySanitizedOutboundStrings(
+            item,
+            sanitizedFields,
+            `${path}.${key}`,
+          ),
+      ]));
+  }
+  return value;
+}
+
 const FORBIDDEN_CLAIM_PATTERN =
   /\b(?:diagnostic|dyslexi(?:e|que)|tdah|note garantie|réussite garantie)\b/i;
 
@@ -274,11 +410,27 @@ function expectedPercentage(points: number, maxPoints: number): number {
   return Math.round((points / maxPoints) * 10_000) / 100;
 }
 
+export function curatedEvidenceTemplateChecksum(
+  evidence: Readonly<{ templateId: string; text: string }>,
+): string {
+  return sha256Canonical({
+    templateId: evidence.templateId,
+    text: evidence.text,
+  });
+}
+
+export function rawEvidenceSourceChecksum(
+  evidence: z.infer<typeof RawEvidenceLocalOnlySchema>,
+): string {
+  return sha256Canonical(evidence);
+}
+
 export function approvedEvidenceSourceChecksum(
   evidence: Readonly<{
     evidenceRef: string;
     competencyId: string;
     text: string;
+    rawSourceChecksum: string;
     piiScanResult: z.infer<typeof PiiScanResultSchema>;
   }>,
 ): string {
@@ -286,6 +438,7 @@ export function approvedEvidenceSourceChecksum(
     evidenceRef: evidence.evidenceRef,
     competencyId: evidence.competencyId,
     text: evidence.text,
+    rawSourceChecksum: evidence.rawSourceChecksum,
     piiScanChecksum: evidence.piiScanResult.checksum,
   });
 }
@@ -347,22 +500,20 @@ export function validateLocalFirstReportContext(
     addIssue(['scoreEcho'], 'scoreEcho differs from the deterministic score.');
   }
 
-  const scan = scanPiiFields(value.approvedEvidenceForLlm.map((item, index) => ({
-    path: `$.approvedEvidenceForLlm[${index}].text`,
-    text: item.text,
-    source: 'CONTROLLED_TEMPLATE' as const,
-  })));
+  const outboundFields = collectAllOutboundStringFields(value);
+  const scan = scanPiiFields(outboundFields);
+  const payloadChecksum = sha256Canonical(payloadWithoutRootScan(
+    value as unknown as Record<string, unknown>,
+  ));
   if (
     !validatePiiScanResultChecksum(value.piiScanResult)
     || value.piiScanResult.status === 'NOT_SCANNED'
     || value.piiScanResult.status === 'BLOCKED'
     || scan.result.status !== 'CLEAN'
+    || value.piiScanResult.payloadChecksum !== payloadChecksum
     || !piiScanResultMatchesContent(
       value.piiScanResult,
-      value.approvedEvidenceForLlm.map((item, index) => ({
-        path: `$.approvedEvidenceForLlm[${index}].text`,
-        text: item.text,
-      })),
+      outboundFields,
       'SANITIZED',
     )
   ) {
@@ -452,21 +603,6 @@ export function buildLocalFirstReportContext(
     }]);
   }
 
-  const scan = scanPiiFields(fixture.approvedEvidenceForLlm.map(
-    (item, index) => ({
-      path: `$.approvedEvidenceForLlm[${index}].text`,
-      text: item.text,
-      source: 'CONTROLLED_TEMPLATE' as const,
-    }),
-  ));
-  if (scan.result.status === 'BLOCKED') {
-    throw new z.ZodError([{
-      code: z.ZodIssueCode.custom,
-      message: 'Approved evidence failed the local PII boundary.',
-      path: ['approvedEvidenceForLlm'],
-    }]);
-  }
-
   const allowedRecommendations = fixture.allowedRecommendations.map(
     (recommendation) => {
       const catalogEntry = resolveRecommendation(
@@ -478,6 +614,12 @@ export function buildLocalFirstReportContext(
       return {
         ...catalogEntry,
         evidenceRefs: recommendation.evidenceRefs,
+        ...(recommendation.transversalEvidencePolicy === undefined
+          ? {}
+          : {
+            transversalEvidencePolicy:
+              recommendation.transversalEvidencePolicy,
+          }),
       };
     },
   );
@@ -491,7 +633,7 @@ export function buildLocalFirstReportContext(
     calibrationStatus: fixture.score.calibrationStatus,
   } as const;
 
-  return validateLocalFirstReportContext({
+  const outboundPayload = {
     schemaVersion: 'bilan-report-context-v2',
     datasetVersion: fixture.datasetVersion,
     inputChecksum: fixture.inputChecksum,
@@ -500,7 +642,6 @@ export function buildLocalFirstReportContext(
     classification: audience === 'NEXUS'
       ? 'INTERNAL_NEXUS'
       : 'CONFIDENTIAL_PEDAGOGICAL',
-    piiScanResult: scan.result,
     fixtureId: fixture.fixtureId,
     level: fixture.level,
     subject: fixture.subject,
@@ -510,20 +651,34 @@ export function buildLocalFirstReportContext(
     },
     scoreEcho,
     competencies: fixture.competencies,
-    approvedEvidenceForLlm: fixture.approvedEvidenceForLlm.map(
-      (item, index) => ({
-        ...item,
-        text: scan.sanitizedFields[
-          `$.approvedEvidenceForLlm[${index}].text`
-        ],
-      }),
-    ),
+    approvedEvidenceForLlm: fixture.approvedEvidenceForLlm,
     priorities: fixture.priorities,
     allowedRecommendations,
     unmeasuredCompetencyIds: fixture.unmeasuredCompetencyIds,
     ...(audience === 'NEXUS' && fixture.llmApprovedInternalNotes !== undefined
       ? { llmApprovedInternalNotes: fixture.llmApprovedInternalNotes }
       : {}),
+  } as const;
+  const scan = scanPiiFields(collectAllOutboundStringFields(outboundPayload));
+  if (scan.result.status === 'BLOCKED') {
+    throw new z.ZodError([{
+      code: z.ZodIssueCode.custom,
+      message: 'Outbound context failed the local PII boundary.',
+      path: ['piiScanResult'],
+    }]);
+  }
+  const sanitizedPayload = applySanitizedOutboundStrings(
+    outboundPayload,
+    scan.sanitizedFields,
+  ) as Record<string, unknown>;
+  const boundScan = bindPiiScanResultToPayload(
+    scan.result,
+    sha256Canonical(sanitizedPayload),
+  );
+
+  return validateLocalFirstReportContext({
+    ...sanitizedPayload,
+    piiScanResult: boundScan,
   });
 }
 

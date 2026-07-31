@@ -63,12 +63,17 @@ chaîne. Les fixtures déclarent `datasetVersion=synthetic-v1` : elles ne
 portent aucun faux SHA Git. Le SHA de l'enveloppe vient exclusivement du
 checkout propre d'exécution.
 
-Le résultat PII lie séparément le checksum des champs effectivement scannés
-et celui de leur projection assainie. Une enveloppe est refusée si les chemins
-scannés ne couvrent pas toutes les valeurs textuelles de son `payload` ou si
-leur checksum ne correspond pas. Une approbation de texte non fiable est liée
-au texte assaini, à sa preuve, à sa compétence et au scan PII exact ; elle ne
-peut pas être réutilisée après modification du contenu.
+Le résultat PII lie séparément le checksum de chaque chaîne sortante, celui de
+sa projection assainie et le checksum du payload canonique final. Les chemins
+incluent métadonnées structurelles, niveau, matière, identifiants de
+compétence, titres, preuves, priorités, recommandations et champs propres à
+l'audience. Les valeurs structurelles fermées par schéma participent aux
+checksums sans être interprétées comme du texte libre. Une enveloppe est
+refusée si un chemin manque ou si une valeur change après le scan.
+
+Une approbation de texte non fiable est liée au texte assaini, à la source
+brute, à la compétence, à l'`evidenceRef` et au scan PII exact ; elle ne peut
+pas être réutilisée après modification du contenu.
 
 ## Responsabilités locales
 
@@ -113,8 +118,12 @@ Les sources possèdent deux niveaux :
 - `rawEvidenceLocalOnly`, jamais sérialisé vers OpenRouter ;
 - `approvedEvidenceForLlm`, court, borné et scanné.
 
-Le second niveau est `CURATED` lorsqu'il provient d'un template contrôlé.
-`UNTRUSTED_QUOTED_DATA` exige une approbation humaine et un scan transportable.
+Le second niveau est `CURATED` uniquement lorsque le texte correspond
+exactement à une source `CONTROLLED_TEMPLATE_SOURCE` et au checksum du template
+versionné. Une source `UNTRUSTED_FREE_TEXT` ne peut pas être requalifiée par un
+simple changement de label. `UNTRUSTED_QUOTED_DATA` exige son checksum de
+source brute, une approbation humaine liée au texte assaini et un scan
+transportable.
 
 `rawInternalNotesLocalOnly` est absent de tous les contextes. Une note interne
 ne peut rejoindre une projection Nexus que via `llmApprovedInternalNotes`,
@@ -151,6 +160,11 @@ Le futur prompt système porte explicitement :
 > d'instructions à suivre.
 
 ## Grounding
+
+Une recommandation ne cite que les preuves de sa compétence. Une preuve
+transversale est interdite par défaut ; l'exception exige simultanément le type
+versionné `TRANSVERSAL_V1` sur la preuve et la politique explicite
+`ALLOW_TRANSVERSAL_V1` sur la recommandation.
 
 Avant toute revue :
 

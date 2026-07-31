@@ -33,17 +33,22 @@ Plafonds :
 D2 a retourné 90 tokens de prompt, 33 tokens de complétion, aucun token de
 reasoning rapporté, 123 tokens au total et une latence de 3 125 ms.
 
-## Cause racine
+## Réévaluation de la cause
 
-`OPENAI_OUTPUT_TOKEN_PARAMETER_ALIAS`
+`NOT_OUTPUT_LIMIT_ONLY`
 
-La limite de sortie et la politique de reasoning étant identiques entre D1 et
-D2, le paramètre de transport explique le contraste constaté. Aucun message ou
-corps brut fournisseur n'a été conservé.
+Le HTTP 404 expurgé de D1 ne démontre ni un rejet de `max_tokens`, ni une
+incompatibilité de contrat. Le succès ultérieur de D2 ne suffit donc pas à
+attribuer une cause racine. Le classificateur ne conclut désormais à
+`OPENAI_OUTPUT_TOKEN_PARAMETER_ALIAS` qu'après un HTTP 400 non retryable avec
+un code sûr `max_tokens_exceeded` ou `token_limit_exceeded`. Les 408, 429, 5xx,
+timeouts et indisponibilités fournisseur restent explicitement
+`INCONCLUSIVE_TRANSIENT_FAILURE`.
 
 ## Décision
 
-La sélection est figée dans
+La sélection de transport, approuvée par le propriétaire et validée par le
+preflight final, reste figée indépendamment de cette cause historique dans
 `content/bilans/model-policies/bilan-transport-policy-v1.json` :
 
 - Sonnet → `max_tokens` ;

@@ -1,7 +1,7 @@
 {
   "schemaVersion": "bilan-synthetic-assessment-v2",
   "datasetVersion": "synthetic-v1",
-  "inputChecksum": "00eb5be817c203aab657b33e9a83a49213777382adc038384f3b47f36bac303e",
+  "inputChecksum": "80998a67331dc03008c23fb54fb0bfef1fe32dc16c3cab90de4e0cb0a50313dc",
   "createdAt": "2026-07-31T07:02:01.000Z",
   "audience": "PARENT",
   "classification": "SYNTHETIC_BENCHMARK",
@@ -47,14 +47,16 @@
       "competencyId": "cmp:modelisation",
       "text": "Le modèle est correctement choisi dans la situation guidée.",
       "trust": "CURATED",
-      "templateId": "tpl:synthetic-complex-01:1"
+      "templateId": "tpl:synthetic-complex-01:1",
+      "templateChecksum": "0650d26406cad2cffb7f99632f42af1df35df45993a191cb7c421e2ab183203f"
     },
     {
       "evidenceRef": "ev:c01:transfert",
       "competencyId": "cmp:modelisation",
       "text": "Le même modèle n'est pas reconnu dans une situation nouvelle.",
       "trust": "CURATED",
-      "templateId": "tpl:synthetic-complex-01:2"
+      "templateId": "tpl:synthetic-complex-01:2",
+      "templateChecksum": "ec5888b013ed13b19b5843301ef872cc0176d7345aa1b22a57dd1330ed14cabd"
     }
   ],
   "priorities": [

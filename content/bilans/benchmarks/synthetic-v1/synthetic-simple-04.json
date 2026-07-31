@@ -1,7 +1,7 @@
 {
   "schemaVersion": "bilan-synthetic-assessment-v2",
   "datasetVersion": "synthetic-v1",
-  "inputChecksum": "fc8ccdfe380c85ac68070ec88033d51a8dcfc56e70a8f85648b439926753d441",
+  "inputChecksum": "d00a7aedaa41426a965e090f208f2e8ea69706cff1b42acef9925ae7ee2db3ef",
   "createdAt": "2026-07-31T07:00:04.000Z",
   "audience": "PARENT",
   "classification": "SYNTHETIC_BENCHMARK",
@@ -44,7 +44,8 @@
       "competencyId": "cmp:analyse-doc",
       "text": "Le contexte et la nature du document sont identifiés.",
       "trust": "CURATED",
-      "templateId": "tpl:synthetic-simple-04:1"
+      "templateId": "tpl:synthetic-simple-04:1",
+      "templateChecksum": "410c1e19a3097686536633c5277650d7cbf89e90428922078cb5d35fc76b6c34"
     }
   ],
   "priorities": [

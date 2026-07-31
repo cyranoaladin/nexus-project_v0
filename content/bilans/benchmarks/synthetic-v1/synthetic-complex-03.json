@@ -1,7 +1,7 @@
 {
   "schemaVersion": "bilan-synthetic-assessment-v2",
   "datasetVersion": "synthetic-v1",
-  "inputChecksum": "9633e6524d3763b2ee18411ac31c40c496e3c9f95b7da508b4668d8e2e158a22",
+  "inputChecksum": "76831823735d72f01fa788182210aebc2fa1e7cdef2de11373135b202c454b21",
   "createdAt": "2026-07-31T07:02:03.000Z",
   "audience": "PARENT",
   "classification": "SYNTHETIC_BENCHMARK",
@@ -52,14 +52,17 @@
       "competencyId": "cmp:lecture",
       "text": "Les implicites principaux sont justifiés par le texte.",
       "trust": "CURATED",
-      "templateId": "tpl:synthetic-complex-03:1"
+      "templateId": "tpl:synthetic-complex-03:1",
+      "templateChecksum": "46cd7cd36f26a52cac6d3e82e708d4110bd9fb30f21b773c3f05ad102a326c25"
     },
     {
       "evidenceRef": "ev:c03:ecriture",
       "competencyId": "cmp:ecriture",
       "text": "Le développement suit une progression claire.",
       "trust": "CURATED",
-      "templateId": "tpl:synthetic-complex-03:2"
+      "evidenceScopeVersion": "TRANSVERSAL_V1",
+      "templateId": "tpl:synthetic-complex-03:2",
+      "templateChecksum": "c0ecb7d9c227f1501af324e10ddfcca33b26ba8e010eb2a373d90e574554aad2"
     }
   ],
   "priorities": [
@@ -79,7 +82,8 @@
       "evidenceRefs": [
         "ev:c03:lecture",
         "ev:c03:ecriture"
-      ]
+      ],
+      "transversalEvidencePolicy": "ALLOW_TRANSVERSAL_V1"
     }
   ],
   "unmeasuredCompetencyIds": [],

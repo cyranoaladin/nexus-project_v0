@@ -1,7 +1,7 @@
 {
   "schemaVersion": "bilan-synthetic-assessment-v2",
   "datasetVersion": "synthetic-v1",
-  "inputChecksum": "dd8480d45a63e2ffb6cc977a26c15ba0cb03304dfb5cb0d7c67ad50cb83c1367",
+  "inputChecksum": "d6a393b6f7aa56dda86eab163ee4c6519882cf4aeb6aed876d94acb07b434eb6",
   "createdAt": "2026-07-31T07:00:01.000Z",
   "audience": "PARENT",
   "classification": "SYNTHETIC_BENCHMARK",
@@ -40,7 +40,8 @@
       "competencyId": "cmp:calcul",
       "text": "Les procédures sont appliquées avec régularité.",
       "trust": "CURATED",
-      "templateId": "tpl:synthetic-simple-01:1"
+      "templateId": "tpl:synthetic-simple-01:1",
+      "templateChecksum": "b993b7e1287dbfd224bc341bf85331242d9a97bdbd129bf94c25c7c8c9bbb6cb"
     }
   ],
   "priorities": [

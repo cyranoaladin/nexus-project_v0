@@ -34,6 +34,7 @@ export const PiiScanResultSchema = z.object({
   scannedFieldPaths: z.array(z.string().min(1).max(240)),
   scannedContentChecksum: z.string().regex(/^[a-f0-9]{64}$/),
   sanitizedContentChecksum: z.string().regex(/^[a-f0-9]{64}$/),
+  payloadChecksum: z.string().regex(/^[a-f0-9]{64}$/).optional(),
   checksum: z.string().regex(/^[a-f0-9]{64}$/),
 }).strict().superRefine((value, context) => {
   if (new Set(value.detectedCategories).size !== value.detectedCategories.length) {
@@ -92,6 +93,7 @@ export type PiiScanResult = z.infer<typeof PiiScanResultSchema>;
 export type PiiFieldSource =
   | 'CONTROLLED_TEMPLATE'
   | 'LLM_GENERATED_TEXT'
+  | 'STRUCTURAL_METADATA'
   | 'UNCLASSIFIED_FREE_TEXT';
 
 export type PiiFieldInput = Readonly<{
@@ -133,7 +135,7 @@ const DETECTORS: readonly Readonly<{
   },
   {
     category: 'PHONE_LOCAL_TUNISIA',
-    pattern: /(?<![\d+])(?:[24579]\d(?:[\s.-]*\d){6})(?!\d)/gu,
+    pattern: /(?<![\d+])(?!(?:19|20)\d{2}-\d{2}-\d{2}T)(?:[24579]\d(?:[\s.-]*\d){6})(?!\d)/gu,
     replacement: '[REDACTED_PHONE]',
   },
   {
@@ -184,6 +186,7 @@ export function validatePiiScanResultChecksum(
 
 export function scanPiiFields(
   fields: readonly PiiFieldInput[],
+  options: Readonly<{ payloadChecksum?: string }> = {},
 ): Readonly<{
   sanitizedFields: Readonly<Record<string, string>>;
   result: PiiScanResult;
@@ -199,13 +202,15 @@ export function scanPiiFields(
 
   for (const field of fields) {
     let sanitized = field.text;
-    for (const detector of DETECTORS) {
-      detector.pattern.lastIndex = 0;
-      const matches = sanitized.match(detector.pattern);
-      if (matches === null) continue;
-      detected.add(detector.category);
-      redactionCount += matches.length;
-      sanitized = sanitized.replace(detector.pattern, detector.replacement);
+    if (field.source !== 'STRUCTURAL_METADATA') {
+      for (const detector of DETECTORS) {
+        detector.pattern.lastIndex = 0;
+        const matches = sanitized.match(detector.pattern);
+        if (matches === null) continue;
+        detected.add(detector.category);
+        redactionCount += matches.length;
+        sanitized = sanitized.replace(detector.pattern, detector.replacement);
+      }
     }
     if (field.source === 'UNCLASSIFIED_FREE_TEXT') {
       detected.add('FREE_TEXT_UNCLASSIFIED');
@@ -237,6 +242,9 @@ export function scanPiiFields(
       Object.entries(sanitizedFields).sort(([left], [right]) =>
         left.localeCompare(right)),
     )),
+    ...(options.payloadChecksum === undefined
+      ? {}
+      : { payloadChecksum: options.payloadChecksum }),
   };
   const result = PiiScanResultSchema.parse({
     ...values,
@@ -249,6 +257,24 @@ export function scanPiiFields(
     ),
     result: Object.freeze(result),
   });
+}
+
+export function bindPiiScanResultToPayload(
+  input: PiiScanResult,
+  payloadChecksum: string,
+): PiiScanResult {
+  if (!validatePiiScanResultChecksum(input) || !/^[a-f0-9]{64}$/.test(payloadChecksum)) {
+    throw new TypeError('Cannot bind an invalid PII scan to a payload.');
+  }
+  const { checksum: _checksum, ...values } = input;
+  const boundValues: PiiScanValues = {
+    ...values,
+    payloadChecksum,
+  };
+  return Object.freeze(PiiScanResultSchema.parse({
+    ...boundValues,
+    checksum: sha256Canonical(boundValues),
+  }));
 }
 
 export function piiScanResultMatchesContent(
