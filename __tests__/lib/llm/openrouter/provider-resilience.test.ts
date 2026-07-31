@@ -21,7 +21,7 @@ const CATALOG = {
     {
       model_id: 'anthropic/claude-sonnet-5',
       provider_name: 'Independent Synthetic',
-      tag: 'independent-synthetic',
+      tag: 'independent-synthetic/global',
       supported_parameters: [
         'response_format',
         'structured_outputs',
@@ -62,7 +62,7 @@ describe('OpenRouter provider resilience classification', () => {
           { name: 'Azure', tag: 'azure' },
           {
             name: 'Independent Synthetic',
-            tag: 'independent-synthetic',
+            tag: 'independent-synthetic/global',
           },
         ],
         dataCollectionDenyCompatible: 'REQUEST_ENFORCEMENT_REQUIRED',
@@ -92,7 +92,7 @@ describe('OpenRouter provider resilience classification', () => {
     })).toEqual([{
       model: 'anthropic/claude-sonnet-5',
       providerName: 'Independent Synthetic',
-      providerTag: 'independent-synthetic',
+      providerTag: 'independent-synthetic/global',
       outputTokenParameter: 'max_tokens',
     }]);
   });

@@ -227,7 +227,7 @@ describe('OpenRouter client', () => {
       await createClient(fake.baseUrl).completePreflightForModel(
         contractRequest,
         'anthropic/claude-sonnet-5',
-        { providerOnly: ['synthetic-official-tag'] },
+        { providerOnly: ['synthetic-official/global'] },
       );
 
       expect(fake.requests).toHaveLength(1);
@@ -235,7 +235,7 @@ describe('OpenRouter client', () => {
         require_parameters: true,
         data_collection: 'deny',
         zdr: true,
-        only: ['synthetic-official-tag'],
+        only: ['synthetic-official/global'],
       });
     } finally {
       await fake.close();
