@@ -189,6 +189,8 @@ describe('immutable local-first artifact envelope', () => {
     { student_id: 123_456 },
     { studentIdentifier: { value: 123_456 } },
     { studentIdentifier: { points: 123_456 } },
+    { provenance: { points: 123_456 } },
+    { score: { costMicrosUsd: 123_456 } },
   ])('blocks unknown numeric paths, including nested identifiers: %j', (payload) => {
     const scan = scanLocalFirstArtifactPayload(payload);
 
@@ -213,6 +215,15 @@ describe('immutable local-first artifact envelope', () => {
       piiScanResult: scan,
       payload,
     })).toThrow(/PII scan|transport-safe/i);
+  });
+
+  it('allows only the exact report-context PII scan counter path', () => {
+    expect(scanLocalFirstArtifactPayload({
+      piiScanResult: { redactionCount: 0 },
+    }).status).toBe('CLEAN');
+    expect(scanLocalFirstArtifactPayload({
+      unrelated: { redactionCount: 0 },
+    }).status).toBe('BLOCKED');
   });
 
   it('rejects non-JSON payload objects before scanning and checksumming', () => {
