@@ -16,6 +16,7 @@ type GroundingInput = Readonly<{
   evidence: readonly Readonly<{
     evidenceRef: string;
     competencyId: string;
+    evidenceScopeVersion?: 'TRANSVERSAL_V1';
   }>[];
   priorities: readonly Readonly<{
     competencyId: string;
@@ -26,6 +27,7 @@ type GroundingInput = Readonly<{
     recommendationId: string;
     competencyId: string;
     evidenceRefs: readonly string[];
+    transversalEvidencePolicy?: 'ALLOW_TRANSVERSAL_V1';
   }>[];
   unmeasuredCompetencyIds: readonly string[];
 }>;
@@ -169,6 +171,18 @@ export function validateGrounding(input: GroundingInput): GroundingIssue[] {
         issues.push({
           path: ['recommendations', index, 'evidenceRefs', referenceIndex],
           message: 'Recommendation references unknown evidence.',
+        });
+      } else if (
+        item.competencyId !== recommendation.competencyId
+        && !(
+          item.evidenceScopeVersion === 'TRANSVERSAL_V1'
+          && recommendation.transversalEvidencePolicy
+            === 'ALLOW_TRANSVERSAL_V1'
+        )
+      ) {
+        issues.push({
+          path: ['recommendations', index, 'evidenceRefs', referenceIndex],
+          message: 'Recommendation evidence belongs to another competency.',
         });
       }
     });

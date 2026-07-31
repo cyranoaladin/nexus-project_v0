@@ -17,7 +17,11 @@ import {
   OpenRouterContractTestSchema,
 } from '../../lib/llm/openrouter/contracts';
 import { parseOpenRouterConfig } from '../../lib/llm/openrouter/config';
-import { TERRA_DIAGNOSTIC_VARIANTS } from '../../lib/llm/openrouter/diagnostics';
+import {
+  TERRA_DIAGNOSTIC_VARIANTS,
+  classifyTerraDiagnosticRootCause,
+  type TerraDiagnosticOutcome,
+} from '../../lib/llm/openrouter/diagnostics';
 import {
   OpenRouterError,
   OpenRouterModelCompatibilityError,
@@ -39,12 +43,6 @@ const OWNER_MAX_COST_MICROS_USD_PER_AUDIENCE_REPORT = 300_000;
 const OWNER_MAX_COST_MICROS_USD_PER_ASSESSMENT = 750_000;
 const OWNER_DAILY_BUDGET_MICROS_USD = 15_000_000;
 
-type DiagnosticRootCause =
-  | 'PREFLIGHT_OUTPUT_LIMIT_TOO_LOW'
-  | 'OPENAI_OUTPUT_TOKEN_PARAMETER_ALIAS'
-  | 'TERRA_REASONING_POLICY_INCOMPATIBLE'
-  | 'NOT_OUTPUT_LIMIT_ONLY';
-
 function assertOwnerBudgets(config: ReturnType<typeof parseOpenRouterConfig>) {
   if (
     config.maxCostMicrosUsdPerAudienceReport
@@ -55,14 +53,6 @@ function assertOwnerBudgets(config: ReturnType<typeof parseOpenRouterConfig>) {
   ) {
     throw new OpenRouterError('OPENROUTER_BUDGET_EXCEEDED');
   }
-}
-
-function rootCauseForSuccess(
-  variant: OpenRouterDiagnosticVariant,
-): DiagnosticRootCause {
-  if (variant.id === 'D1') return 'PREFLIGHT_OUTPUT_LIMIT_TOO_LOW';
-  if (variant.id === 'D2') return 'OPENAI_OUTPUT_TOKEN_PARAMETER_ALIAS';
-  return 'TERRA_REASONING_POLICY_INCOMPATIBLE';
 }
 
 function safeVariantEvidence<T>(
@@ -82,6 +72,7 @@ function safeVariantEvidence<T>(
     const provenance = result.completion.provenance;
     return Object.freeze({
       variantId: variant.id,
+      status: 'PASS',
       payloadParameterNames: parameterNames,
       reasoningEffort: variant.reasoningEffort,
       httpStatus: 200,
@@ -107,11 +98,13 @@ function safeVariantEvidence<T>(
   const attempt = result.attempt;
   return Object.freeze({
     variantId: variant.id,
+    status: 'FAIL',
     payloadParameterNames: parameterNames,
     reasoningEffort: variant.reasoningEffort,
     httpStatus: result.diagnosticError.httpStatus,
     normalizedErrorType: result.diagnosticError.errorType,
     normalizedErrorCode: result.diagnosticError.errorCode,
+    retryable: result.diagnosticError.retryable,
     requestedModel: attempt?.requestedModel ?? 'openai/gpt-5.6-terra',
     returnedModel: attempt?.returnedModel ?? null,
     provider: attempt?.provider ?? null,
@@ -177,8 +170,8 @@ async function main(): Promise<void> {
   });
 
   const variantResults = [];
+  const diagnosticOutcomes: TerraDiagnosticOutcome[] = [];
   let totalCostMicrosUsd = 0;
-  let rootCause: DiagnosticRootCause = 'NOT_OUTPUT_LIMIT_ONLY';
   let winningVariant: OpenRouterDiagnosticVariant | null = null;
   for (const variant of TERRA_DIAGNOSTIC_VARIANTS) {
     if (
@@ -203,12 +196,23 @@ async function main(): Promise<void> {
       throw new OpenRouterError('OPENROUTER_BUDGET_EXCEEDED');
     }
     variantResults.push(evidence);
+    diagnosticOutcomes.push(result.status === 'PASS'
+      ? { variantId: variant.id, status: 'PASS' }
+      : {
+        variantId: variant.id,
+        status: 'FAIL',
+        httpStatus: result.diagnosticError.httpStatus,
+        errorCode: result.diagnosticError.errorCode === 'unknown_safe_code'
+          ? result.diagnosticError.errorType
+          : result.diagnosticError.errorCode,
+        retryable: result.diagnosticError.retryable,
+      });
     if (result.status === 'PASS') {
       winningVariant = variant;
-      rootCause = rootCauseForSuccess(variant);
       break;
     }
   }
+  const rootCause = classifyTerraDiagnosticRootCause(diagnosticOutcomes);
 
   const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
   const evidenceDirectory = join(

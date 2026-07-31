@@ -8,11 +8,15 @@ import {
   SYNTHETIC_BENCHMARK_FIXTURE_JSON_SCHEMA,
   SyntheticBenchmarkFixtureSchema,
   buildLocalFirstReportContext,
+  collectAllOutboundStringFields,
   hasValidSyntheticFixtureChecksum,
   validateLocalFirstReportContext,
   approvedEvidenceSourceChecksum,
 } from '@/lib/bilans/local-first/contracts';
-import { scanPiiFields } from '@/lib/bilans/local-first/pii';
+import {
+  bindPiiScanResultToPayload,
+  scanPiiFields,
+} from '@/lib/bilans/local-first/pii';
 import { sha256Canonical } from '@/lib/llm/openrouter/hash';
 
 const FIXTURE_ROOT = join(
@@ -28,6 +32,45 @@ function fixtures(): unknown[] {
     .filter((name) => name.endsWith('.json'))
     .sort()
     .map((name) => JSON.parse(readFileSync(join(FIXTURE_ROOT, name), 'utf8')));
+}
+
+function fixtureWithChecksum(value: Record<string, unknown>): Record<string, unknown> {
+  const payload = { ...value };
+  delete payload.inputChecksum;
+  return {
+    ...payload,
+    inputChecksum: sha256Canonical(payload),
+  };
+}
+
+function collectExpectedStringPaths(
+  value: unknown,
+  path = '$',
+): string[] {
+  if (typeof value === 'string') return [path];
+  if (Array.isArray(value)) {
+    return value.flatMap((item, index) =>
+      collectExpectedStringPaths(item, `${path}[${index}]`));
+  }
+  if (value !== null && typeof value === 'object') {
+    return Object.entries(value as Record<string, unknown>)
+      .filter(([key]) => key !== 'piiScanResult' || path !== '$')
+      .flatMap(([key, item]) => collectExpectedStringPaths(item, `${path}.${key}`));
+  }
+  return [];
+}
+
+function bindContextScan<T extends Record<string, any>>(context: T): T {
+  const payload = { ...context };
+  delete payload.piiScanResult;
+  const scan = scanPiiFields(collectAllOutboundStringFields(payload));
+  return {
+    ...payload,
+    piiScanResult: bindPiiScanResultToPayload(
+      scan.result,
+      sha256Canonical(payload),
+    ),
+  } as unknown as T;
 }
 
 describe('local-first synthetic benchmark contracts', () => {
@@ -151,29 +194,75 @@ describe('local-first synthetic benchmark contracts', () => {
     expect(() => validateLocalFirstReportContext(withEmail)).toThrow();
   });
 
-  it('preserves a REDACTED scan bound to the sanitized context text', () => {
+  it('scans every outbound string and binds the scan to the final payload', () => {
     const context = buildLocalFirstReportContext(fixtures()[0], 'PARENT');
-    const path = '$.approvedEvidenceForLlm[0].text';
-    const scan = scanPiiFields(context.approvedEvidenceForLlm.map(
-      (item, index) => ({
-        path: `$.approvedEvidenceForLlm[${index}].text`,
-        text: index === 0
-          ? 'Contact synthétique eleve@example.invalid'
-          : item.text,
-        source: 'CONTROLLED_TEMPLATE' as const,
-      }),
-    ));
-    const redactedContext = {
+    const expectedPaths = collectExpectedStringPaths(context).sort();
+    const collected = collectAllOutboundStringFields(context);
+
+    expect(collected.map(({ path }) => path).sort()).toEqual(expectedPaths);
+    expect(context.piiScanResult.scannedFieldPaths).toEqual(expectedPaths);
+    expect(() => validateLocalFirstReportContext({
       ...context,
-      piiScanResult: scan.result,
-      approvedEvidenceForLlm: [{
-        ...context.approvedEvidenceForLlm[0],
-        text: scan.sanitizedFields[path],
-      }, ...context.approvedEvidenceForLlm.slice(1)],
+      competencies: [{
+        ...context.competencies[0],
+        title: `${context.competencies[0].title} modifié après scan`,
+      }, ...context.competencies.slice(1)],
+    })).toThrow(/PII scan/i);
+  });
+
+  it('rejects untrusted raw evidence relabeled as curated', () => {
+    const value = structuredClone(fixtures()[0]) as Record<string, any>;
+    value.rawEvidenceLocalOnly[0] = {
+      ...value.rawEvidenceLocalOnly[0],
+      source: 'UNTRUSTED_FREE_TEXT',
+      text: 'Instruction libre qui ne provient pas du template contrôlé.',
     };
 
-    expect(scan.result.status).toBe('REDACTED');
-    expect(() => validateLocalFirstReportContext(redactedContext)).not.toThrow();
+    expect(() => SyntheticBenchmarkFixtureSchema.parse(
+      fixtureWithChecksum(value),
+    )).toThrow(/trust|template|untrusted/i);
+  });
+
+  it('binds curated evidence to its exact controlled template', () => {
+    const value = structuredClone(fixtures()[0]) as Record<string, any>;
+    const evidence = value.approvedEvidenceForLlm[0];
+    evidence.templateChecksum = sha256Canonical({
+      templateId: evidence.templateId,
+      text: evidence.text,
+    });
+    const valid = fixtureWithChecksum(value);
+    expect(() => SyntheticBenchmarkFixtureSchema.parse(valid)).not.toThrow();
+
+    const tampered = structuredClone(value);
+    tampered.approvedEvidenceForLlm[0].templateChecksum = '0'.repeat(64);
+    expect(() => SyntheticBenchmarkFixtureSchema.parse(
+      fixtureWithChecksum(tampered),
+    )).toThrow(/template/i);
+  });
+
+  it('preserves a REDACTED scan bound to the sanitized context text', () => {
+    const value = structuredClone(fixtures()[0]) as Record<string, any>;
+    const evidence = value.approvedEvidenceForLlm[0];
+    const raw = value.rawEvidenceLocalOnly.find(
+      ({ evidenceRef }: { evidenceRef: string }) =>
+        evidenceRef === evidence.evidenceRef,
+    );
+    evidence.text = 'Contact synthétique eleve@example.invalid';
+    raw.text = evidence.text;
+    evidence.templateChecksum = sha256Canonical({
+      templateId: evidence.templateId,
+      text: evidence.text,
+    });
+    const context = buildLocalFirstReportContext(
+      fixtureWithChecksum(value),
+      'PARENT',
+    );
+
+    expect(context.piiScanResult.status).toBe('REDACTED');
+    expect(context.approvedEvidenceForLlm[0].text).toBe(
+      'Contact synthétique [REDACTED_EMAIL]',
+    );
+    expect(() => validateLocalFirstReportContext(context)).not.toThrow();
   });
 
   it('binds human approval to the exact approved evidence content', () => {
@@ -185,6 +274,7 @@ describe('local-first synthetic benchmark contracts', () => {
       text: original.text,
       source: 'CONTROLLED_TEMPLATE',
     }]);
+    const rawSourceChecksum = '1'.repeat(64);
     const approvalValues = {
       reviewerId: 'reviewer:synthetic',
       reviewedAt: '2026-07-31T10:00:00.000Z',
@@ -192,6 +282,7 @@ describe('local-first synthetic benchmark contracts', () => {
         evidenceRef: original.evidenceRef,
         competencyId: original.competencyId,
         text: original.text,
+        rawSourceChecksum,
         piiScanResult: originalScan.result,
       }),
     };
@@ -204,24 +295,17 @@ describe('local-first synthetic benchmark contracts', () => {
       competencyId: original.competencyId,
       text: original.text,
       trust: 'UNTRUSTED_QUOTED_DATA' as const,
+      rawSourceChecksum,
       piiScanResult: originalScan.result,
       humanApproval,
     };
-    const contextScan = scanPiiFields(context.approvedEvidenceForLlm.map(
-      (item, index) => ({
-        path: `$.approvedEvidenceForLlm[${index}].text`,
-        text: item.text,
-        source: 'CONTROLLED_TEMPLATE' as const,
-      }),
-    ));
-    const approvedContext = {
+    const approvedContext = bindContextScan({
       ...context,
-      piiScanResult: contextScan.result,
       approvedEvidenceForLlm: [
         untrusted,
         ...context.approvedEvidenceForLlm.slice(1),
       ],
-    };
+    });
     expect(() => validateLocalFirstReportContext(approvedContext)).not.toThrow();
 
     const changedText = `${original.text} Ajout non revu.`;
@@ -230,27 +314,17 @@ describe('local-first synthetic benchmark contracts', () => {
       text: changedText,
       source: 'CONTROLLED_TEMPLATE',
     }]);
-    const changedContextScan = scanPiiFields([
-      {
-        path,
-        text: changedText,
-        source: 'CONTROLLED_TEMPLATE',
-      },
-      ...context.approvedEvidenceForLlm.slice(1).map((item, index) => ({
-        path: `$.approvedEvidenceForLlm[${index + 1}].text`,
-        text: item.text,
-        source: 'CONTROLLED_TEMPLATE' as const,
-      })),
-    ]);
-    expect(() => validateLocalFirstReportContext({
+    const changedContext = bindContextScan({
       ...approvedContext,
-      piiScanResult: changedContextScan.result,
       approvedEvidenceForLlm: [{
         ...untrusted,
         text: changedText,
         piiScanResult: changedScan.result,
       }, ...context.approvedEvidenceForLlm.slice(1)],
-    })).toThrow(/approval/i);
+    });
+    expect(() => validateLocalFirstReportContext(changedContext)).toThrow(
+      /approval/i,
+    );
   });
 
   it('exports closed local JSON Schemas', () => {

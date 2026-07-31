@@ -1,7 +1,7 @@
 {
   "schemaVersion": "bilan-synthetic-assessment-v2",
   "datasetVersion": "synthetic-v1",
-  "inputChecksum": "94afb11cd2eadb9fa3a2ca661f886be80ede29ca826fec3b3fabe55cc5f7579d",
+  "inputChecksum": "cb0c4ed45f714a553ed397f074437c69cc6192c247735eb913f03368f842bcc5",
   "createdAt": "2026-07-31T07:02:04.000Z",
   "audience": "PARENT",
   "classification": "SYNTHETIC_BENCHMARK",
@@ -63,21 +63,25 @@
       "competencyId": "cmp:raisonnement",
       "text": "L'hypothèse est cohérente avec les données.",
       "trust": "CURATED",
-      "templateId": "tpl:synthetic-complex-04:1"
+      "templateId": "tpl:synthetic-complex-04:1",
+      "templateChecksum": "e31e403b74548be9fb9a80ed444427046d9c3fe1b2e309e5673ba47baf08aea8"
     },
     {
       "evidenceRef": "ev:c04:conclusion",
       "competencyId": "cmp:raisonnement",
       "text": "La conclusion dépasse légèrement les résultats disponibles.",
       "trust": "CURATED",
-      "templateId": "tpl:synthetic-complex-04:2"
+      "templateId": "tpl:synthetic-complex-04:2",
+      "templateChecksum": "ea383b03ddc5dfe7a0b0d58ca9f9d25ab6305ca4f78c41886ea931c324db0a00"
     },
     {
       "evidenceRef": "ev:c04:graphique",
       "competencyId": "cmp:graphique",
       "text": "Les axes et variations sont correctement lus.",
       "trust": "CURATED",
-      "templateId": "tpl:synthetic-complex-04:3"
+      "evidenceScopeVersion": "TRANSVERSAL_V1",
+      "templateId": "tpl:synthetic-complex-04:3",
+      "templateChecksum": "d4a571b478d41a41c795076a313cebd282594d872fd8c12bfad6f1d611d91c61"
     }
   ],
   "priorities": [
@@ -99,7 +103,8 @@
         "ev:c04:hypothese",
         "ev:c04:conclusion",
         "ev:c04:graphique"
-      ]
+      ],
+      "transversalEvidencePolicy": "ALLOW_TRANSVERSAL_V1"
     }
   ],
   "unmeasuredCompetencyIds": [

@@ -1,7 +1,7 @@
 {
   "schemaVersion": "bilan-synthetic-assessment-v2",
   "datasetVersion": "synthetic-v1",
-  "inputChecksum": "3bd3dfccbc436bc352042445ab3d4d215bbf95853dbb0bef5457f927008aa576",
+  "inputChecksum": "6673546e770a49f3efae2f942da4f743bf7ea631c73e2e7c0ddbf1e1e65dbaf2",
   "createdAt": "2026-07-31T07:02:02.000Z",
   "audience": "PARENT",
   "classification": "SYNTHETIC_BENCHMARK",
@@ -46,7 +46,8 @@
       "competencyId": "cmp:problematique",
       "text": "La question est reformulée sans tension conceptuelle explicite.",
       "trust": "CURATED",
-      "templateId": "tpl:synthetic-complex-02:1"
+      "templateId": "tpl:synthetic-complex-02:1",
+      "templateChecksum": "4fd5a90221356b30ba2bcc949213dbae73c30bc49c48b3b75b28e8f81686ce8f"
     }
   ],
   "priorities": [
