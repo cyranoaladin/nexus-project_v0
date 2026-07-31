@@ -1,21 +1,69 @@
 {
-  "schemaVersion": "bilan-synthetic-assessment-v1",
-  "sourceSha": "1111111111111111111111111111111111111111",
-  "inputChecksum": "5426cd867133084b37c7da1812f2fda23aa5291a255d12c40050d5e69a506379",
+  "schemaVersion": "bilan-synthetic-assessment-v2",
+  "datasetVersion": "synthetic-v1",
+  "inputChecksum": "dd8480d45a63e2ffb6cc977a26c15ba0cb03304dfb5cb0d7c67ad50cb83c1367",
   "createdAt": "2026-07-31T07:00:01.000Z",
   "audience": "PARENT",
   "classification": "SYNTHETIC_BENCHMARK",
-  "piiStatus": "NO_PII",
+  "piiStatus": "NOT_SCANNED",
   "fixtureId": "synthetic-simple-01",
   "complexity": "SIMPLE",
-  "coverage": ["HIGH_SCORE", "NO_MAJOR_DIFFICULTY"],
+  "coverage": [
+    "HIGH_SCORE",
+    "NO_MAJOR_DIFFICULTY"
+  ],
   "level": "Troisième",
   "subject": "Mathématiques",
-  "score": {"points": 18, "maxPoints": 20, "calibrationStatus": "FINAL"},
-  "competencies": [{"competencyId": "cmp:calcul", "title": "Calcul numérique", "status": "MASTERED"}],
-  "evidence": [{"evidenceRef": "ev:s01:calcul", "competencyId": "cmp:calcul", "text": "Les procédures sont appliquées avec régularité.", "trust": "CURATED"}],
-  "priorities": [{"competencyId": "cmp:calcul", "title": "Entretenir les automatismes", "priority": "LOW", "evidenceRefs": ["ev:s01:calcul"]}],
-  "allowedRecommendations": [{"recommendationId": "rec:s01", "title": "Conserver un entraînement régulier", "rationale": "Les acquis sont solides sur la preuve disponible.", "evidenceRefs": ["ev:s01:calcul"]}],
+  "score": {
+    "points": 18,
+    "maxPoints": 20,
+    "calibrationStatus": "FINAL"
+  },
+  "competencies": [
+    {
+      "competencyId": "cmp:calcul",
+      "title": "Calcul numérique",
+      "status": "MASTERED"
+    }
+  ],
+  "rawEvidenceLocalOnly": [
+    {
+      "evidenceRef": "ev:s01:calcul",
+      "competencyId": "cmp:calcul",
+      "text": "Les procédures sont appliquées avec régularité.",
+      "source": "CONTROLLED_TEMPLATE_SOURCE"
+    }
+  ],
+  "approvedEvidenceForLlm": [
+    {
+      "evidenceRef": "ev:s01:calcul",
+      "competencyId": "cmp:calcul",
+      "text": "Les procédures sont appliquées avec régularité.",
+      "trust": "CURATED",
+      "templateId": "tpl:synthetic-simple-01:1"
+    }
+  ],
+  "priorities": [
+    {
+      "competencyId": "cmp:calcul",
+      "title": "Entretenir les automatismes",
+      "priority": "LOW",
+      "evidenceRefs": [
+        "ev:s01:calcul"
+      ]
+    }
+  ],
+  "allowedRecommendations": [
+    {
+      "recommendationId": "rec:s01",
+      "competencyId": "cmp:calcul",
+      "evidenceRefs": [
+        "ev:s01:calcul"
+      ]
+    }
+  ],
   "unmeasuredCompetencyIds": [],
-  "internalNotes": ["Profil synthétique sans difficulté majeure."]
+  "rawInternalNotesLocalOnly": [
+    "Profil synthétique sans difficulté majeure."
+  ]
 }

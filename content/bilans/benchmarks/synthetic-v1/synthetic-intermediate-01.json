@@ -1,24 +1,84 @@
 {
-  "schemaVersion": "bilan-synthetic-assessment-v1",
-  "sourceSha": "2222222222222222222222222222222222222222",
-  "inputChecksum": "5567e13ce678197f08fb9f346ced9226e4d4a07e3d0bc7231cfcd103cb16ec33",
+  "schemaVersion": "bilan-synthetic-assessment-v2",
+  "datasetVersion": "synthetic-v1",
+  "inputChecksum": "3ccb4d349f278d6a44569c191a1d1ad4b854267e86561cc0ffa725f99c4fd859",
   "createdAt": "2026-07-31T07:01:01.000Z",
   "audience": "PARENT",
   "classification": "SYNTHETIC_BENCHMARK",
-  "piiStatus": "NO_PII",
+  "piiStatus": "NOT_SCANNED",
   "fixtureId": "synthetic-intermediate-01",
   "complexity": "INTERMEDIATE",
-  "coverage": ["MULTIPLE_EVIDENCE_REFS", "MEDIUM_SCORE"],
+  "coverage": [
+    "MULTIPLE_EVIDENCE_REFS",
+    "MEDIUM_SCORE"
+  ],
   "level": "Terminale",
   "subject": "Mathématiques",
-  "score": {"points": 13, "maxPoints": 20, "calibrationStatus": "FINAL"},
-  "competencies": [{"competencyId": "cmp:derivation", "title": "Dérivation", "status": "DEVELOPING"}],
-  "evidence": [
-    {"evidenceRef": "ev:i01:derivee", "competencyId": "cmp:derivation", "text": "La dérivée usuelle est correcte.", "trust": "CURATED"},
-    {"evidenceRef": "ev:i01:variations", "competencyId": "cmp:derivation", "text": "Le lien entre signe et variations est incomplet.", "trust": "CURATED"}
+  "score": {
+    "points": 13,
+    "maxPoints": 20,
+    "calibrationStatus": "FINAL"
+  },
+  "competencies": [
+    {
+      "competencyId": "cmp:derivation",
+      "title": "Dérivation",
+      "status": "DEVELOPING"
+    }
   ],
-  "priorities": [{"competencyId": "cmp:derivation", "title": "Relier dérivée et variations", "priority": "MEDIUM", "evidenceRefs": ["ev:i01:derivee", "ev:i01:variations"]}],
-  "allowedRecommendations": [{"recommendationId": "rec:i01", "title": "Enchaîner calcul et interprétation", "rationale": "Les deux preuves distinguent calcul réussi et interprétation fragile.", "evidenceRefs": ["ev:i01:derivee", "ev:i01:variations"]}],
+  "rawEvidenceLocalOnly": [
+    {
+      "evidenceRef": "ev:i01:derivee",
+      "competencyId": "cmp:derivation",
+      "text": "La dérivée usuelle est correcte.",
+      "source": "CONTROLLED_TEMPLATE_SOURCE"
+    },
+    {
+      "evidenceRef": "ev:i01:variations",
+      "competencyId": "cmp:derivation",
+      "text": "Le lien entre signe et variations est incomplet.",
+      "source": "CONTROLLED_TEMPLATE_SOURCE"
+    }
+  ],
+  "approvedEvidenceForLlm": [
+    {
+      "evidenceRef": "ev:i01:derivee",
+      "competencyId": "cmp:derivation",
+      "text": "La dérivée usuelle est correcte.",
+      "trust": "CURATED",
+      "templateId": "tpl:synthetic-intermediate-01:1"
+    },
+    {
+      "evidenceRef": "ev:i01:variations",
+      "competencyId": "cmp:derivation",
+      "text": "Le lien entre signe et variations est incomplet.",
+      "trust": "CURATED",
+      "templateId": "tpl:synthetic-intermediate-01:2"
+    }
+  ],
+  "priorities": [
+    {
+      "competencyId": "cmp:derivation",
+      "title": "Relier dérivée et variations",
+      "priority": "MEDIUM",
+      "evidenceRefs": [
+        "ev:i01:derivee",
+        "ev:i01:variations"
+      ]
+    }
+  ],
+  "allowedRecommendations": [
+    {
+      "recommendationId": "rec:i01",
+      "competencyId": "cmp:derivation",
+      "evidenceRefs": [
+        "ev:i01:derivee",
+        "ev:i01:variations"
+      ]
+    }
+  ],
   "unmeasuredCompetencyIds": [],
-  "internalNotes": ["Deux preuves sont nécessaires pour conserver la nuance."]
+  "rawInternalNotesLocalOnly": [
+    "Deux preuves sont nécessaires pour conserver la nuance."
+  ]
 }

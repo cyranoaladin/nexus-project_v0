@@ -5,6 +5,14 @@ import { zodToJsonSchema } from 'zod-to-json-schema';
 
 import { sha256Canonical } from '@/lib/llm/openrouter/hash';
 
+import { validateGrounding, resolveRecommendation } from './grounding';
+import {
+  PiiScanResultSchema,
+  PiiStatusSchema,
+  scanPiiFields,
+  validatePiiScanResultChecksum,
+} from './pii';
+
 const AudienceSchema = z.enum(['PARENT', 'STUDENT', 'NEXUS']);
 const ComplexitySchema = z.enum(['SIMPLE', 'INTERMEDIATE', 'COMPLEX']);
 const CoverageSchema = z.enum([
@@ -21,6 +29,7 @@ const CoverageSchema = z.enum([
 ]);
 const IdentifierSchema = z.string().regex(/^[a-z][a-z0-9:_-]{2,79}$/);
 const EvidenceRefSchema = z.string().regex(/^ev:[a-z0-9:_-]{3,76}$/);
+const Sha256Schema = z.string().regex(/^[a-f0-9]{64}$/);
 
 const CompetencySchema = z.object({
   competencyId: IdentifierSchema,
@@ -28,12 +37,41 @@ const CompetencySchema = z.object({
   status: z.enum(['MASTERED', 'DEVELOPING', 'PRIORITY', 'UNMEASURED']),
 }).strict();
 
-const EvidenceSchema = z.object({
+const RawEvidenceLocalOnlySchema = z.object({
+  evidenceRef: EvidenceRefSchema,
+  competencyId: IdentifierSchema,
+  text: z.string().trim().min(1).max(2_000),
+  source: z.enum(['CONTROLLED_TEMPLATE_SOURCE', 'UNTRUSTED_FREE_TEXT']),
+}).strict();
+
+const CuratedEvidenceSchema = z.object({
   evidenceRef: EvidenceRefSchema,
   competencyId: IdentifierSchema,
   text: z.string().trim().min(1).max(500),
-  trust: z.enum(['CURATED', 'EVIDENCE_DATA_UNTRUSTED']),
+  trust: z.literal('CURATED'),
+  templateId: IdentifierSchema,
 }).strict();
+
+const HumanApprovalSchema = z.object({
+  reviewerId: IdentifierSchema,
+  reviewedAt: z.string().datetime({ offset: true }),
+  sourceChecksum: Sha256Schema,
+  approvalChecksum: Sha256Schema,
+}).strict();
+
+const UntrustedApprovedEvidenceSchema = z.object({
+  evidenceRef: EvidenceRefSchema,
+  competencyId: IdentifierSchema,
+  text: z.string().trim().min(1).max(500),
+  trust: z.literal('UNTRUSTED_QUOTED_DATA'),
+  piiScanResult: PiiScanResultSchema,
+  humanApproval: HumanApprovalSchema,
+}).strict();
+
+const ApprovedEvidenceForLlmSchema = z.discriminatedUnion('trust', [
+  CuratedEvidenceSchema,
+  UntrustedApprovedEvidenceSchema,
+]);
 
 const PrioritySchema = z.object({
   competencyId: IdentifierSchema,
@@ -42,21 +80,34 @@ const PrioritySchema = z.object({
   evidenceRefs: z.array(EvidenceRefSchema).min(1).max(6),
 }).strict();
 
-const RecommendationSchema = z.object({
+const FixtureRecommendationSchema = z.object({
   recommendationId: IdentifierSchema,
-  title: z.string().trim().min(3).max(120),
-  rationale: z.string().trim().min(3).max(300),
+  competencyId: IdentifierSchema,
   evidenceRefs: z.array(EvidenceRefSchema).min(1).max(6),
 }).strict();
 
+const ResolvedRecommendationSchema = FixtureRecommendationSchema.extend({
+  title: z.string().trim().min(3).max(120),
+  rationale: z.string().trim().min(3).max(300),
+}).strict();
+
+const LlmApprovedInternalNotesSchema = z.object({
+  notes: z.array(z.string().trim().min(1).max(300)).min(1).max(6),
+  reviewerId: IdentifierSchema,
+  reviewedAt: z.string().datetime({ offset: true }),
+  sourceChecksum: Sha256Schema,
+  piiScanResult: PiiScanResultSchema,
+  approvalChecksum: Sha256Schema,
+}).strict();
+
 const SyntheticBenchmarkFixtureBaseSchema = z.object({
-  schemaVersion: z.literal('bilan-synthetic-assessment-v1'),
-  sourceSha: z.string().regex(/^[a-f0-9]{40}$/),
-  inputChecksum: z.string().regex(/^[a-f0-9]{64}$/),
+  schemaVersion: z.literal('bilan-synthetic-assessment-v2'),
+  datasetVersion: z.literal('synthetic-v1'),
+  inputChecksum: Sha256Schema,
   createdAt: z.string().datetime({ offset: true }),
   audience: z.literal('PARENT'),
   classification: z.literal('SYNTHETIC_BENCHMARK'),
-  piiStatus: z.enum(['NO_PII', 'SYNTHETIC_REDACTION_REQUIRED']),
+  piiStatus: PiiStatusSchema,
   fixtureId: z.string().regex(/^synthetic-(?:simple|intermediate|complex)-0[1-4]$/),
   complexity: ComplexitySchema,
   coverage: z.array(CoverageSchema).min(1),
@@ -68,108 +119,102 @@ const SyntheticBenchmarkFixtureBaseSchema = z.object({
     calibrationStatus: z.literal('FINAL'),
   }).strict(),
   competencies: z.array(CompetencySchema).min(1).max(12),
-  evidence: z.array(EvidenceSchema).min(1).max(20),
+  rawEvidenceLocalOnly: z.array(RawEvidenceLocalOnlySchema).min(1).max(20),
+  approvedEvidenceForLlm: z.array(ApprovedEvidenceForLlmSchema).min(1).max(20),
   priorities: z.array(PrioritySchema).min(1).max(6),
-  allowedRecommendations: z.array(RecommendationSchema).min(1).max(6),
+  allowedRecommendations: z.array(FixtureRecommendationSchema).min(1).max(6),
   unmeasuredCompetencyIds: z.array(IdentifierSchema).max(6),
-  internalNotes: z.array(z.string().trim().min(1).max(300)).max(6),
+  rawInternalNotesLocalOnly: z.array(
+    z.string().trim().min(1).max(500),
+  ).max(6),
+  llmApprovedInternalNotes: LlmApprovedInternalNotesSchema.optional(),
 }).strict();
 
 type SyntheticBenchmarkFixtureBase = z.infer<
   typeof SyntheticBenchmarkFixtureBaseSchema
 >;
 
-function validateGroundedValues(
+function groundingIssues(
   value: Readonly<{
     score: { points: number; maxPoints: number };
-    competencies: readonly { competencyId: string }[];
-    evidence: readonly { evidenceRef: string; competencyId: string }[];
-    priorities: readonly { competencyId: string; evidenceRefs: readonly string[] }[];
-    allowedRecommendations: readonly { evidenceRefs: readonly string[] }[];
-    unmeasuredCompetencyIds?: readonly string[];
+    competencies: z.infer<typeof CompetencySchema>[];
+    approvedEvidenceForLlm: z.infer<typeof ApprovedEvidenceForLlmSchema>[];
+    priorities: z.infer<typeof PrioritySchema>[];
+    allowedRecommendations: Array<{
+      recommendationId: string;
+      competencyId: string;
+      evidenceRefs: string[];
+    }>;
+    unmeasuredCompetencyIds: string[];
   }>,
   context: z.RefinementCtx,
 ): void {
-  if (value.score.points > value.score.maxPoints) {
+  for (const issue of validateGrounding({
+    score: value.score,
+    competencies: value.competencies,
+    evidence: value.approvedEvidenceForLlm,
+    priorities: value.priorities,
+    recommendations: value.allowedRecommendations,
+    unmeasuredCompetencyIds: value.unmeasuredCompetencyIds,
+  })) {
     context.addIssue({
       code: z.ZodIssueCode.custom,
-      message: 'Score points exceed maxPoints.',
-      path: ['score', 'points'],
+      message: issue.message,
+      path: [...issue.path],
     });
   }
-  const competencyIds = new Set(
-    value.competencies.map(({ competencyId }) => competencyId),
+}
+
+function validateFixture(
+  value: SyntheticBenchmarkFixtureBase,
+  context: z.RefinementCtx,
+): void {
+  groundingIssues(value, context);
+  const rawEvidence = new Map(
+    value.rawEvidenceLocalOnly.map((item) => [item.evidenceRef, item]),
   );
-  const evidenceRefs = new Set(
-    value.evidence.map(({ evidenceRef }) => evidenceRef),
-  );
-  value.evidence.forEach((evidence, index) => {
-    if (!competencyIds.has(evidence.competencyId)) {
+  value.approvedEvidenceForLlm.forEach((item, index) => {
+    const raw = rawEvidence.get(item.evidenceRef);
+    if (raw === undefined || raw.competencyId !== item.competencyId) {
       context.addIssue({
         code: z.ZodIssueCode.custom,
-        message: 'Evidence references an unknown competency.',
-        path: ['evidence', index, 'competencyId'],
+        path: ['approvedEvidenceForLlm', index, 'evidenceRef'],
+        message: 'Approved evidence must derive from local raw evidence.',
       });
     }
-  });
-  value.priorities.forEach((priority, index) => {
-    if (!competencyIds.has(priority.competencyId)) {
-      context.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: 'Priority references an unknown competency.',
-        path: ['priorities', index, 'competencyId'],
-      });
-    }
-    priority.evidenceRefs.forEach((reference) => {
-      if (!evidenceRefs.has(reference)) {
+    if (item.trust === 'UNTRUSTED_QUOTED_DATA') {
+      if (
+        !validatePiiScanResultChecksum(item.piiScanResult)
+        || !['CLEAN', 'REDACTED'].includes(item.piiScanResult.status)
+      ) {
         context.addIssue({
           code: z.ZodIssueCode.custom,
-          message: 'Priority references unknown evidence.',
-          path: ['priorities', index, 'evidenceRefs'],
+          path: ['approvedEvidenceForLlm', index, 'piiScanResult'],
+          message: 'Untrusted quoted evidence requires a transport-safe scan.',
         });
       }
-    });
-  });
-  value.allowedRecommendations.forEach((recommendation, index) => {
-    recommendation.evidenceRefs.forEach((reference) => {
-      if (!evidenceRefs.has(reference)) {
-        context.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: 'Recommendation references unknown evidence.',
-          path: ['allowedRecommendations', index, 'evidenceRefs'],
-        });
-      }
-    });
-  });
-  value.unmeasuredCompetencyIds?.forEach((competencyId, index) => {
-    if (!competencyIds.has(competencyId)) {
-      context.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: 'Unmeasured list references an unknown competency.',
-        path: ['unmeasuredCompetencyIds', index],
-      });
     }
   });
 }
 
 export const SyntheticBenchmarkFixtureSchema =
-  SyntheticBenchmarkFixtureBaseSchema.superRefine(validateGroundedValues);
+  SyntheticBenchmarkFixtureBaseSchema.superRefine(validateFixture);
 
 export type SyntheticBenchmarkFixture = z.infer<
   typeof SyntheticBenchmarkFixtureSchema
 >;
 
 const LocalFirstReportContextBaseSchema = z.object({
-  schemaVersion: z.literal('bilan-report-context-v1'),
-  sourceSha: z.string().regex(/^[a-f0-9]{40}$/),
-  inputChecksum: z.string().regex(/^[a-f0-9]{64}$/),
+  schemaVersion: z.literal('bilan-report-context-v2'),
+  datasetVersion: z.string().min(1).max(80),
+  inputChecksum: Sha256Schema,
   createdAt: z.string().datetime({ offset: true }),
   audience: AudienceSchema,
   classification: z.enum([
     'CONFIDENTIAL_PEDAGOGICAL',
     'INTERNAL_NEXUS',
   ]),
-  piiStatus: z.literal('REDACTED'),
+  piiScanResult: PiiScanResultSchema,
   fixtureId: z.string().min(1).max(80),
   level: z.string().min(2).max(40),
   subject: z.string().min(2).max(80),
@@ -184,11 +229,15 @@ const LocalFirstReportContextBaseSchema = z.object({
     calibrationStatus: z.literal('FINAL'),
   }).strict(),
   competencies: z.array(CompetencySchema).min(1).max(12),
-  evidence: z.array(EvidenceSchema).min(1).max(20),
+  approvedEvidenceForLlm: z.array(
+    ApprovedEvidenceForLlmSchema,
+  ).min(1).max(20),
   priorities: z.array(PrioritySchema).min(1).max(6),
-  allowedRecommendations: z.array(RecommendationSchema).min(1).max(6),
+  allowedRecommendations: z.array(
+    ResolvedRecommendationSchema,
+  ).min(1).max(6),
   unmeasuredCompetencyIds: z.array(IdentifierSchema).max(6),
-  internalNotes: z.array(z.string().trim().min(1).max(300)).max(6).optional(),
+  llmApprovedInternalNotes: LlmApprovedInternalNotesSchema.optional(),
 }).strict();
 
 export type LocalFirstReportContext = z.infer<
@@ -197,14 +246,6 @@ export type LocalFirstReportContext = z.infer<
 
 const FORBIDDEN_CLAIM_PATTERN =
   /\b(?:diagnostic|dyslexi(?:e|que)|tdah|note garantie|réussite garantie)\b/i;
-const EMAIL_REPLACEMENT_PATTERN =
-  /[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi;
-const EMAIL_DETECTION_PATTERN =
-  /[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i;
-const TUNISIA_PHONE_REPLACEMENT_PATTERN = /\+216(?:[\s.-]*\d){8}/g;
-const TUNISIA_PHONE_DETECTION_PATTERN = /\+216(?:[\s.-]*\d){8}/;
-const PROMPT_INJECTION_PATTERN =
-  /ignore (?:les|toutes les) (?:règles|instructions)/i;
 
 function checksumValues(
   fixture: SyntheticBenchmarkFixtureBase,
@@ -219,13 +260,22 @@ export function hasValidSyntheticFixtureChecksum(
   return fixture.inputChecksum === sha256Canonical(checksumValues(fixture));
 }
 
-function sanitizeEvidenceText(text: string): string {
-  if (PROMPT_INJECTION_PATTERN.test(text)) {
-    return '[PROMPT_INJECTION_REDACTED]';
-  }
-  return text
-    .replace(EMAIL_REPLACEMENT_PATTERN, '[REDACTED_EMAIL]')
-    .replace(TUNISIA_PHONE_REPLACEMENT_PATTERN, '[REDACTED_PHONE]');
+function expectedPercentage(points: number, maxPoints: number): number {
+  return Math.round((points / maxPoints) * 10_000) / 100;
+}
+
+function validateApprovalChecksum(
+  approval: z.infer<typeof HumanApprovalSchema>,
+): boolean {
+  const { approvalChecksum: _checksum, ...values } = approval;
+  return approval.approvalChecksum === sha256Canonical(values);
+}
+
+function validateInternalNotesApproval(
+  notes: z.infer<typeof LlmApprovedInternalNotesSchema>,
+): boolean {
+  const { approvalChecksum: _checksum, ...values } = notes;
+  return notes.approvalChecksum === sha256Canonical(values);
 }
 
 export function validateLocalFirstReportContext(
@@ -233,55 +283,100 @@ export function validateLocalFirstReportContext(
 ): LocalFirstReportContext {
   const value = LocalFirstReportContextBaseSchema.parse(input);
   const issues: z.ZodIssue[] = [];
-  validateGroundedValues(value, {
-    addIssue: (issue) => issues.push({
-      ...issue,
-      path: issue.path ?? [],
-    } as z.ZodIssue),
-    path: [],
-  });
-  const expectedPercentage = Math.round(
-    (value.score.points / value.score.maxPoints) * 10_000,
-  ) / 100;
+  const addIssue = (
+    path: readonly (string | number)[],
+    message: string,
+  ): void => {
+    issues.push({
+      code: z.ZodIssueCode.custom,
+      message,
+      path: [...path],
+    });
+  };
+
+  for (const issue of validateGrounding({
+    score: value.score,
+    competencies: value.competencies,
+    evidence: value.approvedEvidenceForLlm,
+    priorities: value.priorities,
+    recommendations: value.allowedRecommendations,
+    unmeasuredCompetencyIds: value.unmeasuredCompetencyIds,
+  })) {
+    addIssue(issue.path, issue.message);
+  }
+
   if (
     value.scoreEcho.points !== value.score.points
     || value.scoreEcho.maxPoints !== value.score.maxPoints
-    || value.scoreEcho.percentage !== expectedPercentage
+    || value.scoreEcho.percentage
+      !== expectedPercentage(value.score.points, value.score.maxPoints)
   ) {
-    issues.push({
-      code: z.ZodIssueCode.custom,
-      message: 'scoreEcho differs from the deterministic score.',
-      path: ['scoreEcho'],
-    });
+    addIssue(['scoreEcho'], 'scoreEcho differs from the deterministic score.');
   }
-  if (value.audience !== 'NEXUS' && value.internalNotes !== undefined) {
-    issues.push({
-      code: z.ZodIssueCode.custom,
-      message: 'Internal notes are restricted to Nexus.',
-      path: ['internalNotes'],
-    });
-  }
-  const publicText = [
-    ...value.evidence.map(({ text }) => text),
-    ...value.priorities.map(({ title }) => title),
-    ...value.allowedRecommendations.flatMap(({ title, rationale }) =>
-      [title, rationale]),
-  ].join('\n');
+
+  const scan = scanPiiFields(value.approvedEvidenceForLlm.map((item, index) => ({
+    path: `$.approvedEvidenceForLlm[${index}].text`,
+    text: item.text,
+    source: 'CONTROLLED_TEMPLATE' as const,
+  })));
   if (
-    EMAIL_DETECTION_PATTERN.test(publicText)
-    || TUNISIA_PHONE_DETECTION_PATTERN.test(publicText)
-    || PROMPT_INJECTION_PATTERN.test(publicText)
-    || FORBIDDEN_CLAIM_PATTERN.test(publicText)
+    !validatePiiScanResultChecksum(value.piiScanResult)
+    || value.piiScanResult.status === 'NOT_SCANNED'
+    || value.piiScanResult.status === 'BLOCKED'
+    || value.piiScanResult.checksum !== scan.result.checksum
   ) {
-    issues.push({
-      code: z.ZodIssueCode.custom,
-      message: 'Context contains forbidden or unredacted text.',
-      path: [],
-    });
+    addIssue(['piiScanResult'], 'Context PII scan is absent or inconsistent.');
   }
-  if (issues.length > 0) {
-    throw new z.ZodError(issues);
+
+  value.approvedEvidenceForLlm.forEach((item, index) => {
+    if (
+      item.trust === 'UNTRUSTED_QUOTED_DATA'
+      && !validateApprovalChecksum(item.humanApproval)
+    ) {
+      addIssue(
+        ['approvedEvidenceForLlm', index, 'humanApproval'],
+        'Untrusted evidence approval checksum is invalid.',
+      );
+    }
+  });
+
+  if (value.audience !== 'NEXUS' && value.llmApprovedInternalNotes !== undefined) {
+    addIssue(
+      ['llmApprovedInternalNotes'],
+      'LLM-approved internal notes are restricted to Nexus.',
+    );
   }
+  if (value.llmApprovedInternalNotes !== undefined) {
+    if (
+      !validateInternalNotesApproval(value.llmApprovedInternalNotes)
+      || !validatePiiScanResultChecksum(
+        value.llmApprovedInternalNotes.piiScanResult,
+      )
+      || !['CLEAN', 'REDACTED'].includes(
+        value.llmApprovedInternalNotes.piiScanResult.status,
+      )
+    ) {
+      addIssue(
+        ['llmApprovedInternalNotes'],
+        'Internal notes require a valid approval and transport-safe PII scan.',
+      );
+    }
+  }
+
+  const text = [
+    ...value.approvedEvidenceForLlm.map((item) => item.text),
+    ...value.priorities.map(({ title }) => title),
+    ...value.allowedRecommendations.flatMap(({ title, rationale }) => [
+      title,
+      rationale,
+    ]),
+    ...(value.llmApprovedInternalNotes?.notes ?? []),
+  ].join('\n');
+  if (FORBIDDEN_CLAIM_PATTERN.test(text)) {
+    addIssue([], 'Context contains a forbidden claim.');
+  }
+
+  if (issues.length > 0) throw new z.ZodError(issues);
   return Object.freeze(value);
 }
 
@@ -297,24 +392,56 @@ export function buildLocalFirstReportContext(
       path: ['inputChecksum'],
     }]);
   }
+
+  const scan = scanPiiFields(fixture.approvedEvidenceForLlm.map(
+    (item, index) => ({
+      path: `$.approvedEvidenceForLlm[${index}].text`,
+      text: item.text,
+      source: 'CONTROLLED_TEMPLATE' as const,
+    }),
+  ));
+  if (scan.result.status === 'BLOCKED') {
+    throw new z.ZodError([{
+      code: z.ZodIssueCode.custom,
+      message: 'Approved evidence failed the local PII boundary.',
+      path: ['approvedEvidenceForLlm'],
+    }]);
+  }
+
+  const allowedRecommendations = fixture.allowedRecommendations.map(
+    (recommendation) => {
+      const catalogEntry = resolveRecommendation(
+        recommendation.recommendationId,
+      );
+      if (catalogEntry === null) {
+        throw new Error('Recommendation catalog changed after validation.');
+      }
+      return {
+        ...catalogEntry,
+        evidenceRefs: recommendation.evidenceRefs,
+      };
+    },
+  );
   const scoreEcho = {
     points: fixture.score.points,
     maxPoints: fixture.score.maxPoints,
-    percentage: Math.round(
-      (fixture.score.points / fixture.score.maxPoints) * 10_000,
-    ) / 100,
+    percentage: expectedPercentage(
+      fixture.score.points,
+      fixture.score.maxPoints,
+    ),
     calibrationStatus: fixture.score.calibrationStatus,
   } as const;
+
   return validateLocalFirstReportContext({
-    schemaVersion: 'bilan-report-context-v1',
-    sourceSha: fixture.sourceSha,
+    schemaVersion: 'bilan-report-context-v2',
+    datasetVersion: fixture.datasetVersion,
     inputChecksum: fixture.inputChecksum,
     createdAt: fixture.createdAt,
     audience,
     classification: audience === 'NEXUS'
       ? 'INTERNAL_NEXUS'
       : 'CONFIDENTIAL_PEDAGOGICAL',
-    piiStatus: 'REDACTED',
+    piiScanResult: scan.result,
     fixtureId: fixture.fixtureId,
     level: fixture.level,
     subject: fixture.subject,
@@ -324,23 +451,31 @@ export function buildLocalFirstReportContext(
     },
     scoreEcho,
     competencies: fixture.competencies,
-    evidence: fixture.evidence.map((evidence) => ({
-      ...evidence,
-      text: sanitizeEvidenceText(evidence.text),
-    })),
+    approvedEvidenceForLlm: fixture.approvedEvidenceForLlm.map(
+      (item, index) => ({
+        ...item,
+        text: scan.sanitizedFields[
+          `$.approvedEvidenceForLlm[${index}].text`
+        ],
+      }),
+    ),
     priorities: fixture.priorities,
-    allowedRecommendations: fixture.allowedRecommendations,
+    allowedRecommendations,
     unmeasuredCompetencyIds: fixture.unmeasuredCompetencyIds,
-    ...(audience === 'NEXUS'
-      ? { internalNotes: fixture.internalNotes }
+    ...(audience === 'NEXUS' && fixture.llmApprovedInternalNotes !== undefined
+      ? { llmApprovedInternalNotes: fixture.llmApprovedInternalNotes }
       : {}),
   });
 }
 
 export const SYNTHETIC_BENCHMARK_FIXTURE_JSON_SCHEMA = Object.freeze(
-  zodToJsonSchema(SyntheticBenchmarkFixtureBaseSchema) as Record<string, unknown>,
+  zodToJsonSchema(
+    SyntheticBenchmarkFixtureBaseSchema,
+  ) as Record<string, unknown>,
 );
 
 export const LOCAL_FIRST_REPORT_CONTEXT_JSON_SCHEMA = Object.freeze(
-  zodToJsonSchema(LocalFirstReportContextBaseSchema) as Record<string, unknown>,
+  zodToJsonSchema(
+    LocalFirstReportContextBaseSchema,
+  ) as Record<string, unknown>,
 );

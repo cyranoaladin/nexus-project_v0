@@ -41,6 +41,9 @@ describe('local-first synthetic benchmark contracts', () => {
       .toHaveLength(4);
     expect(parsed.every(hasValidSyntheticFixtureChecksum)).toBe(true);
     expect(new Set(parsed.map(({ fixtureId }) => fixtureId)).size).toBe(12);
+    expect(new Set(parsed.map(({ datasetVersion }) => datasetVersion)))
+      .toEqual(new Set(['synthetic-v1']));
+    expect(JSON.stringify(parsed)).not.toContain('sourceSha');
   });
 
   it('covers every required synthetic scenario without production identifiers', () => {
@@ -66,13 +69,13 @@ describe('local-first synthetic benchmark contracts', () => {
   });
 
   it.each(['PARENT', 'STUDENT', 'NEXUS'] as const)(
-    'builds a grounded and PII-redacted %s context',
+    'builds a grounded and PII-scanned %s context without raw fields',
     (audience) => {
       for (const fixture of fixtures()) {
         const context = buildLocalFirstReportContext(fixture, audience);
         expect(() => validateLocalFirstReportContext(context)).not.toThrow();
         expect(context.audience).toBe(audience);
-        expect(context.piiStatus).toBe('REDACTED');
+        expect(['CLEAN', 'REDACTED']).toContain(context.piiScanResult.status);
         expect(context.scoreEcho.percentage).toBe(
           Math.round(
             (context.scoreEcho.points / context.scoreEcho.maxPoints) * 10_000,
@@ -84,11 +87,10 @@ describe('local-first synthetic benchmark contracts', () => {
         expect(JSON.stringify(context)).not.toMatch(
           /ignore (?:les|toutes les) (?:règles|instructions)/i,
         );
-        if (audience === 'NEXUS') {
-          expect(context).toHaveProperty('internalNotes');
-        } else {
-          expect(context).not.toHaveProperty('internalNotes');
-        }
+        expect(context).not.toHaveProperty('rawEvidenceLocalOnly');
+        expect(context).not.toHaveProperty('rawInternalNotesLocalOnly');
+        expect(context).not.toHaveProperty('internalNotes');
+        expect(context).not.toHaveProperty('llmApprovedInternalNotes');
       }
     },
   );
@@ -124,10 +126,10 @@ describe('local-first synthetic benchmark contracts', () => {
     })).toThrow();
     expect(() => validateLocalFirstReportContext({
       ...context,
-      evidence: [{
-        ...context.evidence[0],
+      approvedEvidenceForLlm: [{
+        ...context.approvedEvidenceForLlm[0],
         text: 'x'.repeat(501),
-      }, ...context.evidence.slice(1)],
+      }, ...context.approvedEvidenceForLlm.slice(1)],
     })).toThrow();
   });
 
@@ -136,10 +138,10 @@ describe('local-first synthetic benchmark contracts', () => {
     const context = buildLocalFirstReportContext(fixture, 'PARENT');
     const withEmail = {
       ...context,
-      evidence: [{
-        ...context.evidence[0],
+      approvedEvidenceForLlm: [{
+        ...context.approvedEvidenceForLlm[0],
         text: 'Écrire à eleve.synthetic@example.invalid',
-      }, ...context.evidence.slice(1)],
+      }, ...context.approvedEvidenceForLlm.slice(1)],
     };
 
     expect(() => validateLocalFirstReportContext(withEmail)).toThrow();

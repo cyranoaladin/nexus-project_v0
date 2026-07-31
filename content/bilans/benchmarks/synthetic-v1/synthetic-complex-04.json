@@ -1,29 +1,111 @@
 {
-  "schemaVersion": "bilan-synthetic-assessment-v1",
-  "sourceSha": "3333333333333333333333333333333333333333",
-  "inputChecksum": "1d83d45d84b7b4d2ae2c2343310bd781dfe9adac51e614f3a051d103464eec41",
+  "schemaVersion": "bilan-synthetic-assessment-v2",
+  "datasetVersion": "synthetic-v1",
+  "inputChecksum": "94afb11cd2eadb9fa3a2ca661f886be80ede29ca826fec3b3fabe55cc5f7579d",
   "createdAt": "2026-07-31T07:02:04.000Z",
   "audience": "PARENT",
   "classification": "SYNTHETIC_BENCHMARK",
-  "piiStatus": "NO_PII",
+  "piiStatus": "NOT_SCANNED",
   "fixtureId": "synthetic-complex-04",
   "complexity": "COMPLEX",
-  "coverage": ["MEDIUM_SCORE", "MULTIPLE_EVIDENCE_REFS", "UNMEASURED_COMPETENCY"],
+  "coverage": [
+    "MEDIUM_SCORE",
+    "MULTIPLE_EVIDENCE_REFS",
+    "UNMEASURED_COMPETENCY"
+  ],
   "level": "Seconde",
   "subject": "Sciences de la vie",
-  "score": {"points": 15, "maxPoints": 20, "calibrationStatus": "FINAL"},
+  "score": {
+    "points": 15,
+    "maxPoints": 20,
+    "calibrationStatus": "FINAL"
+  },
   "competencies": [
-    {"competencyId": "cmp:raisonnement", "title": "Raisonnement scientifique", "status": "DEVELOPING"},
-    {"competencyId": "cmp:graphique", "title": "Lecture graphique", "status": "MASTERED"},
-    {"competencyId": "cmp:protocole", "title": "Conception de protocole", "status": "UNMEASURED"}
+    {
+      "competencyId": "cmp:raisonnement",
+      "title": "Raisonnement scientifique",
+      "status": "DEVELOPING"
+    },
+    {
+      "competencyId": "cmp:graphique",
+      "title": "Lecture graphique",
+      "status": "MASTERED"
+    },
+    {
+      "competencyId": "cmp:protocole",
+      "title": "Conception de protocole",
+      "status": "UNMEASURED"
+    }
   ],
-  "evidence": [
-    {"evidenceRef": "ev:c04:hypothese", "competencyId": "cmp:raisonnement", "text": "L'hypothèse est cohérente avec les données.", "trust": "CURATED"},
-    {"evidenceRef": "ev:c04:conclusion", "competencyId": "cmp:raisonnement", "text": "La conclusion dépasse légèrement les résultats disponibles.", "trust": "CURATED"},
-    {"evidenceRef": "ev:c04:graphique", "competencyId": "cmp:graphique", "text": "Les axes et variations sont correctement lus.", "trust": "CURATED"}
+  "rawEvidenceLocalOnly": [
+    {
+      "evidenceRef": "ev:c04:hypothese",
+      "competencyId": "cmp:raisonnement",
+      "text": "L'hypothèse est cohérente avec les données.",
+      "source": "CONTROLLED_TEMPLATE_SOURCE"
+    },
+    {
+      "evidenceRef": "ev:c04:conclusion",
+      "competencyId": "cmp:raisonnement",
+      "text": "La conclusion dépasse légèrement les résultats disponibles.",
+      "source": "CONTROLLED_TEMPLATE_SOURCE"
+    },
+    {
+      "evidenceRef": "ev:c04:graphique",
+      "competencyId": "cmp:graphique",
+      "text": "Les axes et variations sont correctement lus.",
+      "source": "CONTROLLED_TEMPLATE_SOURCE"
+    }
   ],
-  "priorities": [{"competencyId": "cmp:raisonnement", "title": "Borner la conclusion", "priority": "MEDIUM", "evidenceRefs": ["ev:c04:hypothese", "ev:c04:conclusion"]}],
-  "allowedRecommendations": [{"recommendationId": "rec:c04", "title": "Relier chaque conclusion à une donnée", "rationale": "Les preuves distinguent une bonne hypothèse et une conclusion trop large.", "evidenceRefs": ["ev:c04:hypothese", "ev:c04:conclusion", "ev:c04:graphique"]}],
-  "unmeasuredCompetencyIds": ["cmp:protocole"],
-  "internalNotes": ["Le protocole reste explicitement non mesuré."]
+  "approvedEvidenceForLlm": [
+    {
+      "evidenceRef": "ev:c04:hypothese",
+      "competencyId": "cmp:raisonnement",
+      "text": "L'hypothèse est cohérente avec les données.",
+      "trust": "CURATED",
+      "templateId": "tpl:synthetic-complex-04:1"
+    },
+    {
+      "evidenceRef": "ev:c04:conclusion",
+      "competencyId": "cmp:raisonnement",
+      "text": "La conclusion dépasse légèrement les résultats disponibles.",
+      "trust": "CURATED",
+      "templateId": "tpl:synthetic-complex-04:2"
+    },
+    {
+      "evidenceRef": "ev:c04:graphique",
+      "competencyId": "cmp:graphique",
+      "text": "Les axes et variations sont correctement lus.",
+      "trust": "CURATED",
+      "templateId": "tpl:synthetic-complex-04:3"
+    }
+  ],
+  "priorities": [
+    {
+      "competencyId": "cmp:raisonnement",
+      "title": "Borner la conclusion",
+      "priority": "MEDIUM",
+      "evidenceRefs": [
+        "ev:c04:hypothese",
+        "ev:c04:conclusion"
+      ]
+    }
+  ],
+  "allowedRecommendations": [
+    {
+      "recommendationId": "rec:c04",
+      "competencyId": "cmp:raisonnement",
+      "evidenceRefs": [
+        "ev:c04:hypothese",
+        "ev:c04:conclusion",
+        "ev:c04:graphique"
+      ]
+    }
+  ],
+  "unmeasuredCompetencyIds": [
+    "cmp:protocole"
+  ],
+  "rawInternalNotesLocalOnly": [
+    "Le protocole reste explicitement non mesuré."
+  ]
 }
