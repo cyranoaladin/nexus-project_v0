@@ -328,6 +328,42 @@ export type LocalFirstReportContext = z.infer<
   typeof LocalFirstReportContextBaseSchema
 >;
 
+export type AuthenticatedApprovalRequest = Readonly<
+  | {
+    kind: 'UNTRUSTED_EVIDENCE';
+    approvalChecksum: string;
+    reviewerId: string;
+    reviewedAt: string;
+    sourceChecksum: string;
+    evidenceRef: string;
+    competencyId: string;
+    rawSourceChecksum: string;
+    piiScanChecksum: string;
+    sanitizedTextChecksum: string;
+  }
+  | {
+    kind: 'INTERNAL_NOTES';
+    approvalChecksum: string;
+    reviewerId: string;
+    reviewedAt: string;
+    sourceChecksum: string;
+    piiScanChecksum: string;
+    sanitizedNotesChecksum: string;
+  }
+>;
+
+/**
+ * Trust boundary supplied by the future authenticated approval store.
+ * The default is fail-closed: a self-computed checksum is never an approval.
+ */
+export type AuthenticatedApprovalVerifier = (
+  request: AuthenticatedApprovalRequest,
+) => boolean;
+
+export type LocalFirstValidationOptions = Readonly<{
+  approvalVerifier?: AuthenticatedApprovalVerifier;
+}>;
+
 type OutboundStringField = Readonly<{
   path: string;
   text: string;
@@ -529,8 +565,52 @@ function validateInternalNotesApproval(
     && notes.approvalChecksum === sha256Canonical(values);
 }
 
+function verifyAuthenticatedApproval(
+  verifier: AuthenticatedApprovalVerifier | undefined,
+  request: AuthenticatedApprovalRequest,
+): boolean {
+  if (verifier === undefined) return false;
+  try {
+    return verifier(Object.freeze(request)) === true;
+  } catch {
+    return false;
+  }
+}
+
+function evidenceApprovalRequest(
+  evidence: z.infer<typeof UntrustedApprovedEvidenceSchema>,
+): AuthenticatedApprovalRequest {
+  return {
+    kind: 'UNTRUSTED_EVIDENCE',
+    approvalChecksum: evidence.humanApproval.approvalChecksum,
+    reviewerId: evidence.humanApproval.reviewerId,
+    reviewedAt: evidence.humanApproval.reviewedAt,
+    sourceChecksum: evidence.humanApproval.sourceChecksum,
+    evidenceRef: evidence.evidenceRef,
+    competencyId: evidence.competencyId,
+    rawSourceChecksum: evidence.rawSourceChecksum,
+    piiScanChecksum: evidence.piiScanResult.checksum,
+    sanitizedTextChecksum: sha256Canonical(evidence.text),
+  };
+}
+
+function internalNotesApprovalRequest(
+  notes: z.infer<typeof LlmApprovedInternalNotesSchema>,
+): AuthenticatedApprovalRequest {
+  return {
+    kind: 'INTERNAL_NOTES',
+    approvalChecksum: notes.approvalChecksum,
+    reviewerId: notes.reviewerId,
+    reviewedAt: notes.reviewedAt,
+    sourceChecksum: notes.sourceChecksum,
+    piiScanChecksum: notes.piiScanResult.checksum,
+    sanitizedNotesChecksum: sha256Canonical(notes.notes),
+  };
+}
+
 export function validateLocalFirstReportContext(
   input: unknown,
+  options: LocalFirstValidationOptions = {},
 ): LocalFirstReportContext {
   const value = LocalFirstReportContextBaseSchema.parse(input);
   const issues: z.ZodIssue[] = [];
@@ -619,11 +699,15 @@ export function validateLocalFirstReportContext(
           'SANITIZED',
         )
         || !validateApprovalChecksum(item)
+        || !verifyAuthenticatedApproval(
+          options.approvalVerifier,
+          evidenceApprovalRequest(item),
+        )
       )
     ) {
       addIssue(
         ['approvedEvidenceForLlm', index, 'humanApproval'],
-        'Untrusted evidence approval checksum is invalid.',
+        'Untrusted evidence requires an authenticated approval record.',
       );
     }
   });
@@ -637,6 +721,10 @@ export function validateLocalFirstReportContext(
   if (value.llmApprovedInternalNotes !== undefined) {
     if (
       !validateInternalNotesApproval(value.llmApprovedInternalNotes)
+      || !verifyAuthenticatedApproval(
+        options.approvalVerifier,
+        internalNotesApprovalRequest(value.llmApprovedInternalNotes),
+      )
       || !validatePiiScanResultChecksum(
         value.llmApprovedInternalNotes.piiScanResult,
       )
@@ -654,20 +742,13 @@ export function validateLocalFirstReportContext(
     ) {
       addIssue(
         ['llmApprovedInternalNotes'],
-        'Internal notes require a valid approval and transport-safe PII scan.',
+        'Internal notes require an authenticated approval and transport-safe PII scan.',
       );
     }
   }
 
-  const text = [
-    ...value.approvedEvidenceForLlm.map((item) => item.text),
-    ...value.priorities.map(({ title }) => title),
-    ...value.allowedRecommendations.flatMap(({ title, rationale }) => [
-      title,
-      rationale,
-    ]),
-    ...(value.llmApprovedInternalNotes?.notes ?? []),
-  ].join('\n');
+  const text = outboundFields.map(({ text: outboundText }) => outboundText)
+    .join('\n');
   if (FORBIDDEN_CLAIM_PATTERN.test(text)) {
     addIssue([], 'Context contains a forbidden claim.');
   }
@@ -679,6 +760,7 @@ export function validateLocalFirstReportContext(
 export function buildLocalFirstReportContext(
   input: unknown,
   audience: z.infer<typeof AudienceSchema>,
+  options: LocalFirstValidationOptions = {},
 ): LocalFirstReportContext {
   const fixture = SyntheticBenchmarkFixtureSchema.parse(input);
   if (!hasValidSyntheticFixtureChecksum(fixture)) {
@@ -778,7 +860,7 @@ export function buildLocalFirstReportContext(
   return validateLocalFirstReportContext({
     ...sanitizedPayload,
     piiScanResult: boundScan,
-  });
+  }, options);
 }
 
 export const SYNTHETIC_BENCHMARK_FIXTURE_JSON_SCHEMA = Object.freeze(

@@ -331,7 +331,9 @@ export function validateArtifactChain(
       throw new Error(`Artifact chain is broken at index ${index}.`);
     }
   });
-  return Object.freeze(chain.map((artifact) => deepFreeze(artifact)));
+  const ownedChain = chain.map((artifact) =>
+    clonePlainJsonValue(artifact));
+  return Object.freeze(ownedChain.map((artifact) => deepFreeze(artifact)));
 }
 
 export function writeLocalFirstArtifactAtomic(

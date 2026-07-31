@@ -12,6 +12,7 @@ import {
   hasValidSyntheticFixtureChecksum,
   validateLocalFirstReportContext,
   approvedEvidenceSourceChecksum,
+  type AuthenticatedApprovalVerifier,
 } from '@/lib/bilans/local-first/contracts';
 import {
   bindPiiScanResultToPayload,
@@ -177,6 +178,26 @@ describe('local-first synthetic benchmark contracts', () => {
         text: 'x'.repeat(501),
       }, ...context.approvedEvidenceForLlm.slice(1)],
     })).toThrow();
+  });
+
+  it.each([
+    ['level', 'Réussite garantie en Seconde'],
+    ['subject', 'Diagnostic dyslexique'],
+    ['competency title', 'Note garantie au prochain devoir'],
+  ])('rejects forbidden claims in outbound %s', (field, forbiddenValue) => {
+    const context = buildLocalFirstReportContext(fixtures()[0], 'PARENT');
+    const mutated = field === 'competency title'
+      ? {
+        ...context,
+        competencies: [{
+          ...context.competencies[0],
+          title: forbiddenValue,
+        }, ...context.competencies.slice(1)],
+      }
+      : { ...context, [field]: forbiddenValue };
+
+    expect(() => validateLocalFirstReportContext(bindContextScan(mutated)))
+      .toThrow(/forbidden claim/i);
   });
 
   it('rejects unredacted PII consistently across consecutive validations', () => {
@@ -429,7 +450,18 @@ describe('local-first synthetic benchmark contracts', () => {
         ...context.approvedEvidenceForLlm.slice(1),
       ],
     });
-    expect(() => validateLocalFirstReportContext(approvedContext)).not.toThrow();
+    expect(() => validateLocalFirstReportContext(approvedContext)).toThrow(
+      /authenticated approval/i,
+    );
+    const approvalVerifier: AuthenticatedApprovalVerifier = (request) =>
+      request.kind === 'UNTRUSTED_EVIDENCE'
+      && request.approvalChecksum === humanApproval.approvalChecksum
+      && request.sourceChecksum === humanApproval.sourceChecksum
+      && request.evidenceRef === untrusted.evidenceRef
+      && request.competencyId === untrusted.competencyId;
+    expect(() => validateLocalFirstReportContext(approvedContext, {
+      approvalVerifier,
+    })).not.toThrow();
 
     const changedText = `${original.text} Ajout non revu.`;
     const changedScan = scanPiiFields([{
@@ -445,7 +477,9 @@ describe('local-first synthetic benchmark contracts', () => {
         piiScanResult: changedScan.result,
       }, ...context.approvedEvidenceForLlm.slice(1)],
     });
-    expect(() => validateLocalFirstReportContext(changedContext)).toThrow(
+    expect(() => validateLocalFirstReportContext(changedContext, {
+      approvalVerifier,
+    })).toThrow(
       /approval/i,
     );
   });
