@@ -81,6 +81,12 @@ function isSafeNumericArtifactMetric(path: string, value: number): boolean {
     && value <= rule.maximum;
 }
 
+function isApprovedPiiScanObjectPath(path: string): boolean {
+  return path === '$.payload.piiScanResult'
+    || /^\$\.payload\.approvedEvidenceForLlm\[\d+\]\.piiScanResult$/.test(path)
+    || path === '$.payload.llmApprovedInternalNotes.piiScanResult';
+}
+
 function isPlainJsonValue(
   value: unknown,
   ancestors = new Set<object>(),
@@ -174,7 +180,7 @@ function payloadPiiFields(
       payloadPiiFields(item, `${path}[${index}]`, insideValidatedPiiScan));
   }
   if (value === null || typeof value !== 'object') return [];
-  const currentPiiScan = path.endsWith('.piiScanResult')
+  const currentPiiScan = isApprovedPiiScanObjectPath(path)
     && PiiScanResultSchema.safeParse(value).success
     && validatePiiScanResultChecksum(
       value as z.infer<typeof PiiScanResultSchema>,
