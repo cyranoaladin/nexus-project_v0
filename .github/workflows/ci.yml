@@ -91,9 +91,6 @@ jobs:
         run: npm audit --omit=dev --audit-level=high --json > npm-audit-production.json
 
       - name: Audit all dependencies with exact time-bound policy
-        env:
-          CURRENT_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
-          PRE_RENTREE_DEV_TOOLING_EXCEPTION_JSON: ${{ secrets.PRE_RENTREE_DEV_TOOLING_EXCEPTION_JSON }}
         run: |
           set +e
           npm audit --audit-level=high --json > npm-audit-full.json
@@ -103,10 +100,10 @@ jobs:
           if [ "$audit_code" -eq 0 ]; then
             echo "Full npm audit is green; no exception consumed."
           elif [ "$audit_code" -eq 1 ]; then
-            node scripts/security/validate-dev-tooling-exception.mjs \
+            node scripts/security/validate-brace-expansion-attestation.mjs \
               --mode npm \
-              --policy security/pre-rentree-2026-dev-tooling-exception-policy.json \
-              --current-sha "$CURRENT_SHA" \
+              --attestation security/brace-expansion-backport-attestation.json \
+              --lockfile package-lock.json \
               --now "$(date --iso-8601=seconds)" \
               --report npm-audit-full.json \
               --production-audit npm-audit-production.json \
@@ -715,9 +712,6 @@ jobs:
           chmod +x osv-scanner
 
       - name: Run OSV Scanner
-        env:
-          CURRENT_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
-          PRE_RENTREE_DEV_TOOLING_EXCEPTION_JSON: ${{ secrets.PRE_RENTREE_DEV_TOOLING_EXCEPTION_JSON }}
         run: |
           set +e
           ./osv-scanner --lockfile=package-lock.json --format=json --output=osv-report.json
@@ -727,10 +721,10 @@ jobs:
           if [ "$osv_code" -eq 0 ]; then
             echo "OSV Scanner is green; no exception consumed."
           elif [ "$osv_code" -eq 1 ]; then
-            node scripts/security/validate-dev-tooling-exception.mjs \
+            node scripts/security/validate-brace-expansion-attestation.mjs \
               --mode osv \
-              --policy security/pre-rentree-2026-dev-tooling-exception-policy.json \
-              --current-sha "$CURRENT_SHA" \
+              --attestation security/brace-expansion-backport-attestation.json \
+              --lockfile package-lock.json \
               --now "$(date --iso-8601=seconds)" \
               --report osv-report.json
           else
