@@ -99,29 +99,43 @@ function deepFreeze<T>(value: T, seen = new WeakSet<object>()): T {
   return Object.freeze(value);
 }
 
-function payloadStringFields(
+type ArtifactPiiField = Readonly<{
+  path: string;
+  text: string;
+  source: 'CONTROLLED_TEMPLATE';
+}>;
+
+function payloadPiiFields(
   value: unknown,
   path = '$.payload',
-): Array<{ path: string; text: string }> {
-  if (typeof value === 'string') return [{ path, text: value }];
+): ArtifactPiiField[] {
+  if (typeof value === 'string' || typeof value === 'number') {
+    return [{ path, text: String(value), source: 'CONTROLLED_TEMPLATE' }];
+  }
   if (Array.isArray(value)) {
     return value.flatMap((item, index) =>
-      payloadStringFields(item, `${path}[${index}]`));
+      payloadPiiFields(item, `${path}[${index}]`));
   }
   if (value === null || typeof value !== 'object') return [];
   return Object.entries(value).flatMap(([key, item]) =>
-    payloadStringFields(item, `${path}.${key}`));
+    payloadPiiFields(item, `${path}.${key}`));
+}
+
+export function scanLocalFirstArtifactPayload(
+  payload: unknown,
+): z.infer<typeof PiiScanResultSchema> {
+  if (!isPlainJsonValue(payload)) {
+    throw new TypeError('Artifact payload must contain plain JSON values only.');
+  }
+  return scanPiiFields(payloadPiiFields(payload)).result;
 }
 
 function piiScanMatchesPayload(
   scan: z.infer<typeof PiiScanResultSchema>,
   payload: unknown,
 ): boolean {
-  const trustedFields = payloadStringFields(payload).map((field) => ({
-    ...field,
-    source: 'CONTROLLED_TEMPLATE' as const,
-  }));
-  const trustedScan = scanPiiFields(trustedFields).result;
+  const trustedFields = payloadPiiFields(payload);
+  const trustedScan = scanLocalFirstArtifactPayload(payload);
   return trustedScan.status === 'CLEAN'
     && scan.checksum === trustedScan.checksum
     && piiScanResultMatchesContent(
