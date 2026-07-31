@@ -356,6 +356,7 @@ export function validateLocalFirstReportContext(
     !validatePiiScanResultChecksum(value.piiScanResult)
     || value.piiScanResult.status === 'NOT_SCANNED'
     || value.piiScanResult.status === 'BLOCKED'
+    || scan.result.status !== 'CLEAN'
     || !piiScanResultMatchesContent(
       value.piiScanResult,
       value.approvedEvidenceForLlm.map((item, index) => ({
