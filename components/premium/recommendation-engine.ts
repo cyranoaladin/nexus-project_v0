@@ -45,8 +45,23 @@ export interface RecommendationOffer {
   price_annual: number | null;
   included: string[];
   pricing_display?: 'monthly_first' | 'annual';
-  payment?: { deposit: number; installments: number[]; lastInstallment: number; depositPct: number };
+  payment?: { deposit: number; installments: number[]; lastInstallment: number };
   normalizedLevel: string | null;
+}
+
+export interface RecommendationRules {
+  group_max: number;
+  group_min_open: {
+    lycee: number;
+    college: number;
+  };
+  payment: {
+    deposit_pct_annual: number;
+    reservation_flat_tnd: number;
+    annual_uses_flat_reservation: boolean;
+    deposit_non_refundable_except_group_not_opened: boolean;
+    deposit_deductible_to_annual: boolean;
+  };
 }
 
 export interface RecommendationStageFormat {
@@ -76,6 +91,7 @@ export interface RecommendationCarte {
 }
 
 export interface RecommendationData {
+  rules: RecommendationRules;
   offers: RecommendationOffer[];
   stageFormats: RecommendationStageFormat[];
   ponctuelOffers: RecommendationPonctuel[];
@@ -116,8 +132,25 @@ const LEVEL_LABELS: Record<string, string> = {
   troisieme: 'Troisième',
 };
 
-function buildOfferCard(offer: RecommendationOffer): ExamCardProps {
+function buildOfferCard(offer: RecommendationOffer, rules: RecommendationRules): ExamCardProps {
   const price = offer.price_annual ?? 0;
+  const groupMinOpen = offer.normalizedLevel === 'troisieme'
+    ? rules.group_min_open.college
+    : rules.group_min_open.lycee;
+  const payment = offer.payment
+    ? {
+        ...offer.payment,
+        ...(rules.payment.annual_uses_flat_reservation
+          ? {
+              deposit: rules.payment.reservation_flat_tnd,
+              depositLabel: 'Réservation',
+              refundableIfGroupNotOpened:
+                rules.payment.deposit_non_refundable_except_group_not_opened,
+              deductibleToAnnual: rules.payment.deposit_deductible_to_annual,
+            }
+          : { depositPct: rules.payment.deposit_pct_annual }),
+      }
+    : undefined;
   return {
     eyebrow: `${LEVEL_LABELS[offer.normalizedLevel ?? ''] ?? offer.level} · ${offer.track === 'libre' ? 'Candidat libre' : 'Parcours présentiel'}`,
     title: offer.title,
@@ -126,9 +159,9 @@ function buildOfferCard(offer: RecommendationOffer): ExamCardProps {
     pricingDisplay: offer.pricing_display ?? undefined,
     hoursPerWeek: offer.hours_per_week ?? undefined,
     totalHours: offer.hours_per_year ?? undefined,
-    groupMax: offer.group_max ?? 5,
-    groupMinOpen: offer.group_min_open ?? 3,
-    payment: offer.payment,
+    groupMax: offer.group_max ?? rules.group_max,
+    groupMinOpen: offer.group_min_open ?? groupMinOpen,
+    payment,
     features: offer.included,
     ctaText: 'Voir l\'offre',
     ctaHref: '/offres',
@@ -149,14 +182,17 @@ function buildStageCard(format: RecommendationStageFormat): ExamCardProps {
   };
 }
 
-function buildPonctuelCard(offer: RecommendationPonctuel): ExamCardProps {
+function buildPonctuelCard(offer: RecommendationPonctuel, rules: RecommendationRules): ExamCardProps {
+  const groupMinOpen = offer.normalizedPublic === 'troisieme'
+    ? rules.group_min_open.college
+    : rules.group_min_open.lycee;
   return {
     eyebrow: `Prépa épreuves · ${offer.public}`,
     title: offer.title,
     subtitle: offer.description,
     price: offer.price_per_student,
-    groupMax: offer.group_max ?? 5,
-    groupMinOpen: offer.group_min_open ?? 3,
+    groupMax: offer.group_max ?? rules.group_max,
+    groupMinOpen: offer.group_min_open ?? groupMinOpen,
     payment: offer.payment.full_at_booking
       ? undefined
       : { deposit: offer.payment.deposit, solde: offer.payment.solde },
@@ -185,7 +221,7 @@ export function buildRecommendationOutcome(
   const actions = makeActions(data.whatsappUrl);
 
   if (!need) {
-    return { cards: [], emptyState: { title: 'Choisissez votre besoin', message: 'Indiquez si vous cherchez un accompagnement annuel, un stage, une préparation ponctuelle ou la plateforme en ligne.', actions } };
+    return { cards: [], emptyState: { title: 'Choisissez votre besoin', message: 'Indiquez si vous cherchez un accompagnement annuel, un stage, une préparation ponctuelle ou ARIA Autonomie.', actions } };
   }
 
   if (need === 'annual') {
@@ -195,7 +231,7 @@ export function buildRecommendationOutcome(
     const offers = track === 'libre'
       ? data.offers.filter((o) => o.track === 'libre' && o.normalizedLevel === level)
       : data.offers.filter((o) => o.normalizedLevel === level);
-    const cards = offers.slice(0, 3).map(buildOfferCard);
+    const cards = offers.slice(0, 3).map((offer) => buildOfferCard(offer, data.rules));
     if (cards.length === 0) {
       return { cards: [], emptyState: { title: 'Aucune formule trouvée', message: 'Nous n\'avons pas de formule publiée correspondant exactement à ce niveau pour le moment. Un bilan gratuit permet de vous orienter vers la meilleure alternative.', actions } };
     }
@@ -214,7 +250,7 @@ export function buildRecommendationOutcome(
     const cards = data.ponctuelOffers
       .filter((o) => !level || o.public === 'Tous' || o.normalizedPublic === level)
       .slice(0, 3)
-      .map(buildPonctuelCard);
+      .map((offer) => buildPonctuelCard(offer, data.rules));
     if (cards.length === 0) {
       return { cards: [], emptyState: { title: 'Aucune prépa ponctuelle trouvée', message: 'Nous n\'avons pas de session ponctuelle correspondante sous ce filtre. Le bilan gratuit permet de clarifier la meilleure option.', actions } };
     }
@@ -226,7 +262,7 @@ export function buildRecommendationOutcome(
       cards: [{
         eyebrow: 'Carte membre',
         title: data.carte.title,
-        subtitle: 'Accès plateforme + remises + diagnostic',
+        subtitle: 'ARIA Autonomie, diagnostic offert, épreuve blanche offerte et réservation prioritaire',
         price: data.carte.price_annual,
         features: data.carte.includes,
         ctaText: 'Découvrir ARIA',
@@ -235,7 +271,7 @@ export function buildRecommendationOutcome(
     };
   }
 
-  return { cards: [], emptyState: { title: 'Besoin non reconnu', message: 'Choisissez une formule annuelle, un stage, une préparation ponctuelle ou la plateforme.', actions } };
+  return { cards: [], emptyState: { title: 'Besoin non reconnu', message: 'Choisissez une formule annuelle, un stage, une préparation ponctuelle ou ARIA Autonomie.', actions } };
 }
 
 export function getRecommendationActions(whatsappUrl: string): readonly RecommendationAction[] {

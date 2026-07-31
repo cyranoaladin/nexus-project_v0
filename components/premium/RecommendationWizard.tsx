@@ -45,7 +45,7 @@ const steps: WizardStep[] = [
       { id: 'annual', label: 'Accompagnement annuel', description: 'Suivi régulier sur l\'année' },
       { id: 'stage', label: 'Stage intensif', description: 'Session courte et ciblée' },
       { id: 'ponctuel', label: 'Prépa épreuve spécifique', description: 'EAF, Grand Oral, épreuve blanche' },
-      { id: 'platform', label: 'Plateforme en ligne', description: 'Ressources et suivi à distance' },
+      { id: 'platform', label: 'Plateforme ARIA', description: 'Ressources numériques et suivi à distance' },
     ],
   },
 ];

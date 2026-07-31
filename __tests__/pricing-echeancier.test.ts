@@ -107,9 +107,10 @@ describe('Échéancier integrity', () => {
       }
     });
 
-    test('no group_max > 5 in stages', () => {
+    test('no stage group_max exceeds rules.group_max', () => {
+      const { group_max } = getRules();
       for (const f of getStageFormats()) {
-        expect(f.group_max).toBeLessThanOrEqual(5);
+        expect(f.group_max).toBeLessThanOrEqual(group_max);
       }
     });
   });

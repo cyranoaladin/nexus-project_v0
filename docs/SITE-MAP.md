@@ -97,7 +97,7 @@
 
 Invariants verifies par offre (tests commites) :
 - monthly_display == round(price_annual / 10) pour les 20 offres
-- group_max <= 5 pour toutes offres + stages
+- group_max <= rules.group_max (6 validé) pour toutes les offres groupées et les stages
 - deposit + echeancier == annuel pour les 16 offres avec echeancier
 - deposit + solde == prix pour les 8 formats stage
 - plancher stage >= 420 TND

@@ -21,9 +21,9 @@ describe('T16.1 — Groupes <= rules.group_max', () => {
     }
   });
 
-  test('every stage format has group_max <= 5', () => {
+  test('every stage format has group_max <= rules.group_max', () => {
     for (const f of data.stage_formats) {
-      expect(f.group_max).toBeLessThanOrEqual(5);
+      expect(f.group_max).toBeLessThanOrEqual(data.rules.group_max);
     }
   });
 });

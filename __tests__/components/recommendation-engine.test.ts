@@ -15,6 +15,21 @@ function buildTestData(): RecommendationData {
   const rules = getRules();
   const carte = getCarte();
   return {
+    rules: {
+      group_max: rules.group_max,
+      group_min_open: {
+        lycee: rules.group_min_open.lycee,
+        college: rules.group_min_open.college,
+      },
+      payment: {
+        deposit_pct_annual: rules.payment.deposit_pct_annual,
+        reservation_flat_tnd: rules.payment.reservation_flat_tnd,
+        annual_uses_flat_reservation: rules.payment.annual_uses_flat_reservation,
+        deposit_non_refundable_except_group_not_opened:
+          rules.payment.deposit_non_refundable_except_group_not_opened,
+        deposit_deductible_to_annual: rules.payment.deposit_deductible_to_annual,
+      },
+    },
     offers: getAllOffers().map((offer) => {
       const payment = getAnnualOfferPaymentSchedule(offer);
       return {
@@ -22,7 +37,7 @@ function buildTestData(): RecommendationData {
         subjects: offer.subjects, hours_per_week: offer.hours_per_week, hours_per_year: offer.hours_per_year,
         group_max: offer.group_max, group_min_open: offer.group_min_open, price_annual: offer.price_annual,
         included: offer.included, pricing_display: offer.pricing_display,
-        payment: payment ? { ...payment, depositPct: rules.payment.deposit_pct_annual } : undefined,
+        payment: payment ?? undefined,
         normalizedLevel: normalizePricingLevel(offer.level),
       };
     }),
@@ -80,5 +95,45 @@ describe('recommendation engine', () => {
     const data = buildTestData();
     const outcome = buildRecommendationOutcome({ need: 'annual', track: 'scolarise', level: 'Première' }, data);
     expect(outcome.cards.length).toBeGreaterThan(0);
+  });
+
+  it('uses the canonical flat reservation policy for annual recommendations', () => {
+    const rules = getRules();
+    const data = buildTestData();
+    const outcome = buildRecommendationOutcome({ need: 'annual', track: 'scolarise', level: 'premiere' }, data);
+
+    expect(outcome.cards[0].payment).toMatchObject({
+      deposit: rules.payment.reservation_flat_tnd,
+      depositLabel: 'Réservation',
+      refundableIfGroupNotOpened: rules.payment.deposit_non_refundable_except_group_not_opened,
+      deductibleToAnnual: rules.payment.deposit_deductible_to_annual,
+    });
+    expect(outcome.cards[0].payment?.depositPct).toBeUndefined();
+  });
+
+  it('uses rules.group_max when an annual offer has no explicit capacity', () => {
+    const rules = getRules();
+    const baseData = buildTestData();
+    const premiereOffer = baseData.offers.find((offer) => offer.normalizedLevel === 'premiere');
+    expect(premiereOffer).toBeDefined();
+
+    const data = {
+      ...baseData,
+      offers: [{ ...premiereOffer!, group_max: null }],
+    };
+    const outcome = buildRecommendationOutcome({ need: 'annual', track: 'scolarise', level: 'premiere' }, data);
+
+    expect(outcome.cards[0].groupMax).toBe(rules.group_max);
+  });
+
+  it('describes Carte Nexus through its in-kind benefits, without discounts', () => {
+    const data = buildTestData();
+    const outcome = buildRecommendationOutcome({ need: 'platform' }, data);
+
+    expect(outcome.cards[0].price).toBe(getCarte().price_annual);
+    expect(outcome.cards[0].subtitle).toBe(
+      'ARIA Autonomie, diagnostic offert, épreuve blanche offerte et réservation prioritaire',
+    );
+    expect(outcome.cards[0].subtitle?.toLowerCase()).not.toMatch(/remise|réduction|rabais/);
   });
 });

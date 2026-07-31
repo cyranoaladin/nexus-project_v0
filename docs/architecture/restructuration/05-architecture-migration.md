@@ -229,7 +229,7 @@ Note snapshot : sur échec de `loadConfigSnapshot()`, le single-flight sert le s
 
 **Gate** : gate canonique complet. Test spécifique : valider que sans entrée BusinessConfig, le comportement est identique au statique.
 **Réversibilité** : `git revert`. Supprime les `getOverride()` calls, retour au statique pur.
-**Critère de réussite** : `getRules().group_max` retourne 5 (valeur statique, store vide). Après `PATCH /api/admin/config { namespace: 'pricing.rules', key: 'group_max', value: 3 }`, `getRules().group_max` retourne 3.
+**Critère de réussite** : `getRules().group_max` retourne 6 (valeur canonique, store vide). Après `PATCH /api/admin/config { namespace: 'pricing.rules', key: 'group_max', value: 3 }`, `getRules().group_max` retourne 3.
 
 ---
 

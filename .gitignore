@@ -156,6 +156,11 @@ nginx/ssl/*
 !nginx/ssl/.gitkeep
 arborescence*.txt
 
+# Local keys and ad-hoc secrets (never commit)
+openrouter_cle.txt
+*_cle.txt
+*.key
+
 # ─── NSI exam subjects (large PDFs, not versioned) ───────────────────────
 Sujets-EP-NSI-2026/
 

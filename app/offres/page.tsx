@@ -72,7 +72,7 @@ const comparisonRows: ComparisonRow[] = [
   { feature: 'Épreuves blanches sur grille officielle', nexus: true, traditional: false },
   { feature: 'Studio Grand Oral', nexus: true, traditional: false },
   { feature: 'Cellule Candidat Libre', nexus: true, traditional: false },
-  { feature: 'Tarifs publics, remboursables', nexus: true, traditional: false },
+  { feature: 'Tarifs publics, modalités explicites', nexus: true, traditional: false },
 ];
 
 // ── Mega-parcours grouping ──
@@ -292,7 +292,12 @@ export default function OffresPage() {
                           payment={payment ? {
                             ...payment,
                             ...(rules.payment.annual_uses_flat_reservation
-                              ? { depositLabel: 'Réservation' }
+                              ? {
+                                  depositLabel: 'Réservation',
+                                  refundableIfGroupNotOpened:
+                                    rules.payment.deposit_non_refundable_except_group_not_opened,
+                                  deductibleToAnnual: rules.payment.deposit_deductible_to_annual,
+                                }
                               : { depositPct: rules.payment.deposit_pct_annual }),
                           } : undefined}
                           ctaText="Demander cette offre"
@@ -343,7 +348,12 @@ export default function OffresPage() {
                     payment={payment ? {
                       ...payment,
                       ...(rules.payment.annual_uses_flat_reservation
-                        ? { depositLabel: 'Réservation' }
+                        ? {
+                            depositLabel: 'Réservation',
+                            refundableIfGroupNotOpened:
+                              rules.payment.deposit_non_refundable_except_group_not_opened,
+                            deductibleToAnnual: rules.payment.deposit_deductible_to_annual,
+                          }
                         : { depositPct: rules.payment.deposit_pct_annual }),
                     } : undefined}
                     ctaText="Demander cette offre"

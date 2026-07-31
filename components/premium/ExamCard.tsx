@@ -11,6 +11,8 @@ interface ExamCardPayment {
   depositPct?: number;
   /** Overrides the "Acompte" wording — e.g. "Réservation" for a flat, non-percentage deposit. */
   depositLabel?: string;
+  refundableIfGroupNotOpened?: boolean;
+  deductibleToAnnual?: boolean;
   full_at_booking?: boolean;
 }
 
@@ -47,8 +49,6 @@ interface ExamCardBaseProps {
   ctaText?: string;
   /** Highlighted / featured */
   featured?: boolean;
-  /** Acompte deductible */
-  depositDeductible?: boolean;
 }
 
 type ExamCardActionProps =
@@ -87,7 +87,6 @@ export function ExamCard(props: ExamCardProps) {
     placesLeft,
     ctaText = 'Réserver ma place',
     featured = false,
-    depositDeductible,
   } = props;
   const ctaHref = 'ctaHref' in props ? props.ctaHref : undefined;
   const ctaAction = 'onCta' in props ? props.onCta : undefined;
@@ -264,9 +263,11 @@ export function ExamCard(props: ExamCardProps) {
               </div>
             )}
           </div>
-          {depositDeductible && (
+          {payment.depositLabel === 'Réservation' &&
+            payment.refundableIfGroupNotOpened &&
+            payment.deductibleToAnnual && (
             <p className="mt-2 text-xs text-lux-evergreen">
-              Acompte déductible du parcours annuel
+              Réservation remboursable si le groupe n'ouvre pas, déductible du parcours dans tous les cas.
             </p>
           )}
         </div>

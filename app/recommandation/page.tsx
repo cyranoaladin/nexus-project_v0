@@ -32,6 +32,21 @@ function buildRecommendationData(): RecommendationData {
   const rules = getRules();
   const carte = getCarte();
   return {
+    rules: {
+      group_max: rules.group_max,
+      group_min_open: {
+        lycee: rules.group_min_open.lycee,
+        college: rules.group_min_open.college,
+      },
+      payment: {
+        deposit_pct_annual: rules.payment.deposit_pct_annual,
+        reservation_flat_tnd: rules.payment.reservation_flat_tnd,
+        annual_uses_flat_reservation: rules.payment.annual_uses_flat_reservation,
+        deposit_non_refundable_except_group_not_opened:
+          rules.payment.deposit_non_refundable_except_group_not_opened,
+        deposit_deductible_to_annual: rules.payment.deposit_deductible_to_annual,
+      },
+    },
     offers: getAllOffers().map((offer) => {
       const payment = getAnnualOfferPaymentSchedule(offer);
       return {
@@ -39,7 +54,7 @@ function buildRecommendationData(): RecommendationData {
         subjects: offer.subjects, hours_per_week: offer.hours_per_week, hours_per_year: offer.hours_per_year,
         group_max: offer.group_max, group_min_open: offer.group_min_open, price_annual: offer.price_annual,
         included: offer.included, pricing_display: offer.pricing_display,
-        payment: payment ? { ...payment, depositPct: rules.payment.deposit_pct_annual } : undefined,
+        payment: payment ?? undefined,
         normalizedLevel: normalizePricingLevel(offer.level),
       };
     }),

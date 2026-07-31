@@ -277,9 +277,9 @@ Doit afficher :
 
 - Catalogue 2026/2027.
 - Tarifs en TND.
-- Groupes de 5 maximum.
-- Seuil d’ouverture.
-- Acompte et échéancier si applicable.
+- Groupes de 6 maximum au lycée comme au collège.
+- Ouverture selon le niveau et le seuil canonique.
+- Réservation annuelle et échéancier selon la source canonique ; acompte uniquement pour les formats qui le prévoient.
 - CTA pour être conseillé.
 
 Ne doit pas afficher :

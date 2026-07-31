@@ -288,12 +288,11 @@ Aucune de ces machines n'a de `validateTransition` centralisée — toutes font 
 | Design tokens | `lib/theme/tokens.ts` | `tailwind.config.mjs` | tous composants |
 | Rate-limit presets | `lib/rate-limit/presets.ts` | `checkRateLimit()` | 20+ routes |
 
-### Incohérence : `group-rules.ts` duplique `pricing.canonical.json`
+### Décision : effectif piloté par `pricing.canonical.json`
 
-- `data/pricing.canonical.json` (grep `group_max`) : `rules.group_max: 5`, `rules.group_min_open: { lycee: 3, college: 4, online_live: 3, stage: 3, stage_college: 4 }`
-- `lib/group-rules.ts:3-7` : `GROUP_RULES = { group_max: 5, group_min_open: { lycee: 3, college: 4 } }`
-- Valeurs cohérentes pour les clés communes, mais `group-rules.ts` manque `online_live`, `stage`, `stage_college`
-- 4 composants marketing lisent `group-rules.ts` au lieu de `lib/pricing.ts` : `app/equipe/page.tsx`, `app/HomePageClient.tsx`, `components/marketing/acadomia-inspired.tsx`, `components/premium/MethodSection.tsx`
+- `data/pricing.canonical.json` fixe `rules.group_max: 6` pour le lycée et le collège, avec ouverture selon le niveau.
+- L'ancien `lib/group-rules.ts` a été retiré : les consommateurs doivent lire `getRules()` depuis `lib/pricing.ts`.
+- Les tests d'invariant comparent les capacités à `rules.group_max` et non à une valeur codée en dur.
 
 ---
 

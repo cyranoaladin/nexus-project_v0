@@ -1797,7 +1797,7 @@
     },
     "includes": [
       "Cellule Candidat Libre incluse",
-      "Réservation 250 TND déductible/remboursable",
+      "Réservation 250 TND remboursable si le groupe n'ouvre pas, déductible du parcours dans tous les cas",
       "Échéancier 10 mensualités",
       "Composition à la carte selon le bilan"
     ]

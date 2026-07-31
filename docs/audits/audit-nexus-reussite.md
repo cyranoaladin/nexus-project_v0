@@ -46,7 +46,7 @@ Trois plans d'abonnement opérationnels mensuels (`operational_subscription_plan
 | HYBRIDE | 450 | 4 |
 | IMMERSION | 750 | 8 |
 
-Règles métier (`rules`) : `group_max` = 5, acompte 30 % (annuel et stage), 9 échéances par défaut, arrondi 10 TND, acompte non remboursable sauf groupe non ouvert, déductible de l'annuel, reportable. Catalogue riche au-delà des abonnements : offres annuelles, formats de stage + calendrier + éditions, offres ponctuelles, coaching, packs, programmes spéciaux, add-on ARIA, carte Nexus, urgence, repères tarifaires.
+Règles métier validées (`rules`) : `group_max` = 6 au lycée comme au collège, avec ouverture selon le niveau. Les parcours annuels utilisent une réservation forfaitaire de 250 TND et 10 mensualités ; l'acompte de 30 % reste propre aux stages et formats qui le prévoient. La réservation annuelle est remboursable si le groupe n'ouvre pas et déductible du parcours dans tous les cas. Catalogue riche au-delà des abonnements : offres annuelles, formats de stage + calendrier + éditions, offres ponctuelles, coaching, packs, programmes spéciaux, add-on ARIA, carte Nexus, urgence, repères tarifaires.
 
 ### 2.2 Le SSOT se contredit (vérifié — dette)
 

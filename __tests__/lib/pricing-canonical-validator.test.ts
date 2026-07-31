@@ -25,7 +25,7 @@ beforeAll(() => {
   data = getFullPricingData();
 });
 
-// ── T1: Effectif — group_max ≤ rules.group_max (annual offers) / ≤ 5 (stages, ponctuels, coaching) ──
+// ── T1: Effectif — all grouped offers stay within rules.group_max ──
 
 describe('T1 — Effectif group_max within limits', () => {
   test('annual offers with group_max must be ≤ rules.group_max', () => {
@@ -36,24 +36,24 @@ describe('T1 — Effectif group_max within limits', () => {
     }
   });
 
-  test('stage formats group_max ≤ 5', () => {
+  test('stage formats group_max ≤ rules.group_max', () => {
     for (const fmt of data.stage_formats) {
-      expect(fmt.group_max).toBeLessThanOrEqual(5);
+      expect(fmt.group_max).toBeLessThanOrEqual(data.rules.group_max);
     }
   });
 
-  test('ponctuel offers with group_max must be ≤ 5', () => {
+  test('ponctuel offers with group_max must be ≤ rules.group_max', () => {
     for (const p of data.ponctuel_offers) {
       if (p.group_max != null) {
-        expect(p.group_max).toBeLessThanOrEqual(5);
+        expect(p.group_max).toBeLessThanOrEqual(data.rules.group_max);
       }
     }
   });
 
-  test('coaching group offers group_max ≤ 5', () => {
+  test('coaching group offers group_max ≤ rules.group_max', () => {
     for (const c of data.coaching) {
       if (c.group_max != null) {
-        expect(c.group_max).toBeLessThanOrEqual(5);
+        expect(c.group_max).toBeLessThanOrEqual(data.rules.group_max);
       }
     }
   });

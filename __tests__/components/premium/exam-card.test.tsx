@@ -54,4 +54,28 @@ describe('ExamCard — deposit label', () => {
     expect(priceSecondary.textContent).toMatch(/^Acompte 160\s?TND, puis 2 mensualités \(190\s?TND\)/);
     expect(priceSecondary.textContent).not.toContain('%');
   });
+
+  it('states the conditional refund and unconditional deduction policy for annual reservations', () => {
+    render(
+      <ExamCard
+        eyebrow="Première · Présentiel"
+        title="Première Spécialité simple"
+        price={2700}
+        payment={{
+          deposit: 250,
+          installments: Array(10).fill(245),
+          depositLabel: 'Réservation',
+          refundableIfGroupNotOpened: true,
+          deductibleToAnnual: true,
+        } as any}
+        ctaHref="#"
+      />
+    );
+
+    expect(
+      screen.getByText(
+        "Réservation remboursable si le groupe n'ouvre pas, déductible du parcours dans tous les cas.",
+      ),
+    ).toBeInTheDocument();
+  });
 });
