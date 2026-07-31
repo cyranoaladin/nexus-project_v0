@@ -177,3 +177,12 @@ export function selectAlternativeProviderRoutes(
   }
   return selected;
 }
+
+export function returnedProviderMatchesRoute(
+  returnedProvider: string | null,
+  route: Readonly<{ providerName: string }>,
+): boolean {
+  return returnedProvider !== null
+    && returnedProvider.trim().toLocaleLowerCase('en-US')
+      === route.providerName.trim().toLocaleLowerCase('en-US');
+}

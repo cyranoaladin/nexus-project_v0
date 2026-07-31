@@ -29,6 +29,7 @@ import {
 } from '../../lib/llm/openrouter/privacy-attestation';
 import {
   buildProviderResilienceMatrix,
+  returnedProviderMatchesRoute,
   selectAlternativeProviderRoutes,
 } from '../../lib/llm/openrouter/provider-resilience';
 import { readPrivateOpenRouterApiKey } from '../../lib/llm/openrouter/preflight-secret';
@@ -118,6 +119,15 @@ async function main(): Promise<void> {
       totalCostMicrosUsd += completion.provenance.costMicrosUsd;
       if (totalCostMicrosUsd > MAX_PROVIDER_AUDIT_COST_MICROS_USD) {
         throw new OpenRouterError('OPENROUTER_BUDGET_EXCEEDED');
+      }
+      if (!returnedProviderMatchesRoute(
+        completion.provenance.provider,
+        route,
+      )) {
+        throw new OpenRouterError('OPENROUTER_PROVIDER_UNAVAILABLE', {
+          retryable: true,
+          attempts: completion.attempts,
+        });
       }
       results.push({
         requestedModel: route.model,
