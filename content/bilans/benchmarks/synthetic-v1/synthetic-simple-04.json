@@ -1,24 +1,75 @@
 {
-  "schemaVersion": "bilan-synthetic-assessment-v1",
-  "sourceSha": "1111111111111111111111111111111111111111",
-  "inputChecksum": "df93ff12f9e064dc523bb947a6ca39ff3ec1bebd5d0e0c7ebaf5672dc5afb19c",
+  "schemaVersion": "bilan-synthetic-assessment-v2",
+  "datasetVersion": "synthetic-v1",
+  "inputChecksum": "fc8ccdfe380c85ac68070ec88033d51a8dcfc56e70a8f85648b439926753d441",
   "createdAt": "2026-07-31T07:00:04.000Z",
   "audience": "PARENT",
   "classification": "SYNTHETIC_BENCHMARK",
-  "piiStatus": "NO_PII",
+  "piiStatus": "NOT_SCANNED",
   "fixtureId": "synthetic-simple-04",
   "complexity": "SIMPLE",
-  "coverage": ["UNMEASURED_COMPETENCY"],
+  "coverage": [
+    "UNMEASURED_COMPETENCY"
+  ],
   "level": "Première",
   "subject": "Histoire-Géographie",
-  "score": {"points": 14, "maxPoints": 20, "calibrationStatus": "FINAL"},
+  "score": {
+    "points": 14,
+    "maxPoints": 20,
+    "calibrationStatus": "FINAL"
+  },
   "competencies": [
-    {"competencyId": "cmp:analyse-doc", "title": "Analyse de document", "status": "MASTERED"},
-    {"competencyId": "cmp:cartographie", "title": "Cartographie", "status": "UNMEASURED"}
+    {
+      "competencyId": "cmp:analyse-doc",
+      "title": "Analyse de document",
+      "status": "MASTERED"
+    },
+    {
+      "competencyId": "cmp:cartographie",
+      "title": "Cartographie",
+      "status": "UNMEASURED"
+    }
   ],
-  "evidence": [{"evidenceRef": "ev:s04:analyse", "competencyId": "cmp:analyse-doc", "text": "Le contexte et la nature du document sont identifiés.", "trust": "CURATED"}],
-  "priorities": [{"competencyId": "cmp:analyse-doc", "title": "Préciser les citations", "priority": "LOW", "evidenceRefs": ["ev:s04:analyse"]}],
-  "allowedRecommendations": [{"recommendationId": "rec:s04", "title": "Poursuivre l'analyse guidée", "rationale": "La compétence mesurée est correctement mobilisée.", "evidenceRefs": ["ev:s04:analyse"]}],
-  "unmeasuredCompetencyIds": ["cmp:cartographie"],
-  "internalNotes": ["La cartographie ne doit faire l'objet d'aucune conclusion."]
+  "rawEvidenceLocalOnly": [
+    {
+      "evidenceRef": "ev:s04:analyse",
+      "competencyId": "cmp:analyse-doc",
+      "text": "Le contexte et la nature du document sont identifiés.",
+      "source": "CONTROLLED_TEMPLATE_SOURCE"
+    }
+  ],
+  "approvedEvidenceForLlm": [
+    {
+      "evidenceRef": "ev:s04:analyse",
+      "competencyId": "cmp:analyse-doc",
+      "text": "Le contexte et la nature du document sont identifiés.",
+      "trust": "CURATED",
+      "templateId": "tpl:synthetic-simple-04:1"
+    }
+  ],
+  "priorities": [
+    {
+      "competencyId": "cmp:analyse-doc",
+      "title": "Préciser les citations",
+      "priority": "LOW",
+      "evidenceRefs": [
+        "ev:s04:analyse"
+      ]
+    }
+  ],
+  "allowedRecommendations": [
+    {
+      "recommendationId": "rec:s04",
+      "competencyId": "cmp:analyse-doc",
+      "evidenceRefs": [
+        "ev:s04:analyse"
+      ]
+    }
+  ],
+  "unmeasuredCompetencyIds": [
+    "cmp:cartographie"
+  ],
+  "rawInternalNotesLocalOnly": [
+    "La cartographie ne doit faire l'objet d'aucune conclusion."
+  ]
 }

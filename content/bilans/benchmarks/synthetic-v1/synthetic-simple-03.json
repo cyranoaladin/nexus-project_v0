@@ -1,21 +1,69 @@
 {
-  "schemaVersion": "bilan-synthetic-assessment-v1",
-  "sourceSha": "1111111111111111111111111111111111111111",
-  "inputChecksum": "5a3addadf6eaf31adf380b783b13318eb2d9b2fc9daaaf4887cefe7a6d79bf8b",
+  "schemaVersion": "bilan-synthetic-assessment-v2",
+  "datasetVersion": "synthetic-v1",
+  "inputChecksum": "eba78a525e823dbac63e8d9bc5b26284d1425da42c138db87c95b2aea216c973",
   "createdAt": "2026-07-31T07:00:03.000Z",
   "audience": "PARENT",
   "classification": "SYNTHETIC_BENCHMARK",
-  "piiStatus": "NO_PII",
+  "piiStatus": "NOT_SCANNED",
   "fixtureId": "synthetic-simple-03",
   "complexity": "SIMPLE",
-  "coverage": ["LOW_SCORE", "HIGH_PRIORITY"],
+  "coverage": [
+    "LOW_SCORE",
+    "HIGH_PRIORITY"
+  ],
   "level": "Cinquième",
   "subject": "Mathématiques",
-  "score": {"points": 5, "maxPoints": 20, "calibrationStatus": "FINAL"},
-  "competencies": [{"competencyId": "cmp:fractions", "title": "Fractions", "status": "PRIORITY"}],
-  "evidence": [{"evidenceRef": "ev:s03:fractions", "competencyId": "cmp:fractions", "text": "Les dénominateurs sont additionnés directement dans plusieurs items.", "trust": "CURATED"}],
-  "priorities": [{"competencyId": "cmp:fractions", "title": "Reprendre le sens des fractions", "priority": "HIGH", "evidenceRefs": ["ev:s03:fractions"]}],
-  "allowedRecommendations": [{"recommendationId": "rec:s03", "title": "Revoir les représentations de fractions", "rationale": "Les erreurs observées concernent une règle fondamentale.", "evidenceRefs": ["ev:s03:fractions"]}],
+  "score": {
+    "points": 5,
+    "maxPoints": 20,
+    "calibrationStatus": "FINAL"
+  },
+  "competencies": [
+    {
+      "competencyId": "cmp:fractions",
+      "title": "Fractions",
+      "status": "PRIORITY"
+    }
+  ],
+  "rawEvidenceLocalOnly": [
+    {
+      "evidenceRef": "ev:s03:fractions",
+      "competencyId": "cmp:fractions",
+      "text": "Les dénominateurs sont additionnés directement dans plusieurs items.",
+      "source": "CONTROLLED_TEMPLATE_SOURCE"
+    }
+  ],
+  "approvedEvidenceForLlm": [
+    {
+      "evidenceRef": "ev:s03:fractions",
+      "competencyId": "cmp:fractions",
+      "text": "Les dénominateurs sont additionnés directement dans plusieurs items.",
+      "trust": "CURATED",
+      "templateId": "tpl:synthetic-simple-03:1"
+    }
+  ],
+  "priorities": [
+    {
+      "competencyId": "cmp:fractions",
+      "title": "Reprendre le sens des fractions",
+      "priority": "HIGH",
+      "evidenceRefs": [
+        "ev:s03:fractions"
+      ]
+    }
+  ],
+  "allowedRecommendations": [
+    {
+      "recommendationId": "rec:s03",
+      "competencyId": "cmp:fractions",
+      "evidenceRefs": [
+        "ev:s03:fractions"
+      ]
+    }
+  ],
   "unmeasuredCompetencyIds": [],
-  "internalNotes": ["Cas synthétique de priorité forte."]
+  "rawInternalNotesLocalOnly": [
+    "Cas synthétique de priorité forte."
+  ]
 }
