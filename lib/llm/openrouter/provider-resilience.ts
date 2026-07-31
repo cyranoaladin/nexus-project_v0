@@ -7,7 +7,9 @@ import capabilityBaseline from '@/content/bilans/model-policies/openrouter-capab
 import { BILAN_MODEL_POLICY, BILAN_TRANSPORT_POLICY } from './policy';
 import type { OpenRouterOutputTokenParameter } from './types';
 
-const ProviderTagSchema = z.string().regex(/^[a-z0-9][a-z0-9._-]{1,79}$/);
+const ProviderTagSchema = z.string().regex(
+  /^[a-z0-9][a-z0-9._-]{1,79}(?:\/[a-z0-9][a-z0-9._-]{0,79})?$/,
+);
 const EndpointSchema = z.object({
   model_id: z.string().min(1).max(160),
   provider_name: z.string().trim().min(1).max(120),

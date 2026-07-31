@@ -585,7 +585,8 @@ export class OpenRouterClient {
       routing.providerOnly !== undefined
       && (
         routing.providerOnly.length !== 1
-        || !/^[a-z0-9][a-z0-9._-]{1,79}$/.test(routing.providerOnly[0])
+        || !/^[a-z0-9][a-z0-9._-]{1,79}(?:\/[a-z0-9][a-z0-9._-]{0,79})?$/
+          .test(routing.providerOnly[0])
       )
     ) {
       throw new OpenRouterError('OPENROUTER_POLICY_REJECTED');
