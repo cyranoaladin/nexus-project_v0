@@ -269,6 +269,37 @@ describe('immutable local-first artifact envelope', () => {
     })).toBe(false);
   });
 
+  it('clones chain payloads before freezing validated output', () => {
+    const root = createRoot();
+    const score = createLocalFirstArtifact({
+      artifactType: 'SCORE_SNAPSHOT',
+      repositorySha: REPOSITORY_SHA,
+      expectedRepositorySha: REPOSITORY_SHA,
+      datasetVersion: 'synthetic-v1',
+      generatorId: 'bilan-local-first',
+      generatorVersion: '1',
+      scoringPolicyChecksum: CHECKSUM,
+      corpusChecksum: CHECKSUM,
+      promptChecksum: null,
+      outputSchemaChecksum: null,
+      audience: 'PARENT',
+      classification: 'SYNTHETIC_BENCHMARK',
+      piiScanResult: scanPiiFields([]).result,
+      payload: { points: 10, maxPoints: 20 },
+      parent: root,
+    });
+    const plainRoot = JSON.parse(JSON.stringify(root));
+    const plainScore = JSON.parse(JSON.stringify(score));
+
+    const validated = validateArtifactChain([plainRoot, plainScore]);
+
+    expect(Object.isFrozen(plainRoot.payload)).toBe(false);
+    expect(validated[0].payload).not.toBe(plainRoot.payload);
+    expect(validated[1].payload).not.toBe(plainScore.payload);
+    expect(Object.isFrozen(validated[0].payload)).toBe(true);
+    expect(Object.isFrozen(validated[1].payload)).toBe(true);
+  });
+
   it('writes privately without overwrite and revalidates on read', () => {
     const directory = mkdtempSync(join(tmpdir(), 'nexus-artifact-'));
     roots.push(directory);
