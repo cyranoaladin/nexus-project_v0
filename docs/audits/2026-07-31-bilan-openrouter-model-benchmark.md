@@ -1,13 +1,19 @@
 # Audit du benchmark OpenRouter des bilans
 
+> Statut D0 : `INVALIDATED_BY_SECURITY_AND_GROUNDING_CONTRACT_CHANGE`.
+> Aucun résultat de cette campagne ne peut servir à sélectionner un modèle ni
+> être transmis aux reviewers.
+
 ## Date
 
 31 juillet 2026.
 
 ## Base
 
-- base fonctionnelle : PR #91, SHA
+- base fonctionnelle initiale : PR #91, SHA
   `aa69cd981cec9b644c4122e87cd455065dcd92dd` ;
+- base de sécurité courante après merge explicite : PR #91, SHA
+  `0cc7644cea976a68688ae9f594ca8774633b6138` ;
 - branche : `feat/bilan-openrouter-model-benchmark` ;
 - données : douze fixtures exclusivement synthétiques ;
 - politique produit : `bilan-model-policy-v1.1`, inchangée ;
@@ -84,6 +90,11 @@ pas nécessairement un fallback d'infrastructure indépendant de Sonnet.
 - `HUMAN_REVIEW_STATUS=BLOCKED`
 - `MODEL_POLICY_V1_2_PROPOSED=false`
 - `MODEL_POLICY_V1_2_APPROVED=false`
+- `BENCHMARK_RUN_ID=4d37da5866ba575ff05df8af610bf273c2e13137c53d040a531384da443171ca`
+- `BENCHMARK_RUN_STATUS=INVALIDATED_BY_SECURITY_AND_GROUNDING_CONTRACT_CHANGE`
+- `CURRENT_HUMAN_REVIEW_PACKAGE_USABLE=false`
+- `CURRENT_BENCHMARK_RESULTS_USED_FOR_MODEL_SELECTION=false`
+- `PR93_BENCHMARK_RERUN_REQUIRED=true`
 
 Le benchmark n'est pas qualifié. Aucune comparaison coût/qualité Luna, Terra,
 Sonnet ne peut être publiée à partir de résultats partiels.
@@ -94,6 +105,15 @@ résultats ne participent à aucune statistique ni sélection de modèle. Les
 causes sont : contrat de grounding et propriété des preuves modifiés,
 checkpointing modifié, nombre d'appels et coûts par modèle non prouvables,
 preflight Luna non persisté.
+
+Le run ultérieur identifié ci-dessus est également invalidé dans D0. Il a été
+exécuté avant la couverture exhaustive des chaînes sortantes par le scan PII,
+avant l'interdiction vérifiable du relabeling de source non fiable, avant le
+grounding strict des recommandations et avant la preuve de preflight complète.
+La base #91 ayant changé, un futur benchmark devra porter un nouveau `runId`.
+Les preuves privées sont conservées sans suppression et une disposition
+expurgée enregistre cette décision. Aucun nouvel appel OpenRouter n'est réalisé
+dans D0.
 
 ## Corrections livrées
 
