@@ -16,6 +16,7 @@ import {
 import { buildBlindHumanReviewPackage } from '../../lib/bilans/benchmark/human-review';
 import { loadVersionedReportPrompt } from '../../lib/bilans/benchmark/prompts';
 import {
+  BenchmarkCriticalValidationError,
   runSyntheticParentBenchmark,
 } from '../../lib/bilans/benchmark/runner';
 import {
@@ -385,6 +386,25 @@ async function main(): Promise<void> {
 }
 
 main().catch((caught: unknown) => {
+  if (caught instanceof BenchmarkCriticalValidationError) {
+    const directory = privateDirectory();
+    writePrivateJson(directory, 'benchmark-failure.redacted.json', {
+      generatedAt: new Date().toISOString(),
+      repositorySha: readCleanGitSoftwareSha(),
+      syntheticOnly: true,
+      dataSubjectCount: 0,
+      validationCode: caught.safeContext.validationCode,
+      fixtureId: caught.safeContext.fixtureId,
+      model: caught.safeContext.model,
+      provenance: caught.safeContext.provenance,
+    });
+    process.stderr.write(
+      `BENCHMARK_STATUS=FAILED:${caught.message}\n`
+      + `EVIDENCE_DIRECTORY=${directory}\n`,
+    );
+    process.exitCode = 1;
+    return;
+  }
   const code = caught instanceof OpenRouterError
     ? caught.code
     : caught instanceof Error

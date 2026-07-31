@@ -62,6 +62,24 @@ export type SyntheticBenchmarkRun = Readonly<{
   results: readonly SyntheticBenchmarkResult[];
 }>;
 
+export class BenchmarkCriticalValidationError extends Error {
+  readonly safeContext: Readonly<{
+    fixtureId: string;
+    model: string;
+    validationCode: string;
+    provenance: SafeCompletionProvenance;
+  }>;
+
+  constructor(
+    safeContext: BenchmarkCriticalValidationError['safeContext'],
+    options: ErrorOptions = {},
+  ) {
+    super(`BENCHMARK_CRITICAL_VALIDATION_FAILURE:${safeContext.validationCode}`, options);
+    this.name = 'BenchmarkCriticalValidationError';
+    this.safeContext = Object.freeze({ ...safeContext });
+  }
+}
+
 function orderedModels(
   fixtureId: string,
   models: readonly string[],
@@ -147,7 +165,7 @@ function narrativeFields(report: ParentReport): Array<{
 function assertNoPii(report: ParentReport): void {
   const scan = scanPiiFields(narrativeFields(report));
   if (scan.result.status !== 'CLEAN') {
-    throw new Error('BENCHMARK_CRITICAL_VALIDATION_FAILURE: PII output');
+    throw new Error('OUTPUT_PII_DETECTED');
   }
 }
 
@@ -195,16 +213,19 @@ export async function runSyntheticParentBenchmark(
         );
         assertNoPii(report);
       } catch (caught) {
-        if (
-          caught instanceof Error
-          && caught.message.startsWith('BENCHMARK_CRITICAL_VALIDATION_FAILURE')
-        ) {
-          throw caught;
-        }
-        throw new Error(
-          'BENCHMARK_CRITICAL_VALIDATION_FAILURE: schema or grounding',
-          { cause: caught },
-        );
+        const validationCode = caught instanceof Error
+          ? caught.message.startsWith('REPORT_GROUNDING_FAILURE: ')
+            ? caught.message.slice('REPORT_GROUNDING_FAILURE: '.length)
+            : caught.message === 'OUTPUT_PII_DETECTED'
+              ? caught.message
+              : 'LOCAL_SCHEMA_VALIDATION'
+          : 'LOCAL_SCHEMA_VALIDATION';
+        throw new BenchmarkCriticalValidationError({
+          fixtureId: context.fixtureId,
+          model,
+          validationCode,
+          provenance: completion.provenance,
+        }, { cause: caught });
       }
       if (completion.provenance.finishReason !== 'stop') {
         throw new Error(
