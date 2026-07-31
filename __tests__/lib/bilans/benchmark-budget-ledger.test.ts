@@ -35,6 +35,25 @@ describe('benchmark budget ledger', () => {
     expect(reserve).toBe(BigInt(6_383));
   });
 
+  it('accepts the exact long decimal representation returned by OpenRouter', () => {
+    const prices = extractBenchmarkModelPrices({
+      data: [{
+        id: 'openai/gpt-5.6-luna',
+        pricing: {
+          prompt: '0.0000001',
+          completion: '0.0000006000000000000001',
+        },
+      }],
+    }, ['openai/gpt-5.6-luna']);
+
+    expect(estimateBenchmarkCallReserve({
+      price: prices.get('openai/gpt-5.6-luna')!,
+      maximumInputTokens: 2_500,
+      maximumOutputTokens: 2_048,
+      safetyMarginBasisPoints: 12_500,
+    })).toBe(BigInt(3_385));
+  });
+
   it.each([
     {},
     { data: [{ id: 'openai/gpt-5.6-luna', pricing: {} }] },

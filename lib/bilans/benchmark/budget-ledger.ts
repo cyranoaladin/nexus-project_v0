@@ -2,7 +2,11 @@ import 'server-only';
 
 import { z } from 'zod';
 
-const DecimalPriceSchema = z.string().regex(/^\d+(?:\.\d{1,12})?$/);
+// OpenRouter currently serializes some catalogue prices with harmless decimal
+// tails (for example 0.0000006000000000000001). Keep the parse exact and
+// integer-only instead of rounding those values through Number.
+const PRICE_DECIMAL_PLACES = 24;
+const DecimalPriceSchema = z.string().regex(/^\d+(?:\.\d{1,24})?$/);
 
 const ModelPriceEntrySchema = z.object({
   id: z.string().min(1),
@@ -26,7 +30,7 @@ export type BenchmarkModelPrice = Readonly<{
   requestUsd: string;
 }>;
 
-const PRICE_SCALE = BigInt('1000000000000');
+const PRICE_SCALE = BigInt('1000000000000000000000000');
 const MICROS_PER_USD = BigInt('1000000');
 const BASIS_POINTS = BigInt('10000');
 
@@ -36,7 +40,7 @@ function decimalToScaled(value: string): bigint {
   }
   const [whole, fraction = ''] = value.split('.');
   return BigInt(whole) * PRICE_SCALE
-    + BigInt(fraction.padEnd(12, '0'));
+    + BigInt(fraction.padEnd(PRICE_DECIMAL_PLACES, '0'));
 }
 
 function ceilDivide(numerator: bigint, denominator: bigint): bigint {
