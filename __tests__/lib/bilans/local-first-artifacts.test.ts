@@ -184,8 +184,11 @@ describe('immutable local-first artifact envelope', () => {
     })).toThrow(/PII scan|transport-safe/i);
   });
 
-  it('blocks numeric student identifiers even when they are not phone-shaped', () => {
-    const payload = { studentIdentifier: 123_456 };
+  it.each([
+    { studentIdentifier: 123_456 },
+    { student_id: 123_456 },
+    { studentIdentifier: { value: 123_456 } },
+  ])('blocks unknown numeric paths, including nested identifiers: %j', (payload) => {
     const scan = scanLocalFirstArtifactPayload(payload);
 
     expect(scan).toMatchObject({
