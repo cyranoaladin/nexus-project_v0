@@ -9,12 +9,19 @@ import {
   type OpenRouterErrorCode,
 } from './errors';
 import {
+  assertTerraDiagnosticVariant,
+  normalizeOpenRouterDiagnosticError,
+} from './diagnostics';
+import {
   BILAN_MODEL_POLICY,
   BILAN_MODEL_POLICY_CHECKSUM,
 } from './policy';
 import type {
   OpenRouterCompletion,
   OpenRouterCompletionInput,
+  OpenRouterDiagnosticRequestBody,
+  OpenRouterDiagnosticResult,
+  OpenRouterDiagnosticVariant,
   OpenRouterInvocationAttempt,
   OpenRouterModelCatalogFetch,
   OpenRouterModelCapabilitySnapshot,
@@ -54,6 +61,7 @@ const ResponseEnvelopeSchema = z.object({
 const ProviderErrorEnvelopeSchema = z.object({
   error: z.object({
     code: z.union([z.string(), z.number()]).optional(),
+    type: z.union([z.string(), z.number()]).optional(),
     message: z.string().optional(),
     metadata: z.unknown().optional(),
   }).passthrough(),
@@ -99,19 +107,56 @@ async function readBoundedResponseText(
   }
 }
 
-async function readProviderErrorCode(response: Response): Promise<string | null> {
+type ProviderErrorDescriptor = Readonly<{
+  providerCode: string | null;
+  safeErrorType: ReturnType<typeof normalizeOpenRouterDiagnosticError>['errorType'];
+  safeErrorCode: ReturnType<typeof normalizeOpenRouterDiagnosticError>['errorCode'];
+}>;
+
+async function readProviderErrorDescriptor(
+  response: Response,
+): Promise<ProviderErrorDescriptor> {
   try {
     const text = await readBoundedResponseText(
       response,
       MAX_PROVIDER_ERROR_BYTES,
     );
-    if (text === '') return null;
+    if (text === '') {
+      return {
+        providerCode: null,
+        safeErrorType: 'unknown_safe_code',
+        safeErrorCode: 'unknown_safe_code',
+      };
+    }
     const parsed: unknown = JSON.parse(text);
     const envelope = ProviderErrorEnvelopeSchema.safeParse(parsed);
-    if (!envelope.success || envelope.data.error.code === undefined) return null;
-    return String(envelope.data.error.code).trim();
+    if (!envelope.success) {
+      return {
+        providerCode: null,
+        safeErrorType: 'unknown_safe_code',
+        safeErrorCode: 'unknown_safe_code',
+      };
+    }
+    const safe = normalizeOpenRouterDiagnosticError({
+      httpStatus: response.status,
+      rawErrorType: envelope.data.error.type,
+      rawErrorCode: envelope.data.error.code,
+      retryable: false,
+      requestVariantId: 'D1',
+    });
+    return {
+      providerCode: envelope.data.error.code === undefined
+        ? null
+        : String(envelope.data.error.code).trim(),
+      safeErrorType: safe.errorType,
+      safeErrorCode: safe.errorCode,
+    };
   } catch {
-    return null;
+    return {
+      providerCode: null,
+      safeErrorType: 'unknown_safe_code',
+      safeErrorCode: 'unknown_safe_code',
+    };
   }
 }
 
@@ -194,31 +239,55 @@ function errorForRecognizedProviderCode(
 function errorForStatus(
   status: number,
   retryAfterMs: number | null,
-  providerCode: string | null,
+  descriptor: ProviderErrorDescriptor,
 ): OpenRouterError {
+  const providerFields = {
+    providerErrorType: descriptor.safeErrorType,
+    providerErrorCode: descriptor.safeErrorCode,
+  } as const;
   if (status === 400) {
-    return new OpenRouterError('OPENROUTER_INVALID_REQUEST', { status });
+    return new OpenRouterError('OPENROUTER_INVALID_REQUEST', {
+      status,
+      ...providerFields,
+    });
   }
   if (status === 401) {
-    return new OpenRouterError('OPENROUTER_INVALID_CREDENTIALS', { status });
+    return new OpenRouterError('OPENROUTER_INVALID_CREDENTIALS', {
+      status,
+      ...providerFields,
+    });
   }
   if (status === 402) {
-    return new OpenRouterError('OPENROUTER_INSUFFICIENT_CREDITS', { status });
+    return new OpenRouterError('OPENROUTER_INSUFFICIENT_CREDITS', {
+      status,
+      ...providerFields,
+    });
   }
   if (status === 403) {
-    return new OpenRouterError('OPENROUTER_POLICY_REJECTED', { status });
+    return new OpenRouterError('OPENROUTER_POLICY_REJECTED', {
+      status,
+      ...providerFields,
+    });
   }
   const providerError = errorForRecognizedProviderCode(
-    providerCode,
+    descriptor.providerCode,
     status,
     retryAfterMs,
   );
-  if (providerError !== null) return providerError;
+  if (providerError !== null) {
+    return new OpenRouterError(providerError.code, {
+      retryable: providerError.retryable,
+      status: providerError.status,
+      retryAfterMs: providerError.retryAfterMs,
+      ...providerFields,
+    });
+  }
   if (status === 408) {
     return new OpenRouterError('OPENROUTER_TIMEOUT', {
       retryable: true,
       status,
       retryAfterMs,
+      ...providerFields,
     });
   }
   if (status === 429) {
@@ -226,6 +295,7 @@ function errorForStatus(
       retryable: true,
       status,
       retryAfterMs,
+      ...providerFields,
     });
   }
   if (status === 502 || status === 503) {
@@ -233,9 +303,13 @@ function errorForStatus(
       retryable: true,
       status,
       retryAfterMs,
+      ...providerFields,
     });
   }
-  return new OpenRouterError('OPENROUTER_INVALID_REQUEST', { status });
+  return new OpenRouterError('OPENROUTER_INVALID_REQUEST', {
+    status,
+    ...providerFields,
+  });
 }
 
 function assertStrictSchema(schema: Readonly<Record<string, unknown>>): void {
@@ -259,19 +333,37 @@ function safeJson(value: string): unknown {
 
 function embeddedErrorStatus(payload: unknown): Readonly<{
   status: number;
-  providerCode: string | null;
+  descriptor: ProviderErrorDescriptor;
 }> | null {
   const envelope = ProviderErrorEnvelopeSchema.safeParse(payload);
   if (!envelope.success) return null;
   const rawCode = envelope.data.error.code;
   if (rawCode === undefined) {
-    return { status: 400, providerCode: null };
+    return {
+      status: 400,
+      descriptor: {
+        providerCode: null,
+        safeErrorType: 'unknown_safe_code',
+        safeErrorCode: 'unknown_safe_code',
+      },
+    };
   }
   const providerCode = String(rawCode).trim();
   const numericCode = Number(providerCode);
+  const safe = normalizeOpenRouterDiagnosticError({
+    httpStatus: Number.isInteger(numericCode) ? numericCode : 400,
+    rawErrorType: envelope.data.error.type,
+    rawErrorCode: rawCode,
+    retryable: false,
+    requestVariantId: 'D1',
+  });
   return {
     status: Number.isInteger(numericCode) ? numericCode : 400,
-    providerCode,
+    descriptor: {
+      providerCode,
+      safeErrorType: safe.errorType,
+      safeErrorCode: safe.errorCode,
+    },
   };
 }
 
@@ -282,6 +374,24 @@ function isAbortError(error: unknown): boolean {
     && 'name' in error
     && error.name === 'AbortError'
   );
+}
+
+function safeDiagnosticCodeForError(
+  code: OpenRouterErrorCode,
+): ReturnType<typeof normalizeOpenRouterDiagnosticError>['errorCode'] {
+  const mapping: Partial<Record<
+    OpenRouterErrorCode,
+    ReturnType<typeof normalizeOpenRouterDiagnosticError>['errorCode']
+  >> = {
+    OPENROUTER_INVALID_CREDENTIALS: 'authentication',
+    OPENROUTER_INSUFFICIENT_CREDITS: 'payment_required',
+    OPENROUTER_POLICY_REJECTED: 'permission_denied',
+    OPENROUTER_RATE_LIMITED: 'rate_limit_exceeded',
+    OPENROUTER_PROVIDER_UNAVAILABLE: 'provider_unavailable',
+    OPENROUTER_NO_COMPLIANT_PROVIDER: 'provider_unavailable',
+    OPENROUTER_INVALID_REQUEST: 'invalid_request',
+  };
+  return mapping[code] ?? 'unknown_safe_code';
 }
 
 function usdCostToMicros(value: string | number): number {
@@ -319,6 +429,8 @@ function cloneErrorWithAttempts(
     status: error.status,
     retryAfterMs: error.retryAfterMs,
     attempts,
+    providerErrorType: error.providerErrorType,
+    providerErrorCode: error.providerErrorCode,
   });
 }
 
@@ -361,8 +473,8 @@ export class OpenRouterClient {
       });
       if (!response.ok) {
         const retryAfterMs = retryAfterMilliseconds(response, this.now());
-        const providerCode = await readProviderErrorCode(response);
-        throw errorForStatus(response.status, retryAfterMs, providerCode);
+        const descriptor = await readProviderErrorDescriptor(response);
+        throw errorForStatus(response.status, retryAfterMs, descriptor);
       }
       const text = await readBoundedResponseText(
         response,
@@ -460,6 +572,55 @@ export class OpenRouterClient {
     return this.requestModel(input, snapshot, 1);
   }
 
+  async diagnosePreflightVariant<T>(
+    input: OpenRouterCompletionInput<T>,
+    requestedModel: 'openai/gpt-5.6-terra',
+    variant: OpenRouterDiagnosticVariant,
+  ): Promise<OpenRouterDiagnosticResult<T>> {
+    this.assertConfigured();
+    assertStrictSchema(input.jsonSchema);
+    this.assertProof(input);
+    assertTerraDiagnosticVariant(variant);
+    if (requestedModel !== 'openai/gpt-5.6-terra') {
+      throw new OpenRouterError('OPENROUTER_POLICY_REJECTED');
+    }
+    const snapshot = input.preflightProof.snapshots.find(
+      ({ requestedModelId }) => requestedModelId === requestedModel,
+    );
+    if (!snapshot) throw new OpenRouterError('OPENROUTER_POLICY_REJECTED');
+    try {
+      const completion = await this.requestModel(input, snapshot, 1, variant);
+      return Object.freeze({
+        status: 'PASS',
+        variantId: variant.id,
+        completion,
+        diagnosticError: null,
+      });
+    } catch (caught) {
+      const error = caught instanceof OpenRouterError
+        ? caught
+        : new OpenRouterError('OPENROUTER_PROVIDER_UNAVAILABLE', {
+          retryable: true,
+        });
+      const attempt = error.attempts.at(-1) ?? null;
+      return Object.freeze({
+        status: 'FAIL',
+        variantId: variant.id,
+        completion: null,
+        diagnosticError: normalizeOpenRouterDiagnosticError({
+          httpStatus: error.status,
+          rawErrorType: error.providerErrorType
+            ?? safeDiagnosticCodeForError(error.code),
+          rawErrorCode: error.providerErrorCode
+            ?? safeDiagnosticCodeForError(error.code),
+          retryable: error.retryable,
+          requestVariantId: variant.id,
+        }),
+        attempt,
+      });
+    }
+  }
+
   private assertConfigured(): void {
     if (
       this.config.mode !== 'OPENROUTER_REQUIRED'
@@ -484,16 +645,19 @@ export class OpenRouterClient {
     input: OpenRouterCompletionInput<T>,
     snapshot: OpenRouterModelCapabilitySnapshot,
     attemptNumber: number,
+    diagnosticVariant?: OpenRouterDiagnosticVariant,
   ): Promise<OpenRouterCompletion<T>> {
-    if (this.config.maxOutputTokens > snapshot.maxCompletionTokens) {
+    const requestedMaxOutputTokens = diagnosticVariant?.maxOutputTokens
+      ?? this.config.maxOutputTokens;
+    if (requestedMaxOutputTokens > snapshot.maxCompletionTokens) {
       throw new OpenRouterError('OPENROUTER_POLICY_REJECTED');
     }
-    const body: OpenRouterRequestBody = {
+    const baseBody = {
       model: snapshot.requestedModelId,
       messages: input.messages,
-      max_tokens: this.config.maxOutputTokens,
       reasoning: {
-        effort: BILAN_MODEL_POLICY.reasoning.effort,
+        effort: diagnosticVariant?.reasoningEffort
+          ?? BILAN_MODEL_POLICY.reasoning.effort,
         exclude: BILAN_MODEL_POLICY.reasoning.excludeFromResponse,
       },
       response_format: {
@@ -513,6 +677,18 @@ export class OpenRouterClient {
       },
       stream: false,
     };
+    const body: OpenRouterRequestBody | OpenRouterDiagnosticRequestBody =
+      diagnosticVariant === undefined
+        ? {
+          ...baseBody,
+          max_tokens: this.config.maxOutputTokens,
+        } as OpenRouterRequestBody
+        : {
+          ...baseBody,
+          model: 'openai/gpt-5.6-terra',
+          [diagnosticVariant.outputTokenParameter]:
+            diagnosticVariant.maxOutputTokens,
+        } as OpenRouterDiagnosticRequestBody;
 
     const startedAtMs = this.now();
     let generationId: string | null = null;
@@ -545,8 +721,8 @@ export class OpenRouterClient {
       generationId = response.headers.get('x-generation-id')?.trim() || null;
       if (!response.ok) {
         const retryAfterMs = retryAfterMilliseconds(response, this.now());
-        const providerCode = await readProviderErrorCode(response);
-        throw errorForStatus(response.status, retryAfterMs, providerCode);
+        const descriptor = await readProviderErrorDescriptor(response);
+        throw errorForStatus(response.status, retryAfterMs, descriptor);
       }
 
       const payload = safeJson(
@@ -560,7 +736,7 @@ export class OpenRouterClient {
         throw errorForStatus(
           embeddedError.status,
           retryAfterMilliseconds(response, this.now()),
-          embeddedError.providerCode,
+          embeddedError.descriptor,
         );
       }
 

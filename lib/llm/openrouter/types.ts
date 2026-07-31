@@ -103,6 +103,49 @@ export type OpenRouterRequestBody = Readonly<{
   stream: false;
 }>;
 
+export type OpenRouterDiagnosticVariantId = 'D1' | 'D2' | 'D3';
+
+export type OpenRouterDiagnosticVariant = Readonly<{
+  id: OpenRouterDiagnosticVariantId;
+  outputTokenParameter: 'max_tokens' | 'max_completion_tokens';
+  maxOutputTokens: 2_048;
+  reasoningEffort: 'low' | 'none';
+}>;
+
+export type OpenRouterDiagnosticRequestBody = Readonly<{
+  model: 'openai/gpt-5.6-terra';
+  messages: readonly OpenRouterMessage[];
+  max_tokens?: 2_048;
+  max_completion_tokens?: 2_048;
+  reasoning: Readonly<{
+    effort: 'low' | 'none';
+    exclude: true;
+  }>;
+  response_format: OpenRouterRequestBody['response_format'];
+  provider: OpenRouterRequestBody['provider'];
+  stream: false;
+}>;
+
+export type OpenRouterSafeDiagnosticCode =
+  | 'max_tokens_exceeded'
+  | 'token_limit_exceeded'
+  | 'context_length_exceeded'
+  | 'permission_denied'
+  | 'authentication'
+  | 'payment_required'
+  | 'rate_limit_exceeded'
+  | 'invalid_request'
+  | 'provider_unavailable'
+  | 'unknown_safe_code';
+
+export type OpenRouterSafeDiagnosticError = Readonly<{
+  httpStatus: number | null;
+  errorType: OpenRouterSafeDiagnosticCode;
+  errorCode: OpenRouterSafeDiagnosticCode;
+  retryable: boolean;
+  requestVariantId: OpenRouterDiagnosticVariantId;
+}>;
+
 export type OpenRouterCompletionInput<T> = Readonly<{
   messages: readonly OpenRouterMessage[];
   schemaName: string;
@@ -160,3 +203,18 @@ export type OpenRouterCompletion<T> = Readonly<{
   provenance: OpenRouterTransportProvenance;
   attempts: readonly OpenRouterInvocationAttempt[];
 }>;
+
+export type OpenRouterDiagnosticResult<T> =
+  | Readonly<{
+    status: 'PASS';
+    variantId: OpenRouterDiagnosticVariantId;
+    completion: OpenRouterCompletion<T>;
+    diagnosticError: null;
+  }>
+  | Readonly<{
+    status: 'FAIL';
+    variantId: OpenRouterDiagnosticVariantId;
+    completion: null;
+    diagnosticError: OpenRouterSafeDiagnosticError;
+    attempt: OpenRouterInvocationAttempt | null;
+  }>;
