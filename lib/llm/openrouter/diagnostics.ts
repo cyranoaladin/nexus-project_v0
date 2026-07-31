@@ -112,7 +112,11 @@ export function classifyTerraDiagnosticRootCause(
   outcomes: readonly TerraDiagnosticOutcome[],
 ): TerraDiagnosticRootCause {
   const winnerIndex = outcomes.findIndex(({ status }) => status === 'PASS');
-  if (winnerIndex === -1) return 'NOT_OUTPUT_LIMIT_ONLY';
+  if (winnerIndex === -1) {
+    return outcomes.some(isTransientDiagnosticFailure)
+      ? 'INCONCLUSIVE_TRANSIENT_FAILURE'
+      : 'NOT_OUTPUT_LIMIT_ONLY';
+  }
   const preceding = outcomes.slice(0, winnerIndex);
   if (preceding.some(isTransientDiagnosticFailure)) {
     return 'INCONCLUSIVE_TRANSIENT_FAILURE';

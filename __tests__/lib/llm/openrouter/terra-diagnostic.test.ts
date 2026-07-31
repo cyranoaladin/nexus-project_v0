@@ -152,6 +152,32 @@ describe('OpenRouter Terra diagnostic contract', () => {
     ])).toBe('INCONCLUSIVE_TRANSIENT_FAILURE');
   });
 
+  it('keeps an all-transient diagnostic without a winner inconclusive', () => {
+    expect(classifyTerraDiagnosticRootCause([
+      {
+        variantId: 'D1',
+        status: 'FAIL',
+        httpStatus: 503,
+        errorCode: 'provider_unavailable',
+        retryable: true,
+      },
+      {
+        variantId: 'D2',
+        status: 'FAIL',
+        httpStatus: 429,
+        errorCode: 'rate_limit_exceeded',
+        retryable: true,
+      },
+      {
+        variantId: 'D3',
+        status: 'FAIL',
+        httpStatus: 408,
+        errorCode: 'provider_unavailable',
+        retryable: true,
+      },
+    ])).toBe('INCONCLUSIVE_TRANSIENT_FAILURE');
+  });
+
   it('requires compatible contract failures before assigning a root cause', () => {
     expect(classifyTerraDiagnosticRootCause([
       {

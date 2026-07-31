@@ -272,7 +272,20 @@ describe('local-first synthetic benchmark contracts', () => {
     )).toThrow(/template/i);
   });
 
-  it('preserves a REDACTED scan bound to the sanitized context text', () => {
+  it('revalidates curated template provenance at the outbound context boundary', () => {
+    const context = buildLocalFirstReportContext(fixtures()[0], 'PARENT');
+    const rebound = bindContextScan({
+      ...context,
+      approvedEvidenceForLlm: [{
+        ...context.approvedEvidenceForLlm[0],
+        text: 'Texte sûr mais différent du template contrôlé.',
+      }, ...context.approvedEvidenceForLlm.slice(1)],
+    });
+
+    expect(() => validateLocalFirstReportContext(rebound)).toThrow(/template/i);
+  });
+
+  it('rejects PII in a curated controlled template instead of invalidating provenance', () => {
     const value = structuredClone(fixtures()[0]) as Record<string, any>;
     const evidence = value.approvedEvidenceForLlm[0];
     const raw = value.rawEvidenceLocalOnly.find(
@@ -285,17 +298,29 @@ describe('local-first synthetic benchmark contracts', () => {
       templateId: evidence.templateId,
       text: evidence.text,
     });
-    const context = buildLocalFirstReportContext(
+    expect(() => buildLocalFirstReportContext(
       fixtureWithChecksum(value),
       'PARENT',
-    );
-
-    expect(context.piiScanResult.status).toBe('REDACTED');
-    expect(context.approvedEvidenceForLlm[0].text).toBe(
-      'Contact synthétique [REDACTED_EMAIL]',
-    );
-    expect(() => validateLocalFirstReportContext(context)).not.toThrow();
+    )).toThrow(/PII in a controlled template/i);
   });
+
+  it.each(['title', 'rationale'] as const)(
+    'binds resolved recommendation %s to the local catalog entry',
+    (field) => {
+      const context = buildLocalFirstReportContext(fixtures()[0], 'PARENT');
+      const rebound = bindContextScan({
+        ...context,
+        allowedRecommendations: [{
+          ...context.allowedRecommendations[0],
+          [field]: `Texte modifié hors catalogue pour ${field}.`,
+        }, ...context.allowedRecommendations.slice(1)],
+      });
+
+      expect(() => validateLocalFirstReportContext(rebound)).toThrow(
+        /recommendation copy differs from the local catalog/i,
+      );
+    },
+  );
 
   it('binds human approval to the exact approved evidence content', () => {
     const context = buildLocalFirstReportContext(fixtures()[0], 'PARENT');
@@ -357,6 +382,43 @@ describe('local-first synthetic benchmark contracts', () => {
     expect(() => validateLocalFirstReportContext(changedContext)).toThrow(
       /approval/i,
     );
+  });
+
+  it('scans an open reviewer identifier even when approval checksums are rebound', () => {
+    const context = buildLocalFirstReportContext(fixtures()[0], 'PARENT');
+    const original = context.approvedEvidenceForLlm[0];
+    const path = '$.approvedEvidenceForLlm[0].text';
+    const evidenceScan = scanPiiFields([{
+      path,
+      text: original.text,
+      source: 'CONTROLLED_TEMPLATE',
+    }]);
+    const rawSourceChecksum = '2'.repeat(64);
+    const evidence = {
+      evidenceRef: original.evidenceRef,
+      competencyId: original.competencyId,
+      text: original.text,
+      trust: 'UNTRUSTED_QUOTED_DATA' as const,
+      rawSourceChecksum,
+      piiScanResult: evidenceScan.result,
+    };
+    const approvalValues = {
+      reviewerId: 'nom:alice',
+      reviewedAt: '2026-07-31T10:00:00.000Z',
+      sourceChecksum: approvedEvidenceSourceChecksum(evidence),
+    };
+    const rebound = bindContextScan({
+      ...context,
+      approvedEvidenceForLlm: [{
+        ...evidence,
+        humanApproval: {
+          ...approvalValues,
+          approvalChecksum: sha256Canonical(approvalValues),
+        },
+      }, ...context.approvedEvidenceForLlm.slice(1)],
+    });
+
+    expect(() => validateLocalFirstReportContext(rebound)).toThrow(/PII scan/i);
   });
 
   it('exports closed local JSON Schemas', () => {

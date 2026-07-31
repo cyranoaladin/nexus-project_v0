@@ -312,7 +312,6 @@ const STRUCTURAL_OUTBOUND_KEYS = new Set([
   'transversalEvidencePolicy',
   'priority',
   'calibrationStatus',
-  'reviewerId',
   'reviewedAt',
   'sourceChecksum',
   'approvalChecksum',
@@ -531,6 +530,15 @@ export function validateLocalFirstReportContext(
 
   value.approvedEvidenceForLlm.forEach((item, index) => {
     if (
+      item.trust === 'CURATED'
+      && item.templateChecksum !== curatedEvidenceTemplateChecksum(item)
+    ) {
+      addIssue(
+        ['approvedEvidenceForLlm', index, 'templateChecksum'],
+        'CURATED evidence no longer matches its controlled template.',
+      );
+    }
+    if (
       item.trust === 'UNTRUSTED_QUOTED_DATA'
       && (
         !piiScanResultMatchesContent(
@@ -674,6 +682,19 @@ export function buildLocalFirstReportContext(
       code: z.ZodIssueCode.custom,
       message: 'Outbound context failed the local PII boundary.',
       path: ['piiScanResult'],
+    }]);
+  }
+  const curatedTemplatePii = fixture.approvedEvidenceForLlm.some(
+    (item, index) => item.trust === 'CURATED'
+      && scan.sanitizedFields[
+        `$.approvedEvidenceForLlm[${index}].text`
+      ] !== item.text,
+  );
+  if (curatedTemplatePii) {
+    throw new z.ZodError([{
+      code: z.ZodIssueCode.custom,
+      message: 'PII in a controlled template is not transportable.',
+      path: ['approvedEvidenceForLlm'],
     }]);
   }
   const sanitizedPayload = applySanitizedOutboundStrings(
