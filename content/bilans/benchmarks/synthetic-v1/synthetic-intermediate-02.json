@@ -1,7 +1,7 @@
 {
   "schemaVersion": "bilan-synthetic-assessment-v2",
   "datasetVersion": "synthetic-v1",
-  "inputChecksum": "a1865a8227d3e3cf66101605380b9acbb4793c860023683b5536522890453a9d",
+  "inputChecksum": "422e6373104fe306b479bb66a9d66ab49acf1281eb077dc014f9107f67a10842",
   "createdAt": "2026-07-31T07:01:02.000Z",
   "audience": "PARENT",
   "classification": "SYNTHETIC_BENCHMARK",
@@ -47,7 +47,7 @@
       "text": "Les accords dans le groupe nominal sont irréguliers.",
       "trust": "CURATED",
       "templateId": "tpl:synthetic-intermediate-02:1",
-      "templateChecksum": "bc55f8242c60d673a65d33261164e66e8507da856c118505b2d52f6a77818c88"
+      "templateChecksum": "4aa24972d2a8c810fe8215c8d0892cbf423620870c74d5c4e41bea03862e9a11"
     },
     {
       "evidenceRef": "ev:i02:phrase",
@@ -55,7 +55,7 @@
       "text": "Plusieurs phrases ne comportent pas de verbe conjugué.",
       "trust": "CURATED",
       "templateId": "tpl:synthetic-intermediate-02:2",
-      "templateChecksum": "c65b776fdd0c1524cd90c3c538f0c263299e82fbe4533b17251be874c1b2567c"
+      "templateChecksum": "f0a397f51069215070297431d5b47711e5bd8553218e74ebd3ba5a9a497445ae"
     }
   ],
   "priorities": [

@@ -125,6 +125,32 @@ describe('immutable local-first artifact envelope', () => {
     })).toThrow(/trusted PII scan|transport-safe/i);
   });
 
+  it('rejects non-JSON payload objects before scanning and checksumming', () => {
+    const input = {
+      artifactType: 'NORMALIZED_ASSESSMENT',
+      repositorySha: REPOSITORY_SHA,
+      expectedRepositorySha: REPOSITORY_SHA,
+      datasetVersion: 'synthetic-v1',
+      generatorId: 'bilan-local-first',
+      generatorVersion: '1',
+      scoringPolicyChecksum: CHECKSUM,
+      corpusChecksum: CHECKSUM,
+      promptChecksum: null,
+      outputSchemaChecksum: null,
+      audience: 'PARENT',
+      classification: 'SYNTHETIC_BENCHMARK',
+      piiScanResult: scanPiiFields([]).result,
+      payload: { observedAt: new Date('2026-07-31T08:00:00.000Z') },
+    } as const;
+    expect(() => createLocalFirstArtifact(input)).toThrow(/plain JSON/i);
+
+    const sparse = Array(1) as unknown[];
+    expect(() => createLocalFirstArtifact({
+      ...input,
+      payload: { values: sparse },
+    })).toThrow(/plain JSON/i);
+  });
+
   it('rejects a fake repository SHA and a non-root without a parent', () => {
     expect(() => createLocalFirstArtifact({
       ...createRoot(),

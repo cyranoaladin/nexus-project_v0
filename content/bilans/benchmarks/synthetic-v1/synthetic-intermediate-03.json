@@ -1,7 +1,7 @@
 {
   "schemaVersion": "bilan-synthetic-assessment-v2",
   "datasetVersion": "synthetic-v1",
-  "inputChecksum": "879290a525a614d3f6088686ab2e19fa571332d635539a86a4e492b91fe7a4af",
+  "inputChecksum": "9b48723927b953720305167bc503638ff9acd75a1ca5cc0f20a0da2d10291682",
   "createdAt": "2026-07-31T07:01:03.000Z",
   "audience": "PARENT",
   "classification": "SYNTHETIC_BENCHMARK",
@@ -47,7 +47,7 @@
       "text": "Le paragraphe présente une organisation encore irrégulière.",
       "trust": "CURATED",
       "templateId": "tpl:synthetic-intermediate-03:1",
-      "templateChecksum": "041af282286a907847c2bceea6a6ae02ed17ab8ae01c9e648a913e72dead0353"
+      "templateChecksum": "34d72626900af393d629cbce6687d56496e60b1a0bd1fb2d2a5e6d5ce6117fb4"
     }
   ],
   "priorities": [

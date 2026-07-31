@@ -1,7 +1,7 @@
 {
   "schemaVersion": "bilan-synthetic-assessment-v2",
   "datasetVersion": "synthetic-v1",
-  "inputChecksum": "7ce21ec941aa6bd9d49624ac7c2aabbe7126b7353262eb57293b757976381d24",
+  "inputChecksum": "50614d91068d33dd440fd91cc01f4f118d1c6384d56842b9cff39566dd96e8de",
   "createdAt": "2026-07-31T07:00:03.000Z",
   "audience": "PARENT",
   "classification": "SYNTHETIC_BENCHMARK",
@@ -41,7 +41,7 @@
       "text": "Les dénominateurs sont additionnés directement dans plusieurs items.",
       "trust": "CURATED",
       "templateId": "tpl:synthetic-simple-03:1",
-      "templateChecksum": "d02bc0903ee6dd06672264ee88f73b6416d613a9fb37ad62a80f8fb50e9076ba"
+      "templateChecksum": "41e6d00aa469023778db494b40b6073295199e643a0405bcb368cae7ae27ea1c"
     }
   ],
   "priorities": [
