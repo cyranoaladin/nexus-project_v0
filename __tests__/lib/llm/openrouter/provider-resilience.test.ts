@@ -52,17 +52,25 @@ const CATALOG = {
     },
   ],
 };
+const PROVIDERS = {
+  data: [
+    { name: 'Azure', slug: 'azure' },
+    { name: 'Independent Synthetic', slug: 'independent-synthetic' },
+    { name: 'Missing reasoning', slug: 'missing-reasoning' },
+  ],
+};
 
 describe('OpenRouter provider resilience classification', () => {
   it('builds a safe capability matrix from official ZDR endpoint tags', () => {
-    expect(buildProviderResilienceMatrix(CATALOG)).toEqual([
+    expect(buildProviderResilienceMatrix(CATALOG, PROVIDERS)).toEqual([
       {
         model: 'anthropic/claude-sonnet-5',
         availableZdrProviders: [
-          { name: 'Azure', tag: 'azure' },
+          { name: 'Azure', tag: 'azure', slug: 'azure' },
           {
             name: 'Independent Synthetic',
             tag: 'independent-synthetic/global',
+            slug: 'independent-synthetic',
           },
         ],
         dataCollectionDenyCompatible: 'REQUEST_ENFORCEMENT_REQUIRED',
@@ -74,7 +82,7 @@ describe('OpenRouter provider resilience classification', () => {
       {
         model: 'openai/gpt-5.6-terra',
         availableZdrProviders: [
-          { name: 'Azure', tag: 'azure' },
+          { name: 'Azure', tag: 'azure', slug: 'azure' },
         ],
         dataCollectionDenyCompatible: 'REQUEST_ENFORCEMENT_REQUIRED',
         structuredOutputCompatible: true,
@@ -86,13 +94,14 @@ describe('OpenRouter provider resilience classification', () => {
   });
 
   it('selects only compatible non-Azure routes with a global two-call cap', () => {
-    expect(selectAlternativeProviderRoutes(CATALOG, {
+    expect(selectAlternativeProviderRoutes(CATALOG, PROVIDERS, {
       excludedProviderNames: ['Azure'],
       maxCalls: 2,
     })).toEqual([{
       model: 'anthropic/claude-sonnet-5',
       providerName: 'Independent Synthetic',
       providerTag: 'independent-synthetic/global',
+      providerRoutingSlug: 'independent-synthetic',
       outputTokenParameter: 'max_tokens',
     }]);
   });
@@ -102,7 +111,7 @@ describe('OpenRouter provider resilience classification', () => {
       data: CATALOG.data.filter(({ provider_name }) =>
         provider_name === 'Azure'),
     };
-    expect(selectAlternativeProviderRoutes(azureOnly, {
+    expect(selectAlternativeProviderRoutes(azureOnly, PROVIDERS, {
       excludedProviderNames: ['Azure'],
       maxCalls: 2,
     })).toEqual([]);
@@ -114,18 +123,18 @@ describe('OpenRouter provider resilience classification', () => {
         CATALOG.data[0],
         { ...CATALOG.data[0] },
       ],
-    })).toThrow();
+    }, PROVIDERS)).toThrow();
     expect(() => buildProviderResilienceMatrix({
       data: [
         ...CATALOG.data,
         { model_id: 'unrelated/model', tag: '../ignored' },
       ],
-    })).not.toThrow();
+    }, PROVIDERS)).not.toThrow();
     expect(() => buildProviderResilienceMatrix({
       data: [{
         ...CATALOG.data[0],
         tag: '../private',
       }],
-    })).toThrow();
+    }, PROVIDERS)).toThrow();
   });
 });

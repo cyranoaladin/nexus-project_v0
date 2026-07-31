@@ -467,8 +467,12 @@ export class OpenRouterClient {
     return this.fetchCatalog('endpoints/zdr');
   }
 
+  async fetchProviderCatalogWithMetadata(): Promise<OpenRouterModelCatalogFetch> {
+    return this.fetchCatalog('providers');
+  }
+
   private async fetchCatalog(
-    relativePath: 'models' | 'endpoints/zdr',
+    relativePath: 'models' | 'endpoints/zdr' | 'providers',
   ): Promise<OpenRouterModelCatalogFetch> {
     this.assertConfigured();
     const controller = new AbortController();

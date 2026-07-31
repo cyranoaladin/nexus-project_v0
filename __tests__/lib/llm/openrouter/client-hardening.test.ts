@@ -177,6 +177,27 @@ describe('OpenRouter C1.1 hardened transport', () => {
     }
   });
 
+  it('fetches the official provider slug catalog through the unique client', async () => {
+    const catalog = {
+      data: [{ name: 'Amazon Bedrock', slug: 'amazon-bedrock' }],
+    };
+    const fake = await listen((request, response) => {
+      expect(request.method).toBe('GET');
+      expect(request.url).toBe('/api/v1/providers');
+      json(response, 200, catalog);
+    });
+    try {
+      await expect(client(fake.baseUrl).fetchProviderCatalogWithMetadata())
+        .resolves.toEqual({
+          catalog,
+          responseBytes: Buffer.byteLength(JSON.stringify(catalog), 'utf8'),
+        });
+      expect(fake.requests).toHaveLength(0);
+    } finally {
+      await fake.close();
+    }
+  });
+
   it('omits every deprecated or forbidden request parameter', async () => {
     const fake = await listen((_request, response, body) => {
       json(response, 200, validResponse(body!.model), {
