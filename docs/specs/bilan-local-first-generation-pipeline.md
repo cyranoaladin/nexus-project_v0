@@ -71,6 +71,12 @@ l'audience. Les valeurs structurelles fermées par schéma participent aux
 checksums sans être interprétées comme du texte libre. Une enveloppe est
 refusée si un chemin manque ou si une valeur change après le scan.
 
+Une enveloppe d'artefact ne fait jamais confiance à la classification de champ
+fournie par l'appelant : elle reconstruit localement la liste des chaînes et
+réexécute les détecteurs avec une classification interne. Le payload réellement
+stocké doit être `CLEAN`; une valeur détectée doit être expurgée en amont puis
+rescannée avant création de l'artefact.
+
 Une approbation de texte non fiable est liée au texte assaini, à la source
 brute, à la compétence, à l'`evidenceRef` et au scan PII exact ; elle ne peut
 pas être réutilisée après modification du contenu.
@@ -120,7 +126,11 @@ Les sources possèdent deux niveaux :
 
 Le second niveau est `CURATED` uniquement lorsque le texte correspond
 exactement à une source `CONTROLLED_TEMPLATE_SOURCE` et au checksum du template
-versionné. Une source `UNTRUSTED_FREE_TEXT` ne peut pas être requalifiée par un
+versionné. L'identifiant et le texte doivent également correspondre exactement
+au registre local
+`content/bilans/evidence-templates/catalog-v1.json` : un checksum calculé sur
+un template fourni par l'appelant n'accorde aucune confiance. Une source
+`UNTRUSTED_FREE_TEXT` ne peut pas être requalifiée par un
 simple changement de label. `UNTRUSTED_QUOTED_DATA` exige son checksum de
 source brute, une approbation humaine liée au texte assaini et un scan
 transportable.

@@ -20,6 +20,7 @@ import { sha256Canonical } from '@/lib/llm/openrouter/hash';
 import {
   PiiScanResultSchema,
   piiScanResultMatchesContent,
+  scanPiiFields,
   validatePiiScanResultChecksum,
 } from './pii';
 
@@ -57,9 +58,16 @@ function piiScanMatchesPayload(
   scan: z.infer<typeof PiiScanResultSchema>,
   payload: unknown,
 ): boolean {
-  return piiScanResultMatchesContent(
+  const trustedFields = payloadStringFields(payload).map((field) => ({
+    ...field,
+    source: 'CONTROLLED_TEMPLATE' as const,
+  }));
+  const trustedScan = scanPiiFields(trustedFields).result;
+  return trustedScan.status === 'CLEAN'
+    && scan.checksum === trustedScan.checksum
+    && piiScanResultMatchesContent(
     scan,
-    payloadStringFields(payload),
+    trustedFields,
     'SCANNED',
   );
 }
@@ -166,7 +174,9 @@ export function createLocalFirstArtifact(
     throw new Error('Artifact PII scan checksum is invalid.');
   }
   if (!piiScanMatchesPayload(input.piiScanResult, input.payload)) {
-    throw new Error('Artifact PII scan is not bound to its payload.');
+    throw new Error(
+      'Artifact trusted PII scan is not bound to a transport-safe payload.',
+    );
   }
   const isRoot = input.artifactType === 'NORMALIZED_ASSESSMENT';
   if (isRoot && input.parent !== undefined) {

@@ -255,6 +255,27 @@ describe('local-first synthetic benchmark contracts', () => {
     )).toThrow(/trust|template|untrusted/i);
   });
 
+  it('rejects caller-defined curated templates absent from the trusted registry', () => {
+    const value = structuredClone(fixtures()[0]) as Record<string, any>;
+    const approved = value.approvedEvidenceForLlm[0];
+    const raw = value.rawEvidenceLocalOnly.find(
+      ({ evidenceRef }: { evidenceRef: string }) =>
+        evidenceRef === approved.evidenceRef,
+    );
+    approved.text = 'Texte arbitraire déclaré contrôlé par le seul appelant.';
+    approved.templateId = 'tpl:caller-defined';
+    approved.templateChecksum = sha256Canonical({
+      templateId: approved.templateId,
+      text: approved.text,
+    });
+    raw.text = approved.text;
+    raw.source = 'CONTROLLED_TEMPLATE_SOURCE';
+
+    expect(() => SyntheticBenchmarkFixtureSchema.parse(
+      fixtureWithChecksum(value),
+    )).toThrow(/trusted template registry/i);
+  });
+
   it('binds curated evidence to its exact controlled template', () => {
     const value = structuredClone(fixtures()[0]) as Record<string, any>;
     const evidence = value.approvedEvidenceForLlm[0];
@@ -301,7 +322,7 @@ describe('local-first synthetic benchmark contracts', () => {
     expect(() => buildLocalFirstReportContext(
       fixtureWithChecksum(value),
       'PARENT',
-    )).toThrow(/PII in a controlled template/i);
+    )).toThrow(/PII in a controlled template|trusted template registry/i);
   });
 
   it.each(['title', 'rationale'] as const)(
