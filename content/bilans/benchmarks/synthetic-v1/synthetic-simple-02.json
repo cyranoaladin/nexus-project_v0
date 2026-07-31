@@ -1,7 +1,7 @@
 {
   "schemaVersion": "bilan-synthetic-assessment-v2",
   "datasetVersion": "synthetic-v1",
-  "inputChecksum": "1f73dfbe6f2c0b72f615b719a92913a4787010e39278d336968bb2a337950552",
+  "inputChecksum": "5e9ab2e50451e87150d19860fce8ac904309e019462b05f547c676198350936a",
   "createdAt": "2026-07-31T07:00:02.000Z",
   "audience": "PARENT",
   "classification": "SYNTHETIC_BENCHMARK",
@@ -40,7 +40,7 @@
       "text": "La thèse est repérée mais les justifications restent brèves.",
       "trust": "CURATED",
       "templateId": "tpl:synthetic-simple-02:1",
-      "templateChecksum": "bbee9c1e27ed7fc11709f7dbfa64176ea93edfa1e0f46df6244c62d0568730dc"
+      "templateChecksum": "6732f34b349b95c3fb46c2ab9d0a04f942bc7db2b32944fc3d7e035aa854cc21"
     }
   ],
   "priorities": [

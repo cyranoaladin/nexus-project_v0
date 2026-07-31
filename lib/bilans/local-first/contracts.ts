@@ -39,6 +39,9 @@ const EvidenceTemplateCatalogSchema = z.object({
   version: z.literal('1'),
   templates: z.array(z.object({
     templateId: IdentifierSchema,
+    fixtureId: z.string().regex(/^synthetic-(?:simple|intermediate|complex)-0[1-4]$/),
+    competencyId: IdentifierSchema,
+    evidenceRef: EvidenceRefSchema,
     text: z.string().trim().min(1).max(500),
   }).strict()).min(1),
 }).strict().superRefine((catalog, context) => {
@@ -237,6 +240,9 @@ function validateFixture(
       if (
         raw.source !== 'CONTROLLED_TEMPLATE_SOURCE'
         || trustedTemplate === undefined
+        || trustedTemplate.fixtureId !== value.fixtureId
+        || trustedTemplate.competencyId !== item.competencyId
+        || trustedTemplate.evidenceRef !== item.evidenceRef
         || raw.text !== trustedTemplate.text
         || item.text !== trustedTemplate.text
         || item.templateChecksum
@@ -328,29 +334,25 @@ type OutboundStringField = Readonly<{
   source: 'CONTROLLED_TEMPLATE' | 'STRUCTURAL_METADATA';
 }>;
 
-const STRUCTURAL_OUTBOUND_KEYS = new Set([
+// Only values closed by an enum/literal, a timestamp schema, or SHA-256 are
+// exempt from heuristic content detectors. Open identifiers remain scanned.
+const CLOSED_STRUCTURAL_OUTBOUND_KEYS = new Set([
   'schemaVersion',
   'inputChecksum',
   'createdAt',
   'audience',
   'classification',
-  'competencyId',
   'status',
-  'evidenceRef',
-  'evidenceRefs',
   'trust',
   'evidenceScopeVersion',
-  'templateId',
   'templateChecksum',
   'rawSourceChecksum',
-  'recommendationId',
   'transversalEvidencePolicy',
   'priority',
   'calibrationStatus',
   'reviewedAt',
   'sourceChecksum',
   'approvalChecksum',
-  'unmeasuredCompetencyIds',
   'detectorVersion',
   'detectedCategories',
   'scannedFieldPaths',
@@ -370,7 +372,7 @@ function collectOutboundStrings(
       path,
       text: value,
       source: parentKey !== undefined
-        && STRUCTURAL_OUTBOUND_KEYS.has(parentKey)
+        && CLOSED_STRUCTURAL_OUTBOUND_KEYS.has(parentKey)
         ? 'STRUCTURAL_METADATA'
         : 'CONTROLLED_TEMPLATE',
     }];
@@ -454,10 +456,19 @@ function expectedPercentage(points: number, maxPoints: number): number {
 }
 
 export function curatedEvidenceTemplateChecksum(
-  evidence: Readonly<{ templateId: string; text: string }>,
+  evidence: Readonly<{
+    templateId: string;
+    fixtureId: string;
+    competencyId: string;
+    evidenceRef: string;
+    text: string;
+  }>,
 ): string {
   return sha256Canonical({
     templateId: evidence.templateId,
+    fixtureId: evidence.fixtureId,
+    competencyId: evidence.competencyId,
+    evidenceRef: evidence.evidenceRef,
     text: evidence.text,
   });
 }
@@ -571,6 +582,9 @@ export function validateLocalFirstReportContext(
       item.trust === 'CURATED'
       && (
         trustedTemplate === undefined
+        || trustedTemplate.fixtureId !== value.fixtureId
+        || trustedTemplate.competencyId !== item.competencyId
+        || trustedTemplate.evidenceRef !== item.evidenceRef
         || item.text !== trustedTemplate.text
         || item.templateChecksum
           !== curatedEvidenceTemplateChecksum(trustedTemplate)
