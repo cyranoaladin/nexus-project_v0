@@ -4,7 +4,10 @@ import {
   verifyModelPolicyCapabilities,
 } from '@/lib/llm/openrouter/capabilities';
 import { sha256Canonical } from '@/lib/llm/openrouter/hash';
-import { BILAN_MODEL_POLICY_CHECKSUM } from '@/lib/llm/openrouter/policy';
+import {
+  BILAN_MODEL_POLICY_CHECKSUM,
+  BILAN_TRANSPORT_POLICY_CHECKSUM,
+} from '@/lib/llm/openrouter/policy';
 
 type MutableCapabilityFixture = {
   data: Array<{
@@ -56,7 +59,25 @@ describe('OpenRouter capability snapshots', () => {
     });
 
     expect(proof.policyChecksum).toBe(BILAN_MODEL_POLICY_CHECKSUM);
+    expect(proof).toMatchObject({
+      transportPolicyId: 'bilan-openrouter-transport-policy',
+      transportPolicyVersion: '1',
+      transportPolicyChecksum: BILAN_TRANSPORT_POLICY_CHECKSUM,
+    });
     expect(proof.snapshots).toHaveLength(2);
+    expect(proof.snapshots.map((snapshot) => ({
+      requestedModelId: snapshot.requestedModelId,
+      outputTokenParameter: snapshot.outputTokenParameter,
+    }))).toEqual([
+      {
+        requestedModelId: 'anthropic/claude-sonnet-5',
+        outputTokenParameter: 'max_tokens',
+      },
+      {
+        requestedModelId: 'openai/gpt-5.6-terra',
+        outputTokenParameter: 'max_completion_tokens',
+      },
+    ]);
     for (const snapshot of proof.snapshots) {
       expect(snapshot.canonicalSlug).toMatch(
         new RegExp(`^${snapshot.requestedModelId.replace('/', '\\/')}-\\d{8}$`),
@@ -100,6 +121,27 @@ describe('OpenRouter capability snapshots', () => {
       buildCapabilitySnapshots(copy, { fetchedAt }),
       proofOptions(),
     )).toBeDefined();
+  });
+
+  it('ignores malformed unrelated catalog entries while validating approved models strictly', () => {
+    const copy = cloneFixture() as MutableCapabilityFixture & {
+      data: Array<unknown>;
+    };
+    copy.data.unshift({
+      id: 'unrelated/provider-model',
+      canonical_slug: null,
+      supported_parameters: null,
+      top_provider: null,
+    });
+
+    const snapshots = buildCapabilitySnapshots(copy, {
+      fetchedAt: '2026-07-30T00:00:00.000Z',
+    });
+
+    expect(snapshots.map(({ requestedModelId }) => requestedModelId)).toEqual([
+      'anthropic/claude-sonnet-5',
+      'openai/gpt-5.6-terra',
+    ]);
   });
 
   it('rejects a capability snapshot whose immutable checksum was altered', () => {

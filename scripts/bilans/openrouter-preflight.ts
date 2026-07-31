@@ -24,11 +24,21 @@ import { sha256Canonical } from '../../lib/llm/openrouter/hash';
 import { BILAN_MODEL_POLICY } from '../../lib/llm/openrouter/policy';
 import { readPrivateOpenRouterApiKey } from '../../lib/llm/openrouter/preflight-secret';
 import { readCleanGitSoftwareSha } from '../../lib/llm/openrouter/preflight-software';
+import {
+  OpenRouterPrivacyAttestationError,
+  assertPrivacyAttestationMatchesApiKey,
+  readPrivateOpenRouterPrivacyAttestation,
+  toPrivateAttestationEvidence,
+} from '../../lib/llm/openrouter/privacy-attestation';
 
 const PREFLIGHT_VALIDITY_MILLISECONDS = 24 * 60 * 60 * 1_000;
 const OWNER_MAX_COST_MICROS_USD_PER_AUDIENCE_REPORT = 300_000;
 const OWNER_MAX_COST_MICROS_USD_PER_ASSESSMENT = 750_000;
 const OWNER_DAILY_BUDGET_MICROS_USD = 15_000_000;
+const PREFLIGHT_MAX_TOTAL_COST_MICROS_USD = 200_000;
+const PREFLIGHT_MAX_COST_PER_MODEL_MICROS_USD = 100_000;
+const PREFLIGHT_MAX_OUTPUT_TOKENS = 2_048;
+const PREFLIGHT_MODEL_CALL_COUNT = 2;
 
 function assertOwnerBudgets(config: ReturnType<typeof parseOpenRouterConfig>) {
   if (
@@ -44,14 +54,27 @@ function assertOwnerBudgets(config: ReturnType<typeof parseOpenRouterConfig>) {
 
 async function main(): Promise<void> {
   const apiKey = readPrivateOpenRouterApiKey();
+  const privacyAttestation = readPrivateOpenRouterPrivacyAttestation();
+  assertPrivacyAttestationMatchesApiKey(privacyAttestation, apiKey);
   const preflightSoftwareSha = readCleanGitSoftwareSha();
   const config = parseOpenRouterConfig({
     ...process.env,
     OPENROUTER_API_KEY: apiKey,
   });
   assertOwnerBudgets(config);
+  const preflightConfig = Object.freeze({
+    ...config,
+    maxOutputTokens: PREFLIGHT_MAX_OUTPUT_TOKENS,
+    redacted: Object.freeze({
+      ...config.redacted,
+      maxOutputTokens: PREFLIGHT_MAX_OUTPUT_TOKENS,
+    }),
+  });
 
-  const client = new OpenRouterClient(config, { preflightSoftwareSha });
+  const client = new OpenRouterClient(
+    preflightConfig,
+    { preflightSoftwareSha },
+  );
   const catalogFetch = await client.fetchModelCatalogWithMetadata();
   const catalog = catalogFetch.catalog;
   const fetchedAt = new Date().toISOString();
@@ -87,22 +110,106 @@ async function main(): Promise<void> {
     preflightProof: proof,
   };
 
-  const results = [];
-  for (const requestedModel of [
+  const requestedModels = [
     BILAN_MODEL_POLICY.primaryModel,
     ...BILAN_MODEL_POLICY.fallbackModels,
-  ]) {
-    const completion = await client.completePreflightForModel(
-      request,
-      requestedModel,
-    );
-    results.push({
-      requestedModel,
-      contractValid: completion.data.status === 'ok'
-        && completion.data.echo === 'synthetic-no-pii',
-      provenance: completion.provenance,
-      attempts: completion.attempts,
-    });
+  ];
+  if (requestedModels.length !== PREFLIGHT_MODEL_CALL_COUNT) {
+    throw new OpenRouterError('OPENROUTER_POLICY_REJECTED');
+  }
+  const modelResults = [];
+  let totalCostMicrosUsd = 0;
+  for (const requestedModel of requestedModels) {
+    try {
+      const completion = await client.completePreflightForModel(
+        request,
+        requestedModel,
+      );
+      const {
+        provenance,
+      } = completion;
+      if (provenance.provider === null) {
+        throw new OpenRouterError('OPENROUTER_INVALID_RESPONSE');
+      }
+      totalCostMicrosUsd += provenance.costMicrosUsd;
+      if (
+        provenance.costMicrosUsd > PREFLIGHT_MAX_COST_PER_MODEL_MICROS_USD
+        || totalCostMicrosUsd > PREFLIGHT_MAX_TOTAL_COST_MICROS_USD
+      ) {
+        throw new OpenRouterError('OPENROUTER_BUDGET_EXCEEDED');
+      }
+      modelResults.push({
+        requestedModel,
+        outputTokenParameter: proof.snapshots.find(
+          ({ requestedModelId }) => requestedModelId === requestedModel,
+        )?.outputTokenParameter ?? null,
+        status: 'PASS',
+        normalizedErrorCode: null,
+        returnedModel: provenance.returnedModel,
+        provider: provenance.provider,
+        generationId: provenance.generationId,
+        finishReason: provenance.finishReason,
+        promptTokens: provenance.promptTokens,
+        completionTokens: provenance.completionTokens,
+        reasoningTokens: provenance.reasoningTokens,
+        totalTokens: provenance.totalTokens,
+        costMicrosUsd: provenance.costMicrosUsd,
+        latencyMs: provenance.latencyMs,
+        schemaValid: true,
+        zdrRequested: true,
+        dataCollectionDenyRequested: true,
+        requireParametersRequested: true,
+        contractValid: completion.data.status === 'ok'
+          && completion.data.echo === 'synthetic-no-pii',
+      });
+    } catch (caught) {
+      const error = caught instanceof OpenRouterError
+        ? caught
+        : new OpenRouterError('OPENROUTER_PROVIDER_UNAVAILABLE', {
+          retryable: true,
+        });
+      if ([
+        'OPENROUTER_NOT_CONFIGURED',
+        'OPENROUTER_INVALID_CREDENTIALS',
+        'OPENROUTER_INSUFFICIENT_CREDITS',
+        'OPENROUTER_POLICY_REJECTED',
+        'OPENROUTER_BUDGET_EXCEEDED',
+      ].includes(error.code)) {
+        throw error;
+      }
+      const attempt = error.attempts.at(-1) ?? null;
+      const costMicrosUsd = attempt?.costMicrosUsd ?? 0;
+      totalCostMicrosUsd += costMicrosUsd;
+      if (
+        costMicrosUsd > PREFLIGHT_MAX_COST_PER_MODEL_MICROS_USD
+        || totalCostMicrosUsd > PREFLIGHT_MAX_TOTAL_COST_MICROS_USD
+      ) {
+        throw new OpenRouterError('OPENROUTER_BUDGET_EXCEEDED');
+      }
+      modelResults.push({
+        requestedModel,
+        outputTokenParameter: proof.snapshots.find(
+          ({ requestedModelId }) => requestedModelId === requestedModel,
+        )?.outputTokenParameter ?? null,
+        status: 'FAIL',
+        normalizedErrorCode: error.code,
+        returnedModel: attempt?.returnedModel ?? null,
+        provider: attempt?.provider ?? null,
+        generationId: attempt?.generationId ?? null,
+        finishReason: attempt?.finishReason ?? null,
+        promptTokens: attempt?.promptTokens ?? null,
+        completionTokens: attempt?.completionTokens ?? null,
+        reasoningTokens: attempt?.reasoningTokens ?? null,
+        totalTokens: attempt?.totalTokens ?? null,
+        costMicrosUsd: attempt?.costMicrosUsd ?? null,
+        latencyMs: attempt?.latencyMs ?? null,
+        schemaValid: false,
+        zdrRequested: true,
+        dataCollectionDenyRequested: true,
+        requireParametersRequested: true,
+        contractValid: false,
+      });
+    }
   }
 
   const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
@@ -121,41 +228,85 @@ async function main(): Promise<void> {
     generatedAt: new Date().toISOString(),
     syntheticOnly: true,
     dataSubjectCount: 0,
-    configuration: config.redacted,
-    proof,
-    catalog: {
-      responseBytes: catalogFetch.responseBytes,
-      maximumResponseBytes: 32 * 1024 * 1024,
-      checksum: proof.catalogChecksum,
+    repositorySha: preflightSoftwareSha,
+    policyId: proof.policyId,
+    policyVersion: proof.policyVersion,
+    policyChecksum: proof.policyChecksum,
+    transportPolicyId: proof.transportPolicyId,
+    transportPolicyVersion: proof.transportPolicyVersion,
+    transportPolicyChecksum: proof.transportPolicyChecksum,
+    retryPolicyVersion: BILAN_MODEL_POLICY.retryPolicy.version,
+    preflightSoftwareSha,
+    catalogChecksum: proof.catalogChecksum,
+    proofChecksum: proof.proofChecksum,
+    verifiedAt: proof.verifiedAt,
+    expiresAt: proof.expiresAt,
+    capabilitySnapshots: proof.snapshots.map((snapshot) => ({
+      requestedModelId: snapshot.requestedModelId,
+      canonicalSlug: snapshot.canonicalSlug,
+      outputTokenParameter: snapshot.outputTokenParameter,
+      fetchedAt: snapshot.fetchedAt,
+      supportedParameters: snapshot.supportedParameters,
+      contextLength: snapshot.contextLength,
+      maxCompletionTokens: snapshot.maxCompletionTokens,
+      structuredOutputsSupported: snapshot.structuredOutputsSupported,
+      temperatureDeclaredSupported: snapshot.temperatureDeclaredSupported,
+      reasoningSupported: snapshot.reasoningSupported,
+      reasoningEfforts: snapshot.reasoningEfforts,
+      capabilityChecksum: snapshot.capabilityChecksum,
+    })),
+    apiKeyFingerprintRedacted:
+      `hmac-sha256:${proof.apiKeyFingerprint.slice(0, 12)}`,
+    limits: {
+      maxTotalCostMicrosUsd: PREFLIGHT_MAX_TOTAL_COST_MICROS_USD,
+      maxCostPerModelMicrosUsd: PREFLIGHT_MAX_COST_PER_MODEL_MICROS_USD,
+      maxOutputTokens: PREFLIGHT_MAX_OUTPUT_TOKENS,
+      modelCallCount: PREFLIGHT_MODEL_CALL_COUNT,
     },
-    policy: {
-      id: proof.policyId,
-      version: proof.policyVersion,
-      checksum: proof.policyChecksum,
-      retryPolicy: BILAN_MODEL_POLICY.retryPolicy,
-    },
-    capabilities: proof.snapshots,
-    results,
-    privacyConfiguration: {
-      promptLoggingDisabled: 'OWNER_EVIDENCE_REQUIRED',
-      completionLoggingDisabled: 'OWNER_EVIDENCE_REQUIRED',
-      dataTrainingOptIn: 'OWNER_EVIDENCE_REQUIRED',
-      reason: 'No verified account-settings API is part of the provider contract.',
-    },
+    modelResults,
+    privacyAttestation: toPrivateAttestationEvidence(privacyAttestation),
   }, null, 2)}\n`, { mode: 0o600 });
   chmodSync(evidencePath, 0o600);
 
+  const primaryResult = modelResults[0];
+  const fallbackResult = modelResults[1];
+  const passed = modelResults.every(({ status }) => status === 'PASS');
+  const preflightStatus = passed
+    ? 'PASS'
+    : primaryResult.status === 'FAIL' && fallbackResult.status === 'PASS'
+      ? 'BLOCKED_BY_PRIMARY_MODEL_PREFLIGHT'
+      : primaryResult.status === 'PASS' && fallbackResult.status === 'FAIL'
+        ? 'BLOCKED_BY_FALLBACK_MODEL_PREFLIGHT'
+        : 'BLOCKED_BY_MODEL_PARAMETER_COMPATIBILITY';
   process.stdout.write(
-    `OpenRouter synthetic preflight passed; privacy evidence remains owner-required. Evidence: ${evidencePath}\n`,
+    [
+      `PREFLIGHT_STATUS=${preflightStatus}`,
+      `PRIMARY_MODEL_STATUS=${primaryResult.status}${
+        primaryResult.normalizedErrorCode === null
+          ? ''
+          : `:${primaryResult.normalizedErrorCode}`
+      }`,
+      `FALLBACK_MODEL_STATUS=${fallbackResult.status}${
+        fallbackResult.normalizedErrorCode === null
+          ? ''
+          : `:${fallbackResult.normalizedErrorCode}`
+      }`,
+      `TOTAL_COST_MICROS_USD=${totalCostMicrosUsd}`,
+      `EVIDENCE_DIRECTORY=${evidenceDirectory}`,
+      '',
+    ].join('\n'),
   );
+  if (!passed) process.exitCode = 1;
 }
 
 void main().catch((error: unknown) => {
   const code = error instanceof OpenRouterError
     ? error.code
+    : error instanceof OpenRouterPrivacyAttestationError
+      ? error.code
     : error instanceof OpenRouterModelCompatibilityError
       ? error.code
       : 'OPENROUTER_PREFLIGHT_FAILED';
-  process.stderr.write(`OpenRouter synthetic preflight failed: ${code}\n`);
+  process.stderr.write(`PREFLIGHT_STATUS=FAILED:${code}\n`);
   process.exitCode = 1;
 });

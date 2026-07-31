@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "bilan-recommendation-catalog-v1",
+  "catalogId": "bilan-local-recommendations",
+  "version": "1",
+  "recommendations": [
+    {
+      "recommendationId": "rec:c01",
+      "competencyId": "cmp:modelisation",
+      "title": "Comparer plusieurs situations",
+      "rationale": "Les preuves montrent une réussite guidée et une fragilité de transfert."
+    },
+    {
+      "recommendationId": "rec:c02",
+      "competencyId": "cmp:problematique",
+      "title": "Distinguer deux réponses possibles",
+      "rationale": "La preuve montre une reformulation sans véritable problème."
+    },
+    {
+      "recommendationId": "rec:c03",
+      "competencyId": "cmp:lecture",
+      "title": "Maintenir une pratique variée",
+      "rationale": "Les deux compétences mesurées sont solidement mobilisées."
+    },
+    {
+      "recommendationId": "rec:c04",
+      "competencyId": "cmp:raisonnement",
+      "title": "Relier chaque conclusion à une donnée",
+      "rationale": "Les preuves distinguent une bonne hypothèse et une conclusion trop large."
+    },
+    {
+      "recommendationId": "rec:i01",
+      "competencyId": "cmp:derivation",
+      "title": "Enchaîner calcul et interprétation",
+      "rationale": "Les deux preuves distinguent calcul réussi et interprétation fragile."
+    },
+    {
+      "recommendationId": "rec:i02",
+      "competencyId": "cmp:syntaxe",
+      "title": "Travailler des phrases courtes contrôlées",
+      "rationale": "Les preuves convergent vers un besoin de structuration."
+    },
+    {
+      "recommendationId": "rec:i03",
+      "competencyId": "cmp:expression",
+      "title": "Utiliser un plan de paragraphe",
+      "rationale": "La preuve autorisée indique une organisation encore irrégulière."
+    },
+    {
+      "recommendationId": "rec:i04",
+      "competencyId": "cmp:algorithme",
+      "title": "Poursuivre avec des algorithmes commentés",
+      "rationale": "Le résultat factuel autorisé est correct."
+    },
+    {
+      "recommendationId": "rec:s01",
+      "competencyId": "cmp:calcul",
+      "title": "Conserver un entraînement régulier",
+      "rationale": "Les acquis sont solides sur la preuve disponible."
+    },
+    {
+      "recommendationId": "rec:s02",
+      "competencyId": "cmp:argumentation",
+      "title": "Structurer une justification complète",
+      "rationale": "La preuve montre une réponse juste mais peu développée."
+    },
+    {
+      "recommendationId": "rec:s03",
+      "competencyId": "cmp:fractions",
+      "title": "Revoir les représentations de fractions",
+      "rationale": "Les erreurs observées concernent une règle fondamentale."
+    },
+    {
+      "recommendationId": "rec:s04",
+      "competencyId": "cmp:analyse-doc",
+      "title": "Poursuivre l'analyse guidée",
+      "rationale": "La compétence mesurée est correctement mobilisée."
+    }
+  ]
+}

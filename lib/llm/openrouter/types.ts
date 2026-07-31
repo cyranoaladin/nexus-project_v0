@@ -40,9 +40,23 @@ export type BilanModelPolicy = Readonly<{
   automaticCapabilityEnablement: false;
 }>;
 
+export type OpenRouterOutputTokenParameter =
+  | 'max_tokens'
+  | 'max_completion_tokens';
+
+export type BilanTransportPolicy = Readonly<{
+  id: 'bilan-openrouter-transport-policy';
+  version: '1';
+  outputTokenParameters: Readonly<{
+    'anthropic/claude-sonnet-5': 'max_tokens';
+    'openai/gpt-5.6-terra': 'max_completion_tokens';
+  }>;
+}>;
+
 export type OpenRouterModelCapabilitySnapshot = Readonly<{
   requestedModelId: string;
   canonicalSlug: string;
+  outputTokenParameter: OpenRouterOutputTokenParameter;
   fetchedAt: string;
   supportedParameters: readonly string[];
   contextLength: number;
@@ -63,6 +77,9 @@ export type OpenRouterPreflightProof = Readonly<{
   policyId: string;
   policyVersion: string;
   policyChecksum: string;
+  transportPolicyId: string;
+  transportPolicyVersion: string;
+  transportPolicyChecksum: string;
   catalogChecksum: string;
   apiKeyFingerprint: string;
   preflightSoftwareSha: string;
@@ -79,10 +96,9 @@ export type OpenRouterMessage = Readonly<{
 
 export type StrictJsonSchema = Readonly<Record<string, unknown>>;
 
-export type OpenRouterRequestBody = Readonly<{
+type OpenRouterRequestBodyBase = Readonly<{
   model: string;
   messages: readonly OpenRouterMessage[];
-  max_tokens: number;
   reasoning: Readonly<{
     effort: 'low';
     exclude: true;
@@ -99,8 +115,62 @@ export type OpenRouterRequestBody = Readonly<{
     require_parameters: true;
     data_collection: 'deny';
     zdr: true;
+    only?: readonly string[];
   }>;
   stream: false;
+}>;
+
+export type OpenRouterRequestBody =
+  | Readonly<OpenRouterRequestBodyBase & {
+    max_tokens: number;
+    max_completion_tokens?: never;
+  }>
+  | Readonly<OpenRouterRequestBodyBase & {
+    max_tokens?: never;
+    max_completion_tokens: number;
+  }>;
+
+export type OpenRouterDiagnosticVariantId = 'D1' | 'D2' | 'D3';
+
+export type OpenRouterDiagnosticVariant = Readonly<{
+  id: OpenRouterDiagnosticVariantId;
+  outputTokenParameter: 'max_tokens' | 'max_completion_tokens';
+  maxOutputTokens: 2_048;
+  reasoningEffort: 'low' | 'none';
+}>;
+
+export type OpenRouterDiagnosticRequestBody = Readonly<{
+  model: 'openai/gpt-5.6-terra';
+  messages: readonly OpenRouterMessage[];
+  max_tokens?: 2_048;
+  max_completion_tokens?: 2_048;
+  reasoning: Readonly<{
+    effort: 'low' | 'none';
+    exclude: true;
+  }>;
+  response_format: OpenRouterRequestBodyBase['response_format'];
+  provider: OpenRouterRequestBodyBase['provider'];
+  stream: false;
+}>;
+
+export type OpenRouterSafeDiagnosticCode =
+  | 'max_tokens_exceeded'
+  | 'token_limit_exceeded'
+  | 'context_length_exceeded'
+  | 'permission_denied'
+  | 'authentication'
+  | 'payment_required'
+  | 'rate_limit_exceeded'
+  | 'invalid_request'
+  | 'provider_unavailable'
+  | 'unknown_safe_code';
+
+export type OpenRouterSafeDiagnosticError = Readonly<{
+  httpStatus: number | null;
+  errorType: OpenRouterSafeDiagnosticCode;
+  errorCode: OpenRouterSafeDiagnosticCode;
+  retryable: boolean;
+  requestVariantId: OpenRouterDiagnosticVariantId;
 }>;
 
 export type OpenRouterCompletionInput<T> = Readonly<{
@@ -112,14 +182,21 @@ export type OpenRouterCompletionInput<T> = Readonly<{
   preflightProof: OpenRouterPreflightProof;
 }>;
 
+export type OpenRouterPreflightRoutingOptions = Readonly<{
+  providerOnly?: readonly string[];
+}>;
+
 export type OpenRouterTransportProvenance = Readonly<{
   requestedModel: string;
   returnedModel: string;
+  provider: string | null;
   canonicalSlug: string;
+  outputTokenParameter: OpenRouterOutputTokenParameter;
   generationId: string;
   finishReason: string;
   promptTokens: number;
   completionTokens: number;
+  reasoningTokens: number | null;
   totalTokens: number;
   costMicrosUsd: number;
   latencyMs: number;
@@ -144,8 +221,10 @@ export type OpenRouterInvocationAttempt = Readonly<{
   retryable: boolean;
   generationId: string | null;
   returnedModel: string | null;
+  provider: string | null;
   promptTokens: number | null;
   completionTokens: number | null;
+  reasoningTokens: number | null;
   totalTokens: number | null;
   costMicrosUsd: number | null;
   finishReason: string | null;
@@ -156,3 +235,18 @@ export type OpenRouterCompletion<T> = Readonly<{
   provenance: OpenRouterTransportProvenance;
   attempts: readonly OpenRouterInvocationAttempt[];
 }>;
+
+export type OpenRouterDiagnosticResult<T> =
+  | Readonly<{
+    status: 'PASS';
+    variantId: OpenRouterDiagnosticVariantId;
+    completion: OpenRouterCompletion<T>;
+    diagnosticError: null;
+  }>
+  | Readonly<{
+    status: 'FAIL';
+    variantId: OpenRouterDiagnosticVariantId;
+    completion: null;
+    diagnosticError: OpenRouterSafeDiagnosticError;
+    attempt: OpenRouterInvocationAttempt | null;
+  }>;

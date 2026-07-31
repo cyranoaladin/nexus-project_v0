@@ -1,0 +1,69 @@
+{
+  "schemaVersion": "bilan-synthetic-assessment-v2",
+  "datasetVersion": "synthetic-v1",
+  "inputChecksum": "5e9ab2e50451e87150d19860fce8ac904309e019462b05f547c676198350936a",
+  "createdAt": "2026-07-31T07:00:02.000Z",
+  "audience": "PARENT",
+  "classification": "SYNTHETIC_BENCHMARK",
+  "piiStatus": "NOT_SCANNED",
+  "fixtureId": "synthetic-simple-02",
+  "complexity": "SIMPLE",
+  "coverage": [
+    "MEDIUM_SCORE"
+  ],
+  "level": "Seconde",
+  "subject": "Français",
+  "score": {
+    "points": 12,
+    "maxPoints": 20,
+    "calibrationStatus": "FINAL"
+  },
+  "competencies": [
+    {
+      "competencyId": "cmp:argumentation",
+      "title": "Argumentation",
+      "status": "DEVELOPING"
+    }
+  ],
+  "rawEvidenceLocalOnly": [
+    {
+      "evidenceRef": "ev:s02:argument",
+      "competencyId": "cmp:argumentation",
+      "text": "La thèse est repérée mais les justifications restent brèves.",
+      "source": "CONTROLLED_TEMPLATE_SOURCE"
+    }
+  ],
+  "approvedEvidenceForLlm": [
+    {
+      "evidenceRef": "ev:s02:argument",
+      "competencyId": "cmp:argumentation",
+      "text": "La thèse est repérée mais les justifications restent brèves.",
+      "trust": "CURATED",
+      "templateId": "tpl:synthetic-simple-02:1",
+      "templateChecksum": "6732f34b349b95c3fb46c2ab9d0a04f942bc7db2b32944fc3d7e035aa854cc21"
+    }
+  ],
+  "priorities": [
+    {
+      "competencyId": "cmp:argumentation",
+      "title": "Développer les justifications",
+      "priority": "MEDIUM",
+      "evidenceRefs": [
+        "ev:s02:argument"
+      ]
+    }
+  ],
+  "allowedRecommendations": [
+    {
+      "recommendationId": "rec:s02",
+      "competencyId": "cmp:argumentation",
+      "evidenceRefs": [
+        "ev:s02:argument"
+      ]
+    }
+  ],
+  "unmeasuredCompetencyIds": [],
+  "rawInternalNotesLocalOnly": [
+    "Profil synthétique de niveau intermédiaire."
+  ]
+}

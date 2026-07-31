@@ -13,6 +13,16 @@
 
 Le checksum est calculé sur le JSON canonique (clés triées, sans espace).
 
+La sélection du paramètre de sortie est une seconde politique technique,
+non pédagogique :
+
+- source :
+  `content/bilans/model-policies/bilan-transport-policy-v1.json` ;
+- identifiant : `bilan-openrouter-transport-policy` ;
+- version : `1` ;
+- SHA-256 canonique :
+  `40edfc282a4211dda7e61a2fcc3cc665651968818d6c5cf20b98814decc49838`.
+
 ## Modèles autorisés
 
 | Rôle | Slug exact |
@@ -42,7 +52,7 @@ checksum de politique et invalide les preuves existantes.
 | `top_p` | `OMIT` |
 | `seed` | `OMIT` |
 | reasoning | `low`, preflight requis, contenu de reasoning exclu |
-| `max_tokens` | requis et borné par configuration |
+| limite de sortie | `max_tokens` pour Sonnet, `max_completion_tokens` pour Terra |
 | structured output | JSON Schema strict requis |
 | `require_parameters` | `true` |
 | `data_collection` | `deny` |
@@ -57,6 +67,7 @@ n'active jamais `temperature`.
 Pour chaque modèle, `OpenRouterModelCapabilitySnapshot` conserve :
 
 - modèle demandé et slug canonique ;
+- paramètre de sortie exact retenu par la politique de transport ;
 - date de lecture ;
 - paramètres annoncés ;
 - contexte et sortie maximale ;
@@ -65,8 +76,9 @@ Pour chaque modèle, `OpenRouterModelCapabilitySnapshot` conserve :
 - efforts de reasoning ;
 - checksum du snapshot.
 
-Le preflight bloque si le slug canonique change, si une capacité obligatoire
-disparaît, si reasoning `low` n'est pas accepté ou si le checksum est invalide.
+Le preflight bloque si le slug canonique change, si le paramètre de sortie
+versionné n'est plus annoncé, si une capacité obligatoire disparaît, si
+reasoning `low` n'est pas accepté ou si un checksum est invalide.
 La preuve est aussi liée au checksum du catalogue, à une empreinte HMAC non
 réversible de la clé, au SHA Git exact du logiciel et à une expiration maximale
 de 24 heures. Un snapshot de plus de cinq minutes au moment de la vérification
@@ -93,3 +105,7 @@ Toute modification fonctionnelle doit :
 3. invalider les preuves de preflight précédentes ;
 4. mettre à jour l'allowlist et les tests ;
 5. rejouer les évaluations qualité avant activation.
+
+La politique de transport suit les mêmes règles de versionnement et
+d'invalidation. Aucun choix n'est dérivé de `startsWith`, `includes`, d'un
+suffixe de slug ou d'une famille supposée.

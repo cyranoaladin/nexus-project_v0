@@ -12,6 +12,9 @@ import { canonicalJson, sha256Canonical } from './hash';
 import {
   BILAN_MODEL_POLICY,
   BILAN_MODEL_POLICY_CHECKSUM,
+  BILAN_TRANSPORT_POLICY,
+  BILAN_TRANSPORT_POLICY_CHECKSUM,
+  outputTokenParameterForModel,
 } from './policy';
 import type {
   OpenRouterModelCapabilitySnapshot,
@@ -19,19 +22,21 @@ import type {
 } from './types';
 
 const ModelCatalogSchema = z.object({
-  data: z.array(z.object({
-    id: z.string().min(1),
-    canonical_slug: z.string().min(1),
-    context_length: z.number().int().positive(),
-    supported_parameters: z.array(z.string()),
-    top_provider: z.object({
-      max_completion_tokens: z.number().int().positive(),
-    }),
-    reasoning: z.object({
-      supported_efforts: z.array(z.string()).nullable().optional(),
-    }).optional(),
-  })),
+  data: z.array(z.unknown()),
 }).passthrough();
+
+const ApprovedModelCatalogEntrySchema = z.object({
+  id: z.string().min(1),
+  canonical_slug: z.string().min(1),
+  context_length: z.number().int().positive(),
+  supported_parameters: z.array(z.string()),
+  top_provider: z.object({
+    max_completion_tokens: z.number().int().positive(),
+  }),
+  reasoning: z.object({
+    supported_efforts: z.array(z.string()).nullable().optional(),
+  }).optional(),
+});
 
 const parsedCapabilityBaseline = ModelCatalogSchema.parse(capabilityBaseline);
 const MAX_SNAPSHOT_TO_VERIFICATION_MILLISECONDS = 5 * 60 * 1_000;
@@ -40,11 +45,10 @@ const SHA_256_PATTERN = /^[a-f0-9]{64}$/;
 const GIT_SHA_PATTERN = /^[a-f0-9]{40}$/;
 
 function approvedCanonicalSlug(requestedModelId: string): string {
-  const approved = parsedCapabilityBaseline.data.find(
-    ({ id }) => id === requestedModelId,
-  )?.canonical_slug;
-  if (!approved) throw new OpenRouterModelCompatibilityError();
-  return approved;
+  return approvedModelEntry(
+    parsedCapabilityBaseline.data,
+    requestedModelId,
+  ).canonical_slug;
 }
 
 function requestedModels(): readonly string[] {
@@ -52,6 +56,20 @@ function requestedModels(): readonly string[] {
     BILAN_MODEL_POLICY.primaryModel,
     ...BILAN_MODEL_POLICY.fallbackModels,
   ];
+}
+
+function approvedModelEntry(
+  entries: readonly unknown[],
+  requestedModelId: string,
+) {
+  const candidate = entries.find((entry) =>
+    entry !== null
+    && typeof entry === 'object'
+    && 'id' in entry
+    && entry.id === requestedModelId);
+  const parsed = ApprovedModelCatalogEntrySchema.safeParse(candidate);
+  if (!parsed.success) throw new OpenRouterModelCompatibilityError();
+  return parsed.data;
 }
 
 export function createApiKeyFingerprint(apiKey: string): string {
@@ -74,6 +92,7 @@ function snapshotChecksumValues(
   return {
     requestedModelId: snapshot.requestedModelId,
     canonicalSlug: snapshot.canonicalSlug,
+    outputTokenParameter: snapshot.outputTokenParameter,
     fetchedAt: snapshot.fetchedAt,
     supportedParameters: snapshot.supportedParameters,
     contextLength: snapshot.contextLength,
@@ -103,8 +122,7 @@ export function buildCapabilitySnapshots(
   const fetchedAt = options.fetchedAt ?? new Date().toISOString();
 
   return Object.freeze(requestedModels().map((requestedModelId) => {
-    const model = parsed.data.data.find(({ id }) => id === requestedModelId);
-    if (!model) throw new OpenRouterModelCompatibilityError();
+    const model = approvedModelEntry(parsed.data.data, requestedModelId);
     const supportedParameters = Object.freeze(
       [...new Set(model.supported_parameters)].sort(),
     );
@@ -114,6 +132,9 @@ export function buildCapabilitySnapshots(
     const values = {
       requestedModelId,
       canonicalSlug: model.canonical_slug,
+      outputTokenParameter: outputTokenParameterForModel(
+        requestedModelId as keyof typeof BILAN_TRANSPORT_POLICY.outputTokenParameters,
+      ),
       fetchedAt,
       supportedParameters,
       contextLength: model.context_length,
@@ -171,6 +192,10 @@ export function verifyModelPolicyCapabilities(
     if (
       !snapshot
       || snapshot.canonicalSlug !== approvedCanonicalSlug(modelId)
+      || snapshot.outputTokenParameter !== outputTokenParameterForModel(
+        modelId as keyof typeof BILAN_TRANSPORT_POLICY.outputTokenParameters,
+      )
+      || !snapshot.supportedParameters.includes(snapshot.outputTokenParameter)
       || !Number.isFinite(Date.parse(snapshot.fetchedAt))
       || Date.parse(snapshot.fetchedAt) > verifiedAtMs
       || verifiedAtMs - Date.parse(snapshot.fetchedAt)
@@ -209,6 +234,9 @@ export function verifyModelPolicyCapabilities(
     policyId: BILAN_MODEL_POLICY.id,
     policyVersion: BILAN_MODEL_POLICY.version,
     policyChecksum: BILAN_MODEL_POLICY_CHECKSUM,
+    transportPolicyId: BILAN_TRANSPORT_POLICY.id,
+    transportPolicyVersion: BILAN_TRANSPORT_POLICY.version,
+    transportPolicyChecksum: BILAN_TRANSPORT_POLICY_CHECKSUM,
     catalogChecksum: options.catalogChecksum,
     apiKeyFingerprint: createApiKeyFingerprint(options.apiKey),
     preflightSoftwareSha: options.preflightSoftwareSha,
@@ -244,6 +272,9 @@ export function assertOpenRouterPreflightProof(
     proof.policyId !== BILAN_MODEL_POLICY.id
     || proof.policyVersion !== BILAN_MODEL_POLICY.version
     || proof.policyChecksum !== BILAN_MODEL_POLICY_CHECKSUM
+    || proof.transportPolicyId !== BILAN_TRANSPORT_POLICY.id
+    || proof.transportPolicyVersion !== BILAN_TRANSPORT_POLICY.version
+    || proof.transportPolicyChecksum !== BILAN_TRANSPORT_POLICY_CHECKSUM
     || !SHA_256_PATTERN.test(proof.catalogChecksum)
     || proof.apiKeyFingerprint !== createApiKeyFingerprint(context.apiKey)
     || proof.preflightSoftwareSha !== context.preflightSoftwareSha
@@ -272,6 +303,10 @@ export function assertOpenRouterPreflightProof(
       || snapshot.canonicalSlug !== approvedCanonicalSlug(
         snapshot.requestedModelId,
       )
+      || snapshot.outputTokenParameter !== outputTokenParameterForModel(
+        snapshot.requestedModelId as keyof typeof BILAN_TRANSPORT_POLICY.outputTokenParameters,
+      )
+      || !snapshot.supportedParameters.includes(snapshot.outputTokenParameter)
       || !hasValidCapabilityChecksum(snapshot)
       || !snapshot.structuredOutputsSupported
       || !snapshot.reasoningSupported

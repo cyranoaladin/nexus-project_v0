@@ -10,6 +10,8 @@ Il n'est jamais lancé automatiquement par la CI.
 
 - clé OpenRouter Nexus dédiée dans
   `/home/alaeddine/.config/nexus-secrets/openrouter-api-key` ;
+- attestation owner privée dans
+  `/home/alaeddine/.config/nexus-secrets/openrouter-privacy-attestation.json` ;
 - allowlist des deux modèles approuvés ;
 - ZDR et collecte fournisseur configurés selon la politique ;
 - budgets owner par bilan et par jour ;
@@ -40,6 +42,13 @@ Le dossier de la clé doit être `0700`, le fichier régulier `0600`, appartenir
 à l'utilisateur local, ne pas être un lien symbolique et contenir exactement
 une ligne non vide. La clé n'est jamais passée dans les arguments de commande.
 
+L'attestation respecte les mêmes contraintes de propriétaire, mode, fichier
+régulier et `O_NOFOLLOW`. Son JSON strict expire en trente jours au maximum,
+porte un checksum canonique, lie compte et guardrail par des empreintes non
+réversibles et est lié par HMAC à la clé. Son niveau de preuve reste
+`OWNER_DECLARATION`, jamais `API_VERIFIED`. Son absence, son expiration ou un
+changement de clé bloque avec `BLOCKED_BY_PRIVACY_ATTESTATION`.
+
 ## Commandes
 
 Contrôle CI sans réseau :
@@ -53,6 +62,16 @@ Preflight privé live :
 ```bash
 npm run bilan:openrouter:preflight
 ```
+
+Audit privé des routes ZDR alternatives :
+
+```bash
+npm run bilan:openrouter:provider-resilience
+```
+
+Cet audit lit `/api/v1/endpoints/zdr`, n'invente aucun slug fournisseur et
+effectue au plus deux appels synthétiques avec le paramètre officiel
+`provider.only`.
 
 ## Contrôles effectués
 
@@ -78,8 +97,10 @@ Le rapport expurgé est écrit sous :
 - répertoire : `0700` ;
 - fichier : `0600`.
 
-Il contient configuration expurgée, politique, preuve intègre, snapshots et
-provenance.
+Il contient configuration expurgée, politique, preuve intègre, résultats par
+modèle et snapshots complets expurgés : slug canonique, paramètres supportés,
+paramètre de sortie, limites, capacités structured output/reasoning,
+`fetchedAt`, checksum de capacité, `verifiedAt` et `expiresAt`.
 Il ne contient ni clé, ni prompt brut métier, ni réponse brute, ni donnée
 élève.
 
@@ -96,9 +117,9 @@ Le catalogue live et une complétion n'ont pas la même limite : 32 MiB pour
 enveloppe d'erreur.
 
 Les réglages de compte `prompt logging`, `completion logging` et entraînement
-ne sont pas déduits du succès du transport. Si aucune API de compte vérifiable
-n'est disponible, la preuve porte explicitement `OWNER_EVIDENCE_REQUIRED`.
-L'activation reste bloquée jusqu'à une preuve privée nominative.
+ne sont pas déduits du succès du transport. L'attestation privée reste une
+déclaration owner, distincte de `REQUEST_ENFORCED` et d'une éventuelle preuve
+API.
 
 ## Échecs
 
