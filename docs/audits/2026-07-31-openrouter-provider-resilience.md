@@ -41,10 +41,20 @@ mission afin de ne pas modifier après coup le SHA de preuve.
 
 ## Décision en cas de concentration
 
-`SINGLE_PROVIDER_CONCENTRATION` impose au futur lot retry différé, dead letter
-surveillée, absence de publication automatique, alerte opérateur et étude d'un
-troisième modèle réellement indépendant. La politique produit v1.1 reste
-inchangée dans #91.
+`PROVIDER_DIVERSITY_STATUS=SINGLE_PROVIDER_CONCENTRATION`.
+
+Décision owner du 31 juillet 2026 :
+
+- `RISK_ID=LLM-PROVIDER-CONCENTRATION-001` ;
+- `RISK_SEVERITY=P1_OPERATIONAL` ;
+- accepté pour le benchmark synthétique et un pilote asynchrone ;
+- refusé pour toute publication automatique ;
+- revue au 30 septembre 2026.
+
+Cette acceptation n'affirme pas que Terra constitue une infrastructure
+indépendante. Le futur lot doit appliquer retry différé, dead letter surveillée,
+absence de publication automatique et alerte opérateur. La politique produit
+v1.1 reste inchangée dans #91.
 
 ## Rollback
 

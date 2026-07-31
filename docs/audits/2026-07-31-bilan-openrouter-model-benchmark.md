@@ -88,6 +88,13 @@ pas nécessairement un fallback d'infrastructure indépendant de Sonnet.
 Le benchmark n'est pas qualifié. Aucune comparaison coût/qualité Luna, Terra,
 Sonnet ne peut être publiée à partir de résultats partiels.
 
+Le run est formellement classé
+`INVALIDATED_BY_CONTRACT_CHANGE`. Ses preuves restent conservées mais ses
+résultats ne participent à aucune statistique ni sélection de modèle. Les
+causes sont : contrat de grounding et propriété des preuves modifiés,
+checkpointing modifié, nombre d'appels et coûts par modèle non prouvables,
+preflight Luna non persisté.
+
 ## Corrections livrées
 
 - checkpoints privés append-only par tentative ;
@@ -100,16 +107,14 @@ Sonnet ne peut être publiée à partir de résultats partiels.
 
 ## Risques restants
 
-1. Priorité P0, propriétaire infrastructure : décider si la concentration Azure
-   est acceptable pour un pilote ou approuver un troisième modèle sur un
-   fournisseur réellement indépendant. Acceptation : décision datée, signée et
-   liée à la politique.
-2. Priorité P0, propriétaire OpenRouter : autoriser explicitement un nouveau
-   run complet après correction du checkpoint. Acceptation : 36 tentatives
-   uniques, aucun retry, coût sous 1,50 USD et paquet privé complet.
-3. Priorité P0, équipe pédagogique : effectuer la revue aveugle. Acceptation :
+1. Priorité P1, propriétaire infrastructure : revoir
+   `LLM-PROVIDER-CONCENTRATION-001` le 30 septembre 2026. La concentration est
+   acceptée pour le benchmark synthétique et le pilote asynchrone, pas pour la
+   publication automatique.
+2. Priorité P0, équipe pédagogique : effectuer la revue aveugle avec au moins
+   deux reviewers indépendants. Acceptation :
    toutes les grilles remplies et identité des modèles révélée après notation.
-4. Priorité P0, owner produit : décider la politique v1.2 seulement après les
+3. Priorité P0, owner produit : décider la politique v1.2 seulement après les
    résultats automatiques et humains.
 
 ## Rollback
