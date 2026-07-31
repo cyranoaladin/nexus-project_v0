@@ -218,6 +218,30 @@ describe('OpenRouter client', () => {
     }
   });
 
+  it('pins an officially discovered provider only on an explicit preflight audit', async () => {
+    const fake = await listen((_request, response) =>
+      json(response, 200, validResponse(), {
+        'x-generation-id': 'gen-provider-audit',
+      }));
+    try {
+      await createClient(fake.baseUrl).completePreflightForModel(
+        contractRequest,
+        'anthropic/claude-sonnet-5',
+        { providerOnly: ['synthetic-official-tag'] },
+      );
+
+      expect(fake.requests).toHaveLength(1);
+      expect(fake.requests[0].provider).toEqual({
+        require_parameters: true,
+        data_collection: 'deny',
+        zdr: true,
+        only: ['synthetic-official-tag'],
+      });
+    } finally {
+      await fake.close();
+    }
+  });
+
   it('uses an application-controlled fallback only after a retryable failure', async () => {
     const fake = await listen((_request, response, body) => {
       if (body.model === 'anthropic/claude-sonnet-5') {

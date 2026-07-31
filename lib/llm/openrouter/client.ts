@@ -24,6 +24,7 @@ import type {
   OpenRouterDiagnosticVariant,
   OpenRouterInvocationAttempt,
   OpenRouterModelCatalogFetch,
+  OpenRouterPreflightRoutingOptions,
   OpenRouterModelCapabilitySnapshot,
   OpenRouterRequestBody,
 } from './types';
@@ -459,11 +460,21 @@ export class OpenRouterClient {
   }
 
   async fetchModelCatalogWithMetadata(): Promise<OpenRouterModelCatalogFetch> {
+    return this.fetchCatalog('models');
+  }
+
+  async fetchZdrEndpointCatalogWithMetadata(): Promise<OpenRouterModelCatalogFetch> {
+    return this.fetchCatalog('endpoints/zdr');
+  }
+
+  private async fetchCatalog(
+    relativePath: 'models' | 'endpoints/zdr',
+  ): Promise<OpenRouterModelCatalogFetch> {
     this.assertConfigured();
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), this.config.timeoutMs);
     try {
-      const response = await fetch(new URL('models', this.config.baseUrl), {
+      const response = await fetch(new URL(relativePath, this.config.baseUrl), {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${this.config.apiKey}`,
@@ -554,6 +565,7 @@ export class OpenRouterClient {
   async completePreflightForModel<T>(
     input: OpenRouterCompletionInput<T>,
     requestedModel: string,
+    routing: OpenRouterPreflightRoutingOptions = {},
   ): Promise<OpenRouterCompletion<T>> {
     this.assertConfigured();
     assertStrictSchema(input.jsonSchema);
@@ -569,7 +581,16 @@ export class OpenRouterClient {
       ({ requestedModelId }) => requestedModelId === requestedModel,
     );
     if (!snapshot) throw new OpenRouterError('OPENROUTER_POLICY_REJECTED');
-    return this.requestModel(input, snapshot, 1);
+    if (
+      routing.providerOnly !== undefined
+      && (
+        routing.providerOnly.length !== 1
+        || !/^[a-z0-9][a-z0-9._-]{1,79}$/.test(routing.providerOnly[0])
+      )
+    ) {
+      throw new OpenRouterError('OPENROUTER_POLICY_REJECTED');
+    }
+    return this.requestModel(input, snapshot, 1, undefined, routing);
   }
 
   async diagnosePreflightVariant<T>(
@@ -646,6 +667,7 @@ export class OpenRouterClient {
     snapshot: OpenRouterModelCapabilitySnapshot,
     attemptNumber: number,
     diagnosticVariant?: OpenRouterDiagnosticVariant,
+    preflightRouting: OpenRouterPreflightRoutingOptions = {},
   ): Promise<OpenRouterCompletion<T>> {
     const requestedMaxOutputTokens = diagnosticVariant?.maxOutputTokens
       ?? this.config.maxOutputTokens;
@@ -674,6 +696,9 @@ export class OpenRouterClient {
         data_collection:
           BILAN_MODEL_POLICY.providerPolicy.dataCollection,
         zdr: BILAN_MODEL_POLICY.providerPolicy.zdr,
+        ...(preflightRouting.providerOnly === undefined
+          ? {}
+          : { only: [...preflightRouting.providerOnly] }),
       },
       stream: false,
     };

@@ -146,6 +146,37 @@ function client(baseUrl: string, timeoutMs = '100') {
 }
 
 describe('OpenRouter C1.1 hardened transport', () => {
+  it('fetches the official ZDR endpoint catalog through the unique client', async () => {
+    const catalog = {
+      data: [{
+        model_id: 'anthropic/claude-sonnet-5',
+        provider_name: 'Synthetic Provider',
+        tag: 'synthetic-provider',
+        supported_parameters: [
+          'response_format',
+          'structured_outputs',
+          'reasoning',
+          'max_tokens',
+        ],
+      }],
+    };
+    const fake = await listen((request, response) => {
+      expect(request.method).toBe('GET');
+      expect(request.url).toBe('/api/v1/endpoints/zdr');
+      json(response, 200, catalog);
+    });
+    try {
+      await expect(client(fake.baseUrl).fetchZdrEndpointCatalogWithMetadata())
+        .resolves.toEqual({
+          catalog,
+          responseBytes: Buffer.byteLength(JSON.stringify(catalog), 'utf8'),
+        });
+      expect(fake.requests).toHaveLength(0);
+    } finally {
+      await fake.close();
+    }
+  });
+
   it('omits every deprecated or forbidden request parameter', async () => {
     const fake = await listen((_request, response, body) => {
       json(response, 200, validResponse(body!.model), {

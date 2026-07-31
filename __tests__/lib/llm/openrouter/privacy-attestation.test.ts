@@ -12,6 +12,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 import {
+  assertPrivacyAttestationMatchesApiKey,
   createOwnerPrivacyAttestation,
   readPrivateOpenRouterPrivacyAttestation,
   toPrivateAttestationEvidence,
@@ -74,6 +75,16 @@ describe('private OpenRouter owner attestation', () => {
     });
     expect(JSON.stringify(toPrivateAttestationEvidence(parsed)))
       .not.toContain('synthetic-private-key');
+    expect(() => assertPrivacyAttestationMatchesApiKey(
+      parsed,
+      'synthetic-private-key',
+    )).not.toThrow();
+    expect(() => assertPrivacyAttestationMatchesApiKey(
+      parsed,
+      'another-synthetic-key',
+    )).toThrow(expect.objectContaining({
+      code: 'BLOCKED_BY_PRIVACY_ATTESTATION',
+    }));
   });
 
   it('blocks an absent attestation with the canonical status', () => {

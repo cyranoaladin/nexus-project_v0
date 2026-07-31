@@ -91,6 +91,7 @@
     "bilan:openrouter:capabilities": "tsx --conditions=react-server scripts/bilans/openrouter-capabilities.ts",
     "bilan:openrouter:preflight": "tsx --conditions=react-server scripts/bilans/openrouter-preflight.ts",
     "bilan:openrouter:diagnose-terra": "tsx --conditions=react-server scripts/bilans/openrouter-terra-diagnostic.ts",
+    "bilan:openrouter:provider-resilience": "tsx --conditions=react-server scripts/bilans/openrouter-provider-resilience.ts",
     "test:bilan:openrouter": "jest --config jest.unit.config.js --runInBand __tests__/lib/llm/openrouter __tests__/architecture/bilan-openrouter-boundary.test.ts",
     "sbom:full": "node scripts/generate-runtime-sbom.js --include-dev --output security/sbom/full.cdx.json",
     "sbom:runtime": "node scripts/generate-runtime-sbom.js --output security/sbom/runtime.cdx.json",

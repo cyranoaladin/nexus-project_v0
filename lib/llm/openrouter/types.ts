@@ -115,6 +115,7 @@ type OpenRouterRequestBodyBase = Readonly<{
     require_parameters: true;
     data_collection: 'deny';
     zdr: true;
+    only?: readonly string[];
   }>;
   stream: false;
 }>;
@@ -179,6 +180,10 @@ export type OpenRouterCompletionInput<T> = Readonly<{
   jsonSchema: StrictJsonSchema;
   validator: z.ZodType<T>;
   preflightProof: OpenRouterPreflightProof;
+}>;
+
+export type OpenRouterPreflightRoutingOptions = Readonly<{
+  providerOnly?: readonly string[];
 }>;
 
 export type OpenRouterTransportProvenance = Readonly<{

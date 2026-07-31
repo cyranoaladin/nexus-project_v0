@@ -26,6 +26,7 @@ import { readPrivateOpenRouterApiKey } from '../../lib/llm/openrouter/preflight-
 import { readCleanGitSoftwareSha } from '../../lib/llm/openrouter/preflight-software';
 import {
   OpenRouterPrivacyAttestationError,
+  assertPrivacyAttestationMatchesApiKey,
   readPrivateOpenRouterPrivacyAttestation,
   toPrivateAttestationEvidence,
 } from '../../lib/llm/openrouter/privacy-attestation';
@@ -54,6 +55,7 @@ function assertOwnerBudgets(config: ReturnType<typeof parseOpenRouterConfig>) {
 async function main(): Promise<void> {
   const apiKey = readPrivateOpenRouterApiKey();
   const privacyAttestation = readPrivateOpenRouterPrivacyAttestation();
+  assertPrivacyAttestationMatchesApiKey(privacyAttestation, apiKey);
   const preflightSoftwareSha = readCleanGitSoftwareSha();
   const config = parseOpenRouterConfig({
     ...process.env,
