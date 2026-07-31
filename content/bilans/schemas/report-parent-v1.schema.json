@@ -1,0 +1,251 @@
+{
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "bilan-report-parent-v1"
+    },
+    "audience": {
+      "type": "string",
+      "const": "PARENT"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 160
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 800
+    },
+    "strengths": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "competencyId": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9:_-]{2,79}$"
+          },
+          "title": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 120
+          },
+          "explanation": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 800
+          },
+          "evidenceRefs": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^ev:[a-z0-9:_-]{3,76}$"
+            },
+            "minItems": 1,
+            "maxItems": 6
+          }
+        },
+        "required": [
+          "competencyId",
+          "title",
+          "explanation",
+          "evidenceRefs"
+        ],
+        "additionalProperties": false
+      },
+      "maxItems": 8
+    },
+    "priorities": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "competencyId": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9:_-]{2,79}$"
+          },
+          "title": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 120
+          },
+          "explanation": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 800
+          },
+          "evidenceRefs": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^ev:[a-z0-9:_-]{3,76}$"
+            },
+            "minItems": 1,
+            "maxItems": 6
+          },
+          "priority": {
+            "type": "string",
+            "enum": [
+              "LOW",
+              "MEDIUM",
+              "HIGH"
+            ]
+          }
+        },
+        "required": [
+          "competencyId",
+          "title",
+          "explanation",
+          "evidenceRefs",
+          "priority"
+        ],
+        "additionalProperties": false
+      },
+      "maxItems": 8
+    },
+    "actionPlan": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "recommendationId": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9:_-]{2,79}$"
+          },
+          "title": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 120
+          },
+          "rationale": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 800
+          },
+          "actions": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 240
+            },
+            "minItems": 1,
+            "maxItems": 5
+          },
+          "cadence": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 120
+          },
+          "durationWeeks": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 12
+          },
+          "evidenceRefs": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^ev:[a-z0-9:_-]{3,76}$"
+            },
+            "minItems": 1,
+            "maxItems": 6
+          }
+        },
+        "required": [
+          "recommendationId",
+          "title",
+          "rationale",
+          "actions",
+          "cadence",
+          "durationWeeks",
+          "evidenceRefs"
+        ],
+        "additionalProperties": false
+      },
+      "maxItems": 8
+    },
+    "unmeasuredAreas": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "competencyId": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9:_-]{2,79}$"
+          },
+          "title": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 120
+          }
+        },
+        "required": [
+          "competencyId",
+          "title"
+        ],
+        "additionalProperties": false
+      },
+      "maxItems": 12
+    },
+    "cautionNotes": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 2,
+        "maxLength": 300
+      },
+      "maxItems": 8
+    },
+    "closingMessage": {
+      "type": "string",
+      "const": "Synthèse générée avec assistance IA et revue par l’équipe pédagogique Nexus Réussite."
+    },
+    "scoreEcho": {
+      "type": "object",
+      "properties": {
+        "points": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "maxPoints": {
+          "type": "integer",
+          "exclusiveMinimum": 0
+        },
+        "percentage": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "calibrationStatus": {
+          "type": "string",
+          "const": "FINAL"
+        }
+      },
+      "required": [
+        "points",
+        "maxPoints",
+        "percentage",
+        "calibrationStatus"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "audience",
+    "title",
+    "summary",
+    "strengths",
+    "priorities",
+    "actionPlan",
+    "unmeasuredAreas",
+    "cautionNotes",
+    "closingMessage",
+    "scoreEcho"
+  ],
+  "additionalProperties": false
+}

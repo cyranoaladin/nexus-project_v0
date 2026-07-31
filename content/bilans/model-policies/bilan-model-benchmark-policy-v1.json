@@ -1,0 +1,32 @@
+{
+  "id": "bilan-model-benchmark-policy",
+  "version": "1",
+  "models": [
+    {
+      "id": "openai/gpt-5.6-luna",
+      "outputTokenParameter": "max_completion_tokens"
+    },
+    {
+      "id": "openai/gpt-5.6-terra",
+      "outputTokenParameter": "max_completion_tokens"
+    },
+    {
+      "id": "anthropic/claude-sonnet-5",
+      "outputTokenParameter": "max_tokens"
+    }
+  ],
+  "reasoning": {
+    "effort": "low",
+    "excludeFromResponse": true
+  },
+  "providerPolicy": {
+    "requireParameters": true,
+    "dataCollection": "deny",
+    "zdr": true
+  },
+  "maxOutputTokens": 2048,
+  "retryCount": 0,
+  "hardStopMicrosUsd": 1500000,
+  "warningMicrosUsd": 1000000,
+  "responseCaching": false
+}
