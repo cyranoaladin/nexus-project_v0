@@ -116,6 +116,12 @@ describe('OpenRouter provider resilience classification', () => {
       ],
     })).toThrow();
     expect(() => buildProviderResilienceMatrix({
+      data: [
+        ...CATALOG.data,
+        { model_id: 'unrelated/model', tag: '../ignored' },
+      ],
+    })).not.toThrow();
+    expect(() => buildProviderResilienceMatrix({
       data: [{
         ...CATALOG.data[0],
         tag: '../private',

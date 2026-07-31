@@ -19,7 +19,7 @@ const EndpointSchema = z.object({
   ).max(100),
 }).passthrough();
 const ZdrEndpointCatalogSchema = z.object({
-  data: z.array(EndpointSchema).max(10_000),
+  data: z.array(z.unknown()).max(10_000),
 }).passthrough();
 
 type ApprovedModel = keyof typeof BILAN_TRANSPORT_POLICY.outputTokenParameters;
@@ -64,14 +64,19 @@ function isCompatibleEndpoint(
 function compatibleEndpoints(catalog: unknown) {
   const parsed = ZdrEndpointCatalogSchema.parse(catalog);
   const seen = new Set<string>();
-  const values = parsed.data.flatMap((endpoint) => {
-    const model = modelForEndpoint(endpoint.model_id);
+  const values = parsed.data.flatMap((rawEndpoint) => {
     if (
-      model === null
-      || !isCompatibleEndpoint(model, endpoint.supported_parameters)
+      rawEndpoint === null
+      || typeof rawEndpoint !== 'object'
+      || !('model_id' in rawEndpoint)
+      || typeof rawEndpoint.model_id !== 'string'
     ) {
       return [];
     }
+    const model = modelForEndpoint(rawEndpoint.model_id);
+    if (model === null) return [];
+    const endpoint = EndpointSchema.parse(rawEndpoint);
+    if (!isCompatibleEndpoint(model, endpoint.supported_parameters)) return [];
     const key = `${model}\0${endpoint.tag}`;
     if (seen.has(key)) {
       throw new Error('Duplicate OpenRouter endpoint provider tag.');
