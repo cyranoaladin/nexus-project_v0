@@ -1,0 +1,224 @@
+{
+  "schemaVersion": "1.0.0",
+  "status": "ACTIVE",
+  "purpose": "Document scanner false positives for upstream brace-expansion security backports without bypassing or disabling security checks.",
+  "activation": {
+    "wiredIntoCi": true,
+    "validator": "scripts/security/validate-brace-expansion-attestation.mjs",
+    "approvalRequired": true,
+    "approvalReference": "Repository owner authorization dated 2026-07-31"
+  },
+  "advisory": {
+    "id": "GHSA-mh99-v99m-4gvg",
+    "cve": "CVE-2026-14257",
+    "scannerAffectedRange": "<=5.0.7",
+    "scannerFirstPatchedVersion": "5.0.8",
+    "scannerMetadataModifiedAt": "2026-07-25T21:44:41.250545099Z",
+    "scannerMetadataSource": {
+      "provider": "OSV API",
+      "url": "https://api.osv.dev/v1/vulns/GHSA-mh99-v99m-4gvg",
+      "field": "modified",
+      "observedValue": "2026-07-25T21:44:41.250545099Z",
+      "observedOn": "2026-07-31"
+    }
+  },
+  "lockfileEvidence": {
+    "path": "package-lock.json",
+    "algorithm": "SHA-256",
+    "digest": "d564ba46dd688c40765e41980be03d15687f1ddfc6d092f77ece72e29146f4dc",
+    "verification": {
+      "command": "npm ci",
+      "verifiedOn": "2026-07-31",
+      "digestBeforeInstall": "d564ba46dd688c40765e41980be03d15687f1ddfc6d092f77ece72e29146f4dc",
+      "digestAfterInstall": "d564ba46dd688c40765e41980be03d15687f1ddfc6d092f77ece72e29146f4dc",
+      "unchanged": true
+    }
+  },
+  "backportedPackages": [
+    {
+      "name": "brace-expansion",
+      "installedVersion": "1.1.18",
+      "minimumBackportedVersion": "1.1.17",
+      "lockfilePath": "node_modules/brace-expansion",
+      "integrity": "sha512-Edep/X9fGqVNmzKBVsDYIOtD+z1tuezV70LBjdCst9Tqu76lsnvRiZ6oTic1n+/BIwX6QDGAO94PN4N2SADvtw==",
+      "dependencyPath": "eslint@8.57.1 > minimatch@3.1.5 > brace-expansion@1.1.18",
+      "developmentOnly": true,
+      "upstreamFixCommits": [
+        {
+          "commit": "cb4b9e47cc2ec777c14b2b4492fb431a56f6a031",
+          "purpose": "Initial 1.x backport of GHSA-mh99-v99m-4gvg"
+        },
+        {
+          "commit": "27fbeed22b4fdf2c5f732f66bcf84d43f4a26c6e",
+          "purpose": "Additional v1 accumulator and sequence bounds present in the 1.1.18 tarball"
+        }
+      ],
+      "upstreamEvidence": [
+        "https://github.com/juliangruber/brace-expansion/compare/v1.1.16...v1.1.17",
+        "https://github.com/juliangruber/brace-expansion/compare/v1.1.17...v1"
+      ],
+      "sourceVerification": {
+        "sourceRef": "refs/heads/v1",
+        "sourceCommit": "27fbeed22b4fdf2c5f732f66bcf84d43f4a26c6e",
+        "sourcePath": "index.js",
+        "installedPath": "node_modules/brace-expansion/index.js",
+        "algorithm": "SHA-256",
+        "upstreamSourceDigest": "1bb0239fdd42bc5c9778007575ecb2cbf23daa4512a82866f4c997dbd82345ef",
+        "npmTarballSourceDigest": "1bb0239fdd42bc5c9778007575ecb2cbf23daa4512a82866f4c997dbd82345ef",
+        "installedSourceDigest": "1bb0239fdd42bc5c9778007575ecb2cbf23daa4512a82866f4c997dbd82345ef",
+        "result": "BYTE_FOR_BYTE_IDENTICAL"
+      }
+    },
+    {
+      "name": "brace-expansion",
+      "installedVersion": "2.1.4",
+      "minimumBackportedVersion": "2.1.3",
+      "lockfilePath": "node_modules/cacache/node_modules/brace-expansion",
+      "integrity": "sha512-hGfVzPxthbf3+2yjg/RBs60cB0FhqBS/zvdV/4wn4/BmN0bNMMHPc4V/BbFieqf1TKAGGAHnY4eSjajCl0f2Xg==",
+      "dependencyPath": "@cyclonedx/cyclonedx-npm@6.0.0 > libxmljs2@0.37.0 > node-gyp@11.5.0 > make-fetch-happen@14.0.3 > cacache@19.0.1 > glob@10.5.0 > minimatch@9.0.9 > brace-expansion@2.1.4",
+      "developmentOnly": true,
+      "upstreamFixCommits": [
+        {
+          "commit": "d13ff455a58b0d56704f0111e3c2a0b16ceb06eb",
+          "purpose": "Initial 2.x backport of GHSA-mh99-v99m-4gvg"
+        },
+        {
+          "commit": "1e30c930238d7162802d88a94189182def178dac",
+          "purpose": "Additional 2.x sequence and intermediate-value bounds released in 2.1.4"
+        }
+      ],
+      "upstreamEvidence": [
+        "https://github.com/juliangruber/brace-expansion/compare/v2.1.2...v2.1.3",
+        "https://github.com/juliangruber/brace-expansion/compare/v2.1.3...v2.1.4"
+      ],
+      "sourceVerification": {
+        "sourceRef": "refs/tags/v2.1.4",
+        "sourceCommit": "b25213dff0446d622f97d736420b9830ee1abc32",
+        "sourcePath": "index.js",
+        "installedPath": "node_modules/cacache/node_modules/brace-expansion/index.js",
+        "algorithm": "SHA-256",
+        "upstreamSourceDigest": "b95a8e5575f0214261cd4e4b79028a9dd7c9814ea22671b6266d76de262da6b2",
+        "npmTarballSourceDigest": "b95a8e5575f0214261cd4e4b79028a9dd7c9814ea22671b6266d76de262da6b2",
+        "installedSourceDigest": "b95a8e5575f0214261cd4e4b79028a9dd7c9814ea22671b6266d76de262da6b2",
+        "result": "BYTE_FOR_BYTE_IDENTICAL"
+      }
+    }
+  ],
+  "scannerRecognizedPackages": [
+    {
+      "name": "brace-expansion",
+      "installedVersion": "5.0.9",
+      "minimumPatchedVersion": "5.0.8",
+      "lockfilePath": "node_modules/@typescript-eslint/typescript-estree/node_modules/brace-expansion",
+      "integrity": "sha512-ScQ4IuvIEF1TMlP7Zt+vjJ//9zlPb2SDcxWxM3bk8s6t6GGdJ7KO1dCcTidOPJKePW30LE/2cT7wCyPho9/Wxg==",
+      "dependencyPath": "eslint-config-next@15.5.20 > @typescript-eslint/parser@8.65.0 > @typescript-eslint/typescript-estree@8.65.0 > minimatch@10.2.5 > brace-expansion@5.0.9",
+      "developmentOnly": true,
+      "upstreamFixCommits": [
+        {
+          "commit": "a1bd33999ea75262c4749fff3bbb0d1372bd07b5",
+          "purpose": "Primary GHSA-mh99-v99m-4gvg fix released in 5.0.8"
+        },
+        {
+          "commit": "688a99eeaab02627c2b89ba8ba4821fecfa659cf",
+          "purpose": "Additional accumulator and sequence hardening included before 5.0.9"
+        }
+      ],
+      "upstreamEvidence": [
+        "https://github.com/juliangruber/brace-expansion/compare/v5.0.7...v5.0.8",
+        "https://github.com/juliangruber/brace-expansion/compare/v5.0.8...v5.0.9"
+      ],
+      "sourceVerification": {
+        "registryGitHead": "fbcf8ec75b88c79374b4aac06559b1a5288a1223",
+        "sourceRef": "refs/tags/v5.0.9",
+        "sourceCommit": "fbcf8ec75b88c79374b4aac06559b1a5288a1223",
+        "installedEntrypointPath": "node_modules/@typescript-eslint/typescript-estree/node_modules/brace-expansion/dist/commonjs/index.js",
+        "algorithm": "SHA-256",
+        "npmTarballEntrypointDigest": "8d1ea713e1dd03f52783bbceea9d85815a3587134d1936ea16257dea83884f15",
+        "installedEntrypointDigest": "8d1ea713e1dd03f52783bbceea9d85815a3587134d1936ea16257dea83884f15",
+        "result": "NPM_TARBALL_ENTRYPOINT_IDENTICAL_AND_REGISTRY_GITHEAD_MATCHES_RELEASE_COMMIT"
+      }
+    }
+  ],
+  "runtimeGraphEvidence": {
+    "schema": "nexus-runtime-component-set-recursive/v1",
+    "digestAlgorithm": "SHA-256",
+    "digest": "a8922893f9ae6cb5573a4ccbcc8caf5355085d94a48f2bff7567e4710d0f24a5",
+    "componentCount": 550,
+    "canonicalization": {
+      "traversal": "components and nested components recursively",
+      "identity": "NFC(group/name or name, version), stripping one leading v only before a numeric version",
+      "deduplication": "unique normalized name/version pairs",
+      "ordering": "binary name then binary version",
+      "serialization": "compact UTF-8 JSON followed by one LF",
+      "excludedFields": [
+        "integrity",
+        "purl",
+        "annotations",
+        "timestamps",
+        "scopes",
+        "paths",
+        "comments"
+      ]
+    },
+    "braceExpansionComponentCount": 0,
+    "standaloneFilePresence": 0,
+    "standaloneContentReferences": 0
+  },
+  "runtimeSbomAuditEvidence": {
+    "generator": "node scripts/generate-runtime-sbom.js --output /tmp/nexus-security-deps-runtime.cdx.json",
+    "format": "CycloneDX 1.6",
+    "componentCount": 523,
+    "algorithm": "SHA-256",
+    "digest": "e9c1d83e7dff28cebe9e4b4f787c94dd15273bac1882e65a6bb9d12ce977d951",
+    "regeneratedOn": "2026-07-31",
+    "blocking": false,
+    "note": "Raw CycloneDX digest retained for audit only; validation binds to runtimeGraphEvidence."
+  },
+  "scannerEvidence": {
+    "osvScannerVersion": "1.9.0",
+    "osvScannerBinarySha256": "d9c1deedc23372a25049458e1e2f2bb9ad4098e2e2038118b9fec42f28f93ffb",
+    "commands": [
+      "npm audit --audit-level=high",
+      "./osv-scanner --lockfile=package-lock.json --format=json"
+    ],
+    "allowedResidualAdvisories": [
+      {
+        "id": "GHSA-mh99-v99m-4gvg",
+        "aliases": [
+          "CVE-2026-14257"
+        ],
+        "package": "brace-expansion",
+        "osvReportedVersions": [
+          "1.1.18",
+          "2.1.4"
+        ]
+      }
+    ],
+    "remainingPackages": [
+      "brace-expansion@1.1.18",
+      "brace-expansion@2.1.4"
+    ],
+    "npmAuditHighImpactCount": 36,
+    "mathliveFindings": 0,
+    "unexpectedAdvisoriesAllowed": false
+  },
+  "validity": {
+    "createdOn": "2026-07-31",
+    "expiresOn": "2026-08-14",
+    "revocationConditions": [
+      "LOCKFILE_DIGEST_CHANGED",
+      "PACKAGE_VERSION_CHANGED",
+      "PACKAGE_INTEGRITY_CHANGED",
+      "DEPENDENCY_PATH_CHANGED",
+    "RUNTIME_GRAPH_DIGEST_CHANGED",
+      "RUNTIME_EXPOSURE_DETECTED",
+      "ADDITIONAL_ADVISORY_DETECTED",
+      "UPSTREAM_BACKPORT_RETRACTED",
+      "UPSTREAM_SOURCE_DIGEST_CHANGED",
+      "SCANNER_FINDING_SET_CHANGED",
+      "SCANNER_METADATA_SOURCE_CHANGED",
+      "SCANNER_METADATA_CORRECTED",
+      "EXPIRY_REACHED"
+    ]
+  }
+}
