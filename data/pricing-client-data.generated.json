@@ -163,11 +163,11 @@
     },
     {
       "id": "1re-libre-accomp",
-      "price_annual": 4900,
+      "price_annual": 3200,
       "deposit": 250,
       "n_installments": 10,
-      "installment_amount": 465,
-      "last_installment": 465
+      "installment_amount": 295,
+      "last_installment": 295
     },
     {
       "id": "term-libre-online",
@@ -179,19 +179,19 @@
     },
     {
       "id": "term-libre-mixte",
-      "price_annual": 7900,
+      "price_annual": 3400,
       "deposit": 250,
       "n_installments": 10,
-      "installment_amount": 765,
-      "last_installment": 765
+      "installment_amount": 315,
+      "last_installment": 315
     },
     {
       "id": "term-libre-premium",
-      "price_annual": 9900,
+      "price_annual": 4900,
       "deposit": 250,
       "n_installments": 10,
-      "installment_amount": 965,
-      "last_installment": 965
+      "installment_amount": 465,
+      "last_installment": 465
     },
     {
       "id": "plateforme-autonomie",

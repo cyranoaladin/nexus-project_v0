@@ -284,6 +284,22 @@ export interface OperationalSpecialPack {
   features: string[];
 }
 
+export interface CustomQuoteLibre {
+  enabled: boolean;
+  title: string;
+  description: string;
+  reservation: number;
+  installments_default: number;
+  /** Rentability floor (TND/élève/h) — no bespoke quote may be composed below this. */
+  min_price_per_student_hour: number;
+  cta: {
+    bilan_label: string;
+    bilan_href: string;
+    whatsapp_label: string;
+  };
+  includes: string[];
+}
+
 export interface PricingData {
   version: string;
   _note?: string;
@@ -308,6 +324,7 @@ export interface PricingData {
   operational_credit_costs: Record<string, number>;
   carte_nexus: CarteNexus;
   urgence: Record<string, { title: string; display: string; hourly?: number; amount?: number }>;
+  custom_quote_libre: CustomQuoteLibre;
   reperes_tarifaires: {
     brevetMois: string;
     secondeMois: string;
@@ -517,6 +534,10 @@ export function getCarte(): CarteNexus {
 
 export function getUrgence(): PricingData['urgence'] {
   return data.urgence;
+}
+
+export function getCustomQuoteLibre(): CustomQuoteLibre {
+  return data.custom_quote_libre;
 }
 
 export function getReperes(): PricingData['reperes_tarifaires'] {

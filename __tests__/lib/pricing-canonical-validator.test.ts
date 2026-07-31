@@ -430,11 +430,14 @@ describe('Price floors per offer type', () => {
     }
   });
 
-  test('multi-subject offers ≥ rules.price_floor_per_student_hour_tnd.multi, except named commercial exceptions', () => {
-    // Multi = 2+ subjects or method combos (excludes college and single-subject)
+  test('multi-subject offers (scolarisé or libre) ≥ rules.price_floor_per_student_hour_tnd.multi, except named commercial exceptions', () => {
+    // Multi = every offer with a real price/hour that isn't college (troisieme) or
+    // single-subject. Not restricted to track==='scolarise': a libre offer that
+    // exposes a real price_per_student_hour must clear the same bar (or carry
+    // the same named exception) — no track-based loophole.
     const singleSubjectIds = new Set(['term-spe-simple', '1re-eaf', '1re-maths-antic']);
     for (const offer of data.offers) {
-      if (offer.price_per_student_hour != null && offer.track === 'scolarise' && offer.level !== 'troisieme' && !singleSubjectIds.has(offer.id)) {
+      if (offer.price_per_student_hour != null && offer.level !== 'troisieme' && !singleSubjectIds.has(offer.id)) {
         if (isApprovedException(offer)) {
           expect(offer.commercial_exception!.justification.length).toBeGreaterThan(0);
           continue;
@@ -461,7 +464,35 @@ describe('Price floors per offer type', () => {
       .filter((o) => isApprovedException(o))
       .map((o) => o.id)
       .sort();
-    expect(exceptionOfferIds).toEqual(['2nde-sciences', 'brevet-complet']);
+    expect(exceptionOfferIds).toEqual(['2nde-sciences', 'brevet-complet', 'term-libre-mixte'].sort());
+  });
+
+  test('every commercial_exception offer documents a real (non-null) price_per_student_hour', () => {
+    // The exception mechanism exists to make a below-floor price EXPLICIT.
+    // An exception hiding behind a null price/hour would defeat its own purpose.
+    for (const offer of data.offers) {
+      if (isApprovedException(offer)) {
+        expect(offer.price_per_student_hour).not.toBeNull();
+      }
+    }
+  });
+});
+
+// ── T18: No hiding a floor violation behind a null price_per_student_hour ──
+
+describe('T18 — an offer with a price and hours must expose a real price_per_student_hour', () => {
+  test('every offer with both price_annual and hours_per_year has a non-null price_per_student_hour', () => {
+    // price_per_student_hour must never be left null just to dodge the floor
+    // check above — an offer that can be priced per hour (it has both
+    // price_annual and hours_per_year) MUST publish that figure. If it falls
+    // below its floor, the only sanctioned path is a named, APPROVED
+    // commercial_exception (see "Price floors per offer type" above) — never
+    // a silent null.
+    for (const offer of data.offers) {
+      if (offer.price_annual != null && offer.hours_per_year != null) {
+        expect(offer.price_per_student_hour).not.toBeNull();
+      }
+    }
   });
 });
 
@@ -541,5 +572,92 @@ describe('T15 — getNextStage auto-advances by date', () => {
   test('after all stages → returns null', () => {
     const result = getNextStage(new Date('2028-01-01'));
     expect(result).toBeNull();
+  });
+});
+
+// ── T16: Candidat Libre — grille C repricing ──
+
+describe('T16 — Candidat Libre offers repriced on the grille C schedule', () => {
+  const repricedLibre = [
+    { id: '1re-libre-accomp', price_annual: 3200 },
+    { id: 'term-libre-mixte', price_annual: 3400 },
+    { id: 'term-libre-premium', price_annual: 4900 },
+  ];
+
+  test.each(repricedLibre)('$id has price_annual = $price_annual', ({ id, price_annual }) => {
+    const offer = data.offers.find((o) => o.id === id);
+    expect(offer).toBeDefined();
+    expect(offer!.price_annual).toBe(price_annual);
+  });
+
+  test.each(repricedLibre)('$id échéancier matches computeAnnualSchedule(price_annual)', ({ id }) => {
+    const offer = data.offers.find((o) => o.id === id)!;
+    const schedule = computeAnnualSchedule(offer.price_annual!);
+    expect(offer.deposit).toBe(schedule.deposit);
+    expect(offer.deposit).toBe(250);
+    expect(offer.n_installments).toBe(10);
+    expect(offer.installment_amount).toBe(schedule.installments[0]);
+    expect(offer.last_installment).toBe(schedule.lastInstallment);
+  });
+
+  test.each(repricedLibre)('$id keeps the Cellule Candidat Libre first in its included table', ({ id }) => {
+    const offer = data.offers.find((o) => o.id === id)!;
+    expect(offer.included[0]).toContain('Cellule Candidat Libre');
+  });
+
+  test('untouched libre offers (online, hors surface publique) keep their prior price_annual', () => {
+    const untouched = [
+      { id: '1re-libre-essentiel', price_annual: 1900 },
+      { id: 'term-libre-online', price_annual: 2900 },
+    ];
+    for (const { id, price_annual } of untouched) {
+      const offer = data.offers.find((o) => o.id === id);
+      expect(offer).toBeDefined();
+      expect(offer!.price_annual).toBe(price_annual);
+    }
+  });
+
+  test('term-libre-mixte documents a real price_per_student_hour (90 h/an) with a named, APPROVED floor exception', () => {
+    const offer = data.offers.find((o) => o.id === 'term-libre-mixte')!;
+    expect(offer.hours_per_year).toBe(90);
+    expect(offer.hours_per_week).toBe(3);
+    expect(offer.price_per_student_hour).toBe(38);
+    expect(offer.equiv_per_2h_session).toBe(76);
+    expect(offer.commercial_exception).toMatchObject({
+      status: 'APPROVED',
+      approved_by_role: 'DIRECTION_NEXUS_REUSSITE',
+    });
+    expect(offer.commercial_exception!.justification.length).toBeGreaterThan(0);
+  });
+});
+
+// ── T17: Devis sur mesure Candidat Libre ──
+
+describe('T17 — custom_quote_libre bounded by the single-subject floor', () => {
+  test('is enabled and reuses the flat annual schedule (250 + 10 mensualités)', () => {
+    const quote = data.custom_quote_libre;
+    expect(quote.enabled).toBe(true);
+    expect(quote.reservation).toBe(data.rules.payment.reservation_flat_tnd);
+    expect(quote.installments_default).toBe(10);
+  });
+
+  test('min_price_per_student_hour never sits below rules.price_floor_per_student_hour_tnd.single', () => {
+    expect(data.custom_quote_libre.min_price_per_student_hour).toBeGreaterThanOrEqual(
+      data.rules.price_floor_per_student_hour_tnd.single,
+    );
+  });
+
+  test('documents the Cellule Candidat Libre and the CTA pair (bilan gratuit + WhatsApp)', () => {
+    const quote = data.custom_quote_libre;
+    expect(quote.includes.join(' ')).toContain('Cellule Candidat Libre');
+    expect(quote.cta.bilan_href).toBe('/bilan-gratuit');
+    expect(quote.cta.bilan_label.length).toBeGreaterThan(0);
+    expect(quote.cta.whatsapp_label.length).toBeGreaterThan(0);
+  });
+
+  test('no offer/plan-style price field leaks onto the bespoke quote (no fixed price shown)', () => {
+    const quote = data.custom_quote_libre as unknown as Record<string, unknown>;
+    expect(quote.price_annual).toBeUndefined();
+    expect(quote.price).toBeUndefined();
   });
 });

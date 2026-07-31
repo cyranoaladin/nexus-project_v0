@@ -12,6 +12,7 @@ describe('Offres server component guard', () => {
     'components/premium/ExamCard.tsx',
     'components/premium/PassCard.tsx',
     'components/premium/CarteNexusCard.tsx',
+    'components/offres/CustomQuoteLibre.tsx',
   ];
 
   for (const filePath of SERVER_FILES) {

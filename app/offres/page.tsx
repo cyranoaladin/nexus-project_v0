@@ -25,8 +25,10 @@ import {
   getStageEdition,
   getPonctuelOffer,
   getCoachingOffer,
+  getCustomQuoteLibre,
   type Pack,
 } from '@/lib/pricing';
+import { CustomQuoteLibre } from '@/components/offres/CustomQuoteLibre';
 import {
   ReassuranceChips,
   TransparencyBanner,
@@ -131,6 +133,7 @@ function NavyBand({
 export default function OffresPage() {
   const rules = getRules();
   const libreOffers = getOffersByTrack('libre');
+  const customQuoteLibre = getCustomQuoteLibre();
   const platformOffers = getOffersByTrack('plateforme');
   const stageFormats = getStageFormats();
   const stageEditions = getStageEditions();
@@ -301,6 +304,9 @@ export default function OffresPage() {
                 </div>
               );
             })}
+          </div>
+          <div className="mt-6 max-w-md">
+            <CustomQuoteLibre quote={customQuoteLibre} />
           </div>
         </div>
       </section>
