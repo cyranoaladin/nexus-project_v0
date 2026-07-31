@@ -46,8 +46,7 @@ export function CarteNexusCard({ carte, onCta, ctaHref, ctaText = 'Prendre la Ca
       </ul>
 
       <p className="mb-4 text-xs text-lux-on-dark-subtle">
-        Remise −{carte.discount_pct}% sur stages & coaching unitaires (hors Pass).
-        Non cumulable. Plancher {fmtTND(carte.member_floor_per_student_hour)}/h.
+        Avantages en nature, non cumulables avec une autre offre.
       </p>
 
       {ctaHref ? (

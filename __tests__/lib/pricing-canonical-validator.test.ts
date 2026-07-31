@@ -271,30 +271,42 @@ describe('T7 — Échéancier coherence', () => {
 
 // ── T8: Carte not stackable on packs ──
 
-describe('T8 — Carte discount not applied to packs', () => {
-  test('carte_nexus.discount_excludes contains "packs"', () => {
-    expect(data.carte_nexus.discount_excludes).toContain('packs');
-  });
-
+describe('T8 — Carte Nexus benefits are non-cumulable', () => {
   test('carte_nexus.non_cumulable is true', () => {
     expect(data.carte_nexus.non_cumulable).toBe(true);
   });
 });
 
-// ── T9: Carte member floor ──
+// ── T20: Carte Nexus — in-kind benefits card, not a monetary discount ──
+// The former -10% discount mechanism (member_floor_per_student_hour,
+// discount_applies_to, discount_excludes) is retired under grille C. The
+// card is now a bundle of in-kind advantages (ARIA Autonomie, diagnostic,
+// épreuve blanche, réservation prioritaire) at a flat price.
 
-describe('T9 — Carte member floor ≥ 40 TND/h', () => {
-  test('member_floor_per_student_hour = 40', () => {
-    expect(data.carte_nexus.member_floor_per_student_hour).toBe(40);
+describe('T20 — Carte Nexus is an in-kind benefits card, not a discount', () => {
+  test('discount_pct = 0 (no monetary discount)', () => {
+    expect(getCarte().discount_pct).toBe(0);
   });
 
-  test('applying 10% discount to every stage still respects 40 TND/h floor', () => {
-    const carte = getCarte();
-    for (const fmt of data.stage_formats) {
-      const discounted = fmt.price_per_student * (1 - carte.discount_pct / 100);
-      const discountedPerHour = discounted / fmt.hours;
-      expect(discountedPerHour).toBeGreaterThanOrEqual(carte.member_floor_per_student_hour);
+  test('price_annual = 390', () => {
+    expect(getCarte().price_annual).toBe(390);
+  });
+
+  test('includes is non-empty and expresses no percentage or deducted-TND benefit', () => {
+    const { includes } = getCarte();
+    expect(includes.length).toBeGreaterThan(0);
+    for (const item of includes) {
+      expect(item).not.toMatch(/%/);
+      expect(item.toLowerCase()).not.toMatch(/remise|réduction|rabais/);
+      expect(item).not.toMatch(/-\s*\d+\s*TND/i);
     }
+  });
+
+  test('the retired discount-mechanism fields no longer exist on carte_nexus', () => {
+    const carte = data.carte_nexus as unknown as Record<string, unknown>;
+    expect(carte.discount_applies_to).toBeUndefined();
+    expect(carte.discount_excludes).toBeUndefined();
+    expect(carte.member_floor_per_student_hour).toBeUndefined();
   });
 });
 
@@ -323,13 +335,17 @@ describe('T10 — JSON completeness (anti-hardcode enabler)', () => {
     expect(data.packs).toHaveLength(6);
   });
 
-  test('carte_nexus exists with price 290', () => {
-    expect(data.carte_nexus.price_annual).toBe(290);
+  test('carte_nexus exists with price 390', () => {
+    expect(data.carte_nexus.price_annual).toBe(390);
   });
 
-  test('carte_nexus documents the assumed loss-leader rationale', () => {
-    expect(data.carte_nexus.rationale).toMatch(/loss-leader/i);
+  test('carte_nexus documents the in-kind benefits rationale (no discount framing)', () => {
+    // "aucune remise" (negating a discount) is fine; a percentage or
+    // "loss-leader" framing would signal the retired discount mechanism.
     expect(data.carte_nexus.rationale).toMatch(/ARIA Autonomie/i);
+    expect(data.carte_nexus.rationale).toMatch(/avantages en nature/i);
+    expect(data.carte_nexus.rationale).not.toMatch(/%/);
+    expect(data.carte_nexus.rationale.toLowerCase()).not.toMatch(/loss-leader/);
   });
 });
 

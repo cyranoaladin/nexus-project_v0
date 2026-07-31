@@ -1749,25 +1749,17 @@
   "carte_nexus": {
     "id": "carte-nexus",
     "title": "Carte Nexus",
-    "price_annual": 290,
+    "price_annual": 390,
     "includes": [
-      "ARIA Autonomie",
-      "Remise -10% sur stages unitaires & coaching (hors Pass)",
-      "Réservation prioritaire",
-      "1 Diagnostic Stratégique offert"
+      "ARIA Autonomie inclus (valeur 590 TND)",
+      "1 Diagnostic Stratégique offert (100 TND)",
+      "Réservation prioritaire dans les groupes",
+      "1 épreuve blanche offerte / an (150 TND)",
+      "1 mois ARIA supplémentaire (avantage membre)"
     ],
-    "rationale": "Loss-leader assumé par décision Shark : la Carte Nexus reste à 290 TND/an même si elle inclut ARIA Autonomie vendue plus cher en standalone. Aucun changement de prix sans nouvelle décision produit.",
-    "discount_pct": 10,
-    "discount_applies_to": [
-      "stage_formats",
-      "ponctuel_offers",
-      "coaching"
-    ],
-    "discount_excludes": [
-      "packs"
-    ],
-    "non_cumulable": true,
-    "member_floor_per_student_hour": 40
+    "rationale": "Carte d'accès et d'avantages en nature (grille C) : la Carte Nexus donne accès à des prestations offertes (ARIA Autonomie, diagnostic, épreuve blanche, réservation prioritaire) pour une valeur cumulée bien supérieure à son prix — aucune remise en dinars sur les autres prestations. Aucun changement de prix sans nouvelle décision produit.",
+    "discount_pct": 0,
+    "non_cumulable": true
   },
   "urgence": {
     "membre_heure": {

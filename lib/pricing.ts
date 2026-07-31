@@ -163,6 +163,10 @@ export interface Pack {
   payment: { deposit: number; solde_schedule: number[] };
 }
 
+/**
+ * Carte d'accès et d'avantages en nature (grille C) — no monetary discount
+ * mechanism: discount_pct stays at 0, `includes` lists in-kind benefits only.
+ */
 export interface CarteNexus {
   id: string;
   title: string;
@@ -170,10 +174,7 @@ export interface CarteNexus {
   includes: string[];
   rationale: string;
   discount_pct: number;
-  discount_applies_to: string[];
-  discount_excludes: string[];
   non_cumulable: boolean;
-  member_floor_per_student_hour: number;
 }
 
 export interface StageCalendarEntry {
@@ -649,17 +650,6 @@ export function resolvePackValue(pack: Pack): number {
 /** Get the effective price for an annual offer */
 export function getEffectivePrice(offer: AnnualOffer): number | null {
   return offer.price_annual;
-}
-
-/** Apply Carte Nexus discount to a unit (stage/ponctuel/coaching) price */
-export function applyCarteDiscount(unitPrice: number, hours: number | null): number {
-  const carte = data.carte_nexus;
-  const discounted = Math.round(unitPrice * (1 - carte.discount_pct / 100));
-  if (hours != null && hours > 0) {
-    const minPrice = carte.member_floor_per_student_hour * hours;
-    return Math.max(discounted, minPrice);
-  }
-  return discounted;
 }
 
 // ── Special programs ──
