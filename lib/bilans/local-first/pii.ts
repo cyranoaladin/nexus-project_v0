@@ -89,6 +89,7 @@ export type PiiScanResult = z.infer<typeof PiiScanResultSchema>;
 
 export type PiiFieldSource =
   | 'CONTROLLED_TEMPLATE'
+  | 'LLM_GENERATED_TEXT'
   | 'UNCLASSIFIED_FREE_TEXT';
 
 export type PiiFieldInput = Readonly<{

@@ -93,7 +93,7 @@ describe('synthetic benchmark runner', () => {
       Object.values(automaticValidation).every(Boolean))).toBe(true);
   });
 
-  it('stops immediately on a grounding or PII failure', async () => {
+  it('stops immediately on a deterministic PII security failure', async () => {
     const context = buildLocalFirstReportContext(fixtures, 'PARENT');
     let calls = 0;
     await expect(runSyntheticParentBenchmark({
@@ -126,8 +126,87 @@ describe('synthetic benchmark runner', () => {
           },
         };
       },
-    })).rejects.toThrow('BENCHMARK_CRITICAL_VALIDATION_FAILURE');
+    })).rejects.toThrow('BENCHMARK_SECURITY_CRITICAL');
     expect(calls).toBe(1);
+  });
+
+  it('records a grounding defect as a quality result and continues', async () => {
+    const context = buildLocalFirstReportContext(fixtures, 'PARENT');
+    const models = ['openai/gpt-5.6-luna', 'openai/gpt-5.6-terra'] as const;
+    let calls = 0;
+    const run = await runSyntheticParentBenchmark({
+      contexts: [context],
+      models,
+      hardStopMicrosUsd: 1_500_000,
+      warningMicrosUsd: 1_000_000,
+      complete: async ({ model }) => {
+        calls += 1;
+        return {
+          data: calls === 1
+            ? {
+              ...draftForFixture(),
+              strengths: [{
+                ...draftForFixture().strengths[0],
+                competencyId: 'cmp:unknown',
+              }],
+            }
+            : draftForFixture(),
+          provenance: {
+            requestedModel: model,
+            returnedModel: model,
+            provider: 'fake',
+            generationId: `gen-${calls}`,
+            finishReason: 'stop',
+            promptTokens: 1,
+            completionTokens: 1,
+            reasoningTokens: 0,
+            totalTokens: 2,
+            costMicrosUsd: 5,
+            latencyMs: 1,
+          },
+        };
+      },
+    });
+
+    expect(calls).toBe(2);
+    expect(run.results).toHaveLength(1);
+    expect(run.failures).toEqual([expect.objectContaining({
+      category: 'QUALITY_FAILURE',
+      terminalStatus: 'QUALITY_FAILURE',
+      validationStage: 'GROUNDING',
+      knownCostMicrosUsd: 5,
+    })]);
+    expect(run.totalCostMicrosUsd).toBe(10);
+  });
+
+  it('treats cross-audience fields as a security-critical failure', async () => {
+    const context = buildLocalFirstReportContext(fixtures, 'PARENT');
+    await expect(runSyntheticParentBenchmark({
+      contexts: [context],
+      models: ['openai/gpt-5.6-luna'],
+      hardStopMicrosUsd: 1_500_000,
+      warningMicrosUsd: 1_000_000,
+      complete: async ({ model }) => ({
+        data: {
+          ...draftForFixture(),
+          audience: 'STUDENT',
+          internalNotes: 'should-never-be-here',
+        } as unknown as ParentReportDraft,
+        provenance: {
+          requestedModel: model,
+          returnedModel: model,
+          provider: 'fake',
+          generationId: 'gen-security',
+          finishReason: 'stop',
+          promptTokens: 1,
+          completionTokens: 1,
+          reasoningTokens: 0,
+          totalTokens: 2,
+          costMicrosUsd: 5,
+          latencyMs: 1,
+        },
+      }),
+    })).rejects.toThrow('BENCHMARK_SECURITY_CRITICAL');
   });
 
   it('enforces the actual-cost hard stop', async () => {
@@ -200,7 +279,14 @@ describe('synthetic benchmark runner', () => {
     expect(run.failures).toEqual([{
       fixtureId: 'synthetic-simple-01',
       model: 'openai/gpt-5.6-terra',
+      category: 'TRANSPORT_FAILURE',
+      terminalStatus: 'TRANSPORT_FAILURE_FINAL',
+      validationStage: 'TRANSPORT',
       normalizedErrorCode: 'OPENROUTER_PROVIDER_UNAVAILABLE',
+      retryable: false,
+      responseReceived: false,
+      knownCostMicrosUsd: null,
+      safeAttempt: null,
     }]);
   });
 });

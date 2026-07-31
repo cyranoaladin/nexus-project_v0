@@ -67,6 +67,18 @@ describe('local-first PII contract', () => {
     expect(validatePiiScanResultChecksum(scan.result)).toBe(true);
   });
 
+  it('scans LLM generated text without claiming it is a controlled template', () => {
+    const scan = scanPiiFields([{
+      path: '$.summary',
+      text: 'Les acquis synthétiques sont décrits sans donnée personnelle.',
+      source: 'LLM_GENERATED_TEXT',
+    }]);
+
+    expect(scan.result.status).toBe('CLEAN');
+    expect(scan.result.detectedCategories).toEqual([]);
+    expect(validatePiiScanResultChecksum(scan.result)).toBe(true);
+  });
+
   it.each([
     ['Adresse : 12 avenue Habib Bourguiba', 'POSTAL_ADDRESS'],
     ['@eleve_fictif', 'SOCIAL_HANDLE'],

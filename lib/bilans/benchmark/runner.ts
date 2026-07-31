@@ -8,11 +8,14 @@ import {
   type ParentReport,
   type ParentReportDraft,
 } from './report-contracts';
-import { scanPiiFields } from '../local-first/pii';
+import {
+  scanPiiFields,
+  type PiiScanResult,
+} from '../local-first/pii';
 import type { LocalFirstReportContext } from '../local-first/contracts';
 import { sha256Canonical } from '@/lib/llm/openrouter/hash';
 
-type SafeCompletionProvenance = Readonly<{
+export type SafeCompletionProvenance = Readonly<{
   requestedModel: string;
   returnedModel: string;
   provider: string | null;
@@ -25,6 +28,19 @@ type SafeCompletionProvenance = Readonly<{
   totalTokens: number;
   costMicrosUsd: number;
   latencyMs: number;
+}>;
+
+export type SafeFailureAttempt = Readonly<{
+  provider: string | null;
+  generationId: string | null;
+  returnedModel: string | null;
+  finishReason: string | null;
+  promptTokens: number | null;
+  completionTokens: number | null;
+  reasoningTokens: number | null;
+  totalTokens: number | null;
+  costMicrosUsd: number | null;
+  latencyMs: number | null;
 }>;
 
 export type BenchmarkCompletion = Readonly<{
@@ -52,6 +68,24 @@ export type SyntheticBenchmarkResult = Readonly<{
   report: ParentReport;
   provenance: SafeCompletionProvenance;
   automaticValidation: AutomaticReportValidation;
+  outputPiiDeterministicScan: PiiScanResult;
+  outputPrivacyHumanReview: 'PENDING';
+}>;
+
+export type SyntheticBenchmarkFailure = Readonly<{
+  fixtureId: string;
+  model: string;
+  category: 'SECURITY_CRITICAL' | 'QUALITY_FAILURE' | 'TRANSPORT_FAILURE';
+  terminalStatus:
+    | 'SECURITY_FAILURE'
+    | 'QUALITY_FAILURE'
+    | 'TRANSPORT_FAILURE_FINAL';
+  validationStage: 'TRANSPORT' | 'SCHEMA' | 'GROUNDING' | 'SECURITY';
+  normalizedErrorCode: string;
+  retryable: boolean;
+  responseReceived: boolean;
+  knownCostMicrosUsd: number | null;
+  safeAttempt: SafeFailureAttempt | null;
 }>;
 
 export type SyntheticBenchmarkRun = Readonly<{
@@ -61,12 +95,6 @@ export type SyntheticBenchmarkRun = Readonly<{
   warningReached: boolean;
   results: readonly SyntheticBenchmarkResult[];
   failures: readonly SyntheticBenchmarkFailure[];
-}>;
-
-export type SyntheticBenchmarkFailure = Readonly<{
-  fixtureId: string;
-  model: string;
-  normalizedErrorCode: string;
 }>;
 
 export class BenchmarkCriticalValidationError extends Error {
@@ -81,7 +109,7 @@ export class BenchmarkCriticalValidationError extends Error {
     safeContext: BenchmarkCriticalValidationError['safeContext'],
     options: ErrorOptions = {},
   ) {
-    super(`BENCHMARK_CRITICAL_VALIDATION_FAILURE:${safeContext.validationCode}`, options);
+    super(`BENCHMARK_SECURITY_CRITICAL:${safeContext.validationCode}`, options);
     this.name = 'BenchmarkCriticalValidationError';
     this.safeContext = Object.freeze({ ...safeContext });
   }
@@ -96,84 +124,133 @@ function orderedModels(
   return [...models.slice(offset), ...models.slice(0, offset)];
 }
 
-function narrativeFields(report: ParentReport): Array<{
-  path: string;
-  text: string;
-  source: 'CONTROLLED_TEMPLATE';
-}> {
+function narrativeFields(report: ParentReport) {
   const fields: Array<{
     path: string;
     text: string;
-    source: 'CONTROLLED_TEMPLATE';
+    source: 'LLM_GENERATED_TEXT';
   }> = [
-    { path: '$.title', text: report.title, source: 'CONTROLLED_TEMPLATE' },
-    { path: '$.summary', text: report.summary, source: 'CONTROLLED_TEMPLATE' },
+    { path: '$.title', text: report.title, source: 'LLM_GENERATED_TEXT' },
+    { path: '$.summary', text: report.summary, source: 'LLM_GENERATED_TEXT' },
     {
       path: '$.closingMessage',
       text: report.closingMessage,
-      source: 'CONTROLLED_TEMPLATE',
+      source: 'LLM_GENERATED_TEXT',
     },
   ];
-  report.strengths.forEach((item, index) => {
-    fields.push({
-      path: `$.strengths[${index}].title`,
-      text: item.title,
-      source: 'CONTROLLED_TEMPLATE',
-    }, {
-      path: `$.strengths[${index}].explanation`,
-      text: item.explanation,
-      source: 'CONTROLLED_TEMPLATE',
-    });
-  });
-  report.priorities.forEach((item, index) => {
-    fields.push({
-      path: `$.priorities[${index}].title`,
-      text: item.title,
-      source: 'CONTROLLED_TEMPLATE',
-    }, {
-      path: `$.priorities[${index}].explanation`,
-      text: item.explanation,
-      source: 'CONTROLLED_TEMPLATE',
-    });
-  });
+  report.strengths.forEach((item, index) => fields.push(
+    { path: `$.strengths[${index}].title`, text: item.title, source: 'LLM_GENERATED_TEXT' },
+    { path: `$.strengths[${index}].explanation`, text: item.explanation, source: 'LLM_GENERATED_TEXT' },
+  ));
+  report.priorities.forEach((item, index) => fields.push(
+    { path: `$.priorities[${index}].title`, text: item.title, source: 'LLM_GENERATED_TEXT' },
+    { path: `$.priorities[${index}].explanation`, text: item.explanation, source: 'LLM_GENERATED_TEXT' },
+  ));
   report.actionPlan.forEach((item, index) => {
-    fields.push({
-      path: `$.actionPlan[${index}].title`,
-      text: item.title,
-      source: 'CONTROLLED_TEMPLATE',
-    }, {
-      path: `$.actionPlan[${index}].rationale`,
-      text: item.rationale,
-      source: 'CONTROLLED_TEMPLATE',
-    }, {
-      path: `$.actionPlan[${index}].cadence`,
-      text: item.cadence,
-      source: 'CONTROLLED_TEMPLATE',
-    });
+    fields.push(
+      { path: `$.actionPlan[${index}].title`, text: item.title, source: 'LLM_GENERATED_TEXT' },
+      { path: `$.actionPlan[${index}].rationale`, text: item.rationale, source: 'LLM_GENERATED_TEXT' },
+      { path: `$.actionPlan[${index}].cadence`, text: item.cadence, source: 'LLM_GENERATED_TEXT' },
+    );
     item.actions.forEach((text, actionIndex) => fields.push({
       path: `$.actionPlan[${index}].actions[${actionIndex}]`,
       text,
-      source: 'CONTROLLED_TEMPLATE',
+      source: 'LLM_GENERATED_TEXT',
     }));
   });
   report.unmeasuredAreas.forEach((item, index) => fields.push({
     path: `$.unmeasuredAreas[${index}].title`,
     text: item.title,
-    source: 'CONTROLLED_TEMPLATE',
+    source: 'LLM_GENERATED_TEXT',
   }));
   report.cautionNotes.forEach((text, index) => fields.push({
     path: `$.cautionNotes[${index}]`,
     text,
-    source: 'CONTROLLED_TEMPLATE',
+    source: 'LLM_GENERATED_TEXT',
   }));
   return fields;
 }
 
-function assertNoPii(report: ParentReport): void {
+function assertNoPii(report: ParentReport): PiiScanResult {
   const scan = scanPiiFields(narrativeFields(report));
-  if (scan.result.status !== 'CLEAN') {
-    throw new Error('OUTPUT_PII_DETECTED');
-  }
+  if (scan.result.status !== 'CLEAN') throw new Error('OUTPUT_PII_DETECTED');
+  return scan.result;
+}
+
+function assertNoCrossAudienceOrScore(input: unknown): void {
+  if (input === null || typeof input !== 'object' || Array.isArray(input)) return;
+  const record = input as Record<string, unknown>;
+  if (
+    (typeof record.audience === 'string' && record.audience !== 'PARENT')
+    || 'internal' in record
+    || 'internalNotes' in record
+    || 'llmApprovedInternalNotes' in record
+    || 'score' in record
+    || 'scoreEcho' in record
+  ) throw new Error('CROSS_AUDIENCE_OR_SCORE_TAMPERING');
+}
+
+function safeAttemptFromCaught(caught: unknown): SafeFailureAttempt | null {
+  if (
+    caught === null
+    || typeof caught !== 'object'
+    || !('attempts' in caught)
+    || !Array.isArray(caught.attempts)
+  ) return null;
+  const candidate = caught.attempts.at(-1);
+  if (candidate === null || typeof candidate !== 'object') return null;
+  const record = candidate as Record<string, unknown>;
+  const text = (field: string) => typeof record[field] === 'string'
+    ? record[field] as string
+    : null;
+  const number = (field: string) => typeof record[field] === 'number'
+    && Number.isFinite(record[field])
+    ? record[field] as number
+    : null;
+  return Object.freeze({
+    provider: text('provider'),
+    generationId: text('generationId'),
+    returnedModel: text('returnedModel'),
+    finishReason: text('finishReason'),
+    promptTokens: number('promptTokens'),
+    completionTokens: number('completionTokens'),
+    reasoningTokens: number('reasoningTokens'),
+    totalTokens: number('totalTokens'),
+    costMicrosUsd: number('costMicrosUsd'),
+    latencyMs: number('latencyMs'),
+  });
+}
+
+function qualityFailure(
+  fixtureId: string,
+  model: string,
+  validationStage: 'SCHEMA' | 'GROUNDING',
+  normalizedErrorCode: string,
+  provenance: SafeCompletionProvenance,
+): SyntheticBenchmarkFailure {
+  return Object.freeze({
+    fixtureId,
+    model,
+    category: 'QUALITY_FAILURE',
+    terminalStatus: 'QUALITY_FAILURE',
+    validationStage,
+    normalizedErrorCode,
+    retryable: false,
+    responseReceived: true,
+    knownCostMicrosUsd: provenance.costMicrosUsd,
+    safeAttempt: Object.freeze({
+      provider: provenance.provider,
+      generationId: provenance.generationId,
+      returnedModel: provenance.returnedModel,
+      finishReason: provenance.finishReason,
+      promptTokens: provenance.promptTokens,
+      completionTokens: provenance.completionTokens,
+      reasoningTokens: provenance.reasoningTokens,
+      totalTokens: provenance.totalTokens,
+      costMicrosUsd: provenance.costMicrosUsd,
+      latencyMs: provenance.latencyMs,
+    }),
+  });
 }
 
 export async function runSyntheticParentBenchmark(
@@ -187,14 +264,8 @@ export async function runSyntheticParentBenchmark(
       fixtureId: string;
       payload: ParentLlmPayload;
     }>) => Promise<BenchmarkCompletion>;
-    onResult?: (
-      result: SyntheticBenchmarkResult,
-      attemptNumber: number,
-    ) => void | Promise<void>;
-    onFailure?: (
-      failure: SyntheticBenchmarkFailure,
-      attemptNumber: number,
-    ) => void | Promise<void>;
+    onResult?: (result: SyntheticBenchmarkResult, attemptNumber: number) => void | Promise<void>;
+    onFailure?: (failure: SyntheticBenchmarkFailure, attemptNumber: number) => void | Promise<void>;
   }>,
 ): Promise<SyntheticBenchmarkRun> {
   if (
@@ -203,12 +274,10 @@ export async function runSyntheticParentBenchmark(
     || options.hardStopMicrosUsd <= 0
     || options.warningMicrosUsd <= 0
     || options.warningMicrosUsd > options.hardStopMicrosUsd
-  ) {
-    throw new Error('BENCHMARK_CONFIGURATION_INVALID');
-  }
+  ) throw new Error('BENCHMARK_CONFIGURATION_INVALID');
+
   const results: SyntheticBenchmarkResult[] = [];
   const failures: SyntheticBenchmarkFailure[] = [];
-  const consecutiveFailures = new Map<string, number>();
   let totalCostMicrosUsd = 0;
   for (const context of options.contexts) {
     const payload = buildParentLlmPayload(context);
@@ -227,57 +296,104 @@ export async function runSyntheticParentBenchmark(
           && typeof caught.code === 'string'
           ? caught.code
           : 'BENCHMARK_TRANSPORT_FAILURE';
-        const normalizedErrorCode = /^[A-Z][A-Z0-9_]{2,79}$/.test(
-          candidateCode,
-        )
+        const normalizedErrorCode = /^[A-Z][A-Z0-9_]{2,79}$/.test(candidateCode)
           ? candidateCode
           : 'BENCHMARK_TRANSPORT_FAILURE';
+        const safeAttempt = safeAttemptFromCaught(caught);
         const failure = Object.freeze({
           fixtureId: context.fixtureId,
           model,
+          category: 'TRANSPORT_FAILURE' as const,
+          terminalStatus: 'TRANSPORT_FAILURE_FINAL' as const,
+          validationStage: 'TRANSPORT' as const,
           normalizedErrorCode,
+          retryable: caught !== null
+            && typeof caught === 'object'
+            && 'retryable' in caught
+            && caught.retryable === true,
+          responseReceived: safeAttempt?.generationId !== null
+            && safeAttempt?.generationId !== undefined,
+          knownCostMicrosUsd: safeAttempt?.costMicrosUsd ?? null,
+          safeAttempt,
         });
         failures.push(failure);
-        const attemptNumber = results.length + failures.length;
-        await options.onFailure?.(failure, attemptNumber);
-        const count = (consecutiveFailures.get(model) ?? 0) + 1;
-        consecutiveFailures.set(model, count);
-        if (count >= 3) {
-          throw new Error('BENCHMARK_THREE_CONSECUTIVE_MODEL_FAILURES');
+        totalCostMicrosUsd += failure.knownCostMicrosUsd ?? 0;
+        await options.onFailure?.(failure, results.length + failures.length);
+        if (totalCostMicrosUsd >= options.hardStopMicrosUsd) {
+          throw new Error('BENCHMARK_HARD_STOP_REACHED');
         }
         continue;
       }
-      consecutiveFailures.set(model, 0);
       totalCostMicrosUsd += completion.provenance.costMicrosUsd;
       if (totalCostMicrosUsd >= options.hardStopMicrosUsd) {
         throw new Error('BENCHMARK_HARD_STOP_REACHED');
       }
-      let report: ParentReport;
       try {
-        report = assembleGroundedParentReport(
-          context,
-          validateParentReportDraft(completion.data),
-        );
-        assertNoPii(report);
+        assertNoCrossAudienceOrScore(completion.data);
       } catch (caught) {
-        const validationCode = caught instanceof Error
-          ? caught.message.startsWith('REPORT_GROUNDING_FAILURE: ')
-            ? caught.message.slice('REPORT_GROUNDING_FAILURE: '.length)
-            : caught.message === 'OUTPUT_PII_DETECTED'
-              ? caught.message
-              : 'LOCAL_SCHEMA_VALIDATION'
-          : 'LOCAL_SCHEMA_VALIDATION';
         throw new BenchmarkCriticalValidationError({
           fixtureId: context.fixtureId,
           model,
-          validationCode,
+          validationCode: 'CROSS_AUDIENCE_OR_SCORE_TAMPERING',
+          provenance: completion.provenance,
+        }, { cause: caught });
+      }
+      let draft: ParentReportDraft;
+      try {
+        draft = validateParentReportDraft(completion.data);
+      } catch {
+        const failure = qualityFailure(
+          context.fixtureId,
+          model,
+          'SCHEMA',
+          'LOCAL_SCHEMA_VALIDATION',
+          completion.provenance,
+        );
+        failures.push(failure);
+        await options.onFailure?.(failure, results.length + failures.length);
+        continue;
+      }
+      let report: ParentReport;
+      try {
+        report = assembleGroundedParentReport(context, draft);
+      } catch (caught) {
+        const normalizedErrorCode = caught instanceof Error
+          && caught.message.startsWith('REPORT_GROUNDING_FAILURE: ')
+          ? caught.message.slice('REPORT_GROUNDING_FAILURE: '.length)
+          : 'LOCAL_GROUNDING_VALIDATION';
+        const failure = qualityFailure(
+          context.fixtureId,
+          model,
+          'GROUNDING',
+          normalizedErrorCode,
+          completion.provenance,
+        );
+        failures.push(failure);
+        await options.onFailure?.(failure, results.length + failures.length);
+        continue;
+      }
+      let outputPiiDeterministicScan: PiiScanResult;
+      try {
+        outputPiiDeterministicScan = assertNoPii(report);
+      } catch (caught) {
+        throw new BenchmarkCriticalValidationError({
+          fixtureId: context.fixtureId,
+          model,
+          validationCode: 'OUTPUT_PII_DETECTED',
           provenance: completion.provenance,
         }, { cause: caught });
       }
       if (completion.provenance.finishReason !== 'stop') {
-        throw new Error(
-          'BENCHMARK_CRITICAL_VALIDATION_FAILURE: incomplete output',
+        const failure = qualityFailure(
+          context.fixtureId,
+          model,
+          'SCHEMA',
+          'INCOMPLETE_RESPONSE',
+          completion.provenance,
         );
+        failures.push(failure);
+        await options.onFailure?.(failure, results.length + failures.length);
+        continue;
       }
       const result = Object.freeze({
         fixtureId: context.fixtureId,
@@ -297,6 +413,8 @@ export async function runSyntheticParentBenchmark(
           noMarkdown: true,
           finishReasonStop: true,
         }),
+        outputPiiDeterministicScan,
+        outputPrivacyHumanReview: 'PENDING' as const,
       });
       results.push(result);
       await options.onResult?.(result, results.length + failures.length);
