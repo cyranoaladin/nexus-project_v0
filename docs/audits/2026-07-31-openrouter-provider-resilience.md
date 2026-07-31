@@ -26,7 +26,10 @@ tester au plus une route par modèle et deux appels au total avec
 `zdr=true`.
 
 Aucun nom de fournisseur n'est inventé et aucun échec n'entraîne un
-assouplissement.
+assouplissement. Une route ne passe que si le fournisseur effectivement
+retourné correspond à l'identité de fournisseur demandée ; un retour Azure
+pour une route alternative est classé comme échec, même si la sortie respecte
+le schéma.
 
 ## Preuve
 

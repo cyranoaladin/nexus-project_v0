@@ -2,6 +2,7 @@
 
 import {
   buildProviderResilienceMatrix,
+  returnedProviderMatchesRoute,
   selectAlternativeProviderRoutes,
 } from '@/lib/llm/openrouter/provider-resilience';
 
@@ -115,6 +116,19 @@ describe('OpenRouter provider resilience classification', () => {
       excludedProviderNames: ['Azure'],
       maxCalls: 2,
     })).toEqual([]);
+  });
+
+  it('accepts a route only when the returned provider matches its identity', () => {
+    const [route] = selectAlternativeProviderRoutes(CATALOG, PROVIDERS, {
+      excludedProviderNames: ['Azure'],
+      maxCalls: 1,
+    });
+    expect(returnedProviderMatchesRoute('Independent Synthetic', route))
+      .toBe(true);
+    expect(returnedProviderMatchesRoute('independent synthetic', route))
+      .toBe(true);
+    expect(returnedProviderMatchesRoute('Azure', route)).toBe(false);
+    expect(returnedProviderMatchesRoute(null, route)).toBe(false);
   });
 
   it('rejects malformed or duplicate endpoint tags', () => {

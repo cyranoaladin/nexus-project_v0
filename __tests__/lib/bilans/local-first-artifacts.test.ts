@@ -79,6 +79,25 @@ describe('immutable local-first artifact envelope', () => {
       .not.toThrow();
   });
 
+  it('rejects a valid CLEAN scan that was computed for another payload', () => {
+    expect(() => createLocalFirstArtifact({
+      artifactType: 'NORMALIZED_ASSESSMENT',
+      repositorySha: REPOSITORY_SHA,
+      expectedRepositorySha: REPOSITORY_SHA,
+      datasetVersion: 'synthetic-v1',
+      generatorId: 'bilan-local-first',
+      generatorVersion: '1',
+      scoringPolicyChecksum: CHECKSUM,
+      corpusChecksum: CHECKSUM,
+      promptChecksum: null,
+      outputSchemaChecksum: null,
+      audience: 'PARENT',
+      classification: 'SYNTHETIC_BENCHMARK',
+      piiScanResult: PII_SCAN,
+      payload: { label: 'Contact synthétique eleve@example.invalid' },
+    })).toThrow(/PII scan.*payload/i);
+  });
+
   it('rejects a fake repository SHA and a non-root without a parent', () => {
     expect(() => createLocalFirstArtifact({
       ...createRoot(),
@@ -102,7 +121,7 @@ describe('immutable local-first artifact envelope', () => {
       outputSchemaChecksum: null,
       audience: 'PARENT',
       classification: 'SYNTHETIC_BENCHMARK',
-      piiScanResult: PII_SCAN,
+      piiScanResult: scanPiiFields([]).result,
       payload: { points: 10 },
     })).toThrow(/parent/i);
   });
@@ -122,7 +141,7 @@ describe('immutable local-first artifact envelope', () => {
       outputSchemaChecksum: null,
       audience: 'PARENT',
       classification: 'SYNTHETIC_BENCHMARK',
-      piiScanResult: PII_SCAN,
+      piiScanResult: scanPiiFields([]).result,
       payload: { points: 10, maxPoints: 20 },
       parent: root,
     });

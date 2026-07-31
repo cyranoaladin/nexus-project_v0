@@ -9,6 +9,7 @@ import { validateGrounding, resolveRecommendation } from './grounding';
 import {
   PiiScanResultSchema,
   PiiStatusSchema,
+  piiScanResultMatchesContent,
   scanPiiFields,
   validatePiiScanResultChecksum,
 } from './pii';
@@ -186,6 +187,15 @@ function validateFixture(
       if (
         !validatePiiScanResultChecksum(item.piiScanResult)
         || !['CLEAN', 'REDACTED'].includes(item.piiScanResult.status)
+        || !piiScanResultMatchesContent(
+          item.piiScanResult,
+          [{
+            path: `$.approvedEvidenceForLlm[${index}].text`,
+            text: item.text,
+          }],
+          'SANITIZED',
+        )
+        || !validateApprovalChecksum(item)
       ) {
         context.addIssue({
           code: z.ZodIssueCode.custom,
@@ -264,18 +274,41 @@ function expectedPercentage(points: number, maxPoints: number): number {
   return Math.round((points / maxPoints) * 10_000) / 100;
 }
 
+export function approvedEvidenceSourceChecksum(
+  evidence: Readonly<{
+    evidenceRef: string;
+    competencyId: string;
+    text: string;
+    piiScanResult: z.infer<typeof PiiScanResultSchema>;
+  }>,
+): string {
+  return sha256Canonical({
+    evidenceRef: evidence.evidenceRef,
+    competencyId: evidence.competencyId,
+    text: evidence.text,
+    piiScanChecksum: evidence.piiScanResult.checksum,
+  });
+}
+
 function validateApprovalChecksum(
-  approval: z.infer<typeof HumanApprovalSchema>,
+  evidence: z.infer<typeof UntrustedApprovedEvidenceSchema>,
 ): boolean {
+  const { humanApproval: approval } = evidence;
   const { approvalChecksum: _checksum, ...values } = approval;
-  return approval.approvalChecksum === sha256Canonical(values);
+  return approval.sourceChecksum === approvedEvidenceSourceChecksum(evidence)
+    && approval.approvalChecksum === sha256Canonical(values);
 }
 
 function validateInternalNotesApproval(
   notes: z.infer<typeof LlmApprovedInternalNotesSchema>,
 ): boolean {
   const { approvalChecksum: _checksum, ...values } = notes;
-  return notes.approvalChecksum === sha256Canonical(values);
+  const expectedSourceChecksum = sha256Canonical({
+    notes: notes.notes,
+    piiScanChecksum: notes.piiScanResult.checksum,
+  });
+  return notes.sourceChecksum === expectedSourceChecksum
+    && notes.approvalChecksum === sha256Canonical(values);
 }
 
 export function validateLocalFirstReportContext(
@@ -323,7 +356,14 @@ export function validateLocalFirstReportContext(
     !validatePiiScanResultChecksum(value.piiScanResult)
     || value.piiScanResult.status === 'NOT_SCANNED'
     || value.piiScanResult.status === 'BLOCKED'
-    || value.piiScanResult.checksum !== scan.result.checksum
+    || !piiScanResultMatchesContent(
+      value.piiScanResult,
+      value.approvedEvidenceForLlm.map((item, index) => ({
+        path: `$.approvedEvidenceForLlm[${index}].text`,
+        text: item.text,
+      })),
+      'SANITIZED',
+    )
   ) {
     addIssue(['piiScanResult'], 'Context PII scan is absent or inconsistent.');
   }
@@ -331,7 +371,17 @@ export function validateLocalFirstReportContext(
   value.approvedEvidenceForLlm.forEach((item, index) => {
     if (
       item.trust === 'UNTRUSTED_QUOTED_DATA'
-      && !validateApprovalChecksum(item.humanApproval)
+      && (
+        !piiScanResultMatchesContent(
+          item.piiScanResult,
+          [{
+            path: `$.approvedEvidenceForLlm[${index}].text`,
+            text: item.text,
+          }],
+          'SANITIZED',
+        )
+        || !validateApprovalChecksum(item)
+      )
     ) {
       addIssue(
         ['approvedEvidenceForLlm', index, 'humanApproval'],
@@ -354,6 +404,14 @@ export function validateLocalFirstReportContext(
       )
       || !['CLEAN', 'REDACTED'].includes(
         value.llmApprovedInternalNotes.piiScanResult.status,
+      )
+      || !piiScanResultMatchesContent(
+        value.llmApprovedInternalNotes.piiScanResult,
+        value.llmApprovedInternalNotes.notes.map((text, index) => ({
+          path: `$.llmApprovedInternalNotes.notes[${index}]`,
+          text,
+        })),
+        'SANITIZED',
       )
     ) {
       addIssue(
