@@ -98,6 +98,33 @@ describe('immutable local-first artifact envelope', () => {
     })).toThrow(/PII scan.*payload/i);
   });
 
+  it('re-runs PII detection with trusted sources instead of caller labels', () => {
+    const text = 'Contact synthétique eleve@example.invalid';
+    const callerClassifiedScan = scanPiiFields([{
+      path: '$.payload.contact',
+      text,
+      source: 'STRUCTURAL_METADATA',
+    }]).result;
+    expect(callerClassifiedScan.status).toBe('CLEAN');
+
+    expect(() => createLocalFirstArtifact({
+      artifactType: 'NORMALIZED_ASSESSMENT',
+      repositorySha: REPOSITORY_SHA,
+      expectedRepositorySha: REPOSITORY_SHA,
+      datasetVersion: 'synthetic-v1',
+      generatorId: 'bilan-local-first',
+      generatorVersion: '1',
+      scoringPolicyChecksum: CHECKSUM,
+      corpusChecksum: CHECKSUM,
+      promptChecksum: null,
+      outputSchemaChecksum: null,
+      audience: 'PARENT',
+      classification: 'SYNTHETIC_BENCHMARK',
+      piiScanResult: callerClassifiedScan,
+      payload: { contact: text },
+    })).toThrow(/trusted PII scan|transport-safe/i);
+  });
+
   it('rejects a fake repository SHA and a non-root without a parent', () => {
     expect(() => createLocalFirstArtifact({
       ...createRoot(),

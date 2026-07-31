@@ -1,0 +1,78 @@
+{
+  "schemaVersion": "bilan-evidence-template-catalog-v1",
+  "version": "1",
+  "templates": [
+    {
+      "templateId": "tpl:synthetic-complex-01:1",
+      "text": "Le modèle est correctement choisi dans la situation guidée."
+    },
+    {
+      "templateId": "tpl:synthetic-complex-01:2",
+      "text": "Le même modèle n'est pas reconnu dans une situation nouvelle."
+    },
+    {
+      "templateId": "tpl:synthetic-complex-02:1",
+      "text": "La question est reformulée sans tension conceptuelle explicite."
+    },
+    {
+      "templateId": "tpl:synthetic-complex-03:1",
+      "text": "Les implicites principaux sont justifiés par le texte."
+    },
+    {
+      "templateId": "tpl:synthetic-complex-03:2",
+      "text": "Le développement suit une progression claire."
+    },
+    {
+      "templateId": "tpl:synthetic-complex-04:1",
+      "text": "L'hypothèse est cohérente avec les données."
+    },
+    {
+      "templateId": "tpl:synthetic-complex-04:2",
+      "text": "La conclusion dépasse légèrement les résultats disponibles."
+    },
+    {
+      "templateId": "tpl:synthetic-complex-04:3",
+      "text": "Les axes et variations sont correctement lus."
+    },
+    {
+      "templateId": "tpl:synthetic-intermediate-01:1",
+      "text": "La dérivée usuelle est correcte."
+    },
+    {
+      "templateId": "tpl:synthetic-intermediate-01:2",
+      "text": "Le lien entre signe et variations est incomplet."
+    },
+    {
+      "templateId": "tpl:synthetic-intermediate-02:1",
+      "text": "Les accords dans le groupe nominal sont irréguliers."
+    },
+    {
+      "templateId": "tpl:synthetic-intermediate-02:2",
+      "text": "Plusieurs phrases ne comportent pas de verbe conjugué."
+    },
+    {
+      "templateId": "tpl:synthetic-intermediate-03:1",
+      "text": "Le paragraphe présente une organisation encore irrégulière."
+    },
+    {
+      "templateId": "tpl:synthetic-intermediate-04:1",
+      "text": "La boucle synthétique produit le résultat attendu."
+    },
+    {
+      "templateId": "tpl:synthetic-simple-01:1",
+      "text": "Les procédures sont appliquées avec régularité."
+    },
+    {
+      "templateId": "tpl:synthetic-simple-02:1",
+      "text": "La thèse est repérée mais les justifications restent brèves."
+    },
+    {
+      "templateId": "tpl:synthetic-simple-03:1",
+      "text": "Les dénominateurs sont additionnés directement dans plusieurs items."
+    },
+    {
+      "templateId": "tpl:synthetic-simple-04:1",
+      "text": "Le contexte et la nature du document sont identifiés."
+    }
+  ]
+}
