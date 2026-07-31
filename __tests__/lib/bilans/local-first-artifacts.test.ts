@@ -79,6 +79,45 @@ describe('immutable local-first artifact envelope', () => {
       .not.toThrow();
   });
 
+  it('owns and deep-freezes the payload used by the immutable envelope', () => {
+    const sourcePayload = {
+      section: { label: 'Donnée synthétique contrôlée.' },
+    };
+    const scan = scanPiiFields([{
+      path: '$.payload.section.label',
+      text: sourcePayload.section.label,
+      source: 'CONTROLLED_TEMPLATE',
+    }]).result;
+    const artifact = createLocalFirstArtifact({
+      artifactType: 'NORMALIZED_ASSESSMENT',
+      repositorySha: REPOSITORY_SHA,
+      expectedRepositorySha: REPOSITORY_SHA,
+      datasetVersion: 'synthetic-v1',
+      generatorId: 'bilan-local-first',
+      generatorVersion: '1',
+      scoringPolicyChecksum: CHECKSUM,
+      corpusChecksum: CHECKSUM,
+      promptChecksum: null,
+      outputSchemaChecksum: null,
+      audience: 'PARENT',
+      classification: 'SYNTHETIC_BENCHMARK',
+      piiScanResult: scan,
+      payload: sourcePayload,
+    });
+
+    sourcePayload.section.label = 'Mutation externe après création';
+    expect((artifact.payload as typeof sourcePayload).section.label)
+      .toBe('Donnée synthétique contrôlée.');
+    expect(Object.isFrozen(artifact.payload)).toBe(true);
+    expect(Object.isFrozen((artifact.payload as typeof sourcePayload).section))
+      .toBe(true);
+    expect(() => {
+      (artifact.payload as typeof sourcePayload).section.label =
+        'Mutation directe après création';
+    }).toThrow(TypeError);
+    expect(hasValidArtifactChecksum(artifact)).toBe(true);
+  });
+
   it('rejects a valid CLEAN scan that was computed for another payload', () => {
     expect(() => createLocalFirstArtifact({
       artifactType: 'NORMALIZED_ASSESSMENT',

@@ -84,6 +84,21 @@ function isPlainJsonValue(
   });
 }
 
+function clonePlainJsonValue<T>(value: T): T {
+  return JSON.parse(JSON.stringify(value)) as T;
+}
+
+function deepFreeze<T>(value: T, seen = new WeakSet<object>()): T {
+  if (value === null || typeof value !== 'object' || seen.has(value)) {
+    return value;
+  }
+  seen.add(value);
+  for (const key of Reflect.ownKeys(value)) {
+    deepFreeze((value as Record<PropertyKey, unknown>)[key], seen);
+  }
+  return Object.freeze(value);
+}
+
 function payloadStringFields(
   value: unknown,
   path = '$.payload',
@@ -219,6 +234,7 @@ export function createLocalFirstArtifact(
   if (!isPlainJsonValue(input.payload)) {
     throw new TypeError('Artifact payload must contain plain JSON values only.');
   }
+  const payload = clonePlainJsonValue(input.payload);
   if (
     !GitShaSchema.safeParse(input.repositorySha).success
     || input.repositorySha !== input.expectedRepositorySha
@@ -228,7 +244,7 @@ export function createLocalFirstArtifact(
   if (!validatePiiScanResultChecksum(input.piiScanResult)) {
     throw new Error('Artifact PII scan checksum is invalid.');
   }
-  if (!piiScanMatchesPayload(input.piiScanResult, input.payload)) {
+  if (!piiScanMatchesPayload(input.piiScanResult, payload)) {
     throw new Error(
       'Artifact trusted PII scan is not bound to a transport-safe payload.',
     );
@@ -276,9 +292,9 @@ export function createLocalFirstArtifact(
     audience: input.audience,
     classification: input.classification,
     piiScanResult: input.piiScanResult,
-    payload: input.payload,
+    payload,
   };
-  return Object.freeze(LocalFirstArtifactEnvelopeSchema.parse({
+  return deepFreeze(LocalFirstArtifactEnvelopeSchema.parse({
     ...values,
     artifactChecksum: sha256Canonical(values),
   }));
@@ -286,7 +302,7 @@ export function createLocalFirstArtifact(
 
 export function validateArtifactChain(
   inputs: readonly unknown[],
-): LocalFirstArtifactEnvelope[] {
+): readonly LocalFirstArtifactEnvelope[] {
   if (inputs.length === 0) throw new Error('Artifact chain is empty.');
   const chain = inputs.map((input) =>
     LocalFirstArtifactEnvelopeSchema.parse(input));
@@ -315,7 +331,7 @@ export function validateArtifactChain(
       throw new Error(`Artifact chain is broken at index ${index}.`);
     }
   });
-  return chain;
+  return Object.freeze(chain.map((artifact) => deepFreeze(artifact)));
 }
 
 export function writeLocalFirstArtifactAtomic(
@@ -385,5 +401,5 @@ export function readLocalFirstArtifact(
   if (!hasValidArtifactChecksum(artifact)) {
     throw new Error('Artifact checksum mismatch.');
   }
-  return artifact;
+  return deepFreeze(artifact);
 }
