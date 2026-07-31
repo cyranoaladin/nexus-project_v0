@@ -26,12 +26,21 @@ The audit compares three states which must not be conflated:
 | #88 | open | yes | `053868b3237cd6cb89916255626720672a945330` | `45f3cd92ca8f9caaef1dd86504d3cdc0bdd999d1` | clean | 0 |
 | #89 | open | yes | `45f3cd92ca8f9caaef1dd86504d3cdc0bdd999d1` | `05f99f24ad7de032e0ba527c30705a2eb0deae65` | clean | 0 |
 | #90 | open | yes | `05f99f24ad7de032e0ba527c30705a2eb0deae65` | `ae56389dcf1b92ca4bece39e71961327455e2489` | clean | 0 |
-| #91 | open | no | `ae56389dcf1b92ca4bece39e71961327455e2489` | `db78737ee271a361ea3e9ea20ebaa203b43509cb` | unstable while new checks run | 0 |
-| #93 | open | yes | `db78737ee271a361ea3e9ea20ebaa203b43509cb` | `445340569a37a25bb980b8edd862d13cdc83d602` | unstable while new checks run | 0 |
+| #91 | open | no | `ae56389dcf1b92ca4bece39e71961327455e2489` | `16e80987ad93a56f9f8b743a621255f73736357d` | checks and exact-head review running | 0 |
+| #93 | open | yes | `16e80987ad93a56f9f8b743a621255f73736357d` | `0a2da0c7c7a6e681f5288ca66cfcb5275daaebc0` | checks running after explicit foundation merge | 0 |
 
 GraphQL `reviewThreads` reports zero unresolved P1 and zero unresolved P2 on
 #91. A fresh review was requested on its exact head. This is not a human
 approval.
+
+The documentation-only audit PR is intentionally based on the exact `main`
+baseline. Its Dependency Integrity and Security Scan jobs reproduce
+`BOUND_SHA_MISMATCH` because that baseline still contains the superseded
+SHA-bound dependency exception and vulnerable dependency graph. Unit,
+integration, real-DB, E2E, build, lint, typecheck, documents, CodeQL and
+GitGuardian pass on that PR. D0 does not rebind or approve an exception; the
+native dependency correction remains on #88 and must reach the integration
+stack through the documented merge order.
 
 ## Component coherence matrix
 
@@ -243,6 +252,16 @@ dependency.
 
 No code was deleted in D0. Candidates require consumer proof and migration
 gates before retirement.
+
+## D6 architecture prepared without implementation
+
+ADR 010 and the state-machine, budget-ledger, worker-lease and rollback
+documents define the future asynchronous boundary. They deliberately contain
+no Prisma model, migration, worker, route or business integration. Their
+invariants are: network outside DB transactions, idempotent enqueue, atomic
+budget reservation, lease ownership, `UNKNOWN_OUTCOME` without automatic
+replay, delayed retry, dead letter, immutable invocation provenance and no
+automatic publication.
 
 ## Findings register
 
@@ -564,7 +583,7 @@ to the repository unless explicitly marked production read-only.
 
 | Gate | Status |
 | --- | --- |
-| PR91 unresolved P1/P2 | 0/0 on `db78737ee`; fresh review requested |
+| PR91 unresolved P1/P2 | 0/0 on `16e80987a`; fresh exact-head review requested |
 | Email trigger inventory | complete, 17 rows |
 | Auth route inventory | complete, 240 route/method rows |
 | Registration flow inventory | complete |
