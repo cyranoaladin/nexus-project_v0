@@ -29,6 +29,7 @@ import {
 } from '../../lib/llm/openrouter/privacy-attestation';
 import {
   buildProviderResilienceMatrix,
+  reconcileProviderAuditAttemptCost,
   returnedProviderMatchesRoute,
   selectAlternativeProviderRoutes,
 } from '../../lib/llm/openrouter/provider-resilience';
@@ -110,6 +111,7 @@ async function main(): Promise<void> {
     if (results.length >= MAX_PROVIDER_AUDIT_CALLS) {
       throw new OpenRouterError('OPENROUTER_BUDGET_EXCEEDED');
     }
+    let responseCostAlreadyCounted = false;
     try {
       const completion = await client.completePreflightForModel(
         request,
@@ -117,6 +119,7 @@ async function main(): Promise<void> {
         { providerOnly: [route.providerRoutingSlug] },
       );
       totalCostMicrosUsd += completion.provenance.costMicrosUsd;
+      responseCostAlreadyCounted = true;
       if (totalCostMicrosUsd > MAX_PROVIDER_AUDIT_COST_MICROS_USD) {
         throw new OpenRouterError('OPENROUTER_BUDGET_EXCEEDED');
       }
@@ -158,7 +161,11 @@ async function main(): Promise<void> {
           retryable: true,
         });
       const attempt = error.attempts.at(-1) ?? null;
-      totalCostMicrosUsd += attempt?.costMicrosUsd ?? 0;
+      totalCostMicrosUsd = reconcileProviderAuditAttemptCost({
+        currentTotalMicrosUsd: totalCostMicrosUsd,
+        attemptCostMicrosUsd: attempt?.costMicrosUsd ?? 0,
+        responseCostAlreadyCounted,
+      });
       if (totalCostMicrosUsd > MAX_PROVIDER_AUDIT_COST_MICROS_USD) {
         throw new OpenRouterError('OPENROUTER_BUDGET_EXCEEDED');
       }

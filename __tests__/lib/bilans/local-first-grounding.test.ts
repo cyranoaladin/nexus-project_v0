@@ -8,6 +8,7 @@ import {
   buildLocalFirstReportContext,
   validateLocalFirstReportContext,
 } from '@/lib/bilans/local-first/contracts';
+import { validateGrounding } from '@/lib/bilans/local-first/grounding';
 
 const FIXTURE = JSON.parse(readFileSync(join(
   process.cwd(),
@@ -61,6 +62,39 @@ describe('local-first semantic grounding', () => {
     expect(() => SyntheticBenchmarkFixtureSchema.parse(value)).toThrow(
       /recommendation evidence belongs to another competency/i,
     );
+  });
+
+  it('rejects a transversal recommendation for an absent competency', () => {
+    const recommendation = FIXTURE.allowedRecommendations[0];
+    const foreign = FIXTURE.approvedEvidenceForLlm.find(
+      ({ competencyId }: { competencyId: string }) =>
+        competencyId !== recommendation.competencyId,
+    );
+    expect(foreign).toBeDefined();
+
+    const issues = validateGrounding({
+      score: FIXTURE.score,
+      competencies: FIXTURE.competencies.filter(
+        ({ competencyId }: { competencyId: string }) =>
+          competencyId !== recommendation.competencyId,
+      ),
+      evidence: [{ ...foreign, evidenceScopeVersion: 'TRANSVERSAL_V1' }],
+      priorities: [],
+      recommendations: [{
+        ...recommendation,
+        evidenceRefs: [foreign.evidenceRef],
+        transversalEvidencePolicy: 'ALLOW_TRANSVERSAL_V1',
+      }],
+      unmeasuredCompetencyIds: FIXTURE.unmeasuredCompetencyIds.filter(
+        (competencyId: string) => competencyId !== recommendation.competencyId,
+      ),
+    });
+
+    expect(issues).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        message: 'Recommendation references an unknown competency.',
+      }),
+    ]));
   });
 
   it('rejects a mismatch between UNMEASURED status and its exact list', () => {

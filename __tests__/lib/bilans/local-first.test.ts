@@ -210,6 +210,16 @@ describe('local-first synthetic benchmark contracts', () => {
     })).toThrow(/PII scan/i);
   });
 
+  it('does not exempt an open dataset version from PII detection', () => {
+    const context = buildLocalFirstReportContext(fixtures()[0], 'PARENT');
+    const rebound = bindContextScan({
+      ...context,
+      datasetVersion: 'student.synthetic@example.invalid',
+    });
+
+    expect(() => validateLocalFirstReportContext(rebound)).toThrow(/PII scan/i);
+  });
+
   it('rejects untrusted raw evidence relabeled as curated', () => {
     const value = structuredClone(fixtures()[0]) as Record<string, any>;
     value.rawEvidenceLocalOnly[0] = {
