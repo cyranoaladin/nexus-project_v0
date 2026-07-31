@@ -4,74 +4,128 @@
   "templates": [
     {
       "templateId": "tpl:synthetic-complex-01:1",
+      "fixtureId": "synthetic-complex-01",
+      "competencyId": "cmp:modelisation",
+      "evidenceRef": "ev:c01:modele",
       "text": "Le modèle est correctement choisi dans la situation guidée."
     },
     {
       "templateId": "tpl:synthetic-complex-01:2",
+      "fixtureId": "synthetic-complex-01",
+      "competencyId": "cmp:modelisation",
+      "evidenceRef": "ev:c01:transfert",
       "text": "Le même modèle n'est pas reconnu dans une situation nouvelle."
     },
     {
       "templateId": "tpl:synthetic-complex-02:1",
+      "fixtureId": "synthetic-complex-02",
+      "competencyId": "cmp:problematique",
+      "evidenceRef": "ev:c02:probleme",
       "text": "La question est reformulée sans tension conceptuelle explicite."
     },
     {
       "templateId": "tpl:synthetic-complex-03:1",
+      "fixtureId": "synthetic-complex-03",
+      "competencyId": "cmp:lecture",
+      "evidenceRef": "ev:c03:lecture",
       "text": "Les implicites principaux sont justifiés par le texte."
     },
     {
       "templateId": "tpl:synthetic-complex-03:2",
+      "fixtureId": "synthetic-complex-03",
+      "competencyId": "cmp:ecriture",
+      "evidenceRef": "ev:c03:ecriture",
       "text": "Le développement suit une progression claire."
     },
     {
       "templateId": "tpl:synthetic-complex-04:1",
+      "fixtureId": "synthetic-complex-04",
+      "competencyId": "cmp:raisonnement",
+      "evidenceRef": "ev:c04:hypothese",
       "text": "L'hypothèse est cohérente avec les données."
     },
     {
       "templateId": "tpl:synthetic-complex-04:2",
+      "fixtureId": "synthetic-complex-04",
+      "competencyId": "cmp:raisonnement",
+      "evidenceRef": "ev:c04:conclusion",
       "text": "La conclusion dépasse légèrement les résultats disponibles."
     },
     {
       "templateId": "tpl:synthetic-complex-04:3",
+      "fixtureId": "synthetic-complex-04",
+      "competencyId": "cmp:graphique",
+      "evidenceRef": "ev:c04:graphique",
       "text": "Les axes et variations sont correctement lus."
     },
     {
       "templateId": "tpl:synthetic-intermediate-01:1",
+      "fixtureId": "synthetic-intermediate-01",
+      "competencyId": "cmp:derivation",
+      "evidenceRef": "ev:i01:derivee",
       "text": "La dérivée usuelle est correcte."
     },
     {
       "templateId": "tpl:synthetic-intermediate-01:2",
+      "fixtureId": "synthetic-intermediate-01",
+      "competencyId": "cmp:derivation",
+      "evidenceRef": "ev:i01:variations",
       "text": "Le lien entre signe et variations est incomplet."
     },
     {
       "templateId": "tpl:synthetic-intermediate-02:1",
+      "fixtureId": "synthetic-intermediate-02",
+      "competencyId": "cmp:syntaxe",
+      "evidenceRef": "ev:i02:accord",
       "text": "Les accords dans le groupe nominal sont irréguliers."
     },
     {
       "templateId": "tpl:synthetic-intermediate-02:2",
+      "fixtureId": "synthetic-intermediate-02",
+      "competencyId": "cmp:syntaxe",
+      "evidenceRef": "ev:i02:phrase",
       "text": "Plusieurs phrases ne comportent pas de verbe conjugué."
     },
     {
       "templateId": "tpl:synthetic-intermediate-03:1",
+      "fixtureId": "synthetic-intermediate-03",
+      "competencyId": "cmp:expression",
+      "evidenceRef": "ev:i03:expression:curated",
       "text": "Le paragraphe présente une organisation encore irrégulière."
     },
     {
       "templateId": "tpl:synthetic-intermediate-04:1",
+      "fixtureId": "synthetic-intermediate-04",
+      "competencyId": "cmp:algorithme",
+      "evidenceRef": "ev:i04:algo:curated",
       "text": "La boucle synthétique produit le résultat attendu."
     },
     {
       "templateId": "tpl:synthetic-simple-01:1",
+      "fixtureId": "synthetic-simple-01",
+      "competencyId": "cmp:calcul",
+      "evidenceRef": "ev:s01:calcul",
       "text": "Les procédures sont appliquées avec régularité."
     },
     {
       "templateId": "tpl:synthetic-simple-02:1",
+      "fixtureId": "synthetic-simple-02",
+      "competencyId": "cmp:argumentation",
+      "evidenceRef": "ev:s02:argument",
       "text": "La thèse est repérée mais les justifications restent brèves."
     },
     {
       "templateId": "tpl:synthetic-simple-03:1",
+      "fixtureId": "synthetic-simple-03",
+      "competencyId": "cmp:fractions",
+      "evidenceRef": "ev:s03:fractions",
       "text": "Les dénominateurs sont additionnés directement dans plusieurs items."
     },
     {
       "templateId": "tpl:synthetic-simple-04:1",
+      "fixtureId": "synthetic-simple-04",
+      "competencyId": "cmp:analyse-doc",
+      "evidenceRef": "ev:s04:analyse",
       "text": "Le contexte et la nature du document sont identifiés."
     }
   ]

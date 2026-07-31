@@ -1,7 +1,7 @@
 {
   "schemaVersion": "bilan-synthetic-assessment-v2",
   "datasetVersion": "synthetic-v1",
-  "inputChecksum": "76831823735d72f01fa788182210aebc2fa1e7cdef2de11373135b202c454b21",
+  "inputChecksum": "7f91afb368677aa007ec3c18016f9adc8adeee4289a3f650c1f98363a2cf394d",
   "createdAt": "2026-07-31T07:02:03.000Z",
   "audience": "PARENT",
   "classification": "SYNTHETIC_BENCHMARK",
@@ -53,7 +53,7 @@
       "text": "Les implicites principaux sont justifiés par le texte.",
       "trust": "CURATED",
       "templateId": "tpl:synthetic-complex-03:1",
-      "templateChecksum": "46cd7cd36f26a52cac6d3e82e708d4110bd9fb30f21b773c3f05ad102a326c25"
+      "templateChecksum": "dbcc497ade50a4c01712d07c02a0b670184541c660a8c18d9303b88c388aadae"
     },
     {
       "evidenceRef": "ev:c03:ecriture",
@@ -62,7 +62,7 @@
       "trust": "CURATED",
       "evidenceScopeVersion": "TRANSVERSAL_V1",
       "templateId": "tpl:synthetic-complex-03:2",
-      "templateChecksum": "c0ecb7d9c227f1501af324e10ddfcca33b26ba8e010eb2a373d90e574554aad2"
+      "templateChecksum": "9fc4778c745c13271f30d9b0eda1fd6039b1c7d0b43f63853de7c16b9e7a7c7f"
     }
   ],
   "priorities": [

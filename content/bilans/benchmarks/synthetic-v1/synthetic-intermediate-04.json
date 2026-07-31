@@ -1,7 +1,7 @@
 {
   "schemaVersion": "bilan-synthetic-assessment-v2",
   "datasetVersion": "synthetic-v1",
-  "inputChecksum": "cc4dc43145f00e1cb6756de2447adf32e56f6455c01b6d353ef4d2015f50b340",
+  "inputChecksum": "633c3ffc1af8a46c56dafcb38f3a2843e3fce1f4832cdc25194a742c82aea090",
   "createdAt": "2026-07-31T07:01:04.000Z",
   "audience": "PARENT",
   "classification": "SYNTHETIC_BENCHMARK",
@@ -47,7 +47,7 @@
       "text": "La boucle synthétique produit le résultat attendu.",
       "trust": "CURATED",
       "templateId": "tpl:synthetic-intermediate-04:1",
-      "templateChecksum": "15dc17ad49baeca0ce43e786601bea5965b09212a3f0a05a37eb656873956150"
+      "templateChecksum": "5fe0cfaa5369150e165e494620712d84f9292e34c7972a5faee04f44bcf8b00c"
     }
   ],
   "priorities": [

@@ -40,6 +40,48 @@ const ArtifactTypeSchema = z.enum([
 
 const ARTIFACT_ORDER = ArtifactTypeSchema.options;
 
+function isPlainJsonValue(
+  value: unknown,
+  ancestors = new Set<object>(),
+): boolean {
+  if (value === null || typeof value === 'string' || typeof value === 'boolean') {
+    return true;
+  }
+  if (typeof value === 'number') return Number.isFinite(value);
+  if (typeof value !== 'object') return false;
+  if (ancestors.has(value)) return false;
+
+  const prototype = Object.getPrototypeOf(value);
+  if (!Array.isArray(value) && prototype !== Object.prototype && prototype !== null) {
+    return false;
+  }
+
+  const nextAncestors = new Set(ancestors).add(value);
+  if (Array.isArray(value)) {
+    const enumerableKeys = Object.keys(value);
+    if (
+      Object.getOwnPropertySymbols(value).length > 0
+      || Object.getOwnPropertyNames(value).length !== value.length + 1
+      || enumerableKeys.length !== value.length
+      || enumerableKeys.some((key, index) => key !== String(index))
+    ) return false;
+    return value.every((item) => isPlainJsonValue(item, nextAncestors));
+  }
+
+  const propertyNames = Object.getOwnPropertyNames(value);
+  if (
+    Object.getOwnPropertySymbols(value).length > 0
+    || propertyNames.length !== Object.keys(value).length
+  ) return false;
+  return propertyNames.every((key) => {
+    const descriptor = Object.getOwnPropertyDescriptor(value, key);
+    return descriptor !== undefined
+      && descriptor.enumerable
+      && 'value' in descriptor
+      && isPlainJsonValue(descriptor.value, nextAncestors);
+  });
+}
+
 function payloadStringFields(
   value: unknown,
   path = '$.payload',
@@ -96,6 +138,14 @@ export const LocalFirstArtifactEnvelopeSchema = z.object({
   piiScanResult: PiiScanResultSchema,
   payload: z.unknown(),
 }).strict().superRefine((value, context) => {
+  if (!isPlainJsonValue(value.payload)) {
+    context.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['payload'],
+      message: 'Artifact payload must contain plain JSON values only.',
+    });
+    return;
+  }
   const isRoot = value.artifactType === 'NORMALIZED_ASSESSMENT';
   if (isRoot && value.parentArtifactChecksum !== null) {
     context.addIssue({
@@ -164,6 +214,9 @@ export function hasValidArtifactChecksum(input: unknown): boolean {
 export function createLocalFirstArtifact(
   input: CreateArtifactInput,
 ): LocalFirstArtifactEnvelope {
+  if (!isPlainJsonValue(input.payload)) {
+    throw new TypeError('Artifact payload must contain plain JSON values only.');
+  }
   if (
     !GitShaSchema.safeParse(input.repositorySha).success
     || input.repositorySha !== input.expectedRepositorySha

@@ -1,7 +1,7 @@
 {
   "schemaVersion": "bilan-synthetic-assessment-v2",
   "datasetVersion": "synthetic-v1",
-  "inputChecksum": "d6a393b6f7aa56dda86eab163ee4c6519882cf4aeb6aed876d94acb07b434eb6",
+  "inputChecksum": "05ee232243b4b543f17c1b2894d27bd1c823d26b431b0a9d8e60620f0d3cc12e",
   "createdAt": "2026-07-31T07:00:01.000Z",
   "audience": "PARENT",
   "classification": "SYNTHETIC_BENCHMARK",
@@ -41,7 +41,7 @@
       "text": "Les procédures sont appliquées avec régularité.",
       "trust": "CURATED",
       "templateId": "tpl:synthetic-simple-01:1",
-      "templateChecksum": "b993b7e1287dbfd224bc341bf85331242d9a97bdbd129bf94c25c7c8c9bbb6cb"
+      "templateChecksum": "35c4f42b520fc8137b9045699ad20e780b2be3e5ee2b23e20af2cbe1dde647b4"
     }
   ],
   "priorities": [

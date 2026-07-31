@@ -230,6 +230,28 @@ describe('local-first synthetic benchmark contracts', () => {
     expect(() => validateLocalFirstReportContext(rebound)).toThrow(/PII scan/i);
   });
 
+  it('does not exempt open competency identifiers from PII detection', () => {
+    const context = buildLocalFirstReportContext(fixtures()[0], 'PARENT');
+    const exposedCompetencyId = 'nom:alice';
+    const rebound = bindContextScan({
+      ...context,
+      competencies: [
+        {
+          competencyId: exposedCompetencyId,
+          title: 'Compétence ajoutée sans preuve',
+          status: 'UNMEASURED',
+        },
+        ...context.competencies,
+      ],
+      unmeasuredCompetencyIds: [
+        exposedCompetencyId,
+        ...context.unmeasuredCompetencyIds,
+      ],
+    });
+
+    expect(() => validateLocalFirstReportContext(rebound)).toThrow(/PII scan/i);
+  });
+
   it('rejects duplicate raw evidence references before deriving approvals', () => {
     const value = structuredClone(fixtures()[0]) as Record<string, any>;
     value.rawEvidenceLocalOnly.push({
@@ -276,11 +298,34 @@ describe('local-first synthetic benchmark contracts', () => {
     )).toThrow(/trusted template registry/i);
   });
 
+  it('binds each trusted template to its fixture, competency and evidence ref', () => {
+    const value = structuredClone(fixtures()[0]) as Record<string, any>;
+    const approved = value.approvedEvidenceForLlm[0];
+    const raw = value.rawEvidenceLocalOnly.find(
+      ({ evidenceRef }: { evidenceRef: string }) =>
+        evidenceRef === approved.evidenceRef,
+    );
+    approved.templateId = 'tpl:synthetic-simple-02:1';
+    approved.text = 'La thèse est repérée mais les justifications restent brèves.';
+    approved.templateChecksum = sha256Canonical({
+      templateId: approved.templateId,
+      text: approved.text,
+    });
+    raw.text = approved.text;
+
+    expect(() => SyntheticBenchmarkFixtureSchema.parse(
+      fixtureWithChecksum(value),
+    )).toThrow(/trusted template registry/i);
+  });
+
   it('binds curated evidence to its exact controlled template', () => {
     const value = structuredClone(fixtures()[0]) as Record<string, any>;
     const evidence = value.approvedEvidenceForLlm[0];
     evidence.templateChecksum = sha256Canonical({
       templateId: evidence.templateId,
+      fixtureId: value.fixtureId,
+      competencyId: evidence.competencyId,
+      evidenceRef: evidence.evidenceRef,
       text: evidence.text,
     });
     const valid = fixtureWithChecksum(value);

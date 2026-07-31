@@ -1,7 +1,7 @@
 {
   "schemaVersion": "bilan-synthetic-assessment-v2",
   "datasetVersion": "synthetic-v1",
-  "inputChecksum": "cb0c4ed45f714a553ed397f074437c69cc6192c247735eb913f03368f842bcc5",
+  "inputChecksum": "97f437ca89062088c7630c0c91c40b4de646a566a631bca6dbe0872af4f5204f",
   "createdAt": "2026-07-31T07:02:04.000Z",
   "audience": "PARENT",
   "classification": "SYNTHETIC_BENCHMARK",
@@ -64,7 +64,7 @@
       "text": "L'hypothèse est cohérente avec les données.",
       "trust": "CURATED",
       "templateId": "tpl:synthetic-complex-04:1",
-      "templateChecksum": "e31e403b74548be9fb9a80ed444427046d9c3fe1b2e309e5673ba47baf08aea8"
+      "templateChecksum": "6087ed58f22a4a581477a9a1926df435a3be32823bc5333d4d0fd053875ffabd"
     },
     {
       "evidenceRef": "ev:c04:conclusion",
@@ -72,7 +72,7 @@
       "text": "La conclusion dépasse légèrement les résultats disponibles.",
       "trust": "CURATED",
       "templateId": "tpl:synthetic-complex-04:2",
-      "templateChecksum": "ea383b03ddc5dfe7a0b0d58ca9f9d25ab6305ca4f78c41886ea931c324db0a00"
+      "templateChecksum": "4f60ee587fa4f89fc97050e9b0c2b55f6b9525473db8ab9a5d895f4b0cf76f51"
     },
     {
       "evidenceRef": "ev:c04:graphique",
@@ -81,7 +81,7 @@
       "trust": "CURATED",
       "evidenceScopeVersion": "TRANSVERSAL_V1",
       "templateId": "tpl:synthetic-complex-04:3",
-      "templateChecksum": "d4a571b478d41a41c795076a313cebd282594d872fd8c12bfad6f1d611d91c61"
+      "templateChecksum": "90d51614ee86c387ff65487afbdee51e7729af46d21c2dcb333f0b5b27029969"
     }
   ],
   "priorities": [
