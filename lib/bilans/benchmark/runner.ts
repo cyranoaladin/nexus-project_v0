@@ -221,6 +221,18 @@ function safeAttemptFromCaught(caught: unknown): SafeFailureAttempt | null {
   });
 }
 
+function isReceivedQualityFailure(
+  normalizedErrorCode: string,
+  safeAttempt: SafeFailureAttempt | null,
+): boolean {
+  return safeAttempt?.generationId !== null
+    && safeAttempt?.generationId !== undefined
+    && (
+      normalizedErrorCode === 'OPENROUTER_SCHEMA_FAILURE'
+      || normalizedErrorCode === 'OPENROUTER_INCOMPLETE_RESPONSE'
+    );
+}
+
 function qualityFailure(
   fixtureId: string,
   model: string,
@@ -300,14 +312,25 @@ export async function runSyntheticParentBenchmark(
           ? candidateCode
           : 'BENCHMARK_TRANSPORT_FAILURE';
         const safeAttempt = safeAttemptFromCaught(caught);
+        const receivedQualityFailure = isReceivedQualityFailure(
+          normalizedErrorCode,
+          safeAttempt,
+        );
         const failure = Object.freeze({
           fixtureId: context.fixtureId,
           model,
-          category: 'TRANSPORT_FAILURE' as const,
-          terminalStatus: 'TRANSPORT_FAILURE_FINAL' as const,
-          validationStage: 'TRANSPORT' as const,
+          category: receivedQualityFailure
+            ? 'QUALITY_FAILURE' as const
+            : 'TRANSPORT_FAILURE' as const,
+          terminalStatus: receivedQualityFailure
+            ? 'QUALITY_FAILURE' as const
+            : 'TRANSPORT_FAILURE_FINAL' as const,
+          validationStage: receivedQualityFailure
+            ? 'SCHEMA' as const
+            : 'TRANSPORT' as const,
           normalizedErrorCode,
-          retryable: caught !== null
+          retryable: !receivedQualityFailure
+            && caught !== null
             && typeof caught === 'object'
             && 'retryable' in caught
             && caught.retryable === true,

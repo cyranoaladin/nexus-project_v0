@@ -289,4 +289,43 @@ describe('synthetic benchmark runner', () => {
       safeAttempt: null,
     }]);
   });
+
+  it('classifies a received structured-output rejection as a quality failure', async () => {
+    const context = buildLocalFirstReportContext(fixtures, 'PARENT');
+    const run = await runSyntheticParentBenchmark({
+      contexts: [context],
+      models: ['openai/gpt-5.6-luna'],
+      hardStopMicrosUsd: 1_500_000,
+      warningMicrosUsd: 1_000_000,
+      complete: async () => {
+        throw Object.assign(new Error('redacted'), {
+          code: 'OPENROUTER_SCHEMA_FAILURE',
+          retryable: false,
+          attempts: [{
+            provider: 'fake-zdr-provider',
+            generationId: 'gen-schema-failure',
+            returnedModel: 'openai/gpt-5.6-luna',
+            finishReason: 'stop',
+            promptTokens: 100,
+            completionTokens: 20,
+            reasoningTokens: 5,
+            totalTokens: 120,
+            costMicrosUsd: 125,
+            latencyMs: 42,
+          }],
+        });
+      },
+    });
+
+    expect(run.results).toHaveLength(0);
+    expect(run.failures).toEqual([expect.objectContaining({
+      category: 'QUALITY_FAILURE',
+      validationStage: 'SCHEMA',
+      normalizedErrorCode: 'OPENROUTER_SCHEMA_FAILURE',
+      responseReceived: true,
+      knownCostMicrosUsd: 125,
+      retryable: false,
+    })]);
+    expect(run.totalCostMicrosUsd).toBe(125);
+  });
 });

@@ -119,6 +119,23 @@ describe('benchmark append-only journal', () => {
     })).toThrow('BENCHMARK_RUN_DIRECTORY_IDENTITY_MISMATCH');
   });
 
+  it('resumes the same run id even when the process creation time changes', () => {
+    const run = identity();
+    const plan = schedule(run.runId);
+    const first = createBenchmarkJournal({
+      rootDirectory: root,
+      identity: run,
+      schedule: plan,
+    });
+    const resumed = createBenchmarkJournal({
+      rootDirectory: root,
+      identity: { ...run, createdAt: '2026-07-31T11:00:00.000Z' },
+      schedule: plan,
+    });
+
+    expect(resumed.directory).toBe(first.directory);
+  });
+
   it('projects a crash after start as UNKNOWN_OUTCOME and forbids replay', () => {
     const run = identity();
     const plan = schedule(run.runId);

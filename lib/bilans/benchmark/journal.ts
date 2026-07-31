@@ -127,6 +127,11 @@ function manifestValues(
   });
 }
 
+function stableIdentity(identity: BenchmarkRunIdentity) {
+  const { createdAt: _createdAt, ...stable } = identity;
+  return stable;
+}
+
 export function createBenchmarkJournal(
   input: Readonly<{
     rootDirectory: string;
@@ -152,7 +157,8 @@ export function createBenchmarkJournal(
     const manifest = parseManifest(manifestPath);
     if (
       manifest.runId !== input.identity.runId
-      || sha256Canonical(manifest.identity) !== sha256Canonical(input.identity)
+      || sha256Canonical(stableIdentity(manifest.identity))
+        !== sha256Canonical(stableIdentity(input.identity))
       || sha256Canonical(manifest.schedule) !== sha256Canonical(input.schedule)
     ) {
       throw new Error('BENCHMARK_RUN_DIRECTORY_IDENTITY_MISMATCH');

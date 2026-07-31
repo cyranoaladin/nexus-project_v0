@@ -26,9 +26,9 @@ export type BenchmarkModelPrice = Readonly<{
   requestUsd: string;
 }>;
 
-const PRICE_SCALE = 1_000_000_000_000n;
-const MICROS_PER_USD = 1_000_000n;
-const BASIS_POINTS = 10_000n;
+const PRICE_SCALE = BigInt('1000000000000');
+const MICROS_PER_USD = BigInt('1000000');
+const BASIS_POINTS = BigInt('10000');
 
 function decimalToScaled(value: string): bigint {
   if (!DecimalPriceSchema.safeParse(value).success) {
@@ -40,7 +40,7 @@ function decimalToScaled(value: string): bigint {
 }
 
 function ceilDivide(numerator: bigint, denominator: bigint): bigint {
-  return (numerator + denominator - 1n) / denominator;
+  return (numerator + denominator - BigInt(1)) / denominator;
 }
 
 export function extractBenchmarkModelPrices(
@@ -121,7 +121,7 @@ export class BenchmarkBudgetLedger {
   private readonly hardStopMicrosUsd: bigint;
   private readonly maxNetworkAttempts: number;
   private readonly reservations = new Map<string, Reservation>();
-  private totalKnownCostMicrosUsd = 0n;
+  private totalKnownCostMicrosUsd = BigInt(0);
 
   constructor(input: Readonly<{
     warningMicrosUsd: bigint;
@@ -129,8 +129,8 @@ export class BenchmarkBudgetLedger {
     maxNetworkAttempts: number;
   }>) {
     if (
-      input.warningMicrosUsd <= 0n
-      || input.hardStopMicrosUsd <= 0n
+      input.warningMicrosUsd <= BigInt(0)
+      || input.hardStopMicrosUsd <= BigInt(0)
       || input.warningMicrosUsd > input.hardStopMicrosUsd
       || !Number.isSafeInteger(input.maxNetworkAttempts)
       || input.maxNetworkAttempts <= 0
@@ -152,12 +152,12 @@ export class BenchmarkBudgetLedger {
     if (this.reservations.size >= this.maxNetworkAttempts) {
       throw new Error('BENCHMARK_NETWORK_ATTEMPT_LIMIT');
     }
-    if (input.amountMicrosUsd <= 0n) {
+    if (input.amountMicrosUsd <= BigInt(0)) {
       throw new Error('BENCHMARK_BUDGET_RESERVATION_INVALID');
     }
     const existingReserved = [...this.reservations.values()]
       .filter(({ status }) => status !== 'RECONCILED')
-      .reduce((total, { amountMicrosUsd }) => total + amountMicrosUsd, 0n);
+      .reduce((total, { amountMicrosUsd }) => total + amountMicrosUsd, BigInt(0));
     if (
       this.totalKnownCostMicrosUsd
       + existingReserved
@@ -198,16 +198,16 @@ export class BenchmarkBudgetLedger {
     const values = [...this.reservations.values()];
     const openReservedCostMicrosUsd = values
       .filter(({ status }) => status === 'OPEN')
-      .reduce((total, { amountMicrosUsd }) => total + amountMicrosUsd, 0n);
+      .reduce((total, { amountMicrosUsd }) => total + amountMicrosUsd, BigInt(0));
     const reservedUnknownCostMicrosUsd = values
       .filter(({ status }) => status === 'UNKNOWN')
-      .reduce((total, { amountMicrosUsd }) => total + amountMicrosUsd, 0n);
+      .reduce((total, { amountMicrosUsd }) => total + amountMicrosUsd, BigInt(0));
     return Object.freeze({
       attemptedCallCount: values.length,
       totalKnownCostMicrosUsd: this.totalKnownCostMicrosUsd,
       openReservedCostMicrosUsd,
       reservedUnknownCostMicrosUsd,
-      reportedCostUndercountMicrosUsd: 0n,
+      reportedCostUndercountMicrosUsd: BigInt(0),
       warningReached:
         this.totalKnownCostMicrosUsd
         + openReservedCostMicrosUsd
@@ -215,5 +215,44 @@ export class BenchmarkBudgetLedger {
         >= this.warningMicrosUsd,
       hardStopMicrosUsd: this.hardStopMicrosUsd,
     });
+  }
+}
+
+export function replayBenchmarkBudgetEvents(
+  ledger: BenchmarkBudgetLedger,
+  events: readonly Readonly<{
+    type: string;
+    payload: Readonly<Record<string, unknown>>;
+  }>[],
+): void {
+  for (const event of events) {
+    if (event.type === 'BUDGET_RESERVED') {
+      if (
+        typeof event.payload.reservationKey !== 'string'
+        || typeof event.payload.amountMicrosUsd !== 'string'
+        || !/^[1-9]\d*$/.test(event.payload.amountMicrosUsd)
+      ) throw new Error('BENCHMARK_BUDGET_JOURNAL_INVALID');
+      ledger.reserve({
+        reservationKey: event.payload.reservationKey,
+        amountMicrosUsd: BigInt(event.payload.amountMicrosUsd),
+      });
+    }
+    if (event.type === 'BUDGET_RECONCILED') {
+      if (
+        typeof event.payload.reservationKey !== 'string'
+        || !(
+          event.payload.knownCostMicrosUsd === null
+          || (
+            typeof event.payload.knownCostMicrosUsd === 'number'
+            && Number.isSafeInteger(event.payload.knownCostMicrosUsd)
+            && event.payload.knownCostMicrosUsd >= 0
+          )
+        )
+      ) throw new Error('BENCHMARK_BUDGET_JOURNAL_INVALID');
+      ledger.reconcile({
+        reservationKey: event.payload.reservationKey,
+        knownCostMicrosUsd: event.payload.knownCostMicrosUsd,
+      });
+    }
   }
 }
