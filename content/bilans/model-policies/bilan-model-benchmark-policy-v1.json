@@ -26,7 +26,8 @@
   },
   "maxOutputTokens": 2048,
   "retryCount": 0,
-  "hardStopMicrosUsd": 1500000,
-  "warningMicrosUsd": 1000000,
+  "hardStopMicrosUsd": 1000000,
+  "warningMicrosUsd": 700000,
+  "maxNetworkAttempts": 42,
   "responseCaching": false
 }

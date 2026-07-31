@@ -46,8 +46,9 @@ const BenchmarkPolicySchema = z.object({
   }).strict(),
   maxOutputTokens: z.literal(2048),
   retryCount: z.literal(0),
-  hardStopMicrosUsd: z.literal(1_500_000),
-  warningMicrosUsd: z.literal(1_000_000),
+  hardStopMicrosUsd: z.literal(1_000_000),
+  warningMicrosUsd: z.literal(700_000),
+  maxNetworkAttempts: z.literal(42),
   responseCaching: z.literal(false),
 }).strict();
 

@@ -1,0 +1,219 @@
+import 'server-only';
+
+import { z } from 'zod';
+
+const DecimalPriceSchema = z.string().regex(/^\d+(?:\.\d{1,12})?$/);
+
+const ModelPriceEntrySchema = z.object({
+  id: z.string().min(1),
+  pricing: z.object({
+    prompt: DecimalPriceSchema,
+    completion: DecimalPriceSchema,
+    internal_reasoning: DecimalPriceSchema.optional(),
+    request: DecimalPriceSchema.optional(),
+  }).passthrough(),
+}).passthrough();
+
+const CatalogSchema = z.object({
+  data: z.array(ModelPriceEntrySchema),
+}).passthrough();
+
+export type BenchmarkModelPrice = Readonly<{
+  modelId: string;
+  promptUsdPerToken: string;
+  completionUsdPerToken: string;
+  reasoningUsdPerToken: string;
+  requestUsd: string;
+}>;
+
+const PRICE_SCALE = 1_000_000_000_000n;
+const MICROS_PER_USD = 1_000_000n;
+const BASIS_POINTS = 10_000n;
+
+function decimalToScaled(value: string): bigint {
+  if (!DecimalPriceSchema.safeParse(value).success) {
+    throw new Error('BLOCKED_BY_BENCHMARK_PRICE_METADATA');
+  }
+  const [whole, fraction = ''] = value.split('.');
+  return BigInt(whole) * PRICE_SCALE
+    + BigInt(fraction.padEnd(12, '0'));
+}
+
+function ceilDivide(numerator: bigint, denominator: bigint): bigint {
+  return (numerator + denominator - 1n) / denominator;
+}
+
+export function extractBenchmarkModelPrices(
+  catalog: unknown,
+  requiredModelIds: readonly string[],
+): ReadonlyMap<string, BenchmarkModelPrice> {
+  const parsed = CatalogSchema.safeParse(catalog);
+  if (
+    !parsed.success
+    || requiredModelIds.length === 0
+    || new Set(requiredModelIds).size !== requiredModelIds.length
+  ) {
+    throw new Error('BLOCKED_BY_BENCHMARK_PRICE_METADATA');
+  }
+  const prices = new Map<string, BenchmarkModelPrice>();
+  for (const modelId of requiredModelIds) {
+    const entry = parsed.data.data.find(({ id }) => id === modelId);
+    if (entry === undefined) {
+      throw new Error('BLOCKED_BY_BENCHMARK_PRICE_METADATA');
+    }
+    const price = Object.freeze({
+      modelId,
+      promptUsdPerToken: entry.pricing.prompt,
+      completionUsdPerToken: entry.pricing.completion,
+      reasoningUsdPerToken:
+        entry.pricing.internal_reasoning ?? entry.pricing.completion,
+      requestUsd: entry.pricing.request ?? '0',
+    });
+    for (const value of [
+      price.promptUsdPerToken,
+      price.completionUsdPerToken,
+      price.reasoningUsdPerToken,
+      price.requestUsd,
+    ]) decimalToScaled(value);
+    prices.set(modelId, price);
+  }
+  return prices;
+}
+
+export function estimateBenchmarkCallReserve(
+  input: Readonly<{
+    price: BenchmarkModelPrice;
+    maximumInputTokens: number;
+    maximumOutputTokens: number;
+    safetyMarginBasisPoints: number;
+  }>,
+): bigint {
+  if (
+    !Number.isSafeInteger(input.maximumInputTokens)
+    || input.maximumInputTokens <= 0
+    || !Number.isSafeInteger(input.maximumOutputTokens)
+    || input.maximumOutputTokens <= 0
+    || !Number.isSafeInteger(input.safetyMarginBasisPoints)
+    || input.safetyMarginBasisPoints < 10_000
+  ) {
+    throw new Error('BENCHMARK_BUDGET_ESTIMATE_INVALID');
+  }
+  const inputUnits = BigInt(input.maximumInputTokens);
+  const outputUnits = BigInt(input.maximumOutputTokens);
+  const scaledUsd =
+    decimalToScaled(input.price.promptUsdPerToken) * inputUnits
+    + decimalToScaled(input.price.completionUsdPerToken) * outputUnits
+    + decimalToScaled(input.price.reasoningUsdPerToken) * outputUnits
+    + decimalToScaled(input.price.requestUsd);
+  return ceilDivide(
+    scaledUsd * MICROS_PER_USD * BigInt(input.safetyMarginBasisPoints),
+    PRICE_SCALE * BASIS_POINTS,
+  );
+}
+
+type Reservation = {
+  amountMicrosUsd: bigint;
+  status: 'OPEN' | 'UNKNOWN' | 'RECONCILED';
+};
+
+export class BenchmarkBudgetLedger {
+  private readonly warningMicrosUsd: bigint;
+  private readonly hardStopMicrosUsd: bigint;
+  private readonly maxNetworkAttempts: number;
+  private readonly reservations = new Map<string, Reservation>();
+  private totalKnownCostMicrosUsd = 0n;
+
+  constructor(input: Readonly<{
+    warningMicrosUsd: bigint;
+    hardStopMicrosUsd: bigint;
+    maxNetworkAttempts: number;
+  }>) {
+    if (
+      input.warningMicrosUsd <= 0n
+      || input.hardStopMicrosUsd <= 0n
+      || input.warningMicrosUsd > input.hardStopMicrosUsd
+      || !Number.isSafeInteger(input.maxNetworkAttempts)
+      || input.maxNetworkAttempts <= 0
+    ) {
+      throw new Error('BENCHMARK_BUDGET_CONFIGURATION_INVALID');
+    }
+    this.warningMicrosUsd = input.warningMicrosUsd;
+    this.hardStopMicrosUsd = input.hardStopMicrosUsd;
+    this.maxNetworkAttempts = input.maxNetworkAttempts;
+  }
+
+  reserve(input: Readonly<{
+    reservationKey: string;
+    amountMicrosUsd: bigint;
+  }>): void {
+    if (this.reservations.has(input.reservationKey)) {
+      throw new Error('BENCHMARK_BUDGET_RESERVATION_DUPLICATE');
+    }
+    if (this.reservations.size >= this.maxNetworkAttempts) {
+      throw new Error('BENCHMARK_NETWORK_ATTEMPT_LIMIT');
+    }
+    if (input.amountMicrosUsd <= 0n) {
+      throw new Error('BENCHMARK_BUDGET_RESERVATION_INVALID');
+    }
+    const existingReserved = [...this.reservations.values()]
+      .filter(({ status }) => status !== 'RECONCILED')
+      .reduce((total, { amountMicrosUsd }) => total + amountMicrosUsd, 0n);
+    if (
+      this.totalKnownCostMicrosUsd
+      + existingReserved
+      + input.amountMicrosUsd
+      > this.hardStopMicrosUsd
+    ) {
+      throw new Error('BENCHMARK_HARD_STOP_PRE_CALL');
+    }
+    this.reservations.set(input.reservationKey, {
+      amountMicrosUsd: input.amountMicrosUsd,
+      status: 'OPEN',
+    });
+  }
+
+  reconcile(input: Readonly<{
+    reservationKey: string;
+    knownCostMicrosUsd: number | null;
+  }>): void {
+    const reservation = this.reservations.get(input.reservationKey);
+    if (reservation === undefined || reservation.status !== 'OPEN') {
+      throw new Error('BENCHMARK_BUDGET_RECONCILIATION_INVALID');
+    }
+    if (input.knownCostMicrosUsd === null) {
+      reservation.status = 'UNKNOWN';
+      return;
+    }
+    if (
+      !Number.isSafeInteger(input.knownCostMicrosUsd)
+      || input.knownCostMicrosUsd < 0
+    ) {
+      throw new Error('BENCHMARK_BUDGET_RECONCILIATION_INVALID');
+    }
+    this.totalKnownCostMicrosUsd += BigInt(input.knownCostMicrosUsd);
+    reservation.status = 'RECONCILED';
+  }
+
+  summary() {
+    const values = [...this.reservations.values()];
+    const openReservedCostMicrosUsd = values
+      .filter(({ status }) => status === 'OPEN')
+      .reduce((total, { amountMicrosUsd }) => total + amountMicrosUsd, 0n);
+    const reservedUnknownCostMicrosUsd = values
+      .filter(({ status }) => status === 'UNKNOWN')
+      .reduce((total, { amountMicrosUsd }) => total + amountMicrosUsd, 0n);
+    return Object.freeze({
+      attemptedCallCount: values.length,
+      totalKnownCostMicrosUsd: this.totalKnownCostMicrosUsd,
+      openReservedCostMicrosUsd,
+      reservedUnknownCostMicrosUsd,
+      reportedCostUndercountMicrosUsd: 0n,
+      warningReached:
+        this.totalKnownCostMicrosUsd
+        + openReservedCostMicrosUsd
+        + reservedUnknownCostMicrosUsd
+        >= this.warningMicrosUsd,
+      hardStopMicrosUsd: this.hardStopMicrosUsd,
+    });
+  }
+}
