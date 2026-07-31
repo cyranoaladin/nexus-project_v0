@@ -87,7 +87,6 @@ export default function MathInput({
           }
         });
 
-        containerRef.current.innerHTML = '';
         containerRef.current.appendChild(mf);
         mathfieldRef.current = mf;
         setLoaded(true);
@@ -155,7 +154,8 @@ export default function MathInput({
       </div>
 
       {/* MathLive container or fallback */}
-      <div ref={containerRef} className="min-h-[48px]">
+      <div className="min-h-[48px]">
+        <div ref={containerRef} />
         {!loaded && (
           <input
             type="text"

@@ -338,18 +338,35 @@ describe('time-bound development-tooling exception validator', () => {
 });
 
 describe('official compatible brace-expansion remediation', () => {
-  it('uses the patched 5.x release while leaving incompatible old majors untouched', () => {
+  it('uses a patched release on every compatible major line', () => {
     const lock = JSON.parse(readFileSync('package-lock.json', 'utf8'));
-    expect(
-      lock.packages[
-        'node_modules/@typescript-eslint/typescript-estree/node_modules/brace-expansion'
-      ].version,
-    ).toBe('5.0.8');
-    expect(lock.packages['node_modules/brace-expansion'].version).toBe(
-      '1.1.16',
+
+    function expectPatchedVersion(path: string, minimum: string) {
+      const actual = lock.packages[path].version as string;
+      const actualParts = actual.split('.').map(Number);
+      const minimumParts = minimum.split('.').map(Number);
+
+      expect(actualParts[0]).toBe(minimumParts[0]);
+      expect(actualParts).toEqual(
+        expect.arrayContaining([expect.any(Number)]),
+      );
+      expect(
+        actualParts[0] * 1_000_000 + actualParts[1] * 1_000 + actualParts[2],
+      ).toBeGreaterThanOrEqual(
+        minimumParts[0] * 1_000_000 +
+          minimumParts[1] * 1_000 +
+          minimumParts[2],
+      );
+    }
+
+    expectPatchedVersion(
+      'node_modules/@typescript-eslint/typescript-estree/node_modules/brace-expansion',
+      '5.0.8',
     );
-    expect(
-      lock.packages['node_modules/cacache/node_modules/brace-expansion'].version,
-    ).toBe('2.1.2');
+    expectPatchedVersion('node_modules/brace-expansion', '1.1.17');
+    expectPatchedVersion(
+      'node_modules/cacache/node_modules/brace-expansion',
+      '2.1.3',
+    );
   });
 });
