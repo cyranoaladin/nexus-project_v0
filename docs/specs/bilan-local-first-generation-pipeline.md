@@ -63,6 +63,13 @@ chaîne. Les fixtures déclarent `datasetVersion=synthetic-v1` : elles ne
 portent aucun faux SHA Git. Le SHA de l'enveloppe vient exclusivement du
 checkout propre d'exécution.
 
+Le résultat PII lie séparément le checksum des champs effectivement scannés
+et celui de leur projection assainie. Une enveloppe est refusée si les chemins
+scannés ne couvrent pas toutes les valeurs textuelles de son `payload` ou si
+leur checksum ne correspond pas. Une approbation de texte non fiable est liée
+au texte assaini, à sa preuve, à sa compétence et au scan PII exact ; elle ne
+peut pas être réutilisée après modification du contenu.
+
 ## Responsabilités locales
 
 Restent exclusivement locaux :

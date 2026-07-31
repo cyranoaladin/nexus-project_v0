@@ -27,6 +27,7 @@ describe('local-first PII contract', () => {
       redactionCount: 0,
       requiresHumanReview: false,
       scannedFieldPaths: ['$.approvedEvidenceForLlm[0].text'],
+      scannedContentChecksum: expect.stringMatching(/^[a-f0-9]{64}$/),
     });
     expect(validatePiiScanResultChecksum(scan.result)).toBe(true);
     expect(() => PiiScanResultSchema.parse(scan.result)).not.toThrow();
@@ -65,6 +66,14 @@ describe('local-first PII contract', () => {
     expect(serialized).not.toContain('14/02/2012');
     expect(serialized).not.toContain('https://example.invalid/profil');
     expect(validatePiiScanResultChecksum(scan.result)).toBe(true);
+    const rescanned = scanPiiFields([{
+      path: '$.rawEvidenceLocalOnly[0].text',
+      text: scan.sanitizedFields['$.rawEvidenceLocalOnly[0].text'],
+      source: 'CONTROLLED_TEMPLATE',
+    }]);
+    expect(rescanned.result.status).toBe('CLEAN');
+    expect(rescanned.result.scannedContentChecksum)
+      .toBe(scan.result.sanitizedContentChecksum);
   });
 
   it('scans LLM generated text without claiming it is a controlled template', () => {
@@ -132,6 +141,8 @@ describe('local-first PII contract', () => {
       redactionCount: 0,
       requiresHumanReview: true,
       scannedFieldPaths: [],
+      scannedContentChecksum: '0'.repeat(64),
+      sanitizedContentChecksum: '0'.repeat(64),
       checksum: '0'.repeat(64),
     })).not.toThrow();
 

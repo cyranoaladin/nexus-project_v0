@@ -19,6 +19,7 @@ import { sha256Canonical } from '@/lib/llm/openrouter/hash';
 
 import {
   PiiScanResultSchema,
+  piiScanResultMatchesContent,
   validatePiiScanResultChecksum,
 } from './pii';
 
@@ -37,6 +38,31 @@ const ArtifactTypeSchema = z.enum([
 ]);
 
 const ARTIFACT_ORDER = ArtifactTypeSchema.options;
+
+function payloadStringFields(
+  value: unknown,
+  path = '$.payload',
+): Array<{ path: string; text: string }> {
+  if (typeof value === 'string') return [{ path, text: value }];
+  if (Array.isArray(value)) {
+    return value.flatMap((item, index) =>
+      payloadStringFields(item, `${path}[${index}]`));
+  }
+  if (value === null || typeof value !== 'object') return [];
+  return Object.entries(value).flatMap(([key, item]) =>
+    payloadStringFields(item, `${path}.${key}`));
+}
+
+function piiScanMatchesPayload(
+  scan: z.infer<typeof PiiScanResultSchema>,
+  payload: unknown,
+): boolean {
+  return piiScanResultMatchesContent(
+    scan,
+    payloadStringFields(payload),
+    'SCANNED',
+  );
+}
 
 export const LocalFirstArtifactEnvelopeSchema = z.object({
   artifactId: z.string().uuid(),
@@ -75,6 +101,13 @@ export const LocalFirstArtifactEnvelopeSchema = z.object({
       code: z.ZodIssueCode.custom,
       path: ['parentArtifactChecksum'],
       message: 'A non-root artifact requires a parent.',
+    });
+  }
+  if (!piiScanMatchesPayload(value.piiScanResult, value.payload)) {
+    context.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['piiScanResult'],
+      message: 'The PII scan is not bound to the artifact payload.',
     });
   }
 });
@@ -131,6 +164,9 @@ export function createLocalFirstArtifact(
   }
   if (!validatePiiScanResultChecksum(input.piiScanResult)) {
     throw new Error('Artifact PII scan checksum is invalid.');
+  }
+  if (!piiScanMatchesPayload(input.piiScanResult, input.payload)) {
+    throw new Error('Artifact PII scan is not bound to its payload.');
   }
   const isRoot = input.artifactType === 'NORMALIZED_ASSESSMENT';
   if (isRoot && input.parent !== undefined) {

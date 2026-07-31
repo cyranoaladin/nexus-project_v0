@@ -32,6 +32,8 @@ export const PiiScanResultSchema = z.object({
   redactionCount: z.number().int().nonnegative(),
   requiresHumanReview: z.boolean(),
   scannedFieldPaths: z.array(z.string().min(1).max(240)),
+  scannedContentChecksum: z.string().regex(/^[a-f0-9]{64}$/),
+  sanitizedContentChecksum: z.string().regex(/^[a-f0-9]{64}$/),
   checksum: z.string().regex(/^[a-f0-9]{64}$/),
 }).strict().superRefine((value, context) => {
   if (new Set(value.detectedCategories).size !== value.detectedCategories.length) {
@@ -186,9 +188,6 @@ export function scanPiiFields(
   sanitizedFields: Readonly<Record<string, string>>;
   result: PiiScanResult;
 }> {
-  if (fields.length === 0) {
-    throw new Error('At least one PII field must be scanned.');
-  }
   const uniquePaths = new Set(fields.map(({ path }) => path));
   if (uniquePaths.size !== fields.length) {
     throw new Error('PII field paths must be unique.');
@@ -229,6 +228,15 @@ export function scanPiiFields(
     redactionCount,
     requiresHumanReview: blocked,
     scannedFieldPaths: [...uniquePaths].sort(),
+    scannedContentChecksum: sha256Canonical(Object.fromEntries(
+      [...fields]
+        .sort((left, right) => left.path.localeCompare(right.path))
+        .map(({ path, text }) => [path, text]),
+    )),
+    sanitizedContentChecksum: sha256Canonical(Object.fromEntries(
+      Object.entries(sanitizedFields).sort(([left], [right]) =>
+        left.localeCompare(right)),
+    )),
   };
   const result = PiiScanResultSchema.parse({
     ...values,
@@ -241,4 +249,27 @@ export function scanPiiFields(
     ),
     result: Object.freeze(result),
   });
+}
+
+export function piiScanResultMatchesContent(
+  input: PiiScanResult,
+  fields: readonly Readonly<{ path: string; text: string }>[],
+  content: 'SCANNED' | 'SANITIZED',
+): boolean {
+  if (!validatePiiScanResultChecksum(input)) return false;
+  const paths = fields.map(({ path }) => path).sort();
+  if (
+    paths.length !== input.scannedFieldPaths.length
+    || paths.some((path, index) => path !== input.scannedFieldPaths[index])
+  ) return false;
+  const checksum = sha256Canonical(Object.fromEntries(
+    [...fields]
+      .sort((left, right) => left.path.localeCompare(right.path))
+      .map(({ path, text }) => [path, text]),
+  ));
+  return checksum === (
+    content === 'SCANNED'
+      ? input.scannedContentChecksum
+      : input.sanitizedContentChecksum
+  );
 }

@@ -10,7 +10,10 @@ import {
   buildLocalFirstReportContext,
   hasValidSyntheticFixtureChecksum,
   validateLocalFirstReportContext,
+  approvedEvidenceSourceChecksum,
 } from '@/lib/bilans/local-first/contracts';
+import { scanPiiFields } from '@/lib/bilans/local-first/pii';
+import { sha256Canonical } from '@/lib/llm/openrouter/hash';
 
 const FIXTURE_ROOT = join(
   process.cwd(),
@@ -146,6 +149,108 @@ describe('local-first synthetic benchmark contracts', () => {
 
     expect(() => validateLocalFirstReportContext(withEmail)).toThrow();
     expect(() => validateLocalFirstReportContext(withEmail)).toThrow();
+  });
+
+  it('preserves a REDACTED scan bound to the sanitized context text', () => {
+    const context = buildLocalFirstReportContext(fixtures()[0], 'PARENT');
+    const path = '$.approvedEvidenceForLlm[0].text';
+    const scan = scanPiiFields(context.approvedEvidenceForLlm.map(
+      (item, index) => ({
+        path: `$.approvedEvidenceForLlm[${index}].text`,
+        text: index === 0
+          ? 'Contact synthétique eleve@example.invalid'
+          : item.text,
+        source: 'CONTROLLED_TEMPLATE' as const,
+      }),
+    ));
+    const redactedContext = {
+      ...context,
+      piiScanResult: scan.result,
+      approvedEvidenceForLlm: [{
+        ...context.approvedEvidenceForLlm[0],
+        text: scan.sanitizedFields[path],
+      }, ...context.approvedEvidenceForLlm.slice(1)],
+    };
+
+    expect(scan.result.status).toBe('REDACTED');
+    expect(() => validateLocalFirstReportContext(redactedContext)).not.toThrow();
+  });
+
+  it('binds human approval to the exact approved evidence content', () => {
+    const context = buildLocalFirstReportContext(fixtures()[0], 'PARENT');
+    const original = context.approvedEvidenceForLlm[0];
+    const path = '$.approvedEvidenceForLlm[0].text';
+    const originalScan = scanPiiFields([{
+      path,
+      text: original.text,
+      source: 'CONTROLLED_TEMPLATE',
+    }]);
+    const approvalValues = {
+      reviewerId: 'reviewer:synthetic',
+      reviewedAt: '2026-07-31T10:00:00.000Z',
+      sourceChecksum: approvedEvidenceSourceChecksum({
+        evidenceRef: original.evidenceRef,
+        competencyId: original.competencyId,
+        text: original.text,
+        piiScanResult: originalScan.result,
+      }),
+    };
+    const humanApproval = {
+      ...approvalValues,
+      approvalChecksum: sha256Canonical(approvalValues),
+    };
+    const untrusted = {
+      evidenceRef: original.evidenceRef,
+      competencyId: original.competencyId,
+      text: original.text,
+      trust: 'UNTRUSTED_QUOTED_DATA' as const,
+      piiScanResult: originalScan.result,
+      humanApproval,
+    };
+    const contextScan = scanPiiFields(context.approvedEvidenceForLlm.map(
+      (item, index) => ({
+        path: `$.approvedEvidenceForLlm[${index}].text`,
+        text: item.text,
+        source: 'CONTROLLED_TEMPLATE' as const,
+      }),
+    ));
+    const approvedContext = {
+      ...context,
+      piiScanResult: contextScan.result,
+      approvedEvidenceForLlm: [
+        untrusted,
+        ...context.approvedEvidenceForLlm.slice(1),
+      ],
+    };
+    expect(() => validateLocalFirstReportContext(approvedContext)).not.toThrow();
+
+    const changedText = `${original.text} Ajout non revu.`;
+    const changedScan = scanPiiFields([{
+      path,
+      text: changedText,
+      source: 'CONTROLLED_TEMPLATE',
+    }]);
+    const changedContextScan = scanPiiFields([
+      {
+        path,
+        text: changedText,
+        source: 'CONTROLLED_TEMPLATE',
+      },
+      ...context.approvedEvidenceForLlm.slice(1).map((item, index) => ({
+        path: `$.approvedEvidenceForLlm[${index + 1}].text`,
+        text: item.text,
+        source: 'CONTROLLED_TEMPLATE' as const,
+      })),
+    ]);
+    expect(() => validateLocalFirstReportContext({
+      ...approvedContext,
+      piiScanResult: changedContextScan.result,
+      approvedEvidenceForLlm: [{
+        ...untrusted,
+        text: changedText,
+        piiScanResult: changedScan.result,
+      }, ...context.approvedEvidenceForLlm.slice(1)],
+    })).toThrow(/approval/i);
   });
 
   it('exports closed local JSON Schemas', () => {
