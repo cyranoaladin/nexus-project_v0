@@ -26,9 +26,11 @@ import {
   getPonctuelOffer,
   getCoachingOffer,
   getCustomQuoteLibre,
+  getReferralProgram,
   type Pack,
 } from '@/lib/pricing';
 import { CustomQuoteLibre } from '@/components/offres/CustomQuoteLibre';
+import { ReferralProgramNote } from '@/components/offres/ReferralProgramNote';
 import {
   ReassuranceChips,
   TransparencyBanner,
@@ -134,6 +136,7 @@ export default function OffresPage() {
   const rules = getRules();
   const libreOffers = getOffersByTrack('libre');
   const customQuoteLibre = getCustomQuoteLibre();
+  const referralProgram = getReferralProgram();
   const platformOffers = getOffersByTrack('plateforme');
   const stageFormats = getStageFormats();
   const stageEditions = getStageEditions();
@@ -574,6 +577,9 @@ export default function OffresPage() {
           </div>
           <div className="max-w-md">
             <CarteNexusCard carte={carte} ctaText="Demander cette offre" ctaHref={buildWhatsAppUrl(carte.title)} />
+          </div>
+          <div className="max-w-md">
+            <ReferralProgramNote referral={referralProgram} />
           </div>
         </div>
       </section>

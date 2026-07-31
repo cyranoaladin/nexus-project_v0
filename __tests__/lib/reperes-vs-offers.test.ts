@@ -51,8 +51,12 @@ describe('Repères tarifaires == canonical offers (no second source)', () => {
     expect(rep.stagesBase).toBe(`dès ${min} TND`);
   });
 
-  test('parrainage == rules.discounts range', () => {
-    const rules = data.rules.discounts;
-    expect(rep.parrainage).toBe(`${rules.parrainage_min_tnd} à ${rules.parrainage_max_tnd} TND`);
+  test('parrainage == referral_program in-kind reward (no monetary discount)', () => {
+    // Grille C: parrainage is an in-kind reward (ARIA months), not a rules.discounts
+    // amount — rules.discounts.parrainage_min_tnd/max_tnd stay at 0.
+    const referral = data.referral_program;
+    expect(rep.parrainage).toBe(
+      `${referral.reward_months} mois ARIA offert par filleul inscrit (jusqu'à ${referral.cap_months_per_family_per_year} mois/an)`,
+    );
   });
 });

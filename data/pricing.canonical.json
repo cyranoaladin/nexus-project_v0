@@ -1810,6 +1810,16 @@
       "Composition à la carte selon le bilan"
     ]
   },
+  "referral_program": {
+    "enabled": true,
+    "reward_type": "aria_months_free",
+    "reward_months": 1,
+    "trigger": "filleul_inscription_confirmee",
+    "cap_months_per_family_per_year": 3,
+    "convertible_to_cash": false,
+    "deductible_from_price_or_reservation": false,
+    "note": "Avantage en nature (mois ARIA offert au parrain), pas une remise tarifaire : rules.discounts.parrainage_min_tnd/max_tnd restent à 0 (grille C). Ne réduit ni le prix ni le plancher d'aucune offre et n'est ni convertible en espèces ni déductible d'une réservation ou d'un prix."
+  },
   "reperes_tarifaires": {
     "brevetMois": "à partir de 205 TND / mois hors acompte",
     "secondeMois": "à partir de 225 TND / mois hors acompte",
@@ -1819,7 +1829,7 @@
     "terminaleDuoMois": "à partir de 495 TND / mois hors acompte",
     "plateformeAn": "à partir de 590 TND / an",
     "stagesBase": "dès 420 TND",
-    "parrainage": "0 à 0 TND"
+    "parrainage": "1 mois ARIA offert par filleul inscrit (jusqu'à 3 mois/an)"
   },
   "pre_rentree_packs": [
     {

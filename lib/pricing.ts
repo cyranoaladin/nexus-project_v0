@@ -300,6 +300,21 @@ export interface CustomQuoteLibre {
   includes: string[];
 }
 
+/**
+ * Parrainage benefit under grille C: an in-kind reward (ARIA months), never
+ * a monetary discount. rules.discounts.parrainage_min_tnd/max_tnd stay at 0.
+ */
+export interface ReferralProgram {
+  enabled: boolean;
+  reward_type: 'aria_months_free';
+  reward_months: number;
+  trigger: string;
+  cap_months_per_family_per_year: number;
+  convertible_to_cash: boolean;
+  deductible_from_price_or_reservation: boolean;
+  note: string;
+}
+
 export interface PricingData {
   version: string;
   _note?: string;
@@ -325,6 +340,7 @@ export interface PricingData {
   carte_nexus: CarteNexus;
   urgence: Record<string, { title: string; display: string; hourly?: number; amount?: number }>;
   custom_quote_libre: CustomQuoteLibre;
+  referral_program: ReferralProgram;
   reperes_tarifaires: {
     brevetMois: string;
     secondeMois: string;
@@ -538,6 +554,10 @@ export function getUrgence(): PricingData['urgence'] {
 
 export function getCustomQuoteLibre(): CustomQuoteLibre {
   return data.custom_quote_libre;
+}
+
+export function getReferralProgram(): ReferralProgram {
+  return data.referral_program;
 }
 
 export function getReperes(): PricingData['reperes_tarifaires'] {

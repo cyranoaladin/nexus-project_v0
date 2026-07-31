@@ -496,6 +496,37 @@ describe('T18 — an offer with a price and hours must expose a real price_per_s
   });
 });
 
+// ── T19: Parrainage — in-kind reward, never a monetary discount ──
+
+describe('T19 — referral_program is an in-kind reward, not a rules.discounts amount', () => {
+  test('referral_program is enabled and grants ARIA months, not TND', () => {
+    const referral = data.referral_program;
+    expect(referral.enabled).toBe(true);
+    expect(referral.reward_type).toBe('aria_months_free');
+    expect(referral.reward_months).toBeGreaterThan(0);
+    expect(referral.cap_months_per_family_per_year).toBeGreaterThanOrEqual(referral.reward_months);
+  });
+
+  test('the reward can never be converted to cash or deducted from a price/reservation', () => {
+    const referral = data.referral_program;
+    expect(referral.convertible_to_cash).toBe(false);
+    expect(referral.deductible_from_price_or_reservation).toBe(false);
+  });
+
+  test('rules.discounts.parrainage_min_tnd/max_tnd stay at 0 — the referral program never reactivates a monetary discount', () => {
+    expect(data.rules.discounts.parrainage_min_tnd).toBe(0);
+    expect(data.rules.discounts.parrainage_max_tnd).toBe(0);
+  });
+
+  test('no offer price, floor, or échéancier depends on referral_program', () => {
+    // Structural guard: referral_program must not appear anywhere inside an
+    // individual offer object (it is a standalone, informational block).
+    for (const offer of data.offers) {
+      expect((offer as unknown as Record<string, unknown>).referral_program).toBeUndefined();
+    }
+  });
+});
+
 describe('Discounts disabled — grille C accessible pricing', () => {
   test('every discount rate is 0', () => {
     const d = data.rules.discounts;
