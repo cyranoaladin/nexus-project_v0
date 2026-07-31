@@ -40,9 +40,23 @@ export type BilanModelPolicy = Readonly<{
   automaticCapabilityEnablement: false;
 }>;
 
+export type OpenRouterOutputTokenParameter =
+  | 'max_tokens'
+  | 'max_completion_tokens';
+
+export type BilanTransportPolicy = Readonly<{
+  id: 'bilan-openrouter-transport-policy';
+  version: '1';
+  outputTokenParameters: Readonly<{
+    'anthropic/claude-sonnet-5': 'max_tokens';
+    'openai/gpt-5.6-terra': 'max_completion_tokens';
+  }>;
+}>;
+
 export type OpenRouterModelCapabilitySnapshot = Readonly<{
   requestedModelId: string;
   canonicalSlug: string;
+  outputTokenParameter: OpenRouterOutputTokenParameter;
   fetchedAt: string;
   supportedParameters: readonly string[];
   contextLength: number;
@@ -63,6 +77,9 @@ export type OpenRouterPreflightProof = Readonly<{
   policyId: string;
   policyVersion: string;
   policyChecksum: string;
+  transportPolicyId: string;
+  transportPolicyVersion: string;
+  transportPolicyChecksum: string;
   catalogChecksum: string;
   apiKeyFingerprint: string;
   preflightSoftwareSha: string;
@@ -79,10 +96,9 @@ export type OpenRouterMessage = Readonly<{
 
 export type StrictJsonSchema = Readonly<Record<string, unknown>>;
 
-export type OpenRouterRequestBody = Readonly<{
+type OpenRouterRequestBodyBase = Readonly<{
   model: string;
   messages: readonly OpenRouterMessage[];
-  max_tokens: number;
   reasoning: Readonly<{
     effort: 'low';
     exclude: true;
@@ -103,6 +119,16 @@ export type OpenRouterRequestBody = Readonly<{
   stream: false;
 }>;
 
+export type OpenRouterRequestBody =
+  | Readonly<OpenRouterRequestBodyBase & {
+    max_tokens: number;
+    max_completion_tokens?: never;
+  }>
+  | Readonly<OpenRouterRequestBodyBase & {
+    max_tokens?: never;
+    max_completion_tokens: number;
+  }>;
+
 export type OpenRouterDiagnosticVariantId = 'D1' | 'D2' | 'D3';
 
 export type OpenRouterDiagnosticVariant = Readonly<{
@@ -121,8 +147,8 @@ export type OpenRouterDiagnosticRequestBody = Readonly<{
     effort: 'low' | 'none';
     exclude: true;
   }>;
-  response_format: OpenRouterRequestBody['response_format'];
-  provider: OpenRouterRequestBody['provider'];
+  response_format: OpenRouterRequestBodyBase['response_format'];
+  provider: OpenRouterRequestBodyBase['provider'];
   stream: false;
 }>;
 
@@ -160,6 +186,7 @@ export type OpenRouterTransportProvenance = Readonly<{
   returnedModel: string;
   provider: string | null;
   canonicalSlug: string;
+  outputTokenParameter: OpenRouterOutputTokenParameter;
   generationId: string;
   finishReason: string;
   promptTokens: number;

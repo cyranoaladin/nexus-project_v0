@@ -55,7 +55,8 @@ La politique canonique est
 - `seed` : omise ;
 - reasoning : effort `low`, seulement après preflight concluant, et exclu de
   la réponse produit ;
-- `max_tokens` : borné ;
+- sortie bornée par une politique de transport explicite :
+  `max_tokens` pour Sonnet et `max_completion_tokens` pour Terra ;
 - structured output JSON Schema : strict ;
 - `provider.require_parameters=true` ;
 - `provider.data_collection=deny` ;
@@ -68,6 +69,13 @@ Une capacité nouvellement annoncée n'est jamais activée automatiquement.
 L'apparition future de `temperature` dans le catalogue ne change donc pas le
 payload. Tout changement nécessite une nouvelle version, un nouveau checksum,
 un nouveau preflight et les évaluations qualité du lot de génération.
+
+La sélection du nom du paramètre de sortie est versionnée séparément dans
+`content/bilans/model-policies/bilan-transport-policy-v1.json`. Elle repose sur
+une table exacte modèle → paramètre, jamais sur une inspection partielle du
+slug. Le diagnostic authentifié du 31 juillet 2026 a établi que Terra accepte
+`max_completion_tokens=2048` mais refuse `max_tokens=2048`, toutes les autres
+contraintes restant identiques. Sonnet conserve `max_tokens`.
 
 ### Confidentialité
 
@@ -103,7 +111,8 @@ Le client restitue :
 - identifiant de génération et raison de fin ;
 - tokens et coût en micro-USD ;
 - latence et numéro de tentative ;
-- checksums de capacité et de politique ;
+- paramètre de sortie, checksums de capacité, de politique modèle et de
+  politique de transport ;
 - versions de politique et de schéma.
 
 Il restitue aussi l'historique sûr de toutes les tentatives, y compris les

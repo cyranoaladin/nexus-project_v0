@@ -230,6 +230,9 @@ async function main(): Promise<void> {
     softwareSha,
     policyId: BILAN_MODEL_POLICY.id,
     policyVersion: BILAN_MODEL_POLICY.version,
+    transportPolicyId: proof.transportPolicyId,
+    transportPolicyVersion: proof.transportPolicyVersion,
+    transportPolicyChecksum: proof.transportPolicyChecksum,
     catalogChecksum,
     apiKeyFingerprintRedacted:
       `hmac-sha256:${createApiKeyFingerprint(apiKey).slice(0, 12)}`,

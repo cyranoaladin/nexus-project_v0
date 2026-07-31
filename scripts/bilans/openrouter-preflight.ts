@@ -31,7 +31,7 @@ const OWNER_MAX_COST_MICROS_USD_PER_ASSESSMENT = 750_000;
 const OWNER_DAILY_BUDGET_MICROS_USD = 15_000_000;
 const PREFLIGHT_MAX_TOTAL_COST_MICROS_USD = 200_000;
 const PREFLIGHT_MAX_COST_PER_MODEL_MICROS_USD = 100_000;
-const PREFLIGHT_MAX_OUTPUT_TOKENS = 256;
+const PREFLIGHT_MAX_OUTPUT_TOKENS = 2_048;
 const PREFLIGHT_MODEL_CALL_COUNT = 2;
 
 function assertOwnerBudgets(config: ReturnType<typeof parseOpenRouterConfig>) {
@@ -116,6 +116,7 @@ async function main(): Promise<void> {
       const completion = await client.completePreflightForModel(
         request,
         requestedModel,
+        outputTokenParameter: provenance.outputTokenParameter,
       );
       const {
         provenance,
@@ -132,6 +133,9 @@ async function main(): Promise<void> {
       }
       modelResults.push({
         requestedModel,
+        outputTokenParameter: proof.snapshots.find(
+          ({ requestedModelId }) => requestedModelId === requestedModel,
+        )?.outputTokenParameter ?? null,
         status: 'PASS',
         normalizedErrorCode: null,
         returnedModel: provenance.returnedModel,
@@ -218,6 +222,9 @@ async function main(): Promise<void> {
     policyId: proof.policyId,
     policyVersion: proof.policyVersion,
     policyChecksum: proof.policyChecksum,
+    transportPolicyId: proof.transportPolicyId,
+    transportPolicyVersion: proof.transportPolicyVersion,
+    transportPolicyChecksum: proof.transportPolicyChecksum,
     retryPolicyVersion: BILAN_MODEL_POLICY.retryPolicy.version,
     preflightSoftwareSha,
     catalogChecksum: proof.catalogChecksum,
