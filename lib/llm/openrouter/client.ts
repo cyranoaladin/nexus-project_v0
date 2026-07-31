@@ -3,6 +3,12 @@ import 'server-only';
 import { z } from 'zod';
 
 import { assertOpenRouterPreflightProof } from './capabilities';
+import { assertBenchmarkCapabilityProof } from './benchmark-capabilities';
+import {
+  BILAN_BENCHMARK_POLICY,
+  BILAN_BENCHMARK_POLICY_CHECKSUM,
+  type BilanBenchmarkModelId,
+} from './benchmark-policy';
 import type { OpenRouterConfig as ParsedOpenRouterConfig } from './config';
 import {
   OpenRouterError,
@@ -19,6 +25,7 @@ import {
 import type {
   OpenRouterCompletion,
   OpenRouterCompletionInput,
+  OpenRouterBenchmarkCompletionInput,
   OpenRouterDiagnosticRequestBody,
   OpenRouterDiagnosticResult,
   OpenRouterDiagnosticVariant,
@@ -47,6 +54,9 @@ const ResponseEnvelopeSchema = z.object({
   })).length(1),
   usage: z.object({
     prompt_tokens: z.number().int().nonnegative(),
+    prompt_tokens_details: z.object({
+      cached_tokens: z.number().int().nonnegative().optional(),
+    }).passthrough().optional(),
     completion_tokens: z.number().int().nonnegative(),
     completion_tokens_details: z.object({
       reasoning_tokens: z.number().int().nonnegative().optional(),
@@ -598,6 +608,40 @@ export class OpenRouterClient {
     return this.requestModel(input, snapshot, 1, undefined, routing);
   }
 
+  async completeBenchmarkForModel<T>(
+    input: OpenRouterBenchmarkCompletionInput<T>,
+    requestedModel: BilanBenchmarkModelId,
+  ): Promise<OpenRouterCompletion<T>> {
+    this.assertConfigured();
+    assertStrictSchema(input.jsonSchema);
+    if (this.config.apiKey === null) {
+      throw new OpenRouterError('OPENROUTER_NOT_CONFIGURED');
+    }
+    assertBenchmarkCapabilityProof(input.benchmarkProof, {
+      apiKey: this.config.apiKey,
+      softwareSha: this.preflightSoftwareSha,
+      currentTime: this.now(),
+    });
+    const snapshot = input.benchmarkProof.snapshots.find(
+      ({ requestedModelId }) => requestedModelId === requestedModel,
+    );
+    if (snapshot === undefined) {
+      throw new OpenRouterError('OPENROUTER_POLICY_REJECTED');
+    }
+    return this.requestModel(
+      input,
+      snapshot,
+      1,
+      undefined,
+      {},
+      {
+        id: BILAN_BENCHMARK_POLICY.id,
+        version: BILAN_BENCHMARK_POLICY.version,
+        checksum: BILAN_BENCHMARK_POLICY_CHECKSUM,
+      },
+    );
+  }
+
   async diagnosePreflightVariant<T>(
     input: OpenRouterCompletionInput<T>,
     requestedModel: 'openai/gpt-5.6-terra',
@@ -668,11 +712,20 @@ export class OpenRouterClient {
   }
 
   private async requestModel<T>(
-    input: OpenRouterCompletionInput<T>,
+    input: OpenRouterCompletionInput<T> | OpenRouterBenchmarkCompletionInput<T>,
     snapshot: OpenRouterModelCapabilitySnapshot,
     attemptNumber: number,
     diagnosticVariant?: OpenRouterDiagnosticVariant,
     preflightRouting: OpenRouterPreflightRoutingOptions = {},
+    policy: Readonly<{
+      id: string;
+      version: string;
+      checksum: string;
+    }> = {
+      id: BILAN_MODEL_POLICY.id,
+      version: BILAN_MODEL_POLICY.version,
+      checksum: BILAN_MODEL_POLICY_CHECKSUM,
+    },
   ): Promise<OpenRouterCompletion<T>> {
     const requestedMaxOutputTokens = diagnosticVariant?.maxOutputTokens
       ?? this.config.maxOutputTokens;
@@ -722,6 +775,7 @@ export class OpenRouterClient {
     let returnedModel: string | null = null;
     let provider: string | null = null;
     let promptTokens: number | null = null;
+    let cachedPromptTokens: number | null = null;
     let completionTokens: number | null = null;
     let reasoningTokens: number | null = null;
     let totalTokens: number | null = null;
@@ -776,6 +830,8 @@ export class OpenRouterClient {
       const choice = parsed.data.choices[0];
       finishReason = choice.finish_reason;
       promptTokens = parsed.data.usage.prompt_tokens;
+      cachedPromptTokens =
+        parsed.data.usage.prompt_tokens_details?.cached_tokens ?? null;
       completionTokens = parsed.data.usage.completion_tokens;
       reasoningTokens =
         parsed.data.usage.completion_tokens_details?.reasoning_tokens ?? null;
@@ -840,6 +896,7 @@ export class OpenRouterClient {
           generationId,
           finishReason,
           promptTokens,
+          cachedPromptTokens,
           completionTokens,
           reasoningTokens,
           totalTokens,
@@ -847,9 +904,9 @@ export class OpenRouterClient {
           latencyMs: successfulAttempt.latencyMs,
           attemptNumber,
           capabilityChecksum: snapshot.capabilityChecksum,
-          policyId: BILAN_MODEL_POLICY.id,
-          policyVersion: BILAN_MODEL_POLICY.version,
-          policyChecksum: BILAN_MODEL_POLICY_CHECKSUM,
+          policyId: policy.id,
+          policyVersion: policy.version,
+          policyChecksum: policy.checksum,
           responseSchemaVersion: input.schemaVersion,
         }),
         attempts: Object.freeze([successfulAttempt]),

@@ -89,6 +89,19 @@ export type OpenRouterPreflightProof = Readonly<{
   proofChecksum: string;
 }>;
 
+export type OpenRouterBenchmarkCapabilityProof = Readonly<{
+  policyId: 'bilan-model-benchmark-policy';
+  policyVersion: '1';
+  policyChecksum: string;
+  catalogChecksum: string;
+  apiKeyFingerprint: string;
+  softwareSha: string;
+  verifiedAt: string;
+  expiresAt: string;
+  snapshots: readonly OpenRouterModelCapabilitySnapshot[];
+  proofChecksum: string;
+}>;
+
 export type OpenRouterMessage = Readonly<{
   role: 'system' | 'user' | 'assistant';
   content: string;
@@ -182,6 +195,15 @@ export type OpenRouterCompletionInput<T> = Readonly<{
   preflightProof: OpenRouterPreflightProof;
 }>;
 
+export type OpenRouterBenchmarkCompletionInput<T> = Readonly<{
+  messages: readonly OpenRouterMessage[];
+  schemaName: string;
+  schemaVersion: string;
+  jsonSchema: StrictJsonSchema;
+  validator: z.ZodType<T>;
+  benchmarkProof: OpenRouterBenchmarkCapabilityProof;
+}>;
+
 export type OpenRouterPreflightRoutingOptions = Readonly<{
   providerOnly?: readonly string[];
 }>;
@@ -195,6 +217,7 @@ export type OpenRouterTransportProvenance = Readonly<{
   generationId: string;
   finishReason: string;
   promptTokens: number;
+  cachedPromptTokens: number | null;
   completionTokens: number;
   reasoningTokens: number | null;
   totalTokens: number;
