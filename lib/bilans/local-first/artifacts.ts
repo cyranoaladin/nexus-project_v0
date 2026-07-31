@@ -40,21 +40,45 @@ const ArtifactTypeSchema = z.enum([
 
 const ARTIFACT_ORDER = ArtifactTypeSchema.options;
 const SAFE_JSON_PROPERTY_NAME = /^[A-Za-z][A-Za-z0-9_]{0,79}$/;
-const SAFE_NUMERIC_ARTIFACT_PATHS = [
-  /^\$\.payload\.(?:maxPoints|points)$/,
-  /^\$\.payload\.score\.(?:maxPoints|points)$/,
-  /^\$\.payload\.scoreEcho\.(?:maxPoints|percentage|points)$/,
-  /^\$\.payload\.usage\.(?:completionTokens|costMicrosUsd|promptTokens|reasoningTokens|totalTokens)$/,
-  /^\$\.payload\.provenance\.(?:attemptNumber|completionTokens|costMicrosUsd|latencyMs|promptTokens|reasoningTokens|totalTokens)$/,
-  /^\$\.payload\.attempts\[\d+\]\.(?:attemptNumber|completionTokens|costMicrosUsd|latencyMs|promptTokens|reasoningTokens|totalTokens)$/,
-  /^\$\.payload\.actionPlan\[\d+\]\.durationWeeks$/,
-  /^\$\.payload\.piiScanResult\.redactionCount$/,
-  /^\$\.payload\.approvedEvidenceForLlm\[\d+\]\.piiScanResult\.redactionCount$/,
-  /^\$\.payload\.llmApprovedInternalNotes\.piiScanResult\.redactionCount$/,
-] as const;
+type NumericArtifactMetricRule = Readonly<{
+  pattern: RegExp;
+  minimum: number;
+  maximum: number;
+  integer?: boolean;
+}>;
 
-function isSafeNumericArtifactPath(path: string): boolean {
-  return SAFE_NUMERIC_ARTIFACT_PATHS.some((pattern) => pattern.test(path));
+const SAFE_NUMERIC_ARTIFACT_METRICS: readonly NumericArtifactMetricRule[] = [
+  { pattern: /^\$\.payload\.points$/, minimum: 0, maximum: 100_000 },
+  { pattern: /^\$\.payload\.maxPoints$/, minimum: 1, maximum: 100_000 },
+  { pattern: /^\$\.payload\.score\.points$/, minimum: 0, maximum: 100_000 },
+  { pattern: /^\$\.payload\.score\.maxPoints$/, minimum: 1, maximum: 100_000 },
+  { pattern: /^\$\.payload\.scoreEcho\.points$/, minimum: 0, maximum: 100_000 },
+  { pattern: /^\$\.payload\.scoreEcho\.maxPoints$/, minimum: 1, maximum: 100_000 },
+  {
+    pattern: /^\$\.payload\.scoreEcho\.percentage$/,
+    minimum: 0,
+    maximum: 100,
+    integer: false,
+  },
+  { pattern: /^\$\.payload\.(?:usage|provenance)\.(?:promptTokens|completionTokens|reasoningTokens|totalTokens)$/, minimum: 0, maximum: 10_000_000 },
+  { pattern: /^\$\.payload\.(?:usage|provenance)\.costMicrosUsd$/, minimum: 0, maximum: 15_000_000 },
+  { pattern: /^\$\.payload\.provenance\.latencyMs$/, minimum: 0, maximum: 300_000 },
+  { pattern: /^\$\.payload\.provenance\.attemptNumber$/, minimum: 1, maximum: 3 },
+  { pattern: /^\$\.payload\.attempts\[\d+\]\.(?:promptTokens|completionTokens|reasoningTokens|totalTokens)$/, minimum: 0, maximum: 10_000_000 },
+  { pattern: /^\$\.payload\.attempts\[\d+\]\.costMicrosUsd$/, minimum: 0, maximum: 15_000_000 },
+  { pattern: /^\$\.payload\.attempts\[\d+\]\.latencyMs$/, minimum: 0, maximum: 300_000 },
+  { pattern: /^\$\.payload\.attempts\[\d+\]\.attemptNumber$/, minimum: 1, maximum: 3 },
+  { pattern: /^\$\.payload\.actionPlan\[\d+\]\.durationWeeks$/, minimum: 1, maximum: 104 },
+];
+
+function isSafeNumericArtifactMetric(path: string, value: number): boolean {
+  if (!Number.isFinite(value)) return false;
+  const rule = SAFE_NUMERIC_ARTIFACT_METRICS.find(({ pattern }) =>
+    pattern.test(path));
+  return rule !== undefined
+    && (rule.integer === false || Number.isSafeInteger(value))
+    && value >= rule.minimum
+    && value <= rule.maximum;
 }
 
 function isPlainJsonValue(
@@ -124,24 +148,43 @@ type ArtifactPiiField = Readonly<{
 function payloadPiiFields(
   value: unknown,
   path = '$.payload',
+  insideValidatedPiiScan = false,
 ): ArtifactPiiField[] {
   if (typeof value === 'string' || typeof value === 'number') {
     return [{
       path,
       text: String(value),
       source: typeof value === 'number'
-        && !isSafeNumericArtifactPath(path)
+        && !(
+          isSafeNumericArtifactMetric(path, value)
+          || (
+            insideValidatedPiiScan
+            && path.endsWith('.piiScanResult.redactionCount')
+            && Number.isSafeInteger(value)
+            && value >= 0
+            && value <= 1_000
+          )
+        )
         ? 'UNCLASSIFIED_FREE_TEXT'
         : 'CONTROLLED_TEMPLATE',
     }];
   }
   if (Array.isArray(value)) {
     return value.flatMap((item, index) =>
-      payloadPiiFields(item, `${path}[${index}]`));
+      payloadPiiFields(item, `${path}[${index}]`, insideValidatedPiiScan));
   }
   if (value === null || typeof value !== 'object') return [];
+  const currentPiiScan = path.endsWith('.piiScanResult')
+    && PiiScanResultSchema.safeParse(value).success
+    && validatePiiScanResultChecksum(
+      value as z.infer<typeof PiiScanResultSchema>,
+    );
   return Object.entries(value).flatMap(([key, item]) =>
-    payloadPiiFields(item, `${path}.${key}`));
+    payloadPiiFields(
+      item,
+      `${path}.${key}`,
+      insideValidatedPiiScan || currentPiiScan,
+    ));
 }
 
 export function scanLocalFirstArtifactPayload(
