@@ -67,12 +67,16 @@ describe('PR #79 complete CI evidence workflow', () => {
       .join('\n');
 
     expect(runCommands).toContain(
-      'scripts/security/validate-dev-tooling-exception.mjs',
+      'scripts/security/validate-brace-expansion-attestation.mjs',
     );
     expect(runCommands).toContain('--mode npm');
+    expect(runCommands).toContain(
+      '--attestation security/brace-expansion-backport-attestation.json',
+    );
+    expect(runCommands).toContain('--lockfile package-lock.json');
     expect(runCommands).toContain('--production-audit');
     expect(runCommands).toContain('--runtime-sbom');
-    expect(source).toContain('PRE_RENTREE_DEV_TOOLING_EXCEPTION_JSON');
+    expect(source).not.toContain('PRE_RENTREE_DEV_TOOLING_EXCEPTION_JSON');
     expect(source).toContain('npm-audit-production.json');
     expect(source).toContain('npm-audit-full.json');
     expect(
@@ -90,10 +94,14 @@ describe('PR #79 complete CI evidence workflow', () => {
       .join('\n');
 
     expect(runCommands).toContain(
-      'scripts/security/validate-dev-tooling-exception.mjs',
+      'scripts/security/validate-brace-expansion-attestation.mjs',
     );
     expect(runCommands).toContain('--mode osv');
-    expect(source).toContain('PRE_RENTREE_DEV_TOOLING_EXCEPTION_JSON');
+    expect(runCommands).toContain(
+      '--attestation security/brace-expansion-backport-attestation.json',
+    );
+    expect(runCommands).toContain('--lockfile package-lock.json');
+    expect(source).not.toContain('PRE_RENTREE_DEV_TOOLING_EXCEPTION_JSON');
     expect(source).toContain('osv-report.json');
     expect(
       security.steps.find((step) => step.name === 'Upload OSV report').if,
