@@ -3,6 +3,7 @@ import 'server-only';
 import { z } from 'zod';
 import { zodToJsonSchema } from 'zod-to-json-schema';
 
+import evidenceTemplateCatalog from '@/content/bilans/evidence-templates/catalog-v1.json';
 import { sha256Canonical } from '@/lib/llm/openrouter/hash';
 
 import { validateGrounding, resolveRecommendation } from './grounding';
@@ -32,6 +33,36 @@ const CoverageSchema = z.enum([
 const IdentifierSchema = z.string().regex(/^[a-z][a-z0-9:_-]{2,79}$/);
 const EvidenceRefSchema = z.string().regex(/^ev:[a-z0-9:_-]{3,76}$/);
 const Sha256Schema = z.string().regex(/^[a-f0-9]{64}$/);
+
+const EvidenceTemplateCatalogSchema = z.object({
+  schemaVersion: z.literal('bilan-evidence-template-catalog-v1'),
+  version: z.literal('1'),
+  templates: z.array(z.object({
+    templateId: IdentifierSchema,
+    text: z.string().trim().min(1).max(500),
+  }).strict()).min(1),
+}).strict().superRefine((catalog, context) => {
+  const seen = new Set<string>();
+  catalog.templates.forEach((template, index) => {
+    if (seen.has(template.templateId)) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['templates', index, 'templateId'],
+        message: 'Duplicate trusted evidence template ID.',
+      });
+    }
+    seen.add(template.templateId);
+  });
+});
+
+const TRUSTED_EVIDENCE_TEMPLATE_CATALOG =
+  EvidenceTemplateCatalogSchema.parse(evidenceTemplateCatalog);
+const TRUSTED_EVIDENCE_TEMPLATES = new Map(
+  TRUSTED_EVIDENCE_TEMPLATE_CATALOG.templates.map((template) => [
+    template.templateId,
+    Object.freeze(template),
+  ]),
+);
 
 const CompetencySchema = z.object({
   competencyId: IdentifierSchema,
@@ -202,15 +233,19 @@ function validateFixture(
       return;
     }
     if (item.trust === 'CURATED') {
+      const trustedTemplate = TRUSTED_EVIDENCE_TEMPLATES.get(item.templateId);
       if (
         raw.source !== 'CONTROLLED_TEMPLATE_SOURCE'
-        || raw.text !== item.text
-        || item.templateChecksum !== curatedEvidenceTemplateChecksum(item)
+        || trustedTemplate === undefined
+        || raw.text !== trustedTemplate.text
+        || item.text !== trustedTemplate.text
+        || item.templateChecksum
+          !== curatedEvidenceTemplateChecksum(trustedTemplate)
       ) {
         context.addIssue({
           code: z.ZodIssueCode.custom,
           path: ['approvedEvidenceForLlm', index, 'trust'],
-          message: 'CURATED evidence requires the exact controlled template source.',
+          message: 'CURATED evidence requires the exact trusted template registry source.',
         });
       }
     }
@@ -529,9 +564,17 @@ export function validateLocalFirstReportContext(
   }
 
   value.approvedEvidenceForLlm.forEach((item, index) => {
+    const trustedTemplate = item.trust === 'CURATED'
+      ? TRUSTED_EVIDENCE_TEMPLATES.get(item.templateId)
+      : undefined;
     if (
       item.trust === 'CURATED'
-      && item.templateChecksum !== curatedEvidenceTemplateChecksum(item)
+      && (
+        trustedTemplate === undefined
+        || item.text !== trustedTemplate.text
+        || item.templateChecksum
+          !== curatedEvidenceTemplateChecksum(trustedTemplate)
+      )
     ) {
       addIssue(
         ['approvedEvidenceForLlm', index, 'templateChecksum'],
