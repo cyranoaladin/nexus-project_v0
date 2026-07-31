@@ -10,14 +10,10 @@
       "const": "STUDENT"
     },
     "title": {
-      "type": "string",
-      "minLength": 2,
-      "maxLength": 160
+      "type": "string"
     },
     "summary": {
-      "type": "string",
-      "minLength": 2,
-      "maxLength": 800
+      "type": "string"
     },
     "strengths": {
       "type": "array",
@@ -25,27 +21,19 @@
         "type": "object",
         "properties": {
           "competencyId": {
-            "type": "string",
-            "pattern": "^[a-z][a-z0-9:_-]{2,79}$"
+            "type": "string"
           },
           "title": {
-            "type": "string",
-            "minLength": 2,
-            "maxLength": 120
+            "type": "string"
           },
           "explanation": {
-            "type": "string",
-            "minLength": 2,
-            "maxLength": 800
+            "type": "string"
           },
           "evidenceRefs": {
             "type": "array",
             "items": {
-              "type": "string",
-              "pattern": "^ev:[a-z0-9:_-]{3,76}$"
-            },
-            "minItems": 1,
-            "maxItems": 6
+              "type": "string"
+            }
           }
         },
         "required": [
@@ -55,8 +43,7 @@
           "evidenceRefs"
         ],
         "additionalProperties": false
-      },
-      "maxItems": 8
+      }
     },
     "priorities": {
       "type": "array",
@@ -64,27 +51,19 @@
         "type": "object",
         "properties": {
           "competencyId": {
-            "type": "string",
-            "pattern": "^[a-z][a-z0-9:_-]{2,79}$"
+            "type": "string"
           },
           "title": {
-            "type": "string",
-            "minLength": 2,
-            "maxLength": 120
+            "type": "string"
           },
           "explanation": {
-            "type": "string",
-            "minLength": 2,
-            "maxLength": 800
+            "type": "string"
           },
           "evidenceRefs": {
             "type": "array",
             "items": {
-              "type": "string",
-              "pattern": "^ev:[a-z0-9:_-]{3,76}$"
-            },
-            "minItems": 1,
-            "maxItems": 6
+              "type": "string"
+            }
           },
           "priority": {
             "type": "string",
@@ -103,8 +82,7 @@
           "priority"
         ],
         "additionalProperties": false
-      },
-      "maxItems": 8
+      }
     },
     "actionPlan": {
       "type": "array",
@@ -112,47 +90,31 @@
         "type": "object",
         "properties": {
           "recommendationId": {
-            "type": "string",
-            "pattern": "^[a-z][a-z0-9:_-]{2,79}$"
+            "type": "string"
           },
           "title": {
-            "type": "string",
-            "minLength": 2,
-            "maxLength": 120
+            "type": "string"
           },
           "rationale": {
-            "type": "string",
-            "minLength": 2,
-            "maxLength": 800
+            "type": "string"
           },
           "actions": {
             "type": "array",
             "items": {
-              "type": "string",
-              "minLength": 2,
-              "maxLength": 240
-            },
-            "minItems": 1,
-            "maxItems": 5
+              "type": "string"
+            }
           },
           "cadence": {
-            "type": "string",
-            "minLength": 2,
-            "maxLength": 120
+            "type": "string"
           },
           "durationWeeks": {
-            "type": "integer",
-            "minimum": 1,
-            "maximum": 12
+            "type": "integer"
           },
           "evidenceRefs": {
             "type": "array",
             "items": {
-              "type": "string",
-              "pattern": "^ev:[a-z0-9:_-]{3,76}$"
-            },
-            "minItems": 1,
-            "maxItems": 6
+              "type": "string"
+            }
           }
         },
         "required": [
@@ -165,8 +127,7 @@
           "evidenceRefs"
         ],
         "additionalProperties": false
-      },
-      "maxItems": 8
+      }
     },
     "unmeasuredAreas": {
       "type": "array",
@@ -174,13 +135,10 @@
         "type": "object",
         "properties": {
           "competencyId": {
-            "type": "string",
-            "pattern": "^[a-z][a-z0-9:_-]{2,79}$"
+            "type": "string"
           },
           "title": {
-            "type": "string",
-            "minLength": 2,
-            "maxLength": 120
+            "type": "string"
           }
         },
         "required": [
@@ -188,17 +146,13 @@
           "title"
         ],
         "additionalProperties": false
-      },
-      "maxItems": 12
+      }
     },
     "cautionNotes": {
       "type": "array",
       "items": {
-        "type": "string",
-        "minLength": 2,
-        "maxLength": 300
-      },
-      "maxItems": 8
+        "type": "string"
+      }
     },
     "closingMessage": {
       "type": "string",
@@ -208,17 +162,14 @@
       "type": "object",
       "properties": {
         "points": {
-          "type": "integer",
-          "minimum": 0
+          "type": "integer"
         },
         "maxPoints": {
           "type": "integer",
           "exclusiveMinimum": 0
         },
         "percentage": {
-          "type": "number",
-          "minimum": 0,
-          "maximum": 100
+          "type": "number"
         },
         "calibrationStatus": {
           "type": "string",

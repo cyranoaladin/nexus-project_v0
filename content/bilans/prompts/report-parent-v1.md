@@ -2,7 +2,7 @@
 {
   "id": "bilan-report-parent",
   "version": "1",
-  "checksum": "e9be7fe2a8f2e7d37813308f8f5ca48c074a4abae5b06ce45c91eadee24ad3eb",
+  "checksum": "c6136c313a90672e71217081100fca487210cc8b85bf62455d1f033f2fc07c45",
   "audience": "PARENT",
   "allowedFields": [
     "schemaVersion",
@@ -27,7 +27,7 @@
     "cross_audience_content"
   ],
   "outputSchemaVersion": "bilan-report-parent-draft-v1",
-  "outputSchemaChecksum": "8b526eed92e5162a77944515c6f3465038024bb560767d5bebc195d19bbf46b4",
+  "outputSchemaChecksum": "6ffeb40e536982052e71bc9c5f1c686f58ff294a50e6d63ff46dfdeba9377cfb",
   "compatiblePolicies": [
     "bilan-model-policy-v1.1",
     "bilan-model-benchmark-policy-v1"

@@ -142,7 +142,30 @@ function closedJsonSchema(schema: z.ZodTypeAny): Readonly<Record<string, unknown
     $refStrategy: 'none',
   }) as Record<string, unknown>;
   delete generated.$schema;
-  return Object.freeze(generated);
+  const unsupportedTransportKeywords = new Set([
+    'minItems',
+    'maxItems',
+    'minLength',
+    'maxLength',
+    'pattern',
+    'format',
+    'minimum',
+    'maximum',
+  ]);
+  const transportSubset = (value: unknown): unknown => {
+    if (Array.isArray(value)) return value.map(transportSubset);
+    if (value === null || typeof value !== 'object') return value;
+    return Object.fromEntries(
+      Object.entries(value)
+        .filter(([key]) => !unsupportedTransportKeywords.has(key))
+        .map(([key, nested]) => [key, transportSubset(nested)]),
+    );
+  };
+  const value = transportSubset(generated);
+  if (value === null || typeof value !== 'object' || Array.isArray(value)) {
+    throw new Error('REPORT_SCHEMA_INVALID');
+  }
+  return Object.freeze(value as Record<string, unknown>);
 }
 
 export const REPORT_PARENT_DRAFT_JSON_SCHEMA = closedJsonSchema(
@@ -210,8 +233,6 @@ export function buildGroundedParentDraftJsonSchema(
     .filter(({ status }) => status === 'MASTERED')
     .map(({ competencyId }) => competencyId);
   const strength = arrayItemProperties(schema, 'strengths');
-  strength.arraySchema.minItems = mastered.length;
-  strength.arraySchema.maxItems = mastered.length;
   setEnum(strength.properties, 'competencyId', mastered);
   const strengthEvidence = recordAt(
     strength.properties.evidenceRefs,
@@ -220,8 +241,6 @@ export function buildGroundedParentDraftJsonSchema(
   setEnum(strengthEvidence, 'items', evidenceRefs);
 
   const priorities = arrayItemProperties(schema, 'priorities');
-  priorities.arraySchema.minItems = context.priorities.length;
-  priorities.arraySchema.maxItems = context.priorities.length;
   setEnum(
     priorities.properties,
     'competencyId',
@@ -239,8 +258,6 @@ export function buildGroundedParentDraftJsonSchema(
   );
 
   const actions = arrayItemProperties(schema, 'actionPlan');
-  actions.arraySchema.minItems = context.allowedRecommendations.length;
-  actions.arraySchema.maxItems = context.allowedRecommendations.length;
   setEnum(
     actions.properties,
     'recommendationId',
@@ -255,8 +272,6 @@ export function buildGroundedParentDraftJsonSchema(
   );
 
   const unmeasured = arrayItemProperties(schema, 'unmeasuredAreas');
-  unmeasured.arraySchema.minItems = context.unmeasuredCompetencyIds.length;
-  unmeasured.arraySchema.maxItems = context.unmeasuredCompetencyIds.length;
   setEnum(
     unmeasured.properties,
     'competencyId',

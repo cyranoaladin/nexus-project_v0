@@ -65,6 +65,8 @@ describe('canonical parent report contracts', () => {
     });
     expect(JSON.stringify(REPORT_PARENT_DRAFT_JSON_SCHEMA))
       .not.toContain('scoreEcho');
+    expect(JSON.stringify(REPORT_PARENT_DRAFT_JSON_SCHEMA))
+      .not.toMatch(/"(?:minItems|maxItems|minLength|maxLength|pattern|format|minimum|maximum)":/);
   });
 
   it('assembles scoreEcho locally after strict grounding', () => {

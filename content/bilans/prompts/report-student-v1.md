@@ -2,7 +2,7 @@
 {
   "id": "bilan-report-student",
   "version": "1",
-  "checksum": "d4c65cb8af17bff22e54f759d9008fb46788150007dd33691eaa12b29f16b259",
+  "checksum": "b9389e629c7e3433b691a251628bdcabce484d14858efae1a60f84eaedcf928b",
   "audience": "STUDENT",
   "allowedFields": [
     "schemaVersion",
@@ -27,7 +27,7 @@
     "cross_audience_content"
   ],
   "outputSchemaVersion": "bilan-report-student-draft-v1",
-  "outputSchemaChecksum": "d5b3366f1a0378cd65d57bb8802c23ac1219d473e0648e9c00eea98c50cb266e",
+  "outputSchemaChecksum": "7d9099546dbe0c07c1b9409761e7c0183da92b01bea42ddcaf1990cb4f467b23",
   "compatiblePolicies": [
     "bilan-model-policy-v1.1",
     "bilan-model-benchmark-policy-v1"

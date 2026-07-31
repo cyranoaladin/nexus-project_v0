@@ -2,7 +2,7 @@
 {
   "id": "bilan-report-nexus",
   "version": "1",
-  "checksum": "f3f039dcdee286f7da2d02cb1d178f1c644c1797f46efa0a9563cbe9888f5035",
+  "checksum": "e434b94a10119faa0c3e43961221f07e0f8c3d60fbf5804ae9cea90a4f737730",
   "audience": "NEXUS",
   "allowedFields": [
     "schemaVersion",
@@ -28,7 +28,7 @@
     "cross_audience_content"
   ],
   "outputSchemaVersion": "bilan-report-nexus-draft-v1",
-  "outputSchemaChecksum": "58c026e99e567eb12fc2ef23dd9021824fb1db62eff80c54689f13d8fc992c68",
+  "outputSchemaChecksum": "c4f4706d59fd13a3fa1951943321311e8fe8730df025141cbf29b37d614a7f1a",
   "compatiblePolicies": [
     "bilan-model-policy-v1.1",
     "bilan-model-benchmark-policy-v1"
