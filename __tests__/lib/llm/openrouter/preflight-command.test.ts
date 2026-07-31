@@ -17,9 +17,33 @@ import { join, resolve } from 'node:path';
 import { promisify } from 'node:util';
 
 import fixture from '@/content/bilans/model-policies/openrouter-capability-baseline-v1.1.json';
+import { createOwnerPrivacyAttestation } from '@/lib/llm/openrouter/privacy-attestation';
 import type { OpenRouterRequestBody } from '@/lib/llm/openrouter/types';
 
 const execFileAsync = promisify(execFile);
+
+function writeSyntheticPrivacyAttestation(
+  secretDirectory: string,
+  apiKey: string,
+): void {
+  const now = Date.now();
+  const value = createOwnerPrivacyAttestation({
+    apiKey,
+    attestedAt: new Date(now - 60_000).toISOString(),
+    expiresAt: new Date(now + 29 * 24 * 60 * 60 * 1_000).toISOString(),
+    inputOutputLogging: false,
+    useOfInputsOutputs: false,
+    zdrAccountPolicy: true,
+    guardrailEnabled: true,
+    keySpendingLimitMicrosUsd: 2_000_000,
+  });
+  const path = join(
+    secretDirectory,
+    'openrouter-privacy-attestation.json',
+  );
+  writeFileSync(path, `${JSON.stringify(value, null, 2)}\n`, { mode: 0o600 });
+  chmodSync(path, 0o600);
+}
 
 describe('private OpenRouter preflight command', () => {
   it('uses only synthetic data and writes redacted evidence with private permissions', async () => {
@@ -32,6 +56,10 @@ describe('private OpenRouter preflight command', () => {
     const keyPath = join(secretDirectory, 'openrouter-api-key');
     writeFileSync(keyPath, 'synthetic-preflight-key\n', { mode: 0o600 });
     chmodSync(keyPath, 0o600);
+    writeSyntheticPrivacyAttestation(
+      secretDirectory,
+      'synthetic-preflight-key',
+    );
     const requests: OpenRouterRequestBody[] = [];
     const server = createServer(async (request, response) => {
       if (request.method === 'GET' && request.url === '/api/v1/models') {
@@ -170,27 +198,17 @@ describe('private OpenRouter preflight command', () => {
           maxOutputTokens: 2_048,
           modelCallCount: 2,
         },
-        privacyAttestations: {
-          inputOutputLogging: {
-            status: 'OWNER_ATTESTED',
-            value: false,
-          },
-          useOfInputsOutputs: {
-            status: 'OWNER_ATTESTED',
-            value: false,
-          },
-          zdrAccountPolicy: {
-            status: 'OWNER_ATTESTED',
-            value: true,
-          },
-          guardrailEnabled: {
-            status: 'OWNER_ATTESTED',
-            value: true,
-          },
-          keySpendingLimitUsd: {
-            status: 'OWNER_ATTESTED',
-            value: 2,
-          },
+        privacyAttestation: {
+          source: 'OWNER_DECLARATION',
+          attestedAt: expect.any(String),
+          expiresAt: expect.any(String),
+          evidenceChecksum: expect.stringMatching(/^[a-f0-9]{64}$/),
+          accountFingerprint: expect.stringMatching(
+            /^hmac-sha256:[a-f0-9]{64}$/,
+          ),
+          guardrailFingerprint: expect.stringMatching(
+            /^sha256:[a-f0-9]{64}$/,
+          ),
         },
       });
       expect(report.modelResults).toHaveLength(2);
@@ -235,6 +253,10 @@ describe('private OpenRouter preflight command', () => {
     const keyPath = join(secretDirectory, 'openrouter-api-key');
     writeFileSync(keyPath, 'synthetic-preflight-key\n', { mode: 0o600 });
     chmodSync(keyPath, 0o600);
+    writeSyntheticPrivacyAttestation(
+      secretDirectory,
+      'synthetic-preflight-key',
+    );
     let modelCallCount = 0;
     const server = createServer(async (request, response) => {
       if (request.method === 'GET' && request.url === '/api/v1/models') {
@@ -327,6 +349,10 @@ describe('private OpenRouter preflight command', () => {
     const keyPath = join(secretDirectory, 'openrouter-api-key');
     writeFileSync(keyPath, 'synthetic-preflight-key\n', { mode: 0o600 });
     chmodSync(keyPath, 0o600);
+    writeSyntheticPrivacyAttestation(
+      secretDirectory,
+      'synthetic-preflight-key',
+    );
     const requestedModels: string[] = [];
     const server = createServer(async (request, response) => {
       if (request.method === 'GET' && request.url === '/api/v1/models') {

@@ -24,6 +24,11 @@ import { sha256Canonical } from '../../lib/llm/openrouter/hash';
 import { BILAN_MODEL_POLICY } from '../../lib/llm/openrouter/policy';
 import { readPrivateOpenRouterApiKey } from '../../lib/llm/openrouter/preflight-secret';
 import { readCleanGitSoftwareSha } from '../../lib/llm/openrouter/preflight-software';
+import {
+  OpenRouterPrivacyAttestationError,
+  readPrivateOpenRouterPrivacyAttestation,
+  toPrivateAttestationEvidence,
+} from '../../lib/llm/openrouter/privacy-attestation';
 
 const PREFLIGHT_VALIDITY_MILLISECONDS = 24 * 60 * 60 * 1_000;
 const OWNER_MAX_COST_MICROS_USD_PER_AUDIENCE_REPORT = 300_000;
@@ -48,6 +53,7 @@ function assertOwnerBudgets(config: ReturnType<typeof parseOpenRouterConfig>) {
 
 async function main(): Promise<void> {
   const apiKey = readPrivateOpenRouterApiKey();
+  const privacyAttestation = readPrivateOpenRouterPrivacyAttestation();
   const preflightSoftwareSha = readCleanGitSoftwareSha();
   const config = parseOpenRouterConfig({
     ...process.env,
@@ -240,28 +246,7 @@ async function main(): Promise<void> {
       modelCallCount: PREFLIGHT_MODEL_CALL_COUNT,
     },
     modelResults,
-    privacyAttestations: {
-      inputOutputLogging: {
-        status: 'OWNER_ATTESTED',
-        value: false,
-      },
-      useOfInputsOutputs: {
-        status: 'OWNER_ATTESTED',
-        value: false,
-      },
-      zdrAccountPolicy: {
-        status: 'OWNER_ATTESTED',
-        value: true,
-      },
-      guardrailEnabled: {
-        status: 'OWNER_ATTESTED',
-        value: true,
-      },
-      keySpendingLimitUsd: {
-        status: 'OWNER_ATTESTED',
-        value: 2,
-      },
-    },
+    privacyAttestation: toPrivateAttestationEvidence(privacyAttestation),
   }, null, 2)}\n`, { mode: 0o600 });
   chmodSync(evidencePath, 0o600);
 
@@ -299,6 +284,8 @@ async function main(): Promise<void> {
 void main().catch((error: unknown) => {
   const code = error instanceof OpenRouterError
     ? error.code
+    : error instanceof OpenRouterPrivacyAttestationError
+      ? error.code
     : error instanceof OpenRouterModelCompatibilityError
       ? error.code
       : 'OPENROUTER_PREFLIGHT_FAILED';
