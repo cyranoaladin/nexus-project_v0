@@ -39,6 +39,7 @@ const ArtifactTypeSchema = z.enum([
 ]);
 
 const ARTIFACT_ORDER = ArtifactTypeSchema.options;
+const SAFE_JSON_PROPERTY_NAME = /^[A-Za-z][A-Za-z0-9_]{0,79}$/;
 
 function isPlainJsonValue(
   value: unknown,
@@ -72,6 +73,7 @@ function isPlainJsonValue(
   if (
     Object.getOwnPropertySymbols(value).length > 0
     || propertyNames.length !== Object.keys(value).length
+    || propertyNames.some((key) => !SAFE_JSON_PROPERTY_NAME.test(key))
   ) return false;
   return propertyNames.every((key) => {
     const descriptor = Object.getOwnPropertyDescriptor(value, key);
