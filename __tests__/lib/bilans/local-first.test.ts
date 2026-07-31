@@ -131,6 +131,21 @@ describe('local-first synthetic benchmark contracts', () => {
     })).toThrow();
   });
 
+  it('rejects unredacted PII consistently across consecutive validations', () => {
+    const fixture = fixtures()[0];
+    const context = buildLocalFirstReportContext(fixture, 'PARENT');
+    const withEmail = {
+      ...context,
+      evidence: [{
+        ...context.evidence[0],
+        text: 'Écrire à eleve.synthetic@example.invalid',
+      }, ...context.evidence.slice(1)],
+    };
+
+    expect(() => validateLocalFirstReportContext(withEmail)).toThrow();
+    expect(() => validateLocalFirstReportContext(withEmail)).toThrow();
+  });
+
   it('exports closed local JSON Schemas', () => {
     expect(SYNTHETIC_BENCHMARK_FIXTURE_JSON_SCHEMA).toMatchObject({
       type: 'object',
