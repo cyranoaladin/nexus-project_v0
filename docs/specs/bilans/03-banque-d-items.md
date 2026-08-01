@@ -32,6 +32,7 @@ avant `typecheck`. Elle échoue au premier item invalide (pas de tolérance).
 | V10 | aucun terme de `lexique-interdit.json` dans `statement`, `options`, `shortCorrection` | AGENTS.md |
 | V11 | Σ `targetTimeSec` ≤ `targetDurationMin × 60` | cohérence de la durée annoncée |
 | V12 | aucun nom propre d'enseignant, aucune marque tierce | |
+| V13 | chaque distracteur porte un `distractorRationale` non vide décrivant l'erreur réelle qu'il capture | sans erreur identifiée, `ERREUR_CONFIANTE` devient décoratif plutôt que diagnostique |
 
 ## §3. Règles de conception (non bloquantes, revue humaine)
 
@@ -66,7 +67,7 @@ items:
     targetTimeSec: 60
     statement: "..."
     options:
-      - { key: A, label: "...", correct: false }
+      - { key: A, label: "...", correct: false, distractorRationale: "Erreur réelle observée..." }
       - { key: B, label: "...", correct: true }
     shortCorrection: "..."
     tags: [calcul-litteral]

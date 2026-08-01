@@ -484,3 +484,15 @@ n’est donc affirmée.
 - **Constat :** les métriques et le paquet de revue aveugle constituent une preuve seulement s'ils sont reproductibles et comparés aux références suivies.
 - **Décision :** versionner les deux JSON de recette ; générer deux fois en mémoire ; exiger une égalité byte-for-byte entre les deux générations et avec les fichiers suivis. La CI compare et échoue, elle n'écrit jamais ces fichiers.
 - **Motif :** empêcher le bruit de diff et conserver une trace rejouable pour la validation pédagogique et l'analyse ultérieure de qualité.
+
+## A54 — Le schéma de banque strict fait foi
+
+- **Constat :** le chargeur du pack acceptait des items dépourvus de `nodeCpsId`, `difficulty`, `targetTimeSec`, `shortCorrection` et de justification des distracteurs, alors que ces métadonnées sont indispensables au calcul des faits diagnostiques.
+- **Décision :** `data/bilans/schemas/bank.schema.json` fait foi. Le chargeur refuse explicitement tout item incomplet et chaque distracteur doit documenter, dans `distractorRationale`, l'erreur réelle qu'il capture. Le pack Maths Terminale reste volontairement non chargeable jusqu'à sa complétion par le responsable pédagogique.
+- **Motif :** sans poids de difficulté ni clé CPS, les profils par nœud, dont `ERREUR_CONFIANTE`, ne sont pas calculables de manière fiable ; le dispositif ne produirait qu'un score legacy, pas un diagnostic.
+
+## A55 — Un pack incomplet invalide le diagnostic
+
+- **Constat :** `computeFacts` ne remplace pas une `difficulty` absente par le champ legacy `weight` ni par la valeur `1`. Un passage forcé propage des poids indéfinis dans les agrégats et l'absence de `nodeCpsId` supprime la granularité des prérequis.
+- **Décision :** aucun fallback ou défaut implicite ne sera introduit. Un pack dépourvu des métadonnées diagnostiques obligatoires est refusé avant calcul.
+- **Motif :** le pack incomplet ne produit pas un diagnostic simplement dégradé ; il produit des agrégats invalides pouvant conserver l'apparence d'un résultat. Le refus explicite est le seul comportement sûr.
