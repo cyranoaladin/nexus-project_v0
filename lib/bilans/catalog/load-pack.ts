@@ -170,6 +170,10 @@ function nonEmptyString(value: unknown): boolean {
   return typeof value === 'string' && value.trim().length > 0;
 }
 
+function completeRationale(value: unknown): boolean {
+  return nonEmptyString(value) && String(value).trim().toUpperCase() !== 'A REMPLACER';
+}
+
 function collectItemMetadataFailures(raw: unknown): string[] {
   if (!isRecord(raw) || !isRecord(raw.questionnaire) || !Array.isArray(raw.questionnaire.items)) return [];
 
@@ -190,7 +194,7 @@ function collectItemMetadataFailures(raw: unknown): string[] {
 
     if (!Array.isArray(candidate.options)) return;
     candidate.options.forEach((option, optionIndex) => {
-      if (!isRecord(option) || option.isCorrect !== false || nonEmptyString(option.distractorRationale)) return;
+      if (!isRecord(option) || option.isCorrect !== false || completeRationale(option.distractorRationale)) return;
       const optionId = nonEmptyString(option.id) ? String(option.id) : `option[${optionIndex}]`;
       failures.push(`${itemId}.options.${optionId}.distractorRationale: required for every distractor`);
     });

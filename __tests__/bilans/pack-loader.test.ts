@@ -67,6 +67,17 @@ describe('fail-closed bilan pack loader', () => {
     );
   });
 
+  it('rejects A REMPLACER as incomplete pedagogical metadata', () => {
+    const broken = completePackForLoaderTests();
+    const distractor = broken.questionnaire.items[0].options.find((option) => !option.isCorrect);
+    if (!distractor || !('distractorRationale' in distractor)) throw new Error('TEST_FIXTURE_HAS_NO_DISTRACTOR');
+    distractor.distractorRationale = 'A REMPLACER';
+
+    expect(() => loadBilanPack(writePack('replacement-rationale.json', broken))).toThrow(
+      /MATH-ANA-01\.options\.[a-z]+\.distractorRationale/,
+    );
+  });
+
   it('rejects a raw domainId used as a nodeCpsId', () => {
     const broken = completePackForLoaderTests();
     broken.questionnaire.items[0].nodeCpsId = broken.questionnaire.items[0].domainId;
