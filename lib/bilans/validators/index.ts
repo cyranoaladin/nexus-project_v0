@@ -99,14 +99,18 @@ export function validateAgentBundle(input: Readonly<{
     failures.push(failure('V4', issue.path, issue.message));
   }
 
-  const publicText = normalize(publicStrings.map(({ text }) => text).join(' '));
-  for (const marker of ['les eleves', 'des eleves', 'vos enfants', 'tous les eleves']) {
-    if (publicText.includes(marker)) failures.push(failure('V5', '$.public', `Plural marker: ${marker}`));
+  for (const field of publicStrings) {
+    const publicText = normalize(field.text);
+    for (const marker of ['les eleves', 'des eleves', 'vos enfants', 'tous les eleves']) {
+      if (publicText.includes(marker)) failures.push(failure('V5', field.path, `Plural marker: ${marker}`));
+    }
   }
 
-  const piiScan = scanPiiFields(allStrings.map((field) => ({ ...field, source: 'LLM_GENERATED_TEXT' as const })));
-  if (piiScan.result.status !== 'CLEAN') {
-    failures.push(failure('V6', '$', 'Agent output crossed the PII boundary'));
+  for (const field of allStrings) {
+    const piiScan = scanPiiFields([{ ...field, source: 'LLM_GENERATED_TEXT' as const }]);
+    if (piiScan.result.status !== 'CLEAN') {
+      failures.push(failure('V6', field.path, 'Agent output crossed the PII boundary'));
+    }
   }
 
   if (!lexicon.cta_autorises.includes(bundle.parents.etapeSuivante.cta)) {

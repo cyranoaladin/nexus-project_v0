@@ -444,3 +444,37 @@ n’est donc affirmée.
 **Decision.** L'ecart est consigne sans investigation dans M1. Il devra etre qualifie avant toute mise en service reelle du RAG.
 
 **Motif.** Trois explications restent possibles : niveau d'agregation different, stockage partiel ailleurs, ou ingestion incomplete. La derniere hypothese affecterait directement la qualite pedagogique des bilans.
+
+### A48 — Le pack DRAFT n'atteint jamais le gateway
+
+**Constat.** La validation pédagogique du pack est obligatoire, le pack Maths Terminale doit rester `DRAFT`, et le gateway A8 n'accepte qu'un `ValidatedPack`.
+
+**Décision.** Le pack réel reste inexécutable tant que sa revue est nulle. Le seul fixture validé vit sous `__tests__/bilans/fixtures/`, porte le slug `fixture-non-publiable-v0`, le validateur `FIXTURE — JAMAIS UN ENSEIGNANT` et la date du 1970-01-01. Un test d'architecture interdit toute autre construction de production ; le chargeur réel refuse les validations absentes, vides ou identifiées comme fixtures.
+
+**Motif.** La frontière du gateway ne protège le produit que si la fabrication du type qui l'autorise est elle-même fail-closed et non contournable.
+
+### A49 — Validation pédagogique formalisée
+
+**Constat.** Le statut technique d'un pack ne prouve ni la qualité des items et distracteurs, ni celle des prompts de restitution.
+
+**Décision.** Un enseignant nommé et qualifié dans la discipline relit chaque item, distracteur et prompt, puis signe l'identité et la version du pack. Toute modification d'un item, d'un prompt ou de son checksum annule cette validation. Le pack signé et le paquet de revue aveugle constituent la trace.
+
+**Motif.** La mise en service dépend d'une validation pédagogique traçable, distincte des tests techniques et de la revue de chaque rapport.
+
+## A50 — Reprise ciblée de l'agent fautif
+
+- **Constat :** rejouer les cinq agents après l'échec d'une seule audience remplace des sorties déjà validées, multiplie le coût et empêche une analyse causale stable.
+- **Décision :** conserver les sorties conformes, rappeler uniquement l'agent fautif avec ses violations exactes, puis rejouer le vérificateur. Une seule reprise est autorisée ; un second échec renseigne `validationFailures[]` et maintient `REPORT_PENDING_REVIEW`.
+- **Motif :** une sortie validée ne doit jamais être remplacée sans cause, et le vérificateur doit être recalculé à partir du triplet final.
+
+## A51 — Commit de la phase C
+
+- **Constat :** le pack DRAFT, les agents contraints, le rendu déterministe et la recette constituent un lot cohérent et vérifiable.
+- **Décision :** committer ce lot par liste explicite après réussite de lint, typecheck, Jest complet et build, sans inclure les artefacts hors périmètre.
+- **Motif :** préserver un jalon atomique de la mission M1 sans exposer les fichiers locaux ou historiques non concernés.
+
+## A52 — Suppression anticipée de la copie de production
+
+- **Constat :** le dry-run est terminé et le dump ainsi que le conteneur jetable ne sont plus nécessaires.
+- **Décision :** supprimer aujourd'hui uniquement `nexus-m1-dryrun` et `/home/alaeddine/.local/share/nexus/m1/nexus_prod_m1_20260801.dump`, puis constater l'absence du conteneur, du fichier et de tout volume M1.
+- **Motif :** réduire au strict minimum la durée de conservation locale de données personnelles de mineurs, avant même l'échéance A42.

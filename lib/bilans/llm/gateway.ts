@@ -3,20 +3,53 @@ import {
   type PseudonymizedFactSheet,
 } from '../local-first/contracts';
 import {
+  loadAgentDefinitions,
+  parseAgentOutput,
+  type BilanAgentDefinition,
+} from '../agents';
+import {
   validateAgentBundle,
   type AgentBundle,
   type ValidationFailure,
 } from '../validators';
 import type { ValidatedPack } from '../validators/contracts';
 
+const AGENT_ORDER = ['preAnalysis', 'eleve', 'parents', 'nexus', 'verifier'] as const;
+type AgentId = (typeof AGENT_ORDER)[number];
+
+type AttemptResult = Readonly<{
+  outputs: Readonly<Record<string, unknown>>;
+  bundle: AgentBundle | null;
+  failures: readonly ValidationFailure[];
+}>;
+
+function failureTargets(failures: readonly ValidationFailure[]): AgentId[] {
+  const targets = new Set<AgentId>();
+  for (const current of failures) {
+    const target = AGENT_ORDER.find((agentId) => current.path.includes(agentId));
+    if (target !== undefined) targets.add(target);
+  }
+  if ([...targets].some((target) => target !== 'verifier')) targets.add('verifier');
+  return AGENT_ORDER.filter((agentId) => targets.has(agentId));
+}
+
+function failuresForAgent(
+  agentId: AgentId,
+  failures: readonly ValidationFailure[],
+): readonly ValidationFailure[] {
+  if (agentId === 'verifier') return failures;
+  return failures.filter((current) => current.path.includes(agentId));
+}
+
 export type BilanGenerationRequest = Readonly<{
   schemaVersion: 'nexus-bilan-gateway/v1';
   pack: Readonly<{
     slug: string;
     version: number;
-    promptFiles: ValidatedPack['reporting']['promptFiles'];
   }>;
+  agent: BilanAgentDefinition;
   factSheet: PseudonymizedFactSheet['value'];
+  priorOutputs: Readonly<Record<string, unknown>>;
   correctionFailures?: readonly ValidationFailure[];
 }>;
 
@@ -34,6 +67,54 @@ export type BilanGatewayResult = Readonly<{
 export class BilanLlmGateway {
   constructor(private readonly transport: BilanLlmTransport) {}
 
+  private async runAttempt(
+    factSheet: PseudonymizedFactSheet,
+    pack: ValidatedPack,
+    seedOutputs: Readonly<Record<string, unknown>> = Object.freeze({}),
+    selectedAgents: readonly AgentId[] = AGENT_ORDER,
+    correctionFailures?: readonly ValidationFailure[],
+  ): Promise<AttemptResult> {
+    const outputs: Record<string, unknown> = { ...seedOutputs };
+    const schemaFailures: ValidationFailure[] = [];
+    const selected = new Set(selectedAgents);
+    for (const agent of loadAgentDefinitions(pack)) {
+      if (!selected.has(agent.id)) continue;
+      delete outputs[agent.id];
+      try {
+        const raw = await this.transport.generate(Object.freeze({
+          schemaVersion: 'nexus-bilan-gateway/v1' as const,
+          pack: Object.freeze({ slug: pack.slug, version: pack.version }),
+          agent,
+          factSheet: factSheet.value,
+          priorOutputs: Object.freeze({ ...outputs }),
+          ...(correctionFailures === undefined
+            ? {}
+            : { correctionFailures: failuresForAgent(agent.id, correctionFailures) }),
+        }));
+        outputs[agent.id] = parseAgentOutput(agent, raw);
+      } catch {
+        schemaFailures.push({
+          rule: 'V1',
+          path: `$.${agent.id}`,
+          message: 'Agent output failed its pack-bound Zod schema',
+        });
+      }
+    }
+    if (schemaFailures.length > 0) {
+      return Object.freeze({
+        outputs: Object.freeze(outputs),
+        bundle: null,
+        failures: Object.freeze(schemaFailures),
+      });
+    }
+    const failures = validateAgentBundle({ bundle: outputs, factSheet: factSheet.value, pack });
+    return Object.freeze({
+      outputs: Object.freeze(outputs),
+      bundle: failures.length === 0 ? outputs as AgentBundle : null,
+      failures: Object.freeze([...failures]),
+    });
+  }
+
   async run(
     factSheet: PseudonymizedFactSheet,
     pack: ValidatedPack,
@@ -44,35 +125,37 @@ export class BilanLlmGateway {
     if (pack.scoring.domains.length !== factSheet.value.domains.length) {
       throw new Error('Validated pack and FactSheet domain counts differ');
     }
+    if (pack.slug !== factSheet.value.bankSlug || pack.version !== factSheet.value.bankVersion) {
+      throw new Error('Validated pack identity does not match the FactSheet');
+    }
 
-    const baseRequest = Object.freeze({
-      schemaVersion: 'nexus-bilan-gateway/v1' as const,
-      pack: Object.freeze({
-        slug: pack.slug,
-        version: pack.version,
-        promptFiles: pack.reporting.promptFiles,
-      }),
-      factSheet: factSheet.value,
-    });
-    const first = await this.transport.generate(baseRequest);
-    const firstFailures = validateAgentBundle({ bundle: first, factSheet: factSheet.value, pack });
-    if (firstFailures.length === 0) {
+    const first = await this.runAttempt(factSheet, pack);
+    if (first.failures.length === 0) {
       return Object.freeze({
         status: 'REPORT_PENDING_REVIEW', attempts: 1, validationFailures: Object.freeze([]),
-        bundle: first as AgentBundle,
+        bundle: first.bundle,
       });
     }
 
-    const second = await this.transport.generate(Object.freeze({
-      ...baseRequest,
-      correctionFailures: Object.freeze([...firstFailures]),
-    }));
-    const secondFailures = validateAgentBundle({ bundle: second, factSheet: factSheet.value, pack });
+    const targets = failureTargets(first.failures);
+    if (targets.length === 0) {
+      return Object.freeze({
+        status: 'REPORT_PENDING_REVIEW', attempts: 1,
+        validationFailures: first.failures, bundle: null,
+      });
+    }
+    const second = await this.runAttempt(
+      factSheet,
+      pack,
+      first.outputs,
+      targets,
+      first.failures,
+    );
     return Object.freeze({
       status: 'REPORT_PENDING_REVIEW',
       attempts: 2,
-      validationFailures: Object.freeze([...secondFailures]),
-      bundle: secondFailures.length === 0 ? second as AgentBundle : null,
+      validationFailures: second.failures,
+      bundle: second.bundle,
     });
   }
 }

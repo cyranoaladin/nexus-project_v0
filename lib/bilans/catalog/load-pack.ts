@@ -1,0 +1,173 @@
+import { createHash } from 'node:crypto';
+import { readFileSync } from 'node:fs';
+import path from 'node:path';
+
+import { z } from 'zod';
+
+import {
+  agentOutputJsonSchema,
+  buildValidatedPack,
+  promptRefSchema,
+  type ValidatedPack,
+} from '../validators/contracts';
+
+const ROOT = process.cwd();
+const FIXTURE_REVIEWER = /fixture|jamais un enseignant|test[-_ ]only/i;
+
+const promptFilesSchema = z.object({
+  preAnalysis: promptRefSchema,
+  eleve: promptRefSchema,
+  parents: promptRefSchema,
+  nexus: promptRefSchema,
+  verifier: promptRefSchema,
+}).strict();
+
+const outputSchemasSchema = z.object({
+  preAnalysis: agentOutputJsonSchema,
+  eleve: agentOutputJsonSchema,
+  parents: agentOutputJsonSchema,
+  nexus: agentOutputJsonSchema,
+  verifier: agentOutputJsonSchema,
+}).strict();
+
+const questionOptionSchema = z.object({
+  id: z.string().trim().min(1),
+  text: z.string().trim().min(1),
+  isCorrect: z.boolean(),
+}).strict();
+
+const questionSchema = z.object({
+  id: z.string().trim().min(1),
+  subject: z.literal('MATHS'),
+  category: z.string().trim().min(1),
+  domainId: z.string().trim().min(1),
+  weight: z.number().positive(),
+  competencies: z.array(z.string().trim().min(1)).min(1),
+  questionText: z.string().trim().min(1),
+  options: z.array(questionOptionSchema).min(2),
+  explanation: z.string().trim().min(1),
+  imageUrl: z.string().trim().min(1).optional(),
+  hint: z.string().trim().min(1).optional(),
+  codeSnippet: z.string().min(1).optional(),
+  latexFormula: z.string().min(1).optional(),
+}).strict().superRefine((question, context) => {
+  if (question.options.filter(({ isCorrect }) => isCorrect).length !== 1) {
+    context.addIssue({ code: z.ZodIssueCode.custom, path: ['options'], message: 'Exactly one option must be correct' });
+  }
+});
+
+const packSchema = z.object({
+  slug: z.string().trim().min(1),
+  level: z.literal('TERMINALE'),
+  subject: z.literal('MATHS'),
+  version: z.number().int().positive(),
+  status: z.enum(['DRAFT', 'VALIDATED']),
+  review: z.object({
+    validatedBy: z.string().trim().min(1).nullable(),
+    validatedAt: z.string().datetime({ offset: true }).nullable(),
+  }).strict(),
+  questionnaire: z.object({
+    targetDurationMin: z.number().int().positive(),
+    confidenceScale: z.object({
+      levels: z.literal(4),
+      labels: z.array(z.string().trim().min(1)).length(4),
+    }).strict(),
+    items: z.array(questionSchema).length(50),
+  }).strict(),
+  scoring: z.object({
+    engine: z.literal('facts.v1.0.1'),
+    domains: z.array(z.string().trim().min(1)).length(5),
+  }).strict(),
+  reporting: z.object({
+    rag: z.object({
+      sources: z.array(z.string()),
+      topK: z.number().int().nonnegative(),
+    }).strict(),
+    promptFiles: promptFilesSchema,
+    outputSchemas: outputSchemasSchema,
+  }).strict(),
+  validation: z.object({
+    lexiconPath: z.literal('data/bilans/lexique-interdit.json'),
+    forbidDigits: z.array(z.enum(['eleve', 'parents'])).length(2),
+  }).strict(),
+}).strict().superRefine((pack, context) => {
+  const domains = new Set(pack.scoring.domains);
+  if (domains.size !== pack.scoring.domains.length) {
+    context.addIssue({ code: z.ZodIssueCode.custom, path: ['scoring', 'domains'], message: 'Domains must be unique' });
+  }
+  if (pack.questionnaire.items.some(({ domainId }) => !domains.has(domainId))) {
+    context.addIssue({ code: z.ZodIssueCode.custom, path: ['questionnaire', 'items'], message: 'Question domain is outside scoring domains' });
+  }
+  if (pack.status === 'DRAFT' && (pack.review.validatedBy !== null || pack.review.validatedAt !== null)) {
+    context.addIssue({ code: z.ZodIssueCode.custom, path: ['review'], message: 'A draft pack cannot carry pedagogical approval' });
+  }
+  if (pack.status === 'VALIDATED' && (pack.review.validatedBy === null || pack.review.validatedAt === null)) {
+    context.addIssue({ code: z.ZodIssueCode.custom, path: ['review'], message: 'A validated pack requires named and dated approval' });
+  }
+});
+
+export type BilanPack = z.infer<typeof packSchema>;
+
+function resolveRepositoryPath(relativePath: string): string {
+  if (path.isAbsolute(relativePath)) throw new Error('PACK_PATH_OUTSIDE_REPOSITORY');
+  const absolutePath = path.resolve(ROOT, relativePath);
+  if (!absolutePath.startsWith(`${ROOT}${path.sep}`)) throw new Error('PACK_PATH_OUTSIDE_REPOSITORY');
+  return absolutePath;
+}
+
+function sha256(content: string): string {
+  return createHash('sha256').update(content, 'utf8').digest('hex');
+}
+
+export function readBoundPrompt(reference: Readonly<{ path: string; checksum: string }>): string {
+  const content = readFileSync(resolveRepositoryPath(reference.path), 'utf8');
+  if (sha256(content) !== reference.checksum) {
+    throw new Error(`PACK_PROMPT_CHECKSUM_MISMATCH:${reference.path}`);
+  }
+  return content;
+}
+
+function validatePromptBindings(pack: BilanPack): void {
+  for (const reference of Object.values(pack.reporting.promptFiles)) readBoundPrompt(reference);
+}
+
+function deepFreeze<T>(value: T): T {
+  if (value !== null && typeof value === 'object' && !Object.isFrozen(value)) {
+    for (const child of Object.values(value)) deepFreeze(child);
+    Object.freeze(value);
+  }
+  return value;
+}
+
+export function loadBilanPack(relativePath: string): BilanPack {
+  const raw = JSON.parse(readFileSync(resolveRepositoryPath(relativePath), 'utf8')) as unknown;
+  const pack = packSchema.parse(raw);
+  validatePromptBindings(pack);
+  return deepFreeze(pack);
+}
+
+export function loadValidatedPack(relativePath: string): ValidatedPack {
+  const pack = loadBilanPack(relativePath);
+  const reviewer = pack.review.validatedBy;
+  if (
+    pack.status !== 'VALIDATED'
+    || reviewer === null
+    || reviewer.trim() === ''
+    || FIXTURE_REVIEWER.test(reviewer)
+    || pack.review.validatedAt === null
+  ) {
+    throw new Error('PACK_PEDAGOGICAL_VALIDATION_REQUIRED');
+  }
+  return buildValidatedPack({
+    slug: pack.slug,
+    version: pack.version,
+    status: pack.status,
+    review: { validatedBy: reviewer, validatedAt: pack.review.validatedAt },
+    scoring: { domains: pack.scoring.domains },
+    reporting: {
+      promptFiles: pack.reporting.promptFiles,
+      outputSchemas: pack.reporting.outputSchemas,
+    },
+    validation: pack.validation,
+  });
+}
