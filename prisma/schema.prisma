@@ -1556,6 +1556,7 @@ model ReportRevision {
   promptRevision        String
   contextChecksum       String
   content               Json
+  validationFailures    String[]             @default([])
 
   currentForArtifact ReportArtifact? @relation("ReportArtifactCurrentPublishedRevision")
   reviews            ReportReview[]

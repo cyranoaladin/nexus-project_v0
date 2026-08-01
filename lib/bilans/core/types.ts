@@ -97,6 +97,7 @@ export type ReportRevision = Readonly<{
   generatedAt: string;
   validatedAt?: string;
   evidence: ReadonlyArray<EvidenceItem>;
+  validationFailures: readonly string[];
 }>;
 
 export type ReportRegeneration = Readonly<{

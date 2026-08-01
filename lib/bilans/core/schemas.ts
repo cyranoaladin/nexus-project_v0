@@ -61,6 +61,7 @@ export const reportRevisionSchema = z.object({
   generatedAt: isoTimestampSchema,
   validatedAt: isoTimestampSchema.optional(),
   evidence: z.array(evidenceItemSchema),
+  validationFailures: z.array(z.string().trim().min(1).max(1_000)).default([]),
 }).strict().superRefine(({ generatedAt, status, validatedAt }, context) => {
   const requiresValidation = status === 'COACH_VALIDATED' || status === 'PUBLISHED';
 
@@ -85,6 +86,14 @@ export const reportRevisionSchema = z.object({
       code: z.ZodIssueCode.custom,
       message: 'validatedAt cannot be earlier than generatedAt',
       path: ['validatedAt'],
+    });
+  }
+}).superRefine(({ status, validationFailures }, context) => {
+  if ((status === 'COACH_VALIDATED' || status === 'PUBLISHED') && validationFailures.length > 0) {
+    context.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'A revision with validation failures cannot be validated or published',
+      path: ['validationFailures'],
     });
   }
 });
