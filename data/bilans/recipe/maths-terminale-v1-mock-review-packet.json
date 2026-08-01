@@ -1,0 +1,4329 @@
+{
+  "schemaVersion": "nexus-bilan-blind-review-packet/v1",
+  "status": "TECHNICAL_MOCK_ONLY_NOT_PEDAGOGICALLY_VALIDATED",
+  "sourceDraftPack": "maths-terminale-v1",
+  "executionFixture": "fixture-non-publiable-v0",
+  "instructions": "Évaluer la clarté, la fidélité aux faits et l’utilité pédagogique sans inférer une validation du pack DRAFT.",
+  "reports": [
+    {
+      "blindId": "CAS_01_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "1fea9b1144cd73ce1198b082bb594286a7db8f10869975295a463b28dd932f82",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "analyse",
+                "titre": "analyse",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "combinatoire",
+                "titre": "combinatoire",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "geometrie",
+                "titre": "geometrie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "logExp",
+                "titre": "log Exp",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "probabilites",
+                "titre": "probabilites",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "analyse",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "combinatoire",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "logExp",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "probabilites",
+              "profile": "NON_TRAITE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_01_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "7be9868d0428fefd3b2741dd410f47b171691f8517fd57ddd0c8e72e4e2ab963",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "analyse",
+                "texte": "analyse constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "combinatoire",
+                "texte": "combinatoire constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "geometrie",
+                "texte": "geometrie constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "logExp",
+                "titre": "log Exp",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "probabilites",
+                "titre": "probabilites",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "analyse",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "combinatoire",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "logExp",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "probabilites",
+              "profile": "NON_TRAITE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_01_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "fb033380e05bd4d22d88dfe2683f555fca0f2050c98a15164f5199b8ab4b6dee",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "analyse",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "combinatoire",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "logExp",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "probabilites",
+              "profile": "NON_TRAITE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 15,
+            "coverage": 45,
+            "calibrationIndex": null,
+            "domainScores": [
+              {
+                "id": "analyse",
+                "score": 15
+              },
+              {
+                "id": "combinatoire",
+                "score": 24
+              },
+              {
+                "id": "geometrie",
+                "score": 33
+              },
+              {
+                "id": "logExp",
+                "score": 42
+              },
+              {
+                "id": "probabilites",
+                "score": 51
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_02_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "025307bcd0a7527d6bad0dc309600bf051965d7696d2ecdddffa8db32c29ae76",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "analyse",
+                "titre": "analyse",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "combinatoire",
+                "titre": "combinatoire",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "geometrie",
+                "titre": "geometrie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "logExp",
+                "titre": "log Exp",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "probabilites",
+                "titre": "probabilites",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "analyse",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "combinatoire",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "logExp",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "probabilites",
+              "profile": "MAITRISE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_02_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "ea1df39cc4a5c08732f3f479ee57ebb1133b540db7e7db4d0ff46b8fb98d3307",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "analyse",
+                "texte": "analyse constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "combinatoire",
+                "texte": "combinatoire constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "geometrie",
+                "texte": "geometrie constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "logExp",
+                "titre": "log Exp",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "probabilites",
+                "titre": "probabilites",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "analyse",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "combinatoire",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "logExp",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "probabilites",
+              "profile": "MAITRISE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_02_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "54bc7738f491eda8dad3d0fdf1e71175c982766eff7cb14d2152293c2443bdc5",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "analyse",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "combinatoire",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "logExp",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "probabilites",
+              "profile": "MAITRISE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 32,
+            "coverage": 58,
+            "calibrationIndex": 41,
+            "domainScores": [
+              {
+                "id": "analyse",
+                "score": 32
+              },
+              {
+                "id": "combinatoire",
+                "score": 41
+              },
+              {
+                "id": "geometrie",
+                "score": 50
+              },
+              {
+                "id": "logExp",
+                "score": 59
+              },
+              {
+                "id": "probabilites",
+                "score": 68
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_03_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "81e89ff1e3bc1d1144abf8190421cac797b30858fa43a121dc0dcf87c4f812db",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "analyse",
+                "titre": "analyse",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "combinatoire",
+                "titre": "combinatoire",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "geometrie",
+                "titre": "geometrie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "logExp",
+                "titre": "log Exp",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "probabilites",
+                "titre": "probabilites",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "analyse",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "combinatoire",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "logExp",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "probabilites",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_03_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "713a08a833e0d2565aef302b826cbdeee88874023b8f4141aa78000d9a5ef248",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "analyse",
+                "texte": "analyse constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "combinatoire",
+                "texte": "combinatoire constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "geometrie",
+                "texte": "geometrie constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "logExp",
+                "titre": "log Exp",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "probabilites",
+                "titre": "probabilites",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "analyse",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "combinatoire",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "logExp",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "probabilites",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_03_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "6cbcef579de4bd7e7e7a9647185219321f6da76f84f6b7fce93022fd322ce2e6",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "analyse",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "combinatoire",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "logExp",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "probabilites",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 49,
+            "coverage": 71,
+            "calibrationIndex": 52,
+            "domainScores": [
+              {
+                "id": "analyse",
+                "score": 49
+              },
+              {
+                "id": "combinatoire",
+                "score": 58
+              },
+              {
+                "id": "geometrie",
+                "score": 67
+              },
+              {
+                "id": "logExp",
+                "score": 76
+              },
+              {
+                "id": "probabilites",
+                "score": 85
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_04_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "8aed6f9552696acbb37116d3a051563b898cdd1f4d13d1668086ee88ffe54fec",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "analyse",
+                "titre": "analyse",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "combinatoire",
+                "titre": "combinatoire",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "geometrie",
+                "titre": "geometrie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "logExp",
+                "titre": "log Exp",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "probabilites",
+                "titre": "probabilites",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "analyse",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "combinatoire",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "logExp",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "probabilites",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_04_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "fa78b13780dc43c11cd83c4e5b81f022d0417eec6e4139ce3d3aa76463834281",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "analyse",
+                "texte": "analyse constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "combinatoire",
+                "texte": "combinatoire constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "geometrie",
+                "texte": "geometrie constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "logExp",
+                "titre": "log Exp",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "probabilites",
+                "titre": "probabilites",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "analyse",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "combinatoire",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "logExp",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "probabilites",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_04_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "6834f91d6b1fb19fd1fd2c2cd966a5c847643471821a5d45313647c3523e266a",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "analyse",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "combinatoire",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "logExp",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "probabilites",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 66,
+            "coverage": 84,
+            "calibrationIndex": 63,
+            "domainScores": [
+              {
+                "id": "analyse",
+                "score": 66
+              },
+              {
+                "id": "combinatoire",
+                "score": 75
+              },
+              {
+                "id": "geometrie",
+                "score": 84
+              },
+              {
+                "id": "logExp",
+                "score": 93
+              },
+              {
+                "id": "probabilites",
+                "score": 1
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_05_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "50b4c282abf43355cf05640eb62e5556557c77556da89a0c3a01b379f8cc4727",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "analyse",
+                "titre": "analyse",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "combinatoire",
+                "titre": "combinatoire",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "geometrie",
+                "titre": "geometrie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "logExp",
+                "titre": "log Exp",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "probabilites",
+                "titre": "probabilites",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "analyse",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "combinatoire",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "logExp",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "probabilites",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_05_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "506ed8a8de04252c489a24448a46b9ade09b830622b52f5e332a9b3b6bcff8d7",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "analyse",
+                "texte": "analyse constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "combinatoire",
+                "texte": "combinatoire constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "geometrie",
+                "texte": "geometrie constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "logExp",
+                "titre": "log Exp",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "probabilites",
+                "titre": "probabilites",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "analyse",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "combinatoire",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "logExp",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "probabilites",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_05_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "e8041eef8a00c7fb93815b4572df87c6179f399cfd41129f9a16f652d817d92e",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "analyse",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "combinatoire",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "logExp",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "probabilites",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 83,
+            "coverage": 97,
+            "calibrationIndex": null,
+            "domainScores": [
+              {
+                "id": "analyse",
+                "score": 83
+              },
+              {
+                "id": "combinatoire",
+                "score": 92
+              },
+              {
+                "id": "geometrie",
+                "score": 0
+              },
+              {
+                "id": "logExp",
+                "score": 9
+              },
+              {
+                "id": "probabilites",
+                "score": 18
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_06_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "1fea9b1144cd73ce1198b082bb594286a7db8f10869975295a463b28dd932f82",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "analyse",
+                "titre": "analyse",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "combinatoire",
+                "titre": "combinatoire",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "geometrie",
+                "titre": "geometrie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "logExp",
+                "titre": "log Exp",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "probabilites",
+                "titre": "probabilites",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "analyse",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "combinatoire",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "logExp",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "probabilites",
+              "profile": "NON_TRAITE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_06_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "7be9868d0428fefd3b2741dd410f47b171691f8517fd57ddd0c8e72e4e2ab963",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "analyse",
+                "texte": "analyse constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "combinatoire",
+                "texte": "combinatoire constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "geometrie",
+                "texte": "geometrie constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "logExp",
+                "titre": "log Exp",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "probabilites",
+                "titre": "probabilites",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "analyse",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "combinatoire",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "logExp",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "probabilites",
+              "profile": "NON_TRAITE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_06_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "c53cbad62df52791a68e7abc673a3cfcaa6531959bad98c2113e2597ce6c4e6d",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "analyse",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "combinatoire",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "logExp",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "probabilites",
+              "profile": "NON_TRAITE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 19,
+            "coverage": 54,
+            "calibrationIndex": 85,
+            "domainScores": [
+              {
+                "id": "analyse",
+                "score": 19
+              },
+              {
+                "id": "combinatoire",
+                "score": 28
+              },
+              {
+                "id": "geometrie",
+                "score": 37
+              },
+              {
+                "id": "logExp",
+                "score": 46
+              },
+              {
+                "id": "probabilites",
+                "score": 55
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_07_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "025307bcd0a7527d6bad0dc309600bf051965d7696d2ecdddffa8db32c29ae76",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "analyse",
+                "titre": "analyse",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "combinatoire",
+                "titre": "combinatoire",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "geometrie",
+                "titre": "geometrie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "logExp",
+                "titre": "log Exp",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "probabilites",
+                "titre": "probabilites",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "analyse",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "combinatoire",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "logExp",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "probabilites",
+              "profile": "MAITRISE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_07_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "ea1df39cc4a5c08732f3f479ee57ebb1133b540db7e7db4d0ff46b8fb98d3307",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "analyse",
+                "texte": "analyse constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "combinatoire",
+                "texte": "combinatoire constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "geometrie",
+                "texte": "geometrie constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "logExp",
+                "titre": "log Exp",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "probabilites",
+                "titre": "probabilites",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "analyse",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "combinatoire",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "logExp",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "probabilites",
+              "profile": "MAITRISE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_07_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "b8b94a5941d10933d0879ea7f091c59d134298628bcc7497ec38ded81f4d4c9d",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "analyse",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "combinatoire",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "logExp",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "probabilites",
+              "profile": "MAITRISE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 36,
+            "coverage": 67,
+            "calibrationIndex": 96,
+            "domainScores": [
+              {
+                "id": "analyse",
+                "score": 36
+              },
+              {
+                "id": "combinatoire",
+                "score": 45
+              },
+              {
+                "id": "geometrie",
+                "score": 54
+              },
+              {
+                "id": "logExp",
+                "score": 63
+              },
+              {
+                "id": "probabilites",
+                "score": 72
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_08_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "81e89ff1e3bc1d1144abf8190421cac797b30858fa43a121dc0dcf87c4f812db",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "analyse",
+                "titre": "analyse",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "combinatoire",
+                "titre": "combinatoire",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "geometrie",
+                "titre": "geometrie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "logExp",
+                "titre": "log Exp",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "probabilites",
+                "titre": "probabilites",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "analyse",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "combinatoire",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "logExp",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "probabilites",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_08_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "713a08a833e0d2565aef302b826cbdeee88874023b8f4141aa78000d9a5ef248",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "analyse",
+                "texte": "analyse constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "combinatoire",
+                "texte": "combinatoire constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "geometrie",
+                "texte": "geometrie constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "logExp",
+                "titre": "log Exp",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "probabilites",
+                "titre": "probabilites",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "analyse",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "combinatoire",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "logExp",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "probabilites",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_08_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "bd74ae6f3e1756f9316c726e1c108a04e1a18858ae06e6d3dbe17d06e8246696",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "analyse",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "combinatoire",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "logExp",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "probabilites",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 53,
+            "coverage": 80,
+            "calibrationIndex": 36,
+            "domainScores": [
+              {
+                "id": "analyse",
+                "score": 53
+              },
+              {
+                "id": "combinatoire",
+                "score": 62
+              },
+              {
+                "id": "geometrie",
+                "score": 71
+              },
+              {
+                "id": "logExp",
+                "score": 80
+              },
+              {
+                "id": "probabilites",
+                "score": 89
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_09_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "8aed6f9552696acbb37116d3a051563b898cdd1f4d13d1668086ee88ffe54fec",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "analyse",
+                "titre": "analyse",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "combinatoire",
+                "titre": "combinatoire",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "geometrie",
+                "titre": "geometrie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "logExp",
+                "titre": "log Exp",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "probabilites",
+                "titre": "probabilites",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "analyse",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "combinatoire",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "logExp",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "probabilites",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_09_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "fa78b13780dc43c11cd83c4e5b81f022d0417eec6e4139ce3d3aa76463834281",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "analyse",
+                "texte": "analyse constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "combinatoire",
+                "texte": "combinatoire constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "geometrie",
+                "texte": "geometrie constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "logExp",
+                "titre": "log Exp",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "probabilites",
+                "titre": "probabilites",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "analyse",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "combinatoire",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "logExp",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "probabilites",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_09_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "eaff1e47d8709c9f3c6d503bdbcc4074a1967570e40ae840e5d81db9c416dddd",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "analyse",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "combinatoire",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "logExp",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "probabilites",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 70,
+            "coverage": 93,
+            "calibrationIndex": null,
+            "domainScores": [
+              {
+                "id": "analyse",
+                "score": 70
+              },
+              {
+                "id": "combinatoire",
+                "score": 79
+              },
+              {
+                "id": "geometrie",
+                "score": 88
+              },
+              {
+                "id": "logExp",
+                "score": 97
+              },
+              {
+                "id": "probabilites",
+                "score": 5
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_10_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "50b4c282abf43355cf05640eb62e5556557c77556da89a0c3a01b379f8cc4727",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "analyse",
+                "titre": "analyse",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "combinatoire",
+                "titre": "combinatoire",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "geometrie",
+                "titre": "geometrie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "logExp",
+                "titre": "log Exp",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "probabilites",
+                "titre": "probabilites",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "analyse",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "combinatoire",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "logExp",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "probabilites",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_10_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "506ed8a8de04252c489a24448a46b9ade09b830622b52f5e332a9b3b6bcff8d7",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "analyse",
+                "texte": "analyse constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "combinatoire",
+                "texte": "combinatoire constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "geometrie",
+                "texte": "geometrie constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "logExp",
+                "titre": "log Exp",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "probabilites",
+                "titre": "probabilites",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "analyse",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "combinatoire",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "logExp",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "probabilites",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_10_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "3915ac673d8546bdd97cd644c8dc5f8cd2d5dd5a3100e1a4df72289e44a66e55",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "analyse",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "combinatoire",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "logExp",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "probabilites",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 87,
+            "coverage": 50,
+            "calibrationIndex": 58,
+            "domainScores": [
+              {
+                "id": "analyse",
+                "score": 87
+              },
+              {
+                "id": "combinatoire",
+                "score": 96
+              },
+              {
+                "id": "geometrie",
+                "score": 4
+              },
+              {
+                "id": "logExp",
+                "score": 13
+              },
+              {
+                "id": "probabilites",
+                "score": 22
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_11_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "1fea9b1144cd73ce1198b082bb594286a7db8f10869975295a463b28dd932f82",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "analyse",
+                "titre": "analyse",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "combinatoire",
+                "titre": "combinatoire",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "geometrie",
+                "titre": "geometrie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "logExp",
+                "titre": "log Exp",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "probabilites",
+                "titre": "probabilites",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "analyse",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "combinatoire",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "logExp",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "probabilites",
+              "profile": "NON_TRAITE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_11_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "7be9868d0428fefd3b2741dd410f47b171691f8517fd57ddd0c8e72e4e2ab963",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "analyse",
+                "texte": "analyse constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "combinatoire",
+                "texte": "combinatoire constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "geometrie",
+                "texte": "geometrie constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "logExp",
+                "titre": "log Exp",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "probabilites",
+                "titre": "probabilites",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "analyse",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "combinatoire",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "logExp",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "probabilites",
+              "profile": "NON_TRAITE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_11_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "94c1d658b000968ae620cf8fd3b773fe802e8fe3a289975994bc395dc1ff4ef0",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "analyse",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "combinatoire",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "logExp",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "probabilites",
+              "profile": "NON_TRAITE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 23,
+            "coverage": 63,
+            "calibrationIndex": 69,
+            "domainScores": [
+              {
+                "id": "analyse",
+                "score": 23
+              },
+              {
+                "id": "combinatoire",
+                "score": 32
+              },
+              {
+                "id": "geometrie",
+                "score": 41
+              },
+              {
+                "id": "logExp",
+                "score": 50
+              },
+              {
+                "id": "probabilites",
+                "score": 59
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_12_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "025307bcd0a7527d6bad0dc309600bf051965d7696d2ecdddffa8db32c29ae76",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "analyse",
+                "titre": "analyse",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "combinatoire",
+                "titre": "combinatoire",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "geometrie",
+                "titre": "geometrie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "logExp",
+                "titre": "log Exp",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "probabilites",
+                "titre": "probabilites",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "analyse",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "combinatoire",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "logExp",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "probabilites",
+              "profile": "MAITRISE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_12_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "ea1df39cc4a5c08732f3f479ee57ebb1133b540db7e7db4d0ff46b8fb98d3307",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "analyse",
+                "texte": "analyse constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "combinatoire",
+                "texte": "combinatoire constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "geometrie",
+                "texte": "geometrie constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "logExp",
+                "titre": "log Exp",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "probabilites",
+                "titre": "probabilites",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "analyse",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "combinatoire",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "logExp",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "probabilites",
+              "profile": "MAITRISE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_12_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "c49c235a43fbbba549d02d2b652ea9117f43095ac05fe056b75b3da15ebe2acf",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "analyse",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "combinatoire",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "logExp",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "probabilites",
+              "profile": "MAITRISE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 40,
+            "coverage": 76,
+            "calibrationIndex": 80,
+            "domainScores": [
+              {
+                "id": "analyse",
+                "score": 40
+              },
+              {
+                "id": "combinatoire",
+                "score": 49
+              },
+              {
+                "id": "geometrie",
+                "score": 58
+              },
+              {
+                "id": "logExp",
+                "score": 67
+              },
+              {
+                "id": "probabilites",
+                "score": 76
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_13_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "81e89ff1e3bc1d1144abf8190421cac797b30858fa43a121dc0dcf87c4f812db",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "analyse",
+                "titre": "analyse",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "combinatoire",
+                "titre": "combinatoire",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "geometrie",
+                "titre": "geometrie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "logExp",
+                "titre": "log Exp",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "probabilites",
+                "titre": "probabilites",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "analyse",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "combinatoire",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "logExp",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "probabilites",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_13_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "713a08a833e0d2565aef302b826cbdeee88874023b8f4141aa78000d9a5ef248",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "analyse",
+                "texte": "analyse constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "combinatoire",
+                "texte": "combinatoire constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "geometrie",
+                "texte": "geometrie constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "logExp",
+                "titre": "log Exp",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "probabilites",
+                "titre": "probabilites",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "analyse",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "combinatoire",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "logExp",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "probabilites",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_13_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "53ecc8898554a50d8f21778ed30a50591675fcea26a0f003ea25af21b2d5ffa1",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "analyse",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "combinatoire",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "logExp",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "probabilites",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 57,
+            "coverage": 89,
+            "calibrationIndex": null,
+            "domainScores": [
+              {
+                "id": "analyse",
+                "score": 57
+              },
+              {
+                "id": "combinatoire",
+                "score": 66
+              },
+              {
+                "id": "geometrie",
+                "score": 75
+              },
+              {
+                "id": "logExp",
+                "score": 84
+              },
+              {
+                "id": "probabilites",
+                "score": 93
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_14_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "8aed6f9552696acbb37116d3a051563b898cdd1f4d13d1668086ee88ffe54fec",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "analyse",
+                "titre": "analyse",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "combinatoire",
+                "titre": "combinatoire",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "geometrie",
+                "titre": "geometrie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "logExp",
+                "titre": "log Exp",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "probabilites",
+                "titre": "probabilites",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "analyse",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "combinatoire",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "logExp",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "probabilites",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_14_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "fa78b13780dc43c11cd83c4e5b81f022d0417eec6e4139ce3d3aa76463834281",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "analyse",
+                "texte": "analyse constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "combinatoire",
+                "texte": "combinatoire constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "geometrie",
+                "texte": "geometrie constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "logExp",
+                "titre": "log Exp",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "probabilites",
+                "titre": "probabilites",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "analyse",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "combinatoire",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "logExp",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "probabilites",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_14_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "e50f4d1303ba198ff64adf2b99c8462688edcc2bf4b960ec01060c453aed3110",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "analyse",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "combinatoire",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "logExp",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "probabilites",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 74,
+            "coverage": 46,
+            "calibrationIndex": 31,
+            "domainScores": [
+              {
+                "id": "analyse",
+                "score": 74
+              },
+              {
+                "id": "combinatoire",
+                "score": 83
+              },
+              {
+                "id": "geometrie",
+                "score": 92
+              },
+              {
+                "id": "logExp",
+                "score": 0
+              },
+              {
+                "id": "probabilites",
+                "score": 9
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_15_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "50b4c282abf43355cf05640eb62e5556557c77556da89a0c3a01b379f8cc4727",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "analyse",
+                "titre": "analyse",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "combinatoire",
+                "titre": "combinatoire",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "geometrie",
+                "titre": "geometrie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "logExp",
+                "titre": "log Exp",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "probabilites",
+                "titre": "probabilites",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "analyse",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "combinatoire",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "logExp",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "probabilites",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_15_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "506ed8a8de04252c489a24448a46b9ade09b830622b52f5e332a9b3b6bcff8d7",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "analyse",
+                "texte": "analyse constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "combinatoire",
+                "texte": "combinatoire constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "geometrie",
+                "texte": "geometrie constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "logExp",
+                "titre": "log Exp",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "probabilites",
+                "titre": "probabilites",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "analyse",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "combinatoire",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "logExp",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "probabilites",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_15_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "5e3c296ad0a092b4892f1c21c02213413c4b839e17d1005a5ea4ead7c4f16459",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "analyse",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "combinatoire",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "logExp",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "probabilites",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 91,
+            "coverage": 59,
+            "calibrationIndex": 42,
+            "domainScores": [
+              {
+                "id": "analyse",
+                "score": 91
+              },
+              {
+                "id": "combinatoire",
+                "score": 100
+              },
+              {
+                "id": "geometrie",
+                "score": 8
+              },
+              {
+                "id": "logExp",
+                "score": 17
+              },
+              {
+                "id": "probabilites",
+                "score": 26
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_16_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "1fea9b1144cd73ce1198b082bb594286a7db8f10869975295a463b28dd932f82",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "analyse",
+                "titre": "analyse",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "combinatoire",
+                "titre": "combinatoire",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "geometrie",
+                "titre": "geometrie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "logExp",
+                "titre": "log Exp",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "probabilites",
+                "titre": "probabilites",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "analyse",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "combinatoire",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "logExp",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "probabilites",
+              "profile": "NON_TRAITE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_16_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "7be9868d0428fefd3b2741dd410f47b171691f8517fd57ddd0c8e72e4e2ab963",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "analyse",
+                "texte": "analyse constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "combinatoire",
+                "texte": "combinatoire constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "geometrie",
+                "texte": "geometrie constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "logExp",
+                "titre": "log Exp",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "probabilites",
+                "titre": "probabilites",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "analyse",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "combinatoire",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "logExp",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "probabilites",
+              "profile": "NON_TRAITE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_16_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "2d7b8dd743529dff5e0d04c21e972674f2f8864a0f222d2ad3b111ca1022023c",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "analyse",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "combinatoire",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "logExp",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "probabilites",
+              "profile": "NON_TRAITE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 27,
+            "coverage": 72,
+            "calibrationIndex": 53,
+            "domainScores": [
+              {
+                "id": "analyse",
+                "score": 27
+              },
+              {
+                "id": "combinatoire",
+                "score": 36
+              },
+              {
+                "id": "geometrie",
+                "score": 45
+              },
+              {
+                "id": "logExp",
+                "score": 54
+              },
+              {
+                "id": "probabilites",
+                "score": 63
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_17_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "025307bcd0a7527d6bad0dc309600bf051965d7696d2ecdddffa8db32c29ae76",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "analyse",
+                "titre": "analyse",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "combinatoire",
+                "titre": "combinatoire",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "geometrie",
+                "titre": "geometrie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "logExp",
+                "titre": "log Exp",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "probabilites",
+                "titre": "probabilites",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "analyse",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "combinatoire",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "logExp",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "probabilites",
+              "profile": "MAITRISE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_17_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "ea1df39cc4a5c08732f3f479ee57ebb1133b540db7e7db4d0ff46b8fb98d3307",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "analyse",
+                "texte": "analyse constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "combinatoire",
+                "texte": "combinatoire constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "geometrie",
+                "texte": "geometrie constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "logExp",
+                "titre": "log Exp",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "probabilites",
+                "titre": "probabilites",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "analyse",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "combinatoire",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "logExp",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "probabilites",
+              "profile": "MAITRISE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_17_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "3e6fae9009b33940e9b1fb152987458af4f046a228d3c624989c47fb19543073",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "analyse",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "combinatoire",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "logExp",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "probabilites",
+              "profile": "MAITRISE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 44,
+            "coverage": 85,
+            "calibrationIndex": null,
+            "domainScores": [
+              {
+                "id": "analyse",
+                "score": 44
+              },
+              {
+                "id": "combinatoire",
+                "score": 53
+              },
+              {
+                "id": "geometrie",
+                "score": 62
+              },
+              {
+                "id": "logExp",
+                "score": 71
+              },
+              {
+                "id": "probabilites",
+                "score": 80
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_18_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "81e89ff1e3bc1d1144abf8190421cac797b30858fa43a121dc0dcf87c4f812db",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "analyse",
+                "titre": "analyse",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "combinatoire",
+                "titre": "combinatoire",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "geometrie",
+                "titre": "geometrie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "logExp",
+                "titre": "log Exp",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "probabilites",
+                "titre": "probabilites",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "analyse",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "combinatoire",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "logExp",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "probabilites",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_18_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "713a08a833e0d2565aef302b826cbdeee88874023b8f4141aa78000d9a5ef248",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "analyse",
+                "texte": "analyse constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "combinatoire",
+                "texte": "combinatoire constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "geometrie",
+                "texte": "geometrie constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "logExp",
+                "titre": "log Exp",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "probabilites",
+                "titre": "probabilites",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "analyse",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "combinatoire",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "logExp",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "probabilites",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_18_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "7231df4c98b5377fa72026c76e3fa1d0f7a97903ff5ad035e168e758e12f1bdd",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "analyse",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "combinatoire",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "logExp",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "probabilites",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 61,
+            "coverage": 98,
+            "calibrationIndex": 75,
+            "domainScores": [
+              {
+                "id": "analyse",
+                "score": 61
+              },
+              {
+                "id": "combinatoire",
+                "score": 70
+              },
+              {
+                "id": "geometrie",
+                "score": 79
+              },
+              {
+                "id": "logExp",
+                "score": 88
+              },
+              {
+                "id": "probabilites",
+                "score": 97
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_19_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "8aed6f9552696acbb37116d3a051563b898cdd1f4d13d1668086ee88ffe54fec",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "analyse",
+                "titre": "analyse",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "combinatoire",
+                "titre": "combinatoire",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "geometrie",
+                "titre": "geometrie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "logExp",
+                "titre": "log Exp",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "probabilites",
+                "titre": "probabilites",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "analyse",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "combinatoire",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "logExp",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "probabilites",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_19_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "fa78b13780dc43c11cd83c4e5b81f022d0417eec6e4139ce3d3aa76463834281",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "analyse",
+                "texte": "analyse constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "combinatoire",
+                "texte": "combinatoire constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "geometrie",
+                "texte": "geometrie constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "logExp",
+                "titre": "log Exp",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "probabilites",
+                "titre": "probabilites",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "analyse",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "combinatoire",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "logExp",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "probabilites",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_19_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "170b419502c7a1cdcd2dc042210eeb8d421e6a23e445766f904efa69222064c8",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "analyse",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "combinatoire",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "logExp",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "probabilites",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 78,
+            "coverage": 55,
+            "calibrationIndex": 86,
+            "domainScores": [
+              {
+                "id": "analyse",
+                "score": 78
+              },
+              {
+                "id": "combinatoire",
+                "score": 87
+              },
+              {
+                "id": "geometrie",
+                "score": 96
+              },
+              {
+                "id": "logExp",
+                "score": 4
+              },
+              {
+                "id": "probabilites",
+                "score": 13
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_20_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "50b4c282abf43355cf05640eb62e5556557c77556da89a0c3a01b379f8cc4727",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "analyse",
+                "titre": "analyse",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "combinatoire",
+                "titre": "combinatoire",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "geometrie",
+                "titre": "geometrie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "logExp",
+                "titre": "log Exp",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "probabilites",
+                "titre": "probabilites",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "analyse",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "combinatoire",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "logExp",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "probabilites",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_20_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "506ed8a8de04252c489a24448a46b9ade09b830622b52f5e332a9b3b6bcff8d7",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "analyse",
+                "texte": "analyse constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "combinatoire",
+                "texte": "combinatoire constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "geometrie",
+                "texte": "geometrie constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "logExp",
+                "titre": "log Exp",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "probabilites",
+                "titre": "probabilites",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "analyse",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "combinatoire",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "logExp",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "probabilites",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_20_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "aa291feebc3de2e72d6f8925eccc89f74d92b31c671319312a06958b9821b1da",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "analyse",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "combinatoire",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "logExp",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "probabilites",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 95,
+            "coverage": 68,
+            "calibrationIndex": 97,
+            "domainScores": [
+              {
+                "id": "analyse",
+                "score": 95
+              },
+              {
+                "id": "combinatoire",
+                "score": 3
+              },
+              {
+                "id": "geometrie",
+                "score": 12
+              },
+              {
+                "id": "logExp",
+                "score": 21
+              },
+              {
+                "id": "probabilites",
+                "score": 30
+              }
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

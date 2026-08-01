@@ -1,29 +1,8 @@
-import { buildValidatedPack } from '@/lib/bilans/validators/contracts';
 import { validateAgentBundle } from '@/lib/bilans/validators';
-
-const pack = buildValidatedPack({
-  slug: 'maths-terminale-v1',
-  version: 1,
-  status: 'VALIDATED',
-  review: { validatedBy: 'ENSEIGNANT_MATHS', validatedAt: '2026-08-01T09:00:00.000Z' },
-  scoring: { domains: ['analyse', 'algebre'] },
-  reporting: {
-    promptFiles: {
-      preAnalysis: { path: 'content/bilans/prompts/pre.md', checksum: 'a'.repeat(64) },
-      eleve: { path: 'content/bilans/prompts/eleve.md', checksum: 'b'.repeat(64) },
-      parents: { path: 'content/bilans/prompts/parents.md', checksum: 'c'.repeat(64) },
-      nexus: { path: 'content/bilans/prompts/nexus.md', checksum: 'd'.repeat(64) },
-      verifier: { path: 'content/bilans/prompts/verifier.md', checksum: 'e'.repeat(64) },
-    },
-  },
-  validation: { lexiconPath: 'data/bilans/lexique-interdit.json', forbidDigits: ['eleve', 'parents'] },
-});
+import { VALIDATED_PACK_FIXTURE as pack } from './fixtures/validated-pack';
 
 const factSheet = {
-  domains: [
-    { id: 'analyse', score: 42, profile: 'ERREUR_CONFIANTE' },
-    { id: 'algebre', score: 78, profile: 'MAITRISE' },
-  ],
+  domains: pack.scoring.domains.map((id) => ({ id, score: 42, profile: 'ERREUR_CONFIANTE' })),
 };
 
 const validBundle = {
@@ -31,23 +10,16 @@ const validBundle = {
   eleve: {
     accroche: 'Ton travail montre des appuis utiles.',
     forces: ['Analyse : une démarche engagée.', 'Algèbre : des acquis mobilisables.', 'Une méthode régulière.'],
-    priorites: [
-      { domainId: 'analyse', titre: 'Analyse', pourquoi: 'Stabiliser les démarches.', comment: 'Reprendre les raisonnements.' },
-      { domainId: 'algebre', titre: 'Algèbre', pourquoi: 'Consolider les acquis.', comment: 'Varier les exercices.' },
-    ],
+    priorites: pack.scoring.domains.map((domainId) => ({
+      domainId, titre: domainId, pourquoi: 'Stabiliser les démarches.', comment: 'Reprendre les raisonnements.',
+    })),
     microPlan: [{ action: 'Revoir les raisonnements.', dureeMin: 20 }],
     motDeFin: 'Le travail sera progressif et structuré.',
   },
   parents: {
     cadre: 'La passation met en évidence un profil cohérent.',
-    pointsAppui: [
-      { domainId: 'algebre', texte: 'Algèbre : des acquis mobilisables.' },
-      { domainId: 'analyse', texte: 'Analyse : un engagement à structurer.' },
-    ],
-    priorites: [
-      { domainId: 'analyse', titre: 'Analyse', ceQuiSeraFait: 'Les démarches seront reprises.' },
-      { domainId: 'algebre', titre: 'Algèbre', ceQuiSeraFait: 'Les acquis seront consolidés.' },
-    ],
+    pointsAppui: pack.scoring.domains.slice(0, 3).map((domainId) => ({ domainId, texte: `${domainId} : des acquis mobilisables.` })),
+    priorites: pack.scoring.domains.slice(3).map((domainId) => ({ domainId, titre: domainId, ceQuiSeraFait: 'Les acquis seront consolidés.' })),
     etapeSuivante: { texte: 'Un échange permettra de préciser le parcours.', cta: 'Être conseillé' },
   },
   nexus: {
