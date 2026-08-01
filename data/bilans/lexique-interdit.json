@@ -1,0 +1,83 @@
+{
+  "$comment": "Termes prohibés dans toute chaîne générée ou éditoriale du positionnement. Source : AGENTS.md. Comparaison après normalisation (minuscules, sans accents).",
+  "version": "1.0.0",
+  "categories": {
+    "promesse_de_resultat": [
+      "garanti",
+      "garantie",
+      "nous garantissons",
+      "assure la reussite",
+      "100% bac",
+      "100 % bac",
+      "bac ou rembourse",
+      "satisfait ou rembourse",
+      "taux de reussite",
+      "taux de passage",
+      "resultats garantis",
+      "reussite assuree",
+      "mention assuree",
+      "admis a coup sur"
+    ],
+    "anxiogene": [
+      "il est deja trop tard",
+      "risque d echec",
+      "voue a l echec",
+      "sans quoi votre enfant",
+      "irrattrapable",
+      "rattrapage impossible",
+      "urgence absolue",
+      "derniere chance",
+      "ne perdez plus de temps",
+      "condamne a redoubler"
+    ],
+    "aria_mal_positionnee": [
+      "professeur ia",
+      "prof ia",
+      "enseignant ia",
+      "ia qui ne dort jamais",
+      "remplace le professeur",
+      "sans professeur",
+      "correction automatique par ia",
+      "essai gratuit",
+      "essayez gratuitement"
+    ],
+    "jugement_sur_la_personne": [
+      "eleve faible",
+      "eleve mauvais",
+      "niveau catastrophique",
+      "cas desespere",
+      "incapable de",
+      "n a pas le niveau",
+      "profil a risque"
+    ],
+    "chiffres_non_sources": [
+      "des milliers d eleves",
+      "plus de 1000 eleves",
+      "nos centaines d eleves",
+      "la majorite de nos eleves obtiennent"
+    ]
+  },
+  "regex_interdits": [
+    {
+      "id": "score_visible_parent",
+      "pattern": "\\b\\d{1,3}\\s*(%|\\/\\s*20|\\/\\s*100)\\b",
+      "audiences": ["PARENT", "ELEVE"],
+      "motif": "Aucun score brut ni pourcentage ne doit apparaître dans une restitution élève ou parent."
+    },
+    {
+      "id": "nom_enseignant",
+      "pattern": "\\b(M\\.|Mme|Monsieur|Madame)\\s+[A-ZÉÈÀÂÎÔÛ][a-zéèàâîôûç]+",
+      "audiences": ["PARENT", "ELEVE"],
+      "motif": "Aucun nom d'enseignant n'est publié."
+    }
+  ],
+  "cta_autorises": [
+    "Demander un bilan gratuit",
+    "Trouver ma formule",
+    "Voir les offres et tarifs",
+    "Pré-inscription",
+    "Écrire sur WhatsApp",
+    "Être conseillé",
+    "Demander les informations et vérifier les disponibilités"
+  ]
+}
