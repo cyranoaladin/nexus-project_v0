@@ -8,6 +8,7 @@ import {
   scoreSnapshotSchema,
 } from '@/lib/bilans/core/schemas';
 import {
+  canApplyReportTransition,
   getLegalTransition,
   isFreshReportRevision,
   isLegalTransition,
@@ -128,6 +129,7 @@ describe('canonical bilan schemas', () => {
       status: 'COACH_REJECTED' as const,
       generatedAt: '2026-07-14T09:00:00.000Z',
       evidence: [],
+      validationFailures: [],
     };
     const nextRevision = {
       ...previousRevision,
@@ -135,6 +137,7 @@ describe('canonical bilan schemas', () => {
       revision: 2,
       status: 'REPORT_PENDING_REVIEW' as const,
       generatedAt: '2026-07-14T09:05:00.000Z',
+      validationFailures: [],
     };
 
     expect(isFreshReportRevision(previousRevision, nextRevision)).toBe(true);
@@ -181,5 +184,25 @@ describe('canonical bilan schemas', () => {
       previousRevision: validatedRevision,
       nextRevision,
     }).success).toBe(false);
+  });
+
+  it('never validates or publishes a revision with validation failures', () => {
+    const pending = {
+      id: 'report-failed', attemptId: 'attempt-1', revision: 1,
+      status: 'REPORT_PENDING_REVIEW' as const,
+      generatedAt: '2026-07-14T09:00:00.000Z', evidence: [],
+      validationFailures: ['V2: digit in parent prose'],
+    };
+    const validated = {
+      ...pending,
+      status: 'COACH_VALIDATED' as const,
+      validatedAt: '2026-07-14T09:05:00.000Z',
+    };
+
+    expect(canApplyReportTransition(pending, 'VALIDATE_REPORT', 'COACH')).toBe(false);
+    expect(canApplyReportTransition(validated, 'PUBLISH_REPORT', 'COACH')).toBe(false);
+    expect(canApplyReportTransition(pending, 'REJECT_REPORT', 'COACH')).toBe(true);
+    expect(reportRevisionSchema.safeParse(validated).success).toBe(false);
+    expect(reportRevisionSchema.safeParse({ ...validated, status: 'PUBLISHED' }).success).toBe(false);
   });
 });

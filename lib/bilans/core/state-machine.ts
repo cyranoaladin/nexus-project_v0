@@ -48,6 +48,20 @@ export function isLegalTransition(candidate: LifecycleTransition): boolean {
   ));
 }
 
+export function canApplyReportTransition(
+  revision: ReportRevision,
+  action: TransitionAction,
+  actor: LifecycleActor,
+): boolean {
+  const transition = getLegalTransition(revision.status, action, actor);
+  if (transition === undefined) return false;
+  if (
+    revision.validationFailures.length > 0
+    && (action === 'VALIDATE_REPORT' || action === 'PUBLISH_REPORT')
+  ) return false;
+  return true;
+}
+
 /**
  * A corrective regeneration after a refusal or publication preserves the
  * scored attempt but must create a distinct, sequential coach-review revision.

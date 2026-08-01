@@ -366,3 +366,81 @@ n’est donc affirmée.
 **Decision.** Tout secret interne regenerable rapidement, notamment `NEXTAUTH_SECRET`, `RAG_API_TOKEN`, `CHROMA_API_KEY`, `JWT_SECRET` et les mots de passe de base, est tourne sans qualification supplementaire. La qualification est reservee aux secrets dont la rotation a un cout externe, comme les certificats TLS, PAT GitHub et credentials de fournisseurs tiers.
 
 **Motif.** La rotation reduit immediatement le risque avec une preuve operationnelle plus forte qu'une analyse documentaire incertaine.
+## A38 - Adoption des modeles Canonical et resolution de A21
+
+**Constat.** Neuf modeles Canonical sont deja presents sur `origin/main`, mais restent presque inactifs. L'ADR-007 decrit une succession progressive d'`Assessment`, et non une coexistence permanente.
+
+**Decision.** Retenir le scenario d'adoption de Canonical, migration progressive et depreciation d'`Assessment`. Deux sources de verite destinees a coexister indefiniment restent interdites; un successeur documente avec migration et depreciation planifiee est autorise.
+
+**Motif.** Etendre `Assessment` reconstruirait des agregats deja implementes, pour un effort superieur et une dette durable.
+
+## A39 - Ordre d'execution de M1
+
+**Constat.** La branche Canonical peut atteindre `REPORT_PENDING_REVIEW` sans materialiser la composition A1 ni les echecs des validateurs A2.
+
+**Decision.** L'ordre est obligatoire: dry-run de migration; `buildFactSheet` A1 et `validationFailures[]` A2; validateurs V1-V7; puis seulement agents et routes publiques. Une correspondance d'email est un signal d'audit et ne produit jamais de rattachement automatique.
+
+**Motif.** Ouvrir une route avant ces garanties importerait precisement les defauts que la convergence doit supprimer.
+
+## A40 - Copie locale isolee des donnees de production
+
+**Constat.** Les six migrations Canonical comportent backfills, contraintes uniques, `SET NOT NULL`, triggers et exceptions explicites.
+
+**Decision.** Seul un `pg_dump` en lecture seule peut etre autorise en production, apres accord ecrit de Nexus. Le dump est restaure dans une base locale isolee, conserve en mode `600`, jamais committe ni copie, puis supprime apres usage. Aucune migration M1 n'est appliquee en production. La fenetre sans trigger append-only est mesuree en secondes.
+
+**Motif.** Les migrations doivent etre eprouvees sur la forme reelle des donnees sans exposer la production a une ecriture ou a une fenetre d'integrite affaiblie.
+
+## A41 - Bascule pack par pack derriere feature flag
+
+**Constat.** Douze fichiers, vingt-neuf operations Prisma, huit routes et quatre services dependent directement d'`Assessment`.
+
+**Decision.** Basculer un pack a la fois derriere un flag desactive par defaut. Apres bascule, `Assessment` devient lecture seule pour ce pack. Aucune suppression legacy n'est permise pendant M1. Le premier pack cible est Maths Terminale.
+
+**Motif.** Une bascule atomique limite le rayon de regression et reste reversible par desactivation du flag avant toute ecriture Canonical.
+## A42 - Retention de la copie locale de production
+
+**Constat.** Le dump et le conteneur `nexus-m1-dryrun` contiennent des donnees personnelles de mineurs, notamment des noms, des e-mails et des resultats scolaires.
+
+**Decision.** Le fichier unique `/home/alaeddine/.local/share/nexus/m1/nexus_prod_m1_20260801.dump` reste en mode `600`, n'est jamais copie, commite ni transmis. Le dump et le conteneur jetable `nexus-m1-dryrun`, sans volume, sont supprimes au plus tard le 2026-08-03. Leur suppression doit etre constatee dans un rapport, jamais supposee.
+
+**Motif.** Une copie de production ne doit survivre que pendant la fenetre strictement necessaire au dry-run et a sa qualification.
+
+## A43 - Schema Canonical deja applique en production
+
+**Constat.** Les neuf tables Canonical existent en production et les six migrations de fondation sont enregistrees comme terminees depuis le 2026-07-22. La base contient seulement 15 `Assessment` pour 237 utilisateurs.
+
+**Decision.** M1 n'applique aucune migration de structure Canonical en production. Le travail restant porte sur le branchement progressif des ecritures. Les migrations additives encore envisageables sont limitees a `validationFailures[]` et aux champs necessaires a la `FactSheet`. Le backfill des 15 assessments est mineur ; par defaut, les lignes non rattachables sont archivees sans migration automatique, conformement a A5.
+
+**Motif.** Le successeur structurel est deja present et le faible volume legacy ne justifie ni rapprochement par e-mail ni mecanisme automatique risque.
+
+## A44 - Image exacte pour toute copie locale de production
+
+**Constat.** Une premiere restauration dans `postgres:15` a echoue parce que cette image ne fournit pas l'extension `pgvector` requise par la production. Une restauration partielle aurait produit une analyse fausse avec l'apparence d'une copie valide.
+
+**Decision.** Toute copie locale d'une base de production utilise l'image exacte de la production, extensions comprises. L'image et la liste des extensions sont relevees sur la source, puis leur disponibilite est verifiee localement avant toute restauration.
+
+**Motif.** L'alignement du moteur PostgreSQL ne suffit pas : les extensions font partie du schema executable et conditionnent la fidelite de la copie.
+
+## A45 - Commit de la Phase B avant la Phase C
+
+**Constat.** La Phase B represente un ensemble coherent et verifie : FactSheet, `validationFailures[]`, validateurs V1-V7, frontiere PII, gateway et migration additive.
+
+**Decision.** La Phase B est commitee avant toute ouverture de la Phase C, avec staging par liste explicite et exclusion des artefacts hors perimetre.
+
+**Motif.** Ce jalon fonctionnel et de securite ne doit pas rester vulnerable a un incident local ni etre melange aux agents et au contenu pedagogique de la phase suivante.
+
+## A46 - Archivage en lecture seule des 15 assessments legacy
+
+**Constat.** Les 15 assessments legacy sont `COMPLETED`, sans `studentId` et sans rapprochement fiable. Ils proviennent d'un pipeline ayant deja produit des rapports pedagogiquement errones.
+
+**Decision.** Ils restent en base, inaccessibles et en lecture seule, a titre de trace. Aucun rattachement automatique ou manuel, aucune suppression et aucune ligne legacy effacee pendant M1.
+
+**Motif.** A5 interdit le rattachement par e-mail et rendre ces rapports consultables exposerait des familles a des bilans dont la fiabilite est invalidee.
+
+## A47 - Ecart entre contenus RAG et chunks annonces
+
+**Constat P2.** La copie de production contient 40 lignes dans `pedagogical_contents`, alors que 211 chunks indexes ont ete annonces.
+
+**Decision.** L'ecart est consigne sans investigation dans M1. Il devra etre qualifie avant toute mise en service reelle du RAG.
+
+**Motif.** Trois explications restent possibles : niveau d'agregation different, stockage partiel ailleurs, ou ingestion incomplete. La derniere hypothese affecterait directement la qualite pedagogique des bilans.
