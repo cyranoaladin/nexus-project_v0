@@ -496,3 +496,9 @@ n’est donc affirmée.
 - **Constat :** `computeFacts` ne remplace pas une `difficulty` absente par le champ legacy `weight` ni par la valeur `1`. Un passage forcé propage des poids indéfinis dans les agrégats et l'absence de `nodeCpsId` supprime la granularité des prérequis.
 - **Décision :** aucun fallback ou défaut implicite ne sera introduit. Un pack dépourvu des métadonnées diagnostiques obligatoires est refusé avant calcul.
 - **Motif :** le pack incomplet ne produit pas un diagnostic simplement dégradé ; il produit des agrégats invalides pouvant conserver l'apparence d'un résultat. Le refus explicite est le seul comportement sûr.
+
+## A56 — Le RAG Terminale absent est désactivé et fail-closed
+
+- **Constat :** la collection Chroma `ressources_pedagogiques_terminale` et la table `rag_chunks` de la nouvelle pile contiennent zéro entrée. Le chiffre historique de 211 chunks ne correspond à aucun stockage actif observé le 2026-08-01.
+- **Décision :** le pack `maths-terminale-v1` porte `reporting.rag.enabled: false` et une référence explicite à A56. Si un pack active le RAG, le gateway refuse tout démarrage lorsque le retriever est absent ou renvoie zéro extrait.
+- **Motif :** une génération sans preuve ne doit jamais conserver l'apparence d'une génération ancrée. Le corpus vide est une erreur bloquante, pas un mode dégradé.

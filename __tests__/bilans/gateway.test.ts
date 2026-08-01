@@ -1,6 +1,11 @@
 import { createPseudonymizedFactSheet } from '@/lib/bilans/local-first/contracts';
-import { BilanLlmGateway, type BilanLlmTransport } from '@/lib/bilans/llm/gateway';
+import {
+  BilanLlmGateway,
+  type BilanLlmTransport,
+  type BilanRagRetriever,
+} from '@/lib/bilans/llm/gateway';
 import { MockBilanLlmTransport } from '@/lib/bilans/llm/mock-transport';
+import { buildValidatedPack } from '@/lib/bilans/validators/contracts';
 
 import { VALIDATED_PACK_FIXTURE as pack } from './fixtures/validated-pack';
 import { RECIPE_FACT_SHEETS } from './fixtures/recipe-fact-sheets';
@@ -90,6 +95,23 @@ describe('constrained five-agent bilan gateway', () => {
     const tampered = { ...factSheet, value: { ...factSheet.value, globalScore: 99 } };
 
     await expect(new BilanLlmGateway(transport).run(tampered, pack)).rejects.toThrow(/PII|checksum/i);
+    expect(transport.requests).toEqual([]);
+  });
+
+  it('refuses an enabled RAG returning no evidence before any agent transport', async () => {
+    const transport = new MockBilanLlmTransport();
+    const ragRetriever: BilanRagRetriever = { search: jest.fn(async () => []) };
+    const enabledPack = buildValidatedPack({
+      ...pack,
+      reporting: {
+        ...pack.reporting,
+        rag: { ...pack.reporting.rag, enabled: true },
+      },
+    });
+
+    await expect(new BilanLlmGateway(transport, ragRetriever).run(factSheet, enabledPack))
+      .rejects.toThrow('RAG_ENABLED_WITHOUT_EVIDENCE');
+    expect(ragRetriever.search).toHaveBeenCalledTimes(1);
     expect(transport.requests).toEqual([]);
   });
 });

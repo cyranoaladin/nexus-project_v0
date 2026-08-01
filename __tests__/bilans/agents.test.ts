@@ -20,6 +20,7 @@ describe('pack-bound bilan agents', () => {
         pack: { slug: pack.slug, version: pack.version },
         agent: definition,
         factSheet: RECIPE_FACT_SHEETS[0],
+        ragEvidence: [],
         priorOutputs: outputs,
       });
       outputs[definition.id] = parseAgentOutput(definition, raw);

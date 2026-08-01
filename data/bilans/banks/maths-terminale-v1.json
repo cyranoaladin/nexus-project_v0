@@ -1749,6 +1749,8 @@
   },
   "reporting": {
     "rag": {
+      "enabled": false,
+      "decisionRef": "A56 — corpus RAG Terminale absent en production au 2026-08-01",
       "sources": [],
       "topK": 0
     },

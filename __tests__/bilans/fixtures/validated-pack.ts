@@ -11,6 +11,7 @@ export const VALIDATED_PACK_FIXTURE = buildValidatedPack({
   },
   scoring: { domains: rawPack.scoring.domains },
   reporting: {
+    rag: rawPack.reporting.rag,
     promptFiles: rawPack.reporting.promptFiles,
     outputSchemas: rawPack.reporting.outputSchemas,
   },
