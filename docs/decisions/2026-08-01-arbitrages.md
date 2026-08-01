@@ -231,3 +231,138 @@ production qui doit être arbitré sans lire les secrets.
 **Résultat.** Le port 3002 est libre. L’état disponible ne permet pas d’établir
 rétrospectivement si des requêtes HTTP ou SQL ont été servies ; aucune activité de base
 n’est donc affirmée.
+
+## Arbitrages complémentaires A21 à A31
+
+### A21 — Suspension de l'interdiction du modèle parallèle à Assessment
+
+**Constat.** Le modèle historique `Assessment` présente des défauts P0 sur le rattachement élève, la visibilité avant revue et le traitement des échecs de génération. Les modèles `Canonical*` apportent un rattachement vérifié et un cycle de revue et publication effectif.
+
+**Décision.** L'interdiction du modèle parallèle est suspendue, pas levée. Aucun modèle ni migration supplémentaire n'est créé ou appliqué avant le verdict de M0.5.
+
+**Motif.** Il faut déterminer si `Canonical*` constitue un successeur justifié ou un doublon durable avant d'engager 16 à 21 jours de travail.
+
+### A22 — Prompts Markdown autorisés sous binding cryptographique
+
+**Constat.** Les prompts de la branche de référence vivent dans des fichiers Markdown séparés.
+
+**Décision.** Un prompt peut rester en Markdown si le pack le référence par chemin et checksum, si le chargement échoue sur mismatch, et si toute modification incrémente la version du pack et annule sa validation.
+
+**Motif.** La source unique et le versionnement sont les invariants recherchés. Un Markdown relisible est préférable à une longue chaîne JSON.
+
+### A23 — Reprise ciblée retenue sous condition
+
+**Constat.** La branche la plus complète diverge de 692 fichiers hors OpenRouter et n'implémente pas A1, A2 ni A8.
+
+**Décision.** M1 part du kit intégré avec reprises ciblées. La décision sera réexaminée si M0.5 conclut que la persistance `Canonical*` doit remplacer `Assessment`.
+
+**Motif.** La valeur réutilisable est réelle, mais une reprise globale importerait trop de dette d'alignement.
+
+### A24 — Triage ciblé des branches
+
+**Constat.** Les références distantes contiennent un stock important de commits absent de main.
+
+**Décision.** Une mission séparée, en lecture seule et limitée à une demi-journée, inventoriera uniquement les branches touchant `lib/bilans/**`, `lib/assessments/**` ou `prisma/schema.prisma`.
+
+**Motif.** Éviter les faux constats d'absence sans ouvrir un chantier général de consolidation.
+
+### A25 — La validation pédagogique devient le goulot
+
+**Constat.** Dix-sept CPS, 408 items et 85 banques existent, mais tous restent `HUMAN_VALIDATION_REQUIRED`, sans reviewer ni date.
+
+**Décision.** M3 devient une mission de validation pour les sept matières couvertes. SES, Histoire-Géographie et Grand Oral restent à produire intégralement.
+
+**Motif.** La ressource critique est désormais le temps des enseignants relecteurs, non l'écriture technique.
+
+### A26 — Interdiction de valoriser le stock non validé
+
+**Constat.** Le stock contient des incohérences pédagogiques observables.
+
+**Décision.** Les 408 items et 765 exercices sont qualifiés exclusivement de « brouillons à valider » tant que `reviewer` est nul.
+
+**Motif.** Aucun volume ne remplace une validation humaine nominative et datée.
+
+### A27 — Rotation SMTP sous responsabilité humaine
+
+**Constat.** Un credential SMTP a été exposé dans un document suivi.
+
+**Décision.** Nexus réalise la rotation. Aucun agent ne manipule ni ne rapporte la valeur.
+
+**Motif.** La rotation du fournisseur est une action humaine sensible, distincte du correctif documentaire.
+
+### A28 — Dépôt public, compromission présumée
+
+**Constat.** GitHub déclare `cyranoaladin/nexus-project_v0` public.
+
+**Décision.** Le credential exposé pendant cinq semaines et demie est considéré compromis, sans attendre une preuve d'exploitation.
+
+**Motif.** Les collecteurs automatisés de secrets rendent une exposition publique durable incompatible avec l'hypothèse d'un secret resté confidentiel.
+
+### A29 — Pas de réécriture de l'historique Git
+
+**Constat.** Le dépôt comporte de nombreuses branches divergentes et des milliers de commits uniques absents de main.
+
+**Décision.** Ne pas utiliser `git filter-repo` ni forcer les branches. Après confirmation de rotation, remplacer la valeur courante par `[REDACTED — credential révoqué le 2026-08-01]` dans l'archive et produire un commit dédié.
+
+**Motif.** Une valeur révoquée devient inerte. Réécrire l'historique mettrait en danger le patrimoine non intégré.
+
+### A30 — Credentials de services retirés ou potentiellement inactifs
+
+**Constat.** La configuration locale contient encore des clés Konnect, Mistral et OpenAI.
+
+**Décision.** Nexus décide de leur révocation et de leur retrait après vérification de l'usage actif. Konnect étant retiré du produit, ses trois credentials sont prioritaires.
+
+**Motif.** Un credential inutilisé et non surveillé peut rester compromis sans détection.
+
+### A31 — Couverture insuffisante du scanner de secrets
+
+**Constat.** Le hook existant annonce un scan Telegram, mais n'a pas détecté le credential SMTP suivi.
+
+**Décision.** Localiser et documenter sa couverture pendant M0.4. Une mission dédiée devra étendre la détection sans l'implémenter au passage.
+
+**Motif.** Un scanner mono-fournisseur crée une fausse assurance de couverture générale.
+## A32 - Scanner de secrets : couverture a etendre
+
+**Constat.** `scripts/security/check-telegram-secrets.mjs` ne couvre que Telegram. Il a affiche `Telegram secret scan passed` alors qu'un credential SMTP etait suivi depuis le 23 juin.
+
+**Decision.** Traiter l'extension dans une mission dediee. Le scanner doit couvrir les fournisseurs et formats de secrets usuels, ne produire que `chemin:ligne:regle`, sans valeur, et s'executer dans le hook local ainsi qu'en CI. Le hook seul est insuffisant car `--no-verify` le contourne.
+
+**Motif.** Un scanner mono-fournisseur produit une assurance fausse lorsqu'il annonce un succes sur une surface qu'il n'inspecte pas.
+
+## A33 - Localisation expurgee des secrets historiques
+
+**Constat.** Le balayage de chaque blob Git a releve neuf lignes correspondant a des motifs de secret dans l'historique du depot public.
+
+**Decision.** Leur localisation est autorisee et necessaire. Le seul livrable admissible contient le type deduit du prefixe, le commit, le chemin, la ligne, la date et la presence dans l'arbre actuel. Aucune valeur, meme partielle ou tronquee, ne doit etre affichee.
+
+**Motif.** Dans un depot public, ne pas identifier les fournisseurs concernes empeche de determiner les credentials a revoquer. L'ignorance augmente le risque au lieu de le contenir.
+## A34 - Revocations prises en charge par Nexus
+
+**Constat.** Les cles TLS, le PAT GitHub et la valeur `DATABASE_URL` signalee dans l'archive publique necessitent une qualification ou une revocation humaine.
+
+**Decision.** Nexus traite ces revocations. Aucun agent ne touche a ces credentials, ne les affiche et ne poursuit leur qualification.
+
+**Motif.** La revocation exige l'autorite sur les comptes et services concernes; elle ne releve pas du chantier logiciel.
+
+## A35 - Detection independante du balisage documentaire
+
+**Constat.** Un motif centre sur `NOM=valeur` ou `NOM: valeur` ne detecte pas un credential lorsque du balisage Markdown separe le nom de variable du delimiteur. Le credential SMTP a ainsi echappe a la detection pendant cinq semaines.
+
+**Decision.** La specification du futur scanner doit analyser le contenu des tableaux, blocs de code et libelles Markdown, independamment de leur balisage, tout en ne produisant que `chemin:ligne:regle`.
+
+**Motif.** La securite ne doit pas dependre de la forme editoriale du document qui contient le secret.
+## A36 - Redaction en bloc de `docs/archive/**`
+
+**Constat.** Trois passes successives sur les audits archives ont chacune revele de nouveaux credentials. Le risque porte sur l'ensemble du repertoire, pas sur une liste finie d'incidents isoles.
+
+**Decision.** Apres confirmation des rotations par Nexus, une passe unique remplacera toute valeur suivant un nom de variable sensible par `[REDACTED - rotated 2026-08-01]`. Le traitement couvre notamment `SMTP_PASSWORD`, `POSTGRES_PASSWORD`, `DATABASE_URL`, `NEXTAUTH_SECRET`, `CHROMA_API_KEY`, `RAG_API_TOKEN`, `OPENAI_API_KEY`, `MISTRAL_API_KEY`, `KONNECT_*`, `JWT_SECRET` et tout motif de cle privee PEM. Les fichiers, noms de variables et contextes documentaires sont conserves. Un seul commit dedie portera la redaction.
+
+**Motif.** Une redaction globale, reproductible et auditable evite les omissions inherentes a une correction ligne par ligne tout en preservant la valeur historique des archives.
+
+## A37 - Rotation par defaut des secrets internes
+
+**Constat.** Qualifier un litteral interne comme credential reel ou placeholder coute souvent plus cher que le regenerer et ne produit pas une certitude suffisante.
+
+**Decision.** Tout secret interne regenerable rapidement, notamment `NEXTAUTH_SECRET`, `RAG_API_TOKEN`, `CHROMA_API_KEY`, `JWT_SECRET` et les mots de passe de base, est tourne sans qualification supplementaire. La qualification est reservee aux secrets dont la rotation a un cout externe, comme les certificats TLS, PAT GitHub et credentials de fournisseurs tiers.
+
+**Motif.** La rotation reduit immediatement le risque avec une preuve operationnelle plus forte qu'une analyse documentaire incertaine.
