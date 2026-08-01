@@ -80,7 +80,8 @@ export async function POST(req: NextRequest) {
 
   // ── Circuit A: Nexus RAG API (external) ────────────────────────────────────
   try {
-    const hits = await ragSearchByTrack('EDS_GENERALE', 'maths', semanticQuery, 'premiere', 5);
+    const ragResult = await ragSearchByTrack('EDS_GENERALE', 'maths', semanticQuery, 'premiere', 5);
+    const hits = ragResult.status === 'success' ? ragResult.hits : [];
 
     if (hits.length > 0) {
       // Filter to score > 0.50 as requested

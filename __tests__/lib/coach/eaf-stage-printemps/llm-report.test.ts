@@ -138,7 +138,7 @@ const RAG_HIT = { id: 'hit-1', document: 'Méthode commentaire composé lycée.'
 
 beforeEach(() => {
   jest.clearAllMocks();
-  mockRagSearch.mockResolvedValue([RAG_HIT]);
+  mockRagSearch.mockResolvedValue({ status: 'success', durationMs: 1, hits: [RAG_HIT] });
   mockBuildRAGContext.mockReturnValue('=== CONTEXTE PÉDAGOGIQUE ===\nMéthode commentaire composé lycée.');
   mockOllamaChat.mockResolvedValue(LLM_GOOD_RESPONSE);
 });
@@ -250,7 +250,7 @@ describe('generateLLMParentEafReport', () => {
   });
 
   it('11. ragHitCount = 0 quand RAG retourne aucun résultat', async () => {
-    mockRagSearch.mockResolvedValue([]);
+    mockRagSearch.mockResolvedValue({ status: 'empty', durationMs: 1, hits: [] });
     mockBuildRAGContext.mockReturnValue('');
 
     const result = await generateLLMParentEafReport(FULL_SOURCE, STUDENT, FIXED_DATE);

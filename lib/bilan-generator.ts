@@ -268,12 +268,12 @@ export async function generateBilans(
     const ragQueries = buildRAGQueries(data, scoring, definition);
     const allHits = [];
     for (const query of ragQueries) {
-      const hits = await ragSearch({
+      const result = await ragSearch({
         query,
         k: 2,
         ...(ragCollections.length > 0 ? { collection: ragCollections[0] } : {}),
       });
-      allHits.push(...hits);
+      if (result.status === 'success') allHits.push(...result.hits);
     }
     uniqueHits = Array.from(
       new Map(allHits.map((h) => [h.id, h])).values()

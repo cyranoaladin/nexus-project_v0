@@ -1,4 +1,4 @@
-import { serializeError } from '@/lib/utils/serialize-error';
+import { telegramSendMessage } from '@/lib/telegram/client';
 /**
  * RAG Client — Canonical RAG retrieval via ChromaDB.
  *
@@ -12,7 +12,7 @@ import { serializeError } from '@/lib/utils/serialize-error';
  * - Ingestion = out-of-repo — operated by external FastAPI service
  */
 
-interface RAGSearchHit {
+export interface RAGSearchHit {
   id: string;
   document: string;
   metadata: Record<string, unknown>;
@@ -35,7 +35,7 @@ interface RAGCollectionStats {
   sources: Record<string, number>;
 }
 
-interface RAGSearchOptions {
+export interface RAGSearchOptions {
   /** Search query */
   query: string;
   /** Number of results to return (default: 4) */
@@ -60,6 +60,88 @@ export type RAGLevel = 'seconde' | 'premiere' | 'terminale' | 'superieur';
 
 export type RAGAcademicTrack = 'EDS_GENERALE' | 'STMG' | 'STI2D' | 'ST2S' | 'STL' | 'STD2A' | 'STMG_NON_LYCEEN';
 
+export type RAGSearchErrorCode =
+  | 'TIMEOUT'
+  | 'HTTP_ERROR'
+  | 'NETWORK_ERROR'
+  | 'INVALID_RESPONSE';
+
+export type RAGSearchResult =
+  | { status: 'success'; hits: RAGSearchHit[]; durationMs: number }
+  | { status: 'empty'; hits: []; durationMs: number }
+  | {
+      status: 'error';
+      hits: [];
+      durationMs: number;
+      error: { code: RAGSearchErrorCode; httpStatus?: number };
+    };
+
+interface RAGSearchEvent {
+  at: number;
+  failed: boolean;
+}
+
+const recentSearches: RAGSearchEvent[] = [];
+let lastAlertAt = 0;
+
+function envNumber(name: string, fallback: number): number {
+  const parsed = Number(process.env[name]);
+  return Number.isFinite(parsed) && parsed >= 0 ? parsed : fallback;
+}
+
+function recordSearchOutcome(failed: boolean, errorCode?: RAGSearchErrorCode): void {
+  const now = Date.now();
+  const windowMs = envNumber('RAG_FAILURE_ALERT_WINDOW_MS', 5 * 60_000);
+  const minimumSamples = envNumber('RAG_FAILURE_ALERT_MIN_SAMPLES', 5);
+  const rateThreshold = Math.min(1, envNumber('RAG_FAILURE_ALERT_RATE', 0.5));
+  const cooldownMs = envNumber('RAG_FAILURE_ALERT_COOLDOWN_MS', 15 * 60_000);
+
+  recentSearches.push({ at: now, failed });
+  while (recentSearches[0] && recentSearches[0].at < now - windowMs) {
+    recentSearches.shift();
+  }
+
+  const failureCount = recentSearches.filter((event) => event.failed).length;
+  const failureRate = recentSearches.length === 0 ? 0 : failureCount / recentSearches.length;
+  if (
+    recentSearches.length < minimumSamples ||
+    failureRate <= rateThreshold ||
+    now - lastAlertAt < cooldownMs
+  ) {
+    return;
+  }
+
+  lastAlertAt = now;
+  const message = [
+    '[Nexus RAG] Seuil d’échec dépassé',
+    `Échecs: ${failureCount}/${recentSearches.length}`,
+    `Fenêtre: ${windowMs} ms`,
+    `Dernier code: ${errorCode ?? 'UNKNOWN'}`,
+  ].join('\n');
+  void telegramSendMessage(undefined, message).catch(() => {
+    console.error('[rag] alert failed', { code: 'TELEGRAM_NOTIFICATION_FAILED' });
+  });
+}
+
+function technicalFailure(
+  code: RAGSearchErrorCode,
+  startedAt: number,
+  httpStatus?: number,
+): RAGSearchResult {
+  const durationMs = Math.max(0, Date.now() - startedAt);
+  const logDetails = httpStatus === undefined
+    ? { code, durationMs }
+    : { code, durationMs, httpStatus };
+  console.error('[rag] search failed', logDetails);
+  recordSearchOutcome(true, code);
+  return {
+    status: 'error',
+    hits: [],
+    durationMs,
+    error: httpStatus === undefined ? { code } : { code, httpStatus },
+  };
+}
+
 /**
  * Get the RAG Ingestor base URL.
  * Priority: env var > Docker service name > localhost fallback
@@ -79,7 +161,8 @@ function getIngestorUrl(): string {
 /**
  * Search the RAG knowledge base for relevant pedagogical content.
  */
-export async function ragSearch(options: RAGSearchOptions): Promise<RAGSearchHit[]> {
+export async function ragSearch(options: RAGSearchOptions): Promise<RAGSearchResult> {
+  const startedAt = Date.now();
   const baseUrl = getIngestorUrl();
   const token = process.env.RAG_API_TOKEN;
   const timeout = parseInt(process.env.RAG_SEARCH_TIMEOUT_MS || process.env.RAG_SEARCH_TIMEOUT || '12000', 10);
@@ -118,21 +201,30 @@ export async function ragSearch(options: RAGSearchOptions): Promise<RAGSearchHit
     });
 
     if (!response.ok) {
-      if (process.env.NODE_ENV !== 'test') {
-        console.error(`RAG search failed: ${response.status} ${response.statusText}`);
-      }
-      return [];
+      return technicalFailure('HTTP_ERROR', startedAt, response.status);
     }
 
-    const data = (await response.json()) as RAGSearchResponse;
-    return data.hits || [];
+    let data: RAGSearchResponse;
+    try {
+      data = (await response.json()) as RAGSearchResponse;
+    } catch {
+      return technicalFailure('INVALID_RESPONSE', startedAt);
+    }
+
+    if (!Array.isArray(data.hits)) {
+      return technicalFailure('INVALID_RESPONSE', startedAt);
+    }
+
+    const durationMs = Math.max(0, Date.now() - startedAt);
+    recordSearchOutcome(false);
+    return data.hits.length > 0
+      ? { status: 'success', hits: data.hits, durationMs }
+      : { status: 'empty', hits: [], durationMs };
   } catch (error) {
     if (error instanceof Error && error.name === 'AbortError') {
-      console.error(`RAG search timeout after ${timeout}ms`);
-    } else {
-      console.error('RAG search error:', serializeError(error));
+      return technicalFailure('TIMEOUT', startedAt);
     }
-    return [];
+    return technicalFailure('NETWORK_ERROR', startedAt);
   } finally {
     clearTimeout(timeoutId);
   }
@@ -146,7 +238,7 @@ export async function ragSearchBySubject(
   subject: RAGSubject,
   level?: RAGLevel,
   k = 4,
-): Promise<RAGSearchHit[]> {
+): Promise<RAGSearchResult> {
   const filters: Record<string, string> = { subject };
   if (level) filters.level = level;
   return ragSearch({ query, k, filters });
@@ -161,7 +253,7 @@ export async function ragSearchByTrack(
   query: string,
   level?: RAGLevel,
   k = 4,
-): Promise<RAGSearchHit[]> {
+): Promise<RAGSearchResult> {
   const filters: Record<string, string> = {
     track,
     academicTrack: track,

@@ -38,34 +38,35 @@ describe('ragSearch', () => {
 
     const result = await ragSearch({ query: 'dérivées' });
 
-    expect(result).toHaveLength(1);
-    expect(result[0].document).toContain('dérivées');
+    expect(result.status).toBe('success');
+    expect(result.hits).toHaveLength(1);
+    expect(result.hits[0].document).toContain('dérivées');
   });
 
-  it('should return empty array on non-ok response', async () => {
+  it('should return an HTTP error on non-ok response', async () => {
     mockFetch.mockResolvedValue({ ok: false, status: 500, statusText: 'Error' });
 
     const result = await ragSearch({ query: 'test' });
 
-    expect(result).toEqual([]);
+    expect(result).toMatchObject({ status: 'error', error: { code: 'HTTP_ERROR' } });
   });
 
-  it('should return empty array on fetch error', async () => {
+  it('should return a network error on fetch error', async () => {
     mockFetch.mockRejectedValue(new Error('Connection refused'));
 
     const result = await ragSearch({ query: 'test' });
 
-    expect(result).toEqual([]);
+    expect(result).toMatchObject({ status: 'error', error: { code: 'NETWORK_ERROR' } });
   });
 
-  it('should return empty array on timeout (AbortError)', async () => {
+  it('should return a timeout error on AbortError', async () => {
     const abortError = new Error('Aborted');
     abortError.name = 'AbortError';
     mockFetch.mockRejectedValue(abortError);
 
     const result = await ragSearch({ query: 'test' });
 
-    expect(result).toEqual([]);
+    expect(result).toMatchObject({ status: 'error', error: { code: 'TIMEOUT' } });
   });
 
   it('should send correct request body with defaults', async () => {
@@ -96,14 +97,14 @@ describe('ragSearch', () => {
     expect(body.filters).toEqual({ subject: 'maths' });
   });
 
-  it('should return empty array when hits is missing', async () => {
+  it('should reject a response whose hits field is missing', async () => {
     mockFetch.mockResolvedValue({
       ok: true,
       json: async () => ({}),
     });
 
     const result = await ragSearch({ query: 'test' });
-    expect(result).toEqual([]);
+    expect(result).toMatchObject({ status: 'error', error: { code: 'INVALID_RESPONSE' } });
   });
 });
 

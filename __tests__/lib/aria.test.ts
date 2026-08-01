@@ -2,6 +2,7 @@ const mockStreamChunks = [
   { choices: [{ delta: { content: 'Salut' } }] },
   { choices: [{ delta: { content: ' ARIA' } }] },
 ];
+const mockOpenAICreate = jest.fn();
 
 if (!globalThis.ReadableStream) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -14,6 +15,7 @@ jest.mock('openai', () => ({
     chat = {
       completions: {
         async create(opts: any) {
+          mockOpenAICreate(opts);
           if (opts.stream) {
             async function* gen() {
               for (const chunk of mockStreamChunks) {
@@ -31,7 +33,7 @@ jest.mock('openai', () => ({
 }));
 
 jest.mock('@/lib/rag-client', () => ({
-  ragSearch: jest.fn().mockResolvedValue([]),
+  ragSearch: jest.fn().mockResolvedValue({ status: 'empty', durationMs: 1, hits: [] }),
   buildRAGContext: jest.fn().mockReturnValue(''),
 }));
 
@@ -56,6 +58,7 @@ import {
   saveAriaConversation,
 } from '@/lib/aria';
 import { prisma } from '@/lib/prisma';
+import { ragSearch } from '@/lib/rag-client';
 
 async function readStream(stream: ReadableStream) {
   const reader = stream.getReader();
@@ -81,7 +84,8 @@ describe('aria', () => {
       'MATHEMATIQUES' as any,
       'Question'
     );
-    expect(result).toBe('Réponse ARIA');
+    expect(result).toContain('Cette réponse ne s’appuie sur aucune source du corpus Nexus.');
+    expect(result).toContain('Réponse ARIA');
   });
 
   it('streams response and calls onComplete', async () => {
@@ -98,7 +102,29 @@ describe('aria', () => {
     );
     const output = await readStream(stream);
     expect(output).toContain('Salut ARIA');
-    expect(onComplete).toHaveBeenCalledWith('Salut ARIA');
+    expect(onComplete).toHaveBeenCalledWith(
+      'Cette réponse ne s’appuie sur aucune source du corpus Nexus.\n\nSalut ARIA'
+    );
+  });
+
+  it('does not start the legacy stream when RAG fails technically', async () => {
+    (ragSearch as jest.Mock).mockResolvedValueOnce({
+      status: 'error',
+      durationMs: 11,
+      hits: [],
+      error: { code: 'HTTP_ERROR', httpStatus: 503 },
+    });
+
+    const stream = await generateAriaStream(
+      'student-1',
+      'NSI' as any,
+      'Question'
+    );
+    const output = await readStream(stream);
+
+    expect(output).toContain('La base documentaire est momentanément indisponible.');
+    expect(output).not.toContain('Salut ARIA');
+    expect(mockOpenAICreate).not.toHaveBeenCalled();
   });
 
   it('saves conversation and messages', async () => {

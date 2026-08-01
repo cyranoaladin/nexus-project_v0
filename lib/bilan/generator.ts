@@ -196,14 +196,18 @@ export class BilanGenerator {
       try {
         // Search across multiple collections sequentially
         const collections = context.ragCollections || ['methodologie', 'suites', 'derivation', 'probabilites'];
-        const allHits: Awaited<ReturnType<typeof ragSearch>> = [];
+        const allHits: import('@/lib/rag-client').RAGSearchHit[] = [];
         for (const collection of collections.slice(0, 3)) {
-          const hits = await ragSearch({
+          const result = await ragSearch({
             query: context.ragQuery,
             collection,
             k: 3,
           });
-          allHits.push(...hits);
+          if (result.status === 'error') {
+            ragError = true;
+            continue;
+          }
+          allHits.push(...result.hits);
         }
         ragContext = buildRAGContext(allHits);
         ragUsed = true;

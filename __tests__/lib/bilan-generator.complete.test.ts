@@ -97,9 +97,11 @@ describe('generateBilans — LLM success', () => {
   });
 
   it('should call buildRAGContext with search results', async () => {
-    mockRagSearch.mockResolvedValue([
-      { id: 'h1', document: 'Les dérivées...', metadata: {}, distance: 0.1 },
-    ]);
+    mockRagSearch.mockResolvedValue({
+      status: 'success',
+      durationMs: 1,
+      hits: [{ id: 'h1', document: 'Les dérivées...', metadata: {}, distance: 0.1 }],
+    });
     mockBuildRAGContext.mockReturnValue('\n--- CONTEXTE ---\nLes dérivées...\n--- FIN ---\n');
     mockOllamaChat.mockResolvedValue('# Bilan\n\nContenu suffisamment long pour passer la validation de longueur minimale de 50 caractères.');
 

@@ -41,8 +41,10 @@ export async function GET() {
 
   // 4. RAG (lightweight ping)
   try {
-    const ragHits = await ragSearch({ query: 'ping', k: 1 });
-    checks.rag = { ok: true, detail: `hits=${ragHits.length}` };
+    const ragResult = await ragSearch({ query: 'ping', k: 1 });
+    checks.rag = ragResult.status === 'error'
+      ? { ok: false, detail: ragResult.error.code }
+      : { ok: true, detail: `hits=${ragResult.hits.length}` };
   } catch (err) {
     checks.rag = { ok: false, detail: err instanceof Error ? err.message : 'unknown' };
   }

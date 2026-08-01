@@ -343,12 +343,14 @@ export async function generateLLMParentEafReport(
   try {
     // 1. Parallel RAG searches
     const queries  = buildRAGQueries(sourceData);
-    const rawHits  = await Promise.all(
+    const rawResults = await Promise.all(
       queries.map(q =>
-        ragSearch({ query: q, collection: RAG_COLLECTION, k: 3 }).catch(() => [])
+        ragSearch({ query: q, collection: RAG_COLLECTION, k: 3 }).catch(() => null)
       )
     );
-    const allHits    = rawHits.flat();
+    const allHits = rawResults.flatMap((result) =>
+      result?.status === 'success' ? result.hits : []
+    );
     const uniqueHits = allHits
       .filter((h, i) => allHits.findIndex(x => x.id === h.id) === i)
       .slice(0, 6);
