@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://nexusreussite.academy/schemas/positionnement/bank.schema.json",
+  "title": "Banque d'items de positionnement",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["slug", "level", "subject", "version", "status", "targetDurationMin", "items"],
+  "properties": {
+    "slug": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*-v\\d+$" },
+    "level": {
+      "enum": ["QUATRIEME", "TROISIEME", "SECONDE", "PREMIERE", "TERMINALE"]
+    },
+    "subject": {
+      "enum": [
+        "MATHS",
+        "MATHS_EXPERTES",
+        "NSI",
+        "PHYSIQUE_CHIMIE",
+        "SVT",
+        "FRANCAIS",
+        "PHILOSOPHIE"
+      ]
+    },
+    "version": { "type": "integer", "minimum": 1 },
+    "status": { "enum": ["DRAFT", "PUBLISHED", "ARCHIVED"] },
+    "targetDurationMin": { "type": "integer", "minimum": 10, "maximum": 60 },
+    "items": {
+      "type": "array",
+      "minItems": 12,
+      "maxItems": 30,
+      "items": { "$ref": "#/$defs/item" }
+    }
+  },
+  "$defs": {
+    "option": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["key", "label", "correct"],
+      "properties": {
+        "key": { "type": "string", "pattern": "^[A-E]$" },
+        "label": { "type": "string", "minLength": 1, "maxLength": 240 },
+        "correct": { "type": "boolean" }
+      }
+    },
+    "item": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "nodeCpsId",
+        "type",
+        "difficulty",
+        "targetTimeSec",
+        "statement",
+        "shortCorrection"
+      ],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[A-Z0-9]{3}-[A-Z]{3}-[A-Z0-9]{3,}-\\d{2}$" },
+        "nodeCpsId": { "type": "string", "pattern": "^[a-z0-9]+(\\.[a-z0-9-]+)+$" },
+        "type": { "enum": ["QCM_SIMPLE", "QCM_MULTIPLE", "NUMERIC", "SHORT_TEXT"] },
+        "difficulty": { "type": "integer", "enum": [1, 2, 3] },
+        "targetTimeSec": { "type": "integer", "minimum": 15, "maximum": 300 },
+        "statement": { "type": "string", "minLength": 5, "maxLength": 1200 },
+        "options": { "type": "array", "minItems": 4, "maxItems": 5, "items": { "$ref": "#/$defs/option" } },
+        "target": { "type": "number" },
+        "tolerance": { "type": "number", "minimum": 0 },
+        "accepted": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
+        "shortCorrection": { "type": "string", "minLength": 5, "maxLength": 320 },
+        "tags": { "type": "array", "items": { "type": "string", "pattern": "^[a-z0-9-]+$" } }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "type": { "const": "QCM_SIMPLE" } }, "required": ["type"] },
+          "then": { "required": ["options"], "properties": { "options": { "minItems": 4, "maxItems": 4 } } }
+        },
+        {
+          "if": { "properties": { "type": { "const": "QCM_MULTIPLE" } }, "required": ["type"] },
+          "then": { "required": ["options"] }
+        },
+        {
+          "if": { "properties": { "type": { "const": "NUMERIC" } }, "required": ["type"] },
+          "then": { "required": ["target", "tolerance"] }
+        },
+        {
+          "if": { "properties": { "type": { "const": "SHORT_TEXT" } }, "required": ["type"] },
+          "then": { "required": ["accepted"] }
+        }
+      ]
+    }
+  }
+}

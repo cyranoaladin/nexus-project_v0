@@ -1,0 +1,1380 @@
+{
+  "$comment": "CAS DORES CONTRACTUELS. Genere par lib/positionnement/scoring.ts. Toute modification impose une bascule d ENGINE_VERSION et une justification en ADR.",
+  "engineVersion": "1.0.1",
+  "cases": {
+    "all-correct-confident": {
+      "description": "Plafond : tout juste, confiance maximale. MAITRISE partout, calibration 100.",
+      "input": {
+        "items": [
+          {
+            "id": "I1",
+            "nodeCpsId": "n1",
+            "type": "QCM_SIMPLE",
+            "difficulty": 1,
+            "nodeCriticality": 3,
+            "targetTimeSec": 60,
+            "answerKey": {
+              "kind": "QCM_SIMPLE",
+              "correct": "B"
+            }
+          },
+          {
+            "id": "I2",
+            "nodeCpsId": "n1",
+            "type": "QCM_SIMPLE",
+            "difficulty": 2,
+            "nodeCriticality": 3,
+            "targetTimeSec": 60,
+            "answerKey": {
+              "kind": "QCM_SIMPLE",
+              "correct": "A"
+            }
+          },
+          {
+            "id": "I3",
+            "nodeCpsId": "n2",
+            "type": "NUMERIC",
+            "difficulty": 2,
+            "nodeCriticality": 2,
+            "targetTimeSec": 60,
+            "answerKey": {
+              "kind": "NUMERIC",
+              "target": 12,
+              "tolerance": 0
+            }
+          },
+          {
+            "id": "I4",
+            "nodeCpsId": "n2",
+            "type": "QCM_MULTIPLE",
+            "difficulty": 3,
+            "nodeCriticality": 2,
+            "targetTimeSec": 90,
+            "answerKey": {
+              "kind": "QCM_MULTIPLE",
+              "correct": [
+                "A",
+                "B"
+              ]
+            }
+          },
+          {
+            "id": "I5",
+            "nodeCpsId": "n3",
+            "type": "SHORT_TEXT",
+            "difficulty": 1,
+            "nodeCriticality": 1,
+            "targetTimeSec": 45,
+            "answerKey": {
+              "kind": "SHORT_TEXT",
+              "accepted": [
+                "11/12"
+              ]
+            }
+          },
+          {
+            "id": "I6",
+            "nodeCpsId": "n3",
+            "type": "QCM_SIMPLE",
+            "difficulty": 3,
+            "nodeCriticality": 1,
+            "targetTimeSec": 90,
+            "answerKey": {
+              "kind": "QCM_SIMPLE",
+              "correct": "C"
+            }
+          }
+        ],
+        "answers": [
+          {
+            "itemId": "I1",
+            "rawAnswer": "B",
+            "confidence": 4,
+            "elapsedMs": 150000
+          },
+          {
+            "itemId": "I2",
+            "rawAnswer": "A",
+            "confidence": 4,
+            "elapsedMs": 150000
+          },
+          {
+            "itemId": "I3",
+            "rawAnswer": 12,
+            "confidence": 4,
+            "elapsedMs": 150000
+          },
+          {
+            "itemId": "I4",
+            "rawAnswer": [
+              "A",
+              "B"
+            ],
+            "confidence": 4,
+            "elapsedMs": 150000
+          },
+          {
+            "itemId": "I5",
+            "rawAnswer": "11/12",
+            "confidence": 4,
+            "elapsedMs": 150000
+          },
+          {
+            "itemId": "I6",
+            "rawAnswer": "C",
+            "confidence": 4,
+            "elapsedMs": 150000
+          }
+        ],
+        "targetDurationMin": 20
+      },
+      "expected": {
+        "engineVersion": "1.0.1",
+        "globalScore": 100,
+        "coverage": 100,
+        "calibrationIndex": 100,
+        "items": [
+          {
+            "itemId": "I1",
+            "nodeCpsId": "n1",
+            "weight": 1,
+            "rawSuccess": 1,
+            "isSuccess": true,
+            "isConfident": true,
+            "profile": "MAITRISE",
+            "answered": true,
+            "elapsedMs": 150000
+          },
+          {
+            "itemId": "I2",
+            "nodeCpsId": "n1",
+            "weight": 2,
+            "rawSuccess": 1,
+            "isSuccess": true,
+            "isConfident": true,
+            "profile": "MAITRISE",
+            "answered": true,
+            "elapsedMs": 150000
+          },
+          {
+            "itemId": "I3",
+            "nodeCpsId": "n2",
+            "weight": 2,
+            "rawSuccess": 1,
+            "isSuccess": true,
+            "isConfident": true,
+            "profile": "MAITRISE",
+            "answered": true,
+            "elapsedMs": 150000
+          },
+          {
+            "itemId": "I4",
+            "nodeCpsId": "n2",
+            "weight": 3,
+            "rawSuccess": 1,
+            "isSuccess": true,
+            "isConfident": true,
+            "profile": "MAITRISE",
+            "answered": true,
+            "elapsedMs": 150000
+          },
+          {
+            "itemId": "I5",
+            "nodeCpsId": "n3",
+            "weight": 1,
+            "rawSuccess": 1,
+            "isSuccess": true,
+            "isConfident": true,
+            "profile": "MAITRISE",
+            "answered": true,
+            "elapsedMs": 150000
+          },
+          {
+            "itemId": "I6",
+            "nodeCpsId": "n3",
+            "weight": 3,
+            "rawSuccess": 1,
+            "isSuccess": true,
+            "isConfident": true,
+            "profile": "MAITRISE",
+            "answered": true,
+            "elapsedMs": 150000
+          }
+        ],
+        "nodes": [
+          {
+            "nodeCpsId": "n1",
+            "criticality": 3,
+            "nodeScore": 100,
+            "profile": "MAITRISE",
+            "itemIds": [
+              "I1",
+              "I2"
+            ],
+            "priorityRank": 0
+          },
+          {
+            "nodeCpsId": "n2",
+            "criticality": 2,
+            "nodeScore": 100,
+            "profile": "MAITRISE",
+            "itemIds": [
+              "I3",
+              "I4"
+            ],
+            "priorityRank": 1
+          },
+          {
+            "nodeCpsId": "n3",
+            "criticality": 1,
+            "nodeScore": 100,
+            "profile": "MAITRISE",
+            "itemIds": [
+              "I5",
+              "I6"
+            ],
+            "priorityRank": 2
+          }
+        ],
+        "flags": [],
+        "groupBand": "APPROFONDISSEMENT"
+      }
+    },
+    "all-wrong-confident": {
+      "description": "Plancher pédagogique le plus coûteux : tout faux, confiance maximale. ERREUR_CONFIANTE partout.",
+      "input": {
+        "items": [
+          {
+            "id": "I1",
+            "nodeCpsId": "n1",
+            "type": "QCM_SIMPLE",
+            "difficulty": 1,
+            "nodeCriticality": 3,
+            "targetTimeSec": 60,
+            "answerKey": {
+              "kind": "QCM_SIMPLE",
+              "correct": "B"
+            }
+          },
+          {
+            "id": "I2",
+            "nodeCpsId": "n1",
+            "type": "QCM_SIMPLE",
+            "difficulty": 2,
+            "nodeCriticality": 3,
+            "targetTimeSec": 60,
+            "answerKey": {
+              "kind": "QCM_SIMPLE",
+              "correct": "A"
+            }
+          },
+          {
+            "id": "I3",
+            "nodeCpsId": "n2",
+            "type": "NUMERIC",
+            "difficulty": 2,
+            "nodeCriticality": 2,
+            "targetTimeSec": 60,
+            "answerKey": {
+              "kind": "NUMERIC",
+              "target": 12,
+              "tolerance": 0
+            }
+          },
+          {
+            "id": "I4",
+            "nodeCpsId": "n2",
+            "type": "QCM_MULTIPLE",
+            "difficulty": 3,
+            "nodeCriticality": 2,
+            "targetTimeSec": 90,
+            "answerKey": {
+              "kind": "QCM_MULTIPLE",
+              "correct": [
+                "A",
+                "B"
+              ]
+            }
+          },
+          {
+            "id": "I5",
+            "nodeCpsId": "n3",
+            "type": "SHORT_TEXT",
+            "difficulty": 1,
+            "nodeCriticality": 1,
+            "targetTimeSec": 45,
+            "answerKey": {
+              "kind": "SHORT_TEXT",
+              "accepted": [
+                "11/12"
+              ]
+            }
+          },
+          {
+            "id": "I6",
+            "nodeCpsId": "n3",
+            "type": "QCM_SIMPLE",
+            "difficulty": 3,
+            "nodeCriticality": 1,
+            "targetTimeSec": 90,
+            "answerKey": {
+              "kind": "QCM_SIMPLE",
+              "correct": "C"
+            }
+          }
+        ],
+        "answers": [
+          {
+            "itemId": "I1",
+            "rawAnswer": "A",
+            "confidence": 4,
+            "elapsedMs": 150000
+          },
+          {
+            "itemId": "I2",
+            "rawAnswer": "C",
+            "confidence": 4,
+            "elapsedMs": 150000
+          },
+          {
+            "itemId": "I3",
+            "rawAnswer": 7,
+            "confidence": 4,
+            "elapsedMs": 150000
+          },
+          {
+            "itemId": "I4",
+            "rawAnswer": [
+              "C"
+            ],
+            "confidence": 4,
+            "elapsedMs": 150000
+          },
+          {
+            "itemId": "I5",
+            "rawAnswer": "3/4",
+            "confidence": 4,
+            "elapsedMs": 150000
+          },
+          {
+            "itemId": "I6",
+            "rawAnswer": "D",
+            "confidence": 4,
+            "elapsedMs": 150000
+          }
+        ],
+        "targetDurationMin": 20
+      },
+      "expected": {
+        "engineVersion": "1.0.1",
+        "globalScore": 0,
+        "coverage": 100,
+        "calibrationIndex": 0,
+        "items": [
+          {
+            "itemId": "I1",
+            "nodeCpsId": "n1",
+            "weight": 1,
+            "rawSuccess": 0,
+            "isSuccess": false,
+            "isConfident": true,
+            "profile": "ERREUR_CONFIANTE",
+            "answered": true,
+            "elapsedMs": 150000
+          },
+          {
+            "itemId": "I2",
+            "nodeCpsId": "n1",
+            "weight": 2,
+            "rawSuccess": 0,
+            "isSuccess": false,
+            "isConfident": true,
+            "profile": "ERREUR_CONFIANTE",
+            "answered": true,
+            "elapsedMs": 150000
+          },
+          {
+            "itemId": "I3",
+            "nodeCpsId": "n2",
+            "weight": 2,
+            "rawSuccess": 0,
+            "isSuccess": false,
+            "isConfident": true,
+            "profile": "ERREUR_CONFIANTE",
+            "answered": true,
+            "elapsedMs": 150000
+          },
+          {
+            "itemId": "I4",
+            "nodeCpsId": "n2",
+            "weight": 3,
+            "rawSuccess": 0,
+            "isSuccess": false,
+            "isConfident": true,
+            "profile": "ERREUR_CONFIANTE",
+            "answered": true,
+            "elapsedMs": 150000
+          },
+          {
+            "itemId": "I5",
+            "nodeCpsId": "n3",
+            "weight": 1,
+            "rawSuccess": 0,
+            "isSuccess": false,
+            "isConfident": true,
+            "profile": "ERREUR_CONFIANTE",
+            "answered": true,
+            "elapsedMs": 150000
+          },
+          {
+            "itemId": "I6",
+            "nodeCpsId": "n3",
+            "weight": 3,
+            "rawSuccess": 0,
+            "isSuccess": false,
+            "isConfident": true,
+            "profile": "ERREUR_CONFIANTE",
+            "answered": true,
+            "elapsedMs": 150000
+          }
+        ],
+        "nodes": [
+          {
+            "nodeCpsId": "n1",
+            "criticality": 3,
+            "nodeScore": 0,
+            "profile": "ERREUR_CONFIANTE",
+            "itemIds": [
+              "I1",
+              "I2"
+            ],
+            "priorityRank": 0
+          },
+          {
+            "nodeCpsId": "n2",
+            "criticality": 2,
+            "nodeScore": 0,
+            "profile": "ERREUR_CONFIANTE",
+            "itemIds": [
+              "I3",
+              "I4"
+            ],
+            "priorityRank": 1
+          },
+          {
+            "nodeCpsId": "n3",
+            "criticality": 1,
+            "nodeScore": 0,
+            "profile": "ERREUR_CONFIANTE",
+            "itemIds": [
+              "I5",
+              "I6"
+            ],
+            "priorityRank": 2
+          }
+        ],
+        "flags": [
+          "CALIBRATION_A_TRAVAILLER",
+          "ERREURS_CONFIANTES_MULTIPLES"
+        ],
+        "groupBand": "CONSOLIDATION_PRIORITAIRE"
+      }
+    },
+    "all-wrong-unsure": {
+      "description": "Tout faux mais confiance basse : LACUNE_CONSCIENTE, calibration 100 malgre un score nul. Dissocie niveau et calibration.",
+      "input": {
+        "items": [
+          {
+            "id": "I1",
+            "nodeCpsId": "n1",
+            "type": "QCM_SIMPLE",
+            "difficulty": 1,
+            "nodeCriticality": 3,
+            "targetTimeSec": 60,
+            "answerKey": {
+              "kind": "QCM_SIMPLE",
+              "correct": "B"
+            }
+          },
+          {
+            "id": "I2",
+            "nodeCpsId": "n1",
+            "type": "QCM_SIMPLE",
+            "difficulty": 2,
+            "nodeCriticality": 3,
+            "targetTimeSec": 60,
+            "answerKey": {
+              "kind": "QCM_SIMPLE",
+              "correct": "A"
+            }
+          },
+          {
+            "id": "I3",
+            "nodeCpsId": "n2",
+            "type": "NUMERIC",
+            "difficulty": 2,
+            "nodeCriticality": 2,
+            "targetTimeSec": 60,
+            "answerKey": {
+              "kind": "NUMERIC",
+              "target": 12,
+              "tolerance": 0
+            }
+          },
+          {
+            "id": "I4",
+            "nodeCpsId": "n2",
+            "type": "QCM_MULTIPLE",
+            "difficulty": 3,
+            "nodeCriticality": 2,
+            "targetTimeSec": 90,
+            "answerKey": {
+              "kind": "QCM_MULTIPLE",
+              "correct": [
+                "A",
+                "B"
+              ]
+            }
+          },
+          {
+            "id": "I5",
+            "nodeCpsId": "n3",
+            "type": "SHORT_TEXT",
+            "difficulty": 1,
+            "nodeCriticality": 1,
+            "targetTimeSec": 45,
+            "answerKey": {
+              "kind": "SHORT_TEXT",
+              "accepted": [
+                "11/12"
+              ]
+            }
+          },
+          {
+            "id": "I6",
+            "nodeCpsId": "n3",
+            "type": "QCM_SIMPLE",
+            "difficulty": 3,
+            "nodeCriticality": 1,
+            "targetTimeSec": 90,
+            "answerKey": {
+              "kind": "QCM_SIMPLE",
+              "correct": "C"
+            }
+          }
+        ],
+        "answers": [
+          {
+            "itemId": "I1",
+            "rawAnswer": "A",
+            "confidence": 1,
+            "elapsedMs": 150000
+          },
+          {
+            "itemId": "I2",
+            "rawAnswer": "C",
+            "confidence": 1,
+            "elapsedMs": 150000
+          },
+          {
+            "itemId": "I3",
+            "rawAnswer": 7,
+            "confidence": 1,
+            "elapsedMs": 150000
+          },
+          {
+            "itemId": "I4",
+            "rawAnswer": [
+              "C"
+            ],
+            "confidence": 1,
+            "elapsedMs": 150000
+          },
+          {
+            "itemId": "I5",
+            "rawAnswer": "3/4",
+            "confidence": 1,
+            "elapsedMs": 150000
+          },
+          {
+            "itemId": "I6",
+            "rawAnswer": "D",
+            "confidence": 1,
+            "elapsedMs": 150000
+          }
+        ],
+        "targetDurationMin": 20
+      },
+      "expected": {
+        "engineVersion": "1.0.1",
+        "globalScore": 0,
+        "coverage": 100,
+        "calibrationIndex": 100,
+        "items": [
+          {
+            "itemId": "I1",
+            "nodeCpsId": "n1",
+            "weight": 1,
+            "rawSuccess": 0,
+            "isSuccess": false,
+            "isConfident": false,
+            "profile": "LACUNE_CONSCIENTE",
+            "answered": true,
+            "elapsedMs": 150000
+          },
+          {
+            "itemId": "I2",
+            "nodeCpsId": "n1",
+            "weight": 2,
+            "rawSuccess": 0,
+            "isSuccess": false,
+            "isConfident": false,
+            "profile": "LACUNE_CONSCIENTE",
+            "answered": true,
+            "elapsedMs": 150000
+          },
+          {
+            "itemId": "I3",
+            "nodeCpsId": "n2",
+            "weight": 2,
+            "rawSuccess": 0,
+            "isSuccess": false,
+            "isConfident": false,
+            "profile": "LACUNE_CONSCIENTE",
+            "answered": true,
+            "elapsedMs": 150000
+          },
+          {
+            "itemId": "I4",
+            "nodeCpsId": "n2",
+            "weight": 3,
+            "rawSuccess": 0,
+            "isSuccess": false,
+            "isConfident": false,
+            "profile": "LACUNE_CONSCIENTE",
+            "answered": true,
+            "elapsedMs": 150000
+          },
+          {
+            "itemId": "I5",
+            "nodeCpsId": "n3",
+            "weight": 1,
+            "rawSuccess": 0,
+            "isSuccess": false,
+            "isConfident": false,
+            "profile": "LACUNE_CONSCIENTE",
+            "answered": true,
+            "elapsedMs": 150000
+          },
+          {
+            "itemId": "I6",
+            "nodeCpsId": "n3",
+            "weight": 3,
+            "rawSuccess": 0,
+            "isSuccess": false,
+            "isConfident": false,
+            "profile": "LACUNE_CONSCIENTE",
+            "answered": true,
+            "elapsedMs": 150000
+          }
+        ],
+        "nodes": [
+          {
+            "nodeCpsId": "n1",
+            "criticality": 3,
+            "nodeScore": 0,
+            "profile": "LACUNE_CONSCIENTE",
+            "itemIds": [
+              "I1",
+              "I2"
+            ],
+            "priorityRank": 0
+          },
+          {
+            "nodeCpsId": "n2",
+            "criticality": 2,
+            "nodeScore": 0,
+            "profile": "LACUNE_CONSCIENTE",
+            "itemIds": [
+              "I3",
+              "I4"
+            ],
+            "priorityRank": 1
+          },
+          {
+            "nodeCpsId": "n3",
+            "criticality": 1,
+            "nodeScore": 0,
+            "profile": "LACUNE_CONSCIENTE",
+            "itemIds": [
+              "I5",
+              "I6"
+            ],
+            "priorityRank": 2
+          }
+        ],
+        "flags": [],
+        "groupBand": "CONSOLIDATION_PRIORITAIRE"
+      }
+    },
+    "mixed-realistic": {
+      "description": "Cas representatif : n1 acquis, n2 en erreur confiante, n3 lacune consciente. Verifie l ordre de priorisation.",
+      "input": {
+        "items": [
+          {
+            "id": "I1",
+            "nodeCpsId": "n1",
+            "type": "QCM_SIMPLE",
+            "difficulty": 1,
+            "nodeCriticality": 3,
+            "targetTimeSec": 60,
+            "answerKey": {
+              "kind": "QCM_SIMPLE",
+              "correct": "B"
+            }
+          },
+          {
+            "id": "I2",
+            "nodeCpsId": "n1",
+            "type": "QCM_SIMPLE",
+            "difficulty": 2,
+            "nodeCriticality": 3,
+            "targetTimeSec": 60,
+            "answerKey": {
+              "kind": "QCM_SIMPLE",
+              "correct": "A"
+            }
+          },
+          {
+            "id": "I3",
+            "nodeCpsId": "n2",
+            "type": "NUMERIC",
+            "difficulty": 2,
+            "nodeCriticality": 2,
+            "targetTimeSec": 60,
+            "answerKey": {
+              "kind": "NUMERIC",
+              "target": 12,
+              "tolerance": 0
+            }
+          },
+          {
+            "id": "I4",
+            "nodeCpsId": "n2",
+            "type": "QCM_MULTIPLE",
+            "difficulty": 3,
+            "nodeCriticality": 2,
+            "targetTimeSec": 90,
+            "answerKey": {
+              "kind": "QCM_MULTIPLE",
+              "correct": [
+                "A",
+                "B"
+              ]
+            }
+          },
+          {
+            "id": "I5",
+            "nodeCpsId": "n3",
+            "type": "SHORT_TEXT",
+            "difficulty": 1,
+            "nodeCriticality": 1,
+            "targetTimeSec": 45,
+            "answerKey": {
+              "kind": "SHORT_TEXT",
+              "accepted": [
+                "11/12"
+              ]
+            }
+          },
+          {
+            "id": "I6",
+            "nodeCpsId": "n3",
+            "type": "QCM_SIMPLE",
+            "difficulty": 3,
+            "nodeCriticality": 1,
+            "targetTimeSec": 90,
+            "answerKey": {
+              "kind": "QCM_SIMPLE",
+              "correct": "C"
+            }
+          }
+        ],
+        "answers": [
+          {
+            "itemId": "I1",
+            "rawAnswer": "B",
+            "confidence": 4,
+            "elapsedMs": 150000
+          },
+          {
+            "itemId": "I2",
+            "rawAnswer": "A",
+            "confidence": 3,
+            "elapsedMs": 150000
+          },
+          {
+            "itemId": "I3",
+            "rawAnswer": 7,
+            "confidence": 4,
+            "elapsedMs": 150000
+          },
+          {
+            "itemId": "I4",
+            "rawAnswer": [
+              "A"
+            ],
+            "confidence": 4,
+            "elapsedMs": 150000
+          },
+          {
+            "itemId": "I5",
+            "rawAnswer": "3/4",
+            "confidence": 1,
+            "elapsedMs": 150000
+          },
+          {
+            "itemId": "I6",
+            "rawAnswer": "C",
+            "confidence": 2,
+            "elapsedMs": 150000
+          }
+        ],
+        "targetDurationMin": 20
+      },
+      "expected": {
+        "engineVersion": "1.0.1",
+        "globalScore": 62.5,
+        "coverage": 100,
+        "calibrationIndex": 33.3,
+        "items": [
+          {
+            "itemId": "I1",
+            "nodeCpsId": "n1",
+            "weight": 1,
+            "rawSuccess": 1,
+            "isSuccess": true,
+            "isConfident": true,
+            "profile": "MAITRISE",
+            "answered": true,
+            "elapsedMs": 150000
+          },
+          {
+            "itemId": "I2",
+            "nodeCpsId": "n1",
+            "weight": 2,
+            "rawSuccess": 1,
+            "isSuccess": true,
+            "isConfident": true,
+            "profile": "MAITRISE",
+            "answered": true,
+            "elapsedMs": 150000
+          },
+          {
+            "itemId": "I3",
+            "nodeCpsId": "n2",
+            "weight": 2,
+            "rawSuccess": 0,
+            "isSuccess": false,
+            "isConfident": true,
+            "profile": "ERREUR_CONFIANTE",
+            "answered": true,
+            "elapsedMs": 150000
+          },
+          {
+            "itemId": "I4",
+            "nodeCpsId": "n2",
+            "weight": 3,
+            "rawSuccess": 0.5,
+            "isSuccess": false,
+            "isConfident": true,
+            "profile": "ERREUR_CONFIANTE",
+            "answered": true,
+            "elapsedMs": 150000
+          },
+          {
+            "itemId": "I5",
+            "nodeCpsId": "n3",
+            "weight": 1,
+            "rawSuccess": 0,
+            "isSuccess": false,
+            "isConfident": false,
+            "profile": "LACUNE_CONSCIENTE",
+            "answered": true,
+            "elapsedMs": 150000
+          },
+          {
+            "itemId": "I6",
+            "nodeCpsId": "n3",
+            "weight": 3,
+            "rawSuccess": 1,
+            "isSuccess": true,
+            "isConfident": false,
+            "profile": "MAITRISE_FRAGILE",
+            "answered": true,
+            "elapsedMs": 150000
+          }
+        ],
+        "nodes": [
+          {
+            "nodeCpsId": "n2",
+            "criticality": 2,
+            "nodeScore": 30,
+            "profile": "ERREUR_CONFIANTE",
+            "itemIds": [
+              "I3",
+              "I4"
+            ],
+            "priorityRank": 0
+          },
+          {
+            "nodeCpsId": "n3",
+            "criticality": 1,
+            "nodeScore": 75,
+            "profile": "MAITRISE_FRAGILE",
+            "itemIds": [
+              "I5",
+              "I6"
+            ],
+            "priorityRank": 1
+          },
+          {
+            "nodeCpsId": "n1",
+            "criticality": 3,
+            "nodeScore": 100,
+            "profile": "MAITRISE",
+            "itemIds": [
+              "I1",
+              "I2"
+            ],
+            "priorityRank": 2
+          }
+        ],
+        "flags": [
+          "CALIBRATION_A_TRAVAILLER"
+        ],
+        "groupBand": "CONSOLIDATION_STANDARD"
+      }
+    },
+    "empty-attempt": {
+      "description": "Aucune reponse : score 0, couverture 0, calibrationIndex null. Leve COUVERTURE_INSUFFISANTE et PASSATION_EXPRESS.",
+      "input": {
+        "items": [
+          {
+            "id": "I1",
+            "nodeCpsId": "n1",
+            "type": "QCM_SIMPLE",
+            "difficulty": 1,
+            "nodeCriticality": 3,
+            "targetTimeSec": 60,
+            "answerKey": {
+              "kind": "QCM_SIMPLE",
+              "correct": "B"
+            }
+          },
+          {
+            "id": "I2",
+            "nodeCpsId": "n1",
+            "type": "QCM_SIMPLE",
+            "difficulty": 2,
+            "nodeCriticality": 3,
+            "targetTimeSec": 60,
+            "answerKey": {
+              "kind": "QCM_SIMPLE",
+              "correct": "A"
+            }
+          },
+          {
+            "id": "I3",
+            "nodeCpsId": "n2",
+            "type": "NUMERIC",
+            "difficulty": 2,
+            "nodeCriticality": 2,
+            "targetTimeSec": 60,
+            "answerKey": {
+              "kind": "NUMERIC",
+              "target": 12,
+              "tolerance": 0
+            }
+          },
+          {
+            "id": "I4",
+            "nodeCpsId": "n2",
+            "type": "QCM_MULTIPLE",
+            "difficulty": 3,
+            "nodeCriticality": 2,
+            "targetTimeSec": 90,
+            "answerKey": {
+              "kind": "QCM_MULTIPLE",
+              "correct": [
+                "A",
+                "B"
+              ]
+            }
+          },
+          {
+            "id": "I5",
+            "nodeCpsId": "n3",
+            "type": "SHORT_TEXT",
+            "difficulty": 1,
+            "nodeCriticality": 1,
+            "targetTimeSec": 45,
+            "answerKey": {
+              "kind": "SHORT_TEXT",
+              "accepted": [
+                "11/12"
+              ]
+            }
+          },
+          {
+            "id": "I6",
+            "nodeCpsId": "n3",
+            "type": "QCM_SIMPLE",
+            "difficulty": 3,
+            "nodeCriticality": 1,
+            "targetTimeSec": 90,
+            "answerKey": {
+              "kind": "QCM_SIMPLE",
+              "correct": "C"
+            }
+          }
+        ],
+        "answers": [],
+        "targetDurationMin": 20
+      },
+      "expected": {
+        "engineVersion": "1.0.1",
+        "globalScore": 0,
+        "coverage": 0,
+        "calibrationIndex": null,
+        "items": [
+          {
+            "itemId": "I1",
+            "nodeCpsId": "n1",
+            "weight": 1,
+            "rawSuccess": 0,
+            "isSuccess": false,
+            "isConfident": false,
+            "profile": "NON_TRAITE",
+            "answered": false,
+            "elapsedMs": 0
+          },
+          {
+            "itemId": "I2",
+            "nodeCpsId": "n1",
+            "weight": 2,
+            "rawSuccess": 0,
+            "isSuccess": false,
+            "isConfident": false,
+            "profile": "NON_TRAITE",
+            "answered": false,
+            "elapsedMs": 0
+          },
+          {
+            "itemId": "I3",
+            "nodeCpsId": "n2",
+            "weight": 2,
+            "rawSuccess": 0,
+            "isSuccess": false,
+            "isConfident": false,
+            "profile": "NON_TRAITE",
+            "answered": false,
+            "elapsedMs": 0
+          },
+          {
+            "itemId": "I4",
+            "nodeCpsId": "n2",
+            "weight": 3,
+            "rawSuccess": 0,
+            "isSuccess": false,
+            "isConfident": false,
+            "profile": "NON_TRAITE",
+            "answered": false,
+            "elapsedMs": 0
+          },
+          {
+            "itemId": "I5",
+            "nodeCpsId": "n3",
+            "weight": 1,
+            "rawSuccess": 0,
+            "isSuccess": false,
+            "isConfident": false,
+            "profile": "NON_TRAITE",
+            "answered": false,
+            "elapsedMs": 0
+          },
+          {
+            "itemId": "I6",
+            "nodeCpsId": "n3",
+            "weight": 3,
+            "rawSuccess": 0,
+            "isSuccess": false,
+            "isConfident": false,
+            "profile": "NON_TRAITE",
+            "answered": false,
+            "elapsedMs": 0
+          }
+        ],
+        "nodes": [
+          {
+            "nodeCpsId": "n1",
+            "criticality": 3,
+            "nodeScore": 0,
+            "profile": "NON_TRAITE",
+            "itemIds": [
+              "I1",
+              "I2"
+            ],
+            "priorityRank": 0
+          },
+          {
+            "nodeCpsId": "n2",
+            "criticality": 2,
+            "nodeScore": 0,
+            "profile": "NON_TRAITE",
+            "itemIds": [
+              "I3",
+              "I4"
+            ],
+            "priorityRank": 1
+          },
+          {
+            "nodeCpsId": "n3",
+            "criticality": 1,
+            "nodeScore": 0,
+            "profile": "NON_TRAITE",
+            "itemIds": [
+              "I5",
+              "I6"
+            ],
+            "priorityRank": 2
+          }
+        ],
+        "flags": [
+          "COUVERTURE_INSUFFISANTE",
+          "PASSATION_EXPRESS"
+        ],
+        "groupBand": "CONSOLIDATION_PRIORITAIRE"
+      }
+    },
+    "partial-coverage": {
+      "description": "3 items sur 6 traites : leve COUVERTURE_INSUFFISANTE, la non-reponse compte 0 dans le score.",
+      "input": {
+        "items": [
+          {
+            "id": "I1",
+            "nodeCpsId": "n1",
+            "type": "QCM_SIMPLE",
+            "difficulty": 1,
+            "nodeCriticality": 3,
+            "targetTimeSec": 60,
+            "answerKey": {
+              "kind": "QCM_SIMPLE",
+              "correct": "B"
+            }
+          },
+          {
+            "id": "I2",
+            "nodeCpsId": "n1",
+            "type": "QCM_SIMPLE",
+            "difficulty": 2,
+            "nodeCriticality": 3,
+            "targetTimeSec": 60,
+            "answerKey": {
+              "kind": "QCM_SIMPLE",
+              "correct": "A"
+            }
+          },
+          {
+            "id": "I3",
+            "nodeCpsId": "n2",
+            "type": "NUMERIC",
+            "difficulty": 2,
+            "nodeCriticality": 2,
+            "targetTimeSec": 60,
+            "answerKey": {
+              "kind": "NUMERIC",
+              "target": 12,
+              "tolerance": 0
+            }
+          },
+          {
+            "id": "I4",
+            "nodeCpsId": "n2",
+            "type": "QCM_MULTIPLE",
+            "difficulty": 3,
+            "nodeCriticality": 2,
+            "targetTimeSec": 90,
+            "answerKey": {
+              "kind": "QCM_MULTIPLE",
+              "correct": [
+                "A",
+                "B"
+              ]
+            }
+          },
+          {
+            "id": "I5",
+            "nodeCpsId": "n3",
+            "type": "SHORT_TEXT",
+            "difficulty": 1,
+            "nodeCriticality": 1,
+            "targetTimeSec": 45,
+            "answerKey": {
+              "kind": "SHORT_TEXT",
+              "accepted": [
+                "11/12"
+              ]
+            }
+          },
+          {
+            "id": "I6",
+            "nodeCpsId": "n3",
+            "type": "QCM_SIMPLE",
+            "difficulty": 3,
+            "nodeCriticality": 1,
+            "targetTimeSec": 90,
+            "answerKey": {
+              "kind": "QCM_SIMPLE",
+              "correct": "C"
+            }
+          }
+        ],
+        "answers": [
+          {
+            "itemId": "I1",
+            "rawAnswer": "B",
+            "confidence": 4,
+            "elapsedMs": 300000
+          },
+          {
+            "itemId": "I2",
+            "rawAnswer": "A",
+            "confidence": 3,
+            "elapsedMs": 300000
+          },
+          {
+            "itemId": "I3",
+            "rawAnswer": 12,
+            "confidence": 2,
+            "elapsedMs": 300000
+          }
+        ],
+        "targetDurationMin": 20
+      },
+      "expected": {
+        "engineVersion": "1.0.1",
+        "globalScore": 41.7,
+        "coverage": 50,
+        "calibrationIndex": 60,
+        "items": [
+          {
+            "itemId": "I1",
+            "nodeCpsId": "n1",
+            "weight": 1,
+            "rawSuccess": 1,
+            "isSuccess": true,
+            "isConfident": true,
+            "profile": "MAITRISE",
+            "answered": true,
+            "elapsedMs": 300000
+          },
+          {
+            "itemId": "I2",
+            "nodeCpsId": "n1",
+            "weight": 2,
+            "rawSuccess": 1,
+            "isSuccess": true,
+            "isConfident": true,
+            "profile": "MAITRISE",
+            "answered": true,
+            "elapsedMs": 300000
+          },
+          {
+            "itemId": "I3",
+            "nodeCpsId": "n2",
+            "weight": 2,
+            "rawSuccess": 1,
+            "isSuccess": true,
+            "isConfident": false,
+            "profile": "MAITRISE_FRAGILE",
+            "answered": true,
+            "elapsedMs": 300000
+          },
+          {
+            "itemId": "I4",
+            "nodeCpsId": "n2",
+            "weight": 3,
+            "rawSuccess": 0,
+            "isSuccess": false,
+            "isConfident": false,
+            "profile": "NON_TRAITE",
+            "answered": false,
+            "elapsedMs": 0
+          },
+          {
+            "itemId": "I5",
+            "nodeCpsId": "n3",
+            "weight": 1,
+            "rawSuccess": 0,
+            "isSuccess": false,
+            "isConfident": false,
+            "profile": "NON_TRAITE",
+            "answered": false,
+            "elapsedMs": 0
+          },
+          {
+            "itemId": "I6",
+            "nodeCpsId": "n3",
+            "weight": 3,
+            "rawSuccess": 0,
+            "isSuccess": false,
+            "isConfident": false,
+            "profile": "NON_TRAITE",
+            "answered": false,
+            "elapsedMs": 0
+          }
+        ],
+        "nodes": [
+          {
+            "nodeCpsId": "n2",
+            "criticality": 2,
+            "nodeScore": 40,
+            "profile": "NON_TRAITE",
+            "itemIds": [
+              "I3",
+              "I4"
+            ],
+            "priorityRank": 0
+          },
+          {
+            "nodeCpsId": "n3",
+            "criticality": 1,
+            "nodeScore": 0,
+            "profile": "NON_TRAITE",
+            "itemIds": [
+              "I5",
+              "I6"
+            ],
+            "priorityRank": 1
+          },
+          {
+            "nodeCpsId": "n1",
+            "criticality": 3,
+            "nodeScore": 100,
+            "profile": "MAITRISE",
+            "itemIds": [
+              "I1",
+              "I2"
+            ],
+            "priorityRank": 2
+          }
+        ],
+        "flags": [
+          "COUVERTURE_INSUFFISANTE"
+        ],
+        "groupBand": "CONSOLIDATION_STANDARD"
+      }
+    }
+  }
+}

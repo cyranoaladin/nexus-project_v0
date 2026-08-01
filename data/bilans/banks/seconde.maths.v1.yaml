@@ -1,0 +1,181 @@
+# =============================================================================
+# Banque d'items — Positionnement Entrée en Seconde, Mathématiques
+# GABARIT DE RÉFÉRENCE : à dupliquer pour les autres niveaux et matières.
+#
+# Règles : docs/specs/positionnement/03-banque-d-items.md
+# Schéma : data/positionnement/item.schema.json
+#
+# STATUT : DRAFT. Le contenu disciplinaire doit être relu et validé par un
+# enseignant de la matière avant passage en PUBLISHED. Ne pas publier sans
+# cette relecture.
+#
+# Doctrine : les items portent sur l'intersection 3e / Seconde — les nœuds sans
+# lesquels les premières semaines de Seconde sont inaccessibles. Ni révision
+# générale de la 3e, ni anticipation du programme de Seconde.
+# =============================================================================
+
+slug: seconde-maths-v1
+level: SECONDE
+subject: MATHS
+version: 1
+status: DRAFT
+targetDurationMin: 25
+
+items:
+  # --- Nœud : calcul littéral -----------------------------------------------
+  - id: SEC-MAT-CALC-01
+    nodeCpsId: sec.maths.calcul-litteral.developpement
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 60
+    statement: "Développer et réduire : (x + 3)(x − 5)"
+    options:
+      - { key: A, label: "x² − 15", correct: false }        # oubli des termes croisés
+      - { key: B, label: "x² − 2x − 15", correct: true }
+      - { key: C, label: "x² + 2x − 15", correct: false }   # erreur de signe sur le terme en x
+      - { key: D, label: "x² − 8x − 15", correct: false }   # addition des deux constantes
+    shortCorrection: "Chaque terme du premier facteur multiplie chaque terme du second. Les termes croisés donnent −5x + 3x = −2x."
+    tags: [calcul-litteral, developpement]
+
+  - id: SEC-MAT-CALC-02
+    nodeCpsId: sec.maths.calcul-litteral.developpement
+    type: QCM_SIMPLE
+    difficulty: 3
+    targetTimeSec: 75
+    statement: "Factoriser : 4x² − 9"
+    options:
+      - { key: A, label: "(4x − 3)(4x + 3)", correct: false }  # racine carrée non prise sur 4x²
+      - { key: B, label: "(2x − 3)(2x + 3)", correct: true }
+      - { key: C, label: "(2x − 3)²", correct: false }         # confusion avec l'identité du carré
+      - { key: D, label: "4(x² − 9)", correct: false }         # factorisation partielle erronée
+    shortCorrection: "4x² − 9 est une différence de deux carrés : (2x)² − 3², qui se factorise en (2x − 3)(2x + 3)."
+    tags: [calcul-litteral, factorisation]
+
+  # --- Nœud : équations du premier degré ------------------------------------
+  - id: SEC-MAT-EQUA-01
+    nodeCpsId: sec.maths.equations.premier-degre
+    type: NUMERIC
+    difficulty: 1
+    targetTimeSec: 50
+    statement: "Résoudre : 3x − 7 = 2x + 5. Donner la valeur de x."
+    target: 12
+    tolerance: 0
+    shortCorrection: "On regroupe les x d'un côté et les nombres de l'autre : 3x − 2x = 5 + 7, donc x = 12."
+    tags: [equations]
+
+  - id: SEC-MAT-EQUA-02
+    nodeCpsId: sec.maths.equations.premier-degre
+    type: QCM_MULTIPLE
+    difficulty: 2
+    targetTimeSec: 60
+    statement: "Quelles sont les solutions de l'équation (x − 2)(x + 5) = 0 ?"
+    options:
+      - { key: A, label: "x = 2", correct: true }
+      - { key: B, label: "x = −5", correct: true }
+      - { key: C, label: "x = −2", correct: false }   # signe recopié depuis le facteur
+      - { key: D, label: "x = 5", correct: false }    # signe recopié depuis le facteur
+    shortCorrection: "Un produit est nul si l'un des facteurs est nul. On résout séparément x − 2 = 0 et x + 5 = 0."
+    tags: [equations, produit-nul]
+
+  # --- Nœud : fractions -----------------------------------------------------
+  - id: SEC-MAT-FRAC-01
+    nodeCpsId: sec.maths.fractions.operations
+    type: SHORT_TEXT
+    difficulty: 1
+    targetTimeSec: 50
+    statement: "Calculer 2/3 + 1/4 et donner le résultat sous forme de fraction irréductible (format a/b)."
+    accepted: ["11/12"]
+    shortCorrection: "On réduit au même dénominateur 12 : 8/12 + 3/12 = 11/12."
+    tags: [fractions]
+
+  - id: SEC-MAT-FRAC-02
+    nodeCpsId: sec.maths.fractions.operations
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 55
+    statement: "Calculer (3/4) ÷ (2/5)"
+    options:
+      - { key: A, label: "6/20", correct: false }   # multiplication au lieu de division
+      - { key: B, label: "15/8", correct: true }
+      - { key: C, label: "8/15", correct: false }   # inversion du mauvais facteur
+      - { key: D, label: "3/10", correct: false }
+    shortCorrection: "Diviser par une fraction revient à multiplier par son inverse : (3/4) × (5/2) = 15/8."
+    tags: [fractions, division]
+
+  # --- Nœud : proportionnalité et pourcentages ------------------------------
+  - id: SEC-MAT-PROP-01
+    nodeCpsId: sec.maths.proportionnalite.pourcentages
+    type: NUMERIC
+    difficulty: 1
+    targetTimeSec: 45
+    statement: "Un article coûte 80 dinars. Son prix augmente de 15 %. Quel est le nouveau prix, en dinars ?"
+    target: 92
+    tolerance: 0
+    shortCorrection: "Une hausse de 15 % correspond à une multiplication par 1,15 : 80 × 1,15 = 92."
+    tags: [pourcentages]
+
+  - id: SEC-MAT-PROP-02
+    nodeCpsId: sec.maths.proportionnalite.pourcentages
+    type: QCM_SIMPLE
+    difficulty: 3
+    targetTimeSec: 80
+    statement: "Un prix baisse de 20 %, puis le nouveau prix augmente de 20 %. Que peut-on dire du prix final par rapport au prix initial ?"
+    options:
+      - { key: A, label: "Il est identique", correct: false }        # additivité supposée des taux
+      - { key: B, label: "Il est inférieur de 4 %", correct: true }
+      - { key: C, label: "Il est supérieur de 4 %", correct: false }
+      - { key: D, label: "Il est inférieur de 40 %", correct: false }
+    shortCorrection: "Les coefficients se multiplient : 0,8 × 1,2 = 0,96, soit une baisse finale de 4 %."
+    tags: [pourcentages, coefficient-multiplicateur]
+
+  # --- Nœud : fonctions -----------------------------------------------------
+  - id: SEC-MAT-FONC-01
+    nodeCpsId: sec.maths.fonctions.image-antecedent
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 60
+    statement: "Une fonction f vérifie f(−1) = 3, f(0) = 1 et f(2) = −3. Quel est l'antécédent de −3 par f ?"
+    options:
+      - { key: A, label: "−3", correct: false }   # confusion image / antécédent
+      - { key: B, label: "2", correct: true }
+      - { key: C, label: "0", correct: false }
+      - { key: D, label: "3", correct: false }
+    shortCorrection: "L'antécédent de −3 est la valeur de x telle que f(x) = −3. Ici f(2) = −3, donc l'antécédent est 2."
+    tags: [fonctions, image-antecedent]
+
+  - id: SEC-MAT-FONC-02
+    nodeCpsId: sec.maths.fonctions.image-antecedent
+    type: NUMERIC
+    difficulty: 1
+    targetTimeSec: 45
+    statement: "Soit f(x) = 2x − 5. Calculer f(−3)."
+    target: -11
+    tolerance: 0
+    shortCorrection: "On remplace x par −3 : 2 × (−3) − 5 = −6 − 5 = −11."
+    tags: [fonctions, calcul-image]
+
+  # --- Nœud : géométrie -----------------------------------------------------
+  - id: SEC-MAT-GEOM-01
+    nodeCpsId: sec.maths.geometrie.pythagore-thales
+    type: NUMERIC
+    difficulty: 1
+    targetTimeSec: 55
+    statement: "Le triangle ABC est rectangle en A, avec AB = 3 cm et AC = 4 cm. Quelle est la longueur BC, en cm ?"
+    target: 5
+    tolerance: 0
+    shortCorrection: "Le théorème de Pythagore donne BC² = AB² + AC² = 9 + 16 = 25, donc BC = 5."
+    tags: [geometrie, pythagore]
+
+  - id: SEC-MAT-GEOM-02
+    nodeCpsId: sec.maths.geometrie.pythagore-thales
+    type: QCM_SIMPLE
+    difficulty: 3
+    targetTimeSec: 85
+    statement: "Dans le triangle ABC, M appartient à [AB] et N à [AC], avec (MN) parallèle à (BC). On donne AM = 2, AB = 6 et AN = 3. Quelle est la longueur AC ?"
+    options:
+      - { key: A, label: "1", correct: false }
+      - { key: B, label: "9", correct: true }
+      - { key: C, label: "4,5", correct: false }   # rapport inversé
+      - { key: D, label: "12", correct: false }
+    shortCorrection: "Le théorème de Thalès donne AM/AB = AN/AC, soit 2/6 = 3/AC, donc AC = 9."
+    tags: [geometrie, thales]
