@@ -39,8 +39,15 @@
       "properties": {
         "key": { "type": "string", "pattern": "^[A-E]$" },
         "label": { "type": "string", "minLength": 1, "maxLength": 240 },
-        "correct": { "type": "boolean" }
-      }
+        "correct": { "type": "boolean" },
+        "distractorRationale": { "type": "string", "minLength": 1, "maxLength": 500 }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "correct": { "const": false } }, "required": ["correct"] },
+          "then": { "required": ["distractorRationale"] }
+        }
+      ]
     },
     "item": {
       "type": "object",

@@ -34,13 +34,26 @@ const questionOptionSchema = z.object({
   id: z.string().trim().min(1),
   text: z.string().trim().min(1),
   isCorrect: z.boolean(),
-}).strict();
+  distractorRationale: z.string().trim().min(1).optional(),
+}).strict().superRefine((option, context) => {
+  if (!option.isCorrect && option.distractorRationale === undefined) {
+    context.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['distractorRationale'],
+      message: 'A distractor must document the real error it captures',
+    });
+  }
+});
 
 const questionSchema = z.object({
   id: z.string().trim().min(1),
   subject: z.literal('MATHS'),
   category: z.string().trim().min(1),
   domainId: z.string().trim().min(1),
+  nodeCpsId: z.string().trim().regex(/^[a-z0-9]+(\.[a-z0-9-]+)+$/),
+  difficulty: z.union([z.literal(1), z.literal(2), z.literal(3)]),
+  targetTimeSec: z.number().int().min(15).max(300),
+  shortCorrection: z.string().trim().min(1).max(320),
   weight: z.number().positive(),
   competencies: z.array(z.string().trim().min(1)).min(1),
   questionText: z.string().trim().min(1),
@@ -139,8 +152,48 @@ function deepFreeze<T>(value: T): T {
   return value;
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === 'object' && !Array.isArray(value);
+}
+
+function nonEmptyString(value: unknown): boolean {
+  return typeof value === 'string' && value.trim().length > 0;
+}
+
+function collectItemMetadataFailures(raw: unknown): string[] {
+  if (!isRecord(raw) || !isRecord(raw.questionnaire) || !Array.isArray(raw.questionnaire.items)) return [];
+
+  const failures: string[] = [];
+  raw.questionnaire.items.forEach((candidate, index) => {
+    if (!isRecord(candidate)) {
+      failures.push(`item[${index}]: expected an object`);
+      return;
+    }
+
+    const itemId = nonEmptyString(candidate.id) ? String(candidate.id) : `item[${index}]`;
+    if (!nonEmptyString(candidate.nodeCpsId)) failures.push(`${itemId}.nodeCpsId: required non-empty string`);
+    if (![1, 2, 3].includes(candidate.difficulty as number)) failures.push(`${itemId}.difficulty: expected 1, 2 or 3`);
+    if (!Number.isInteger(candidate.targetTimeSec) || Number(candidate.targetTimeSec) < 15 || Number(candidate.targetTimeSec) > 300) {
+      failures.push(`${itemId}.targetTimeSec: expected an integer from 15 to 300`);
+    }
+    if (!nonEmptyString(candidate.shortCorrection)) failures.push(`${itemId}.shortCorrection: required non-empty string`);
+
+    if (!Array.isArray(candidate.options)) return;
+    candidate.options.forEach((option, optionIndex) => {
+      if (!isRecord(option) || option.isCorrect !== false || nonEmptyString(option.distractorRationale)) return;
+      const optionId = nonEmptyString(option.id) ? String(option.id) : `option[${optionIndex}]`;
+      failures.push(`${itemId}.options.${optionId}.distractorRationale: required for every distractor`);
+    });
+  });
+  return failures;
+}
+
 export function loadBilanPack(relativePath: string): BilanPack {
   const raw = JSON.parse(readFileSync(resolveRepositoryPath(relativePath), 'utf8')) as unknown;
+  const metadataFailures = collectItemMetadataFailures(raw);
+  if (metadataFailures.length > 0) {
+    throw new Error(`PACK_ITEM_METADATA_INVALID\n${metadataFailures.join('\n')}`);
+  }
   const pack = packSchema.parse(raw);
   validatePromptBindings(pack);
   return deepFreeze(pack);
