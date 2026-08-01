@@ -478,3 +478,9 @@ n’est donc affirmée.
 - **Constat :** le dry-run est terminé et le dump ainsi que le conteneur jetable ne sont plus nécessaires.
 - **Décision :** supprimer aujourd'hui uniquement `nexus-m1-dryrun` et `/home/alaeddine/.local/share/nexus/m1/nexus_prod_m1_20260801.dump`, puis constater l'absence du conteneur, du fichier et de tout volume M1.
 - **Motif :** réduire au strict minimum la durée de conservation locale de données personnelles de mineurs, avant même l'échéance A42.
+
+## A53 — Recette mock versionnée et déterministe
+
+- **Constat :** les métriques et le paquet de revue aveugle constituent une preuve seulement s'ils sont reproductibles et comparés aux références suivies.
+- **Décision :** versionner les deux JSON de recette ; générer deux fois en mémoire ; exiger une égalité byte-for-byte entre les deux générations et avec les fichiers suivis. La CI compare et échoue, elle n'écrit jamais ces fichiers.
+- **Motif :** empêcher le bruit de diff et conserver une trace rejouable pour la validation pédagogique et l'analyse ultérieure de qualité.
