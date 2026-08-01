@@ -73,6 +73,8 @@ Aucun prompt écrit en dur dans le code TypeScript.
 
   "reporting": {
     "rag": {
+      "enabled": false,
+      "decisionRef": "A56 — corpus RAG Terminale absent",
       "globalGuide": "data/bilans/rag/guide-pedagogique-nexus.md",
       "sources": ["programme_maths_terminale.pdf", "grille_bac_maths.pdf"],
       "topK": 5
@@ -108,6 +110,18 @@ Aucun prompt écrit en dur dans le code TypeScript.
   }
 }
 ```
+
+### RAG fail-closed
+
+`reporting.rag.enabled` exprime une décision explicite du pack. Lorsqu'il vaut `false`,
+aucune recherche n'est exécutée et `decisionRef` documente l'arbitrage. Lorsqu'il vaut
+`true`, le gateway exige un retriever et au moins un extrait : zéro résultat provoque
+`RAG_ENABLED_WITHOUT_EVIDENCE` avant le premier appel d'agent. Un corpus vide est une
+erreur de configuration, jamais un mode dégradé silencieux.
+
+Le contexte RAG transmis aux agents provient exclusivement du retriever contraint du
+gateway. Aucun agent ne lance lui-même une recherche et aucune sortie n'est générée en
+prétendant être ancrée si la recherche n'a fourni aucune preuve.
 
 ---
 

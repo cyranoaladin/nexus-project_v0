@@ -17,6 +17,19 @@ import type { ValidatedPack } from '../validators/contracts';
 const AGENT_ORDER = ['preAnalysis', 'eleve', 'parents', 'nexus', 'verifier'] as const;
 type AgentId = (typeof AGENT_ORDER)[number];
 
+export type BilanRagEvidence = Readonly<{
+  id: string;
+  source: string;
+  content: string;
+}>;
+
+export type BilanRagRetriever = Readonly<{
+  search(
+    factSheet: PseudonymizedFactSheet,
+    pack: ValidatedPack,
+  ): Promise<readonly BilanRagEvidence[]>;
+}>;
+
 type AttemptResult = Readonly<{
   outputs: Readonly<Record<string, unknown>>;
   bundle: AgentBundle | null;
@@ -49,6 +62,7 @@ export type BilanGenerationRequest = Readonly<{
   }>;
   agent: BilanAgentDefinition;
   factSheet: PseudonymizedFactSheet['value'];
+  ragEvidence: readonly BilanRagEvidence[];
   priorOutputs: Readonly<Record<string, unknown>>;
   correctionFailures?: readonly ValidationFailure[];
 }>;
@@ -65,11 +79,27 @@ export type BilanGatewayResult = Readonly<{
 }>;
 
 export class BilanLlmGateway {
-  constructor(private readonly transport: BilanLlmTransport) {}
+  constructor(
+    private readonly transport: BilanLlmTransport,
+    private readonly ragRetriever?: BilanRagRetriever,
+  ) {}
+
+  private async loadRagEvidence(
+    factSheet: PseudonymizedFactSheet,
+    pack: ValidatedPack,
+  ): Promise<readonly BilanRagEvidence[]> {
+    if (!pack.reporting.rag.enabled) return Object.freeze([]);
+    if (this.ragRetriever === undefined) throw new Error('RAG_RETRIEVER_REQUIRED');
+
+    const evidence = await this.ragRetriever.search(factSheet, pack);
+    if (evidence.length === 0) throw new Error('RAG_ENABLED_WITHOUT_EVIDENCE');
+    return Object.freeze([...evidence]);
+  }
 
   private async runAttempt(
     factSheet: PseudonymizedFactSheet,
     pack: ValidatedPack,
+    ragEvidence: readonly BilanRagEvidence[],
     seedOutputs: Readonly<Record<string, unknown>> = Object.freeze({}),
     selectedAgents: readonly AgentId[] = AGENT_ORDER,
     correctionFailures?: readonly ValidationFailure[],
@@ -86,6 +116,7 @@ export class BilanLlmGateway {
           pack: Object.freeze({ slug: pack.slug, version: pack.version }),
           agent,
           factSheet: factSheet.value,
+          ragEvidence,
           priorOutputs: Object.freeze({ ...outputs }),
           ...(correctionFailures === undefined
             ? {}
@@ -129,7 +160,8 @@ export class BilanLlmGateway {
       throw new Error('Validated pack identity does not match the FactSheet');
     }
 
-    const first = await this.runAttempt(factSheet, pack);
+    const ragEvidence = await this.loadRagEvidence(factSheet, pack);
+    const first = await this.runAttempt(factSheet, pack, ragEvidence);
     if (first.failures.length === 0) {
       return Object.freeze({
         status: 'REPORT_PENDING_REVIEW', attempts: 1, validationFailures: Object.freeze([]),
@@ -147,6 +179,7 @@ export class BilanLlmGateway {
     const second = await this.runAttempt(
       factSheet,
       pack,
+      ragEvidence,
       first.outputs,
       targets,
       first.failures,

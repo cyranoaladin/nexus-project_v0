@@ -93,9 +93,19 @@ const packSchema = z.object({
   }).strict(),
   reporting: z.object({
     rag: z.object({
+      enabled: z.boolean(),
+      decisionRef: z.string().trim().min(1).optional(),
       sources: z.array(z.string()),
       topK: z.number().int().nonnegative(),
-    }).strict(),
+    }).strict().superRefine((rag, context) => {
+      if (!rag.enabled && rag.decisionRef === undefined) {
+        context.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['decisionRef'],
+          message: 'A disabled RAG policy must reference its decision',
+        });
+      }
+    }),
     promptFiles: promptFilesSchema,
     outputSchemas: outputSchemasSchema,
   }).strict(),
@@ -218,6 +228,7 @@ export function loadValidatedPack(relativePath: string): ValidatedPack {
     review: { validatedBy: reviewer, validatedAt: pack.review.validatedAt },
     scoring: { domains: pack.scoring.domains },
     reporting: {
+      rag: pack.reporting.rag,
       promptFiles: pack.reporting.promptFiles,
       outputSchemas: pack.reporting.outputSchemas,
     },

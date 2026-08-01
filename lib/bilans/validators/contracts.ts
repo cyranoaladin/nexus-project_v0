@@ -69,6 +69,21 @@ const outputSchemasSchema = z.object({
   verifier: agentOutputJsonSchema,
 }).strict();
 
+const ragPolicySchema = z.object({
+  enabled: z.boolean(),
+  decisionRef: z.string().trim().min(1).optional(),
+  sources: z.array(z.string()),
+  topK: z.number().int().nonnegative(),
+}).strict().superRefine((rag, context) => {
+  if (!rag.enabled && rag.decisionRef === undefined) {
+    context.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['decisionRef'],
+      message: 'A disabled RAG policy must reference its decision',
+    });
+  }
+});
+
 const validatedPackSchema = z.object({
   slug: z.string().trim().min(1),
   version: z.number().int().positive(),
@@ -79,6 +94,7 @@ const validatedPackSchema = z.object({
   }).strict(),
   scoring: z.object({ domains: z.array(z.string().trim().min(1)).min(1) }).strict(),
   reporting: z.object({
+    rag: ragPolicySchema,
     promptFiles: promptFilesSchema,
     outputSchemas: outputSchemasSchema,
   }).strict(),
