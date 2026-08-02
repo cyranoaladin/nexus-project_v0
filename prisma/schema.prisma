@@ -1452,7 +1452,14 @@ model CanonicalAssessmentAttempt {
   id        String                           @id @default(cuid())
   studentId String
   student   Student                          @relation(fields: [studentId], references: [id], onDelete: Restrict)
-  status    CanonicalAssessmentAttemptStatus @default(IN_PROGRESS)
+  status    CanonicalAssessmentAttemptStatus @default(DRAFT)
+
+  // Server-generated passation identity and bounded lifetime. `seed` and
+  // `expiresAt` deliberately have no database default: creation must provide
+  // both values explicitly from the authenticated application flow.
+  seed      String
+  startedAt DateTime @default(now())
+  expiresAt DateTime
 
   subject     Subject
   gradeLevel  GradeLevel
