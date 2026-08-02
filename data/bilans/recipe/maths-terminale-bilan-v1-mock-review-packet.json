@@ -1,7 +1,7 @@
 {
   "schemaVersion": "nexus-bilan-blind-review-packet/v1",
   "status": "TECHNICAL_MOCK_ONLY_NOT_PEDAGOGICALLY_VALIDATED",
-  "sourceDraftPack": "maths-terminale-v1",
+  "sourceDraftPack": "maths-terminale-bilan-v1",
   "executionFixture": "fixture-non-publiable-v0",
   "instructions": "Évaluer la clarté, la fidélité aux faits et l’utilité pédagogique sans inférer une validation du pack DRAFT.",
   "reports": [

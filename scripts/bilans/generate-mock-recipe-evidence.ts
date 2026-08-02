@@ -17,6 +17,7 @@ function stableJson(value: unknown): string {
 export async function generateMockRecipeEvidence(
   factSheets: readonly RecipeFactSheet[],
   pack: ValidatedPack,
+  sourceDraftPack: string,
 ) {
   const transport = new MockBilanLlmTransport();
   const validationViolations: Record<ValidationRule, number> = {
@@ -59,7 +60,7 @@ export async function generateMockRecipeEvidence(
   const reviewPacket = {
     schemaVersion: 'nexus-bilan-blind-review-packet/v1',
     status: 'TECHNICAL_MOCK_ONLY_NOT_PEDAGOGICALLY_VALIDATED',
-    sourceDraftPack: 'maths-terminale-v1',
+    sourceDraftPack,
     executionFixture: pack.slug,
     instructions: 'Évaluer la clarté, la fidélité aux faits et l’utilité pédagogique sans inférer une validation du pack DRAFT.',
     reports,

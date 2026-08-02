@@ -1,5 +1,5 @@
 {
-  "slug": "maths-terminale-v1",
+  "slug": "maths-terminale-bilan-v1",
   "level": "TERMINALE",
   "subject": "MATHS",
   "version": 1,
@@ -20,41 +20,6 @@
       ]
     },
     "items": [
-      {
-        "id": "MATH-ANA-01",
-        "subject": "MATHS",
-        "category": "Analyse",
-        "weight": 1,
-        "competencies": [
-          "Restituer"
-        ],
-        "questionText": "Quelle est la dérivée de $f(x) = e^{2x}$ ?",
-        "latexFormula": "f(x) = e^{2x}",
-        "options": [
-          {
-            "id": "a",
-            "text": "$2e^{2x}$",
-            "isCorrect": true
-          },
-          {
-            "id": "b",
-            "text": "$e^{2x}$",
-            "isCorrect": false
-          },
-          {
-            "id": "c",
-            "text": "$2xe^{2x}$",
-            "isCorrect": false
-          },
-          {
-            "id": "d",
-            "text": "$e^{2x+1}$",
-            "isCorrect": false
-          }
-        ],
-        "explanation": "Par la règle de la chaîne : $(e^{u})\\prime = u\\prime \\cdot e^{u}$, avec $u = 2x$, $u\\prime = 2$. Donc $f\\prime(x) = 2e^{2x}$.",
-        "domainId": "analyse"
-      },
       {
         "id": "MATH-ANA-02",
         "subject": "MATHS",
@@ -397,40 +362,6 @@
           }
         ],
         "explanation": "Règle de la chaîne : $(\\sin u)\\prime = u\\prime \\cos u$, avec $u = 3x$.",
-        "domainId": "analyse"
-      },
-      {
-        "id": "MATH-ANA-12",
-        "subject": "MATHS",
-        "category": "Analyse",
-        "weight": 3,
-        "competencies": [
-          "Raisonner"
-        ],
-        "questionText": "L'aire sous la courbe de $f(x) = e^{-x}$ entre $x = 0$ et $x = +\\infty$ vaut :",
-        "options": [
-          {
-            "id": "a",
-            "text": "$1$",
-            "isCorrect": true
-          },
-          {
-            "id": "b",
-            "text": "$+\\infty$",
-            "isCorrect": false
-          },
-          {
-            "id": "c",
-            "text": "$e$",
-            "isCorrect": false
-          },
-          {
-            "id": "d",
-            "text": "$0$",
-            "isCorrect": false
-          }
-        ],
-        "explanation": "$\\int_0^{+\\infty} e^{-x} dx = [-e^{-x}]_0^{+\\infty} = 0 - (-1) = 1$. L'intégrale converge.",
         "domainId": "analyse"
       },
       {
@@ -1326,245 +1257,6 @@
         "domainId": "logExp"
       },
       {
-        "id": "MATH-PROB-01",
-        "subject": "MATHS",
-        "category": "Probabilités",
-        "weight": 1,
-        "competencies": [
-          "Restituer"
-        ],
-        "questionText": "Soit $X$ suivant une loi binomiale $\\mathcal{B}(n, p)$. L'espérance $E(X)$ vaut :",
-        "options": [
-          {
-            "id": "a",
-            "text": "$np$",
-            "isCorrect": true
-          },
-          {
-            "id": "b",
-            "text": "$n + p$",
-            "isCorrect": false
-          },
-          {
-            "id": "c",
-            "text": "$np(1-p)$",
-            "isCorrect": false
-          },
-          {
-            "id": "d",
-            "text": "$\\frac{n}{p}$",
-            "isCorrect": false
-          }
-        ],
-        "explanation": "Pour $X \\sim \\mathcal{B}(n,p)$ : $E(X) = np$, $V(X) = np(1-p)$.",
-        "domainId": "probabilites"
-      },
-      {
-        "id": "MATH-PROB-02",
-        "subject": "MATHS",
-        "category": "Probabilités",
-        "weight": 2,
-        "competencies": [
-          "Appliquer"
-        ],
-        "questionText": "On lance 10 fois une pièce équilibrée. La probabilité d'obtenir exactement 3 piles est :",
-        "options": [
-          {
-            "id": "a",
-            "text": "$\\binom{10}{3} \\left(\\frac{1}{2}\\right)^{10}$",
-            "isCorrect": true
-          },
-          {
-            "id": "b",
-            "text": "$\\frac{3}{10}$",
-            "isCorrect": false
-          },
-          {
-            "id": "c",
-            "text": "$\\left(\\frac{1}{2}\\right)^3$",
-            "isCorrect": false
-          },
-          {
-            "id": "d",
-            "text": "$10 \\times \\left(\\frac{1}{2}\\right)^3$",
-            "isCorrect": false
-          }
-        ],
-        "explanation": "$X \\sim \\mathcal{B}(10, 0{,}5)$. $P(X=3) = \\binom{10}{3} (0{,}5)^3 (0{,}5)^7 = \\binom{10}{3} (0{,}5)^{10}$.",
-        "domainId": "probabilites"
-      },
-      {
-        "id": "MATH-PROB-03",
-        "subject": "MATHS",
-        "category": "Probabilités",
-        "weight": 1,
-        "competencies": [
-          "Restituer"
-        ],
-        "questionText": "La formule des probabilités totales s'écrit :",
-        "options": [
-          {
-            "id": "a",
-            "text": "$P(B) = P(A) \\cdot P_A(B) + P(\\bar{A}) \\cdot P_{\\bar{A}}(B)$",
-            "isCorrect": true
-          },
-          {
-            "id": "b",
-            "text": "$P(B) = P(A) + P(B) - P(A \\cap B)$",
-            "isCorrect": false
-          },
-          {
-            "id": "c",
-            "text": "$P(B) = P(A) \\cdot P(B)$",
-            "isCorrect": false
-          },
-          {
-            "id": "d",
-            "text": "$P(B) = \\frac{P(A \\cap B)}{P(A)}$",
-            "isCorrect": false
-          }
-        ],
-        "explanation": "Si $(A, \\bar{A})$ forme une partition, $P(B) = P(A)P_A(B) + P(\\bar{A})P_{\\bar{A}}(B)$.",
-        "domainId": "probabilites"
-      },
-      {
-        "id": "MATH-PROB-04",
-        "subject": "MATHS",
-        "category": "Probabilités",
-        "weight": 2,
-        "competencies": [
-          "Appliquer"
-        ],
-        "questionText": "Un test médical a une sensibilité de 95% et une spécificité de 90%. Si 1% de la population est malade, quelle est (approximativement) la probabilité d'être malade sachant que le test est positif ?",
-        "options": [
-          {
-            "id": "a",
-            "text": "Environ 9%",
-            "isCorrect": true
-          },
-          {
-            "id": "b",
-            "text": "Environ 95%",
-            "isCorrect": false
-          },
-          {
-            "id": "c",
-            "text": "Environ 50%",
-            "isCorrect": false
-          },
-          {
-            "id": "d",
-            "text": "Environ 1%",
-            "isCorrect": false
-          }
-        ],
-        "explanation": "Bayes : $P(M|+) = \\frac{0{,}01 \\times 0{,}95}{0{,}01 \\times 0{,}95 + 0{,}99 \\times 0{,}10} \\approx \\frac{0{,}0095}{0{,}1085} \\approx 8{,}8\\%$.",
-        "hint": "Utiliser la formule de Bayes avec la formule des probabilités totales au dénominateur.",
-        "domainId": "probabilites"
-      },
-      {
-        "id": "MATH-PROB-05",
-        "subject": "MATHS",
-        "category": "Probabilités",
-        "weight": 1,
-        "competencies": [
-          "Restituer"
-        ],
-        "questionText": "Si $X \\sim \\mathcal{N}(\\mu, \\sigma^2)$, alors $P(\\mu - \\sigma \\leq X \\leq \\mu + \\sigma) \\approx$ :",
-        "options": [
-          {
-            "id": "a",
-            "text": "$68\\%$",
-            "isCorrect": true
-          },
-          {
-            "id": "b",
-            "text": "$95\\%$",
-            "isCorrect": false
-          },
-          {
-            "id": "c",
-            "text": "$50\\%$",
-            "isCorrect": false
-          },
-          {
-            "id": "d",
-            "text": "$99{,}7\\%$",
-            "isCorrect": false
-          }
-        ],
-        "explanation": "Règle empirique : $\\pm 1\\sigma \\approx 68\\%$, $\\pm 2\\sigma \\approx 95\\%$, $\\pm 3\\sigma \\approx 99{,}7\\%$.",
-        "domainId": "probabilites"
-      },
-      {
-        "id": "MATH-PROB-06",
-        "subject": "MATHS",
-        "category": "Probabilités",
-        "weight": 2,
-        "competencies": [
-          "Appliquer"
-        ],
-        "questionText": "Soit $X \\sim \\mathcal{N}(100, 15^2)$. La probabilité $P(X > 130)$ est environ :",
-        "options": [
-          {
-            "id": "a",
-            "text": "$2{,}3\\%$",
-            "isCorrect": true
-          },
-          {
-            "id": "b",
-            "text": "$16\\%$",
-            "isCorrect": false
-          },
-          {
-            "id": "c",
-            "text": "$5\\%$",
-            "isCorrect": false
-          },
-          {
-            "id": "d",
-            "text": "$0{,}1\\%$",
-            "isCorrect": false
-          }
-        ],
-        "explanation": "$Z = \\frac{130 - 100}{15} = 2$. $P(Z > 2) \\approx 2{,}3\\%$.",
-        "domainId": "probabilites"
-      },
-      {
-        "id": "MATH-PROB-07",
-        "subject": "MATHS",
-        "category": "Probabilités",
-        "weight": 2,
-        "competencies": [
-          "Appliquer"
-        ],
-        "questionText": "Deux événements $A$ et $B$ sont indépendants si et seulement si :",
-        "options": [
-          {
-            "id": "a",
-            "text": "$P(A \\cap B) = P(A) \\times P(B)$",
-            "isCorrect": true
-          },
-          {
-            "id": "b",
-            "text": "$P(A \\cup B) = P(A) + P(B)$",
-            "isCorrect": false
-          },
-          {
-            "id": "c",
-            "text": "$P(A|B) = P(B|A)$",
-            "isCorrect": false
-          },
-          {
-            "id": "d",
-            "text": "$A \\cap B = \\emptyset$",
-            "isCorrect": false
-          }
-        ],
-        "explanation": "L'indépendance se traduit par $P(A \\cap B) = P(A) \\cdot P(B)$. Ne pas confondre avec l'incompatibilité ($A \\cap B = \\emptyset$).",
-        "domainId": "probabilites"
-      },
-      {
         "id": "MATH-PROB-08",
         "subject": "MATHS",
         "category": "Probabilités",
@@ -1597,108 +1289,6 @@
         ],
         "explanation": "Loi hypergéométrique : choisir 2 as parmi 4 ET 3 non-as parmi 28, divisé par le nombre total de mains de 5.",
         "hint": "C'est un tirage sans remise : utiliser les combinaisons.",
-        "domainId": "probabilites"
-      },
-      {
-        "id": "MATH-PROB-09",
-        "subject": "MATHS",
-        "category": "Probabilités",
-        "weight": 1,
-        "competencies": [
-          "Restituer"
-        ],
-        "questionText": "La variance de $X \\sim \\mathcal{B}(n, p)$ est :",
-        "options": [
-          {
-            "id": "a",
-            "text": "$np(1-p)$",
-            "isCorrect": true
-          },
-          {
-            "id": "b",
-            "text": "$np$",
-            "isCorrect": false
-          },
-          {
-            "id": "c",
-            "text": "$n^2 p$",
-            "isCorrect": false
-          },
-          {
-            "id": "d",
-            "text": "$\\sqrt{np}$",
-            "isCorrect": false
-          }
-        ],
-        "explanation": "Pour la loi binomiale : $V(X) = np(1-p)$ et $\\sigma(X) = \\sqrt{np(1-p)}$.",
-        "domainId": "probabilites"
-      },
-      {
-        "id": "MATH-PROB-10",
-        "subject": "MATHS",
-        "category": "Probabilités",
-        "weight": 3,
-        "competencies": [
-          "Raisonner"
-        ],
-        "questionText": "Un sondage sur 1000 personnes donne 52% de \"oui\". L'intervalle de confiance à 95% pour la proportion est environ :",
-        "options": [
-          {
-            "id": "a",
-            "text": "$[0{,}489 \\; ; \\; 0{,}551]$",
-            "isCorrect": true
-          },
-          {
-            "id": "b",
-            "text": "$[0{,}50 \\; ; \\; 0{,}54]$",
-            "isCorrect": false
-          },
-          {
-            "id": "c",
-            "text": "$[0{,}47 \\; ; \\; 0{,}57]$",
-            "isCorrect": false
-          },
-          {
-            "id": "d",
-            "text": "$[0{,}52 \\; ; \\; 0{,}52]$",
-            "isCorrect": false
-          }
-        ],
-        "explanation": "$IC = \\hat{p} \\pm 1{,}96 \\sqrt{\\frac{\\hat{p}(1-\\hat{p})}{n}} = 0{,}52 \\pm 1{,}96 \\times 0{,}0158 \\approx 0{,}52 \\pm 0{,}031$.",
-        "domainId": "probabilites"
-      },
-      {
-        "id": "MATH-PROB-11",
-        "subject": "MATHS",
-        "category": "Probabilités",
-        "weight": 2,
-        "competencies": [
-          "Appliquer"
-        ],
-        "questionText": "On répète 4 fois une épreuve de Bernoulli de paramètre $p = 0{,}3$. $P(X \\geq 1)$ vaut :",
-        "options": [
-          {
-            "id": "a",
-            "text": "$1 - 0{,}7^4$",
-            "isCorrect": true
-          },
-          {
-            "id": "b",
-            "text": "$4 \\times 0{,}3$",
-            "isCorrect": false
-          },
-          {
-            "id": "c",
-            "text": "$0{,}3^4$",
-            "isCorrect": false
-          },
-          {
-            "id": "d",
-            "text": "$1 - 0{,}3^4$",
-            "isCorrect": false
-          }
-        ],
-        "explanation": "$P(X \\geq 1) = 1 - P(X = 0) = 1 - \\binom{4}{0}(0{,}3)^0(0{,}7)^4 = 1 - 0{,}7^4 \\approx 0{,}76$.",
         "domainId": "probabilites"
       },
       {
@@ -1756,23 +1346,23 @@
     },
     "promptFiles": {
       "preAnalysis": {
-        "path": "content/bilans/prompts/maths-terminale-v1/pre-analysis.md",
+        "path": "content/bilans/prompts/maths-terminale-bilan-v1/pre-analysis.md",
         "checksum": "ca51c49538acd0f150e2a5926362eef2057540cc2b0a1ac078ae9b6db4483368"
       },
       "eleve": {
-        "path": "content/bilans/prompts/maths-terminale-v1/eleve.md",
+        "path": "content/bilans/prompts/maths-terminale-bilan-v1/eleve.md",
         "checksum": "5d598c317c15d7593d1bcbcfdd79910eb5a079301bd146aff60dcb3014f8d3b0"
       },
       "parents": {
-        "path": "content/bilans/prompts/maths-terminale-v1/parents.md",
+        "path": "content/bilans/prompts/maths-terminale-bilan-v1/parents.md",
         "checksum": "419e9366483523bd6f3c8f87bec0ca4735a181e82a379ae93d3453a84ed1313f"
       },
       "nexus": {
-        "path": "content/bilans/prompts/maths-terminale-v1/nexus.md",
+        "path": "content/bilans/prompts/maths-terminale-bilan-v1/nexus.md",
         "checksum": "98ecc878a8711036e5849fe2f6793b7db475bcc9224b7f2864949dc678ff1468"
       },
       "verifier": {
-        "path": "content/bilans/prompts/maths-terminale-v1/verifier.md",
+        "path": "content/bilans/prompts/maths-terminale-bilan-v1/verifier.md",
         "checksum": "fd6c0c7c64aa3320686aa15015da6609d4f5ab7cf6c9293c6afa8de83fe2b88b"
       }
     },

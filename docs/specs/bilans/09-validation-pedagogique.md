@@ -23,8 +23,8 @@ Toute modification d'un item, d'un distracteur, d'une explication, d'un prompt o
 ### Frontière de version
 
 La règle de révocation commence à la première signature pédagogique. Avant cette signature,
-le pack `maths-terminale-v1` est encore en construction : l'enrichissement de ses prompts
-fait partie de sa version initiale et ne crée pas une version 2.
+les packs `entree-terminale-maths-v1` et `maths-terminale-bilan-v1` sont encore en construction : l'enrichissement de leurs prompts
+fait partie de leur version initiale et ne crée pas une version 2.
 
 À partir de la signature d'Alaeddine BEN RHOUMA, toute modification d'un item, d'une option,
 d'un prompt ou d'un checksum impose une version 2, remet le statut à `DRAFT` et annule
@@ -52,7 +52,7 @@ toute mise en service. Aucun résultat de cette exécution ne peut être publié
 
 Cette procédure est destinée au responsable pédagogique. Le seul fichier à modifier est :
 
-`data/bilans/banks/maths-terminale-v1.draft-metadata.yaml`
+`data/bilans/banks/maths-terminale-bilan-v1.draft-metadata.yaml`
 
 Ne modifiez ni le pack JSON, ni les prompts, ni les champs `review.*`.
 
@@ -77,7 +77,7 @@ git pull --ff-only
 
 Ouvrez uniquement :
 
-`data/bilans/banks/maths-terminale-v1.draft-metadata.yaml`
+`data/bilans/banks/maths-terminale-bilan-v1.draft-metadata.yaml`
 
 Pour chaque item, renseignez `nodeCpsId`, `difficulty`, `targetTimeSec`, `shortCorrection`
 et la justification de chacun des trois distracteurs. Ne modifiez pas les identifiants,
@@ -92,28 +92,28 @@ jamais au jugé. Si un distracteur ne correspond à aucune erreur réelle observ
 Depuis la racine du dépôt, copiez cette commande telle quelle :
 
 ```bash
-./node_modules/.bin/tsx scripts/bilans/check-pack-completeness.ts --source yaml data/bilans/banks/maths-terminale-v1.draft-metadata.yaml
+./node_modules/.bin/tsx scripts/bilans/check-pack-completeness.ts --source yaml data/bilans/banks/maths-terminale-bilan-v1.draft-metadata.yaml
 ```
 
 Au début, la première ligne est :
 
 ```text
-PACK_COMPLETENESS=0/50
+PACK_COMPLETENESS=0/38
 ```
 
 Après vingt-trois items complets :
 
 ```text
-PACK_COMPLETENESS=23/50
+PACK_COMPLETENESS=23/38
 ```
 
 Quand le formulaire est entièrement complété :
 
 ```text
-PACK_COMPLETENESS=50/50
+PACK_COMPLETENESS=38/38
 ```
 
-Tant que le compteur n'atteint pas `50/50`, les lignes suivantes indiquent précisément
+Tant que le compteur n'atteint pas `38/38`, les lignes suivantes indiquent précisément
 les champs qui restent à traiter. Un résultat différent de `50/50` est un état d'avancement,
 pas une autorisation à valider le pack.
 
@@ -128,13 +128,13 @@ git status --short
 La seule ligne attendue est :
 
 ```text
- M data/bilans/banks/maths-terminale-v1.draft-metadata.yaml
+ M data/bilans/banks/maths-terminale-bilan-v1.draft-metadata.yaml
 ```
 
 Puis livrez le formulaire :
 
 ```bash
-git add -- data/bilans/banks/maths-terminale-v1.draft-metadata.yaml
+git add -- data/bilans/banks/maths-terminale-bilan-v1.draft-metadata.yaml
 git commit -m "docs(bilans): compléter les métadonnées pédagogiques Maths Terminale"
 git push origin review/maths-terminale-v1-metadata
 ```
@@ -142,3 +142,47 @@ git push origin review/maths-terminale-v1-metadata
 Transmettez ensuite le SHA du commit à Nexus. La fusion dans le pack, la génération du
 paquet de relecture et la signature sont réalisées séparément. Remplir le YAML ne signe
 pas le pack et ne le rend pas publiable.
+
+## Deux banques, deux usages
+
+### Positionnement d’entrée en Terminale
+
+`data/bilans/banks/entree-terminale-maths-v1.yaml` est la source éditoriale des dix-huit
+items portant exclusivement sur neuf prérequis de Première. Le pack JSON généré porte le
+même slug, reste `DRAFT` et annonce vingt-cinq minutes pour mille cent soixante secondes
+de temps cible cumulé. Il sert au stage de pré-rentrée et aux élèves entrant en Terminale.
+
+Les cinq prompts propres à cet usage vivent sous
+`content/bilans/prompts/entree-terminale-maths-v1/`. Leur duplication est volontaire :
+les exemples pédagogiques pourront diverger de ceux d’un bilan de fin d’année.
+
+### Bilan de fin de Terminale
+
+`data/bilans/banks/maths-terminale-bilan-v1.json` contient trente-huit items du programme
+de Terminale. Ce pack s’adresse aux candidats libres et aux élèves en cours ou en fin
+d’année. Il reste `DRAFT` et non chargeable tant que
+`data/bilans/banks/maths-terminale-bilan-v1.draft-metadata.yaml` n’est pas complet.
+
+Les quatre anciens items hors programme et les huit prérequis de Première ne figurent
+plus dans ce pack.
+
+### Huit prérequis réservés à une future version 2
+
+Les huit items transférés sont conservés, sans métadonnées inventées, dans
+`data/bilans/banks/entree-terminale-maths-probabilites.draft-metadata.yaml`.
+Ils ne font pas partie du pack v1 de dix-huit items. Une fois entièrement complétés et
+revus, ils pourront entrer dans `entree-terminale-maths-v2`.
+
+| Ancien identifiant | Nouvel identifiant |
+|---|---|
+| MATH-ANA-01 | ETL-MAT-PRQ-01 |
+| MATH-PROB-01 | ETL-MAT-PRQ-02 |
+| MATH-PROB-02 | ETL-MAT-PRQ-03 |
+| MATH-PROB-03 | ETL-MAT-PRQ-04 |
+| MATH-PROB-04 | ETL-MAT-PRQ-05 |
+| MATH-PROB-07 | ETL-MAT-PRQ-06 |
+| MATH-PROB-09 | ETL-MAT-PRQ-07 |
+| MATH-PROB-11 | ETL-MAT-PRQ-08 |
+
+La correspondance est contractuelle : elle permet d’interpréter tout résultat historique
+portant l’ancien identifiant. Les énoncés, options et réponses correctes sont conservés.
