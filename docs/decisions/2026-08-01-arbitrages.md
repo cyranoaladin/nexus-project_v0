@@ -580,3 +580,11 @@ n’est donc affirmée.
 **Décision.** Une fonction pure dérive, pour chaque couple `(seed de passation, identifiant d’item)`, une permutation Fisher–Yates reproductible. Elle agit uniquement sur une copie destinée à l’affichage, conserve l’identité des objets d’options et ne modifie jamais le pack. V14 demeure bloquante : les deux protections sont indépendantes.
 
 **Limite volontaire.** La fonction n’est raccordée à aucune route tant que la spec publique Canonical annulant la spec 04 n’a pas été arbitrée. A78.2 chiffre ce raccordement séparément.
+
+## A83 — Banque de positionnement d’entrée en Seconde, Mathématiques
+
+**Constat.** La source éditoriale `entree-seconde-maths-v1.yaml` contient 18 items complets couvrant neuf nœuds de prérequis de Troisième, avec deux items par nœud. Son audit ne relève aucun écart V1 à V14 : durée 1 055 s pour 25 minutes annoncées et distribution des bonnes réponses A=5, B=5, C=4, D=4. Le gabarit historique `seconde.maths.v1.yaml` ne contient que 12 items incomplets, sans rationales et avec une convention de clés obsolète.
+
+**Décision.** Versionner le catalogue CPS limité aux neuf nœuds, convertir la source par le pipeline générique existant et isoler cinq prompts liés par checksum sous le slug du pack. Le RAG reste désactivé, le pack reste `DRAFT` avec `review.*` nul, et une recette mock déterministe couvre 20 FactSheets et 60 rapports. Le gabarit historique est conservé sous `_archive/` avec un en-tête d’obsolescence explicite.
+
+**Motif.** L’entrée en Seconde doit reposer sur les prérequis de Troisième réellement relus, sans maintenir deux banques actives concurrentes ni assouplir les règles V1 à V14. Cette troisième banque confirme que le convertisseur est indépendant du niveau et du slug.

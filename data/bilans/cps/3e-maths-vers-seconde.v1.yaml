@@ -1,0 +1,58 @@
+schemaVersion: nexus-cps-catalog/v1
+slug: 3e-maths-vers-seconde
+version: 1
+nodes:
+  - id: 3e.maths.calcul-numerique.relatifs-priorites
+    label: Nombres relatifs et priorités opératoires
+    sourceLevel: TROISIEME
+    targetLevel: SECONDE
+    pedagogicalRationale: >-
+      C'est le prérequis le plus silencieux. Un élève qui hésite sur les signes ou les priorités échouera sur des exercices de Seconde dont la difficulté annoncée est ailleurs, et le diagnostic passera à côté de la cause réelle.
+  - id: 3e.maths.fractions.operations
+    label: Opérations sur les fractions
+    sourceLevel: TROISIEME
+    targetLevel: SECONDE
+    pedagogicalRationale: >-
+      Les calculs de Seconde — résolution d'équations, coefficients directeurs, probabilités — manipulent des fractions en permanence. Une addition fautive fausse tout le reste.
+  - id: 3e.maths.puissances.regles-de-calcul
+    label: Puissances et écriture scientifique
+    sourceLevel: TROISIEME
+    targetLevel: SECONDE
+    pedagogicalRationale: >-
+      La notation scientifique est réinvestie en Seconde en mathématiques comme en physique-chimie, et les règles sur les exposants préparent les fonctions puissances.
+  - id: 3e.maths.calcul-litteral.developpement
+    label: "Calcul littéral : distributivité et identités remarquables"
+    sourceLevel: TROISIEME
+    targetLevel: SECONDE
+    pedagogicalRationale: >-
+      Toute la Seconde repose sur la transformation d'expressions — équations, fonctions, factorisations. Un développement fautif rend chaque exercice inexploitable.
+  - id: 3e.maths.equations.premier-degre
+    label: Équations du premier degré et équation produit nul
+    sourceLevel: TROISIEME
+    targetLevel: SECONDE
+    pedagogicalRationale: >-
+      La résolution d'équations est l'outil de base de la Seconde, et l'équation produit nul prépare la factorisation du second degré étudiée en Première.
+  - id: 3e.maths.proportionnalite.pourcentages
+    label: Proportionnalité, pourcentages et évolutions
+    sourceLevel: TROISIEME
+    targetLevel: SECONDE
+    pedagogicalRationale: >-
+      Les coefficients multiplicateurs sont réinvestis en Seconde en statistiques et en résolution de problèmes, puis en Première pour introduire les suites géométriques.
+  - id: 3e.maths.geometrie.pythagore
+    label: Théorème de Pythagore, direct et réciproque
+    sourceLevel: TROISIEME
+    targetLevel: SECONDE
+    pedagogicalRationale: >-
+      Le repérage, les distances dans le plan et la trigonométrie de Seconde s'appuient sur ce théorème. La réciproque, souvent moins maîtrisée, sert à justifier un angle droit.
+  - id: 3e.maths.geometrie.thales
+    label: Théorème de Thalès et agrandissement-réduction
+    sourceLevel: TROISIEME
+    targetLevel: SECONDE
+    pedagogicalRationale: >-
+      Les rapports de longueurs, d'aires et de volumes reviennent en Seconde en géométrie comme en résolution de problèmes, et la confusion entre ces trois rapports est fréquente.
+  - id: 3e.maths.trigonometrie.triangle-rectangle
+    label: Trigonométrie dans le triangle rectangle
+    sourceLevel: TROISIEME
+    targetLevel: SECONDE
+    pedagogicalRationale: >-
+      Le repérage et les calculs de distances en Seconde s'appuient sur cosinus, sinus et tangente, et la trigonométrie du cercle vue en Première prolonge directement ces rapports.
