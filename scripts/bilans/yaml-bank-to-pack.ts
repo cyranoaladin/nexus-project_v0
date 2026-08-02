@@ -13,6 +13,13 @@ import {
   type CpsCatalog,
   type SourceBank,
 } from '@/lib/bilans/catalog/bank-validation';
+import {
+  computePromptChecksums,
+  derivePackApproval,
+  loadReviewRegistry,
+  REVIEW_DIRECTORY,
+  type ReviewRegistry,
+} from '@/lib/bilans/catalog/review-registry';
 
 type JsonRecord = Record<string, any>;
 
@@ -116,8 +123,12 @@ export function buildPack(options: {
   cpsPath: string | readonly string[];
   templatePackPath: string;
   promptDirectory: string;
+  reviewDirectory?: string;
+  reviewRegistry?: ReviewRegistry | null;
+  resolvedReviewerIds?: ReadonlySet<string>;
 }): JsonRecord {
-  const rawSource = parseYaml(fs.readFileSync(repositoryPath(options.sourcePath), 'utf8')) as unknown;
+  const sourceText = fs.readFileSync(repositoryPath(options.sourcePath), 'utf8');
+  const rawSource = parseYaml(sourceText) as unknown;
   if (!isRecord(rawSource)) throw new Error('BANK_SOURCE_INVALID');
   const source = normalizeOptionKeys(rawSource);
 
@@ -150,6 +161,18 @@ export function buildPack(options: {
     const content = fs.readFileSync(repositoryPath(relativePath), 'utf8');
     return [agent, { path: relativePath, checksum: sha256(content) }];
   }));
+  const promptChecksums = computePromptChecksums(options.promptDirectory);
+  const registry = options.reviewRegistry === undefined
+    ? loadReviewRegistry(source.slug, options.reviewDirectory ?? REVIEW_DIRECTORY)
+    : options.reviewRegistry;
+  const approval = derivePackApproval({
+    slug: source.slug,
+    packVersion: source.version,
+    sourceChecksum: sha256(sourceText),
+    promptChecksums,
+    registry,
+    resolvedReviewerIds: options.resolvedReviewerIds ?? new Set<string>(),
+  });
   const domains = [...new Set(source.items.map((item: JsonRecord) => String(item.nodeCpsId).split('.')[2]))];
   const outputSchemas = JSON.parse(JSON.stringify(template.reporting.outputSchemas));
   if (!isRecord(outputSchemas)) throw new Error('PACK_TEMPLATE_OUTPUT_SCHEMAS_INVALID');
@@ -162,8 +185,8 @@ export function buildPack(options: {
     level: source.level,
     subject: source.subject,
     version: source.version,
-    status: 'DRAFT',
-    review: { validatedBy: null, validatedAt: null },
+    status: approval.status,
+    review: approval.review,
     questionnaire: {
       targetDurationMin: source.targetDurationMin,
       confidenceScale: template.questionnaire.confidenceScale,
