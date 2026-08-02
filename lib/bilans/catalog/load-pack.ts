@@ -13,6 +13,7 @@ import {
 
 const ROOT = process.cwd();
 const FIXTURE_REVIEWER = /fixture|jamais un enseignant|test[-_ ]only/i;
+const MAX_CORRECT_ANSWER_POSITION_PERCENT = 40;
 
 const promptFilesSchema = z.object({
   preAnalysis: promptRefSchema,
@@ -120,6 +121,20 @@ const packSchema = z.object({
   }
   if (pack.questionnaire.items.some(({ domainId }) => !domains.has(domainId))) {
     context.addIssue({ code: z.ZodIssueCode.custom, path: ['questionnaire', 'items'], message: 'Question domain is outside scoring domains' });
+  }
+  const positionCounts: number[] = [];
+  for (const item of pack.questionnaire.items) {
+    const correctPosition = item.options.findIndex(({ isCorrect }) => isCorrect);
+    if (correctPosition >= 0) positionCounts[correctPosition] = (positionCounts[correctPosition] ?? 0) + 1;
+  }
+  for (const [position, count] of positionCounts.entries()) {
+    if (count * 100 > pack.questionnaire.items.length * MAX_CORRECT_ANSWER_POSITION_PERCENT) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['questionnaire', 'items'],
+        message: `PACK_CORRECT_ANSWER_POSITION_BIAS:${String.fromCharCode(65 + position)}:${count}/${pack.questionnaire.items.length}>40%`,
+      });
+    }
   }
   if (pack.status === 'DRAFT' && (pack.review.validatedBy !== null || pack.review.validatedAt !== null)) {
     context.addIssue({ code: z.ZodIssueCode.custom, path: ['review'], message: 'A draft pack cannot carry pedagogical approval' });

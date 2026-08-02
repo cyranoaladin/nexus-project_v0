@@ -1,4 +1,5 @@
 import { spawnSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -41,6 +42,16 @@ function readYaml(relativePath: string): any {
   return yaml('parse', fs.readFileSync(path.join(ROOT, relativePath), 'utf8'));
 }
 
+function expectedPositions(items: readonly { id: string }[]): ReadonlyMap<string, number> {
+  const ranked = [...items].sort((left, right) => {
+    const leftHash = createHash('sha256').update(left.id, 'utf8').digest('hex');
+    const rightHash = createHash('sha256').update(right.id, 'utf8').digest('hex');
+    if (leftHash !== rightHash) return leftHash < rightHash ? -1 : 1;
+    return left.id < right.id ? -1 : left.id > right.id ? 1 : 0;
+  });
+  return new Map(ranked.map((item, index) => [item.id, index % 4]));
+}
+
 function tempFile(name: string, content?: string): string {
   fs.mkdirSync(TEMP, { recursive: true });
   const target = path.join(TEMP, name);
@@ -70,6 +81,19 @@ describe('deterministic YAML bank conversion', () => {
       expect(converted.options.find((option) => option.isCorrect)?.text)
         .toBe(item.options.find((option: any) => option.correct)?.label);
     }
+  });
+
+  it('distributes correct answers deterministically from item identifiers', () => {
+    const source = readYaml(SOURCE);
+    const expected = expectedPositions(source.items);
+    const distribution = [0, 0, 0, 0];
+    for (const item of source.items) {
+      const position = item.options.findIndex((option: any) => option.correct === true);
+      expect(position).toBe(expected.get(item.id));
+      distribution[position] += 1;
+    }
+    expect(distribution).toEqual([5, 5, 4, 4]);
+    expect(distribution.every((count) => count >= 3 && count <= 6)).toBe(true);
   });
 
   it('always creates a DRAFT pack with null review fields', () => {

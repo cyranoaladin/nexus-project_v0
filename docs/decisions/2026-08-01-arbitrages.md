@@ -556,3 +556,9 @@ n’est donc affirmée.
 - **Constat :** ajouter immédiatement les huit prérequis historiques rendrait le pack incomplet et donc non chargeable.
 - **Décision :** conserver un pack v1 chargeable de dix-huit items. Isoler les huit transferts dans un formulaire incomplet destiné à une future v2.
 - **Motif :** le stage débute le 17 août ; le fail-closed du chargeur ne doit être ni assoupli ni contourné.
+
+## A76 — Distribution bloquante des positions de bonnes réponses
+
+- **Constat :** les dix-huit items d'entrée et les trente-huit items du bilan de fin plaçaient tous la bonne réponse en première position. Un élève pouvait donc produire un faux positif de maîtrise complète sans mobiliser les connaissances évaluées.
+- **Décision :** classer les identifiants d'items par leur SHA-256 en ordre binaire, puis attribuer cycliquement les positions A à D. Les distributions deviennent respectivement `5/5/4/4` et `10/10/9/9`. V14 refuse au chargement toute banque dont une position dépasse 40 % des bonnes réponses.
+- **Motif :** l'ordre est reproductible sans aléa et sans modifier aucun énoncé, libellé, rationale ou drapeau de correction. Le mélange par `seed` décrit par les specs 01 §5.3 et 04 n'est pas implémenté dans le runtime ; V14 est donc la seule protection active contre ce biais de position.

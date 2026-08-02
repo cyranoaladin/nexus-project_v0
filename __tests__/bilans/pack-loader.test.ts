@@ -28,6 +28,22 @@ describe('fail-closed bilan pack loader', () => {
       .every((option) => Boolean(option.distractorRationale)))).toBe(true);
   });
 
+  it('rejects a bank when one correct-answer position exceeds forty percent', () => {
+    const biased = clonePack();
+    biased.questionnaire.items = biased.questionnaire.items.map((item) => {
+      const correct = item.options.find((option) => option.isCorrect);
+      if (correct === undefined) throw new Error(`TEST_FIXTURE_HAS_NO_CORRECT_OPTION:${item.id}`);
+      const reordered = [correct, ...item.options.filter((option) => option !== correct)];
+      return {
+        ...item,
+        options: reordered.map((option, index) => ({ ...option, id: 'ABCD'[index] })),
+      };
+    });
+    expect(() => loadBilanPack(writePack('biased-correct-position.json', biased))).toThrow(
+      /PACK_CORRECT_ANSWER_POSITION_BIAS:A:18\/18>40%/,
+    );
+  });
+
   it('rejects the requalified end-of-Terminale draft and lists missing metadata', () => {
     expect(() => loadBilanPack('data/bilans/banks/maths-terminale-bilan-v1.json')).toThrow(
       /PACK_ITEM_METADATA_INVALID[\s\S]*MATH-ANA-02\.nodeCpsId[\s\S]*MATH-ANA-02\.difficulty[\s\S]*MATH-ANA-02\.targetTimeSec[\s\S]*MATH-ANA-02\.shortCorrection/,

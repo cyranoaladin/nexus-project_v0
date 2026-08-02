@@ -14,7 +14,7 @@
 pack: "maths-terminale-bilan-v1"
 version: 1
 items:
-  
+
   - id: "MATH-ANA-02"
     enonce: "Soit $f(x) = x^3 - 3x + 1$. Combien de racines réelles possède $f$ ?"
     domainId: "analyse"
@@ -24,18 +24,18 @@ items:
     targetTimeSec: # 15 à 300
     shortCorrection: "" # 1 à 3 phrases, réutilisées telles quelles dans le bilan élève
     options:
-      - key: "a"
+      - key: "A"
         label: "3"
         correct: true
-      - key: "b"
+      - key: "B"
         label: "1"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
-      - key: "c"
+      - key: "C"
         label: "2"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
-      - key: "d"
+      - key: "D"
         label: "0"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
@@ -49,18 +49,18 @@ items:
     targetTimeSec: # 15 à 300
     shortCorrection: "" # 1 à 3 phrases, réutilisées telles quelles dans le bilan élève
     options:
-      - key: "a"
-        label: "$\\ln(x)$"
-        correct: true
-      - key: "b"
+      - key: "A"
         label: "$\\frac{1}{x^2}$"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
-      - key: "c"
+      - key: "B"
+        label: "$\\ln(x)$"
+        correct: true
+      - key: "C"
         label: "$-\\frac{1}{x^2}$"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
-      - key: "d"
+      - key: "D"
         label: "$e^x$"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
@@ -74,21 +74,21 @@ items:
     targetTimeSec: # 15 à 300
     shortCorrection: "" # 1 à 3 phrases, réutilisées telles quelles dans le bilan élève
     options:
-      - key: "a"
-        label: "$e - 1$"
-        correct: true
-      - key: "b"
+      - key: "A"
         label: "$e$"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
-      - key: "c"
+      - key: "B"
         label: "$e + 1$"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
-      - key: "d"
+      - key: "C"
         label: "$2e$"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
+      - key: "D"
+        label: "$e - 1$"
+        correct: true
 
   - id: "MATH-ANA-05"
     enonce: "Soit $f(x) = x\\ln(x) - x$. Quel est le minimum de $f$ sur $]0,
@@ -100,18 +100,18 @@ items:
     targetTimeSec: # 15 à 300
     shortCorrection: "" # 1 à 3 phrases, réutilisées telles quelles dans le bilan élève
     options:
-      - key: "a"
-        label: "$-1$"
-        correct: true
-      - key: "b"
+      - key: "A"
         label: "$0$"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
-      - key: "c"
+      - key: "B"
         label: "$-e$"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
-      - key: "d"
+      - key: "C"
+        label: "$-1$"
+        correct: true
+      - key: "D"
         label: "$1$"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
@@ -125,18 +125,18 @@ items:
     targetTimeSec: # 15 à 300
     shortCorrection: "" # 1 à 3 phrases, réutilisées telles quelles dans le bilan élève
     options:
-      - key: "a"
-        label: "$]-\\infty, -1[ \\cup ]1, +\\infty[$"
-        correct: true
-      - key: "b"
+      - key: "A"
         label: "$]-1, 1[$"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
-      - key: "c"
+      - key: "B"
         label: "$\\mathbb{R}$ tout entier"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
-      - key: "d"
+      - key: "C"
+        label: "$]-\\infty, -1[ \\cup ]1, +\\infty[$"
+        correct: true
+      - key: "D"
         label: "$]0, +\\infty[$"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
@@ -150,18 +150,18 @@ items:
     targetTimeSec: # 15 à 300
     shortCorrection: "" # 1 à 3 phrases, réutilisées telles quelles dans le bilan élève
     options:
-      - key: "a"
-        label: "$+\\infty$"
-        correct: true
-      - key: "b"
+      - key: "A"
         label: "$0$"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
-      - key: "c"
+      - key: "B"
+        label: "$+\\infty$"
+        correct: true
+      - key: "C"
         label: "$1$"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
-      - key: "d"
+      - key: "D"
         label: "La limite n'existe pas"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
@@ -176,18 +176,18 @@ items:
     targetTimeSec: # 15 à 300
     shortCorrection: "" # 1 à 3 phrases, réutilisées telles quelles dans le bilan élève
     options:
-      - key: "a"
-        label: "$e$"
-        correct: true
-      - key: "b"
+      - key: "A"
         label: "$1$"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
-      - key: "c"
+      - key: "B"
+        label: "$e$"
+        correct: true
+      - key: "C"
         label: "$+\\infty$"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
-      - key: "d"
+      - key: "D"
         label: "$0$"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
@@ -202,18 +202,18 @@ items:
     targetTimeSec: # 15 à 300
     shortCorrection: "" # 1 à 3 phrases, réutilisées telles quelles dans le bilan élève
     options:
-      - key: "a"
-        label: "$f$ s'annule au moins une fois sur $]0, 1[$"
-        correct: true
-      - key: "b"
+      - key: "A"
         label: "$f$ s'annule exactement une fois"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
-      - key: "c"
+      - key: "B"
         label: "$f$ est croissante sur $[0, 1]$"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
-      - key: "d"
+      - key: "C"
+        label: "$f$ s'annule au moins une fois sur $]0, 1[$"
+        correct: true
+      - key: "D"
         label: "$f$ admet un maximum en $x = 1$"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
@@ -227,21 +227,21 @@ items:
     targetTimeSec: # 15 à 300
     shortCorrection: "" # 1 à 3 phrases, réutilisées telles quelles dans le bilan élève
     options:
-      - key: "a"
-        label: "$\\frac{2x}{x^2 + 1}$"
-        correct: true
-      - key: "b"
+      - key: "A"
         label: "$\\frac{1}{x^2 + 1}$"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
-      - key: "c"
+      - key: "B"
         label: "$\\frac{2x}{x^2}$"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
-      - key: "d"
+      - key: "C"
         label: "$2x \\ln(x^2 + 1)$"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
+      - key: "D"
+        label: "$\\frac{2x}{x^2 + 1}$"
+        correct: true
 
   - id: "MATH-ANA-11"
     enonce: "Quelle est la dérivée de $\\sin(3x)$ ?"
@@ -252,18 +252,18 @@ items:
     targetTimeSec: # 15 à 300
     shortCorrection: "" # 1 à 3 phrases, réutilisées telles quelles dans le bilan élève
     options:
-      - key: "a"
-        label: "$3\\cos(3x)$"
-        correct: true
-      - key: "b"
+      - key: "A"
         label: "$\\cos(3x)$"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
-      - key: "c"
+      - key: "B"
         label: "$-3\\cos(3x)$"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
-      - key: "d"
+      - key: "C"
+        label: "$3\\cos(3x)$"
+        correct: true
+      - key: "D"
         label: "$3\\sin(3x)$"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
@@ -277,18 +277,18 @@ items:
     targetTimeSec: # 15 à 300
     shortCorrection: "" # 1 à 3 phrases, réutilisées telles quelles dans le bilan élève
     options:
-      - key: "a"
-        label: "10"
-        correct: true
-      - key: "b"
+      - key: "A"
         label: "20"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
-      - key: "c"
+      - key: "B"
+        label: "10"
+        correct: true
+      - key: "C"
         label: "25"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
-      - key: "d"
+      - key: "D"
         label: "5"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
@@ -303,21 +303,21 @@ items:
     targetTimeSec: # 15 à 300
     shortCorrection: "" # 1 à 3 phrases, réutilisées telles quelles dans le bilan élève
     options:
-      - key: "a"
-        label: "70"
-        correct: true
-      - key: "b"
+      - key: "A"
         label: "35"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
-      - key: "c"
+      - key: "B"
         label: "56"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
-      - key: "d"
+      - key: "C"
         label: "140"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
+      - key: "D"
+        label: "70"
+        correct: true
 
   - id: "MATH-COMB-03"
     enonce: "On choisit un comité de 3 personnes parmi 10. Combien de comités
@@ -329,18 +329,18 @@ items:
     targetTimeSec: # 15 à 300
     shortCorrection: "" # 1 à 3 phrases, réutilisées telles quelles dans le bilan élève
     options:
-      - key: "a"
+      - key: "A"
         label: "120"
         correct: true
-      - key: "b"
+      - key: "B"
         label: "720"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
-      - key: "c"
+      - key: "C"
         label: "1000"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
-      - key: "d"
+      - key: "D"
         label: "30"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
@@ -355,18 +355,18 @@ items:
     targetTimeSec: # 15 à 300
     shortCorrection: "" # 1 à 3 phrases, réutilisées telles quelles dans le bilan élève
     options:
-      - key: "a"
-        label: "10 000"
-        correct: true
-      - key: "b"
+      - key: "A"
         label: "5 040"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
-      - key: "c"
+      - key: "B"
+        label: "10 000"
+        correct: true
+      - key: "C"
         label: "210"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
-      - key: "d"
+      - key: "D"
         label: "40"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
@@ -380,18 +380,18 @@ items:
     targetTimeSec: # 15 à 300
     shortCorrection: "" # 1 à 3 phrases, réutilisées telles quelles dans le bilan élève
     options:
-      - key: "a"
-        label: "24"
-        correct: true
-      - key: "b"
+      - key: "A"
         label: "16"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
-      - key: "c"
+      - key: "B"
+        label: "24"
+        correct: true
+      - key: "C"
         label: "4"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
-      - key: "d"
+      - key: "D"
         label: "12"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
@@ -407,18 +407,18 @@ items:
     targetTimeSec: # 15 à 300
     shortCorrection: "" # 1 à 3 phrases, réutilisées telles quelles dans le bilan élève
     options:
-      - key: "a"
+      - key: "A"
         label: "10"
         correct: true
-      - key: "b"
+      - key: "B"
         label: "6"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
-      - key: "c"
+      - key: "C"
         label: "12"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
-      - key: "d"
+      - key: "D"
         label: "5"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
@@ -433,21 +433,21 @@ items:
     targetTimeSec: # 15 à 300
     shortCorrection: "" # 1 à 3 phrases, réutilisées telles quelles dans le bilan élève
     options:
-      - key: "a"
-        label: "$8$"
-        correct: true
-      - key: "b"
+      - key: "A"
         label: "$10$"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
-      - key: "c"
+      - key: "B"
         label: "$6$"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
-      - key: "d"
+      - key: "C"
         label: "$-2$"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
+      - key: "D"
+        label: "$8$"
+        correct: true
 
   - id: "MATH-GEO-02"
     enonce: "Un vecteur normal au plan $2x - 3y + z = 5$ est :"
@@ -458,18 +458,18 @@ items:
     targetTimeSec: # 15 à 300
     shortCorrection: "" # 1 à 3 phrases, réutilisées telles quelles dans le bilan élève
     options:
-      - key: "a"
+      - key: "A"
         label: "$\\vec{n}(2, -3, 1)$"
         correct: true
-      - key: "b"
+      - key: "B"
         label: "$\\vec{n}(2, 3, 1)$"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
-      - key: "c"
+      - key: "C"
         label: "$\\vec{n}(5, -3, 1)$"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
-      - key: "d"
+      - key: "D"
         label: "$\\vec{n}(2, -3, 5)$"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
@@ -484,18 +484,18 @@ items:
     targetTimeSec: # 15 à 300
     shortCorrection: "" # 1 à 3 phrases, réutilisées telles quelles dans le bilan élève
     options:
-      - key: "a"
+      - key: "A"
         label: "Colinéaires"
         correct: true
-      - key: "b"
+      - key: "B"
         label: "Orthogonaux"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
-      - key: "c"
+      - key: "C"
         label: "De même norme"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
-      - key: "d"
+      - key: "D"
         label: "Opposés"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
@@ -509,18 +509,18 @@ items:
     targetTimeSec: # 15 à 300
     shortCorrection: "" # 1 à 3 phrases, réutilisées telles quelles dans le bilan élève
     options:
-      - key: "a"
-        label: "$\\frac{3}{\\sqrt{3}} = \\sqrt{3}$"
-        correct: true
-      - key: "b"
+      - key: "A"
         label: "$3$"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
-      - key: "c"
+      - key: "B"
         label: "$\\frac{3}{3} = 1$"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
-      - key: "d"
+      - key: "C"
+        label: "$\\frac{3}{\\sqrt{3}} = \\sqrt{3}$"
+        correct: true
+      - key: "D"
         label: "$6$"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
@@ -534,18 +534,18 @@ items:
     targetTimeSec: # 15 à 300
     shortCorrection: "" # 1 à 3 phrases, réutilisées telles quelles dans le bilan élève
     options:
-      - key: "a"
+      - key: "A"
         label: "$5$"
         correct: true
-      - key: "b"
+      - key: "B"
         label: "$7$"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
-      - key: "c"
+      - key: "C"
         label: "$\\sqrt{7}$"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
-      - key: "d"
+      - key: "D"
         label: "$25$"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
@@ -559,18 +559,18 @@ items:
     targetTimeSec: # 15 à 300
     shortCorrection: "" # 1 à 3 phrases, réutilisées telles quelles dans le bilan élève
     options:
-      - key: "a"
-        label: "$\\frac{\\pi}{4}$"
-        correct: true
-      - key: "b"
+      - key: "A"
         label: "$\\frac{\\pi}{2}$"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
-      - key: "c"
+      - key: "B"
         label: "$\\frac{\\pi}{3}$"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
-      - key: "d"
+      - key: "C"
+        label: "$\\frac{\\pi}{4}$"
+        correct: true
+      - key: "D"
         label: "$\\frac{\\pi}{6}$"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
@@ -585,22 +585,22 @@ items:
     targetTimeSec: # 15 à 300
     shortCorrection: "" # 1 à 3 phrases, réutilisées telles quelles dans le bilan élève
     options:
-      - key: "a"
-        label: "$\\begin{cases} x = 1 + 2t \\\\ y = 2 - t \\\\ z = 3 + 4t \\end{cases}$"
-        correct: true
-      - key: "b"
+      - key: "A"
         label: "$2x - y + 4z = 12$"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
-      - key: "c"
+      - key: "B"
         label: "$\\begin{cases} x = 2 + t \\\\ y = -1 + 2t \\\\ z = 4 + 3t
           \\end{cases}$"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
-      - key: "d"
+      - key: "C"
         label: "$\\frac{x}{2} = \\frac{y}{-1} = \\frac{z}{4}$"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
+      - key: "D"
+        label: "$\\begin{cases} x = 1 + 2t \\\\ y = 2 - t \\\\ z = 3 + 4t \\end{cases}$"
+        correct: true
 
   - id: "MATH-GEO-08"
     enonce: "Le plan passant par $A(1, 0, 0)$, $B(0, 1, 0)$ et $C(0, 0, 1)$ a pour
@@ -612,18 +612,18 @@ items:
     targetTimeSec: # 15 à 300
     shortCorrection: "" # 1 à 3 phrases, réutilisées telles quelles dans le bilan élève
     options:
-      - key: "a"
-        label: "$x + y + z = 1$"
-        correct: true
-      - key: "b"
+      - key: "A"
         label: "$x + y + z = 0$"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
-      - key: "c"
+      - key: "B"
+        label: "$x + y + z = 1$"
+        correct: true
+      - key: "C"
         label: "$x - y + z = 1$"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
-      - key: "d"
+      - key: "D"
         label: "$x + y + z = 3$"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
@@ -637,18 +637,18 @@ items:
     targetTimeSec: # 15 à 300
     shortCorrection: "" # 1 à 3 phrases, réutilisées telles quelles dans le bilan élève
     options:
-      - key: "a"
-        label: "Leur produit scalaire est nul"
-        correct: true
-      - key: "b"
+      - key: "A"
         label: "Leur produit vectoriel est nul"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
-      - key: "c"
+      - key: "B"
+        label: "Leur produit scalaire est nul"
+        correct: true
+      - key: "C"
         label: "Ils sont colinéaires"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
-      - key: "d"
+      - key: "D"
         label: "Leurs normes sont égales"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
@@ -663,21 +663,21 @@ items:
     targetTimeSec: # 15 à 300
     shortCorrection: "" # 1 à 3 phrases, réutilisées telles quelles dans le bilan élève
     options:
-      - key: "a"
-        label: "$(\\frac{3}{4}, \\frac{7}{4}, \\frac{3}{2})$"
-        correct: true
-      - key: "b"
+      - key: "A"
         label: "$(1, 2, 2)$"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
-      - key: "c"
+      - key: "B"
         label: "L'ensemble vide (pas d'intersection)"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
-      - key: "d"
+      - key: "C"
         label: "$(0, 1, 0)$"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
+      - key: "D"
+        label: "$(\\frac{3}{4}, \\frac{7}{4}, \\frac{3}{2})$"
+        correct: true
 
   - id: "MATH-LOG-01"
     enonce: "$\\ln(e^3)$ vaut :"
@@ -688,18 +688,18 @@ items:
     targetTimeSec: # 15 à 300
     shortCorrection: "" # 1 à 3 phrases, réutilisées telles quelles dans le bilan élève
     options:
-      - key: "a"
+      - key: "A"
         label: "$3$"
         correct: true
-      - key: "b"
+      - key: "B"
         label: "$e^3$"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
-      - key: "c"
+      - key: "C"
         label: "$3e$"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
-      - key: "d"
+      - key: "D"
         label: "$\\frac{1}{3}$"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
@@ -713,18 +713,18 @@ items:
     targetTimeSec: # 15 à 300
     shortCorrection: "" # 1 à 3 phrases, réutilisées telles quelles dans le bilan élève
     options:
-      - key: "a"
-        label: "$5$"
-        correct: true
-      - key: "b"
+      - key: "A"
         label: "$\\ln 5$"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
-      - key: "c"
+      - key: "B"
+        label: "$5$"
+        correct: true
+      - key: "C"
         label: "$5e$"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
-      - key: "d"
+      - key: "D"
         label: "$e^5$"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
@@ -738,18 +738,18 @@ items:
     targetTimeSec: # 15 à 300
     shortCorrection: "" # 1 à 3 phrases, réutilisées telles quelles dans le bilan élève
     options:
-      - key: "a"
-        label: "$x = \\frac{\\ln 7}{2}$"
-        correct: true
-      - key: "b"
+      - key: "A"
         label: "$x = \\ln(\\frac{7}{2})$"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
-      - key: "c"
+      - key: "B"
         label: "$x = 2\\ln 7$"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
-      - key: "d"
+      - key: "C"
+        label: "$x = \\frac{\\ln 7}{2}$"
+        correct: true
+      - key: "D"
         label: "$x = \\frac{7}{2e}$"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
@@ -763,21 +763,21 @@ items:
     targetTimeSec: # 15 à 300
     shortCorrection: "" # 1 à 3 phrases, réutilisées telles quelles dans le bilan élève
     options:
-      - key: "a"
-        label: "$\\ln a + \\ln b$"
-        correct: true
-      - key: "b"
+      - key: "A"
         label: "$\\ln a \\times \\ln b$"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
-      - key: "c"
+      - key: "B"
         label: "$\\ln(a + b)$"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
-      - key: "d"
+      - key: "C"
         label: "$\\frac{\\ln a}{\\ln b}$"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
+      - key: "D"
+        label: "$\\ln a + \\ln b$"
+        correct: true
 
   - id: "MATH-LOG-05"
     enonce: "Résoudre $\\ln(x - 1) = 2$ :"
@@ -788,18 +788,18 @@ items:
     targetTimeSec: # 15 à 300
     shortCorrection: "" # 1 à 3 phrases, réutilisées telles quelles dans le bilan élève
     options:
-      - key: "a"
+      - key: "A"
         label: "$x = e^2 + 1$"
         correct: true
-      - key: "b"
+      - key: "B"
         label: "$x = e^2$"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
-      - key: "c"
+      - key: "C"
         label: "$x = 3$"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
-      - key: "d"
+      - key: "D"
         label: "$x = e^2 - 1$"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
@@ -813,21 +813,21 @@ items:
     targetTimeSec: # 15 à 300
     shortCorrection: "" # 1 à 3 phrases, réutilisées telles quelles dans le bilan élève
     options:
-      - key: "a"
-        label: "$0$"
-        correct: true
-      - key: "b"
+      - key: "A"
         label: "$1$"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
-      - key: "c"
+      - key: "B"
         label: "$+\\infty$"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
-      - key: "d"
+      - key: "C"
         label: "$-\\infty$"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
+      - key: "D"
+        label: "$0$"
+        correct: true
 
   - id: "MATH-LOG-07"
     enonce: "La fonction $x \\mapsto e^x$ est :"
@@ -838,21 +838,21 @@ items:
     targetTimeSec: # 15 à 300
     shortCorrection: "" # 1 à 3 phrases, réutilisées telles quelles dans le bilan élève
     options:
-      - key: "a"
-        label: "Strictement croissante sur $\\mathbb{R}$"
-        correct: true
-      - key: "b"
+      - key: "A"
         label: "Strictement décroissante sur $\\mathbb{R}$"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
-      - key: "c"
+      - key: "B"
         label: "Croissante puis décroissante"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
-      - key: "d"
+      - key: "C"
         label: "Constante"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
+      - key: "D"
+        label: "Strictement croissante sur $\\mathbb{R}$"
+        correct: true
 
   - id: "MATH-LOG-08"
     enonce: "Simplifier $\\ln(\\frac{a^3}{b^2})$ :"
@@ -863,18 +863,18 @@ items:
     targetTimeSec: # 15 à 300
     shortCorrection: "" # 1 à 3 phrases, réutilisées telles quelles dans le bilan élève
     options:
-      - key: "a"
+      - key: "A"
         label: "$3\\ln a - 2\\ln b$"
         correct: true
-      - key: "b"
+      - key: "B"
         label: "$\\frac{3\\ln a}{2\\ln b}$"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
-      - key: "c"
+      - key: "C"
         label: "$3\\ln a + 2\\ln b$"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
-      - key: "d"
+      - key: "D"
         label: "$\\ln 3a - \\ln 2b$"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
@@ -888,18 +888,18 @@ items:
     targetTimeSec: # 15 à 300
     shortCorrection: "" # 1 à 3 phrases, réutilisées telles quelles dans le bilan élève
     options:
-      - key: "a"
-        label: "$2$"
-        correct: true
-      - key: "b"
+      - key: "A"
         label: "$1$"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
-      - key: "c"
+      - key: "B"
         label: "$0$"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
-      - key: "d"
+      - key: "C"
+        label: "$2$"
+        correct: true
+      - key: "D"
         label: "$3$"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
@@ -914,18 +914,18 @@ items:
     targetTimeSec: # 15 à 300
     shortCorrection: "" # 1 à 3 phrases, réutilisées telles quelles dans le bilan élève
     options:
-      - key: "a"
-        label: "$x = 1$"
-        correct: true
-      - key: "b"
+      - key: "A"
         label: "$x = 0$"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
-      - key: "c"
+      - key: "B"
+        label: "$x = 1$"
+        correct: true
+      - key: "C"
         label: "$x = e$"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
-      - key: "d"
+      - key: "D"
         label: "$x = \\frac{1}{e}$"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
@@ -940,18 +940,18 @@ items:
     targetTimeSec: # 15 à 300
     shortCorrection: "" # 1 à 3 phrases, réutilisées telles quelles dans le bilan élève
     options:
-      - key: "a"
+      - key: "A"
         label: "$\\frac{\\binom{4}{2} \\binom{28}{3}}{\\binom{32}{5}}$"
         correct: true
-      - key: "b"
+      - key: "B"
         label: "$\\frac{4^2 \\times 28^3}{32^5}$"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
-      - key: "c"
+      - key: "C"
         label: "$\\binom{5}{2} \\times \\left(\\frac{4}{32}\\right)^2$"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
-      - key: "d"
+      - key: "D"
         label: "$\\frac{2}{32}$"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
@@ -967,18 +967,18 @@ items:
     targetTimeSec: # 15 à 300
     shortCorrection: "" # 1 à 3 phrases, réutilisées telles quelles dans le bilan élève
     options:
-      - key: "a"
-        label: "$\\frac{1}{4}$"
-        correct: true
-      - key: "b"
+      - key: "A"
         label: "$\\frac{1}{2}$"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
-      - key: "c"
+      - key: "B"
         label: "$\\frac{1}{16}$"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
-      - key: "d"
+      - key: "C"
+        label: "$\\frac{1}{4}$"
+        correct: true
+      - key: "D"
         label: "$4$"
         correct: false
         distractorRationale: "" # erreur RÉELLE capturée, ou "A REMPLACER"
