@@ -67,6 +67,7 @@ export const stageTypeLabels: Record<StageType, string> = {
 
 export const subjectLabels: Record<Subject, string> = {
   MATHEMATIQUES: 'Maths',
+  MATHS_EXPERTES: 'Maths expertes',
   NSI: 'NSI',
   FRANCAIS: 'Français',
   PHILOSOPHIE: 'Philosophie',

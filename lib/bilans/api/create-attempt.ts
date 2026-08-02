@@ -31,6 +31,7 @@ const requestSchema = z.object({ packSlug: z.string().min(1) }).strict();
 const SUBJECTS: Readonly<Record<string, Subject>> = {
   MATHS: 'MATHEMATIQUES',
   MATHEMATIQUES: 'MATHEMATIQUES',
+  MATHS_EXPERTES: 'MATHS_EXPERTES',
   NSI: 'NSI',
   FRANCAIS: 'FRANCAIS',
   PHILOSOPHIE: 'PHILOSOPHIE',
@@ -43,6 +44,7 @@ const SUBJECTS: Readonly<Record<string, Subject>> = {
 };
 
 const LEVELS: Readonly<Record<string, GradeLevel>> = {
+  QUATRIEME: 'QUATRIEME',
   TROISIEME: 'TROISIEME',
   SECONDE: 'SECONDE',
   PREMIERE: 'PREMIERE',
@@ -50,6 +52,18 @@ const LEVELS: Readonly<Record<string, GradeLevel>> = {
   POSTBAC: 'POSTBAC',
   AUTRE: 'AUTRE',
 };
+
+export function resolvePrismaSubject(subject: string): Subject {
+  const mapped = SUBJECTS[subject];
+  if (mapped === undefined) throw CanonicalApiError.incompatible(`PACK_SUBJECT_UNMAPPED:${subject}`);
+  return mapped;
+}
+
+export function resolvePrismaGradeLevel(level: string): GradeLevel {
+  const mapped = LEVELS[level];
+  if (mapped === undefined) throw CanonicalApiError.incompatible(`PACK_LEVEL_UNMAPPED:${level}`);
+  return mapped;
+}
 
 type CreateAttemptDatabase = PrismaClient | (IdempotencyDatabase & Readonly<Record<string, unknown>>);
 
@@ -119,11 +133,8 @@ export function createCreateAttemptHandler(
         startedAt.getTime()
           + (enabled.pack.questionnaire.targetDurationMin + EXPIRY_GRACE_MINUTES) * 60_000,
       );
-      const subject = SUBJECTS[enabled.pack.subject];
-      const gradeLevel = LEVELS[enabled.pack.level];
-      if (subject === undefined || gradeLevel === undefined) {
-        throw CanonicalApiError.incompatible('PACK_PROVENANCE_INVALID');
-      }
+      const subject = resolvePrismaSubject(enabled.pack.subject);
+      const gradeLevel = resolvePrismaGradeLevel(enabled.pack.level);
       const scoring = scoringProvenance(enabled.pack.scoring.engine);
 
       const result = await executeIdempotently({

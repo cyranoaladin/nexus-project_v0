@@ -1,5 +1,6 @@
 export const BILAN_PACK_SUBJECTS = [
   'MATHS',
+  'MATHS_EXPERTES',
   'NSI',
   'FRANCAIS',
   'PHYSIQUE_CHIMIE',

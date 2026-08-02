@@ -125,6 +125,43 @@ describe('POST /api/bilans/attempts', () => {
     expect(JSON.stringify(createAttempt.mock.calls)).not.toContain('eleve@example.test');
   });
 
+  test('maps MATHS_EXPERTES and QUATRIEME without a silent fallback', async () => {
+    const { createCreateAttemptHandler } = createHandlerModule();
+    const { database, createAttempt } = createDatabase();
+    const extendedPack = {
+      ...pack,
+      slug: 'fixture-quatrieme-maths-expertes-v0',
+      subject: 'MATHS_EXPERTES',
+      level: 'QUATRIEME',
+    } as const;
+    const handler = createCreateAttemptHandler({
+      prisma: database as never,
+      authenticate: async () => ({ user: { id: 'user-1', role: 'ELEVE' } }) as never,
+      resolvePack: () => ({
+        pack: extendedPack,
+        validatedPack: ENTRY_VALIDATED_PACK_FIXTURE,
+        checksum: 'pack-checksum',
+        path: 'fixture',
+      }) as never,
+      now: () => new Date('2026-08-02T10:00:00.000Z'),
+      generateSeed: () => 'server-seed',
+    });
+
+    expect((await handler(request({ packSlug: extendedPack.slug }))).status).toBe(201);
+    expect(createAttempt).toHaveBeenCalledWith({ data: expect.objectContaining({
+      subject: 'MATHS_EXPERTES',
+      gradeLevel: 'QUATRIEME',
+    }) });
+  });
+
+  test('rejects an unmapped subject explicitly', async () => {
+    const { resolvePrismaSubject } = createHandlerModule();
+
+    expect(() => resolvePrismaSubject('UNKNOWN_SUBJECT')).toThrow(
+      'PACK_SUBJECT_UNMAPPED:UNKNOWN_SUBJECT',
+    );
+  });
+
   test('replays the committed response for the same user, route and key', async () => {
     const { createCreateAttemptHandler } = createHandlerModule();
     const { database, createAttempt } = createDatabase();
