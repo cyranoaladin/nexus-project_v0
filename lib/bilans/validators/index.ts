@@ -22,7 +22,7 @@ const bundleSchema = z.object({
     priorites: z.array(domainBlock.extend({
       pourquoi: z.string().trim().min(1),
       comment: z.string().trim().min(1),
-    }).strict()).min(1).max(5),
+    }).strict()).min(1).max(50),
     microPlan: z.array(z.object({
       action: z.string().trim().min(1),
       dureeMin: z.number().int().positive(),
@@ -34,10 +34,10 @@ const bundleSchema = z.object({
     pointsAppui: z.array(z.object({
       domainId: z.string().trim().min(1),
       texte: z.string().trim().min(1),
-    }).strict()).min(1).max(5),
+    }).strict()).min(1).max(50),
     priorites: z.array(domainBlock.extend({
       ceQuiSeraFait: z.string().trim().min(1),
-    }).strict()).min(1).max(5),
+    }).strict()).min(1).max(50),
     etapeSuivante: z.object({ texte: z.string().trim().min(1), cta: z.string().trim().min(1) }).strict(),
   }).strict(),
   nexus: z.object({

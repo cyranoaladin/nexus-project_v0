@@ -4,6 +4,9 @@ import path from 'node:path';
 
 import { z } from 'zod';
 
+const academicLevelSchema = z.enum(['QUATRIEME', 'TROISIEME', 'SECONDE', 'PREMIERE', 'TERMINALE']);
+const subjectSchema = z.enum(['MATHS', 'NSI', 'FRANCAIS', 'PHYSIQUE_CHIMIE', 'SVT', 'SES', 'PHILOSOPHIE', 'HISTOIRE_GEOGRAPHIE', 'GRAND_ORAL']);
+
 import {
   agentOutputJsonSchema,
   buildValidatedPack,
@@ -48,7 +51,7 @@ const questionOptionSchema = z.object({
 
 const questionSchema = z.object({
   id: z.string().trim().min(1),
-  subject: z.literal('MATHS'),
+  subject: subjectSchema,
   category: z.string().trim().min(1),
   domainId: z.string().trim().min(1),
   nodeCpsId: z.string().trim().regex(/^[a-z0-9]+(\.[a-z0-9-]+)+$/),
@@ -72,8 +75,8 @@ const questionSchema = z.object({
 
 const packSchema = z.object({
   slug: z.string().trim().min(1),
-  level: z.literal('TERMINALE'),
-  subject: z.literal('MATHS'),
+  level: academicLevelSchema,
+  subject: subjectSchema,
   version: z.number().int().positive(),
   status: z.enum(['DRAFT', 'VALIDATED']),
   review: z.object({
@@ -90,7 +93,7 @@ const packSchema = z.object({
   }).strict(),
   scoring: z.object({
     engine: z.literal('facts.v1.0.1'),
-    domains: z.array(z.string().trim().min(1)).length(5),
+    domains: z.array(z.string().trim().min(1)).min(1).max(50),
   }).strict(),
   reporting: z.object({
     rag: z.object({

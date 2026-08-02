@@ -37,4 +37,15 @@ describe('bilan PII boundary', () => {
     expect(scan.result.status).toBe('BLOCKED');
     expect(scan.sanitizedFields).toEqual({});
   });
+
+  it('does not confuse the pedagogical domain inequations with an INE identifier', () => {
+    const scan = scanPiiFields([{
+      path: '$.domains[0].id',
+      text: 'inequations',
+      source: 'CONTROLLED_TEMPLATE',
+    }]);
+
+    expect(scan.result.status).toBe('CLEAN');
+    expect(scan.result.detectedCategories).toEqual([]);
+  });
 });

@@ -1,8 +1,9 @@
 import entryPack from '@/data/bilans/banks/entree-terminale-maths-v1.json';
+import premierePack from '@/data/bilans/banks/entree-premiere-maths-v1.json';
 import endPack from '@/data/bilans/banks/maths-terminale-bilan-v1.json';
 import { buildValidatedPack } from '@/lib/bilans/validators/contracts';
 
-function fixtureFrom(pack: typeof entryPack | typeof endPack) {
+function fixtureFrom(pack: typeof entryPack | typeof premierePack | typeof endPack) {
   return buildValidatedPack({
     slug: 'fixture-non-publiable-v0',
     version: 1,
@@ -23,3 +24,4 @@ function fixtureFrom(pack: typeof entryPack | typeof endPack) {
 
 export const VALIDATED_PACK_FIXTURE = fixtureFrom(endPack);
 export const ENTRY_VALIDATED_PACK_FIXTURE = fixtureFrom(entryPack);
+export const PREMIERE_ENTRY_VALIDATED_PACK_FIXTURE = fixtureFrom(premierePack);

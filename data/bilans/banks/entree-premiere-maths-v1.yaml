@@ -1,0 +1,535 @@
+# =============================================================================
+# Banque de positionnement — ENTRÉE EN PREMIÈRE, spécialité Mathématiques
+#
+# Doctrine : intersection Seconde / Première. Chaque item porte sur un prérequis
+# structurant SANS LEQUEL les premières semaines de Première spécialité sont
+# inaccessibles. Aucun item ne teste une notion du programme de Première.
+#
+# STATUT : DRAFT — proposition à amender par le responsable pédagogique.
+#
+# 18 items · 9 nœuds de prérequis · 2 items par nœud (règle V4)
+# Distribution des bonnes réponses : A=5, B=5, C=4, D=4 (règle V14 : max 40 %)
+# =============================================================================
+
+slug: entree-premiere-maths-v1
+level: PREMIERE
+subject: MATHS
+version: 1
+status: DRAFT
+targetDurationMin: 25
+
+items:
+
+  # ===========================================================================
+  # NŒUD 1 — Calcul littéral : identités remarquables et factorisation
+  # Pourquoi c'est structurant : la forme canonique du trinôme, introduite dès
+  # les premières semaines, repose entièrement sur l'identité (a ± b)². Un élève
+  # qui ne la maîtrise pas ne peut ni compléter le carré, ni établir la formule
+  # du discriminant, ni factoriser une expression du second degré.
+  # ===========================================================================
+
+  - id: EPR-MAT-CLI-01
+    nodeCpsId: 2de.maths.calcul-litteral.identites-remarquables
+    type: QCM_SIMPLE
+    difficulty: 1
+    targetTimeSec: 60
+    statement: "Développer et réduire (2x − 3)²."
+    options:
+      - key: A
+        label: "4x² + 9"
+        correct: false
+        distractorRationale: "Élève chaque terme au carré et oublie le double produit : applique (a − b)² = a² + b²."
+      - key: B
+        label: "4x² − 12x + 9"
+        correct: true
+      - key: C
+        label: "4x² − 9"
+        correct: false
+        distractorRationale: "Confond le carré d'une différence avec le produit (a − b)(a + b)."
+      - key: D
+        label: "2x² − 12x + 9"
+        correct: false
+        distractorRationale: "N'élève pas au carré le coefficient 2 du terme en x."
+    shortCorrection: "L'identité (a − b)² = a² − 2ab + b² donne (2x)² − 2 × 2x × 3 + 3² = 4x² − 12x + 9. Le double produit ne doit jamais être oublié."
+    tags: [calcul-litteral, identites-remarquables]
+
+  - id: EPR-MAT-CLI-02
+    nodeCpsId: 2de.maths.calcul-litteral.identites-remarquables
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 60
+    statement: "Factoriser l'expression x² − 9."
+    options:
+      - key: A
+        label: "(x − 3)(x + 3)"
+        correct: true
+      - key: B
+        label: "(x − 3)²"
+        correct: false
+        distractorRationale: "Confond la différence de deux carrés avec l'identité a² − 2ab + b²."
+      - key: C
+        label: "(x − 9)(x + 9)"
+        correct: false
+        distractorRationale: "Reporte le nombre 9 tel quel sans en prendre la racine carrée."
+      - key: D
+        label: "x(x − 9)"
+        correct: false
+        distractorRationale: "Factorise par x alors que le terme constant n'est pas un multiple de x."
+    shortCorrection: "x² − 9 est une différence de deux carrés : x² − 3². Elle se factorise en (x − 3)(x + 3)."
+    tags: [calcul-litteral, factorisation]
+
+  # ===========================================================================
+  # NŒUD 2 — Inéquations et tableaux de signes
+  # Pourquoi c'est structurant : l'étude du signe d'une dérivée, puis d'un
+  # trinôme, suppose de savoir dresser un tableau de signes et de connaître la
+  # règle d'inversion lors d'une division par un nombre négatif.
+  # ===========================================================================
+
+  - id: EPR-MAT-INE-01
+    nodeCpsId: 2de.maths.inequations.resolution-premier-degre
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 60
+    statement: "Résoudre dans ℝ l'inéquation −2x + 6 ≥ 0."
+    options:
+      - key: A
+        label: "x ≥ 3"
+        correct: false
+        distractorRationale: "N'inverse pas le sens de l'inégalité lors de la division par −2."
+      - key: B
+        label: "x ≥ −3"
+        correct: false
+        distractorRationale: "Cumule l'oubli de l'inversion et une erreur de signe sur le second membre."
+      - key: C
+        label: "x ≤ 3"
+        correct: true
+      - key: D
+        label: "x ≤ −3"
+        correct: false
+        distractorRationale: "Inverse correctement l'inégalité mais commet une erreur de signe en isolant x."
+    shortCorrection: "On isole x : −2x ≥ −6. En divisant par −2, nombre négatif, le sens de l'inégalité s'inverse : x ≤ 3."
+    tags: [inequations, signes]
+
+  - id: EPR-MAT-INE-02
+    nodeCpsId: 2de.maths.inequations.resolution-premier-degre
+    type: QCM_SIMPLE
+    difficulty: 3
+    targetTimeSec: 85
+    statement: "Pour quelles valeurs de x le produit (2x − 6)(x + 1) est-il strictement négatif ?"
+    options:
+      - key: A
+        label: "x < −1 ou x > 3"
+        correct: false
+        distractorRationale: "Inverse la lecture du tableau de signes et retient les intervalles où le produit est positif."
+      - key: B
+        label: "x < 3"
+        correct: false
+        distractorRationale: "N'étudie que le premier facteur et néglige le second."
+      - key: C
+        label: "−6 < x < 1"
+        correct: false
+        distractorRationale: "Lit les constantes des facteurs comme si elles étaient les valeurs d'annulation."
+      - key: D
+        label: "−1 < x < 3"
+        correct: true
+    shortCorrection: "Les facteurs s'annulent en 3 et en −1. Un tableau de signes montre que le produit est négatif uniquement entre ces deux valeurs : −1 < x < 3."
+    tags: [inequations, tableau-de-signes]
+
+  # ===========================================================================
+  # NŒUD 3 — Fonctions : image, antécédent, notation
+  # Pourquoi c'est structurant : tout le vocabulaire de Première — variations,
+  # extremums, résolution graphique — repose sur la distinction entre image et
+  # antécédent. Une confusion ici rend la lecture des énoncés impossible.
+  # ===========================================================================
+
+  - id: EPR-MAT-FON-01
+    nodeCpsId: 2de.maths.fonctions.image-antecedent
+    type: QCM_SIMPLE
+    difficulty: 1
+    targetTimeSec: 55
+    statement: "Soit f la fonction définie par f(x) = x² − 3x. Que vaut f(−2) ?"
+    options:
+      - key: A
+        label: "10"
+        correct: true
+      - key: B
+        label: "2"
+        correct: false
+        distractorRationale: "Calcule (−2)² comme s'il valait −4 : ne met pas la valeur négative entre parenthèses."
+      - key: C
+        label: "−2"
+        correct: false
+        distractorRationale: "Oublie que le produit −3 × (−2) est positif."
+      - key: D
+        label: "−10"
+        correct: false
+        distractorRationale: "Cumule les deux erreurs de signe précédentes."
+    shortCorrection: "On remplace x par −2 : (−2)² − 3 × (−2) = 4 + 6 = 10. Les parenthèses autour d'une valeur négative sont indispensables."
+    tags: [fonctions, calcul-image]
+
+  - id: EPR-MAT-FON-02
+    nodeCpsId: 2de.maths.fonctions.image-antecedent
+    type: QCM_SIMPLE
+    difficulty: 1
+    targetTimeSec: 45
+    statement: "La courbe représentative d'une fonction f passe par le point de coordonnées (3 ; 7). On peut affirmer que :"
+    options:
+      - key: A
+        label: "3 est l'image de 7 par f"
+        correct: false
+        distractorRationale: "Intervertit les rôles de l'abscisse et de l'ordonnée."
+      - key: B
+        label: "7 est l'antécédent de 3 par f"
+        correct: false
+        distractorRationale: "Intervertit le vocabulaire image et antécédent."
+      - key: C
+        label: "7 est l'image de 3 par f"
+        correct: true
+      - key: D
+        label: "f(7) = 3"
+        correct: false
+        distractorRationale: "Écrit la notation fonctionnelle dans le mauvais sens."
+    shortCorrection: "L'abscisse est l'antécédent, l'ordonnée est l'image. Le point (3 ; 7) traduit donc f(3) = 7 : 7 est l'image de 3."
+    tags: [fonctions, vocabulaire]
+
+  # ===========================================================================
+  # NŒUD 4 — Fonctions de référence et comparaison
+  # Pourquoi c'est structurant : les variations de la fonction carré et de la
+  # fonction inverse servent de référence pour toute étude de fonction en
+  # Première, et la comparaison de x et x² fonde l'étude du signe d'un trinôme.
+  # ===========================================================================
+
+  - id: EPR-MAT-REF-01
+    nodeCpsId: 2de.maths.fonctions-reference.variations
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 60
+    statement: "La fonction inverse, définie par f(x) = 1/x, est :"
+    options:
+      - key: A
+        label: "décroissante sur ℝ"
+        correct: false
+        distractorRationale: "Recolle les deux branches et affirme une décroissance sur ℝ, alors que la fonction n'est pas définie en 0."
+      - key: B
+        label: "croissante sur ]0 ; +∞[ et décroissante sur ]−∞ ; 0["
+        correct: false
+        distractorRationale: "Attribue des sens de variation opposés aux deux branches."
+      - key: C
+        label: "croissante sur ℝ privé de 0"
+        correct: false
+        distractorRationale: "Inverse le sens de variation de la fonction inverse."
+      - key: D
+        label: "décroissante sur ]−∞ ; 0[ et décroissante sur ]0 ; +∞["
+        correct: true
+    shortCorrection: "La fonction inverse est décroissante sur chacun des deux intervalles, mais pas sur leur réunion : elle n'est pas définie en 0, et on ne peut pas comparer une valeur négative et une valeur positive de f."
+    tags: [fonctions-reference, variations]
+
+  - id: EPR-MAT-REF-02
+    nodeCpsId: 2de.maths.fonctions-reference.variations
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 55
+    statement: "Soit x un réel tel que 0 < x < 1. Que peut-on affirmer ?"
+    options:
+      - key: A
+        label: "x² > x"
+        correct: false
+        distractorRationale: "Généralise à tort la propriété vraie uniquement pour x > 1."
+      - key: B
+        label: "x² < x"
+        correct: true
+      - key: C
+        label: "x² = x"
+        correct: false
+        distractorRationale: "Confond l'égalité vérifiée en 0 et en 1 avec une propriété générale."
+      - key: D
+        label: "On ne peut pas comparer sans connaître la valeur exacte de x"
+        correct: false
+        distractorRationale: "Refuse de raisonner sur un intervalle et exige une valeur numérique."
+    shortCorrection: "Entre 0 et 1, élever au carré diminue la valeur : par exemple 0,5² = 0,25. On a donc x² < x sur cet intervalle."
+    tags: [fonctions-reference, comparaison]
+
+  # ===========================================================================
+  # NŒUD 5 — Vecteurs : coordonnées et colinéarité
+  # Pourquoi c'est structurant : le produit scalaire et la géométrie repérée de
+  # Première supposent un calcul sûr des coordonnées d'un vecteur et la
+  # distinction entre colinéarité et orthogonalité.
+  # ===========================================================================
+
+  - id: EPR-MAT-VEC-01
+    nodeCpsId: 2de.maths.vecteurs.coordonnees
+    type: QCM_SIMPLE
+    difficulty: 1
+    targetTimeSec: 55
+    statement: "Dans un repère, on donne A(1 ; 2) et B(4 ; −3). Quelles sont les coordonnées du vecteur AB ?"
+    options:
+      - key: A
+        label: "(−3 ; 5)"
+        correct: false
+        distractorRationale: "Calcule les coordonnées de A moins B au lieu de B moins A."
+      - key: B
+        label: "(5 ; −1)"
+        correct: false
+        distractorRationale: "Additionne les coordonnées des deux points au lieu de les soustraire."
+      - key: C
+        label: "(3 ; −5)"
+        correct: true
+      - key: D
+        label: "(3 ; 5)"
+        correct: false
+        distractorRationale: "Erreur de signe sur l'ordonnée : calcule −3 − 2 comme s'il valait 5."
+    shortCorrection: "Les coordonnées du vecteur AB s'obtiennent en soustrayant celles de A à celles de B : (4 − 1 ; −3 − 2) = (3 ; −5)."
+    tags: [vecteurs, coordonnees]
+
+  - id: EPR-MAT-VEC-02
+    nodeCpsId: 2de.maths.vecteurs.coordonnees
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 70
+    statement: "Les vecteurs u(2 ; −3) et v(−4 ; 6) sont :"
+    options:
+      - key: A
+        label: "colinéaires"
+        correct: true
+      - key: B
+        label: "orthogonaux"
+        correct: false
+        distractorRationale: "Confond la colinéarité avec l'orthogonalité, deux relations distinctes."
+      - key: C
+        label: "égaux"
+        correct: false
+        distractorRationale: "Confond la proportionnalité des coordonnées avec leur égalité."
+      - key: D
+        label: "ni colinéaires ni orthogonaux"
+        correct: false
+        distractorRationale: "Ne calcule pas le déterminant et conclut sans critère."
+    shortCorrection: "Le déterminant vaut 2 × 6 − (−3) × (−4) = 12 − 12 = 0. Les vecteurs sont donc colinéaires : v est égal à −2 fois u."
+    tags: [vecteurs, colinearite]
+
+  # ===========================================================================
+  # NŒUD 6 — Droites : coefficient directeur et équation réduite
+  # Pourquoi c'est structurant : le taux de variation, puis le nombre dérivé et
+  # l'équation de tangente, prolongent directement le coefficient directeur
+  # d'une droite. Sans lui, la dérivation reste une formule sans signification.
+  # ===========================================================================
+
+  - id: EPR-MAT-DRO-01
+    nodeCpsId: 2de.maths.droites.coefficient-directeur
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 60
+    statement: "Quel est le coefficient directeur de la droite passant par A(1 ; 3) et B(4 ; 9) ?"
+    options:
+      - key: A
+        label: "1/2"
+        correct: false
+        distractorRationale: "Inverse le rapport et calcule l'écart des abscisses divisé par l'écart des ordonnées."
+      - key: B
+        label: "6"
+        correct: false
+        distractorRationale: "Retient l'écart des ordonnées sans le diviser par l'écart des abscisses."
+      - key: C
+        label: "12/5"
+        correct: false
+        distractorRationale: "Additionne les coordonnées au lieu de les soustraire."
+      - key: D
+        label: "2"
+        correct: true
+    shortCorrection: "Le coefficient directeur est le rapport de l'écart des ordonnées sur l'écart des abscisses : (9 − 3)/(4 − 1) = 6/3 = 2."
+    tags: [droites, coefficient-directeur]
+
+  - id: EPR-MAT-DRO-02
+    nodeCpsId: 2de.maths.droites.coefficient-directeur
+    type: QCM_SIMPLE
+    difficulty: 1
+    targetTimeSec: 50
+    statement: "La droite d'équation y = −3x + 5 :"
+    options:
+      - key: A
+        label: "est croissante et coupe l'axe des ordonnées au point d'ordonnée 5"
+        correct: false
+        distractorRationale: "Ignore le signe du coefficient directeur pour déterminer le sens de variation."
+      - key: B
+        label: "est décroissante et coupe l'axe des ordonnées au point d'ordonnée 5"
+        correct: true
+      - key: C
+        label: "est décroissante et coupe l'axe des abscisses au point d'abscisse 5"
+        correct: false
+        distractorRationale: "Confond l'ordonnée à l'origine avec la valeur qui annule la fonction."
+      - key: D
+        label: "a pour coefficient directeur 5"
+        correct: false
+        distractorRationale: "Confond le coefficient directeur et l'ordonnée à l'origine dans l'équation réduite."
+    shortCorrection: "Dans l'équation réduite y = mx + p, m est le coefficient directeur et p l'ordonnée à l'origine. Ici m = −3, négatif, donc la droite est décroissante, et elle coupe l'axe des ordonnées en 5."
+    tags: [droites, equation-reduite]
+
+  # ===========================================================================
+  # NŒUD 7 — Pourcentages et coefficients multiplicateurs
+  # Pourquoi c'est structurant : les suites géométriques de Première sont
+  # introduites à partir des évolutions successives. Sans coefficient
+  # multiplicateur, la notion de raison reste opaque.
+  # ===========================================================================
+
+  - id: EPR-MAT-PCT-01
+    nodeCpsId: 2de.maths.pourcentages.coefficient-multiplicateur
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 65
+    statement: "Un article coûtait 120 dinars ; il coûte désormais 90 dinars. Quel est le pourcentage de réduction ?"
+    options:
+      - key: A
+        label: "25 %"
+        correct: true
+      - key: B
+        label: "30 %"
+        correct: false
+        distractorRationale: "Prend la différence brute de 30 dinars comme s'il s'agissait d'un pourcentage."
+      - key: C
+        label: "33 %"
+        correct: false
+        distractorRationale: "Rapporte la baisse au prix d'arrivée au lieu du prix de départ."
+      - key: D
+        label: "75 %"
+        correct: false
+        distractorRationale: "Donne le coefficient multiplicateur exprimé en pourcentage au lieu du taux de variation."
+    shortCorrection: "Le taux d'évolution se calcule à partir de la valeur de départ : (90 − 120)/120 = −0,25, soit une réduction de 25 %."
+    tags: [pourcentages, evolution]
+
+  - id: EPR-MAT-PCT-02
+    nodeCpsId: 2de.maths.pourcentages.coefficient-multiplicateur
+    type: QCM_SIMPLE
+    difficulty: 1
+    targetTimeSec: 45
+    statement: "Quel coefficient multiplicateur correspond à une baisse de 15 % ?"
+    options:
+      - key: A
+        label: "1,15"
+        correct: false
+        distractorRationale: "Applique le coefficient d'une hausse au lieu de celui d'une baisse."
+      - key: B
+        label: "0,15"
+        correct: false
+        distractorRationale: "Donne le taux d'évolution exprimé en décimal au lieu du coefficient multiplicateur."
+      - key: C
+        label: "0,85"
+        correct: true
+      - key: D
+        label: "−0,15"
+        correct: false
+        distractorRationale: "Confond un coefficient multiplicateur, toujours positif, avec un taux de variation négatif."
+    shortCorrection: "Une baisse de 15 % revient à conserver 85 % de la valeur : le coefficient multiplicateur vaut 1 − 0,15 = 0,85."
+    tags: [pourcentages, coefficient-multiplicateur]
+
+  # ===========================================================================
+  # NŒUD 8 — Probabilités : opérations sur les événements
+  # Pourquoi c'est structurant : les probabilités conditionnelles et la loi
+  # binomiale de Première supposent une manipulation sûre de la réunion, de
+  # l'intersection et de l'événement contraire.
+  # ===========================================================================
+
+  - id: EPR-MAT-PRB-01
+    nodeCpsId: 2de.maths.probabilites.operations-evenements
+    type: QCM_SIMPLE
+    difficulty: 3
+    targetTimeSec: 80
+    statement: "On lance un dé équilibré à six faces. Soit A l'événement « obtenir un nombre pair » et B l'événement « obtenir un nombre supérieur ou égal à 5 ». Que vaut P(A ∪ B) ?"
+    options:
+      - key: A
+        label: "5/6"
+        correct: false
+        distractorRationale: "Additionne les deux probabilités sans retrancher celle de l'intersection."
+      - key: B
+        label: "2/3"
+        correct: true
+      - key: C
+        label: "1/6"
+        correct: false
+        distractorRationale: "Calcule la probabilité de l'intersection au lieu de celle de la réunion."
+      - key: D
+        label: "1/2"
+        correct: false
+        distractorRationale: "Retient la seule probabilité de A et ignore l'apport de B."
+    shortCorrection: "A ∪ B correspond aux issues 2, 4, 5 et 6, soit 4 issues sur 6. On peut aussi écrire P(A) + P(B) − P(A ∩ B) = 3/6 + 2/6 − 1/6 = 4/6 = 2/3."
+    tags: [probabilites, reunion]
+
+  - id: EPR-MAT-PRB-02
+    nodeCpsId: 2de.maths.probabilites.operations-evenements
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 60
+    statement: "On lance deux fois un dé. Quel est l'événement contraire de « obtenir au moins un six » ?"
+    options:
+      - key: A
+        label: "obtenir exactement un six"
+        correct: false
+        distractorRationale: "Confond la négation de « au moins un » avec le cas d'un seul succès."
+      - key: B
+        label: "obtenir deux six"
+        correct: false
+        distractorRationale: "Prend le cas extrême opposé au lieu de la négation logique."
+      - key: C
+        label: "obtenir au plus un six"
+        correct: false
+        distractorRationale: "Confond la négation de « au moins un » avec « au plus un »."
+      - key: D
+        label: "n'obtenir aucun six"
+        correct: true
+    shortCorrection: "La négation de « au moins un » est « aucun ». L'événement contraire de « obtenir au moins un six » est donc « n'obtenir aucun six »."
+    tags: [probabilites, evenement-contraire]
+
+  # ===========================================================================
+  # NŒUD 9 — Calcul numérique : puissances et racines carrées
+  # Pourquoi c'est structurant : ces automatismes conditionnent tous les calculs
+  # de Première, notamment le discriminant et les formes exactes des racines
+  # d'un trinôme. Leur absence transforme chaque exercice en difficulté de calcul.
+  # ===========================================================================
+
+  - id: EPR-MAT-NUM-01
+    nodeCpsId: 2de.maths.calcul-numerique.puissances-racines
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 55
+    statement: "Simplifier l'expression (2³ × 2⁵)/2⁴."
+    options:
+      - key: A
+        label: "2⁴"
+        correct: true
+      - key: B
+        label: "2¹¹"
+        correct: false
+        distractorRationale: "Multiplie les exposants lors du produit au lieu de les additionner."
+      - key: C
+        label: "2¹²"
+        correct: false
+        distractorRationale: "Additionne les trois exposants sans tenir compte de la division."
+      - key: D
+        label: "2⁸"
+        correct: false
+        distractorRationale: "Additionne correctement les exposants du produit mais omet de soustraire celui du dénominateur."
+    shortCorrection: "On additionne les exposants au produit et on soustrait celui du dénominateur : 2^(3+5−4) = 2⁴, soit 16."
+    tags: [calcul-numerique, puissances]
+
+  - id: EPR-MAT-NUM-02
+    nodeCpsId: 2de.maths.calcul-numerique.puissances-racines
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 55
+    statement: "L'écriture simplifiée de √50 est :"
+    options:
+      - key: A
+        label: "25√2"
+        correct: false
+        distractorRationale: "Extrait le facteur 25 de la racine sans en prendre la racine carrée."
+      - key: B
+        label: "5√2"
+        correct: true
+      - key: C
+        label: "2√5"
+        correct: false
+        distractorRationale: "Intervertit le facteur extrait et le facteur restant sous la racine."
+      - key: D
+        label: "√50 ne peut pas être simplifiée"
+        correct: false
+        distractorRationale: "Ne cherche pas de carré parfait parmi les diviseurs du nombre."
+    shortCorrection: "On repère le carré parfait 25 dans 50 : √50 = √(25 × 2) = 5√2."
+    tags: [calcul-numerique, racines]

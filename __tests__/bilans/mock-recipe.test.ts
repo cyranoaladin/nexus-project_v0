@@ -3,14 +3,31 @@ import path from 'node:path';
 
 import entryMetrics from '@/data/bilans/recipe/entree-terminale-maths-v1-mock-metrics.json';
 import entryPacket from '@/data/bilans/recipe/entree-terminale-maths-v1-mock-review-packet.json';
+import premiereEntryMetrics from '@/data/bilans/recipe/entree-premiere-maths-v1-mock-metrics.json';
+import premiereEntryPacket from '@/data/bilans/recipe/entree-premiere-maths-v1-mock-review-packet.json';
 import endMetrics from '@/data/bilans/recipe/maths-terminale-bilan-v1-mock-metrics.json';
 import endPacket from '@/data/bilans/recipe/maths-terminale-bilan-v1-mock-review-packet.json';
 import { generateMockRecipeEvidence } from '@/scripts/bilans/generate-mock-recipe-evidence';
 
-import { ENTRY_RECIPE_FACT_SHEETS, RECIPE_FACT_SHEETS } from './fixtures/recipe-fact-sheets';
-import { ENTRY_VALIDATED_PACK_FIXTURE, VALIDATED_PACK_FIXTURE } from './fixtures/validated-pack';
+import {
+  ENTRY_RECIPE_FACT_SHEETS,
+  PREMIERE_ENTRY_RECIPE_FACT_SHEETS,
+  RECIPE_FACT_SHEETS,
+} from './fixtures/recipe-fact-sheets';
+import {
+  ENTRY_VALIDATED_PACK_FIXTURE,
+  PREMIERE_ENTRY_VALIDATED_PACK_FIXTURE,
+  VALIDATED_PACK_FIXTURE,
+} from './fixtures/validated-pack';
 
 const RECIPES = [
+  {
+    slug: 'entree-premiere-maths-v1',
+    pack: PREMIERE_ENTRY_VALIDATED_PACK_FIXTURE,
+    factSheets: PREMIERE_ENTRY_RECIPE_FACT_SHEETS,
+    metrics: premiereEntryMetrics,
+    packet: premiereEntryPacket,
+  },
   {
     slug: 'entree-terminale-maths-v1',
     pack: ENTRY_VALIDATED_PACK_FIXTURE,
