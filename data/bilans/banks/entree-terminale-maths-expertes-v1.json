@@ -599,13 +599,13 @@
         "subject": "MATHS_EXPERTES",
         "category": "Suites arithmétiques et géométriques",
         "domainId": "suites",
-        "nodeCpsId": "1re.maths.suites.arithmetiques-geometriques",
+        "nodeCpsId": "1re.maths-expertes.suites.arithmetiques-geometriques",
         "difficulty": 1,
         "targetTimeSec": 55,
         "shortCorrection": "Pour une suite arithmétique, u_5 = u_0 + 5 × 4 = 3 + 20 = 23.",
         "weight": 1,
         "competencies": [
-          "1re.maths.suites.arithmetiques-geometriques"
+          "1re.maths-expertes.suites.arithmetiques-geometriques"
         ],
         "questionText": "La suite (u_n) est arithmétique de premier terme u_0 = 3 et de raison 4. Que vaut u_5 ?",
         "options": [
@@ -640,13 +640,13 @@
         "subject": "MATHS_EXPERTES",
         "category": "Suites arithmétiques et géométriques",
         "domainId": "suites",
-        "nodeCpsId": "1re.maths.suites.arithmetiques-geometriques",
+        "nodeCpsId": "1re.maths-expertes.suites.arithmetiques-geometriques",
         "difficulty": 2,
         "targetTimeSec": 60,
         "shortCorrection": "Pour une suite géométrique, v_5 = v_0 × 2⁵ = 1 × 32 = 32.",
         "weight": 2,
         "competencies": [
-          "1re.maths.suites.arithmetiques-geometriques"
+          "1re.maths-expertes.suites.arithmetiques-geometriques"
         ],
         "questionText": "La suite (v_n) est géométrique de premier terme v_0 = 1 et de raison 2. Que vaut v_5 ?",
         "options": [

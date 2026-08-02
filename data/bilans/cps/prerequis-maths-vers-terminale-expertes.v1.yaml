@@ -37,6 +37,11 @@ nodes:
     sourceLevel: PREMIERE
     targetLevel: TERMINALE
     pedagogicalRationale: les démonstrations d'arithmétique reposent sur un maniement rigoureux de l'implication et de sa contraposée.
+  - id: 1re.maths-expertes.suites.arithmetiques-geometriques
+    label: Suites arithmétiques et géométriques
+    sourceLevel: PREMIERE
+    targetLevel: TERMINALE
+    pedagogicalRationale: les suites de Première fondent le raisonnement par récurrence, cœur de l'option.
   - id: 1re.maths.denombrement.principe-multiplicatif
     label: "Dénombrement : principe multiplicatif"
     sourceLevel: PREMIERE

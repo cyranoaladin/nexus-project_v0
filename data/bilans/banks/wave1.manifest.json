@@ -70,10 +70,7 @@
     {
       "slug": "entree-terminale-maths-expertes-v1",
       "source": "data/bilans/banks/entree-terminale-maths-expertes-v1.yaml",
-      "cps": [
-        "data/bilans/cps/prerequis-maths-vers-terminale-expertes.v1.yaml",
-        "data/bilans/cps/1re-maths-vers-terminale.v1.yaml"
-      ],
+      "cps": "data/bilans/cps/prerequis-maths-vers-terminale-expertes.v1.yaml",
       "promptDirectory": "content/bilans/prompts/entree-terminale-maths-expertes-v1",
       "output": "data/bilans/banks/entree-terminale-maths-expertes-v1.json"
     },

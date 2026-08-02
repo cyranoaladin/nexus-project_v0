@@ -39,7 +39,7 @@ describe('wave 1 active banks', () => {
     expect(ids).toHaveLength(306);
     expect(new Set(ids).size).toBe(306);
     expect(nodes).toHaveLength(306);
-    expect(new Set(nodes).size).toBe(152);
+    expect(new Set(nodes).size).toBe(153);
     expect(ACTIVE.reduce((sum, { catalog }) => sum + catalog.nodes.length, 0)).toBe(153);
     expect(validateBankCollection(ACTIVE)).toEqual([]);
   });
@@ -52,15 +52,12 @@ describe('wave 1 active banks', () => {
     expect(ACTIVE.find(({ entry }) => entry.slug === 'entree-terminale-maths-expertes-v1')?.bank.subject).toBe('MATHS_EXPERTES');
   });
 
-  it('reuses the canonical suites node without duplicating or changing its definition', () => {
-    const owners = ACTIVE.filter(({ bank }) => bank.items.some(({ nodeCpsId }) =>
-      nodeCpsId === '1re.maths.suites.arithmetiques-geometriques'));
-    expect(owners.map(({ entry }) => entry.slug).sort()).toEqual([
-      'entree-terminale-maths-expertes-v1', 'entree-terminale-maths-v1',
-    ]);
-    const definitions = owners.map(({ catalog }) => catalog.nodes.find(({ id }) =>
-      id === '1re.maths.suites.arithmetiques-geometriques'));
-    expect(definitions[0]).toEqual(definitions[1]);
+  it('keeps mathematics and mathematics-expert CPS nodes disjoint', () => {
+    const nodesFor = (slug: string) => new Set(ACTIVE.find(({ entry }) => entry.slug === slug)!
+      .bank.items.map(({ nodeCpsId }) => nodeCpsId));
+    const mathematics = nodesFor('entree-terminale-maths-v1');
+    const experts = nodesFor('entree-terminale-maths-expertes-v1');
+    expect([...experts].filter((nodeId) => mathematics.has(nodeId))).toEqual([]);
   });
 
   it.each(ACTIVE)('$entry.slug satisfies V1-V14 and remains an unsigned DRAFT', ({ entry, bank, catalog }) => {
