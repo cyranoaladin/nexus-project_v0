@@ -9,7 +9,11 @@ import { prisma } from '@/lib/prisma';
 import { resolveSessionStudent } from './access';
 import { CanonicalApiError } from './errors';
 import { canonicalErrorResponse } from './http';
-import { resolveEnabledPack, type EnabledBilanPack } from './pack-access';
+import {
+  assertAttemptPackEnabled,
+  resolveEnabledPack,
+  type PackResolver,
+} from './pack-access';
 
 type RouteContext = Readonly<{ params: Promise<Readonly<{ id: string }>> }>;
 
@@ -35,7 +39,7 @@ type GetAttemptDatabase = Readonly<{
 type GetAttemptDependencies = Readonly<{
   prisma: GetAttemptDatabase;
   authenticate: () => Promise<Session | null>;
-  resolvePack: (slug: string, version?: number) => EnabledBilanPack | null;
+  resolvePack: PackResolver;
   now: () => Date;
 }>;
 
@@ -98,10 +102,7 @@ export function createGetAttemptHandler(
         || attempt.expiresAt <= dependencies.now()
       ) throw CanonicalApiError.notFound();
 
-      const version = Number(attempt.assessmentPackVersion);
-      if (!Number.isSafeInteger(version) || version < 1) throw CanonicalApiError.notFound();
-      const enabled = dependencies.resolvePack(attempt.assessmentPackId, version);
-      if (enabled === null) throw CanonicalApiError.notFound();
+      const enabled = assertAttemptPackEnabled(attempt, dependencies.resolvePack);
 
       const answers = savedAnswers(attempt.answers);
       const items = enabled.pack.questionnaire.items.map((item) => ({

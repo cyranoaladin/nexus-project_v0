@@ -30,6 +30,7 @@ describe('POST /api/bilans/attempts/[id]/submit — PostgreSQL réel isolé', ()
   let userId: string;
   let attemptId: string;
   let replayAttemptId: string;
+  let disabledAttemptId: string;
 
   beforeAll(async () => {
     const parentUser = await prisma.user.create({
@@ -91,11 +92,35 @@ describe('POST /api/bilans/attempts/[id]/submit — PostgreSQL réel isolé', ()
       },
     });
     replayAttemptId = replayAttempt.id;
+    const disabledAttempt = await prisma.canonicalAssessmentAttempt.create({
+      data: {
+        studentId: student.id,
+        status: 'DRAFT',
+        seed: 'integration-disabled-seed',
+        startedAt: NOW,
+        expiresAt: new Date('2026-08-02T11:00:00.000Z'),
+        revision: 5,
+        subject: 'MATHEMATIQUES',
+        gradeLevel: 'TERMINALE',
+        answers: {
+          'ITEM-1': { optionId: 'A', confidence: 2 },
+          'ITEM-2': { optionId: 'B', confidence: 4 },
+        },
+        curriculumId: 'terminale.maths',
+        curriculumVersion: '1',
+        assessmentPackId: pack.slug,
+        assessmentPackVersion: '1',
+        assessmentPackChecksum: 'fixture-checksum',
+        scoringPolicyId: 'facts',
+        scoringPolicyVersion: '1.0.1',
+      },
+    });
+    disabledAttemptId = disabledAttempt.id;
   });
 
   afterAll(async () => {
     await prisma.canonicalApiIdempotencyKey.deleteMany({ where: { userId } });
-    await prisma.jobOutbox.deleteMany({ where: { aggregateId: { in: [attemptId, replayAttemptId] } } });
+    await prisma.jobOutbox.deleteMany({ where: { aggregateId: { in: [attemptId, replayAttemptId, disabledAttemptId] } } });
     // The production trigger correctly forbids DELETE after submission. This
     // database is disposable and test-only, so TRUNCATE is the isolation
     // boundary that removes synthetic append-only rows between suites.
@@ -145,5 +170,29 @@ describe('POST /api/bilans/attempts/[id]/submit — PostgreSQL réel isolé', ()
     expect(first.status).toBe(200);
     expect(await replay.json()).toEqual(await first.json());
     expect(await prisma.jobOutbox.count({ where: { aggregateId: replayAttemptId, jobType: 'SCORE_ATTEMPT' } })).toBe(1);
+  });
+
+  test('returns 404 before locking or writing when the attempt pack has been disabled', async () => {
+    const { createSubmitAttemptHandler } = require('@/lib/bilans/api/submit-attempt') as typeof import('@/lib/bilans/api/submit-attempt');
+    const handler = createSubmitAttemptHandler({
+      prisma,
+      authenticate: async () => ({ user: { id: userId, role: 'ELEVE' } }) as never,
+      resolvePack: () => null,
+      now: () => NOW,
+    });
+
+    const response = await handler(
+      request(5, 'submit-disabled-0001'),
+      { params: Promise.resolve({ id: disabledAttemptId }) },
+    );
+    const stored = await prisma.canonicalAssessmentAttempt.findUniqueOrThrow({ where: { id: disabledAttemptId } });
+
+    expect(response.status).toBe(404);
+    expect(stored.status).toBe('DRAFT');
+    expect(stored.revision).toBe(5);
+    expect(await prisma.jobOutbox.count({ where: { aggregateId: disabledAttemptId } })).toBe(0);
+    expect(await prisma.canonicalApiIdempotencyKey.count({
+      where: { userId, route: `POST:/api/bilans/attempts/${disabledAttemptId}/submit` },
+    })).toBe(0);
   });
 });

@@ -15,7 +15,12 @@ import {
   type CanonicalTransaction,
   type IdempotencyDatabase,
 } from './idempotency';
-import { resolveEnabledPack, type EnabledBilanPack } from './pack-access';
+import {
+  assertAttemptPackEnabled,
+  resolveEnabledPack,
+  type EnabledBilanPack,
+  type PackResolver,
+} from './pack-access';
 
 type RouteContext = Readonly<{ params: Promise<Readonly<{ id: string }>> }>;
 const requestSchema = z.object({ revision: z.number().int().nonnegative() }).strict();
@@ -36,12 +41,13 @@ type SubmitTransaction = CanonicalTransaction & Pick<Prisma.TransactionClient,
 
 type SubmitDatabase = IdempotencyDatabase & Readonly<{
   student: PrismaClient['student'];
+  canonicalAssessmentAttempt: PrismaClient['canonicalAssessmentAttempt'];
 }>;
 
 type SubmitAttemptDependencies = Readonly<{
   prisma: SubmitDatabase;
   authenticate: () => Promise<Session | null>;
-  resolvePack: (slug: string, version?: number) => EnabledBilanPack | null;
+  resolvePack: PackResolver;
   now: () => Date;
 }>;
 
@@ -99,6 +105,12 @@ export function createSubmitAttemptHandler(
       const key = parseIdempotencyKey(request.headers.get('idempotency-key'));
       const now = dependencies.now();
       const { id } = await context.params;
+      const packIdentity = await dependencies.prisma.canonicalAssessmentAttempt.findFirst({
+        where: { id, studentId: student.id },
+        select: { assessmentPackId: true, assessmentPackVersion: true },
+      });
+      if (packIdentity === null) throw CanonicalApiError.notFound();
+      const enabled = assertAttemptPackEnabled(packIdentity, dependencies.resolvePack);
 
       const result = await executeIdempotently({
         prisma: dependencies.prisma,
@@ -123,11 +135,6 @@ export function createSubmitAttemptHandler(
             throw CanonicalApiError.conflict('REVISION_CONFLICT', { serverRevision: attempt.revision });
           }
 
-          const packVersion = Number(attempt.assessmentPackVersion);
-          const enabled = Number.isSafeInteger(packVersion)
-            ? dependencies.resolvePack(attempt.assessmentPackId, packVersion)
-            : null;
-          if (enabled === null) throw CanonicalApiError.notFound();
           assertComplete(attempt, enabled);
 
           await tx.canonicalAssessmentAttempt.update({
