@@ -1,0 +1,1073 @@
+{
+  "slug": "entree-terminale-physique-chimie-v1",
+  "level": "TERMINALE",
+  "subject": "PHYSIQUE_CHIMIE",
+  "version": 1,
+  "status": "DRAFT",
+  "review": {
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  "questionnaire": {
+    "targetDurationMin": 25,
+    "confidenceScale": {
+      "levels": 4,
+      "labels": [
+        "je devine",
+        "peu sûr",
+        "plutôt sûr",
+        "certain"
+      ]
+    },
+    "items": [
+      {
+        "id": "ETL-PHC-AVA-01",
+        "subject": "PHYSIQUE_CHIMIE",
+        "category": "Avancement et réactif limitant",
+        "domainId": "transformations",
+        "nodeCpsId": "1re.physique-chimie.transformations.avancement",
+        "difficulty": 2,
+        "targetTimeSec": 55,
+        "shortCorrection": "L'avancement maximal est atteint lorsque le premier réactif disparaît. On le détermine en comparant, pour chaque réactif, sa quantité divisée par son coefficient.",
+        "weight": 2,
+        "competencies": [
+          "1re.physique-chimie.transformations.avancement"
+        ],
+        "questionText": "Dans un tableau d'avancement, à quoi correspond l'avancement maximal ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "à la quantité initiale du réactif en excès",
+            "isCorrect": false,
+            "distractorRationale": "Fait dépendre l'avancement du réactif qui subsiste, alors qu'il est fixé par celui qui disparaît."
+          },
+          {
+            "id": "B",
+            "text": "à la somme des quantités initiales de réactifs",
+            "isCorrect": false,
+            "distractorRationale": "Additionne des quantités sans tenir compte des coefficients stœchiométriques."
+          },
+          {
+            "id": "C",
+            "text": "à la valeur de l'avancement pour laquelle le réactif limitant est totalement consommé",
+            "isCorrect": true
+          },
+          {
+            "id": "D",
+            "text": "à la quantité de produit formé, quel que soit le réactif considéré",
+            "isCorrect": false,
+            "distractorRationale": "Confond l'avancement, exprimé en moles, avec la quantité d'un produit, qui en dépend par un coefficient."
+          }
+        ],
+        "explanation": "L'avancement maximal est atteint lorsque le premier réactif disparaît. On le détermine en comparant, pour chaque réactif, sa quantité divisée par son coefficient."
+      },
+      {
+        "id": "ETL-PHC-AVA-02",
+        "subject": "PHYSIQUE_CHIMIE",
+        "category": "Avancement et réactif limitant",
+        "domainId": "transformations",
+        "nodeCpsId": "1re.physique-chimie.transformations.avancement",
+        "difficulty": 3,
+        "targetTimeSec": 70,
+        "shortCorrection": "On compare 0,4 divisé par 2, soit 0,2, et 0,3 divisé par 1, soit 0,3. Le plus petit rapport désigne le réactif limitant : c'est A.",
+        "weight": 3,
+        "competencies": [
+          "1re.physique-chimie.transformations.avancement"
+        ],
+        "questionText": "Pour la transformation d'équation 2 A + B → C, on introduit 0,4 mol de A et 0,3 mol de B. Quel est le réactif limitant ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "le réactif A",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "le réactif B",
+            "isCorrect": false,
+            "distractorRationale": "Compare directement les quantités initiales sans les diviser par les coefficients stœchiométriques."
+          },
+          {
+            "id": "C",
+            "text": "aucun : le mélange est stœchiométrique",
+            "isCorrect": false,
+            "distractorRationale": "Conclut à l'équivalence sans effectuer la comparaison des rapports."
+          },
+          {
+            "id": "D",
+            "text": "on ne peut pas conclure sans connaître les masses molaires",
+            "isCorrect": false,
+            "distractorRationale": "Croit qu'un raisonnement sur les quantités de matière exige de repasser par les masses."
+          }
+        ],
+        "explanation": "On compare 0,4 divisé par 2, soit 0,2, et 0,3 divisé par 1, soit 0,3. Le plus petit rapport désigne le réactif limitant : c'est A."
+      },
+      {
+        "id": "ETL-PHC-OXY-01",
+        "subject": "PHYSIQUE_CHIMIE",
+        "category": "Oxydo-réduction",
+        "domainId": "transformations",
+        "nodeCpsId": "1re.physique-chimie.transformations.oxydo-reduction",
+        "difficulty": 1,
+        "targetTimeSec": 45,
+        "shortCorrection": "Le réducteur donne des électrons, l'oxydant les capte. Les transferts de protons relèvent au contraire des réactions acide-base.",
+        "weight": 1,
+        "competencies": [
+          "1re.physique-chimie.transformations.oxydo-reduction"
+        ],
+        "questionText": "Un réducteur est une espèce chimique capable de :",
+        "options": [
+          {
+            "id": "A",
+            "text": "capter des électrons",
+            "isCorrect": false,
+            "distractorRationale": "Donne la définition de l'oxydant."
+          },
+          {
+            "id": "B",
+            "text": "céder des électrons",
+            "isCorrect": true
+          },
+          {
+            "id": "C",
+            "text": "capter des protons",
+            "isCorrect": false,
+            "distractorRationale": "Confond une réaction d'oxydo-réduction avec une réaction acide-base."
+          },
+          {
+            "id": "D",
+            "text": "céder des protons",
+            "isCorrect": false,
+            "distractorRationale": "Donne la définition d'un acide au sens de Brønsted."
+          }
+        ],
+        "explanation": "Le réducteur donne des électrons, l'oxydant les capte. Les transferts de protons relèvent au contraire des réactions acide-base."
+      },
+      {
+        "id": "ETL-PHC-OXY-02",
+        "subject": "PHYSIQUE_CHIMIE",
+        "category": "Oxydo-réduction",
+        "domainId": "transformations",
+        "nodeCpsId": "1re.physique-chimie.transformations.oxydo-reduction",
+        "difficulty": 2,
+        "targetTimeSec": 50,
+        "shortCorrection": "Un couple s'écrit oxydant sur réducteur. L'ion Cu²⁺ peut capter deux électrons pour donner Cu, qui peut à l'inverse les céder.",
+        "weight": 2,
+        "competencies": [
+          "1re.physique-chimie.transformations.oxydo-reduction"
+        ],
+        "questionText": "Dans le couple Cu²⁺ / Cu, que peut-on affirmer ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Cu est l'oxydant du couple",
+            "isCorrect": false,
+            "distractorRationale": "Intervertit les deux membres du couple : la forme métallique est réductrice."
+          },
+          {
+            "id": "B",
+            "text": "Cu²⁺ est le réducteur du couple",
+            "isCorrect": false,
+            "distractorRationale": "Attribue à l'ion, déjà oxydé, le rôle de donneur d'électrons."
+          },
+          {
+            "id": "C",
+            "text": "les deux espèces sont des oxydants",
+            "isCorrect": false,
+            "distractorRationale": "Nie la structure même d'un couple, qui associe toujours un oxydant et un réducteur."
+          },
+          {
+            "id": "D",
+            "text": "Cu²⁺ est l'oxydant et Cu le réducteur",
+            "isCorrect": true
+          }
+        ],
+        "explanation": "Un couple s'écrit oxydant sur réducteur. L'ion Cu²⁺ peut capter deux électrons pour donner Cu, qui peut à l'inverse les céder."
+      },
+      {
+        "id": "ETL-PHC-ACB-01",
+        "subject": "PHYSIQUE_CHIMIE",
+        "category": "Acide-base et pH",
+        "domainId": "transformations",
+        "nodeCpsId": "1re.physique-chimie.transformations.acide-base",
+        "difficulty": 1,
+        "targetTimeSec": 45,
+        "shortCorrection": "Au sens de Brønsted, un acide donne un proton et une base le capte. Le couple acide-base associe les deux formes d'une même espèce.",
+        "weight": 1,
+        "competencies": [
+          "1re.physique-chimie.transformations.acide-base"
+        ],
+        "questionText": "Selon la définition de Brønsted, un acide est une espèce capable de :",
+        "options": [
+          {
+            "id": "A",
+            "text": "céder un proton H⁺",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "capter un proton H⁺",
+            "isCorrect": false,
+            "distractorRationale": "Donne la définition de la base au sens de Brønsted."
+          },
+          {
+            "id": "C",
+            "text": "céder un électron",
+            "isCorrect": false,
+            "distractorRationale": "Confond une réaction acide-base avec une réaction d'oxydo-réduction."
+          },
+          {
+            "id": "D",
+            "text": "libérer des ions hydroxyde HO⁻",
+            "isCorrect": false,
+            "distractorRationale": "Reprend la définition d'Arrhenius d'une base, et non celle de Brønsted d'un acide."
+          }
+        ],
+        "explanation": "Au sens de Brønsted, un acide donne un proton et une base le capte. Le couple acide-base associe les deux formes d'une même espèce."
+      },
+      {
+        "id": "ETL-PHC-ACB-02",
+        "subject": "PHYSIQUE_CHIMIE",
+        "category": "Acide-base et pH",
+        "domainId": "transformations",
+        "nodeCpsId": "1re.physique-chimie.transformations.acide-base",
+        "difficulty": 3,
+        "targetTimeSec": 65,
+        "shortCorrection": "Le pH est l'opposé du logarithme décimal de la concentration en ions H₃O⁺. Deux unités de pH d'écart correspondent donc à un facteur cent.",
+        "weight": 3,
+        "competencies": [
+          "1re.physique-chimie.transformations.acide-base"
+        ],
+        "questionText": "Une solution de pH égal à 3 est :",
+        "options": [
+          {
+            "id": "A",
+            "text": "basique",
+            "isCorrect": false,
+            "distractorRationale": "Inverse l'échelle du pH, où les valeurs faibles correspondent à l'acidité."
+          },
+          {
+            "id": "B",
+            "text": "neutre",
+            "isCorrect": false,
+            "distractorRationale": "Situe la neutralité ailleurs qu'à pH 7 à vingt-cinq degrés."
+          },
+          {
+            "id": "C",
+            "text": "acide, et cent fois plus concentrée en ions H₃O⁺ qu'une solution de pH égal à 5",
+            "isCorrect": true
+          },
+          {
+            "id": "D",
+            "text": "acide, et deux fois plus concentrée en ions H₃O⁺ qu'une solution de pH égal à 5",
+            "isCorrect": false,
+            "distractorRationale": "Traite l'écart de pH comme une différence proportionnelle, alors que l'échelle est logarithmique."
+          }
+        ],
+        "explanation": "Le pH est l'opposé du logarithme décimal de la concentration en ions H₃O⁺. Deux unités de pH d'écart correspondent donc à un facteur cent."
+      },
+      {
+        "id": "ETL-PHC-ORG-01",
+        "subject": "PHYSIQUE_CHIMIE",
+        "category": "Chimie organique : familles fonctionnelles",
+        "domainId": "chimie-organique",
+        "nodeCpsId": "1re.physique-chimie.chimie-organique.familles-fonctionnelles",
+        "difficulty": 1,
+        "targetTimeSec": 40,
+        "shortCorrection": "Le groupe −COOH associe un carbonyle et un hydroxyle sur le même atome de carbone : c'est le groupe caractéristique des acides carboxyliques.",
+        "weight": 1,
+        "competencies": [
+          "1re.physique-chimie.chimie-organique.familles-fonctionnelles"
+        ],
+        "questionText": "Le groupe caractéristique −COOH définit la famille des :",
+        "options": [
+          {
+            "id": "A",
+            "text": "alcools",
+            "isCorrect": false,
+            "distractorRationale": "Ne retient que la présence d'un groupe hydroxyle et néglige le groupe carbonyle qui l'accompagne."
+          },
+          {
+            "id": "B",
+            "text": "acides carboxyliques",
+            "isCorrect": true
+          },
+          {
+            "id": "C",
+            "text": "cétones",
+            "isCorrect": false,
+            "distractorRationale": "Identifie le groupe carbonyle sans voir qu'il porte ici un groupe hydroxyle."
+          },
+          {
+            "id": "D",
+            "text": "aldéhydes",
+            "isCorrect": false,
+            "distractorRationale": "Confond un carbonyle porteur d'un hydrogène avec un carbonyle porteur d'un hydroxyle."
+          }
+        ],
+        "explanation": "Le groupe −COOH associe un carbonyle et un hydroxyle sur le même atome de carbone : c'est le groupe caractéristique des acides carboxyliques."
+      },
+      {
+        "id": "ETL-PHC-ORG-02",
+        "subject": "PHYSIQUE_CHIMIE",
+        "category": "Chimie organique : familles fonctionnelles",
+        "domainId": "chimie-organique",
+        "nodeCpsId": "1re.physique-chimie.chimie-organique.familles-fonctionnelles",
+        "difficulty": 1,
+        "targetTimeSec": 40,
+        "shortCorrection": "Le groupe hydroxyle −OH porté par un carbone tétragonal caractérise les alcools. Ce composé est l'éthanol.",
+        "weight": 1,
+        "competencies": [
+          "1re.physique-chimie.chimie-organique.familles-fonctionnelles"
+        ],
+        "questionText": "À quelle famille appartient le composé de formule CH₃−CH₂−OH ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "les alcools",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "les acides carboxyliques",
+            "isCorrect": false,
+            "distractorRationale": "Attribue au groupe hydroxyle seul les propriétés du groupe carboxyle."
+          },
+          {
+            "id": "C",
+            "text": "les esters",
+            "isCorrect": false,
+            "distractorRationale": "Suppose la présence d'un groupe issu d'une réaction entre acide et alcool."
+          },
+          {
+            "id": "D",
+            "text": "les amines",
+            "isCorrect": false,
+            "distractorRationale": "Confond un atome d'oxygène avec un atome d'azote dans le groupe caractéristique."
+          }
+        ],
+        "explanation": "Le groupe hydroxyle −OH porté par un carbone tétragonal caractérise les alcools. Ce composé est l'éthanol."
+      },
+      {
+        "id": "ETL-PHC-FOR-01",
+        "subject": "PHYSIQUE_CHIMIE",
+        "category": "Forces et vecteur vitesse",
+        "domainId": "mecanique",
+        "nodeCpsId": "1re.physique-chimie.mecanique.forces-vecteur-vitesse",
+        "difficulty": 2,
+        "targetTimeSec": 55,
+        "shortCorrection": "Le vecteur vitesse est toujours tangent à la trajectoire et orienté dans le sens du mouvement. Sa norme, elle, peut varier.",
+        "weight": 2,
+        "competencies": [
+          "1re.physique-chimie.mecanique.forces-vecteur-vitesse"
+        ],
+        "questionText": "À chaque instant, le vecteur vitesse d'un point mobile est :",
+        "options": [
+          {
+            "id": "A",
+            "text": "dirigé vers le centre de courbure de la trajectoire",
+            "isCorrect": false,
+            "distractorRationale": "Attribue au vecteur vitesse la direction du vecteur accélération dans un mouvement circulaire uniforme."
+          },
+          {
+            "id": "B",
+            "text": "toujours colinéaire à la résultante des forces",
+            "isCorrect": false,
+            "distractorRationale": "Confond vitesse et accélération : c'est cette dernière qui est colinéaire à la résultante des forces."
+          },
+          {
+            "id": "C",
+            "text": "de norme constante lorsque la trajectoire est courbe",
+            "isCorrect": false,
+            "distractorRationale": "Généralise une propriété du mouvement circulaire uniforme à toute trajectoire courbe."
+          },
+          {
+            "id": "D",
+            "text": "tangent à la trajectoire",
+            "isCorrect": true
+          }
+        ],
+        "explanation": "Le vecteur vitesse est toujours tangent à la trajectoire et orienté dans le sens du mouvement. Sa norme, elle, peut varier."
+      },
+      {
+        "id": "ETL-PHC-FOR-02",
+        "subject": "PHYSIQUE_CHIMIE",
+        "category": "Forces et vecteur vitesse",
+        "domainId": "mecanique",
+        "nodeCpsId": "1re.physique-chimie.mecanique.forces-vecteur-vitesse",
+        "difficulty": 2,
+        "targetTimeSec": 50,
+        "shortCorrection": "Un mouvement est dit de chute libre lorsque le poids est la seule force exercée. C'est une modélisation, valable lorsque les frottements sont négligeables.",
+        "weight": 2,
+        "competencies": [
+          "1re.physique-chimie.mecanique.forces-vecteur-vitesse"
+        ],
+        "questionText": "Un objet en chute libre est soumis :",
+        "options": [
+          {
+            "id": "A",
+            "text": "à son poids et à la force de frottement de l'air",
+            "isCorrect": false,
+            "distractorRationale": "Ajoute une force que la définition même de la chute libre exclut."
+          },
+          {
+            "id": "B",
+            "text": "à son seul poids",
+            "isCorrect": true
+          },
+          {
+            "id": "C",
+            "text": "à aucune force, puisqu'il tombe librement",
+            "isCorrect": false,
+            "distractorRationale": "Interprète le mot « libre » comme une absence de force, alors qu'il désigne l'absence de toute force autre que le poids."
+          },
+          {
+            "id": "D",
+            "text": "à une force dirigée vers le haut qui ralentit sa chute",
+            "isCorrect": false,
+            "distractorRationale": "Introduit une force opposée au mouvement, exclue par définition de la chute libre."
+          }
+        ],
+        "explanation": "Un mouvement est dit de chute libre lorsque le poids est la seule force exercée. C'est une modélisation, valable lorsque les frottements sont négligeables."
+      },
+      {
+        "id": "ETL-PHC-ENE-01",
+        "subject": "PHYSIQUE_CHIMIE",
+        "category": "Énergie cinétique, potentielle et travail",
+        "domainId": "energie",
+        "nodeCpsId": "1re.physique-chimie.energie.travail-energie-mecanique",
+        "difficulty": 1,
+        "targetTimeSec": 40,
+        "shortCorrection": "L'énergie cinétique s'exprime en joules et vaut un demi de la masse multipliée par le carré de la vitesse. Doubler la vitesse quadruple cette énergie.",
+        "weight": 1,
+        "competencies": [
+          "1re.physique-chimie.energie.travail-energie-mecanique"
+        ],
+        "questionText": "L'énergie cinétique d'un objet de masse m animé d'une vitesse v vaut :",
+        "options": [
+          {
+            "id": "A",
+            "text": "½ m v²",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "m v",
+            "isCorrect": false,
+            "distractorRationale": "Donne l'expression de la quantité de mouvement, non celle d'une énergie."
+          },
+          {
+            "id": "C",
+            "text": "m g h",
+            "isCorrect": false,
+            "distractorRationale": "Donne l'expression de l'énergie potentielle de pesanteur."
+          },
+          {
+            "id": "D",
+            "text": "m v²",
+            "isCorrect": false,
+            "distractorRationale": "Omet le facteur un demi de l'expression de l'énergie cinétique."
+          }
+        ],
+        "explanation": "L'énergie cinétique s'exprime en joules et vaut un demi de la masse multipliée par le carré de la vitesse. Doubler la vitesse quadruple cette énergie."
+      },
+      {
+        "id": "ETL-PHC-ENE-02",
+        "subject": "PHYSIQUE_CHIMIE",
+        "category": "Énergie cinétique, potentielle et travail",
+        "domainId": "energie",
+        "nodeCpsId": "1re.physique-chimie.energie.travail-energie-mecanique",
+        "difficulty": 3,
+        "targetTimeSec": 60,
+        "shortCorrection": "Le travail dépend de l'angle entre la force et le déplacement. Une force perpendiculaire au déplacement ne travaille pas, même si elle s'exerce en permanence.",
+        "weight": 3,
+        "competencies": [
+          "1re.physique-chimie.energie.travail-energie-mecanique"
+        ],
+        "questionText": "Un objet se déplace horizontalement sur une distance donnée. Que vaut le travail de son poids ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "il est maximal, car le poids agit en permanence",
+            "isCorrect": false,
+            "distractorRationale": "Confond l'existence permanente d'une force avec la production d'un travail."
+          },
+          {
+            "id": "B",
+            "text": "il vaut m g h, où h est la distance parcourue",
+            "isCorrect": false,
+            "distractorRationale": "Applique une formule valable pour un déplacement vertical à un déplacement horizontal."
+          },
+          {
+            "id": "C",
+            "text": "il est nul, car le poids est perpendiculaire au déplacement",
+            "isCorrect": true
+          },
+          {
+            "id": "D",
+            "text": "il est négatif, car le poids s'oppose au mouvement",
+            "isCorrect": false,
+            "distractorRationale": "Suppose une opposition entre force et déplacement, alors qu'ils sont ici perpendiculaires."
+          }
+        ],
+        "explanation": "Le travail dépend de l'angle entre la force et le déplacement. Une force perpendiculaire au déplacement ne travaille pas, même si elle s'exerce en permanence."
+      },
+      {
+        "id": "ETL-PHC-OND-01",
+        "subject": "PHYSIQUE_CHIMIE",
+        "category": "Caractéristiques des ondes",
+        "domainId": "ondes",
+        "nodeCpsId": "1re.physique-chimie.ondes.caracteristiques",
+        "difficulty": 2,
+        "targetTimeSec": 45,
+        "shortCorrection": "La longueur d'onde est la distance parcourue pendant une période : elle vaut la célérité divisée par la fréquence. À célérité fixée, elle diminue quand la fréquence augmente.",
+        "weight": 2,
+        "competencies": [
+          "1re.physique-chimie.ondes.caracteristiques"
+        ],
+        "questionText": "Quelle relation lie la longueur d'onde λ, la célérité v et la fréquence f d'une onde périodique ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "λ = v × f",
+            "isCorrect": false,
+            "distractorRationale": "Remplace le quotient par un produit, ce qui rend la longueur d'onde croissante avec la fréquence."
+          },
+          {
+            "id": "B",
+            "text": "λ = v / f",
+            "isCorrect": true
+          },
+          {
+            "id": "C",
+            "text": "λ = f / v",
+            "isCorrect": false,
+            "distractorRationale": "Inverse le rapport et attribue à la longueur d'onde une dimension incorrecte."
+          },
+          {
+            "id": "D",
+            "text": "λ = v + f",
+            "isCorrect": false,
+            "distractorRationale": "Additionne des grandeurs de dimensions différentes."
+          }
+        ],
+        "explanation": "La longueur d'onde est la distance parcourue pendant une période : elle vaut la célérité divisée par la fréquence. À célérité fixée, elle diminue quand la fréquence augmente."
+      },
+      {
+        "id": "ETL-PHC-OND-02",
+        "subject": "PHYSIQUE_CHIMIE",
+        "category": "Caractéristiques des ondes",
+        "domainId": "ondes",
+        "nodeCpsId": "1re.physique-chimie.ondes.caracteristiques",
+        "difficulty": 3,
+        "targetTimeSec": 60,
+        "shortCorrection": "La fréquence est imposée par la source et ne change pas au passage d'un milieu à l'autre. La célérité varie, et la longueur d'onde s'ajuste en conséquence.",
+        "weight": 3,
+        "competencies": [
+          "1re.physique-chimie.ondes.caracteristiques"
+        ],
+        "questionText": "Une onde sonore passe de l'air à l'eau. Que devient sa fréquence ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "elle augmente, car le son se propage plus vite dans l'eau",
+            "isCorrect": false,
+            "distractorRationale": "Confond la fréquence, imposée par la source, avec la célérité, qui dépend du milieu."
+          },
+          {
+            "id": "B",
+            "text": "elle diminue, car le milieu est plus dense",
+            "isCorrect": false,
+            "distractorRationale": "Fait dépendre la fréquence des propriétés du milieu traversé."
+          },
+          {
+            "id": "C",
+            "text": "elle devient nulle, car le son ne se propage pas dans l'eau",
+            "isCorrect": false,
+            "distractorRationale": "Nie la propagation du son dans les liquides."
+          },
+          {
+            "id": "D",
+            "text": "elle reste inchangée",
+            "isCorrect": true
+          }
+        ],
+        "explanation": "La fréquence est imposée par la source et ne change pas au passage d'un milieu à l'autre. La célérité varie, et la longueur d'onde s'ajuste en conséquence."
+      },
+      {
+        "id": "ETL-PHC-OPT-01",
+        "subject": "PHYSIQUE_CHIMIE",
+        "category": "Lentilles minces et formation des images",
+        "domainId": "optique",
+        "nodeCpsId": "1re.physique-chimie.optique.lentilles-images",
+        "difficulty": 2,
+        "targetTimeSec": 55,
+        "shortCorrection": "Les rayons issus d'un objet à l'infini arrivent parallèles entre eux et convergent dans le plan focal image. C'est le principe de l'objectif d'une lunette.",
+        "weight": 2,
+        "competencies": [
+          "1re.physique-chimie.optique.lentilles-images"
+        ],
+        "questionText": "D'un objet situé à l'infini, une lentille convergente donne une image située :",
+        "options": [
+          {
+            "id": "A",
+            "text": "à l'infini également",
+            "isCorrect": false,
+            "distractorRationale": "Suppose que la lentille conserve la position de l'objet, ce qui correspondrait à un système afocal."
+          },
+          {
+            "id": "B",
+            "text": "au centre optique de la lentille",
+            "isCorrect": false,
+            "distractorRationale": "Confond le point de convergence des rayons avec le centre de la lentille."
+          },
+          {
+            "id": "C",
+            "text": "dans le plan focal image",
+            "isCorrect": true
+          },
+          {
+            "id": "D",
+            "text": "à une distance égale à deux fois la distance focale",
+            "isCorrect": false,
+            "distractorRationale": "Applique la position correspondant à un objet situé à deux fois la distance focale."
+          }
+        ],
+        "explanation": "Les rayons issus d'un objet à l'infini arrivent parallèles entre eux et convergent dans le plan focal image. C'est le principe de l'objectif d'une lunette."
+      },
+      {
+        "id": "ETL-PHC-OPT-02",
+        "subject": "PHYSIQUE_CHIMIE",
+        "category": "Lentilles minces et formation des images",
+        "domainId": "optique",
+        "nodeCpsId": "1re.physique-chimie.optique.lentilles-images",
+        "difficulty": 1,
+        "targetTimeSec": 40,
+        "shortCorrection": "Le rayon passant par le centre optique traverse la lentille sans déviation. C'est l'un des trois rayons particuliers utilisés pour construire une image.",
+        "weight": 1,
+        "competencies": [
+          "1re.physique-chimie.optique.lentilles-images"
+        ],
+        "questionText": "Un rayon lumineux qui passe par le centre optique d'une lentille mince :",
+        "options": [
+          {
+            "id": "A",
+            "text": "n'est pas dévié",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "émerge parallèlement à l'axe optique",
+            "isCorrect": false,
+            "distractorRationale": "Décrit le comportement d'un rayon passant par le foyer objet."
+          },
+          {
+            "id": "C",
+            "text": "passe ensuite par le foyer image",
+            "isCorrect": false,
+            "distractorRationale": "Décrit le comportement d'un rayon incident parallèle à l'axe optique."
+          },
+          {
+            "id": "D",
+            "text": "est réfléchi vers la source",
+            "isCorrect": false,
+            "distractorRationale": "Attribue à une lentille le comportement d'un miroir."
+          }
+        ],
+        "explanation": "Le rayon passant par le centre optique traverse la lentille sans déviation. C'est l'un des trois rayons particuliers utilisés pour construire une image."
+      },
+      {
+        "id": "ETL-PHC-ELE-01",
+        "subject": "PHYSIQUE_CHIMIE",
+        "category": "Puissance et énergie électrique",
+        "domainId": "electricite",
+        "nodeCpsId": "1re.physique-chimie.electricite.puissance-energie",
+        "difficulty": 1,
+        "targetTimeSec": 40,
+        "shortCorrection": "La puissance électrique est le produit de la tension par l'intensité, en watts. L'énergie s'obtient en multipliant cette puissance par la durée.",
+        "weight": 1,
+        "competencies": [
+          "1re.physique-chimie.electricite.puissance-energie"
+        ],
+        "questionText": "La puissance électrique reçue par un dipôle vaut :",
+        "options": [
+          {
+            "id": "A",
+            "text": "P = U / I",
+            "isCorrect": false,
+            "distractorRationale": "Remplace le produit par un quotient, ce qui donne la dimension d'une résistance."
+          },
+          {
+            "id": "B",
+            "text": "P = U + I",
+            "isCorrect": false,
+            "distractorRationale": "Additionne deux grandeurs de dimensions différentes."
+          },
+          {
+            "id": "C",
+            "text": "P = U / R",
+            "isCorrect": false,
+            "distractorRationale": "Donne une expression homogène à une intensité, non à une puissance."
+          },
+          {
+            "id": "D",
+            "text": "P = U × I",
+            "isCorrect": true
+          }
+        ],
+        "explanation": "La puissance électrique est le produit de la tension par l'intensité, en watts. L'énergie s'obtient en multipliant cette puissance par la durée."
+      },
+      {
+        "id": "ETL-PHC-ELE-02",
+        "subject": "PHYSIQUE_CHIMIE",
+        "category": "Puissance et énergie électrique",
+        "domainId": "electricite",
+        "nodeCpsId": "1re.physique-chimie.electricite.puissance-energie",
+        "difficulty": 2,
+        "targetTimeSec": 45,
+        "shortCorrection": "Le passage d'un courant dans un conducteur résistant s'accompagne d'un transfert thermique vers l'extérieur. Cette énergie dissipée vaut R multiplié par I au carré et par la durée.",
+        "weight": 2,
+        "competencies": [
+          "1re.physique-chimie.electricite.puissance-energie"
+        ],
+        "questionText": "L'effet Joule correspond :",
+        "options": [
+          {
+            "id": "A",
+            "text": "à la production de lumière par un conducteur parcouru par un courant",
+            "isCorrect": false,
+            "distractorRationale": "Retient un effet visible dans certains cas particuliers plutôt que le phénomène général de dissipation."
+          },
+          {
+            "id": "B",
+            "text": "à la dissipation d'énergie sous forme de chaleur dans un conducteur",
+            "isCorrect": true
+          },
+          {
+            "id": "C",
+            "text": "à la création d'un champ magnétique autour d'un conducteur",
+            "isCorrect": false,
+            "distractorRationale": "Confond l'effet Joule avec l'effet magnétique du courant."
+          },
+          {
+            "id": "D",
+            "text": "au stockage d'énergie dans un condensateur",
+            "isCorrect": false,
+            "distractorRationale": "Confond une dissipation irréversible avec un stockage réversible d'énergie."
+          }
+        ],
+        "explanation": "Le passage d'un courant dans un conducteur résistant s'accompagne d'un transfert thermique vers l'extérieur. Cette énergie dissipée vaut R multiplié par I au carré et par la durée."
+      }
+    ]
+  },
+  "scoring": {
+    "engine": "facts.v1.0.1",
+    "domains": [
+      "transformations",
+      "chimie-organique",
+      "mecanique",
+      "energie",
+      "ondes",
+      "optique",
+      "electricite"
+    ]
+  },
+  "reporting": {
+    "rag": {
+      "enabled": false,
+      "decisionRef": "A56 — corpus RAG Terminale absent",
+      "sources": [],
+      "topK": 0
+    },
+    "promptFiles": {
+      "preAnalysis": {
+        "path": "content/bilans/prompts/entree-terminale-physique-chimie-v1/pre-analysis.md",
+        "checksum": "955a512979c7372f3993f910a295e5ddaa6e21646ff8efbea4cc58f8b3d3bab1"
+      },
+      "eleve": {
+        "path": "content/bilans/prompts/entree-terminale-physique-chimie-v1/eleve.md",
+        "checksum": "5d598c317c15d7593d1bcbcfdd79910eb5a079301bd146aff60dcb3014f8d3b0"
+      },
+      "parents": {
+        "path": "content/bilans/prompts/entree-terminale-physique-chimie-v1/parents.md",
+        "checksum": "419e9366483523bd6f3c8f87bec0ca4735a181e82a379ae93d3453a84ed1313f"
+      },
+      "nexus": {
+        "path": "content/bilans/prompts/entree-terminale-physique-chimie-v1/nexus.md",
+        "checksum": "98ecc878a8711036e5849fe2f6793b7db475bcc9224b7f2864949dc678ff1468"
+      },
+      "verifier": {
+        "path": "content/bilans/prompts/entree-terminale-physique-chimie-v1/verifier.md",
+        "checksum": "fd6c0c7c64aa3320686aa15015da6609d4f5ab7cf6c9293c6afa8de83fe2b88b"
+      }
+    },
+    "outputSchemas": {
+      "preAnalysis": {
+        "type": "object",
+        "properties": {
+          "synthese": {
+            "type": "string",
+            "minLength": 1
+          },
+          "forcesPercues": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "craintes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "required": [
+          "synthese",
+          "forcesPercues",
+          "craintes"
+        ],
+        "additionalProperties": false
+      },
+      "eleve": {
+        "type": "object",
+        "properties": {
+          "accroche": {
+            "type": "string",
+            "minLength": 1
+          },
+          "forces": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "minItems": 3,
+            "maxItems": 3
+          },
+          "priorites": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "domainId": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "titre": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "pourquoi": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "comment": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "domainId",
+                "titre",
+                "pourquoi",
+                "comment"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "maxItems": 7
+          },
+          "microPlan": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "action": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "dureeMin": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              },
+              "required": [
+                "action",
+                "dureeMin"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "maxItems": 5
+          },
+          "motDeFin": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "accroche",
+          "forces",
+          "priorites",
+          "microPlan",
+          "motDeFin"
+        ],
+        "additionalProperties": false
+      },
+      "parents": {
+        "type": "object",
+        "properties": {
+          "cadre": {
+            "type": "string",
+            "minLength": 1
+          },
+          "pointsAppui": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "domainId": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "texte": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "domainId",
+                "texte"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "maxItems": 7
+          },
+          "priorites": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "domainId": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "titre": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "ceQuiSeraFait": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "domainId",
+                "titre",
+                "ceQuiSeraFait"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "maxItems": 7
+          },
+          "etapeSuivante": {
+            "type": "object",
+            "properties": {
+              "texte": {
+                "type": "string",
+                "minLength": 1
+              },
+              "cta": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "texte",
+              "cta"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "cadre",
+          "pointsAppui",
+          "priorites",
+          "etapeSuivante"
+        ],
+        "additionalProperties": false
+      },
+      "nexus": {
+        "type": "object",
+        "properties": {
+          "syntheseProfil": {
+            "type": "string",
+            "minLength": 1
+          },
+          "diagnosticPedagogique": {
+            "type": "string",
+            "minLength": 1
+          },
+          "planQuatreSemaines": {
+            "type": "string",
+            "minLength": 1
+          },
+          "alertes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "ragReferences": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "required": [
+          "syntheseProfil",
+          "diagnosticPedagogique",
+          "planQuatreSemaines",
+          "alertes",
+          "ragReferences"
+        ],
+        "additionalProperties": false
+      },
+      "verifier": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "type": "boolean"
+          },
+          "violations": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "required": [
+          "ok",
+          "violations"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "validation": {
+    "lexiconPath": "data/bilans/lexique-interdit.json",
+    "forbidDigits": [
+      "eleve",
+      "parents"
+    ]
+  }
+}

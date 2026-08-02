@@ -1,0 +1,1072 @@
+{
+  "slug": "entree-terminale-svt-v1",
+  "level": "TERMINALE",
+  "subject": "SVT",
+  "version": 1,
+  "status": "DRAFT",
+  "review": {
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  "questionnaire": {
+    "targetDurationMin": 25,
+    "confidenceScale": {
+      "levels": 4,
+      "labels": [
+        "je devine",
+        "peu sûr",
+        "plutôt sûr",
+        "certain"
+      ]
+    },
+    "items": [
+      {
+        "id": "ETL-SVT-REP-01",
+        "subject": "SVT",
+        "category": "Réplication de l'ADN et cycle cellulaire",
+        "domainId": "genetique",
+        "nodeCpsId": "1re.svt.genetique.replication-cycle-cellulaire",
+        "difficulty": 2,
+        "targetTimeSec": 55,
+        "shortCorrection": "Chaque brin de la molécule initiale sert de matrice. Les deux molécules obtenues associent donc un brin ancien et un brin nouvellement synthétisé.",
+        "weight": 2,
+        "competencies": [
+          "1re.svt.genetique.replication-cycle-cellulaire"
+        ],
+        "questionText": "Pourquoi dit-on que la réplication de l'ADN est semi-conservative ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "parce que seule la moitié du génome est copiée",
+            "isCorrect": false,
+            "distractorRationale": "Interprète le préfixe comme une copie partielle du patrimoine génétique."
+          },
+          {
+            "id": "B",
+            "text": "parce que chaque molécule fille contient un brin parental et un brin néoformé",
+            "isCorrect": true
+          },
+          {
+            "id": "C",
+            "text": "parce que la moitié des cellules filles conserve l'ADN d'origine",
+            "isCorrect": false,
+            "distractorRationale": "Déplace la conservation à l'échelle des cellules alors qu'elle se joue à celle des brins."
+          },
+          {
+            "id": "D",
+            "text": "parce que la copie n'est fidèle qu'à cinquante pour cent",
+            "isCorrect": false,
+            "distractorRationale": "Confond la conservation d'un brin avec un taux d'erreur de copie."
+          }
+        ],
+        "explanation": "Chaque brin de la molécule initiale sert de matrice. Les deux molécules obtenues associent donc un brin ancien et un brin nouvellement synthétisé."
+      },
+      {
+        "id": "ETL-SVT-REP-02",
+        "subject": "SVT",
+        "category": "Réplication de l'ADN et cycle cellulaire",
+        "domainId": "genetique",
+        "nodeCpsId": "1re.svt.genetique.replication-cycle-cellulaire",
+        "difficulty": 1,
+        "targetTimeSec": 50,
+        "shortCorrection": "La mitose est une division conforme : les deux cellules filles reçoivent chacune la même information génétique que la cellule dont elles proviennent.",
+        "weight": 1,
+        "competencies": [
+          "1re.svt.genetique.replication-cycle-cellulaire"
+        ],
+        "questionText": "À l'issue d'une mitose, les deux cellules filles possèdent :",
+        "options": [
+          {
+            "id": "A",
+            "text": "deux fois plus de chromosomes que la cellule mère",
+            "isCorrect": false,
+            "distractorRationale": "Confond le doublement transitoire de la quantité d'ADN avec un doublement du nombre de chromosomes des cellules filles."
+          },
+          {
+            "id": "B",
+            "text": "la moitié des chromosomes de la cellule mère",
+            "isCorrect": false,
+            "distractorRationale": "Attribue à la mitose la réduction chromatique propre à la méiose."
+          },
+          {
+            "id": "C",
+            "text": "un assortiment aléatoire de chromosomes",
+            "isCorrect": false,
+            "distractorRationale": "Attribue à la mitose le brassage qui caractérise la méiose."
+          },
+          {
+            "id": "D",
+            "text": "la même information génétique que la cellule mère",
+            "isCorrect": true
+          }
+        ],
+        "explanation": "La mitose est une division conforme : les deux cellules filles reçoivent chacune la même information génétique que la cellule dont elles proviennent."
+      },
+      {
+        "id": "ETL-SVT-EXP-01",
+        "subject": "SVT",
+        "category": "Expression du génome",
+        "domainId": "genetique",
+        "nodeCpsId": "1re.svt.genetique.expression-du-genome",
+        "difficulty": 1,
+        "targetTimeSec": 45,
+        "shortCorrection": "La transcription copie une séquence d'ADN en ARN messager, dans le noyau. La traduction convertit ensuite cet ARN en protéine, dans le cytoplasme.",
+        "weight": 1,
+        "competencies": [
+          "1re.svt.genetique.expression-du-genome"
+        ],
+        "questionText": "La transcription désigne :",
+        "options": [
+          {
+            "id": "A",
+            "text": "la synthèse d'un ARN messager à partir d'un brin d'ADN",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "la synthèse d'une protéine à partir d'un ARN messager",
+            "isCorrect": false,
+            "distractorRationale": "Décrit la traduction, seconde étape de l'expression du génome."
+          },
+          {
+            "id": "C",
+            "text": "la copie de l'ADN avant la division cellulaire",
+            "isCorrect": false,
+            "distractorRationale": "Décrit la réplication, qui produit de l'ADN et non de l'ARN."
+          },
+          {
+            "id": "D",
+            "text": "la maturation d'un ARN pré-messager",
+            "isCorrect": false,
+            "distractorRationale": "Confond l'étape de synthèse avec l'étape ultérieure d'épissage."
+          }
+        ],
+        "explanation": "La transcription copie une séquence d'ADN en ARN messager, dans le noyau. La traduction convertit ensuite cet ARN en protéine, dans le cytoplasme."
+      },
+      {
+        "id": "ETL-SVT-EXP-02",
+        "subject": "SVT",
+        "category": "Expression du génome",
+        "domainId": "genetique",
+        "nodeCpsId": "1re.svt.genetique.expression-du-genome",
+        "difficulty": 2,
+        "targetTimeSec": 55,
+        "shortCorrection": "Soixante-quatre codons codent une vingtaine d'acides aminés : plusieurs codons désignent donc le même acide aminé. C'est ce qui rend certaines mutations silencieuses.",
+        "weight": 2,
+        "competencies": [
+          "1re.svt.genetique.expression-du-genome"
+        ],
+        "questionText": "Le code génétique est qualifié de redondant parce que :",
+        "options": [
+          {
+            "id": "A",
+            "text": "un même codon peut coder plusieurs acides aminés différents",
+            "isCorrect": false,
+            "distractorRationale": "Décrit une ambiguïté que le code génétique ne possède pas : chaque codon désigne un seul acide aminé."
+          },
+          {
+            "id": "B",
+            "text": "chaque gène est présent en double exemplaire dans le génome",
+            "isCorrect": false,
+            "distractorRationale": "Confond une propriété du code avec l'organisation diploïde du génome."
+          },
+          {
+            "id": "C",
+            "text": "plusieurs codons différents peuvent coder le même acide aminé",
+            "isCorrect": true
+          },
+          {
+            "id": "D",
+            "text": "l'ARN messager est lu deux fois par le ribosome",
+            "isCorrect": false,
+            "distractorRationale": "Interprète la redondance comme une répétition de la lecture."
+          }
+        ],
+        "explanation": "Soixante-quatre codons codent une vingtaine d'acides aminés : plusieurs codons désignent donc le même acide aminé. C'est ce qui rend certaines mutations silencieuses."
+      },
+      {
+        "id": "ETL-SVT-MUT-01",
+        "subject": "SVT",
+        "category": "Mutations",
+        "domainId": "genetique",
+        "nodeCpsId": "1re.svt.genetique.mutations",
+        "difficulty": 2,
+        "targetTimeSec": 60,
+        "shortCorrection": "Grâce à la redondance du code génétique, un changement de nucléotide peut aboutir à un codon désignant le même acide aminé. La protéine reste alors inchangée.",
+        "weight": 2,
+        "competencies": [
+          "1re.svt.genetique.mutations"
+        ],
+        "questionText": "Une mutation ponctuelle dite silencieuse est une mutation qui :",
+        "options": [
+          {
+            "id": "A",
+            "text": "empêche toute transcription du gène concerné",
+            "isCorrect": false,
+            "distractorRationale": "Confond l'absence d'effet sur la protéine avec l'absence d'expression du gène."
+          },
+          {
+            "id": "B",
+            "text": "modifie la séquence nucléotidique sans changer l'acide aminé codé",
+            "isCorrect": true
+          },
+          {
+            "id": "C",
+            "text": "supprime un nucléotide et décale le cadre de lecture",
+            "isCorrect": false,
+            "distractorRationale": "Décrit une mutation par délétion, dont les conséquences sont au contraire majeures."
+          },
+          {
+            "id": "D",
+            "text": "ne modifie pas la séquence de l'ADN",
+            "isCorrect": false,
+            "distractorRationale": "Nie l'existence même de la mutation : une mutation modifie toujours la séquence."
+          }
+        ],
+        "explanation": "Grâce à la redondance du code génétique, un changement de nucléotide peut aboutir à un codon désignant le même acide aminé. La protéine reste alors inchangée."
+      },
+      {
+        "id": "ETL-SVT-MUT-02",
+        "subject": "SVT",
+        "category": "Mutations",
+        "domainId": "genetique",
+        "nodeCpsId": "1re.svt.genetique.mutations",
+        "difficulty": 3,
+        "targetTimeSec": 55,
+        "shortCorrection": "Les mutations surviennent spontanément à faible fréquence. Un agent mutagène en augmente le taux, sans jamais en orienter la nature.",
+        "weight": 3,
+        "competencies": [
+          "1re.svt.genetique.mutations"
+        ],
+        "questionText": "Concernant les agents mutagènes, quelle affirmation est exacte ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "ils augmentent la fréquence des mutations",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "ils provoquent des mutations orientées vers un besoin de l'organisme",
+            "isCorrect": false,
+            "distractorRationale": "Reprend une conception finaliste : les mutations surviennent au hasard, indépendamment de tout besoin."
+          },
+          {
+            "id": "C",
+            "text": "ils n'affectent que les cellules germinales",
+            "isCorrect": false,
+            "distractorRationale": "Restreint aux cellules reproductrices un effet qui touche aussi les cellules somatiques."
+          },
+          {
+            "id": "D",
+            "text": "ils réparent les erreurs survenues lors de la réplication",
+            "isCorrect": false,
+            "distractorRationale": "Attribue aux agents mutagènes le rôle inverse, qui est celui des systèmes de réparation."
+          }
+        ],
+        "explanation": "Les mutations surviennent spontanément à faible fréquence. Un agent mutagène en augmente le taux, sans jamais en orienter la nature."
+      },
+      {
+        "id": "ETL-SVT-TEC-01",
+        "subject": "SVT",
+        "category": "Tectonique des plaques",
+        "domainId": "geologie",
+        "nodeCpsId": "1re.svt.geologie.tectonique-des-plaques",
+        "difficulty": 2,
+        "targetTimeSec": 55,
+        "shortCorrection": "En subduction, une plaque océanique dense plonge sous une autre plaque et s'enfonce dans l'asthénosphère. C'est le lieu de recyclage de la lithosphère océanique.",
+        "weight": 2,
+        "competencies": [
+          "1re.svt.geologie.tectonique-des-plaques"
+        ],
+        "questionText": "Que se produit-il au niveau d'une zone de subduction ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "deux plaques s'écartent l'une de l'autre",
+            "isCorrect": false,
+            "distractorRationale": "Décrit une dorsale océanique, où les plaques divergent."
+          },
+          {
+            "id": "B",
+            "text": "de la lithosphère océanique est créée",
+            "isCorrect": false,
+            "distractorRationale": "Décrit l'accrétion, phénomène propre aux dorsales et non aux zones de subduction."
+          },
+          {
+            "id": "C",
+            "text": "de la lithosphère océanique s'enfonce dans l'asthénosphère",
+            "isCorrect": true
+          },
+          {
+            "id": "D",
+            "text": "de la croûte continentale est produite par accrétion",
+            "isCorrect": false,
+            "distractorRationale": "Confond le mécanisme de production de croûte océanique avec la dynamique de subduction."
+          }
+        ],
+        "explanation": "En subduction, une plaque océanique dense plonge sous une autre plaque et s'enfonce dans l'asthénosphère. C'est le lieu de recyclage de la lithosphère océanique."
+      },
+      {
+        "id": "ETL-SVT-TEC-02",
+        "subject": "SVT",
+        "category": "Tectonique des plaques",
+        "domainId": "geologie",
+        "nodeCpsId": "1re.svt.geologie.tectonique-des-plaques",
+        "difficulty": 3,
+        "targetTimeSec": 55,
+        "shortCorrection": "La limite entre lithosphère et asthénosphère est mécanique, non chimique : la lithosphère est rigide, l'asthénosphère est ductile et se déforme sur de longues durées.",
+        "weight": 3,
+        "competencies": [
+          "1re.svt.geologie.tectonique-des-plaques"
+        ],
+        "questionText": "La lithosphère se distingue de l'asthénosphère principalement par :",
+        "options": [
+          {
+            "id": "A",
+            "text": "sa composition chimique, entièrement différente",
+            "isCorrect": false,
+            "distractorRationale": "Fait de la distinction un critère chimique, alors que le manteau lithosphérique et l'asthénosphère ont la même composition."
+          },
+          {
+            "id": "B",
+            "text": "son comportement mécanique : elle est rigide",
+            "isCorrect": true
+          },
+          {
+            "id": "C",
+            "text": "sa température, systématiquement plus élevée",
+            "isCorrect": false,
+            "distractorRationale": "Inverse le gradient : la lithosphère est au contraire plus froide."
+          },
+          {
+            "id": "D",
+            "text": "son épaisseur, constante sur toute la surface du globe",
+            "isCorrect": false,
+            "distractorRationale": "Attribue à la lithosphère une épaisseur uniforme, alors qu'elle varie fortement selon les contextes."
+          }
+        ],
+        "explanation": "La limite entre lithosphère et asthénosphère est mécanique, non chimique : la lithosphère est rigide, l'asthénosphère est ductile et se déforme sur de longues durées."
+      },
+      {
+        "id": "ETL-SVT-MAG-01",
+        "subject": "SVT",
+        "category": "Magmatisme et roches magmatiques",
+        "domainId": "geologie",
+        "nodeCpsId": "1re.svt.geologie.magmatisme",
+        "difficulty": 2,
+        "targetTimeSec": 55,
+        "shortCorrection": "Un refroidissement lent laisse le temps aux cristaux de se former entièrement : la roche est grenue. Un refroidissement rapide en surface donne au contraire une structure microlitique.",
+        "weight": 2,
+        "competencies": [
+          "1re.svt.geologie.magmatisme"
+        ],
+        "questionText": "Le refroidissement lent d'un magma en profondeur produit une roche :",
+        "options": [
+          {
+            "id": "A",
+            "text": "sédimentaire détritique",
+            "isCorrect": false,
+            "distractorRationale": "Confond l'origine magmatique avec un dépôt de particules issues de l'érosion."
+          },
+          {
+            "id": "B",
+            "text": "métamorphique",
+            "isCorrect": false,
+            "distractorRationale": "Confond la cristallisation d'un magma avec la transformation d'une roche à l'état solide."
+          },
+          {
+            "id": "C",
+            "text": "volcanique à structure microlitique",
+            "isCorrect": false,
+            "distractorRationale": "Associe un refroidissement lent à la structure produite par un refroidissement rapide en surface."
+          },
+          {
+            "id": "D",
+            "text": "plutonique à structure grenue",
+            "isCorrect": true
+          }
+        ],
+        "explanation": "Un refroidissement lent laisse le temps aux cristaux de se former entièrement : la roche est grenue. Un refroidissement rapide en surface donne au contraire une structure microlitique."
+      },
+      {
+        "id": "ETL-SVT-MAG-02",
+        "subject": "SVT",
+        "category": "Magmatisme et roches magmatiques",
+        "domainId": "geologie",
+        "nodeCpsId": "1re.svt.geologie.magmatisme",
+        "difficulty": 3,
+        "targetTimeSec": 65,
+        "shortCorrection": "L'eau libérée par la plaque qui plonge abaisse la température de fusion des péridotites du manteau sus-jacent. Cette fusion partielle engendre le magmatisme des zones de subduction.",
+        "weight": 3,
+        "competencies": [
+          "1re.svt.geologie.magmatisme"
+        ],
+        "questionText": "Dans une zone de subduction, la fusion partielle du manteau est principalement provoquée par :",
+        "options": [
+          {
+            "id": "A",
+            "text": "l'hydratation des péridotites par l'eau libérée par la plaque plongeante",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "une augmentation brutale de la pression",
+            "isCorrect": false,
+            "distractorRationale": "Suppose qu'une hausse de pression favorise la fusion, alors qu'elle l'inhibe."
+          },
+          {
+            "id": "C",
+            "text": "le frottement entre les deux plaques",
+            "isCorrect": false,
+            "distractorRationale": "Attribue la fusion à une source de chaleur mécanique dont l'ordre de grandeur est insuffisant."
+          },
+          {
+            "id": "D",
+            "text": "la désintégration d'éléments radioactifs dans la croûte",
+            "isCorrect": false,
+            "distractorRationale": "Invoque une source de chaleur globale sans lien avec la localisation du magmatisme de subduction."
+          }
+        ],
+        "explanation": "L'eau libérée par la plaque qui plonge abaisse la température de fusion des péridotites du manteau sus-jacent. Cette fusion partielle engendre le magmatisme des zones de subduction."
+      },
+      {
+        "id": "ETL-SVT-IMM-01",
+        "subject": "SVT",
+        "category": "Immunité innée et adaptative",
+        "domainId": "immunite",
+        "nodeCpsId": "1re.svt.immunite.reponse-innee-adaptative",
+        "difficulty": 2,
+        "targetTimeSec": 55,
+        "shortCorrection": "La réponse innée est immédiate et non spécifique. La réponse adaptative est plus lente à se mettre en place, mais spécifique de l'antigène et dotée d'une mémoire.",
+        "weight": 2,
+        "competencies": [
+          "1re.svt.immunite.reponse-innee-adaptative"
+        ],
+        "questionText": "La réponse immunitaire adaptative se distingue de la réponse innée par :",
+        "options": [
+          {
+            "id": "A",
+            "text": "sa rapidité de mise en œuvre",
+            "isCorrect": false,
+            "distractorRationale": "Attribue à la réponse adaptative la rapidité qui caractérise justement la réponse innée."
+          },
+          {
+            "id": "B",
+            "text": "sa spécificité vis-à-vis de l'antigène et l'existence d'une mémoire",
+            "isCorrect": true
+          },
+          {
+            "id": "C",
+            "text": "l'absence de cellules impliquées",
+            "isCorrect": false,
+            "distractorRationale": "Suppose une réponse sans acteur cellulaire, alors que les lymphocytes en sont le cœur."
+          },
+          {
+            "id": "D",
+            "text": "son caractère héréditaire, transmis d'une génération à l'autre",
+            "isCorrect": false,
+            "distractorRationale": "Confond l'acquisition au cours de la vie avec une transmission génétique."
+          }
+        ],
+        "explanation": "La réponse innée est immédiate et non spécifique. La réponse adaptative est plus lente à se mettre en place, mais spécifique de l'antigène et dotée d'une mémoire."
+      },
+      {
+        "id": "ETL-SVT-IMM-02",
+        "subject": "SVT",
+        "category": "Immunité innée et adaptative",
+        "domainId": "immunite",
+        "nodeCpsId": "1re.svt.immunite.reponse-innee-adaptative",
+        "difficulty": 2,
+        "targetTimeSec": 50,
+        "shortCorrection": "Après activation, le lymphocyte B se multiplie puis se différencie en plasmocyte, cellule spécialisée dans la production massive d'anticorps.",
+        "weight": 2,
+        "competencies": [
+          "1re.svt.immunite.reponse-innee-adaptative"
+        ],
+        "questionText": "Un lymphocyte B activé se différencie notamment en :",
+        "options": [
+          {
+            "id": "A",
+            "text": "macrophage",
+            "isCorrect": false,
+            "distractorRationale": "Confond une cellule de l'immunité innée, issue d'un monocyte, avec un descendant du lymphocyte B."
+          },
+          {
+            "id": "B",
+            "text": "lymphocyte T cytotoxique",
+            "isCorrect": false,
+            "distractorRationale": "Confond les deux lignées lymphocytaires, dont les voies de différenciation sont distinctes."
+          },
+          {
+            "id": "C",
+            "text": "plasmocyte sécréteur d'anticorps",
+            "isCorrect": true
+          },
+          {
+            "id": "D",
+            "text": "cellule dendritique",
+            "isCorrect": false,
+            "distractorRationale": "Confond un descendant du lymphocyte B avec une cellule présentatrice de l'antigène."
+          }
+        ],
+        "explanation": "Après activation, le lymphocyte B se multiplie puis se différencie en plasmocyte, cellule spécialisée dans la production massive d'anticorps."
+      },
+      {
+        "id": "ETL-SVT-NER-01",
+        "subject": "SVT",
+        "category": "Système nerveux et transmission du message",
+        "domainId": "systeme-nerveux",
+        "nodeCpsId": "1re.svt.systeme-nerveux.reflexe-myotatique",
+        "difficulty": 2,
+        "targetTimeSec": 55,
+        "shortCorrection": "L'étirement du muscle stimule le fuseau neuromusculaire. Le message part par le neurone sensitif vers la moelle épinière, seul centre intégrateur du réflexe.",
+        "weight": 2,
+        "competencies": [
+          "1re.svt.systeme-nerveux.reflexe-myotatique"
+        ],
+        "questionText": "Dans le réflexe myotatique, le message nerveux sensitif est transmis par :",
+        "options": [
+          {
+            "id": "A",
+            "text": "un neurone sensitif, du fuseau neuromusculaire vers la moelle épinière",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "un motoneurone, de la moelle épinière vers le muscle",
+            "isCorrect": false,
+            "distractorRationale": "Décrit la voie motrice, qui transmet la réponse et non le message sensitif."
+          },
+          {
+            "id": "C",
+            "text": "le cerveau, qui décide de la réponse à produire",
+            "isCorrect": false,
+            "distractorRationale": "Fait intervenir un centre supérieur alors que le réflexe est intégré au niveau médullaire."
+          },
+          {
+            "id": "D",
+            "text": "une hormone libérée dans la circulation sanguine",
+            "isCorrect": false,
+            "distractorRationale": "Confond une communication nerveuse, rapide et ciblée, avec une communication hormonale."
+          }
+        ],
+        "explanation": "L'étirement du muscle stimule le fuseau neuromusculaire. Le message part par le neurone sensitif vers la moelle épinière, seul centre intégrateur du réflexe."
+      },
+      {
+        "id": "ETL-SVT-NER-02",
+        "subject": "SVT",
+        "category": "Système nerveux et transmission du message",
+        "domainId": "systeme-nerveux",
+        "nodeCpsId": "1re.svt.systeme-nerveux.reflexe-myotatique",
+        "difficulty": 2,
+        "targetTimeSec": 55,
+        "shortCorrection": "À la synapse, le message électrique déclenche la libération de neurotransmetteurs qui franchissent la fente. La transmission est de ce fait unidirectionnelle.",
+        "weight": 2,
+        "competencies": [
+          "1re.svt.systeme-nerveux.reflexe-myotatique"
+        ],
+        "questionText": "Au niveau d'une synapse chimique, le message nerveux :",
+        "options": [
+          {
+            "id": "A",
+            "text": "traverse la fente synaptique sous forme électrique",
+            "isCorrect": false,
+            "distractorRationale": "Suppose une continuité électrique là où existe un espace franchi par des molécules."
+          },
+          {
+            "id": "B",
+            "text": "est amplifié puis transmis sans transformation",
+            "isCorrect": false,
+            "distractorRationale": "Nie le changement de nature du message au niveau de la synapse."
+          },
+          {
+            "id": "C",
+            "text": "peut circuler dans les deux sens",
+            "isCorrect": false,
+            "distractorRationale": "Ignore le caractère unidirectionnel imposé par la localisation des vésicules et des récepteurs."
+          },
+          {
+            "id": "D",
+            "text": "est converti en message chimique par la libération de neurotransmetteurs",
+            "isCorrect": true
+          }
+        ],
+        "explanation": "À la synapse, le message électrique déclenche la libération de neurotransmetteurs qui franchissent la fente. La transmission est de ce fait unidirectionnelle."
+      },
+      {
+        "id": "ETL-SVT-SAN-01",
+        "subject": "SVT",
+        "category": "Variation génétique et santé",
+        "domainId": "sante",
+        "nodeCpsId": "1re.svt.sante.variation-genetique",
+        "difficulty": 2,
+        "targetTimeSec": 60,
+        "shortCorrection": "Le caractère récessif impose la présence des deux allèles mutés. Un individu porteur d'un seul allèle est sain mais peut le transmettre : c'est ce qui explique les sauts de génération.",
+        "weight": 2,
+        "competencies": [
+          "1re.svt.sante.variation-genetique"
+        ],
+        "questionText": "Une maladie génétique autosomique récessive se manifeste :",
+        "options": [
+          {
+            "id": "A",
+            "text": "uniquement chez les garçons",
+            "isCorrect": false,
+            "distractorRationale": "Attribue à une maladie autosomique un mode de transmission lié au chromosome X."
+          },
+          {
+            "id": "B",
+            "text": "chez tout individu portant un seul allèle muté",
+            "isCorrect": false,
+            "distractorRationale": "Décrit une transmission dominante, où un seul allèle suffit à exprimer la maladie."
+          },
+          {
+            "id": "C",
+            "text": "chez les individus possédant deux allèles mutés",
+            "isCorrect": true
+          },
+          {
+            "id": "D",
+            "text": "à chaque génération, sans exception",
+            "isCorrect": false,
+            "distractorRationale": "Attribue à une maladie récessive la continuité générationnelle typique des maladies dominantes."
+          }
+        ],
+        "explanation": "Le caractère récessif impose la présence des deux allèles mutés. Un individu porteur d'un seul allèle est sain mais peut le transmettre : c'est ce qui explique les sauts de génération."
+      },
+      {
+        "id": "ETL-SVT-SAN-02",
+        "subject": "SVT",
+        "category": "Variation génétique et santé",
+        "domainId": "sante",
+        "nodeCpsId": "1re.svt.sante.variation-genetique",
+        "difficulty": 3,
+        "targetTimeSec": 60,
+        "shortCorrection": "Le cancer résulte d'une succession de mutations somatiques affectant la même lignée cellulaire, qui échappe progressivement aux contrôles de division et de mort programmée.",
+        "weight": 3,
+        "competencies": [
+          "1re.svt.sante.variation-genetique"
+        ],
+        "questionText": "Le développement d'un cancer résulte le plus souvent :",
+        "options": [
+          {
+            "id": "A",
+            "text": "de l'accumulation de plusieurs mutations dans une même lignée cellulaire",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "d'une mutation unique héritée des parents",
+            "isCorrect": false,
+            "distractorRationale": "Réduit à une cause héréditaire unique un processus généralement somatique et progressif."
+          },
+          {
+            "id": "C",
+            "text": "d'une infection virale, dans tous les cas",
+            "isCorrect": false,
+            "distractorRationale": "Généralise un facteur de risque réel mais qui n'intervient que dans une minorité de cancers."
+          },
+          {
+            "id": "D",
+            "text": "d'un défaut de réplication survenu au moment de la fécondation",
+            "isCorrect": false,
+            "distractorRationale": "Situe l'origine à la formation de l'individu, alors que les mutations en cause surviennent au cours de la vie."
+          }
+        ],
+        "explanation": "Le cancer résulte d'une succession de mutations somatiques affectant la même lignée cellulaire, qui échappe progressivement aux contrôles de division et de mort programmée."
+      },
+      {
+        "id": "ETL-SVT-DON-01",
+        "subject": "SVT",
+        "category": "Exploitation de données et raisonnement",
+        "domainId": "demarche",
+        "nodeCpsId": "1re.svt.demarche.exploitation-de-donnees",
+        "difficulty": 3,
+        "targetTimeSec": 55,
+        "shortCorrection": "Un parallélisme établit une corrélation, non une causalité. Une troisième grandeur peut expliquer les deux évolutions : seule une expérimentation permet de trancher.",
+        "weight": 3,
+        "competencies": [
+          "1re.svt.demarche.exploitation-de-donnees"
+        ],
+        "questionText": "Sur un graphique, deux courbes évoluent de façon parallèle au cours du temps. Que peut-on affirmer ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "que la première grandeur est la cause de la seconde",
+            "isCorrect": false,
+            "distractorRationale": "Conclut à une causalité à partir d'une simple concordance de variations."
+          },
+          {
+            "id": "B",
+            "text": "que les deux grandeurs mesurent la même chose",
+            "isCorrect": false,
+            "distractorRationale": "Confond une évolution semblable avec une identité de nature."
+          },
+          {
+            "id": "C",
+            "text": "qu'aucun lien n'existe entre les deux grandeurs",
+            "isCorrect": false,
+            "distractorRationale": "Nie l'information que porte pourtant le parallélisme des courbes."
+          },
+          {
+            "id": "D",
+            "text": "qu'elles varient conjointement, sans que la cause soit établie",
+            "isCorrect": true
+          }
+        ],
+        "explanation": "Un parallélisme établit une corrélation, non une causalité. Une troisième grandeur peut expliquer les deux évolutions : seule une expérimentation permet de trancher."
+      },
+      {
+        "id": "ETL-SVT-DON-02",
+        "subject": "SVT",
+        "category": "Exploitation de données et raisonnement",
+        "domainId": "demarche",
+        "nodeCpsId": "1re.svt.demarche.exploitation-de-donnees",
+        "difficulty": 2,
+        "targetTimeSec": 50,
+        "shortCorrection": "Lorsque les valeurs varient d'un facteur mille ou davantage, une échelle linéaire écrase les petites valeurs. L'échelle logarithmique les rend toutes lisibles sur un même graphique.",
+        "weight": 2,
+        "competencies": [
+          "1re.svt.demarche.exploitation-de-donnees"
+        ],
+        "questionText": "Une échelle logarithmique est employée sur un graphique lorsque :",
+        "options": [
+          {
+            "id": "A",
+            "text": "toutes les valeurs représentées sont négatives",
+            "isCorrect": false,
+            "distractorRationale": "Associe l'échelle logarithmique au signe des valeurs, alors qu'elle exige au contraire des valeurs strictement positives."
+          },
+          {
+            "id": "B",
+            "text": "les valeurs s'étendent sur plusieurs ordres de grandeur",
+            "isCorrect": true
+          },
+          {
+            "id": "C",
+            "text": "la relation entre les deux variables est linéaire",
+            "isCorrect": false,
+            "distractorRationale": "Invoque le cas où une échelle linéaire suffit précisément."
+          },
+          {
+            "id": "D",
+            "text": "l'on souhaite rendre les faibles valeurs moins visibles",
+            "isCorrect": false,
+            "distractorRationale": "Inverse l'effet obtenu : l'échelle logarithmique rend au contraire les faibles valeurs lisibles."
+          }
+        ],
+        "explanation": "Lorsque les valeurs varient d'un facteur mille ou davantage, une échelle linéaire écrase les petites valeurs. L'échelle logarithmique les rend toutes lisibles sur un même graphique."
+      }
+    ]
+  },
+  "scoring": {
+    "engine": "facts.v1.0.1",
+    "domains": [
+      "genetique",
+      "geologie",
+      "immunite",
+      "systeme-nerveux",
+      "sante",
+      "demarche"
+    ]
+  },
+  "reporting": {
+    "rag": {
+      "enabled": false,
+      "decisionRef": "A56 — corpus RAG Terminale absent",
+      "sources": [],
+      "topK": 0
+    },
+    "promptFiles": {
+      "preAnalysis": {
+        "path": "content/bilans/prompts/entree-terminale-svt-v1/pre-analysis.md",
+        "checksum": "7b1db13154fe12df7c81eaff21fa641fc1bdfa5ee485e896253ed95fe45fb5a0"
+      },
+      "eleve": {
+        "path": "content/bilans/prompts/entree-terminale-svt-v1/eleve.md",
+        "checksum": "5d598c317c15d7593d1bcbcfdd79910eb5a079301bd146aff60dcb3014f8d3b0"
+      },
+      "parents": {
+        "path": "content/bilans/prompts/entree-terminale-svt-v1/parents.md",
+        "checksum": "419e9366483523bd6f3c8f87bec0ca4735a181e82a379ae93d3453a84ed1313f"
+      },
+      "nexus": {
+        "path": "content/bilans/prompts/entree-terminale-svt-v1/nexus.md",
+        "checksum": "98ecc878a8711036e5849fe2f6793b7db475bcc9224b7f2864949dc678ff1468"
+      },
+      "verifier": {
+        "path": "content/bilans/prompts/entree-terminale-svt-v1/verifier.md",
+        "checksum": "fd6c0c7c64aa3320686aa15015da6609d4f5ab7cf6c9293c6afa8de83fe2b88b"
+      }
+    },
+    "outputSchemas": {
+      "preAnalysis": {
+        "type": "object",
+        "properties": {
+          "synthese": {
+            "type": "string",
+            "minLength": 1
+          },
+          "forcesPercues": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "craintes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "required": [
+          "synthese",
+          "forcesPercues",
+          "craintes"
+        ],
+        "additionalProperties": false
+      },
+      "eleve": {
+        "type": "object",
+        "properties": {
+          "accroche": {
+            "type": "string",
+            "minLength": 1
+          },
+          "forces": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "minItems": 3,
+            "maxItems": 3
+          },
+          "priorites": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "domainId": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "titre": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "pourquoi": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "comment": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "domainId",
+                "titre",
+                "pourquoi",
+                "comment"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "maxItems": 6
+          },
+          "microPlan": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "action": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "dureeMin": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              },
+              "required": [
+                "action",
+                "dureeMin"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "maxItems": 5
+          },
+          "motDeFin": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "accroche",
+          "forces",
+          "priorites",
+          "microPlan",
+          "motDeFin"
+        ],
+        "additionalProperties": false
+      },
+      "parents": {
+        "type": "object",
+        "properties": {
+          "cadre": {
+            "type": "string",
+            "minLength": 1
+          },
+          "pointsAppui": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "domainId": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "texte": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "domainId",
+                "texte"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "maxItems": 6
+          },
+          "priorites": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "domainId": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "titre": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "ceQuiSeraFait": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "domainId",
+                "titre",
+                "ceQuiSeraFait"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "maxItems": 6
+          },
+          "etapeSuivante": {
+            "type": "object",
+            "properties": {
+              "texte": {
+                "type": "string",
+                "minLength": 1
+              },
+              "cta": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "texte",
+              "cta"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "cadre",
+          "pointsAppui",
+          "priorites",
+          "etapeSuivante"
+        ],
+        "additionalProperties": false
+      },
+      "nexus": {
+        "type": "object",
+        "properties": {
+          "syntheseProfil": {
+            "type": "string",
+            "minLength": 1
+          },
+          "diagnosticPedagogique": {
+            "type": "string",
+            "minLength": 1
+          },
+          "planQuatreSemaines": {
+            "type": "string",
+            "minLength": 1
+          },
+          "alertes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "ragReferences": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "required": [
+          "syntheseProfil",
+          "diagnosticPedagogique",
+          "planQuatreSemaines",
+          "alertes",
+          "ragReferences"
+        ],
+        "additionalProperties": false
+      },
+      "verifier": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "type": "boolean"
+          },
+          "violations": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "required": [
+          "ok",
+          "violations"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "validation": {
+    "lexiconPath": "data/bilans/lexique-interdit.json",
+    "forbidDigits": [
+      "eleve",
+      "parents"
+    ]
+  }
+}

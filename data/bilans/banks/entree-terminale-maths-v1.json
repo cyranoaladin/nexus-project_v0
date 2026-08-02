@@ -78,26 +78,26 @@
         "options": [
           {
             "id": "A",
-            "text": "Aucune",
-            "isCorrect": true
-          },
-          {
-            "id": "B",
             "text": "Deux",
             "isCorrect": false,
             "distractorRationale": "Calcule Δ = b² + 4ac au lieu de b² − 4ac, obtient 56 > 0 et conclut à deux racines."
           },
           {
-            "id": "C",
+            "id": "B",
             "text": "Une seule",
             "isCorrect": false,
             "distractorRationale": "Applique le cas Δ = 0 sans avoir calculé le discriminant."
           },
           {
-            "id": "D",
+            "id": "C",
             "text": "Deux, car un polynôme du second degré a toujours deux racines",
             "isCorrect": false,
             "distractorRationale": "Croit que le degré du polynôme détermine à lui seul le nombre de racines réelles."
+          },
+          {
+            "id": "D",
+            "text": "Aucune",
+            "isCorrect": true
           }
         ],
         "explanation": "Δ = (−4)² − 4 × 2 × 5 = 16 − 40 = −24. Le discriminant est strictement négatif : l'équation n'a aucune solution réelle."
@@ -119,20 +119,20 @@
         "options": [
           {
             "id": "A",
+            "text": "x < −2 ou x > 2",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
             "text": "−2 < x < 2",
             "isCorrect": false,
             "distractorRationale": "Inverse la règle : place le signe de a entre les racines au lieu de l'extérieur."
           },
           {
-            "id": "B",
+            "id": "C",
             "text": "x > 2",
             "isCorrect": false,
             "distractorRationale": "Oublie la branche négative : ne considère que la racine positive."
-          },
-          {
-            "id": "C",
-            "text": "x < −2 ou x > 2",
-            "isCorrect": true
           },
           {
             "id": "D",
@@ -160,20 +160,20 @@
         "options": [
           {
             "id": "A",
-            "text": "]1 ; 2[",
-            "isCorrect": true
-          },
-          {
-            "id": "B",
             "text": "]−∞ ; 1[ ∪ ]2 ; +∞[",
             "isCorrect": false,
             "distractorRationale": "Applique la règle « positif à l'extérieur des racines » sans tenir compte du signe négatif de a."
           },
           {
-            "id": "C",
+            "id": "B",
             "text": "]−∞ ; 1[",
             "isCorrect": false,
             "distractorRationale": "Identifie une seule branche et ne compare pas le signe sur chaque intervalle."
+          },
+          {
+            "id": "C",
+            "text": "]1 ; 2[",
+            "isCorrect": true
           },
           {
             "id": "D",
@@ -248,14 +248,14 @@
           },
           {
             "id": "B",
-            "text": "1/(x − 2)²",
-            "isCorrect": false,
-            "distractorRationale": "Développe le numérateur sans distribuer le signe moins sur (x + 1)."
+            "text": "−3/(x − 2)²",
+            "isCorrect": true
           },
           {
             "id": "C",
-            "text": "−3/(x − 2)²",
-            "isCorrect": true
+            "text": "1/(x − 2)²",
+            "isCorrect": false,
+            "distractorRationale": "Développe le numérateur sans distribuer le signe moins sur (x + 1)."
           },
           {
             "id": "D",
@@ -377,14 +377,14 @@
           },
           {
             "id": "C",
-            "text": "y = 2x − 4",
-            "isCorrect": false,
-            "distractorRationale": "Utilise l'expression f'(x) = 2x sans l'évaluer en a = 2."
+            "text": "y = 4x − 4",
+            "isCorrect": true
           },
           {
             "id": "D",
-            "text": "y = 4x − 4",
-            "isCorrect": true
+            "text": "y = 2x − 4",
+            "isCorrect": false,
+            "distractorRationale": "Utilise l'expression f'(x) = 2x sans l'évaluer en a = 2."
           }
         ],
         "explanation": "L'équation de la tangente en a est y = f'(a)(x − a) + f(a). Ici f(2) = 4 et f'(2) = 4, donc y = 4(x − 2) + 4 = 4x − 4."
@@ -406,14 +406,14 @@
         "options": [
           {
             "id": "A",
-            "text": "le coefficient directeur de la tangente à la courbe au point d'abscisse a",
-            "isCorrect": true
-          },
-          {
-            "id": "B",
             "text": "l'ordonnée du point de la courbe d'abscisse a",
             "isCorrect": false,
             "distractorRationale": "Confond f'(a) et f(a)."
+          },
+          {
+            "id": "B",
+            "text": "le coefficient directeur de la tangente à la courbe au point d'abscisse a",
+            "isCorrect": true
           },
           {
             "id": "C",
@@ -447,14 +447,14 @@
         "options": [
           {
             "id": "A",
-            "text": "e^(x−1)",
-            "isCorrect": false,
-            "distractorRationale": "Soustrait les exposants sans changer le signe du terme constant : écrit 2x − x − 1 en oubliant la parenthèse."
+            "text": "e^(x+1)",
+            "isCorrect": true
           },
           {
             "id": "B",
-            "text": "e^(x+1)",
-            "isCorrect": true
+            "text": "e^(x−1)",
+            "isCorrect": false,
+            "distractorRationale": "Soustrait les exposants sans changer le signe du terme constant : écrit 2x − x − 1 en oubliant la parenthèse."
           },
           {
             "id": "C",
@@ -582,14 +582,14 @@
           },
           {
             "id": "C",
-            "text": "486",
-            "isCorrect": false,
-            "distractorRationale": "Décale l'indice et calcule v_0 × 3^5 au lieu de v_0 × 3^4."
+            "text": "162",
+            "isCorrect": true
           },
           {
             "id": "D",
-            "text": "162",
-            "isCorrect": true
+            "text": "486",
+            "isCorrect": false,
+            "distractorRationale": "Décale l'indice et calcule v_0 × 3^5 au lieu de v_0 × 3^4."
           }
         ],
         "explanation": "Pour une suite géométrique, v_n = v_0 × r^n. Ici v_4 = 2 × 3⁴ = 2 × 81 = 162."
@@ -611,14 +611,14 @@
         "options": [
           {
             "id": "A",
-            "text": "croissante",
-            "isCorrect": false,
-            "distractorRationale": "Croit qu'une raison strictement positive entraîne une suite croissante, sans comparer la raison à 1."
+            "text": "décroissante",
+            "isCorrect": true
           },
           {
             "id": "B",
-            "text": "décroissante",
-            "isCorrect": true
+            "text": "croissante",
+            "isCorrect": false,
+            "distractorRationale": "Croit qu'une raison strictement positive entraîne une suite croissante, sans comparer la raison à 1."
           },
           {
             "id": "C",
@@ -664,14 +664,14 @@
           },
           {
             "id": "C",
-            "text": "(u_n) est croissante",
-            "isCorrect": true
-          },
-          {
-            "id": "D",
             "text": "(u_n) est décroissante",
             "isCorrect": false,
             "distractorRationale": "Ne calcule pas le signe de u_(n+1) − u_n avant de conclure."
+          },
+          {
+            "id": "D",
+            "text": "(u_n) est croissante",
+            "isCorrect": true
           }
         ],
         "explanation": "On calcule u_(n+1) − u_n = 3n, qui est positif ou nul pour tout entier naturel n. La suite est donc croissante. L'écart n'étant pas constant, elle n'est pas arithmétique."

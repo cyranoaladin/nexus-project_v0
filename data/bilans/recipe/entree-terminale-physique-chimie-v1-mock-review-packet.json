@@ -1,0 +1,5409 @@
+{
+  "schemaVersion": "nexus-bilan-blind-review-packet/v1",
+  "status": "TECHNICAL_MOCK_ONLY_NOT_PEDAGOGICALLY_VALIDATED",
+  "sourceDraftPack": "entree-terminale-physique-chimie-v1",
+  "executionFixture": "fixture-non-publiable-v0",
+  "instructions": "Évaluer la clarté, la fidélité aux faits et l’utilité pédagogique sans inférer une validation du pack DRAFT.",
+  "reports": [
+    {
+      "blindId": "CAS_01_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "d57f464676c95b0abcda68fe45b603926f1e07b2e46a082c2c407e8795acee46",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "transformations",
+                "titre": "transformations",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "chimie-organique",
+                "titre": "chimie organique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "mecanique",
+                "titre": "mecanique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "energie",
+                "titre": "energie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "ondes",
+                "titre": "ondes",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "optique",
+                "titre": "optique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "electricite",
+                "titre": "electricite",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "transformations",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "chimie-organique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "energie",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "ondes",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "optique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "electricite",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_01_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "d77dc934db2267f35c8dc53bac465c7d818c18137390dffec2b56a6ed6bd3423",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "transformations",
+                "texte": "transformations constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "chimie-organique",
+                "texte": "chimie organique constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "mecanique",
+                "texte": "mecanique constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "energie",
+                "titre": "energie",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "ondes",
+                "titre": "ondes",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "optique",
+                "titre": "optique",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "electricite",
+                "titre": "electricite",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "transformations",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "chimie-organique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "energie",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "ondes",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "optique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "electricite",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_01_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "ef3cfa66ff51725de80c088128daaea8ba4cd04bff20aa1364dee43d87822159",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "transformations",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "chimie-organique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "energie",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "ondes",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "optique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "electricite",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 15,
+            "coverage": 45,
+            "calibrationIndex": null,
+            "domainScores": [
+              {
+                "id": "transformations",
+                "score": 15
+              },
+              {
+                "id": "chimie-organique",
+                "score": 24
+              },
+              {
+                "id": "mecanique",
+                "score": 33
+              },
+              {
+                "id": "energie",
+                "score": 42
+              },
+              {
+                "id": "ondes",
+                "score": 51
+              },
+              {
+                "id": "optique",
+                "score": 60
+              },
+              {
+                "id": "electricite",
+                "score": 69
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_02_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "873c2f69fc1570b54afd1bc2132403543ce6c7b982ea99f0695137b1e95fce90",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "transformations",
+                "titre": "transformations",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "chimie-organique",
+                "titre": "chimie organique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "mecanique",
+                "titre": "mecanique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "energie",
+                "titre": "energie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "ondes",
+                "titre": "ondes",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "optique",
+                "titre": "optique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "electricite",
+                "titre": "electricite",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "transformations",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "chimie-organique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "energie",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "ondes",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "optique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "electricite",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_02_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "3c82dedf7467e66c42a756ae8890f32108ec2eaca4e4c1d2facac2232a6205f3",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "transformations",
+                "texte": "transformations constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "chimie-organique",
+                "texte": "chimie organique constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "mecanique",
+                "texte": "mecanique constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "energie",
+                "titre": "energie",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "ondes",
+                "titre": "ondes",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "optique",
+                "titre": "optique",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "electricite",
+                "titre": "electricite",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "transformations",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "chimie-organique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "energie",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "ondes",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "optique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "electricite",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_02_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "aca18d5bbe3806f5059a627b31da6540ac4d25eb282cfa916a7b7aede69a6fbe",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "transformations",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "chimie-organique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "energie",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "ondes",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "optique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "electricite",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 32,
+            "coverage": 58,
+            "calibrationIndex": 41,
+            "domainScores": [
+              {
+                "id": "transformations",
+                "score": 32
+              },
+              {
+                "id": "chimie-organique",
+                "score": 41
+              },
+              {
+                "id": "mecanique",
+                "score": 50
+              },
+              {
+                "id": "energie",
+                "score": 59
+              },
+              {
+                "id": "ondes",
+                "score": 68
+              },
+              {
+                "id": "optique",
+                "score": 77
+              },
+              {
+                "id": "electricite",
+                "score": 86
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_03_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "4b904b1984ff2336dca64b43aac6cbcdada0f6bb57ab1f569e8e626d3bc56806",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "transformations",
+                "titre": "transformations",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "chimie-organique",
+                "titre": "chimie organique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "mecanique",
+                "titre": "mecanique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "energie",
+                "titre": "energie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "ondes",
+                "titre": "ondes",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "optique",
+                "titre": "optique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "electricite",
+                "titre": "electricite",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "transformations",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "chimie-organique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "energie",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "ondes",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "optique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "electricite",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_03_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "e5f534bd4b431e3a8327be9432b9566c9c77e581a3fad275d1a74f8e077e3e35",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "transformations",
+                "texte": "transformations constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "chimie-organique",
+                "texte": "chimie organique constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "mecanique",
+                "texte": "mecanique constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "energie",
+                "titre": "energie",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "ondes",
+                "titre": "ondes",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "optique",
+                "titre": "optique",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "electricite",
+                "titre": "electricite",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "transformations",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "chimie-organique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "energie",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "ondes",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "optique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "electricite",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_03_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "751aa40aa240ce5097fdde1b4a70ca2bd1dc68352bde8408fcaa8453b64c6915",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "transformations",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "chimie-organique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "energie",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "ondes",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "optique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "electricite",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 49,
+            "coverage": 71,
+            "calibrationIndex": 52,
+            "domainScores": [
+              {
+                "id": "transformations",
+                "score": 49
+              },
+              {
+                "id": "chimie-organique",
+                "score": 58
+              },
+              {
+                "id": "mecanique",
+                "score": 67
+              },
+              {
+                "id": "energie",
+                "score": 76
+              },
+              {
+                "id": "ondes",
+                "score": 85
+              },
+              {
+                "id": "optique",
+                "score": 94
+              },
+              {
+                "id": "electricite",
+                "score": 2
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_04_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "80085013d530b316943818591596270a70eeb07a04bdc03041894d7466491292",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "transformations",
+                "titre": "transformations",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "chimie-organique",
+                "titre": "chimie organique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "mecanique",
+                "titre": "mecanique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "energie",
+                "titre": "energie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "ondes",
+                "titre": "ondes",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "optique",
+                "titre": "optique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "electricite",
+                "titre": "electricite",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "transformations",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "chimie-organique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "energie",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "ondes",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "optique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "electricite",
+              "profile": "NON_TRAITE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_04_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "4078f8df93ed6f814a21be901b665aca6b0d24164ac44a46b925f01aebff65fd",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "transformations",
+                "texte": "transformations constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "chimie-organique",
+                "texte": "chimie organique constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "mecanique",
+                "texte": "mecanique constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "energie",
+                "titre": "energie",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "ondes",
+                "titre": "ondes",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "optique",
+                "titre": "optique",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "electricite",
+                "titre": "electricite",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "transformations",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "chimie-organique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "energie",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "ondes",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "optique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "electricite",
+              "profile": "NON_TRAITE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_04_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "ad880adca0263e9ccc65c0e804865f9651cd8495023d17161b9afb16d0472576",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "transformations",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "chimie-organique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "energie",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "ondes",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "optique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "electricite",
+              "profile": "NON_TRAITE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 66,
+            "coverage": 84,
+            "calibrationIndex": 63,
+            "domainScores": [
+              {
+                "id": "transformations",
+                "score": 66
+              },
+              {
+                "id": "chimie-organique",
+                "score": 75
+              },
+              {
+                "id": "mecanique",
+                "score": 84
+              },
+              {
+                "id": "energie",
+                "score": 93
+              },
+              {
+                "id": "ondes",
+                "score": 1
+              },
+              {
+                "id": "optique",
+                "score": 10
+              },
+              {
+                "id": "electricite",
+                "score": 19
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_05_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "5e6f09b53256e0bf2393d4d11ab20c343789668558c0b172d7632a4ea1d7b936",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "transformations",
+                "titre": "transformations",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "chimie-organique",
+                "titre": "chimie organique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "mecanique",
+                "titre": "mecanique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "energie",
+                "titre": "energie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "ondes",
+                "titre": "ondes",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "optique",
+                "titre": "optique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "electricite",
+                "titre": "electricite",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "transformations",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "chimie-organique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "energie",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "ondes",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "optique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "electricite",
+              "profile": "MAITRISE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_05_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "b28249d61a91400c25bdd4b55d64fb52e9549717034317eb4b74d8a8d6fb37c4",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "transformations",
+                "texte": "transformations constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "chimie-organique",
+                "texte": "chimie organique constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "mecanique",
+                "texte": "mecanique constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "energie",
+                "titre": "energie",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "ondes",
+                "titre": "ondes",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "optique",
+                "titre": "optique",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "electricite",
+                "titre": "electricite",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "transformations",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "chimie-organique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "energie",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "ondes",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "optique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "electricite",
+              "profile": "MAITRISE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_05_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "ef3e9b4b9fb5fa14582bc9ef6b4155019501109b810206bd09ec1a841973c623",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "transformations",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "chimie-organique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "energie",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "ondes",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "optique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "electricite",
+              "profile": "MAITRISE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 83,
+            "coverage": 97,
+            "calibrationIndex": null,
+            "domainScores": [
+              {
+                "id": "transformations",
+                "score": 83
+              },
+              {
+                "id": "chimie-organique",
+                "score": 92
+              },
+              {
+                "id": "mecanique",
+                "score": 0
+              },
+              {
+                "id": "energie",
+                "score": 9
+              },
+              {
+                "id": "ondes",
+                "score": 18
+              },
+              {
+                "id": "optique",
+                "score": 27
+              },
+              {
+                "id": "electricite",
+                "score": 36
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_06_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "d57f464676c95b0abcda68fe45b603926f1e07b2e46a082c2c407e8795acee46",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "transformations",
+                "titre": "transformations",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "chimie-organique",
+                "titre": "chimie organique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "mecanique",
+                "titre": "mecanique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "energie",
+                "titre": "energie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "ondes",
+                "titre": "ondes",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "optique",
+                "titre": "optique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "electricite",
+                "titre": "electricite",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "transformations",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "chimie-organique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "energie",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "ondes",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "optique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "electricite",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_06_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "d77dc934db2267f35c8dc53bac465c7d818c18137390dffec2b56a6ed6bd3423",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "transformations",
+                "texte": "transformations constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "chimie-organique",
+                "texte": "chimie organique constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "mecanique",
+                "texte": "mecanique constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "energie",
+                "titre": "energie",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "ondes",
+                "titre": "ondes",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "optique",
+                "titre": "optique",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "electricite",
+                "titre": "electricite",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "transformations",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "chimie-organique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "energie",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "ondes",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "optique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "electricite",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_06_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "979c1728ccbe96cd0a49d42da7fc0909d40d1ccd4d71e02ab34ddf7f580dc4bd",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "transformations",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "chimie-organique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "energie",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "ondes",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "optique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "electricite",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 19,
+            "coverage": 54,
+            "calibrationIndex": 85,
+            "domainScores": [
+              {
+                "id": "transformations",
+                "score": 19
+              },
+              {
+                "id": "chimie-organique",
+                "score": 28
+              },
+              {
+                "id": "mecanique",
+                "score": 37
+              },
+              {
+                "id": "energie",
+                "score": 46
+              },
+              {
+                "id": "ondes",
+                "score": 55
+              },
+              {
+                "id": "optique",
+                "score": 64
+              },
+              {
+                "id": "electricite",
+                "score": 73
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_07_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "873c2f69fc1570b54afd1bc2132403543ce6c7b982ea99f0695137b1e95fce90",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "transformations",
+                "titre": "transformations",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "chimie-organique",
+                "titre": "chimie organique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "mecanique",
+                "titre": "mecanique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "energie",
+                "titre": "energie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "ondes",
+                "titre": "ondes",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "optique",
+                "titre": "optique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "electricite",
+                "titre": "electricite",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "transformations",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "chimie-organique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "energie",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "ondes",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "optique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "electricite",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_07_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "3c82dedf7467e66c42a756ae8890f32108ec2eaca4e4c1d2facac2232a6205f3",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "transformations",
+                "texte": "transformations constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "chimie-organique",
+                "texte": "chimie organique constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "mecanique",
+                "texte": "mecanique constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "energie",
+                "titre": "energie",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "ondes",
+                "titre": "ondes",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "optique",
+                "titre": "optique",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "electricite",
+                "titre": "electricite",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "transformations",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "chimie-organique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "energie",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "ondes",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "optique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "electricite",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_07_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "e1e161faae8984fb08cd649f94082fa984119cf384e6ab8e9a7bc45d97ef50a4",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "transformations",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "chimie-organique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "energie",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "ondes",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "optique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "electricite",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 36,
+            "coverage": 67,
+            "calibrationIndex": 96,
+            "domainScores": [
+              {
+                "id": "transformations",
+                "score": 36
+              },
+              {
+                "id": "chimie-organique",
+                "score": 45
+              },
+              {
+                "id": "mecanique",
+                "score": 54
+              },
+              {
+                "id": "energie",
+                "score": 63
+              },
+              {
+                "id": "ondes",
+                "score": 72
+              },
+              {
+                "id": "optique",
+                "score": 81
+              },
+              {
+                "id": "electricite",
+                "score": 90
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_08_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "4b904b1984ff2336dca64b43aac6cbcdada0f6bb57ab1f569e8e626d3bc56806",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "transformations",
+                "titre": "transformations",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "chimie-organique",
+                "titre": "chimie organique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "mecanique",
+                "titre": "mecanique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "energie",
+                "titre": "energie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "ondes",
+                "titre": "ondes",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "optique",
+                "titre": "optique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "electricite",
+                "titre": "electricite",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "transformations",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "chimie-organique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "energie",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "ondes",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "optique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "electricite",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_08_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "e5f534bd4b431e3a8327be9432b9566c9c77e581a3fad275d1a74f8e077e3e35",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "transformations",
+                "texte": "transformations constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "chimie-organique",
+                "texte": "chimie organique constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "mecanique",
+                "texte": "mecanique constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "energie",
+                "titre": "energie",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "ondes",
+                "titre": "ondes",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "optique",
+                "titre": "optique",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "electricite",
+                "titre": "electricite",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "transformations",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "chimie-organique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "energie",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "ondes",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "optique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "electricite",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_08_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "9351073333e3e1784c510d1ebb275edba4113da0bd0199ae1d24547a9ddd5299",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "transformations",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "chimie-organique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "energie",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "ondes",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "optique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "electricite",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 53,
+            "coverage": 80,
+            "calibrationIndex": 36,
+            "domainScores": [
+              {
+                "id": "transformations",
+                "score": 53
+              },
+              {
+                "id": "chimie-organique",
+                "score": 62
+              },
+              {
+                "id": "mecanique",
+                "score": 71
+              },
+              {
+                "id": "energie",
+                "score": 80
+              },
+              {
+                "id": "ondes",
+                "score": 89
+              },
+              {
+                "id": "optique",
+                "score": 98
+              },
+              {
+                "id": "electricite",
+                "score": 6
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_09_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "80085013d530b316943818591596270a70eeb07a04bdc03041894d7466491292",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "transformations",
+                "titre": "transformations",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "chimie-organique",
+                "titre": "chimie organique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "mecanique",
+                "titre": "mecanique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "energie",
+                "titre": "energie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "ondes",
+                "titre": "ondes",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "optique",
+                "titre": "optique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "electricite",
+                "titre": "electricite",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "transformations",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "chimie-organique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "energie",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "ondes",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "optique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "electricite",
+              "profile": "NON_TRAITE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_09_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "4078f8df93ed6f814a21be901b665aca6b0d24164ac44a46b925f01aebff65fd",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "transformations",
+                "texte": "transformations constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "chimie-organique",
+                "texte": "chimie organique constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "mecanique",
+                "texte": "mecanique constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "energie",
+                "titre": "energie",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "ondes",
+                "titre": "ondes",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "optique",
+                "titre": "optique",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "electricite",
+                "titre": "electricite",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "transformations",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "chimie-organique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "energie",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "ondes",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "optique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "electricite",
+              "profile": "NON_TRAITE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_09_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "30d7e3c62916e6c7a55d88e6dafd26365a09c9070ead9df45380a1b07acb3877",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "transformations",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "chimie-organique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "energie",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "ondes",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "optique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "electricite",
+              "profile": "NON_TRAITE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 70,
+            "coverage": 93,
+            "calibrationIndex": null,
+            "domainScores": [
+              {
+                "id": "transformations",
+                "score": 70
+              },
+              {
+                "id": "chimie-organique",
+                "score": 79
+              },
+              {
+                "id": "mecanique",
+                "score": 88
+              },
+              {
+                "id": "energie",
+                "score": 97
+              },
+              {
+                "id": "ondes",
+                "score": 5
+              },
+              {
+                "id": "optique",
+                "score": 14
+              },
+              {
+                "id": "electricite",
+                "score": 23
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_10_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "5e6f09b53256e0bf2393d4d11ab20c343789668558c0b172d7632a4ea1d7b936",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "transformations",
+                "titre": "transformations",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "chimie-organique",
+                "titre": "chimie organique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "mecanique",
+                "titre": "mecanique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "energie",
+                "titre": "energie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "ondes",
+                "titre": "ondes",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "optique",
+                "titre": "optique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "electricite",
+                "titre": "electricite",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "transformations",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "chimie-organique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "energie",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "ondes",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "optique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "electricite",
+              "profile": "MAITRISE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_10_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "b28249d61a91400c25bdd4b55d64fb52e9549717034317eb4b74d8a8d6fb37c4",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "transformations",
+                "texte": "transformations constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "chimie-organique",
+                "texte": "chimie organique constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "mecanique",
+                "texte": "mecanique constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "energie",
+                "titre": "energie",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "ondes",
+                "titre": "ondes",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "optique",
+                "titre": "optique",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "electricite",
+                "titre": "electricite",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "transformations",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "chimie-organique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "energie",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "ondes",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "optique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "electricite",
+              "profile": "MAITRISE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_10_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "fedccdad6ae60099d022eb94f5bb89a9f1d82df7a7947c41912f8f045f8e9fac",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "transformations",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "chimie-organique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "energie",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "ondes",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "optique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "electricite",
+              "profile": "MAITRISE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 87,
+            "coverage": 50,
+            "calibrationIndex": 58,
+            "domainScores": [
+              {
+                "id": "transformations",
+                "score": 87
+              },
+              {
+                "id": "chimie-organique",
+                "score": 96
+              },
+              {
+                "id": "mecanique",
+                "score": 4
+              },
+              {
+                "id": "energie",
+                "score": 13
+              },
+              {
+                "id": "ondes",
+                "score": 22
+              },
+              {
+                "id": "optique",
+                "score": 31
+              },
+              {
+                "id": "electricite",
+                "score": 40
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_11_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "d57f464676c95b0abcda68fe45b603926f1e07b2e46a082c2c407e8795acee46",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "transformations",
+                "titre": "transformations",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "chimie-organique",
+                "titre": "chimie organique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "mecanique",
+                "titre": "mecanique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "energie",
+                "titre": "energie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "ondes",
+                "titre": "ondes",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "optique",
+                "titre": "optique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "electricite",
+                "titre": "electricite",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "transformations",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "chimie-organique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "energie",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "ondes",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "optique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "electricite",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_11_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "d77dc934db2267f35c8dc53bac465c7d818c18137390dffec2b56a6ed6bd3423",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "transformations",
+                "texte": "transformations constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "chimie-organique",
+                "texte": "chimie organique constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "mecanique",
+                "texte": "mecanique constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "energie",
+                "titre": "energie",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "ondes",
+                "titre": "ondes",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "optique",
+                "titre": "optique",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "electricite",
+                "titre": "electricite",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "transformations",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "chimie-organique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "energie",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "ondes",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "optique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "electricite",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_11_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "3ab099aee4f49dbf95df6ef1f66b12cd115fb328c2ed8af123437ecd73b42f26",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "transformations",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "chimie-organique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "energie",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "ondes",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "optique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "electricite",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 23,
+            "coverage": 63,
+            "calibrationIndex": 69,
+            "domainScores": [
+              {
+                "id": "transformations",
+                "score": 23
+              },
+              {
+                "id": "chimie-organique",
+                "score": 32
+              },
+              {
+                "id": "mecanique",
+                "score": 41
+              },
+              {
+                "id": "energie",
+                "score": 50
+              },
+              {
+                "id": "ondes",
+                "score": 59
+              },
+              {
+                "id": "optique",
+                "score": 68
+              },
+              {
+                "id": "electricite",
+                "score": 77
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_12_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "873c2f69fc1570b54afd1bc2132403543ce6c7b982ea99f0695137b1e95fce90",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "transformations",
+                "titre": "transformations",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "chimie-organique",
+                "titre": "chimie organique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "mecanique",
+                "titre": "mecanique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "energie",
+                "titre": "energie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "ondes",
+                "titre": "ondes",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "optique",
+                "titre": "optique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "electricite",
+                "titre": "electricite",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "transformations",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "chimie-organique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "energie",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "ondes",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "optique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "electricite",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_12_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "3c82dedf7467e66c42a756ae8890f32108ec2eaca4e4c1d2facac2232a6205f3",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "transformations",
+                "texte": "transformations constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "chimie-organique",
+                "texte": "chimie organique constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "mecanique",
+                "texte": "mecanique constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "energie",
+                "titre": "energie",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "ondes",
+                "titre": "ondes",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "optique",
+                "titre": "optique",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "electricite",
+                "titre": "electricite",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "transformations",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "chimie-organique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "energie",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "ondes",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "optique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "electricite",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_12_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "1d10600b9818b6f580b96b711312137bdb62e6c9cae3bba1921dd2bdf69a9377",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "transformations",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "chimie-organique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "energie",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "ondes",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "optique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "electricite",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 40,
+            "coverage": 76,
+            "calibrationIndex": 80,
+            "domainScores": [
+              {
+                "id": "transformations",
+                "score": 40
+              },
+              {
+                "id": "chimie-organique",
+                "score": 49
+              },
+              {
+                "id": "mecanique",
+                "score": 58
+              },
+              {
+                "id": "energie",
+                "score": 67
+              },
+              {
+                "id": "ondes",
+                "score": 76
+              },
+              {
+                "id": "optique",
+                "score": 85
+              },
+              {
+                "id": "electricite",
+                "score": 94
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_13_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "4b904b1984ff2336dca64b43aac6cbcdada0f6bb57ab1f569e8e626d3bc56806",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "transformations",
+                "titre": "transformations",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "chimie-organique",
+                "titre": "chimie organique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "mecanique",
+                "titre": "mecanique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "energie",
+                "titre": "energie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "ondes",
+                "titre": "ondes",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "optique",
+                "titre": "optique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "electricite",
+                "titre": "electricite",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "transformations",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "chimie-organique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "energie",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "ondes",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "optique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "electricite",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_13_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "e5f534bd4b431e3a8327be9432b9566c9c77e581a3fad275d1a74f8e077e3e35",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "transformations",
+                "texte": "transformations constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "chimie-organique",
+                "texte": "chimie organique constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "mecanique",
+                "texte": "mecanique constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "energie",
+                "titre": "energie",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "ondes",
+                "titre": "ondes",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "optique",
+                "titre": "optique",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "electricite",
+                "titre": "electricite",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "transformations",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "chimie-organique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "energie",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "ondes",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "optique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "electricite",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_13_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "4b0809efde7536ac98f552f3179e4eb0e1088da7869a9cf9481c3cd0e1d60a14",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "transformations",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "chimie-organique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "energie",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "ondes",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "optique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "electricite",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 57,
+            "coverage": 89,
+            "calibrationIndex": null,
+            "domainScores": [
+              {
+                "id": "transformations",
+                "score": 57
+              },
+              {
+                "id": "chimie-organique",
+                "score": 66
+              },
+              {
+                "id": "mecanique",
+                "score": 75
+              },
+              {
+                "id": "energie",
+                "score": 84
+              },
+              {
+                "id": "ondes",
+                "score": 93
+              },
+              {
+                "id": "optique",
+                "score": 1
+              },
+              {
+                "id": "electricite",
+                "score": 10
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_14_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "80085013d530b316943818591596270a70eeb07a04bdc03041894d7466491292",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "transformations",
+                "titre": "transformations",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "chimie-organique",
+                "titre": "chimie organique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "mecanique",
+                "titre": "mecanique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "energie",
+                "titre": "energie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "ondes",
+                "titre": "ondes",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "optique",
+                "titre": "optique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "electricite",
+                "titre": "electricite",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "transformations",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "chimie-organique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "energie",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "ondes",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "optique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "electricite",
+              "profile": "NON_TRAITE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_14_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "4078f8df93ed6f814a21be901b665aca6b0d24164ac44a46b925f01aebff65fd",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "transformations",
+                "texte": "transformations constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "chimie-organique",
+                "texte": "chimie organique constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "mecanique",
+                "texte": "mecanique constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "energie",
+                "titre": "energie",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "ondes",
+                "titre": "ondes",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "optique",
+                "titre": "optique",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "electricite",
+                "titre": "electricite",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "transformations",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "chimie-organique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "energie",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "ondes",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "optique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "electricite",
+              "profile": "NON_TRAITE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_14_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "f2be233b467a7169373b6a69795afbd7c4f7dda0c5ea2aec7f30a257de3ce83b",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "transformations",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "chimie-organique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "energie",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "ondes",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "optique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "electricite",
+              "profile": "NON_TRAITE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 74,
+            "coverage": 46,
+            "calibrationIndex": 31,
+            "domainScores": [
+              {
+                "id": "transformations",
+                "score": 74
+              },
+              {
+                "id": "chimie-organique",
+                "score": 83
+              },
+              {
+                "id": "mecanique",
+                "score": 92
+              },
+              {
+                "id": "energie",
+                "score": 0
+              },
+              {
+                "id": "ondes",
+                "score": 9
+              },
+              {
+                "id": "optique",
+                "score": 18
+              },
+              {
+                "id": "electricite",
+                "score": 27
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_15_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "5e6f09b53256e0bf2393d4d11ab20c343789668558c0b172d7632a4ea1d7b936",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "transformations",
+                "titre": "transformations",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "chimie-organique",
+                "titre": "chimie organique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "mecanique",
+                "titre": "mecanique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "energie",
+                "titre": "energie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "ondes",
+                "titre": "ondes",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "optique",
+                "titre": "optique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "electricite",
+                "titre": "electricite",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "transformations",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "chimie-organique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "energie",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "ondes",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "optique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "electricite",
+              "profile": "MAITRISE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_15_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "b28249d61a91400c25bdd4b55d64fb52e9549717034317eb4b74d8a8d6fb37c4",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "transformations",
+                "texte": "transformations constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "chimie-organique",
+                "texte": "chimie organique constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "mecanique",
+                "texte": "mecanique constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "energie",
+                "titre": "energie",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "ondes",
+                "titre": "ondes",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "optique",
+                "titre": "optique",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "electricite",
+                "titre": "electricite",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "transformations",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "chimie-organique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "energie",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "ondes",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "optique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "electricite",
+              "profile": "MAITRISE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_15_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "4cff8ee74c8c816bb3f68668165da40289277a9214698ee1c43922bb048c07a0",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "transformations",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "chimie-organique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "energie",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "ondes",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "optique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "electricite",
+              "profile": "MAITRISE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 91,
+            "coverage": 59,
+            "calibrationIndex": 42,
+            "domainScores": [
+              {
+                "id": "transformations",
+                "score": 91
+              },
+              {
+                "id": "chimie-organique",
+                "score": 100
+              },
+              {
+                "id": "mecanique",
+                "score": 8
+              },
+              {
+                "id": "energie",
+                "score": 17
+              },
+              {
+                "id": "ondes",
+                "score": 26
+              },
+              {
+                "id": "optique",
+                "score": 35
+              },
+              {
+                "id": "electricite",
+                "score": 44
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_16_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "d57f464676c95b0abcda68fe45b603926f1e07b2e46a082c2c407e8795acee46",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "transformations",
+                "titre": "transformations",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "chimie-organique",
+                "titre": "chimie organique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "mecanique",
+                "titre": "mecanique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "energie",
+                "titre": "energie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "ondes",
+                "titre": "ondes",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "optique",
+                "titre": "optique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "electricite",
+                "titre": "electricite",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "transformations",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "chimie-organique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "energie",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "ondes",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "optique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "electricite",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_16_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "d77dc934db2267f35c8dc53bac465c7d818c18137390dffec2b56a6ed6bd3423",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "transformations",
+                "texte": "transformations constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "chimie-organique",
+                "texte": "chimie organique constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "mecanique",
+                "texte": "mecanique constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "energie",
+                "titre": "energie",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "ondes",
+                "titre": "ondes",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "optique",
+                "titre": "optique",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "electricite",
+                "titre": "electricite",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "transformations",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "chimie-organique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "energie",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "ondes",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "optique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "electricite",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_16_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "d3e4155013c6ab10d6b23017c327627ad03c757306d85e7449259ce8d12c8a5d",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "transformations",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "chimie-organique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "energie",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "ondes",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "optique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "electricite",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 27,
+            "coverage": 72,
+            "calibrationIndex": 53,
+            "domainScores": [
+              {
+                "id": "transformations",
+                "score": 27
+              },
+              {
+                "id": "chimie-organique",
+                "score": 36
+              },
+              {
+                "id": "mecanique",
+                "score": 45
+              },
+              {
+                "id": "energie",
+                "score": 54
+              },
+              {
+                "id": "ondes",
+                "score": 63
+              },
+              {
+                "id": "optique",
+                "score": 72
+              },
+              {
+                "id": "electricite",
+                "score": 81
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_17_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "873c2f69fc1570b54afd1bc2132403543ce6c7b982ea99f0695137b1e95fce90",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "transformations",
+                "titre": "transformations",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "chimie-organique",
+                "titre": "chimie organique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "mecanique",
+                "titre": "mecanique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "energie",
+                "titre": "energie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "ondes",
+                "titre": "ondes",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "optique",
+                "titre": "optique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "electricite",
+                "titre": "electricite",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "transformations",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "chimie-organique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "energie",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "ondes",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "optique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "electricite",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_17_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "3c82dedf7467e66c42a756ae8890f32108ec2eaca4e4c1d2facac2232a6205f3",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "transformations",
+                "texte": "transformations constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "chimie-organique",
+                "texte": "chimie organique constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "mecanique",
+                "texte": "mecanique constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "energie",
+                "titre": "energie",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "ondes",
+                "titre": "ondes",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "optique",
+                "titre": "optique",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "electricite",
+                "titre": "electricite",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "transformations",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "chimie-organique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "energie",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "ondes",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "optique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "electricite",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_17_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "cc11bae3c71e9487e0695cf6a9e87bf4cbcd082c21c6735f9d19e685502c2366",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "transformations",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "chimie-organique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "energie",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "ondes",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "optique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "electricite",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 44,
+            "coverage": 85,
+            "calibrationIndex": null,
+            "domainScores": [
+              {
+                "id": "transformations",
+                "score": 44
+              },
+              {
+                "id": "chimie-organique",
+                "score": 53
+              },
+              {
+                "id": "mecanique",
+                "score": 62
+              },
+              {
+                "id": "energie",
+                "score": 71
+              },
+              {
+                "id": "ondes",
+                "score": 80
+              },
+              {
+                "id": "optique",
+                "score": 89
+              },
+              {
+                "id": "electricite",
+                "score": 98
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_18_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "4b904b1984ff2336dca64b43aac6cbcdada0f6bb57ab1f569e8e626d3bc56806",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "transformations",
+                "titre": "transformations",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "chimie-organique",
+                "titre": "chimie organique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "mecanique",
+                "titre": "mecanique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "energie",
+                "titre": "energie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "ondes",
+                "titre": "ondes",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "optique",
+                "titre": "optique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "electricite",
+                "titre": "electricite",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "transformations",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "chimie-organique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "energie",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "ondes",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "optique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "electricite",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_18_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "e5f534bd4b431e3a8327be9432b9566c9c77e581a3fad275d1a74f8e077e3e35",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "transformations",
+                "texte": "transformations constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "chimie-organique",
+                "texte": "chimie organique constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "mecanique",
+                "texte": "mecanique constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "energie",
+                "titre": "energie",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "ondes",
+                "titre": "ondes",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "optique",
+                "titre": "optique",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "electricite",
+                "titre": "electricite",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "transformations",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "chimie-organique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "energie",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "ondes",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "optique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "electricite",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_18_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "44de8f2e55edcd6a0b3968e6784d9449ca86e59e057be16dbab131602b0b01d0",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "transformations",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "chimie-organique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "energie",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "ondes",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "optique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "electricite",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 61,
+            "coverage": 98,
+            "calibrationIndex": 75,
+            "domainScores": [
+              {
+                "id": "transformations",
+                "score": 61
+              },
+              {
+                "id": "chimie-organique",
+                "score": 70
+              },
+              {
+                "id": "mecanique",
+                "score": 79
+              },
+              {
+                "id": "energie",
+                "score": 88
+              },
+              {
+                "id": "ondes",
+                "score": 97
+              },
+              {
+                "id": "optique",
+                "score": 5
+              },
+              {
+                "id": "electricite",
+                "score": 14
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_19_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "80085013d530b316943818591596270a70eeb07a04bdc03041894d7466491292",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "transformations",
+                "titre": "transformations",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "chimie-organique",
+                "titre": "chimie organique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "mecanique",
+                "titre": "mecanique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "energie",
+                "titre": "energie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "ondes",
+                "titre": "ondes",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "optique",
+                "titre": "optique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "electricite",
+                "titre": "electricite",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "transformations",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "chimie-organique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "energie",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "ondes",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "optique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "electricite",
+              "profile": "NON_TRAITE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_19_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "4078f8df93ed6f814a21be901b665aca6b0d24164ac44a46b925f01aebff65fd",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "transformations",
+                "texte": "transformations constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "chimie-organique",
+                "texte": "chimie organique constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "mecanique",
+                "texte": "mecanique constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "energie",
+                "titre": "energie",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "ondes",
+                "titre": "ondes",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "optique",
+                "titre": "optique",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "electricite",
+                "titre": "electricite",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "transformations",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "chimie-organique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "energie",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "ondes",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "optique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "electricite",
+              "profile": "NON_TRAITE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_19_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "abbb77359f89a761f60e41d56416f967a7f476ac310fafdba9b527e5800b46db",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "transformations",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "chimie-organique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "energie",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "ondes",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "optique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "electricite",
+              "profile": "NON_TRAITE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 78,
+            "coverage": 55,
+            "calibrationIndex": 86,
+            "domainScores": [
+              {
+                "id": "transformations",
+                "score": 78
+              },
+              {
+                "id": "chimie-organique",
+                "score": 87
+              },
+              {
+                "id": "mecanique",
+                "score": 96
+              },
+              {
+                "id": "energie",
+                "score": 4
+              },
+              {
+                "id": "ondes",
+                "score": 13
+              },
+              {
+                "id": "optique",
+                "score": 22
+              },
+              {
+                "id": "electricite",
+                "score": 31
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_20_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "5e6f09b53256e0bf2393d4d11ab20c343789668558c0b172d7632a4ea1d7b936",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "transformations",
+                "titre": "transformations",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "chimie-organique",
+                "titre": "chimie organique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "mecanique",
+                "titre": "mecanique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "energie",
+                "titre": "energie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "ondes",
+                "titre": "ondes",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "optique",
+                "titre": "optique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "electricite",
+                "titre": "electricite",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "transformations",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "chimie-organique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "energie",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "ondes",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "optique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "electricite",
+              "profile": "MAITRISE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_20_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "b28249d61a91400c25bdd4b55d64fb52e9549717034317eb4b74d8a8d6fb37c4",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "transformations",
+                "texte": "transformations constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "chimie-organique",
+                "texte": "chimie organique constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "mecanique",
+                "texte": "mecanique constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "energie",
+                "titre": "energie",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "ondes",
+                "titre": "ondes",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "optique",
+                "titre": "optique",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "electricite",
+                "titre": "electricite",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "transformations",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "chimie-organique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "energie",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "ondes",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "optique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "electricite",
+              "profile": "MAITRISE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_20_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "3c9487dca75bfc1731d6d720499555bfc69bbb7e62821e27ebf0eea28ad509f4",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "transformations",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "chimie-organique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "energie",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "ondes",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "optique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "electricite",
+              "profile": "MAITRISE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 95,
+            "coverage": 68,
+            "calibrationIndex": 97,
+            "domainScores": [
+              {
+                "id": "transformations",
+                "score": 95
+              },
+              {
+                "id": "chimie-organique",
+                "score": 3
+              },
+              {
+                "id": "mecanique",
+                "score": 12
+              },
+              {
+                "id": "energie",
+                "score": 21
+              },
+              {
+                "id": "ondes",
+                "score": 30
+              },
+              {
+                "id": "optique",
+                "score": 39
+              },
+              {
+                "id": "electricite",
+                "score": 48
+              }
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

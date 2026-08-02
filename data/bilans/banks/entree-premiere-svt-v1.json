@@ -1,0 +1,1074 @@
+{
+  "slug": "entree-premiere-svt-v1",
+  "level": "PREMIERE",
+  "subject": "SVT",
+  "version": 1,
+  "status": "DRAFT",
+  "review": {
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  "questionnaire": {
+    "targetDurationMin": 25,
+    "confidenceScale": {
+      "levels": 4,
+      "labels": [
+        "je devine",
+        "peu sûr",
+        "plutôt sûr",
+        "certain"
+      ]
+    },
+    "items": [
+      {
+        "id": "EPR-SVT-ADN-01",
+        "subject": "SVT",
+        "category": "ADN, gène et information génétique",
+        "domainId": "genetique",
+        "nodeCpsId": "2de.svt.genetique.adn-gene-information",
+        "difficulty": 1,
+        "targetTimeSec": 50,
+        "shortCorrection": "Le gène est une séquence localisée d'ADN, portée par un chromosome, qui contient l'information nécessaire à la fabrication d'une protéine.",
+        "weight": 1,
+        "competencies": [
+          "2de.svt.genetique.adn-gene-information"
+        ],
+        "questionText": "Un gène est :",
+        "options": [
+          {
+            "id": "A",
+            "text": "une molécule d'ADN entière",
+            "isCorrect": false,
+            "distractorRationale": "Confond le gène avec la molécule d'ADN complète ou avec le chromosome qui la contient."
+          },
+          {
+            "id": "B",
+            "text": "une protéine fabriquée par la cellule",
+            "isCorrect": false,
+            "distractorRationale": "Confond le gène avec le produit de son expression."
+          },
+          {
+            "id": "C",
+            "text": "une portion d'ADN porteuse d'une information génétique",
+            "isCorrect": true
+          },
+          {
+            "id": "D",
+            "text": "un ensemble de chromosomes",
+            "isCorrect": false,
+            "distractorRationale": "Situe le gène à une échelle supérieure à celle du chromosome."
+          }
+        ],
+        "explanation": "Le gène est une séquence localisée d'ADN, portée par un chromosome, qui contient l'information nécessaire à la fabrication d'une protéine."
+      },
+      {
+        "id": "EPR-SVT-ADN-02",
+        "subject": "SVT",
+        "category": "ADN, gène et information génétique",
+        "domainId": "genetique",
+        "nodeCpsId": "2de.svt.genetique.adn-gene-information",
+        "difficulty": 3,
+        "targetTimeSec": 65,
+        "shortCorrection": "Toutes les cellules d'un individu portent le même ADN. Leur spécialisation vient de ce que chacune n'exprime qu'une partie de ses gènes.",
+        "weight": 3,
+        "competencies": [
+          "2de.svt.genetique.adn-gene-information"
+        ],
+        "questionText": "Chez un même individu, une cellule de la peau et une cellule du foie :",
+        "options": [
+          {
+            "id": "A",
+            "text": "possèdent le même ADN mais n'expriment pas les mêmes gènes",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "possèdent un ADN différent, propre à chaque organe",
+            "isCorrect": false,
+            "distractorRationale": "Suppose que la spécialisation cellulaire résulte d'un ADN différent, alors qu'elle résulte d'une expression différente."
+          },
+          {
+            "id": "C",
+            "text": "possèdent le même ADN et expriment les mêmes gènes",
+            "isCorrect": false,
+            "distractorRationale": "Identifie bien l'ADN commun mais n'explique pas alors la différence de forme et de fonction entre les deux cellules."
+          },
+          {
+            "id": "D",
+            "text": "possèdent une quantité identique d'ADN mais des séquences différentes",
+            "isCorrect": false,
+            "distractorRationale": "Dissocie à tort la quantité d'ADN de sa séquence, qui est pourtant identique dans toutes les cellules de l'organisme."
+          }
+        ],
+        "explanation": "Toutes les cellules d'un individu portent le même ADN. Leur spécialisation vient de ce que chacune n'exprime qu'une partie de ses gènes."
+      },
+      {
+        "id": "EPR-SVT-CEL-01",
+        "subject": "SVT",
+        "category": "Organisation fonctionnelle du vivant",
+        "domainId": "organisation-du-vivant",
+        "nodeCpsId": "2de.svt.organisation-du-vivant.cellule",
+        "difficulty": 2,
+        "targetTimeSec": 55,
+        "shortCorrection": "Toute cellule est délimitée par une membrane plasmique, contient un cytoplasme et du matériel génétique. Le noyau, la paroi et les chloroplastes ne sont pas universels.",
+        "weight": 2,
+        "competencies": [
+          "2de.svt.organisation-du-vivant.cellule"
+        ],
+        "questionText": "Quel caractère est commun à toutes les cellules du vivant ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "la présence d'un noyau",
+            "isCorrect": false,
+            "distractorRationale": "Oublie les cellules procaryotes, dépourvues de noyau mais bien vivantes."
+          },
+          {
+            "id": "B",
+            "text": "la présence d'une membrane plasmique et de matériel génétique",
+            "isCorrect": true
+          },
+          {
+            "id": "C",
+            "text": "la présence d'une paroi rigide",
+            "isCorrect": false,
+            "distractorRationale": "Généralise à toutes les cellules une structure propre aux végétaux, aux champignons et à certaines bactéries."
+          },
+          {
+            "id": "D",
+            "text": "la présence de chloroplastes",
+            "isCorrect": false,
+            "distractorRationale": "Généralise un organite propre aux cellules chlorophylliennes."
+          }
+        ],
+        "explanation": "Toute cellule est délimitée par une membrane plasmique, contient un cytoplasme et du matériel génétique. Le noyau, la paroi et les chloroplastes ne sont pas universels."
+      },
+      {
+        "id": "EPR-SVT-CEL-02",
+        "subject": "SVT",
+        "category": "Organisation fonctionnelle du vivant",
+        "domainId": "organisation-du-vivant",
+        "nodeCpsId": "2de.svt.organisation-du-vivant.cellule",
+        "difficulty": 1,
+        "targetTimeSec": 45,
+        "shortCorrection": "Les cellules semblables forment un tissu, les tissus s'associent en organes, et les organes constituent l'organisme.",
+        "weight": 1,
+        "competencies": [
+          "2de.svt.organisation-du-vivant.cellule"
+        ],
+        "questionText": "Classez ces niveaux d'organisation du plus petit au plus grand.",
+        "options": [
+          {
+            "id": "A",
+            "text": "cellule, organe, tissu, organisme",
+            "isCorrect": false,
+            "distractorRationale": "Intervertit tissu et organe, en supposant que l'organe est l'assemblage le plus simple."
+          },
+          {
+            "id": "B",
+            "text": "tissu, cellule, organe, organisme",
+            "isCorrect": false,
+            "distractorRationale": "Place le tissu avant la cellule, alors que le tissu en est un regroupement."
+          },
+          {
+            "id": "C",
+            "text": "cellule, tissu, organisme, organe",
+            "isCorrect": false,
+            "distractorRationale": "Place l'organisme avant l'organe, alors que l'organisme est le niveau le plus intégré."
+          },
+          {
+            "id": "D",
+            "text": "cellule, tissu, organe, organisme",
+            "isCorrect": true
+          }
+        ],
+        "explanation": "Les cellules semblables forment un tissu, les tissus s'associent en organes, et les organes constituent l'organisme."
+      },
+      {
+        "id": "EPR-SVT-MET-01",
+        "subject": "SVT",
+        "category": "Métabolisme cellulaire",
+        "domainId": "metabolisme",
+        "nodeCpsId": "2de.svt.metabolisme.photosynthese-respiration",
+        "difficulty": 2,
+        "targetTimeSec": 55,
+        "shortCorrection": "La photosynthèse convertit l'énergie lumineuse en énergie chimique : à partir d'eau et de dioxyde de carbone, la cellule produit de la matière organique et rejette du dioxygène.",
+        "weight": 2,
+        "competencies": [
+          "2de.svt.metabolisme.photosynthese-respiration"
+        ],
+        "questionText": "La photosynthèse permet à une cellule chlorophyllienne de :",
+        "options": [
+          {
+            "id": "A",
+            "text": "produire de la matière organique à partir de matière minérale et d'énergie lumineuse",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "produire de l'énergie sans consommer de matière première",
+            "isCorrect": false,
+            "distractorRationale": "Suppose une production d'énergie à partir de rien, en contradiction avec la conservation de la matière et de l'énergie."
+          },
+          {
+            "id": "C",
+            "text": "dégrader de la matière organique pour libérer de l'énergie",
+            "isCorrect": false,
+            "distractorRationale": "Décrit la respiration cellulaire, qui est la réaction inverse de la photosynthèse."
+          },
+          {
+            "id": "D",
+            "text": "fabriquer du dioxyde de carbone à partir de dioxygène",
+            "isCorrect": false,
+            "distractorRationale": "Inverse les rôles des deux gaz dans la photosynthèse."
+          }
+        ],
+        "explanation": "La photosynthèse convertit l'énergie lumineuse en énergie chimique : à partir d'eau et de dioxyde de carbone, la cellule produit de la matière organique et rejette du dioxygène."
+      },
+      {
+        "id": "EPR-SVT-MET-02",
+        "subject": "SVT",
+        "category": "Métabolisme cellulaire",
+        "domainId": "metabolisme",
+        "nodeCpsId": "2de.svt.metabolisme.photosynthese-respiration",
+        "difficulty": 2,
+        "targetTimeSec": 55,
+        "shortCorrection": "Les deux voies dégradent le glucose, mais seule la respiration utilise du dioxygène. Elle libère de ce fait beaucoup plus d'énergie que la fermentation.",
+        "weight": 2,
+        "competencies": [
+          "2de.svt.metabolisme.photosynthese-respiration"
+        ],
+        "questionText": "Quelle différence essentielle sépare la respiration cellulaire de la fermentation ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "la fermentation libère davantage d'énergie que la respiration",
+            "isCorrect": false,
+            "distractorRationale": "Inverse les rendements énergétiques des deux voies métaboliques."
+          },
+          {
+            "id": "B",
+            "text": "la respiration se déroule sans intervention d'enzymes",
+            "isCorrect": false,
+            "distractorRationale": "Suppose qu'une voie métabolique peut se dérouler sans catalyseur biologique."
+          },
+          {
+            "id": "C",
+            "text": "la respiration consomme du dioxygène, la fermentation non",
+            "isCorrect": true
+          },
+          {
+            "id": "D",
+            "text": "seule la fermentation dégrade le glucose",
+            "isCorrect": false,
+            "distractorRationale": "Attribue à la seule fermentation la dégradation du glucose, qui est le point de départ des deux voies."
+          }
+        ],
+        "explanation": "Les deux voies dégradent le glucose, mais seule la respiration utilise du dioxygène. Elle libère de ce fait beaucoup plus d'énergie que la fermentation."
+      },
+      {
+        "id": "EPR-SVT-EVO-01",
+        "subject": "SVT",
+        "category": "Biodiversité et mécanismes de l'évolution",
+        "domainId": "evolution",
+        "nodeCpsId": "2de.svt.evolution.mecanismes",
+        "difficulty": 3,
+        "targetTimeSec": 65,
+        "shortCorrection": "Les mutations apparaissent au hasard et créent de la diversité. La sélection naturelle trie ensuite cette diversité selon l'avantage qu'elle procure dans un milieu donné.",
+        "weight": 3,
+        "competencies": [
+          "2de.svt.evolution.mecanismes"
+        ],
+        "questionText": "La sélection naturelle agit :",
+        "options": [
+          {
+            "id": "A",
+            "text": "sur les caractères acquis par un individu au cours de sa vie",
+            "isCorrect": false,
+            "distractorRationale": "Reprend la conception lamarckienne de la transmission des caractères acquis, abandonnée depuis."
+          },
+          {
+            "id": "B",
+            "text": "sur la variabilité génétique déjà présente dans la population",
+            "isCorrect": true
+          },
+          {
+            "id": "C",
+            "text": "en provoquant les mutations dont l'organisme a besoin",
+            "isCorrect": false,
+            "distractorRationale": "Suppose que les mutations apparaissent en réponse à un besoin, alors qu'elles surviennent au hasard."
+          },
+          {
+            "id": "D",
+            "text": "uniquement sur les espèces menacées de disparition",
+            "isCorrect": false,
+            "distractorRationale": "Restreint à un cas particulier un mécanisme qui s'exerce dans toutes les populations."
+          }
+        ],
+        "explanation": "Les mutations apparaissent au hasard et créent de la diversité. La sélection naturelle trie ensuite cette diversité selon l'avantage qu'elle procure dans un milieu donné."
+      },
+      {
+        "id": "EPR-SVT-EVO-02",
+        "subject": "SVT",
+        "category": "Biodiversité et mécanismes de l'évolution",
+        "domainId": "evolution",
+        "nodeCpsId": "2de.svt.evolution.mecanismes",
+        "difficulty": 3,
+        "targetTimeSec": 60,
+        "shortCorrection": "La dérive génétique fait varier les fréquences alléliques au hasard, indépendamment de tout avantage. Son effet est d'autant plus marqué que la population est petite.",
+        "weight": 3,
+        "competencies": [
+          "2de.svt.evolution.mecanismes"
+        ],
+        "questionText": "La dérive génétique se distingue de la sélection naturelle parce qu'elle :",
+        "options": [
+          {
+            "id": "A",
+            "text": "résulte du hasard et agit surtout dans les populations de petit effectif",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "favorise systématiquement les individus les mieux adaptés",
+            "isCorrect": false,
+            "distractorRationale": "Attribue à la dérive le tri selon l'avantage, qui caractérise la sélection naturelle."
+          },
+          {
+            "id": "C",
+            "text": "ne modifie jamais les fréquences des allèles",
+            "isCorrect": false,
+            "distractorRationale": "Nie l'effet même de la dérive, qui est précisément une modification aléatoire des fréquences alléliques."
+          },
+          {
+            "id": "D",
+            "text": "ne concerne que les espèces végétales",
+            "isCorrect": false,
+            "distractorRationale": "Restreint à un groupe un mécanisme qui s'exerce dans toutes les populations."
+          }
+        ],
+        "explanation": "La dérive génétique fait varier les fréquences alléliques au hasard, indépendamment de tout avantage. Son effet est d'autant plus marqué que la population est petite."
+      },
+      {
+        "id": "EPR-SVT-GEO-01",
+        "subject": "SVT",
+        "category": "Érosion, transport, sédimentation",
+        "domainId": "geologie",
+        "nodeCpsId": "2de.svt.geologie.erosion-sedimentation",
+        "difficulty": 2,
+        "targetTimeSec": 55,
+        "shortCorrection": "Les particules sont d'abord arrachées par l'érosion, transportées, puis déposées. La diagenèse les transforme ensuite en roche cohérente.",
+        "weight": 2,
+        "competencies": [
+          "2de.svt.geologie.erosion-sedimentation"
+        ],
+        "questionText": "Quelle est la succession correcte des étapes menant d'un massif rocheux à une roche sédimentaire ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "sédimentation, érosion, transport, diagenèse",
+            "isCorrect": false,
+            "distractorRationale": "Place le dépôt avant l'arrachement des particules, ce qui inverse la chronologie."
+          },
+          {
+            "id": "B",
+            "text": "érosion, diagenèse, transport, sédimentation",
+            "isCorrect": false,
+            "distractorRationale": "Place la transformation en roche avant le dépôt des sédiments."
+          },
+          {
+            "id": "C",
+            "text": "transport, érosion, sédimentation, diagenèse",
+            "isCorrect": false,
+            "distractorRationale": "Place le transport avant l'érosion, alors qu'il faut d'abord arracher les particules."
+          },
+          {
+            "id": "D",
+            "text": "érosion, transport, sédimentation, diagenèse",
+            "isCorrect": true
+          }
+        ],
+        "explanation": "Les particules sont d'abord arrachées par l'érosion, transportées, puis déposées. La diagenèse les transforme ensuite en roche cohérente."
+      },
+      {
+        "id": "EPR-SVT-GEO-02",
+        "subject": "SVT",
+        "category": "Érosion, transport, sédimentation",
+        "domainId": "geologie",
+        "nodeCpsId": "2de.svt.geologie.erosion-sedimentation",
+        "difficulty": 2,
+        "targetTimeSec": 55,
+        "shortCorrection": "Le grès est une roche détritique : il résulte de l'accumulation de grains de quartz issus de l'érosion, puis de leur cimentation lors de la diagenèse.",
+        "weight": 2,
+        "competencies": [
+          "2de.svt.geologie.erosion-sedimentation"
+        ],
+        "questionText": "Le grès est une roche sédimentaire formée principalement à partir :",
+        "options": [
+          {
+            "id": "A",
+            "text": "de la précipitation chimique de sels dissous",
+            "isCorrect": false,
+            "distractorRationale": "Décrit la formation d'une roche évaporitique comme le gypse ou le sel gemme."
+          },
+          {
+            "id": "B",
+            "text": "de grains de quartz issus de l'érosion, ensuite cimentés",
+            "isCorrect": true
+          },
+          {
+            "id": "C",
+            "text": "de restes de coquilles et de squelettes calcaires",
+            "isCorrect": false,
+            "distractorRationale": "Décrit la formation d'une roche biogène comme le calcaire coquillier."
+          },
+          {
+            "id": "D",
+            "text": "du refroidissement et de la cristallisation d'un magma",
+            "isCorrect": false,
+            "distractorRationale": "Décrit la formation d'une roche magmatique, et non sédimentaire."
+          }
+        ],
+        "explanation": "Le grès est une roche détritique : il résulte de l'accumulation de grains de quartz issus de l'érosion, puis de leur cimentation lors de la diagenèse."
+      },
+      {
+        "id": "EPR-SVT-ECO-01",
+        "subject": "SVT",
+        "category": "Écosystèmes, flux de matière et d'énergie",
+        "domainId": "ecosystemes",
+        "nodeCpsId": "2de.svt.ecosystemes.flux-matiere-energie",
+        "difficulty": 1,
+        "targetTimeSec": 45,
+        "shortCorrection": "Les producteurs primaires sont autotrophes : ils fabriquent leur matière organique à partir de matière minérale. Ils forment la base de toute chaîne alimentaire.",
+        "weight": 1,
+        "competencies": [
+          "2de.svt.ecosystemes.flux-matiere-energie"
+        ],
+        "questionText": "Dans un écosystème, les producteurs primaires sont :",
+        "options": [
+          {
+            "id": "A",
+            "text": "les décomposeurs, bactéries et champignons",
+            "isCorrect": false,
+            "distractorRationale": "Confond les organismes qui recyclent la matière morte avec ceux qui produisent la matière organique initiale."
+          },
+          {
+            "id": "B",
+            "text": "les consommateurs herbivores",
+            "isCorrect": false,
+            "distractorRationale": "Confond le premier niveau de consommation avec le niveau de production."
+          },
+          {
+            "id": "C",
+            "text": "les organismes autotrophes, comme les végétaux chlorophylliens",
+            "isCorrect": true
+          },
+          {
+            "id": "D",
+            "text": "les prédateurs situés au sommet de la chaîne alimentaire",
+            "isCorrect": false,
+            "distractorRationale": "Associe la production au sommet de la chaîne alimentaire plutôt qu'à sa base."
+          }
+        ],
+        "explanation": "Les producteurs primaires sont autotrophes : ils fabriquent leur matière organique à partir de matière minérale. Ils forment la base de toute chaîne alimentaire."
+      },
+      {
+        "id": "EPR-SVT-ECO-02",
+        "subject": "SVT",
+        "category": "Écosystèmes, flux de matière et d'énergie",
+        "domainId": "ecosystemes",
+        "nodeCpsId": "2de.svt.ecosystemes.flux-matiere-energie",
+        "difficulty": 3,
+        "targetTimeSec": 60,
+        "shortCorrection": "À chaque niveau, une part importante de l'énergie sert au fonctionnement de l'organisme et se dissipe sous forme de chaleur. Seule une fraction est transmise au niveau suivant.",
+        "weight": 3,
+        "competencies": [
+          "2de.svt.ecosystemes.flux-matiere-energie"
+        ],
+        "questionText": "Pourquoi la biomasse diminue-t-elle d'un niveau à l'autre d'une chaîne alimentaire ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "parce qu'une partie de l'énergie est dissipée, notamment sous forme de chaleur",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "parce que la matière disparaît définitivement à chaque niveau",
+            "isCorrect": false,
+            "distractorRationale": "Contredit la conservation de la matière : celle-ci se transforme mais ne disparaît pas."
+          },
+          {
+            "id": "C",
+            "text": "parce que les prédateurs sont moins nombreux, par simple hasard",
+            "isCorrect": false,
+            "distractorRationale": "Décrit une conséquence observée sans en donner la cause énergétique."
+          },
+          {
+            "id": "D",
+            "text": "parce que les décomposeurs consomment la totalité de la matière",
+            "isCorrect": false,
+            "distractorRationale": "Attribue aux décomposeurs une consommation totale qui interromprait toute chaîne alimentaire."
+          }
+        ],
+        "explanation": "À chaque niveau, une part importante de l'énergie sert au fonctionnement de l'organisme et se dissipe sous forme de chaleur. Seule une fraction est transmise au niveau suivant."
+      },
+      {
+        "id": "EPR-SVT-EFF-01",
+        "subject": "SVT",
+        "category": "Effort physique et système cardio-respiratoire",
+        "domainId": "corps-humain",
+        "nodeCpsId": "2de.svt.corps-humain.effort-physique",
+        "difficulty": 2,
+        "targetTimeSec": 55,
+        "shortCorrection": "Le débit cardiaque est le volume de sang éjecté par minute : il vaut la fréquence cardiaque multipliée par le volume éjecté à chaque battement.",
+        "weight": 2,
+        "competencies": [
+          "2de.svt.corps-humain.effort-physique"
+        ],
+        "questionText": "Le débit cardiaque est le produit :",
+        "options": [
+          {
+            "id": "A",
+            "text": "de la fréquence respiratoire par le volume courant",
+            "isCorrect": false,
+            "distractorRationale": "Donne la formule du débit ventilatoire, qui concerne la respiration et non la circulation."
+          },
+          {
+            "id": "B",
+            "text": "de la fréquence cardiaque par le volume d'éjection systolique",
+            "isCorrect": true
+          },
+          {
+            "id": "C",
+            "text": "de la pression artérielle par la fréquence cardiaque",
+            "isCorrect": false,
+            "distractorRationale": "Combine deux grandeurs mesurables mais qui ne définissent pas un débit."
+          },
+          {
+            "id": "D",
+            "text": "du volume sanguin total par la fréquence cardiaque",
+            "isCorrect": false,
+            "distractorRationale": "Utilise le volume sanguin de l'organisme au lieu du volume éjecté à chaque contraction."
+          }
+        ],
+        "explanation": "Le débit cardiaque est le volume de sang éjecté par minute : il vaut la fréquence cardiaque multipliée par le volume éjecté à chaque battement."
+      },
+      {
+        "id": "EPR-SVT-EFF-02",
+        "subject": "SVT",
+        "category": "Effort physique et système cardio-respiratoire",
+        "domainId": "corps-humain",
+        "nodeCpsId": "2de.svt.corps-humain.effort-physique",
+        "difficulty": 1,
+        "targetTimeSec": 45,
+        "shortCorrection": "L'effort augmente les besoins énergétiques du muscle. La respiration cellulaire consomme à la fois du glucose et du dioxygène, apportés par la circulation sanguine.",
+        "weight": 1,
+        "competencies": [
+          "2de.svt.corps-humain.effort-physique"
+        ],
+        "questionText": "Lors d'un effort physique intense et prolongé, les muscles consomment davantage :",
+        "options": [
+          {
+            "id": "A",
+            "text": "de dioxyde de carbone et de glucose",
+            "isCorrect": false,
+            "distractorRationale": "Fait du dioxyde de carbone un réactif alors qu'il est un déchet produit par la respiration cellulaire."
+          },
+          {
+            "id": "B",
+            "text": "de dioxygène uniquement, sans apport de nutriment",
+            "isCorrect": false,
+            "distractorRationale": "Oublie que le dioxygène sert à dégrader un nutriment, sans lequel aucune énergie n'est libérée."
+          },
+          {
+            "id": "C",
+            "text": "de nutriments uniquement, sans apport de dioxygène",
+            "isCorrect": false,
+            "distractorRationale": "Oublie le rôle du dioxygène dans la respiration cellulaire, principale voie de production d'énergie à l'effort prolongé."
+          },
+          {
+            "id": "D",
+            "text": "de dioxygène et de glucose, tous deux apportés par le sang",
+            "isCorrect": true
+          }
+        ],
+        "explanation": "L'effort augmente les besoins énergétiques du muscle. La respiration cellulaire consomme à la fois du glucose et du dioxygène, apportés par la circulation sanguine."
+      },
+      {
+        "id": "EPR-SVT-IMM-01",
+        "subject": "SVT",
+        "category": "Microbiote et défense de l'organisme",
+        "domainId": "corps-humain",
+        "nodeCpsId": "2de.svt.corps-humain.microbiote-defenses",
+        "difficulty": 2,
+        "targetTimeSec": 50,
+        "shortCorrection": "Le microbiote rassemble les micro-organismes, surtout des bactéries, hébergés par l'organisme. Loin d'être nuisibles, ils participent à la digestion et à la défense.",
+        "weight": 2,
+        "competencies": [
+          "2de.svt.corps-humain.microbiote-defenses"
+        ],
+        "questionText": "Le microbiote intestinal est constitué :",
+        "options": [
+          {
+            "id": "A",
+            "text": "exclusivement de virus pathogènes",
+            "isCorrect": false,
+            "distractorRationale": "Assimile tout micro-organisme à un agent pathogène."
+          },
+          {
+            "id": "B",
+            "text": "des cellules du système immunitaire présentes dans l'intestin",
+            "isCorrect": false,
+            "distractorRationale": "Confond les micro-organismes hébergés avec les cellules de défense de l'hôte."
+          },
+          {
+            "id": "C",
+            "text": "de micro-organismes, majoritairement bactériens, vivant en symbiose avec l'hôte",
+            "isCorrect": true
+          },
+          {
+            "id": "D",
+            "text": "de cellules intestinales spécialisées dans l'absorption",
+            "isCorrect": false,
+            "distractorRationale": "Confond le microbiote avec les cellules de la paroi intestinale."
+          }
+        ],
+        "explanation": "Le microbiote rassemble les micro-organismes, surtout des bactéries, hébergés par l'organisme. Loin d'être nuisibles, ils participent à la digestion et à la défense."
+      },
+      {
+        "id": "EPR-SVT-IMM-02",
+        "subject": "SVT",
+        "category": "Microbiote et défense de l'organisme",
+        "domainId": "corps-humain",
+        "nodeCpsId": "2de.svt.corps-humain.microbiote-defenses",
+        "difficulty": 2,
+        "targetTimeSec": 50,
+        "shortCorrection": "Rougeur, gonflement, chaleur et douleur sont les quatre signes de la réaction inflammatoire. Elle relève de l'immunité innée et précède toute réponse spécifique.",
+        "weight": 2,
+        "competencies": [
+          "2de.svt.corps-humain.microbiote-defenses"
+        ],
+        "questionText": "Une réaction inflammatoire locale se manifeste notamment par :",
+        "options": [
+          {
+            "id": "A",
+            "text": "une baisse de la température de la zone atteinte",
+            "isCorrect": false,
+            "distractorRationale": "Inverse l'un des signes cardinaux : la zone atteinte devient au contraire plus chaude."
+          },
+          {
+            "id": "B",
+            "text": "une rougeur, un gonflement, une chaleur et une douleur",
+            "isCorrect": true
+          },
+          {
+            "id": "C",
+            "text": "l'élimination immédiate de l'agent infectieux sans intervention cellulaire",
+            "isCorrect": false,
+            "distractorRationale": "Suppose une défense sans cellules, alors que la phagocytose est au cœur de la réaction."
+          },
+          {
+            "id": "D",
+            "text": "la production immédiate d'anticorps spécifiques",
+            "isCorrect": false,
+            "distractorRationale": "Confond la réponse innée, immédiate et non spécifique, avec la réponse adaptative, plus tardive."
+          }
+        ],
+        "explanation": "Rougeur, gonflement, chaleur et douleur sont les quatre signes de la réaction inflammatoire. Elle relève de l'immunité innée et précède toute réponse spécifique."
+      },
+      {
+        "id": "EPR-SVT-DEM-01",
+        "subject": "SVT",
+        "category": "Démarche scientifique et exploitation de données",
+        "domainId": "demarche",
+        "nodeCpsId": "2de.svt.demarche.experimentation-donnees",
+        "difficulty": 2,
+        "targetTimeSec": 50,
+        "shortCorrection": "Le témoin est identique au dispositif testé, à l'exception du seul paramètre étudié. Sans lui, aucune différence observée ne peut être attribuée à ce paramètre.",
+        "weight": 2,
+        "competencies": [
+          "2de.svt.demarche.experimentation-donnees"
+        ],
+        "questionText": "Dans une expérience, à quoi sert le témoin ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "à confirmer l'hypothèse formulée au départ",
+            "isCorrect": false,
+            "distractorRationale": "Fait du témoin un moyen de valider l'hypothèse, alors qu'il sert à la mettre à l'épreuve."
+          },
+          {
+            "id": "B",
+            "text": "à remplacer une mesure qu'il est impossible de réaliser",
+            "isCorrect": false,
+            "distractorRationale": "Confond le témoin avec une estimation de substitution."
+          },
+          {
+            "id": "C",
+            "text": "à augmenter le nombre de résultats disponibles",
+            "isCorrect": false,
+            "distractorRationale": "Confond le témoin avec la répétition des mesures, qui répond à un autre objectif."
+          },
+          {
+            "id": "D",
+            "text": "à comparer, en ne faisant varier que le paramètre étudié",
+            "isCorrect": true
+          }
+        ],
+        "explanation": "Le témoin est identique au dispositif testé, à l'exception du seul paramètre étudié. Sans lui, aucune différence observée ne peut être attribuée à ce paramètre."
+      },
+      {
+        "id": "EPR-SVT-DEM-02",
+        "subject": "SVT",
+        "category": "Démarche scientifique et exploitation de données",
+        "domainId": "demarche",
+        "nodeCpsId": "2de.svt.demarche.experimentation-donnees",
+        "difficulty": 3,
+        "targetTimeSec": 55,
+        "shortCorrection": "Une corrélation signale que deux grandeurs varient ensemble. Établir que l'une cause l'autre exige une expérimentation contrôlée, avec témoin.",
+        "weight": 3,
+        "competencies": [
+          "2de.svt.demarche.experimentation-donnees"
+        ],
+        "questionText": "Une corrélation observée entre deux variables permet d'affirmer :",
+        "options": [
+          {
+            "id": "A",
+            "text": "qu'un lien existe entre elles, sans que la causalité soit démontrée",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "que la première variable est la cause de la seconde",
+            "isCorrect": false,
+            "distractorRationale": "Conclut à une causalité à partir d'une simple concordance de variations."
+          },
+          {
+            "id": "C",
+            "text": "que les deux variables sont indépendantes l'une de l'autre",
+            "isCorrect": false,
+            "distractorRationale": "Nie l'existence même du lien que la corrélation met en évidence."
+          },
+          {
+            "id": "D",
+            "text": "qu'une démarche expérimentale devient inutile",
+            "isCorrect": false,
+            "distractorRationale": "Considère la corrélation comme une preuve suffisante, alors qu'elle appelle au contraire une expérimentation."
+          }
+        ],
+        "explanation": "Une corrélation signale que deux grandeurs varient ensemble. Établir que l'une cause l'autre exige une expérimentation contrôlée, avec témoin."
+      }
+    ]
+  },
+  "scoring": {
+    "engine": "facts.v1.0.1",
+    "domains": [
+      "genetique",
+      "organisation-du-vivant",
+      "metabolisme",
+      "evolution",
+      "geologie",
+      "ecosystemes",
+      "corps-humain",
+      "demarche"
+    ]
+  },
+  "reporting": {
+    "rag": {
+      "enabled": false,
+      "decisionRef": "A56 — RAG désactivé tant que le corpus du niveau n’est pas validé",
+      "sources": [],
+      "topK": 0
+    },
+    "promptFiles": {
+      "preAnalysis": {
+        "path": "content/bilans/prompts/entree-premiere-svt-v1/pre-analysis.md",
+        "checksum": "7b1db13154fe12df7c81eaff21fa641fc1bdfa5ee485e896253ed95fe45fb5a0"
+      },
+      "eleve": {
+        "path": "content/bilans/prompts/entree-premiere-svt-v1/eleve.md",
+        "checksum": "5d598c317c15d7593d1bcbcfdd79910eb5a079301bd146aff60dcb3014f8d3b0"
+      },
+      "parents": {
+        "path": "content/bilans/prompts/entree-premiere-svt-v1/parents.md",
+        "checksum": "419e9366483523bd6f3c8f87bec0ca4735a181e82a379ae93d3453a84ed1313f"
+      },
+      "nexus": {
+        "path": "content/bilans/prompts/entree-premiere-svt-v1/nexus.md",
+        "checksum": "98ecc878a8711036e5849fe2f6793b7db475bcc9224b7f2864949dc678ff1468"
+      },
+      "verifier": {
+        "path": "content/bilans/prompts/entree-premiere-svt-v1/verifier.md",
+        "checksum": "fd6c0c7c64aa3320686aa15015da6609d4f5ab7cf6c9293c6afa8de83fe2b88b"
+      }
+    },
+    "outputSchemas": {
+      "preAnalysis": {
+        "type": "object",
+        "properties": {
+          "synthese": {
+            "type": "string",
+            "minLength": 1
+          },
+          "forcesPercues": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "craintes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "required": [
+          "synthese",
+          "forcesPercues",
+          "craintes"
+        ],
+        "additionalProperties": false
+      },
+      "eleve": {
+        "type": "object",
+        "properties": {
+          "accroche": {
+            "type": "string",
+            "minLength": 1
+          },
+          "forces": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "minItems": 3,
+            "maxItems": 3
+          },
+          "priorites": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "domainId": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "titre": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "pourquoi": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "comment": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "domainId",
+                "titre",
+                "pourquoi",
+                "comment"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "maxItems": 8
+          },
+          "microPlan": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "action": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "dureeMin": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              },
+              "required": [
+                "action",
+                "dureeMin"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "maxItems": 5
+          },
+          "motDeFin": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "accroche",
+          "forces",
+          "priorites",
+          "microPlan",
+          "motDeFin"
+        ],
+        "additionalProperties": false
+      },
+      "parents": {
+        "type": "object",
+        "properties": {
+          "cadre": {
+            "type": "string",
+            "minLength": 1
+          },
+          "pointsAppui": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "domainId": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "texte": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "domainId",
+                "texte"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "maxItems": 8
+          },
+          "priorites": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "domainId": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "titre": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "ceQuiSeraFait": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "domainId",
+                "titre",
+                "ceQuiSeraFait"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "maxItems": 8
+          },
+          "etapeSuivante": {
+            "type": "object",
+            "properties": {
+              "texte": {
+                "type": "string",
+                "minLength": 1
+              },
+              "cta": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "texte",
+              "cta"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "cadre",
+          "pointsAppui",
+          "priorites",
+          "etapeSuivante"
+        ],
+        "additionalProperties": false
+      },
+      "nexus": {
+        "type": "object",
+        "properties": {
+          "syntheseProfil": {
+            "type": "string",
+            "minLength": 1
+          },
+          "diagnosticPedagogique": {
+            "type": "string",
+            "minLength": 1
+          },
+          "planQuatreSemaines": {
+            "type": "string",
+            "minLength": 1
+          },
+          "alertes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "ragReferences": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "required": [
+          "syntheseProfil",
+          "diagnosticPedagogique",
+          "planQuatreSemaines",
+          "alertes",
+          "ragReferences"
+        ],
+        "additionalProperties": false
+      },
+      "verifier": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "type": "boolean"
+          },
+          "violations": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "required": [
+          "ok",
+          "violations"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "validation": {
+    "lexiconPath": "data/bilans/lexique-interdit.json",
+    "forbidDigits": [
+      "eleve",
+      "parents"
+    ]
+  }
+}

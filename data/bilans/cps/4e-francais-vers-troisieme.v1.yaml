@@ -1,0 +1,49 @@
+schemaVersion: nexus-cps-catalog/v1
+slug: 4e-francais-vers-troisieme-v1
+version: 1
+nodes:
+  - id: 4e.francais.grammaire.classes-grammaticales
+    label: Classes grammaticales
+    sourceLevel: QUATRIEME
+    targetLevel: TROISIEME
+    pedagogicalRationale: identifier la nature d'un mot conditionne l'analyse grammaticale, la réécriture du brevet et l'accord. Un élève qui confond adjectif et adverbe ne peut pas justifier une transformation.
+  - id: 4e.francais.grammaire.fonctions
+    label: Fonctions dans la phrase
+    sourceLevel: QUATRIEME
+    targetLevel: TROISIEME
+    pedagogicalRationale: l'exercice de réécriture du brevet et l'accord du participe passé supposent d'identifier sûrement le sujet, le complément d'objet et l'attribut.
+  - id: 4e.francais.conjugaison.temps-du-recit
+    label: Temps du récit et conjugaison
+    sourceLevel: QUATRIEME
+    targetLevel: TROISIEME
+    pedagogicalRationale: le récit au passé structure toutes les lectures et les rédactions de Troisième. Le passé simple, peu employé à l'oral, reste fragile à l'écrit.
+  - id: 4e.francais.orthographe.accords
+    label: "Accords : sujet-verbe et participe passé"
+    sourceLevel: QUATRIEME
+    targetLevel: TROISIEME
+    pedagogicalRationale: la dictée et la réécriture du brevet évaluent directement ces accords, et la rédaction en dépend entièrement.
+  - id: 4e.francais.grammaire.phrase-complexe
+    label: Phrase simple, phrase complexe, propositions
+    sourceLevel: QUATRIEME
+    targetLevel: TROISIEME
+    pedagogicalRationale: l'analyse des subordonnées, au programme de Troisième, suppose de savoir compter et identifier les propositions.
+  - id: 4e.francais.grammaire.discours-rapporte
+    label: Discours rapporté
+    sourceLevel: QUATRIEME
+    targetLevel: TROISIEME
+    pedagogicalRationale: le passage du discours direct à l'indirect est un exercice récurrent de la réécriture du brevet, et il conditionne l'analyse des dialogues romanesques.
+  - id: 4e.francais.lexique.figures-de-style
+    label: Lexique et figures de style
+    sourceLevel: QUATRIEME
+    targetLevel: TROISIEME
+    pedagogicalRationale: la poésie et l'argumentation de Troisième exigent de nommer précisément les images. La confusion entre comparaison, métaphore et personnification est la plus fréquente.
+  - id: 4e.francais.lecture.narrateur-points-de-vue
+    label: Narrateur et points de vue
+    sourceLevel: QUATRIEME
+    targetLevel: TROISIEME
+    pedagogicalRationale: l'autobiographie et le roman du XXe siècle, au programme de Troisième, reposent entièrement sur l'identification du narrateur et du point de vue adopté.
+  - id: 4e.francais.orthographe.homophones-grammaticaux
+    label: Homophones grammaticaux
+    sourceLevel: QUATRIEME
+    targetLevel: TROISIEME
+    pedagogicalRationale: la dictée du brevet évalue directement ces distinctions, et une confusion récurrente pénalise toute production écrite.

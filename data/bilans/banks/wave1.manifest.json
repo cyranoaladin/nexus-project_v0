@@ -1,0 +1,125 @@
+{
+  "schemaVersion": "nexus-bilan-bank-wave/v1",
+  "wave": "vague-1-a84-a85",
+  "expectedActiveBanks": 15,
+  "expectedItems": 270,
+  "banks": [
+    {
+      "slug": "entree-premiere-francais-v1",
+      "source": "data/bilans/banks/entree-premiere-francais-v1.yaml",
+      "cps": "data/bilans/cps/2de-francais-vers-premiere.v1.yaml",
+      "promptDirectory": "content/bilans/prompts/entree-premiere-francais-v1",
+      "output": "data/bilans/banks/entree-premiere-francais-v1.json"
+    },
+    {
+      "slug": "entree-premiere-maths-v1",
+      "source": "data/bilans/banks/entree-premiere-maths-v1.yaml",
+      "cps": "data/bilans/cps/2de-maths-vers-premiere.v1.yaml",
+      "promptDirectory": "content/bilans/prompts/entree-premiere-maths-v1",
+      "output": "data/bilans/banks/entree-premiere-maths-v1.json"
+    },
+    {
+      "slug": "entree-premiere-nsi-v1",
+      "source": "data/bilans/banks/entree-premiere-nsi-v1.yaml",
+      "cps": "data/bilans/cps/2de-snt-vers-premiere.v1.yaml",
+      "promptDirectory": "content/bilans/prompts/entree-premiere-nsi-v1",
+      "output": "data/bilans/banks/entree-premiere-nsi-v1.json"
+    },
+    {
+      "slug": "entree-premiere-physique-chimie-v1",
+      "source": "data/bilans/banks/entree-premiere-physique-chimie-v1.yaml",
+      "cps": "data/bilans/cps/2de-physique-chimie-vers-premiere.v1.yaml",
+      "promptDirectory": "content/bilans/prompts/entree-premiere-physique-chimie-v1",
+      "output": "data/bilans/banks/entree-premiere-physique-chimie-v1.json"
+    },
+    {
+      "slug": "entree-premiere-svt-v1",
+      "source": "data/bilans/banks/entree-premiere-svt-v1.yaml",
+      "cps": "data/bilans/cps/2de-svt-vers-premiere.v1.yaml",
+      "promptDirectory": "content/bilans/prompts/entree-premiere-svt-v1",
+      "output": "data/bilans/banks/entree-premiere-svt-v1.json"
+    },
+    {
+      "slug": "entree-quatrieme-francais-v1",
+      "source": "data/bilans/banks/entree-quatrieme-francais-v1.yaml",
+      "cps": "data/bilans/cps/5e-francais-vers-quatrieme.v1.yaml",
+      "promptDirectory": "content/bilans/prompts/entree-quatrieme-francais-v1",
+      "output": "data/bilans/banks/entree-quatrieme-francais-v1.json"
+    },
+    {
+      "slug": "entree-quatrieme-maths-v1",
+      "source": "data/bilans/banks/entree-quatrieme-maths-v1.yaml",
+      "cps": "data/bilans/cps/5e-maths-vers-quatrieme.v1.yaml",
+      "promptDirectory": "content/bilans/prompts/entree-quatrieme-maths-v1",
+      "output": "data/bilans/banks/entree-quatrieme-maths-v1.json"
+    },
+    {
+      "slug": "entree-seconde-francais-v1",
+      "source": "data/bilans/banks/entree-seconde-francais-v1.yaml",
+      "cps": "data/bilans/cps/3e-francais-vers-seconde.v1.yaml",
+      "promptDirectory": "content/bilans/prompts/entree-seconde-francais-v1",
+      "output": "data/bilans/banks/entree-seconde-francais-v1.json"
+    },
+    {
+      "slug": "entree-seconde-maths-v1",
+      "source": "data/bilans/banks/entree-seconde-maths-v1.yaml",
+      "cps": "data/bilans/cps/3e-maths-vers-seconde.v1.yaml",
+      "promptDirectory": "content/bilans/prompts/entree-seconde-maths-v1",
+      "output": "data/bilans/banks/entree-seconde-maths-v1.json"
+    },
+    {
+      "slug": "entree-terminale-maths-v1",
+      "source": "data/bilans/banks/entree-terminale-maths-v1.yaml",
+      "cps": "data/bilans/cps/1re-maths-vers-terminale.v1.yaml",
+      "promptDirectory": "content/bilans/prompts/entree-terminale-maths-v1",
+      "output": "data/bilans/banks/entree-terminale-maths-v1.json"
+    },
+    {
+      "slug": "entree-terminale-philosophie-v1",
+      "source": "data/bilans/banks/entree-terminale-philosophie-v1.yaml",
+      "cps": "data/bilans/cps/1re-francais-vers-terminale.v1.yaml",
+      "promptDirectory": "content/bilans/prompts/entree-terminale-philosophie-v1",
+      "output": "data/bilans/banks/entree-terminale-philosophie-v1.json"
+    },
+    {
+      "slug": "entree-terminale-physique-chimie-v1",
+      "source": "data/bilans/banks/entree-terminale-physique-chimie-v1.yaml",
+      "cps": "data/bilans/cps/1re-physique-chimie-vers-terminale.v1.yaml",
+      "promptDirectory": "content/bilans/prompts/entree-terminale-physique-chimie-v1",
+      "output": "data/bilans/banks/entree-terminale-physique-chimie-v1.json"
+    },
+    {
+      "slug": "entree-terminale-svt-v1",
+      "source": "data/bilans/banks/entree-terminale-svt-v1.yaml",
+      "cps": "data/bilans/cps/1re-svt-vers-terminale.v1.yaml",
+      "promptDirectory": "content/bilans/prompts/entree-terminale-svt-v1",
+      "output": "data/bilans/banks/entree-terminale-svt-v1.json"
+    },
+    {
+      "slug": "entree-troisieme-francais-v1",
+      "source": "data/bilans/banks/entree-troisieme-francais-v1.yaml",
+      "cps": "data/bilans/cps/4e-francais-vers-troisieme.v1.yaml",
+      "promptDirectory": "content/bilans/prompts/entree-troisieme-francais-v1",
+      "output": "data/bilans/banks/entree-troisieme-francais-v1.json"
+    },
+    {
+      "slug": "entree-troisieme-maths-v1",
+      "source": "data/bilans/banks/entree-troisieme-maths-v1.yaml",
+      "cps": "data/bilans/cps/4e-maths-vers-troisieme.v1.yaml",
+      "promptDirectory": "content/bilans/prompts/entree-troisieme-maths-v1",
+      "output": "data/bilans/banks/entree-troisieme-maths-v1.json"
+    }
+  ],
+  "historical": [
+    {
+      "slug": "maths-terminale-bilan-v1",
+      "source": "data/bilans/banks/maths-terminale-bilan-v1.json",
+      "format": "pack-json"
+    },
+    {
+      "slug": "entree-terminale-maths-probabilites",
+      "source": "data/bilans/banks/entree-terminale-maths-probabilites.draft-metadata.yaml",
+      "format": "metadata-yaml"
+    }
+  ]
+}

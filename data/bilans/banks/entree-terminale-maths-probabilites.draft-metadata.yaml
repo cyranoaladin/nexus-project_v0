@@ -1,0 +1,201 @@
+# Métadonnées pédagogiques à compléter pour une future version 2.
+# Les énoncés, options et réponses correctes proviennent du pack historique.
+# Ne modifier que nodeCpsId, difficulty, targetTimeSec, shortCorrection et distractorRationale.
+# Aucun de ces huit items n’appartient au pack v1 de 18 items.
+pack: entree-terminale-maths-v2
+version: 2
+status: DRAFT
+sourcePack: maths-terminale-bilan-v1
+items:
+  - id: ETL-MAT-PRQ-01
+    previousId: MATH-ANA-01
+    enonce: Quelle est la dérivée de $f(x) = e^{2x}$ ?
+    domainId: analyse
+    nodeCpsId: ""
+    difficulty: null
+    targetTimeSec: null
+    shortCorrection: ""
+    options:
+      - key: A
+        label: $2e^{2x}$
+        correct: true
+      - key: B
+        label: $e^{2x}$
+        correct: false
+        distractorRationale: ""
+      - key: C
+        label: $2xe^{2x}$
+        correct: false
+        distractorRationale: ""
+      - key: D
+        label: $e^{2x+1}$
+        correct: false
+        distractorRationale: ""
+  - id: ETL-MAT-PRQ-02
+    previousId: MATH-PROB-01
+    enonce: "Soit $X$ suivant une loi binomiale $\\mathcal{B}(n, p)$. L'espérance $E(X)$ vaut :"
+    domainId: probabilites
+    nodeCpsId: ""
+    difficulty: null
+    targetTimeSec: null
+    shortCorrection: ""
+    options:
+      - key: A
+        label: $np$
+        correct: true
+      - key: B
+        label: $n + p$
+        correct: false
+        distractorRationale: ""
+      - key: C
+        label: $np(1-p)$
+        correct: false
+        distractorRationale: ""
+      - key: D
+        label: $\frac{n}{p}$
+        correct: false
+        distractorRationale: ""
+  - id: ETL-MAT-PRQ-03
+    previousId: MATH-PROB-02
+    enonce: "On lance 10 fois une pièce équilibrée. La probabilité d'obtenir exactement 3 piles est :"
+    domainId: probabilites
+    nodeCpsId: ""
+    difficulty: null
+    targetTimeSec: null
+    shortCorrection: ""
+    options:
+      - key: A
+        label: $\binom{10}{3} \left(\frac{1}{2}\right)^{10}$
+        correct: true
+      - key: B
+        label: $\frac{3}{10}$
+        correct: false
+        distractorRationale: ""
+      - key: C
+        label: $\left(\frac{1}{2}\right)^3$
+        correct: false
+        distractorRationale: ""
+      - key: D
+        label: $10 \times \left(\frac{1}{2}\right)^3$
+        correct: false
+        distractorRationale: ""
+  - id: ETL-MAT-PRQ-04
+    previousId: MATH-PROB-03
+    enonce: "La formule des probabilités totales s'écrit :"
+    domainId: probabilites
+    nodeCpsId: ""
+    difficulty: null
+    targetTimeSec: null
+    shortCorrection: ""
+    options:
+      - key: A
+        label: $P(B) = P(A) \cdot P_A(B) + P(\bar{A}) \cdot P_{\bar{A}}(B)$
+        correct: true
+      - key: B
+        label: $P(B) = P(A) + P(B) - P(A \cap B)$
+        correct: false
+        distractorRationale: ""
+      - key: C
+        label: $P(B) = P(A) \cdot P(B)$
+        correct: false
+        distractorRationale: ""
+      - key: D
+        label: $P(B) = \frac{P(A \cap B)}{P(A)}$
+        correct: false
+        distractorRationale: ""
+  - id: ETL-MAT-PRQ-05
+    previousId: MATH-PROB-04
+    enonce: Un test médical a une sensibilité de 95% et une spécificité de 90%. Si 1% de la population est malade, quelle est (approximativement) la probabilité d'être malade sachant que le test est positif ?
+    domainId: probabilites
+    nodeCpsId: ""
+    difficulty: null
+    targetTimeSec: null
+    shortCorrection: ""
+    options:
+      - key: A
+        label: Environ 9%
+        correct: true
+      - key: B
+        label: Environ 95%
+        correct: false
+        distractorRationale: ""
+      - key: C
+        label: Environ 50%
+        correct: false
+        distractorRationale: ""
+      - key: D
+        label: Environ 1%
+        correct: false
+        distractorRationale: ""
+  - id: ETL-MAT-PRQ-06
+    previousId: MATH-PROB-07
+    enonce: "Deux événements $A$ et $B$ sont indépendants si et seulement si :"
+    domainId: probabilites
+    nodeCpsId: ""
+    difficulty: null
+    targetTimeSec: null
+    shortCorrection: ""
+    options:
+      - key: A
+        label: $P(A \cap B) = P(A) \times P(B)$
+        correct: true
+      - key: B
+        label: $P(A \cup B) = P(A) + P(B)$
+        correct: false
+        distractorRationale: ""
+      - key: C
+        label: $P(A|B) = P(B|A)$
+        correct: false
+        distractorRationale: ""
+      - key: D
+        label: $A \cap B = \emptyset$
+        correct: false
+        distractorRationale: ""
+  - id: ETL-MAT-PRQ-07
+    previousId: MATH-PROB-09
+    enonce: "La variance de $X \\sim \\mathcal{B}(n, p)$ est :"
+    domainId: probabilites
+    nodeCpsId: ""
+    difficulty: null
+    targetTimeSec: null
+    shortCorrection: ""
+    options:
+      - key: A
+        label: $np(1-p)$
+        correct: true
+      - key: B
+        label: $np$
+        correct: false
+        distractorRationale: ""
+      - key: C
+        label: $n^2 p$
+        correct: false
+        distractorRationale: ""
+      - key: D
+        label: $\sqrt{np}$
+        correct: false
+        distractorRationale: ""
+  - id: ETL-MAT-PRQ-08
+    previousId: MATH-PROB-11
+    enonce: "On répète 4 fois une épreuve de Bernoulli de paramètre $p = 0{,}3$. $P(X \\geq 1)$ vaut :"
+    domainId: probabilites
+    nodeCpsId: ""
+    difficulty: null
+    targetTimeSec: null
+    shortCorrection: ""
+    options:
+      - key: A
+        label: $1 - 0{,}7^4$
+        correct: true
+      - key: B
+        label: $4 \times 0{,}3$
+        correct: false
+        distractorRationale: ""
+      - key: C
+        label: $0{,}3^4$
+        correct: false
+        distractorRationale: ""
+      - key: D
+        label: $1 - 0{,}3^4$
+        correct: false
+        distractorRationale: ""

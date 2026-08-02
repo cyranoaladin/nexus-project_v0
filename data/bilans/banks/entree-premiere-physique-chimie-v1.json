@@ -1,0 +1,1072 @@
+{
+  "slug": "entree-premiere-physique-chimie-v1",
+  "level": "PREMIERE",
+  "subject": "PHYSIQUE_CHIMIE",
+  "version": 1,
+  "status": "DRAFT",
+  "review": {
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  "questionnaire": {
+    "targetDurationMin": 25,
+    "confidenceScale": {
+      "levels": 4,
+      "labels": [
+        "je devine",
+        "peu sûr",
+        "plutôt sûr",
+        "certain"
+      ]
+    },
+    "items": [
+      {
+        "id": "EPR-PHC-MOL-01",
+        "subject": "PHYSIQUE_CHIMIE",
+        "category": "Quantité de matière, mole et masse molaire",
+        "domainId": "matiere",
+        "nodeCpsId": "2de.physique-chimie.matiere.mole-masse-molaire",
+        "difficulty": 2,
+        "targetTimeSec": 60,
+        "shortCorrection": "La quantité de matière s'obtient en divisant la masse par la masse molaire : 36 divisé par 18 donne 2 mol.",
+        "weight": 2,
+        "competencies": [
+          "2de.physique-chimie.matiere.mole-masse-molaire"
+        ],
+        "questionText": "Quelle quantité de matière représentent 36 g d'eau, sachant que la masse molaire de l'eau vaut 18 g/mol ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "648 mol",
+            "isCorrect": false,
+            "distractorRationale": "Multiplie la masse par la masse molaire au lieu de la diviser."
+          },
+          {
+            "id": "B",
+            "text": "0,5 mol",
+            "isCorrect": false,
+            "distractorRationale": "Inverse le rapport et divise la masse molaire par la masse."
+          },
+          {
+            "id": "C",
+            "text": "2 mol",
+            "isCorrect": true
+          },
+          {
+            "id": "D",
+            "text": "18 mol",
+            "isCorrect": false,
+            "distractorRationale": "Reprend la valeur de la masse molaire comme si elle était le résultat cherché."
+          }
+        ],
+        "explanation": "La quantité de matière s'obtient en divisant la masse par la masse molaire : 36 divisé par 18 donne 2 mol."
+      },
+      {
+        "id": "EPR-PHC-MOL-02",
+        "subject": "PHYSIQUE_CHIMIE",
+        "category": "Quantité de matière, mole et masse molaire",
+        "domainId": "matiere",
+        "nodeCpsId": "2de.physique-chimie.matiere.mole-masse-molaire",
+        "difficulty": 1,
+        "targetTimeSec": 45,
+        "shortCorrection": "La mole est une quantité d'entités, et la constante d'Avogadro en donne le nombre. Elle joue le rôle d'un compteur, comme la douzaine à une autre échelle.",
+        "weight": 1,
+        "competencies": [
+          "2de.physique-chimie.matiere.mole-masse-molaire"
+        ],
+        "questionText": "À quoi correspond la constante d'Avogadro ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "au nombre d'entités contenues dans une mole",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "à la masse d'une mole d'atomes",
+            "isCorrect": false,
+            "distractorRationale": "Confond la constante d'Avogadro avec la masse molaire."
+          },
+          {
+            "id": "C",
+            "text": "au volume occupé par une mole de gaz",
+            "isCorrect": false,
+            "distractorRationale": "Confond la constante d'Avogadro avec le volume molaire."
+          },
+          {
+            "id": "D",
+            "text": "au nombre de protons contenus dans un noyau",
+            "isCorrect": false,
+            "distractorRationale": "Confond la constante d'Avogadro avec le numéro atomique."
+          }
+        ],
+        "explanation": "La mole est une quantité d'entités, et la constante d'Avogadro en donne le nombre. Elle joue le rôle d'un compteur, comme la douzaine à une autre échelle."
+      },
+      {
+        "id": "EPR-PHC-SOL-01",
+        "subject": "PHYSIQUE_CHIMIE",
+        "category": "Concentration et dilution",
+        "domainId": "matiere",
+        "nodeCpsId": "2de.physique-chimie.matiere.solutions-concentration",
+        "difficulty": 2,
+        "targetTimeSec": 60,
+        "shortCorrection": "La concentration est le quotient de la quantité de matière par le volume exprimé en litres : 0,2 divisé par 0,5 donne 0,4 mol/L.",
+        "weight": 2,
+        "competencies": [
+          "2de.physique-chimie.matiere.solutions-concentration"
+        ],
+        "questionText": "On dissout 0,2 mol de soluté dans 500 mL de solution. Quelle est la concentration en quantité de matière ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "0,1 mol/L",
+            "isCorrect": false,
+            "distractorRationale": "Multiplie la quantité de matière par le volume en litres au lieu de la diviser."
+          },
+          {
+            "id": "B",
+            "text": "100 mol/L",
+            "isCorrect": false,
+            "distractorRationale": "Divise par le volume en millilitres après une conversion erronée."
+          },
+          {
+            "id": "C",
+            "text": "0,0004 mol/L",
+            "isCorrect": false,
+            "distractorRationale": "Divise par 500 sans convertir les millilitres en litres."
+          },
+          {
+            "id": "D",
+            "text": "0,4 mol/L",
+            "isCorrect": true
+          }
+        ],
+        "explanation": "La concentration est le quotient de la quantité de matière par le volume exprimé en litres : 0,2 divisé par 0,5 donne 0,4 mol/L."
+      },
+      {
+        "id": "EPR-PHC-SOL-02",
+        "subject": "PHYSIQUE_CHIMIE",
+        "category": "Concentration et dilution",
+        "domainId": "matiere",
+        "nodeCpsId": "2de.physique-chimie.matiere.solutions-concentration",
+        "difficulty": 2,
+        "targetTimeSec": 50,
+        "shortCorrection": "Diluer consiste à ajouter du solvant : le soluté n'est ni ajouté ni retiré. Sa quantité de matière se conserve, tandis que la concentration diminue.",
+        "weight": 2,
+        "competencies": [
+          "2de.physique-chimie.matiere.solutions-concentration"
+        ],
+        "questionText": "Lors d'une dilution, que peut-on affirmer ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "la quantité de matière de soluté augmente",
+            "isCorrect": false,
+            "distractorRationale": "Confond l'augmentation du volume avec un apport de soluté."
+          },
+          {
+            "id": "B",
+            "text": "la quantité de matière de soluté est conservée",
+            "isCorrect": true
+          },
+          {
+            "id": "C",
+            "text": "la concentration reste inchangée",
+            "isCorrect": false,
+            "distractorRationale": "Nie l'effet même de la dilution, qui est d'abaisser la concentration."
+          },
+          {
+            "id": "D",
+            "text": "le volume de la solution diminue",
+            "isCorrect": false,
+            "distractorRationale": "Inverse la manipulation : diluer consiste à ajouter du solvant."
+          }
+        ],
+        "explanation": "Diluer consiste à ajouter du solvant : le soluté n'est ni ajouté ni retiré. Sa quantité de matière se conserve, tandis que la concentration diminue."
+      },
+      {
+        "id": "EPR-PHC-REA-01",
+        "subject": "PHYSIQUE_CHIMIE",
+        "category": "Équation de réaction et réactif limitant",
+        "domainId": "transformations",
+        "nodeCpsId": "2de.physique-chimie.transformations.equation-reaction",
+        "difficulty": 2,
+        "targetTimeSec": 55,
+        "shortCorrection": "Une équation ajustée conserve le nombre d'atomes de chaque élément : quatre atomes d'hydrogène et deux d'oxygène de part et d'autre.",
+        "weight": 2,
+        "competencies": [
+          "2de.physique-chimie.transformations.equation-reaction"
+        ],
+        "questionText": "Quelle est l'équation correctement ajustée de la synthèse de l'eau à partir de dihydrogène et de dioxygène ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "2 H₂ + O₂ → 2 H₂O",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "H₂ + O₂ → H₂O",
+            "isCorrect": false,
+            "distractorRationale": "Laisse l'équation non ajustée : les atomes d'oxygène ne sont pas conservés."
+          },
+          {
+            "id": "C",
+            "text": "2 H₂ + 2 O₂ → 2 H₂O",
+            "isCorrect": false,
+            "distractorRationale": "Ajuste correctement l'hydrogène mais laisse un excès d'oxygène du côté des réactifs."
+          },
+          {
+            "id": "D",
+            "text": "H₂ + 2 O₂ → 2 H₂O",
+            "isCorrect": false,
+            "distractorRationale": "Ne conserve ni les atomes d'hydrogène ni ceux d'oxygène."
+          }
+        ],
+        "explanation": "Une équation ajustée conserve le nombre d'atomes de chaque élément : quatre atomes d'hydrogène et deux d'oxygène de part et d'autre."
+      },
+      {
+        "id": "EPR-PHC-REA-02",
+        "subject": "PHYSIQUE_CHIMIE",
+        "category": "Équation de réaction et réactif limitant",
+        "domainId": "transformations",
+        "nodeCpsId": "2de.physique-chimie.transformations.equation-reaction",
+        "difficulty": 2,
+        "targetTimeSec": 50,
+        "shortCorrection": "Le réactif limitant disparaît le premier et fixe l'avancement maximal. On l'identifie en comparant les quantités de matière divisées par les coefficients.",
+        "weight": 2,
+        "competencies": [
+          "2de.physique-chimie.transformations.equation-reaction"
+        ],
+        "questionText": "Le réactif limitant d'une transformation est celui qui :",
+        "options": [
+          {
+            "id": "A",
+            "text": "est présent en plus grande masse",
+            "isCorrect": false,
+            "distractorRationale": "Raisonne sur les masses au lieu des quantités de matière rapportées aux coefficients."
+          },
+          {
+            "id": "B",
+            "text": "possède la plus grande masse molaire",
+            "isCorrect": false,
+            "distractorRationale": "Confond une propriété de l'espèce chimique avec sa proportion dans le mélange."
+          },
+          {
+            "id": "C",
+            "text": "est entièrement consommé et arrête la transformation",
+            "isCorrect": true
+          },
+          {
+            "id": "D",
+            "text": "reste présent en excès à la fin de la transformation",
+            "isCorrect": false,
+            "distractorRationale": "Décrit exactement le réactif en excès, c'est-à-dire l'inverse du réactif limitant."
+          }
+        ],
+        "explanation": "Le réactif limitant disparaît le premier et fixe l'avancement maximal. On l'identifie en comparant les quantités de matière divisées par les coefficients."
+      },
+      {
+        "id": "EPR-PHC-ATO-01",
+        "subject": "PHYSIQUE_CHIMIE",
+        "category": "Atome, ion et classification périodique",
+        "domainId": "matiere",
+        "nodeCpsId": "2de.physique-chimie.matiere.atome-ion-classification",
+        "difficulty": 1,
+        "targetTimeSec": 45,
+        "shortCorrection": "Un ion positif résulte de la perte d'un ou plusieurs électrons. Le noyau, lui, reste inchangé : c'est ce qui assure qu'il s'agit toujours de sodium.",
+        "weight": 1,
+        "competencies": [
+          "2de.physique-chimie.matiere.atome-ion-classification"
+        ],
+        "questionText": "Par rapport à l'atome de sodium, l'ion Na⁺ possède :",
+        "options": [
+          {
+            "id": "A",
+            "text": "un proton de plus",
+            "isCorrect": false,
+            "distractorRationale": "Attribue la charge positive à un gain de proton, ce qui changerait l'élément chimique."
+          },
+          {
+            "id": "B",
+            "text": "un électron de moins",
+            "isCorrect": true
+          },
+          {
+            "id": "C",
+            "text": "un neutron de moins",
+            "isCorrect": false,
+            "distractorRationale": "Fait varier le nombre de neutrons, qui ne porte aucune charge."
+          },
+          {
+            "id": "D",
+            "text": "un électron de plus",
+            "isCorrect": false,
+            "distractorRationale": "Confond le sens de la charge : un gain d'électron donnerait un ion négatif."
+          }
+        ],
+        "explanation": "Un ion positif résulte de la perte d'un ou plusieurs électrons. Le noyau, lui, reste inchangé : c'est ce qui assure qu'il s'agit toujours de sodium."
+      },
+      {
+        "id": "EPR-PHC-ATO-02",
+        "subject": "PHYSIQUE_CHIMIE",
+        "category": "Atome, ion et classification périodique",
+        "domainId": "matiere",
+        "nodeCpsId": "2de.physique-chimie.matiere.atome-ion-classification",
+        "difficulty": 2,
+        "targetTimeSec": 50,
+        "shortCorrection": "Une colonne rassemble les éléments ayant le même nombre d'électrons de valence. C'est ce qui explique la similitude de leurs propriétés chimiques.",
+        "weight": 2,
+        "competencies": [
+          "2de.physique-chimie.matiere.atome-ion-classification"
+        ],
+        "questionText": "Dans la classification périodique, les éléments d'une même colonne possèdent :",
+        "options": [
+          {
+            "id": "A",
+            "text": "le même nombre de neutrons",
+            "isCorrect": false,
+            "distractorRationale": "Fait dépendre l'organisation du tableau du nombre de neutrons, qui varie même entre isotopes d'un élément."
+          },
+          {
+            "id": "B",
+            "text": "la même masse molaire",
+            "isCorrect": false,
+            "distractorRationale": "Suppose une égalité de masse que la lecture du tableau contredit immédiatement."
+          },
+          {
+            "id": "C",
+            "text": "le même nombre de couches électroniques occupées",
+            "isCorrect": false,
+            "distractorRationale": "Donne le critère qui définit une ligne du tableau, et non une colonne."
+          },
+          {
+            "id": "D",
+            "text": "le même nombre d'électrons sur leur couche externe",
+            "isCorrect": true
+          }
+        ],
+        "explanation": "Une colonne rassemble les éléments ayant le même nombre d'électrons de valence. C'est ce qui explique la similitude de leurs propriétés chimiques."
+      },
+      {
+        "id": "EPR-PHC-FOR-01",
+        "subject": "PHYSIQUE_CHIMIE",
+        "category": "Forces et principe d'inertie",
+        "domainId": "mecanique",
+        "nodeCpsId": "2de.physique-chimie.mecanique.forces-inertie",
+        "difficulty": 3,
+        "targetTimeSec": 65,
+        "shortCorrection": "Le principe d'inertie établit l'équivalence entre repos et mouvement rectiligne uniforme : dans les deux cas, les forces se compensent. Aucune force motrice n'est nécessaire pour maintenir le mouvement.",
+        "weight": 3,
+        "competencies": [
+          "2de.physique-chimie.mecanique.forces-inertie"
+        ],
+        "questionText": "Un objet est animé d'un mouvement rectiligne uniforme. Que peut-on affirmer ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "les forces qui s'exercent sur lui se compensent",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "aucune force ne s'exerce sur lui",
+            "isCorrect": false,
+            "distractorRationale": "Confond l'absence de force avec la compensation de forces qui existent bel et bien."
+          },
+          {
+            "id": "C",
+            "text": "une force constante le pousse vers l'avant",
+            "isCorrect": false,
+            "distractorRationale": "Reprend la conception intuitive selon laquelle tout mouvement exige une force motrice."
+          },
+          {
+            "id": "D",
+            "text": "son poids est nul",
+            "isCorrect": false,
+            "distractorRationale": "Suppose la disparition du poids alors qu'il est simplement compensé."
+          }
+        ],
+        "explanation": "Le principe d'inertie établit l'équivalence entre repos et mouvement rectiligne uniforme : dans les deux cas, les forces se compensent. Aucune force motrice n'est nécessaire pour maintenir le mouvement."
+      },
+      {
+        "id": "EPR-PHC-FOR-02",
+        "subject": "PHYSIQUE_CHIMIE",
+        "category": "Forces et principe d'inertie",
+        "domainId": "mecanique",
+        "nodeCpsId": "2de.physique-chimie.mecanique.forces-inertie",
+        "difficulty": 2,
+        "targetTimeSec": 50,
+        "shortCorrection": "Le poids est une force, exprimée en newtons, qui dépend de l'intensité de la pesanteur au lieu considéré. La masse, elle, ne change pas.",
+        "weight": 2,
+        "competencies": [
+          "2de.physique-chimie.mecanique.forces-inertie"
+        ],
+        "questionText": "Concernant le poids d'un objet, quelle affirmation est exacte ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "il est identique en tout point de l'univers",
+            "isCorrect": false,
+            "distractorRationale": "Attribue au poids la constance qui caractérise la masse."
+          },
+          {
+            "id": "B",
+            "text": "il dépend du lieu où se trouve l'objet",
+            "isCorrect": true
+          },
+          {
+            "id": "C",
+            "text": "il est identique à la masse de l'objet",
+            "isCorrect": false,
+            "distractorRationale": "Confond deux grandeurs de natures différentes, l'une force, l'autre quantité de matière."
+          },
+          {
+            "id": "D",
+            "text": "il s'exprime en kilogrammes",
+            "isCorrect": false,
+            "distractorRationale": "Attribue au poids l'unité de la masse, alors qu'une force s'exprime en newtons."
+          }
+        ],
+        "explanation": "Le poids est une force, exprimée en newtons, qui dépend de l'intensité de la pesanteur au lieu considéré. La masse, elle, ne change pas."
+      },
+      {
+        "id": "EPR-PHC-MVT-01",
+        "subject": "PHYSIQUE_CHIMIE",
+        "category": "Mouvement, référentiel et vitesse",
+        "domainId": "mecanique",
+        "nodeCpsId": "2de.physique-chimie.mecanique.mouvement-referentiel",
+        "difficulty": 2,
+        "targetTimeSec": 55,
+        "shortCorrection": "Un mouvement n'existe que relativement à un référentiel. Le même passager est immobile pour un voyageur assis à côté de lui, et en mouvement pour une personne restée sur le quai.",
+        "weight": 2,
+        "competencies": [
+          "2de.physique-chimie.mecanique.mouvement-referentiel"
+        ],
+        "questionText": "Un passager est assis dans un train en marche. Que peut-on dire de son mouvement ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "il est en mouvement dans le référentiel du train",
+            "isCorrect": false,
+            "distractorRationale": "Attribue au référentiel du train le mouvement observé depuis le quai."
+          },
+          {
+            "id": "B",
+            "text": "il est immobile dans le référentiel du quai",
+            "isCorrect": false,
+            "distractorRationale": "Inverse les deux référentiels."
+          },
+          {
+            "id": "C",
+            "text": "il est immobile dans le référentiel du train et en mouvement dans celui du quai",
+            "isCorrect": true
+          },
+          {
+            "id": "D",
+            "text": "il est en mouvement dans tous les référentiels",
+            "isCorrect": false,
+            "distractorRationale": "Traite le mouvement comme une propriété absolue de l'objet, indépendante de l'observateur."
+          }
+        ],
+        "explanation": "Un mouvement n'existe que relativement à un référentiel. Le même passager est immobile pour un voyageur assis à côté de lui, et en mouvement pour une personne restée sur le quai."
+      },
+      {
+        "id": "EPR-PHC-MVT-02",
+        "subject": "PHYSIQUE_CHIMIE",
+        "category": "Mouvement, référentiel et vitesse",
+        "domainId": "mecanique",
+        "nodeCpsId": "2de.physique-chimie.mecanique.mouvement-referentiel",
+        "difficulty": 2,
+        "targetTimeSec": 55,
+        "shortCorrection": "La durée vaut 1,5 heure, et non 1,30. La vitesse moyenne est le quotient de la distance par la durée : 90 divisé par 1,5 donne 60 km/h.",
+        "weight": 2,
+        "competencies": [
+          "2de.physique-chimie.mecanique.mouvement-referentiel"
+        ],
+        "questionText": "Une voiture parcourt 90 km en 1 h 30 min. Quelle est sa vitesse moyenne ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "60 km/h",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "135 km/h",
+            "isCorrect": false,
+            "distractorRationale": "Multiplie la distance par la durée au lieu de la diviser."
+          },
+          {
+            "id": "C",
+            "text": "environ 69 km/h",
+            "isCorrect": false,
+            "distractorRationale": "Convertit 1 h 30 min en 1,30 heure au lieu de 1,5 heure."
+          },
+          {
+            "id": "D",
+            "text": "45 km/h",
+            "isCorrect": false,
+            "distractorRationale": "Divise la distance par 2 en assimilant 1 h 30 min à deux heures."
+          }
+        ],
+        "explanation": "La durée vaut 1,5 heure, et non 1,30. La vitesse moyenne est le quotient de la distance par la durée : 90 divisé par 1,5 donne 60 km/h."
+      },
+      {
+        "id": "EPR-PHC-OND-01",
+        "subject": "PHYSIQUE_CHIMIE",
+        "category": "Ondes, lumière et spectres",
+        "domainId": "ondes",
+        "nodeCpsId": "2de.physique-chimie.ondes.lumiere-spectres",
+        "difficulty": 2,
+        "targetTimeSec": 50,
+        "shortCorrection": "Chaque entité chimique émet des radiations de longueurs d'onde qui lui sont propres. Le spectre de raies fonctionne ainsi comme une signature.",
+        "weight": 2,
+        "competencies": [
+          "2de.physique-chimie.ondes.lumiere-spectres"
+        ],
+        "questionText": "Que permet l'analyse d'un spectre de raies d'émission ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "de mesurer la température d'un corps opaque",
+            "isCorrect": false,
+            "distractorRationale": "Attribue aux raies d'émission l'information portée par un spectre continu."
+          },
+          {
+            "id": "B",
+            "text": "de déterminer la vitesse de la lumière",
+            "isCorrect": false,
+            "distractorRationale": "Confond l'analyse spectrale avec une mesure de célérité."
+          },
+          {
+            "id": "C",
+            "text": "de connaître la masse d'une étoile",
+            "isCorrect": false,
+            "distractorRationale": "Attribue au spectre une information qui relève d'autres méthodes astronomiques."
+          },
+          {
+            "id": "D",
+            "text": "d'identifier les entités chimiques présentes",
+            "isCorrect": true
+          }
+        ],
+        "explanation": "Chaque entité chimique émet des radiations de longueurs d'onde qui lui sont propres. Le spectre de raies fonctionne ainsi comme une signature."
+      },
+      {
+        "id": "EPR-PHC-OND-02",
+        "subject": "PHYSIQUE_CHIMIE",
+        "category": "Ondes, lumière et spectres",
+        "domainId": "ondes",
+        "nodeCpsId": "2de.physique-chimie.ondes.lumiere-spectres",
+        "difficulty": 3,
+        "targetTimeSec": 55,
+        "shortCorrection": "En passant dans un milieu plus réfringent, le rayon se rapproche de la normale. C'est la loi de Snell-Descartes qui décrit quantitativement cette déviation.",
+        "weight": 3,
+        "competencies": [
+          "2de.physique-chimie.ondes.lumiere-spectres"
+        ],
+        "questionText": "Un rayon lumineux passe de l'air à l'eau. Que se produit-il à la surface de séparation ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "il poursuit sa trajectoire sans être dévié",
+            "isCorrect": false,
+            "distractorRationale": "Nie le phénomène de réfraction lors du changement de milieu."
+          },
+          {
+            "id": "B",
+            "text": "il est dévié en se rapprochant de la normale",
+            "isCorrect": true
+          },
+          {
+            "id": "C",
+            "text": "il est dévié en s'éloignant de la normale",
+            "isCorrect": false,
+            "distractorRationale": "Inverse le sens de la déviation, qui correspondrait au passage de l'eau vers l'air."
+          },
+          {
+            "id": "D",
+            "text": "il est intégralement réfléchi",
+            "isCorrect": false,
+            "distractorRationale": "Généralise la réflexion totale, qui ne se produit que dans l'autre sens et au-delà d'un angle limite."
+          }
+        ],
+        "explanation": "En passant dans un milieu plus réfringent, le rayon se rapproche de la normale. C'est la loi de Snell-Descartes qui décrit quantitativement cette déviation."
+      },
+      {
+        "id": "EPR-PHC-ELE-01",
+        "subject": "PHYSIQUE_CHIMIE",
+        "category": "Circuits électriques",
+        "domainId": "electricite",
+        "nodeCpsId": "2de.physique-chimie.electricite.circuits-loi-ohm",
+        "difficulty": 2,
+        "targetTimeSec": 50,
+        "shortCorrection": "Dans un circuit en série, le courant est identique partout et les tensions s'additionnent. En dérivation, c'est l'inverse.",
+        "weight": 2,
+        "competencies": [
+          "2de.physique-chimie.electricite.circuits-loi-ohm"
+        ],
+        "questionText": "Dans un circuit électrique en série, que peut-on affirmer ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "la tension est la même aux bornes de chaque dipôle",
+            "isCorrect": false,
+            "distractorRationale": "Attribue à un montage en série la propriété du montage en dérivation."
+          },
+          {
+            "id": "B",
+            "text": "l'intensité se répartit entre les différents dipôles",
+            "isCorrect": false,
+            "distractorRationale": "Applique au montage en série la loi des nœuds, valable en dérivation."
+          },
+          {
+            "id": "C",
+            "text": "l'intensité est la même en tout point du circuit",
+            "isCorrect": true
+          },
+          {
+            "id": "D",
+            "text": "la tension totale est celle du dipôle de plus grande résistance",
+            "isCorrect": false,
+            "distractorRationale": "Remplace l'additivité des tensions par une sélection du plus grand terme."
+          }
+        ],
+        "explanation": "Dans un circuit en série, le courant est identique partout et les tensions s'additionnent. En dérivation, c'est l'inverse."
+      },
+      {
+        "id": "EPR-PHC-ELE-02",
+        "subject": "PHYSIQUE_CHIMIE",
+        "category": "Circuits électriques",
+        "domainId": "electricite",
+        "nodeCpsId": "2de.physique-chimie.electricite.circuits-loi-ohm",
+        "difficulty": 1,
+        "targetTimeSec": 40,
+        "shortCorrection": "La loi d'Ohm relie la tension aux bornes d'un conducteur ohmique à l'intensité qui le traverse : U égale R multiplié par I, avec U en volts, R en ohms et I en ampères.",
+        "weight": 1,
+        "competencies": [
+          "2de.physique-chimie.electricite.circuits-loi-ohm"
+        ],
+        "questionText": "Quelle expression traduit la loi d'Ohm pour un conducteur ohmique ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "U = R × I",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "U = R / I",
+            "isCorrect": false,
+            "distractorRationale": "Remplace le produit par un quotient."
+          },
+          {
+            "id": "C",
+            "text": "I = U × R",
+            "isCorrect": false,
+            "distractorRationale": "Isole la mauvaise grandeur et transforme la relation en produit."
+          },
+          {
+            "id": "D",
+            "text": "R = U × I",
+            "isCorrect": false,
+            "distractorRationale": "Confond la relation d'Ohm avec l'expression d'une puissance électrique."
+          }
+        ],
+        "explanation": "La loi d'Ohm relie la tension aux bornes d'un conducteur ohmique à l'intensité qui le traverse : U égale R multiplié par I, avec U en volts, R en ohms et I en ampères."
+      },
+      {
+        "id": "EPR-PHC-GRA-01",
+        "subject": "PHYSIQUE_CHIMIE",
+        "category": "Grandeurs, unités et chiffres significatifs",
+        "domainId": "mesure",
+        "nodeCpsId": "2de.physique-chimie.mesure.grandeurs-unites",
+        "difficulty": 2,
+        "targetTimeSec": 50,
+        "shortCorrection": "Les zéros placés avant le premier chiffre non nul ne sont pas significatifs, mais le zéro final l'est : la valeur 0,0250 en compte trois.",
+        "weight": 2,
+        "competencies": [
+          "2de.physique-chimie.mesure.grandeurs-unites"
+        ],
+        "questionText": "Combien de chiffres significatifs comporte la valeur 0,0250 m ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "cinq",
+            "isCorrect": false,
+            "distractorRationale": "Compte tous les chiffres écrits, y compris les zéros qui ne servent qu'à situer la virgule."
+          },
+          {
+            "id": "B",
+            "text": "trois",
+            "isCorrect": true
+          },
+          {
+            "id": "C",
+            "text": "deux",
+            "isCorrect": false,
+            "distractorRationale": "Néglige le zéro final, qui traduit pourtant la précision de la mesure."
+          },
+          {
+            "id": "D",
+            "text": "quatre",
+            "isCorrect": false,
+            "distractorRationale": "Compte un zéro de positionnement en trop."
+          }
+        ],
+        "explanation": "Les zéros placés avant le premier chiffre non nul ne sont pas significatifs, mais le zéro final l'est : la valeur 0,0250 en compte trois."
+      },
+      {
+        "id": "EPR-PHC-GRA-02",
+        "subject": "PHYSIQUE_CHIMIE",
+        "category": "Grandeurs, unités et chiffres significatifs",
+        "domainId": "mesure",
+        "nodeCpsId": "2de.physique-chimie.mesure.grandeurs-unites",
+        "difficulty": 1,
+        "targetTimeSec": 40,
+        "shortCorrection": "L'énergie s'exprime en joules. Le watt mesure une puissance, soit une énergie par seconde : un watt correspond à un joule par seconde.",
+        "weight": 1,
+        "competencies": [
+          "2de.physique-chimie.mesure.grandeurs-unites"
+        ],
+        "questionText": "Quelle est l'unité de l'énergie dans le Système international ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "le watt",
+            "isCorrect": false,
+            "distractorRationale": "Donne l'unité de la puissance, c'est-à-dire d'une énergie rapportée à une durée."
+          },
+          {
+            "id": "B",
+            "text": "le newton",
+            "isCorrect": false,
+            "distractorRationale": "Donne l'unité d'une force."
+          },
+          {
+            "id": "C",
+            "text": "le volt",
+            "isCorrect": false,
+            "distractorRationale": "Donne l'unité d'une tension électrique."
+          },
+          {
+            "id": "D",
+            "text": "le joule",
+            "isCorrect": true
+          }
+        ],
+        "explanation": "L'énergie s'exprime en joules. Le watt mesure une puissance, soit une énergie par seconde : un watt correspond à un joule par seconde."
+      }
+    ]
+  },
+  "scoring": {
+    "engine": "facts.v1.0.1",
+    "domains": [
+      "matiere",
+      "transformations",
+      "mecanique",
+      "ondes",
+      "electricite",
+      "mesure"
+    ]
+  },
+  "reporting": {
+    "rag": {
+      "enabled": false,
+      "decisionRef": "A56 — RAG désactivé tant que le corpus du niveau n’est pas validé",
+      "sources": [],
+      "topK": 0
+    },
+    "promptFiles": {
+      "preAnalysis": {
+        "path": "content/bilans/prompts/entree-premiere-physique-chimie-v1/pre-analysis.md",
+        "checksum": "955a512979c7372f3993f910a295e5ddaa6e21646ff8efbea4cc58f8b3d3bab1"
+      },
+      "eleve": {
+        "path": "content/bilans/prompts/entree-premiere-physique-chimie-v1/eleve.md",
+        "checksum": "5d598c317c15d7593d1bcbcfdd79910eb5a079301bd146aff60dcb3014f8d3b0"
+      },
+      "parents": {
+        "path": "content/bilans/prompts/entree-premiere-physique-chimie-v1/parents.md",
+        "checksum": "419e9366483523bd6f3c8f87bec0ca4735a181e82a379ae93d3453a84ed1313f"
+      },
+      "nexus": {
+        "path": "content/bilans/prompts/entree-premiere-physique-chimie-v1/nexus.md",
+        "checksum": "98ecc878a8711036e5849fe2f6793b7db475bcc9224b7f2864949dc678ff1468"
+      },
+      "verifier": {
+        "path": "content/bilans/prompts/entree-premiere-physique-chimie-v1/verifier.md",
+        "checksum": "fd6c0c7c64aa3320686aa15015da6609d4f5ab7cf6c9293c6afa8de83fe2b88b"
+      }
+    },
+    "outputSchemas": {
+      "preAnalysis": {
+        "type": "object",
+        "properties": {
+          "synthese": {
+            "type": "string",
+            "minLength": 1
+          },
+          "forcesPercues": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "craintes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "required": [
+          "synthese",
+          "forcesPercues",
+          "craintes"
+        ],
+        "additionalProperties": false
+      },
+      "eleve": {
+        "type": "object",
+        "properties": {
+          "accroche": {
+            "type": "string",
+            "minLength": 1
+          },
+          "forces": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "minItems": 3,
+            "maxItems": 3
+          },
+          "priorites": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "domainId": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "titre": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "pourquoi": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "comment": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "domainId",
+                "titre",
+                "pourquoi",
+                "comment"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "maxItems": 6
+          },
+          "microPlan": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "action": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "dureeMin": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              },
+              "required": [
+                "action",
+                "dureeMin"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "maxItems": 5
+          },
+          "motDeFin": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "accroche",
+          "forces",
+          "priorites",
+          "microPlan",
+          "motDeFin"
+        ],
+        "additionalProperties": false
+      },
+      "parents": {
+        "type": "object",
+        "properties": {
+          "cadre": {
+            "type": "string",
+            "minLength": 1
+          },
+          "pointsAppui": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "domainId": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "texte": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "domainId",
+                "texte"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "maxItems": 6
+          },
+          "priorites": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "domainId": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "titre": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "ceQuiSeraFait": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "domainId",
+                "titre",
+                "ceQuiSeraFait"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "maxItems": 6
+          },
+          "etapeSuivante": {
+            "type": "object",
+            "properties": {
+              "texte": {
+                "type": "string",
+                "minLength": 1
+              },
+              "cta": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "texte",
+              "cta"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "cadre",
+          "pointsAppui",
+          "priorites",
+          "etapeSuivante"
+        ],
+        "additionalProperties": false
+      },
+      "nexus": {
+        "type": "object",
+        "properties": {
+          "syntheseProfil": {
+            "type": "string",
+            "minLength": 1
+          },
+          "diagnosticPedagogique": {
+            "type": "string",
+            "minLength": 1
+          },
+          "planQuatreSemaines": {
+            "type": "string",
+            "minLength": 1
+          },
+          "alertes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "ragReferences": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "required": [
+          "syntheseProfil",
+          "diagnosticPedagogique",
+          "planQuatreSemaines",
+          "alertes",
+          "ragReferences"
+        ],
+        "additionalProperties": false
+      },
+      "verifier": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "type": "boolean"
+          },
+          "violations": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "required": [
+          "ok",
+          "violations"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "validation": {
+    "lexiconPath": "data/bilans/lexique-interdit.json",
+    "forbidDigits": [
+      "eleve",
+      "parents"
+    ]
+  }
+}

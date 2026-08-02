@@ -4,8 +4,10 @@ import path from 'node:path';
 
 import { z } from 'zod';
 
+import { BILAN_PACK_SUBJECTS } from './subjects';
+
 const academicLevelSchema = z.enum(['QUATRIEME', 'TROISIEME', 'SECONDE', 'PREMIERE', 'TERMINALE']);
-const subjectSchema = z.enum(['MATHS', 'NSI', 'FRANCAIS', 'PHYSIQUE_CHIMIE', 'SVT', 'SES', 'PHILOSOPHIE', 'HISTOIRE_GEOGRAPHIE', 'GRAND_ORAL']);
+const subjectSchema = z.enum(BILAN_PACK_SUBJECTS);
 
 import {
   agentOutputJsonSchema,

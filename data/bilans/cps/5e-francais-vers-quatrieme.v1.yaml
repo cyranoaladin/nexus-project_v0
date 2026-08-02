@@ -1,0 +1,49 @@
+schemaVersion: nexus-cps-catalog/v1
+slug: 5e-francais-vers-quatrieme-v1
+version: 1
+nodes:
+  - id: 5e.francais.grammaire.classes-de-mots
+    label: Classes grammaticales (nature des mots)
+    sourceLevel: CINQUIEME
+    targetLevel: QUATRIEME
+    pedagogicalRationale: toute analyse de phrase de 4e suppose de nommer la nature des mots. La confondre avec la fonction bloque l'étude de la langue.
+  - id: 5e.francais.grammaire.fonctions
+    label: Fonctions dans la phrase (sujet, COD, COI)
+    sourceLevel: CINQUIEME
+    targetLevel: QUATRIEME
+    pedagogicalRationale: l'accord du participe passé et l'analyse de la phrase complexe de 4e reposent sur l'identification sûre des fonctions.
+  - id: 5e.francais.conjugaison.present-indicatif
+    label: "Conjugaison : présent de l'indicatif"
+    sourceLevel: CINQUIEME
+    targetLevel: QUATRIEME
+    pedagogicalRationale: le présent des verbes fréquents et irréguliers est la base sur laquelle la 4e construit les temps composés et le conditionnel.
+  - id: 5e.francais.conjugaison.temps-du-recit
+    label: "Conjugaison : imparfait et passé simple"
+    sourceLevel: CINQUIEME
+    targetLevel: QUATRIEME
+    pedagogicalRationale: le récit de 4e alterne imparfait et passé simple. Confondre leurs valeurs ou leurs formes rend le texte narratif incohérent.
+  - id: 5e.francais.orthographe.accords
+    label: Accords (sujet-verbe, groupe nominal)
+    sourceLevel: CINQUIEME
+    targetLevel: QUATRIEME
+    pedagogicalRationale: les accords sont réinvestis dans toute production de 4e ; une chaîne d'accords défaillante fausse le sens.
+  - id: 5e.francais.orthographe.homophones
+    label: Homophones grammaticaux
+    sourceLevel: CINQUIEME
+    targetLevel: QUATRIEME
+    pedagogicalRationale: distinguer a/à, et/est, on/ont, son/sont conditionne l'orthographe correcte de toute phrase.
+  - id: 5e.francais.lexique.formation-des-mots
+    label: "Lexique : formation des mots (préfixes, suffixes, familles)"
+    sourceLevel: CINQUIEME
+    targetLevel: QUATRIEME
+    pedagogicalRationale: comprendre un mot inconnu par sa formation est un outil de lecture central en 4e.
+  - id: 5e.francais.lexique.sens
+    label: "Lexique : sens propre et figuré, synonymes"
+    sourceLevel: CINQUIEME
+    targetLevel: QUATRIEME
+    pedagogicalRationale: l'interprétation des textes de 4e exige de repérer les glissements de sens et les relations lexicales.
+  - id: 5e.francais.lecture.figures-de-style
+    label: Figures de style (comparaison, métaphore)
+    sourceLevel: CINQUIEME
+    targetLevel: QUATRIEME
+    pedagogicalRationale: l'analyse littéraire de 4e s'appuie sur la reconnaissance des images, introduites dès la 6e-5e.

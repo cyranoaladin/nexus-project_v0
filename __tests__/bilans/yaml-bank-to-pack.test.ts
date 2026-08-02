@@ -1,5 +1,4 @@
 import { spawnSync } from 'node:child_process';
-import { createHash } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -42,16 +41,6 @@ function readYaml(relativePath: string): any {
   return yaml('parse', fs.readFileSync(path.join(ROOT, relativePath), 'utf8'));
 }
 
-function expectedPositions(items: readonly { id: string }[]): ReadonlyMap<string, number> {
-  const ranked = [...items].sort((left, right) => {
-    const leftHash = createHash('sha256').update(left.id, 'utf8').digest('hex');
-    const rightHash = createHash('sha256').update(right.id, 'utf8').digest('hex');
-    if (leftHash !== rightHash) return leftHash < rightHash ? -1 : 1;
-    return left.id < right.id ? -1 : left.id > right.id ? 1 : 0;
-  });
-  return new Map(ranked.map((item, index) => [item.id, index % 4]));
-}
-
 function tempFile(name: string, content?: string): string {
   fs.mkdirSync(TEMP, { recursive: true });
   const target = path.join(TEMP, name);
@@ -83,13 +72,11 @@ describe('deterministic YAML bank conversion', () => {
     }
   });
 
-  it('distributes correct answers deterministically from item identifiers', () => {
+  it('preserves the source V14 distribution without rewriting options', () => {
     const source = readYaml(SOURCE);
-    const expected = expectedPositions(source.items);
     const distribution = [0, 0, 0, 0];
     for (const item of source.items) {
       const position = item.options.findIndex((option: any) => option.correct === true);
-      expect(position).toBe(expected.get(item.id));
       distribution[position] += 1;
     }
     expect(distribution).toEqual([5, 5, 4, 4]);
@@ -117,7 +104,9 @@ describe('deterministic YAML bank conversion', () => {
     const unknown = tempFile('unknown-node.yaml', yaml('stringify', source));
     const result = run(unknown, tempFile('unknown-node.json'));
     expect(result.status).toBe(1);
-    expect(result.stderr).toContain('BANK_CPS_NODE_UNKNOWN:1re.maths.noeud.inconnu');
+    expect(result.stderr).toContain(
+      'entree-terminale-maths-v1:V2:$.items[0].nodeCpsId:unknown CPS node: 1re.maths.noeud.inconnu',
+    );
   });
 
   it('covers all nine catalogued nodes and respects the announced duration', () => {

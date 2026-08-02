@@ -1,0 +1,3229 @@
+{
+  "schemaVersion": "nexus-bilan-blind-review-packet/v1",
+  "status": "TECHNICAL_MOCK_ONLY_NOT_PEDAGOGICALLY_VALIDATED",
+  "sourceDraftPack": "entree-terminale-philosophie-v1",
+  "executionFixture": "fixture-non-publiable-v0",
+  "instructions": "Évaluer la clarté, la fidélité aux faits et l’utilité pédagogique sans inférer une validation du pack DRAFT.",
+  "reports": [
+    {
+      "blindId": "CAS_01_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "75dd1c4ccb093b95bfcdbdde503f99013aa117570b4e2a7ac074a560ec5e9b77",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "argumentation",
+                "titre": "argumentation",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "lexique",
+                "titre": "lexique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "ecriture",
+                "titre": "ecriture",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "argumentation",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "lexique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "ecriture",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_01_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "3c4247a18c9f0cea03ad85227441c1f1f26bb16f86216874a2e909d0895bd091",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "argumentation",
+                "texte": "argumentation constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "lexique",
+                "texte": "lexique constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "ecriture",
+                "texte": "ecriture constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "argumentation",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "lexique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "ecriture",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_01_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "70e9c737bfb1849dda9bd9785966f17beac7f362c553744f3926c4fb4c8dcb43",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "argumentation",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "lexique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "ecriture",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 15,
+            "coverage": 45,
+            "calibrationIndex": null,
+            "domainScores": [
+              {
+                "id": "argumentation",
+                "score": 15
+              },
+              {
+                "id": "lexique",
+                "score": 24
+              },
+              {
+                "id": "ecriture",
+                "score": 33
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_02_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "61075aa32d10c5ed7b8769cd8119d597310815a627b3bca3aed20f6d66b9ff2e",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "argumentation",
+                "titre": "argumentation",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "lexique",
+                "titre": "lexique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "ecriture",
+                "titre": "ecriture",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "argumentation",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "lexique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "ecriture",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_02_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "858a3f3589e3ca423c53a04653af3ff98a9ad9ec303c79b115037b4e173b3026",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "argumentation",
+                "texte": "argumentation constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "lexique",
+                "texte": "lexique constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "ecriture",
+                "texte": "ecriture constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "argumentation",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "lexique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "ecriture",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_02_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "b97bda65331dc978c2249641a46c034434b5f22cce8c72972cd592ccf2b45679",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "argumentation",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "lexique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "ecriture",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 32,
+            "coverage": 58,
+            "calibrationIndex": 41,
+            "domainScores": [
+              {
+                "id": "argumentation",
+                "score": 32
+              },
+              {
+                "id": "lexique",
+                "score": 41
+              },
+              {
+                "id": "ecriture",
+                "score": 50
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_03_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "c1ce215837f97d1fff46d1b460cefca8e7a4ffdbff59632c0fb73d8a3df04d05",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "argumentation",
+                "titre": "argumentation",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "lexique",
+                "titre": "lexique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "ecriture",
+                "titre": "ecriture",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "argumentation",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "lexique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "ecriture",
+              "profile": "NON_TRAITE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_03_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "e1f5a8889c520a51aac62e585a12b5f5ae55e83f50b8e36ded216d949ad3525a",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "argumentation",
+                "texte": "argumentation constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "lexique",
+                "texte": "lexique constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "ecriture",
+                "texte": "ecriture constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "argumentation",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "lexique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "ecriture",
+              "profile": "NON_TRAITE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_03_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "48a969ffee4d5a23622d9556c4271d9a308f4792eb7c5d006d30976beb1c4c8c",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "argumentation",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "lexique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "ecriture",
+              "profile": "NON_TRAITE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 49,
+            "coverage": 71,
+            "calibrationIndex": 52,
+            "domainScores": [
+              {
+                "id": "argumentation",
+                "score": 49
+              },
+              {
+                "id": "lexique",
+                "score": 58
+              },
+              {
+                "id": "ecriture",
+                "score": 67
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_04_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "883418df73c73f06133374b7230a048d225b8e3f7fb0a1bdc6a50f03e7d693fd",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "argumentation",
+                "titre": "argumentation",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "lexique",
+                "titre": "lexique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "ecriture",
+                "titre": "ecriture",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "argumentation",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "lexique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "ecriture",
+              "profile": "MAITRISE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_04_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "6b3cab89fd88dd9de26295e719f540b4e2c750da5847a47fc98978db55db2d07",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "argumentation",
+                "texte": "argumentation constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "lexique",
+                "texte": "lexique constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "ecriture",
+                "texte": "ecriture constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "argumentation",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "lexique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "ecriture",
+              "profile": "MAITRISE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_04_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "3aba394f6d03e06ef6523f3b2485d627c829c9bd2c00bfe7d45947b07756115d",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "argumentation",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "lexique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "ecriture",
+              "profile": "MAITRISE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 66,
+            "coverage": 84,
+            "calibrationIndex": 63,
+            "domainScores": [
+              {
+                "id": "argumentation",
+                "score": 66
+              },
+              {
+                "id": "lexique",
+                "score": 75
+              },
+              {
+                "id": "ecriture",
+                "score": 84
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_05_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "53e0b892e5fb640ed5c57f90e46a6cca538867702be4545d31f64eb2f2ae74c7",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "argumentation",
+                "titre": "argumentation",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "lexique",
+                "titre": "lexique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "ecriture",
+                "titre": "ecriture",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "argumentation",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "lexique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "ecriture",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_05_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "16d8c007f07378844cf0bcc0a0de96a48999c8ca506fa0a5b9157ae85528c7d7",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "argumentation",
+                "texte": "argumentation constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "lexique",
+                "texte": "lexique constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "ecriture",
+                "texte": "ecriture constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "argumentation",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "lexique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "ecriture",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_05_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "79e48eadd2283584743226841dd23bca93ece61e96ca86bceea7083c71b77abb",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "argumentation",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "lexique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "ecriture",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 83,
+            "coverage": 97,
+            "calibrationIndex": null,
+            "domainScores": [
+              {
+                "id": "argumentation",
+                "score": 83
+              },
+              {
+                "id": "lexique",
+                "score": 92
+              },
+              {
+                "id": "ecriture",
+                "score": 0
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_06_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "75dd1c4ccb093b95bfcdbdde503f99013aa117570b4e2a7ac074a560ec5e9b77",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "argumentation",
+                "titre": "argumentation",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "lexique",
+                "titre": "lexique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "ecriture",
+                "titre": "ecriture",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "argumentation",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "lexique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "ecriture",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_06_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "3c4247a18c9f0cea03ad85227441c1f1f26bb16f86216874a2e909d0895bd091",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "argumentation",
+                "texte": "argumentation constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "lexique",
+                "texte": "lexique constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "ecriture",
+                "texte": "ecriture constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "argumentation",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "lexique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "ecriture",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_06_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "1b8edc8057cc58a0912dfa8fac8cd38a78deb21793b7322e246ca3c497b41cc2",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "argumentation",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "lexique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "ecriture",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 19,
+            "coverage": 54,
+            "calibrationIndex": 85,
+            "domainScores": [
+              {
+                "id": "argumentation",
+                "score": 19
+              },
+              {
+                "id": "lexique",
+                "score": 28
+              },
+              {
+                "id": "ecriture",
+                "score": 37
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_07_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "61075aa32d10c5ed7b8769cd8119d597310815a627b3bca3aed20f6d66b9ff2e",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "argumentation",
+                "titre": "argumentation",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "lexique",
+                "titre": "lexique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "ecriture",
+                "titre": "ecriture",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "argumentation",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "lexique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "ecriture",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_07_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "858a3f3589e3ca423c53a04653af3ff98a9ad9ec303c79b115037b4e173b3026",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "argumentation",
+                "texte": "argumentation constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "lexique",
+                "texte": "lexique constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "ecriture",
+                "texte": "ecriture constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "argumentation",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "lexique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "ecriture",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_07_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "0cd30c2b36cdab451f0e9ac4709d6ab831f4320fa96af8fd7e899716668c77ab",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "argumentation",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "lexique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "ecriture",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 36,
+            "coverage": 67,
+            "calibrationIndex": 96,
+            "domainScores": [
+              {
+                "id": "argumentation",
+                "score": 36
+              },
+              {
+                "id": "lexique",
+                "score": 45
+              },
+              {
+                "id": "ecriture",
+                "score": 54
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_08_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "c1ce215837f97d1fff46d1b460cefca8e7a4ffdbff59632c0fb73d8a3df04d05",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "argumentation",
+                "titre": "argumentation",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "lexique",
+                "titre": "lexique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "ecriture",
+                "titre": "ecriture",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "argumentation",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "lexique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "ecriture",
+              "profile": "NON_TRAITE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_08_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "e1f5a8889c520a51aac62e585a12b5f5ae55e83f50b8e36ded216d949ad3525a",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "argumentation",
+                "texte": "argumentation constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "lexique",
+                "texte": "lexique constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "ecriture",
+                "texte": "ecriture constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "argumentation",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "lexique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "ecriture",
+              "profile": "NON_TRAITE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_08_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "b7815671c7c8e08ae43d346e72f8d5e3d2b860a635df3bc5a20b95fb3df2a3a2",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "argumentation",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "lexique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "ecriture",
+              "profile": "NON_TRAITE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 53,
+            "coverage": 80,
+            "calibrationIndex": 36,
+            "domainScores": [
+              {
+                "id": "argumentation",
+                "score": 53
+              },
+              {
+                "id": "lexique",
+                "score": 62
+              },
+              {
+                "id": "ecriture",
+                "score": 71
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_09_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "883418df73c73f06133374b7230a048d225b8e3f7fb0a1bdc6a50f03e7d693fd",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "argumentation",
+                "titre": "argumentation",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "lexique",
+                "titre": "lexique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "ecriture",
+                "titre": "ecriture",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "argumentation",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "lexique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "ecriture",
+              "profile": "MAITRISE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_09_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "6b3cab89fd88dd9de26295e719f540b4e2c750da5847a47fc98978db55db2d07",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "argumentation",
+                "texte": "argumentation constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "lexique",
+                "texte": "lexique constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "ecriture",
+                "texte": "ecriture constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "argumentation",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "lexique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "ecriture",
+              "profile": "MAITRISE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_09_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "3b15a6ad71fd8c940547261b9b7908fd8808d276db8c3dd2304747822eed6b2a",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "argumentation",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "lexique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "ecriture",
+              "profile": "MAITRISE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 70,
+            "coverage": 93,
+            "calibrationIndex": null,
+            "domainScores": [
+              {
+                "id": "argumentation",
+                "score": 70
+              },
+              {
+                "id": "lexique",
+                "score": 79
+              },
+              {
+                "id": "ecriture",
+                "score": 88
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_10_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "53e0b892e5fb640ed5c57f90e46a6cca538867702be4545d31f64eb2f2ae74c7",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "argumentation",
+                "titre": "argumentation",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "lexique",
+                "titre": "lexique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "ecriture",
+                "titre": "ecriture",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "argumentation",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "lexique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "ecriture",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_10_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "16d8c007f07378844cf0bcc0a0de96a48999c8ca506fa0a5b9157ae85528c7d7",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "argumentation",
+                "texte": "argumentation constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "lexique",
+                "texte": "lexique constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "ecriture",
+                "texte": "ecriture constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "argumentation",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "lexique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "ecriture",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_10_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "52f6093fd7c0c4150e358d84e6e51a074c7336686fd8154c62f62c4230464a73",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "argumentation",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "lexique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "ecriture",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 87,
+            "coverage": 50,
+            "calibrationIndex": 58,
+            "domainScores": [
+              {
+                "id": "argumentation",
+                "score": 87
+              },
+              {
+                "id": "lexique",
+                "score": 96
+              },
+              {
+                "id": "ecriture",
+                "score": 4
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_11_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "75dd1c4ccb093b95bfcdbdde503f99013aa117570b4e2a7ac074a560ec5e9b77",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "argumentation",
+                "titre": "argumentation",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "lexique",
+                "titre": "lexique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "ecriture",
+                "titre": "ecriture",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "argumentation",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "lexique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "ecriture",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_11_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "3c4247a18c9f0cea03ad85227441c1f1f26bb16f86216874a2e909d0895bd091",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "argumentation",
+                "texte": "argumentation constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "lexique",
+                "texte": "lexique constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "ecriture",
+                "texte": "ecriture constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "argumentation",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "lexique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "ecriture",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_11_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "e608cf777e25c1eebdd4760af78280e88e40d6de09dc9caca20636c7e2f4d7ae",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "argumentation",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "lexique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "ecriture",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 23,
+            "coverage": 63,
+            "calibrationIndex": 69,
+            "domainScores": [
+              {
+                "id": "argumentation",
+                "score": 23
+              },
+              {
+                "id": "lexique",
+                "score": 32
+              },
+              {
+                "id": "ecriture",
+                "score": 41
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_12_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "61075aa32d10c5ed7b8769cd8119d597310815a627b3bca3aed20f6d66b9ff2e",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "argumentation",
+                "titre": "argumentation",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "lexique",
+                "titre": "lexique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "ecriture",
+                "titre": "ecriture",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "argumentation",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "lexique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "ecriture",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_12_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "858a3f3589e3ca423c53a04653af3ff98a9ad9ec303c79b115037b4e173b3026",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "argumentation",
+                "texte": "argumentation constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "lexique",
+                "texte": "lexique constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "ecriture",
+                "texte": "ecriture constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "argumentation",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "lexique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "ecriture",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_12_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "db99fc9a2badf00772e8c71ab8c22dcfbd13a4ec805a764a5598e6c42bbd2bba",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "argumentation",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "lexique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "ecriture",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 40,
+            "coverage": 76,
+            "calibrationIndex": 80,
+            "domainScores": [
+              {
+                "id": "argumentation",
+                "score": 40
+              },
+              {
+                "id": "lexique",
+                "score": 49
+              },
+              {
+                "id": "ecriture",
+                "score": 58
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_13_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "c1ce215837f97d1fff46d1b460cefca8e7a4ffdbff59632c0fb73d8a3df04d05",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "argumentation",
+                "titre": "argumentation",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "lexique",
+                "titre": "lexique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "ecriture",
+                "titre": "ecriture",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "argumentation",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "lexique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "ecriture",
+              "profile": "NON_TRAITE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_13_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "e1f5a8889c520a51aac62e585a12b5f5ae55e83f50b8e36ded216d949ad3525a",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "argumentation",
+                "texte": "argumentation constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "lexique",
+                "texte": "lexique constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "ecriture",
+                "texte": "ecriture constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "argumentation",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "lexique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "ecriture",
+              "profile": "NON_TRAITE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_13_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "99296b33160c631105937beb1730d1ccd97391ca68300677b7140f358821efbc",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "argumentation",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "lexique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "ecriture",
+              "profile": "NON_TRAITE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 57,
+            "coverage": 89,
+            "calibrationIndex": null,
+            "domainScores": [
+              {
+                "id": "argumentation",
+                "score": 57
+              },
+              {
+                "id": "lexique",
+                "score": 66
+              },
+              {
+                "id": "ecriture",
+                "score": 75
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_14_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "883418df73c73f06133374b7230a048d225b8e3f7fb0a1bdc6a50f03e7d693fd",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "argumentation",
+                "titre": "argumentation",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "lexique",
+                "titre": "lexique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "ecriture",
+                "titre": "ecriture",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "argumentation",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "lexique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "ecriture",
+              "profile": "MAITRISE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_14_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "6b3cab89fd88dd9de26295e719f540b4e2c750da5847a47fc98978db55db2d07",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "argumentation",
+                "texte": "argumentation constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "lexique",
+                "texte": "lexique constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "ecriture",
+                "texte": "ecriture constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "argumentation",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "lexique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "ecriture",
+              "profile": "MAITRISE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_14_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "599aa7e73fade137d2e116d6d1cebce03fcca40dfb3d0db8fa545318f5c950e3",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "argumentation",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "lexique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "ecriture",
+              "profile": "MAITRISE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 74,
+            "coverage": 46,
+            "calibrationIndex": 31,
+            "domainScores": [
+              {
+                "id": "argumentation",
+                "score": 74
+              },
+              {
+                "id": "lexique",
+                "score": 83
+              },
+              {
+                "id": "ecriture",
+                "score": 92
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_15_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "53e0b892e5fb640ed5c57f90e46a6cca538867702be4545d31f64eb2f2ae74c7",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "argumentation",
+                "titre": "argumentation",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "lexique",
+                "titre": "lexique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "ecriture",
+                "titre": "ecriture",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "argumentation",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "lexique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "ecriture",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_15_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "16d8c007f07378844cf0bcc0a0de96a48999c8ca506fa0a5b9157ae85528c7d7",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "argumentation",
+                "texte": "argumentation constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "lexique",
+                "texte": "lexique constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "ecriture",
+                "texte": "ecriture constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "argumentation",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "lexique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "ecriture",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_15_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "4a982627c54e37022ce13b7a1416f3e3cbc9d62089100469cc3ba0a46c0b178a",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "argumentation",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "lexique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "ecriture",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 91,
+            "coverage": 59,
+            "calibrationIndex": 42,
+            "domainScores": [
+              {
+                "id": "argumentation",
+                "score": 91
+              },
+              {
+                "id": "lexique",
+                "score": 100
+              },
+              {
+                "id": "ecriture",
+                "score": 8
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_16_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "75dd1c4ccb093b95bfcdbdde503f99013aa117570b4e2a7ac074a560ec5e9b77",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "argumentation",
+                "titre": "argumentation",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "lexique",
+                "titre": "lexique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "ecriture",
+                "titre": "ecriture",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "argumentation",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "lexique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "ecriture",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_16_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "3c4247a18c9f0cea03ad85227441c1f1f26bb16f86216874a2e909d0895bd091",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "argumentation",
+                "texte": "argumentation constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "lexique",
+                "texte": "lexique constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "ecriture",
+                "texte": "ecriture constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "argumentation",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "lexique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "ecriture",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_16_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "d3fe7727bc1a90c48bd682f521c47748fd5d791185bf786f3264b050a494cb51",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "argumentation",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "lexique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "ecriture",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 27,
+            "coverage": 72,
+            "calibrationIndex": 53,
+            "domainScores": [
+              {
+                "id": "argumentation",
+                "score": 27
+              },
+              {
+                "id": "lexique",
+                "score": 36
+              },
+              {
+                "id": "ecriture",
+                "score": 45
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_17_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "61075aa32d10c5ed7b8769cd8119d597310815a627b3bca3aed20f6d66b9ff2e",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "argumentation",
+                "titre": "argumentation",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "lexique",
+                "titre": "lexique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "ecriture",
+                "titre": "ecriture",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "argumentation",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "lexique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "ecriture",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_17_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "858a3f3589e3ca423c53a04653af3ff98a9ad9ec303c79b115037b4e173b3026",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "argumentation",
+                "texte": "argumentation constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "lexique",
+                "texte": "lexique constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "ecriture",
+                "texte": "ecriture constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "argumentation",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "lexique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "ecriture",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_17_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "27f8eb5f8c8dca41d5471d2411cd7cef4fb7eee4620936fe930d95fab993c44b",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "argumentation",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "lexique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "ecriture",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 44,
+            "coverage": 85,
+            "calibrationIndex": null,
+            "domainScores": [
+              {
+                "id": "argumentation",
+                "score": 44
+              },
+              {
+                "id": "lexique",
+                "score": 53
+              },
+              {
+                "id": "ecriture",
+                "score": 62
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_18_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "c1ce215837f97d1fff46d1b460cefca8e7a4ffdbff59632c0fb73d8a3df04d05",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "argumentation",
+                "titre": "argumentation",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "lexique",
+                "titre": "lexique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "ecriture",
+                "titre": "ecriture",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "argumentation",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "lexique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "ecriture",
+              "profile": "NON_TRAITE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_18_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "e1f5a8889c520a51aac62e585a12b5f5ae55e83f50b8e36ded216d949ad3525a",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "argumentation",
+                "texte": "argumentation constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "lexique",
+                "texte": "lexique constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "ecriture",
+                "texte": "ecriture constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "argumentation",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "lexique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "ecriture",
+              "profile": "NON_TRAITE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_18_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "3e95ea7dd0d5173113c5163e2d91acb2de17ad579a1803751f212f9f1282cf06",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "argumentation",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "lexique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "ecriture",
+              "profile": "NON_TRAITE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 61,
+            "coverage": 98,
+            "calibrationIndex": 75,
+            "domainScores": [
+              {
+                "id": "argumentation",
+                "score": 61
+              },
+              {
+                "id": "lexique",
+                "score": 70
+              },
+              {
+                "id": "ecriture",
+                "score": 79
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_19_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "883418df73c73f06133374b7230a048d225b8e3f7fb0a1bdc6a50f03e7d693fd",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "argumentation",
+                "titre": "argumentation",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "lexique",
+                "titre": "lexique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "ecriture",
+                "titre": "ecriture",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "argumentation",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "lexique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "ecriture",
+              "profile": "MAITRISE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_19_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "6b3cab89fd88dd9de26295e719f540b4e2c750da5847a47fc98978db55db2d07",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "argumentation",
+                "texte": "argumentation constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "lexique",
+                "texte": "lexique constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "ecriture",
+                "texte": "ecriture constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "argumentation",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "lexique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "ecriture",
+              "profile": "MAITRISE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_19_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "770a1be9e56f20280fd973219b712e8622fbb221445a3c08a4b9b71bdb744802",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "argumentation",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "lexique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "ecriture",
+              "profile": "MAITRISE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 78,
+            "coverage": 55,
+            "calibrationIndex": 86,
+            "domainScores": [
+              {
+                "id": "argumentation",
+                "score": 78
+              },
+              {
+                "id": "lexique",
+                "score": 87
+              },
+              {
+                "id": "ecriture",
+                "score": 96
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_20_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "53e0b892e5fb640ed5c57f90e46a6cca538867702be4545d31f64eb2f2ae74c7",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "argumentation",
+                "titre": "argumentation",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "lexique",
+                "titre": "lexique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "ecriture",
+                "titre": "ecriture",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "argumentation",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "lexique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "ecriture",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_20_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "16d8c007f07378844cf0bcc0a0de96a48999c8ca506fa0a5b9157ae85528c7d7",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "argumentation",
+                "texte": "argumentation constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "lexique",
+                "texte": "lexique constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "ecriture",
+                "texte": "ecriture constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "argumentation",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "lexique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "ecriture",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_20_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "a18eb9d047f1f1b15426e843de34c9217a3a540d3265bb4b34c8aef5523e8cbd",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "argumentation",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "lexique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "ecriture",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 95,
+            "coverage": 68,
+            "calibrationIndex": 97,
+            "domainScores": [
+              {
+                "id": "argumentation",
+                "score": 95
+              },
+              {
+                "id": "lexique",
+                "score": 3
+              },
+              {
+                "id": "ecriture",
+                "score": 12
+              }
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

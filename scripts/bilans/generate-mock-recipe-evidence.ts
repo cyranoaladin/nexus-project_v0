@@ -31,7 +31,8 @@ export async function generateMockRecipeEvidence(
       pack,
     );
     if (result.bundle === null || result.validationFailures.length > 0) {
-      throw new Error(`Mock recipe failed for FactSheet ${index + 1}`);
+      const rules = result.validationFailures.map(({ rule }) => rule).join(',');
+      throw new Error(`Mock recipe failed for FactSheet ${index + 1}${rules === '' ? '' : ` (${rules})`}`);
     }
     for (const current of validateAgentBundle({ bundle: result.bundle, factSheet, pack })) {
       validationViolations[current.rule] += 1;

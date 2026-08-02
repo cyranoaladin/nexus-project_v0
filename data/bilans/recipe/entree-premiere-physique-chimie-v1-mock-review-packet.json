@@ -1,0 +1,4869 @@
+{
+  "schemaVersion": "nexus-bilan-blind-review-packet/v1",
+  "status": "TECHNICAL_MOCK_ONLY_NOT_PEDAGOGICALLY_VALIDATED",
+  "sourceDraftPack": "entree-premiere-physique-chimie-v1",
+  "executionFixture": "fixture-non-publiable-v0",
+  "instructions": "Évaluer la clarté, la fidélité aux faits et l’utilité pédagogique sans inférer une validation du pack DRAFT.",
+  "reports": [
+    {
+      "blindId": "CAS_01_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "ab8fea3b579c89af7f0c2360b5405a6b1f0bb1f61663e245461cbebaa7257512",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "matiere",
+                "titre": "matiere",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "transformations",
+                "titre": "transformations",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "mecanique",
+                "titre": "mecanique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "ondes",
+                "titre": "ondes",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "electricite",
+                "titre": "electricite",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "mesure",
+                "titre": "mesure",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "matiere",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "transformations",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "ondes",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "electricite",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "mesure",
+              "profile": "MAITRISE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_01_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "2aafe43b2b842ad534b69017b54d3c92d5732dc6cc48653f953e164dc0c5416e",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "matiere",
+                "texte": "matiere constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "transformations",
+                "texte": "transformations constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "mecanique",
+                "texte": "mecanique constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "ondes",
+                "titre": "ondes",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "electricite",
+                "titre": "electricite",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "mesure",
+                "titre": "mesure",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "matiere",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "transformations",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "ondes",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "electricite",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "mesure",
+              "profile": "MAITRISE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_01_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "401c06dccc5cbe1a8a99616b7d7b6cf6b678a5bdbe766d0403b528bd5caf559c",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "matiere",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "transformations",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "ondes",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "electricite",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "mesure",
+              "profile": "MAITRISE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 15,
+            "coverage": 45,
+            "calibrationIndex": null,
+            "domainScores": [
+              {
+                "id": "matiere",
+                "score": 15
+              },
+              {
+                "id": "transformations",
+                "score": 24
+              },
+              {
+                "id": "mecanique",
+                "score": 33
+              },
+              {
+                "id": "ondes",
+                "score": 42
+              },
+              {
+                "id": "electricite",
+                "score": 51
+              },
+              {
+                "id": "mesure",
+                "score": 60
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_02_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "662b8137b5f39943b8100b4de1e2f9cfb18279506e8d4713a74fda8f410a1e61",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "matiere",
+                "titre": "matiere",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "transformations",
+                "titre": "transformations",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "mecanique",
+                "titre": "mecanique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "ondes",
+                "titre": "ondes",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "electricite",
+                "titre": "electricite",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "mesure",
+                "titre": "mesure",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "matiere",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "transformations",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "ondes",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "electricite",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "mesure",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_02_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "afa2d11bec867c4e1c31b1b634d8f1dfb441cd4af6884359c4a27a70b7c9c49f",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "matiere",
+                "texte": "matiere constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "transformations",
+                "texte": "transformations constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "mecanique",
+                "texte": "mecanique constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "ondes",
+                "titre": "ondes",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "electricite",
+                "titre": "electricite",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "mesure",
+                "titre": "mesure",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "matiere",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "transformations",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "ondes",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "electricite",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "mesure",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_02_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "eed54ab43b14876b2cc41a0c4a21adcd58ed72648b8b3e214b803dae162e402d",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "matiere",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "transformations",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "ondes",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "electricite",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "mesure",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 32,
+            "coverage": 58,
+            "calibrationIndex": 41,
+            "domainScores": [
+              {
+                "id": "matiere",
+                "score": 32
+              },
+              {
+                "id": "transformations",
+                "score": 41
+              },
+              {
+                "id": "mecanique",
+                "score": 50
+              },
+              {
+                "id": "ondes",
+                "score": 59
+              },
+              {
+                "id": "electricite",
+                "score": 68
+              },
+              {
+                "id": "mesure",
+                "score": 77
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_03_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "7d4122b490ee78d4607fa79c84a6505b3e02de58dd25f4c574d166455714c3b1",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "matiere",
+                "titre": "matiere",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "transformations",
+                "titre": "transformations",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "mecanique",
+                "titre": "mecanique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "ondes",
+                "titre": "ondes",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "electricite",
+                "titre": "electricite",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "mesure",
+                "titre": "mesure",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "matiere",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "transformations",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "ondes",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "electricite",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "mesure",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_03_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "fa8ce3ea0976c7f891d523bb5fd64380d0af15c274ff83a743d4c97b60b1f232",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "matiere",
+                "texte": "matiere constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "transformations",
+                "texte": "transformations constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "mecanique",
+                "texte": "mecanique constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "ondes",
+                "titre": "ondes",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "electricite",
+                "titre": "electricite",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "mesure",
+                "titre": "mesure",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "matiere",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "transformations",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "ondes",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "electricite",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "mesure",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_03_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "aa77d0f07800e34e47e4a85c893d9c6325a16883f06dc73bdb0688d1daf6ec1f",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "matiere",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "transformations",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "ondes",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "electricite",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "mesure",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 49,
+            "coverage": 71,
+            "calibrationIndex": 52,
+            "domainScores": [
+              {
+                "id": "matiere",
+                "score": 49
+              },
+              {
+                "id": "transformations",
+                "score": 58
+              },
+              {
+                "id": "mecanique",
+                "score": 67
+              },
+              {
+                "id": "ondes",
+                "score": 76
+              },
+              {
+                "id": "electricite",
+                "score": 85
+              },
+              {
+                "id": "mesure",
+                "score": 94
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_04_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "cd121794ccde4f8104a2bd36dcb2ebfc8c98b4f13cbfb9f0d10f194cefcaec81",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "matiere",
+                "titre": "matiere",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "transformations",
+                "titre": "transformations",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "mecanique",
+                "titre": "mecanique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "ondes",
+                "titre": "ondes",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "electricite",
+                "titre": "electricite",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "mesure",
+                "titre": "mesure",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "matiere",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "transformations",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "ondes",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "electricite",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "mesure",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_04_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "cf3cb291b391565c49e4f118b0464bca3cec17cf7bebfaa2a09cd76a501e1ba6",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "matiere",
+                "texte": "matiere constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "transformations",
+                "texte": "transformations constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "mecanique",
+                "texte": "mecanique constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "ondes",
+                "titre": "ondes",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "electricite",
+                "titre": "electricite",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "mesure",
+                "titre": "mesure",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "matiere",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "transformations",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "ondes",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "electricite",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "mesure",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_04_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "24c0a86e738de272deb516ee77a72f6feced5c5464452850ef560bb033cfffd6",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "matiere",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "transformations",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "ondes",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "electricite",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "mesure",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 66,
+            "coverage": 84,
+            "calibrationIndex": 63,
+            "domainScores": [
+              {
+                "id": "matiere",
+                "score": 66
+              },
+              {
+                "id": "transformations",
+                "score": 75
+              },
+              {
+                "id": "mecanique",
+                "score": 84
+              },
+              {
+                "id": "ondes",
+                "score": 93
+              },
+              {
+                "id": "electricite",
+                "score": 1
+              },
+              {
+                "id": "mesure",
+                "score": 10
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_05_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "60e1ffd1dad506d0aecb9d14b6e2a77e68be953166cc352525ffa0f744851d26",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "matiere",
+                "titre": "matiere",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "transformations",
+                "titre": "transformations",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "mecanique",
+                "titre": "mecanique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "ondes",
+                "titre": "ondes",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "electricite",
+                "titre": "electricite",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "mesure",
+                "titre": "mesure",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "matiere",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "transformations",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "ondes",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "electricite",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "mesure",
+              "profile": "NON_TRAITE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_05_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "937ade3f28ff7b6f1ca876506b40602a7c246bdb676ed59852b1e5669def2cde",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "matiere",
+                "texte": "matiere constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "transformations",
+                "texte": "transformations constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "mecanique",
+                "texte": "mecanique constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "ondes",
+                "titre": "ondes",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "electricite",
+                "titre": "electricite",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "mesure",
+                "titre": "mesure",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "matiere",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "transformations",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "ondes",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "electricite",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "mesure",
+              "profile": "NON_TRAITE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_05_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "bab26d3d6a35f77f13ccc96868650681150558f5bb4c1a6d2c04de42074a4326",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "matiere",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "transformations",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "ondes",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "electricite",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "mesure",
+              "profile": "NON_TRAITE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 83,
+            "coverage": 97,
+            "calibrationIndex": null,
+            "domainScores": [
+              {
+                "id": "matiere",
+                "score": 83
+              },
+              {
+                "id": "transformations",
+                "score": 92
+              },
+              {
+                "id": "mecanique",
+                "score": 0
+              },
+              {
+                "id": "ondes",
+                "score": 9
+              },
+              {
+                "id": "electricite",
+                "score": 18
+              },
+              {
+                "id": "mesure",
+                "score": 27
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_06_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "ab8fea3b579c89af7f0c2360b5405a6b1f0bb1f61663e245461cbebaa7257512",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "matiere",
+                "titre": "matiere",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "transformations",
+                "titre": "transformations",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "mecanique",
+                "titre": "mecanique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "ondes",
+                "titre": "ondes",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "electricite",
+                "titre": "electricite",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "mesure",
+                "titre": "mesure",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "matiere",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "transformations",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "ondes",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "electricite",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "mesure",
+              "profile": "MAITRISE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_06_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "2aafe43b2b842ad534b69017b54d3c92d5732dc6cc48653f953e164dc0c5416e",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "matiere",
+                "texte": "matiere constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "transformations",
+                "texte": "transformations constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "mecanique",
+                "texte": "mecanique constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "ondes",
+                "titre": "ondes",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "electricite",
+                "titre": "electricite",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "mesure",
+                "titre": "mesure",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "matiere",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "transformations",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "ondes",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "electricite",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "mesure",
+              "profile": "MAITRISE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_06_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "97b1748ef84489ec812f11809339c98728266c9ab603de8741a6eecf65cab8d7",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "matiere",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "transformations",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "ondes",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "electricite",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "mesure",
+              "profile": "MAITRISE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 19,
+            "coverage": 54,
+            "calibrationIndex": 85,
+            "domainScores": [
+              {
+                "id": "matiere",
+                "score": 19
+              },
+              {
+                "id": "transformations",
+                "score": 28
+              },
+              {
+                "id": "mecanique",
+                "score": 37
+              },
+              {
+                "id": "ondes",
+                "score": 46
+              },
+              {
+                "id": "electricite",
+                "score": 55
+              },
+              {
+                "id": "mesure",
+                "score": 64
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_07_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "662b8137b5f39943b8100b4de1e2f9cfb18279506e8d4713a74fda8f410a1e61",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "matiere",
+                "titre": "matiere",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "transformations",
+                "titre": "transformations",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "mecanique",
+                "titre": "mecanique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "ondes",
+                "titre": "ondes",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "electricite",
+                "titre": "electricite",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "mesure",
+                "titre": "mesure",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "matiere",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "transformations",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "ondes",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "electricite",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "mesure",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_07_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "afa2d11bec867c4e1c31b1b634d8f1dfb441cd4af6884359c4a27a70b7c9c49f",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "matiere",
+                "texte": "matiere constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "transformations",
+                "texte": "transformations constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "mecanique",
+                "texte": "mecanique constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "ondes",
+                "titre": "ondes",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "electricite",
+                "titre": "electricite",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "mesure",
+                "titre": "mesure",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "matiere",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "transformations",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "ondes",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "electricite",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "mesure",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_07_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "ecd2067d191ecfc906bebd80ec179ba4409086d93f9443f2a763673ee4d4b91b",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "matiere",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "transformations",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "ondes",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "electricite",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "mesure",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 36,
+            "coverage": 67,
+            "calibrationIndex": 96,
+            "domainScores": [
+              {
+                "id": "matiere",
+                "score": 36
+              },
+              {
+                "id": "transformations",
+                "score": 45
+              },
+              {
+                "id": "mecanique",
+                "score": 54
+              },
+              {
+                "id": "ondes",
+                "score": 63
+              },
+              {
+                "id": "electricite",
+                "score": 72
+              },
+              {
+                "id": "mesure",
+                "score": 81
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_08_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "7d4122b490ee78d4607fa79c84a6505b3e02de58dd25f4c574d166455714c3b1",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "matiere",
+                "titre": "matiere",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "transformations",
+                "titre": "transformations",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "mecanique",
+                "titre": "mecanique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "ondes",
+                "titre": "ondes",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "electricite",
+                "titre": "electricite",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "mesure",
+                "titre": "mesure",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "matiere",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "transformations",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "ondes",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "electricite",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "mesure",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_08_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "fa8ce3ea0976c7f891d523bb5fd64380d0af15c274ff83a743d4c97b60b1f232",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "matiere",
+                "texte": "matiere constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "transformations",
+                "texte": "transformations constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "mecanique",
+                "texte": "mecanique constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "ondes",
+                "titre": "ondes",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "electricite",
+                "titre": "electricite",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "mesure",
+                "titre": "mesure",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "matiere",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "transformations",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "ondes",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "electricite",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "mesure",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_08_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "d8520e0dbf877f65ae4be157dfab30619142b45cd4378809301c5e5e8aec19ba",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "matiere",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "transformations",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "ondes",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "electricite",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "mesure",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 53,
+            "coverage": 80,
+            "calibrationIndex": 36,
+            "domainScores": [
+              {
+                "id": "matiere",
+                "score": 53
+              },
+              {
+                "id": "transformations",
+                "score": 62
+              },
+              {
+                "id": "mecanique",
+                "score": 71
+              },
+              {
+                "id": "ondes",
+                "score": 80
+              },
+              {
+                "id": "electricite",
+                "score": 89
+              },
+              {
+                "id": "mesure",
+                "score": 98
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_09_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "cd121794ccde4f8104a2bd36dcb2ebfc8c98b4f13cbfb9f0d10f194cefcaec81",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "matiere",
+                "titre": "matiere",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "transformations",
+                "titre": "transformations",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "mecanique",
+                "titre": "mecanique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "ondes",
+                "titre": "ondes",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "electricite",
+                "titre": "electricite",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "mesure",
+                "titre": "mesure",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "matiere",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "transformations",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "ondes",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "electricite",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "mesure",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_09_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "cf3cb291b391565c49e4f118b0464bca3cec17cf7bebfaa2a09cd76a501e1ba6",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "matiere",
+                "texte": "matiere constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "transformations",
+                "texte": "transformations constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "mecanique",
+                "texte": "mecanique constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "ondes",
+                "titre": "ondes",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "electricite",
+                "titre": "electricite",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "mesure",
+                "titre": "mesure",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "matiere",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "transformations",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "ondes",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "electricite",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "mesure",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_09_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "30346350569c1bfe30c08ca4126ac81d2e92a551ca8b0434c5e1ccbd56957140",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "matiere",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "transformations",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "ondes",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "electricite",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "mesure",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 70,
+            "coverage": 93,
+            "calibrationIndex": null,
+            "domainScores": [
+              {
+                "id": "matiere",
+                "score": 70
+              },
+              {
+                "id": "transformations",
+                "score": 79
+              },
+              {
+                "id": "mecanique",
+                "score": 88
+              },
+              {
+                "id": "ondes",
+                "score": 97
+              },
+              {
+                "id": "electricite",
+                "score": 5
+              },
+              {
+                "id": "mesure",
+                "score": 14
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_10_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "60e1ffd1dad506d0aecb9d14b6e2a77e68be953166cc352525ffa0f744851d26",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "matiere",
+                "titre": "matiere",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "transformations",
+                "titre": "transformations",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "mecanique",
+                "titre": "mecanique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "ondes",
+                "titre": "ondes",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "electricite",
+                "titre": "electricite",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "mesure",
+                "titre": "mesure",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "matiere",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "transformations",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "ondes",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "electricite",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "mesure",
+              "profile": "NON_TRAITE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_10_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "937ade3f28ff7b6f1ca876506b40602a7c246bdb676ed59852b1e5669def2cde",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "matiere",
+                "texte": "matiere constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "transformations",
+                "texte": "transformations constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "mecanique",
+                "texte": "mecanique constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "ondes",
+                "titre": "ondes",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "electricite",
+                "titre": "electricite",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "mesure",
+                "titre": "mesure",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "matiere",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "transformations",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "ondes",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "electricite",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "mesure",
+              "profile": "NON_TRAITE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_10_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "5c2d35667b1170d77bd15df9445ca3a76afb3cf561fc02b1b7ddfcd65902debd",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "matiere",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "transformations",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "ondes",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "electricite",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "mesure",
+              "profile": "NON_TRAITE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 87,
+            "coverage": 50,
+            "calibrationIndex": 58,
+            "domainScores": [
+              {
+                "id": "matiere",
+                "score": 87
+              },
+              {
+                "id": "transformations",
+                "score": 96
+              },
+              {
+                "id": "mecanique",
+                "score": 4
+              },
+              {
+                "id": "ondes",
+                "score": 13
+              },
+              {
+                "id": "electricite",
+                "score": 22
+              },
+              {
+                "id": "mesure",
+                "score": 31
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_11_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "ab8fea3b579c89af7f0c2360b5405a6b1f0bb1f61663e245461cbebaa7257512",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "matiere",
+                "titre": "matiere",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "transformations",
+                "titre": "transformations",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "mecanique",
+                "titre": "mecanique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "ondes",
+                "titre": "ondes",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "electricite",
+                "titre": "electricite",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "mesure",
+                "titre": "mesure",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "matiere",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "transformations",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "ondes",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "electricite",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "mesure",
+              "profile": "MAITRISE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_11_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "2aafe43b2b842ad534b69017b54d3c92d5732dc6cc48653f953e164dc0c5416e",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "matiere",
+                "texte": "matiere constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "transformations",
+                "texte": "transformations constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "mecanique",
+                "texte": "mecanique constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "ondes",
+                "titre": "ondes",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "electricite",
+                "titre": "electricite",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "mesure",
+                "titre": "mesure",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "matiere",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "transformations",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "ondes",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "electricite",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "mesure",
+              "profile": "MAITRISE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_11_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "532f10be6e1769131ca2215012a747962ac8786a7ddd62eee235efdfee6a60e5",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "matiere",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "transformations",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "ondes",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "electricite",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "mesure",
+              "profile": "MAITRISE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 23,
+            "coverage": 63,
+            "calibrationIndex": 69,
+            "domainScores": [
+              {
+                "id": "matiere",
+                "score": 23
+              },
+              {
+                "id": "transformations",
+                "score": 32
+              },
+              {
+                "id": "mecanique",
+                "score": 41
+              },
+              {
+                "id": "ondes",
+                "score": 50
+              },
+              {
+                "id": "electricite",
+                "score": 59
+              },
+              {
+                "id": "mesure",
+                "score": 68
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_12_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "662b8137b5f39943b8100b4de1e2f9cfb18279506e8d4713a74fda8f410a1e61",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "matiere",
+                "titre": "matiere",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "transformations",
+                "titre": "transformations",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "mecanique",
+                "titre": "mecanique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "ondes",
+                "titre": "ondes",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "electricite",
+                "titre": "electricite",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "mesure",
+                "titre": "mesure",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "matiere",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "transformations",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "ondes",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "electricite",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "mesure",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_12_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "afa2d11bec867c4e1c31b1b634d8f1dfb441cd4af6884359c4a27a70b7c9c49f",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "matiere",
+                "texte": "matiere constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "transformations",
+                "texte": "transformations constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "mecanique",
+                "texte": "mecanique constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "ondes",
+                "titre": "ondes",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "electricite",
+                "titre": "electricite",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "mesure",
+                "titre": "mesure",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "matiere",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "transformations",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "ondes",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "electricite",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "mesure",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_12_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "fef5612c8ae4064c3b164760d609329600981cf04de1c0149e08d19417c515d1",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "matiere",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "transformations",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "ondes",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "electricite",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "mesure",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 40,
+            "coverage": 76,
+            "calibrationIndex": 80,
+            "domainScores": [
+              {
+                "id": "matiere",
+                "score": 40
+              },
+              {
+                "id": "transformations",
+                "score": 49
+              },
+              {
+                "id": "mecanique",
+                "score": 58
+              },
+              {
+                "id": "ondes",
+                "score": 67
+              },
+              {
+                "id": "electricite",
+                "score": 76
+              },
+              {
+                "id": "mesure",
+                "score": 85
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_13_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "7d4122b490ee78d4607fa79c84a6505b3e02de58dd25f4c574d166455714c3b1",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "matiere",
+                "titre": "matiere",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "transformations",
+                "titre": "transformations",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "mecanique",
+                "titre": "mecanique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "ondes",
+                "titre": "ondes",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "electricite",
+                "titre": "electricite",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "mesure",
+                "titre": "mesure",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "matiere",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "transformations",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "ondes",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "electricite",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "mesure",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_13_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "fa8ce3ea0976c7f891d523bb5fd64380d0af15c274ff83a743d4c97b60b1f232",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "matiere",
+                "texte": "matiere constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "transformations",
+                "texte": "transformations constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "mecanique",
+                "texte": "mecanique constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "ondes",
+                "titre": "ondes",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "electricite",
+                "titre": "electricite",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "mesure",
+                "titre": "mesure",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "matiere",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "transformations",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "ondes",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "electricite",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "mesure",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_13_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "7d11250fbf665e76494402d1d5edac403db9544ed9aca6cdfa3d4a9832228ecc",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "matiere",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "transformations",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "ondes",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "electricite",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "mesure",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 57,
+            "coverage": 89,
+            "calibrationIndex": null,
+            "domainScores": [
+              {
+                "id": "matiere",
+                "score": 57
+              },
+              {
+                "id": "transformations",
+                "score": 66
+              },
+              {
+                "id": "mecanique",
+                "score": 75
+              },
+              {
+                "id": "ondes",
+                "score": 84
+              },
+              {
+                "id": "electricite",
+                "score": 93
+              },
+              {
+                "id": "mesure",
+                "score": 1
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_14_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "cd121794ccde4f8104a2bd36dcb2ebfc8c98b4f13cbfb9f0d10f194cefcaec81",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "matiere",
+                "titre": "matiere",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "transformations",
+                "titre": "transformations",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "mecanique",
+                "titre": "mecanique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "ondes",
+                "titre": "ondes",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "electricite",
+                "titre": "electricite",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "mesure",
+                "titre": "mesure",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "matiere",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "transformations",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "ondes",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "electricite",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "mesure",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_14_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "cf3cb291b391565c49e4f118b0464bca3cec17cf7bebfaa2a09cd76a501e1ba6",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "matiere",
+                "texte": "matiere constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "transformations",
+                "texte": "transformations constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "mecanique",
+                "texte": "mecanique constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "ondes",
+                "titre": "ondes",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "electricite",
+                "titre": "electricite",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "mesure",
+                "titre": "mesure",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "matiere",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "transformations",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "ondes",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "electricite",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "mesure",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_14_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "d37f23e3ae56e29b16c1341154b946b685ac0325078d232c0afad8a4decba569",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "matiere",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "transformations",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "ondes",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "electricite",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "mesure",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 74,
+            "coverage": 46,
+            "calibrationIndex": 31,
+            "domainScores": [
+              {
+                "id": "matiere",
+                "score": 74
+              },
+              {
+                "id": "transformations",
+                "score": 83
+              },
+              {
+                "id": "mecanique",
+                "score": 92
+              },
+              {
+                "id": "ondes",
+                "score": 0
+              },
+              {
+                "id": "electricite",
+                "score": 9
+              },
+              {
+                "id": "mesure",
+                "score": 18
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_15_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "60e1ffd1dad506d0aecb9d14b6e2a77e68be953166cc352525ffa0f744851d26",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "matiere",
+                "titre": "matiere",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "transformations",
+                "titre": "transformations",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "mecanique",
+                "titre": "mecanique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "ondes",
+                "titre": "ondes",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "electricite",
+                "titre": "electricite",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "mesure",
+                "titre": "mesure",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "matiere",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "transformations",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "ondes",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "electricite",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "mesure",
+              "profile": "NON_TRAITE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_15_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "937ade3f28ff7b6f1ca876506b40602a7c246bdb676ed59852b1e5669def2cde",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "matiere",
+                "texte": "matiere constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "transformations",
+                "texte": "transformations constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "mecanique",
+                "texte": "mecanique constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "ondes",
+                "titre": "ondes",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "electricite",
+                "titre": "electricite",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "mesure",
+                "titre": "mesure",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "matiere",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "transformations",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "ondes",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "electricite",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "mesure",
+              "profile": "NON_TRAITE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_15_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "2f57e1726c55f3cf85fde39a406b0c9bd6f9ed14636a8b528b65e8ab27626a0e",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "matiere",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "transformations",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "ondes",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "electricite",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "mesure",
+              "profile": "NON_TRAITE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 91,
+            "coverage": 59,
+            "calibrationIndex": 42,
+            "domainScores": [
+              {
+                "id": "matiere",
+                "score": 91
+              },
+              {
+                "id": "transformations",
+                "score": 100
+              },
+              {
+                "id": "mecanique",
+                "score": 8
+              },
+              {
+                "id": "ondes",
+                "score": 17
+              },
+              {
+                "id": "electricite",
+                "score": 26
+              },
+              {
+                "id": "mesure",
+                "score": 35
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_16_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "ab8fea3b579c89af7f0c2360b5405a6b1f0bb1f61663e245461cbebaa7257512",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "matiere",
+                "titre": "matiere",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "transformations",
+                "titre": "transformations",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "mecanique",
+                "titre": "mecanique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "ondes",
+                "titre": "ondes",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "electricite",
+                "titre": "electricite",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "mesure",
+                "titre": "mesure",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "matiere",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "transformations",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "ondes",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "electricite",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "mesure",
+              "profile": "MAITRISE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_16_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "2aafe43b2b842ad534b69017b54d3c92d5732dc6cc48653f953e164dc0c5416e",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "matiere",
+                "texte": "matiere constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "transformations",
+                "texte": "transformations constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "mecanique",
+                "texte": "mecanique constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "ondes",
+                "titre": "ondes",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "electricite",
+                "titre": "electricite",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "mesure",
+                "titre": "mesure",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "matiere",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "transformations",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "ondes",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "electricite",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "mesure",
+              "profile": "MAITRISE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_16_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "ca3dfa757d6147b8b77471bbbe567cef87b66b8e60f506c1b769eeb44d8db407",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "matiere",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "transformations",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "ondes",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "electricite",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "mesure",
+              "profile": "MAITRISE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 27,
+            "coverage": 72,
+            "calibrationIndex": 53,
+            "domainScores": [
+              {
+                "id": "matiere",
+                "score": 27
+              },
+              {
+                "id": "transformations",
+                "score": 36
+              },
+              {
+                "id": "mecanique",
+                "score": 45
+              },
+              {
+                "id": "ondes",
+                "score": 54
+              },
+              {
+                "id": "electricite",
+                "score": 63
+              },
+              {
+                "id": "mesure",
+                "score": 72
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_17_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "662b8137b5f39943b8100b4de1e2f9cfb18279506e8d4713a74fda8f410a1e61",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "matiere",
+                "titre": "matiere",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "transformations",
+                "titre": "transformations",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "mecanique",
+                "titre": "mecanique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "ondes",
+                "titre": "ondes",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "electricite",
+                "titre": "electricite",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "mesure",
+                "titre": "mesure",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "matiere",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "transformations",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "ondes",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "electricite",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "mesure",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_17_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "afa2d11bec867c4e1c31b1b634d8f1dfb441cd4af6884359c4a27a70b7c9c49f",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "matiere",
+                "texte": "matiere constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "transformations",
+                "texte": "transformations constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "mecanique",
+                "texte": "mecanique constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "ondes",
+                "titre": "ondes",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "electricite",
+                "titre": "electricite",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "mesure",
+                "titre": "mesure",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "matiere",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "transformations",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "ondes",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "electricite",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "mesure",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_17_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "1cd24806772459831248cd7efd180946701f1eaad7799c133494b0303cdc8b35",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "matiere",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "transformations",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "ondes",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "electricite",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "mesure",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 44,
+            "coverage": 85,
+            "calibrationIndex": null,
+            "domainScores": [
+              {
+                "id": "matiere",
+                "score": 44
+              },
+              {
+                "id": "transformations",
+                "score": 53
+              },
+              {
+                "id": "mecanique",
+                "score": 62
+              },
+              {
+                "id": "ondes",
+                "score": 71
+              },
+              {
+                "id": "electricite",
+                "score": 80
+              },
+              {
+                "id": "mesure",
+                "score": 89
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_18_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "7d4122b490ee78d4607fa79c84a6505b3e02de58dd25f4c574d166455714c3b1",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "matiere",
+                "titre": "matiere",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "transformations",
+                "titre": "transformations",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "mecanique",
+                "titre": "mecanique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "ondes",
+                "titre": "ondes",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "electricite",
+                "titre": "electricite",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "mesure",
+                "titre": "mesure",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "matiere",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "transformations",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "ondes",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "electricite",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "mesure",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_18_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "fa8ce3ea0976c7f891d523bb5fd64380d0af15c274ff83a743d4c97b60b1f232",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "matiere",
+                "texte": "matiere constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "transformations",
+                "texte": "transformations constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "mecanique",
+                "texte": "mecanique constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "ondes",
+                "titre": "ondes",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "electricite",
+                "titre": "electricite",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "mesure",
+                "titre": "mesure",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "matiere",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "transformations",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "ondes",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "electricite",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "mesure",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_18_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "f5cf6fec746c9efae62f133a01d24960be3a184b79d5b847fdccb0a09cda2709",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "matiere",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "transformations",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "ondes",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "electricite",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "mesure",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 61,
+            "coverage": 98,
+            "calibrationIndex": 75,
+            "domainScores": [
+              {
+                "id": "matiere",
+                "score": 61
+              },
+              {
+                "id": "transformations",
+                "score": 70
+              },
+              {
+                "id": "mecanique",
+                "score": 79
+              },
+              {
+                "id": "ondes",
+                "score": 88
+              },
+              {
+                "id": "electricite",
+                "score": 97
+              },
+              {
+                "id": "mesure",
+                "score": 5
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_19_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "cd121794ccde4f8104a2bd36dcb2ebfc8c98b4f13cbfb9f0d10f194cefcaec81",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "matiere",
+                "titre": "matiere",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "transformations",
+                "titre": "transformations",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "mecanique",
+                "titre": "mecanique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "ondes",
+                "titre": "ondes",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "electricite",
+                "titre": "electricite",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "mesure",
+                "titre": "mesure",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "matiere",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "transformations",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "ondes",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "electricite",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "mesure",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_19_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "cf3cb291b391565c49e4f118b0464bca3cec17cf7bebfaa2a09cd76a501e1ba6",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "matiere",
+                "texte": "matiere constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "transformations",
+                "texte": "transformations constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "mecanique",
+                "texte": "mecanique constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "ondes",
+                "titre": "ondes",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "electricite",
+                "titre": "electricite",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "mesure",
+                "titre": "mesure",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "matiere",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "transformations",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "ondes",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "electricite",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "mesure",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_19_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "8f657aeb7509ffc5fce0475ded426b8f4fdf7001d918b3494bbb5f25a706db4f",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "matiere",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "transformations",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "ondes",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "electricite",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "mesure",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 78,
+            "coverage": 55,
+            "calibrationIndex": 86,
+            "domainScores": [
+              {
+                "id": "matiere",
+                "score": 78
+              },
+              {
+                "id": "transformations",
+                "score": 87
+              },
+              {
+                "id": "mecanique",
+                "score": 96
+              },
+              {
+                "id": "ondes",
+                "score": 4
+              },
+              {
+                "id": "electricite",
+                "score": 13
+              },
+              {
+                "id": "mesure",
+                "score": 22
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_20_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "60e1ffd1dad506d0aecb9d14b6e2a77e68be953166cc352525ffa0f744851d26",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "matiere",
+                "titre": "matiere",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "transformations",
+                "titre": "transformations",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "mecanique",
+                "titre": "mecanique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "ondes",
+                "titre": "ondes",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "electricite",
+                "titre": "electricite",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "mesure",
+                "titre": "mesure",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "matiere",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "transformations",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "ondes",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "electricite",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "mesure",
+              "profile": "NON_TRAITE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_20_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "937ade3f28ff7b6f1ca876506b40602a7c246bdb676ed59852b1e5669def2cde",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "matiere",
+                "texte": "matiere constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "transformations",
+                "texte": "transformations constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "mecanique",
+                "texte": "mecanique constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "ondes",
+                "titre": "ondes",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "electricite",
+                "titre": "electricite",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "mesure",
+                "titre": "mesure",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "matiere",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "transformations",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "ondes",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "electricite",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "mesure",
+              "profile": "NON_TRAITE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_20_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "67ba5cdac97631814fdeb10bef601324cd26044a39252ec19c585ba40fda0d0c",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "matiere",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "transformations",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "mecanique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "ondes",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "electricite",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "mesure",
+              "profile": "NON_TRAITE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 95,
+            "coverage": 68,
+            "calibrationIndex": 97,
+            "domainScores": [
+              {
+                "id": "matiere",
+                "score": 95
+              },
+              {
+                "id": "transformations",
+                "score": 3
+              },
+              {
+                "id": "mecanique",
+                "score": 12
+              },
+              {
+                "id": "ondes",
+                "score": 21
+              },
+              {
+                "id": "electricite",
+                "score": 30
+              },
+              {
+                "id": "mesure",
+                "score": 39
+              }
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

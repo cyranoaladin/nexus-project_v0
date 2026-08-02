@@ -1,0 +1,1074 @@
+{
+  "slug": "entree-premiere-francais-v1",
+  "level": "PREMIERE",
+  "subject": "FRANCAIS",
+  "version": 1,
+  "status": "DRAFT",
+  "review": {
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  "questionnaire": {
+    "targetDurationMin": 25,
+    "confidenceScale": {
+      "levels": 4,
+      "labels": [
+        "je devine",
+        "peu sûr",
+        "plutôt sûr",
+        "certain"
+      ]
+    },
+    "items": [
+      {
+        "id": "EPR-FRA-COM-01",
+        "subject": "FRANCAIS",
+        "category": "Méthode du commentaire : du procédé à l'interprétation",
+        "domainId": "methode",
+        "nodeCpsId": "2de.francais.methode.commentaire",
+        "difficulty": 2,
+        "targetTimeSec": 55,
+        "shortCorrection": "Un procédé n'a d'intérêt que par l'effet qu'il produit. Nommer une figure sans dire ce qu'elle apporte au sens revient à dresser une liste, pas à commenter.",
+        "weight": 2,
+        "competencies": [
+          "2de.francais.methode.commentaire"
+        ],
+        "questionText": "Dans un commentaire littéraire, relever un procédé sans en interpréter l'effet conduit à :",
+        "options": [
+          {
+            "id": "A",
+            "text": "une analyse trop technique pour le correcteur",
+            "isCorrect": false,
+            "distractorRationale": "Juge le défaut sur la forme du propos alors qu'il porte sur l'absence de raisonnement."
+          },
+          {
+            "id": "B",
+            "text": "un plan déséquilibré",
+            "isCorrect": false,
+            "distractorRationale": "Confond un problème d'organisation avec un défaut de méthode d'analyse."
+          },
+          {
+            "id": "C",
+            "text": "un simple relevé, qui ne constitue pas encore une analyse",
+            "isCorrect": true
+          },
+          {
+            "id": "D",
+            "text": "une paraphrase du texte",
+            "isCorrect": false,
+            "distractorRationale": "Confond le relevé de procédés avec la reformulation du contenu, qui est un autre défaut."
+          }
+        ],
+        "explanation": "Un procédé n'a d'intérêt que par l'effet qu'il produit. Nommer une figure sans dire ce qu'elle apporte au sens revient à dresser une liste, pas à commenter."
+      },
+      {
+        "id": "EPR-FRA-COM-02",
+        "subject": "FRANCAIS",
+        "category": "Méthode du commentaire : du procédé à l'interprétation",
+        "domainId": "methode",
+        "nodeCpsId": "2de.francais.methode.commentaire",
+        "difficulty": 2,
+        "targetTimeSec": 55,
+        "shortCorrection": "Un paragraphe de commentaire s'ouvre sur une idée, l'appuie sur un relevé précis, et se clôt sur l'effet produit. Ce sont les trois temps obligés.",
+        "weight": 2,
+        "competencies": [
+          "2de.francais.methode.commentaire"
+        ],
+        "questionText": "Que doit contenir un paragraphe de commentaire littéraire ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "une idée, un relevé précis dans le texte, puis l'interprétation de l'effet produit",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "un résumé du passage suivi d'un avis personnel",
+            "isCorrect": false,
+            "distractorRationale": "Substitue la paraphrase et le goût subjectif à l'analyse du texte."
+          },
+          {
+            "id": "C",
+            "text": "une longue citation suivie de son explication mot à mot",
+            "isCorrect": false,
+            "distractorRationale": "Confond l'explication linéaire exhaustive avec le paragraphe de commentaire, qui s'organise autour d'une idée."
+          },
+          {
+            "id": "D",
+            "text": "le nom d'une figure de style et sa définition",
+            "isCorrect": false,
+            "distractorRationale": "Réduit l'analyse à l'identification technique, sans idée directrice ni interprétation."
+          }
+        ],
+        "explanation": "Un paragraphe de commentaire s'ouvre sur une idée, l'appuie sur un relevé précis, et se clôt sur l'effet produit. Ce sont les trois temps obligés."
+      },
+      {
+        "id": "EPR-FRA-SYN-01",
+        "subject": "FRANCAIS",
+        "category": "Analyse syntaxique : les subordonnées",
+        "domainId": "grammaire",
+        "nodeCpsId": "2de.francais.grammaire.subordonnees",
+        "difficulty": 2,
+        "targetTimeSec": 55,
+        "shortCorrection": "« Qui » reprend le nom « l'homme » placé avant lui : c'est un pronom relatif, et la subordonnée qu'il introduit complète cet antécédent.",
+        "weight": 2,
+        "competencies": [
+          "2de.francais.grammaire.subordonnees"
+        ],
+        "questionText": "Dans « L'homme qui parlait était son père », la subordonnée est :",
+        "options": [
+          {
+            "id": "A",
+            "text": "une conjonctive complétive",
+            "isCorrect": false,
+            "distractorRationale": "Confond le pronom relatif avec la conjonction de subordination « que »."
+          },
+          {
+            "id": "B",
+            "text": "une relative, complément de l'antécédent « l'homme »",
+            "isCorrect": true
+          },
+          {
+            "id": "C",
+            "text": "une circonstancielle de temps",
+            "isCorrect": false,
+            "distractorRationale": "Cherche une indication circonstancielle alors que la subordonnée caractérise un nom."
+          },
+          {
+            "id": "D",
+            "text": "une indépendante juxtaposée",
+            "isCorrect": false,
+            "distractorRationale": "Ignore le lien de subordination établi par le pronom relatif."
+          }
+        ],
+        "explanation": "« Qui » reprend le nom « l'homme » placé avant lui : c'est un pronom relatif, et la subordonnée qu'il introduit complète cet antécédent."
+      },
+      {
+        "id": "EPR-FRA-SYN-02",
+        "subject": "FRANCAIS",
+        "category": "Analyse syntaxique : les subordonnées",
+        "domainId": "grammaire",
+        "nodeCpsId": "2de.francais.grammaire.subordonnees",
+        "difficulty": 3,
+        "targetTimeSec": 60,
+        "shortCorrection": "« Que » ne reprend aucun nom : c'est une conjonction. La subordonnée complète le verbe et répond à la question « il attendait quoi ? ».",
+        "weight": 3,
+        "competencies": [
+          "2de.francais.grammaire.subordonnees"
+        ],
+        "questionText": "Dans « Il attendait qu'elle revienne », la subordonnée est :",
+        "options": [
+          {
+            "id": "A",
+            "text": "une relative",
+            "isCorrect": false,
+            "distractorRationale": "Cherche un antécédent que « que » reprendrait, alors qu'il n'en existe aucun ici."
+          },
+          {
+            "id": "B",
+            "text": "une circonstancielle de but",
+            "isCorrect": false,
+            "distractorRationale": "Interprète le subjonctif comme la marque d'un but, alors qu'il est ici commandé par le verbe principal."
+          },
+          {
+            "id": "C",
+            "text": "une circonstancielle de temps",
+            "isCorrect": false,
+            "distractorRationale": "Se laisse guider par le sens du verbe « attendre » plutôt que par la construction syntaxique."
+          },
+          {
+            "id": "D",
+            "text": "une conjonctive complétive, complément du verbe « attendait »",
+            "isCorrect": true
+          }
+        ],
+        "explanation": "« Que » ne reprend aucun nom : c'est une conjonction. La subordonnée complète le verbe et répond à la question « il attendait quoi ? »."
+      },
+      {
+        "id": "EPR-FRA-INT-01",
+        "subject": "FRANCAIS",
+        "category": "Interrogation et négation",
+        "domainId": "grammaire",
+        "nodeCpsId": "2de.francais.grammaire.interrogation-negation",
+        "difficulty": 3,
+        "targetTimeSec": 60,
+        "shortCorrection": "L'interrogation est totale car la réponse attendue est oui ou non. La négation est partielle car « rien » ne nie que le complément d'objet, non toute la phrase.",
+        "weight": 3,
+        "competencies": [
+          "2de.francais.grammaire.interrogation-negation"
+        ],
+        "questionText": "Dans la phrase « N'as-tu rien vu ? », comment qualifier l'interrogation et la négation ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "interrogation totale et négation partielle",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "interrogation partielle et négation totale",
+            "isCorrect": false,
+            "distractorRationale": "Inverse les deux qualifications : la question appelle oui ou non, et la négation ne porte que sur un élément."
+          },
+          {
+            "id": "C",
+            "text": "interrogation totale et négation totale",
+            "isCorrect": false,
+            "distractorRationale": "Qualifie de totale une négation portée par « rien », qui ne nie qu'un complément."
+          },
+          {
+            "id": "D",
+            "text": "interrogation partielle et négation partielle",
+            "isCorrect": false,
+            "distractorRationale": "Qualifie de partielle une interrogation qui porte pourtant sur l'ensemble de la phrase."
+          }
+        ],
+        "explanation": "L'interrogation est totale car la réponse attendue est oui ou non. La négation est partielle car « rien » ne nie que le complément d'objet, non toute la phrase."
+      },
+      {
+        "id": "EPR-FRA-INT-02",
+        "subject": "FRANCAIS",
+        "category": "Interrogation et négation",
+        "domainId": "grammaire",
+        "nodeCpsId": "2de.francais.grammaire.interrogation-negation",
+        "difficulty": 2,
+        "targetTimeSec": 45,
+        "shortCorrection": "L'interrogation est partielle lorsqu'elle porte sur un élément précis, ici le lieu, et appelle autre chose que oui ou non. Elle emploie alors un mot interrogatif.",
+        "weight": 2,
+        "competencies": [
+          "2de.francais.grammaire.interrogation-negation"
+        ],
+        "questionText": "Laquelle de ces phrases contient une interrogation partielle ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "« Viendras-tu demain ? »",
+            "isCorrect": false,
+            "distractorRationale": "Retient une interrogation qui appelle oui ou non, donc totale."
+          },
+          {
+            "id": "B",
+            "text": "« Est-ce que tu as compris ? »",
+            "isCorrect": false,
+            "distractorRationale": "Retient une interrogation totale au motif qu'elle emploie une tournure particulière."
+          },
+          {
+            "id": "C",
+            "text": "« Où vas-tu ? »",
+            "isCorrect": true
+          },
+          {
+            "id": "D",
+            "text": "« N'a-t-il pas répondu ? »",
+            "isCorrect": false,
+            "distractorRationale": "Confond la présence d'une négation avec le caractère partiel de l'interrogation."
+          }
+        ],
+        "explanation": "L'interrogation est partielle lorsqu'elle porte sur un élément précis, ici le lieu, et appelle autre chose que oui ou non. Elle emploie alors un mot interrogatif."
+      },
+      {
+        "id": "EPR-FRA-FIG-01",
+        "subject": "FRANCAIS",
+        "category": "Figures de style",
+        "domainId": "lexique",
+        "nodeCpsId": "2de.francais.lexique.figures-de-style",
+        "difficulty": 3,
+        "targetTimeSec": 55,
+        "shortCorrection": "Un terme en remplace un autre en vertu d'une ressemblance, sans outil comparatif : c'est une métaphore. La blancheur et le mouvement rapprochent voiles et colombes.",
+        "weight": 3,
+        "competencies": [
+          "2de.francais.lexique.figures-de-style"
+        ],
+        "questionText": "Dans le vers « Ce toit tranquille où marchent des colombes », les colombes désignent les voiles des bateaux. Quelle figure de style est employée ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "une comparaison",
+            "isCorrect": false,
+            "distractorRationale": "Cherche un outil comparatif, pourtant absent du vers."
+          },
+          {
+            "id": "B",
+            "text": "une métaphore",
+            "isCorrect": true
+          },
+          {
+            "id": "C",
+            "text": "une métonymie",
+            "isCorrect": false,
+            "distractorRationale": "Suppose un rapport de contiguïté, alors que le rapprochement repose ici sur une ressemblance."
+          },
+          {
+            "id": "D",
+            "text": "une allégorie",
+            "isCorrect": false,
+            "distractorRationale": "Confond l'image ponctuelle avec la représentation concrète et développée d'une idée abstraite."
+          }
+        ],
+        "explanation": "Un terme en remplace un autre en vertu d'une ressemblance, sans outil comparatif : c'est une métaphore. La blancheur et le mouvement rapprochent voiles et colombes."
+      },
+      {
+        "id": "EPR-FRA-FIG-02",
+        "subject": "FRANCAIS",
+        "category": "Figures de style",
+        "domainId": "lexique",
+        "nodeCpsId": "2de.francais.lexique.figures-de-style",
+        "difficulty": 2,
+        "targetTimeSec": 45,
+        "shortCorrection": "Le contenant désigne le contenu : c'est une métonymie. Elle repose sur un lien logique ou matériel, non sur une ressemblance comme la métaphore.",
+        "weight": 2,
+        "competencies": [
+          "2de.francais.lexique.figures-de-style"
+        ],
+        "questionText": "Dans l'expression « boire un verre », quelle figure de style est employée ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "une métonymie",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "une métaphore",
+            "isCorrect": false,
+            "distractorRationale": "Cherche une ressemblance alors que le lien est ici de contenant à contenu."
+          },
+          {
+            "id": "C",
+            "text": "une hyperbole",
+            "isCorrect": false,
+            "distractorRationale": "Cherche une exagération là où se trouve un simple déplacement de désignation."
+          },
+          {
+            "id": "D",
+            "text": "une périphrase",
+            "isCorrect": false,
+            "distractorRationale": "Suppose un détour par plusieurs mots, alors que l'expression est au contraire plus brève."
+          }
+        ],
+        "explanation": "Le contenant désigne le contenu : c'est une métonymie. Elle repose sur un lien logique ou matériel, non sur une ressemblance comme la métaphore."
+      },
+      {
+        "id": "EPR-FRA-VER-01",
+        "subject": "FRANCAIS",
+        "category": "Versification",
+        "domainId": "poesie",
+        "nodeCpsId": "2de.francais.poesie.versification",
+        "difficulty": 1,
+        "targetTimeSec": 40,
+        "shortCorrection": "Le nom du vers vient du nombre de syllabes : octosyllabe pour huit, décasyllabe pour dix, alexandrin pour douze.",
+        "weight": 1,
+        "competencies": [
+          "2de.francais.poesie.versification"
+        ],
+        "questionText": "Un vers de dix syllabes est :",
+        "options": [
+          {
+            "id": "A",
+            "text": "un octosyllabe",
+            "isCorrect": false,
+            "distractorRationale": "Confond avec le vers de huit syllabes."
+          },
+          {
+            "id": "B",
+            "text": "un alexandrin",
+            "isCorrect": false,
+            "distractorRationale": "Confond avec le vers de douze syllabes."
+          },
+          {
+            "id": "C",
+            "text": "un heptasyllabe",
+            "isCorrect": false,
+            "distractorRationale": "Confond avec le vers de sept syllabes."
+          },
+          {
+            "id": "D",
+            "text": "un décasyllabe",
+            "isCorrect": true
+          }
+        ],
+        "explanation": "Le nom du vers vient du nombre de syllabes : octosyllabe pour huit, décasyllabe pour dix, alexandrin pour douze."
+      },
+      {
+        "id": "EPR-FRA-VER-02",
+        "subject": "FRANCAIS",
+        "category": "Versification",
+        "domainId": "poesie",
+        "nodeCpsId": "2de.francais.poesie.versification",
+        "difficulty": 2,
+        "targetTimeSec": 50,
+        "shortCorrection": "Il y a enjambement lorsque la phrase déborde la limite du vers. L'effet est souvent de rupture ou de continuité inattendue, et doit être interprété.",
+        "weight": 2,
+        "competencies": [
+          "2de.francais.poesie.versification"
+        ],
+        "questionText": "Qu'appelle-t-on un enjambement ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "la répétition d'un même son à la fin de deux vers",
+            "isCorrect": false,
+            "distractorRationale": "Donne la définition de la rime."
+          },
+          {
+            "id": "B",
+            "text": "le prolongement d'une phrase au-delà de la fin du vers",
+            "isCorrect": true
+          },
+          {
+            "id": "C",
+            "text": "la coupe qui partage l'alexandrin en deux moitiés",
+            "isCorrect": false,
+            "distractorRationale": "Donne la définition de la césure."
+          },
+          {
+            "id": "D",
+            "text": "l'alternance des rimes masculines et féminines",
+            "isCorrect": false,
+            "distractorRationale": "Décrit une règle de disposition des rimes, sans rapport avec la construction de la phrase."
+          }
+        ],
+        "explanation": "Il y a enjambement lorsque la phrase déborde la limite du vers. L'effet est souvent de rupture ou de continuité inattendue, et doit être interprété."
+      },
+      {
+        "id": "EPR-FRA-REG-01",
+        "subject": "FRANCAIS",
+        "category": "Registres et genres",
+        "domainId": "lecture",
+        "nodeCpsId": "2de.francais.lecture.registres-et-genres",
+        "difficulty": 2,
+        "targetTimeSec": 45,
+        "shortCorrection": "La satire attaque un vice ou un travers en le rendant risible. Le rire y est un moyen de la critique, non une fin.",
+        "weight": 2,
+        "competencies": [
+          "2de.francais.lecture.registres-et-genres"
+        ],
+        "questionText": "Le registre satirique se reconnaît à :",
+        "options": [
+          {
+            "id": "A",
+            "text": "l'expression des sentiments personnels du locuteur",
+            "isCorrect": false,
+            "distractorRationale": "Donne la caractéristique du registre lyrique."
+          },
+          {
+            "id": "B",
+            "text": "la fatalité qui pèse sur le personnage",
+            "isCorrect": false,
+            "distractorRationale": "Donne la caractéristique du registre tragique."
+          },
+          {
+            "id": "C",
+            "text": "la critique d'un travers par la moquerie",
+            "isCorrect": true
+          },
+          {
+            "id": "D",
+            "text": "l'amplification d'un exploit héroïque",
+            "isCorrect": false,
+            "distractorRationale": "Donne la caractéristique du registre épique."
+          }
+        ],
+        "explanation": "La satire attaque un vice ou un travers en le rendant risible. Le rire y est un moyen de la critique, non une fin."
+      },
+      {
+        "id": "EPR-FRA-REG-02",
+        "subject": "FRANCAIS",
+        "category": "Registres et genres",
+        "domainId": "lecture",
+        "nodeCpsId": "2de.francais.lecture.registres-et-genres",
+        "difficulty": 2,
+        "targetTimeSec": 45,
+        "shortCorrection": "L'apologue est un récit court dont la fiction sert une visée argumentative : fable, conte philosophique, parabole. Il relève de l'argumentation indirecte.",
+        "weight": 2,
+        "competencies": [
+          "2de.francais.lecture.registres-et-genres"
+        ],
+        "questionText": "Un apologue est :",
+        "options": [
+          {
+            "id": "A",
+            "text": "un récit bref porteur d'une leçon",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "un poème à forme fixe de quatorze vers",
+            "isCorrect": false,
+            "distractorRationale": "Confond un genre argumentatif avec une forme poétique fixe."
+          },
+          {
+            "id": "C",
+            "text": "un long discours prononcé par un personnage de théâtre",
+            "isCorrect": false,
+            "distractorRationale": "Confond un genre narratif avec une forme théâtrale."
+          },
+          {
+            "id": "D",
+            "text": "une préface dans laquelle l'auteur justifie son œuvre",
+            "isCorrect": false,
+            "distractorRationale": "Confond le récit porteur d'une leçon avec un texte liminaire d'auteur."
+          }
+        ],
+        "explanation": "L'apologue est un récit court dont la fiction sert une visée argumentative : fable, conte philosophique, parabole. Il relève de l'argumentation indirecte."
+      },
+      {
+        "id": "EPR-FRA-ARG-01",
+        "subject": "FRANCAIS",
+        "category": "Argumentation et littérature d'idées",
+        "domainId": "argumentation",
+        "nodeCpsId": "2de.francais.argumentation.strategies",
+        "difficulty": 2,
+        "targetTimeSec": 50,
+        "shortCorrection": "L'argumentation indirecte passe par un récit, un dialogue ou une fable. La thèse n'est pas énoncée, elle se dégage de la fiction et de son interprétation.",
+        "weight": 2,
+        "competencies": [
+          "2de.francais.argumentation.strategies"
+        ],
+        "questionText": "L'argumentation indirecte se caractérise par :",
+        "options": [
+          {
+            "id": "A",
+            "text": "l'emploi exclusif de la première personne",
+            "isCorrect": false,
+            "distractorRationale": "Confond une marque d'énonciation avec une stratégie argumentative."
+          },
+          {
+            "id": "B",
+            "text": "le recours à la fiction pour faire admettre une thèse",
+            "isCorrect": true
+          },
+          {
+            "id": "C",
+            "text": "l'absence de toute thèse défendue",
+            "isCorrect": false,
+            "distractorRationale": "Confond le caractère implicite de la thèse avec son absence."
+          },
+          {
+            "id": "D",
+            "text": "l'énoncé explicite de la thèse dès l'ouverture du texte",
+            "isCorrect": false,
+            "distractorRationale": "Décrit précisément l'argumentation directe."
+          }
+        ],
+        "explanation": "L'argumentation indirecte passe par un récit, un dialogue ou une fable. La thèse n'est pas énoncée, elle se dégage de la fiction et de son interprétation."
+      },
+      {
+        "id": "EPR-FRA-ARG-02",
+        "subject": "FRANCAIS",
+        "category": "Argumentation et littérature d'idées",
+        "domainId": "argumentation",
+        "nodeCpsId": "2de.francais.argumentation.strategies",
+        "difficulty": 2,
+        "targetTimeSec": 45,
+        "shortCorrection": "L'ironie repose sur un décalage : le lecteur doit percevoir que l'auteur pense l'inverse de ce qu'il affirme. Elle suppose une complicité avec le lecteur.",
+        "weight": 2,
+        "competencies": [
+          "2de.francais.argumentation.strategies"
+        ],
+        "questionText": "L'ironie consiste à :",
+        "options": [
+          {
+            "id": "A",
+            "text": "exagérer une réalité pour frapper l'esprit",
+            "isCorrect": false,
+            "distractorRationale": "Donne la définition de l'hyperbole."
+          },
+          {
+            "id": "B",
+            "text": "atténuer son propos pour suggérer davantage",
+            "isCorrect": false,
+            "distractorRationale": "Donne la définition de la litote."
+          },
+          {
+            "id": "C",
+            "text": "répéter une idée pour l'imposer",
+            "isCorrect": false,
+            "distractorRationale": "Décrit un procédé d'insistance, non un décalage entre ce qui est dit et ce qui est pensé."
+          },
+          {
+            "id": "D",
+            "text": "faire entendre le contraire de ce que l'on dit",
+            "isCorrect": true
+          }
+        ],
+        "explanation": "L'ironie repose sur un décalage : le lecteur doit percevoir que l'auteur pense l'inverse de ce qu'il affirme. Elle suppose une complicité avec le lecteur."
+      },
+      {
+        "id": "EPR-FRA-THE-01",
+        "subject": "FRANCAIS",
+        "category": "Spécificités du texte théâtral",
+        "domainId": "theatre",
+        "nodeCpsId": "2de.francais.theatre.parole-dramatique",
+        "difficulty": 3,
+        "targetTimeSec": 55,
+        "shortCorrection": "Toute réplique vise deux destinataires : le personnage à qui elle s'adresse, et le public qui l'entend. C'est ce qui permet les effets d'ironie dramatique.",
+        "weight": 3,
+        "competencies": [
+          "2de.francais.theatre.parole-dramatique"
+        ],
+        "questionText": "La double énonciation au théâtre désigne le fait que :",
+        "options": [
+          {
+            "id": "A",
+            "text": "le personnage s'adresse à un autre personnage et, en même temps, au spectateur",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "deux personnages parlent simultanément sur scène",
+            "isCorrect": false,
+            "distractorRationale": "Interprète le terme au sens littéral de deux voix, alors qu'il désigne deux destinataires."
+          },
+          {
+            "id": "C",
+            "text": "le texte est prononcé une fois en répétition et une fois en représentation",
+            "isCorrect": false,
+            "distractorRationale": "Confond une donnée de la pratique théâtrale avec une propriété du texte."
+          },
+          {
+            "id": "D",
+            "text": "l'auteur s'exprime à la fois par les didascalies et par les répliques",
+            "isCorrect": false,
+            "distractorRationale": "Identifie deux canaux d'écriture, mais non la superposition des destinataires."
+          }
+        ],
+        "explanation": "Toute réplique vise deux destinataires : le personnage à qui elle s'adresse, et le public qui l'entend. C'est ce qui permet les effets d'ironie dramatique."
+      },
+      {
+        "id": "EPR-FRA-THE-02",
+        "subject": "FRANCAIS",
+        "category": "Spécificités du texte théâtral",
+        "domainId": "theatre",
+        "nodeCpsId": "2de.francais.theatre.parole-dramatique",
+        "difficulty": 2,
+        "targetTimeSec": 50,
+        "shortCorrection": "La tirade est une longue réplique adressée à un interlocuteur présent. Le monologue est prononcé par un personnage seul en scène, qui se parle à lui-même.",
+        "weight": 2,
+        "competencies": [
+          "2de.francais.theatre.parole-dramatique"
+        ],
+        "questionText": "Une tirade se distingue d'un monologue en ce qu'elle :",
+        "options": [
+          {
+            "id": "A",
+            "text": "est nécessairement écrite en vers",
+            "isCorrect": false,
+            "distractorRationale": "Fait de la forme versifiée un critère, alors que la distinction porte sur le destinataire."
+          },
+          {
+            "id": "B",
+            "text": "est prononcée à l'écart, sans être entendue des autres personnages",
+            "isCorrect": false,
+            "distractorRationale": "Donne la définition de l'aparté."
+          },
+          {
+            "id": "C",
+            "text": "est adressée à un autre personnage présent sur scène",
+            "isCorrect": true
+          },
+          {
+            "id": "D",
+            "text": "ouvre nécessairement un acte",
+            "isCorrect": false,
+            "distractorRationale": "Confond une position dans la pièce avec une propriété de la parole."
+          }
+        ],
+        "explanation": "La tirade est une longue réplique adressée à un interlocuteur présent. Le monologue est prononcé par un personnage seul en scène, qui se parle à lui-même."
+      },
+      {
+        "id": "EPR-FRA-REC-01",
+        "subject": "FRANCAIS",
+        "category": "Rythme du récit et point de vue",
+        "domainId": "recit",
+        "nodeCpsId": "2de.francais.recit.rythme-et-focalisation",
+        "difficulty": 2,
+        "targetTimeSec": 50,
+        "shortCorrection": "L'ellipse supprime du récit une durée de l'histoire, souvent signalée par une indication temporelle. Elle accélère brutalement le rythme narratif.",
+        "weight": 2,
+        "competencies": [
+          "2de.francais.recit.rythme-et-focalisation"
+        ],
+        "questionText": "Dans un récit, une ellipse consiste à :",
+        "options": [
+          {
+            "id": "A",
+            "text": "ralentir l'action par une description",
+            "isCorrect": false,
+            "distractorRationale": "Donne la définition de la pause descriptive."
+          },
+          {
+            "id": "B",
+            "text": "faire coïncider la durée du récit et celle de l'action racontée",
+            "isCorrect": false,
+            "distractorRationale": "Donne la définition de la scène."
+          },
+          {
+            "id": "C",
+            "text": "raconter plusieurs fois un même événement selon des points de vue différents",
+            "isCorrect": false,
+            "distractorRationale": "Décrit un procédé de composition, sans rapport avec la vitesse narrative."
+          },
+          {
+            "id": "D",
+            "text": "passer sous silence une période de l'histoire",
+            "isCorrect": true
+          }
+        ],
+        "explanation": "L'ellipse supprime du récit une durée de l'histoire, souvent signalée par une indication temporelle. Elle accélère brutalement le rythme narratif."
+      },
+      {
+        "id": "EPR-FRA-REC-02",
+        "subject": "FRANCAIS",
+        "category": "Rythme du récit et point de vue",
+        "domainId": "recit",
+        "nodeCpsId": "2de.francais.recit.rythme-et-focalisation",
+        "difficulty": 2,
+        "targetTimeSec": 50,
+        "shortCorrection": "Dans une scène, le récit épouse la durée de l'action : c'est le cas typique du dialogue. Sommaire, pause et ellipse en modifient au contraire le rythme.",
+        "weight": 2,
+        "competencies": [
+          "2de.francais.recit.rythme-et-focalisation"
+        ],
+        "questionText": "Comment nomme-t-on un passage où la durée de la lecture correspond approximativement à celle de l'action racontée ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "un sommaire",
+            "isCorrect": false,
+            "distractorRationale": "Désigne un passage qui condense une longue durée en quelques lignes."
+          },
+          {
+            "id": "B",
+            "text": "une scène",
+            "isCorrect": true
+          },
+          {
+            "id": "C",
+            "text": "une pause",
+            "isCorrect": false,
+            "distractorRationale": "Désigne un moment où le récit s'arrête, souvent pour décrire, sans que l'action progresse."
+          },
+          {
+            "id": "D",
+            "text": "une ellipse",
+            "isCorrect": false,
+            "distractorRationale": "Désigne au contraire un passage entièrement omis du récit."
+          }
+        ],
+        "explanation": "Dans une scène, le récit épouse la durée de l'action : c'est le cas typique du dialogue. Sommaire, pause et ellipse en modifient au contraire le rythme."
+      }
+    ]
+  },
+  "scoring": {
+    "engine": "facts.v1.0.1",
+    "domains": [
+      "methode",
+      "grammaire",
+      "lexique",
+      "poesie",
+      "lecture",
+      "argumentation",
+      "theatre",
+      "recit"
+    ]
+  },
+  "reporting": {
+    "rag": {
+      "enabled": false,
+      "decisionRef": "A56 — RAG désactivé tant que le corpus du niveau n’est pas validé",
+      "sources": [],
+      "topK": 0
+    },
+    "promptFiles": {
+      "preAnalysis": {
+        "path": "content/bilans/prompts/entree-premiere-francais-v1/pre-analysis.md",
+        "checksum": "9abab66b7bd4b46c9b93bbe371679281c78296aa6a85de0527ac67a158328ec3"
+      },
+      "eleve": {
+        "path": "content/bilans/prompts/entree-premiere-francais-v1/eleve.md",
+        "checksum": "5d598c317c15d7593d1bcbcfdd79910eb5a079301bd146aff60dcb3014f8d3b0"
+      },
+      "parents": {
+        "path": "content/bilans/prompts/entree-premiere-francais-v1/parents.md",
+        "checksum": "419e9366483523bd6f3c8f87bec0ca4735a181e82a379ae93d3453a84ed1313f"
+      },
+      "nexus": {
+        "path": "content/bilans/prompts/entree-premiere-francais-v1/nexus.md",
+        "checksum": "98ecc878a8711036e5849fe2f6793b7db475bcc9224b7f2864949dc678ff1468"
+      },
+      "verifier": {
+        "path": "content/bilans/prompts/entree-premiere-francais-v1/verifier.md",
+        "checksum": "fd6c0c7c64aa3320686aa15015da6609d4f5ab7cf6c9293c6afa8de83fe2b88b"
+      }
+    },
+    "outputSchemas": {
+      "preAnalysis": {
+        "type": "object",
+        "properties": {
+          "synthese": {
+            "type": "string",
+            "minLength": 1
+          },
+          "forcesPercues": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "craintes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "required": [
+          "synthese",
+          "forcesPercues",
+          "craintes"
+        ],
+        "additionalProperties": false
+      },
+      "eleve": {
+        "type": "object",
+        "properties": {
+          "accroche": {
+            "type": "string",
+            "minLength": 1
+          },
+          "forces": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "minItems": 3,
+            "maxItems": 3
+          },
+          "priorites": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "domainId": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "titre": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "pourquoi": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "comment": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "domainId",
+                "titre",
+                "pourquoi",
+                "comment"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "maxItems": 8
+          },
+          "microPlan": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "action": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "dureeMin": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              },
+              "required": [
+                "action",
+                "dureeMin"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "maxItems": 5
+          },
+          "motDeFin": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "accroche",
+          "forces",
+          "priorites",
+          "microPlan",
+          "motDeFin"
+        ],
+        "additionalProperties": false
+      },
+      "parents": {
+        "type": "object",
+        "properties": {
+          "cadre": {
+            "type": "string",
+            "minLength": 1
+          },
+          "pointsAppui": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "domainId": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "texte": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "domainId",
+                "texte"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "maxItems": 8
+          },
+          "priorites": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "domainId": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "titre": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "ceQuiSeraFait": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "domainId",
+                "titre",
+                "ceQuiSeraFait"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "maxItems": 8
+          },
+          "etapeSuivante": {
+            "type": "object",
+            "properties": {
+              "texte": {
+                "type": "string",
+                "minLength": 1
+              },
+              "cta": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "texte",
+              "cta"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "cadre",
+          "pointsAppui",
+          "priorites",
+          "etapeSuivante"
+        ],
+        "additionalProperties": false
+      },
+      "nexus": {
+        "type": "object",
+        "properties": {
+          "syntheseProfil": {
+            "type": "string",
+            "minLength": 1
+          },
+          "diagnosticPedagogique": {
+            "type": "string",
+            "minLength": 1
+          },
+          "planQuatreSemaines": {
+            "type": "string",
+            "minLength": 1
+          },
+          "alertes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "ragReferences": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "required": [
+          "syntheseProfil",
+          "diagnosticPedagogique",
+          "planQuatreSemaines",
+          "alertes",
+          "ragReferences"
+        ],
+        "additionalProperties": false
+      },
+      "verifier": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "type": "boolean"
+          },
+          "violations": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "required": [
+          "ok",
+          "violations"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "validation": {
+    "lexiconPath": "data/bilans/lexique-interdit.json",
+    "forbidDigits": [
+      "eleve",
+      "parents"
+    ]
+  }
+}

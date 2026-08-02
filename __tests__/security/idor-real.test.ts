@@ -26,6 +26,39 @@ function makeGetRequest(stageSlug: string): NextRequest {
   });
 }
 
+const TEST_COACH_EMAILS = ['coach-a@test.com', 'coach-b@test.com'];
+const TEST_STAGE_SLUGS = ['stage-a-real', 'stage-b-real'];
+
+async function cleanupCoachStageFixtures() {
+  const users = await prisma.user.findMany({
+    where: { email: { in: TEST_COACH_EMAILS } },
+    select: { id: true },
+  });
+  const userIds = users.map(({ id }) => id);
+  const coaches = await prisma.coachProfile.findMany({
+    where: { userId: { in: userIds } },
+    select: { id: true },
+  });
+  const coachIds = coaches.map(({ id }) => id);
+  const stages = await prisma.stage.findMany({
+    where: { slug: { in: TEST_STAGE_SLUGS } },
+    select: { id: true },
+  });
+  const stageIds = stages.map(({ id }) => id);
+
+  await prisma.stageCoach.deleteMany({
+    where: {
+      OR: [
+        { coachId: { in: coachIds } },
+        { stageId: { in: stageIds } },
+      ],
+    },
+  });
+  await prisma.coachProfile.deleteMany({ where: { id: { in: coachIds } } });
+  await prisma.stage.deleteMany({ where: { id: { in: stageIds } } });
+  await prisma.user.deleteMany({ where: { id: { in: userIds } } });
+}
+
 describe('IDOR BDD Réelle — Coach Stage Isolation', () => {
   let stageA: any;
   let stageB: any;
@@ -33,14 +66,8 @@ describe('IDOR BDD Réelle — Coach Stage Isolation', () => {
   let coachB: any;
 
   beforeAll(async () => {
-    // Nettoyage initial (si la db test est persistante)
-    await prisma.stageBilan.deleteMany();
-    await prisma.stageCoach.deleteMany();
-    await prisma.coachProfile.deleteMany();
-    await prisma.stage.deleteMany();
-    await prisma.user.deleteMany({
-      where: { role: 'COACH' },
-    });
+    // Nettoyage initial limité aux fixtures de cette suite.
+    await cleanupCoachStageFixtures();
 
     // Seed User A
     const userA = await prisma.user.create({
@@ -95,14 +122,7 @@ describe('IDOR BDD Réelle — Coach Stage Isolation', () => {
   });
 
   afterAll(async () => {
-    // Nettoyage final
-    await prisma.stageBilan.deleteMany();
-    await prisma.stageCoach.deleteMany();
-    await prisma.coachProfile.deleteMany();
-    await prisma.stage.deleteMany();
-    await prisma.user.deleteMany({
-      where: { role: 'COACH' },
-    });
+    await cleanupCoachStageFixtures();
     await prisma.$disconnect();
   });
 

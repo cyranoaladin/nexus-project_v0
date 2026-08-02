@@ -1,0 +1,4869 @@
+{
+  "schemaVersion": "nexus-bilan-blind-review-packet/v1",
+  "status": "TECHNICAL_MOCK_ONLY_NOT_PEDAGOGICALLY_VALIDATED",
+  "sourceDraftPack": "entree-terminale-svt-v1",
+  "executionFixture": "fixture-non-publiable-v0",
+  "instructions": "Évaluer la clarté, la fidélité aux faits et l’utilité pédagogique sans inférer une validation du pack DRAFT.",
+  "reports": [
+    {
+      "blindId": "CAS_01_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "bd528c7014e01e08f16dfe9cf2988f90bc9d6f2adacda9bc73c198fb1af43c71",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "genetique",
+                "titre": "genetique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "geologie",
+                "titre": "geologie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "immunite",
+                "titre": "immunite",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "systeme-nerveux",
+                "titre": "systeme nerveux",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "sante",
+                "titre": "sante",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "demarche",
+                "titre": "demarche",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "genetique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "geologie",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "immunite",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "systeme-nerveux",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "sante",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "demarche",
+              "profile": "MAITRISE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_01_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "3691d097d4fecba1936e17e6ce3a89e29d0c64a07eeb0e2dd72f36a8fd1e767c",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "genetique",
+                "texte": "genetique constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "geologie",
+                "texte": "geologie constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "immunite",
+                "texte": "immunite constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "systeme-nerveux",
+                "titre": "systeme nerveux",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "sante",
+                "titre": "sante",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "demarche",
+                "titre": "demarche",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "genetique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "geologie",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "immunite",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "systeme-nerveux",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "sante",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "demarche",
+              "profile": "MAITRISE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_01_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "e6b297a3d901e8cc427d6ee0f4ca6fdf0215341ae0b5a94427137c6dae340df2",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "genetique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "geologie",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "immunite",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "systeme-nerveux",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "sante",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "demarche",
+              "profile": "MAITRISE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 15,
+            "coverage": 45,
+            "calibrationIndex": null,
+            "domainScores": [
+              {
+                "id": "genetique",
+                "score": 15
+              },
+              {
+                "id": "geologie",
+                "score": 24
+              },
+              {
+                "id": "immunite",
+                "score": 33
+              },
+              {
+                "id": "systeme-nerveux",
+                "score": 42
+              },
+              {
+                "id": "sante",
+                "score": 51
+              },
+              {
+                "id": "demarche",
+                "score": 60
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_02_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "870733b2a9dd48bdcc6e60b89649130716bba777e5a022fb5577efbe5be903bf",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "genetique",
+                "titre": "genetique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "geologie",
+                "titre": "geologie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "immunite",
+                "titre": "immunite",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "systeme-nerveux",
+                "titre": "systeme nerveux",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "sante",
+                "titre": "sante",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "demarche",
+                "titre": "demarche",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "genetique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "geologie",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "immunite",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "systeme-nerveux",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "sante",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "demarche",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_02_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "5e2a82cf58ed6024e78433db8029ffa260e3c2236db152168b25dbf3483ae5f3",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "genetique",
+                "texte": "genetique constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "geologie",
+                "texte": "geologie constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "immunite",
+                "texte": "immunite constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "systeme-nerveux",
+                "titre": "systeme nerveux",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "sante",
+                "titre": "sante",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "demarche",
+                "titre": "demarche",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "genetique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "geologie",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "immunite",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "systeme-nerveux",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "sante",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "demarche",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_02_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "ed8d169decd1f39fc093b37574769646d7162261a2b244533e959716e0a4a447",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "genetique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "geologie",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "immunite",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "systeme-nerveux",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "sante",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "demarche",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 32,
+            "coverage": 58,
+            "calibrationIndex": 41,
+            "domainScores": [
+              {
+                "id": "genetique",
+                "score": 32
+              },
+              {
+                "id": "geologie",
+                "score": 41
+              },
+              {
+                "id": "immunite",
+                "score": 50
+              },
+              {
+                "id": "systeme-nerveux",
+                "score": 59
+              },
+              {
+                "id": "sante",
+                "score": 68
+              },
+              {
+                "id": "demarche",
+                "score": 77
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_03_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "f1bdee5d09c4b37b9a922a34952fa1a3c99523dc87cb1fe531ef9ca7dca8b41c",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "genetique",
+                "titre": "genetique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "geologie",
+                "titre": "geologie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "immunite",
+                "titre": "immunite",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "systeme-nerveux",
+                "titre": "systeme nerveux",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "sante",
+                "titre": "sante",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "demarche",
+                "titre": "demarche",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "genetique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "geologie",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "immunite",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "systeme-nerveux",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "sante",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "demarche",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_03_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "4b046dbf38c903c8351fe0a33869f26e288483495334292f7a8a4d2e0a3f57b8",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "genetique",
+                "texte": "genetique constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "geologie",
+                "texte": "geologie constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "immunite",
+                "texte": "immunite constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "systeme-nerveux",
+                "titre": "systeme nerveux",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "sante",
+                "titre": "sante",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "demarche",
+                "titre": "demarche",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "genetique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "geologie",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "immunite",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "systeme-nerveux",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "sante",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "demarche",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_03_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "a2d8f99621f26e6d8c2884727d4639929f2a98674791109d3e12eb340bc2320a",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "genetique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "geologie",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "immunite",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "systeme-nerveux",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "sante",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "demarche",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 49,
+            "coverage": 71,
+            "calibrationIndex": 52,
+            "domainScores": [
+              {
+                "id": "genetique",
+                "score": 49
+              },
+              {
+                "id": "geologie",
+                "score": 58
+              },
+              {
+                "id": "immunite",
+                "score": 67
+              },
+              {
+                "id": "systeme-nerveux",
+                "score": 76
+              },
+              {
+                "id": "sante",
+                "score": 85
+              },
+              {
+                "id": "demarche",
+                "score": 94
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_04_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "e7f150d497a4f8873597131f88785706c830d0658ff759816b964fccff4dca83",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "genetique",
+                "titre": "genetique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "geologie",
+                "titre": "geologie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "immunite",
+                "titre": "immunite",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "systeme-nerveux",
+                "titre": "systeme nerveux",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "sante",
+                "titre": "sante",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "demarche",
+                "titre": "demarche",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "genetique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "geologie",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "immunite",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "systeme-nerveux",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "sante",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "demarche",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_04_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "53da12e891ad0ed6d53cb705377d2dbabbb6e2ab34096d4c3f22204a78f3dd2d",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "genetique",
+                "texte": "genetique constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "geologie",
+                "texte": "geologie constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "immunite",
+                "texte": "immunite constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "systeme-nerveux",
+                "titre": "systeme nerveux",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "sante",
+                "titre": "sante",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "demarche",
+                "titre": "demarche",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "genetique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "geologie",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "immunite",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "systeme-nerveux",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "sante",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "demarche",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_04_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "c5e80ae8d79c14e1a950b5259175e9e7d036087e01a5764c7a37ef765920bd6b",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "genetique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "geologie",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "immunite",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "systeme-nerveux",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "sante",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "demarche",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 66,
+            "coverage": 84,
+            "calibrationIndex": 63,
+            "domainScores": [
+              {
+                "id": "genetique",
+                "score": 66
+              },
+              {
+                "id": "geologie",
+                "score": 75
+              },
+              {
+                "id": "immunite",
+                "score": 84
+              },
+              {
+                "id": "systeme-nerveux",
+                "score": 93
+              },
+              {
+                "id": "sante",
+                "score": 1
+              },
+              {
+                "id": "demarche",
+                "score": 10
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_05_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "85dd6f7a42e9252fc24caf8f2af788ecc5482ea5d1150694552e00b067d63c5e",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "genetique",
+                "titre": "genetique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "geologie",
+                "titre": "geologie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "immunite",
+                "titre": "immunite",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "systeme-nerveux",
+                "titre": "systeme nerveux",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "sante",
+                "titre": "sante",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "demarche",
+                "titre": "demarche",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "genetique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "geologie",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "immunite",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "systeme-nerveux",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "sante",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "demarche",
+              "profile": "NON_TRAITE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_05_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "8d0df388b9683fd05e579e8aec142e443e0190791036645f02dd930e3ca539e2",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "genetique",
+                "texte": "genetique constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "geologie",
+                "texte": "geologie constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "immunite",
+                "texte": "immunite constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "systeme-nerveux",
+                "titre": "systeme nerveux",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "sante",
+                "titre": "sante",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "demarche",
+                "titre": "demarche",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "genetique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "geologie",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "immunite",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "systeme-nerveux",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "sante",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "demarche",
+              "profile": "NON_TRAITE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_05_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "61f06c893b3a5d75279241e4945d042f23e4ad237a8f31a013c7e69d38ea925b",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "genetique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "geologie",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "immunite",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "systeme-nerveux",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "sante",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "demarche",
+              "profile": "NON_TRAITE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 83,
+            "coverage": 97,
+            "calibrationIndex": null,
+            "domainScores": [
+              {
+                "id": "genetique",
+                "score": 83
+              },
+              {
+                "id": "geologie",
+                "score": 92
+              },
+              {
+                "id": "immunite",
+                "score": 0
+              },
+              {
+                "id": "systeme-nerveux",
+                "score": 9
+              },
+              {
+                "id": "sante",
+                "score": 18
+              },
+              {
+                "id": "demarche",
+                "score": 27
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_06_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "bd528c7014e01e08f16dfe9cf2988f90bc9d6f2adacda9bc73c198fb1af43c71",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "genetique",
+                "titre": "genetique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "geologie",
+                "titre": "geologie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "immunite",
+                "titre": "immunite",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "systeme-nerveux",
+                "titre": "systeme nerveux",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "sante",
+                "titre": "sante",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "demarche",
+                "titre": "demarche",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "genetique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "geologie",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "immunite",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "systeme-nerveux",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "sante",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "demarche",
+              "profile": "MAITRISE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_06_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "3691d097d4fecba1936e17e6ce3a89e29d0c64a07eeb0e2dd72f36a8fd1e767c",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "genetique",
+                "texte": "genetique constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "geologie",
+                "texte": "geologie constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "immunite",
+                "texte": "immunite constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "systeme-nerveux",
+                "titre": "systeme nerveux",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "sante",
+                "titre": "sante",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "demarche",
+                "titre": "demarche",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "genetique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "geologie",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "immunite",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "systeme-nerveux",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "sante",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "demarche",
+              "profile": "MAITRISE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_06_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "029e1baf681ae839949fb52a42668d1e8210d9998be73651889fac8291b37f79",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "genetique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "geologie",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "immunite",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "systeme-nerveux",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "sante",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "demarche",
+              "profile": "MAITRISE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 19,
+            "coverage": 54,
+            "calibrationIndex": 85,
+            "domainScores": [
+              {
+                "id": "genetique",
+                "score": 19
+              },
+              {
+                "id": "geologie",
+                "score": 28
+              },
+              {
+                "id": "immunite",
+                "score": 37
+              },
+              {
+                "id": "systeme-nerveux",
+                "score": 46
+              },
+              {
+                "id": "sante",
+                "score": 55
+              },
+              {
+                "id": "demarche",
+                "score": 64
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_07_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "870733b2a9dd48bdcc6e60b89649130716bba777e5a022fb5577efbe5be903bf",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "genetique",
+                "titre": "genetique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "geologie",
+                "titre": "geologie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "immunite",
+                "titre": "immunite",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "systeme-nerveux",
+                "titre": "systeme nerveux",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "sante",
+                "titre": "sante",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "demarche",
+                "titre": "demarche",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "genetique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "geologie",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "immunite",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "systeme-nerveux",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "sante",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "demarche",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_07_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "5e2a82cf58ed6024e78433db8029ffa260e3c2236db152168b25dbf3483ae5f3",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "genetique",
+                "texte": "genetique constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "geologie",
+                "texte": "geologie constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "immunite",
+                "texte": "immunite constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "systeme-nerveux",
+                "titre": "systeme nerveux",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "sante",
+                "titre": "sante",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "demarche",
+                "titre": "demarche",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "genetique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "geologie",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "immunite",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "systeme-nerveux",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "sante",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "demarche",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_07_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "ac92c1ad70e7e98b848c4584bf45d3889c06cb73a6061376fd99f0bf9091ce05",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "genetique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "geologie",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "immunite",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "systeme-nerveux",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "sante",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "demarche",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 36,
+            "coverage": 67,
+            "calibrationIndex": 96,
+            "domainScores": [
+              {
+                "id": "genetique",
+                "score": 36
+              },
+              {
+                "id": "geologie",
+                "score": 45
+              },
+              {
+                "id": "immunite",
+                "score": 54
+              },
+              {
+                "id": "systeme-nerveux",
+                "score": 63
+              },
+              {
+                "id": "sante",
+                "score": 72
+              },
+              {
+                "id": "demarche",
+                "score": 81
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_08_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "f1bdee5d09c4b37b9a922a34952fa1a3c99523dc87cb1fe531ef9ca7dca8b41c",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "genetique",
+                "titre": "genetique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "geologie",
+                "titre": "geologie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "immunite",
+                "titre": "immunite",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "systeme-nerveux",
+                "titre": "systeme nerveux",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "sante",
+                "titre": "sante",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "demarche",
+                "titre": "demarche",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "genetique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "geologie",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "immunite",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "systeme-nerveux",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "sante",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "demarche",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_08_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "4b046dbf38c903c8351fe0a33869f26e288483495334292f7a8a4d2e0a3f57b8",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "genetique",
+                "texte": "genetique constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "geologie",
+                "texte": "geologie constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "immunite",
+                "texte": "immunite constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "systeme-nerveux",
+                "titre": "systeme nerveux",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "sante",
+                "titre": "sante",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "demarche",
+                "titre": "demarche",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "genetique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "geologie",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "immunite",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "systeme-nerveux",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "sante",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "demarche",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_08_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "e35547dea9459e9dfddf48fb0fe68c2d76e4883837a7f4d1248836c4f280c64d",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "genetique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "geologie",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "immunite",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "systeme-nerveux",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "sante",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "demarche",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 53,
+            "coverage": 80,
+            "calibrationIndex": 36,
+            "domainScores": [
+              {
+                "id": "genetique",
+                "score": 53
+              },
+              {
+                "id": "geologie",
+                "score": 62
+              },
+              {
+                "id": "immunite",
+                "score": 71
+              },
+              {
+                "id": "systeme-nerveux",
+                "score": 80
+              },
+              {
+                "id": "sante",
+                "score": 89
+              },
+              {
+                "id": "demarche",
+                "score": 98
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_09_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "e7f150d497a4f8873597131f88785706c830d0658ff759816b964fccff4dca83",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "genetique",
+                "titre": "genetique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "geologie",
+                "titre": "geologie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "immunite",
+                "titre": "immunite",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "systeme-nerveux",
+                "titre": "systeme nerveux",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "sante",
+                "titre": "sante",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "demarche",
+                "titre": "demarche",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "genetique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "geologie",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "immunite",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "systeme-nerveux",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "sante",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "demarche",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_09_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "53da12e891ad0ed6d53cb705377d2dbabbb6e2ab34096d4c3f22204a78f3dd2d",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "genetique",
+                "texte": "genetique constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "geologie",
+                "texte": "geologie constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "immunite",
+                "texte": "immunite constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "systeme-nerveux",
+                "titre": "systeme nerveux",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "sante",
+                "titre": "sante",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "demarche",
+                "titre": "demarche",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "genetique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "geologie",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "immunite",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "systeme-nerveux",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "sante",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "demarche",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_09_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "8e6677b59b30b2784af0e976fd50950ad6d0cba30d3be9ac3f060eb245788271",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "genetique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "geologie",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "immunite",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "systeme-nerveux",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "sante",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "demarche",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 70,
+            "coverage": 93,
+            "calibrationIndex": null,
+            "domainScores": [
+              {
+                "id": "genetique",
+                "score": 70
+              },
+              {
+                "id": "geologie",
+                "score": 79
+              },
+              {
+                "id": "immunite",
+                "score": 88
+              },
+              {
+                "id": "systeme-nerveux",
+                "score": 97
+              },
+              {
+                "id": "sante",
+                "score": 5
+              },
+              {
+                "id": "demarche",
+                "score": 14
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_10_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "85dd6f7a42e9252fc24caf8f2af788ecc5482ea5d1150694552e00b067d63c5e",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "genetique",
+                "titre": "genetique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "geologie",
+                "titre": "geologie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "immunite",
+                "titre": "immunite",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "systeme-nerveux",
+                "titre": "systeme nerveux",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "sante",
+                "titre": "sante",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "demarche",
+                "titre": "demarche",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "genetique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "geologie",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "immunite",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "systeme-nerveux",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "sante",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "demarche",
+              "profile": "NON_TRAITE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_10_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "8d0df388b9683fd05e579e8aec142e443e0190791036645f02dd930e3ca539e2",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "genetique",
+                "texte": "genetique constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "geologie",
+                "texte": "geologie constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "immunite",
+                "texte": "immunite constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "systeme-nerveux",
+                "titre": "systeme nerveux",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "sante",
+                "titre": "sante",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "demarche",
+                "titre": "demarche",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "genetique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "geologie",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "immunite",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "systeme-nerveux",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "sante",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "demarche",
+              "profile": "NON_TRAITE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_10_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "6ae3161bedcac7831f6732b0f02e5ba5b192970de0bd47569d0101f121cbb565",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "genetique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "geologie",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "immunite",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "systeme-nerveux",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "sante",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "demarche",
+              "profile": "NON_TRAITE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 87,
+            "coverage": 50,
+            "calibrationIndex": 58,
+            "domainScores": [
+              {
+                "id": "genetique",
+                "score": 87
+              },
+              {
+                "id": "geologie",
+                "score": 96
+              },
+              {
+                "id": "immunite",
+                "score": 4
+              },
+              {
+                "id": "systeme-nerveux",
+                "score": 13
+              },
+              {
+                "id": "sante",
+                "score": 22
+              },
+              {
+                "id": "demarche",
+                "score": 31
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_11_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "bd528c7014e01e08f16dfe9cf2988f90bc9d6f2adacda9bc73c198fb1af43c71",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "genetique",
+                "titre": "genetique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "geologie",
+                "titre": "geologie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "immunite",
+                "titre": "immunite",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "systeme-nerveux",
+                "titre": "systeme nerveux",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "sante",
+                "titre": "sante",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "demarche",
+                "titre": "demarche",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "genetique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "geologie",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "immunite",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "systeme-nerveux",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "sante",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "demarche",
+              "profile": "MAITRISE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_11_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "3691d097d4fecba1936e17e6ce3a89e29d0c64a07eeb0e2dd72f36a8fd1e767c",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "genetique",
+                "texte": "genetique constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "geologie",
+                "texte": "geologie constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "immunite",
+                "texte": "immunite constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "systeme-nerveux",
+                "titre": "systeme nerveux",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "sante",
+                "titre": "sante",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "demarche",
+                "titre": "demarche",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "genetique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "geologie",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "immunite",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "systeme-nerveux",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "sante",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "demarche",
+              "profile": "MAITRISE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_11_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "a0fc52b482536615d3ced389bcf48ea5e0ed64d12005979ddd135ad3d5c1c6a3",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "genetique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "geologie",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "immunite",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "systeme-nerveux",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "sante",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "demarche",
+              "profile": "MAITRISE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 23,
+            "coverage": 63,
+            "calibrationIndex": 69,
+            "domainScores": [
+              {
+                "id": "genetique",
+                "score": 23
+              },
+              {
+                "id": "geologie",
+                "score": 32
+              },
+              {
+                "id": "immunite",
+                "score": 41
+              },
+              {
+                "id": "systeme-nerveux",
+                "score": 50
+              },
+              {
+                "id": "sante",
+                "score": 59
+              },
+              {
+                "id": "demarche",
+                "score": 68
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_12_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "870733b2a9dd48bdcc6e60b89649130716bba777e5a022fb5577efbe5be903bf",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "genetique",
+                "titre": "genetique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "geologie",
+                "titre": "geologie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "immunite",
+                "titre": "immunite",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "systeme-nerveux",
+                "titre": "systeme nerveux",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "sante",
+                "titre": "sante",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "demarche",
+                "titre": "demarche",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "genetique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "geologie",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "immunite",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "systeme-nerveux",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "sante",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "demarche",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_12_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "5e2a82cf58ed6024e78433db8029ffa260e3c2236db152168b25dbf3483ae5f3",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "genetique",
+                "texte": "genetique constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "geologie",
+                "texte": "geologie constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "immunite",
+                "texte": "immunite constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "systeme-nerveux",
+                "titre": "systeme nerveux",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "sante",
+                "titre": "sante",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "demarche",
+                "titre": "demarche",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "genetique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "geologie",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "immunite",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "systeme-nerveux",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "sante",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "demarche",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_12_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "055d388e5b18ec64c009b2cbf265a236062dcc0034c70304bc032e0f7df0cfa7",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "genetique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "geologie",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "immunite",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "systeme-nerveux",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "sante",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "demarche",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 40,
+            "coverage": 76,
+            "calibrationIndex": 80,
+            "domainScores": [
+              {
+                "id": "genetique",
+                "score": 40
+              },
+              {
+                "id": "geologie",
+                "score": 49
+              },
+              {
+                "id": "immunite",
+                "score": 58
+              },
+              {
+                "id": "systeme-nerveux",
+                "score": 67
+              },
+              {
+                "id": "sante",
+                "score": 76
+              },
+              {
+                "id": "demarche",
+                "score": 85
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_13_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "f1bdee5d09c4b37b9a922a34952fa1a3c99523dc87cb1fe531ef9ca7dca8b41c",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "genetique",
+                "titre": "genetique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "geologie",
+                "titre": "geologie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "immunite",
+                "titre": "immunite",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "systeme-nerveux",
+                "titre": "systeme nerveux",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "sante",
+                "titre": "sante",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "demarche",
+                "titre": "demarche",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "genetique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "geologie",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "immunite",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "systeme-nerveux",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "sante",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "demarche",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_13_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "4b046dbf38c903c8351fe0a33869f26e288483495334292f7a8a4d2e0a3f57b8",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "genetique",
+                "texte": "genetique constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "geologie",
+                "texte": "geologie constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "immunite",
+                "texte": "immunite constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "systeme-nerveux",
+                "titre": "systeme nerveux",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "sante",
+                "titre": "sante",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "demarche",
+                "titre": "demarche",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "genetique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "geologie",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "immunite",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "systeme-nerveux",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "sante",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "demarche",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_13_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "15bf1cc7435e4a72287257d9117883f98fe9c40a674bb5664267e83c715e1430",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "genetique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "geologie",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "immunite",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "systeme-nerveux",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "sante",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "demarche",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 57,
+            "coverage": 89,
+            "calibrationIndex": null,
+            "domainScores": [
+              {
+                "id": "genetique",
+                "score": 57
+              },
+              {
+                "id": "geologie",
+                "score": 66
+              },
+              {
+                "id": "immunite",
+                "score": 75
+              },
+              {
+                "id": "systeme-nerveux",
+                "score": 84
+              },
+              {
+                "id": "sante",
+                "score": 93
+              },
+              {
+                "id": "demarche",
+                "score": 1
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_14_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "e7f150d497a4f8873597131f88785706c830d0658ff759816b964fccff4dca83",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "genetique",
+                "titre": "genetique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "geologie",
+                "titre": "geologie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "immunite",
+                "titre": "immunite",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "systeme-nerveux",
+                "titre": "systeme nerveux",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "sante",
+                "titre": "sante",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "demarche",
+                "titre": "demarche",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "genetique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "geologie",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "immunite",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "systeme-nerveux",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "sante",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "demarche",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_14_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "53da12e891ad0ed6d53cb705377d2dbabbb6e2ab34096d4c3f22204a78f3dd2d",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "genetique",
+                "texte": "genetique constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "geologie",
+                "texte": "geologie constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "immunite",
+                "texte": "immunite constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "systeme-nerveux",
+                "titre": "systeme nerveux",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "sante",
+                "titre": "sante",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "demarche",
+                "titre": "demarche",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "genetique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "geologie",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "immunite",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "systeme-nerveux",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "sante",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "demarche",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_14_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "762e2343cf67efb206ac36b963414c185696eb518f5f7843550a02bf14517fbd",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "genetique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "geologie",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "immunite",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "systeme-nerveux",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "sante",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "demarche",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 74,
+            "coverage": 46,
+            "calibrationIndex": 31,
+            "domainScores": [
+              {
+                "id": "genetique",
+                "score": 74
+              },
+              {
+                "id": "geologie",
+                "score": 83
+              },
+              {
+                "id": "immunite",
+                "score": 92
+              },
+              {
+                "id": "systeme-nerveux",
+                "score": 0
+              },
+              {
+                "id": "sante",
+                "score": 9
+              },
+              {
+                "id": "demarche",
+                "score": 18
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_15_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "85dd6f7a42e9252fc24caf8f2af788ecc5482ea5d1150694552e00b067d63c5e",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "genetique",
+                "titre": "genetique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "geologie",
+                "titre": "geologie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "immunite",
+                "titre": "immunite",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "systeme-nerveux",
+                "titre": "systeme nerveux",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "sante",
+                "titre": "sante",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "demarche",
+                "titre": "demarche",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "genetique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "geologie",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "immunite",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "systeme-nerveux",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "sante",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "demarche",
+              "profile": "NON_TRAITE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_15_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "8d0df388b9683fd05e579e8aec142e443e0190791036645f02dd930e3ca539e2",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "genetique",
+                "texte": "genetique constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "geologie",
+                "texte": "geologie constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "immunite",
+                "texte": "immunite constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "systeme-nerveux",
+                "titre": "systeme nerveux",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "sante",
+                "titre": "sante",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "demarche",
+                "titre": "demarche",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "genetique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "geologie",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "immunite",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "systeme-nerveux",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "sante",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "demarche",
+              "profile": "NON_TRAITE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_15_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "8ecbb41eb0abbb8c4fb789708858f02213218cab2d59513d9f71e47764684c8c",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "genetique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "geologie",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "immunite",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "systeme-nerveux",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "sante",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "demarche",
+              "profile": "NON_TRAITE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 91,
+            "coverage": 59,
+            "calibrationIndex": 42,
+            "domainScores": [
+              {
+                "id": "genetique",
+                "score": 91
+              },
+              {
+                "id": "geologie",
+                "score": 100
+              },
+              {
+                "id": "immunite",
+                "score": 8
+              },
+              {
+                "id": "systeme-nerveux",
+                "score": 17
+              },
+              {
+                "id": "sante",
+                "score": 26
+              },
+              {
+                "id": "demarche",
+                "score": 35
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_16_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "bd528c7014e01e08f16dfe9cf2988f90bc9d6f2adacda9bc73c198fb1af43c71",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "genetique",
+                "titre": "genetique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "geologie",
+                "titre": "geologie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "immunite",
+                "titre": "immunite",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "systeme-nerveux",
+                "titre": "systeme nerveux",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "sante",
+                "titre": "sante",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "demarche",
+                "titre": "demarche",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "genetique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "geologie",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "immunite",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "systeme-nerveux",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "sante",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "demarche",
+              "profile": "MAITRISE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_16_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "3691d097d4fecba1936e17e6ce3a89e29d0c64a07eeb0e2dd72f36a8fd1e767c",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "genetique",
+                "texte": "genetique constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "geologie",
+                "texte": "geologie constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "immunite",
+                "texte": "immunite constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "systeme-nerveux",
+                "titre": "systeme nerveux",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "sante",
+                "titre": "sante",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "demarche",
+                "titre": "demarche",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "genetique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "geologie",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "immunite",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "systeme-nerveux",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "sante",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "demarche",
+              "profile": "MAITRISE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_16_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "c920de7cf393606163f16d78757fb19ac6264eb7e9adf522c96d1d92992eb69c",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "genetique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "geologie",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "immunite",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "systeme-nerveux",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "sante",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "demarche",
+              "profile": "MAITRISE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 27,
+            "coverage": 72,
+            "calibrationIndex": 53,
+            "domainScores": [
+              {
+                "id": "genetique",
+                "score": 27
+              },
+              {
+                "id": "geologie",
+                "score": 36
+              },
+              {
+                "id": "immunite",
+                "score": 45
+              },
+              {
+                "id": "systeme-nerveux",
+                "score": 54
+              },
+              {
+                "id": "sante",
+                "score": 63
+              },
+              {
+                "id": "demarche",
+                "score": 72
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_17_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "870733b2a9dd48bdcc6e60b89649130716bba777e5a022fb5577efbe5be903bf",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "genetique",
+                "titre": "genetique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "geologie",
+                "titre": "geologie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "immunite",
+                "titre": "immunite",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "systeme-nerveux",
+                "titre": "systeme nerveux",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "sante",
+                "titre": "sante",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "demarche",
+                "titre": "demarche",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "genetique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "geologie",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "immunite",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "systeme-nerveux",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "sante",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "demarche",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_17_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "5e2a82cf58ed6024e78433db8029ffa260e3c2236db152168b25dbf3483ae5f3",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "genetique",
+                "texte": "genetique constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "geologie",
+                "texte": "geologie constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "immunite",
+                "texte": "immunite constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "systeme-nerveux",
+                "titre": "systeme nerveux",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "sante",
+                "titre": "sante",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "demarche",
+                "titre": "demarche",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "genetique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "geologie",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "immunite",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "systeme-nerveux",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "sante",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "demarche",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_17_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "c7e55635c914781aec8f196522cbe9d9c00b6c06d883e4f588d287977e4f87fe",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "genetique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "geologie",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "immunite",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "systeme-nerveux",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "sante",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "demarche",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 44,
+            "coverage": 85,
+            "calibrationIndex": null,
+            "domainScores": [
+              {
+                "id": "genetique",
+                "score": 44
+              },
+              {
+                "id": "geologie",
+                "score": 53
+              },
+              {
+                "id": "immunite",
+                "score": 62
+              },
+              {
+                "id": "systeme-nerveux",
+                "score": 71
+              },
+              {
+                "id": "sante",
+                "score": 80
+              },
+              {
+                "id": "demarche",
+                "score": 89
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_18_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "f1bdee5d09c4b37b9a922a34952fa1a3c99523dc87cb1fe531ef9ca7dca8b41c",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "genetique",
+                "titre": "genetique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "geologie",
+                "titre": "geologie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "immunite",
+                "titre": "immunite",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "systeme-nerveux",
+                "titre": "systeme nerveux",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "sante",
+                "titre": "sante",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "demarche",
+                "titre": "demarche",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "genetique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "geologie",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "immunite",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "systeme-nerveux",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "sante",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "demarche",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_18_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "4b046dbf38c903c8351fe0a33869f26e288483495334292f7a8a4d2e0a3f57b8",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "genetique",
+                "texte": "genetique constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "geologie",
+                "texte": "geologie constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "immunite",
+                "texte": "immunite constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "systeme-nerveux",
+                "titre": "systeme nerveux",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "sante",
+                "titre": "sante",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "demarche",
+                "titre": "demarche",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "genetique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "geologie",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "immunite",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "systeme-nerveux",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "sante",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "demarche",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_18_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "e4693a1fb9a6657087696a62dfc593d6f05c1f370af03a071c8d0298e001e88c",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "genetique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "geologie",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "immunite",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "systeme-nerveux",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "sante",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "demarche",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 61,
+            "coverage": 98,
+            "calibrationIndex": 75,
+            "domainScores": [
+              {
+                "id": "genetique",
+                "score": 61
+              },
+              {
+                "id": "geologie",
+                "score": 70
+              },
+              {
+                "id": "immunite",
+                "score": 79
+              },
+              {
+                "id": "systeme-nerveux",
+                "score": 88
+              },
+              {
+                "id": "sante",
+                "score": 97
+              },
+              {
+                "id": "demarche",
+                "score": 5
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_19_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "e7f150d497a4f8873597131f88785706c830d0658ff759816b964fccff4dca83",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "genetique",
+                "titre": "genetique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "geologie",
+                "titre": "geologie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "immunite",
+                "titre": "immunite",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "systeme-nerveux",
+                "titre": "systeme nerveux",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "sante",
+                "titre": "sante",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "demarche",
+                "titre": "demarche",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "genetique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "geologie",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "immunite",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "systeme-nerveux",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "sante",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "demarche",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_19_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "53da12e891ad0ed6d53cb705377d2dbabbb6e2ab34096d4c3f22204a78f3dd2d",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "genetique",
+                "texte": "genetique constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "geologie",
+                "texte": "geologie constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "immunite",
+                "texte": "immunite constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "systeme-nerveux",
+                "titre": "systeme nerveux",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "sante",
+                "titre": "sante",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "demarche",
+                "titre": "demarche",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "genetique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "geologie",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "immunite",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "systeme-nerveux",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "sante",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "demarche",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_19_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "546ff53a93d927ce5d02ab1e2f6fb366e29f8bfc9b8b30696dc55f5a7b479513",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "genetique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "geologie",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "immunite",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "systeme-nerveux",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "sante",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "demarche",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 78,
+            "coverage": 55,
+            "calibrationIndex": 86,
+            "domainScores": [
+              {
+                "id": "genetique",
+                "score": 78
+              },
+              {
+                "id": "geologie",
+                "score": 87
+              },
+              {
+                "id": "immunite",
+                "score": 96
+              },
+              {
+                "id": "systeme-nerveux",
+                "score": 4
+              },
+              {
+                "id": "sante",
+                "score": 13
+              },
+              {
+                "id": "demarche",
+                "score": 22
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_20_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "85dd6f7a42e9252fc24caf8f2af788ecc5482ea5d1150694552e00b067d63c5e",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "genetique",
+                "titre": "genetique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "geologie",
+                "titre": "geologie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "immunite",
+                "titre": "immunite",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "systeme-nerveux",
+                "titre": "systeme nerveux",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "sante",
+                "titre": "sante",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "demarche",
+                "titre": "demarche",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "genetique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "geologie",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "immunite",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "systeme-nerveux",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "sante",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "demarche",
+              "profile": "NON_TRAITE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_20_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "8d0df388b9683fd05e579e8aec142e443e0190791036645f02dd930e3ca539e2",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "genetique",
+                "texte": "genetique constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "geologie",
+                "texte": "geologie constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "immunite",
+                "texte": "immunite constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "systeme-nerveux",
+                "titre": "systeme nerveux",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "sante",
+                "titre": "sante",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "demarche",
+                "titre": "demarche",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "genetique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "geologie",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "immunite",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "systeme-nerveux",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "sante",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "demarche",
+              "profile": "NON_TRAITE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_20_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "cc55dd962bb7338f14ebeb8cd494600532e3fcc78557d87a973f185591f71615",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "genetique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "geologie",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "immunite",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "systeme-nerveux",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "sante",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "demarche",
+              "profile": "NON_TRAITE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 95,
+            "coverage": 68,
+            "calibrationIndex": 97,
+            "domainScores": [
+              {
+                "id": "genetique",
+                "score": 95
+              },
+              {
+                "id": "geologie",
+                "score": 3
+              },
+              {
+                "id": "immunite",
+                "score": 12
+              },
+              {
+                "id": "systeme-nerveux",
+                "score": 21
+              },
+              {
+                "id": "sante",
+                "score": 30
+              },
+              {
+                "id": "demarche",
+                "score": 39
+              }
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

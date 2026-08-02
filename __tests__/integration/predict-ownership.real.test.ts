@@ -32,6 +32,40 @@ function makePostRequest(body: Record<string, unknown>): NextRequest {
   });
 }
 
+async function cleanupPredictOwnershipFixtures() {
+  const users = await prisma.user.findMany({
+    where: { email: { startsWith: 'predict-real-' } },
+    select: { id: true },
+  });
+  const userIds = users.map(({ id }) => id);
+
+  if (userIds.length === 0) return;
+
+  const coaches = await prisma.coachProfile.findMany({
+    where: { userId: { in: userIds } },
+    select: { id: true },
+  });
+  const coachIds = coaches.map(({ id }) => id);
+  const students = await prisma.student.findMany({
+    where: { userId: { in: userIds } },
+    select: { id: true },
+  });
+  const studentIds = students.map(({ id }) => id);
+
+  await prisma.coachStudentAssignment.deleteMany({
+    where: {
+      OR: [
+        { coachId: { in: coachIds } },
+        { studentId: { in: studentIds } },
+      ],
+    },
+  });
+  await prisma.student.deleteMany({ where: { id: { in: studentIds } } });
+  await prisma.coachProfile.deleteMany({ where: { id: { in: coachIds } } });
+  await prisma.parentProfile.deleteMany({ where: { userId: { in: userIds } } });
+  await prisma.user.deleteMany({ where: { id: { in: userIds } } });
+}
+
 describe('IDOR BDD Réelle — Predict Ownership', () => {
   let coach1: any;
   let coach2: any;
@@ -39,15 +73,8 @@ describe('IDOR BDD Réelle — Predict Ownership', () => {
   let student1: any;
 
   beforeAll(async () => {
-    // Nettoyage initial
-    await prisma.sessionBooking.deleteMany();
-    await prisma.coachStudentAssignment.deleteMany();
-    await prisma.coachProfile.deleteMany();
-    await prisma.parentProfile.deleteMany();
-    await prisma.student.deleteMany();
-    await prisma.user.deleteMany({
-      where: { email: { startsWith: 'predict-real-' } },
-    });
+    // Nettoyage initial limité aux fixtures de cette suite.
+    await cleanupPredictOwnershipFixtures();
 
     // Seed Users
     const uC1 = await prisma.user.create({ data: { email: 'predict-real-c1@test.com', role: 'COACH' } });
@@ -84,14 +111,7 @@ describe('IDOR BDD Réelle — Predict Ownership', () => {
   });
 
   afterAll(async () => {
-    await prisma.sessionBooking.deleteMany();
-    await prisma.coachStudentAssignment.deleteMany();
-    await prisma.coachProfile.deleteMany();
-    await prisma.parentProfile.deleteMany();
-    await prisma.student.deleteMany();
-    await prisma.user.deleteMany({
-      where: { email: { startsWith: 'predict-real-' } },
-    });
+    await cleanupPredictOwnershipFixtures();
     await prisma.$disconnect();
   });
 

@@ -21,9 +21,9 @@ const FLAGS: readonly (readonly ResultFlag[])[] = [
   [], ['COUVERTURE_INSUFFISANTE'], ['CALIBRATION_A_TRAVAILLER'], ['PASSATION_PARTIELLE'],
 ];
 
-function buildRecipeFactSheets(
+export function buildRecipeFactSheets(
   domainIds: readonly string[],
-  level: 'SECONDE' | 'PREMIERE' | 'TERMINALE' = 'TERMINALE',
+  level: 'QUATRIEME' | 'TROISIEME' | 'SECONDE' | 'PREMIERE' | 'TERMINALE' = 'TERMINALE',
 ): readonly FactSheet[] {
   return Object.freeze(Array.from({ length: 20 }, (_, index) => {
   const globalScore = 15 + ((index * 17) % 81);

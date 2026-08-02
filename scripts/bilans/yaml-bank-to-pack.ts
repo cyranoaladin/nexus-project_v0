@@ -3,8 +3,15 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 import Ajv2020 from 'ajv/dist/2020';
-import { parse as parseYaml } from 'yaml';
-import { z } from 'zod';
+const { parse: parseYaml } = require(path.join(
+  path.dirname(require.resolve('yaml/package.json')),
+  'dist/index.js',
+)) as typeof import('yaml');
+import {
+  assertBankRules,
+  cpsCatalogSchema,
+  type SourceBank,
+} from '@/lib/bilans/catalog/bank-validation';
 
 type JsonRecord = Record<string, any>;
 
@@ -15,19 +22,6 @@ const PROMPT_FILES = {
   nexus: 'nexus.md',
   verifier: 'verifier.md',
 } as const;
-
-const cpsCatalogSchema = z.object({
-  schemaVersion: z.literal('nexus-cps-catalog/v1'),
-  slug: z.string().trim().min(1),
-  version: z.number().int().positive(),
-  nodes: z.array(z.object({
-    id: z.string().trim().regex(/^[a-z0-9]+(\.[a-z0-9-]+)+$/),
-    label: z.string().trim().min(1),
-    sourceLevel: z.enum(['QUATRIEME', 'TROISIEME', 'SECONDE', 'PREMIERE', 'TERMINALE']),
-    targetLevel: z.enum(['QUATRIEME', 'TROISIEME', 'SECONDE', 'PREMIERE', 'TERMINALE']),
-    pedagogicalRationale: z.string().trim().min(1),
-  }).strict()).min(1),
-}).strict();
 
 function isRecord(value: unknown): value is JsonRecord {
   return value !== null && typeof value === 'object' && !Array.isArray(value);
@@ -60,7 +54,7 @@ function setArrayMaxItems(
 }
 
 function normalizeOptionKeys(source: JsonRecord): JsonRecord {
-  const normalized = structuredClone(source) as JsonRecord;
+  const normalized = JSON.parse(JSON.stringify(source)) as JsonRecord;
   if (!Array.isArray(normalized.items)) throw new Error('BANK_ITEMS_INVALID');
   normalized.items = normalized.items.map((item: JsonRecord) => {
     if (!Array.isArray(item.options)) return item;
@@ -110,6 +104,7 @@ export function buildPack(options: {
   if (source.status !== 'DRAFT') throw new Error('BANK_SOURCE_MUST_BE_DRAFT');
 
   const catalog = cpsCatalogSchema.parse(parseYaml(fs.readFileSync(repositoryPath(options.cpsPath), 'utf8')));
+  assertBankRules(source as SourceBank, catalog);
   const mismatchedTargets = catalog.nodes
     .filter((node) => node.targetLevel !== source.level)
     .map((node) => node.id);
@@ -130,7 +125,7 @@ export function buildPack(options: {
     return [agent, { path: relativePath, checksum: sha256(content) }];
   }));
   const domains = [...new Set(source.items.map((item: JsonRecord) => String(item.nodeCpsId).split('.')[2]))];
-  const outputSchemas = structuredClone(template.reporting.outputSchemas);
+  const outputSchemas = JSON.parse(JSON.stringify(template.reporting.outputSchemas));
   if (!isRecord(outputSchemas)) throw new Error('PACK_TEMPLATE_OUTPUT_SCHEMAS_INVALID');
   setArrayMaxItems(outputSchemas, 'eleve', 'priorites', domains.length);
   setArrayMaxItems(outputSchemas, 'parents', 'pointsAppui', domains.length);
