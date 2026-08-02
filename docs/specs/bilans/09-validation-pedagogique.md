@@ -14,11 +14,46 @@ L'enseignant examine individuellement chaque item, sa formulation, sa réponse a
 
 ## Signature
 
-La validation renseigne `review.validatedBy`, `review.validatedAt` et porte sur une version déterminée du pack. Le pack signé conserve les chemins et checksums exacts de tous ses prompts.
+La signature durable vit exclusivement dans le registre versionné
+`data/bilans/reviews/<slug>.review.yaml`. La source YAML éditoriale ne contient jamais de
+bloc `review` et le pack JSON généré n'est jamais édité à la main.
+
+Le registre contient exactement :
+
+- `schemaVersion: 1` ;
+- le `slug` et la `packVersion` signés ;
+- le SHA-256 de la source YAML dans `sourceChecksum` ;
+- les SHA-256 des cinq prompts, indexés par rôle dans `promptChecksums` ;
+- `validatedBy`, qui est exclusivement l'identifiant d'un `CoachProfile` réel ;
+- `validatedAt`, au format ISO-8601 ;
+- `qualification`, qui décrit la qualification professionnelle du relecteur.
+
+L'adresse email sert uniquement à résoudre le `CoachProfile` au moment de la commande de
+signature. Elle n'est jamais écrite dans le registre. La validation porte sur une version
+déterminée du pack et sur les contenus exacts de sa source et de ses cinq prompts.
+
+### Transition normative
+
+Le convertisseur produit `status: VALIDATED` et renseigne `review.validatedBy` ainsi que
+`review.validatedAt` uniquement lorsque toutes les conditions suivantes sont vraies :
+
+1. la banque passe les règles V1 à V14 et toutes ses références CPS sont valides ;
+2. le registre du slug existe et respecte le schéma ci-dessus ;
+3. son `validatedBy` désigne encore un `CoachProfile` existant ;
+4. son `slug` et sa `packVersion` correspondent à la source courante ;
+5. `sourceChecksum` correspond exactement au YAML courant ;
+6. chacun des cinq `promptChecksums` correspond au prompt courant.
+
+Cette transition `DRAFT -> VALIDATED` est une dérivation, jamais une activation. Elle
+n'active aucun feature flag, n'ouvre aucune passation et ne publie aucun rapport.
 
 ## Révocation automatique
 
-Toute modification d'un item, d'un distracteur, d'une explication, d'un prompt ou d'un checksum annule la validation. La version du pack est alors incrémentée, son statut revient à `DRAFT` et les champs de validation redeviennent nuls.
+Toute modification d'un item, d'un distracteur, d'une explication, d'un prompt ou d'un
+checksum invalide immédiatement la signature. Au contrôle ou à la génération suivante, le
+pack retombe en `DRAFT` et ses champs `review.*` redeviennent nuls. Le registre invalide
+reste une trace d'audit mais ne produit jamais une signature active ; une nouvelle version
+et une nouvelle signature sont nécessaires.
 
 ### Frontière de version
 
@@ -27,13 +62,15 @@ les packs `entree-terminale-maths-v1` et `maths-terminale-bilan-v1` sont encore 
 fait partie de leur version initiale et ne crée pas une version 2.
 
 À partir de la signature d'Alaeddine BEN RHOUMA, toute modification d'un item, d'une option,
-d'un prompt ou d'un checksum impose une version 2, remet le statut à `DRAFT` et annule
-`review.validatedBy` ainsi que `review.validatedAt`. Un pack signé ne peut jamais être
-modifié silencieusement en conservant son numéro ou sa validation.
+d'un prompt ou d'un checksum impose une version 2. Tant que la nouvelle version n'est pas
+signée, le pack dérivé reste `DRAFT` avec `review.validatedBy` et `review.validatedAt` nuls.
+Un pack signé ne peut jamais être modifié silencieusement en conservant sa validation.
 
 ## Trace conservée
 
-La preuve comprend le pack signé et le paquet de revue aveugle issu de la recette technique. La revue d'un pack ne remplace pas la validation humaine de chaque rapport avant publication.
+La preuve comprend le registre de signature, le pack signé qui en est dérivé et le paquet
+de revue aveugle issu de la recette technique. La revue d'un pack ne remplace pas la
+validation humaine de chaque rapport avant publication.
 
 ## Limite de la recette mock
 
