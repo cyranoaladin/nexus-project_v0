@@ -1,0 +1,1072 @@
+{
+  "slug": "entree-terminale-maths-expertes-v1",
+  "level": "TERMINALE",
+  "subject": "MATHS_EXPERTES",
+  "version": 1,
+  "status": "DRAFT",
+  "review": {
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  "questionnaire": {
+    "targetDurationMin": 25,
+    "confidenceScale": {
+      "levels": 4,
+      "labels": [
+        "je devine",
+        "peu sûr",
+        "plutôt sûr",
+        "certain"
+      ]
+    },
+    "items": [
+      {
+        "id": "EME-MAT-DIV-01",
+        "subject": "MATHS_EXPERTES",
+        "category": "Division euclidienne",
+        "domainId": "arithmetique",
+        "nodeCpsId": "college.maths.arithmetique.division-euclidienne",
+        "difficulty": 1,
+        "targetTimeSec": 50,
+        "shortCorrection": "47 = 6 × 7 + 5, donc le quotient est 7 et le reste 5. Le reste doit toujours être strictement inférieur au diviseur.",
+        "weight": 1,
+        "competencies": [
+          "college.maths.arithmetique.division-euclidienne"
+        ],
+        "questionText": "Dans la division euclidienne de 47 par 6, quel est le reste ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "7",
+            "isCorrect": false,
+            "distractorRationale": "Donne le quotient au lieu du reste."
+          },
+          {
+            "id": "B",
+            "text": "2",
+            "isCorrect": false,
+            "distractorRationale": "Se trompe dans le multiple de 6 le plus proche."
+          },
+          {
+            "id": "C",
+            "text": "5",
+            "isCorrect": true
+          },
+          {
+            "id": "D",
+            "text": "6",
+            "isCorrect": false,
+            "distractorRationale": "Propose un reste égal au diviseur, ce qui est impossible."
+          }
+        ],
+        "explanation": "47 = 6 × 7 + 5, donc le quotient est 7 et le reste 5. Le reste doit toujours être strictement inférieur au diviseur."
+      },
+      {
+        "id": "EME-MAT-DIV-02",
+        "subject": "MATHS_EXPERTES",
+        "category": "Division euclidienne",
+        "domainId": "arithmetique",
+        "nodeCpsId": "college.maths.arithmetique.division-euclidienne",
+        "difficulty": 2,
+        "targetTimeSec": 60,
+        "shortCorrection": "100 = 7 × 14 + 2 : le quotient est 14 et le reste 2, avec 0 ≤ reste < 7.",
+        "weight": 2,
+        "competencies": [
+          "college.maths.arithmetique.division-euclidienne"
+        ],
+        "questionText": "Dans la division euclidienne de 100 par 7, le quotient et le reste sont :",
+        "options": [
+          {
+            "id": "A",
+            "text": "14 et 2",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "14 et 6",
+            "isCorrect": false,
+            "distractorRationale": "Trouve le bon quotient mais se trompe sur le reste."
+          },
+          {
+            "id": "C",
+            "text": "13 et 9",
+            "isCorrect": false,
+            "distractorRationale": "Propose un reste supérieur au diviseur, ce qui est interdit."
+          },
+          {
+            "id": "D",
+            "text": "15 et −5",
+            "isCorrect": false,
+            "distractorRationale": "Dépasse le dividende et obtient un reste négatif."
+          }
+        ],
+        "explanation": "100 = 7 × 14 + 2 : le quotient est 14 et le reste 2, avec 0 ≤ reste < 7."
+      },
+      {
+        "id": "EME-MAT-MUL-01",
+        "subject": "MATHS_EXPERTES",
+        "category": "Multiples, diviseurs et critères",
+        "domainId": "arithmetique",
+        "nodeCpsId": "college.maths.arithmetique.multiples-diviseurs",
+        "difficulty": 1,
+        "targetTimeSec": 45,
+        "shortCorrection": "Un nombre est divisible par 3 si la somme de ses chiffres l'est : 3 + 4 + 2 = 9, multiple de 3.",
+        "weight": 1,
+        "competencies": [
+          "college.maths.arithmetique.multiples-diviseurs"
+        ],
+        "questionText": "Parmi ces nombres, lequel est divisible par 3 ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "124",
+            "isCorrect": false,
+            "distractorRationale": "La somme des chiffres (7) n'est pas un multiple de 3."
+          },
+          {
+            "id": "B",
+            "text": "342",
+            "isCorrect": true
+          },
+          {
+            "id": "C",
+            "text": "235",
+            "isCorrect": false,
+            "distractorRationale": "La somme des chiffres (10) n'est pas un multiple de 3."
+          },
+          {
+            "id": "D",
+            "text": "451",
+            "isCorrect": false,
+            "distractorRationale": "La somme des chiffres (10) n'est pas un multiple de 3."
+          }
+        ],
+        "explanation": "Un nombre est divisible par 3 si la somme de ses chiffres l'est : 3 + 4 + 2 = 9, multiple de 3."
+      },
+      {
+        "id": "EME-MAT-MUL-02",
+        "subject": "MATHS_EXPERTES",
+        "category": "Multiples, diviseurs et critères",
+        "domainId": "arithmetique",
+        "nodeCpsId": "college.maths.arithmetique.multiples-diviseurs",
+        "difficulty": 2,
+        "targetTimeSec": 55,
+        "shortCorrection": "Les diviseurs de 12 sont 1, 2, 3, 4, 6, 12 : il y en a 6.",
+        "weight": 2,
+        "competencies": [
+          "college.maths.arithmetique.multiples-diviseurs"
+        ],
+        "questionText": "Combien de diviseurs positifs le nombre 12 possède-t-il ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "4",
+            "isCorrect": false,
+            "distractorRationale": "Oublie certains diviseurs, par exemple 4 et 6."
+          },
+          {
+            "id": "B",
+            "text": "12",
+            "isCorrect": false,
+            "distractorRationale": "Confond le nombre de diviseurs avec le nombre lui-même."
+          },
+          {
+            "id": "C",
+            "text": "5",
+            "isCorrect": false,
+            "distractorRationale": "Oublie un diviseur dans la liste 1, 2, 3, 4, 6, 12."
+          },
+          {
+            "id": "D",
+            "text": "6",
+            "isCorrect": true
+          }
+        ],
+        "explanation": "Les diviseurs de 12 sont 1, 2, 3, 4, 6, 12 : il y en a 6."
+      },
+      {
+        "id": "EME-MAT-PRE-01",
+        "subject": "MATHS_EXPERTES",
+        "category": "Nombres premiers et décomposition",
+        "domainId": "arithmetique",
+        "nodeCpsId": "college.maths.arithmetique.nombres-premiers",
+        "difficulty": 1,
+        "targetTimeSec": 50,
+        "shortCorrection": "29 n'admet que 1 et lui-même comme diviseurs : c'est un nombre premier.",
+        "weight": 1,
+        "competencies": [
+          "college.maths.arithmetique.nombres-premiers"
+        ],
+        "questionText": "Parmi ces nombres, lequel est premier ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "29",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "21",
+            "isCorrect": false,
+            "distractorRationale": "21 = 3 × 7 n'est pas premier."
+          },
+          {
+            "id": "C",
+            "text": "27",
+            "isCorrect": false,
+            "distractorRationale": "27 = 3³ n'est pas premier."
+          },
+          {
+            "id": "D",
+            "text": "33",
+            "isCorrect": false,
+            "distractorRationale": "33 = 3 × 11 n'est pas premier."
+          }
+        ],
+        "explanation": "29 n'admet que 1 et lui-même comme diviseurs : c'est un nombre premier."
+      },
+      {
+        "id": "EME-MAT-PRE-02",
+        "subject": "MATHS_EXPERTES",
+        "category": "Nombres premiers et décomposition",
+        "domainId": "arithmetique",
+        "nodeCpsId": "college.maths.arithmetique.nombres-premiers",
+        "difficulty": 2,
+        "targetTimeSec": 60,
+        "shortCorrection": "60 = 2 × 30 = 2 × 2 × 15 = 2² × 3 × 5, produit de facteurs tous premiers.",
+        "weight": 2,
+        "competencies": [
+          "college.maths.arithmetique.nombres-premiers"
+        ],
+        "questionText": "Quelle est la décomposition en produit de facteurs premiers de 60 ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "2 × 3 × 10",
+            "isCorrect": false,
+            "distractorRationale": "10 n'est pas premier : la décomposition n'est pas terminée."
+          },
+          {
+            "id": "B",
+            "text": "2² × 3 × 5",
+            "isCorrect": true
+          },
+          {
+            "id": "C",
+            "text": "4 × 15",
+            "isCorrect": false,
+            "distractorRationale": "Ni 4 ni 15 ne sont premiers."
+          },
+          {
+            "id": "D",
+            "text": "6 × 10",
+            "isCorrect": false,
+            "distractorRationale": "Ni 6 ni 10 ne sont premiers."
+          }
+        ],
+        "explanation": "60 = 2 × 30 = 2 × 2 × 15 = 2² × 3 × 5, produit de facteurs tous premiers."
+      },
+      {
+        "id": "EME-MAT-PGC-01",
+        "subject": "MATHS_EXPERTES",
+        "category": "PGCD et fractions irréductibles",
+        "domainId": "arithmetique",
+        "nodeCpsId": "college.maths.arithmetique.pgcd",
+        "difficulty": 1,
+        "targetTimeSec": 50,
+        "shortCorrection": "Les diviseurs communs de 12 et 18 sont 1, 2, 3, 6 ; le plus grand est 6.",
+        "weight": 1,
+        "competencies": [
+          "college.maths.arithmetique.pgcd"
+        ],
+        "questionText": "Quel est le PGCD de 12 et 18 ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "2",
+            "isCorrect": false,
+            "distractorRationale": "Ne retient qu'un diviseur commun sans chercher le plus grand."
+          },
+          {
+            "id": "B",
+            "text": "36",
+            "isCorrect": false,
+            "distractorRationale": "Donne le PPCM (plus petit multiple commun) au lieu du PGCD."
+          },
+          {
+            "id": "C",
+            "text": "6",
+            "isCorrect": true
+          },
+          {
+            "id": "D",
+            "text": "3",
+            "isCorrect": false,
+            "distractorRationale": "Oublie que 6 divise aussi 12 et 18."
+          }
+        ],
+        "explanation": "Les diviseurs communs de 12 et 18 sont 1, 2, 3, 6 ; le plus grand est 6."
+      },
+      {
+        "id": "EME-MAT-PGC-02",
+        "subject": "MATHS_EXPERTES",
+        "category": "PGCD et fractions irréductibles",
+        "domainId": "arithmetique",
+        "nodeCpsId": "college.maths.arithmetique.pgcd",
+        "difficulty": 2,
+        "targetTimeSec": 55,
+        "shortCorrection": "On divise numérateur et dénominateur par leur PGCD, 12 : 24/36 = 2/3.",
+        "weight": 2,
+        "competencies": [
+          "college.maths.arithmetique.pgcd"
+        ],
+        "questionText": "Quelle est la forme irréductible de la fraction 24/36 ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "4/6",
+            "isCorrect": false,
+            "distractorRationale": "Simplifie par 6 mais ne va pas jusqu'au bout."
+          },
+          {
+            "id": "B",
+            "text": "12/18",
+            "isCorrect": false,
+            "distractorRationale": "Simplifie par 2 seulement."
+          },
+          {
+            "id": "C",
+            "text": "6/9",
+            "isCorrect": false,
+            "distractorRationale": "Simplifie par 4 seulement, sans atteindre l'irréductible."
+          },
+          {
+            "id": "D",
+            "text": "2/3",
+            "isCorrect": true
+          }
+        ],
+        "explanation": "On divise numérateur et dénominateur par leur PGCD, 12 : 24/36 = 2/3."
+      },
+      {
+        "id": "EME-MAT-FAC-01",
+        "subject": "MATHS_EXPERTES",
+        "category": "Calcul algébrique et factorisation",
+        "domainId": "calcul-litteral",
+        "nodeCpsId": "2de.maths.calcul-litteral.factorisation",
+        "difficulty": 1,
+        "targetTimeSec": 50,
+        "shortCorrection": "x² − 16 = x² − 4² = (x − 4)(x + 4), identité de la différence de deux carrés.",
+        "weight": 1,
+        "competencies": [
+          "2de.maths.calcul-litteral.factorisation"
+        ],
+        "questionText": "Factoriser l'expression x² − 16.",
+        "options": [
+          {
+            "id": "A",
+            "text": "(x − 4)²",
+            "isCorrect": false,
+            "distractorRationale": "Confond la différence de deux carrés avec le carré d'une différence."
+          },
+          {
+            "id": "B",
+            "text": "(x − 4)(x + 4)",
+            "isCorrect": true
+          },
+          {
+            "id": "C",
+            "text": "(x − 16)(x + 1)",
+            "isCorrect": false,
+            "distractorRationale": "Cherche deux nombres de produit −16 sans respecter l'identité."
+          },
+          {
+            "id": "D",
+            "text": "x(x − 16)",
+            "isCorrect": false,
+            "distractorRationale": "Factorise par x alors que 16 n'est pas multiple de x."
+          }
+        ],
+        "explanation": "x² − 16 = x² − 4² = (x − 4)(x + 4), identité de la différence de deux carrés."
+      },
+      {
+        "id": "EME-MAT-FAC-02",
+        "subject": "MATHS_EXPERTES",
+        "category": "Calcul algébrique et factorisation",
+        "domainId": "calcul-litteral",
+        "nodeCpsId": "2de.maths.calcul-litteral.factorisation",
+        "difficulty": 2,
+        "targetTimeSec": 60,
+        "shortCorrection": "(x − 3)(x + 5) = x² + 5x − 3x − 15 = x² + 2x − 15.",
+        "weight": 2,
+        "competencies": [
+          "2de.maths.calcul-litteral.factorisation"
+        ],
+        "questionText": "Développer et réduire (x − 3)(x + 5).",
+        "options": [
+          {
+            "id": "A",
+            "text": "x² + 2x − 15",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "x² − 15",
+            "isCorrect": false,
+            "distractorRationale": "Oublie le terme en x issu du double produit."
+          },
+          {
+            "id": "C",
+            "text": "x² − 2x − 15",
+            "isCorrect": false,
+            "distractorRationale": "Se trompe de signe sur le terme en x."
+          },
+          {
+            "id": "D",
+            "text": "x² + 8x − 15",
+            "isCorrect": false,
+            "distractorRationale": "Additionne les nombres au lieu de calculer le terme en x correctement."
+          }
+        ],
+        "explanation": "(x − 3)(x + 5) = x² + 5x − 3x − 15 = x² + 2x − 15."
+      },
+      {
+        "id": "EME-MAT-SYS-01",
+        "subject": "MATHS_EXPERTES",
+        "category": "Systèmes d'équations linéaires",
+        "domainId": "systemes",
+        "nodeCpsId": "2de.maths.systemes.equations-lineaires",
+        "difficulty": 1,
+        "targetTimeSec": 60,
+        "shortCorrection": "En additionnant les deux équations : 2x = 8, donc x = 4, puis y = 3.",
+        "weight": 1,
+        "competencies": [
+          "2de.maths.systemes.equations-lineaires"
+        ],
+        "questionText": "Quelle est la solution du système { x + y = 7 ; x − y = 1 } ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "x = 3 et y = 4",
+            "isCorrect": false,
+            "distractorRationale": "Inverse les valeurs de x et y."
+          },
+          {
+            "id": "B",
+            "text": "x = 5 et y = 2",
+            "isCorrect": false,
+            "distractorRationale": "Vérifie la première équation mais pas la seconde."
+          },
+          {
+            "id": "C",
+            "text": "x = 6 et y = 1",
+            "isCorrect": false,
+            "distractorRationale": "Ne vérifie pas x − y = 1."
+          },
+          {
+            "id": "D",
+            "text": "x = 4 et y = 3",
+            "isCorrect": true
+          }
+        ],
+        "explanation": "En additionnant les deux équations : 2x = 8, donc x = 4, puis y = 3."
+      },
+      {
+        "id": "EME-MAT-SYS-02",
+        "subject": "MATHS_EXPERTES",
+        "category": "Systèmes d'équations linéaires",
+        "domainId": "systemes",
+        "nodeCpsId": "2de.maths.systemes.equations-lineaires",
+        "difficulty": 2,
+        "targetTimeSec": 55,
+        "shortCorrection": "Avec x = 3 : 2 × 3 + y = 8, donc y = 8 − 6 = 2.",
+        "weight": 2,
+        "competencies": [
+          "2de.maths.systemes.equations-lineaires"
+        ],
+        "questionText": "Dans le système { 2x + y = 8 ; x = 3 }, que vaut y ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "5",
+            "isCorrect": false,
+            "distractorRationale": "Remplace x par 3 mais se trompe dans le calcul de 2 × 3."
+          },
+          {
+            "id": "B",
+            "text": "14",
+            "isCorrect": false,
+            "distractorRationale": "Additionne au lieu de soustraire pour isoler y."
+          },
+          {
+            "id": "C",
+            "text": "2",
+            "isCorrect": true
+          },
+          {
+            "id": "D",
+            "text": "−2",
+            "isCorrect": false,
+            "distractorRationale": "Se trompe de signe en isolant y."
+          }
+        ],
+        "explanation": "Avec x = 3 : 2 × 3 + y = 8, donc y = 8 − 6 = 2."
+      },
+      {
+        "id": "EME-MAT-LOG-01",
+        "subject": "MATHS_EXPERTES",
+        "category": "Logique : implication, réciproque, contraposée",
+        "domainId": "logique",
+        "nodeCpsId": "1re.maths.logique.implication-contraposee",
+        "difficulty": 1,
+        "targetTimeSec": 60,
+        "shortCorrection": "La contraposée de « A ⟹ B » est « non B ⟹ non A » : « Si n² est impair, alors n est impair ».",
+        "weight": 1,
+        "competencies": [
+          "1re.maths.logique.implication-contraposee"
+        ],
+        "questionText": "Quelle est la contraposée de « Si n est pair, alors n² est pair » ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Si n² est impair, alors n est impair",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "Si n² est pair, alors n est pair",
+            "isCorrect": false,
+            "distractorRationale": "Énonce la réciproque, pas la contraposée."
+          },
+          {
+            "id": "C",
+            "text": "Si n est impair, alors n² est impair",
+            "isCorrect": false,
+            "distractorRationale": "Nie les deux propositions sans les échanger : ce n'est pas la contraposée."
+          },
+          {
+            "id": "D",
+            "text": "n est pair si et seulement si n² est pair",
+            "isCorrect": false,
+            "distractorRationale": "Énonce une équivalence, pas la contraposée."
+          }
+        ],
+        "explanation": "La contraposée de « A ⟹ B » est « non B ⟹ non A » : « Si n² est impair, alors n est impair »."
+      },
+      {
+        "id": "EME-MAT-LOG-02",
+        "subject": "MATHS_EXPERTES",
+        "category": "Logique : implication, réciproque, contraposée",
+        "domainId": "logique",
+        "nodeCpsId": "1re.maths.logique.implication-contraposee",
+        "difficulty": 2,
+        "targetTimeSec": 70,
+        "shortCorrection": "La réciproque « Si x² = 4, alors x = 2 » est fausse : x = −2 vérifie x² = 4 sans être égal à 2.",
+        "weight": 2,
+        "competencies": [
+          "1re.maths.logique.implication-contraposee"
+        ],
+        "questionText": "La réciproque de « Si x = 2, alors x² = 4 » est-elle vraie ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Oui, toujours",
+            "isCorrect": false,
+            "distractorRationale": "Oublie que x = −2 vérifie aussi x² = 4."
+          },
+          {
+            "id": "B",
+            "text": "Non, car x pourrait valoir −2",
+            "isCorrect": true
+          },
+          {
+            "id": "C",
+            "text": "Oui, car x² = 4 donne x = 2",
+            "isCorrect": false,
+            "distractorRationale": "Ne retient qu'une des deux racines de x² = 4."
+          },
+          {
+            "id": "D",
+            "text": "C'est équivalent à l'implication de départ",
+            "isCorrect": false,
+            "distractorRationale": "Confond une implication et sa réciproque."
+          }
+        ],
+        "explanation": "La réciproque « Si x² = 4, alors x = 2 » est fausse : x = −2 vérifie x² = 4 sans être égal à 2."
+      },
+      {
+        "id": "EME-MAT-SUI-01",
+        "subject": "MATHS_EXPERTES",
+        "category": "Suites arithmétiques et géométriques",
+        "domainId": "suites",
+        "nodeCpsId": "1re.maths.suites.arithmetiques-geometriques",
+        "difficulty": 1,
+        "targetTimeSec": 55,
+        "shortCorrection": "Pour une suite arithmétique, u_5 = u_0 + 5 × 4 = 3 + 20 = 23.",
+        "weight": 1,
+        "competencies": [
+          "1re.maths.suites.arithmetiques-geometriques"
+        ],
+        "questionText": "La suite (u_n) est arithmétique de premier terme u_0 = 3 et de raison 4. Que vaut u_5 ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "20",
+            "isCorrect": false,
+            "distractorRationale": "Calcule 5 × 4 mais oublie d'ajouter le premier terme."
+          },
+          {
+            "id": "B",
+            "text": "19",
+            "isCorrect": false,
+            "distractorRationale": "Utilise u_0 + 4 × 4 au lieu de 5 × 4."
+          },
+          {
+            "id": "C",
+            "text": "23",
+            "isCorrect": true
+          },
+          {
+            "id": "D",
+            "text": "35",
+            "isCorrect": false,
+            "distractorRationale": "Ajoute la raison au rang plutôt que de la multiplier."
+          }
+        ],
+        "explanation": "Pour une suite arithmétique, u_5 = u_0 + 5 × 4 = 3 + 20 = 23."
+      },
+      {
+        "id": "EME-MAT-SUI-02",
+        "subject": "MATHS_EXPERTES",
+        "category": "Suites arithmétiques et géométriques",
+        "domainId": "suites",
+        "nodeCpsId": "1re.maths.suites.arithmetiques-geometriques",
+        "difficulty": 2,
+        "targetTimeSec": 60,
+        "shortCorrection": "Pour une suite géométrique, v_5 = v_0 × 2⁵ = 1 × 32 = 32.",
+        "weight": 2,
+        "competencies": [
+          "1re.maths.suites.arithmetiques-geometriques"
+        ],
+        "questionText": "La suite (v_n) est géométrique de premier terme v_0 = 1 et de raison 2. Que vaut v_5 ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "10",
+            "isCorrect": false,
+            "distractorRationale": "Multiplie le rang par la raison au lieu d'élever à la puissance."
+          },
+          {
+            "id": "B",
+            "text": "16",
+            "isCorrect": false,
+            "distractorRationale": "Calcule 2⁴ au lieu de 2⁵."
+          },
+          {
+            "id": "C",
+            "text": "64",
+            "isCorrect": false,
+            "distractorRationale": "Calcule 2⁶ au lieu de 2⁵."
+          },
+          {
+            "id": "D",
+            "text": "32",
+            "isCorrect": true
+          }
+        ],
+        "explanation": "Pour une suite géométrique, v_5 = v_0 × 2⁵ = 1 × 32 = 32."
+      },
+      {
+        "id": "EME-MAT-DEN-01",
+        "subject": "MATHS_EXPERTES",
+        "category": "Dénombrement : principe multiplicatif",
+        "domainId": "denombrement",
+        "nodeCpsId": "1re.maths.denombrement.principe-multiplicatif",
+        "difficulty": 1,
+        "targetTimeSec": 50,
+        "shortCorrection": "Chaque entrée peut être associée à chaque plat : 3 × 4 = 12 repas.",
+        "weight": 1,
+        "competencies": [
+          "1re.maths.denombrement.principe-multiplicatif"
+        ],
+        "questionText": "Un menu propose 3 entrées et 4 plats. Combien de repas « entrée + plat » différents peut-on composer ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "12",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "7",
+            "isCorrect": false,
+            "distractorRationale": "Additionne les choix au lieu de les multiplier."
+          },
+          {
+            "id": "C",
+            "text": "3",
+            "isCorrect": false,
+            "distractorRationale": "Ne compte que les entrées."
+          },
+          {
+            "id": "D",
+            "text": "4",
+            "isCorrect": false,
+            "distractorRationale": "Ne compte que les plats."
+          }
+        ],
+        "explanation": "Chaque entrée peut être associée à chaque plat : 3 × 4 = 12 repas."
+      },
+      {
+        "id": "EME-MAT-DEN-02",
+        "subject": "MATHS_EXPERTES",
+        "category": "Dénombrement : principe multiplicatif",
+        "domainId": "denombrement",
+        "nodeCpsId": "1re.maths.denombrement.principe-multiplicatif",
+        "difficulty": 2,
+        "targetTimeSec": 70,
+        "shortCorrection": "Le premier chiffre pair a 5 choix (0, 2, 4, 6, 8), le second 10 choix : 5 × 10 = 50.",
+        "weight": 2,
+        "competencies": [
+          "1re.maths.denombrement.principe-multiplicatif"
+        ],
+        "questionText": "Combien de nombres de deux chiffres (de 00 à 99) commencent par un chiffre pair ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "45",
+            "isCorrect": false,
+            "distractorRationale": "Oublie le chiffre 0 parmi les chiffres pairs du premier rang."
+          },
+          {
+            "id": "B",
+            "text": "50",
+            "isCorrect": true
+          },
+          {
+            "id": "C",
+            "text": "20",
+            "isCorrect": false,
+            "distractorRationale": "Confond « pair » avec un nombre limité de possibilités."
+          },
+          {
+            "id": "D",
+            "text": "100",
+            "isCorrect": false,
+            "distractorRationale": "Compte tous les nombres sans imposer le premier chiffre pair."
+          }
+        ],
+        "explanation": "Le premier chiffre pair a 5 choix (0, 2, 4, 6, 8), le second 10 choix : 5 × 10 = 50."
+      }
+    ]
+  },
+  "scoring": {
+    "engine": "facts.v1.0.1",
+    "domains": [
+      "arithmetique",
+      "calcul-litteral",
+      "systemes",
+      "logique",
+      "suites",
+      "denombrement"
+    ]
+  },
+  "reporting": {
+    "rag": {
+      "enabled": false,
+      "decisionRef": "A56 — corpus RAG Terminale absent",
+      "sources": [],
+      "topK": 0
+    },
+    "promptFiles": {
+      "preAnalysis": {
+        "path": "content/bilans/prompts/entree-terminale-maths-expertes-v1/pre-analysis.md",
+        "checksum": "9628a1323d653e799aae0d5b91b286f9b8b2947f928b8e7edfd5c05cf9f4385e"
+      },
+      "eleve": {
+        "path": "content/bilans/prompts/entree-terminale-maths-expertes-v1/eleve.md",
+        "checksum": "5d598c317c15d7593d1bcbcfdd79910eb5a079301bd146aff60dcb3014f8d3b0"
+      },
+      "parents": {
+        "path": "content/bilans/prompts/entree-terminale-maths-expertes-v1/parents.md",
+        "checksum": "419e9366483523bd6f3c8f87bec0ca4735a181e82a379ae93d3453a84ed1313f"
+      },
+      "nexus": {
+        "path": "content/bilans/prompts/entree-terminale-maths-expertes-v1/nexus.md",
+        "checksum": "98ecc878a8711036e5849fe2f6793b7db475bcc9224b7f2864949dc678ff1468"
+      },
+      "verifier": {
+        "path": "content/bilans/prompts/entree-terminale-maths-expertes-v1/verifier.md",
+        "checksum": "fd6c0c7c64aa3320686aa15015da6609d4f5ab7cf6c9293c6afa8de83fe2b88b"
+      }
+    },
+    "outputSchemas": {
+      "preAnalysis": {
+        "type": "object",
+        "properties": {
+          "synthese": {
+            "type": "string",
+            "minLength": 1
+          },
+          "forcesPercues": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "craintes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "required": [
+          "synthese",
+          "forcesPercues",
+          "craintes"
+        ],
+        "additionalProperties": false
+      },
+      "eleve": {
+        "type": "object",
+        "properties": {
+          "accroche": {
+            "type": "string",
+            "minLength": 1
+          },
+          "forces": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "minItems": 3,
+            "maxItems": 3
+          },
+          "priorites": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "domainId": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "titre": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "pourquoi": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "comment": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "domainId",
+                "titre",
+                "pourquoi",
+                "comment"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "maxItems": 6
+          },
+          "microPlan": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "action": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "dureeMin": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              },
+              "required": [
+                "action",
+                "dureeMin"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "maxItems": 5
+          },
+          "motDeFin": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "accroche",
+          "forces",
+          "priorites",
+          "microPlan",
+          "motDeFin"
+        ],
+        "additionalProperties": false
+      },
+      "parents": {
+        "type": "object",
+        "properties": {
+          "cadre": {
+            "type": "string",
+            "minLength": 1
+          },
+          "pointsAppui": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "domainId": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "texte": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "domainId",
+                "texte"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "maxItems": 6
+          },
+          "priorites": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "domainId": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "titre": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "ceQuiSeraFait": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "domainId",
+                "titre",
+                "ceQuiSeraFait"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "maxItems": 6
+          },
+          "etapeSuivante": {
+            "type": "object",
+            "properties": {
+              "texte": {
+                "type": "string",
+                "minLength": 1
+              },
+              "cta": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "texte",
+              "cta"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "cadre",
+          "pointsAppui",
+          "priorites",
+          "etapeSuivante"
+        ],
+        "additionalProperties": false
+      },
+      "nexus": {
+        "type": "object",
+        "properties": {
+          "syntheseProfil": {
+            "type": "string",
+            "minLength": 1
+          },
+          "diagnosticPedagogique": {
+            "type": "string",
+            "minLength": 1
+          },
+          "planQuatreSemaines": {
+            "type": "string",
+            "minLength": 1
+          },
+          "alertes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "ragReferences": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "required": [
+          "syntheseProfil",
+          "diagnosticPedagogique",
+          "planQuatreSemaines",
+          "alertes",
+          "ragReferences"
+        ],
+        "additionalProperties": false
+      },
+      "verifier": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "type": "boolean"
+          },
+          "violations": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "required": [
+          "ok",
+          "violations"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "validation": {
+    "lexiconPath": "data/bilans/lexique-interdit.json",
+    "forbidDigits": [
+      "eleve",
+      "parents"
+    ]
+  }
+}

@@ -1,8 +1,8 @@
 {
   "schemaVersion": "nexus-bilan-bank-wave/v1",
   "wave": "vague-1-a84-a85",
-  "expectedActiveBanks": 15,
-  "expectedItems": 270,
+  "expectedActiveBanks": 17,
+  "expectedItems": 306,
   "banks": [
     {
       "slug": "entree-premiere-francais-v1",
@@ -68,11 +68,28 @@
       "output": "data/bilans/banks/entree-seconde-maths-v1.json"
     },
     {
+      "slug": "entree-terminale-maths-expertes-v1",
+      "source": "data/bilans/banks/entree-terminale-maths-expertes-v1.yaml",
+      "cps": [
+        "data/bilans/cps/prerequis-maths-vers-terminale-expertes.v1.yaml",
+        "data/bilans/cps/1re-maths-vers-terminale.v1.yaml"
+      ],
+      "promptDirectory": "content/bilans/prompts/entree-terminale-maths-expertes-v1",
+      "output": "data/bilans/banks/entree-terminale-maths-expertes-v1.json"
+    },
+    {
       "slug": "entree-terminale-maths-v1",
       "source": "data/bilans/banks/entree-terminale-maths-v1.yaml",
       "cps": "data/bilans/cps/1re-maths-vers-terminale.v1.yaml",
       "promptDirectory": "content/bilans/prompts/entree-terminale-maths-v1",
       "output": "data/bilans/banks/entree-terminale-maths-v1.json"
+    },
+    {
+      "slug": "entree-terminale-nsi-v1",
+      "source": "data/bilans/banks/entree-terminale-nsi-v1.yaml",
+      "cps": "data/bilans/cps/1re-nsi-vers-terminale.v1.yaml",
+      "promptDirectory": "content/bilans/prompts/entree-terminale-nsi-v1",
+      "output": "data/bilans/banks/entree-terminale-nsi-v1.json"
     },
     {
       "slug": "entree-terminale-philosophie-v1",

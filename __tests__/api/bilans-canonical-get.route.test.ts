@@ -1,5 +1,7 @@
 import { NextRequest } from 'next/server';
 
+import { loadBilanPack } from '@/lib/bilans/catalog/load-pack';
+
 const NOW = new Date('2026-08-02T10:00:00.000Z');
 
 const options = [
@@ -174,6 +176,36 @@ describe('GET /api/bilans/attempts/[id]', () => {
     ];
 
     expect(observed.keys.filter((key) => denylist.includes(key))).toEqual([]);
+    expect(serialized).not.toContain('__CORRECT__');
+    expect(serialized).not.toContain('__RATIONALE__');
+  });
+
+  test.each([
+    'entree-terminale-nsi-v1',
+    'entree-terminale-maths-expertes-v1',
+  ])('does not disclose correction markers from %s', async (slug) => {
+    const loaded = loadBilanPack(`data/bilans/banks/${slug}.json`);
+    const marked = JSON.parse(JSON.stringify(loaded));
+    marked.questionnaire.items[0] = {
+      ...marked.questionnaire.items[0],
+      correctAnswer: '__CORRECT_ANSWER_KEY__',
+      shortCorrection: '__CORRECT__',
+      explanation: '__CORRECT__',
+      options: marked.questionnaire.items[0].options.map((option: Record<string, unknown>) => ({
+        ...option,
+        ...(option.isCorrect === false ? { distractorRationale: '__RATIONALE__' } : {}),
+      })),
+    };
+    const db = database({ assessmentPackId: slug, assessmentPackVersion: '1' });
+    const { handler } = handlerFor(db, jest.fn(() => ({ pack: marked })));
+    const body = await (await handler(request, context)).json();
+    const serialized = JSON.stringify(body);
+    const observed = recursiveKeysAndValues(body);
+
+    expect(observed.keys).not.toEqual(expect.arrayContaining([
+      'correct', 'isCorrect', 'correctAnswer', 'distractorRationale', 'shortCorrection', 'explanation',
+    ]));
+    expect(serialized).not.toContain('__CORRECT_ANSWER_KEY__');
     expect(serialized).not.toContain('__CORRECT__');
     expect(serialized).not.toContain('__RATIONALE__');
   });

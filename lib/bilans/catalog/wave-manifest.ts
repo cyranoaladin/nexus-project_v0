@@ -6,7 +6,10 @@ import { z } from 'zod';
 const bankEntrySchema = z.object({
   slug: z.string().trim().min(1),
   source: z.string().trim().min(1),
-  cps: z.string().trim().min(1),
+  cps: z.union([
+    z.string().trim().min(1),
+    z.array(z.string().trim().min(1)).min(1),
+  ]),
   promptDirectory: z.string().trim().min(1),
   output: z.string().trim().min(1),
 }).strict();
