@@ -1,0 +1,1074 @@
+{
+  "slug": "entree-seconde-maths-v1",
+  "level": "SECONDE",
+  "subject": "MATHS",
+  "version": 1,
+  "status": "DRAFT",
+  "review": {
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  "questionnaire": {
+    "targetDurationMin": 25,
+    "confidenceScale": {
+      "levels": 4,
+      "labels": [
+        "je devine",
+        "peu sûr",
+        "plutôt sûr",
+        "certain"
+      ]
+    },
+    "items": [
+      {
+        "id": "ESE-MAT-REL-01",
+        "subject": "MATHS",
+        "category": "Nombres relatifs et priorités opératoires",
+        "domainId": "calcul-numerique",
+        "nodeCpsId": "3e.maths.calcul-numerique.relatifs-priorites",
+        "difficulty": 1,
+        "targetTimeSec": 50,
+        "shortCorrection": "La multiplication est prioritaire : 4 × (−2) = −8, puis −3 + (−8) = −11. Les priorités opératoires passent avant l'ordre d'écriture.",
+        "weight": 1,
+        "competencies": [
+          "3e.maths.calcul-numerique.relatifs-priorites"
+        ],
+        "questionText": "Calculer −3 + 4 × (−2).",
+        "options": [
+          {
+            "id": "A",
+            "text": "−2",
+            "isCorrect": false,
+            "distractorRationale": "Calcule de gauche à droite sans respecter la priorité de la multiplication."
+          },
+          {
+            "id": "B",
+            "text": "5",
+            "isCorrect": false,
+            "distractorRationale": "Erreur de signe sur le produit : calcule 4 × (−2) comme s'il valait 8."
+          },
+          {
+            "id": "C",
+            "text": "−11",
+            "isCorrect": true
+          },
+          {
+            "id": "D",
+            "text": "11",
+            "isCorrect": false,
+            "distractorRationale": "Cumule l'erreur de signe sur le produit et sur la somme finale."
+          }
+        ],
+        "explanation": "La multiplication est prioritaire : 4 × (−2) = −8, puis −3 + (−8) = −11. Les priorités opératoires passent avant l'ordre d'écriture."
+      },
+      {
+        "id": "ESE-MAT-REL-02",
+        "subject": "MATHS",
+        "category": "Nombres relatifs et priorités opératoires",
+        "domainId": "calcul-numerique",
+        "nodeCpsId": "3e.maths.calcul-numerique.relatifs-priorites",
+        "difficulty": 2,
+        "targetTimeSec": 45,
+        "shortCorrection": "(−2)³ = (−2) × (−2) × (−2) = −8. Une puissance impaire d'un nombre négatif reste négative.",
+        "weight": 2,
+        "competencies": [
+          "3e.maths.calcul-numerique.relatifs-priorites"
+        ],
+        "questionText": "Calculer (−2)³.",
+        "options": [
+          {
+            "id": "A",
+            "text": "−8",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "8",
+            "isCorrect": false,
+            "distractorRationale": "Croit qu'élever à une puissance rend toujours le résultat positif, sans distinguer exposant pair et impair."
+          },
+          {
+            "id": "C",
+            "text": "−6",
+            "isCorrect": false,
+            "distractorRationale": "Multiplie la base par l'exposant au lieu de multiplier la base par elle-même."
+          },
+          {
+            "id": "D",
+            "text": "6",
+            "isCorrect": false,
+            "distractorRationale": "Cumule la confusion sur la puissance et l'erreur de signe."
+          }
+        ],
+        "explanation": "(−2)³ = (−2) × (−2) × (−2) = −8. Une puissance impaire d'un nombre négatif reste négative."
+      },
+      {
+        "id": "ESE-MAT-FRA-01",
+        "subject": "MATHS",
+        "category": "Opérations sur les fractions",
+        "domainId": "fractions",
+        "nodeCpsId": "3e.maths.fractions.operations",
+        "difficulty": 1,
+        "targetTimeSec": 55,
+        "shortCorrection": "On réduit au même dénominateur 12 : 8/12 + 3/12 = 11/12. On n'additionne jamais les dénominateurs entre eux.",
+        "weight": 1,
+        "competencies": [
+          "3e.maths.fractions.operations"
+        ],
+        "questionText": "Calculer 2/3 + 1/4.",
+        "options": [
+          {
+            "id": "A",
+            "text": "3/7",
+            "isCorrect": false,
+            "distractorRationale": "Additionne séparément les numérateurs et les dénominateurs."
+          },
+          {
+            "id": "B",
+            "text": "11/12",
+            "isCorrect": true
+          },
+          {
+            "id": "C",
+            "text": "3/12",
+            "isCorrect": false,
+            "distractorRationale": "Réduit correctement au même dénominateur mais additionne les numérateurs d'origine."
+          },
+          {
+            "id": "D",
+            "text": "8/12",
+            "isCorrect": false,
+            "distractorRationale": "Convertit la première fraction au dénominateur 12 puis oublie d'ajouter la seconde."
+          }
+        ],
+        "explanation": "On réduit au même dénominateur 12 : 8/12 + 3/12 = 11/12. On n'additionne jamais les dénominateurs entre eux."
+      },
+      {
+        "id": "ESE-MAT-FRA-02",
+        "subject": "MATHS",
+        "category": "Opérations sur les fractions",
+        "domainId": "fractions",
+        "nodeCpsId": "3e.maths.fractions.operations",
+        "difficulty": 2,
+        "targetTimeSec": 60,
+        "shortCorrection": "Diviser par une fraction revient à multiplier par son inverse : (3/4) × (5/2) = 15/8. C'est la seconde fraction qui s'inverse.",
+        "weight": 2,
+        "competencies": [
+          "3e.maths.fractions.operations"
+        ],
+        "questionText": "Calculer (3/4) ÷ (2/5).",
+        "options": [
+          {
+            "id": "A",
+            "text": "6/20",
+            "isCorrect": false,
+            "distractorRationale": "Multiplie les deux fractions sans inverser la seconde."
+          },
+          {
+            "id": "B",
+            "text": "8/15",
+            "isCorrect": false,
+            "distractorRationale": "Inverse la première fraction au lieu de la seconde."
+          },
+          {
+            "id": "C",
+            "text": "20/6",
+            "isCorrect": false,
+            "distractorRationale": "Inverse le résultat final, en confondant le sens de la division."
+          },
+          {
+            "id": "D",
+            "text": "15/8",
+            "isCorrect": true
+          }
+        ],
+        "explanation": "Diviser par une fraction revient à multiplier par son inverse : (3/4) × (5/2) = 15/8. C'est la seconde fraction qui s'inverse."
+      },
+      {
+        "id": "ESE-MAT-PUI-01",
+        "subject": "MATHS",
+        "category": "Puissances et écriture scientifique",
+        "domainId": "puissances",
+        "nodeCpsId": "3e.maths.puissances.regles-de-calcul",
+        "difficulty": 2,
+        "targetTimeSec": 50,
+        "shortCorrection": "Lors d'un produit de puissances de même base, on additionne les exposants : 3 + (−5) = −2, donc le résultat est 10⁻².",
+        "weight": 2,
+        "competencies": [
+          "3e.maths.puissances.regles-de-calcul"
+        ],
+        "questionText": "Simplifier 10³ × 10⁻⁵.",
+        "options": [
+          {
+            "id": "A",
+            "text": "10⁻²",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "10⁻¹⁵",
+            "isCorrect": false,
+            "distractorRationale": "Multiplie les exposants au lieu de les additionner lors d'un produit."
+          },
+          {
+            "id": "C",
+            "text": "10⁸",
+            "isCorrect": false,
+            "distractorRationale": "Soustrait les exposants comme s'il s'agissait d'un quotient."
+          },
+          {
+            "id": "D",
+            "text": "10²",
+            "isCorrect": false,
+            "distractorRationale": "Additionne les exposants en ignorant le signe négatif du second."
+          }
+        ],
+        "explanation": "Lors d'un produit de puissances de même base, on additionne les exposants : 3 + (−5) = −2, donc le résultat est 10⁻²."
+      },
+      {
+        "id": "ESE-MAT-PUI-02",
+        "subject": "MATHS",
+        "category": "Puissances et écriture scientifique",
+        "domainId": "puissances",
+        "nodeCpsId": "3e.maths.puissances.regles-de-calcul",
+        "difficulty": 2,
+        "targetTimeSec": 55,
+        "shortCorrection": "L'écriture scientifique impose un premier facteur compris entre 1 et 10 : 0,00034 = 3,4 × 10⁻⁴.",
+        "weight": 2,
+        "competencies": [
+          "3e.maths.puissances.regles-de-calcul"
+        ],
+        "questionText": "Quelle est l'écriture scientifique de 0,00034 ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "3,4 × 10⁴",
+            "isCorrect": false,
+            "distractorRationale": "Compte correctement les décalages mais attribue un exposant positif à un nombre inférieur à 1."
+          },
+          {
+            "id": "B",
+            "text": "34 × 10⁻⁵",
+            "isCorrect": false,
+            "distractorRationale": "Produit une écriture correcte en valeur mais dont le premier facteur n'est pas compris entre 1 et 10."
+          },
+          {
+            "id": "C",
+            "text": "3,4 × 10⁻⁴",
+            "isCorrect": true
+          },
+          {
+            "id": "D",
+            "text": "0,34 × 10⁻³",
+            "isCorrect": false,
+            "distractorRationale": "Laisse un premier facteur inférieur à 1, ce que l'écriture scientifique interdit."
+          }
+        ],
+        "explanation": "L'écriture scientifique impose un premier facteur compris entre 1 et 10 : 0,00034 = 3,4 × 10⁻⁴."
+      },
+      {
+        "id": "ESE-MAT-CLI-01",
+        "subject": "MATHS",
+        "category": "Calcul littéral : distributivité et identités remarquables",
+        "domainId": "calcul-litteral",
+        "nodeCpsId": "3e.maths.calcul-litteral.developpement",
+        "difficulty": 2,
+        "targetTimeSec": 60,
+        "shortCorrection": "Chaque terme du premier facteur multiplie chaque terme du second. Les termes croisés donnent −5x + 3x = −2x, d'où x² − 2x − 15.",
+        "weight": 2,
+        "competencies": [
+          "3e.maths.calcul-litteral.developpement"
+        ],
+        "questionText": "Développer et réduire (x + 3)(x − 5).",
+        "options": [
+          {
+            "id": "A",
+            "text": "x² − 15",
+            "isCorrect": false,
+            "distractorRationale": "Multiplie uniquement les premiers termes entre eux et les derniers entre eux, en omettant les termes croisés."
+          },
+          {
+            "id": "B",
+            "text": "x² − 2x − 15",
+            "isCorrect": true
+          },
+          {
+            "id": "C",
+            "text": "x² + 2x − 15",
+            "isCorrect": false,
+            "distractorRationale": "Erreur de signe sur le terme en x : calcule −5x + 3x comme s'il valait +2x."
+          },
+          {
+            "id": "D",
+            "text": "x² − 8x − 15",
+            "isCorrect": false,
+            "distractorRationale": "Additionne les valeurs absolues 5 et 3 au lieu d'ajouter les termes croisés avec leurs signes."
+          }
+        ],
+        "explanation": "Chaque terme du premier facteur multiplie chaque terme du second. Les termes croisés donnent −5x + 3x = −2x, d'où x² − 2x − 15."
+      },
+      {
+        "id": "ESE-MAT-CLI-02",
+        "subject": "MATHS",
+        "category": "Calcul littéral : distributivité et identités remarquables",
+        "domainId": "calcul-litteral",
+        "nodeCpsId": "3e.maths.calcul-litteral.developpement",
+        "difficulty": 2,
+        "targetTimeSec": 55,
+        "shortCorrection": "L'identité (a − b)² = a² − 2ab + b² donne x² − 2 × 4 × x + 16 = x² − 8x + 16. Le carré d'un nombre est toujours positif.",
+        "weight": 2,
+        "competencies": [
+          "3e.maths.calcul-litteral.developpement"
+        ],
+        "questionText": "Développer (x − 4)².",
+        "options": [
+          {
+            "id": "A",
+            "text": "x² + 16",
+            "isCorrect": false,
+            "distractorRationale": "Élève chaque terme au carré et oublie le double produit."
+          },
+          {
+            "id": "B",
+            "text": "x² − 16",
+            "isCorrect": false,
+            "distractorRationale": "Confond le carré d'une différence avec le produit (a − b)(a + b)."
+          },
+          {
+            "id": "C",
+            "text": "x² − 8x − 16",
+            "isCorrect": false,
+            "distractorRationale": "Retient le double produit mais donne un signe négatif au carré de 4."
+          },
+          {
+            "id": "D",
+            "text": "x² − 8x + 16",
+            "isCorrect": true
+          }
+        ],
+        "explanation": "L'identité (a − b)² = a² − 2ab + b² donne x² − 2 × 4 × x + 16 = x² − 8x + 16. Le carré d'un nombre est toujours positif."
+      },
+      {
+        "id": "ESE-MAT-EQU-01",
+        "subject": "MATHS",
+        "category": "Équations du premier degré et équation produit nul",
+        "domainId": "equations",
+        "nodeCpsId": "3e.maths.equations.premier-degre",
+        "difficulty": 1,
+        "targetTimeSec": 55,
+        "shortCorrection": "On regroupe les termes en x d'un côté et les nombres de l'autre : 3x − 2x = 5 + 7, donc x = 12.",
+        "weight": 1,
+        "competencies": [
+          "3e.maths.equations.premier-degre"
+        ],
+        "questionText": "Résoudre l'équation 3x − 7 = 2x + 5.",
+        "options": [
+          {
+            "id": "A",
+            "text": "x = 12",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "x = −2",
+            "isCorrect": false,
+            "distractorRationale": "Soustrait au lieu d'additionner en faisant passer le terme constant de l'autre côté."
+          },
+          {
+            "id": "C",
+            "text": "x = 12/5",
+            "isCorrect": false,
+            "distractorRationale": "Additionne les termes en x au lieu de les soustraire, obtenant 5x."
+          },
+          {
+            "id": "D",
+            "text": "x = −12",
+            "isCorrect": false,
+            "distractorRationale": "Erreur de signe à la dernière étape de la résolution."
+          }
+        ],
+        "explanation": "On regroupe les termes en x d'un côté et les nombres de l'autre : 3x − 2x = 5 + 7, donc x = 12."
+      },
+      {
+        "id": "ESE-MAT-EQU-02",
+        "subject": "MATHS",
+        "category": "Équations du premier degré et équation produit nul",
+        "domainId": "equations",
+        "nodeCpsId": "3e.maths.equations.premier-degre",
+        "difficulty": 2,
+        "targetTimeSec": 55,
+        "shortCorrection": "Un produit est nul si l'un au moins de ses facteurs est nul. On résout séparément x − 2 = 0 et x + 5 = 0, ce qui donne x = 2 ou x = −5.",
+        "weight": 2,
+        "competencies": [
+          "3e.maths.equations.premier-degre"
+        ],
+        "questionText": "Résoudre l'équation (x − 2)(x + 5) = 0.",
+        "options": [
+          {
+            "id": "A",
+            "text": "x = −2 ou x = 5",
+            "isCorrect": false,
+            "distractorRationale": "Recopie les signes lus dans les facteurs sans résoudre chaque équation."
+          },
+          {
+            "id": "B",
+            "text": "x = 2 ou x = −5",
+            "isCorrect": true
+          },
+          {
+            "id": "C",
+            "text": "x = 2 ou x = 5",
+            "isCorrect": false,
+            "distractorRationale": "Traite correctement le premier facteur mais oublie de changer le signe pour le second."
+          },
+          {
+            "id": "D",
+            "text": "x = 0",
+            "isCorrect": false,
+            "distractorRationale": "Croit qu'un produit nul impose que la variable elle-même soit nulle."
+          }
+        ],
+        "explanation": "Un produit est nul si l'un au moins de ses facteurs est nul. On résout séparément x − 2 = 0 et x + 5 = 0, ce qui donne x = 2 ou x = −5."
+      },
+      {
+        "id": "ESE-MAT-PRP-01",
+        "subject": "MATHS",
+        "category": "Proportionnalité, pourcentages et évolutions",
+        "domainId": "proportionnalite",
+        "nodeCpsId": "3e.maths.proportionnalite.pourcentages",
+        "difficulty": 1,
+        "targetTimeSec": 50,
+        "shortCorrection": "Une hausse de 15 % correspond à une multiplication par 1,15 : 80 × 1,15 = 92 dinars.",
+        "weight": 1,
+        "competencies": [
+          "3e.maths.proportionnalite.pourcentages"
+        ],
+        "questionText": "Un article coûte 80 dinars. Son prix augmente de 15 %. Quel est le nouveau prix ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "95 dinars",
+            "isCorrect": false,
+            "distractorRationale": "Ajoute 15 unités au lieu d'appliquer une hausse de 15 pour cent."
+          },
+          {
+            "id": "B",
+            "text": "12 dinars",
+            "isCorrect": false,
+            "distractorRationale": "Calcule le montant de la hausse et le donne comme prix final."
+          },
+          {
+            "id": "C",
+            "text": "92 dinars",
+            "isCorrect": true
+          },
+          {
+            "id": "D",
+            "text": "120 dinars",
+            "isCorrect": false,
+            "distractorRationale": "Applique un coefficient de 1,5 au lieu de 1,15."
+          }
+        ],
+        "explanation": "Une hausse de 15 % correspond à une multiplication par 1,15 : 80 × 1,15 = 92 dinars."
+      },
+      {
+        "id": "ESE-MAT-PRP-02",
+        "subject": "MATHS",
+        "category": "Proportionnalité, pourcentages et évolutions",
+        "domainId": "proportionnalite",
+        "nodeCpsId": "3e.maths.proportionnalite.pourcentages",
+        "difficulty": 3,
+        "targetTimeSec": 75,
+        "shortCorrection": "Les coefficients multiplicateurs se composent : 0,8 × 1,2 = 0,96. Le prix final est donc inférieur de 4 % au prix initial.",
+        "weight": 3,
+        "competencies": [
+          "3e.maths.proportionnalite.pourcentages"
+        ],
+        "questionText": "Un prix baisse de 20 %, puis le nouveau prix augmente de 20 %. Par rapport au prix initial, le prix final est :",
+        "options": [
+          {
+            "id": "A",
+            "text": "inférieur de 4 %",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "identique",
+            "isCorrect": false,
+            "distractorRationale": "Suppose que les taux d'évolution s'additionnent et s'annulent, alors que ce sont les coefficients qui se multiplient."
+          },
+          {
+            "id": "C",
+            "text": "supérieur de 4 %",
+            "isCorrect": false,
+            "distractorRationale": "Identifie le bon écart mais se trompe sur le sens de la variation finale."
+          },
+          {
+            "id": "D",
+            "text": "inférieur de 40 %",
+            "isCorrect": false,
+            "distractorRationale": "Additionne les deux taux en valeur absolue au lieu de composer les coefficients."
+          }
+        ],
+        "explanation": "Les coefficients multiplicateurs se composent : 0,8 × 1,2 = 0,96. Le prix final est donc inférieur de 4 % au prix initial."
+      },
+      {
+        "id": "ESE-MAT-PYT-01",
+        "subject": "MATHS",
+        "category": "Théorème de Pythagore, direct et réciproque",
+        "domainId": "geometrie",
+        "nodeCpsId": "3e.maths.geometrie.pythagore",
+        "difficulty": 1,
+        "targetTimeSec": 55,
+        "shortCorrection": "Le théorème de Pythagore donne BC² = AB² + AC² = 9 + 16 = 25, donc BC = 5 cm. Il faut penser à extraire la racine carrée.",
+        "weight": 1,
+        "competencies": [
+          "3e.maths.geometrie.pythagore"
+        ],
+        "questionText": "Le triangle ABC est rectangle en A, avec AB = 3 cm et AC = 4 cm. Quelle est la longueur BC ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "7 cm",
+            "isCorrect": false,
+            "distractorRationale": "Additionne les deux longueurs au lieu d'additionner leurs carrés."
+          },
+          {
+            "id": "B",
+            "text": "25 cm",
+            "isCorrect": false,
+            "distractorRationale": "Donne la valeur de BC² sans prendre la racine carrée."
+          },
+          {
+            "id": "C",
+            "text": "1 cm",
+            "isCorrect": false,
+            "distractorRationale": "Soustrait les longueurs, en confondant avec la recherche d'un côté de l'angle droit."
+          },
+          {
+            "id": "D",
+            "text": "5 cm",
+            "isCorrect": true
+          }
+        ],
+        "explanation": "Le théorème de Pythagore donne BC² = AB² + AC² = 9 + 16 = 25, donc BC = 5 cm. Il faut penser à extraire la racine carrée."
+      },
+      {
+        "id": "ESE-MAT-PYT-02",
+        "subject": "MATHS",
+        "category": "Théorème de Pythagore, direct et réciproque",
+        "domainId": "geometrie",
+        "nodeCpsId": "3e.maths.geometrie.pythagore",
+        "difficulty": 2,
+        "targetTimeSec": 70,
+        "shortCorrection": "On compare les carrés : 6² + 8² = 36 + 64 = 100 = 10². La réciproque du théorème de Pythagore permet d'affirmer que le triangle est rectangle, l'angle droit étant opposé au plus grand côté.",
+        "weight": 2,
+        "competencies": [
+          "3e.maths.geometrie.pythagore"
+        ],
+        "questionText": "Un triangle a pour côtés 6 cm, 8 cm et 10 cm. Que peut-on affirmer ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Il est rectangle, l'angle droit étant opposé au côté de 6 cm",
+            "isCorrect": false,
+            "distractorRationale": "Applique la réciproque mais identifie mal l'hypoténuse, qui est le plus grand côté."
+          },
+          {
+            "id": "B",
+            "text": "Il est rectangle, l'angle droit étant opposé au côté de 10 cm",
+            "isCorrect": true
+          },
+          {
+            "id": "C",
+            "text": "Il n'est pas rectangle, car 6 + 8 ≠ 10",
+            "isCorrect": false,
+            "distractorRationale": "Compare les longueurs au lieu de comparer leurs carrés."
+          },
+          {
+            "id": "D",
+            "text": "On ne peut pas conclure sans disposer d'une figure",
+            "isCorrect": false,
+            "distractorRationale": "Ne mobilise pas la réciproque et pense qu'un calcul seul ne suffit pas à établir un angle droit."
+          }
+        ],
+        "explanation": "On compare les carrés : 6² + 8² = 36 + 64 = 100 = 10². La réciproque du théorème de Pythagore permet d'affirmer que le triangle est rectangle, l'angle droit étant opposé au plus grand côté."
+      },
+      {
+        "id": "ESE-MAT-THA-01",
+        "subject": "MATHS",
+        "category": "Théorème de Thalès et agrandissement-réduction",
+        "domainId": "geometrie",
+        "nodeCpsId": "3e.maths.geometrie.thales",
+        "difficulty": 2,
+        "targetTimeSec": 75,
+        "shortCorrection": "Le théorème de Thalès donne AM/AB = AN/AC, soit 2/6 = 3/AC. On en déduit AC = 3 × 6/2 = 9 cm.",
+        "weight": 2,
+        "competencies": [
+          "3e.maths.geometrie.thales"
+        ],
+        "questionText": "Dans le triangle ABC, M appartient à [AB] et N à [AC], avec (MN) parallèle à (BC). On donne AM = 2 cm, AB = 6 cm et AN = 3 cm. Quelle est la longueur AC ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "9 cm",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "1 cm",
+            "isCorrect": false,
+            "distractorRationale": "Applique le rapport dans le mauvais sens et multiplie AN par AM/AB."
+          },
+          {
+            "id": "C",
+            "text": "18 cm",
+            "isCorrect": false,
+            "distractorRationale": "Multiplie AN par AB sans diviser par AM."
+          },
+          {
+            "id": "D",
+            "text": "4 cm",
+            "isCorrect": false,
+            "distractorRationale": "Additionne les longueurs connues au lieu d'utiliser une proportion."
+          }
+        ],
+        "explanation": "Le théorème de Thalès donne AM/AB = AN/AC, soit 2/6 = 3/AC. On en déduit AC = 3 × 6/2 = 9 cm."
+      },
+      {
+        "id": "ESE-MAT-THA-02",
+        "subject": "MATHS",
+        "category": "Théorème de Thalès et agrandissement-réduction",
+        "domainId": "geometrie",
+        "nodeCpsId": "3e.maths.geometrie.thales",
+        "difficulty": 2,
+        "targetTimeSec": 55,
+        "shortCorrection": "Dans un agrandissement de rapport k, les longueurs sont multipliées par k, les aires par k² et les volumes par k³. Ici l'aire est multipliée par 9.",
+        "weight": 2,
+        "competencies": [
+          "3e.maths.geometrie.thales"
+        ],
+        "questionText": "On agrandit une figure plane dans un rapport 3. Son aire est multipliée par :",
+        "options": [
+          {
+            "id": "A",
+            "text": "3",
+            "isCorrect": false,
+            "distractorRationale": "Applique à l'aire le rapport valable pour les longueurs."
+          },
+          {
+            "id": "B",
+            "text": "6",
+            "isCorrect": false,
+            "distractorRationale": "Double le rapport au lieu de l'élever au carré."
+          },
+          {
+            "id": "C",
+            "text": "9",
+            "isCorrect": true
+          },
+          {
+            "id": "D",
+            "text": "27",
+            "isCorrect": false,
+            "distractorRationale": "Applique à l'aire le rapport qui vaut pour les volumes."
+          }
+        ],
+        "explanation": "Dans un agrandissement de rapport k, les longueurs sont multipliées par k, les aires par k² et les volumes par k³. Ici l'aire est multipliée par 9."
+      },
+      {
+        "id": "ESE-MAT-TRI-01",
+        "subject": "MATHS",
+        "category": "Trigonométrie dans le triangle rectangle",
+        "domainId": "trigonometrie",
+        "nodeCpsId": "3e.maths.trigonometrie.triangle-rectangle",
+        "difficulty": 2,
+        "targetTimeSec": 55,
+        "shortCorrection": "Le cosinus d'un angle aigu est le rapport du côté adjacent sur l'hypoténuse. Pour l'angle B, le côté adjacent est [AB] et l'hypoténuse est [BC].",
+        "weight": 2,
+        "competencies": [
+          "3e.maths.trigonometrie.triangle-rectangle"
+        ],
+        "questionText": "Dans un triangle ABC rectangle en A, le cosinus de l'angle B est égal à :",
+        "options": [
+          {
+            "id": "A",
+            "text": "AC/BC",
+            "isCorrect": false,
+            "distractorRationale": "Confond cosinus et sinus en prenant le côté opposé au lieu du côté adjacent."
+          },
+          {
+            "id": "B",
+            "text": "AB/BC",
+            "isCorrect": true
+          },
+          {
+            "id": "C",
+            "text": "AC/AB",
+            "isCorrect": false,
+            "distractorRationale": "Donne l'expression de la tangente au lieu de celle du cosinus."
+          },
+          {
+            "id": "D",
+            "text": "BC/AB",
+            "isCorrect": false,
+            "distractorRationale": "Inverse le rapport et place l'hypoténuse au numérateur."
+          }
+        ],
+        "explanation": "Le cosinus d'un angle aigu est le rapport du côté adjacent sur l'hypoténuse. Pour l'angle B, le côté adjacent est [AB] et l'hypoténuse est [BC]."
+      },
+      {
+        "id": "ESE-MAT-TRI-02",
+        "subject": "MATHS",
+        "category": "Trigonométrie dans le triangle rectangle",
+        "domainId": "trigonometrie",
+        "nodeCpsId": "3e.maths.trigonometrie.triangle-rectangle",
+        "difficulty": 3,
+        "targetTimeSec": 80,
+        "shortCorrection": "Le sinus relie l'angle, le côté opposé et l'hypoténuse : sin(30°) = opposé/10. Comme sin(30°) = 0,5, le côté opposé mesure 5 cm.",
+        "weight": 3,
+        "competencies": [
+          "3e.maths.trigonometrie.triangle-rectangle"
+        ],
+        "questionText": "Dans un triangle rectangle, l'hypoténuse mesure 10 cm et l'un des angles aigus mesure 30°. Quelle est la longueur du côté opposé à cet angle ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "environ 8,7 cm",
+            "isCorrect": false,
+            "distractorRationale": "Utilise le cosinus au lieu du sinus et calcule le côté adjacent."
+          },
+          {
+            "id": "B",
+            "text": "20 cm",
+            "isCorrect": false,
+            "distractorRationale": "Divise l'hypoténuse par le sinus au lieu de la multiplier."
+          },
+          {
+            "id": "C",
+            "text": "On ne peut pas conclure sans connaître un autre côté",
+            "isCorrect": false,
+            "distractorRationale": "Ne mobilise pas la trigonométrie et pense qu'un angle et un côté ne suffisent pas."
+          },
+          {
+            "id": "D",
+            "text": "5 cm",
+            "isCorrect": true
+          }
+        ],
+        "explanation": "Le sinus relie l'angle, le côté opposé et l'hypoténuse : sin(30°) = opposé/10. Comme sin(30°) = 0,5, le côté opposé mesure 5 cm."
+      }
+    ]
+  },
+  "scoring": {
+    "engine": "facts.v1.0.1",
+    "domains": [
+      "calcul-numerique",
+      "fractions",
+      "puissances",
+      "calcul-litteral",
+      "equations",
+      "proportionnalite",
+      "geometrie",
+      "trigonometrie"
+    ]
+  },
+  "reporting": {
+    "rag": {
+      "enabled": false,
+      "decisionRef": "A56 — RAG désactivé tant que le corpus du niveau n’est pas validé",
+      "sources": [],
+      "topK": 0
+    },
+    "promptFiles": {
+      "preAnalysis": {
+        "path": "content/bilans/prompts/entree-seconde-maths-v1/pre-analysis.md",
+        "checksum": "ca51c49538acd0f150e2a5926362eef2057540cc2b0a1ac078ae9b6db4483368"
+      },
+      "eleve": {
+        "path": "content/bilans/prompts/entree-seconde-maths-v1/eleve.md",
+        "checksum": "5d598c317c15d7593d1bcbcfdd79910eb5a079301bd146aff60dcb3014f8d3b0"
+      },
+      "parents": {
+        "path": "content/bilans/prompts/entree-seconde-maths-v1/parents.md",
+        "checksum": "419e9366483523bd6f3c8f87bec0ca4735a181e82a379ae93d3453a84ed1313f"
+      },
+      "nexus": {
+        "path": "content/bilans/prompts/entree-seconde-maths-v1/nexus.md",
+        "checksum": "98ecc878a8711036e5849fe2f6793b7db475bcc9224b7f2864949dc678ff1468"
+      },
+      "verifier": {
+        "path": "content/bilans/prompts/entree-seconde-maths-v1/verifier.md",
+        "checksum": "fd6c0c7c64aa3320686aa15015da6609d4f5ab7cf6c9293c6afa8de83fe2b88b"
+      }
+    },
+    "outputSchemas": {
+      "preAnalysis": {
+        "type": "object",
+        "properties": {
+          "synthese": {
+            "type": "string",
+            "minLength": 1
+          },
+          "forcesPercues": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "craintes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "required": [
+          "synthese",
+          "forcesPercues",
+          "craintes"
+        ],
+        "additionalProperties": false
+      },
+      "eleve": {
+        "type": "object",
+        "properties": {
+          "accroche": {
+            "type": "string",
+            "minLength": 1
+          },
+          "forces": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "minItems": 3,
+            "maxItems": 3
+          },
+          "priorites": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "domainId": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "titre": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "pourquoi": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "comment": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "domainId",
+                "titre",
+                "pourquoi",
+                "comment"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "maxItems": 8
+          },
+          "microPlan": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "action": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "dureeMin": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              },
+              "required": [
+                "action",
+                "dureeMin"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "maxItems": 5
+          },
+          "motDeFin": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "accroche",
+          "forces",
+          "priorites",
+          "microPlan",
+          "motDeFin"
+        ],
+        "additionalProperties": false
+      },
+      "parents": {
+        "type": "object",
+        "properties": {
+          "cadre": {
+            "type": "string",
+            "minLength": 1
+          },
+          "pointsAppui": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "domainId": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "texte": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "domainId",
+                "texte"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "maxItems": 8
+          },
+          "priorites": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "domainId": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "titre": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "ceQuiSeraFait": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "domainId",
+                "titre",
+                "ceQuiSeraFait"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "maxItems": 8
+          },
+          "etapeSuivante": {
+            "type": "object",
+            "properties": {
+              "texte": {
+                "type": "string",
+                "minLength": 1
+              },
+              "cta": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "texte",
+              "cta"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "cadre",
+          "pointsAppui",
+          "priorites",
+          "etapeSuivante"
+        ],
+        "additionalProperties": false
+      },
+      "nexus": {
+        "type": "object",
+        "properties": {
+          "syntheseProfil": {
+            "type": "string",
+            "minLength": 1
+          },
+          "diagnosticPedagogique": {
+            "type": "string",
+            "minLength": 1
+          },
+          "planQuatreSemaines": {
+            "type": "string",
+            "minLength": 1
+          },
+          "alertes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "ragReferences": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "required": [
+          "syntheseProfil",
+          "diagnosticPedagogique",
+          "planQuatreSemaines",
+          "alertes",
+          "ragReferences"
+        ],
+        "additionalProperties": false
+      },
+      "verifier": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "type": "boolean"
+          },
+          "violations": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "required": [
+          "ok",
+          "violations"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "validation": {
+    "lexiconPath": "data/bilans/lexique-interdit.json",
+    "forbidDigits": [
+      "eleve",
+      "parents"
+    ]
+  }
+}

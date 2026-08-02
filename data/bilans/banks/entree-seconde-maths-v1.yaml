@@ -1,0 +1,535 @@
+# =============================================================================
+# Banque de positionnement — ENTRÉE EN SECONDE, Mathématiques
+#
+# Doctrine : intersection Troisième / Seconde. Chaque item porte sur un prérequis
+# structurant SANS LEQUEL les premières semaines de Seconde sont inaccessibles.
+# Aucun item ne teste une notion du programme de Seconde.
+#
+# STATUT : DRAFT — proposition à amender par le responsable pédagogique.
+#
+# 18 items · 9 nœuds de prérequis · 2 items par nœud (règle V4)
+# Distribution des bonnes réponses : A=5, B=5, C=4, D=4 (règle V14 : max 40 %)
+# =============================================================================
+
+slug: entree-seconde-maths-v1
+level: SECONDE
+subject: MATHS
+version: 1
+status: DRAFT
+targetDurationMin: 25
+
+items:
+
+  # ===========================================================================
+  # NŒUD 1 — Nombres relatifs et priorités opératoires
+  # Pourquoi c'est structurant : c'est le prérequis le plus silencieux. Un élève
+  # qui hésite sur les signes ou les priorités échouera sur des exercices de
+  # Seconde dont la difficulté annoncée est ailleurs, et le diagnostic passera
+  # à côté de la cause réelle.
+  # ===========================================================================
+
+  - id: ESE-MAT-REL-01
+    nodeCpsId: 3e.maths.calcul-numerique.relatifs-priorites
+    type: QCM_SIMPLE
+    difficulty: 1
+    targetTimeSec: 50
+    statement: "Calculer −3 + 4 × (−2)."
+    options:
+      - key: A
+        label: "−2"
+        correct: false
+        distractorRationale: "Calcule de gauche à droite sans respecter la priorité de la multiplication."
+      - key: B
+        label: "5"
+        correct: false
+        distractorRationale: "Erreur de signe sur le produit : calcule 4 × (−2) comme s'il valait 8."
+      - key: C
+        label: "−11"
+        correct: true
+      - key: D
+        label: "11"
+        correct: false
+        distractorRationale: "Cumule l'erreur de signe sur le produit et sur la somme finale."
+    shortCorrection: "La multiplication est prioritaire : 4 × (−2) = −8, puis −3 + (−8) = −11. Les priorités opératoires passent avant l'ordre d'écriture."
+    tags: [relatifs, priorites]
+
+  - id: ESE-MAT-REL-02
+    nodeCpsId: 3e.maths.calcul-numerique.relatifs-priorites
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 45
+    statement: "Calculer (−2)³."
+    options:
+      - key: A
+        label: "−8"
+        correct: true
+      - key: B
+        label: "8"
+        correct: false
+        distractorRationale: "Croit qu'élever à une puissance rend toujours le résultat positif, sans distinguer exposant pair et impair."
+      - key: C
+        label: "−6"
+        correct: false
+        distractorRationale: "Multiplie la base par l'exposant au lieu de multiplier la base par elle-même."
+      - key: D
+        label: "6"
+        correct: false
+        distractorRationale: "Cumule la confusion sur la puissance et l'erreur de signe."
+    shortCorrection: "(−2)³ = (−2) × (−2) × (−2) = −8. Une puissance impaire d'un nombre négatif reste négative."
+    tags: [relatifs, puissances]
+
+  # ===========================================================================
+  # NŒUD 2 — Opérations sur les fractions
+  # Pourquoi c'est structurant : les calculs de Seconde — résolution
+  # d'équations, coefficients directeurs, probabilités — manipulent des
+  # fractions en permanence. Une addition fautive fausse tout le reste.
+  # ===========================================================================
+
+  - id: ESE-MAT-FRA-01
+    nodeCpsId: 3e.maths.fractions.operations
+    type: QCM_SIMPLE
+    difficulty: 1
+    targetTimeSec: 55
+    statement: "Calculer 2/3 + 1/4."
+    options:
+      - key: A
+        label: "3/7"
+        correct: false
+        distractorRationale: "Additionne séparément les numérateurs et les dénominateurs."
+      - key: B
+        label: "11/12"
+        correct: true
+      - key: C
+        label: "3/12"
+        correct: false
+        distractorRationale: "Réduit correctement au même dénominateur mais additionne les numérateurs d'origine."
+      - key: D
+        label: "8/12"
+        correct: false
+        distractorRationale: "Convertit la première fraction au dénominateur 12 puis oublie d'ajouter la seconde."
+    shortCorrection: "On réduit au même dénominateur 12 : 8/12 + 3/12 = 11/12. On n'additionne jamais les dénominateurs entre eux."
+    tags: [fractions, addition]
+
+  - id: ESE-MAT-FRA-02
+    nodeCpsId: 3e.maths.fractions.operations
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 60
+    statement: "Calculer (3/4) ÷ (2/5)."
+    options:
+      - key: A
+        label: "6/20"
+        correct: false
+        distractorRationale: "Multiplie les deux fractions sans inverser la seconde."
+      - key: B
+        label: "8/15"
+        correct: false
+        distractorRationale: "Inverse la première fraction au lieu de la seconde."
+      - key: C
+        label: "20/6"
+        correct: false
+        distractorRationale: "Inverse le résultat final, en confondant le sens de la division."
+      - key: D
+        label: "15/8"
+        correct: true
+    shortCorrection: "Diviser par une fraction revient à multiplier par son inverse : (3/4) × (5/2) = 15/8. C'est la seconde fraction qui s'inverse."
+    tags: [fractions, division]
+
+  # ===========================================================================
+  # NŒUD 3 — Puissances et écriture scientifique
+  # Pourquoi c'est structurant : la notation scientifique est réinvestie en
+  # Seconde en mathématiques comme en physique-chimie, et les règles sur les
+  # exposants préparent les fonctions puissances.
+  # ===========================================================================
+
+  - id: ESE-MAT-PUI-01
+    nodeCpsId: 3e.maths.puissances.regles-de-calcul
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 50
+    statement: "Simplifier 10³ × 10⁻⁵."
+    options:
+      - key: A
+        label: "10⁻²"
+        correct: true
+      - key: B
+        label: "10⁻¹⁵"
+        correct: false
+        distractorRationale: "Multiplie les exposants au lieu de les additionner lors d'un produit."
+      - key: C
+        label: "10⁸"
+        correct: false
+        distractorRationale: "Soustrait les exposants comme s'il s'agissait d'un quotient."
+      - key: D
+        label: "10²"
+        correct: false
+        distractorRationale: "Additionne les exposants en ignorant le signe négatif du second."
+    shortCorrection: "Lors d'un produit de puissances de même base, on additionne les exposants : 3 + (−5) = −2, donc le résultat est 10⁻²."
+    tags: [puissances, regles]
+
+  - id: ESE-MAT-PUI-02
+    nodeCpsId: 3e.maths.puissances.regles-de-calcul
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 55
+    statement: "Quelle est l'écriture scientifique de 0,00034 ?"
+    options:
+      - key: A
+        label: "3,4 × 10⁴"
+        correct: false
+        distractorRationale: "Compte correctement les décalages mais attribue un exposant positif à un nombre inférieur à 1."
+      - key: B
+        label: "34 × 10⁻⁵"
+        correct: false
+        distractorRationale: "Produit une écriture correcte en valeur mais dont le premier facteur n'est pas compris entre 1 et 10."
+      - key: C
+        label: "3,4 × 10⁻⁴"
+        correct: true
+      - key: D
+        label: "0,34 × 10⁻³"
+        correct: false
+        distractorRationale: "Laisse un premier facteur inférieur à 1, ce que l'écriture scientifique interdit."
+    shortCorrection: "L'écriture scientifique impose un premier facteur compris entre 1 et 10 : 0,00034 = 3,4 × 10⁻⁴."
+    tags: [puissances, ecriture-scientifique]
+
+  # ===========================================================================
+  # NŒUD 4 — Calcul littéral : distributivité et identités remarquables
+  # Pourquoi c'est structurant : toute la Seconde repose sur la transformation
+  # d'expressions — équations, fonctions, factorisations. Un développement
+  # fautif rend chaque exercice inexploitable.
+  # ===========================================================================
+
+  - id: ESE-MAT-CLI-01
+    nodeCpsId: 3e.maths.calcul-litteral.developpement
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 60
+    statement: "Développer et réduire (x + 3)(x − 5)."
+    options:
+      - key: A
+        label: "x² − 15"
+        correct: false
+        distractorRationale: "Multiplie uniquement les premiers termes entre eux et les derniers entre eux, en omettant les termes croisés."
+      - key: B
+        label: "x² − 2x − 15"
+        correct: true
+      - key: C
+        label: "x² + 2x − 15"
+        correct: false
+        distractorRationale: "Erreur de signe sur le terme en x : calcule −5x + 3x comme s'il valait +2x."
+      - key: D
+        label: "x² − 8x − 15"
+        correct: false
+        distractorRationale: "Additionne les valeurs absolues 5 et 3 au lieu d'ajouter les termes croisés avec leurs signes."
+    shortCorrection: "Chaque terme du premier facteur multiplie chaque terme du second. Les termes croisés donnent −5x + 3x = −2x, d'où x² − 2x − 15."
+    tags: [calcul-litteral, developpement]
+
+  - id: ESE-MAT-CLI-02
+    nodeCpsId: 3e.maths.calcul-litteral.developpement
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 55
+    statement: "Développer (x − 4)²."
+    options:
+      - key: A
+        label: "x² + 16"
+        correct: false
+        distractorRationale: "Élève chaque terme au carré et oublie le double produit."
+      - key: B
+        label: "x² − 16"
+        correct: false
+        distractorRationale: "Confond le carré d'une différence avec le produit (a − b)(a + b)."
+      - key: C
+        label: "x² − 8x − 16"
+        correct: false
+        distractorRationale: "Retient le double produit mais donne un signe négatif au carré de 4."
+      - key: D
+        label: "x² − 8x + 16"
+        correct: true
+    shortCorrection: "L'identité (a − b)² = a² − 2ab + b² donne x² − 2 × 4 × x + 16 = x² − 8x + 16. Le carré d'un nombre est toujours positif."
+    tags: [calcul-litteral, identites-remarquables]
+
+  # ===========================================================================
+  # NŒUD 5 — Équations du premier degré et équation produit nul
+  # Pourquoi c'est structurant : la résolution d'équations est l'outil de base
+  # de la Seconde, et l'équation produit nul prépare la factorisation du
+  # second degré étudiée en Première.
+  # ===========================================================================
+
+  - id: ESE-MAT-EQU-01
+    nodeCpsId: 3e.maths.equations.premier-degre
+    type: QCM_SIMPLE
+    difficulty: 1
+    targetTimeSec: 55
+    statement: "Résoudre l'équation 3x − 7 = 2x + 5."
+    options:
+      - key: A
+        label: "x = 12"
+        correct: true
+      - key: B
+        label: "x = −2"
+        correct: false
+        distractorRationale: "Soustrait au lieu d'additionner en faisant passer le terme constant de l'autre côté."
+      - key: C
+        label: "x = 12/5"
+        correct: false
+        distractorRationale: "Additionne les termes en x au lieu de les soustraire, obtenant 5x."
+      - key: D
+        label: "x = −12"
+        correct: false
+        distractorRationale: "Erreur de signe à la dernière étape de la résolution."
+    shortCorrection: "On regroupe les termes en x d'un côté et les nombres de l'autre : 3x − 2x = 5 + 7, donc x = 12."
+    tags: [equations, premier-degre]
+
+  - id: ESE-MAT-EQU-02
+    nodeCpsId: 3e.maths.equations.premier-degre
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 55
+    statement: "Résoudre l'équation (x − 2)(x + 5) = 0."
+    options:
+      - key: A
+        label: "x = −2 ou x = 5"
+        correct: false
+        distractorRationale: "Recopie les signes lus dans les facteurs sans résoudre chaque équation."
+      - key: B
+        label: "x = 2 ou x = −5"
+        correct: true
+      - key: C
+        label: "x = 2 ou x = 5"
+        correct: false
+        distractorRationale: "Traite correctement le premier facteur mais oublie de changer le signe pour le second."
+      - key: D
+        label: "x = 0"
+        correct: false
+        distractorRationale: "Croit qu'un produit nul impose que la variable elle-même soit nulle."
+    shortCorrection: "Un produit est nul si l'un au moins de ses facteurs est nul. On résout séparément x − 2 = 0 et x + 5 = 0, ce qui donne x = 2 ou x = −5."
+    tags: [equations, produit-nul]
+
+  # ===========================================================================
+  # NŒUD 6 — Proportionnalité, pourcentages et évolutions
+  # Pourquoi c'est structurant : les coefficients multiplicateurs sont
+  # réinvestis en Seconde en statistiques et en résolution de problèmes, puis
+  # en Première pour introduire les suites géométriques.
+  # ===========================================================================
+
+  - id: ESE-MAT-PRP-01
+    nodeCpsId: 3e.maths.proportionnalite.pourcentages
+    type: QCM_SIMPLE
+    difficulty: 1
+    targetTimeSec: 50
+    statement: "Un article coûte 80 dinars. Son prix augmente de 15 %. Quel est le nouveau prix ?"
+    options:
+      - key: A
+        label: "95 dinars"
+        correct: false
+        distractorRationale: "Ajoute 15 unités au lieu d'appliquer une hausse de 15 pour cent."
+      - key: B
+        label: "12 dinars"
+        correct: false
+        distractorRationale: "Calcule le montant de la hausse et le donne comme prix final."
+      - key: C
+        label: "92 dinars"
+        correct: true
+      - key: D
+        label: "120 dinars"
+        correct: false
+        distractorRationale: "Applique un coefficient de 1,5 au lieu de 1,15."
+    shortCorrection: "Une hausse de 15 % correspond à une multiplication par 1,15 : 80 × 1,15 = 92 dinars."
+    tags: [pourcentages, evolution]
+
+  - id: ESE-MAT-PRP-02
+    nodeCpsId: 3e.maths.proportionnalite.pourcentages
+    type: QCM_SIMPLE
+    difficulty: 3
+    targetTimeSec: 75
+    statement: "Un prix baisse de 20 %, puis le nouveau prix augmente de 20 %. Par rapport au prix initial, le prix final est :"
+    options:
+      - key: A
+        label: "inférieur de 4 %"
+        correct: true
+      - key: B
+        label: "identique"
+        correct: false
+        distractorRationale: "Suppose que les taux d'évolution s'additionnent et s'annulent, alors que ce sont les coefficients qui se multiplient."
+      - key: C
+        label: "supérieur de 4 %"
+        correct: false
+        distractorRationale: "Identifie le bon écart mais se trompe sur le sens de la variation finale."
+      - key: D
+        label: "inférieur de 40 %"
+        correct: false
+        distractorRationale: "Additionne les deux taux en valeur absolue au lieu de composer les coefficients."
+    shortCorrection: "Les coefficients multiplicateurs se composent : 0,8 × 1,2 = 0,96. Le prix final est donc inférieur de 4 % au prix initial."
+    tags: [pourcentages, evolutions-successives]
+
+  # ===========================================================================
+  # NŒUD 7 — Théorème de Pythagore, direct et réciproque
+  # Pourquoi c'est structurant : le repérage, les distances dans le plan et la
+  # trigonométrie de Seconde s'appuient sur ce théorème. La réciproque, souvent
+  # moins maîtrisée, sert à justifier un angle droit.
+  # ===========================================================================
+
+  - id: ESE-MAT-PYT-01
+    nodeCpsId: 3e.maths.geometrie.pythagore
+    type: QCM_SIMPLE
+    difficulty: 1
+    targetTimeSec: 55
+    statement: "Le triangle ABC est rectangle en A, avec AB = 3 cm et AC = 4 cm. Quelle est la longueur BC ?"
+    options:
+      - key: A
+        label: "7 cm"
+        correct: false
+        distractorRationale: "Additionne les deux longueurs au lieu d'additionner leurs carrés."
+      - key: B
+        label: "25 cm"
+        correct: false
+        distractorRationale: "Donne la valeur de BC² sans prendre la racine carrée."
+      - key: C
+        label: "1 cm"
+        correct: false
+        distractorRationale: "Soustrait les longueurs, en confondant avec la recherche d'un côté de l'angle droit."
+      - key: D
+        label: "5 cm"
+        correct: true
+    shortCorrection: "Le théorème de Pythagore donne BC² = AB² + AC² = 9 + 16 = 25, donc BC = 5 cm. Il faut penser à extraire la racine carrée."
+    tags: [geometrie, pythagore]
+
+  - id: ESE-MAT-PYT-02
+    nodeCpsId: 3e.maths.geometrie.pythagore
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 70
+    statement: "Un triangle a pour côtés 6 cm, 8 cm et 10 cm. Que peut-on affirmer ?"
+    options:
+      - key: A
+        label: "Il est rectangle, l'angle droit étant opposé au côté de 6 cm"
+        correct: false
+        distractorRationale: "Applique la réciproque mais identifie mal l'hypoténuse, qui est le plus grand côté."
+      - key: B
+        label: "Il est rectangle, l'angle droit étant opposé au côté de 10 cm"
+        correct: true
+      - key: C
+        label: "Il n'est pas rectangle, car 6 + 8 ≠ 10"
+        correct: false
+        distractorRationale: "Compare les longueurs au lieu de comparer leurs carrés."
+      - key: D
+        label: "On ne peut pas conclure sans disposer d'une figure"
+        correct: false
+        distractorRationale: "Ne mobilise pas la réciproque et pense qu'un calcul seul ne suffit pas à établir un angle droit."
+    shortCorrection: "On compare les carrés : 6² + 8² = 36 + 64 = 100 = 10². La réciproque du théorème de Pythagore permet d'affirmer que le triangle est rectangle, l'angle droit étant opposé au plus grand côté."
+    tags: [geometrie, pythagore-reciproque]
+
+  # ===========================================================================
+  # NŒUD 8 — Théorème de Thalès et agrandissement-réduction
+  # Pourquoi c'est structurant : les rapports de longueurs, d'aires et de
+  # volumes reviennent en Seconde en géométrie comme en résolution de
+  # problèmes, et la confusion entre ces trois rapports est fréquente.
+  # ===========================================================================
+
+  - id: ESE-MAT-THA-01
+    nodeCpsId: 3e.maths.geometrie.thales
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 75
+    statement: "Dans le triangle ABC, M appartient à [AB] et N à [AC], avec (MN) parallèle à (BC). On donne AM = 2 cm, AB = 6 cm et AN = 3 cm. Quelle est la longueur AC ?"
+    options:
+      - key: A
+        label: "9 cm"
+        correct: true
+      - key: B
+        label: "1 cm"
+        correct: false
+        distractorRationale: "Applique le rapport dans le mauvais sens et multiplie AN par AM/AB."
+      - key: C
+        label: "18 cm"
+        correct: false
+        distractorRationale: "Multiplie AN par AB sans diviser par AM."
+      - key: D
+        label: "4 cm"
+        correct: false
+        distractorRationale: "Additionne les longueurs connues au lieu d'utiliser une proportion."
+    shortCorrection: "Le théorème de Thalès donne AM/AB = AN/AC, soit 2/6 = 3/AC. On en déduit AC = 3 × 6/2 = 9 cm."
+    tags: [geometrie, thales]
+
+  - id: ESE-MAT-THA-02
+    nodeCpsId: 3e.maths.geometrie.thales
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 55
+    statement: "On agrandit une figure plane dans un rapport 3. Son aire est multipliée par :"
+    options:
+      - key: A
+        label: "3"
+        correct: false
+        distractorRationale: "Applique à l'aire le rapport valable pour les longueurs."
+      - key: B
+        label: "6"
+        correct: false
+        distractorRationale: "Double le rapport au lieu de l'élever au carré."
+      - key: C
+        label: "9"
+        correct: true
+      - key: D
+        label: "27"
+        correct: false
+        distractorRationale: "Applique à l'aire le rapport qui vaut pour les volumes."
+    shortCorrection: "Dans un agrandissement de rapport k, les longueurs sont multipliées par k, les aires par k² et les volumes par k³. Ici l'aire est multipliée par 9."
+    tags: [geometrie, agrandissement]
+
+  # ===========================================================================
+  # NŒUD 9 — Trigonométrie dans le triangle rectangle
+  # Pourquoi c'est structurant : le repérage et les calculs de distances en
+  # Seconde s'appuient sur cosinus, sinus et tangente, et la trigonométrie du
+  # cercle vue en Première prolonge directement ces rapports.
+  # ===========================================================================
+
+  - id: ESE-MAT-TRI-01
+    nodeCpsId: 3e.maths.trigonometrie.triangle-rectangle
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 55
+    statement: "Dans un triangle ABC rectangle en A, le cosinus de l'angle B est égal à :"
+    options:
+      - key: A
+        label: "AC/BC"
+        correct: false
+        distractorRationale: "Confond cosinus et sinus en prenant le côté opposé au lieu du côté adjacent."
+      - key: B
+        label: "AB/BC"
+        correct: true
+      - key: C
+        label: "AC/AB"
+        correct: false
+        distractorRationale: "Donne l'expression de la tangente au lieu de celle du cosinus."
+      - key: D
+        label: "BC/AB"
+        correct: false
+        distractorRationale: "Inverse le rapport et place l'hypoténuse au numérateur."
+    shortCorrection: "Le cosinus d'un angle aigu est le rapport du côté adjacent sur l'hypoténuse. Pour l'angle B, le côté adjacent est [AB] et l'hypoténuse est [BC]."
+    tags: [trigonometrie, cosinus]
+
+  - id: ESE-MAT-TRI-02
+    nodeCpsId: 3e.maths.trigonometrie.triangle-rectangle
+    type: QCM_SIMPLE
+    difficulty: 3
+    targetTimeSec: 80
+    statement: "Dans un triangle rectangle, l'hypoténuse mesure 10 cm et l'un des angles aigus mesure 30°. Quelle est la longueur du côté opposé à cet angle ?"
+    options:
+      - key: A
+        label: "environ 8,7 cm"
+        correct: false
+        distractorRationale: "Utilise le cosinus au lieu du sinus et calcule le côté adjacent."
+      - key: B
+        label: "20 cm"
+        correct: false
+        distractorRationale: "Divise l'hypoténuse par le sinus au lieu de la multiplier."
+      - key: C
+        label: "On ne peut pas conclure sans connaître un autre côté"
+        correct: false
+        distractorRationale: "Ne mobilise pas la trigonométrie et pense qu'un angle et un côté ne suffisent pas."
+      - key: D
+        label: "5 cm"
+        correct: true
+    shortCorrection: "Le sinus relie l'angle, le côté opposé et l'hypoténuse : sin(30°) = opposé/10. Comme sin(30°) = 0,5, le côté opposé mesure 5 cm."
+    tags: [trigonometrie, sinus]
