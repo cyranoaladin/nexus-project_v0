@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bilan de positionnement — maquette Nexus Réussite</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    /* === Tokens réels Nexus (docs/design/tokens.md) === */
+    --lux-ink:#071A3A;
+    --lux-ink-700:#0E2547;
+    --lux-ivory:#F7F4ED;
+    --lux-paper:#FBFAF5;
+    --lux-gold:#BFA06A;
+    --lux-gold-deep:#7A6535;
+    --lux-gold-bright:#D4B978;
+    --lux-gold-wash:#EBDFC4;
+    --lux-slate:#5A6B82;
+    --lux-evergreen:#1E5F4B;
+    --lux-line:rgba(11,37,71,.12);
+    --lux-white:#FFFFFF;
+    /* alias sémantiques du bilan */
+    --ink:var(--lux-ink);
+    --ink-soft:var(--lux-slate);
+    --paper:var(--lux-ivory);
+    --card:var(--lux-white);
+    --line:var(--lux-line);
+    --accent:var(--lux-gold-deep);
+    /* échelle des 5 profils, calée sur la charte (evergreen + ors + slate + brique) */
+    --p-maitrise:#1E5F4B;        /* lux-evergreen */
+    --p-fragile:#BFA06A;         /* lux-gold */
+    --p-lacune:#7A6535;          /* lux-gold-deep */
+    --p-erreur:#9B2D26;          /* brique sobre, cohérente avec l'encre */
+    --p-nontraite:#5A6B82;       /* lux-slate */
+    --shadow:0 1px 2px rgba(7,26,58,.06),0 8px 24px rgba(7,26,58,.07);
+  }
+  *{box-sizing:border-box}
+  html{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  body{margin:0;background:var(--paper);color:var(--ink);
+       font-family:"DM Sans",system-ui,sans-serif;line-height:1.5;font-size:15px}
+  .page{max-width:900px;margin:24px auto;background:var(--card);border:1px solid var(--line);
+        border-radius:14px;box-shadow:var(--shadow);overflow:hidden}
+  .banner{background:#FFF4D6;color:#7A5B12;font-size:12.5px;text-align:center;
+          padding:7px 12px;border-bottom:1px solid #EAD9A6}
+  /* En-tête identité */
+  header.id{display:flex;align-items:center;gap:18px;padding:22px 30px;border-bottom:1px solid var(--line);
+            background:linear-gradient(180deg,#FBFCFD,#F4F6F8)}
+  .logo{width:52px;height:52px;border-radius:12px;background:var(--ink);color:#fff;flex:0 0 auto;
+        display:grid;place-items:center;font-family:'Fraunces',Georgia,serif;font-weight:700;font-size:26px}
+  .logo{background:var(--lux-ink);color:var(--lux-gold-bright);font-family:'Fraunces',serif;letter-spacing:.02em}
+  .id .meta{flex:1}
+  .eyebrow{font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:600}
+  .id h1{font-family:'Fraunces',Georgia,serif;font-weight:600;font-size:23px;margin:2px 0 2px;letter-spacing:-.01em}
+  .id .sub{color:var(--ink-soft);font-size:13.5px}
+  .id .who{text-align:right;font-size:13px;color:var(--ink-soft)}
+  .id .who b{display:block;color:var(--ink);font-size:16px;font-family:'Fraunces',Georgia,serif}
+  main{padding:26px 30px 30px}
+  .accroche{font-family:'Fraunces',Georgia,serif;font-size:22px;line-height:1.35;letter-spacing:-.01em;
+            margin:4px 0 18px;max-width:60ch}
+  h2.sec{font-size:12.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-soft);
+         font-weight:600;margin:26px 0 12px;display:flex;align-items:center;gap:10px}
+  h2.sec::after{content:"";height:1px;flex:1;background:var(--line)}
+  .chips{display:flex;flex-wrap:wrap;gap:8px}
+  .chip{background:#EAF3F4;color:#155e6b;border:1px solid #CFE6E9;border-radius:999px;
+        padding:5px 13px;font-size:13px;font-weight:500}
+  /* Signature : carte maîtrise × confiance */
+  .signature{display:grid;grid-template-columns:1.15fr .85fr;gap:22px;align-items:center;
+             background:#FBFCFD;border:1px solid var(--line);border-radius:12px;padding:18px}
+  .sig-legend h3{font-family:'Fraunces',Georgia,serif;font-size:17px;margin:0 0 6px}
+  .sig-legend p{margin:0 0 14px;color:var(--ink-soft);font-size:13.5px}
+  .plist{list-style:none;margin:0;padding:0;display:grid;gap:7px}
+  .plist li{display:flex;align-items:center;gap:9px;font-size:13px}
+  .dot{width:12px;height:12px;border-radius:3px;flex:0 0 auto}
+  .plist .lbl{font-weight:600}
+  .plist .desc{color:var(--ink-soft)}
+  /* Priorités */
+  .prio{display:grid;gap:12px}
+  .card2{border:1px solid var(--line);border-left-width:5px;border-radius:10px;padding:14px 16px;background:var(--card)}
+  .card2 .top{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+  .card2 .rank{font-family:'Fraunces',Georgia,serif;font-weight:600;color:var(--ink-soft);font-size:13px}
+  .card2 h4{margin:0;font-size:16px;font-family:'Fraunces',Georgia,serif;font-weight:600}
+  .tag{font-size:11px;font-weight:600;padding:2px 8px;border-radius:6px;color:#fff;letter-spacing:.02em}
+  .card2 .why{margin:8px 0 4px;font-size:14px}
+  .card2 .how{margin:0;color:var(--ink-soft);font-size:13.5px}
+  /* Plan */
+  .plan{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+  .step{background:#FBFCFD;border:1px solid var(--line);border-radius:10px;padding:14px}
+  .step .dur{font-family:'Fraunces',Georgia,serif;font-size:22px;color:var(--accent)}
+  .step .act{font-size:13.5px;margin-top:4px}
+  .motfin{margin-top:22px;padding:16px 18px;background:var(--ink);color:#EAF0F7;border-radius:12px;
+          font-family:'Fraunces',Georgia,serif;font-size:16px}
+  footer.doc{padding:14px 30px;border-top:1px solid var(--line);color:var(--ink-soft);font-size:11.5px;
+             display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+  /* Parents / coach specifics */
+  .twocol{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  table.coach{width:100%;border-collapse:collapse;font-size:13px}
+  table.coach th,table.coach td{border-bottom:1px solid var(--line);padding:8px 10px;text-align:left}
+  table.coach th{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft)}
+  table.coach td.score{font-variant-numeric:tabular-nums;font-weight:600}
+  .kpis{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:8px}
+  .kpi{background:#FBFCFD;border:1px solid var(--line);border-radius:10px;padding:12px 16px;min-width:130px}
+  .kpi .n{font-family:'Fraunces',Georgia,serif;font-size:26px}
+  .kpi .k{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft)}
+  .cta{display:inline-block;background:var(--accent);color:#fff;text-decoration:none;font-weight:600;
+       padding:10px 18px;border-radius:9px;font-size:14px;margin-top:6px}
+  @media(max-width:720px){.signature,.twocol{grid-template-columns:1fr}.id .who{text-align:left}}
+  @media print{body{background:#fff}.page{box-shadow:none;border:none;margin:0;border-radius:0;page-break-after:always}.banner{display:none}}
+</style>
+</head>
+<body>
+
+<!-- ================= PAGE 1 — ÉLÈVE ================= -->
+<section class="page">
+  <div class="banner">Maquette de proposition · structure réelle (cas CAS_01, entrée 3<sup>e</sup> maths) · textes pilotés par profil (proposition) · charte réelle lux-* · Fraunces + DM Sans · logo public/images/logo_slogan_nexus_x3.png</div>
+  <header class="id">
+    <div class="logo" title="public/images/logo_slogan_nexus_x3.png">NR</div>
+    <div class="meta">
+      <div class="eyebrow">Bilan de positionnement</div>
+      <h1>Entrée en Troisième · Mathématiques</h1>
+      <div class="sub">Stage de pré-rentrée Nexus Réussite · établi le 17 août 2026</div>
+    </div>
+    <div class="who">Élève<b>Kamel</b></div>
+  </header>
+  <main>
+    <p class="accroche">Ton travail montre de vrais appuis pour progresser avec méthode. Voici où tu en es sur les 9 bases de la 4<sup>e</sup> qui comptent pour bien démarrer la 3<sup>e</sup>.</p>
+
+    <h2 class="sec">Tes forces</h2>
+    <div class="chips">
+      <span class="chip">Nombres relatifs — solide</span>
+      <span class="chip">Proportionnalité — solide</span>
+      <span class="chip">Une démarche engagée</span>
+    </div>
+
+    <h2 class="sec">La carte de tes réponses</h2>
+    <div class="signature">
+      <svg viewBox="0 0 470 360" role="img" aria-label="Carte maîtrise et confiance">
+        <!-- quadrants -->
+        <rect x="55" y="20" width="180" height="150" fill="#F1F7F3"/>
+        <rect x="235" y="20" width="180" height="150" fill="#FBF3EF"/>
+        <rect x="55" y="170" width="180" height="150" fill="#F7F8FA"/>
+        <rect x="235" y="170" width="180" height="150" fill="#FBEEEC"/>
+        <!-- danger label -->
+        <text x="325" y="188" text-anchor="middle" font-size="10" fill="#C0453B" font-weight="700">RÉPONSES SÛRES À REVOIR</text>
+        <!-- axes -->
+        <line x1="55" y1="170" x2="415" y2="170" stroke="#B9C2CE" stroke-width="1.2"/>
+        <line x1="235" y1="20" x2="235" y2="320" stroke="#B9C2CE" stroke-width="1.2"/>
+        <text x="235" y="342" text-anchor="middle" font-size="11" fill="#3B4A63">Confiance déclarée →</text>
+        <text x="24" y="170" text-anchor="middle" font-size="11" fill="#3B4A63" transform="rotate(-90 24 170)">Réponses justes →</text>
+        <!-- points (positions représentatives par profil) -->
+        <!-- MAITRISE : haut-droite -->
+        <g><circle cx="330" cy="70" r="8" fill="#2E7D5B"/><text x="344" y="74" font-size="11" fill="#16233B">nombres relatifs</text></g>
+        <g><circle cx="360" cy="98" r="8" fill="#2E7D5B"/><text x="374" y="102" font-size="11" fill="#16233B">proportionnalité</text></g>
+        <!-- FRAGILE : centre -->
+        <g><circle cx="250" cy="140" r="8" fill="#C7912B"/><text x="264" y="144" font-size="11" fill="#16233B">fractions</text></g>
+        <g><circle cx="215" cy="120" r="8" fill="#C7912B"/><text x="120" y="124" font-size="11" fill="#16233B">géométrie</text></g>
+        <!-- LACUNE : bas-gauche (lucide) -->
+        <g><circle cx="120" cy="235" r="8" fill="#D8752E"/><text x="134" y="239" font-size="11" fill="#16233B">puissances</text></g>
+        <g><circle cx="150" cy="270" r="8" fill="#D8752E"/><text x="164" y="274" font-size="11" fill="#16233B">trigonométrie</text></g>
+        <!-- ERREUR_CONFIANTE : bas-droite (danger) -->
+        <g><circle cx="330" cy="250" r="9" fill="#C0453B" stroke="#fff" stroke-width="1.5"/><text x="344" y="254" font-size="11" fill="#16233B" font-weight="600">calcul littéral</text></g>
+        <g><circle cx="360" cy="285" r="9" fill="#C0453B" stroke="#fff" stroke-width="1.5"/><text x="374" y="289" font-size="11" fill="#16233B" font-weight="600">statistiques</text></g>
+        <!-- NON TRAITE : hors carte -->
+        <g><circle cx="30" cy="345" r="7" fill="#8A93A2"/><text x="42" y="349" font-size="10.5" fill="#3B4A63">équations — non évalué</text></g>
+      </svg>
+      <div class="sig-legend">
+        <h3>Deux questions, pas une</h3>
+        <p>On ne regarde pas seulement si ta réponse est juste, mais aussi à quel point tu en étais sûr. C'est ce croisement qui dit par quoi commencer.</p>
+        <ul class="plist">
+          <li><span class="dot" style="background:var(--p-maitrise)"></span><span><span class="lbl">Solide.</span> <span class="desc">juste et sûr</span></span></li>
+          <li><span class="dot" style="background:var(--p-fragile)"></span><span><span class="lbl">Fragile.</span> <span class="desc">en cours de stabilisation</span></span></li>
+          <li><span class="dot" style="background:var(--p-lacune)"></span><span><span class="lbl">À combler.</span> <span class="desc">tu sais que ce n'est pas acquis</span></span></li>
+          <li><span class="dot" style="background:var(--p-erreur)"></span><span><span class="lbl">À revoir en priorité.</span> <span class="desc">sûr… mais faux</span></span></li>
+          <li><span class="dot" style="background:var(--p-nontraite)"></span><span><span class="lbl">Non évalué.</span> <span class="desc">à tester en début de stage</span></span></li>
+        </ul>
+      </div>
+    </div>
+
+    <h2 class="sec">Tes priorités pour le stage</h2>
+    <div class="prio">
+      <div class="card2" style="border-left-color:var(--p-erreur)">
+        <div class="top"><span class="rank">Priorité 1</span><h4>Calcul littéral &amp; statistiques</h4><span class="tag" style="background:var(--p-erreur)">Sûr mais faux</span></div>
+        <p class="why">Tu réponds avec assurance, mais plusieurs réponses sont à revoir. On commence par là : défaire d'abord ce qui semble sûr mais se trompe, avant de construire la suite.</p>
+        <p class="how">En stage : on repart de la règle, on met en mots ton raisonnement, puis on vérifie sur des exemples proches.</p>
+      </div>
+      <div class="card2" style="border-left-color:var(--p-lacune)">
+        <div class="top"><span class="rank">Priorité 2</span><h4>Puissances &amp; trigonométrie</h4><span class="tag" style="background:var(--p-lacune)">À combler</span></div>
+        <p class="why">Tu repères déjà ce que tu ne maîtrises pas encore ici — c'est un très bon réflexe. Ces bases se comblent vite avec des repères clairs.</p>
+        <p class="how">En stage : une fiche de définitions, puis des exercices courts et réguliers pour ancrer.</p>
+      </div>
+      <div class="card2" style="border-left-color:var(--p-fragile)">
+        <div class="top"><span class="rank">Priorité 3</span><h4>Fractions &amp; géométrie</h4><span class="tag" style="background:var(--p-fragile)">Fragile</span></div>
+        <p class="why">Les bases sont là mais encore instables. Quelques passages réguliers suffiront à les solidifier.</p>
+        <p class="how">En stage : entraînement espacé, sans reprendre tout à zéro.</p>
+      </div>
+    </div>
+
+    <h2 class="sec">Ton plan pendant le stage</h2>
+    <div class="plan">
+      <div class="step"><div class="dur">20 min</div><div class="act">Revoir une démarche, puis expliquer ton raisonnement à voix haute.</div></div>
+      <div class="step"><div class="dur">Séance 1</div><div class="act">Calcul littéral : lever les automatismes trompeurs.</div></div>
+      <div class="step"><div class="dur">Séance 2</div><div class="act">Puissances &amp; trigonométrie : poser les définitions.</div></div>
+    </div>
+
+    <div class="motfin">Tu as de quoi avancer. On progresse par étapes, dans l'ordre — et on commence par ce qui compte le plus.</div>
+  </main>
+  <footer class="doc"><span>Nexus Réussite · Bilan indicatif de positionnement — ne constitue pas une note.</span><span>Entrée 3<sup>e</sup> · Mathématiques · 17/08/2026</span></footer>
+</section>
+
+<!-- ================= PAGE 2 — PARENTS ================= -->
+<section class="page">
+  <div class="banner">Version <b>Parents</b> — même diagnostic, ton et cadrage adaptés · aucun score chiffré</div>
+  <header class="id">
+    <div class="logo" title="public/images/logo_slogan_nexus_x3.png">NR</div>
+    <div class="meta">
+      <div class="eyebrow">Bilan de positionnement · à destination des familles</div>
+      <h1>Entrée en Troisième · Mathématiques</h1>
+      <div class="sub">Kamel · stage de pré-rentrée Nexus Réussite · 17 août 2026</div>
+    </div>
+    <div class="who">Élève<b>Kamel</b></div>
+  </header>
+  <main>
+    <p class="accroche">Cette passation fournit des repères concrets pour organiser le travail du stage. Elle situe votre enfant sur les prérequis de 4<sup>e</sup> nécessaires à une entrée sereine en 3<sup>e</sup>.</p>
+
+    <div class="twocol">
+      <div>
+        <h2 class="sec">Points d'appui</h2>
+        <div class="chips">
+          <span class="chip">Nombres relatifs</span>
+          <span class="chip">Proportionnalité</span>
+          <span class="chip">Attention aux consignes</span>
+        </div>
+      </div>
+      <div>
+        <h2 class="sec">Une lecture en deux temps</h2>
+        <p style="margin:0;color:var(--ink-soft);font-size:13.5px">Nous regardons la justesse des réponses <b>et</b> l'assurance avec laquelle elles sont données. Cela distingue une notion « pas encore vue » d'une erreur installée — les deux ne se traitent pas de la même façon.</p>
+      </div>
+    </div>
+
+    <h2 class="sec">Ce que le stage travaillera</h2>
+    <div class="prio">
+      <div class="card2" style="border-left-color:var(--p-erreur)">
+        <div class="top"><span class="rank">D'abord</span><h4>Calcul littéral &amp; statistiques</h4></div>
+        <p class="why">Des réponses données avec assurance mais à corriger. Ce sont les premières à reprendre, car elles freineraient la suite si elles restaient installées.</p>
+      </div>
+      <div class="card2" style="border-left-color:var(--p-lacune)">
+        <div class="top"><span class="rank">Ensuite</span><h4>Puissances &amp; trigonométrie</h4></div>
+        <p class="why">Des notions que votre enfant identifie déjà comme non acquises. Elles se comblent rapidement avec des bases claires et des exercices réguliers.</p>
+      </div>
+      <div class="card2" style="border-left-color:var(--p-fragile)">
+        <div class="top"><span class="rank">En consolidation</span><h4>Fractions &amp; géométrie</h4></div>
+        <p class="why">Des acquis présents mais encore instables, à solidifier par un entraînement espacé.</p>
+      </div>
+    </div>
+
+    <h2 class="sec">Étape suivante</h2>
+    <p style="margin:0 0 4px">Un échange avec l'équipe pédagogique permettra de préciser le parcours de votre enfant pour le stage.</p>
+    <a class="cta" href="#">Être conseillé</a>
+  </main>
+  <footer class="doc"><span>Nexus Réussite · Bilan indicatif — ne remplace pas l'évaluation des enseignants.</span><span>Entrée 3<sup>e</sup> · Mathématiques</span></footer>
+</section>
+
+<!-- ================= PAGE 3 — NEXUS (COACH) ================= -->
+<section class="page">
+  <div class="banner">Version <b>Nexus / coach</b> — accès aux scores et au diagnostic complet · réservée au staff</div>
+  <header class="id">
+    <div class="logo" title="public/images/logo_slogan_nexus_x3.png">NR</div>
+    <div class="meta">
+      <div class="eyebrow">Bilan de positionnement · usage interne coach</div>
+      <h1>Entrée en Troisième · Mathématiques</h1>
+      <div class="sub">Kamel · CAS_01 · FactSheet nexus-bilan-facts-v1</div>
+    </div>
+    <div class="who">Couverture<b>45 %</b></div>
+  </header>
+  <main>
+    <div class="kpis">
+      <div class="kpi"><div class="n">15</div><div class="k">Score global</div></div>
+      <div class="kpi"><div class="n">45 %</div><div class="k">Couverture</div></div>
+      <div class="kpi"><div class="n">2</div><div class="k">Erreurs confiantes</div></div>
+      <div class="kpi"><div class="n">1</div><div class="k">Domaine non traité</div></div>
+    </div>
+
+    <h2 class="sec">Diagnostic par domaine</h2>
+    <table class="coach">
+      <thead><tr><th>#</th><th>Domaine</th><th>Profil</th><th>Score</th><th>Priorité</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>Calcul littéral</td><td><span class="tag" style="background:var(--p-erreur)">Erreur confiante</span></td><td class="score">42</td><td>P1 — désinstaller</td></tr>
+        <tr><td>2</td><td>Statistiques</td><td><span class="tag" style="background:var(--p-erreur)">Erreur confiante</span></td><td class="score">87</td><td>P1 — désinstaller</td></tr>
+        <tr><td>3</td><td>Puissances</td><td><span class="tag" style="background:var(--p-lacune)">Lacune consciente</span></td><td class="score">33</td><td>P2 — combler</td></tr>
+        <tr><td>4</td><td>Trigonométrie</td><td><span class="tag" style="background:var(--p-lacune)">Lacune consciente</span></td><td class="score">78</td><td>P2 — combler</td></tr>
+        <tr><td>5</td><td>Fractions</td><td><span class="tag" style="background:var(--p-fragile)">Fragile</span></td><td class="score">24</td><td>P3 — consolider</td></tr>
+        <tr><td>6</td><td>Géométrie</td><td><span class="tag" style="background:var(--p-fragile)">Fragile</span></td><td class="score">69</td><td>P3 — consolider</td></tr>
+        <tr><td>7</td><td>Équations</td><td><span class="tag" style="background:var(--p-nontraite)">Non traité</span></td><td class="score">51</td><td>À évaluer</td></tr>
+        <tr><td>8</td><td>Nombres relatifs</td><td><span class="tag" style="background:var(--p-maitrise)">Maîtrise</span></td><td class="score">15</td><td>Appui</td></tr>
+        <tr><td>9</td><td>Proportionnalité</td><td><span class="tag" style="background:var(--p-maitrise)">Maîtrise</span></td><td class="score">60</td><td>Appui</td></tr>
+      </tbody>
+    </table>
+    <p style="font-size:11.5px;color:var(--ink-soft);margin:8px 0 0">Scores de démonstration (fixture). En production, ils proviennent du ScoreSnapshot déterministe. <b>calibrationIndex</b> : nul ici (confiance non renseignée sur le mock) — c'est lui qui, en réel, sépare lacune consciente et erreur confiante.</p>
+
+    <h2 class="sec">Plan sur 4 semaines (proposition)</h2>
+    <div class="plan">
+      <div class="step"><div class="dur">S1</div><div class="act">Désinstaller les erreurs confiantes (calcul littéral, statistiques) : conflit cognitif + verbalisation.</div></div>
+      <div class="step"><div class="dur">S2</div><div class="act">Combler les lacunes conscientes (puissances, trigonométrie) : définitions + drill court.</div></div>
+      <div class="step"><div class="dur">S3</div><div class="act">Consolider le fragile (fractions, géométrie) ; évaluer les équations non traitées.</div></div>
+      <div class="step"><div class="dur">S4</div><div class="act">Réévaluation ciblée + transfert sur problèmes composés.</div></div>
+    </div>
+  </main>
+  <footer class="doc"><span>Nexus Réussite · Document interne coach — contient des scores, ne pas diffuser aux familles.</span><span>REPORT_PENDING_REVIEW</span></footer>
+</section>
+
+</body>
+</html>
