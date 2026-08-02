@@ -62,7 +62,7 @@
         "shortCorrection"
       ],
       "properties": {
-        "id": { "type": "string", "pattern": "^[A-Z0-9]{3}-[A-Z]{3}-[A-Z0-9]{3,}-\\d{2}$" },
+        "id": { "type": "string", "pattern": "^[A-Z0-9]{2,3}-[A-Z]{3}-[A-Z0-9]{3,}-\\d{2}$" },
         "nodeCpsId": { "type": "string", "pattern": "^[a-z0-9]+(\\.[a-z0-9-]+)+$" },
         "type": { "enum": ["QCM_SIMPLE", "QCM_MULTIPLE", "NUMERIC", "SHORT_TEXT"] },
         "difficulty": { "type": "integer", "enum": [1, 2, 3] },

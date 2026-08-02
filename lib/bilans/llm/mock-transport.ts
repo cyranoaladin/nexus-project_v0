@@ -10,6 +10,9 @@ export class MockBilanLlmTransport implements BilanLlmTransport {
   async generate(request: BilanGenerationRequest): Promise<unknown> {
     this.requests.push(request);
     const domains = request.factSheet.domains.map(({ id }) => ({ id, title: title(id) }));
+    const pointAppuiCount = domains.length === 1 ? 1 : Math.min(3, domains.length - 1);
+    const pointsAppui = domains.slice(0, pointAppuiCount);
+    const priorities = domains.length === 1 ? domains : domains.slice(pointAppuiCount);
     switch (request.agent.id) {
       case 'preAnalysis':
         return {
@@ -33,11 +36,11 @@ export class MockBilanLlmTransport implements BilanLlmTransport {
       case 'parents':
         return {
           cadre: 'La passation fournit des repères utiles pour organiser la suite du travail.',
-          pointsAppui: domains.slice(0, 3).map((domain) => ({
+          pointsAppui: pointsAppui.map((domain) => ({
             domainId: domain.id,
             texte: `${domain.title} constitue un point d'appui à mobiliser.`,
           })),
-          priorites: domains.slice(3).map((domain) => ({
+          priorites: priorities.map((domain) => ({
             domainId: domain.id,
             titre: domain.title,
             ceQuiSeraFait: 'Les démarches seront reprises avec des exercices progressifs.',

@@ -186,3 +186,37 @@ revus, ils pourront entrer dans `entree-terminale-maths-v2`.
 
 La correspondance est contractuelle : elle permet d’interpréter tout résultat historique
 portant l’ancien identifiant. Les énoncés, options et réponses correctes sont conservés.
+## Vague 1 — quinze banques actives
+
+La vague 1 est décrite par `data/bilans/banks/wave1.manifest.json`. Elle porte quinze
+banques d'entrée, de la Quatrième à la Terminale, et six disciplines. Chaque entrée lie une
+source YAML, un catalogue CPS, cinq prompts et un pack JSON. Le batch n'explore jamais
+`_archive/` et refuse qu'un chemin archivé apparaisse dans le manifest.
+
+Conversion et validation complètes, sans modifier les sources :
+
+```bash
+./node_modules/.bin/tsx scripts/bilans/convert-bank-batch.ts \
+  --manifest data/bilans/banks/wave1.manifest.json --write
+```
+
+Le batch charge les quinze banques avant toute écriture, exécute V1 à V14, vérifie
+l'unicité globale, résout les catalogues, lie les prompts par SHA-256, puis écrit les packs
+seulement si le lot entier est valide. Une erreur produit le slug, la règle et le chemin du
+champ fautif ; aucun sous-ensemble de packs n'est alors écrit.
+
+Tableau de bord pédagogique :
+
+```bash
+./node_modules/.bin/tsx scripts/bilans/check-pack-completeness.ts \
+  --all --manifest data/bilans/banks/wave1.manifest.json
+```
+
+Les deux brouillons historiques sont affichés séparément et ne comptent ni dans les quinze
+banques actives ni dans les 270 identifiants attendus.
+
+Les catalogues décrivent le niveau d'origine du prérequis et le niveau d'entrée visé. Le
+segment disciplinaire peut être transversal : la banque Philosophie utilise explicitement
+les prérequis `1re.francais.*`, conformément à la décision du 2026-08-02. Cela ne vaut pas
+autorisation générale d'inventer un rapprochement ; tout lien interdisciplinaire doit être
+versionné, documenté et validé humainement.

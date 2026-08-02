@@ -1,0 +1,5409 @@
+{
+  "schemaVersion": "nexus-bilan-blind-review-packet/v1",
+  "status": "TECHNICAL_MOCK_ONLY_NOT_PEDAGOGICALLY_VALIDATED",
+  "sourceDraftPack": "entree-quatrieme-maths-v1",
+  "executionFixture": "fixture-non-publiable-v0",
+  "instructions": "Évaluer la clarté, la fidélité aux faits et l’utilité pédagogique sans inférer une validation du pack DRAFT.",
+  "reports": [
+    {
+      "blindId": "CAS_01_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "333ab9c664bbc9533cb758d0848fbb362eaf50a06507846f6f7bc854807aaa80",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "relatifs",
+                "titre": "relatifs",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "fractions",
+                "titre": "fractions",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "proportionnalite",
+                "titre": "proportionnalite",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "calcul-litteral",
+                "titre": "calcul litteral",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "geometrie",
+                "titre": "geometrie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "grandeurs",
+                "titre": "grandeurs",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "statistiques",
+                "titre": "statistiques",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "relatifs",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "fractions",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "proportionnalite",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "grandeurs",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "statistiques",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_01_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "52aafd40be7f625b71b5f9a4ba41c64feb09253209b5f5a40d13d5ec0da8526b",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "relatifs",
+                "texte": "relatifs constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "fractions",
+                "texte": "fractions constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "proportionnalite",
+                "texte": "proportionnalite constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "calcul-litteral",
+                "titre": "calcul litteral",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "geometrie",
+                "titre": "geometrie",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "grandeurs",
+                "titre": "grandeurs",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "statistiques",
+                "titre": "statistiques",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "relatifs",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "fractions",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "proportionnalite",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "grandeurs",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "statistiques",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_01_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "8be444f60acb0104a577674c1dc8af4f7b17d1b155068e9a5316ae7a0e0eea8f",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "relatifs",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "fractions",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "proportionnalite",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "grandeurs",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "statistiques",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 15,
+            "coverage": 45,
+            "calibrationIndex": null,
+            "domainScores": [
+              {
+                "id": "relatifs",
+                "score": 15
+              },
+              {
+                "id": "fractions",
+                "score": 24
+              },
+              {
+                "id": "proportionnalite",
+                "score": 33
+              },
+              {
+                "id": "calcul-litteral",
+                "score": 42
+              },
+              {
+                "id": "geometrie",
+                "score": 51
+              },
+              {
+                "id": "grandeurs",
+                "score": 60
+              },
+              {
+                "id": "statistiques",
+                "score": 69
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_02_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "1d28b8b536846537c0b9dbc6475f71b946f7545329cbece7ecfdfe7bec954b4f",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "relatifs",
+                "titre": "relatifs",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "fractions",
+                "titre": "fractions",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "proportionnalite",
+                "titre": "proportionnalite",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "calcul-litteral",
+                "titre": "calcul litteral",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "geometrie",
+                "titre": "geometrie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "grandeurs",
+                "titre": "grandeurs",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "statistiques",
+                "titre": "statistiques",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "relatifs",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "fractions",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "proportionnalite",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "grandeurs",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "statistiques",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_02_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "2c3b1efcacd221833b0bf8af04c43d883eaced9f013acd6d9112396bd019ac4b",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "relatifs",
+                "texte": "relatifs constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "fractions",
+                "texte": "fractions constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "proportionnalite",
+                "texte": "proportionnalite constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "calcul-litteral",
+                "titre": "calcul litteral",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "geometrie",
+                "titre": "geometrie",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "grandeurs",
+                "titre": "grandeurs",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "statistiques",
+                "titre": "statistiques",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "relatifs",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "fractions",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "proportionnalite",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "grandeurs",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "statistiques",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_02_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "8e811a655199212e3817de46679918f798caba8bc07537261aaa09869aaa617f",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "relatifs",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "fractions",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "proportionnalite",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "grandeurs",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "statistiques",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 32,
+            "coverage": 58,
+            "calibrationIndex": 41,
+            "domainScores": [
+              {
+                "id": "relatifs",
+                "score": 32
+              },
+              {
+                "id": "fractions",
+                "score": 41
+              },
+              {
+                "id": "proportionnalite",
+                "score": 50
+              },
+              {
+                "id": "calcul-litteral",
+                "score": 59
+              },
+              {
+                "id": "geometrie",
+                "score": 68
+              },
+              {
+                "id": "grandeurs",
+                "score": 77
+              },
+              {
+                "id": "statistiques",
+                "score": 86
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_03_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "c503e9ff253fdbe34cf47467795649f410ba857f9e67f81119720bdcbceb42df",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "relatifs",
+                "titre": "relatifs",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "fractions",
+                "titre": "fractions",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "proportionnalite",
+                "titre": "proportionnalite",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "calcul-litteral",
+                "titre": "calcul litteral",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "geometrie",
+                "titre": "geometrie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "grandeurs",
+                "titre": "grandeurs",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "statistiques",
+                "titre": "statistiques",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "relatifs",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "fractions",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "proportionnalite",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "grandeurs",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "statistiques",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_03_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "e70ed9bb43c49012aaaf954c87eb8c66998957d6b7dcbe388b3c1296fd57fa49",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "relatifs",
+                "texte": "relatifs constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "fractions",
+                "texte": "fractions constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "proportionnalite",
+                "texte": "proportionnalite constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "calcul-litteral",
+                "titre": "calcul litteral",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "geometrie",
+                "titre": "geometrie",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "grandeurs",
+                "titre": "grandeurs",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "statistiques",
+                "titre": "statistiques",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "relatifs",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "fractions",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "proportionnalite",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "grandeurs",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "statistiques",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_03_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "276fbddd9c76a4a530440dacc8af4894cbfd61b6ac0ea98481dd3f2698839777",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "relatifs",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "fractions",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "proportionnalite",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "grandeurs",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "statistiques",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 49,
+            "coverage": 71,
+            "calibrationIndex": 52,
+            "domainScores": [
+              {
+                "id": "relatifs",
+                "score": 49
+              },
+              {
+                "id": "fractions",
+                "score": 58
+              },
+              {
+                "id": "proportionnalite",
+                "score": 67
+              },
+              {
+                "id": "calcul-litteral",
+                "score": 76
+              },
+              {
+                "id": "geometrie",
+                "score": 85
+              },
+              {
+                "id": "grandeurs",
+                "score": 94
+              },
+              {
+                "id": "statistiques",
+                "score": 2
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_04_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "d97a7694659bbae337deb35c81d50192c8cce3c3bd63226723b14c11334438d6",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "relatifs",
+                "titre": "relatifs",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "fractions",
+                "titre": "fractions",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "proportionnalite",
+                "titre": "proportionnalite",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "calcul-litteral",
+                "titre": "calcul litteral",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "geometrie",
+                "titre": "geometrie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "grandeurs",
+                "titre": "grandeurs",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "statistiques",
+                "titre": "statistiques",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "relatifs",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "fractions",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "proportionnalite",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "grandeurs",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "statistiques",
+              "profile": "NON_TRAITE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_04_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "99699ec81638857cf49cfe4213e2863be8b1d333e2135c62858a9d167d342dbd",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "relatifs",
+                "texte": "relatifs constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "fractions",
+                "texte": "fractions constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "proportionnalite",
+                "texte": "proportionnalite constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "calcul-litteral",
+                "titre": "calcul litteral",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "geometrie",
+                "titre": "geometrie",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "grandeurs",
+                "titre": "grandeurs",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "statistiques",
+                "titre": "statistiques",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "relatifs",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "fractions",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "proportionnalite",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "grandeurs",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "statistiques",
+              "profile": "NON_TRAITE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_04_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "df0d8eaf67a148ff6e9076ff0f7d865029211ec887946dfd2b3463239cac1b2e",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "relatifs",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "fractions",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "proportionnalite",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "grandeurs",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "statistiques",
+              "profile": "NON_TRAITE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 66,
+            "coverage": 84,
+            "calibrationIndex": 63,
+            "domainScores": [
+              {
+                "id": "relatifs",
+                "score": 66
+              },
+              {
+                "id": "fractions",
+                "score": 75
+              },
+              {
+                "id": "proportionnalite",
+                "score": 84
+              },
+              {
+                "id": "calcul-litteral",
+                "score": 93
+              },
+              {
+                "id": "geometrie",
+                "score": 1
+              },
+              {
+                "id": "grandeurs",
+                "score": 10
+              },
+              {
+                "id": "statistiques",
+                "score": 19
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_05_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "ca2f4fb224662defe0b21d2f8ddae4655123064e6b978bb68812551af570d4fd",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "relatifs",
+                "titre": "relatifs",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "fractions",
+                "titre": "fractions",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "proportionnalite",
+                "titre": "proportionnalite",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "calcul-litteral",
+                "titre": "calcul litteral",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "geometrie",
+                "titre": "geometrie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "grandeurs",
+                "titre": "grandeurs",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "statistiques",
+                "titre": "statistiques",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "relatifs",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "fractions",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "proportionnalite",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "grandeurs",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "statistiques",
+              "profile": "MAITRISE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_05_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "b588a500317b5587beeb9df3f9880fe7acd1d8fd003cadbcac3eea7c755f9541",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "relatifs",
+                "texte": "relatifs constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "fractions",
+                "texte": "fractions constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "proportionnalite",
+                "texte": "proportionnalite constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "calcul-litteral",
+                "titre": "calcul litteral",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "geometrie",
+                "titre": "geometrie",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "grandeurs",
+                "titre": "grandeurs",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "statistiques",
+                "titre": "statistiques",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "relatifs",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "fractions",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "proportionnalite",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "grandeurs",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "statistiques",
+              "profile": "MAITRISE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_05_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "dc5b1b69450d8fa78b484611eefd266349d98f7c1ed26cc881b32c885e50836c",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "relatifs",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "fractions",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "proportionnalite",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "grandeurs",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "statistiques",
+              "profile": "MAITRISE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 83,
+            "coverage": 97,
+            "calibrationIndex": null,
+            "domainScores": [
+              {
+                "id": "relatifs",
+                "score": 83
+              },
+              {
+                "id": "fractions",
+                "score": 92
+              },
+              {
+                "id": "proportionnalite",
+                "score": 0
+              },
+              {
+                "id": "calcul-litteral",
+                "score": 9
+              },
+              {
+                "id": "geometrie",
+                "score": 18
+              },
+              {
+                "id": "grandeurs",
+                "score": 27
+              },
+              {
+                "id": "statistiques",
+                "score": 36
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_06_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "333ab9c664bbc9533cb758d0848fbb362eaf50a06507846f6f7bc854807aaa80",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "relatifs",
+                "titre": "relatifs",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "fractions",
+                "titre": "fractions",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "proportionnalite",
+                "titre": "proportionnalite",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "calcul-litteral",
+                "titre": "calcul litteral",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "geometrie",
+                "titre": "geometrie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "grandeurs",
+                "titre": "grandeurs",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "statistiques",
+                "titre": "statistiques",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "relatifs",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "fractions",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "proportionnalite",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "grandeurs",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "statistiques",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_06_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "52aafd40be7f625b71b5f9a4ba41c64feb09253209b5f5a40d13d5ec0da8526b",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "relatifs",
+                "texte": "relatifs constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "fractions",
+                "texte": "fractions constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "proportionnalite",
+                "texte": "proportionnalite constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "calcul-litteral",
+                "titre": "calcul litteral",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "geometrie",
+                "titre": "geometrie",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "grandeurs",
+                "titre": "grandeurs",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "statistiques",
+                "titre": "statistiques",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "relatifs",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "fractions",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "proportionnalite",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "grandeurs",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "statistiques",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_06_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "456987bdf4c0a8967e4b5bb17088333a9b07770a481537d0a7dddacd00b3840e",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "relatifs",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "fractions",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "proportionnalite",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "grandeurs",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "statistiques",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 19,
+            "coverage": 54,
+            "calibrationIndex": 85,
+            "domainScores": [
+              {
+                "id": "relatifs",
+                "score": 19
+              },
+              {
+                "id": "fractions",
+                "score": 28
+              },
+              {
+                "id": "proportionnalite",
+                "score": 37
+              },
+              {
+                "id": "calcul-litteral",
+                "score": 46
+              },
+              {
+                "id": "geometrie",
+                "score": 55
+              },
+              {
+                "id": "grandeurs",
+                "score": 64
+              },
+              {
+                "id": "statistiques",
+                "score": 73
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_07_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "1d28b8b536846537c0b9dbc6475f71b946f7545329cbece7ecfdfe7bec954b4f",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "relatifs",
+                "titre": "relatifs",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "fractions",
+                "titre": "fractions",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "proportionnalite",
+                "titre": "proportionnalite",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "calcul-litteral",
+                "titre": "calcul litteral",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "geometrie",
+                "titre": "geometrie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "grandeurs",
+                "titre": "grandeurs",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "statistiques",
+                "titre": "statistiques",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "relatifs",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "fractions",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "proportionnalite",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "grandeurs",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "statistiques",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_07_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "2c3b1efcacd221833b0bf8af04c43d883eaced9f013acd6d9112396bd019ac4b",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "relatifs",
+                "texte": "relatifs constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "fractions",
+                "texte": "fractions constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "proportionnalite",
+                "texte": "proportionnalite constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "calcul-litteral",
+                "titre": "calcul litteral",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "geometrie",
+                "titre": "geometrie",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "grandeurs",
+                "titre": "grandeurs",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "statistiques",
+                "titre": "statistiques",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "relatifs",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "fractions",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "proportionnalite",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "grandeurs",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "statistiques",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_07_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "5020a5bbaa458a202bd80b27356a0a1c08f54d18d68485638a4ca8dcd1c8bdfb",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "relatifs",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "fractions",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "proportionnalite",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "grandeurs",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "statistiques",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 36,
+            "coverage": 67,
+            "calibrationIndex": 96,
+            "domainScores": [
+              {
+                "id": "relatifs",
+                "score": 36
+              },
+              {
+                "id": "fractions",
+                "score": 45
+              },
+              {
+                "id": "proportionnalite",
+                "score": 54
+              },
+              {
+                "id": "calcul-litteral",
+                "score": 63
+              },
+              {
+                "id": "geometrie",
+                "score": 72
+              },
+              {
+                "id": "grandeurs",
+                "score": 81
+              },
+              {
+                "id": "statistiques",
+                "score": 90
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_08_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "c503e9ff253fdbe34cf47467795649f410ba857f9e67f81119720bdcbceb42df",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "relatifs",
+                "titre": "relatifs",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "fractions",
+                "titre": "fractions",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "proportionnalite",
+                "titre": "proportionnalite",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "calcul-litteral",
+                "titre": "calcul litteral",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "geometrie",
+                "titre": "geometrie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "grandeurs",
+                "titre": "grandeurs",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "statistiques",
+                "titre": "statistiques",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "relatifs",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "fractions",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "proportionnalite",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "grandeurs",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "statistiques",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_08_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "e70ed9bb43c49012aaaf954c87eb8c66998957d6b7dcbe388b3c1296fd57fa49",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "relatifs",
+                "texte": "relatifs constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "fractions",
+                "texte": "fractions constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "proportionnalite",
+                "texte": "proportionnalite constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "calcul-litteral",
+                "titre": "calcul litteral",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "geometrie",
+                "titre": "geometrie",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "grandeurs",
+                "titre": "grandeurs",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "statistiques",
+                "titre": "statistiques",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "relatifs",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "fractions",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "proportionnalite",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "grandeurs",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "statistiques",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_08_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "fd8c32871f65fbdaef388a13e360274e91fbef17cc27a5ae1c48cd53a19c2152",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "relatifs",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "fractions",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "proportionnalite",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "grandeurs",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "statistiques",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 53,
+            "coverage": 80,
+            "calibrationIndex": 36,
+            "domainScores": [
+              {
+                "id": "relatifs",
+                "score": 53
+              },
+              {
+                "id": "fractions",
+                "score": 62
+              },
+              {
+                "id": "proportionnalite",
+                "score": 71
+              },
+              {
+                "id": "calcul-litteral",
+                "score": 80
+              },
+              {
+                "id": "geometrie",
+                "score": 89
+              },
+              {
+                "id": "grandeurs",
+                "score": 98
+              },
+              {
+                "id": "statistiques",
+                "score": 6
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_09_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "d97a7694659bbae337deb35c81d50192c8cce3c3bd63226723b14c11334438d6",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "relatifs",
+                "titre": "relatifs",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "fractions",
+                "titre": "fractions",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "proportionnalite",
+                "titre": "proportionnalite",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "calcul-litteral",
+                "titre": "calcul litteral",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "geometrie",
+                "titre": "geometrie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "grandeurs",
+                "titre": "grandeurs",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "statistiques",
+                "titre": "statistiques",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "relatifs",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "fractions",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "proportionnalite",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "grandeurs",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "statistiques",
+              "profile": "NON_TRAITE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_09_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "99699ec81638857cf49cfe4213e2863be8b1d333e2135c62858a9d167d342dbd",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "relatifs",
+                "texte": "relatifs constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "fractions",
+                "texte": "fractions constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "proportionnalite",
+                "texte": "proportionnalite constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "calcul-litteral",
+                "titre": "calcul litteral",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "geometrie",
+                "titre": "geometrie",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "grandeurs",
+                "titre": "grandeurs",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "statistiques",
+                "titre": "statistiques",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "relatifs",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "fractions",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "proportionnalite",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "grandeurs",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "statistiques",
+              "profile": "NON_TRAITE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_09_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "9ca000975bdc25895109e0ab29ead30ddc3ea7bbcaed9cf5d9e4d036be54c36f",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "relatifs",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "fractions",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "proportionnalite",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "grandeurs",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "statistiques",
+              "profile": "NON_TRAITE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 70,
+            "coverage": 93,
+            "calibrationIndex": null,
+            "domainScores": [
+              {
+                "id": "relatifs",
+                "score": 70
+              },
+              {
+                "id": "fractions",
+                "score": 79
+              },
+              {
+                "id": "proportionnalite",
+                "score": 88
+              },
+              {
+                "id": "calcul-litteral",
+                "score": 97
+              },
+              {
+                "id": "geometrie",
+                "score": 5
+              },
+              {
+                "id": "grandeurs",
+                "score": 14
+              },
+              {
+                "id": "statistiques",
+                "score": 23
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_10_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "ca2f4fb224662defe0b21d2f8ddae4655123064e6b978bb68812551af570d4fd",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "relatifs",
+                "titre": "relatifs",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "fractions",
+                "titre": "fractions",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "proportionnalite",
+                "titre": "proportionnalite",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "calcul-litteral",
+                "titre": "calcul litteral",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "geometrie",
+                "titre": "geometrie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "grandeurs",
+                "titre": "grandeurs",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "statistiques",
+                "titre": "statistiques",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "relatifs",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "fractions",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "proportionnalite",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "grandeurs",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "statistiques",
+              "profile": "MAITRISE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_10_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "b588a500317b5587beeb9df3f9880fe7acd1d8fd003cadbcac3eea7c755f9541",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "relatifs",
+                "texte": "relatifs constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "fractions",
+                "texte": "fractions constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "proportionnalite",
+                "texte": "proportionnalite constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "calcul-litteral",
+                "titre": "calcul litteral",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "geometrie",
+                "titre": "geometrie",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "grandeurs",
+                "titre": "grandeurs",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "statistiques",
+                "titre": "statistiques",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "relatifs",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "fractions",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "proportionnalite",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "grandeurs",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "statistiques",
+              "profile": "MAITRISE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_10_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "d33ad49a9c9e002efbb84f32404175dcbdfca5b6d01b868a7faf4b2d5c6b3af2",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "relatifs",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "fractions",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "proportionnalite",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "grandeurs",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "statistiques",
+              "profile": "MAITRISE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 87,
+            "coverage": 50,
+            "calibrationIndex": 58,
+            "domainScores": [
+              {
+                "id": "relatifs",
+                "score": 87
+              },
+              {
+                "id": "fractions",
+                "score": 96
+              },
+              {
+                "id": "proportionnalite",
+                "score": 4
+              },
+              {
+                "id": "calcul-litteral",
+                "score": 13
+              },
+              {
+                "id": "geometrie",
+                "score": 22
+              },
+              {
+                "id": "grandeurs",
+                "score": 31
+              },
+              {
+                "id": "statistiques",
+                "score": 40
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_11_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "333ab9c664bbc9533cb758d0848fbb362eaf50a06507846f6f7bc854807aaa80",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "relatifs",
+                "titre": "relatifs",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "fractions",
+                "titre": "fractions",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "proportionnalite",
+                "titre": "proportionnalite",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "calcul-litteral",
+                "titre": "calcul litteral",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "geometrie",
+                "titre": "geometrie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "grandeurs",
+                "titre": "grandeurs",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "statistiques",
+                "titre": "statistiques",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "relatifs",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "fractions",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "proportionnalite",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "grandeurs",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "statistiques",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_11_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "52aafd40be7f625b71b5f9a4ba41c64feb09253209b5f5a40d13d5ec0da8526b",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "relatifs",
+                "texte": "relatifs constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "fractions",
+                "texte": "fractions constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "proportionnalite",
+                "texte": "proportionnalite constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "calcul-litteral",
+                "titre": "calcul litteral",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "geometrie",
+                "titre": "geometrie",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "grandeurs",
+                "titre": "grandeurs",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "statistiques",
+                "titre": "statistiques",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "relatifs",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "fractions",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "proportionnalite",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "grandeurs",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "statistiques",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_11_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "0a7e35e82d7bd20532e808937553ade19e4f622f403af2027dfa42e2660523f0",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "relatifs",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "fractions",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "proportionnalite",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "grandeurs",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "statistiques",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 23,
+            "coverage": 63,
+            "calibrationIndex": 69,
+            "domainScores": [
+              {
+                "id": "relatifs",
+                "score": 23
+              },
+              {
+                "id": "fractions",
+                "score": 32
+              },
+              {
+                "id": "proportionnalite",
+                "score": 41
+              },
+              {
+                "id": "calcul-litteral",
+                "score": 50
+              },
+              {
+                "id": "geometrie",
+                "score": 59
+              },
+              {
+                "id": "grandeurs",
+                "score": 68
+              },
+              {
+                "id": "statistiques",
+                "score": 77
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_12_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "1d28b8b536846537c0b9dbc6475f71b946f7545329cbece7ecfdfe7bec954b4f",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "relatifs",
+                "titre": "relatifs",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "fractions",
+                "titre": "fractions",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "proportionnalite",
+                "titre": "proportionnalite",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "calcul-litteral",
+                "titre": "calcul litteral",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "geometrie",
+                "titre": "geometrie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "grandeurs",
+                "titre": "grandeurs",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "statistiques",
+                "titre": "statistiques",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "relatifs",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "fractions",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "proportionnalite",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "grandeurs",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "statistiques",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_12_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "2c3b1efcacd221833b0bf8af04c43d883eaced9f013acd6d9112396bd019ac4b",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "relatifs",
+                "texte": "relatifs constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "fractions",
+                "texte": "fractions constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "proportionnalite",
+                "texte": "proportionnalite constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "calcul-litteral",
+                "titre": "calcul litteral",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "geometrie",
+                "titre": "geometrie",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "grandeurs",
+                "titre": "grandeurs",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "statistiques",
+                "titre": "statistiques",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "relatifs",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "fractions",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "proportionnalite",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "grandeurs",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "statistiques",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_12_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "5de6c72cefc8e077667c5429f9a8cfea4804ba5a3e44526e6d59da126dade8b4",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "relatifs",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "fractions",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "proportionnalite",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "grandeurs",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "statistiques",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 40,
+            "coverage": 76,
+            "calibrationIndex": 80,
+            "domainScores": [
+              {
+                "id": "relatifs",
+                "score": 40
+              },
+              {
+                "id": "fractions",
+                "score": 49
+              },
+              {
+                "id": "proportionnalite",
+                "score": 58
+              },
+              {
+                "id": "calcul-litteral",
+                "score": 67
+              },
+              {
+                "id": "geometrie",
+                "score": 76
+              },
+              {
+                "id": "grandeurs",
+                "score": 85
+              },
+              {
+                "id": "statistiques",
+                "score": 94
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_13_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "c503e9ff253fdbe34cf47467795649f410ba857f9e67f81119720bdcbceb42df",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "relatifs",
+                "titre": "relatifs",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "fractions",
+                "titre": "fractions",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "proportionnalite",
+                "titre": "proportionnalite",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "calcul-litteral",
+                "titre": "calcul litteral",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "geometrie",
+                "titre": "geometrie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "grandeurs",
+                "titre": "grandeurs",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "statistiques",
+                "titre": "statistiques",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "relatifs",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "fractions",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "proportionnalite",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "grandeurs",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "statistiques",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_13_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "e70ed9bb43c49012aaaf954c87eb8c66998957d6b7dcbe388b3c1296fd57fa49",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "relatifs",
+                "texte": "relatifs constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "fractions",
+                "texte": "fractions constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "proportionnalite",
+                "texte": "proportionnalite constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "calcul-litteral",
+                "titre": "calcul litteral",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "geometrie",
+                "titre": "geometrie",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "grandeurs",
+                "titre": "grandeurs",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "statistiques",
+                "titre": "statistiques",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "relatifs",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "fractions",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "proportionnalite",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "grandeurs",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "statistiques",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_13_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "7736d632dd0e8005c8cc15e9742cf258a26e144aa3d17f8c0ae93c14f6400a4f",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "relatifs",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "fractions",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "proportionnalite",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "grandeurs",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "statistiques",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 57,
+            "coverage": 89,
+            "calibrationIndex": null,
+            "domainScores": [
+              {
+                "id": "relatifs",
+                "score": 57
+              },
+              {
+                "id": "fractions",
+                "score": 66
+              },
+              {
+                "id": "proportionnalite",
+                "score": 75
+              },
+              {
+                "id": "calcul-litteral",
+                "score": 84
+              },
+              {
+                "id": "geometrie",
+                "score": 93
+              },
+              {
+                "id": "grandeurs",
+                "score": 1
+              },
+              {
+                "id": "statistiques",
+                "score": 10
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_14_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "d97a7694659bbae337deb35c81d50192c8cce3c3bd63226723b14c11334438d6",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "relatifs",
+                "titre": "relatifs",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "fractions",
+                "titre": "fractions",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "proportionnalite",
+                "titre": "proportionnalite",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "calcul-litteral",
+                "titre": "calcul litteral",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "geometrie",
+                "titre": "geometrie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "grandeurs",
+                "titre": "grandeurs",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "statistiques",
+                "titre": "statistiques",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "relatifs",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "fractions",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "proportionnalite",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "grandeurs",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "statistiques",
+              "profile": "NON_TRAITE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_14_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "99699ec81638857cf49cfe4213e2863be8b1d333e2135c62858a9d167d342dbd",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "relatifs",
+                "texte": "relatifs constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "fractions",
+                "texte": "fractions constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "proportionnalite",
+                "texte": "proportionnalite constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "calcul-litteral",
+                "titre": "calcul litteral",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "geometrie",
+                "titre": "geometrie",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "grandeurs",
+                "titre": "grandeurs",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "statistiques",
+                "titre": "statistiques",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "relatifs",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "fractions",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "proportionnalite",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "grandeurs",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "statistiques",
+              "profile": "NON_TRAITE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_14_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "fd5baeb49164768c0fd1fb5bd7ce2a6522ebd575a7f600e7cf137ff0eee9b8f2",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "relatifs",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "fractions",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "proportionnalite",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "grandeurs",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "statistiques",
+              "profile": "NON_TRAITE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 74,
+            "coverage": 46,
+            "calibrationIndex": 31,
+            "domainScores": [
+              {
+                "id": "relatifs",
+                "score": 74
+              },
+              {
+                "id": "fractions",
+                "score": 83
+              },
+              {
+                "id": "proportionnalite",
+                "score": 92
+              },
+              {
+                "id": "calcul-litteral",
+                "score": 0
+              },
+              {
+                "id": "geometrie",
+                "score": 9
+              },
+              {
+                "id": "grandeurs",
+                "score": 18
+              },
+              {
+                "id": "statistiques",
+                "score": 27
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_15_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "ca2f4fb224662defe0b21d2f8ddae4655123064e6b978bb68812551af570d4fd",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "relatifs",
+                "titre": "relatifs",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "fractions",
+                "titre": "fractions",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "proportionnalite",
+                "titre": "proportionnalite",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "calcul-litteral",
+                "titre": "calcul litteral",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "geometrie",
+                "titre": "geometrie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "grandeurs",
+                "titre": "grandeurs",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "statistiques",
+                "titre": "statistiques",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "relatifs",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "fractions",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "proportionnalite",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "grandeurs",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "statistiques",
+              "profile": "MAITRISE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_15_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "b588a500317b5587beeb9df3f9880fe7acd1d8fd003cadbcac3eea7c755f9541",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "relatifs",
+                "texte": "relatifs constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "fractions",
+                "texte": "fractions constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "proportionnalite",
+                "texte": "proportionnalite constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "calcul-litteral",
+                "titre": "calcul litteral",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "geometrie",
+                "titre": "geometrie",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "grandeurs",
+                "titre": "grandeurs",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "statistiques",
+                "titre": "statistiques",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "relatifs",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "fractions",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "proportionnalite",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "grandeurs",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "statistiques",
+              "profile": "MAITRISE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_15_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "a7b0e00b9b5f2f179b4c80353ff67d43483f932880fd54c78f20efbd66981d16",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "relatifs",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "fractions",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "proportionnalite",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "grandeurs",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "statistiques",
+              "profile": "MAITRISE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 91,
+            "coverage": 59,
+            "calibrationIndex": 42,
+            "domainScores": [
+              {
+                "id": "relatifs",
+                "score": 91
+              },
+              {
+                "id": "fractions",
+                "score": 100
+              },
+              {
+                "id": "proportionnalite",
+                "score": 8
+              },
+              {
+                "id": "calcul-litteral",
+                "score": 17
+              },
+              {
+                "id": "geometrie",
+                "score": 26
+              },
+              {
+                "id": "grandeurs",
+                "score": 35
+              },
+              {
+                "id": "statistiques",
+                "score": 44
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_16_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "333ab9c664bbc9533cb758d0848fbb362eaf50a06507846f6f7bc854807aaa80",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "relatifs",
+                "titre": "relatifs",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "fractions",
+                "titre": "fractions",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "proportionnalite",
+                "titre": "proportionnalite",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "calcul-litteral",
+                "titre": "calcul litteral",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "geometrie",
+                "titre": "geometrie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "grandeurs",
+                "titre": "grandeurs",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "statistiques",
+                "titre": "statistiques",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "relatifs",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "fractions",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "proportionnalite",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "grandeurs",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "statistiques",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_16_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "52aafd40be7f625b71b5f9a4ba41c64feb09253209b5f5a40d13d5ec0da8526b",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "relatifs",
+                "texte": "relatifs constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "fractions",
+                "texte": "fractions constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "proportionnalite",
+                "texte": "proportionnalite constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "calcul-litteral",
+                "titre": "calcul litteral",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "geometrie",
+                "titre": "geometrie",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "grandeurs",
+                "titre": "grandeurs",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "statistiques",
+                "titre": "statistiques",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "relatifs",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "fractions",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "proportionnalite",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "grandeurs",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "statistiques",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_16_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "20d8d70e0396ece4d21b239ab421f12efc7b7f3575778f340913aa6021cb2dbc",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "relatifs",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "fractions",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "proportionnalite",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "grandeurs",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "statistiques",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 27,
+            "coverage": 72,
+            "calibrationIndex": 53,
+            "domainScores": [
+              {
+                "id": "relatifs",
+                "score": 27
+              },
+              {
+                "id": "fractions",
+                "score": 36
+              },
+              {
+                "id": "proportionnalite",
+                "score": 45
+              },
+              {
+                "id": "calcul-litteral",
+                "score": 54
+              },
+              {
+                "id": "geometrie",
+                "score": 63
+              },
+              {
+                "id": "grandeurs",
+                "score": 72
+              },
+              {
+                "id": "statistiques",
+                "score": 81
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_17_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "1d28b8b536846537c0b9dbc6475f71b946f7545329cbece7ecfdfe7bec954b4f",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "relatifs",
+                "titre": "relatifs",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "fractions",
+                "titre": "fractions",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "proportionnalite",
+                "titre": "proportionnalite",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "calcul-litteral",
+                "titre": "calcul litteral",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "geometrie",
+                "titre": "geometrie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "grandeurs",
+                "titre": "grandeurs",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "statistiques",
+                "titre": "statistiques",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "relatifs",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "fractions",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "proportionnalite",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "grandeurs",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "statistiques",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_17_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "2c3b1efcacd221833b0bf8af04c43d883eaced9f013acd6d9112396bd019ac4b",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "relatifs",
+                "texte": "relatifs constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "fractions",
+                "texte": "fractions constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "proportionnalite",
+                "texte": "proportionnalite constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "calcul-litteral",
+                "titre": "calcul litteral",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "geometrie",
+                "titre": "geometrie",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "grandeurs",
+                "titre": "grandeurs",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "statistiques",
+                "titre": "statistiques",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "relatifs",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "fractions",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "proportionnalite",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "grandeurs",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "statistiques",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_17_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "ff805429132bc14cffaf1629820a394cfdea635c87904375333567e50c18b0dd",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "relatifs",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "fractions",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "proportionnalite",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "grandeurs",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "statistiques",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 44,
+            "coverage": 85,
+            "calibrationIndex": null,
+            "domainScores": [
+              {
+                "id": "relatifs",
+                "score": 44
+              },
+              {
+                "id": "fractions",
+                "score": 53
+              },
+              {
+                "id": "proportionnalite",
+                "score": 62
+              },
+              {
+                "id": "calcul-litteral",
+                "score": 71
+              },
+              {
+                "id": "geometrie",
+                "score": 80
+              },
+              {
+                "id": "grandeurs",
+                "score": 89
+              },
+              {
+                "id": "statistiques",
+                "score": 98
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_18_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "c503e9ff253fdbe34cf47467795649f410ba857f9e67f81119720bdcbceb42df",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "relatifs",
+                "titre": "relatifs",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "fractions",
+                "titre": "fractions",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "proportionnalite",
+                "titre": "proportionnalite",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "calcul-litteral",
+                "titre": "calcul litteral",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "geometrie",
+                "titre": "geometrie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "grandeurs",
+                "titre": "grandeurs",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "statistiques",
+                "titre": "statistiques",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "relatifs",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "fractions",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "proportionnalite",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "grandeurs",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "statistiques",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_18_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "e70ed9bb43c49012aaaf954c87eb8c66998957d6b7dcbe388b3c1296fd57fa49",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "relatifs",
+                "texte": "relatifs constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "fractions",
+                "texte": "fractions constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "proportionnalite",
+                "texte": "proportionnalite constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "calcul-litteral",
+                "titre": "calcul litteral",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "geometrie",
+                "titre": "geometrie",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "grandeurs",
+                "titre": "grandeurs",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "statistiques",
+                "titre": "statistiques",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "relatifs",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "fractions",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "proportionnalite",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "grandeurs",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "statistiques",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_18_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "e93f579de79fa4d678c68f0a2cb04d587dd3dc35f92ba06c37ce44bc5ea8910c",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "relatifs",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "fractions",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "proportionnalite",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "grandeurs",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "statistiques",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 61,
+            "coverage": 98,
+            "calibrationIndex": 75,
+            "domainScores": [
+              {
+                "id": "relatifs",
+                "score": 61
+              },
+              {
+                "id": "fractions",
+                "score": 70
+              },
+              {
+                "id": "proportionnalite",
+                "score": 79
+              },
+              {
+                "id": "calcul-litteral",
+                "score": 88
+              },
+              {
+                "id": "geometrie",
+                "score": 97
+              },
+              {
+                "id": "grandeurs",
+                "score": 5
+              },
+              {
+                "id": "statistiques",
+                "score": 14
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_19_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "d97a7694659bbae337deb35c81d50192c8cce3c3bd63226723b14c11334438d6",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "relatifs",
+                "titre": "relatifs",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "fractions",
+                "titre": "fractions",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "proportionnalite",
+                "titre": "proportionnalite",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "calcul-litteral",
+                "titre": "calcul litteral",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "geometrie",
+                "titre": "geometrie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "grandeurs",
+                "titre": "grandeurs",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "statistiques",
+                "titre": "statistiques",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "relatifs",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "fractions",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "proportionnalite",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "grandeurs",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "statistiques",
+              "profile": "NON_TRAITE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_19_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "99699ec81638857cf49cfe4213e2863be8b1d333e2135c62858a9d167d342dbd",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "relatifs",
+                "texte": "relatifs constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "fractions",
+                "texte": "fractions constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "proportionnalite",
+                "texte": "proportionnalite constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "calcul-litteral",
+                "titre": "calcul litteral",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "geometrie",
+                "titre": "geometrie",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "grandeurs",
+                "titre": "grandeurs",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "statistiques",
+                "titre": "statistiques",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "relatifs",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "fractions",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "proportionnalite",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "grandeurs",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "statistiques",
+              "profile": "NON_TRAITE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_19_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "e8048dd4e8be4141d8de574bf278261eab3bd58b9b429e61d3e158e53eb845ec",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "relatifs",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "fractions",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "proportionnalite",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "grandeurs",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "statistiques",
+              "profile": "NON_TRAITE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 78,
+            "coverage": 55,
+            "calibrationIndex": 86,
+            "domainScores": [
+              {
+                "id": "relatifs",
+                "score": 78
+              },
+              {
+                "id": "fractions",
+                "score": 87
+              },
+              {
+                "id": "proportionnalite",
+                "score": 96
+              },
+              {
+                "id": "calcul-litteral",
+                "score": 4
+              },
+              {
+                "id": "geometrie",
+                "score": 13
+              },
+              {
+                "id": "grandeurs",
+                "score": 22
+              },
+              {
+                "id": "statistiques",
+                "score": 31
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_20_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "ca2f4fb224662defe0b21d2f8ddae4655123064e6b978bb68812551af570d4fd",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "relatifs",
+                "titre": "relatifs",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "fractions",
+                "titre": "fractions",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "proportionnalite",
+                "titre": "proportionnalite",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "calcul-litteral",
+                "titre": "calcul litteral",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "geometrie",
+                "titre": "geometrie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "grandeurs",
+                "titre": "grandeurs",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "statistiques",
+                "titre": "statistiques",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "relatifs",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "fractions",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "proportionnalite",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "grandeurs",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "statistiques",
+              "profile": "MAITRISE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_20_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "b588a500317b5587beeb9df3f9880fe7acd1d8fd003cadbcac3eea7c755f9541",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "relatifs",
+                "texte": "relatifs constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "fractions",
+                "texte": "fractions constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "proportionnalite",
+                "texte": "proportionnalite constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "calcul-litteral",
+                "titre": "calcul litteral",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "geometrie",
+                "titre": "geometrie",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "grandeurs",
+                "titre": "grandeurs",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "statistiques",
+                "titre": "statistiques",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "relatifs",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "fractions",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "proportionnalite",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "grandeurs",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "statistiques",
+              "profile": "MAITRISE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_20_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "5e30a0270f9ac2476fc180e1ce5f37294d7315108bab1074b7f974b79d8ca7b1",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "relatifs",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "fractions",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "proportionnalite",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "geometrie",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "grandeurs",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "statistiques",
+              "profile": "MAITRISE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 95,
+            "coverage": 68,
+            "calibrationIndex": 97,
+            "domainScores": [
+              {
+                "id": "relatifs",
+                "score": 95
+              },
+              {
+                "id": "fractions",
+                "score": 3
+              },
+              {
+                "id": "proportionnalite",
+                "score": 12
+              },
+              {
+                "id": "calcul-litteral",
+                "score": 21
+              },
+              {
+                "id": "geometrie",
+                "score": 30
+              },
+              {
+                "id": "grandeurs",
+                "score": 39
+              },
+              {
+                "id": "statistiques",
+                "score": 48
+              }
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

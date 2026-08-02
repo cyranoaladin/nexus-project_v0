@@ -20,7 +20,7 @@ avant `typecheck`. Elle échoue au premier item invalide (pas de tolérance).
 
 | # | Règle | Motif |
 |---|---|---|
-| V1 | `id` unique dans tout le dépôt, format `^[A-Z0-9]{3}-[A-Z]{3}-[A-Z0-9]{3,}-\d{2}$` | traçabilité des résultats historiques |
+| V1 | `id` unique dans tout le dépôt, format `^[A-Z0-9]{2,3}-[A-Z]{3}-[A-Z0-9]{3,}-\d{2}$` | traçabilité des résultats historiques ; le premier segment accepte les niveaux courts comme `4E` sans relâcher les autres segments |
 | V2 | `nodeCpsId` existe dans le CPS compilé du niveau visé | pas de nœud orphelin |
 | V3 | `difficulty ∈ {1,2,3}` | pondération de la spec 02 §5 |
 | V4 | 2 items minimum par nœud couvert, 6 maximum | un nœud à 1 item ne permet aucun profilage fiable |
@@ -34,6 +34,12 @@ avant `typecheck`. Elle échoue au premier item invalide (pas de tolérance).
 | V12 | aucun nom propre d'enseignant, aucune marque tierce | |
 | V13 | chaque distracteur porte un `distractorRationale` non vide décrivant l'erreur réelle qu'il capture | sans erreur identifiée, `ERREUR_CONFIANTE` devient décoratif plutôt que diagnostique |
 | V14 | aucune position d'option ne porte la bonne réponse sur plus de 40 % des items de la banque | empêche qu'un motif de position permette de réussir sans connaissance |
+
+V2 vérifie l'existence du nœud et son niveau cible, pas l'égalité entre la matière du pack
+et le segment disciplinaire du nœud. Une relation interdisciplinaire explicite est donc
+autorisée lorsqu'elle est portée par un catalogue versionné et documentée par une décision.
+La banque d'entrée en Terminale Philosophie s'appuie ainsi sur les prérequis de français de
+Première ; aucune exception de code liée à son slug n'est admise.
 
 ## §3. Règles de conception (non bloquantes, revue humaine)
 

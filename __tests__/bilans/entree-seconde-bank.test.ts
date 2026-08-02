@@ -116,7 +116,7 @@ describe('banque de positionnement entrée en Seconde', () => {
 
     expect(source.items).toHaveLength(18);
     expect(new Set(ids).size).toBe(ids.length);
-    for (const id of ids) expect(id).toMatch(/^[A-Z0-9]{3}-[A-Z]{3}-[A-Z0-9]{3,}-\d{2}$/);
+    for (const id of ids) expect(id).toMatch(/^[A-Z0-9]{2,3}-[A-Z]{3}-[A-Z0-9]{3,}-\d{2}$/);
 
     const catalogIds = new Set(catalog.nodes.map((node) => node.id));
     for (const item of source.items) {

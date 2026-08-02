@@ -1,0 +1,51 @@
+# Décision interdisciplinaire : cette banque de philosophie évalue les prérequis de français de Première.
+# Voir docs/decisions/2026-08-02-philosophie-prerequis-francais.md.
+schemaVersion: nexus-cps-catalog/v1
+slug: 1re-francais-vers-terminale-v1
+version: 1
+nodes:
+  - id: 1re.francais.argumentation.these-argument-exemple
+    label: Thèse, argument, exemple
+    sourceLevel: PREMIERE
+    targetLevel: TERMINALE
+    pedagogicalRationale: l'explication de texte comme la dissertation supposent de repérer ce qu'un auteur soutient, ce qui le justifie et ce qui l'illustre. Confondre ces trois niveaux rend toute analyse impossible.
+  - id: 1re.francais.argumentation.structure-du-texte
+    label: Structure et mouvement d'un texte argumentatif
+    sourceLevel: PREMIERE
+    targetLevel: TERMINALE
+    pedagogicalRationale: l'explication de texte consiste d'abord à dégager les étapes du raisonnement de l'auteur, avant toute interprétation.
+  - id: 1re.francais.argumentation.connecteurs-logiques
+    label: Connecteurs logiques et relations de raisonnement
+    sourceLevel: PREMIERE
+    targetLevel: TERMINALE
+    pedagogicalRationale: identifier une prémisse, une conséquence ou une opposition est le premier geste de l'analyse d'un argument.
+  - id: 1re.francais.lexique.definir-une-notion
+    label: Définir une notion
+    sourceLevel: PREMIERE
+    targetLevel: TERMINALE
+    pedagogicalRationale: la dissertation commence par la définition des termes du sujet. Une définition qui ne distingue rien laisse le devoir sans objet.
+  - id: 1re.francais.argumentation.coherence-du-raisonnement
+    label: Cohérence et contradiction
+    sourceLevel: PREMIERE
+    targetLevel: TERMINALE
+    pedagogicalRationale: l'examen d'une thèse consiste souvent à en éprouver la cohérence interne. Distinguer validité et vérité est le prérequis logique minimal.
+  - id: 1re.francais.argumentation.fait-et-jugement
+    label: Fait, opinion, jugement de valeur, savoir
+    sourceLevel: PREMIERE
+    targetLevel: TERMINALE
+    pedagogicalRationale: toute l'année consiste à examiner des affirmations. En confondre le statut interdit d'en discuter correctement.
+  - id: 1re.francais.argumentation.analyse-de-la-question
+    label: Analyser une question et repérer ses présupposés
+    sourceLevel: PREMIERE
+    targetLevel: TERMINALE
+    pedagogicalRationale: problématiser un sujet suppose de voir ce que la question tient pour acquis. Sans ce geste, la dissertation devient un exposé de connaissances.
+  - id: 1re.francais.ecriture.paragraphe-argumente
+    label: Construire un paragraphe argumenté
+    sourceLevel: PREMIERE
+    targetLevel: TERMINALE
+    pedagogicalRationale: la dissertation se compose de paragraphes articulés. Un élève qui ne sait pas ordonner idée, explication et exemple produit un devoir illisible, quelle que soit la qualité de sa réflexion.
+  - id: 1re.francais.lexique.vocabulaire-abstrait
+    label: Vocabulaire de l'abstraction
+    sourceLevel: PREMIERE
+    targetLevel: TERMINALE
+    pedagogicalRationale: les mots « nécessaire », « distinct », « universel » ont en philosophie un sens strict, distinct de leur usage courant. Les employer approximativement rend un devoir inexact.

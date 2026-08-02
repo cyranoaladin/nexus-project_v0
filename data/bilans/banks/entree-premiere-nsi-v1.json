@@ -1,0 +1,1071 @@
+{
+  "slug": "entree-premiere-nsi-v1",
+  "level": "PREMIERE",
+  "subject": "NSI",
+  "version": 1,
+  "status": "DRAFT",
+  "review": {
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  "questionnaire": {
+    "targetDurationMin": 25,
+    "confidenceScale": {
+      "levels": 4,
+      "labels": [
+        "je devine",
+        "peu sûr",
+        "plutôt sûr",
+        "certain"
+      ]
+    },
+    "items": [
+      {
+        "id": "EPR-NSI-BIN-01",
+        "subject": "NSI",
+        "category": "Représentation binaire des entiers",
+        "domainId": "representation",
+        "nodeCpsId": "2de.snt.representation.binaire",
+        "difficulty": 2,
+        "targetTimeSec": 60,
+        "shortCorrection": "Chaque bit correspond à une puissance de deux, du poids fort au poids faible : 8 + 0 + 2 + 1 = 11.",
+        "weight": 2,
+        "competencies": [
+          "2de.snt.representation.binaire"
+        ],
+        "questionText": "Quelle est la valeur décimale de l'entier écrit 1011 en binaire ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "13",
+            "isCorrect": false,
+            "distractorRationale": "Lit les bits dans le mauvais ordre et interprète 1101 au lieu de 1011."
+          },
+          {
+            "id": "B",
+            "text": "11",
+            "isCorrect": true
+          },
+          {
+            "id": "C",
+            "text": "1011",
+            "isCorrect": false,
+            "distractorRationale": "Considère que l'écriture binaire se lit directement comme un nombre décimal."
+          },
+          {
+            "id": "D",
+            "text": "8",
+            "isCorrect": false,
+            "distractorRationale": "Ne retient que le bit de poids fort et néglige les autres puissances de deux."
+          }
+        ],
+        "explanation": "Chaque bit correspond à une puissance de deux, du poids fort au poids faible : 8 + 0 + 2 + 1 = 11."
+      },
+      {
+        "id": "EPR-NSI-BIN-02",
+        "subject": "NSI",
+        "category": "Représentation binaire des entiers",
+        "domainId": "representation",
+        "nodeCpsId": "2de.snt.representation.binaire",
+        "difficulty": 2,
+        "targetTimeSec": 55,
+        "shortCorrection": "Chaque bit prend deux états, donc huit bits donnent deux puissance huit combinaisons, soit 256 valeurs, de 0 à 255.",
+        "weight": 2,
+        "competencies": [
+          "2de.snt.representation.binaire"
+        ],
+        "questionText": "Sur huit bits, combien de valeurs entières différentes peut-on représenter ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "8",
+            "isCorrect": false,
+            "distractorRationale": "Confond le nombre de bits disponibles avec le nombre de valeurs représentables."
+          },
+          {
+            "id": "B",
+            "text": "128",
+            "isCorrect": false,
+            "distractorRationale": "Calcule deux puissance sept, en oubliant un bit."
+          },
+          {
+            "id": "C",
+            "text": "255",
+            "isCorrect": false,
+            "distractorRationale": "Donne la plus grande valeur non signée représentable, et non le nombre total de valeurs."
+          },
+          {
+            "id": "D",
+            "text": "256",
+            "isCorrect": true
+          }
+        ],
+        "explanation": "Chaque bit prend deux états, donc huit bits donnent deux puissance huit combinaisons, soit 256 valeurs, de 0 à 255."
+      },
+      {
+        "id": "EPR-NSI-VAR-01",
+        "subject": "NSI",
+        "category": "Variables et affectation",
+        "domainId": "programmation",
+        "nodeCpsId": "2de.snt.programmation.variables-affectation",
+        "difficulty": 2,
+        "targetTimeSec": 60,
+        "shortCorrection": "L'affectation b = a copie la valeur de a au moment de l'exécution, soit 3. La modification ultérieure de a ne change pas b.",
+        "weight": 2,
+        "competencies": [
+          "2de.snt.programmation.variables-affectation"
+        ],
+        "questionText": "On exécute successivement : a = 3, puis b = a, puis a = 5. Que vaut b à la fin ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "3",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "5",
+            "isCorrect": false,
+            "distractorRationale": "Croit que b reste lié à a et suit ses modifications ultérieures."
+          },
+          {
+            "id": "C",
+            "text": "8",
+            "isCorrect": false,
+            "distractorRationale": "Additionne les valeurs successives au lieu de suivre les affectations."
+          },
+          {
+            "id": "D",
+            "text": "b n'a pas de valeur définie",
+            "isCorrect": false,
+            "distractorRationale": "Ne reconnaît pas que la deuxième instruction a bien attribué une valeur à b."
+          }
+        ],
+        "explanation": "L'affectation b = a copie la valeur de a au moment de l'exécution, soit 3. La modification ultérieure de a ne change pas b."
+      },
+      {
+        "id": "EPR-NSI-VAR-02",
+        "subject": "NSI",
+        "category": "Variables et affectation",
+        "domainId": "programmation",
+        "nodeCpsId": "2de.snt.programmation.variables-affectation",
+        "difficulty": 1,
+        "targetTimeSec": 50,
+        "shortCorrection": "En programmation, le signe égal affecte : on évalue d'abord x + 1, puis on range le résultat dans x. La valeur de x augmente donc de 1.",
+        "weight": 1,
+        "competencies": [
+          "2de.snt.programmation.variables-affectation"
+        ],
+        "questionText": "Que fait l'instruction x = x + 1 ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "rien, car un nombre ne peut pas être égal à lui-même augmenté de 1",
+            "isCorrect": false,
+            "distractorRationale": "Lit le signe égal comme une égalité mathématique et non comme une affectation."
+          },
+          {
+            "id": "B",
+            "text": "elle compare x et x + 1",
+            "isCorrect": false,
+            "distractorRationale": "Confond l'affectation avec un test de comparaison."
+          },
+          {
+            "id": "C",
+            "text": "elle attribue à x sa valeur précédente augmentée de 1",
+            "isCorrect": true
+          },
+          {
+            "id": "D",
+            "text": "elle crée une nouvelle variable nommée « x + 1 »",
+            "isCorrect": false,
+            "distractorRationale": "Interprète le membre de droite comme un nom de variable au lieu d'un calcul."
+          }
+        ],
+        "explanation": "En programmation, le signe égal affecte : on évalue d'abord x + 1, puis on range le résultat dans x. La valeur de x augmente donc de 1."
+      },
+      {
+        "id": "EPR-NSI-CND-01",
+        "subject": "NSI",
+        "category": "Conditions et logique booléenne",
+        "domainId": "programmation",
+        "nodeCpsId": "2de.snt.programmation.conditions-booleens",
+        "difficulty": 2,
+        "targetTimeSec": 55,
+        "shortCorrection": "Le connecteur « and » exige que les deux conditions soient vraies simultanément. Les comparaisons étant strictes, les valeurs 0 et 10 sont exclues.",
+        "weight": 2,
+        "competencies": [
+          "2de.snt.programmation.conditions-booleens"
+        ],
+        "questionText": "L'expression (x > 0) and (x < 10) est vraie :",
+        "options": [
+          {
+            "id": "A",
+            "text": "pour tout nombre x positif",
+            "isCorrect": false,
+            "distractorRationale": "Ne retient que la première condition et ignore la seconde, pourtant reliée par « and »."
+          },
+          {
+            "id": "B",
+            "text": "uniquement si x est strictement compris entre 0 et 10",
+            "isCorrect": true
+          },
+          {
+            "id": "C",
+            "text": "si x vaut 0 ou si x vaut 10",
+            "isCorrect": false,
+            "distractorRationale": "Inclut les bornes alors que les deux comparaisons sont strictes."
+          },
+          {
+            "id": "D",
+            "text": "pour tout x, car les deux conditions ne peuvent être fausses ensemble",
+            "isCorrect": false,
+            "distractorRationale": "Confond le connecteur « and », qui exige les deux conditions, avec « or »."
+          }
+        ],
+        "explanation": "Le connecteur « and » exige que les deux conditions soient vraies simultanément. Les comparaisons étant strictes, les valeurs 0 et 10 sont exclues."
+      },
+      {
+        "id": "EPR-NSI-CND-02",
+        "subject": "NSI",
+        "category": "Conditions et logique booléenne",
+        "domainId": "programmation",
+        "nodeCpsId": "2de.snt.programmation.conditions-booleens",
+        "difficulty": 2,
+        "targetTimeSec": 45,
+        "shortCorrection": "Nier une inégalité stricte donne l'inégalité large de sens contraire : la négation de x > 5 est x <= 5. Le cas d'égalité ne doit pas être oublié.",
+        "weight": 2,
+        "competencies": [
+          "2de.snt.programmation.conditions-booleens"
+        ],
+        "questionText": "Quelle est la négation de la condition « x > 5 » ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "x <= 5",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "x < 5",
+            "isCorrect": false,
+            "distractorRationale": "Oublie le cas d'égalité : la valeur 5 ne vérifie pas x > 5 et appartient donc à la négation."
+          },
+          {
+            "id": "C",
+            "text": "x >= 5",
+            "isCorrect": false,
+            "distractorRationale": "Conserve le sens de l'inégalité au lieu de l'inverser."
+          },
+          {
+            "id": "D",
+            "text": "x != 5",
+            "isCorrect": false,
+            "distractorRationale": "Nie l'égalité au lieu de nier la comparaison."
+          }
+        ],
+        "explanation": "Nier une inégalité stricte donne l'inégalité large de sens contraire : la négation de x > 5 est x <= 5. Le cas d'égalité ne doit pas être oublié."
+      },
+      {
+        "id": "EPR-NSI-BCL-01",
+        "subject": "NSI",
+        "category": "Boucles bornées et non bornées",
+        "domainId": "programmation",
+        "nodeCpsId": "2de.snt.programmation.boucles",
+        "difficulty": 2,
+        "targetTimeSec": 50,
+        "shortCorrection": "range(3) produit les valeurs 0, 1 et 2 : la borne supérieure est exclue. Le corps de la boucle s'exécute donc trois fois.",
+        "weight": 2,
+        "competencies": [
+          "2de.snt.programmation.boucles"
+        ],
+        "questionText": "Combien de fois le corps de la boucle « for i in range(3) » s'exécute-t-il ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "2",
+            "isCorrect": false,
+            "distractorRationale": "Suppose que le compteur démarre à 1 et s'arrête avant 3."
+          },
+          {
+            "id": "B",
+            "text": "4",
+            "isCorrect": false,
+            "distractorRationale": "Inclut la valeur 3, alors que la borne supérieure est exclue."
+          },
+          {
+            "id": "C",
+            "text": "1",
+            "isCorrect": false,
+            "distractorRationale": "Ne reconnaît pas la répétition et interprète la boucle comme une instruction unique."
+          },
+          {
+            "id": "D",
+            "text": "3",
+            "isCorrect": true
+          }
+        ],
+        "explanation": "range(3) produit les valeurs 0, 1 et 2 : la borne supérieure est exclue. Le corps de la boucle s'exécute donc trois fois."
+      },
+      {
+        "id": "EPR-NSI-BCL-02",
+        "subject": "NSI",
+        "category": "Boucles bornées et non bornées",
+        "domainId": "programmation",
+        "nodeCpsId": "2de.snt.programmation.boucles",
+        "difficulty": 2,
+        "targetTimeSec": 50,
+        "shortCorrection": "La boucle bornée convient quand on sait combien de fois répéter. La boucle non bornée s'emploie quand la répétition dépend d'une condition évaluée à chaque tour.",
+        "weight": 2,
+        "competencies": [
+          "2de.snt.programmation.boucles"
+        ],
+        "questionText": "Dans quel cas emploie-t-on une boucle « while » plutôt qu'une boucle « for » ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "quand le nombre de répétitions est connu à l'avance",
+            "isCorrect": false,
+            "distractorRationale": "Décrit précisément la situation où la boucle bornée convient."
+          },
+          {
+            "id": "B",
+            "text": "quand le nombre de répétitions dépend d'une condition, non connue à l'avance",
+            "isCorrect": true
+          },
+          {
+            "id": "C",
+            "text": "quand on parcourt les éléments d'une liste",
+            "isCorrect": false,
+            "distractorRationale": "Retient un cas typique de la boucle bornée, où le nombre d'éléments est connu."
+          },
+          {
+            "id": "D",
+            "text": "jamais : les deux formes sont strictement équivalentes",
+            "isCorrect": false,
+            "distractorRationale": "Nie une distinction qui porte sur la connaissance préalable du nombre d'itérations."
+          }
+        ],
+        "explanation": "La boucle bornée convient quand on sait combien de fois répéter. La boucle non bornée s'emploie quand la répétition dépend d'une condition évaluée à chaque tour."
+      },
+      {
+        "id": "EPR-NSI-LST-01",
+        "subject": "NSI",
+        "category": "Listes et indexation",
+        "domainId": "programmation",
+        "nodeCpsId": "2de.snt.programmation.listes",
+        "difficulty": 1,
+        "targetTimeSec": 45,
+        "shortCorrection": "L'indexation commence à zéro : L[0] vaut 4 et L[1] vaut 8. Le dernier élément d'une liste de longueur n porte l'indice n − 1.",
+        "weight": 1,
+        "competencies": [
+          "2de.snt.programmation.listes"
+        ],
+        "questionText": "Soit L = [4, 8, 15, 16]. Que vaut L[1] ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "4",
+            "isCorrect": false,
+            "distractorRationale": "Suppose que l'indexation commence à 1 et désigne donc le premier élément."
+          },
+          {
+            "id": "B",
+            "text": "15",
+            "isCorrect": false,
+            "distractorRationale": "Décale l'indice d'un rang supplémentaire dans le mauvais sens."
+          },
+          {
+            "id": "C",
+            "text": "8",
+            "isCorrect": true
+          },
+          {
+            "id": "D",
+            "text": "une erreur, car l'indice 1 n'existe pas",
+            "isCorrect": false,
+            "distractorRationale": "Confond l'absence d'indice avec le décalage de la numérotation."
+          }
+        ],
+        "explanation": "L'indexation commence à zéro : L[0] vaut 4 et L[1] vaut 8. Le dernier élément d'une liste de longueur n porte l'indice n − 1."
+      },
+      {
+        "id": "EPR-NSI-LST-02",
+        "subject": "NSI",
+        "category": "Listes et indexation",
+        "domainId": "programmation",
+        "nodeCpsId": "2de.snt.programmation.listes",
+        "difficulty": 1,
+        "targetTimeSec": 40,
+        "shortCorrection": "La fonction len renvoie le nombre d'éléments d'une liste, ici 3. Elle ne dépend ni des valeurs contenues ni de leur ordre.",
+        "weight": 1,
+        "competencies": [
+          "2de.snt.programmation.listes"
+        ],
+        "questionText": "Que vaut len([3, 7, 9]) ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "3",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "19",
+            "isCorrect": false,
+            "distractorRationale": "Additionne les éléments au lieu de les compter."
+          },
+          {
+            "id": "C",
+            "text": "2",
+            "isCorrect": false,
+            "distractorRationale": "Donne l'indice du dernier élément au lieu du nombre d'éléments."
+          },
+          {
+            "id": "D",
+            "text": "9",
+            "isCorrect": false,
+            "distractorRationale": "Renvoie la valeur du dernier élément au lieu de la longueur de la liste."
+          }
+        ],
+        "explanation": "La fonction len renvoie le nombre d'éléments d'une liste, ici 3. Elle ne dépend ni des valeurs contenues ni de leur ordre."
+      },
+      {
+        "id": "EPR-NSI-FCT-01",
+        "subject": "NSI",
+        "category": "Fonctions : paramètres et valeur de retour",
+        "domainId": "programmation",
+        "nodeCpsId": "2de.snt.programmation.fonctions",
+        "difficulty": 2,
+        "targetTimeSec": 55,
+        "shortCorrection": "n est un paramètre : un nom provisoire qui reçoit la valeur transmise lors de l'appel. Il n'existe qu'à l'intérieur de la fonction.",
+        "weight": 2,
+        "competencies": [
+          "2de.snt.programmation.fonctions"
+        ],
+        "questionText": "Dans la définition « def carre(n): return n * n », que désigne n ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "la valeur renvoyée par la fonction",
+            "isCorrect": false,
+            "distractorRationale": "Confond le paramètre d'entrée avec le résultat produit."
+          },
+          {
+            "id": "B",
+            "text": "un paramètre, remplacé par l'argument fourni au moment de l'appel",
+            "isCorrect": true
+          },
+          {
+            "id": "C",
+            "text": "le nom de la fonction",
+            "isCorrect": false,
+            "distractorRationale": "Confond le nom de la fonction, écrit avant les parenthèses, avec son paramètre."
+          },
+          {
+            "id": "D",
+            "text": "une variable globale, accessible dans tout le programme",
+            "isCorrect": false,
+            "distractorRationale": "Ignore que le paramètre n'existe que dans le corps de la fonction."
+          }
+        ],
+        "explanation": "n est un paramètre : un nom provisoire qui reçoit la valeur transmise lors de l'appel. Il n'existe qu'à l'intérieur de la fonction."
+      },
+      {
+        "id": "EPR-NSI-FCT-02",
+        "subject": "NSI",
+        "category": "Fonctions : paramètres et valeur de retour",
+        "domainId": "programmation",
+        "nodeCpsId": "2de.snt.programmation.fonctions",
+        "difficulty": 3,
+        "targetTimeSec": 55,
+        "shortCorrection": "Une fonction sans return s'exécute normalement et renvoie None, valeur qui signale l'absence de résultat. Elle est souvent employée pour son effet, comme un affichage.",
+        "weight": 3,
+        "competencies": [
+          "2de.snt.programmation.fonctions"
+        ],
+        "questionText": "Que renvoie une fonction Python qui ne contient aucune instruction return ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "elle provoque une erreur au moment de l'exécution",
+            "isCorrect": false,
+            "distractorRationale": "Suppose qu'une fonction doit obligatoirement renvoyer une valeur explicite."
+          },
+          {
+            "id": "B",
+            "text": "la valeur 0",
+            "isCorrect": false,
+            "distractorRationale": "Confond l'absence de valeur avec la valeur numérique zéro."
+          },
+          {
+            "id": "C",
+            "text": "elle ne peut pas être appelée",
+            "isCorrect": false,
+            "distractorRationale": "Confond l'absence de valeur renvoyée avec l'impossibilité d'exécuter la fonction."
+          },
+          {
+            "id": "D",
+            "text": "la valeur None",
+            "isCorrect": true
+          }
+        ],
+        "explanation": "Une fonction sans return s'exécute normalement et renvoie None, valeur qui signale l'absence de résultat. Elle est souvent employée pour son effet, comme un affichage."
+      },
+      {
+        "id": "EPR-NSI-WEB-01",
+        "subject": "NSI",
+        "category": "Web : structure, présentation, modèle client-serveur",
+        "domainId": "web",
+        "nodeCpsId": "2de.snt.web.structure-presentation",
+        "difficulty": 1,
+        "targetTimeSec": 45,
+        "shortCorrection": "HTML structure le contenu, CSS le met en forme, JavaScript le rend interactif. Ces trois rôles sont volontairement séparés.",
+        "weight": 1,
+        "competencies": [
+          "2de.snt.web.structure-presentation"
+        ],
+        "questionText": "Dans une page web, quel est le rôle du CSS ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "décrire la présentation et la mise en forme du contenu",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "structurer le contenu en titres, paragraphes et listes",
+            "isCorrect": false,
+            "distractorRationale": "Attribue au CSS le rôle du HTML, qui organise le contenu."
+          },
+          {
+            "id": "C",
+            "text": "stocker les données du site côté serveur",
+            "isCorrect": false,
+            "distractorRationale": "Confond une feuille de style avec une base de données."
+          },
+          {
+            "id": "D",
+            "text": "rendre la page interactive en réagissant aux actions de l'utilisateur",
+            "isCorrect": false,
+            "distractorRationale": "Attribue au CSS le rôle de JavaScript, qui gère les événements."
+          }
+        ],
+        "explanation": "HTML structure le contenu, CSS le met en forme, JavaScript le rend interactif. Ces trois rôles sont volontairement séparés."
+      },
+      {
+        "id": "EPR-NSI-WEB-02",
+        "subject": "NSI",
+        "category": "Web : structure, présentation, modèle client-serveur",
+        "domainId": "web",
+        "nodeCpsId": "2de.snt.web.structure-presentation",
+        "difficulty": 2,
+        "targetTimeSec": 55,
+        "shortCorrection": "Le client prend l'initiative en envoyant une requête, le serveur y répond en renvoyant la ressource demandée. Le protocole HTTP fixe la forme de ces échanges.",
+        "weight": 2,
+        "competencies": [
+          "2de.snt.web.structure-presentation"
+        ],
+        "questionText": "Dans le modèle client-serveur, que se passe-t-il lorsque vous consultez une page web ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "le serveur envoie spontanément la page au navigateur",
+            "isCorrect": false,
+            "distractorRationale": "Inverse l'initiative : c'est le client qui demande, jamais le serveur qui décide seul."
+          },
+          {
+            "id": "B",
+            "text": "le navigateur et le serveur échangent sans protocole défini",
+            "isCorrect": false,
+            "distractorRationale": "Ignore l'existence d'un protocole commun régissant la forme des échanges."
+          },
+          {
+            "id": "C",
+            "text": "le navigateur envoie une requête et le serveur renvoie une réponse",
+            "isCorrect": true
+          },
+          {
+            "id": "D",
+            "text": "la page est entièrement fabriquée par le navigateur, sans échange",
+            "isCorrect": false,
+            "distractorRationale": "Supprime le serveur du modèle, alors qu'il détient les ressources demandées."
+          }
+        ],
+        "explanation": "Le client prend l'initiative en envoyant une requête, le serveur y répond en renvoyant la ressource demandée. Le protocole HTTP fixe la forme de ces échanges."
+      },
+      {
+        "id": "EPR-NSI-RES-01",
+        "subject": "NSI",
+        "category": "Réseaux et Internet",
+        "domainId": "reseaux",
+        "nodeCpsId": "2de.snt.reseaux.internet",
+        "difficulty": 1,
+        "targetTimeSec": 45,
+        "shortCorrection": "L'adresse IP identifie une machine sur un réseau et permet d'acheminer les paquets jusqu'à elle, comme une adresse postale désigne un destinataire.",
+        "weight": 1,
+        "competencies": [
+          "2de.snt.reseaux.internet"
+        ],
+        "questionText": "À quoi sert une adresse IP ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "à identifier le contenu d'une page web",
+            "isCorrect": false,
+            "distractorRationale": "Confond l'identification d'une machine avec celle d'une ressource."
+          },
+          {
+            "id": "B",
+            "text": "à identifier une machine sur un réseau",
+            "isCorrect": true
+          },
+          {
+            "id": "C",
+            "text": "à chiffrer les communications échangées",
+            "isCorrect": false,
+            "distractorRationale": "Attribue à l'adressage une fonction de sécurité qui relève du chiffrement."
+          },
+          {
+            "id": "D",
+            "text": "à mémoriser l'historique de navigation d'un utilisateur",
+            "isCorrect": false,
+            "distractorRationale": "Confond un identifiant réseau avec une donnée stockée par le navigateur."
+          }
+        ],
+        "explanation": "L'adresse IP identifie une machine sur un réseau et permet d'acheminer les paquets jusqu'à elle, comme une adresse postale désigne un destinataire."
+      },
+      {
+        "id": "EPR-NSI-RES-02",
+        "subject": "NSI",
+        "category": "Réseaux et Internet",
+        "domainId": "reseaux",
+        "nodeCpsId": "2de.snt.reseaux.internet",
+        "difficulty": 2,
+        "targetTimeSec": 50,
+        "shortCorrection": "Le routeur choisit, à chaque étape, le lien suivant vers la destination. Aucune machine ne connaît le chemin complet : chacune décide localement.",
+        "weight": 2,
+        "competencies": [
+          "2de.snt.reseaux.internet"
+        ],
+        "questionText": "Quel est le rôle d'un routeur ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "transmettre les paquets de proche en proche vers leur destination",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "stocker les pages web consultées par les utilisateurs",
+            "isCorrect": false,
+            "distractorRationale": "Confond un équipement d'acheminement avec un serveur de stockage."
+          },
+          {
+            "id": "C",
+            "text": "traduire un nom de domaine en adresse IP",
+            "isCorrect": false,
+            "distractorRationale": "Attribue au routeur le rôle du service de noms de domaine."
+          },
+          {
+            "id": "D",
+            "text": "chiffrer les données avant leur envoi",
+            "isCorrect": false,
+            "distractorRationale": "Attribue au routeur une fonction de sécurité assurée par d'autres protocoles."
+          }
+        ],
+        "explanation": "Le routeur choisit, à chaque étape, le lien suivant vers la destination. Aucune machine ne connaît le chemin complet : chacune décide localement."
+      },
+      {
+        "id": "EPR-NSI-DON-01",
+        "subject": "NSI",
+        "category": "Données structurées",
+        "domainId": "donnees",
+        "nodeCpsId": "2de.snt.donnees.structuration",
+        "difficulty": 2,
+        "targetTimeSec": 50,
+        "shortCorrection": "Dans une table, chaque ligne est un enregistrement décrivant une entité, et chaque colonne porte un attribut commun à tous les enregistrements.",
+        "weight": 2,
+        "competencies": [
+          "2de.snt.donnees.structuration"
+        ],
+        "questionText": "Dans un fichier CSV décrivant des élèves, à quoi correspond une ligne ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "à un attribut, comme le nom ou la classe",
+            "isCorrect": false,
+            "distractorRationale": "Confond la ligne, qui décrit une entité, avec la colonne, qui porte un attribut."
+          },
+          {
+            "id": "B",
+            "text": "à l'ensemble du fichier",
+            "isCorrect": false,
+            "distractorRationale": "Confond un élément de la table avec la table entière."
+          },
+          {
+            "id": "C",
+            "text": "à un enregistrement, c'est-à-dire à un élève",
+            "isCorrect": true
+          },
+          {
+            "id": "D",
+            "text": "à une valeur unique",
+            "isCorrect": false,
+            "distractorRationale": "Confond la ligne avec la cellule, qui contient une seule valeur."
+          }
+        ],
+        "explanation": "Dans une table, chaque ligne est un enregistrement décrivant une entité, et chaque colonne porte un attribut commun à tous les enregistrements."
+      },
+      {
+        "id": "EPR-NSI-DON-02",
+        "subject": "NSI",
+        "category": "Données structurées",
+        "domainId": "donnees",
+        "nodeCpsId": "2de.snt.donnees.structuration",
+        "difficulty": 2,
+        "targetTimeSec": 45,
+        "shortCorrection": "Une métadonnée renseigne sur une donnée : la date d'une photographie, l'auteur d'un fichier, le format d'un enregistrement. Elle en décrit le contexte.",
+        "weight": 2,
+        "competencies": [
+          "2de.snt.donnees.structuration"
+        ],
+        "questionText": "Que désigne-t-on par « métadonnée » ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "une donnée erronée ou incohérente",
+            "isCorrect": false,
+            "distractorRationale": "Interprète le préfixe comme une marque de défaut."
+          },
+          {
+            "id": "B",
+            "text": "une donnée particulièrement volumineuse",
+            "isCorrect": false,
+            "distractorRationale": "Interprète le préfixe comme une indication de taille."
+          },
+          {
+            "id": "C",
+            "text": "une donnée confidentielle, protégée par la loi",
+            "isCorrect": false,
+            "distractorRationale": "Confond la nature d'une donnée avec son régime de protection."
+          },
+          {
+            "id": "D",
+            "text": "une donnée qui décrit une autre donnée",
+            "isCorrect": true
+          }
+        ],
+        "explanation": "Une métadonnée renseigne sur une donnée : la date d'une photographie, l'auteur d'un fichier, le format d'un enregistrement. Elle en décrit le contexte."
+      }
+    ]
+  },
+  "scoring": {
+    "engine": "facts.v1.0.1",
+    "domains": [
+      "representation",
+      "programmation",
+      "web",
+      "reseaux",
+      "donnees"
+    ]
+  },
+  "reporting": {
+    "rag": {
+      "enabled": false,
+      "decisionRef": "A56 — RAG désactivé tant que le corpus du niveau n’est pas validé",
+      "sources": [],
+      "topK": 0
+    },
+    "promptFiles": {
+      "preAnalysis": {
+        "path": "content/bilans/prompts/entree-premiere-nsi-v1/pre-analysis.md",
+        "checksum": "be78f1e48a631b8eb35714c5f9a99c4419eac3a53796d32b329d8be43e23039a"
+      },
+      "eleve": {
+        "path": "content/bilans/prompts/entree-premiere-nsi-v1/eleve.md",
+        "checksum": "5d598c317c15d7593d1bcbcfdd79910eb5a079301bd146aff60dcb3014f8d3b0"
+      },
+      "parents": {
+        "path": "content/bilans/prompts/entree-premiere-nsi-v1/parents.md",
+        "checksum": "419e9366483523bd6f3c8f87bec0ca4735a181e82a379ae93d3453a84ed1313f"
+      },
+      "nexus": {
+        "path": "content/bilans/prompts/entree-premiere-nsi-v1/nexus.md",
+        "checksum": "98ecc878a8711036e5849fe2f6793b7db475bcc9224b7f2864949dc678ff1468"
+      },
+      "verifier": {
+        "path": "content/bilans/prompts/entree-premiere-nsi-v1/verifier.md",
+        "checksum": "fd6c0c7c64aa3320686aa15015da6609d4f5ab7cf6c9293c6afa8de83fe2b88b"
+      }
+    },
+    "outputSchemas": {
+      "preAnalysis": {
+        "type": "object",
+        "properties": {
+          "synthese": {
+            "type": "string",
+            "minLength": 1
+          },
+          "forcesPercues": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "craintes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "required": [
+          "synthese",
+          "forcesPercues",
+          "craintes"
+        ],
+        "additionalProperties": false
+      },
+      "eleve": {
+        "type": "object",
+        "properties": {
+          "accroche": {
+            "type": "string",
+            "minLength": 1
+          },
+          "forces": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "minItems": 3,
+            "maxItems": 3
+          },
+          "priorites": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "domainId": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "titre": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "pourquoi": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "comment": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "domainId",
+                "titre",
+                "pourquoi",
+                "comment"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "maxItems": 5
+          },
+          "microPlan": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "action": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "dureeMin": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              },
+              "required": [
+                "action",
+                "dureeMin"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "maxItems": 5
+          },
+          "motDeFin": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "accroche",
+          "forces",
+          "priorites",
+          "microPlan",
+          "motDeFin"
+        ],
+        "additionalProperties": false
+      },
+      "parents": {
+        "type": "object",
+        "properties": {
+          "cadre": {
+            "type": "string",
+            "minLength": 1
+          },
+          "pointsAppui": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "domainId": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "texte": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "domainId",
+                "texte"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "maxItems": 5
+          },
+          "priorites": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "domainId": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "titre": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "ceQuiSeraFait": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "domainId",
+                "titre",
+                "ceQuiSeraFait"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "maxItems": 5
+          },
+          "etapeSuivante": {
+            "type": "object",
+            "properties": {
+              "texte": {
+                "type": "string",
+                "minLength": 1
+              },
+              "cta": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "texte",
+              "cta"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "cadre",
+          "pointsAppui",
+          "priorites",
+          "etapeSuivante"
+        ],
+        "additionalProperties": false
+      },
+      "nexus": {
+        "type": "object",
+        "properties": {
+          "syntheseProfil": {
+            "type": "string",
+            "minLength": 1
+          },
+          "diagnosticPedagogique": {
+            "type": "string",
+            "minLength": 1
+          },
+          "planQuatreSemaines": {
+            "type": "string",
+            "minLength": 1
+          },
+          "alertes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "ragReferences": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "required": [
+          "syntheseProfil",
+          "diagnosticPedagogique",
+          "planQuatreSemaines",
+          "alertes",
+          "ragReferences"
+        ],
+        "additionalProperties": false
+      },
+      "verifier": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "type": "boolean"
+          },
+          "violations": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "required": [
+          "ok",
+          "violations"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "validation": {
+    "lexiconPath": "data/bilans/lexique-interdit.json",
+    "forbidDigits": [
+      "eleve",
+      "parents"
+    ]
+  }
+}

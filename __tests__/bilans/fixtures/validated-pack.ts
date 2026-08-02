@@ -4,7 +4,13 @@ import secondePack from '@/data/bilans/banks/entree-seconde-maths-v1.json';
 import endPack from '@/data/bilans/banks/maths-terminale-bilan-v1.json';
 import { buildValidatedPack } from '@/lib/bilans/validators/contracts';
 
-function fixtureFrom(pack: typeof entryPack | typeof premierePack | typeof secondePack | typeof endPack) {
+type FixtureSource = Readonly<{
+  scoring: Readonly<{ domains: readonly string[] }>;
+  reporting: Readonly<{ rag: unknown; promptFiles: unknown; outputSchemas: unknown }>;
+  validation: unknown;
+}>;
+
+export function fixtureFrom(pack: FixtureSource) {
   return buildValidatedPack({
     slug: 'fixture-non-publiable-v0',
     version: 1,

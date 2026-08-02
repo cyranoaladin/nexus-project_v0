@@ -1,0 +1,5949 @@
+{
+  "schemaVersion": "nexus-bilan-blind-review-packet/v1",
+  "status": "TECHNICAL_MOCK_ONLY_NOT_PEDAGOGICALLY_VALIDATED",
+  "sourceDraftPack": "entree-premiere-francais-v1",
+  "executionFixture": "fixture-non-publiable-v0",
+  "instructions": "Évaluer la clarté, la fidélité aux faits et l’utilité pédagogique sans inférer une validation du pack DRAFT.",
+  "reports": [
+    {
+      "blindId": "CAS_01_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "19c1b32e125629e5684d02375ab996785cb498c572add379667af4b84cc890be",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "methode",
+                "titre": "methode",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "grammaire",
+                "titre": "grammaire",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "lexique",
+                "titre": "lexique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "poesie",
+                "titre": "poesie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "lecture",
+                "titre": "lecture",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "argumentation",
+                "titre": "argumentation",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "theatre",
+                "titre": "theatre",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "recit",
+                "titre": "recit",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "methode",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "grammaire",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "lexique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "poesie",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "lecture",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "argumentation",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "theatre",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "recit",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_01_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "b8685761d5dcf8495429a5a2db1687ff1b53cfb8133c2aad053caab0c0c5d692",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "methode",
+                "texte": "methode constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "grammaire",
+                "texte": "grammaire constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "lexique",
+                "texte": "lexique constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "poesie",
+                "titre": "poesie",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "lecture",
+                "titre": "lecture",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "argumentation",
+                "titre": "argumentation",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "theatre",
+                "titre": "theatre",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "recit",
+                "titre": "recit",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "methode",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "grammaire",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "lexique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "poesie",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "lecture",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "argumentation",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "theatre",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "recit",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_01_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "ccefa7e0d4265cf7cf1cf82051636871f3b582e9c4a16a571ebef22a39c3fdc5",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "methode",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "grammaire",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "lexique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "poesie",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "lecture",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "argumentation",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "theatre",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "recit",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 15,
+            "coverage": 45,
+            "calibrationIndex": null,
+            "domainScores": [
+              {
+                "id": "methode",
+                "score": 15
+              },
+              {
+                "id": "grammaire",
+                "score": 24
+              },
+              {
+                "id": "lexique",
+                "score": 33
+              },
+              {
+                "id": "poesie",
+                "score": 42
+              },
+              {
+                "id": "lecture",
+                "score": 51
+              },
+              {
+                "id": "argumentation",
+                "score": 60
+              },
+              {
+                "id": "theatre",
+                "score": 69
+              },
+              {
+                "id": "recit",
+                "score": 78
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_02_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "a42269841a0013075ef00e12783349e0c321e75279efb71fc99ab736d2263d0a",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "methode",
+                "titre": "methode",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "grammaire",
+                "titre": "grammaire",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "lexique",
+                "titre": "lexique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "poesie",
+                "titre": "poesie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "lecture",
+                "titre": "lecture",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "argumentation",
+                "titre": "argumentation",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "theatre",
+                "titre": "theatre",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "recit",
+                "titre": "recit",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "methode",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "grammaire",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "lexique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "poesie",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "lecture",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "argumentation",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "theatre",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "recit",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_02_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "29d651813c44dfb6268d9fe5d476bc73aa5c0ba153726b082dcba268a1f6284b",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "methode",
+                "texte": "methode constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "grammaire",
+                "texte": "grammaire constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "lexique",
+                "texte": "lexique constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "poesie",
+                "titre": "poesie",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "lecture",
+                "titre": "lecture",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "argumentation",
+                "titre": "argumentation",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "theatre",
+                "titre": "theatre",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "recit",
+                "titre": "recit",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "methode",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "grammaire",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "lexique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "poesie",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "lecture",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "argumentation",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "theatre",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "recit",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_02_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "fb15ba994774d9d4e8e274db7d5be45220242fc2159dcb1a660533e31767256d",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "methode",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "grammaire",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "lexique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "poesie",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "lecture",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "argumentation",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "theatre",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "recit",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 32,
+            "coverage": 58,
+            "calibrationIndex": 41,
+            "domainScores": [
+              {
+                "id": "methode",
+                "score": 32
+              },
+              {
+                "id": "grammaire",
+                "score": 41
+              },
+              {
+                "id": "lexique",
+                "score": 50
+              },
+              {
+                "id": "poesie",
+                "score": 59
+              },
+              {
+                "id": "lecture",
+                "score": 68
+              },
+              {
+                "id": "argumentation",
+                "score": 77
+              },
+              {
+                "id": "theatre",
+                "score": 86
+              },
+              {
+                "id": "recit",
+                "score": 95
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_03_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "ed1d78d1f16f12e98d2935fe2806e4f9b409a3a98bc1edfaa5cb0dd808281278",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "methode",
+                "titre": "methode",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "grammaire",
+                "titre": "grammaire",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "lexique",
+                "titre": "lexique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "poesie",
+                "titre": "poesie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "lecture",
+                "titre": "lecture",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "argumentation",
+                "titre": "argumentation",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "theatre",
+                "titre": "theatre",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "recit",
+                "titre": "recit",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "methode",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "grammaire",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "lexique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "poesie",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "lecture",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "argumentation",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "theatre",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "recit",
+              "profile": "NON_TRAITE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_03_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "4943ef5e6a6445ba437bbb1e3f3b9167fe9415f948e66e2ca99eabac1c788cf8",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "methode",
+                "texte": "methode constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "grammaire",
+                "texte": "grammaire constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "lexique",
+                "texte": "lexique constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "poesie",
+                "titre": "poesie",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "lecture",
+                "titre": "lecture",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "argumentation",
+                "titre": "argumentation",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "theatre",
+                "titre": "theatre",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "recit",
+                "titre": "recit",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "methode",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "grammaire",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "lexique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "poesie",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "lecture",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "argumentation",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "theatre",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "recit",
+              "profile": "NON_TRAITE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_03_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "a8e3fc65d1ae4526ae6238d03884cb3a26eb3b82c8d7a28d80be5976024b845e",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "methode",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "grammaire",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "lexique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "poesie",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "lecture",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "argumentation",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "theatre",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "recit",
+              "profile": "NON_TRAITE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 49,
+            "coverage": 71,
+            "calibrationIndex": 52,
+            "domainScores": [
+              {
+                "id": "methode",
+                "score": 49
+              },
+              {
+                "id": "grammaire",
+                "score": 58
+              },
+              {
+                "id": "lexique",
+                "score": 67
+              },
+              {
+                "id": "poesie",
+                "score": 76
+              },
+              {
+                "id": "lecture",
+                "score": 85
+              },
+              {
+                "id": "argumentation",
+                "score": 94
+              },
+              {
+                "id": "theatre",
+                "score": 2
+              },
+              {
+                "id": "recit",
+                "score": 11
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_04_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "ba0c8bae5d392d92b34772a6d023d8668d33ce6d3fdef8a329b97553fb765958",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "methode",
+                "titre": "methode",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "grammaire",
+                "titre": "grammaire",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "lexique",
+                "titre": "lexique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "poesie",
+                "titre": "poesie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "lecture",
+                "titre": "lecture",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "argumentation",
+                "titre": "argumentation",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "theatre",
+                "titre": "theatre",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "recit",
+                "titre": "recit",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "methode",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "grammaire",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "lexique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "poesie",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "lecture",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "argumentation",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "theatre",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "recit",
+              "profile": "MAITRISE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_04_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "f85e805bc68a02012db4bd6e029558c771fdd5911cc056b086a49f1811d4e803",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "methode",
+                "texte": "methode constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "grammaire",
+                "texte": "grammaire constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "lexique",
+                "texte": "lexique constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "poesie",
+                "titre": "poesie",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "lecture",
+                "titre": "lecture",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "argumentation",
+                "titre": "argumentation",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "theatre",
+                "titre": "theatre",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "recit",
+                "titre": "recit",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "methode",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "grammaire",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "lexique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "poesie",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "lecture",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "argumentation",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "theatre",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "recit",
+              "profile": "MAITRISE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_04_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "4d6597a5a32de73150d99951694187c9b0aa866604da9248705aff729b467d48",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "methode",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "grammaire",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "lexique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "poesie",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "lecture",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "argumentation",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "theatre",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "recit",
+              "profile": "MAITRISE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 66,
+            "coverage": 84,
+            "calibrationIndex": 63,
+            "domainScores": [
+              {
+                "id": "methode",
+                "score": 66
+              },
+              {
+                "id": "grammaire",
+                "score": 75
+              },
+              {
+                "id": "lexique",
+                "score": 84
+              },
+              {
+                "id": "poesie",
+                "score": 93
+              },
+              {
+                "id": "lecture",
+                "score": 1
+              },
+              {
+                "id": "argumentation",
+                "score": 10
+              },
+              {
+                "id": "theatre",
+                "score": 19
+              },
+              {
+                "id": "recit",
+                "score": 28
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_05_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "d1deeecd0d162c668e541270406481b384d4f6b59c0e2b45f0c365875eda97e8",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "methode",
+                "titre": "methode",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "grammaire",
+                "titre": "grammaire",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "lexique",
+                "titre": "lexique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "poesie",
+                "titre": "poesie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "lecture",
+                "titre": "lecture",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "argumentation",
+                "titre": "argumentation",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "theatre",
+                "titre": "theatre",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "recit",
+                "titre": "recit",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "methode",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "grammaire",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "lexique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "poesie",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "lecture",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "argumentation",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "theatre",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "recit",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_05_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "a7cf53bbdcb540cefe6771c7d8ea94d431eac199687241697c47c2ce69e649a0",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "methode",
+                "texte": "methode constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "grammaire",
+                "texte": "grammaire constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "lexique",
+                "texte": "lexique constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "poesie",
+                "titre": "poesie",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "lecture",
+                "titre": "lecture",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "argumentation",
+                "titre": "argumentation",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "theatre",
+                "titre": "theatre",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "recit",
+                "titre": "recit",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "methode",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "grammaire",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "lexique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "poesie",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "lecture",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "argumentation",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "theatre",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "recit",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_05_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "6c7f7a3bcf81d4937d66ecb6914d326637b30899bceabe8421a9fac7cc56c720",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "methode",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "grammaire",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "lexique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "poesie",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "lecture",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "argumentation",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "theatre",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "recit",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 83,
+            "coverage": 97,
+            "calibrationIndex": null,
+            "domainScores": [
+              {
+                "id": "methode",
+                "score": 83
+              },
+              {
+                "id": "grammaire",
+                "score": 92
+              },
+              {
+                "id": "lexique",
+                "score": 0
+              },
+              {
+                "id": "poesie",
+                "score": 9
+              },
+              {
+                "id": "lecture",
+                "score": 18
+              },
+              {
+                "id": "argumentation",
+                "score": 27
+              },
+              {
+                "id": "theatre",
+                "score": 36
+              },
+              {
+                "id": "recit",
+                "score": 45
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_06_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "19c1b32e125629e5684d02375ab996785cb498c572add379667af4b84cc890be",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "methode",
+                "titre": "methode",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "grammaire",
+                "titre": "grammaire",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "lexique",
+                "titre": "lexique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "poesie",
+                "titre": "poesie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "lecture",
+                "titre": "lecture",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "argumentation",
+                "titre": "argumentation",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "theatre",
+                "titre": "theatre",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "recit",
+                "titre": "recit",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "methode",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "grammaire",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "lexique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "poesie",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "lecture",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "argumentation",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "theatre",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "recit",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_06_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "b8685761d5dcf8495429a5a2db1687ff1b53cfb8133c2aad053caab0c0c5d692",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "methode",
+                "texte": "methode constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "grammaire",
+                "texte": "grammaire constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "lexique",
+                "texte": "lexique constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "poesie",
+                "titre": "poesie",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "lecture",
+                "titre": "lecture",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "argumentation",
+                "titre": "argumentation",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "theatre",
+                "titre": "theatre",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "recit",
+                "titre": "recit",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "methode",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "grammaire",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "lexique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "poesie",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "lecture",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "argumentation",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "theatre",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "recit",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_06_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "1873db0c1323dc4b7689671473b032f022ed385ed95507a71dce6d4d416843f6",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "methode",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "grammaire",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "lexique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "poesie",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "lecture",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "argumentation",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "theatre",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "recit",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 19,
+            "coverage": 54,
+            "calibrationIndex": 85,
+            "domainScores": [
+              {
+                "id": "methode",
+                "score": 19
+              },
+              {
+                "id": "grammaire",
+                "score": 28
+              },
+              {
+                "id": "lexique",
+                "score": 37
+              },
+              {
+                "id": "poesie",
+                "score": 46
+              },
+              {
+                "id": "lecture",
+                "score": 55
+              },
+              {
+                "id": "argumentation",
+                "score": 64
+              },
+              {
+                "id": "theatre",
+                "score": 73
+              },
+              {
+                "id": "recit",
+                "score": 82
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_07_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "a42269841a0013075ef00e12783349e0c321e75279efb71fc99ab736d2263d0a",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "methode",
+                "titre": "methode",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "grammaire",
+                "titre": "grammaire",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "lexique",
+                "titre": "lexique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "poesie",
+                "titre": "poesie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "lecture",
+                "titre": "lecture",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "argumentation",
+                "titre": "argumentation",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "theatre",
+                "titre": "theatre",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "recit",
+                "titre": "recit",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "methode",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "grammaire",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "lexique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "poesie",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "lecture",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "argumentation",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "theatre",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "recit",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_07_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "29d651813c44dfb6268d9fe5d476bc73aa5c0ba153726b082dcba268a1f6284b",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "methode",
+                "texte": "methode constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "grammaire",
+                "texte": "grammaire constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "lexique",
+                "texte": "lexique constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "poesie",
+                "titre": "poesie",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "lecture",
+                "titre": "lecture",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "argumentation",
+                "titre": "argumentation",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "theatre",
+                "titre": "theatre",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "recit",
+                "titre": "recit",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "methode",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "grammaire",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "lexique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "poesie",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "lecture",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "argumentation",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "theatre",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "recit",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_07_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "6ed14170e7534739e54a93961b8304f7a8ca5e35089bd91ece1c44a20f0632b5",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "methode",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "grammaire",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "lexique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "poesie",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "lecture",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "argumentation",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "theatre",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "recit",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 36,
+            "coverage": 67,
+            "calibrationIndex": 96,
+            "domainScores": [
+              {
+                "id": "methode",
+                "score": 36
+              },
+              {
+                "id": "grammaire",
+                "score": 45
+              },
+              {
+                "id": "lexique",
+                "score": 54
+              },
+              {
+                "id": "poesie",
+                "score": 63
+              },
+              {
+                "id": "lecture",
+                "score": 72
+              },
+              {
+                "id": "argumentation",
+                "score": 81
+              },
+              {
+                "id": "theatre",
+                "score": 90
+              },
+              {
+                "id": "recit",
+                "score": 99
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_08_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "ed1d78d1f16f12e98d2935fe2806e4f9b409a3a98bc1edfaa5cb0dd808281278",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "methode",
+                "titre": "methode",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "grammaire",
+                "titre": "grammaire",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "lexique",
+                "titre": "lexique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "poesie",
+                "titre": "poesie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "lecture",
+                "titre": "lecture",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "argumentation",
+                "titre": "argumentation",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "theatre",
+                "titre": "theatre",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "recit",
+                "titre": "recit",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "methode",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "grammaire",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "lexique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "poesie",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "lecture",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "argumentation",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "theatre",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "recit",
+              "profile": "NON_TRAITE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_08_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "4943ef5e6a6445ba437bbb1e3f3b9167fe9415f948e66e2ca99eabac1c788cf8",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "methode",
+                "texte": "methode constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "grammaire",
+                "texte": "grammaire constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "lexique",
+                "texte": "lexique constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "poesie",
+                "titre": "poesie",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "lecture",
+                "titre": "lecture",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "argumentation",
+                "titre": "argumentation",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "theatre",
+                "titre": "theatre",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "recit",
+                "titre": "recit",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "methode",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "grammaire",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "lexique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "poesie",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "lecture",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "argumentation",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "theatre",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "recit",
+              "profile": "NON_TRAITE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_08_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "f0fb067d523419e46cdebada6d91323097af4ced2e62e58f4e39c331d2d2a933",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "methode",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "grammaire",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "lexique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "poesie",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "lecture",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "argumentation",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "theatre",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "recit",
+              "profile": "NON_TRAITE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 53,
+            "coverage": 80,
+            "calibrationIndex": 36,
+            "domainScores": [
+              {
+                "id": "methode",
+                "score": 53
+              },
+              {
+                "id": "grammaire",
+                "score": 62
+              },
+              {
+                "id": "lexique",
+                "score": 71
+              },
+              {
+                "id": "poesie",
+                "score": 80
+              },
+              {
+                "id": "lecture",
+                "score": 89
+              },
+              {
+                "id": "argumentation",
+                "score": 98
+              },
+              {
+                "id": "theatre",
+                "score": 6
+              },
+              {
+                "id": "recit",
+                "score": 15
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_09_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "ba0c8bae5d392d92b34772a6d023d8668d33ce6d3fdef8a329b97553fb765958",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "methode",
+                "titre": "methode",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "grammaire",
+                "titre": "grammaire",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "lexique",
+                "titre": "lexique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "poesie",
+                "titre": "poesie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "lecture",
+                "titre": "lecture",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "argumentation",
+                "titre": "argumentation",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "theatre",
+                "titre": "theatre",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "recit",
+                "titre": "recit",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "methode",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "grammaire",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "lexique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "poesie",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "lecture",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "argumentation",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "theatre",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "recit",
+              "profile": "MAITRISE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_09_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "f85e805bc68a02012db4bd6e029558c771fdd5911cc056b086a49f1811d4e803",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "methode",
+                "texte": "methode constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "grammaire",
+                "texte": "grammaire constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "lexique",
+                "texte": "lexique constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "poesie",
+                "titre": "poesie",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "lecture",
+                "titre": "lecture",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "argumentation",
+                "titre": "argumentation",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "theatre",
+                "titre": "theatre",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "recit",
+                "titre": "recit",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "methode",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "grammaire",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "lexique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "poesie",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "lecture",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "argumentation",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "theatre",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "recit",
+              "profile": "MAITRISE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_09_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "e7977214265908628d76b69d13c8da755b82859fcf007e9cf99fbe7e61dcda70",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "methode",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "grammaire",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "lexique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "poesie",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "lecture",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "argumentation",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "theatre",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "recit",
+              "profile": "MAITRISE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 70,
+            "coverage": 93,
+            "calibrationIndex": null,
+            "domainScores": [
+              {
+                "id": "methode",
+                "score": 70
+              },
+              {
+                "id": "grammaire",
+                "score": 79
+              },
+              {
+                "id": "lexique",
+                "score": 88
+              },
+              {
+                "id": "poesie",
+                "score": 97
+              },
+              {
+                "id": "lecture",
+                "score": 5
+              },
+              {
+                "id": "argumentation",
+                "score": 14
+              },
+              {
+                "id": "theatre",
+                "score": 23
+              },
+              {
+                "id": "recit",
+                "score": 32
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_10_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "d1deeecd0d162c668e541270406481b384d4f6b59c0e2b45f0c365875eda97e8",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "methode",
+                "titre": "methode",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "grammaire",
+                "titre": "grammaire",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "lexique",
+                "titre": "lexique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "poesie",
+                "titre": "poesie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "lecture",
+                "titre": "lecture",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "argumentation",
+                "titre": "argumentation",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "theatre",
+                "titre": "theatre",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "recit",
+                "titre": "recit",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "methode",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "grammaire",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "lexique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "poesie",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "lecture",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "argumentation",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "theatre",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "recit",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_10_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "a7cf53bbdcb540cefe6771c7d8ea94d431eac199687241697c47c2ce69e649a0",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "methode",
+                "texte": "methode constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "grammaire",
+                "texte": "grammaire constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "lexique",
+                "texte": "lexique constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "poesie",
+                "titre": "poesie",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "lecture",
+                "titre": "lecture",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "argumentation",
+                "titre": "argumentation",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "theatre",
+                "titre": "theatre",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "recit",
+                "titre": "recit",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "methode",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "grammaire",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "lexique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "poesie",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "lecture",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "argumentation",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "theatre",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "recit",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_10_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "c874fcceb94f20977d06c6074ee369691a41f59d35a65b2e9bfbc79cac7c4ce8",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "methode",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "grammaire",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "lexique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "poesie",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "lecture",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "argumentation",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "theatre",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "recit",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 87,
+            "coverage": 50,
+            "calibrationIndex": 58,
+            "domainScores": [
+              {
+                "id": "methode",
+                "score": 87
+              },
+              {
+                "id": "grammaire",
+                "score": 96
+              },
+              {
+                "id": "lexique",
+                "score": 4
+              },
+              {
+                "id": "poesie",
+                "score": 13
+              },
+              {
+                "id": "lecture",
+                "score": 22
+              },
+              {
+                "id": "argumentation",
+                "score": 31
+              },
+              {
+                "id": "theatre",
+                "score": 40
+              },
+              {
+                "id": "recit",
+                "score": 49
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_11_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "19c1b32e125629e5684d02375ab996785cb498c572add379667af4b84cc890be",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "methode",
+                "titre": "methode",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "grammaire",
+                "titre": "grammaire",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "lexique",
+                "titre": "lexique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "poesie",
+                "titre": "poesie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "lecture",
+                "titre": "lecture",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "argumentation",
+                "titre": "argumentation",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "theatre",
+                "titre": "theatre",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "recit",
+                "titre": "recit",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "methode",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "grammaire",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "lexique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "poesie",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "lecture",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "argumentation",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "theatre",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "recit",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_11_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "b8685761d5dcf8495429a5a2db1687ff1b53cfb8133c2aad053caab0c0c5d692",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "methode",
+                "texte": "methode constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "grammaire",
+                "texte": "grammaire constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "lexique",
+                "texte": "lexique constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "poesie",
+                "titre": "poesie",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "lecture",
+                "titre": "lecture",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "argumentation",
+                "titre": "argumentation",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "theatre",
+                "titre": "theatre",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "recit",
+                "titre": "recit",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "methode",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "grammaire",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "lexique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "poesie",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "lecture",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "argumentation",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "theatre",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "recit",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_11_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "35652ddfa3e5bfa2e5a60d9e8e423be8dccaec83dd3f9006efaf6551ccee7ace",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "methode",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "grammaire",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "lexique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "poesie",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "lecture",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "argumentation",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "theatre",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "recit",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 23,
+            "coverage": 63,
+            "calibrationIndex": 69,
+            "domainScores": [
+              {
+                "id": "methode",
+                "score": 23
+              },
+              {
+                "id": "grammaire",
+                "score": 32
+              },
+              {
+                "id": "lexique",
+                "score": 41
+              },
+              {
+                "id": "poesie",
+                "score": 50
+              },
+              {
+                "id": "lecture",
+                "score": 59
+              },
+              {
+                "id": "argumentation",
+                "score": 68
+              },
+              {
+                "id": "theatre",
+                "score": 77
+              },
+              {
+                "id": "recit",
+                "score": 86
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_12_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "a42269841a0013075ef00e12783349e0c321e75279efb71fc99ab736d2263d0a",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "methode",
+                "titre": "methode",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "grammaire",
+                "titre": "grammaire",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "lexique",
+                "titre": "lexique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "poesie",
+                "titre": "poesie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "lecture",
+                "titre": "lecture",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "argumentation",
+                "titre": "argumentation",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "theatre",
+                "titre": "theatre",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "recit",
+                "titre": "recit",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "methode",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "grammaire",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "lexique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "poesie",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "lecture",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "argumentation",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "theatre",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "recit",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_12_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "29d651813c44dfb6268d9fe5d476bc73aa5c0ba153726b082dcba268a1f6284b",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "methode",
+                "texte": "methode constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "grammaire",
+                "texte": "grammaire constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "lexique",
+                "texte": "lexique constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "poesie",
+                "titre": "poesie",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "lecture",
+                "titre": "lecture",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "argumentation",
+                "titre": "argumentation",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "theatre",
+                "titre": "theatre",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "recit",
+                "titre": "recit",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "methode",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "grammaire",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "lexique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "poesie",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "lecture",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "argumentation",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "theatre",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "recit",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_12_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "a494eff13b281c3b61f6ddd9fe024fc5f9676440220bf7c3b266ed4c569c0b88",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "methode",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "grammaire",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "lexique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "poesie",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "lecture",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "argumentation",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "theatre",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "recit",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 40,
+            "coverage": 76,
+            "calibrationIndex": 80,
+            "domainScores": [
+              {
+                "id": "methode",
+                "score": 40
+              },
+              {
+                "id": "grammaire",
+                "score": 49
+              },
+              {
+                "id": "lexique",
+                "score": 58
+              },
+              {
+                "id": "poesie",
+                "score": 67
+              },
+              {
+                "id": "lecture",
+                "score": 76
+              },
+              {
+                "id": "argumentation",
+                "score": 85
+              },
+              {
+                "id": "theatre",
+                "score": 94
+              },
+              {
+                "id": "recit",
+                "score": 2
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_13_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "ed1d78d1f16f12e98d2935fe2806e4f9b409a3a98bc1edfaa5cb0dd808281278",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "methode",
+                "titre": "methode",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "grammaire",
+                "titre": "grammaire",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "lexique",
+                "titre": "lexique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "poesie",
+                "titre": "poesie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "lecture",
+                "titre": "lecture",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "argumentation",
+                "titre": "argumentation",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "theatre",
+                "titre": "theatre",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "recit",
+                "titre": "recit",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "methode",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "grammaire",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "lexique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "poesie",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "lecture",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "argumentation",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "theatre",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "recit",
+              "profile": "NON_TRAITE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_13_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "4943ef5e6a6445ba437bbb1e3f3b9167fe9415f948e66e2ca99eabac1c788cf8",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "methode",
+                "texte": "methode constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "grammaire",
+                "texte": "grammaire constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "lexique",
+                "texte": "lexique constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "poesie",
+                "titre": "poesie",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "lecture",
+                "titre": "lecture",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "argumentation",
+                "titre": "argumentation",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "theatre",
+                "titre": "theatre",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "recit",
+                "titre": "recit",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "methode",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "grammaire",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "lexique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "poesie",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "lecture",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "argumentation",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "theatre",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "recit",
+              "profile": "NON_TRAITE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_13_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "af319949835cd99c8b94e72fe89778e26dd6bba1c71978d23ea92ec1e6f47bb1",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "methode",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "grammaire",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "lexique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "poesie",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "lecture",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "argumentation",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "theatre",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "recit",
+              "profile": "NON_TRAITE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 57,
+            "coverage": 89,
+            "calibrationIndex": null,
+            "domainScores": [
+              {
+                "id": "methode",
+                "score": 57
+              },
+              {
+                "id": "grammaire",
+                "score": 66
+              },
+              {
+                "id": "lexique",
+                "score": 75
+              },
+              {
+                "id": "poesie",
+                "score": 84
+              },
+              {
+                "id": "lecture",
+                "score": 93
+              },
+              {
+                "id": "argumentation",
+                "score": 1
+              },
+              {
+                "id": "theatre",
+                "score": 10
+              },
+              {
+                "id": "recit",
+                "score": 19
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_14_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "ba0c8bae5d392d92b34772a6d023d8668d33ce6d3fdef8a329b97553fb765958",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "methode",
+                "titre": "methode",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "grammaire",
+                "titre": "grammaire",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "lexique",
+                "titre": "lexique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "poesie",
+                "titre": "poesie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "lecture",
+                "titre": "lecture",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "argumentation",
+                "titre": "argumentation",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "theatre",
+                "titre": "theatre",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "recit",
+                "titre": "recit",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "methode",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "grammaire",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "lexique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "poesie",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "lecture",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "argumentation",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "theatre",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "recit",
+              "profile": "MAITRISE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_14_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "f85e805bc68a02012db4bd6e029558c771fdd5911cc056b086a49f1811d4e803",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "methode",
+                "texte": "methode constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "grammaire",
+                "texte": "grammaire constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "lexique",
+                "texte": "lexique constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "poesie",
+                "titre": "poesie",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "lecture",
+                "titre": "lecture",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "argumentation",
+                "titre": "argumentation",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "theatre",
+                "titre": "theatre",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "recit",
+                "titre": "recit",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "methode",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "grammaire",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "lexique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "poesie",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "lecture",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "argumentation",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "theatre",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "recit",
+              "profile": "MAITRISE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_14_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "54c68c8e2ad40bb39ee502611fd01ea3d5dbdd5833ed43d3d6c14493c9800efb",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "methode",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "grammaire",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "lexique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "poesie",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "lecture",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "argumentation",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "theatre",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "recit",
+              "profile": "MAITRISE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 74,
+            "coverage": 46,
+            "calibrationIndex": 31,
+            "domainScores": [
+              {
+                "id": "methode",
+                "score": 74
+              },
+              {
+                "id": "grammaire",
+                "score": 83
+              },
+              {
+                "id": "lexique",
+                "score": 92
+              },
+              {
+                "id": "poesie",
+                "score": 0
+              },
+              {
+                "id": "lecture",
+                "score": 9
+              },
+              {
+                "id": "argumentation",
+                "score": 18
+              },
+              {
+                "id": "theatre",
+                "score": 27
+              },
+              {
+                "id": "recit",
+                "score": 36
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_15_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "d1deeecd0d162c668e541270406481b384d4f6b59c0e2b45f0c365875eda97e8",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "methode",
+                "titre": "methode",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "grammaire",
+                "titre": "grammaire",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "lexique",
+                "titre": "lexique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "poesie",
+                "titre": "poesie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "lecture",
+                "titre": "lecture",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "argumentation",
+                "titre": "argumentation",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "theatre",
+                "titre": "theatre",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "recit",
+                "titre": "recit",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "methode",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "grammaire",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "lexique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "poesie",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "lecture",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "argumentation",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "theatre",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "recit",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_15_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "a7cf53bbdcb540cefe6771c7d8ea94d431eac199687241697c47c2ce69e649a0",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "methode",
+                "texte": "methode constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "grammaire",
+                "texte": "grammaire constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "lexique",
+                "texte": "lexique constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "poesie",
+                "titre": "poesie",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "lecture",
+                "titre": "lecture",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "argumentation",
+                "titre": "argumentation",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "theatre",
+                "titre": "theatre",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "recit",
+                "titre": "recit",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "methode",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "grammaire",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "lexique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "poesie",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "lecture",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "argumentation",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "theatre",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "recit",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_15_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "6bbd60004be3f71fc47fd2f468d3cb7ce5a3ee33209f013cbc05c36db25de302",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "methode",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "grammaire",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "lexique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "poesie",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "lecture",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "argumentation",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "theatre",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "recit",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 91,
+            "coverage": 59,
+            "calibrationIndex": 42,
+            "domainScores": [
+              {
+                "id": "methode",
+                "score": 91
+              },
+              {
+                "id": "grammaire",
+                "score": 100
+              },
+              {
+                "id": "lexique",
+                "score": 8
+              },
+              {
+                "id": "poesie",
+                "score": 17
+              },
+              {
+                "id": "lecture",
+                "score": 26
+              },
+              {
+                "id": "argumentation",
+                "score": 35
+              },
+              {
+                "id": "theatre",
+                "score": 44
+              },
+              {
+                "id": "recit",
+                "score": 53
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_16_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "19c1b32e125629e5684d02375ab996785cb498c572add379667af4b84cc890be",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "methode",
+                "titre": "methode",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "grammaire",
+                "titre": "grammaire",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "lexique",
+                "titre": "lexique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "poesie",
+                "titre": "poesie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "lecture",
+                "titre": "lecture",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "argumentation",
+                "titre": "argumentation",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "theatre",
+                "titre": "theatre",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "recit",
+                "titre": "recit",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "methode",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "grammaire",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "lexique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "poesie",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "lecture",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "argumentation",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "theatre",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "recit",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_16_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "b8685761d5dcf8495429a5a2db1687ff1b53cfb8133c2aad053caab0c0c5d692",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "methode",
+                "texte": "methode constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "grammaire",
+                "texte": "grammaire constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "lexique",
+                "texte": "lexique constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "poesie",
+                "titre": "poesie",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "lecture",
+                "titre": "lecture",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "argumentation",
+                "titre": "argumentation",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "theatre",
+                "titre": "theatre",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "recit",
+                "titre": "recit",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "methode",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "grammaire",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "lexique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "poesie",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "lecture",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "argumentation",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "theatre",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "recit",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_16_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "14f33e7b3469e548e909c4757a6a3f45c350d3bd4c356f7e72c9a1cca213311d",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "methode",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "grammaire",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "lexique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "poesie",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "lecture",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "argumentation",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "theatre",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "recit",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 27,
+            "coverage": 72,
+            "calibrationIndex": 53,
+            "domainScores": [
+              {
+                "id": "methode",
+                "score": 27
+              },
+              {
+                "id": "grammaire",
+                "score": 36
+              },
+              {
+                "id": "lexique",
+                "score": 45
+              },
+              {
+                "id": "poesie",
+                "score": 54
+              },
+              {
+                "id": "lecture",
+                "score": 63
+              },
+              {
+                "id": "argumentation",
+                "score": 72
+              },
+              {
+                "id": "theatre",
+                "score": 81
+              },
+              {
+                "id": "recit",
+                "score": 90
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_17_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "a42269841a0013075ef00e12783349e0c321e75279efb71fc99ab736d2263d0a",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "methode",
+                "titre": "methode",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "grammaire",
+                "titre": "grammaire",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "lexique",
+                "titre": "lexique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "poesie",
+                "titre": "poesie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "lecture",
+                "titre": "lecture",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "argumentation",
+                "titre": "argumentation",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "theatre",
+                "titre": "theatre",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "recit",
+                "titre": "recit",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "methode",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "grammaire",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "lexique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "poesie",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "lecture",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "argumentation",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "theatre",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "recit",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_17_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "29d651813c44dfb6268d9fe5d476bc73aa5c0ba153726b082dcba268a1f6284b",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "methode",
+                "texte": "methode constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "grammaire",
+                "texte": "grammaire constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "lexique",
+                "texte": "lexique constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "poesie",
+                "titre": "poesie",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "lecture",
+                "titre": "lecture",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "argumentation",
+                "titre": "argumentation",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "theatre",
+                "titre": "theatre",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "recit",
+                "titre": "recit",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "methode",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "grammaire",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "lexique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "poesie",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "lecture",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "argumentation",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "theatre",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "recit",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_17_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "eee54ca846187bd9f95061d1fef933c61ce9e43ed094017a351f8f84e3483635",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "methode",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "grammaire",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "lexique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "poesie",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "lecture",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "argumentation",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "theatre",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "recit",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 44,
+            "coverage": 85,
+            "calibrationIndex": null,
+            "domainScores": [
+              {
+                "id": "methode",
+                "score": 44
+              },
+              {
+                "id": "grammaire",
+                "score": 53
+              },
+              {
+                "id": "lexique",
+                "score": 62
+              },
+              {
+                "id": "poesie",
+                "score": 71
+              },
+              {
+                "id": "lecture",
+                "score": 80
+              },
+              {
+                "id": "argumentation",
+                "score": 89
+              },
+              {
+                "id": "theatre",
+                "score": 98
+              },
+              {
+                "id": "recit",
+                "score": 6
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_18_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "ed1d78d1f16f12e98d2935fe2806e4f9b409a3a98bc1edfaa5cb0dd808281278",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "methode",
+                "titre": "methode",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "grammaire",
+                "titre": "grammaire",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "lexique",
+                "titre": "lexique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "poesie",
+                "titre": "poesie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "lecture",
+                "titre": "lecture",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "argumentation",
+                "titre": "argumentation",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "theatre",
+                "titre": "theatre",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "recit",
+                "titre": "recit",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "methode",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "grammaire",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "lexique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "poesie",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "lecture",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "argumentation",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "theatre",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "recit",
+              "profile": "NON_TRAITE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_18_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "4943ef5e6a6445ba437bbb1e3f3b9167fe9415f948e66e2ca99eabac1c788cf8",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "methode",
+                "texte": "methode constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "grammaire",
+                "texte": "grammaire constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "lexique",
+                "texte": "lexique constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "poesie",
+                "titre": "poesie",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "lecture",
+                "titre": "lecture",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "argumentation",
+                "titre": "argumentation",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "theatre",
+                "titre": "theatre",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "recit",
+                "titre": "recit",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "methode",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "grammaire",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "lexique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "poesie",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "lecture",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "argumentation",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "theatre",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "recit",
+              "profile": "NON_TRAITE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_18_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "ae88e73e2e3bc3ab96789e6e6382f89572c36ae3ce157a5a54158a26b14553d8",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "methode",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "grammaire",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "lexique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "poesie",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "lecture",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "argumentation",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "theatre",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "recit",
+              "profile": "NON_TRAITE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 61,
+            "coverage": 98,
+            "calibrationIndex": 75,
+            "domainScores": [
+              {
+                "id": "methode",
+                "score": 61
+              },
+              {
+                "id": "grammaire",
+                "score": 70
+              },
+              {
+                "id": "lexique",
+                "score": 79
+              },
+              {
+                "id": "poesie",
+                "score": 88
+              },
+              {
+                "id": "lecture",
+                "score": 97
+              },
+              {
+                "id": "argumentation",
+                "score": 5
+              },
+              {
+                "id": "theatre",
+                "score": 14
+              },
+              {
+                "id": "recit",
+                "score": 23
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_19_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "ba0c8bae5d392d92b34772a6d023d8668d33ce6d3fdef8a329b97553fb765958",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "methode",
+                "titre": "methode",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "grammaire",
+                "titre": "grammaire",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "lexique",
+                "titre": "lexique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "poesie",
+                "titre": "poesie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "lecture",
+                "titre": "lecture",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "argumentation",
+                "titre": "argumentation",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "theatre",
+                "titre": "theatre",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "recit",
+                "titre": "recit",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "methode",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "grammaire",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "lexique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "poesie",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "lecture",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "argumentation",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "theatre",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "recit",
+              "profile": "MAITRISE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_19_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "f85e805bc68a02012db4bd6e029558c771fdd5911cc056b086a49f1811d4e803",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "methode",
+                "texte": "methode constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "grammaire",
+                "texte": "grammaire constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "lexique",
+                "texte": "lexique constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "poesie",
+                "titre": "poesie",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "lecture",
+                "titre": "lecture",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "argumentation",
+                "titre": "argumentation",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "theatre",
+                "titre": "theatre",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "recit",
+                "titre": "recit",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "methode",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "grammaire",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "lexique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "poesie",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "lecture",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "argumentation",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "theatre",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "recit",
+              "profile": "MAITRISE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_19_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "294b791f7a038a3fd6ff0ef49b2b308871780f815c8151bae716cf627a0f5ea2",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "methode",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "grammaire",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "lexique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "poesie",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "lecture",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "argumentation",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "theatre",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "recit",
+              "profile": "MAITRISE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 78,
+            "coverage": 55,
+            "calibrationIndex": 86,
+            "domainScores": [
+              {
+                "id": "methode",
+                "score": 78
+              },
+              {
+                "id": "grammaire",
+                "score": 87
+              },
+              {
+                "id": "lexique",
+                "score": 96
+              },
+              {
+                "id": "poesie",
+                "score": 4
+              },
+              {
+                "id": "lecture",
+                "score": 13
+              },
+              {
+                "id": "argumentation",
+                "score": 22
+              },
+              {
+                "id": "theatre",
+                "score": 31
+              },
+              {
+                "id": "recit",
+                "score": 40
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_20_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "d1deeecd0d162c668e541270406481b384d4f6b59c0e2b45f0c365875eda97e8",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "methode",
+                "titre": "methode",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "grammaire",
+                "titre": "grammaire",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "lexique",
+                "titre": "lexique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "poesie",
+                "titre": "poesie",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "lecture",
+                "titre": "lecture",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "argumentation",
+                "titre": "argumentation",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "theatre",
+                "titre": "theatre",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "recit",
+                "titre": "recit",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "methode",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "grammaire",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "lexique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "poesie",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "lecture",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "argumentation",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "theatre",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "recit",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_20_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "a7cf53bbdcb540cefe6771c7d8ea94d431eac199687241697c47c2ce69e649a0",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "methode",
+                "texte": "methode constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "grammaire",
+                "texte": "grammaire constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "lexique",
+                "texte": "lexique constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "poesie",
+                "titre": "poesie",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "lecture",
+                "titre": "lecture",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "argumentation",
+                "titre": "argumentation",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "theatre",
+                "titre": "theatre",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "recit",
+                "titre": "recit",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "methode",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "grammaire",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "lexique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "poesie",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "lecture",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "argumentation",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "theatre",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "recit",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_20_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "090c1d264f707463223594abb994aa1b279dd629c3798642b64aa1c1b7de0c75",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "methode",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "grammaire",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "lexique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "poesie",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "lecture",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "argumentation",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "theatre",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "recit",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 95,
+            "coverage": 68,
+            "calibrationIndex": 97,
+            "domainScores": [
+              {
+                "id": "methode",
+                "score": 95
+              },
+              {
+                "id": "grammaire",
+                "score": 3
+              },
+              {
+                "id": "lexique",
+                "score": 12
+              },
+              {
+                "id": "poesie",
+                "score": 21
+              },
+              {
+                "id": "lecture",
+                "score": 30
+              },
+              {
+                "id": "argumentation",
+                "score": 39
+              },
+              {
+                "id": "theatre",
+                "score": 48
+              },
+              {
+                "id": "recit",
+                "score": 57
+              }
+            ]
+          }
+        }
+      }
+    }
+  ]
+}
