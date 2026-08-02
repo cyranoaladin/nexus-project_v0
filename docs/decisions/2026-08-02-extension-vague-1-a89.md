@@ -17,11 +17,12 @@ neuf références de prérequis CPS.
 - Une entrée de manifeste peut résoudre plusieurs catalogues CPS. La résolution conserve
   uniquement les nœuds réellement utilisés par la banque et refuse deux définitions
   divergentes d'un même identifiant.
-- `1re.maths.suites.arithmetiques-geometriques` est réutilisé intentionnellement par les
-  packs Maths et Maths expertes de Terminale. Sa définition canonique reste dans
-  `1re-maths-vers-terminale.v1.yaml` : elle n'est ni dupliquée ni renommée.
-- Le lot porte donc 153 références de nœuds, mais 152 identifiants CPS uniques. Cette
-  différence est un partage sémantique explicite, pas une collision.
+- Le pack Maths expertes utilise le nœud distinct
+  `1re.maths-expertes.suites.arithmetiques-geometriques`. Le nœud
+  `1re.maths.suites.arithmetiques-geometriques` reste réservé au pack Maths afin que les
+  deux finalités de bilan ne soient jamais agrégées dans un même profil CPS.
+- Le lot porte 153 références de nœuds et 153 identifiants CPS uniques, sans partage entre
+  les packs Maths et Maths expertes.
 - `COLLEGE` est accepté comme niveau source CPS pour les prérequis arithmétiques dont la
   banque ne revendique volontairement pas un niveau de collège plus précis.
 - Les deux packs restent `DRAFT`, non signés, avec RAG désactivé et feature flags inactifs.

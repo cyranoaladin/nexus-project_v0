@@ -399,7 +399,7 @@ items:
   # Pourquoi structurant : les suites de Première fondent le raisonnement par récurrence, cœur de l'option.
   # ===========================================================================
   - id: EME-MAT-SUI-01
-    nodeCpsId: 1re.maths.suites.arithmetiques-geometriques
+    nodeCpsId: 1re.maths-expertes.suites.arithmetiques-geometriques
     type: QCM_SIMPLE
     difficulty: 1
     targetTimeSec: 55
@@ -423,7 +423,7 @@ items:
     shortCorrection: "Pour une suite arithmétique, u_5 = u_0 + 5 × 4 = 3 + 20 = 23."
     tags: [suites, arithmetique]
   - id: EME-MAT-SUI-02
-    nodeCpsId: 1re.maths.suites.arithmetiques-geometriques
+    nodeCpsId: 1re.maths-expertes.suites.arithmetiques-geometriques
     type: QCM_SIMPLE
     difficulty: 2
     targetTimeSec: 60
