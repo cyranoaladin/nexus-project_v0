@@ -84,7 +84,7 @@ function recursiveKeysAndValues(value: unknown, keys: string[] = [], values: str
   return { keys, values };
 }
 
-function handlerFor(db: ReturnType<typeof database>, resolvePack = jest.fn(() => ({ pack }))) {
+function handlerFor(db: ReturnType<typeof database>, resolvePack: jest.Mock = jest.fn(() => ({ pack }))) {
   const { createGetAttemptHandler } = require('@/lib/bilans/api/get-attempt') as typeof import('@/lib/bilans/api/get-attempt');
   return {
     resolvePack,
@@ -120,6 +120,15 @@ describe('GET /api/bilans/attempts/[id]', () => {
     const { handler } = handlerFor(db);
 
     expect((await handler(request, context)).status).toBe(404);
+  });
+
+  test('returns 404 when the attempt pack has been disabled', async () => {
+    const db = database();
+    const resolvePack = jest.fn(() => null);
+    const { handler } = handlerFor(db, resolvePack);
+
+    expect((await handler(request, context)).status).toBe(404);
+    expect(resolvePack).toHaveBeenCalledWith(pack.slug, 1);
   });
 
   test('returns the stable permuted questionnaire and saved answers', async () => {

@@ -91,12 +91,15 @@ function request(body: unknown, key = 'answers-request-0001') {
   });
 }
 
-function handlerFor(state: ReturnType<typeof createDatabase>) {
+function handlerFor(
+  state: ReturnType<typeof createDatabase>,
+  resolvePack: jest.Mock = jest.fn(() => ({ pack })),
+) {
   const { createPatchAnswersHandler } = require('@/lib/bilans/api/patch-answers') as typeof import('@/lib/bilans/api/patch-answers');
   return createPatchAnswersHandler({
     prisma: state.database as never,
     authenticate: async () => ({ user: { id: 'user-1', role: 'ELEVE' } }) as never,
-    resolvePack: () => ({ pack }) as never,
+    resolvePack: resolvePack as never,
     now: () => NOW,
   });
 }
@@ -172,5 +175,19 @@ describe('PATCH /api/bilans/attempts/[id]/answers', () => {
     expect(response.status).toBe(409);
     expect(await response.json()).toEqual({ error: { code: 'ATTEMPT_EXPIRED' } });
     expect(state.updateMany).not.toHaveBeenCalled();
+  });
+
+  test('returns 404 without writing when the attempt pack has been disabled', async () => {
+    const state = createDatabase();
+    const resolvePack = jest.fn(() => null);
+    const response = await handlerFor(state, resolvePack)(request({
+      revision: 3,
+      answers: [{ itemId: 'ITEM-2', optionId: 'B', confidence: 4 }],
+    }), context);
+
+    expect(response.status).toBe(404);
+    expect(resolvePack).toHaveBeenCalledWith(pack.slug, 1);
+    expect(state.updateMany).not.toHaveBeenCalled();
+    expect(state.current().revision).toBe(3);
   });
 });

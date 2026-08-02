@@ -9,11 +9,17 @@ function database(attempt: Record<string, unknown> | null) {
   };
 }
 
-function handlerFor(db: ReturnType<typeof database>) {
+const enabledPack = { pack: { slug: 'fixture-non-publiable-v0', version: 1 } };
+
+function handlerFor(
+  db: ReturnType<typeof database>,
+  resolvePack: jest.Mock = jest.fn(() => enabledPack),
+) {
   const { createGetAttemptStatusHandler } = require('@/lib/bilans/api/get-status') as typeof import('@/lib/bilans/api/get-status');
   return createGetAttemptStatusHandler({
     prisma: db as never,
     authenticate: async () => ({ user: { id: 'user-1', role: 'ELEVE' } }) as never,
+    resolvePack: resolvePack as never,
   });
 }
 
@@ -25,6 +31,8 @@ describe('GET /api/bilans/attempts/[id]/status', () => {
     const db = database({
       id: 'attempt-1',
       status: 'SUBMITTED',
+      assessmentPackId: enabledPack.pack.slug,
+      assessmentPackVersion: '1',
       updatedAt: new Date('2026-08-02T10:05:00.000Z'),
       reportArtifacts: [],
       scoreSnapshots: [{ score: 20, result: { secret: true } }],
@@ -47,6 +55,8 @@ describe('GET /api/bilans/attempts/[id]/status', () => {
     const db = database({
       id: 'attempt-1',
       status: 'REPORT_PENDING_REVIEW',
+      assessmentPackId: enabledPack.pack.slug,
+      assessmentPackVersion: '1',
       updatedAt: new Date('2026-08-02T10:06:00.000Z'),
       reportArtifacts: [{ id: 'artifact-1' }],
     });
@@ -65,5 +75,21 @@ describe('GET /api/bilans/attempts/[id]/status', () => {
     expect(db.findFirst).toHaveBeenCalledWith(expect.objectContaining({
       where: { id: 'attempt-1', studentId: 'student-1' },
     }));
+  });
+
+  test('returns 404 when the attempt pack has been disabled', async () => {
+    const db = database({
+      id: 'attempt-1',
+      status: 'SUBMITTED',
+      assessmentPackId: enabledPack.pack.slug,
+      assessmentPackVersion: '1',
+      updatedAt: new Date('2026-08-02T10:05:00.000Z'),
+      reportArtifacts: [],
+    });
+    const resolvePack = jest.fn(() => null);
+    const response = await handlerFor(db, resolvePack)(request, context);
+
+    expect(response.status).toBe(404);
+    expect(resolvePack).toHaveBeenCalledWith(enabledPack.pack.slug, 1);
   });
 });

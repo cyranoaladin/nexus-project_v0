@@ -71,6 +71,24 @@ describe('A85.1 Canonical API foundations', () => {
     expect(isPackEnabled({ ...validated, slug: 'entree-premiere-maths-v1' }, { [flag]: 'true' })).toBe(false);
   });
 
+  test('fails closed through the shared attempt pack guard', () => {
+    const { assertAttemptPackEnabled } = packAccess();
+    const enabled = { pack: { slug: 'entree-terminale-maths-v1', version: 1 } };
+    const resolvePack = jest.fn().mockReturnValue(enabled);
+    const attempt = {
+      assessmentPackId: 'entree-terminale-maths-v1',
+      assessmentPackVersion: '1',
+    };
+
+    expect(assertAttemptPackEnabled(attempt, resolvePack)).toBe(enabled);
+    expect(resolvePack).toHaveBeenCalledWith('entree-terminale-maths-v1', 1);
+    expect(() => assertAttemptPackEnabled(attempt, () => null)).toThrow('NOT_FOUND');
+    expect(() => assertAttemptPackEnabled(
+      { ...attempt, assessmentPackVersion: 'invalid' },
+      resolvePack,
+    )).toThrow('NOT_FOUND');
+  });
+
   test('resolves an ELEVE Student from session userId without any email fallback', async () => {
     const { resolveSessionStudent } = access();
     const findUnique = jest.fn().mockResolvedValue({ id: 'student-1', userId: 'user-1' });

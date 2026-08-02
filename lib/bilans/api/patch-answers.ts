@@ -15,7 +15,12 @@ import {
   type CanonicalTransaction,
   type IdempotencyDatabase,
 } from './idempotency';
-import { resolveEnabledPack, type EnabledBilanPack } from './pack-access';
+import {
+  assertAttemptPackEnabled,
+  resolveEnabledPack,
+  type EnabledBilanPack,
+  type PackResolver,
+} from './pack-access';
 
 type RouteContext = Readonly<{ params: Promise<Readonly<{ id: string }>> }>;
 
@@ -67,7 +72,7 @@ type PatchAnswersDatabase = IdempotencyDatabase & Readonly<{
 type PatchAnswersDependencies = Readonly<{
   prisma: PatchAnswersDatabase;
   authenticate: () => Promise<Session | null>;
-  resolvePack: (slug: string, version?: number) => EnabledBilanPack | null;
+  resolvePack: PackResolver;
   now: () => Date;
 }>;
 
@@ -153,11 +158,7 @@ export function createPatchAnswersHandler(
             throw CanonicalApiError.conflict('REVISION_CONFLICT', { serverRevision: attempt.revision });
           }
 
-          const packVersion = Number(attempt.assessmentPackVersion);
-          const enabled = Number.isSafeInteger(packVersion)
-            ? dependencies.resolvePack(attempt.assessmentPackId, packVersion)
-            : null;
-          if (enabled === null) throw CanonicalApiError.notFound();
+          const enabled = assertAttemptPackEnabled(attempt, dependencies.resolvePack);
           assertAnswersBelongToPack(input, enabled);
 
           const merged = answerRecord(attempt.answers);

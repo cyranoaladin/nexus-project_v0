@@ -17,7 +17,11 @@ import {
   type CanonicalTransaction,
   type IdempotencyDatabase,
 } from './idempotency';
-import { resolveEnabledPack, type EnabledBilanPack } from './pack-access';
+import {
+  assertAttemptPackEnabled,
+  resolveEnabledPack,
+  type PackResolver,
+} from './pack-access';
 
 const CREATE_ROUTE = 'POST:/api/bilans/attempts';
 const EXPIRY_GRACE_MINUTES = 5;
@@ -52,7 +56,7 @@ type CreateAttemptDatabase = PrismaClient | (IdempotencyDatabase & Readonly<Reco
 type CreateAttemptDependencies = Readonly<{
   prisma: CreateAttemptDatabase;
   authenticate: () => Promise<Session | null>;
-  resolvePack: (slug: string) => EnabledBilanPack | null;
+  resolvePack: PackResolver;
   now: () => Date;
   generateSeed: () => string;
 }>;
@@ -104,8 +108,10 @@ export function createCreateAttemptHandler(
       const input = await requestBody(request);
       const session = await dependencies.authenticate();
       const student = await resolveSessionStudent(session, dependencies.prisma as never);
-      const enabled = dependencies.resolvePack(input.packSlug);
-      if (enabled === null) throw CanonicalApiError.notFound();
+      const enabled = assertAttemptPackEnabled(
+        { assessmentPackId: input.packSlug },
+        dependencies.resolvePack,
+      );
 
       const key = parseIdempotencyKey(request.headers.get('idempotency-key'));
       const startedAt = dependencies.now();

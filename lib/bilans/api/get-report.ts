@@ -7,7 +7,11 @@ import { prisma } from '@/lib/prisma';
 
 import { CanonicalApiError } from './errors';
 import { canonicalErrorResponse } from './http';
-import { resolveEnabledPack, type EnabledBilanPack } from './pack-access';
+import {
+  assertAttemptPackEnabled,
+  resolveEnabledPack,
+  type PackResolver,
+} from './pack-access';
 
 type RouteContext = Readonly<{ params: Promise<Readonly<{ id: string }>> }>;
 type ReportAudience = 'ELEVE' | 'PARENTS' | 'NEXUS';
@@ -24,7 +28,7 @@ type ReportDatabase = Pick<
 type GetReportDependencies = Readonly<{
   prisma: ReportDatabase;
   authenticate: () => Promise<Session | null>;
-  resolvePack: (slug: string, version?: number) => EnabledBilanPack | null;
+  resolvePack: PackResolver;
   now: () => Date;
 }>;
 
@@ -156,14 +160,9 @@ export function createGetAttemptReportHandler(
       });
       if (attempt === null || attempt.status !== 'PUBLISHED') throw CanonicalApiError.notFound();
 
-      const version = Number(attempt.assessmentPackVersion);
-      if (!Number.isSafeInteger(version) || version < 1) throw CanonicalApiError.notFound();
-      if (dependencies.resolvePack(attempt.assessmentPackId, version) === null) {
-        throw CanonicalApiError.notFound();
-      }
-
       const now = dependencies.now();
       const audience = await resolveAudience(session, attempt, dependencies.prisma, now);
+      assertAttemptPackEnabled(attempt, dependencies.resolvePack);
       const artifact = await dependencies.prisma.reportArtifact.findFirst({
         where: {
           assessmentAttemptId: attempt.id,

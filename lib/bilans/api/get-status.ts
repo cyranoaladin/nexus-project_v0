@@ -8,11 +8,18 @@ import { prisma } from '@/lib/prisma';
 import { resolveSessionStudent } from './access';
 import { CanonicalApiError } from './errors';
 import { canonicalErrorResponse } from './http';
+import {
+  assertAttemptPackEnabled,
+  resolveEnabledPack,
+  type PackResolver,
+} from './pack-access';
 
 type RouteContext = Readonly<{ params: Promise<Readonly<{ id: string }>> }>;
 type StoredStatus = Readonly<{
   id: string;
   status: string;
+  assessmentPackId: string;
+  assessmentPackVersion: string;
   updatedAt: Date;
   reportArtifacts: ReadonlyArray<Readonly<{ id: string }>>;
 }>;
@@ -27,11 +34,13 @@ type StatusDatabase = Readonly<{
 type StatusDependencies = Readonly<{
   prisma: StatusDatabase;
   authenticate: () => Promise<Session | null>;
+  resolvePack: PackResolver;
 }>;
 
 const defaultDependencies: StatusDependencies = {
   prisma: prisma as unknown as StatusDatabase,
   authenticate: auth,
+  resolvePack: resolveEnabledPack,
 };
 
 export function createGetAttemptStatusHandler(
@@ -47,11 +56,14 @@ export function createGetAttemptStatusHandler(
         select: {
           id: true,
           status: true,
+          assessmentPackId: true,
+          assessmentPackVersion: true,
           updatedAt: true,
           reportArtifacts: { select: { id: true }, take: 1 },
         },
       });
       if (attempt === null) throw CanonicalApiError.notFound();
+      assertAttemptPackEnabled(attempt, dependencies.resolvePack);
 
       return NextResponse.json({
         attemptId: attempt.id,
