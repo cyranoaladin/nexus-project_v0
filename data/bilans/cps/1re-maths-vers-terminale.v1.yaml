@@ -1,0 +1,49 @@
+schemaVersion: nexus-cps-catalog/v1
+slug: 1re-maths-vers-terminale-v1
+version: 1
+nodes:
+  - id: 1re.maths.second-degre.discriminant-racines
+    label: "Second degré : discriminant et racines"
+    sourceLevel: PREMIERE
+    targetLevel: TERMINALE
+    pedagogicalRationale: "Toute étude de signe de f' en Terminale passe par un trinôme. Un élève qui ne factorise pas ne peut pas dresser un tableau de variations, donc ne peut ni étudier la convexité, ni appliquer le TVI, ni conclure sur un nombre de solutions."
+  - id: 1re.maths.second-degre.signe-trinome
+    label: Signe du trinôme
+    sourceLevel: PREMIERE
+    targetLevel: TERMINALE
+    pedagogicalRationale: "En Terminale, le signe de f' se lit presque toujours sur un trinôme. Sans la règle du signe selon a et les racines, aucun tableau de variations n'est possible."
+  - id: 1re.maths.derivation.formules-usuelles-operations
+    label: "Dérivation : formules usuelles et opérations"
+    sourceLevel: PREMIERE
+    targetLevel: TERMINALE
+    pedagogicalRationale: "La dérivation d'un produit et d'un quotient est réinvestie dès les premières semaines de Terminale, avant même l'introduction de la dérivée d'une composée."
+  - id: 1re.maths.derivation.signe-derivee-variations
+    label: Lien entre signe de la dérivée et variations
+    sourceLevel: PREMIERE
+    targetLevel: TERMINALE
+    pedagogicalRationale: "C'est le raisonnement le plus réinvesti de toute la Terminale. La confusion entre f et f' rend inaccessibles les variations, la convexité et le TVI."
+  - id: 1re.maths.derivation.nombre-derive-tangente
+    label: Nombre dérivé et équation de tangente
+    sourceLevel: PREMIERE
+    targetLevel: TERMINALE
+    pedagogicalRationale: "La tangente fonde l'approximation affine et la lecture graphique de la convexité, deux objets centraux en Terminale."
+  - id: 1re.maths.exponentielle.proprietes-algebriques
+    label: "Exponentielle : propriétés algébriques et positivité"
+    sourceLevel: PREMIERE
+    targetLevel: TERMINALE
+    pedagogicalRationale: "Le logarithme, introduit dès l'automne en Terminale, se construit sur ces propriétés. La stricte positivité de l'exponentielle est utilisée dans toutes les études de signe."
+  - id: 1re.maths.suites.arithmetiques-geometriques
+    label: Suites arithmétiques et géométriques
+    sourceLevel: PREMIERE
+    targetLevel: TERMINALE
+    pedagogicalRationale: "L'étude des limites de suites et le raisonnement par récurrence, tous deux traités tôt en Terminale, supposent une distinction sûre entre les deux modèles."
+  - id: 1re.maths.suites.sens-de-variation
+    label: Sens de variation d'une suite
+    sourceLevel: PREMIERE
+    targetLevel: TERMINALE
+    pedagogicalRationale: "Les théorèmes de convergence monotone et le raisonnement par récurrence exigent de savoir établir un sens de variation à partir de u_(n+1) − u_n ou de la raison."
+  - id: 1re.maths.produit-scalaire.expression-analytique
+    label: Produit scalaire dans le plan
+    sourceLevel: PREMIERE
+    targetLevel: TERMINALE
+    pedagogicalRationale: "Toute la géométrie dans l'espace de Terminale — vecteur normal, orthogonalité, équation de plan — généralise le produit scalaire du plan. Sans lui, le chapitre est inabordable."

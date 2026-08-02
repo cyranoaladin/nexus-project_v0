@@ -85,7 +85,7 @@ const packSchema = z.object({
       levels: z.literal(4),
       labels: z.array(z.string().trim().min(1)).length(4),
     }).strict(),
-    items: z.array(questionSchema).length(50),
+    items: z.array(questionSchema).min(12).max(50),
   }).strict(),
   scoring: z.object({
     engine: z.literal('facts.v1.0.1'),
