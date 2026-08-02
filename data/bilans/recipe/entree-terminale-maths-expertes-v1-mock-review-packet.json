@@ -1,0 +1,4869 @@
+{
+  "schemaVersion": "nexus-bilan-blind-review-packet/v1",
+  "status": "TECHNICAL_MOCK_ONLY_NOT_PEDAGOGICALLY_VALIDATED",
+  "sourceDraftPack": "entree-terminale-maths-expertes-v1",
+  "executionFixture": "fixture-non-publiable-v0",
+  "instructions": "Évaluer la clarté, la fidélité aux faits et l’utilité pédagogique sans inférer une validation du pack DRAFT.",
+  "reports": [
+    {
+      "blindId": "CAS_01_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "b21de407bdeaf57ff91c115c8c39d8676dbecb1874db77917770b5478884b64c",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "arithmetique",
+                "titre": "arithmetique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "calcul-litteral",
+                "titre": "calcul litteral",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "systemes",
+                "titre": "systemes",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "logique",
+                "titre": "logique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "suites",
+                "titre": "suites",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "denombrement",
+                "titre": "denombrement",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "arithmetique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "systemes",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "logique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "suites",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "denombrement",
+              "profile": "MAITRISE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_01_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "470050c650fd41c1038596bbbb32bccfd6ccfc1ffaf5b201d2591c5b320ea7ec",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "arithmetique",
+                "texte": "arithmetique constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "calcul-litteral",
+                "texte": "calcul litteral constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "systemes",
+                "texte": "systemes constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "logique",
+                "titre": "logique",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "suites",
+                "titre": "suites",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "denombrement",
+                "titre": "denombrement",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "arithmetique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "systemes",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "logique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "suites",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "denombrement",
+              "profile": "MAITRISE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_01_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "df688e326fc5cff4dacd5b2d5e95b97c05032b5705731eb3814a062c9d83a1a5",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "arithmetique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "systemes",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "logique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "suites",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "denombrement",
+              "profile": "MAITRISE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 15,
+            "coverage": 45,
+            "calibrationIndex": null,
+            "domainScores": [
+              {
+                "id": "arithmetique",
+                "score": 15
+              },
+              {
+                "id": "calcul-litteral",
+                "score": 24
+              },
+              {
+                "id": "systemes",
+                "score": 33
+              },
+              {
+                "id": "logique",
+                "score": 42
+              },
+              {
+                "id": "suites",
+                "score": 51
+              },
+              {
+                "id": "denombrement",
+                "score": 60
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_02_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "d996c19c625369639e3f3b72be3fd18f404b1b93696470029cbbe763a888888c",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "arithmetique",
+                "titre": "arithmetique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "calcul-litteral",
+                "titre": "calcul litteral",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "systemes",
+                "titre": "systemes",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "logique",
+                "titre": "logique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "suites",
+                "titre": "suites",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "denombrement",
+                "titre": "denombrement",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "arithmetique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "systemes",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "logique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "suites",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "denombrement",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_02_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "2ff00b7c8aa54f819f91b9fa455def17816a1eebcac1cd0e4a09523ec376f9f4",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "arithmetique",
+                "texte": "arithmetique constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "calcul-litteral",
+                "texte": "calcul litteral constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "systemes",
+                "texte": "systemes constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "logique",
+                "titre": "logique",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "suites",
+                "titre": "suites",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "denombrement",
+                "titre": "denombrement",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "arithmetique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "systemes",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "logique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "suites",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "denombrement",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_02_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "94aa60665d1a10db7a191dc1018da5fd9005e6049066cfc6dd00865aa742170d",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "arithmetique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "systemes",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "logique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "suites",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "denombrement",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 32,
+            "coverage": 58,
+            "calibrationIndex": 41,
+            "domainScores": [
+              {
+                "id": "arithmetique",
+                "score": 32
+              },
+              {
+                "id": "calcul-litteral",
+                "score": 41
+              },
+              {
+                "id": "systemes",
+                "score": 50
+              },
+              {
+                "id": "logique",
+                "score": 59
+              },
+              {
+                "id": "suites",
+                "score": 68
+              },
+              {
+                "id": "denombrement",
+                "score": 77
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_03_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "0e0ba87ce3813b3f8439e4a4dd289c7eb0ac979516befc60fc686786fe0a09a8",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "arithmetique",
+                "titre": "arithmetique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "calcul-litteral",
+                "titre": "calcul litteral",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "systemes",
+                "titre": "systemes",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "logique",
+                "titre": "logique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "suites",
+                "titre": "suites",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "denombrement",
+                "titre": "denombrement",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "arithmetique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "systemes",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "logique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "suites",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "denombrement",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_03_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "f307ebc2298febc0acde99aaa816c61e9e367a345042a9aa5dcc0d18e65f22a6",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "arithmetique",
+                "texte": "arithmetique constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "calcul-litteral",
+                "texte": "calcul litteral constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "systemes",
+                "texte": "systemes constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "logique",
+                "titre": "logique",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "suites",
+                "titre": "suites",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "denombrement",
+                "titre": "denombrement",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "arithmetique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "systemes",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "logique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "suites",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "denombrement",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_03_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "6468c7d422bf15c4abce0248c74a055cf6b63caffba900910e3fa4615a4cfb58",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "arithmetique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "systemes",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "logique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "suites",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "denombrement",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 49,
+            "coverage": 71,
+            "calibrationIndex": 52,
+            "domainScores": [
+              {
+                "id": "arithmetique",
+                "score": 49
+              },
+              {
+                "id": "calcul-litteral",
+                "score": 58
+              },
+              {
+                "id": "systemes",
+                "score": 67
+              },
+              {
+                "id": "logique",
+                "score": 76
+              },
+              {
+                "id": "suites",
+                "score": 85
+              },
+              {
+                "id": "denombrement",
+                "score": 94
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_04_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "841cc075ff2eb9d57beecdc5caf2a427abd82afb1641fb6505b197bc1fcf6586",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "arithmetique",
+                "titre": "arithmetique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "calcul-litteral",
+                "titre": "calcul litteral",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "systemes",
+                "titre": "systemes",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "logique",
+                "titre": "logique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "suites",
+                "titre": "suites",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "denombrement",
+                "titre": "denombrement",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "arithmetique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "systemes",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "logique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "suites",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "denombrement",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_04_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "600f0e40031d4eed4d268ce18677b1328931b29c47efbd264d8ef6119b6270d1",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "arithmetique",
+                "texte": "arithmetique constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "calcul-litteral",
+                "texte": "calcul litteral constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "systemes",
+                "texte": "systemes constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "logique",
+                "titre": "logique",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "suites",
+                "titre": "suites",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "denombrement",
+                "titre": "denombrement",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "arithmetique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "systemes",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "logique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "suites",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "denombrement",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_04_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "63707e553cdffc6bf9c525187c8e1f51d8695f20ddaa5fcc303e52b468e857f5",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "arithmetique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "systemes",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "logique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "suites",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "denombrement",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 66,
+            "coverage": 84,
+            "calibrationIndex": 63,
+            "domainScores": [
+              {
+                "id": "arithmetique",
+                "score": 66
+              },
+              {
+                "id": "calcul-litteral",
+                "score": 75
+              },
+              {
+                "id": "systemes",
+                "score": 84
+              },
+              {
+                "id": "logique",
+                "score": 93
+              },
+              {
+                "id": "suites",
+                "score": 1
+              },
+              {
+                "id": "denombrement",
+                "score": 10
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_05_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "ac04cfecf626cdc71cbf3b418996858f06fd741fb626f19a5e17d7ccd1baa185",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "arithmetique",
+                "titre": "arithmetique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "calcul-litteral",
+                "titre": "calcul litteral",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "systemes",
+                "titre": "systemes",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "logique",
+                "titre": "logique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "suites",
+                "titre": "suites",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "denombrement",
+                "titre": "denombrement",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "arithmetique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "systemes",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "logique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "suites",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "denombrement",
+              "profile": "NON_TRAITE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_05_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "d2d1a0ef1976e123cf80d0694425a6ad9b202e02c5e24a95c4b7f8d93bbd8d85",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "arithmetique",
+                "texte": "arithmetique constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "calcul-litteral",
+                "texte": "calcul litteral constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "systemes",
+                "texte": "systemes constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "logique",
+                "titre": "logique",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "suites",
+                "titre": "suites",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "denombrement",
+                "titre": "denombrement",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "arithmetique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "systemes",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "logique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "suites",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "denombrement",
+              "profile": "NON_TRAITE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_05_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "e76d7aa827d442d7b6b1909b450599aafd85871d79baf6ffb2593f5bdcc97eb7",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "arithmetique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "systemes",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "logique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "suites",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "denombrement",
+              "profile": "NON_TRAITE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 83,
+            "coverage": 97,
+            "calibrationIndex": null,
+            "domainScores": [
+              {
+                "id": "arithmetique",
+                "score": 83
+              },
+              {
+                "id": "calcul-litteral",
+                "score": 92
+              },
+              {
+                "id": "systemes",
+                "score": 0
+              },
+              {
+                "id": "logique",
+                "score": 9
+              },
+              {
+                "id": "suites",
+                "score": 18
+              },
+              {
+                "id": "denombrement",
+                "score": 27
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_06_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "b21de407bdeaf57ff91c115c8c39d8676dbecb1874db77917770b5478884b64c",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "arithmetique",
+                "titre": "arithmetique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "calcul-litteral",
+                "titre": "calcul litteral",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "systemes",
+                "titre": "systemes",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "logique",
+                "titre": "logique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "suites",
+                "titre": "suites",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "denombrement",
+                "titre": "denombrement",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "arithmetique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "systemes",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "logique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "suites",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "denombrement",
+              "profile": "MAITRISE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_06_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "470050c650fd41c1038596bbbb32bccfd6ccfc1ffaf5b201d2591c5b320ea7ec",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "arithmetique",
+                "texte": "arithmetique constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "calcul-litteral",
+                "texte": "calcul litteral constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "systemes",
+                "texte": "systemes constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "logique",
+                "titre": "logique",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "suites",
+                "titre": "suites",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "denombrement",
+                "titre": "denombrement",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "arithmetique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "systemes",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "logique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "suites",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "denombrement",
+              "profile": "MAITRISE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_06_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "81cc1bedb81e63f3efe2d0245ebbb03f572c5c108e821ab70694aa019f16bb17",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "arithmetique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "systemes",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "logique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "suites",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "denombrement",
+              "profile": "MAITRISE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 19,
+            "coverage": 54,
+            "calibrationIndex": 85,
+            "domainScores": [
+              {
+                "id": "arithmetique",
+                "score": 19
+              },
+              {
+                "id": "calcul-litteral",
+                "score": 28
+              },
+              {
+                "id": "systemes",
+                "score": 37
+              },
+              {
+                "id": "logique",
+                "score": 46
+              },
+              {
+                "id": "suites",
+                "score": 55
+              },
+              {
+                "id": "denombrement",
+                "score": 64
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_07_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "d996c19c625369639e3f3b72be3fd18f404b1b93696470029cbbe763a888888c",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "arithmetique",
+                "titre": "arithmetique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "calcul-litteral",
+                "titre": "calcul litteral",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "systemes",
+                "titre": "systemes",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "logique",
+                "titre": "logique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "suites",
+                "titre": "suites",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "denombrement",
+                "titre": "denombrement",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "arithmetique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "systemes",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "logique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "suites",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "denombrement",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_07_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "2ff00b7c8aa54f819f91b9fa455def17816a1eebcac1cd0e4a09523ec376f9f4",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "arithmetique",
+                "texte": "arithmetique constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "calcul-litteral",
+                "texte": "calcul litteral constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "systemes",
+                "texte": "systemes constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "logique",
+                "titre": "logique",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "suites",
+                "titre": "suites",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "denombrement",
+                "titre": "denombrement",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "arithmetique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "systemes",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "logique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "suites",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "denombrement",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_07_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "c81ffc9577e29c600271d3832b2b8a5ab1b61c57f581655c0f221c28e40d2706",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "arithmetique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "systemes",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "logique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "suites",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "denombrement",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 36,
+            "coverage": 67,
+            "calibrationIndex": 96,
+            "domainScores": [
+              {
+                "id": "arithmetique",
+                "score": 36
+              },
+              {
+                "id": "calcul-litteral",
+                "score": 45
+              },
+              {
+                "id": "systemes",
+                "score": 54
+              },
+              {
+                "id": "logique",
+                "score": 63
+              },
+              {
+                "id": "suites",
+                "score": 72
+              },
+              {
+                "id": "denombrement",
+                "score": 81
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_08_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "0e0ba87ce3813b3f8439e4a4dd289c7eb0ac979516befc60fc686786fe0a09a8",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "arithmetique",
+                "titre": "arithmetique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "calcul-litteral",
+                "titre": "calcul litteral",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "systemes",
+                "titre": "systemes",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "logique",
+                "titre": "logique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "suites",
+                "titre": "suites",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "denombrement",
+                "titre": "denombrement",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "arithmetique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "systemes",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "logique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "suites",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "denombrement",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_08_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "f307ebc2298febc0acde99aaa816c61e9e367a345042a9aa5dcc0d18e65f22a6",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "arithmetique",
+                "texte": "arithmetique constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "calcul-litteral",
+                "texte": "calcul litteral constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "systemes",
+                "texte": "systemes constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "logique",
+                "titre": "logique",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "suites",
+                "titre": "suites",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "denombrement",
+                "titre": "denombrement",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "arithmetique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "systemes",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "logique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "suites",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "denombrement",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_08_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "64a528c84d8615545e61cfaf96a19f39f75f578a4f32869fb7aeca2f7c69a699",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "arithmetique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "systemes",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "logique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "suites",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "denombrement",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 53,
+            "coverage": 80,
+            "calibrationIndex": 36,
+            "domainScores": [
+              {
+                "id": "arithmetique",
+                "score": 53
+              },
+              {
+                "id": "calcul-litteral",
+                "score": 62
+              },
+              {
+                "id": "systemes",
+                "score": 71
+              },
+              {
+                "id": "logique",
+                "score": 80
+              },
+              {
+                "id": "suites",
+                "score": 89
+              },
+              {
+                "id": "denombrement",
+                "score": 98
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_09_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "841cc075ff2eb9d57beecdc5caf2a427abd82afb1641fb6505b197bc1fcf6586",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "arithmetique",
+                "titre": "arithmetique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "calcul-litteral",
+                "titre": "calcul litteral",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "systemes",
+                "titre": "systemes",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "logique",
+                "titre": "logique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "suites",
+                "titre": "suites",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "denombrement",
+                "titre": "denombrement",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "arithmetique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "systemes",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "logique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "suites",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "denombrement",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_09_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "600f0e40031d4eed4d268ce18677b1328931b29c47efbd264d8ef6119b6270d1",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "arithmetique",
+                "texte": "arithmetique constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "calcul-litteral",
+                "texte": "calcul litteral constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "systemes",
+                "texte": "systemes constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "logique",
+                "titre": "logique",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "suites",
+                "titre": "suites",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "denombrement",
+                "titre": "denombrement",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "arithmetique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "systemes",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "logique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "suites",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "denombrement",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_09_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "d8bd7f241a7c5fc6f21d363fad7094441ec7fba46b8fd9b5c524c20f813fcbac",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "arithmetique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "systemes",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "logique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "suites",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "denombrement",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 70,
+            "coverage": 93,
+            "calibrationIndex": null,
+            "domainScores": [
+              {
+                "id": "arithmetique",
+                "score": 70
+              },
+              {
+                "id": "calcul-litteral",
+                "score": 79
+              },
+              {
+                "id": "systemes",
+                "score": 88
+              },
+              {
+                "id": "logique",
+                "score": 97
+              },
+              {
+                "id": "suites",
+                "score": 5
+              },
+              {
+                "id": "denombrement",
+                "score": 14
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_10_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "ac04cfecf626cdc71cbf3b418996858f06fd741fb626f19a5e17d7ccd1baa185",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "arithmetique",
+                "titre": "arithmetique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "calcul-litteral",
+                "titre": "calcul litteral",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "systemes",
+                "titre": "systemes",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "logique",
+                "titre": "logique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "suites",
+                "titre": "suites",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "denombrement",
+                "titre": "denombrement",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "arithmetique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "systemes",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "logique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "suites",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "denombrement",
+              "profile": "NON_TRAITE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_10_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "d2d1a0ef1976e123cf80d0694425a6ad9b202e02c5e24a95c4b7f8d93bbd8d85",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "arithmetique",
+                "texte": "arithmetique constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "calcul-litteral",
+                "texte": "calcul litteral constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "systemes",
+                "texte": "systemes constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "logique",
+                "titre": "logique",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "suites",
+                "titre": "suites",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "denombrement",
+                "titre": "denombrement",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "arithmetique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "systemes",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "logique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "suites",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "denombrement",
+              "profile": "NON_TRAITE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_10_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "0cd7e0425cc8ede3eeb8ee3558ee98d44d61f72e222b9c5a4612b89c4c0b938c",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "arithmetique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "systemes",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "logique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "suites",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "denombrement",
+              "profile": "NON_TRAITE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 87,
+            "coverage": 50,
+            "calibrationIndex": 58,
+            "domainScores": [
+              {
+                "id": "arithmetique",
+                "score": 87
+              },
+              {
+                "id": "calcul-litteral",
+                "score": 96
+              },
+              {
+                "id": "systemes",
+                "score": 4
+              },
+              {
+                "id": "logique",
+                "score": 13
+              },
+              {
+                "id": "suites",
+                "score": 22
+              },
+              {
+                "id": "denombrement",
+                "score": 31
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_11_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "b21de407bdeaf57ff91c115c8c39d8676dbecb1874db77917770b5478884b64c",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "arithmetique",
+                "titre": "arithmetique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "calcul-litteral",
+                "titre": "calcul litteral",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "systemes",
+                "titre": "systemes",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "logique",
+                "titre": "logique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "suites",
+                "titre": "suites",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "denombrement",
+                "titre": "denombrement",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "arithmetique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "systemes",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "logique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "suites",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "denombrement",
+              "profile": "MAITRISE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_11_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "470050c650fd41c1038596bbbb32bccfd6ccfc1ffaf5b201d2591c5b320ea7ec",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "arithmetique",
+                "texte": "arithmetique constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "calcul-litteral",
+                "texte": "calcul litteral constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "systemes",
+                "texte": "systemes constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "logique",
+                "titre": "logique",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "suites",
+                "titre": "suites",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "denombrement",
+                "titre": "denombrement",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "arithmetique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "systemes",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "logique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "suites",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "denombrement",
+              "profile": "MAITRISE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_11_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "b9eb244a8d96bf3947d32327b2e8fa0478c4669902adc70d78a4becd07245cc3",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "arithmetique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "systemes",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "logique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "suites",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "denombrement",
+              "profile": "MAITRISE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 23,
+            "coverage": 63,
+            "calibrationIndex": 69,
+            "domainScores": [
+              {
+                "id": "arithmetique",
+                "score": 23
+              },
+              {
+                "id": "calcul-litteral",
+                "score": 32
+              },
+              {
+                "id": "systemes",
+                "score": 41
+              },
+              {
+                "id": "logique",
+                "score": 50
+              },
+              {
+                "id": "suites",
+                "score": 59
+              },
+              {
+                "id": "denombrement",
+                "score": 68
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_12_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "d996c19c625369639e3f3b72be3fd18f404b1b93696470029cbbe763a888888c",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "arithmetique",
+                "titre": "arithmetique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "calcul-litteral",
+                "titre": "calcul litteral",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "systemes",
+                "titre": "systemes",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "logique",
+                "titre": "logique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "suites",
+                "titre": "suites",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "denombrement",
+                "titre": "denombrement",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "arithmetique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "systemes",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "logique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "suites",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "denombrement",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_12_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "2ff00b7c8aa54f819f91b9fa455def17816a1eebcac1cd0e4a09523ec376f9f4",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "arithmetique",
+                "texte": "arithmetique constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "calcul-litteral",
+                "texte": "calcul litteral constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "systemes",
+                "texte": "systemes constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "logique",
+                "titre": "logique",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "suites",
+                "titre": "suites",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "denombrement",
+                "titre": "denombrement",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "arithmetique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "systemes",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "logique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "suites",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "denombrement",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_12_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "d94a745d961ff0b42701fbacd33982fa62eeb56f9c0f12a24a08efbad6a5ceed",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "arithmetique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "systemes",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "logique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "suites",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "denombrement",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 40,
+            "coverage": 76,
+            "calibrationIndex": 80,
+            "domainScores": [
+              {
+                "id": "arithmetique",
+                "score": 40
+              },
+              {
+                "id": "calcul-litteral",
+                "score": 49
+              },
+              {
+                "id": "systemes",
+                "score": 58
+              },
+              {
+                "id": "logique",
+                "score": 67
+              },
+              {
+                "id": "suites",
+                "score": 76
+              },
+              {
+                "id": "denombrement",
+                "score": 85
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_13_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "0e0ba87ce3813b3f8439e4a4dd289c7eb0ac979516befc60fc686786fe0a09a8",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "arithmetique",
+                "titre": "arithmetique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "calcul-litteral",
+                "titre": "calcul litteral",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "systemes",
+                "titre": "systemes",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "logique",
+                "titre": "logique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "suites",
+                "titre": "suites",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "denombrement",
+                "titre": "denombrement",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "arithmetique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "systemes",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "logique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "suites",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "denombrement",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_13_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "f307ebc2298febc0acde99aaa816c61e9e367a345042a9aa5dcc0d18e65f22a6",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "arithmetique",
+                "texte": "arithmetique constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "calcul-litteral",
+                "texte": "calcul litteral constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "systemes",
+                "texte": "systemes constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "logique",
+                "titre": "logique",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "suites",
+                "titre": "suites",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "denombrement",
+                "titre": "denombrement",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "arithmetique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "systemes",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "logique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "suites",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "denombrement",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_13_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "1dcc5064c4ca84427d47737140ba42e5d0a86445717936b2978bcd2ea101acb9",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "arithmetique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "systemes",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "logique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "suites",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "denombrement",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 57,
+            "coverage": 89,
+            "calibrationIndex": null,
+            "domainScores": [
+              {
+                "id": "arithmetique",
+                "score": 57
+              },
+              {
+                "id": "calcul-litteral",
+                "score": 66
+              },
+              {
+                "id": "systemes",
+                "score": 75
+              },
+              {
+                "id": "logique",
+                "score": 84
+              },
+              {
+                "id": "suites",
+                "score": 93
+              },
+              {
+                "id": "denombrement",
+                "score": 1
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_14_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "841cc075ff2eb9d57beecdc5caf2a427abd82afb1641fb6505b197bc1fcf6586",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "arithmetique",
+                "titre": "arithmetique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "calcul-litteral",
+                "titre": "calcul litteral",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "systemes",
+                "titre": "systemes",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "logique",
+                "titre": "logique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "suites",
+                "titre": "suites",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "denombrement",
+                "titre": "denombrement",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "arithmetique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "systemes",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "logique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "suites",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "denombrement",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_14_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "600f0e40031d4eed4d268ce18677b1328931b29c47efbd264d8ef6119b6270d1",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "arithmetique",
+                "texte": "arithmetique constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "calcul-litteral",
+                "texte": "calcul litteral constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "systemes",
+                "texte": "systemes constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "logique",
+                "titre": "logique",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "suites",
+                "titre": "suites",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "denombrement",
+                "titre": "denombrement",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "arithmetique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "systemes",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "logique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "suites",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "denombrement",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_14_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "d471ee84e51082c65218099d8ca1964fdadb2bc8709585db53f74f6546a5ed2b",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "arithmetique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "systemes",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "logique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "suites",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "denombrement",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 74,
+            "coverage": 46,
+            "calibrationIndex": 31,
+            "domainScores": [
+              {
+                "id": "arithmetique",
+                "score": 74
+              },
+              {
+                "id": "calcul-litteral",
+                "score": 83
+              },
+              {
+                "id": "systemes",
+                "score": 92
+              },
+              {
+                "id": "logique",
+                "score": 0
+              },
+              {
+                "id": "suites",
+                "score": 9
+              },
+              {
+                "id": "denombrement",
+                "score": 18
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_15_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "ac04cfecf626cdc71cbf3b418996858f06fd741fb626f19a5e17d7ccd1baa185",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "arithmetique",
+                "titre": "arithmetique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "calcul-litteral",
+                "titre": "calcul litteral",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "systemes",
+                "titre": "systemes",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "logique",
+                "titre": "logique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "suites",
+                "titre": "suites",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "denombrement",
+                "titre": "denombrement",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "arithmetique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "systemes",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "logique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "suites",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "denombrement",
+              "profile": "NON_TRAITE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_15_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "d2d1a0ef1976e123cf80d0694425a6ad9b202e02c5e24a95c4b7f8d93bbd8d85",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "arithmetique",
+                "texte": "arithmetique constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "calcul-litteral",
+                "texte": "calcul litteral constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "systemes",
+                "texte": "systemes constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "logique",
+                "titre": "logique",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "suites",
+                "titre": "suites",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "denombrement",
+                "titre": "denombrement",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "arithmetique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "systemes",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "logique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "suites",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "denombrement",
+              "profile": "NON_TRAITE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_15_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "99c58dc385722f9fa42fe68af01831633d2b486f4c0afc436ec15e2c1e616eaf",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "arithmetique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "systemes",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "logique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "suites",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "denombrement",
+              "profile": "NON_TRAITE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 91,
+            "coverage": 59,
+            "calibrationIndex": 42,
+            "domainScores": [
+              {
+                "id": "arithmetique",
+                "score": 91
+              },
+              {
+                "id": "calcul-litteral",
+                "score": 100
+              },
+              {
+                "id": "systemes",
+                "score": 8
+              },
+              {
+                "id": "logique",
+                "score": 17
+              },
+              {
+                "id": "suites",
+                "score": 26
+              },
+              {
+                "id": "denombrement",
+                "score": 35
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_16_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "b21de407bdeaf57ff91c115c8c39d8676dbecb1874db77917770b5478884b64c",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "arithmetique",
+                "titre": "arithmetique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "calcul-litteral",
+                "titre": "calcul litteral",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "systemes",
+                "titre": "systemes",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "logique",
+                "titre": "logique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "suites",
+                "titre": "suites",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "denombrement",
+                "titre": "denombrement",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "arithmetique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "systemes",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "logique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "suites",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "denombrement",
+              "profile": "MAITRISE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_16_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "470050c650fd41c1038596bbbb32bccfd6ccfc1ffaf5b201d2591c5b320ea7ec",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "arithmetique",
+                "texte": "arithmetique constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "calcul-litteral",
+                "texte": "calcul litteral constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "systemes",
+                "texte": "systemes constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "logique",
+                "titre": "logique",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "suites",
+                "titre": "suites",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "denombrement",
+                "titre": "denombrement",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "arithmetique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "systemes",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "logique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "suites",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "denombrement",
+              "profile": "MAITRISE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_16_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "e81fab5f1803d5301c8d972614e3f6b09cc0fe8c499e94d7fcaaca5c4fa8014c",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "arithmetique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "systemes",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "logique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "suites",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "denombrement",
+              "profile": "MAITRISE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 27,
+            "coverage": 72,
+            "calibrationIndex": 53,
+            "domainScores": [
+              {
+                "id": "arithmetique",
+                "score": 27
+              },
+              {
+                "id": "calcul-litteral",
+                "score": 36
+              },
+              {
+                "id": "systemes",
+                "score": 45
+              },
+              {
+                "id": "logique",
+                "score": 54
+              },
+              {
+                "id": "suites",
+                "score": 63
+              },
+              {
+                "id": "denombrement",
+                "score": 72
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_17_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "d996c19c625369639e3f3b72be3fd18f404b1b93696470029cbbe763a888888c",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "arithmetique",
+                "titre": "arithmetique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "calcul-litteral",
+                "titre": "calcul litteral",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "systemes",
+                "titre": "systemes",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "logique",
+                "titre": "logique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "suites",
+                "titre": "suites",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "denombrement",
+                "titre": "denombrement",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "arithmetique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "systemes",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "logique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "suites",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "denombrement",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_17_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "2ff00b7c8aa54f819f91b9fa455def17816a1eebcac1cd0e4a09523ec376f9f4",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "arithmetique",
+                "texte": "arithmetique constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "calcul-litteral",
+                "texte": "calcul litteral constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "systemes",
+                "texte": "systemes constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "logique",
+                "titre": "logique",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "suites",
+                "titre": "suites",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "denombrement",
+                "titre": "denombrement",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "arithmetique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "systemes",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "logique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "suites",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "denombrement",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_17_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "73d551ee102b8b73b373d287156c6fc063dc577903aedc5ee8a1dfdf1dc0e50e",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "arithmetique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "systemes",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "logique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "suites",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "denombrement",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 44,
+            "coverage": 85,
+            "calibrationIndex": null,
+            "domainScores": [
+              {
+                "id": "arithmetique",
+                "score": 44
+              },
+              {
+                "id": "calcul-litteral",
+                "score": 53
+              },
+              {
+                "id": "systemes",
+                "score": 62
+              },
+              {
+                "id": "logique",
+                "score": 71
+              },
+              {
+                "id": "suites",
+                "score": 80
+              },
+              {
+                "id": "denombrement",
+                "score": 89
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_18_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "0e0ba87ce3813b3f8439e4a4dd289c7eb0ac979516befc60fc686786fe0a09a8",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "arithmetique",
+                "titre": "arithmetique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "calcul-litteral",
+                "titre": "calcul litteral",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "systemes",
+                "titre": "systemes",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "logique",
+                "titre": "logique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "suites",
+                "titre": "suites",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "denombrement",
+                "titre": "denombrement",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "arithmetique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "systemes",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "logique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "suites",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "denombrement",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_18_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "f307ebc2298febc0acde99aaa816c61e9e367a345042a9aa5dcc0d18e65f22a6",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "arithmetique",
+                "texte": "arithmetique constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "calcul-litteral",
+                "texte": "calcul litteral constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "systemes",
+                "texte": "systemes constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "logique",
+                "titre": "logique",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "suites",
+                "titre": "suites",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "denombrement",
+                "titre": "denombrement",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "arithmetique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "systemes",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "logique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "suites",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "denombrement",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_18_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "7fd6b95682b85d76ab426d225d31ab34e2419846858969d9b1586d24721bc9d9",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "arithmetique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "systemes",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "logique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "suites",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "denombrement",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 61,
+            "coverage": 98,
+            "calibrationIndex": 75,
+            "domainScores": [
+              {
+                "id": "arithmetique",
+                "score": 61
+              },
+              {
+                "id": "calcul-litteral",
+                "score": 70
+              },
+              {
+                "id": "systemes",
+                "score": 79
+              },
+              {
+                "id": "logique",
+                "score": 88
+              },
+              {
+                "id": "suites",
+                "score": 97
+              },
+              {
+                "id": "denombrement",
+                "score": 5
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_19_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "841cc075ff2eb9d57beecdc5caf2a427abd82afb1641fb6505b197bc1fcf6586",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "arithmetique",
+                "titre": "arithmetique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "calcul-litteral",
+                "titre": "calcul litteral",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "systemes",
+                "titre": "systemes",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "logique",
+                "titre": "logique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "suites",
+                "titre": "suites",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "denombrement",
+                "titre": "denombrement",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "arithmetique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "systemes",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "logique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "suites",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "denombrement",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_19_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "600f0e40031d4eed4d268ce18677b1328931b29c47efbd264d8ef6119b6270d1",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "arithmetique",
+                "texte": "arithmetique constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "calcul-litteral",
+                "texte": "calcul litteral constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "systemes",
+                "texte": "systemes constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "logique",
+                "titre": "logique",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "suites",
+                "titre": "suites",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "denombrement",
+                "titre": "denombrement",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "arithmetique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "systemes",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "logique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "suites",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "denombrement",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_19_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "6f9eabe5464ef2cff4c738b05bc713c42a939e65cf7820a5a16d29b41750619a",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "arithmetique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "systemes",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "logique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "suites",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "denombrement",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 78,
+            "coverage": 55,
+            "calibrationIndex": 86,
+            "domainScores": [
+              {
+                "id": "arithmetique",
+                "score": 78
+              },
+              {
+                "id": "calcul-litteral",
+                "score": 87
+              },
+              {
+                "id": "systemes",
+                "score": 96
+              },
+              {
+                "id": "logique",
+                "score": 4
+              },
+              {
+                "id": "suites",
+                "score": 13
+              },
+              {
+                "id": "denombrement",
+                "score": 22
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_20_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "ac04cfecf626cdc71cbf3b418996858f06fd741fb626f19a5e17d7ccd1baa185",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "arithmetique",
+                "titre": "arithmetique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "calcul-litteral",
+                "titre": "calcul litteral",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "systemes",
+                "titre": "systemes",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "logique",
+                "titre": "logique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "suites",
+                "titre": "suites",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "denombrement",
+                "titre": "denombrement",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "arithmetique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "systemes",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "logique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "suites",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "denombrement",
+              "profile": "NON_TRAITE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_20_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "d2d1a0ef1976e123cf80d0694425a6ad9b202e02c5e24a95c4b7f8d93bbd8d85",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "arithmetique",
+                "texte": "arithmetique constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "calcul-litteral",
+                "texte": "calcul litteral constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "systemes",
+                "texte": "systemes constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "logique",
+                "titre": "logique",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "suites",
+                "titre": "suites",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "denombrement",
+                "titre": "denombrement",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "arithmetique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "systemes",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "logique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "suites",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "denombrement",
+              "profile": "NON_TRAITE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_20_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "33e5e6f0952de22e058d48e4690b99607dfb99cf674d85e4f2ce7379d6f56688",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "arithmetique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "calcul-litteral",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "systemes",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "logique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "suites",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "denombrement",
+              "profile": "NON_TRAITE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 95,
+            "coverage": 68,
+            "calibrationIndex": 97,
+            "domainScores": [
+              {
+                "id": "arithmetique",
+                "score": 95
+              },
+              {
+                "id": "calcul-litteral",
+                "score": 3
+              },
+              {
+                "id": "systemes",
+                "score": 12
+              },
+              {
+                "id": "logique",
+                "score": 21
+              },
+              {
+                "id": "suites",
+                "score": 30
+              },
+              {
+                "id": "denombrement",
+                "score": 39
+              }
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

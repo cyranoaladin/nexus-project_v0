@@ -1,0 +1,5409 @@
+{
+  "schemaVersion": "nexus-bilan-blind-review-packet/v1",
+  "status": "TECHNICAL_MOCK_ONLY_NOT_PEDAGOGICALLY_VALIDATED",
+  "sourceDraftPack": "entree-terminale-nsi-v1",
+  "executionFixture": "fixture-non-publiable-v0",
+  "instructions": "Évaluer la clarté, la fidélité aux faits et l’utilité pédagogique sans inférer une validation du pack DRAFT.",
+  "reports": [
+    {
+      "blindId": "CAS_01_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "a3a3b8798ec48105269f0f626be2b5d99815c65730fe2448c179aaff52677769",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "representation",
+                "titre": "representation",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "booleens",
+                "titre": "booleens",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "types-construits",
+                "titre": "types construits",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "programmation",
+                "titre": "programmation",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "algorithmique",
+                "titre": "algorithmique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "donnees",
+                "titre": "donnees",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "architecture",
+                "titre": "architecture",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "representation",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "booleens",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "types-construits",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "programmation",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "algorithmique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "donnees",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "architecture",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_01_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "e8b1c62db16ad9364e95c5512eac1bc33eed5aba0288707218f23fc69aa02960",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "representation",
+                "texte": "representation constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "booleens",
+                "texte": "booleens constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "types-construits",
+                "texte": "types construits constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "programmation",
+                "titre": "programmation",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "algorithmique",
+                "titre": "algorithmique",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "donnees",
+                "titre": "donnees",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "architecture",
+                "titre": "architecture",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "representation",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "booleens",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "types-construits",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "programmation",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "algorithmique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "donnees",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "architecture",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_01_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "09d261e691e86a97acfb6b7c69d558ad87cddb3f93312ac4692f431acb2e67b3",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "representation",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "booleens",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "types-construits",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "programmation",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "algorithmique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "donnees",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "architecture",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 15,
+            "coverage": 45,
+            "calibrationIndex": null,
+            "domainScores": [
+              {
+                "id": "representation",
+                "score": 15
+              },
+              {
+                "id": "booleens",
+                "score": 24
+              },
+              {
+                "id": "types-construits",
+                "score": 33
+              },
+              {
+                "id": "programmation",
+                "score": 42
+              },
+              {
+                "id": "algorithmique",
+                "score": 51
+              },
+              {
+                "id": "donnees",
+                "score": 60
+              },
+              {
+                "id": "architecture",
+                "score": 69
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_02_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "56121855b33de63fd94f1d528b983a0e8bd65d4b6337937c44ee604b1ac9147f",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "representation",
+                "titre": "representation",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "booleens",
+                "titre": "booleens",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "types-construits",
+                "titre": "types construits",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "programmation",
+                "titre": "programmation",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "algorithmique",
+                "titre": "algorithmique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "donnees",
+                "titre": "donnees",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "architecture",
+                "titre": "architecture",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "representation",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "booleens",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "types-construits",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "programmation",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "algorithmique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "donnees",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "architecture",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_02_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "a0db255f8e23d4f20d3937a11727234552bb9ea6080e3dd6a675f90ca3a579a0",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "representation",
+                "texte": "representation constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "booleens",
+                "texte": "booleens constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "types-construits",
+                "texte": "types construits constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "programmation",
+                "titre": "programmation",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "algorithmique",
+                "titre": "algorithmique",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "donnees",
+                "titre": "donnees",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "architecture",
+                "titre": "architecture",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "representation",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "booleens",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "types-construits",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "programmation",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "algorithmique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "donnees",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "architecture",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_02_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "2e17f531b752f4586780d4a0dab851d0483729fb783ebe2f62edb1e13b063f18",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "representation",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "booleens",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "types-construits",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "programmation",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "algorithmique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "donnees",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "architecture",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 32,
+            "coverage": 58,
+            "calibrationIndex": 41,
+            "domainScores": [
+              {
+                "id": "representation",
+                "score": 32
+              },
+              {
+                "id": "booleens",
+                "score": 41
+              },
+              {
+                "id": "types-construits",
+                "score": 50
+              },
+              {
+                "id": "programmation",
+                "score": 59
+              },
+              {
+                "id": "algorithmique",
+                "score": 68
+              },
+              {
+                "id": "donnees",
+                "score": 77
+              },
+              {
+                "id": "architecture",
+                "score": 86
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_03_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "0b5c07f99cf7b94cbc8569ca35aa83eb4f6b9debf2721e4b9133c3908c746f1f",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "representation",
+                "titre": "representation",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "booleens",
+                "titre": "booleens",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "types-construits",
+                "titre": "types construits",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "programmation",
+                "titre": "programmation",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "algorithmique",
+                "titre": "algorithmique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "donnees",
+                "titre": "donnees",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "architecture",
+                "titre": "architecture",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "representation",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "booleens",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "types-construits",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "programmation",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "algorithmique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "donnees",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "architecture",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_03_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "3a8b005effb87f12f1a90f0f9ad251beb60ea7bd1f1c1932ca5038e1a8d5e014",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "representation",
+                "texte": "representation constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "booleens",
+                "texte": "booleens constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "types-construits",
+                "texte": "types construits constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "programmation",
+                "titre": "programmation",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "algorithmique",
+                "titre": "algorithmique",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "donnees",
+                "titre": "donnees",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "architecture",
+                "titre": "architecture",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "representation",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "booleens",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "types-construits",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "programmation",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "algorithmique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "donnees",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "architecture",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_03_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "77e38ec1d0741cf14df1a1a552f0c7f2db6d396a24112f845d75983f499e62d0",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "representation",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "booleens",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "types-construits",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "programmation",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "algorithmique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "donnees",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "architecture",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 49,
+            "coverage": 71,
+            "calibrationIndex": 52,
+            "domainScores": [
+              {
+                "id": "representation",
+                "score": 49
+              },
+              {
+                "id": "booleens",
+                "score": 58
+              },
+              {
+                "id": "types-construits",
+                "score": 67
+              },
+              {
+                "id": "programmation",
+                "score": 76
+              },
+              {
+                "id": "algorithmique",
+                "score": 85
+              },
+              {
+                "id": "donnees",
+                "score": 94
+              },
+              {
+                "id": "architecture",
+                "score": 2
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_04_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "0a41f3e3578fa93c9c2839fbf68b8775b713304b89f9baea23563025fcdb69e8",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "representation",
+                "titre": "representation",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "booleens",
+                "titre": "booleens",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "types-construits",
+                "titre": "types construits",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "programmation",
+                "titre": "programmation",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "algorithmique",
+                "titre": "algorithmique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "donnees",
+                "titre": "donnees",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "architecture",
+                "titre": "architecture",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "representation",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "booleens",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "types-construits",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "programmation",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "algorithmique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "donnees",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "architecture",
+              "profile": "NON_TRAITE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_04_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "41ef1f417cb975fce3c4851f69e7bd19e3ed3ac51dc9c2ee42ba02266b8d111c",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "representation",
+                "texte": "representation constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "booleens",
+                "texte": "booleens constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "types-construits",
+                "texte": "types construits constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "programmation",
+                "titre": "programmation",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "algorithmique",
+                "titre": "algorithmique",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "donnees",
+                "titre": "donnees",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "architecture",
+                "titre": "architecture",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "representation",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "booleens",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "types-construits",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "programmation",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "algorithmique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "donnees",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "architecture",
+              "profile": "NON_TRAITE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_04_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "1b80ce8660de9609276a1c5994f538329134969c68a192c2b46fa20d5b7fca7a",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "representation",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "booleens",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "types-construits",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "programmation",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "algorithmique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "donnees",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "architecture",
+              "profile": "NON_TRAITE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 66,
+            "coverage": 84,
+            "calibrationIndex": 63,
+            "domainScores": [
+              {
+                "id": "representation",
+                "score": 66
+              },
+              {
+                "id": "booleens",
+                "score": 75
+              },
+              {
+                "id": "types-construits",
+                "score": 84
+              },
+              {
+                "id": "programmation",
+                "score": 93
+              },
+              {
+                "id": "algorithmique",
+                "score": 1
+              },
+              {
+                "id": "donnees",
+                "score": 10
+              },
+              {
+                "id": "architecture",
+                "score": 19
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_05_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "ee73bf8581e1e3df2fd8ae1eb7b99c9674c98c1ca9a3a68e5f37e728e6950073",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "representation",
+                "titre": "representation",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "booleens",
+                "titre": "booleens",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "types-construits",
+                "titre": "types construits",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "programmation",
+                "titre": "programmation",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "algorithmique",
+                "titre": "algorithmique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "donnees",
+                "titre": "donnees",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "architecture",
+                "titre": "architecture",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "representation",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "booleens",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "types-construits",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "programmation",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "algorithmique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "donnees",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "architecture",
+              "profile": "MAITRISE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_05_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "de7124ab633e5d6e629c0c8029afb5c4ad8e2eb024c15d8890032fed7103c825",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "representation",
+                "texte": "representation constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "booleens",
+                "texte": "booleens constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "types-construits",
+                "texte": "types construits constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "programmation",
+                "titre": "programmation",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "algorithmique",
+                "titre": "algorithmique",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "donnees",
+                "titre": "donnees",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "architecture",
+                "titre": "architecture",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "representation",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "booleens",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "types-construits",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "programmation",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "algorithmique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "donnees",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "architecture",
+              "profile": "MAITRISE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_05_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "45443029ce25e486552bf868a6e360ae6bf2b2e9f033c677a4dea2731702a92e",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "representation",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "booleens",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "types-construits",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "programmation",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "algorithmique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "donnees",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "architecture",
+              "profile": "MAITRISE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 83,
+            "coverage": 97,
+            "calibrationIndex": null,
+            "domainScores": [
+              {
+                "id": "representation",
+                "score": 83
+              },
+              {
+                "id": "booleens",
+                "score": 92
+              },
+              {
+                "id": "types-construits",
+                "score": 0
+              },
+              {
+                "id": "programmation",
+                "score": 9
+              },
+              {
+                "id": "algorithmique",
+                "score": 18
+              },
+              {
+                "id": "donnees",
+                "score": 27
+              },
+              {
+                "id": "architecture",
+                "score": 36
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_06_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "a3a3b8798ec48105269f0f626be2b5d99815c65730fe2448c179aaff52677769",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "representation",
+                "titre": "representation",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "booleens",
+                "titre": "booleens",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "types-construits",
+                "titre": "types construits",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "programmation",
+                "titre": "programmation",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "algorithmique",
+                "titre": "algorithmique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "donnees",
+                "titre": "donnees",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "architecture",
+                "titre": "architecture",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "representation",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "booleens",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "types-construits",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "programmation",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "algorithmique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "donnees",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "architecture",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_06_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "e8b1c62db16ad9364e95c5512eac1bc33eed5aba0288707218f23fc69aa02960",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "representation",
+                "texte": "representation constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "booleens",
+                "texte": "booleens constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "types-construits",
+                "texte": "types construits constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "programmation",
+                "titre": "programmation",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "algorithmique",
+                "titre": "algorithmique",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "donnees",
+                "titre": "donnees",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "architecture",
+                "titre": "architecture",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "representation",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "booleens",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "types-construits",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "programmation",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "algorithmique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "donnees",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "architecture",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_06_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "71a920e4b4a732185af93f4822d3fad00dce235852a3413c2e8f88b1e7268e33",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "representation",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "booleens",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "types-construits",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "programmation",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "algorithmique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "donnees",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "architecture",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 19,
+            "coverage": 54,
+            "calibrationIndex": 85,
+            "domainScores": [
+              {
+                "id": "representation",
+                "score": 19
+              },
+              {
+                "id": "booleens",
+                "score": 28
+              },
+              {
+                "id": "types-construits",
+                "score": 37
+              },
+              {
+                "id": "programmation",
+                "score": 46
+              },
+              {
+                "id": "algorithmique",
+                "score": 55
+              },
+              {
+                "id": "donnees",
+                "score": 64
+              },
+              {
+                "id": "architecture",
+                "score": 73
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_07_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "56121855b33de63fd94f1d528b983a0e8bd65d4b6337937c44ee604b1ac9147f",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "representation",
+                "titre": "representation",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "booleens",
+                "titre": "booleens",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "types-construits",
+                "titre": "types construits",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "programmation",
+                "titre": "programmation",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "algorithmique",
+                "titre": "algorithmique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "donnees",
+                "titre": "donnees",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "architecture",
+                "titre": "architecture",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "representation",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "booleens",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "types-construits",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "programmation",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "algorithmique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "donnees",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "architecture",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_07_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "a0db255f8e23d4f20d3937a11727234552bb9ea6080e3dd6a675f90ca3a579a0",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "representation",
+                "texte": "representation constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "booleens",
+                "texte": "booleens constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "types-construits",
+                "texte": "types construits constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "programmation",
+                "titre": "programmation",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "algorithmique",
+                "titre": "algorithmique",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "donnees",
+                "titre": "donnees",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "architecture",
+                "titre": "architecture",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "representation",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "booleens",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "types-construits",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "programmation",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "algorithmique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "donnees",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "architecture",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_07_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "c569d9423303d8b9be287b258b9ac64b7e3ccd1d0a27fa35f512963b05d3ecec",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "representation",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "booleens",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "types-construits",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "programmation",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "algorithmique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "donnees",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "architecture",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 36,
+            "coverage": 67,
+            "calibrationIndex": 96,
+            "domainScores": [
+              {
+                "id": "representation",
+                "score": 36
+              },
+              {
+                "id": "booleens",
+                "score": 45
+              },
+              {
+                "id": "types-construits",
+                "score": 54
+              },
+              {
+                "id": "programmation",
+                "score": 63
+              },
+              {
+                "id": "algorithmique",
+                "score": 72
+              },
+              {
+                "id": "donnees",
+                "score": 81
+              },
+              {
+                "id": "architecture",
+                "score": 90
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_08_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "0b5c07f99cf7b94cbc8569ca35aa83eb4f6b9debf2721e4b9133c3908c746f1f",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "representation",
+                "titre": "representation",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "booleens",
+                "titre": "booleens",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "types-construits",
+                "titre": "types construits",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "programmation",
+                "titre": "programmation",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "algorithmique",
+                "titre": "algorithmique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "donnees",
+                "titre": "donnees",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "architecture",
+                "titre": "architecture",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "representation",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "booleens",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "types-construits",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "programmation",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "algorithmique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "donnees",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "architecture",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_08_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "3a8b005effb87f12f1a90f0f9ad251beb60ea7bd1f1c1932ca5038e1a8d5e014",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "representation",
+                "texte": "representation constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "booleens",
+                "texte": "booleens constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "types-construits",
+                "texte": "types construits constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "programmation",
+                "titre": "programmation",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "algorithmique",
+                "titre": "algorithmique",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "donnees",
+                "titre": "donnees",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "architecture",
+                "titre": "architecture",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "representation",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "booleens",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "types-construits",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "programmation",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "algorithmique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "donnees",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "architecture",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_08_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "79340e24c6e0c03a7e6bffce66716faaeff387aeedfcec731fec3fb9baacf087",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "representation",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "booleens",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "types-construits",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "programmation",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "algorithmique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "donnees",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "architecture",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 53,
+            "coverage": 80,
+            "calibrationIndex": 36,
+            "domainScores": [
+              {
+                "id": "representation",
+                "score": 53
+              },
+              {
+                "id": "booleens",
+                "score": 62
+              },
+              {
+                "id": "types-construits",
+                "score": 71
+              },
+              {
+                "id": "programmation",
+                "score": 80
+              },
+              {
+                "id": "algorithmique",
+                "score": 89
+              },
+              {
+                "id": "donnees",
+                "score": 98
+              },
+              {
+                "id": "architecture",
+                "score": 6
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_09_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "0a41f3e3578fa93c9c2839fbf68b8775b713304b89f9baea23563025fcdb69e8",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "representation",
+                "titre": "representation",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "booleens",
+                "titre": "booleens",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "types-construits",
+                "titre": "types construits",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "programmation",
+                "titre": "programmation",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "algorithmique",
+                "titre": "algorithmique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "donnees",
+                "titre": "donnees",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "architecture",
+                "titre": "architecture",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "representation",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "booleens",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "types-construits",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "programmation",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "algorithmique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "donnees",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "architecture",
+              "profile": "NON_TRAITE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_09_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "41ef1f417cb975fce3c4851f69e7bd19e3ed3ac51dc9c2ee42ba02266b8d111c",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "representation",
+                "texte": "representation constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "booleens",
+                "texte": "booleens constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "types-construits",
+                "texte": "types construits constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "programmation",
+                "titre": "programmation",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "algorithmique",
+                "titre": "algorithmique",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "donnees",
+                "titre": "donnees",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "architecture",
+                "titre": "architecture",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "representation",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "booleens",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "types-construits",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "programmation",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "algorithmique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "donnees",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "architecture",
+              "profile": "NON_TRAITE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_09_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "41daaf7c145cfc0b68c6b6963f02f6d72908698b208e99afa11f82ea4bc5d5f3",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "representation",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "booleens",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "types-construits",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "programmation",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "algorithmique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "donnees",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "architecture",
+              "profile": "NON_TRAITE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 70,
+            "coverage": 93,
+            "calibrationIndex": null,
+            "domainScores": [
+              {
+                "id": "representation",
+                "score": 70
+              },
+              {
+                "id": "booleens",
+                "score": 79
+              },
+              {
+                "id": "types-construits",
+                "score": 88
+              },
+              {
+                "id": "programmation",
+                "score": 97
+              },
+              {
+                "id": "algorithmique",
+                "score": 5
+              },
+              {
+                "id": "donnees",
+                "score": 14
+              },
+              {
+                "id": "architecture",
+                "score": 23
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_10_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "ee73bf8581e1e3df2fd8ae1eb7b99c9674c98c1ca9a3a68e5f37e728e6950073",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "representation",
+                "titre": "representation",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "booleens",
+                "titre": "booleens",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "types-construits",
+                "titre": "types construits",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "programmation",
+                "titre": "programmation",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "algorithmique",
+                "titre": "algorithmique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "donnees",
+                "titre": "donnees",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "architecture",
+                "titre": "architecture",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "representation",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "booleens",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "types-construits",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "programmation",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "algorithmique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "donnees",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "architecture",
+              "profile": "MAITRISE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_10_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "de7124ab633e5d6e629c0c8029afb5c4ad8e2eb024c15d8890032fed7103c825",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "representation",
+                "texte": "representation constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "booleens",
+                "texte": "booleens constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "types-construits",
+                "texte": "types construits constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "programmation",
+                "titre": "programmation",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "algorithmique",
+                "titre": "algorithmique",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "donnees",
+                "titre": "donnees",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "architecture",
+                "titre": "architecture",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "representation",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "booleens",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "types-construits",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "programmation",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "algorithmique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "donnees",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "architecture",
+              "profile": "MAITRISE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_10_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "d6fb312412146f95988798b711bcc725bab18f1b3b0c13a98577df6a7e31bb1f",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "representation",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "booleens",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "types-construits",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "programmation",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "algorithmique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "donnees",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "architecture",
+              "profile": "MAITRISE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 87,
+            "coverage": 50,
+            "calibrationIndex": 58,
+            "domainScores": [
+              {
+                "id": "representation",
+                "score": 87
+              },
+              {
+                "id": "booleens",
+                "score": 96
+              },
+              {
+                "id": "types-construits",
+                "score": 4
+              },
+              {
+                "id": "programmation",
+                "score": 13
+              },
+              {
+                "id": "algorithmique",
+                "score": 22
+              },
+              {
+                "id": "donnees",
+                "score": 31
+              },
+              {
+                "id": "architecture",
+                "score": 40
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_11_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "a3a3b8798ec48105269f0f626be2b5d99815c65730fe2448c179aaff52677769",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "representation",
+                "titre": "representation",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "booleens",
+                "titre": "booleens",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "types-construits",
+                "titre": "types construits",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "programmation",
+                "titre": "programmation",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "algorithmique",
+                "titre": "algorithmique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "donnees",
+                "titre": "donnees",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "architecture",
+                "titre": "architecture",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "representation",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "booleens",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "types-construits",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "programmation",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "algorithmique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "donnees",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "architecture",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_11_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "e8b1c62db16ad9364e95c5512eac1bc33eed5aba0288707218f23fc69aa02960",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "representation",
+                "texte": "representation constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "booleens",
+                "texte": "booleens constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "types-construits",
+                "texte": "types construits constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "programmation",
+                "titre": "programmation",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "algorithmique",
+                "titre": "algorithmique",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "donnees",
+                "titre": "donnees",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "architecture",
+                "titre": "architecture",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "representation",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "booleens",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "types-construits",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "programmation",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "algorithmique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "donnees",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "architecture",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_11_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "bdfcd4e8d421d619e07c67b6ab6b9ba4dd544a0a46606c622c982400c10edf8e",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "representation",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "booleens",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "types-construits",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "programmation",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "algorithmique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "donnees",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "architecture",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 23,
+            "coverage": 63,
+            "calibrationIndex": 69,
+            "domainScores": [
+              {
+                "id": "representation",
+                "score": 23
+              },
+              {
+                "id": "booleens",
+                "score": 32
+              },
+              {
+                "id": "types-construits",
+                "score": 41
+              },
+              {
+                "id": "programmation",
+                "score": 50
+              },
+              {
+                "id": "algorithmique",
+                "score": 59
+              },
+              {
+                "id": "donnees",
+                "score": 68
+              },
+              {
+                "id": "architecture",
+                "score": 77
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_12_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "56121855b33de63fd94f1d528b983a0e8bd65d4b6337937c44ee604b1ac9147f",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "representation",
+                "titre": "representation",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "booleens",
+                "titre": "booleens",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "types-construits",
+                "titre": "types construits",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "programmation",
+                "titre": "programmation",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "algorithmique",
+                "titre": "algorithmique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "donnees",
+                "titre": "donnees",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "architecture",
+                "titre": "architecture",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "representation",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "booleens",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "types-construits",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "programmation",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "algorithmique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "donnees",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "architecture",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_12_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "a0db255f8e23d4f20d3937a11727234552bb9ea6080e3dd6a675f90ca3a579a0",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "representation",
+                "texte": "representation constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "booleens",
+                "texte": "booleens constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "types-construits",
+                "texte": "types construits constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "programmation",
+                "titre": "programmation",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "algorithmique",
+                "titre": "algorithmique",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "donnees",
+                "titre": "donnees",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "architecture",
+                "titre": "architecture",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "representation",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "booleens",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "types-construits",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "programmation",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "algorithmique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "donnees",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "architecture",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_12_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "e9886546c84ef2c5e1bb0c4776d34c3b122d4dbe68ee33deae46210a95b6161e",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "representation",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "booleens",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "types-construits",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "programmation",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "algorithmique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "donnees",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "architecture",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 40,
+            "coverage": 76,
+            "calibrationIndex": 80,
+            "domainScores": [
+              {
+                "id": "representation",
+                "score": 40
+              },
+              {
+                "id": "booleens",
+                "score": 49
+              },
+              {
+                "id": "types-construits",
+                "score": 58
+              },
+              {
+                "id": "programmation",
+                "score": 67
+              },
+              {
+                "id": "algorithmique",
+                "score": 76
+              },
+              {
+                "id": "donnees",
+                "score": 85
+              },
+              {
+                "id": "architecture",
+                "score": 94
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_13_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "0b5c07f99cf7b94cbc8569ca35aa83eb4f6b9debf2721e4b9133c3908c746f1f",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "representation",
+                "titre": "representation",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "booleens",
+                "titre": "booleens",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "types-construits",
+                "titre": "types construits",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "programmation",
+                "titre": "programmation",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "algorithmique",
+                "titre": "algorithmique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "donnees",
+                "titre": "donnees",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "architecture",
+                "titre": "architecture",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "representation",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "booleens",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "types-construits",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "programmation",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "algorithmique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "donnees",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "architecture",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_13_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "3a8b005effb87f12f1a90f0f9ad251beb60ea7bd1f1c1932ca5038e1a8d5e014",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "representation",
+                "texte": "representation constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "booleens",
+                "texte": "booleens constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "types-construits",
+                "texte": "types construits constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "programmation",
+                "titre": "programmation",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "algorithmique",
+                "titre": "algorithmique",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "donnees",
+                "titre": "donnees",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "architecture",
+                "titre": "architecture",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "representation",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "booleens",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "types-construits",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "programmation",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "algorithmique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "donnees",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "architecture",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_13_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "2264c23a4f5a13f7cbdc5fd0f395880d06e38b3794a0b40161efa193d1b5644d",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "representation",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "booleens",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "types-construits",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "programmation",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "algorithmique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "donnees",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "architecture",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 57,
+            "coverage": 89,
+            "calibrationIndex": null,
+            "domainScores": [
+              {
+                "id": "representation",
+                "score": 57
+              },
+              {
+                "id": "booleens",
+                "score": 66
+              },
+              {
+                "id": "types-construits",
+                "score": 75
+              },
+              {
+                "id": "programmation",
+                "score": 84
+              },
+              {
+                "id": "algorithmique",
+                "score": 93
+              },
+              {
+                "id": "donnees",
+                "score": 1
+              },
+              {
+                "id": "architecture",
+                "score": 10
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_14_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "0a41f3e3578fa93c9c2839fbf68b8775b713304b89f9baea23563025fcdb69e8",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "representation",
+                "titre": "representation",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "booleens",
+                "titre": "booleens",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "types-construits",
+                "titre": "types construits",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "programmation",
+                "titre": "programmation",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "algorithmique",
+                "titre": "algorithmique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "donnees",
+                "titre": "donnees",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "architecture",
+                "titre": "architecture",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "representation",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "booleens",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "types-construits",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "programmation",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "algorithmique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "donnees",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "architecture",
+              "profile": "NON_TRAITE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_14_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "41ef1f417cb975fce3c4851f69e7bd19e3ed3ac51dc9c2ee42ba02266b8d111c",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "representation",
+                "texte": "representation constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "booleens",
+                "texte": "booleens constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "types-construits",
+                "texte": "types construits constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "programmation",
+                "titre": "programmation",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "algorithmique",
+                "titre": "algorithmique",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "donnees",
+                "titre": "donnees",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "architecture",
+                "titre": "architecture",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "representation",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "booleens",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "types-construits",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "programmation",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "algorithmique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "donnees",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "architecture",
+              "profile": "NON_TRAITE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_14_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "342b13eac62da58ca94cb2c5978d824a6a52124faf44152242e0616696da2421",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "representation",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "booleens",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "types-construits",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "programmation",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "algorithmique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "donnees",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "architecture",
+              "profile": "NON_TRAITE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 74,
+            "coverage": 46,
+            "calibrationIndex": 31,
+            "domainScores": [
+              {
+                "id": "representation",
+                "score": 74
+              },
+              {
+                "id": "booleens",
+                "score": 83
+              },
+              {
+                "id": "types-construits",
+                "score": 92
+              },
+              {
+                "id": "programmation",
+                "score": 0
+              },
+              {
+                "id": "algorithmique",
+                "score": 9
+              },
+              {
+                "id": "donnees",
+                "score": 18
+              },
+              {
+                "id": "architecture",
+                "score": 27
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_15_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "ee73bf8581e1e3df2fd8ae1eb7b99c9674c98c1ca9a3a68e5f37e728e6950073",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "representation",
+                "titre": "representation",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "booleens",
+                "titre": "booleens",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "types-construits",
+                "titre": "types construits",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "programmation",
+                "titre": "programmation",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "algorithmique",
+                "titre": "algorithmique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "donnees",
+                "titre": "donnees",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "architecture",
+                "titre": "architecture",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "representation",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "booleens",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "types-construits",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "programmation",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "algorithmique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "donnees",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "architecture",
+              "profile": "MAITRISE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_15_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "de7124ab633e5d6e629c0c8029afb5c4ad8e2eb024c15d8890032fed7103c825",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "representation",
+                "texte": "representation constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "booleens",
+                "texte": "booleens constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "types-construits",
+                "texte": "types construits constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "programmation",
+                "titre": "programmation",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "algorithmique",
+                "titre": "algorithmique",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "donnees",
+                "titre": "donnees",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "architecture",
+                "titre": "architecture",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "representation",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "booleens",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "types-construits",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "programmation",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "algorithmique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "donnees",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "architecture",
+              "profile": "MAITRISE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_15_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "d9c1a1a8b5a658d51a3a8e7a7ca61d5e22aef12355748339b1ed03c43e73c2c5",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "representation",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "booleens",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "types-construits",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "programmation",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "algorithmique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "donnees",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "architecture",
+              "profile": "MAITRISE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 91,
+            "coverage": 59,
+            "calibrationIndex": 42,
+            "domainScores": [
+              {
+                "id": "representation",
+                "score": 91
+              },
+              {
+                "id": "booleens",
+                "score": 100
+              },
+              {
+                "id": "types-construits",
+                "score": 8
+              },
+              {
+                "id": "programmation",
+                "score": 17
+              },
+              {
+                "id": "algorithmique",
+                "score": 26
+              },
+              {
+                "id": "donnees",
+                "score": 35
+              },
+              {
+                "id": "architecture",
+                "score": 44
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_16_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "a3a3b8798ec48105269f0f626be2b5d99815c65730fe2448c179aaff52677769",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "representation",
+                "titre": "representation",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "booleens",
+                "titre": "booleens",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "types-construits",
+                "titre": "types construits",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "programmation",
+                "titre": "programmation",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "algorithmique",
+                "titre": "algorithmique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "donnees",
+                "titre": "donnees",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "architecture",
+                "titre": "architecture",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "representation",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "booleens",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "types-construits",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "programmation",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "algorithmique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "donnees",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "architecture",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_16_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "e8b1c62db16ad9364e95c5512eac1bc33eed5aba0288707218f23fc69aa02960",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "representation",
+                "texte": "representation constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "booleens",
+                "texte": "booleens constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "types-construits",
+                "texte": "types construits constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "programmation",
+                "titre": "programmation",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "algorithmique",
+                "titre": "algorithmique",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "donnees",
+                "titre": "donnees",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "architecture",
+                "titre": "architecture",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "representation",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "booleens",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "types-construits",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "programmation",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "algorithmique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "donnees",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "architecture",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_16_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "f73048c3e1e4c0000cefb2982319b0bdf678793323c078aa9e894bd1ec162e09",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "representation",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "booleens",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "types-construits",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "programmation",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "algorithmique",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "donnees",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "architecture",
+              "profile": "MAITRISE_FRAGILE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 27,
+            "coverage": 72,
+            "calibrationIndex": 53,
+            "domainScores": [
+              {
+                "id": "representation",
+                "score": 27
+              },
+              {
+                "id": "booleens",
+                "score": 36
+              },
+              {
+                "id": "types-construits",
+                "score": 45
+              },
+              {
+                "id": "programmation",
+                "score": 54
+              },
+              {
+                "id": "algorithmique",
+                "score": 63
+              },
+              {
+                "id": "donnees",
+                "score": 72
+              },
+              {
+                "id": "architecture",
+                "score": 81
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_17_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "56121855b33de63fd94f1d528b983a0e8bd65d4b6337937c44ee604b1ac9147f",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "representation",
+                "titre": "representation",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "booleens",
+                "titre": "booleens",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "types-construits",
+                "titre": "types construits",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "programmation",
+                "titre": "programmation",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "algorithmique",
+                "titre": "algorithmique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "donnees",
+                "titre": "donnees",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "architecture",
+                "titre": "architecture",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "representation",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "booleens",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "types-construits",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "programmation",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "algorithmique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "donnees",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "architecture",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_17_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "a0db255f8e23d4f20d3937a11727234552bb9ea6080e3dd6a675f90ca3a579a0",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "representation",
+                "texte": "representation constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "booleens",
+                "texte": "booleens constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "types-construits",
+                "texte": "types construits constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "programmation",
+                "titre": "programmation",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "algorithmique",
+                "titre": "algorithmique",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "donnees",
+                "titre": "donnees",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "architecture",
+                "titre": "architecture",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "representation",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "booleens",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "types-construits",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "programmation",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "algorithmique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "donnees",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "architecture",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_17_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "e788345d6c5a1dba9a11b2c8fe94761ace3e9a71e38a7bdbf5423d7d2bfec7cb",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "representation",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "booleens",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "types-construits",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "programmation",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "algorithmique",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "donnees",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "architecture",
+              "profile": "LACUNE_CONSCIENTE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 44,
+            "coverage": 85,
+            "calibrationIndex": null,
+            "domainScores": [
+              {
+                "id": "representation",
+                "score": 44
+              },
+              {
+                "id": "booleens",
+                "score": 53
+              },
+              {
+                "id": "types-construits",
+                "score": 62
+              },
+              {
+                "id": "programmation",
+                "score": 71
+              },
+              {
+                "id": "algorithmique",
+                "score": 80
+              },
+              {
+                "id": "donnees",
+                "score": 89
+              },
+              {
+                "id": "architecture",
+                "score": 98
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_18_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "0b5c07f99cf7b94cbc8569ca35aa83eb4f6b9debf2721e4b9133c3908c746f1f",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "representation",
+                "titre": "representation",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "booleens",
+                "titre": "booleens",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "types-construits",
+                "titre": "types construits",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "programmation",
+                "titre": "programmation",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "algorithmique",
+                "titre": "algorithmique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "donnees",
+                "titre": "donnees",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "architecture",
+                "titre": "architecture",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "representation",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "booleens",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "types-construits",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "programmation",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "algorithmique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "donnees",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "architecture",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_18_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "3a8b005effb87f12f1a90f0f9ad251beb60ea7bd1f1c1932ca5038e1a8d5e014",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "representation",
+                "texte": "representation constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "booleens",
+                "texte": "booleens constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "types-construits",
+                "texte": "types construits constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "programmation",
+                "titre": "programmation",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "algorithmique",
+                "titre": "algorithmique",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "donnees",
+                "titre": "donnees",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "architecture",
+                "titre": "architecture",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "representation",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "booleens",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "types-construits",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "programmation",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "algorithmique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "donnees",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "architecture",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_18_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "a0e59df6bb17493d7ffd29afc922e685b13c6ec533fc8976cf87b9d4d932e005",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "representation",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "booleens",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "types-construits",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "programmation",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "algorithmique",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "donnees",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "architecture",
+              "profile": "ERREUR_CONFIANTE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 61,
+            "coverage": 98,
+            "calibrationIndex": 75,
+            "domainScores": [
+              {
+                "id": "representation",
+                "score": 61
+              },
+              {
+                "id": "booleens",
+                "score": 70
+              },
+              {
+                "id": "types-construits",
+                "score": 79
+              },
+              {
+                "id": "programmation",
+                "score": 88
+              },
+              {
+                "id": "algorithmique",
+                "score": 97
+              },
+              {
+                "id": "donnees",
+                "score": 5
+              },
+              {
+                "id": "architecture",
+                "score": 14
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_19_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "0a41f3e3578fa93c9c2839fbf68b8775b713304b89f9baea23563025fcdb69e8",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "representation",
+                "titre": "representation",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "booleens",
+                "titre": "booleens",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "types-construits",
+                "titre": "types construits",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "programmation",
+                "titre": "programmation",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "algorithmique",
+                "titre": "algorithmique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "donnees",
+                "titre": "donnees",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "architecture",
+                "titre": "architecture",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "representation",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "booleens",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "types-construits",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "programmation",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "algorithmique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "donnees",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "architecture",
+              "profile": "NON_TRAITE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_19_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "41ef1f417cb975fce3c4851f69e7bd19e3ed3ac51dc9c2ee42ba02266b8d111c",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "representation",
+                "texte": "representation constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "booleens",
+                "texte": "booleens constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "types-construits",
+                "texte": "types construits constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "programmation",
+                "titre": "programmation",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "algorithmique",
+                "titre": "algorithmique",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "donnees",
+                "titre": "donnees",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "architecture",
+                "titre": "architecture",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "representation",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "booleens",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "types-construits",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "programmation",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "algorithmique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "donnees",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "architecture",
+              "profile": "NON_TRAITE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_19_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "3d3e7d4ec68d2a0d51f2e2ccbb5bfe193b5ec5aca2e52b6e5426a2be6656f44b",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "representation",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "booleens",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "types-construits",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "programmation",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "algorithmique",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "donnees",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "architecture",
+              "profile": "NON_TRAITE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 78,
+            "coverage": 55,
+            "calibrationIndex": 86,
+            "domainScores": [
+              {
+                "id": "representation",
+                "score": 78
+              },
+              {
+                "id": "booleens",
+                "score": 87
+              },
+              {
+                "id": "types-construits",
+                "score": 96
+              },
+              {
+                "id": "programmation",
+                "score": 4
+              },
+              {
+                "id": "algorithmique",
+                "score": 13
+              },
+              {
+                "id": "donnees",
+                "score": 22
+              },
+              {
+                "id": "architecture",
+                "score": 31
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "blindId": "CAS_20_ELEVE",
+      "audience": "ELEVE",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "ELEVE",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "ee73bf8581e1e3df2fd8ae1eb7b99c9674c98c1ca9a3a68e5f37e728e6950073",
+        "content": {
+          "narrative": {
+            "accroche": "Ton travail montre des appuis utiles pour progresser avec méthode.",
+            "forces": [
+              "Une démarche engagée.",
+              "Des acquis mobilisables.",
+              "Une attention aux consignes."
+            ],
+            "priorites": [
+              {
+                "domainId": "representation",
+                "titre": "representation",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "booleens",
+                "titre": "booleens",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "types-construits",
+                "titre": "types construits",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "programmation",
+                "titre": "programmation",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "algorithmique",
+                "titre": "algorithmique",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "donnees",
+                "titre": "donnees",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              },
+              {
+                "domainId": "architecture",
+                "titre": "architecture",
+                "pourquoi": "Stabiliser les démarches utiles.",
+                "comment": "Reprendre les raisonnements puis varier les exercices."
+              }
+            ],
+            "microPlan": [
+              {
+                "action": "Revoir une démarche puis expliquer son raisonnement.",
+                "dureeMin": 20
+              }
+            ],
+            "motDeFin": "Le travail peut avancer de façon progressive et structurée."
+          },
+          "domains": [
+            {
+              "id": "representation",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "booleens",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "types-construits",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "programmation",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "algorithmique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "donnees",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "architecture",
+              "profile": "MAITRISE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_20_PARENTS",
+      "audience": "PARENTS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "PARENTS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "de7124ab633e5d6e629c0c8029afb5c4ad8e2eb024c15d8890032fed7103c825",
+        "content": {
+          "narrative": {
+            "cadre": "La passation fournit des repères utiles pour organiser la suite du travail.",
+            "pointsAppui": [
+              {
+                "domainId": "representation",
+                "texte": "representation constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "booleens",
+                "texte": "booleens constitue un point d'appui à mobiliser."
+              },
+              {
+                "domainId": "types-construits",
+                "texte": "types construits constitue un point d'appui à mobiliser."
+              }
+            ],
+            "priorites": [
+              {
+                "domainId": "programmation",
+                "titre": "programmation",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "algorithmique",
+                "titre": "algorithmique",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "donnees",
+                "titre": "donnees",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              },
+              {
+                "domainId": "architecture",
+                "titre": "architecture",
+                "ceQuiSeraFait": "Les démarches seront reprises avec des exercices progressifs."
+              }
+            ],
+            "etapeSuivante": {
+              "texte": "Un échange permettra de préciser le parcours pédagogique.",
+              "cta": "Être conseillé"
+            }
+          },
+          "domains": [
+            {
+              "id": "representation",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "booleens",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "types-construits",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "programmation",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "algorithmique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "donnees",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "architecture",
+              "profile": "MAITRISE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "blindId": "CAS_20_NEXUS",
+      "audience": "NEXUS",
+      "report": {
+        "status": "REPORT_PENDING_REVIEW",
+        "audience": "NEXUS",
+        "templateVersion": "nexus-bilan-facts-v1",
+        "contextChecksum": "020d17a18d8c57a19ce0c9dfc06fb7db62741a8a01c3e7a5cb44229d719f8d8f",
+        "content": {
+          "narrative": {
+            "syntheseProfil": "Profil synthétique fondé sur la FactSheet.",
+            "diagnosticPedagogique": "Les priorités sont ordonnées par domaine et par profil observé.",
+            "planQuatreSemaines": "Prévoir une reprise guidée, une verbalisation et un entraînement progressif.",
+            "alertes": [],
+            "ragReferences": []
+          },
+          "domains": [
+            {
+              "id": "representation",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "booleens",
+              "profile": "MAITRISE"
+            },
+            {
+              "id": "types-construits",
+              "profile": "MAITRISE_FRAGILE"
+            },
+            {
+              "id": "programmation",
+              "profile": "LACUNE_CONSCIENTE"
+            },
+            {
+              "id": "algorithmique",
+              "profile": "ERREUR_CONFIANTE"
+            },
+            {
+              "id": "donnees",
+              "profile": "NON_TRAITE"
+            },
+            {
+              "id": "architecture",
+              "profile": "MAITRISE"
+            }
+          ],
+          "internalFacts": {
+            "globalScore": 95,
+            "coverage": 68,
+            "calibrationIndex": 97,
+            "domainScores": [
+              {
+                "id": "representation",
+                "score": 95
+              },
+              {
+                "id": "booleens",
+                "score": 3
+              },
+              {
+                "id": "types-construits",
+                "score": 12
+              },
+              {
+                "id": "programmation",
+                "score": 21
+              },
+              {
+                "id": "algorithmique",
+                "score": 30
+              },
+              {
+                "id": "donnees",
+                "score": 39
+              },
+              {
+                "id": "architecture",
+                "score": 48
+              }
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

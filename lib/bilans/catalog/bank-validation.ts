@@ -11,7 +11,7 @@ export const cpsCatalogSchema = z.object({
   nodes: z.array(z.object({
     id: z.string().trim().regex(/^[a-z0-9]+(\.[a-z0-9-]+)+$/),
     label: z.string().trim().min(1),
-    sourceLevel: z.enum(['CINQUIEME', 'QUATRIEME', 'TROISIEME', 'SECONDE', 'PREMIERE', 'TERMINALE']),
+    sourceLevel: z.enum(['COLLEGE', 'CINQUIEME', 'QUATRIEME', 'TROISIEME', 'SECONDE', 'PREMIERE', 'TERMINALE']),
     targetLevel: z.enum(['QUATRIEME', 'TROISIEME', 'SECONDE', 'PREMIERE', 'TERMINALE']),
     pedagogicalRationale: z.string().trim().min(1),
   }).strict()).min(1),
@@ -172,7 +172,7 @@ export function validateBankCollection(
 ): BankValidationFailure[] {
   const failures = entries.flatMap(({ bank, catalog }) => validateBankSource(bank, catalog));
   const itemOwners = new Map<string, string>();
-  const nodeOwners = new Map<string, string>();
+  const nodeOwners = new Map<string, Readonly<{ owner: string; signature: string }>>();
   for (const { bank, catalog } of entries) {
     for (const item of bank.items) {
       const owner = itemOwners.get(item.id);
@@ -181,11 +181,18 @@ export function validateBankCollection(
       } else itemOwners.set(item.id, bank.slug);
     }
     for (const node of catalog.nodes) {
-      const signature = `${catalog.slug}:${node.sourceLevel}:${node.targetLevel}`;
-      const owner = nodeOwners.get(node.id);
-      if (owner !== undefined && owner !== signature) {
-        failures.push(failure(bank, 'V2', '$.catalog.nodes', `CPS collision ${node.id}; declarations ${owner} and ${signature}`));
-      } else nodeOwners.set(node.id, signature);
+      const signature = JSON.stringify({
+        label: node.label,
+        sourceLevel: node.sourceLevel,
+        targetLevel: node.targetLevel,
+        pedagogicalRationale: node.pedagogicalRationale,
+      });
+      const existing = nodeOwners.get(node.id);
+      if (existing !== undefined && existing.signature !== signature) {
+        failures.push(failure(bank, 'V2', '$.catalog.nodes', `CPS collision ${node.id}; declarations ${existing.owner} and ${catalog.slug}`));
+      } else if (existing === undefined) {
+        nodeOwners.set(node.id, { owner: catalog.slug, signature });
+      }
     }
   }
   return failures;

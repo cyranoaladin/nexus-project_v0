@@ -21,10 +21,6 @@ version: 1
 status: DRAFT
 targetDurationMin: 25
 
-review:
-  validatedBy: null
-  validatedAt: null
-
 items:
 
   # ===========================================================================

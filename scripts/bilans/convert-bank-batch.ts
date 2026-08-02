@@ -8,7 +8,6 @@ const { parse: parseYaml } = require(path.join(
 )) as typeof import('yaml');
 
 import {
-  cpsCatalogSchema,
   type CpsCatalog,
   type SourceBank,
   validateBankCollection,
@@ -19,7 +18,7 @@ import {
   type WaveBankEntry,
 } from '@/lib/bilans/catalog/wave-manifest';
 
-import { buildPack } from './yaml-bank-to-pack';
+import { buildPack, resolveCpsCatalog } from './yaml-bank-to-pack';
 
 const DEFAULT_MANIFEST = 'data/bilans/banks/wave1.manifest.json';
 const TEMPLATE_PACK = 'data/bilans/banks/maths-terminale-bilan-v1.json';
@@ -30,9 +29,10 @@ function sha256(content: string): string {
 
 function source(entry: WaveBankEntry): Readonly<{ bank: SourceBank; catalog: CpsCatalog; checksum: string }> {
   const text = fs.readFileSync(repositoryPath(entry.source), 'utf8');
+  const bank = parseYaml(text) as SourceBank;
   return {
-    bank: parseYaml(text) as SourceBank,
-    catalog: cpsCatalogSchema.parse(parseYaml(fs.readFileSync(repositoryPath(entry.cps), 'utf8'))),
+    bank,
+    catalog: resolveCpsCatalog(bank, entry.cps),
     checksum: sha256(text),
   };
 }

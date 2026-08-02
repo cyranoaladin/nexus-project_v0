@@ -1,0 +1,44 @@
+schemaVersion: nexus-cps-catalog/v1
+slug: prerequis-maths-vers-terminale-expertes
+version: 1
+nodes:
+  - id: college.maths.arithmetique.division-euclidienne
+    label: Division euclidienne
+    sourceLevel: COLLEGE
+    targetLevel: TERMINALE
+    pedagogicalRationale: l'arithmétique de l'option repose entièrement sur quotient et reste. Une division euclidienne mal posée interdit congruences et algorithme d'Euclide.
+  - id: college.maths.arithmetique.multiples-diviseurs
+    label: Multiples, diviseurs et critères
+    sourceLevel: COLLEGE
+    targetLevel: TERMINALE
+    pedagogicalRationale: diviseurs communs et divisibilité sont la matière première de l'arithmétique de Terminale.
+  - id: college.maths.arithmetique.nombres-premiers
+    label: Nombres premiers et décomposition
+    sourceLevel: COLLEGE
+    targetLevel: TERMINALE
+    pedagogicalRationale: la décomposition en facteurs premiers sous-tend PGCD, PPCM et l'étude des diviseurs.
+  - id: college.maths.arithmetique.pgcd
+    label: PGCD et fractions irréductibles
+    sourceLevel: COLLEGE
+    targetLevel: TERMINALE
+    pedagogicalRationale: le PGCD, réactivé par l'algorithme d'Euclide, doit être un acquis sûr avant les congruences.
+  - id: 2de.maths.calcul-litteral.factorisation
+    label: Calcul algébrique et factorisation
+    sourceLevel: SECONDE
+    targetLevel: TERMINALE
+    pedagogicalRationale: les manipulations algébriques sont omniprésentes dans les preuves d'arithmétique et de matrices.
+  - id: 2de.maths.systemes.equations-lineaires
+    label: Systèmes d'équations linéaires
+    sourceLevel: SECONDE
+    targetLevel: TERMINALE
+    pedagogicalRationale: la résolution de systèmes prépare directement le calcul matriciel de l'option.
+  - id: 1re.maths.logique.implication-contraposee
+    label: "Logique : implication, réciproque, contraposée"
+    sourceLevel: PREMIERE
+    targetLevel: TERMINALE
+    pedagogicalRationale: les démonstrations d'arithmétique reposent sur un maniement rigoureux de l'implication et de sa contraposée.
+  - id: 1re.maths.denombrement.principe-multiplicatif
+    label: "Dénombrement : principe multiplicatif"
+    sourceLevel: PREMIERE
+    targetLevel: TERMINALE
+    pedagogicalRationale: compter des configurations prépare le dénombrement et les graphes de l'option.

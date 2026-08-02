@@ -8,44 +8,59 @@ const { parse: parseYaml } = require(path.join(
   'dist/index.js',
 )) as typeof import('yaml');
 
-import { validateBankCollection, cpsCatalogSchema, type SourceBank } from '@/lib/bilans/catalog/bank-validation';
+import { validateBankCollection, type SourceBank } from '@/lib/bilans/catalog/bank-validation';
 import { loadBilanPack } from '@/lib/bilans/catalog/load-pack';
+import { isPackEnabled } from '@/lib/bilans/api/pack-access';
 import { loadWaveManifest, repositoryPath } from '@/lib/bilans/catalog/wave-manifest';
 import { convertBankBatch } from '@/scripts/bilans/convert-bank-batch';
 import { buildDashboard } from '@/scripts/bilans/check-pack-completeness';
 import { generateMockRecipeEvidence } from '@/scripts/bilans/generate-mock-recipe-evidence';
+import { resolveCpsCatalog } from '@/scripts/bilans/yaml-bank-to-pack';
 
 import { buildRecipeFactSheets } from './fixtures/recipe-fact-sheets';
 import { fixtureFrom } from './fixtures/validated-pack';
 
 const MANIFEST_PATH = 'data/bilans/banks/wave1.manifest.json';
 const MANIFEST = loadWaveManifest(MANIFEST_PATH);
-const ACTIVE = MANIFEST.banks.map((entry) => ({
-  entry,
-  bank: parseYaml(fs.readFileSync(repositoryPath(entry.source), 'utf8')) as SourceBank,
-  catalog: cpsCatalogSchema.parse(parseYaml(fs.readFileSync(repositoryPath(entry.cps), 'utf8'))),
-}));
+const ACTIVE = MANIFEST.banks.map((entry) => {
+  const bank = parseYaml(fs.readFileSync(repositoryPath(entry.source), 'utf8')) as SourceBank;
+  return { entry, bank, catalog: resolveCpsCatalog(bank, entry.cps) };
+});
 
 function sha256(content: string): string {
   return createHash('sha256').update(content, 'utf8').digest('hex');
 }
 
 describe('wave 1 active banks', () => {
-  it('contains exactly fifteen complete banks, 270 globally unique items and 135 CPS nodes', () => {
-    expect(ACTIVE).toHaveLength(15);
+  it('contains exactly seventeen complete banks, 306 globally unique items and 153 CPS references', () => {
+    expect(ACTIVE).toHaveLength(17);
     const ids = ACTIVE.flatMap(({ bank }) => bank.items.map(({ id }) => id));
     const nodes = ACTIVE.flatMap(({ bank }) => bank.items.map(({ nodeCpsId }) => nodeCpsId));
-    expect(ids).toHaveLength(270);
-    expect(new Set(ids).size).toBe(270);
-    expect(new Set(nodes).size).toBe(135);
+    expect(ids).toHaveLength(306);
+    expect(new Set(ids).size).toBe(306);
+    expect(nodes).toHaveLength(306);
+    expect(new Set(nodes).size).toBe(152);
+    expect(ACTIVE.reduce((sum, { catalog }) => sum + catalog.nodes.length, 0)).toBe(153);
     expect(validateBankCollection(ACTIVE)).toEqual([]);
   });
 
-  it('contains the six declared disciplines and keeps Terminale mathematics as MATHS', () => {
+  it('contains the seven declared disciplines and keeps the two mathematics subjects distinct', () => {
     expect([...new Set(ACTIVE.map(({ bank }) => bank.subject))].sort()).toEqual([
-      'FRANCAIS', 'MATHS', 'NSI', 'PHILOSOPHIE', 'PHYSIQUE_CHIMIE', 'SVT',
+      'FRANCAIS', 'MATHS', 'MATHS_EXPERTES', 'NSI', 'PHILOSOPHIE', 'PHYSIQUE_CHIMIE', 'SVT',
     ]);
     expect(ACTIVE.find(({ entry }) => entry.slug === 'entree-terminale-maths-v1')?.bank.subject).toBe('MATHS');
+    expect(ACTIVE.find(({ entry }) => entry.slug === 'entree-terminale-maths-expertes-v1')?.bank.subject).toBe('MATHS_EXPERTES');
+  });
+
+  it('reuses the canonical suites node without duplicating or changing its definition', () => {
+    const owners = ACTIVE.filter(({ bank }) => bank.items.some(({ nodeCpsId }) =>
+      nodeCpsId === '1re.maths.suites.arithmetiques-geometriques'));
+    expect(owners.map(({ entry }) => entry.slug).sort()).toEqual([
+      'entree-terminale-maths-expertes-v1', 'entree-terminale-maths-v1',
+    ]);
+    const definitions = owners.map(({ catalog }) => catalog.nodes.find(({ id }) =>
+      id === '1re.maths.suites.arithmetiques-geometriques'));
+    expect(definitions[0]).toEqual(definitions[1]);
   });
 
   it.each(ACTIVE)('$entry.slug satisfies V1-V14 and remains an unsigned DRAFT', ({ entry, bank, catalog }) => {
@@ -61,6 +76,7 @@ describe('wave 1 active banks', () => {
     expect(pack.status).toBe('DRAFT');
     expect(pack.review).toEqual({ validatedBy: null, validatedAt: null });
     expect(pack.reporting.rag.enabled).toBe(false);
+    expect(isPackEnabled(pack, {})).toBe(false);
     for (const reference of Object.values(pack.reporting.promptFiles)) {
       expect(sha256(fs.readFileSync(repositoryPath(reference.path), 'utf8'))).toBe(reference.checksum);
     }
@@ -68,8 +84,10 @@ describe('wave 1 active banks', () => {
 
   it('keeps active sources byte-identical during two deterministic batch conversions', () => {
     const before = new Map(MANIFEST.banks.map(({ source }) => [source, sha256(fs.readFileSync(repositoryPath(source), 'utf8'))]));
+    const outputs = new Map(MANIFEST.banks.map(({ output }) => [output, sha256(fs.readFileSync(repositoryPath(output), 'utf8'))]));
     expect(convertBankBatch({ manifestPath: MANIFEST_PATH })).toEqual(convertBankBatch({ manifestPath: MANIFEST_PATH }));
     for (const [source, checksum] of before) expect(sha256(fs.readFileSync(repositoryPath(source), 'utf8'))).toBe(checksum);
+    for (const [output, checksum] of outputs) expect(sha256(fs.readFileSync(repositoryPath(output), 'utf8'))).toBe(checksum);
   });
 
   it('never selects a bank from _archive', () => {
@@ -142,9 +160,9 @@ describe('wave 1 active banks', () => {
     expect(nodes.has('1re.svt.immunite.reponse-innee-adaptative')).toBe(true);
   });
 
-  it('renders a complete dashboard with fifteen active and two historical banks', () => {
+  it('renders a complete dashboard with seventeen active and two historical banks', () => {
     const rows = buildDashboard(MANIFEST_PATH);
-    expect(rows.filter(({ kind }) => kind === 'ACTIVE')).toHaveLength(15);
+    expect(rows.filter(({ kind }) => kind === 'ACTIVE')).toHaveLength(17);
     expect(rows.filter(({ kind }) => kind === 'HISTORIQUE')).toHaveLength(2);
     expect(rows.filter(({ kind }) => kind === 'ACTIVE').every(({ complete, total, nodes, status, signature, anomalies }) =>
       complete === 18 && total === 18 && nodes === 9 && status === 'DRAFT'
@@ -153,7 +171,7 @@ describe('wave 1 active banks', () => {
       'scripts/bilans/check-pack-completeness.ts', '--all', '--manifest', MANIFEST_PATH,
     ], { cwd: process.cwd(), encoding: 'utf8' });
     expect(command.status).toBe(0);
-    expect(command.stdout).toContain('BANK_DASHBOARD=15:ACTIVE:0:BLOCKING');
+    expect(command.stdout).toContain('BANK_DASHBOARD=17:ACTIVE:0:BLOCKING');
     expect(command.stdout).toContain('maths-terminale-bilan-v1');
     expect(command.stdout).toContain('entree-terminale-maths-probabilites');
   });

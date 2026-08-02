@@ -10,6 +10,7 @@ const { parse: parseYaml } = require(path.join(
 import {
   assertBankRules,
   cpsCatalogSchema,
+  type CpsCatalog,
   type SourceBank,
 } from '@/lib/bilans/catalog/bank-validation';
 
@@ -85,9 +86,34 @@ function parseArguments(args: string[]) {
   return parsed as Record<keyof typeof parsed, string>;
 }
 
+export function resolveCpsCatalog(bank: SourceBank, requestedPaths: string | readonly string[]): CpsCatalog {
+  const paths = typeof requestedPaths === 'string' ? [requestedPaths] : [...requestedPaths];
+  const nodes = new Map<string, CpsCatalog['nodes'][number]>();
+  for (const requestedPath of paths) {
+    const catalog = cpsCatalogSchema.parse(parseYaml(fs.readFileSync(repositoryPath(requestedPath), 'utf8')));
+    for (const node of catalog.nodes) {
+      const existing = nodes.get(node.id);
+      if (existing !== undefined && JSON.stringify(existing) !== JSON.stringify(node)) {
+        throw new Error(`CPS_NODE_DEFINITION_CONFLICT:${node.id}`);
+      }
+      nodes.set(node.id, node);
+    }
+  }
+  const requestedNodeIds = [...new Set(bank.items.map(({ nodeCpsId }) => nodeCpsId))];
+  return {
+    schemaVersion: 'nexus-cps-catalog/v1',
+    slug: `${bank.slug}-resolved`,
+    version: 1,
+    nodes: requestedNodeIds.flatMap((nodeId) => {
+      const node = nodes.get(nodeId);
+      return node === undefined ? [] : [node];
+    }),
+  };
+}
+
 export function buildPack(options: {
   sourcePath: string;
-  cpsPath: string;
+  cpsPath: string | readonly string[];
   templatePackPath: string;
   promptDirectory: string;
 }): JsonRecord {
@@ -103,7 +129,7 @@ export function buildPack(options: {
   }
   if (source.status !== 'DRAFT') throw new Error('BANK_SOURCE_MUST_BE_DRAFT');
 
-  const catalog = cpsCatalogSchema.parse(parseYaml(fs.readFileSync(repositoryPath(options.cpsPath), 'utf8')));
+  const catalog = resolveCpsCatalog(source as SourceBank, options.cpsPath);
   assertBankRules(source as SourceBank, catalog);
   const mismatchedTargets = catalog.nodes
     .filter((node) => node.targetLevel !== source.level)
