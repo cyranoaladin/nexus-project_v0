@@ -39,6 +39,7 @@ enum ServiceType {
 // Énumération des matières
 enum Subject {
   MATHEMATIQUES
+  MATHS_EXPERTES
   NSI
   FRANCAIS
   PHILOSOPHIE
@@ -51,6 +52,7 @@ enum Subject {
 }
 
 enum GradeLevel {
+  QUATRIEME
   TROISIEME
   SECONDE
   PREMIERE
