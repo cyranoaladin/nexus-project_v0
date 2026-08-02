@@ -562,3 +562,13 @@ n’est donc affirmée.
 - **Constat :** les dix-huit items d'entrée et les trente-huit items du bilan de fin plaçaient tous la bonne réponse en première position. Un élève pouvait donc produire un faux positif de maîtrise complète sans mobiliser les connaissances évaluées.
 - **Décision :** classer les identifiants d'items par leur SHA-256 en ordre binaire, puis attribuer cycliquement les positions A à D. Les distributions deviennent respectivement `5/5/4/4` et `10/10/9/9`. V14 refuse au chargement toute banque dont une position dépasse 40 % des bonnes réponses.
 - **Motif :** l'ordre est reproductible sans aléa et sans modifier aucun énoncé, libellé, rationale ou drapeau de correction. Le mélange par `seed` décrit par les specs 01 §5.3 et 04 n'est pas implémenté dans le runtime ; V14 est donc la seule protection active contre ce biais de position.
+
+## A77 — Banque de positionnement d’entrée en Première, Mathématiques
+
+**Constat.** La source éditoriale `entree-premiere-maths-v1.yaml` contient 18 items complets couvrant neuf nœuds de prérequis de Seconde, avec deux items par nœud. Son audit statique ne relève aucun écart V1 à V14 : durée 1 075 s pour 25 minutes annoncées et distribution des bonnes réponses A=5, B=5, C=4, D=4.
+
+**Décision.** Le catalogue CPS limité à ces neuf nœuds est versionné. Le convertisseur et le chargeur sont généralisés aux niveaux, matières et nombres de domaines déclarés par le pack, sans assouplir les métadonnées pédagogiques. Les cinq prompts sont isolés sous le slug de la banque, le RAG reste explicitement désactivé, et le pack généré reste `DRAFT` avec `review.*` nul. Une recette mock versionnée couvre 20 FactSheets et 60 rapports avec V1 à V7.
+
+**Motif.** La banque doit être exploitable par le même pipeline que les autres niveaux sans dupliquer un convertisseur ni introduire de conventions propres à Première. Les schémas de sortie autorisent désormais autant de blocs de domaines que le pack en déclare afin que V4 puisse prouver qu’aucun domaine évalué n’est omis.
+
+**Point de sécurité associé.** Le domaine `inequations` révélait un faux positif du détecteur INE. Le motif exige désormais un séparateur réel entre le libellé `INE` et sa valeur ; un mot commençant par ces lettres n’est plus classé comme identifiant élève, sans relâcher la détection d’un identifiant effectivement libellé.

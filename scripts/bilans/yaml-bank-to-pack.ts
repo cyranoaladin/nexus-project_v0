@@ -23,8 +23,8 @@ const cpsCatalogSchema = z.object({
   nodes: z.array(z.object({
     id: z.string().trim().regex(/^[a-z0-9]+(\.[a-z0-9-]+)+$/),
     label: z.string().trim().min(1),
-    sourceLevel: z.literal('PREMIERE'),
-    targetLevel: z.literal('TERMINALE'),
+    sourceLevel: z.enum(['QUATRIEME', 'TROISIEME', 'SECONDE', 'PREMIERE', 'TERMINALE']),
+    targetLevel: z.enum(['QUATRIEME', 'TROISIEME', 'SECONDE', 'PREMIERE', 'TERMINALE']),
     pedagogicalRationale: z.string().trim().min(1),
   }).strict()).min(1),
 }).strict();
@@ -44,6 +44,19 @@ function repositoryPath(requestedPath: string): string {
 
 function sha256(content: string): string {
   return createHash('sha256').update(content, 'utf8').digest('hex');
+}
+
+function setArrayMaxItems(
+  outputSchemas: JsonRecord,
+  audience: 'eleve' | 'parents',
+  field: 'priorites' | 'pointsAppui',
+  maxItems: number,
+): void {
+  const schema = outputSchemas[audience];
+  if (!isRecord(schema) || !isRecord(schema.properties) || !isRecord(schema.properties[field])) {
+    throw new Error(`PACK_TEMPLATE_OUTPUT_SCHEMA_INVALID:${audience}.${field}`);
+  }
+  schema.properties[field].maxItems = maxItems;
 }
 
 function normalizeOptionKeys(source: JsonRecord): JsonRecord {
@@ -97,6 +110,12 @@ export function buildPack(options: {
   if (source.status !== 'DRAFT') throw new Error('BANK_SOURCE_MUST_BE_DRAFT');
 
   const catalog = cpsCatalogSchema.parse(parseYaml(fs.readFileSync(repositoryPath(options.cpsPath), 'utf8')));
+  const mismatchedTargets = catalog.nodes
+    .filter((node) => node.targetLevel !== source.level)
+    .map((node) => node.id);
+  if (mismatchedTargets.length > 0) {
+    throw new Error(`CPS_TARGET_LEVEL_MISMATCH:targetLevel=${String(source.level)}:${mismatchedTargets.join(',')}`);
+  }
   const nodeById = new Map(catalog.nodes.map((node) => [node.id, node]));
   if (nodeById.size !== catalog.nodes.length) throw new Error('CPS_NODE_ID_DUPLICATE');
   const missingNodes = source.items
@@ -111,6 +130,11 @@ export function buildPack(options: {
     return [agent, { path: relativePath, checksum: sha256(content) }];
   }));
   const domains = [...new Set(source.items.map((item: JsonRecord) => String(item.nodeCpsId).split('.')[2]))];
+  const outputSchemas = structuredClone(template.reporting.outputSchemas);
+  if (!isRecord(outputSchemas)) throw new Error('PACK_TEMPLATE_OUTPUT_SCHEMAS_INVALID');
+  setArrayMaxItems(outputSchemas, 'eleve', 'priorites', domains.length);
+  setArrayMaxItems(outputSchemas, 'parents', 'pointsAppui', domains.length);
+  setArrayMaxItems(outputSchemas, 'parents', 'priorites', domains.length);
 
   return {
     slug: source.slug,
@@ -145,9 +169,16 @@ export function buildPack(options: {
     },
     scoring: { engine: 'facts.v1.0.1', domains },
     reporting: {
-      rag: { enabled: false, decisionRef: 'A56 — corpus RAG Terminale absent', sources: [], topK: 0 },
+      rag: {
+        enabled: false,
+        decisionRef: source.level === 'TERMINALE'
+          ? 'A56 — corpus RAG Terminale absent'
+          : 'A56 — RAG désactivé tant que le corpus du niveau n’est pas validé',
+        sources: [],
+        topK: 0,
+      },
       promptFiles,
-      outputSchemas: template.reporting.outputSchemas,
+      outputSchemas,
     },
     validation: template.validation,
   };

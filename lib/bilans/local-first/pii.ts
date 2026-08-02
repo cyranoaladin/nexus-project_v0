@@ -45,7 +45,7 @@ const DETECTORS: readonly Readonly<{ category: PiiCategory; pattern: RegExp; rep
   { category: 'DATE_OF_BIRTH', pattern: /\b(?:n[ée]e?\s+le\s+)?(?:0?[1-9]|[12]\d|3[01])[/. -](?:0?[1-9]|1[0-2])[/. -](?:19|20)\d{2}\b/giu, replacement: '[REDACTED_DATE_OF_BIRTH]' },
   { category: 'POSTAL_ADDRESS', pattern: /\b(?:adresse\s*:\s*)?\d{1,4}\s+(?:rue|avenue|route|impasse|résidence|residence)\b[^,;]*/giu, replacement: '[REDACTED_POSTAL_ADDRESS]' },
   { category: 'SOCIAL_HANDLE', pattern: /(?<![\w.])@[a-z0-9_][a-z0-9_.-]{2,31}\b/giu, replacement: '[REDACTED_SOCIAL_HANDLE]' },
-  { category: 'STUDENT_IDENTIFIER', pattern: /\b(?:matricule|identifiant\s+élève|student\s+id|ine)\s*[:#-]?\s*[a-z0-9][a-z0-9-]{3,}\b/giu, replacement: '[REDACTED_STUDENT_IDENTIFIER]' },
+  { category: 'STUDENT_IDENTIFIER', pattern: /\b(?:matricule|identifiant\s+élève|student\s+id|ine)(?:\s*[:#-]\s*|\s+)[a-z0-9][a-z0-9-]{3,}\b/giu, replacement: '[REDACTED_STUDENT_IDENTIFIER]' },
   { category: 'SCHOOL_IDENTIFIER', pattern: /\b(?:école|ecole|collège|college|lycée|lycee|établissement|etablissement)\s+[\p{L}0-9][\p{L}0-9 _-]{2,60}/giu, replacement: '[REDACTED_SCHOOL_IDENTIFIER]' },
   { category: 'PERSON_NAME_CANDIDATE', pattern: /\b(?:nom|prénom|prenom)\s*:\s*[\p{L}'’-]+(?:\s+[\p{L}'’-]+){0,3}/giu, replacement: '[REDACTED_PERSON_NAME]' },
 ];
