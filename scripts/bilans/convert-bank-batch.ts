@@ -13,6 +13,10 @@ import {
   validateBankCollection,
 } from '@/lib/bilans/catalog/bank-validation';
 import {
+  loadReviewRegistry,
+  REVIEW_DIRECTORY,
+} from '@/lib/bilans/catalog/review-registry';
+import {
   loadWaveManifest,
   repositoryPath,
   type WaveBankEntry,
@@ -48,6 +52,8 @@ export type BatchBankResult = Readonly<{
 export function convertBankBatch(options: Readonly<{
   manifestPath?: string;
   write?: boolean;
+  reviewDirectory?: string;
+  resolvedReviewerIds?: ReadonlySet<string>;
 }> = {}): readonly BatchBankResult[] {
   const manifest = loadWaveManifest(options.manifestPath ?? DEFAULT_MANIFEST);
   const loaded = manifest.banks.map((entry) => ({ entry, ...source(entry) }));
@@ -72,6 +78,8 @@ export function convertBankBatch(options: Readonly<{
       cpsPath: entry.cps,
       templatePackPath: TEMPLATE_PACK,
       promptDirectory: entry.promptDirectory,
+      reviewDirectory: options.reviewDirectory,
+      resolvedReviewerIds: options.resolvedReviewerIds,
     });
     const bytes = `${JSON.stringify(pack, null, 2)}\n`;
     return {
@@ -104,7 +112,7 @@ export function convertBankBatch(options: Readonly<{
   return Object.freeze(built.map(({ result }) => result));
 }
 
-export function main(args: string[]): number {
+export async function main(args: string[]): Promise<number> {
   const manifestIndex = args.indexOf('--manifest');
   const manifestPath = manifestIndex >= 0 ? args[manifestIndex + 1] : DEFAULT_MANIFEST;
   const write = args.includes('--write');
@@ -114,7 +122,25 @@ export function main(args: string[]): number {
     return 2;
   }
   try {
-    const results = convertBankBatch({ manifestPath, write });
+    const manifest = loadWaveManifest(manifestPath);
+    const reviewerIds = [...new Set(manifest.banks.flatMap(({ slug }) => {
+      const registry = loadReviewRegistry(slug, REVIEW_DIRECTORY);
+      return registry === null ? [] : [registry.validatedBy];
+    }))];
+    let resolvedReviewerIds = new Set<string>();
+    if (reviewerIds.length > 0) {
+      const { prisma } = await import('@/lib/prisma');
+      try {
+        const reviewers = await prisma.coachProfile.findMany({
+          where: { id: { in: reviewerIds } },
+          select: { id: true },
+        });
+        resolvedReviewerIds = new Set(reviewers.map(({ id }) => id));
+      } finally {
+        await prisma.$disconnect();
+      }
+    }
+    const results = convertBankBatch({ manifestPath, write, resolvedReviewerIds });
     for (const result of results) console.log(`BANK_OK=${result.slug}:${result.items}:${result.nodes}:${result.outputChecksum}`);
     console.log(`BANK_BATCH_OK=${results.length}:${results.reduce((sum, result) => sum + result.items, 0)}:${write ? 'WRITTEN' : 'CHECK_ONLY'}`);
     return 0;
@@ -124,4 +150,11 @@ export function main(args: string[]): number {
   }
 }
 
-if (require.main === module) process.exitCode = main(process.argv.slice(2));
+if (require.main === module) {
+  void main(process.argv.slice(2)).then((exitCode) => {
+    process.exitCode = exitCode;
+  }).catch((error) => {
+    console.error(error instanceof Error ? error.message : String(error));
+    process.exitCode = 1;
+  });
+}

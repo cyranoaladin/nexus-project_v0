@@ -1,13 +1,15 @@
 import { createHash } from 'node:crypto';
 import fs from 'node:fs';
+import { createRequire } from 'node:module';
 import path from 'node:path';
 
 import { z } from 'zod';
 
 import { repositoryPath } from './wave-manifest';
 
-const { parse: parseYaml, stringify: stringifyYaml } = require(path.join(
-  path.dirname(require.resolve('yaml/package.json')),
+const nodeRequire = createRequire(__filename);
+const { parse: parseYaml, stringify: stringifyYaml } = nodeRequire(path.join(
+  path.dirname(nodeRequire.resolve('yaml/package.json')),
   'dist/index.js',
 )) as typeof import('yaml');
 

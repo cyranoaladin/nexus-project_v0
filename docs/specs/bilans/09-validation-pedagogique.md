@@ -47,6 +47,20 @@ Le convertisseur produit `status: VALIDATED` et renseigne `review.validatedBy` a
 Cette transition `DRAFT -> VALIDATED` est une dérivation, jamais une activation. Elle
 n'active aucun feature flag, n'ouvre aucune passation et ne publie aucun rapport.
 
+La signature est une commande humaine explicite, jamais appelée par la CI ni par un autre
+script :
+
+```bash
+./node_modules/.bin/tsx scripts/bilans/sign-pack.ts \
+  --slug <slug> [--slug <autre-slug>] \
+  --email <email-professionnel> \
+  --qualification "<qualification professionnelle>"
+```
+
+Chaque slug est contrôlé et signé indépendamment. L'échec d'un pack n'annule pas les packs
+conformes du même lot, mais la commande retourne un code non nul et rapporte séparément les
+packs signés et refusés. Un email inconnu ne crée jamais de compte ni de `CoachProfile`.
+
 ## Révocation automatique
 
 Toute modification d'un item, d'un distracteur, d'une explication, d'un prompt ou d'un
