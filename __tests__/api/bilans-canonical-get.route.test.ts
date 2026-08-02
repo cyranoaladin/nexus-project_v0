@@ -103,6 +103,24 @@ const request = new NextRequest('http://localhost/api/bilans/attempts/attempt-1'
 const context = { params: Promise.resolve({ id: 'attempt-1' }) };
 
 describe('GET /api/bilans/attempts/[id]', () => {
+  test.each([
+    ['MATHS', 'Mathématiques'],
+    ['FRANCAIS', 'Français'],
+    ['NSI', 'NSI'],
+    ['PHYSIQUE_CHIMIE', 'Physique-chimie'],
+    ['SVT', 'SVT'],
+    ['PHILOSOPHIE', 'Philosophie'],
+    ['MATHS_EXPERTES', 'Mathématiques expertes'],
+  ])('renders the canonical %s label with Unicode intact', (subject, label) => {
+    const { displayTitle } = require('@/lib/bilans/api/get-attempt') as typeof import('@/lib/bilans/api/get-attempt');
+    expect(displayTitle(subject, 'QUATRIEME')).toBe(`${label} · Quatrième`);
+  });
+
+  test('fails explicitly for an unmapped subject', () => {
+    const { displayTitle } = require('@/lib/bilans/api/get-attempt') as typeof import('@/lib/bilans/api/get-attempt');
+    expect(() => displayTitle('INCONNU', 'TERMINALE')).toThrow('BILAN_PACK_SUBJECT_UNKNOWN:INCONNU');
+  });
+
   test('checks ownership before resolving the pack and returns 404 for a third party', async () => {
     const db = database();
     db.findFirst.mockResolvedValueOnce(null);
