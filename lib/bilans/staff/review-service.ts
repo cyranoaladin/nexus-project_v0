@@ -119,8 +119,9 @@ async function assignedPending(
 
 export async function listPendingReportReviews(
   actor: ReviewActor,
-  dependencies: ReviewServiceDependencies = defaultDependencies,
+  overrides: Partial<ReviewServiceDependencies> = {},
 ): Promise<readonly PendingReportReview[]> {
+  const dependencies = { ...defaultDependencies, ...overrides };
   const coachId = await coachFor(actor, dependencies);
   const revisions = await dependencies.listAssignedPending(coachId);
   return Object.freeze(revisions.filter((revision) => packIsEnabled(revision, dependencies)));
@@ -128,8 +129,9 @@ export async function listPendingReportReviews(
 
 export async function validateAndPublishPendingReport(
   action: ReviewAction,
-  dependencies: ReviewServiceDependencies = defaultDependencies,
+  overrides: Partial<ReviewServiceDependencies> = {},
 ) {
+  const dependencies = { ...defaultDependencies, ...overrides };
   const { revision, coachId, motif } = await assignedPending(action, dependencies);
   if (revision.validationFailures.length > 0) throw new StaffReviewError('REPORT_VALIDATION_FAILURES');
   const reviewedAt = dependencies.now();
@@ -139,8 +141,9 @@ export async function validateAndPublishPendingReport(
 
 export async function rejectPendingReport(
   action: ReviewAction,
-  dependencies: ReviewServiceDependencies = defaultDependencies,
+  overrides: Partial<ReviewServiceDependencies> = {},
 ) {
+  const dependencies = { ...defaultDependencies, ...overrides };
   const { revision, coachId, motif } = await assignedPending(action, dependencies);
   return dependencies.reject({ revisionId: revision.id, coachId, motif, reviewedAt: dependencies.now() });
 }
