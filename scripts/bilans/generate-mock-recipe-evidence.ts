@@ -37,7 +37,7 @@ export async function generateMockRecipeEvidence(
       validationViolations[current.rule] += 1;
     }
     for (const audience of AUDIENCES) {
-      const report = buildDeterministicReport(factSheet, result.bundle, audience);
+      const report = buildDeterministicReport(factSheet, audience);
       if (report.content.domains.length !== pack.scoring.domains.length) {
         throw new Error(`Mock recipe omitted a domain for FactSheet ${index + 1}`);
       }
