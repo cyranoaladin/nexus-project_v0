@@ -1,0 +1,535 @@
+# =============================================================================
+# Banque de positionnement — ENTRÉE EN PREMIÈRE, spécialité NSI
+#
+# Doctrine : intersection Seconde / Première. Les prérequis proviennent de
+# l'enseignement de Sciences numériques et technologie de Seconde et des
+# apprentissages d'algorithmique du cycle 4. Aucun item ne teste une notion du
+# programme de Première NSI.
+#
+# STATUT : DRAFT — proposition à amender par le responsable pédagogique.
+#
+# 18 items · 9 nœuds de prérequis · 2 items par nœud (règle V4)
+# Distribution des bonnes réponses : A=5, B=5, C=4, D=4 (règle V14 : max 40 %)
+# =============================================================================
+
+slug: entree-premiere-nsi-v1
+level: PREMIERE
+subject: NSI
+version: 1
+status: DRAFT
+targetDurationMin: 25
+
+items:
+
+  # ===========================================================================
+  # NŒUD 1 — Représentation binaire des entiers
+  # Pourquoi c'est structurant : le thème « représentation des données » ouvre
+  # l'année. Sans la numération binaire, ni les entiers signés, ni les
+  # flottants, ni l'encodage des caractères ne sont abordables.
+  # ===========================================================================
+
+  - id: EPR-NSI-BIN-01
+    nodeCpsId: 2de.snt.representation.binaire
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 60
+    statement: "Quelle est la valeur décimale de l'entier écrit 1011 en binaire ?"
+    options:
+      - key: A
+        label: "13"
+        correct: false
+        distractorRationale: "Lit les bits dans le mauvais ordre et interprète 1101 au lieu de 1011."
+      - key: B
+        label: "11"
+        correct: true
+      - key: C
+        label: "1011"
+        correct: false
+        distractorRationale: "Considère que l'écriture binaire se lit directement comme un nombre décimal."
+      - key: D
+        label: "8"
+        correct: false
+        distractorRationale: "Ne retient que le bit de poids fort et néglige les autres puissances de deux."
+    shortCorrection: "Chaque bit correspond à une puissance de deux, du poids fort au poids faible : 8 + 0 + 2 + 1 = 11."
+    tags: [binaire, numeration]
+
+  - id: EPR-NSI-BIN-02
+    nodeCpsId: 2de.snt.representation.binaire
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 55
+    statement: "Sur huit bits, combien de valeurs entières différentes peut-on représenter ?"
+    options:
+      - key: A
+        label: "8"
+        correct: false
+        distractorRationale: "Confond le nombre de bits disponibles avec le nombre de valeurs représentables."
+      - key: B
+        label: "128"
+        correct: false
+        distractorRationale: "Calcule deux puissance sept, en oubliant un bit."
+      - key: C
+        label: "255"
+        correct: false
+        distractorRationale: "Donne la plus grande valeur non signée représentable, et non le nombre total de valeurs."
+      - key: D
+        label: "256"
+        correct: true
+    shortCorrection: "Chaque bit prend deux états, donc huit bits donnent deux puissance huit combinaisons, soit 256 valeurs, de 0 à 255."
+    tags: [binaire, capacite]
+
+  # ===========================================================================
+  # NŒUD 2 — Variables et affectation
+  # Pourquoi c'est structurant : confondre l'affectation avec l'égalité
+  # mathématique empêche de suivre l'exécution d'un programme, donc de le
+  # corriger.
+  # ===========================================================================
+
+  - id: EPR-NSI-VAR-01
+    nodeCpsId: 2de.snt.programmation.variables-affectation
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 60
+    statement: "On exécute successivement : a = 3, puis b = a, puis a = 5. Que vaut b à la fin ?"
+    options:
+      - key: A
+        label: "3"
+        correct: true
+      - key: B
+        label: "5"
+        correct: false
+        distractorRationale: "Croit que b reste lié à a et suit ses modifications ultérieures."
+      - key: C
+        label: "8"
+        correct: false
+        distractorRationale: "Additionne les valeurs successives au lieu de suivre les affectations."
+      - key: D
+        label: "b n'a pas de valeur définie"
+        correct: false
+        distractorRationale: "Ne reconnaît pas que la deuxième instruction a bien attribué une valeur à b."
+    shortCorrection: "L'affectation b = a copie la valeur de a au moment de l'exécution, soit 3. La modification ultérieure de a ne change pas b."
+    tags: [variables, affectation]
+
+  - id: EPR-NSI-VAR-02
+    nodeCpsId: 2de.snt.programmation.variables-affectation
+    type: QCM_SIMPLE
+    difficulty: 1
+    targetTimeSec: 50
+    statement: "Que fait l'instruction x = x + 1 ?"
+    options:
+      - key: A
+        label: "rien, car un nombre ne peut pas être égal à lui-même augmenté de 1"
+        correct: false
+        distractorRationale: "Lit le signe égal comme une égalité mathématique et non comme une affectation."
+      - key: B
+        label: "elle compare x et x + 1"
+        correct: false
+        distractorRationale: "Confond l'affectation avec un test de comparaison."
+      - key: C
+        label: "elle attribue à x sa valeur précédente augmentée de 1"
+        correct: true
+      - key: D
+        label: "elle crée une nouvelle variable nommée « x + 1 »"
+        correct: false
+        distractorRationale: "Interprète le membre de droite comme un nom de variable au lieu d'un calcul."
+    shortCorrection: "En programmation, le signe égal affecte : on évalue d'abord x + 1, puis on range le résultat dans x. La valeur de x augmente donc de 1."
+    tags: [variables, incrementation]
+
+  # ===========================================================================
+  # NŒUD 3 — Conditions et logique booléenne
+  # Pourquoi c'est structurant : les conditions gouvernent tout algorithme.
+  # Une négation mal formée produit un programme qui semble juste et se trompe
+  # sur les cas limites.
+  # ===========================================================================
+
+  - id: EPR-NSI-CND-01
+    nodeCpsId: 2de.snt.programmation.conditions-booleens
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 55
+    statement: "L'expression (x > 0) and (x < 10) est vraie :"
+    options:
+      - key: A
+        label: "pour tout nombre x positif"
+        correct: false
+        distractorRationale: "Ne retient que la première condition et ignore la seconde, pourtant reliée par « and »."
+      - key: B
+        label: "uniquement si x est strictement compris entre 0 et 10"
+        correct: true
+      - key: C
+        label: "si x vaut 0 ou si x vaut 10"
+        correct: false
+        distractorRationale: "Inclut les bornes alors que les deux comparaisons sont strictes."
+      - key: D
+        label: "pour tout x, car les deux conditions ne peuvent être fausses ensemble"
+        correct: false
+        distractorRationale: "Confond le connecteur « and », qui exige les deux conditions, avec « or »."
+    shortCorrection: "Le connecteur « and » exige que les deux conditions soient vraies simultanément. Les comparaisons étant strictes, les valeurs 0 et 10 sont exclues."
+    tags: [booleens, conditions]
+
+  - id: EPR-NSI-CND-02
+    nodeCpsId: 2de.snt.programmation.conditions-booleens
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 45
+    statement: "Quelle est la négation de la condition « x > 5 » ?"
+    options:
+      - key: A
+        label: "x <= 5"
+        correct: true
+      - key: B
+        label: "x < 5"
+        correct: false
+        distractorRationale: "Oublie le cas d'égalité : la valeur 5 ne vérifie pas x > 5 et appartient donc à la négation."
+      - key: C
+        label: "x >= 5"
+        correct: false
+        distractorRationale: "Conserve le sens de l'inégalité au lieu de l'inverser."
+      - key: D
+        label: "x != 5"
+        correct: false
+        distractorRationale: "Nie l'égalité au lieu de nier la comparaison."
+    shortCorrection: "Nier une inégalité stricte donne l'inégalité large de sens contraire : la négation de x > 5 est x <= 5. Le cas d'égalité ne doit pas être oublié."
+    tags: [booleens, negation]
+
+  # ===========================================================================
+  # NŒUD 4 — Boucles bornées et non bornées
+  # Pourquoi c'est structurant : le choix entre for et while, et le décompte
+  # exact des itérations, conditionnent les algorithmes de parcours et de tri
+  # étudiés en Première.
+  # ===========================================================================
+
+  - id: EPR-NSI-BCL-01
+    nodeCpsId: 2de.snt.programmation.boucles
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 50
+    statement: "Combien de fois le corps de la boucle « for i in range(3) » s'exécute-t-il ?"
+    options:
+      - key: A
+        label: "2"
+        correct: false
+        distractorRationale: "Suppose que le compteur démarre à 1 et s'arrête avant 3."
+      - key: B
+        label: "4"
+        correct: false
+        distractorRationale: "Inclut la valeur 3, alors que la borne supérieure est exclue."
+      - key: C
+        label: "1"
+        correct: false
+        distractorRationale: "Ne reconnaît pas la répétition et interprète la boucle comme une instruction unique."
+      - key: D
+        label: "3"
+        correct: true
+    shortCorrection: "range(3) produit les valeurs 0, 1 et 2 : la borne supérieure est exclue. Le corps de la boucle s'exécute donc trois fois."
+    tags: [boucles, range]
+
+  - id: EPR-NSI-BCL-02
+    nodeCpsId: 2de.snt.programmation.boucles
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 50
+    statement: "Dans quel cas emploie-t-on une boucle « while » plutôt qu'une boucle « for » ?"
+    options:
+      - key: A
+        label: "quand le nombre de répétitions est connu à l'avance"
+        correct: false
+        distractorRationale: "Décrit précisément la situation où la boucle bornée convient."
+      - key: B
+        label: "quand le nombre de répétitions dépend d'une condition, non connue à l'avance"
+        correct: true
+      - key: C
+        label: "quand on parcourt les éléments d'une liste"
+        correct: false
+        distractorRationale: "Retient un cas typique de la boucle bornée, où le nombre d'éléments est connu."
+      - key: D
+        label: "jamais : les deux formes sont strictement équivalentes"
+        correct: false
+        distractorRationale: "Nie une distinction qui porte sur la connaissance préalable du nombre d'itérations."
+    shortCorrection: "La boucle bornée convient quand on sait combien de fois répéter. La boucle non bornée s'emploie quand la répétition dépend d'une condition évaluée à chaque tour."
+    tags: [boucles, choix]
+
+  # ===========================================================================
+  # NŒUD 5 — Listes et indexation
+  # Pourquoi c'est structurant : les types construits, les tableaux et les
+  # algorithmes de tri de Première reposent tous sur l'indexation, dont le
+  # départ à zéro est une source d'erreurs durable.
+  # ===========================================================================
+
+  - id: EPR-NSI-LST-01
+    nodeCpsId: 2de.snt.programmation.listes
+    type: QCM_SIMPLE
+    difficulty: 1
+    targetTimeSec: 45
+    statement: "Soit L = [4, 8, 15, 16]. Que vaut L[1] ?"
+    options:
+      - key: A
+        label: "4"
+        correct: false
+        distractorRationale: "Suppose que l'indexation commence à 1 et désigne donc le premier élément."
+      - key: B
+        label: "15"
+        correct: false
+        distractorRationale: "Décale l'indice d'un rang supplémentaire dans le mauvais sens."
+      - key: C
+        label: "8"
+        correct: true
+      - key: D
+        label: "une erreur, car l'indice 1 n'existe pas"
+        correct: false
+        distractorRationale: "Confond l'absence d'indice avec le décalage de la numérotation."
+    shortCorrection: "L'indexation commence à zéro : L[0] vaut 4 et L[1] vaut 8. Le dernier élément d'une liste de longueur n porte l'indice n − 1."
+    tags: [listes, indexation]
+
+  - id: EPR-NSI-LST-02
+    nodeCpsId: 2de.snt.programmation.listes
+    type: QCM_SIMPLE
+    difficulty: 1
+    targetTimeSec: 40
+    statement: "Que vaut len([3, 7, 9]) ?"
+    options:
+      - key: A
+        label: "3"
+        correct: true
+      - key: B
+        label: "19"
+        correct: false
+        distractorRationale: "Additionne les éléments au lieu de les compter."
+      - key: C
+        label: "2"
+        correct: false
+        distractorRationale: "Donne l'indice du dernier élément au lieu du nombre d'éléments."
+      - key: D
+        label: "9"
+        correct: false
+        distractorRationale: "Renvoie la valeur du dernier élément au lieu de la longueur de la liste."
+    shortCorrection: "La fonction len renvoie le nombre d'éléments d'une liste, ici 3. Elle ne dépend ni des valeurs contenues ni de leur ordre."
+    tags: [listes, longueur]
+
+  # ===========================================================================
+  # NŒUD 6 — Fonctions : paramètres et valeur de retour
+  # Pourquoi c'est structurant : la spécification et la mise au point des
+  # fonctions occupent une place centrale en Première. Confondre paramètre,
+  # argument et valeur retournée rend tout débogage impossible.
+  # ===========================================================================
+
+  - id: EPR-NSI-FCT-01
+    nodeCpsId: 2de.snt.programmation.fonctions
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 55
+    statement: "Dans la définition « def carre(n): return n * n », que désigne n ?"
+    options:
+      - key: A
+        label: "la valeur renvoyée par la fonction"
+        correct: false
+        distractorRationale: "Confond le paramètre d'entrée avec le résultat produit."
+      - key: B
+        label: "un paramètre, remplacé par l'argument fourni au moment de l'appel"
+        correct: true
+      - key: C
+        label: "le nom de la fonction"
+        correct: false
+        distractorRationale: "Confond le nom de la fonction, écrit avant les parenthèses, avec son paramètre."
+      - key: D
+        label: "une variable globale, accessible dans tout le programme"
+        correct: false
+        distractorRationale: "Ignore que le paramètre n'existe que dans le corps de la fonction."
+    shortCorrection: "n est un paramètre : un nom provisoire qui reçoit la valeur transmise lors de l'appel. Il n'existe qu'à l'intérieur de la fonction."
+    tags: [fonctions, parametres]
+
+  - id: EPR-NSI-FCT-02
+    nodeCpsId: 2de.snt.programmation.fonctions
+    type: QCM_SIMPLE
+    difficulty: 3
+    targetTimeSec: 55
+    statement: "Que renvoie une fonction Python qui ne contient aucune instruction return ?"
+    options:
+      - key: A
+        label: "elle provoque une erreur au moment de l'exécution"
+        correct: false
+        distractorRationale: "Suppose qu'une fonction doit obligatoirement renvoyer une valeur explicite."
+      - key: B
+        label: "la valeur 0"
+        correct: false
+        distractorRationale: "Confond l'absence de valeur avec la valeur numérique zéro."
+      - key: C
+        label: "elle ne peut pas être appelée"
+        correct: false
+        distractorRationale: "Confond l'absence de valeur renvoyée avec l'impossibilité d'exécuter la fonction."
+      - key: D
+        label: "la valeur None"
+        correct: true
+    shortCorrection: "Une fonction sans return s'exécute normalement et renvoie None, valeur qui signale l'absence de résultat. Elle est souvent employée pour son effet, comme un affichage."
+    tags: [fonctions, retour]
+
+  # ===========================================================================
+  # NŒUD 7 — Web : structure, présentation, modèle client-serveur
+  # Pourquoi c'est structurant : le thème « interactions homme-machine sur le
+  # Web » suppose de distinguer ce qui structure, ce qui met en forme et ce qui
+  # rend interactif.
+  # ===========================================================================
+
+  - id: EPR-NSI-WEB-01
+    nodeCpsId: 2de.snt.web.structure-presentation
+    type: QCM_SIMPLE
+    difficulty: 1
+    targetTimeSec: 45
+    statement: "Dans une page web, quel est le rôle du CSS ?"
+    options:
+      - key: A
+        label: "décrire la présentation et la mise en forme du contenu"
+        correct: true
+      - key: B
+        label: "structurer le contenu en titres, paragraphes et listes"
+        correct: false
+        distractorRationale: "Attribue au CSS le rôle du HTML, qui organise le contenu."
+      - key: C
+        label: "stocker les données du site côté serveur"
+        correct: false
+        distractorRationale: "Confond une feuille de style avec une base de données."
+      - key: D
+        label: "rendre la page interactive en réagissant aux actions de l'utilisateur"
+        correct: false
+        distractorRationale: "Attribue au CSS le rôle de JavaScript, qui gère les événements."
+    shortCorrection: "HTML structure le contenu, CSS le met en forme, JavaScript le rend interactif. Ces trois rôles sont volontairement séparés."
+    tags: [web, css]
+
+  - id: EPR-NSI-WEB-02
+    nodeCpsId: 2de.snt.web.structure-presentation
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 55
+    statement: "Dans le modèle client-serveur, que se passe-t-il lorsque vous consultez une page web ?"
+    options:
+      - key: A
+        label: "le serveur envoie spontanément la page au navigateur"
+        correct: false
+        distractorRationale: "Inverse l'initiative : c'est le client qui demande, jamais le serveur qui décide seul."
+      - key: B
+        label: "le navigateur et le serveur échangent sans protocole défini"
+        correct: false
+        distractorRationale: "Ignore l'existence d'un protocole commun régissant la forme des échanges."
+      - key: C
+        label: "le navigateur envoie une requête et le serveur renvoie une réponse"
+        correct: true
+      - key: D
+        label: "la page est entièrement fabriquée par le navigateur, sans échange"
+        correct: false
+        distractorRationale: "Supprime le serveur du modèle, alors qu'il détient les ressources demandées."
+    shortCorrection: "Le client prend l'initiative en envoyant une requête, le serveur y répond en renvoyant la ressource demandée. Le protocole HTTP fixe la forme de ces échanges."
+    tags: [web, client-serveur]
+
+  # ===========================================================================
+  # NŒUD 8 — Réseaux et Internet
+  # Pourquoi c'est structurant : le thème « architectures matérielles et
+  # systèmes » de Première approfondit l'adressage, le routage et les
+  # protocoles introduits en Seconde.
+  # ===========================================================================
+
+  - id: EPR-NSI-RES-01
+    nodeCpsId: 2de.snt.reseaux.internet
+    type: QCM_SIMPLE
+    difficulty: 1
+    targetTimeSec: 45
+    statement: "À quoi sert une adresse IP ?"
+    options:
+      - key: A
+        label: "à identifier le contenu d'une page web"
+        correct: false
+        distractorRationale: "Confond l'identification d'une machine avec celle d'une ressource."
+      - key: B
+        label: "à identifier une machine sur un réseau"
+        correct: true
+      - key: C
+        label: "à chiffrer les communications échangées"
+        correct: false
+        distractorRationale: "Attribue à l'adressage une fonction de sécurité qui relève du chiffrement."
+      - key: D
+        label: "à mémoriser l'historique de navigation d'un utilisateur"
+        correct: false
+        distractorRationale: "Confond un identifiant réseau avec une donnée stockée par le navigateur."
+    shortCorrection: "L'adresse IP identifie une machine sur un réseau et permet d'acheminer les paquets jusqu'à elle, comme une adresse postale désigne un destinataire."
+    tags: [reseaux, adressage]
+
+  - id: EPR-NSI-RES-02
+    nodeCpsId: 2de.snt.reseaux.internet
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 50
+    statement: "Quel est le rôle d'un routeur ?"
+    options:
+      - key: A
+        label: "transmettre les paquets de proche en proche vers leur destination"
+        correct: true
+      - key: B
+        label: "stocker les pages web consultées par les utilisateurs"
+        correct: false
+        distractorRationale: "Confond un équipement d'acheminement avec un serveur de stockage."
+      - key: C
+        label: "traduire un nom de domaine en adresse IP"
+        correct: false
+        distractorRationale: "Attribue au routeur le rôle du service de noms de domaine."
+      - key: D
+        label: "chiffrer les données avant leur envoi"
+        correct: false
+        distractorRationale: "Attribue au routeur une fonction de sécurité assurée par d'autres protocoles."
+    shortCorrection: "Le routeur choisit, à chaque étape, le lien suivant vers la destination. Aucune machine ne connaît le chemin complet : chacune décide localement."
+    tags: [reseaux, routage]
+
+  # ===========================================================================
+  # NŒUD 9 — Données structurées
+  # Pourquoi c'est structurant : le traitement des données en tables, objet
+  # entier d'un thème de Première, suppose de savoir ce qu'est un
+  # enregistrement, un attribut et une métadonnée.
+  # ===========================================================================
+
+  - id: EPR-NSI-DON-01
+    nodeCpsId: 2de.snt.donnees.structuration
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 50
+    statement: "Dans un fichier CSV décrivant des élèves, à quoi correspond une ligne ?"
+    options:
+      - key: A
+        label: "à un attribut, comme le nom ou la classe"
+        correct: false
+        distractorRationale: "Confond la ligne, qui décrit une entité, avec la colonne, qui porte un attribut."
+      - key: B
+        label: "à l'ensemble du fichier"
+        correct: false
+        distractorRationale: "Confond un élément de la table avec la table entière."
+      - key: C
+        label: "à un enregistrement, c'est-à-dire à un élève"
+        correct: true
+      - key: D
+        label: "à une valeur unique"
+        correct: false
+        distractorRationale: "Confond la ligne avec la cellule, qui contient une seule valeur."
+    shortCorrection: "Dans une table, chaque ligne est un enregistrement décrivant une entité, et chaque colonne porte un attribut commun à tous les enregistrements."
+    tags: [donnees, tables]
+
+  - id: EPR-NSI-DON-02
+    nodeCpsId: 2de.snt.donnees.structuration
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 45
+    statement: "Que désigne-t-on par « métadonnée » ?"
+    options:
+      - key: A
+        label: "une donnée erronée ou incohérente"
+        correct: false
+        distractorRationale: "Interprète le préfixe comme une marque de défaut."
+      - key: B
+        label: "une donnée particulièrement volumineuse"
+        correct: false
+        distractorRationale: "Interprète le préfixe comme une indication de taille."
+      - key: C
+        label: "une donnée confidentielle, protégée par la loi"
+        correct: false
+        distractorRationale: "Confond la nature d'une donnée avec son régime de protection."
+      - key: D
+        label: "une donnée qui décrit une autre donnée"
+        correct: true
+    shortCorrection: "Une métadonnée renseigne sur une donnée : la date d'une photographie, l'auteur d'un fichier, le format d'un enregistrement. Elle en décrit le contexte."
+    tags: [donnees, metadonnees]

@@ -1,0 +1,532 @@
+# =============================================================================
+# Banque de positionnement — ENTRÉE EN SECONDE, Français
+#
+# Doctrine : intersection Troisième / Seconde. Chaque item porte sur un
+# prérequis structurant SANS LEQUEL les premières semaines de Seconde —
+# commentaire de texte, étude du théâtre et de la poésie — sont inaccessibles.
+#
+# STATUT : DRAFT — proposition à amender par le responsable pédagogique.
+# La validation relève d'un enseignant de lettres.
+#
+# 18 items · 9 nœuds de prérequis · 2 items par nœud (règle V4)
+# Distribution des bonnes réponses : A=5, B=5, C=4, D=4 (règle V14 : max 40 %)
+# =============================================================================
+
+slug: entree-seconde-francais-v1
+level: SECONDE
+subject: FRANCAIS
+version: 1
+status: DRAFT
+targetDurationMin: 25
+
+items:
+
+  # ===========================================================================
+  # NŒUD 1 — Analyse grammaticale : classes et fonctions
+  # Pourquoi c'est structurant : le commentaire de texte exige de nommer
+  # précisément ce que l'on observe. Un élève qui ne distingue pas épithète,
+  # attribut et apposition ne peut pas analyser un effet de style.
+  # ===========================================================================
+
+  - id: ESE-FRA-GRA-01
+    nodeCpsId: 3e.francais.grammaire.classes-et-fonctions
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 55
+    statement: "Dans la phrase « Le tableau que j'ai acheté est ancien », quelle est la fonction du mot « que » ?"
+    options:
+      - key: A
+        label: "sujet du verbe « ai acheté »"
+        correct: false
+        distractorRationale: "Confond le pronom relatif complément avec le pronom relatif sujet « qui »."
+      - key: B
+        label: "complément d'objet direct du verbe « ai acheté »"
+        correct: true
+      - key: C
+        label: "attribut du sujet"
+        correct: false
+        distractorRationale: "Cherche un attribut alors que le verbe de la subordonnée n'est pas un verbe d'état."
+      - key: D
+        label: "complément du nom « tableau »"
+        correct: false
+        distractorRationale: "Confond l'antécédent du pronom relatif avec la fonction que ce pronom occupe dans la subordonnée."
+    shortCorrection: "Le pronom relatif reprend « le tableau » et occupe dans la subordonnée la fonction de complément d'objet direct : on achète quelque chose."
+    tags: [grammaire, pronom-relatif]
+
+  - id: ESE-FRA-GRA-02
+    nodeCpsId: 3e.francais.grammaire.classes-et-fonctions
+    type: QCM_SIMPLE
+    difficulty: 3
+    targetTimeSec: 60
+    statement: "Dans la phrase « Fatiguée, elle s'assit sur un banc », quelle est la fonction du mot « fatiguée » ?"
+    options:
+      - key: A
+        label: "attribut du sujet"
+        correct: false
+        distractorRationale: "Confond l'adjectif détaché avec l'adjectif relié au sujet par un verbe d'état."
+      - key: B
+        label: "complément d'objet direct"
+        correct: false
+        distractorRationale: "Traite l'adjectif comme un complément du verbe, alors qu'il caractérise le sujet."
+      - key: C
+        label: "complément circonstanciel de cause"
+        correct: false
+        distractorRationale: "Retient la nuance causale que l'adjectif détaché peut suggérer, mais nomme une fonction réservée aux groupes complétant le verbe."
+      - key: D
+        label: "épithète détachée, apposée au sujet"
+        correct: true
+    shortCorrection: "L'adjectif est séparé du nom par une virgule et le caractérise à distance : c'est une épithète détachée, aussi appelée apposition. Elle peut être déplacée dans la phrase."
+    tags: [grammaire, apposition]
+
+  # ===========================================================================
+  # NŒUD 2 — Propositions subordonnées
+  # Pourquoi c'est structurant : l'analyse de la phrase complexe fonde le
+  # commentaire du rythme et de la construction d'un texte, en prose comme au
+  # théâtre.
+  # ===========================================================================
+
+  - id: ESE-FRA-SUB-01
+    nodeCpsId: 3e.francais.grammaire.subordonnees
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 55
+    statement: "Dans « Il partira dès qu'il aura terminé son travail », la subordonnée est une :"
+    options:
+      - key: A
+        label: "subordonnée circonstancielle de temps"
+        correct: true
+      - key: B
+        label: "subordonnée relative"
+        correct: false
+        distractorRationale: "Cherche un pronom relatif là où figure une locution conjonctive."
+      - key: C
+        label: "subordonnée conjonctive complétive"
+        correct: false
+        distractorRationale: "Confond la subordonnée qui complète le verbe avec celle qui précise les circonstances de l'action."
+      - key: D
+        label: "subordonnée circonstancielle de cause"
+        correct: false
+        distractorRationale: "Interprète « dès que » comme une cause alors qu'elle marque une antériorité."
+    shortCorrection: "La locution « dès que » situe l'action principale dans le temps : la subordonnée est circonstancielle de temps. On peut la déplacer en tête de phrase."
+    tags: [grammaire, subordonnees]
+
+  - id: ESE-FRA-SUB-02
+    nodeCpsId: 3e.francais.grammaire.subordonnees
+    type: QCM_SIMPLE
+    difficulty: 3
+    targetTimeSec: 60
+    statement: "Dans « Le livre dont je t'ai parlé est passionnant », le mot « dont » est :"
+    options:
+      - key: A
+        label: "une conjonction de subordination"
+        correct: false
+        distractorRationale: "Classe le mot parmi les conjonctions sans voir qu'il reprend un nom placé avant lui."
+      - key: B
+        label: "un pronom relatif, sujet du verbe « ai parlé »"
+        correct: false
+        distractorRationale: "Attribue la fonction sujet à un pronom qui remplace un complément introduit par « de »."
+      - key: C
+        label: "un pronom relatif, complément d'objet indirect du verbe « ai parlé »"
+        correct: true
+      - key: D
+        label: "une préposition"
+        correct: false
+        distractorRationale: "Confond le mot qui introduit la relative avec une simple préposition, sans rôle de reprise."
+    shortCorrection: "« Dont » reprend « le livre » et équivaut à « de ce livre ». Comme on parle de quelque chose, il occupe la fonction de complément d'objet indirect."
+    tags: [grammaire, pronom-relatif]
+
+  # ===========================================================================
+  # NŒUD 3 — Valeurs des modes et des temps
+  # Pourquoi c'est structurant : l'analyse d'un texte littéraire repose sur
+  # l'interprétation des temps et des modes, notamment dans la poésie lyrique
+  # et le théâtre classique.
+  # ===========================================================================
+
+  - id: ESE-FRA-MOD-01
+    nodeCpsId: 3e.francais.conjugaison.modes-et-valeurs
+    type: QCM_SIMPLE
+    difficulty: 3
+    targetTimeSec: 60
+    statement: "Dans « Si j'avais su, je serais venu », à quel mode et à quel temps est le verbe de la seconde proposition ?"
+    options:
+      - key: A
+        label: "subjonctif plus-que-parfait"
+        correct: false
+        distractorRationale: "Confond la forme composée du conditionnel avec celle du subjonctif."
+      - key: B
+        label: "conditionnel passé"
+        correct: true
+      - key: C
+        label: "indicatif futur antérieur"
+        correct: false
+        distractorRationale: "Lit l'auxiliaire comme un futur alors que « serais » est une forme du conditionnel."
+      - key: D
+        label: "conditionnel présent"
+        correct: false
+        distractorRationale: "Reconnaît le mode mais ignore l'auxiliaire, qui fait de la forme un temps composé."
+    shortCorrection: "L'auxiliaire « serais » est au conditionnel présent et il est suivi d'un participe passé : l'ensemble forme un conditionnel passé, qui exprime ici un fait irréel dans le passé."
+    tags: [conjugaison, conditionnel]
+
+  - id: ESE-FRA-MOD-02
+    nodeCpsId: 3e.francais.conjugaison.modes-et-valeurs
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 45
+    statement: "Quelle est la valeur du présent dans la phrase « L'eau bout à cent degrés » ?"
+    options:
+      - key: A
+        label: "présent de vérité générale"
+        correct: true
+      - key: B
+        label: "présent d'énonciation"
+        correct: false
+        distractorRationale: "Rattache l'énoncé au moment où l'on parle, alors qu'il énonce une propriété permanente."
+      - key: C
+        label: "présent de narration"
+        correct: false
+        distractorRationale: "Confond une vérité intemporelle avec un effet de style employé pour raviver un récit au passé."
+      - key: D
+        label: "présent à valeur de futur proche"
+        correct: false
+        distractorRationale: "Projette l'énoncé dans l'avenir alors qu'il vaut en tout temps."
+    shortCorrection: "Le présent exprime ici un fait vrai en permanence, indépendamment du moment où l'on parle : c'est le présent de vérité générale."
+    tags: [conjugaison, valeurs-du-present]
+
+  # ===========================================================================
+  # NŒUD 4 — Voix active et voix passive
+  # Pourquoi c'est structurant : la transformation passive et ses effets —
+  # notamment l'effacement de l'agent — sont des outils d'analyse essentiels
+  # en littérature d'idées et dans l'étude de la presse.
+  # ===========================================================================
+
+  - id: ESE-FRA-VOI-01
+    nodeCpsId: 3e.francais.grammaire.voix-active-passive
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 60
+    statement: "Mettez à la voix passive : « Le jury a récompensé les meilleurs élèves. »"
+    options:
+      - key: A
+        label: "Les meilleurs élèves sont récompensés par le jury."
+        correct: false
+        distractorRationale: "Effectue la transformation mais modifie le temps du verbe, qui doit rester au passé composé."
+      - key: B
+        label: "Le jury a été récompensé par les meilleurs élèves."
+        correct: false
+        distractorRationale: "Intervertit les rôles : le sujet de la phrase active devient à tort le sujet de la passive."
+      - key: C
+        label: "Les meilleurs élèves ont été récompensés par le jury."
+        correct: true
+      - key: D
+        label: "Les meilleurs élèves ont récompensé le jury."
+        correct: false
+        distractorRationale: "Permute les groupes sans employer d'auxiliaire : la phrase reste active et change de sens."
+    shortCorrection: "Le complément d'objet direct devient sujet, le sujet devient complément d'agent, et le verbe se conjugue avec l'auxiliaire être au même temps : « ont été récompensés »."
+    tags: [grammaire, voix-passive]
+
+  - id: ESE-FRA-VOI-02
+    nodeCpsId: 3e.francais.grammaire.voix-active-passive
+    type: QCM_SIMPLE
+    difficulty: 3
+    targetTimeSec: 50
+    statement: "Quel effet principal produit la voix passive dans la phrase « La décision a été prise » ?"
+    options:
+      - key: A
+        label: "insister sur celui qui accomplit l'action"
+        correct: false
+        distractorRationale: "Attribue à la passive l'effet inverse de celui qu'elle produit lorsque l'agent est absent."
+      - key: B
+        label: "effacer l'agent, c'est-à-dire celui qui accomplit l'action"
+        correct: true
+      - key: C
+        label: "situer l'action dans le futur"
+        correct: false
+        distractorRationale: "Confond un changement de voix avec un changement de temps."
+      - key: D
+        label: "exprimer un doute sur la réalité de l'action"
+        correct: false
+        distractorRationale: "Attribue à la voix passive une valeur modale qui relèverait du conditionnel."
+    shortCorrection: "Le complément d'agent n'est pas exprimé : on ne sait pas qui a pris la décision. La voix passive permet ainsi de masquer le responsable de l'action."
+    tags: [grammaire, effets-de-la-passive]
+
+  # ===========================================================================
+  # NŒUD 5 — Figures de style
+  # Pourquoi c'est structurant : le commentaire littéraire de Seconde exige de
+  # nommer précisément les procédés. Les confusions entre figures voisines
+  # rendent l'analyse imprécise.
+  # ===========================================================================
+
+  - id: ESE-FRA-FIG-01
+    nodeCpsId: 3e.francais.lexique.figures-de-style
+    type: QCM_SIMPLE
+    difficulty: 3
+    targetTimeSec: 50
+    statement: "Dans le vers « Cette obscure clarté qui tombe des étoiles », quelle figure de style est employée ?"
+    options:
+      - key: A
+        label: "une antithèse"
+        correct: false
+        distractorRationale: "Repère l'opposition mais ne voit pas que les deux termes contraires sont directement accolés."
+      - key: B
+        label: "une hyperbole"
+        correct: false
+        distractorRationale: "Cherche une exagération là où se trouve un rapprochement de contraires."
+      - key: C
+        label: "une métaphore"
+        correct: false
+        distractorRationale: "Identifie une image sans percevoir que l'effet vient de la contradiction entre deux mots voisins."
+      - key: D
+        label: "un oxymore"
+        correct: true
+    shortCorrection: "Deux mots de sens opposés sont réunis dans le même groupe : c'est un oxymore. L'antithèse, elle, oppose deux idées développées séparément."
+    tags: [figures-de-style, oxymore]
+
+  - id: ESE-FRA-FIG-02
+    nodeCpsId: 3e.francais.lexique.figures-de-style
+    type: QCM_SIMPLE
+    difficulty: 3
+    targetTimeSec: 50
+    statement: "Dire « Je ne te hais point » pour signifier « je t'aime » relève de :"
+    options:
+      - key: A
+        label: "la litote"
+        correct: true
+      - key: B
+        label: "l'euphémisme"
+        correct: false
+        distractorRationale: "Confond l'atténuation qui suggère davantage avec celle qui adoucit une réalité pénible."
+      - key: C
+        label: "l'hyperbole"
+        correct: false
+        distractorRationale: "Attribue à un procédé d'atténuation l'effet d'exagération qui lui est opposé."
+      - key: D
+        label: "l'ironie"
+        correct: false
+        distractorRationale: "Suppose que l'on dit le contraire de ce que l'on pense, alors que la litote dit moins pour suggérer plus."
+    shortCorrection: "La litote consiste à en dire moins pour faire entendre davantage. L'euphémisme, au contraire, atténue pour ne pas heurter."
+    tags: [figures-de-style, litote]
+
+  # ===========================================================================
+  # NŒUD 6 — Versification et formes poétiques
+  # Pourquoi c'est structurant : l'objet d'étude « la poésie du XIXe au XXIe
+  # siècle » suppose un vocabulaire technique disponible dès la rentrée.
+  # ===========================================================================
+
+  - id: ESE-FRA-VER-01
+    nodeCpsId: 3e.francais.poesie.versification
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 45
+    statement: "Un poème composé de deux quatrains suivis de deux tercets est :"
+    options:
+      - key: A
+        label: "une ballade"
+        correct: false
+        distractorRationale: "Confond avec une forme fixe organisée en strophes suivies d'un envoi."
+      - key: B
+        label: "une ode"
+        correct: false
+        distractorRationale: "Retient un genre poétique défini par son ton et non par sa structure strophique."
+      - key: C
+        label: "un sonnet"
+        correct: true
+      - key: D
+        label: "un rondeau"
+        correct: false
+        distractorRationale: "Confond avec une forme fixe fondée sur la reprise d'un refrain."
+    shortCorrection: "Deux quatrains puis deux tercets, soit quatorze vers : c'est la structure du sonnet, forme fixe majeure de la poésie française."
+    tags: [poesie, formes-fixes]
+
+  - id: ESE-FRA-VER-02
+    nodeCpsId: 3e.francais.poesie.versification
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 45
+    statement: "Dans une strophe dont les rimes suivent le schéma ABAB, les rimes sont dites :"
+    options:
+      - key: A
+        label: "plates"
+        correct: false
+        distractorRationale: "Attribue au schéma ABAB la disposition AABB, où les rimes se suivent deux à deux."
+      - key: B
+        label: "croisées"
+        correct: true
+      - key: C
+        label: "embrassées"
+        correct: false
+        distractorRationale: "Attribue au schéma ABAB la disposition ABBA, où une rime en encadre une autre."
+      - key: D
+        label: "redoublées"
+        correct: false
+        distractorRationale: "Emploie un terme qui ne désigne pas une disposition de rimes."
+    shortCorrection: "Les rimes alternent une à une : elles sont croisées. Suivies deux à deux, elles seraient plates ; encadrées, elles seraient embrassées."
+    tags: [poesie, rimes]
+
+  # ===========================================================================
+  # NŒUD 7 — Argumentation
+  # Pourquoi c'est structurant : l'objet d'étude « littérature d'idées » et
+  # l'apprentissage de la dissertation supposent de distinguer sûrement thèse,
+  # argument et exemple, et de maîtriser les connecteurs logiques.
+  # ===========================================================================
+
+  - id: ESE-FRA-ARG-01
+    nodeCpsId: 3e.francais.argumentation.these-argument-exemple
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 50
+    statement: "Dans un texte argumentatif, la thèse est :"
+    options:
+      - key: A
+        label: "l'opinion que l'auteur défend"
+        correct: true
+      - key: B
+        label: "le fait précis qui illustre un raisonnement"
+        correct: false
+        distractorRationale: "Donne la définition de l'exemple, qui illustre l'argument sans porter l'opinion générale."
+      - key: C
+        label: "le raisonnement qui soutient l'opinion"
+        correct: false
+        distractorRationale: "Donne la définition de l'argument, qui vient appuyer la thèse sans se confondre avec elle."
+      - key: D
+        label: "l'opinion adverse que l'auteur combat"
+        correct: false
+        distractorRationale: "Donne la définition de la thèse adverse, ou réfutée, et non de celle que l'auteur soutient."
+    shortCorrection: "La thèse est l'idée générale que l'auteur veut faire admettre. Les arguments la justifient, les exemples les illustrent."
+    tags: [argumentation, these]
+
+  - id: ESE-FRA-ARG-02
+    nodeCpsId: 3e.francais.argumentation.these-argument-exemple
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 45
+    statement: "Lequel de ces connecteurs logiques introduit une concession ?"
+    options:
+      - key: A
+        label: "donc"
+        correct: false
+        distractorRationale: "Introduit une conséquence et non une objection admise."
+      - key: B
+        label: "car"
+        correct: false
+        distractorRationale: "Introduit une cause qui justifie ce qui précède."
+      - key: C
+        label: "en effet"
+        correct: false
+        distractorRationale: "Introduit une explication qui confirme ce qui précède, sans admettre d'objection."
+      - key: D
+        label: "bien que"
+        correct: true
+    shortCorrection: "« Bien que » admet une objection avant de maintenir la thèse : c'est une concession. Elle est suivie du subjonctif."
+    tags: [argumentation, connecteurs]
+
+  # ===========================================================================
+  # NŒUD 8 — Registres littéraires
+  # Pourquoi c'est structurant : l'étude du théâtre et de la poésie en Seconde
+  # exige de qualifier l'effet produit sur le lecteur ou le spectateur.
+  # ===========================================================================
+
+  - id: ESE-FRA-REG-01
+    nodeCpsId: 3e.francais.lecture.registres
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 50
+    statement: "Un texte qui suscite la pitié du lecteur devant le malheur d'un personnage relève du registre :"
+    options:
+      - key: A
+        label: "tragique"
+        correct: false
+        distractorRationale: "Confond l'émotion de pitié avec la fatalité inéluctable qui écrase le héros tragique."
+      - key: B
+        label: "pathétique"
+        correct: true
+      - key: C
+        label: "lyrique"
+        correct: false
+        distractorRationale: "Attribue à l'émotion suscitée chez le lecteur le registre qui exprime les sentiments du locuteur."
+      - key: D
+        label: "épique"
+        correct: false
+        distractorRationale: "Confond l'émotion douloureuse avec l'amplification héroïque d'un exploit."
+    shortCorrection: "Le registre pathétique cherche à émouvoir et à faire naître la pitié. Le tragique suppose en outre une fatalité contre laquelle le personnage ne peut rien."
+    tags: [registres, pathetique]
+
+  - id: ESE-FRA-REG-02
+    nodeCpsId: 3e.francais.lecture.registres
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 50
+    statement: "Le registre lyrique se reconnaît principalement à :"
+    options:
+      - key: A
+        label: "l'amplification des exploits d'un héros"
+        correct: false
+        distractorRationale: "Donne la caractéristique du registre épique."
+      - key: B
+        label: "la dénonciation d'un travers par le rire"
+        correct: false
+        distractorRationale: "Donne la caractéristique du registre satirique."
+      - key: C
+        label: "l'expression des sentiments personnels du locuteur"
+        correct: true
+      - key: D
+        label: "la fatalité qui pèse sur le personnage"
+        correct: false
+        distractorRationale: "Donne la caractéristique du registre tragique."
+    shortCorrection: "Le registre lyrique exprime les sentiments intimes du locuteur : amour, mélancolie, nostalgie. La première personne et le champ lexical des émotions en sont les marques."
+    tags: [registres, lyrique]
+
+  # ===========================================================================
+  # NŒUD 9 — Lexique : formation des mots et niveaux de langue
+  # Pourquoi c'est structurant : l'analyse du lexique d'un texte et l'exigence
+  # d'un niveau de langue soutenu à l'écrit conditionnent le commentaire.
+  # ===========================================================================
+
+  - id: ESE-FRA-LEX-01
+    nodeCpsId: 3e.francais.lexique.formation-des-mots
+    type: QCM_SIMPLE
+    difficulty: 1
+    targetTimeSec: 45
+    statement: "Dans le mot « inévitable », quel est le préfixe et quelle valeur porte-t-il ?"
+    options:
+      - key: A
+        label: "« in- », qui indique l'intériorité"
+        correct: false
+        distractorRationale: "Attribue au préfixe la valeur spatiale qu'il a dans des mots comme « inclure »."
+      - key: B
+        label: "« iné- », sans valeur particulière"
+        correct: false
+        distractorRationale: "Découpe le mot au mauvais endroit et lui refuse toute valeur."
+      - key: C
+        label: "« in-évi- », qui marque la répétition"
+        correct: false
+        distractorRationale: "Invente un préfixe composé et lui prête la valeur de « re- »."
+      - key: D
+        label: "« in- », qui exprime la négation"
+        correct: true
+    shortCorrection: "Le préfixe « in- » exprime la négation : est inévitable ce qui ne peut être évité. On le retrouve dans « injuste » ou « incapable »."
+    tags: [lexique, prefixes]
+
+  - id: ESE-FRA-LEX-02
+    nodeCpsId: 3e.francais.lexique.formation-des-mots
+    type: QCM_SIMPLE
+    difficulty: 1
+    targetTimeSec: 45
+    statement: "Les mots « bagnole », « voiture » et « automobile » relèvent respectivement des niveaux de langue :"
+    options:
+      - key: A
+        label: "familier, courant, soutenu"
+        correct: true
+      - key: B
+        label: "courant, familier, soutenu"
+        correct: false
+        distractorRationale: "Inverse les deux premiers niveaux et ne reconnaît pas la marque familière du premier mot."
+      - key: C
+        label: "soutenu, courant, familier"
+        correct: false
+        distractorRationale: "Inverse complètement l'échelle des niveaux de langue."
+      - key: D
+        label: "familier, soutenu, courant"
+        correct: false
+        distractorRationale: "Identifie le niveau familier mais intervertit les deux autres."
+    shortCorrection: "« Bagnole » appartient au registre familier, « voiture » au registre courant et « automobile » au registre soutenu. À l'écrit, on emploie le courant ou le soutenu."
+    tags: [lexique, niveaux-de-langue]

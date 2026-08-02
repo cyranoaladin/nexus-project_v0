@@ -1,0 +1,536 @@
+# =============================================================================
+# Banque de positionnement — ENTRÉE EN PREMIÈRE, spécialité Physique-Chimie
+#
+# Doctrine : intersection Seconde / Première. Chaque item porte sur un prérequis
+# structurant SANS LEQUEL les quatre thèmes de Première — constitution et
+# transformations de la matière, mouvement et interactions, énergie, ondes et
+# signaux — sont inaccessibles.
+#
+# STATUT : DRAFT — proposition à amender par le responsable pédagogique.
+# La validation relève d'un enseignant de physique-chimie.
+#
+# 18 items · 9 nœuds de prérequis · 2 items par nœud (règle V4)
+# Distribution des bonnes réponses : A=5, B=5, C=4, D=4 (règle V14 : max 40 %)
+# =============================================================================
+
+slug: entree-premiere-physique-chimie-v1
+level: PREMIERE
+subject: PHYSIQUE_CHIMIE
+version: 1
+status: DRAFT
+targetDurationMin: 25
+
+items:
+
+  # ===========================================================================
+  # NŒUD 1 — Quantité de matière, mole et masse molaire
+  # Pourquoi c'est structurant : tout le thème « constitution et transformations
+  # de la matière » repose sur la mole. Sans elle, ni les tableaux d'avancement,
+  # ni les dosages ne sont abordables.
+  # ===========================================================================
+
+  - id: EPR-PHC-MOL-01
+    nodeCpsId: 2de.physique-chimie.matiere.mole-masse-molaire
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 60
+    statement: "Quelle quantité de matière représentent 36 g d'eau, sachant que la masse molaire de l'eau vaut 18 g/mol ?"
+    options:
+      - key: A
+        label: "648 mol"
+        correct: false
+        distractorRationale: "Multiplie la masse par la masse molaire au lieu de la diviser."
+      - key: B
+        label: "0,5 mol"
+        correct: false
+        distractorRationale: "Inverse le rapport et divise la masse molaire par la masse."
+      - key: C
+        label: "2 mol"
+        correct: true
+      - key: D
+        label: "18 mol"
+        correct: false
+        distractorRationale: "Reprend la valeur de la masse molaire comme si elle était le résultat cherché."
+    shortCorrection: "La quantité de matière s'obtient en divisant la masse par la masse molaire : 36 divisé par 18 donne 2 mol."
+    tags: [chimie, mole]
+
+  - id: EPR-PHC-MOL-02
+    nodeCpsId: 2de.physique-chimie.matiere.mole-masse-molaire
+    type: QCM_SIMPLE
+    difficulty: 1
+    targetTimeSec: 45
+    statement: "À quoi correspond la constante d'Avogadro ?"
+    options:
+      - key: A
+        label: "au nombre d'entités contenues dans une mole"
+        correct: true
+      - key: B
+        label: "à la masse d'une mole d'atomes"
+        correct: false
+        distractorRationale: "Confond la constante d'Avogadro avec la masse molaire."
+      - key: C
+        label: "au volume occupé par une mole de gaz"
+        correct: false
+        distractorRationale: "Confond la constante d'Avogadro avec le volume molaire."
+      - key: D
+        label: "au nombre de protons contenus dans un noyau"
+        correct: false
+        distractorRationale: "Confond la constante d'Avogadro avec le numéro atomique."
+    shortCorrection: "La mole est une quantité d'entités, et la constante d'Avogadro en donne le nombre. Elle joue le rôle d'un compteur, comme la douzaine à une autre échelle."
+    tags: [chimie, avogadro]
+
+  # ===========================================================================
+  # NŒUD 2 — Concentration et dilution
+  # Pourquoi c'est structurant : les dosages par étalonnage et par titrage,
+  # travaillés dès l'automne, supposent une manipulation sûre des
+  # concentrations et la conservation de la quantité de soluté.
+  # ===========================================================================
+
+  - id: EPR-PHC-SOL-01
+    nodeCpsId: 2de.physique-chimie.matiere.solutions-concentration
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 60
+    statement: "On dissout 0,2 mol de soluté dans 500 mL de solution. Quelle est la concentration en quantité de matière ?"
+    options:
+      - key: A
+        label: "0,1 mol/L"
+        correct: false
+        distractorRationale: "Multiplie la quantité de matière par le volume en litres au lieu de la diviser."
+      - key: B
+        label: "100 mol/L"
+        correct: false
+        distractorRationale: "Divise par le volume en millilitres après une conversion erronée."
+      - key: C
+        label: "0,0004 mol/L"
+        correct: false
+        distractorRationale: "Divise par 500 sans convertir les millilitres en litres."
+      - key: D
+        label: "0,4 mol/L"
+        correct: true
+    shortCorrection: "La concentration est le quotient de la quantité de matière par le volume exprimé en litres : 0,2 divisé par 0,5 donne 0,4 mol/L."
+    tags: [chimie, concentration]
+
+  - id: EPR-PHC-SOL-02
+    nodeCpsId: 2de.physique-chimie.matiere.solutions-concentration
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 50
+    statement: "Lors d'une dilution, que peut-on affirmer ?"
+    options:
+      - key: A
+        label: "la quantité de matière de soluté augmente"
+        correct: false
+        distractorRationale: "Confond l'augmentation du volume avec un apport de soluté."
+      - key: B
+        label: "la quantité de matière de soluté est conservée"
+        correct: true
+      - key: C
+        label: "la concentration reste inchangée"
+        correct: false
+        distractorRationale: "Nie l'effet même de la dilution, qui est d'abaisser la concentration."
+      - key: D
+        label: "le volume de la solution diminue"
+        correct: false
+        distractorRationale: "Inverse la manipulation : diluer consiste à ajouter du solvant."
+    shortCorrection: "Diluer consiste à ajouter du solvant : le soluté n'est ni ajouté ni retiré. Sa quantité de matière se conserve, tandis que la concentration diminue."
+    tags: [chimie, dilution]
+
+  # ===========================================================================
+  # NŒUD 3 — Équation de réaction et réactif limitant
+  # Pourquoi c'est structurant : le tableau d'avancement, outil central de la
+  # Première, exige une équation correctement ajustée et l'identification du
+  # réactif limitant.
+  # ===========================================================================
+
+  - id: EPR-PHC-REA-01
+    nodeCpsId: 2de.physique-chimie.transformations.equation-reaction
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 55
+    statement: "Quelle est l'équation correctement ajustée de la synthèse de l'eau à partir de dihydrogène et de dioxygène ?"
+    options:
+      - key: A
+        label: "2 H₂ + O₂ → 2 H₂O"
+        correct: true
+      - key: B
+        label: "H₂ + O₂ → H₂O"
+        correct: false
+        distractorRationale: "Laisse l'équation non ajustée : les atomes d'oxygène ne sont pas conservés."
+      - key: C
+        label: "2 H₂ + 2 O₂ → 2 H₂O"
+        correct: false
+        distractorRationale: "Ajuste correctement l'hydrogène mais laisse un excès d'oxygène du côté des réactifs."
+      - key: D
+        label: "H₂ + 2 O₂ → 2 H₂O"
+        correct: false
+        distractorRationale: "Ne conserve ni les atomes d'hydrogène ni ceux d'oxygène."
+    shortCorrection: "Une équation ajustée conserve le nombre d'atomes de chaque élément : quatre atomes d'hydrogène et deux d'oxygène de part et d'autre."
+    tags: [chimie, equation]
+
+  - id: EPR-PHC-REA-02
+    nodeCpsId: 2de.physique-chimie.transformations.equation-reaction
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 50
+    statement: "Le réactif limitant d'une transformation est celui qui :"
+    options:
+      - key: A
+        label: "est présent en plus grande masse"
+        correct: false
+        distractorRationale: "Raisonne sur les masses au lieu des quantités de matière rapportées aux coefficients."
+      - key: B
+        label: "possède la plus grande masse molaire"
+        correct: false
+        distractorRationale: "Confond une propriété de l'espèce chimique avec sa proportion dans le mélange."
+      - key: C
+        label: "est entièrement consommé et arrête la transformation"
+        correct: true
+      - key: D
+        label: "reste présent en excès à la fin de la transformation"
+        correct: false
+        distractorRationale: "Décrit exactement le réactif en excès, c'est-à-dire l'inverse du réactif limitant."
+    shortCorrection: "Le réactif limitant disparaît le premier et fixe l'avancement maximal. On l'identifie en comparant les quantités de matière divisées par les coefficients."
+    tags: [chimie, reactif-limitant]
+
+  # ===========================================================================
+  # NŒUD 4 — Atome, ion et classification périodique
+  # Pourquoi c'est structurant : la cohésion de la matière, les liaisons et la
+  # réactivité étudiées en Première découlent de la structure électronique et
+  # de la position dans le tableau.
+  # ===========================================================================
+
+  - id: EPR-PHC-ATO-01
+    nodeCpsId: 2de.physique-chimie.matiere.atome-ion-classification
+    type: QCM_SIMPLE
+    difficulty: 1
+    targetTimeSec: 45
+    statement: "Par rapport à l'atome de sodium, l'ion Na⁺ possède :"
+    options:
+      - key: A
+        label: "un proton de plus"
+        correct: false
+        distractorRationale: "Attribue la charge positive à un gain de proton, ce qui changerait l'élément chimique."
+      - key: B
+        label: "un électron de moins"
+        correct: true
+      - key: C
+        label: "un neutron de moins"
+        correct: false
+        distractorRationale: "Fait varier le nombre de neutrons, qui ne porte aucune charge."
+      - key: D
+        label: "un électron de plus"
+        correct: false
+        distractorRationale: "Confond le sens de la charge : un gain d'électron donnerait un ion négatif."
+    shortCorrection: "Un ion positif résulte de la perte d'un ou plusieurs électrons. Le noyau, lui, reste inchangé : c'est ce qui assure qu'il s'agit toujours de sodium."
+    tags: [chimie, ions]
+
+  - id: EPR-PHC-ATO-02
+    nodeCpsId: 2de.physique-chimie.matiere.atome-ion-classification
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 50
+    statement: "Dans la classification périodique, les éléments d'une même colonne possèdent :"
+    options:
+      - key: A
+        label: "le même nombre de neutrons"
+        correct: false
+        distractorRationale: "Fait dépendre l'organisation du tableau du nombre de neutrons, qui varie même entre isotopes d'un élément."
+      - key: B
+        label: "la même masse molaire"
+        correct: false
+        distractorRationale: "Suppose une égalité de masse que la lecture du tableau contredit immédiatement."
+      - key: C
+        label: "le même nombre de couches électroniques occupées"
+        correct: false
+        distractorRationale: "Donne le critère qui définit une ligne du tableau, et non une colonne."
+      - key: D
+        label: "le même nombre d'électrons sur leur couche externe"
+        correct: true
+    shortCorrection: "Une colonne rassemble les éléments ayant le même nombre d'électrons de valence. C'est ce qui explique la similitude de leurs propriétés chimiques."
+    tags: [chimie, classification-periodique]
+
+  # ===========================================================================
+  # NŒUD 5 — Forces et principe d'inertie
+  # Pourquoi c'est structurant : les lois de Newton, étudiées en Première,
+  # généralisent le principe d'inertie. Croire qu'un mouvement exige une force
+  # est l'obstacle le plus tenace de toute la mécanique.
+  # ===========================================================================
+
+  - id: EPR-PHC-FOR-01
+    nodeCpsId: 2de.physique-chimie.mecanique.forces-inertie
+    type: QCM_SIMPLE
+    difficulty: 3
+    targetTimeSec: 65
+    statement: "Un objet est animé d'un mouvement rectiligne uniforme. Que peut-on affirmer ?"
+    options:
+      - key: A
+        label: "les forces qui s'exercent sur lui se compensent"
+        correct: true
+      - key: B
+        label: "aucune force ne s'exerce sur lui"
+        correct: false
+        distractorRationale: "Confond l'absence de force avec la compensation de forces qui existent bel et bien."
+      - key: C
+        label: "une force constante le pousse vers l'avant"
+        correct: false
+        distractorRationale: "Reprend la conception intuitive selon laquelle tout mouvement exige une force motrice."
+      - key: D
+        label: "son poids est nul"
+        correct: false
+        distractorRationale: "Suppose la disparition du poids alors qu'il est simplement compensé."
+    shortCorrection: "Le principe d'inertie établit l'équivalence entre repos et mouvement rectiligne uniforme : dans les deux cas, les forces se compensent. Aucune force motrice n'est nécessaire pour maintenir le mouvement."
+    tags: [mecanique, inertie]
+
+  - id: EPR-PHC-FOR-02
+    nodeCpsId: 2de.physique-chimie.mecanique.forces-inertie
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 50
+    statement: "Concernant le poids d'un objet, quelle affirmation est exacte ?"
+    options:
+      - key: A
+        label: "il est identique en tout point de l'univers"
+        correct: false
+        distractorRationale: "Attribue au poids la constance qui caractérise la masse."
+      - key: B
+        label: "il dépend du lieu où se trouve l'objet"
+        correct: true
+      - key: C
+        label: "il est identique à la masse de l'objet"
+        correct: false
+        distractorRationale: "Confond deux grandeurs de natures différentes, l'une force, l'autre quantité de matière."
+      - key: D
+        label: "il s'exprime en kilogrammes"
+        correct: false
+        distractorRationale: "Attribue au poids l'unité de la masse, alors qu'une force s'exprime en newtons."
+    shortCorrection: "Le poids est une force, exprimée en newtons, qui dépend de l'intensité de la pesanteur au lieu considéré. La masse, elle, ne change pas."
+    tags: [mecanique, poids-masse]
+
+  # ===========================================================================
+  # NŒUD 6 — Mouvement, référentiel et vitesse
+  # Pourquoi c'est structurant : la cinématique vectorielle de Première suppose
+  # de savoir qu'un mouvement n'a de sens que rapporté à un référentiel, et de
+  # manipuler correctement les durées.
+  # ===========================================================================
+
+  - id: EPR-PHC-MVT-01
+    nodeCpsId: 2de.physique-chimie.mecanique.mouvement-referentiel
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 55
+    statement: "Un passager est assis dans un train en marche. Que peut-on dire de son mouvement ?"
+    options:
+      - key: A
+        label: "il est en mouvement dans le référentiel du train"
+        correct: false
+        distractorRationale: "Attribue au référentiel du train le mouvement observé depuis le quai."
+      - key: B
+        label: "il est immobile dans le référentiel du quai"
+        correct: false
+        distractorRationale: "Inverse les deux référentiels."
+      - key: C
+        label: "il est immobile dans le référentiel du train et en mouvement dans celui du quai"
+        correct: true
+      - key: D
+        label: "il est en mouvement dans tous les référentiels"
+        correct: false
+        distractorRationale: "Traite le mouvement comme une propriété absolue de l'objet, indépendante de l'observateur."
+    shortCorrection: "Un mouvement n'existe que relativement à un référentiel. Le même passager est immobile pour un voyageur assis à côté de lui, et en mouvement pour une personne restée sur le quai."
+    tags: [mecanique, referentiel]
+
+  - id: EPR-PHC-MVT-02
+    nodeCpsId: 2de.physique-chimie.mecanique.mouvement-referentiel
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 55
+    statement: "Une voiture parcourt 90 km en 1 h 30 min. Quelle est sa vitesse moyenne ?"
+    options:
+      - key: A
+        label: "60 km/h"
+        correct: true
+      - key: B
+        label: "135 km/h"
+        correct: false
+        distractorRationale: "Multiplie la distance par la durée au lieu de la diviser."
+      - key: C
+        label: "environ 69 km/h"
+        correct: false
+        distractorRationale: "Convertit 1 h 30 min en 1,30 heure au lieu de 1,5 heure."
+      - key: D
+        label: "45 km/h"
+        correct: false
+        distractorRationale: "Divise la distance par 2 en assimilant 1 h 30 min à deux heures."
+    shortCorrection: "La durée vaut 1,5 heure, et non 1,30. La vitesse moyenne est le quotient de la distance par la durée : 90 divisé par 1,5 donne 60 km/h."
+    tags: [mecanique, vitesse]
+
+  # ===========================================================================
+  # NŒUD 7 — Ondes, lumière et spectres
+  # Pourquoi c'est structurant : le thème « ondes et signaux » de Première
+  # prolonge l'étude de la lumière, des spectres et de la réfraction abordée
+  # en Seconde.
+  # ===========================================================================
+
+  - id: EPR-PHC-OND-01
+    nodeCpsId: 2de.physique-chimie.ondes.lumiere-spectres
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 50
+    statement: "Que permet l'analyse d'un spectre de raies d'émission ?"
+    options:
+      - key: A
+        label: "de mesurer la température d'un corps opaque"
+        correct: false
+        distractorRationale: "Attribue aux raies d'émission l'information portée par un spectre continu."
+      - key: B
+        label: "de déterminer la vitesse de la lumière"
+        correct: false
+        distractorRationale: "Confond l'analyse spectrale avec une mesure de célérité."
+      - key: C
+        label: "de connaître la masse d'une étoile"
+        correct: false
+        distractorRationale: "Attribue au spectre une information qui relève d'autres méthodes astronomiques."
+      - key: D
+        label: "d'identifier les entités chimiques présentes"
+        correct: true
+    shortCorrection: "Chaque entité chimique émet des radiations de longueurs d'onde qui lui sont propres. Le spectre de raies fonctionne ainsi comme une signature."
+    tags: [ondes, spectres]
+
+  - id: EPR-PHC-OND-02
+    nodeCpsId: 2de.physique-chimie.ondes.lumiere-spectres
+    type: QCM_SIMPLE
+    difficulty: 3
+    targetTimeSec: 55
+    statement: "Un rayon lumineux passe de l'air à l'eau. Que se produit-il à la surface de séparation ?"
+    options:
+      - key: A
+        label: "il poursuit sa trajectoire sans être dévié"
+        correct: false
+        distractorRationale: "Nie le phénomène de réfraction lors du changement de milieu."
+      - key: B
+        label: "il est dévié en se rapprochant de la normale"
+        correct: true
+      - key: C
+        label: "il est dévié en s'éloignant de la normale"
+        correct: false
+        distractorRationale: "Inverse le sens de la déviation, qui correspondrait au passage de l'eau vers l'air."
+      - key: D
+        label: "il est intégralement réfléchi"
+        correct: false
+        distractorRationale: "Généralise la réflexion totale, qui ne se produit que dans l'autre sens et au-delà d'un angle limite."
+    shortCorrection: "En passant dans un milieu plus réfringent, le rayon se rapproche de la normale. C'est la loi de Snell-Descartes qui décrit quantitativement cette déviation."
+    tags: [ondes, refraction]
+
+  # ===========================================================================
+  # NŒUD 8 — Circuits électriques
+  # Pourquoi c'est structurant : l'étude de l'énergie électrique et des
+  # circuits en Première suppose la loi d'Ohm et le comportement des grandeurs
+  # dans les montages en série et en dérivation.
+  # ===========================================================================
+
+  - id: EPR-PHC-ELE-01
+    nodeCpsId: 2de.physique-chimie.electricite.circuits-loi-ohm
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 50
+    statement: "Dans un circuit électrique en série, que peut-on affirmer ?"
+    options:
+      - key: A
+        label: "la tension est la même aux bornes de chaque dipôle"
+        correct: false
+        distractorRationale: "Attribue à un montage en série la propriété du montage en dérivation."
+      - key: B
+        label: "l'intensité se répartit entre les différents dipôles"
+        correct: false
+        distractorRationale: "Applique au montage en série la loi des nœuds, valable en dérivation."
+      - key: C
+        label: "l'intensité est la même en tout point du circuit"
+        correct: true
+      - key: D
+        label: "la tension totale est celle du dipôle de plus grande résistance"
+        correct: false
+        distractorRationale: "Remplace l'additivité des tensions par une sélection du plus grand terme."
+    shortCorrection: "Dans un circuit en série, le courant est identique partout et les tensions s'additionnent. En dérivation, c'est l'inverse."
+    tags: [electricite, serie]
+
+  - id: EPR-PHC-ELE-02
+    nodeCpsId: 2de.physique-chimie.electricite.circuits-loi-ohm
+    type: QCM_SIMPLE
+    difficulty: 1
+    targetTimeSec: 40
+    statement: "Quelle expression traduit la loi d'Ohm pour un conducteur ohmique ?"
+    options:
+      - key: A
+        label: "U = R × I"
+        correct: true
+      - key: B
+        label: "U = R / I"
+        correct: false
+        distractorRationale: "Remplace le produit par un quotient."
+      - key: C
+        label: "I = U × R"
+        correct: false
+        distractorRationale: "Isole la mauvaise grandeur et transforme la relation en produit."
+      - key: D
+        label: "R = U × I"
+        correct: false
+        distractorRationale: "Confond la relation d'Ohm avec l'expression d'une puissance électrique."
+    shortCorrection: "La loi d'Ohm relie la tension aux bornes d'un conducteur ohmique à l'intensité qui le traverse : U égale R multiplié par I, avec U en volts, R en ohms et I en ampères."
+    tags: [electricite, loi-d-ohm]
+
+  # ===========================================================================
+  # NŒUD 9 — Grandeurs, unités et chiffres significatifs
+  # Pourquoi c'est structurant : c'est le prérequis le plus silencieux. Une
+  # conversion manquée ou un résultat mal arrondi fausse une réponse dont le
+  # raisonnement était juste, et le diagnostic passe alors à côté de la cause.
+  # ===========================================================================
+
+  - id: EPR-PHC-GRA-01
+    nodeCpsId: 2de.physique-chimie.mesure.grandeurs-unites
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 50
+    statement: "Combien de chiffres significatifs comporte la valeur 0,0250 m ?"
+    options:
+      - key: A
+        label: "cinq"
+        correct: false
+        distractorRationale: "Compte tous les chiffres écrits, y compris les zéros qui ne servent qu'à situer la virgule."
+      - key: B
+        label: "trois"
+        correct: true
+      - key: C
+        label: "deux"
+        correct: false
+        distractorRationale: "Néglige le zéro final, qui traduit pourtant la précision de la mesure."
+      - key: D
+        label: "quatre"
+        correct: false
+        distractorRationale: "Compte un zéro de positionnement en trop."
+    shortCorrection: "Les zéros placés avant le premier chiffre non nul ne sont pas significatifs, mais le zéro final l'est : la valeur 0,0250 en compte trois."
+    tags: [mesure, chiffres-significatifs]
+
+  - id: EPR-PHC-GRA-02
+    nodeCpsId: 2de.physique-chimie.mesure.grandeurs-unites
+    type: QCM_SIMPLE
+    difficulty: 1
+    targetTimeSec: 40
+    statement: "Quelle est l'unité de l'énergie dans le Système international ?"
+    options:
+      - key: A
+        label: "le watt"
+        correct: false
+        distractorRationale: "Donne l'unité de la puissance, c'est-à-dire d'une énergie rapportée à une durée."
+      - key: B
+        label: "le newton"
+        correct: false
+        distractorRationale: "Donne l'unité d'une force."
+      - key: C
+        label: "le volt"
+        correct: false
+        distractorRationale: "Donne l'unité d'une tension électrique."
+      - key: D
+        label: "le joule"
+        correct: true
+    shortCorrection: "L'énergie s'exprime en joules. Le watt mesure une puissance, soit une énergie par seconde : un watt correspond à un joule par seconde."
+    tags: [mesure, unites]
