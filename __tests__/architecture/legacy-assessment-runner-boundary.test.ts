@@ -57,23 +57,26 @@ function clientModuleGraph(entry: string): Map<string, string> {
   return clientModules;
 }
 
-describe('legacy assessment public boundary', () => {
-  test('keeps the legacy page unconditionally closed by the server with a 404', () => {
+describe('Canonical assessment client boundary', () => {
+  test('keeps the legacy runner absent and mounts the Canonical seam server-side', () => {
     const source = readFileSync(PAGE, 'utf8');
 
     expect(source).not.toMatch(/^\s*['"]use client['"]/m);
-    expect(source).toMatch(/import\s+\{\s*notFound\s*\}\s+from\s+['"]next\/navigation['"]/);
-    expect(source).toMatch(/export default function BilanAssessmentPage\(\): never\s*\{\s*notFound\(\);\s*\}/);
-    expect(source).not.toContain('AssessmentRunner');
-    expect(source).not.toContain('process.env');
+    expect(source).not.toMatch(/components\/assessments\/AssessmentRunner|<AssessmentRunner\b/);
+    expect(source).toContain('CanonicalAssessmentRunner');
+    expect(source).toContain('CanonicalAssessmentWaiting');
   });
 
-  test('keeps correction markers out of every client module reachable from the page', () => {
+  test('keeps every correction marker and pack source out of the reachable client bundle', () => {
     const clientModules = clientModuleGraph(PAGE);
     const serializedClientBundle = [...clientModules.values()].join('\n');
 
-    expect([...clientModules.keys()]).toEqual([]);
+    expect([...clientModules.keys()].some((path) => path.endsWith('CanonicalAssessmentRunner.tsx'))).toBe(true);
     expect(serializedClientBundle).not.toContain('isCorrect');
     expect(serializedClientBundle).not.toContain('explanation');
+    expect(serializedClientBundle).not.toContain('distractorRationale');
+    expect(serializedClientBundle).not.toContain('__CORRECT__');
+    expect(serializedClientBundle).not.toContain('__RATIONALE__');
+    expect(serializedClientBundle).not.toMatch(/data\/bilans\/banks|load-pack|pack-access/);
   });
 });
