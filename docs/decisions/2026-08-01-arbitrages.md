@@ -572,3 +572,11 @@ n’est donc affirmée.
 **Motif.** La banque doit être exploitable par le même pipeline que les autres niveaux sans dupliquer un convertisseur ni introduire de conventions propres à Première. Les schémas de sortie autorisent désormais autant de blocs de domaines que le pack en déclare afin que V4 puisse prouver qu’aucun domaine évalué n’est omis.
 
 **Point de sécurité associé.** Le domaine `inequations` révélait un faux positif du détecteur INE. Le motif exige désormais un séparateur réel entre le libellé `INE` et sa valeur ; un mot commençant par ces lettres n’est plus classé comme identifiant élève, sans relâcher la détection d’un identifiant effectivement libellé.
+
+## A78.1 — Mélange déterministe des options par seed de passation
+
+**Constat.** La permutation annoncée par la spec 01 n’existait pas dans le runtime. V14 protège la banque contre un biais global de position, mais deux élèves pouvaient encore voir le même ordre d’options.
+
+**Décision.** Une fonction pure dérive, pour chaque couple `(seed de passation, identifiant d’item)`, une permutation Fisher–Yates reproductible. Elle agit uniquement sur une copie destinée à l’affichage, conserve l’identité des objets d’options et ne modifie jamais le pack. V14 demeure bloquante : les deux protections sont indépendantes.
+
+**Limite volontaire.** La fonction n’est raccordée à aucune route tant que la spec publique Canonical annulant la spec 04 n’a pas été arbitrée. A78.2 chiffre ce raccordement séparément.
