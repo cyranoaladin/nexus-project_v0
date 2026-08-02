@@ -1,41 +1,55 @@
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 
-import expectedMetrics from '@/data/bilans/recipe/maths-terminale-v1-mock-metrics.json';
-import reviewPacket from '@/data/bilans/recipe/maths-terminale-v1-mock-review-packet.json';
+import entryMetrics from '@/data/bilans/recipe/entree-terminale-maths-v1-mock-metrics.json';
+import entryPacket from '@/data/bilans/recipe/entree-terminale-maths-v1-mock-review-packet.json';
+import endMetrics from '@/data/bilans/recipe/maths-terminale-bilan-v1-mock-metrics.json';
+import endPacket from '@/data/bilans/recipe/maths-terminale-bilan-v1-mock-review-packet.json';
 import { generateMockRecipeEvidence } from '@/scripts/bilans/generate-mock-recipe-evidence';
 
-import { VALIDATED_PACK_FIXTURE as pack } from './fixtures/validated-pack';
-import { RECIPE_FACT_SHEETS } from './fixtures/recipe-fact-sheets';
+import { ENTRY_RECIPE_FACT_SHEETS, RECIPE_FACT_SHEETS } from './fixtures/recipe-fact-sheets';
+import { ENTRY_VALIDATED_PACK_FIXTURE, VALIDATED_PACK_FIXTURE } from './fixtures/validated-pack';
 
-describe('mock technical recipe, twenty FactSheets by three audiences', () => {
+const RECIPES = [
+  {
+    slug: 'entree-terminale-maths-v1',
+    pack: ENTRY_VALIDATED_PACK_FIXTURE,
+    factSheets: ENTRY_RECIPE_FACT_SHEETS,
+    metrics: entryMetrics,
+    packet: entryPacket,
+  },
+  {
+    slug: 'maths-terminale-bilan-v1',
+    pack: VALIDATED_PACK_FIXTURE,
+    factSheets: RECIPE_FACT_SHEETS,
+    metrics: endMetrics,
+    packet: endPacket,
+  },
+] as const;
+
+describe.each(RECIPES)('$slug mock technical recipe', ({ slug, pack, factSheets, metrics, packet }) => {
   it('generates byte-identical versioned evidence twice without network', async () => {
-    const originalModel = process.env.BILAN_LLM_MODEL;
-    delete process.env.BILAN_LLM_MODEL;
     const fetchSpy = jest.spyOn(global, 'fetch');
     let first;
     let second;
-
     try {
-      first = await generateMockRecipeEvidence(RECIPE_FACT_SHEETS, pack);
-      second = await generateMockRecipeEvidence(RECIPE_FACT_SHEETS, pack);
+      first = await generateMockRecipeEvidence(factSheets, pack, slug);
+      second = await generateMockRecipeEvidence(factSheets, pack, slug);
     } finally {
-      if (originalModel === undefined) delete process.env.BILAN_LLM_MODEL;
-      else process.env.BILAN_LLM_MODEL = originalModel;
       fetchSpy.mockRestore();
     }
 
     const [versionedMetrics, versionedReviewPacket] = await Promise.all([
-      readFile(path.join(process.cwd(), 'data/bilans/recipe/maths-terminale-v1-mock-metrics.json'), 'utf8'),
-      readFile(path.join(process.cwd(), 'data/bilans/recipe/maths-terminale-v1-mock-review-packet.json'), 'utf8'),
+      readFile(path.join(process.cwd(), `data/bilans/recipe/${slug}-mock-metrics.json`), 'utf8'),
+      readFile(path.join(process.cwd(), `data/bilans/recipe/${slug}-mock-review-packet.json`), 'utf8'),
     ]);
 
     expect(first.metricsJson).toBe(second.metricsJson);
     expect(first.reviewPacketJson).toBe(second.reviewPacketJson);
     expect(first.metricsJson).toBe(versionedMetrics);
     expect(first.reviewPacketJson).toBe(versionedReviewPacket);
-    expect(first.metrics).toEqual(expectedMetrics);
-    expect(first.reviewPacket).toEqual(reviewPacket);
+    expect(first.metrics).toEqual(metrics);
+    expect(first.reviewPacket).toEqual(packet);
     expect(fetchSpy).not.toHaveBeenCalled();
     expect(JSON.stringify(first.requests)).not.toMatch(/Camille|@/);
     expect(first.metrics.validationViolations.V2).toBe(0);

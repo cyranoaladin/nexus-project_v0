@@ -502,3 +502,57 @@ n’est donc affirmée.
 - **Constat :** la collection Chroma `ressources_pedagogiques_terminale` et la table `rag_chunks` de la nouvelle pile contiennent zéro entrée. Le chiffre historique de 211 chunks ne correspond à aucun stockage actif observé le 2026-08-01.
 - **Décision :** le pack `maths-terminale-v1` porte `reporting.rag.enabled: false` et une référence explicite à A56. Si un pack active le RAG, le gateway refuse tout démarrage lorsque le retriever est absent ou renvoie zéro extrait.
 - **Motif :** une génération sans preuve ne doit jamais conserver l'apparence d'une génération ancrée. Le corpus vide est une erreur bloquante, pas un mode dégradé.
+
+## A67 — Retrait des items hors programme
+
+- **Constat :** quatre items du pack historique portent sur des notions hors programme actuel du lycée : convergence d’une intégrale impropre, loi normale et intervalle de confiance.
+- **Décision :** retirer définitivement `MATH-ANA-12`, `MATH-PROB-05`, `MATH-PROB-06` et `MATH-PROB-10` des banques actives et de leurs formulaires de métadonnées.
+- **Motif :** un item hors programme ne mesure aucun prérequis légitime et produirait une lacune artificielle.
+
+## A68 — Requalification de la banque historique
+
+- **Constat :** la banque de cinquante items mélangeait prérequis de Première, programme de Terminale et notions hors programme.
+- **Décision :** la requalifier sous le slug `maths-terminale-bilan-v1`, avec trente-huit items du programme de Terminale, pour les candidats libres et les élèves en cours ou en fin d’année.
+- **Motif :** son contenu majoritaire mesure un acquis de Terminale, pas un niveau d’entrée avant enseignement.
+
+## A69 — Extraction traçable de huit prérequis
+
+- **Constat :** huit items historiques évaluent des prérequis de Première utiles à l’entrée en Terminale.
+- **Décision :** les retirer du bilan de fin, leur attribuer les identifiants `ETL-MAT-PRQ-01` à `ETL-MAT-PRQ-08` et conserver une table de correspondance ancien/nouveau.
+- **Motif :** séparer les usages sans rendre les résultats historiques ininterprétables.
+
+## A70 — Banque d’entrée en Terminale
+
+- **Constat :** dix-huit items validés pédagogiquement couvrent neuf nœuds de prérequis de Première, avec deux items par nœud et mille cent soixante secondes de temps cible.
+- **Décision :** convertir déterministement cette source YAML en pack JSON `entree-terminale-maths-v1`, avec prompts liés par checksum, RAG désactivé selon A56, statut `DRAFT` et validation nulle.
+- **Motif :** disposer d’un positionnement adapté au stage de pré-rentrée sans exposer les élèves à des notions non encore enseignées.
+
+## A71 — Tests et outillage multi-banques
+
+- **Constat :** les outils et la recette étaient historiquement nommés et testés pour un seul pack.
+- **Décision :** rendre le suivi de complétude, la fusion, le chargeur, les contrats de prompts et la recette mock compatibles avec les deux usages ; versionner une recette déterministe par slug.
+- **Motif :** empêcher qu’un renommage ou une nouvelle banque contourne silencieusement les garde-fous existants.
+
+## A72 — Normalisation des clés d’options
+
+- **Constat :** la source éditoriale utilise les clés minuscules `a-d`, alors que le schéma impose la convention unique `A-D`.
+- **Décision :** le convertisseur normalise la casse sans modifier les libellés ni déplacer le booléen de bonne réponse. Le schéma reste strict.
+- **Motif :** la casse est une convention technique sans portée pédagogique ; accepter deux conventions créerait une incohérence durable.
+
+## A73 — Validation absente de la source éditoriale
+
+- **Constat :** le YAML livré portait un bloc `review`, interdit par le schéma éditorial.
+- **Décision :** retirer ce bloc de la source. Le convertisseur produit toujours un pack `DRAFT` avec `validatedBy` et `validatedAt` nuls et refuse toute source qui tente de porter une validation.
+- **Motif :** seule la procédure humaine de signature peut créer une validation pédagogique.
+
+## A74 — Catalogue CPS limité aux neuf nœuds
+
+- **Constat :** V2 exige qu’un `nodeCpsId` existe dans un catalogue, mais aucun catalogue ne portait les neuf nœuds validés.
+- **Décision :** créer `data/bilans/cps/1re-maths-vers-terminale.v1.yaml`, limité à ces neuf nœuds, en reprenant textuellement les justifications présentes dans la source éditoriale.
+- **Motif :** rendre V2 démontrable sans ouvrir un chantier de taxonomie CPS générale.
+
+## A75 — Version 1 limitée aux dix-huit items complets
+
+- **Constat :** ajouter immédiatement les huit prérequis historiques rendrait le pack incomplet et donc non chargeable.
+- **Décision :** conserver un pack v1 chargeable de dix-huit items. Isoler les huit transferts dans un formulaire incomplet destiné à une future v2.
+- **Motif :** le stage débute le 17 août ; le fail-closed du chargeur ne doit être ni assoupli ni contourné.

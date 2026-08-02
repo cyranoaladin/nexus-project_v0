@@ -4,8 +4,8 @@ import path from 'node:path';
 
 const ROOT = process.cwd();
 const TEMP_DIRECTORY = path.join(ROOT, '.tmp-bilan-metadata-tools');
-const PACK_PATH = path.join(ROOT, 'data/bilans/banks/maths-terminale-v1.json');
-const YAML_PATH = path.join(ROOT, 'data/bilans/banks/maths-terminale-v1.draft-metadata.yaml');
+const PACK_PATH = path.join(ROOT, 'data/bilans/banks/maths-terminale-bilan-v1.json');
+const YAML_PATH = path.join(ROOT, 'data/bilans/banks/maths-terminale-bilan-v1.draft-metadata.yaml');
 const CHECK_SCRIPT = 'scripts/bilans/check-pack-completeness.ts';
 const MERGE_SCRIPT = 'scripts/bilans/merge-metadata.ts';
 const TSX = path.join(ROOT, 'node_modules/.bin/tsx');
@@ -92,10 +92,21 @@ describe('pedagogical metadata tools', () => {
     const result = run(CHECK_SCRIPT, ['--source', 'yaml', path.relative(ROOT, YAML_PATH)]);
 
     expect(result.status).toBe(1);
-    expect(result.stdout).toContain('PACK_COMPLETENESS=0/50');
-    expect(result.stdout).toContain('MATH-ANA-01: nodeCpsId, difficulty, targetTimeSec, shortCorrection');
+    expect(result.stdout).toContain('PACK_COMPLETENESS=0/38');
+    expect(result.stdout).toContain('MATH-ANA-02: nodeCpsId, difficulty, targetTimeSec, shortCorrection');
   });
 
+  it('supports the complete entry pack and the incomplete probability transfer source', () => {
+    const entry = run(CHECK_SCRIPT, ['data/bilans/banks/entree-terminale-maths-v1.json']);
+    const transfer = run(CHECK_SCRIPT, [
+      '--source', 'yaml', 'data/bilans/banks/entree-terminale-maths-probabilites.draft-metadata.yaml',
+    ]);
+
+    expect(entry.status).toBe(0);
+    expect(entry.stdout).toContain('PACK_COMPLETENESS=18/18');
+    expect(transfer.status).toBe(1);
+    expect(transfer.stdout).toContain('PACK_COMPLETENESS=0/8');
+  });
   it('keeps A REMPLACER incomplete in YAML progress', () => {
     const metadata = completeMetadata();
     const firstDistractor = metadata.items[0].options.find((option) => !option.correct);
@@ -106,8 +117,8 @@ describe('pedagogical metadata tools', () => {
     const result = run(CHECK_SCRIPT, ['--source', 'yaml', yamlPath]);
 
     expect(result.status).toBe(1);
-    expect(result.stdout).toContain('PACK_COMPLETENESS=49/50');
-    expect(result.stdout).toContain(`MATH-ANA-01: options.${firstDistractor.key}.distractorRationale`);
+    expect(result.stdout).toContain('PACK_COMPLETENESS=37/38');
+    expect(result.stdout).toContain(`MATH-ANA-02: options.${firstDistractor.key}.distractorRationale`);
   });
 
   it('refuses incomplete metadata without changing the pack copy', () => {
@@ -120,7 +131,7 @@ describe('pedagogical metadata tools', () => {
     ]);
 
     expect(result.status).toBe(1);
-    expect(`${result.stdout}\n${result.stderr}`).toContain('MATH-ANA-01.nodeCpsId');
+    expect(`${result.stdout}\n${result.stderr}`).toContain('MATH-ANA-02.nodeCpsId');
     expect(fs.readFileSync(path.join(ROOT, packPath), 'utf8')).toBe(originalPack);
   });
 
@@ -132,7 +143,7 @@ describe('pedagogical metadata tools', () => {
     const result = run(MERGE_SCRIPT, ['--metadata', metadataPath, '--pack', packPath]);
 
     expect(result.status).toBe(0);
-    expect(result.stdout).toContain('PACK_MERGED=50/50');
+    expect(result.stdout).toContain('PACK_MERGED=38/38');
     const merged = JSON.parse(fs.readFileSync(path.join(ROOT, packPath), 'utf8')) as Record<string, any>;
     expect(merged.review).toStrictEqual(originalPack.review);
     expect(merged.status).toBe(originalPack.status);
@@ -159,7 +170,7 @@ describe('pedagogical metadata tools', () => {
 
     expect(result.status).toBe(1);
     expect(`${result.stdout}\n${result.stderr}`).toContain(
-      `MATH-ANA-01.options.${firstDistractor.key}.distractorRationale`,
+      `MATH-ANA-02.options.${firstDistractor.key}.distractorRationale`,
     );
     expect(fs.readFileSync(path.join(ROOT, packPath), 'utf8')).toBe(originalPack);
   });
