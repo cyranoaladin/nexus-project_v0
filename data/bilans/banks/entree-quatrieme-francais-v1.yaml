@@ -1,0 +1,501 @@
+# =============================================================================
+# Banque de positionnement — ENTRÉE EN QUATRIÈME, Français
+#
+# Doctrine : outils de la langue et lecture, à l'intersection Cinquième /
+# Quatrième. Chaque item porte sur un prérequis structurant du programme de
+# Cinquième. On ne teste pas l'écriture (non évaluable en QCM) ni les notions
+# spécifiques de Quatrième (discours rapporté, expansions complexes du GN).
+# Source de référence : programmes officiels du cycle 4 (eduscol).
+#
+# STATUT : DRAFT — proposition à amender par le responsable pédagogique.
+#
+# 18 items · 9 nœuds de prérequis · 2 items par nœud (règle V4)
+# Distribution des bonnes réponses : A=5, B=5, C=4, D=4 (règle V14 : max 40 %)
+# =============================================================================
+
+slug: entree-quatrieme-francais-v1
+level: QUATRIEME
+subject: FRANCAIS
+version: 1
+status: DRAFT
+targetDurationMin: 25
+
+
+items:
+
+  # ===========================================================================
+  # NŒUD 1 — Classes grammaticales (nature des mots)
+  # Pourquoi structurant : toute analyse de phrase de 4e suppose de nommer la nature des mots. La confondre avec la fonction bloque l'étude de la langue.
+  # ===========================================================================
+  - id: 4E-FRA-CLA-01
+    nodeCpsId: 5e.francais.grammaire.classes-de-mots
+    type: QCM_SIMPLE
+    difficulty: 1
+    targetTimeSec: 45
+    statement: "Dans la phrase « Le vieux chien dort paisiblement. », quelle est la classe grammaticale du mot « paisiblement » ?"
+    options:
+      - key: A
+        label: "un adjectif"
+        correct: false
+        distractorRationale: "Confond l'adverbe, invariable et complément du verbe, avec l'adjectif qui qualifie un nom."
+      - key: B
+        label: "un verbe"
+        correct: false
+        distractorRationale: "Confond l'adverbe avec le verbe « dort »."
+      - key: C
+        label: "un adverbe"
+        correct: true
+      - key: D
+        label: "un nom"
+        correct: false
+        distractorRationale: "Attribue au mot une nature de nom alors qu'il modifie le verbe."
+    shortCorrection: "« Paisiblement » modifie le verbe « dort » et se termine par -ment : c'est un adverbe, mot invariable."
+    tags: [classes, adverbe]
+  - id: 4E-FRA-CLA-02
+    nodeCpsId: 5e.francais.grammaire.classes-de-mots
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 55
+    statement: "Dans « Elle lui a offert ce cadeau. », quelle est la classe grammaticale du mot « ce » ?"
+    options:
+      - key: A
+        label: "un déterminant"
+        correct: true
+      - key: B
+        label: "un pronom"
+        correct: false
+        distractorRationale: "Confond le déterminant, qui précède le nom, avec un pronom qui le remplace."
+      - key: C
+        label: "un adjectif qualificatif"
+        correct: false
+        distractorRationale: "Confond le déterminant démonstratif avec un adjectif qualificatif."
+      - key: D
+        label: "une conjonction"
+        correct: false
+        distractorRationale: "Attribue à « ce » un rôle de liaison qu'il n'a pas ici."
+    shortCorrection: "« Ce » précède et introduit le nom « cadeau » : c'est un déterminant (démonstratif)."
+    tags: [classes, determinant]
+
+  # ===========================================================================
+  # NŒUD 2 — Fonctions dans la phrase (sujet, COD, COI)
+  # Pourquoi structurant : l'accord du participe passé et l'analyse de la phrase complexe de 4e reposent sur l'identification sûre des fonctions.
+  # ===========================================================================
+  - id: 4E-FRA-FON-01
+    nodeCpsId: 5e.francais.grammaire.fonctions
+    type: QCM_SIMPLE
+    difficulty: 1
+    targetTimeSec: 50
+    statement: "Dans « Les enfants regardent un film. », quelle est la fonction du groupe « un film » ?"
+    options:
+      - key: A
+        label: "sujet"
+        correct: false
+        distractorRationale: "Confond le COD avec le sujet, qui est « les enfants »."
+      - key: B
+        label: "complément d'objet direct (COD)"
+        correct: true
+      - key: C
+        label: "complément d'objet indirect (COI)"
+        correct: false
+        distractorRationale: "Oublie qu'il n'y a pas de préposition : le complément est direct."
+      - key: D
+        label: "attribut du sujet"
+        correct: false
+        distractorRationale: "Confond le COD avec un attribut, qui suppose un verbe d'état."
+    shortCorrection: "« Un film » répond à « regardent quoi ? » sans préposition : c'est un COD."
+    tags: [fonctions, cod]
+  - id: 4E-FRA-FON-02
+    nodeCpsId: 5e.francais.grammaire.fonctions
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 60
+    statement: "Dans « Il parle à son voisin. », quelle est la fonction du groupe « à son voisin » ?"
+    options:
+      - key: A
+        label: "complément d'objet direct (COD)"
+        correct: false
+        distractorRationale: "Ignore la préposition « à », qui rend le complément indirect."
+      - key: B
+        label: "complément circonstanciel de lieu"
+        correct: false
+        distractorRationale: "Confond la personne à qui l'on parle avec un lieu."
+      - key: C
+        label: "sujet"
+        correct: false
+        distractorRationale: "Confond le complément avec le sujet, qui est « il »."
+      - key: D
+        label: "complément d'objet indirect (COI)"
+        correct: true
+    shortCorrection: "« À son voisin » répond à « parle à qui ? » avec la préposition « à » : c'est un COI."
+    tags: [fonctions, coi]
+
+  # ===========================================================================
+  # NŒUD 3 — Conjugaison : présent de l'indicatif
+  # Pourquoi structurant : le présent des verbes fréquents et irréguliers est la base sur laquelle la 4e construit les temps composés et le conditionnel.
+  # ===========================================================================
+  - id: 4E-FRA-PRE-01
+    nodeCpsId: 5e.francais.conjugaison.present-indicatif
+    type: QCM_SIMPLE
+    difficulty: 1
+    targetTimeSec: 45
+    statement: "Quelle est la forme correcte au présent de l'indicatif : « Nous ... (prendre) le train. » ?"
+    options:
+      - key: A
+        label: "prenons"
+        correct: true
+      - key: B
+        label: "prendons"
+        correct: false
+        distractorRationale: "Applique une terminaison régulière à un verbe irrégulier du 3e groupe."
+      - key: C
+        label: "prennons"
+        correct: false
+        distractorRationale: "Double la consonne à tort à la 1re personne du pluriel."
+      - key: D
+        label: "prenez"
+        correct: false
+        distractorRationale: "Utilise la 2e personne du pluriel au lieu de la 1re."
+    shortCorrection: "Le verbe « prendre » à la 1re personne du pluriel donne « nous prenons »."
+    tags: [conjugaison, present]
+  - id: 4E-FRA-PRE-02
+    nodeCpsId: 5e.francais.conjugaison.present-indicatif
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 50
+    statement: "Quelle est la forme correcte : « Tu ... (faire) tes devoirs. » ?"
+    options:
+      - key: A
+        label: "fait"
+        correct: false
+        distractorRationale: "Utilise la forme de la 3e personne du singulier au lieu de la 2e."
+      - key: B
+        label: "fais"
+        correct: true
+      - key: C
+        label: "fais-tu"
+        correct: false
+        distractorRationale: "Ajoute le pronom sujet dans la forme conjuguée."
+      - key: D
+        label: "faits"
+        correct: false
+        distractorRationale: "Confond le verbe conjugué avec un participe passé au pluriel."
+    shortCorrection: "À la 2e personne du singulier, « faire » donne « tu fais »."
+    tags: [conjugaison, present]
+
+  # ===========================================================================
+  # NŒUD 4 — Conjugaison : imparfait et passé simple
+  # Pourquoi structurant : le récit de 4e alterne imparfait et passé simple. Confondre leurs valeurs ou leurs formes rend le texte narratif incohérent.
+  # ===========================================================================
+  - id: 4E-FRA-REC-01
+    nodeCpsId: 5e.francais.conjugaison.temps-du-recit
+    type: QCM_SIMPLE
+    difficulty: 1
+    targetTimeSec: 55
+    statement: "Dans un récit au passé, quelle phrase emploie correctement l'imparfait pour une description ?"
+    options:
+      - key: A
+        label: "« Le soleil brilla et les oiseaux chantèrent. »"
+        correct: false
+        distractorRationale: "Emploie le passé simple, qui exprime une action ponctuelle, non une description."
+      - key: B
+        label: "« Le soleil brille et les oiseaux chantent. »"
+        correct: false
+        distractorRationale: "Emploie le présent, incompatible avec un récit au passé."
+      - key: C
+        label: "« Le soleil brillait et les oiseaux chantaient. »"
+        correct: true
+      - key: D
+        label: "« Le soleil a brillé et les oiseaux ont chanté. »"
+        correct: false
+        distractorRationale: "Emploie le passé composé, qui ne convient pas à la description d'arrière-plan."
+    shortCorrection: "L'imparfait exprime la description et l'arrière-plan dans le récit : « brillait », « chantaient »."
+    tags: [conjugaison, imparfait]
+  - id: 4E-FRA-REC-02
+    nodeCpsId: 5e.francais.conjugaison.temps-du-recit
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 60
+    statement: "Quelle est la forme correcte au passé simple : « Soudain, il ... (voir) une lumière. » ?"
+    options:
+      - key: A
+        label: "voyait"
+        correct: false
+        distractorRationale: "Emploie l'imparfait, qui ne convient pas à une action soudaine et ponctuelle."
+      - key: B
+        label: "voit"
+        correct: false
+        distractorRationale: "Emploie le présent au lieu du passé simple."
+      - key: C
+        label: "voya"
+        correct: false
+        distractorRationale: "Applique une terminaison régulière à un verbe irrégulier."
+      - key: D
+        label: "vit"
+        correct: true
+    shortCorrection: "Au passé simple, « voir » à la 3e personne du singulier donne « il vit », marquant l'action soudaine."
+    tags: [conjugaison, passe-simple]
+
+  # ===========================================================================
+  # NŒUD 5 — Accords (sujet-verbe, groupe nominal)
+  # Pourquoi structurant : les accords sont réinvestis dans toute production de 4e ; une chaîne d'accords défaillante fausse le sens.
+  # ===========================================================================
+  - id: 4E-FRA-ACC-01
+    nodeCpsId: 5e.francais.orthographe.accords
+    type: QCM_SIMPLE
+    difficulty: 1
+    targetTimeSec: 50
+    statement: "Quelle phrase est correctement accordée ?"
+    options:
+      - key: A
+        label: "« Les fleurs du jardin sont fané. »"
+        correct: false
+        distractorRationale: "N'accorde pas l'attribut « fanées » avec le sujet féminin pluriel."
+      - key: B
+        label: "« Les fleurs du jardin sont fanées. »"
+        correct: true
+      - key: C
+        label: "« Les fleurs du jardin est fanées. »"
+        correct: false
+        distractorRationale: "Accorde le verbe avec « jardin » au lieu du sujet « les fleurs »."
+      - key: D
+        label: "« Les fleur du jardin sont fanées. »"
+        correct: false
+        distractorRationale: "Oublie la marque du pluriel sur le nom « fleurs »."
+    shortCorrection: "Le sujet « les fleurs » commande l'accord : verbe au pluriel et attribut « fanées » au féminin pluriel."
+    tags: [accords, sujet-verbe]
+  - id: 4E-FRA-ACC-02
+    nodeCpsId: 5e.francais.orthographe.accords
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 60
+    statement: "Complète correctement : « Les élèves ... leurs cahiers sur la table. »"
+    options:
+      - key: A
+        label: "posent"
+        correct: true
+      - key: B
+        label: "pose"
+        correct: false
+        distractorRationale: "N'accorde pas le verbe avec le sujet pluriel « les élèves »."
+      - key: C
+        label: "poses"
+        correct: false
+        distractorRationale: "Utilise la terminaison de la 2e personne du singulier."
+      - key: D
+        label: "posent-ils"
+        correct: false
+        distractorRationale: "Ajoute le pronom sujet dans la forme conjuguée."
+    shortCorrection: "Le sujet « les élèves » est à la 3e personne du pluriel : « ils posent »."
+    tags: [accords, sujet-verbe]
+
+  # ===========================================================================
+  # NŒUD 6 — Homophones grammaticaux
+  # Pourquoi structurant : distinguer a/à, et/est, on/ont, son/sont conditionne l'orthographe correcte de toute phrase.
+  # ===========================================================================
+  - id: 4E-FRA-HOM-01
+    nodeCpsId: 5e.francais.orthographe.homophones
+    type: QCM_SIMPLE
+    difficulty: 1
+    targetTimeSec: 45
+    statement: "Choisis la forme correcte : « Il ... parti sans ... valise. »"
+    options:
+      - key: A
+        label: "et / sa"
+        correct: false
+        distractorRationale: "Confond « est » (verbe être) avec « et » (conjonction de coordination)."
+      - key: B
+        label: "est / ça"
+        correct: false
+        distractorRationale: "Confond le déterminant possessif « sa » avec le pronom « ça »."
+      - key: C
+        label: "et / ça"
+        correct: false
+        distractorRationale: "Se trompe sur les deux homophones à la fois."
+      - key: D
+        label: "est / sa"
+        correct: true
+    shortCorrection: "« Est » est le verbe être (on peut dire « était ») ; « sa » est un déterminant possessif devant « valise »."
+    tags: [homophones, est-et]
+  - id: 4E-FRA-HOM-02
+    nodeCpsId: 5e.francais.orthographe.homophones
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 55
+    statement: "Choisis la forme correcte : « ... amis ... déjà arrivés. »"
+    options:
+      - key: A
+        label: "Ces / ont"
+        correct: false
+        distractorRationale: "Confond « ses » (possessif : ses amis à lui) avec « ces » (démonstratif) dans ce contexte de possession."
+      - key: B
+        label: "Ses / on"
+        correct: false
+        distractorRationale: "Confond « ont » (verbe avoir) avec « on » (pronom)."
+      - key: C
+        label: "Ses / ont"
+        correct: true
+      - key: D
+        label: "Ces / on"
+        correct: false
+        distractorRationale: "Se trompe sur les deux homophones."
+    shortCorrection: "« Ses » marque la possession (ses amis) ; « ont » est le verbe avoir (on peut dire « avaient »)."
+    tags: [homophones, ses-ces]
+
+  # ===========================================================================
+  # NŒUD 7 — Lexique : formation des mots (préfixes, suffixes, familles)
+  # Pourquoi structurant : comprendre un mot inconnu par sa formation est un outil de lecture central en 4e.
+  # ===========================================================================
+  - id: 4E-FRA-LEX-01
+    nodeCpsId: 5e.francais.lexique.formation-des-mots
+    type: QCM_SIMPLE
+    difficulty: 1
+    targetTimeSec: 50
+    statement: "Dans le mot « inutile », que signifie le préfixe « in- » ?"
+    options:
+      - key: A
+        label: "le contraire, la négation"
+        correct: true
+      - key: B
+        label: "l'intérieur"
+        correct: false
+        distractorRationale: "Confond le préfixe négatif « in- » avec l'idée de « dans »."
+      - key: C
+        label: "la répétition"
+        correct: false
+        distractorRationale: "Attribue à « in- » le sens du préfixe « re- »."
+      - key: D
+        label: "l'excès"
+        correct: false
+        distractorRationale: "Attribue à « in- » un sens d'intensité qu'il n'a pas."
+    shortCorrection: "Le préfixe « in- » exprime la négation : « inutile » signifie « qui n'est pas utile »."
+    tags: [lexique, prefixe]
+  - id: 4E-FRA-LEX-02
+    nodeCpsId: 5e.francais.lexique.formation-des-mots
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 55
+    statement: "Quel mot n'appartient pas à la même famille que « terre » ?"
+    options:
+      - key: A
+        label: "terrain"
+        correct: false
+        distractorRationale: "Appartient bien à la famille de « terre » : rejeté à tort."
+      - key: B
+        label: "terrible"
+        correct: true
+      - key: C
+        label: "enterrer"
+        correct: false
+        distractorRationale: "Appartient bien à la famille de « terre » : rejeté à tort."
+      - key: D
+        label: "terrestre"
+        correct: false
+        distractorRationale: "Appartient bien à la famille de « terre » : rejeté à tort."
+    shortCorrection: "« Terrible » vient de « terreur », non de « terre ». Terrain, enterrer et terrestre partagent le radical « terr- » lié à la terre."
+    tags: [lexique, famille-de-mots]
+
+  # ===========================================================================
+  # NŒUD 8 — Lexique : sens propre et figuré, synonymes
+  # Pourquoi structurant : l'interprétation des textes de 4e exige de repérer les glissements de sens et les relations lexicales.
+  # ===========================================================================
+  - id: 4E-FRA-SEN-01
+    nodeCpsId: 5e.francais.lexique.sens
+    type: QCM_SIMPLE
+    difficulty: 1
+    targetTimeSec: 50
+    statement: "Dans « Cet élève dévore les livres. », le verbe « dévore » est employé au sens :"
+    options:
+      - key: A
+        label: "propre"
+        correct: false
+        distractorRationale: "Prend l'expression au premier degré, comme si l'élève mangeait réellement les livres."
+      - key: B
+        label: "interrogatif"
+        correct: false
+        distractorRationale: "Confond une valeur de sens avec un type de phrase."
+      - key: C
+        label: "figuré"
+        correct: true
+      - key: D
+        label: "impératif"
+        correct: false
+        distractorRationale: "Confond une valeur de sens avec un mode verbal."
+    shortCorrection: "« Dévorer les livres » signifie lire avidement : c'est un sens figuré, non le sens propre de « manger »."
+    tags: [sens, figure]
+  - id: 4E-FRA-SEN-02
+    nodeCpsId: 5e.francais.lexique.sens
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 55
+    statement: "Quel mot est un synonyme de « content » ?"
+    options:
+      - key: A
+        label: "triste"
+        correct: false
+        distractorRationale: "Donne un antonyme au lieu d'un synonyme."
+      - key: B
+        label: "rapide"
+        correct: false
+        distractorRationale: "Propose un mot sans rapport de sens avec « content »."
+      - key: C
+        label: "contenu"
+        correct: false
+        distractorRationale: "Confond « content » (adjectif) avec « contenu » par ressemblance sonore."
+      - key: D
+        label: "joyeux"
+        correct: true
+    shortCorrection: "Un synonyme a un sens proche : « content » et « joyeux » expriment tous deux la satisfaction."
+    tags: [sens, synonymes]
+
+  # ===========================================================================
+  # NŒUD 9 — Figures de style (comparaison, métaphore)
+  # Pourquoi structurant : l'analyse littéraire de 4e s'appuie sur la reconnaissance des images, introduites dès la 6e-5e.
+  # ===========================================================================
+  - id: 4E-FRA-FIG-01
+    nodeCpsId: 5e.francais.lecture.figures-de-style
+    type: QCM_SIMPLE
+    difficulty: 1
+    targetTimeSec: 50
+    statement: "Quelle phrase contient une comparaison ?"
+    options:
+      - key: A
+        label: "« Il est fort comme un lion. »"
+        correct: true
+      - key: B
+        label: "« C'est un lion au combat. »"
+        correct: false
+        distractorRationale: "Est une métaphore : l'image est directe, sans outil de comparaison."
+      - key: C
+        label: "« Le lion rugit dans la savane. »"
+        correct: false
+        distractorRationale: "Ne contient aucune image : sens propre."
+      - key: D
+        label: "« Ce lion est le roi des animaux. »"
+        correct: false
+        distractorRationale: "Énonce une expression figée, sans outil de comparaison."
+    shortCorrection: "La comparaison relie deux éléments par un outil comparatif (« comme ») : « fort comme un lion »."
+    tags: [figures, comparaison]
+  - id: 4E-FRA-FIG-02
+    nodeCpsId: 5e.francais.lecture.figures-de-style
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 60
+    statement: "Dans « Cet homme est un roc. », quelle figure de style est employée ?"
+    options:
+      - key: A
+        label: "une comparaison"
+        correct: false
+        distractorRationale: "Oublie qu'il n'y a aucun outil de comparaison comme « comme » ou « tel »."
+      - key: B
+        label: "une métaphore"
+        correct: true
+      - key: C
+        label: "une énumération"
+        correct: false
+        distractorRationale: "Confond une image avec une liste d'éléments."
+      - key: D
+        label: "une répétition"
+        correct: false
+        distractorRationale: "Cherche un mot répété, absent de la phrase."
+    shortCorrection: "L'image « est un roc » assimile directement l'homme à un roc, sans mot-outil : c'est une métaphore."
+    tags: [figures, metaphore]

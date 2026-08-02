@@ -1,0 +1,519 @@
+# =============================================================================
+# Banque de positionnement — ENTRÉE EN TROISIÈME, Mathématiques
+#
+# Doctrine : intersection Quatrième / Troisième. Chaque item porte sur un
+# prérequis structurant SANS LEQUEL les premières semaines de Troisième sont
+# inaccessibles. Aucun item ne teste une notion du programme de Troisième
+# (ni Thalès, ni racines carrées, ni sinus/tangente, ni notation scientifique).
+#
+# STATUT : DRAFT — proposition à amender par le responsable pédagogique.
+# Aucun item ne doit être publié sans relecture disciplinaire.
+#
+# 18 items · 9 nœuds de prérequis · 2 items par nœud (règle V4)
+# Distribution des bonnes réponses : A=5, B=5, C=4, D=4 (règle V14 : max 40 %)
+# =============================================================================
+
+slug: entree-troisieme-maths-v1
+level: TROISIEME
+subject: MATHS
+version: 1
+status: DRAFT
+targetDurationMin: 25
+
+
+items:
+
+  # ===========================================================================
+  # NŒUD 1 — Nombres relatifs : les quatre opérations
+  # Pourquoi c'est structurant : la 3e enchaîne calcul littéral et équations où
+  # les signes circulent en permanence. Une hésitation sur (−)×(−) ou sur la
+  # priorité contamine tout le reste et masque la vraie cause des erreurs.
+  # ===========================================================================
+  - id: ETR-MAT-REL-01
+    nodeCpsId: 4e.maths.nombres-relatifs.operations
+    type: QCM_SIMPLE
+    difficulty: 1
+    targetTimeSec: 45
+    statement: "Calculer (−5) × (−3)."
+    options:
+      - key: A
+        label: "−15"
+        correct: false
+        distractorRationale: "Applique la règle des signes à l'envers : un produit de deux négatifs est positif."
+      - key: B
+        label: "−8"
+        correct: false
+        distractorRationale: "Additionne les nombres au lieu de les multiplier, et se trompe de signe."
+      - key: C
+        label: "15"
+        correct: true
+      - key: D
+        label: "8"
+        correct: false
+        distractorRationale: "Additionne au lieu de multiplier."
+    shortCorrection: "Le produit de deux nombres négatifs est positif : (−5) × (−3) = 15. Le signe se décide avant de calculer."
+    tags: [relatifs, produit]
+  - id: ETR-MAT-REL-02
+    nodeCpsId: 4e.maths.nombres-relatifs.operations
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 70
+    statement: "Calculer (−12) ÷ 4 + (−2) × (−3)."
+    options:
+      - key: A
+        label: "3"
+        correct: true
+      - key: B
+        label: "−9"
+        correct: false
+        distractorRationale: "Traite (−2) × (−3) comme −6 : erreur de signe sur le produit."
+      - key: C
+        label: "−3"
+        correct: false
+        distractorRationale: "Oublie le second terme et ne garde que (−12) ÷ 4."
+      - key: D
+        label: "9"
+        correct: false
+        distractorRationale: "Additionne 3 et 6 sans tenir compte du signe du quotient."
+    shortCorrection: "On applique les priorités : (−12) ÷ 4 = −3 et (−2) × (−3) = 6, donc −3 + 6 = 3."
+    tags: [relatifs, priorites]
+
+  # ===========================================================================
+  # NŒUD 2 — Fractions : somme et produit
+  # Pourquoi c'est structurant : les quotients réapparaissent dans les équations
+  # et les proportions de 3e. Un élève qui additionne les dénominateurs ne peut
+  # pas mener un calcul de 3e à son terme.
+  # ===========================================================================
+  - id: ETR-MAT-FRA-01
+    nodeCpsId: 4e.maths.fractions.operations
+    type: QCM_SIMPLE
+    difficulty: 1
+    targetTimeSec: 55
+    statement: "Calculer 3/5 − 1/2."
+    options:
+      - key: A
+        label: "2/3"
+        correct: false
+        distractorRationale: "Soustrait les numérateurs et les dénominateurs entre eux : erreur classique sans dénominateur commun."
+      - key: B
+        label: "1/10"
+        correct: true
+      - key: C
+        label: "2/10"
+        correct: false
+        distractorRationale: "Met au même dénominateur mais oublie de convertir aussi les numérateurs."
+      - key: D
+        label: "4/10"
+        correct: false
+        distractorRationale: "Additionne au lieu de soustraire après mise au même dénominateur."
+    shortCorrection: "On réduit au même dénominateur 10 : 6/10 − 5/10 = 1/10."
+    tags: [fractions, somme]
+  - id: ETR-MAT-FRA-02
+    nodeCpsId: 4e.maths.fractions.operations
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 55
+    statement: "Calculer 2/3 × 9/4."
+    options:
+      - key: A
+        label: "11/12"
+        correct: false
+        distractorRationale: "Additionne les fractions au lieu de les multiplier."
+      - key: B
+        label: "18/7"
+        correct: false
+        distractorRationale: "Multiplie les numérateurs mais additionne les dénominateurs."
+      - key: C
+        label: "8/27"
+        correct: false
+        distractorRationale: "Croise numérateurs et dénominateurs à l'envers."
+      - key: D
+        label: "3/2"
+        correct: true
+    shortCorrection: "On multiplie numérateurs entre eux et dénominateurs entre eux : (2×9)/(3×4) = 18/12 = 3/2."
+    tags: [fractions, produit]
+
+  # ===========================================================================
+  # NŒUD 3 — Puissances : définition et produit
+  # Pourquoi c'est structurant : la 3e formalise les règles de calcul sur les
+  # puissances et la notation scientifique. Confondre 2^5 avec 2×5, ou
+  # multiplier les bases, bloque cette entrée.
+  # ===========================================================================
+  - id: ETR-MAT-PUI-01
+    nodeCpsId: 4e.maths.puissances.exposant-entier
+    type: QCM_SIMPLE
+    difficulty: 1
+    targetTimeSec: 40
+    statement: "Calculer 2⁵."
+    options:
+      - key: A
+        label: "32"
+        correct: true
+      - key: B
+        label: "10"
+        correct: false
+        distractorRationale: "Multiplie la base par l'exposant : 2 × 5 au lieu de 2 × 2 × 2 × 2 × 2."
+      - key: C
+        label: "25"
+        correct: false
+        distractorRationale: "Confond 2⁵ avec 5² ou avec 25."
+      - key: D
+        label: "16"
+        correct: false
+        distractorRationale: "Oublie un facteur : calcule 2⁴."
+    shortCorrection: "2⁵ signifie 2 × 2 × 2 × 2 × 2 = 32. L'exposant compte le nombre de facteurs, il ne multiplie pas la base."
+    tags: [puissances, definition]
+  - id: ETR-MAT-PUI-02
+    nodeCpsId: 4e.maths.puissances.exposant-entier
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 55
+    statement: "Écrire 3⁴ × 3² sous la forme d'une seule puissance."
+    options:
+      - key: A
+        label: "3⁸"
+        correct: false
+        distractorRationale: "Multiplie les exposants au lieu de les additionner."
+      - key: B
+        label: "3⁶"
+        correct: true
+      - key: C
+        label: "9⁶"
+        correct: false
+        distractorRationale: "Multiplie les bases : garde 3 × 3 = 9 en plus d'additionner les exposants."
+      - key: D
+        label: "3²"
+        correct: false
+        distractorRationale: "Soustrait les exposants au lieu de les additionner."
+    shortCorrection: "Pour un produit de puissances de même base, on additionne les exposants : 3⁴ × 3² = 3⁶."
+    tags: [puissances, regles]
+
+  # ===========================================================================
+  # NŒUD 4 — Calcul littéral : distributivité simple et réduction
+  # Pourquoi c'est structurant : la double distributivité et les identités de 3e
+  # reposent sur une distributivité simple sûre. Oublier de distribuer au second
+  # terme est l'erreur qui se propage le plus loin.
+  # ===========================================================================
+  - id: ETR-MAT-CLI-01
+    nodeCpsId: 4e.maths.calcul-litteral.distributivite
+    type: QCM_SIMPLE
+    difficulty: 1
+    targetTimeSec: 50
+    statement: "Développer 3(2x − 5)."
+    options:
+      - key: A
+        label: "6x − 5"
+        correct: false
+        distractorRationale: "Distribue le 3 au premier terme seulement, pas au −5."
+      - key: B
+        label: "6x + 15"
+        correct: false
+        distractorRationale: "Se trompe de signe en distribuant au terme négatif."
+      - key: C
+        label: "6x − 15"
+        correct: true
+      - key: D
+        label: "5x − 15"
+        correct: false
+        distractorRationale: "Additionne 3 et 2 au lieu de les multiplier pour le terme en x."
+    shortCorrection: "La distributivité s'applique à chaque terme : 3 × 2x − 3 × 5 = 6x − 15."
+    tags: [calcul-litteral, distributivite]
+  - id: ETR-MAT-CLI-02
+    nodeCpsId: 4e.maths.calcul-litteral.distributivite
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 55
+    statement: "Réduire l'expression 4x − 7 + 2x + 3."
+    options:
+      - key: A
+        label: "6x + 4"
+        correct: false
+        distractorRationale: "Additionne les termes constants sans tenir compte du signe de −7."
+      - key: B
+        label: "6x − 10"
+        correct: false
+        distractorRationale: "Soustrait 3 au lieu de l'ajouter à −7."
+      - key: C
+        label: "2x − 4"
+        correct: false
+        distractorRationale: "Soustrait les termes en x au lieu de les additionner."
+      - key: D
+        label: "6x − 4"
+        correct: true
+    shortCorrection: "On regroupe les termes de même nature : (4x + 2x) + (−7 + 3) = 6x − 4."
+    tags: [calcul-litteral, reduction]
+
+  # ===========================================================================
+  # NŒUD 5 — Équations du premier degré
+  # Pourquoi c'est structurant : la mise en équation d'un problème est un attendu
+  # central de 3e. Sans résolution fiable de ax + b = cx + d, la modélisation
+  # échoue avant même d'être posée.
+  # ===========================================================================
+  - id: ETR-MAT-EQU-01
+    nodeCpsId: 4e.maths.equations.premier-degre
+    type: QCM_SIMPLE
+    difficulty: 1
+    targetTimeSec: 50
+    statement: "Résoudre l'équation 2x + 3 = 11."
+    options:
+      - key: A
+        label: "x = 8"
+        correct: false
+        distractorRationale: "Soustrait 3 mais oublie de diviser par 2."
+      - key: B
+        label: "x = 4"
+        correct: true
+      - key: C
+        label: "x = 7"
+        correct: false
+        distractorRationale: "Soustrait 3 de façon erronée puis ne divise pas."
+      - key: D
+        label: "x = −4"
+        correct: false
+        distractorRationale: "Se trompe de signe en isolant x."
+    shortCorrection: "On isole x : 2x = 11 − 3 = 8, puis x = 8 ÷ 2 = 4."
+    tags: [equations, premier-degre]
+  - id: ETR-MAT-EQU-02
+    nodeCpsId: 4e.maths.equations.premier-degre
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 70
+    statement: "Résoudre l'équation 5x − 2 = 3x + 8."
+    options:
+      - key: A
+        label: "x = 5"
+        correct: true
+      - key: B
+        label: "x = 3"
+        correct: false
+        distractorRationale: "Calcule 8 − 2 au lieu de 8 + 2 en regroupant les constantes."
+      - key: C
+        label: "x = 10"
+        correct: false
+        distractorRationale: "Regroupe correctement mais oublie de diviser par 2."
+      - key: D
+        label: "x = −5"
+        correct: false
+        distractorRationale: "Se trompe de signe au moment d'isoler x."
+    shortCorrection: "On regroupe : 5x − 3x = 8 + 2, soit 2x = 10, donc x = 5."
+    tags: [equations, premier-degre]
+
+  # ===========================================================================
+  # NŒUD 6 — Proportionnalité : quatrième proportionnelle et vitesse
+  # Pourquoi c'est structurant : pourcentages, vitesses et agrandissements de 3e
+  # sont tous des situations de proportionnalité. Le produit en croix doit être
+  # un réflexe, pas une reconstruction.
+  # ===========================================================================
+  - id: ETR-MAT-PRP-01
+    nodeCpsId: 4e.maths.proportionnalite.quatrieme-proportionnelle
+    type: QCM_SIMPLE
+    difficulty: 1
+    targetTimeSec: 55
+    statement: "4 stylos identiques coûtent 6 dinars. Combien coûtent 10 stylos au même prix unitaire ?"
+    options:
+      - key: A
+        label: "12 dinars"
+        correct: false
+        distractorRationale: "Ajoute 6 dinars pour 6 stylos de plus, en raisonnant de façon additive."
+      - key: B
+        label: "24 dinars"
+        correct: false
+        distractorRationale: "Multiplie le prix par le nombre de stylos sans revenir au prix unitaire."
+      - key: C
+        label: "2,4 dinars"
+        correct: false
+        distractorRationale: "Divise sans conclure : donne le prix d'un seul stylo, pas de dix."
+      - key: D
+        label: "15 dinars"
+        correct: true
+    shortCorrection: "Le prix unitaire est 6 ÷ 4 = 1,5 dinar. Pour 10 stylos : 10 × 1,5 = 15 dinars."
+    tags: [proportionnalite, quatrieme-proportionnelle]
+  - id: ETR-MAT-PRP-02
+    nodeCpsId: 4e.maths.proportionnalite.quatrieme-proportionnelle
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 60
+    statement: "Une voiture parcourt 150 km en 2 h à vitesse constante. Quelle distance parcourt-elle en 5 h ?"
+    options:
+      - key: A
+        label: "300 km"
+        correct: false
+        distractorRationale: "Double la distance pour 4 h et oublie la cinquième heure."
+      - key: B
+        label: "450 km"
+        correct: false
+        distractorRationale: "Multiplie 150 par 3 en confondant le nombre d'heures."
+      - key: C
+        label: "375 km"
+        correct: true
+      - key: D
+        label: "75 km"
+        correct: false
+        distractorRationale: "Divise au lieu de multiplier : donne la distance par heure."
+    shortCorrection: "La vitesse est 150 ÷ 2 = 75 km/h. En 5 h : 5 × 75 = 375 km."
+    tags: [proportionnalite, vitesse]
+
+  # ===========================================================================
+  # NŒUD 7 — Théorème de Pythagore
+  # Pourquoi c'est structurant : Pythagore introduit en 4e est réinvesti sans
+  # relâche en 3e (réciproque, géométrie repérée). Additionner les côtés au lieu
+  # de leurs carrés rend tout le chapitre inopérant.
+  # ===========================================================================
+  - id: ETR-MAT-PYT-01
+    nodeCpsId: 4e.maths.geometrie.pythagore
+    type: QCM_SIMPLE
+    difficulty: 1
+    targetTimeSec: 55
+    statement: "Le triangle ABC est rectangle en A, avec AB = 6 cm et AC = 8 cm. Quelle est la longueur BC ?"
+    options:
+      - key: A
+        label: "10 cm"
+        correct: true
+      - key: B
+        label: "14 cm"
+        correct: false
+        distractorRationale: "Additionne les deux côtés au lieu de leurs carrés."
+      - key: C
+        label: "100 cm"
+        correct: false
+        distractorRationale: "Oublie d'extraire la racine carrée après avoir calculé 6² + 8²."
+      - key: D
+        label: "2 cm"
+        correct: false
+        distractorRationale: "Soustrait les côtés au lieu d'appliquer le théorème."
+    shortCorrection: "Pythagore donne BC² = 6² + 8² = 36 + 64 = 100, donc BC = 10 cm."
+    tags: [pythagore, longueur]
+  - id: ETR-MAT-PYT-02
+    nodeCpsId: 4e.maths.geometrie.pythagore
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 70
+    statement: "Le triangle ABC est rectangle en A. On a BC = 13 cm et AB = 5 cm. Quelle est la longueur AC ?"
+    options:
+      - key: A
+        label: "8 cm"
+        correct: false
+        distractorRationale: "Soustrait les longueurs (13 − 5) au lieu de soustraire leurs carrés."
+      - key: B
+        label: "12 cm"
+        correct: true
+      - key: C
+        label: "18 cm"
+        correct: false
+        distractorRationale: "Additionne les deux longueurs connues."
+      - key: D
+        label: "194 cm"
+        correct: false
+        distractorRationale: "Additionne les carrés au lieu de les soustraire : traite un côté comme l'hypoténuse."
+    shortCorrection: "Ici BC est l'hypoténuse : AC² = BC² − AB² = 169 − 25 = 144, donc AC = 12 cm."
+    tags: [pythagore, hypotenuse]
+
+  # ===========================================================================
+  # NŒUD 8 — Cosinus dans le triangle rectangle
+  # Pourquoi c'est structurant : la 3e ajoute sinus et tangente sur la base du
+  # cosinus de 4e. Confondre côté adjacent et opposé compromet toute la
+  # trigonométrie du collège.
+  # ===========================================================================
+  - id: ETR-MAT-COS-01
+    nodeCpsId: 4e.maths.trigonometrie.cosinus
+    type: QCM_SIMPLE
+    difficulty: 1
+    targetTimeSec: 55
+    statement: "Dans un triangle ABC rectangle en A, le cosinus de l'angle B est égal à :"
+    options:
+      - key: A
+        label: "AC/BC"
+        correct: false
+        distractorRationale: "Prend le côté opposé sur l'hypoténuse : c'est le sinus, pas le cosinus."
+      - key: B
+        label: "AC/AB"
+        correct: false
+        distractorRationale: "Prend le côté opposé sur le côté adjacent : c'est la tangente."
+      - key: C
+        label: "AB/BC"
+        correct: true
+      - key: D
+        label: "BC/AB"
+        correct: false
+        distractorRationale: "Inverse le rapport : place l'hypoténuse au numérateur."
+    shortCorrection: "Le cosinus est le rapport côté adjacent sur hypoténuse. Pour l'angle B, le côté adjacent est AB : cos(B) = AB/BC."
+    tags: [trigonometrie, cosinus]
+  - id: ETR-MAT-COS-02
+    nodeCpsId: 4e.maths.trigonometrie.cosinus
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 75
+    statement: "Dans un triangle rectangle en A, le côté adjacent à l'angle B mesure 4 cm et l'hypoténuse 8 cm. Quelle est la mesure de l'angle B, au degré près ?"
+    options:
+      - key: A
+        label: "30°"
+        correct: false
+        distractorRationale: "Utilise le rapport comme s'il donnait directement l'angle, ou confond avec le sinus."
+      - key: B
+        label: "45°"
+        correct: false
+        distractorRationale: "Suppose un triangle isocèle sans vérifier le rapport des côtés."
+      - key: C
+        label: "0,5°"
+        correct: false
+        distractorRationale: "Confond la valeur du cosinus (0,5) avec la mesure de l'angle."
+      - key: D
+        label: "60°"
+        correct: true
+    shortCorrection: "cos(B) = 4/8 = 0,5. Or cos(60°) = 0,5, donc l'angle B mesure 60°."
+    tags: [trigonometrie, cosinus]
+
+  # ===========================================================================
+  # NŒUD 9 — Statistiques : moyenne simple et pondérée
+  # Pourquoi c'est structurant : la moyenne pondérée de 4e prépare la médiane et
+  # les indicateurs de 3e. Traiter une moyenne pondérée comme une moyenne simple
+  # fausse toute lecture de données.
+  # ===========================================================================
+  - id: ETR-MAT-STA-01
+    nodeCpsId: 4e.maths.statistiques.moyenne
+    type: QCM_SIMPLE
+    difficulty: 1
+    targetTimeSec: 50
+    statement: "Quelle est la moyenne de la série 8 ; 12 ; 10 ; 14 ?"
+    options:
+      - key: A
+        label: "11"
+        correct: true
+      - key: B
+        label: "12"
+        correct: false
+        distractorRationale: "Donne une valeur centrale au jugé sans calculer la somme."
+      - key: C
+        label: "44"
+        correct: false
+        distractorRationale: "Donne la somme des valeurs sans diviser par leur nombre."
+      - key: D
+        label: "10"
+        correct: false
+        distractorRationale: "Oublie une valeur dans la somme."
+    shortCorrection: "La moyenne vaut (8 + 12 + 10 + 14) ÷ 4 = 44 ÷ 4 = 11."
+    tags: [statistiques, moyenne]
+  - id: ETR-MAT-STA-02
+    nodeCpsId: 4e.maths.statistiques.moyenne
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 70
+    statement: "Un élève obtient 12 (coefficient 1) et 8 (coefficient 3). Quelle est sa moyenne pondérée ?"
+    options:
+      - key: A
+        label: "10"
+        correct: false
+        distractorRationale: "Fait la moyenne simple de 12 et 8 en ignorant les coefficients."
+      - key: B
+        label: "9"
+        correct: true
+      - key: C
+        label: "20"
+        correct: false
+        distractorRationale: "Additionne les deux notes sans pondérer ni diviser."
+      - key: D
+        label: "6"
+        correct: false
+        distractorRationale: "Divise la somme pondérée par le nombre de notes (2) au lieu de la somme des coefficients (4)."
+    shortCorrection: "Moyenne pondérée = (12×1 + 8×3) ÷ (1 + 3) = (12 + 24) ÷ 4 = 36 ÷ 4 = 9."
+    tags: [statistiques, moyenne-ponderee]

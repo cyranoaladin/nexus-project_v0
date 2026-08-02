@@ -1,0 +1,535 @@
+# =============================================================================
+# Banque de positionnement — ENTRÉE EN PREMIÈRE, Français
+#
+# Doctrine : intersection Seconde / Première. Chaque item porte sur un prérequis
+# structurant SANS LEQUEL la préparation des épreuves anticipées de français —
+# commentaire, dissertation, explication linéaire et question de grammaire —
+# est inaccessible.
+#
+# STATUT : DRAFT — proposition à amender par le responsable pédagogique.
+# La validation relève d'un enseignant de lettres.
+#
+# 18 items · 9 nœuds de prérequis · 2 items par nœud (règle V4)
+# Distribution des bonnes réponses : A=5, B=5, C=4, D=4 (règle V14 : max 40 %)
+# =============================================================================
+
+slug: entree-premiere-francais-v1
+level: PREMIERE
+subject: FRANCAIS
+version: 1
+status: DRAFT
+targetDurationMin: 25
+
+items:
+
+  # ===========================================================================
+  # NŒUD 1 — Méthode du commentaire : du procédé à l'interprétation
+  # Pourquoi c'est structurant : c'est le geste central de l'épreuve écrite.
+  # Un élève qui relève sans interpréter produit un catalogue, non un
+  # commentaire, quelle que soit la finesse de ses repérages.
+  # ===========================================================================
+
+  - id: EPR-FRA-COM-01
+    nodeCpsId: 2de.francais.methode.commentaire
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 55
+    statement: "Dans un commentaire littéraire, relever un procédé sans en interpréter l'effet conduit à :"
+    options:
+      - key: A
+        label: "une analyse trop technique pour le correcteur"
+        correct: false
+        distractorRationale: "Juge le défaut sur la forme du propos alors qu'il porte sur l'absence de raisonnement."
+      - key: B
+        label: "un plan déséquilibré"
+        correct: false
+        distractorRationale: "Confond un problème d'organisation avec un défaut de méthode d'analyse."
+      - key: C
+        label: "un simple relevé, qui ne constitue pas encore une analyse"
+        correct: true
+      - key: D
+        label: "une paraphrase du texte"
+        correct: false
+        distractorRationale: "Confond le relevé de procédés avec la reformulation du contenu, qui est un autre défaut."
+    shortCorrection: "Un procédé n'a d'intérêt que par l'effet qu'il produit. Nommer une figure sans dire ce qu'elle apporte au sens revient à dresser une liste, pas à commenter."
+    tags: [methode, commentaire]
+
+  - id: EPR-FRA-COM-02
+    nodeCpsId: 2de.francais.methode.commentaire
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 55
+    statement: "Que doit contenir un paragraphe de commentaire littéraire ?"
+    options:
+      - key: A
+        label: "une idée, un relevé précis dans le texte, puis l'interprétation de l'effet produit"
+        correct: true
+      - key: B
+        label: "un résumé du passage suivi d'un avis personnel"
+        correct: false
+        distractorRationale: "Substitue la paraphrase et le goût subjectif à l'analyse du texte."
+      - key: C
+        label: "une longue citation suivie de son explication mot à mot"
+        correct: false
+        distractorRationale: "Confond l'explication linéaire exhaustive avec le paragraphe de commentaire, qui s'organise autour d'une idée."
+      - key: D
+        label: "le nom d'une figure de style et sa définition"
+        correct: false
+        distractorRationale: "Réduit l'analyse à l'identification technique, sans idée directrice ni interprétation."
+    shortCorrection: "Un paragraphe de commentaire s'ouvre sur une idée, l'appuie sur un relevé précis, et se clôt sur l'effet produit. Ce sont les trois temps obligés."
+    tags: [methode, paragraphe]
+
+  # ===========================================================================
+  # NŒUD 2 — Analyse syntaxique : les subordonnées
+  # Pourquoi c'est structurant : la question de grammaire de l'oral des EAF
+  # porte directement sur l'analyse d'une phrase complexe. Le prérequis est
+  # évalué tel quel à l'examen.
+  # ===========================================================================
+
+  - id: EPR-FRA-SYN-01
+    nodeCpsId: 2de.francais.grammaire.subordonnees
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 55
+    statement: "Dans « L'homme qui parlait était son père », la subordonnée est :"
+    options:
+      - key: A
+        label: "une conjonctive complétive"
+        correct: false
+        distractorRationale: "Confond le pronom relatif avec la conjonction de subordination « que »."
+      - key: B
+        label: "une relative, complément de l'antécédent « l'homme »"
+        correct: true
+      - key: C
+        label: "une circonstancielle de temps"
+        correct: false
+        distractorRationale: "Cherche une indication circonstancielle alors que la subordonnée caractérise un nom."
+      - key: D
+        label: "une indépendante juxtaposée"
+        correct: false
+        distractorRationale: "Ignore le lien de subordination établi par le pronom relatif."
+    shortCorrection: "« Qui » reprend le nom « l'homme » placé avant lui : c'est un pronom relatif, et la subordonnée qu'il introduit complète cet antécédent."
+    tags: [grammaire, relative]
+
+  - id: EPR-FRA-SYN-02
+    nodeCpsId: 2de.francais.grammaire.subordonnees
+    type: QCM_SIMPLE
+    difficulty: 3
+    targetTimeSec: 60
+    statement: "Dans « Il attendait qu'elle revienne », la subordonnée est :"
+    options:
+      - key: A
+        label: "une relative"
+        correct: false
+        distractorRationale: "Cherche un antécédent que « que » reprendrait, alors qu'il n'en existe aucun ici."
+      - key: B
+        label: "une circonstancielle de but"
+        correct: false
+        distractorRationale: "Interprète le subjonctif comme la marque d'un but, alors qu'il est ici commandé par le verbe principal."
+      - key: C
+        label: "une circonstancielle de temps"
+        correct: false
+        distractorRationale: "Se laisse guider par le sens du verbe « attendre » plutôt que par la construction syntaxique."
+      - key: D
+        label: "une conjonctive complétive, complément du verbe « attendait »"
+        correct: true
+    shortCorrection: "« Que » ne reprend aucun nom : c'est une conjonction. La subordonnée complète le verbe et répond à la question « il attendait quoi ? »."
+    tags: [grammaire, completive]
+
+  # ===========================================================================
+  # NŒUD 3 — Interrogation et négation
+  # Pourquoi c'est structurant : ces deux notions figurent explicitement au
+  # programme de grammaire évalué à l'oral des épreuves anticipées.
+  # ===========================================================================
+
+  - id: EPR-FRA-INT-01
+    nodeCpsId: 2de.francais.grammaire.interrogation-negation
+    type: QCM_SIMPLE
+    difficulty: 3
+    targetTimeSec: 60
+    statement: "Dans la phrase « N'as-tu rien vu ? », comment qualifier l'interrogation et la négation ?"
+    options:
+      - key: A
+        label: "interrogation totale et négation partielle"
+        correct: true
+      - key: B
+        label: "interrogation partielle et négation totale"
+        correct: false
+        distractorRationale: "Inverse les deux qualifications : la question appelle oui ou non, et la négation ne porte que sur un élément."
+      - key: C
+        label: "interrogation totale et négation totale"
+        correct: false
+        distractorRationale: "Qualifie de totale une négation portée par « rien », qui ne nie qu'un complément."
+      - key: D
+        label: "interrogation partielle et négation partielle"
+        correct: false
+        distractorRationale: "Qualifie de partielle une interrogation qui porte pourtant sur l'ensemble de la phrase."
+    shortCorrection: "L'interrogation est totale car la réponse attendue est oui ou non. La négation est partielle car « rien » ne nie que le complément d'objet, non toute la phrase."
+    tags: [grammaire, interrogation-negation]
+
+  - id: EPR-FRA-INT-02
+    nodeCpsId: 2de.francais.grammaire.interrogation-negation
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 45
+    statement: "Laquelle de ces phrases contient une interrogation partielle ?"
+    options:
+      - key: A
+        label: "« Viendras-tu demain ? »"
+        correct: false
+        distractorRationale: "Retient une interrogation qui appelle oui ou non, donc totale."
+      - key: B
+        label: "« Est-ce que tu as compris ? »"
+        correct: false
+        distractorRationale: "Retient une interrogation totale au motif qu'elle emploie une tournure particulière."
+      - key: C
+        label: "« Où vas-tu ? »"
+        correct: true
+      - key: D
+        label: "« N'a-t-il pas répondu ? »"
+        correct: false
+        distractorRationale: "Confond la présence d'une négation avec le caractère partiel de l'interrogation."
+    shortCorrection: "L'interrogation est partielle lorsqu'elle porte sur un élément précis, ici le lieu, et appelle autre chose que oui ou non. Elle emploie alors un mot interrogatif."
+    tags: [grammaire, interrogation]
+
+  # ===========================================================================
+  # NŒUD 4 — Figures de style
+  # Pourquoi c'est structurant : les quatre objets d'étude de Première exigent
+  # de nommer les procédés avec exactitude. Métaphore et métonymie sont les
+  # deux figures les plus souvent confondues.
+  # ===========================================================================
+
+  - id: EPR-FRA-FIG-01
+    nodeCpsId: 2de.francais.lexique.figures-de-style
+    type: QCM_SIMPLE
+    difficulty: 3
+    targetTimeSec: 55
+    statement: "Dans le vers « Ce toit tranquille où marchent des colombes », les colombes désignent les voiles des bateaux. Quelle figure de style est employée ?"
+    options:
+      - key: A
+        label: "une comparaison"
+        correct: false
+        distractorRationale: "Cherche un outil comparatif, pourtant absent du vers."
+      - key: B
+        label: "une métaphore"
+        correct: true
+      - key: C
+        label: "une métonymie"
+        correct: false
+        distractorRationale: "Suppose un rapport de contiguïté, alors que le rapprochement repose ici sur une ressemblance."
+      - key: D
+        label: "une allégorie"
+        correct: false
+        distractorRationale: "Confond l'image ponctuelle avec la représentation concrète et développée d'une idée abstraite."
+    shortCorrection: "Un terme en remplace un autre en vertu d'une ressemblance, sans outil comparatif : c'est une métaphore. La blancheur et le mouvement rapprochent voiles et colombes."
+    tags: [figures-de-style, metaphore]
+
+  - id: EPR-FRA-FIG-02
+    nodeCpsId: 2de.francais.lexique.figures-de-style
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 45
+    statement: "Dans l'expression « boire un verre », quelle figure de style est employée ?"
+    options:
+      - key: A
+        label: "une métonymie"
+        correct: true
+      - key: B
+        label: "une métaphore"
+        correct: false
+        distractorRationale: "Cherche une ressemblance alors que le lien est ici de contenant à contenu."
+      - key: C
+        label: "une hyperbole"
+        correct: false
+        distractorRationale: "Cherche une exagération là où se trouve un simple déplacement de désignation."
+      - key: D
+        label: "une périphrase"
+        correct: false
+        distractorRationale: "Suppose un détour par plusieurs mots, alors que l'expression est au contraire plus brève."
+    shortCorrection: "Le contenant désigne le contenu : c'est une métonymie. Elle repose sur un lien logique ou matériel, non sur une ressemblance comme la métaphore."
+    tags: [figures-de-style, metonymie]
+
+  # ===========================================================================
+  # NŒUD 5 — Versification
+  # Pourquoi c'est structurant : l'objet d'étude « la poésie du XIXe au XXIe
+  # siècle » et l'explication linéaire d'un texte versifié exigent ce
+  # vocabulaire dès la rentrée.
+  # ===========================================================================
+
+  - id: EPR-FRA-VER-01
+    nodeCpsId: 2de.francais.poesie.versification
+    type: QCM_SIMPLE
+    difficulty: 1
+    targetTimeSec: 40
+    statement: "Un vers de dix syllabes est :"
+    options:
+      - key: A
+        label: "un octosyllabe"
+        correct: false
+        distractorRationale: "Confond avec le vers de huit syllabes."
+      - key: B
+        label: "un alexandrin"
+        correct: false
+        distractorRationale: "Confond avec le vers de douze syllabes."
+      - key: C
+        label: "un heptasyllabe"
+        correct: false
+        distractorRationale: "Confond avec le vers de sept syllabes."
+      - key: D
+        label: "un décasyllabe"
+        correct: true
+    shortCorrection: "Le nom du vers vient du nombre de syllabes : octosyllabe pour huit, décasyllabe pour dix, alexandrin pour douze."
+    tags: [poesie, metrique]
+
+  - id: EPR-FRA-VER-02
+    nodeCpsId: 2de.francais.poesie.versification
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 50
+    statement: "Qu'appelle-t-on un enjambement ?"
+    options:
+      - key: A
+        label: "la répétition d'un même son à la fin de deux vers"
+        correct: false
+        distractorRationale: "Donne la définition de la rime."
+      - key: B
+        label: "le prolongement d'une phrase au-delà de la fin du vers"
+        correct: true
+      - key: C
+        label: "la coupe qui partage l'alexandrin en deux moitiés"
+        correct: false
+        distractorRationale: "Donne la définition de la césure."
+      - key: D
+        label: "l'alternance des rimes masculines et féminines"
+        correct: false
+        distractorRationale: "Décrit une règle de disposition des rimes, sans rapport avec la construction de la phrase."
+    shortCorrection: "Il y a enjambement lorsque la phrase déborde la limite du vers. L'effet est souvent de rupture ou de continuité inattendue, et doit être interprété."
+    tags: [poesie, enjambement]
+
+  # ===========================================================================
+  # NŒUD 6 — Registres et genres
+  # Pourquoi c'est structurant : la dissertation sur œuvre suppose de qualifier
+  # le ton d'un texte et de reconnaître les genres, notamment ceux de la
+  # littérature d'idées.
+  # ===========================================================================
+
+  - id: EPR-FRA-REG-01
+    nodeCpsId: 2de.francais.lecture.registres-et-genres
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 45
+    statement: "Le registre satirique se reconnaît à :"
+    options:
+      - key: A
+        label: "l'expression des sentiments personnels du locuteur"
+        correct: false
+        distractorRationale: "Donne la caractéristique du registre lyrique."
+      - key: B
+        label: "la fatalité qui pèse sur le personnage"
+        correct: false
+        distractorRationale: "Donne la caractéristique du registre tragique."
+      - key: C
+        label: "la critique d'un travers par la moquerie"
+        correct: true
+      - key: D
+        label: "l'amplification d'un exploit héroïque"
+        correct: false
+        distractorRationale: "Donne la caractéristique du registre épique."
+    shortCorrection: "La satire attaque un vice ou un travers en le rendant risible. Le rire y est un moyen de la critique, non une fin."
+    tags: [registres, satire]
+
+  - id: EPR-FRA-REG-02
+    nodeCpsId: 2de.francais.lecture.registres-et-genres
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 45
+    statement: "Un apologue est :"
+    options:
+      - key: A
+        label: "un récit bref porteur d'une leçon"
+        correct: true
+      - key: B
+        label: "un poème à forme fixe de quatorze vers"
+        correct: false
+        distractorRationale: "Confond un genre argumentatif avec une forme poétique fixe."
+      - key: C
+        label: "un long discours prononcé par un personnage de théâtre"
+        correct: false
+        distractorRationale: "Confond un genre narratif avec une forme théâtrale."
+      - key: D
+        label: "une préface dans laquelle l'auteur justifie son œuvre"
+        correct: false
+        distractorRationale: "Confond le récit porteur d'une leçon avec un texte liminaire d'auteur."
+    shortCorrection: "L'apologue est un récit court dont la fiction sert une visée argumentative : fable, conte philosophique, parabole. Il relève de l'argumentation indirecte."
+    tags: [genres, apologue]
+
+  # ===========================================================================
+  # NŒUD 7 — Argumentation et littérature d'idées
+  # Pourquoi c'est structurant : l'objet d'étude « la littérature d'idées du
+  # XVIe au XVIIIe siècle » suppose de reconnaître les stratégies indirectes,
+  # dont l'ironie est la plus fréquente et la plus mal identifiée.
+  # ===========================================================================
+
+  - id: EPR-FRA-ARG-01
+    nodeCpsId: 2de.francais.argumentation.strategies
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 50
+    statement: "L'argumentation indirecte se caractérise par :"
+    options:
+      - key: A
+        label: "l'emploi exclusif de la première personne"
+        correct: false
+        distractorRationale: "Confond une marque d'énonciation avec une stratégie argumentative."
+      - key: B
+        label: "le recours à la fiction pour faire admettre une thèse"
+        correct: true
+      - key: C
+        label: "l'absence de toute thèse défendue"
+        correct: false
+        distractorRationale: "Confond le caractère implicite de la thèse avec son absence."
+      - key: D
+        label: "l'énoncé explicite de la thèse dès l'ouverture du texte"
+        correct: false
+        distractorRationale: "Décrit précisément l'argumentation directe."
+    shortCorrection: "L'argumentation indirecte passe par un récit, un dialogue ou une fable. La thèse n'est pas énoncée, elle se dégage de la fiction et de son interprétation."
+    tags: [argumentation, indirecte]
+
+  - id: EPR-FRA-ARG-02
+    nodeCpsId: 2de.francais.argumentation.strategies
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 45
+    statement: "L'ironie consiste à :"
+    options:
+      - key: A
+        label: "exagérer une réalité pour frapper l'esprit"
+        correct: false
+        distractorRationale: "Donne la définition de l'hyperbole."
+      - key: B
+        label: "atténuer son propos pour suggérer davantage"
+        correct: false
+        distractorRationale: "Donne la définition de la litote."
+      - key: C
+        label: "répéter une idée pour l'imposer"
+        correct: false
+        distractorRationale: "Décrit un procédé d'insistance, non un décalage entre ce qui est dit et ce qui est pensé."
+      - key: D
+        label: "faire entendre le contraire de ce que l'on dit"
+        correct: true
+    shortCorrection: "L'ironie repose sur un décalage : le lecteur doit percevoir que l'auteur pense l'inverse de ce qu'il affirme. Elle suppose une complicité avec le lecteur."
+    tags: [argumentation, ironie]
+
+  # ===========================================================================
+  # NŒUD 8 — Spécificités du texte théâtral
+  # Pourquoi c'est structurant : l'objet d'étude « le théâtre du XVIIe au XXIe
+  # siècle » exige de connaître les formes de la parole dramatique et le
+  # principe de la double énonciation.
+  # ===========================================================================
+
+  - id: EPR-FRA-THE-01
+    nodeCpsId: 2de.francais.theatre.parole-dramatique
+    type: QCM_SIMPLE
+    difficulty: 3
+    targetTimeSec: 55
+    statement: "La double énonciation au théâtre désigne le fait que :"
+    options:
+      - key: A
+        label: "le personnage s'adresse à un autre personnage et, en même temps, au spectateur"
+        correct: true
+      - key: B
+        label: "deux personnages parlent simultanément sur scène"
+        correct: false
+        distractorRationale: "Interprète le terme au sens littéral de deux voix, alors qu'il désigne deux destinataires."
+      - key: C
+        label: "le texte est prononcé une fois en répétition et une fois en représentation"
+        correct: false
+        distractorRationale: "Confond une donnée de la pratique théâtrale avec une propriété du texte."
+      - key: D
+        label: "l'auteur s'exprime à la fois par les didascalies et par les répliques"
+        correct: false
+        distractorRationale: "Identifie deux canaux d'écriture, mais non la superposition des destinataires."
+    shortCorrection: "Toute réplique vise deux destinataires : le personnage à qui elle s'adresse, et le public qui l'entend. C'est ce qui permet les effets d'ironie dramatique."
+    tags: [theatre, double-enonciation]
+
+  - id: EPR-FRA-THE-02
+    nodeCpsId: 2de.francais.theatre.parole-dramatique
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 50
+    statement: "Une tirade se distingue d'un monologue en ce qu'elle :"
+    options:
+      - key: A
+        label: "est nécessairement écrite en vers"
+        correct: false
+        distractorRationale: "Fait de la forme versifiée un critère, alors que la distinction porte sur le destinataire."
+      - key: B
+        label: "est prononcée à l'écart, sans être entendue des autres personnages"
+        correct: false
+        distractorRationale: "Donne la définition de l'aparté."
+      - key: C
+        label: "est adressée à un autre personnage présent sur scène"
+        correct: true
+      - key: D
+        label: "ouvre nécessairement un acte"
+        correct: false
+        distractorRationale: "Confond une position dans la pièce avec une propriété de la parole."
+    shortCorrection: "La tirade est une longue réplique adressée à un interlocuteur présent. Le monologue est prononcé par un personnage seul en scène, qui se parle à lui-même."
+    tags: [theatre, tirade-monologue]
+
+  # ===========================================================================
+  # NŒUD 9 — Rythme du récit et point de vue
+  # Pourquoi c'est structurant : l'objet d'étude « le roman et le récit »
+  # suppose d'analyser la vitesse narrative et la focalisation, deux outils
+  # constamment mobilisés au commentaire.
+  # ===========================================================================
+
+  - id: EPR-FRA-REC-01
+    nodeCpsId: 2de.francais.recit.rythme-et-focalisation
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 50
+    statement: "Dans un récit, une ellipse consiste à :"
+    options:
+      - key: A
+        label: "ralentir l'action par une description"
+        correct: false
+        distractorRationale: "Donne la définition de la pause descriptive."
+      - key: B
+        label: "faire coïncider la durée du récit et celle de l'action racontée"
+        correct: false
+        distractorRationale: "Donne la définition de la scène."
+      - key: C
+        label: "raconter plusieurs fois un même événement selon des points de vue différents"
+        correct: false
+        distractorRationale: "Décrit un procédé de composition, sans rapport avec la vitesse narrative."
+      - key: D
+        label: "passer sous silence une période de l'histoire"
+        correct: true
+    shortCorrection: "L'ellipse supprime du récit une durée de l'histoire, souvent signalée par une indication temporelle. Elle accélère brutalement le rythme narratif."
+    tags: [recit, ellipse]
+
+  - id: EPR-FRA-REC-02
+    nodeCpsId: 2de.francais.recit.rythme-et-focalisation
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 50
+    statement: "Comment nomme-t-on un passage où la durée de la lecture correspond approximativement à celle de l'action racontée ?"
+    options:
+      - key: A
+        label: "un sommaire"
+        correct: false
+        distractorRationale: "Désigne un passage qui condense une longue durée en quelques lignes."
+      - key: B
+        label: "une scène"
+        correct: true
+      - key: C
+        label: "une pause"
+        correct: false
+        distractorRationale: "Désigne un moment où le récit s'arrête, souvent pour décrire, sans que l'action progresse."
+      - key: D
+        label: "une ellipse"
+        correct: false
+        distractorRationale: "Désigne au contraire un passage entièrement omis du récit."
+    shortCorrection: "Dans une scène, le récit épouse la durée de l'action : c'est le cas typique du dialogue. Sommaire, pause et ellipse en modifient au contraire le rythme."
+    tags: [recit, vitesse-narrative]

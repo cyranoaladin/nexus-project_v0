@@ -1,0 +1,505 @@
+# =============================================================================
+# Banque de positionnement — ENTRÉE EN MATHS EXPERTES (Terminale)
+#
+# Doctrine : l'option Maths expertes n'a pas d'équivalent en Première. Cette
+# banque teste les prérequis que l'option réactive : arithmétique du collège
+# (divisibilité, nombres premiers, PGCD), calcul algébrique et systèmes de
+# Seconde/Première, logique et suites de Première. Aucun item ne teste une
+# notion propre à l'option (congruences, Bézout, matrices, nombres complexes).
+# Source de référence : programmes officiels de spécialité et de collège (eduscol).
+#
+# STATUT : DRAFT — proposition à amender par le responsable pédagogique.
+#
+# 18 items · 9 nœuds de prérequis · 2 items par nœud (règle V4)
+# Distribution des bonnes réponses : A=5, B=5, C=4, D=4 (règle V14 : max 40 %)
+# =============================================================================
+
+slug: entree-terminale-maths-expertes-v1
+level: TERMINALE
+subject: MATHS_EXPERTES
+version: 1
+status: DRAFT
+targetDurationMin: 25
+
+review:
+  validatedBy: null
+  validatedAt: null
+
+items:
+
+  # ===========================================================================
+  # NŒUD 1 — Division euclidienne
+  # Pourquoi structurant : l'arithmétique de l'option repose entièrement sur quotient et reste. Une division euclidienne mal posée interdit congruences et algorithme d'Euclide.
+  # ===========================================================================
+  - id: EME-MAT-DIV-01
+    nodeCpsId: college.maths.arithmetique.division-euclidienne
+    type: QCM_SIMPLE
+    difficulty: 1
+    targetTimeSec: 50
+    statement: "Dans la division euclidienne de 47 par 6, quel est le reste ?"
+    options:
+      - key: A
+        label: "7"
+        correct: false
+        distractorRationale: "Donne le quotient au lieu du reste."
+      - key: B
+        label: "2"
+        correct: false
+        distractorRationale: "Se trompe dans le multiple de 6 le plus proche."
+      - key: C
+        label: "5"
+        correct: true
+      - key: D
+        label: "6"
+        correct: false
+        distractorRationale: "Propose un reste égal au diviseur, ce qui est impossible."
+    shortCorrection: "47 = 6 × 7 + 5, donc le quotient est 7 et le reste 5. Le reste doit toujours être strictement inférieur au diviseur."
+    tags: [arithmetique, division-euclidienne]
+  - id: EME-MAT-DIV-02
+    nodeCpsId: college.maths.arithmetique.division-euclidienne
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 60
+    statement: "Dans la division euclidienne de 100 par 7, le quotient et le reste sont :"
+    options:
+      - key: A
+        label: "14 et 2"
+        correct: true
+      - key: B
+        label: "14 et 6"
+        correct: false
+        distractorRationale: "Trouve le bon quotient mais se trompe sur le reste."
+      - key: C
+        label: "13 et 9"
+        correct: false
+        distractorRationale: "Propose un reste supérieur au diviseur, ce qui est interdit."
+      - key: D
+        label: "15 et −5"
+        correct: false
+        distractorRationale: "Dépasse le dividende et obtient un reste négatif."
+    shortCorrection: "100 = 7 × 14 + 2 : le quotient est 14 et le reste 2, avec 0 ≤ reste < 7."
+    tags: [arithmetique, division-euclidienne]
+
+  # ===========================================================================
+  # NŒUD 2 — Multiples, diviseurs et critères
+  # Pourquoi structurant : diviseurs communs et divisibilité sont la matière première de l'arithmétique de Terminale.
+  # ===========================================================================
+  - id: EME-MAT-MUL-01
+    nodeCpsId: college.maths.arithmetique.multiples-diviseurs
+    type: QCM_SIMPLE
+    difficulty: 1
+    targetTimeSec: 45
+    statement: "Parmi ces nombres, lequel est divisible par 3 ?"
+    options:
+      - key: A
+        label: "124"
+        correct: false
+        distractorRationale: "La somme des chiffres (7) n'est pas un multiple de 3."
+      - key: B
+        label: "342"
+        correct: true
+      - key: C
+        label: "235"
+        correct: false
+        distractorRationale: "La somme des chiffres (10) n'est pas un multiple de 3."
+      - key: D
+        label: "451"
+        correct: false
+        distractorRationale: "La somme des chiffres (10) n'est pas un multiple de 3."
+    shortCorrection: "Un nombre est divisible par 3 si la somme de ses chiffres l'est : 3 + 4 + 2 = 9, multiple de 3."
+    tags: [arithmetique, divisibilite]
+  - id: EME-MAT-MUL-02
+    nodeCpsId: college.maths.arithmetique.multiples-diviseurs
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 55
+    statement: "Combien de diviseurs positifs le nombre 12 possède-t-il ?"
+    options:
+      - key: A
+        label: "4"
+        correct: false
+        distractorRationale: "Oublie certains diviseurs, par exemple 4 et 6."
+      - key: B
+        label: "12"
+        correct: false
+        distractorRationale: "Confond le nombre de diviseurs avec le nombre lui-même."
+      - key: C
+        label: "5"
+        correct: false
+        distractorRationale: "Oublie un diviseur dans la liste 1, 2, 3, 4, 6, 12."
+      - key: D
+        label: "6"
+        correct: true
+    shortCorrection: "Les diviseurs de 12 sont 1, 2, 3, 4, 6, 12 : il y en a 6."
+    tags: [arithmetique, diviseurs]
+
+  # ===========================================================================
+  # NŒUD 3 — Nombres premiers et décomposition
+  # Pourquoi structurant : la décomposition en facteurs premiers sous-tend PGCD, PPCM et l'étude des diviseurs.
+  # ===========================================================================
+  - id: EME-MAT-PRE-01
+    nodeCpsId: college.maths.arithmetique.nombres-premiers
+    type: QCM_SIMPLE
+    difficulty: 1
+    targetTimeSec: 50
+    statement: "Parmi ces nombres, lequel est premier ?"
+    options:
+      - key: A
+        label: "29"
+        correct: true
+      - key: B
+        label: "21"
+        correct: false
+        distractorRationale: "21 = 3 × 7 n'est pas premier."
+      - key: C
+        label: "27"
+        correct: false
+        distractorRationale: "27 = 3³ n'est pas premier."
+      - key: D
+        label: "33"
+        correct: false
+        distractorRationale: "33 = 3 × 11 n'est pas premier."
+    shortCorrection: "29 n'admet que 1 et lui-même comme diviseurs : c'est un nombre premier."
+    tags: [arithmetique, premiers]
+  - id: EME-MAT-PRE-02
+    nodeCpsId: college.maths.arithmetique.nombres-premiers
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 60
+    statement: "Quelle est la décomposition en produit de facteurs premiers de 60 ?"
+    options:
+      - key: A
+        label: "2 × 3 × 10"
+        correct: false
+        distractorRationale: "10 n'est pas premier : la décomposition n'est pas terminée."
+      - key: B
+        label: "2² × 3 × 5"
+        correct: true
+      - key: C
+        label: "4 × 15"
+        correct: false
+        distractorRationale: "Ni 4 ni 15 ne sont premiers."
+      - key: D
+        label: "6 × 10"
+        correct: false
+        distractorRationale: "Ni 6 ni 10 ne sont premiers."
+    shortCorrection: "60 = 2 × 30 = 2 × 2 × 15 = 2² × 3 × 5, produit de facteurs tous premiers."
+    tags: [arithmetique, decomposition]
+
+  # ===========================================================================
+  # NŒUD 4 — PGCD et fractions irréductibles
+  # Pourquoi structurant : le PGCD, réactivé par l'algorithme d'Euclide, doit être un acquis sûr avant les congruences.
+  # ===========================================================================
+  - id: EME-MAT-PGC-01
+    nodeCpsId: college.maths.arithmetique.pgcd
+    type: QCM_SIMPLE
+    difficulty: 1
+    targetTimeSec: 50
+    statement: "Quel est le PGCD de 12 et 18 ?"
+    options:
+      - key: A
+        label: "2"
+        correct: false
+        distractorRationale: "Ne retient qu'un diviseur commun sans chercher le plus grand."
+      - key: B
+        label: "36"
+        correct: false
+        distractorRationale: "Donne le PPCM (plus petit multiple commun) au lieu du PGCD."
+      - key: C
+        label: "6"
+        correct: true
+      - key: D
+        label: "3"
+        correct: false
+        distractorRationale: "Oublie que 6 divise aussi 12 et 18."
+    shortCorrection: "Les diviseurs communs de 12 et 18 sont 1, 2, 3, 6 ; le plus grand est 6."
+    tags: [arithmetique, pgcd]
+  - id: EME-MAT-PGC-02
+    nodeCpsId: college.maths.arithmetique.pgcd
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 55
+    statement: "Quelle est la forme irréductible de la fraction 24/36 ?"
+    options:
+      - key: A
+        label: "4/6"
+        correct: false
+        distractorRationale: "Simplifie par 6 mais ne va pas jusqu'au bout."
+      - key: B
+        label: "12/18"
+        correct: false
+        distractorRationale: "Simplifie par 2 seulement."
+      - key: C
+        label: "6/9"
+        correct: false
+        distractorRationale: "Simplifie par 4 seulement, sans atteindre l'irréductible."
+      - key: D
+        label: "2/3"
+        correct: true
+    shortCorrection: "On divise numérateur et dénominateur par leur PGCD, 12 : 24/36 = 2/3."
+    tags: [arithmetique, fractions]
+
+  # ===========================================================================
+  # NŒUD 5 — Calcul algébrique et factorisation
+  # Pourquoi structurant : les manipulations algébriques sont omniprésentes dans les preuves d'arithmétique et de matrices.
+  # ===========================================================================
+  - id: EME-MAT-FAC-01
+    nodeCpsId: 2de.maths.calcul-litteral.factorisation
+    type: QCM_SIMPLE
+    difficulty: 1
+    targetTimeSec: 50
+    statement: "Factoriser l'expression x² − 16."
+    options:
+      - key: A
+        label: "(x − 4)²"
+        correct: false
+        distractorRationale: "Confond la différence de deux carrés avec le carré d'une différence."
+      - key: B
+        label: "(x − 4)(x + 4)"
+        correct: true
+      - key: C
+        label: "(x − 16)(x + 1)"
+        correct: false
+        distractorRationale: "Cherche deux nombres de produit −16 sans respecter l'identité."
+      - key: D
+        label: "x(x − 16)"
+        correct: false
+        distractorRationale: "Factorise par x alors que 16 n'est pas multiple de x."
+    shortCorrection: "x² − 16 = x² − 4² = (x − 4)(x + 4), identité de la différence de deux carrés."
+    tags: [algebre, factorisation]
+  - id: EME-MAT-FAC-02
+    nodeCpsId: 2de.maths.calcul-litteral.factorisation
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 60
+    statement: "Développer et réduire (x − 3)(x + 5)."
+    options:
+      - key: A
+        label: "x² + 2x − 15"
+        correct: true
+      - key: B
+        label: "x² − 15"
+        correct: false
+        distractorRationale: "Oublie le terme en x issu du double produit."
+      - key: C
+        label: "x² − 2x − 15"
+        correct: false
+        distractorRationale: "Se trompe de signe sur le terme en x."
+      - key: D
+        label: "x² + 8x − 15"
+        correct: false
+        distractorRationale: "Additionne les nombres au lieu de calculer le terme en x correctement."
+    shortCorrection: "(x − 3)(x + 5) = x² + 5x − 3x − 15 = x² + 2x − 15."
+    tags: [algebre, developpement]
+
+  # ===========================================================================
+  # NŒUD 6 — Systèmes d'équations linéaires
+  # Pourquoi structurant : la résolution de systèmes prépare directement le calcul matriciel de l'option.
+  # ===========================================================================
+  - id: EME-MAT-SYS-01
+    nodeCpsId: 2de.maths.systemes.equations-lineaires
+    type: QCM_SIMPLE
+    difficulty: 1
+    targetTimeSec: 60
+    statement: "Quelle est la solution du système { x + y = 7 ; x − y = 1 } ?"
+    options:
+      - key: A
+        label: "x = 3 et y = 4"
+        correct: false
+        distractorRationale: "Inverse les valeurs de x et y."
+      - key: B
+        label: "x = 5 et y = 2"
+        correct: false
+        distractorRationale: "Vérifie la première équation mais pas la seconde."
+      - key: C
+        label: "x = 6 et y = 1"
+        correct: false
+        distractorRationale: "Ne vérifie pas x − y = 1."
+      - key: D
+        label: "x = 4 et y = 3"
+        correct: true
+    shortCorrection: "En additionnant les deux équations : 2x = 8, donc x = 4, puis y = 3."
+    tags: [systemes, resolution]
+  - id: EME-MAT-SYS-02
+    nodeCpsId: 2de.maths.systemes.equations-lineaires
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 55
+    statement: "Dans le système { 2x + y = 8 ; x = 3 }, que vaut y ?"
+    options:
+      - key: A
+        label: "5"
+        correct: false
+        distractorRationale: "Remplace x par 3 mais se trompe dans le calcul de 2 × 3."
+      - key: B
+        label: "14"
+        correct: false
+        distractorRationale: "Additionne au lieu de soustraire pour isoler y."
+      - key: C
+        label: "2"
+        correct: true
+      - key: D
+        label: "−2"
+        correct: false
+        distractorRationale: "Se trompe de signe en isolant y."
+    shortCorrection: "Avec x = 3 : 2 × 3 + y = 8, donc y = 8 − 6 = 2."
+    tags: [systemes, substitution]
+
+  # ===========================================================================
+  # NŒUD 7 — Logique : implication, réciproque, contraposée
+  # Pourquoi structurant : les démonstrations d'arithmétique reposent sur un maniement rigoureux de l'implication et de sa contraposée.
+  # ===========================================================================
+  - id: EME-MAT-LOG-01
+    nodeCpsId: 1re.maths.logique.implication-contraposee
+    type: QCM_SIMPLE
+    difficulty: 1
+    targetTimeSec: 60
+    statement: "Quelle est la contraposée de « Si n est pair, alors n² est pair » ?"
+    options:
+      - key: A
+        label: "Si n² est impair, alors n est impair"
+        correct: true
+      - key: B
+        label: "Si n² est pair, alors n est pair"
+        correct: false
+        distractorRationale: "Énonce la réciproque, pas la contraposée."
+      - key: C
+        label: "Si n est impair, alors n² est impair"
+        correct: false
+        distractorRationale: "Nie les deux propositions sans les échanger : ce n'est pas la contraposée."
+      - key: D
+        label: "n est pair si et seulement si n² est pair"
+        correct: false
+        distractorRationale: "Énonce une équivalence, pas la contraposée."
+    shortCorrection: "La contraposée de « A ⟹ B » est « non B ⟹ non A » : « Si n² est impair, alors n est impair »."
+    tags: [logique, contraposee]
+  - id: EME-MAT-LOG-02
+    nodeCpsId: 1re.maths.logique.implication-contraposee
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 70
+    statement: "La réciproque de « Si x = 2, alors x² = 4 » est-elle vraie ?"
+    options:
+      - key: A
+        label: "Oui, toujours"
+        correct: false
+        distractorRationale: "Oublie que x = −2 vérifie aussi x² = 4."
+      - key: B
+        label: "Non, car x pourrait valoir −2"
+        correct: true
+      - key: C
+        label: "Oui, car x² = 4 donne x = 2"
+        correct: false
+        distractorRationale: "Ne retient qu'une des deux racines de x² = 4."
+      - key: D
+        label: "C'est équivalent à l'implication de départ"
+        correct: false
+        distractorRationale: "Confond une implication et sa réciproque."
+    shortCorrection: "La réciproque « Si x² = 4, alors x = 2 » est fausse : x = −2 vérifie x² = 4 sans être égal à 2."
+    tags: [logique, reciproque]
+
+  # ===========================================================================
+  # NŒUD 8 — Suites arithmétiques et géométriques
+  # Pourquoi structurant : les suites de Première fondent le raisonnement par récurrence, cœur de l'option.
+  # ===========================================================================
+  - id: EME-MAT-SUI-01
+    nodeCpsId: 1re.maths.suites.arithmetiques-geometriques
+    type: QCM_SIMPLE
+    difficulty: 1
+    targetTimeSec: 55
+    statement: "La suite (u_n) est arithmétique de premier terme u_0 = 3 et de raison 4. Que vaut u_5 ?"
+    options:
+      - key: A
+        label: "20"
+        correct: false
+        distractorRationale: "Calcule 5 × 4 mais oublie d'ajouter le premier terme."
+      - key: B
+        label: "19"
+        correct: false
+        distractorRationale: "Utilise u_0 + 4 × 4 au lieu de 5 × 4."
+      - key: C
+        label: "23"
+        correct: true
+      - key: D
+        label: "35"
+        correct: false
+        distractorRationale: "Ajoute la raison au rang plutôt que de la multiplier."
+    shortCorrection: "Pour une suite arithmétique, u_5 = u_0 + 5 × 4 = 3 + 20 = 23."
+    tags: [suites, arithmetique]
+  - id: EME-MAT-SUI-02
+    nodeCpsId: 1re.maths.suites.arithmetiques-geometriques
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 60
+    statement: "La suite (v_n) est géométrique de premier terme v_0 = 1 et de raison 2. Que vaut v_5 ?"
+    options:
+      - key: A
+        label: "10"
+        correct: false
+        distractorRationale: "Multiplie le rang par la raison au lieu d'élever à la puissance."
+      - key: B
+        label: "16"
+        correct: false
+        distractorRationale: "Calcule 2⁴ au lieu de 2⁵."
+      - key: C
+        label: "64"
+        correct: false
+        distractorRationale: "Calcule 2⁶ au lieu de 2⁵."
+      - key: D
+        label: "32"
+        correct: true
+    shortCorrection: "Pour une suite géométrique, v_5 = v_0 × 2⁵ = 1 × 32 = 32."
+    tags: [suites, geometrique]
+
+  # ===========================================================================
+  # NŒUD 9 — Dénombrement : principe multiplicatif
+  # Pourquoi structurant : compter des configurations prépare le dénombrement et les graphes de l'option.
+  # ===========================================================================
+  - id: EME-MAT-DEN-01
+    nodeCpsId: 1re.maths.denombrement.principe-multiplicatif
+    type: QCM_SIMPLE
+    difficulty: 1
+    targetTimeSec: 50
+    statement: "Un menu propose 3 entrées et 4 plats. Combien de repas « entrée + plat » différents peut-on composer ?"
+    options:
+      - key: A
+        label: "12"
+        correct: true
+      - key: B
+        label: "7"
+        correct: false
+        distractorRationale: "Additionne les choix au lieu de les multiplier."
+      - key: C
+        label: "3"
+        correct: false
+        distractorRationale: "Ne compte que les entrées."
+      - key: D
+        label: "4"
+        correct: false
+        distractorRationale: "Ne compte que les plats."
+    shortCorrection: "Chaque entrée peut être associée à chaque plat : 3 × 4 = 12 repas."
+    tags: [denombrement, principe-multiplicatif]
+  - id: EME-MAT-DEN-02
+    nodeCpsId: 1re.maths.denombrement.principe-multiplicatif
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 70
+    statement: "Combien de nombres de deux chiffres (de 00 à 99) commencent par un chiffre pair ?"
+    options:
+      - key: A
+        label: "45"
+        correct: false
+        distractorRationale: "Oublie le chiffre 0 parmi les chiffres pairs du premier rang."
+      - key: B
+        label: "50"
+        correct: true
+      - key: C
+        label: "20"
+        correct: false
+        distractorRationale: "Confond « pair » avec un nombre limité de possibilités."
+      - key: D
+        label: "100"
+        correct: false
+        distractorRationale: "Compte tous les nombres sans imposer le premier chiffre pair."
+    shortCorrection: "Le premier chiffre pair a 5 choix (0, 2, 4, 6, 8), le second 10 choix : 5 × 10 = 50."
+    tags: [denombrement, principe-multiplicatif]

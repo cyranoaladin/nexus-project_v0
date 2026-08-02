@@ -1,0 +1,501 @@
+# =============================================================================
+# Banque de positionnement — ENTRÉE EN QUATRIÈME, Mathématiques
+#
+# Doctrine : intersection Cinquième / Quatrième. Chaque item porte sur un
+# prérequis structurant SANS LEQUEL les premières semaines de Quatrième sont
+# inaccessibles. Aucun item ne teste une notion de Quatrième (ni multiplication
+# de relatifs, ni puissances, ni Pythagore, ni cosinus, ni double distributivité).
+# Source de référence : programmes officiels du cycle 4 (eduscol).
+#
+# STATUT : DRAFT — proposition à amender par le responsable pédagogique.
+#
+# 18 items · 9 nœuds de prérequis · 2 items par nœud (règle V4)
+# Distribution des bonnes réponses : A=5, B=5, C=4, D=4 (règle V14 : max 40 %)
+# =============================================================================
+
+slug: entree-quatrieme-maths-v1
+level: QUATRIEME
+subject: MATHS
+version: 1
+status: DRAFT
+targetDurationMin: 25
+
+
+items:
+
+  # ===========================================================================
+  # NŒUD 1 — Nombres relatifs : somme, différence, priorités
+  # Pourquoi structurant : la 4e ajoute la multiplication et la division de relatifs sur une base d'addition et de soustraction sûres. Une erreur de signe ici se propage à tout le calcul de 4e.
+  # ===========================================================================
+  - id: 4E-MAT-REL-01
+    nodeCpsId: 5e.maths.relatifs.somme-difference-priorites
+    type: QCM_SIMPLE
+    difficulty: 1
+    targetTimeSec: 45
+    statement: "Calculer (−7) + (−5)."
+    options:
+      - key: A
+        label: "−2"
+        correct: false
+        distractorRationale: "Soustrait les nombres au lieu de les additionner."
+      - key: B
+        label: "2"
+        correct: false
+        distractorRationale: "Soustrait puis se trompe de signe."
+      - key: C
+        label: "−12"
+        correct: true
+      - key: D
+        label: "12"
+        correct: false
+        distractorRationale: "Additionne bien les distances mais oublie le signe négatif."
+    shortCorrection: "Deux nombres négatifs s'ajoutent en distance et gardent le signe négatif : (−7) + (−5) = −12."
+    tags: [relatifs, somme]
+  - id: 4E-MAT-REL-02
+    nodeCpsId: 5e.maths.relatifs.somme-difference-priorites
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 55
+    statement: "Calculer 3 − (−4) + (−6)."
+    options:
+      - key: A
+        label: "1"
+        correct: true
+      - key: B
+        label: "−7"
+        correct: false
+        distractorRationale: "Traite − (−4) comme − 4 : erreur de signe sur la soustraction d'un négatif."
+      - key: C
+        label: "13"
+        correct: false
+        distractorRationale: "Additionne tout sans tenir compte du dernier terme négatif."
+      - key: D
+        label: "−1"
+        correct: false
+        distractorRationale: "Calcule 3 − 4 + 6 en inversant deux signes."
+    shortCorrection: "Soustraire (−4) revient à ajouter 4 : 3 + 4 − 6 = 1."
+    tags: [relatifs, priorites]
+
+  # ===========================================================================
+  # NŒUD 2 — Fractions : somme et différence
+  # Pourquoi structurant : la 4e généralise aux produits et quotients. Additionner les dénominateurs interdit tout calcul fractionnaire de 4e.
+  # ===========================================================================
+  - id: 4E-MAT-FRA-01
+    nodeCpsId: 5e.maths.fractions.somme-difference
+    type: QCM_SIMPLE
+    difficulty: 1
+    targetTimeSec: 45
+    statement: "Calculer 3/7 + 2/7."
+    options:
+      - key: A
+        label: "5/14"
+        correct: false
+        distractorRationale: "Additionne aussi les dénominateurs."
+      - key: B
+        label: "5/7"
+        correct: true
+      - key: C
+        label: "6/7"
+        correct: false
+        distractorRationale: "Additionne les numérateurs mais recopie un dénominateur erroné."
+      - key: D
+        label: "5/49"
+        correct: false
+        distractorRationale: "Multiplie les dénominateurs au lieu de les conserver."
+    shortCorrection: "Avec le même dénominateur, on additionne les numérateurs : 3/7 + 2/7 = 5/7."
+    tags: [fractions, somme]
+  - id: 4E-MAT-FRA-02
+    nodeCpsId: 5e.maths.fractions.somme-difference
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 60
+    statement: "Calculer 5/6 − 1/3."
+    options:
+      - key: A
+        label: "4/3"
+        correct: false
+        distractorRationale: "Soustrait numérateurs et dénominateurs entre eux sans dénominateur commun."
+      - key: B
+        label: "2/3"
+        correct: false
+        distractorRationale: "Met au même dénominateur mais oublie de convertir le numérateur de 1/3."
+      - key: C
+        label: "1/3"
+        correct: false
+        distractorRationale: "Se trompe de résultat en ne simplifiant pas 2/6."
+      - key: D
+        label: "1/2"
+        correct: true
+    shortCorrection: "On convertit 1/3 = 2/6, donc 5/6 − 2/6 = 3/6 = 1/2."
+    tags: [fractions, difference]
+
+  # ===========================================================================
+  # NŒUD 3 — Proportionnalité : quatrième proportionnelle et pourcentages
+  # Pourquoi structurant : vitesses, pourcentages et agrandissements de 4e reposent sur le produit en croix, qui doit être automatique.
+  # ===========================================================================
+  - id: 4E-MAT-PRP-01
+    nodeCpsId: 5e.maths.proportionnalite.quatrieme-proportionnelle
+    type: QCM_SIMPLE
+    difficulty: 1
+    targetTimeSec: 55
+    statement: "5 cahiers identiques coûtent 12 dinars. Combien coûtent 15 cahiers au même prix unitaire ?"
+    options:
+      - key: A
+        label: "36 dinars"
+        correct: true
+      - key: B
+        label: "22 dinars"
+        correct: false
+        distractorRationale: "Ajoute 10 dinars pour 10 cahiers de plus, en raisonnant de façon additive."
+      - key: C
+        label: "60 dinars"
+        correct: false
+        distractorRationale: "Multiplie le prix par le nombre de cahiers sans revenir au prix unitaire."
+      - key: D
+        label: "2,4 dinars"
+        correct: false
+        distractorRationale: "Donne le prix d'un seul cahier au lieu de quinze."
+    shortCorrection: "Le prix unitaire est 12 ÷ 5 = 2,4 dinars. Pour 15 cahiers : 15 × 2,4 = 36 dinars."
+    tags: [proportionnalite, quatrieme-proportionnelle]
+  - id: 4E-MAT-PRP-02
+    nodeCpsId: 5e.maths.proportionnalite.quatrieme-proportionnelle
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 55
+    statement: "Dans une classe de 25 élèves, 20 % sont absents. Combien d'élèves sont absents ?"
+    options:
+      - key: A
+        label: "20"
+        correct: false
+        distractorRationale: "Confond le pourcentage avec un nombre d'élèves."
+      - key: B
+        label: "5"
+        correct: true
+      - key: C
+        label: "4"
+        correct: false
+        distractorRationale: "Calcule 25 ÷ 5 puis se trompe, ou divise par 5 sans raison."
+      - key: D
+        label: "45"
+        correct: false
+        distractorRationale: "Ajoute le pourcentage au nombre d'élèves."
+    shortCorrection: "20 % de 25, c'est (20/100) × 25 = 5 élèves."
+    tags: [proportionnalite, pourcentages]
+
+  # ===========================================================================
+  # NŒUD 4 — Calcul littéral : réduction et distributivité simple
+  # Pourquoi structurant : la double distributivité de 4e s'appuie sur une distributivité simple maîtrisée et sur la réduction des termes semblables.
+  # ===========================================================================
+  - id: 4E-MAT-CLI-01
+    nodeCpsId: 5e.maths.calcul-litteral.distributivite-simple
+    type: QCM_SIMPLE
+    difficulty: 1
+    targetTimeSec: 50
+    statement: "Développer 4(x + 3)."
+    options:
+      - key: A
+        label: "4x + 3"
+        correct: false
+        distractorRationale: "Distribue le 4 au premier terme seulement."
+      - key: B
+        label: "x + 12"
+        correct: false
+        distractorRationale: "Distribue au 3 mais oublie le facteur devant x."
+      - key: C
+        label: "4x + 12"
+        correct: true
+      - key: D
+        label: "4x + 7"
+        correct: false
+        distractorRationale: "Additionne 4 et 3 au lieu de multiplier."
+    shortCorrection: "La distributivité donne 4 × x + 4 × 3 = 4x + 12."
+    tags: [calcul-litteral, distributivite]
+  - id: 4E-MAT-CLI-02
+    nodeCpsId: 5e.maths.calcul-litteral.distributivite-simple
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 55
+    statement: "Réduire l'expression 5x + 2 + 3x − 6."
+    options:
+      - key: A
+        label: "8x + 4"
+        correct: false
+        distractorRationale: "Additionne les termes constants sans tenir compte du signe de −6."
+      - key: B
+        label: "8x − 8"
+        correct: false
+        distractorRationale: "Soustrait 2 au lieu de l'ajouter."
+      - key: C
+        label: "2x − 4"
+        correct: false
+        distractorRationale: "Soustrait les termes en x au lieu de les additionner."
+      - key: D
+        label: "8x − 4"
+        correct: true
+    shortCorrection: "On regroupe : (5x + 3x) + (2 − 6) = 8x − 4."
+    tags: [calcul-litteral, reduction]
+
+  # ===========================================================================
+  # NŒUD 5 — Angles : somme des angles d'un triangle
+  # Pourquoi structurant : les démonstrations d'angles de 4e (angles alternes-internes, triangles) supposent la somme des angles connue et appliquée.
+  # ===========================================================================
+  - id: 4E-MAT-ANG-01
+    nodeCpsId: 5e.maths.geometrie.angles-triangle
+    type: QCM_SIMPLE
+    difficulty: 1
+    targetTimeSec: 50
+    statement: "Dans un triangle, deux angles mesurent 50° et 70°. Quelle est la mesure du troisième angle ?"
+    options:
+      - key: A
+        label: "120°"
+        correct: false
+        distractorRationale: "Additionne les deux angles sans conclure sur le troisième."
+      - key: B
+        label: "60°"
+        correct: true
+      - key: C
+        label: "180°"
+        correct: false
+        distractorRationale: "Donne la somme des trois angles au lieu du troisième."
+      - key: D
+        label: "70°"
+        correct: false
+        distractorRationale: "Suppose le triangle isocèle sans justification."
+    shortCorrection: "La somme des angles d'un triangle vaut 180° : 180 − (50 + 70) = 60°."
+    tags: [angles, triangle]
+  - id: 4E-MAT-ANG-02
+    nodeCpsId: 5e.maths.geometrie.angles-triangle
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 55
+    statement: "Un triangle est rectangle et l'un de ses angles aigus mesure 35°. Que vaut l'autre angle aigu ?"
+    options:
+      - key: A
+        label: "55°"
+        correct: true
+      - key: B
+        label: "65°"
+        correct: false
+        distractorRationale: "Soustrait 35 de 100 au lieu de 90."
+      - key: C
+        label: "45°"
+        correct: false
+        distractorRationale: "Suppose les deux angles aigus égaux."
+      - key: D
+        label: "145°"
+        correct: false
+        distractorRationale: "Soustrait 35 de 180 en oubliant l'angle droit."
+    shortCorrection: "Dans un triangle rectangle, les deux angles aigus sont complémentaires : 90 − 35 = 55°."
+    tags: [angles, triangle-rectangle]
+
+  # ===========================================================================
+  # NŒUD 6 — Aires et périmètres
+  # Pourquoi structurant : les grandeurs composées et le théorème de Pythagore de 4e réinvestissent constamment aires et périmètres des figures usuelles.
+  # ===========================================================================
+  - id: 4E-MAT-AIR-01
+    nodeCpsId: 5e.maths.grandeurs.aires-perimetres
+    type: QCM_SIMPLE
+    difficulty: 1
+    targetTimeSec: 50
+    statement: "Quelle est l'aire d'un rectangle de longueur 8 cm et de largeur 5 cm ?"
+    options:
+      - key: A
+        label: "26 cm"
+        correct: false
+        distractorRationale: "Calcule le périmètre au lieu de l'aire."
+      - key: B
+        label: "13 cm"
+        correct: false
+        distractorRationale: "Additionne la longueur et la largeur."
+      - key: C
+        label: "40 cm"
+        correct: false
+        distractorRationale: "Donne le bon nombre mais une unité de longueur au lieu d'aire."
+      - key: D
+        label: "40 cm²"
+        correct: true
+    shortCorrection: "L'aire d'un rectangle est longueur × largeur = 8 × 5 = 40 cm²."
+    tags: [aires, rectangle]
+  - id: 4E-MAT-AIR-02
+    nodeCpsId: 5e.maths.grandeurs.aires-perimetres
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 60
+    statement: "Quelle est l'aire d'un triangle de base 6 cm et de hauteur 4 cm ?"
+    options:
+      - key: A
+        label: "24 cm²"
+        correct: false
+        distractorRationale: "Oublie de diviser par 2 : calcule base × hauteur."
+      - key: B
+        label: "10 cm²"
+        correct: false
+        distractorRationale: "Additionne la base et la hauteur."
+      - key: C
+        label: "12 cm²"
+        correct: true
+      - key: D
+        label: "12 cm"
+        correct: false
+        distractorRationale: "Trouve le bon nombre mais une unité de longueur au lieu d'aire."
+    shortCorrection: "L'aire d'un triangle est (base × hauteur) ÷ 2 = (6 × 4) ÷ 2 = 12 cm²."
+    tags: [aires, triangle]
+
+  # ===========================================================================
+  # NŒUD 7 — Symétrie centrale et parallélogramme
+  # Pourquoi structurant : les propriétés du parallélogramme, centrales en 4e, découlent de la symétrie centrale introduite en 5e.
+  # ===========================================================================
+  - id: 4E-MAT-SYM-01
+    nodeCpsId: 5e.maths.geometrie.symetrie-centrale
+    type: QCM_SIMPLE
+    difficulty: 1
+    targetTimeSec: 55
+    statement: "Par la symétrie centrale de centre O, l'image d'un segment [AB] est :"
+    options:
+      - key: A
+        label: "un segment de même longueur que [AB]"
+        correct: true
+      - key: B
+        label: "un segment deux fois plus long que [AB]"
+        correct: false
+        distractorRationale: "Confond symétrie centrale et agrandissement."
+      - key: C
+        label: "le point O"
+        correct: false
+        distractorRationale: "Confond l'image du segment avec le centre de symétrie."
+      - key: D
+        label: "un segment perpendiculaire à [AB]"
+        correct: false
+        distractorRationale: "Confond symétrie centrale et symétrie axiale."
+    shortCorrection: "La symétrie centrale conserve les longueurs : l'image de [AB] est un segment de même longueur, parallèle à [AB]."
+    tags: [symetrie, conservation]
+  - id: 4E-MAT-SYM-02
+    nodeCpsId: 5e.maths.geometrie.symetrie-centrale
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 55
+    statement: "Un quadrilatère qui admet un centre de symétrie est nécessairement :"
+    options:
+      - key: A
+        label: "un carré"
+        correct: false
+        distractorRationale: "Ajoute des conditions non exigées : le carré est un cas particulier."
+      - key: B
+        label: "un parallélogramme"
+        correct: true
+      - key: C
+        label: "un trapèze quelconque"
+        correct: false
+        distractorRationale: "Un trapèze quelconque n'a pas de centre de symétrie."
+      - key: D
+        label: "un triangle"
+        correct: false
+        distractorRationale: "Un triangle n'est pas un quadrilatère."
+    shortCorrection: "Un quadrilatère possédant un centre de symétrie est un parallélogramme ; carré et rectangle n'en sont que des cas particuliers."
+    tags: [symetrie, parallelogramme]
+
+  # ===========================================================================
+  # NŒUD 8 — Statistiques : fréquences et moyenne
+  # Pourquoi structurant : la 4e introduit les moyennes pondérées et les fréquences en pourcentage sur cette base.
+  # ===========================================================================
+  - id: 4E-MAT-STA-01
+    nodeCpsId: 5e.maths.statistiques.frequences-moyenne
+    type: QCM_SIMPLE
+    difficulty: 1
+    targetTimeSec: 50
+    statement: "Quelle est la moyenne de la série 6 ; 9 ; 12 ; 9 ?"
+    options:
+      - key: A
+        label: "12"
+        correct: false
+        distractorRationale: "Donne la valeur la plus fréquente au lieu de la moyenne."
+      - key: B
+        label: "36"
+        correct: false
+        distractorRationale: "Donne la somme sans diviser."
+      - key: C
+        label: "9"
+        correct: true
+      - key: D
+        label: "6"
+        correct: false
+        distractorRationale: "Donne la plus petite valeur."
+    shortCorrection: "Moyenne = (6 + 9 + 12 + 9) ÷ 4 = 36 ÷ 4 = 9."
+    tags: [statistiques, moyenne]
+  - id: 4E-MAT-STA-02
+    nodeCpsId: 5e.maths.statistiques.frequences-moyenne
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 60
+    statement: "Sur 20 élèves, 8 pratiquent le football. Quelle est la fréquence, en pourcentage, des footballeurs ?"
+    options:
+      - key: A
+        label: "8 %"
+        correct: false
+        distractorRationale: "Confond l'effectif avec la fréquence en pourcentage."
+      - key: B
+        label: "12 %"
+        correct: false
+        distractorRationale: "Compte les élèves qui ne jouent pas au football."
+      - key: C
+        label: "2,5 %"
+        correct: false
+        distractorRationale: "Divise 20 par 8 au lieu de 8 par 20."
+      - key: D
+        label: "40 %"
+        correct: true
+    shortCorrection: "La fréquence est 8 ÷ 20 = 0,4, soit 40 %."
+    tags: [statistiques, frequences]
+
+  # ===========================================================================
+  # NŒUD 9 — Repérage et comparaison de relatifs
+  # Pourquoi structurant : le repérage dans le plan de 4e prolonge le repérage sur une droite graduée et la comparaison des relatifs.
+  # ===========================================================================
+  - id: 4E-MAT-REP-01
+    nodeCpsId: 5e.maths.relatifs.reperage-comparaison
+    type: QCM_SIMPLE
+    difficulty: 1
+    targetTimeSec: 45
+    statement: "Ranger dans l'ordre croissant : −3 ; 2 ; −7 ; 0."
+    options:
+      - key: A
+        label: "−7 < −3 < 0 < 2"
+        correct: true
+      - key: B
+        label: "−3 < −7 < 0 < 2"
+        correct: false
+        distractorRationale: "Range les négatifs comme s'ils étaient positifs : place −7 après −3."
+      - key: C
+        label: "2 < 0 < −3 < −7"
+        correct: false
+        distractorRationale: "Range dans l'ordre décroissant."
+      - key: D
+        label: "0 < −3 < 2 < −7"
+        correct: false
+        distractorRationale: "Ne compare pas correctement les signes."
+    shortCorrection: "Plus un nombre négatif est éloigné de 0, plus il est petit : −7 < −3 < 0 < 2."
+    tags: [relatifs, comparaison]
+  - id: 4E-MAT-REP-02
+    nodeCpsId: 5e.maths.relatifs.reperage-comparaison
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 55
+    statement: "Sur une droite graduée, un point a pour abscisse −4. Un second point est situé 6 unités à sa droite. Quelle est son abscisse ?"
+    options:
+      - key: A
+        label: "−10"
+        correct: false
+        distractorRationale: "Se déplace vers la gauche au lieu de la droite."
+      - key: B
+        label: "2"
+        correct: true
+      - key: C
+        label: "−2"
+        correct: false
+        distractorRationale: "Ajoute 6 en valeur absolue mais garde le signe négatif."
+      - key: D
+        label: "10"
+        correct: false
+        distractorRationale: "Additionne les distances sans tenir compte du point de départ négatif."
+    shortCorrection: "Se déplacer de 6 vers la droite revient à ajouter 6 : −4 + 6 = 2."
+    tags: [relatifs, reperage]

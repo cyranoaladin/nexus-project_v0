@@ -1,0 +1,536 @@
+# =============================================================================
+# Banque de positionnement — ENTRÉE EN TERMINALE, spécialité SVT
+#
+# Doctrine : intersection Première / Terminale. Chaque item porte sur un
+# prérequis structurant SANS LEQUEL les trois thèmes de Terminale — génétique
+# et évolution, enjeux planétaires contemporains, corps humain et santé — sont
+# inaccessibles.
+#
+# STATUT : DRAFT — proposition à amender par le responsable pédagogique.
+# La validation relève d'un enseignant de sciences de la vie et de la Terre.
+#
+# 18 items · 9 nœuds de prérequis · 2 items par nœud (règle V4)
+# Distribution des bonnes réponses : A=5, B=5, C=4, D=4 (règle V14 : max 40 %)
+# =============================================================================
+
+slug: entree-terminale-svt-v1
+level: TERMINALE
+subject: SVT
+version: 1
+status: DRAFT
+targetDurationMin: 25
+
+items:
+
+  # ===========================================================================
+  # NŒUD 1 — Réplication de l'ADN et cycle cellulaire
+  # Pourquoi c'est structurant : la méiose et les brassages génétiques, qui
+  # ouvrent l'année, supposent de maîtriser la réplication et la conservation
+  # de l'information au cours de la mitose.
+  # ===========================================================================
+
+  - id: ETL-SVT-REP-01
+    nodeCpsId: 1re.svt.genetique.replication-cycle-cellulaire
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 55
+    statement: "Pourquoi dit-on que la réplication de l'ADN est semi-conservative ?"
+    options:
+      - key: A
+        label: "parce que seule la moitié du génome est copiée"
+        correct: false
+        distractorRationale: "Interprète le préfixe comme une copie partielle du patrimoine génétique."
+      - key: B
+        label: "parce que chaque molécule fille contient un brin parental et un brin néoformé"
+        correct: true
+      - key: C
+        label: "parce que la moitié des cellules filles conserve l'ADN d'origine"
+        correct: false
+        distractorRationale: "Déplace la conservation à l'échelle des cellules alors qu'elle se joue à celle des brins."
+      - key: D
+        label: "parce que la copie n'est fidèle qu'à cinquante pour cent"
+        correct: false
+        distractorRationale: "Confond la conservation d'un brin avec un taux d'erreur de copie."
+    shortCorrection: "Chaque brin de la molécule initiale sert de matrice. Les deux molécules obtenues associent donc un brin ancien et un brin nouvellement synthétisé."
+    tags: [genetique, replication]
+
+  - id: ETL-SVT-REP-02
+    nodeCpsId: 1re.svt.genetique.replication-cycle-cellulaire
+    type: QCM_SIMPLE
+    difficulty: 1
+    targetTimeSec: 50
+    statement: "À l'issue d'une mitose, les deux cellules filles possèdent :"
+    options:
+      - key: A
+        label: "deux fois plus de chromosomes que la cellule mère"
+        correct: false
+        distractorRationale: "Confond le doublement transitoire de la quantité d'ADN avec un doublement du nombre de chromosomes des cellules filles."
+      - key: B
+        label: "la moitié des chromosomes de la cellule mère"
+        correct: false
+        distractorRationale: "Attribue à la mitose la réduction chromatique propre à la méiose."
+      - key: C
+        label: "un assortiment aléatoire de chromosomes"
+        correct: false
+        distractorRationale: "Attribue à la mitose le brassage qui caractérise la méiose."
+      - key: D
+        label: "la même information génétique que la cellule mère"
+        correct: true
+    shortCorrection: "La mitose est une division conforme : les deux cellules filles reçoivent chacune la même information génétique que la cellule dont elles proviennent."
+    tags: [genetique, mitose]
+
+  # ===========================================================================
+  # NŒUD 2 — Expression du génome
+  # Pourquoi c'est structurant : la complexification des génomes et l'étude des
+  # mutations en Terminale supposent de distinguer transcription et traduction
+  # et de connaître les propriétés du code génétique.
+  # ===========================================================================
+
+  - id: ETL-SVT-EXP-01
+    nodeCpsId: 1re.svt.genetique.expression-du-genome
+    type: QCM_SIMPLE
+    difficulty: 1
+    targetTimeSec: 45
+    statement: "La transcription désigne :"
+    options:
+      - key: A
+        label: "la synthèse d'un ARN messager à partir d'un brin d'ADN"
+        correct: true
+      - key: B
+        label: "la synthèse d'une protéine à partir d'un ARN messager"
+        correct: false
+        distractorRationale: "Décrit la traduction, seconde étape de l'expression du génome."
+      - key: C
+        label: "la copie de l'ADN avant la division cellulaire"
+        correct: false
+        distractorRationale: "Décrit la réplication, qui produit de l'ADN et non de l'ARN."
+      - key: D
+        label: "la maturation d'un ARN pré-messager"
+        correct: false
+        distractorRationale: "Confond l'étape de synthèse avec l'étape ultérieure d'épissage."
+    shortCorrection: "La transcription copie une séquence d'ADN en ARN messager, dans le noyau. La traduction convertit ensuite cet ARN en protéine, dans le cytoplasme."
+    tags: [genetique, transcription]
+
+  - id: ETL-SVT-EXP-02
+    nodeCpsId: 1re.svt.genetique.expression-du-genome
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 55
+    statement: "Le code génétique est qualifié de redondant parce que :"
+    options:
+      - key: A
+        label: "un même codon peut coder plusieurs acides aminés différents"
+        correct: false
+        distractorRationale: "Décrit une ambiguïté que le code génétique ne possède pas : chaque codon désigne un seul acide aminé."
+      - key: B
+        label: "chaque gène est présent en double exemplaire dans le génome"
+        correct: false
+        distractorRationale: "Confond une propriété du code avec l'organisation diploïde du génome."
+      - key: C
+        label: "plusieurs codons différents peuvent coder le même acide aminé"
+        correct: true
+      - key: D
+        label: "l'ARN messager est lu deux fois par le ribosome"
+        correct: false
+        distractorRationale: "Interprète la redondance comme une répétition de la lecture."
+    shortCorrection: "Soixante-quatre codons codent une vingtaine d'acides aminés : plusieurs codons désignent donc le même acide aminé. C'est ce qui rend certaines mutations silencieuses."
+    tags: [genetique, code-genetique]
+
+  # ===========================================================================
+  # NŒUD 3 — Mutations
+  # Pourquoi c'est structurant : la variabilité génétique et son devenir dans
+  # les populations, cœur du premier thème de Terminale, reposent sur la nature
+  # et l'origine des mutations.
+  # ===========================================================================
+
+  - id: ETL-SVT-MUT-01
+    nodeCpsId: 1re.svt.genetique.mutations
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 60
+    statement: "Une mutation ponctuelle dite silencieuse est une mutation qui :"
+    options:
+      - key: A
+        label: "empêche toute transcription du gène concerné"
+        correct: false
+        distractorRationale: "Confond l'absence d'effet sur la protéine avec l'absence d'expression du gène."
+      - key: B
+        label: "modifie la séquence nucléotidique sans changer l'acide aminé codé"
+        correct: true
+      - key: C
+        label: "supprime un nucléotide et décale le cadre de lecture"
+        correct: false
+        distractorRationale: "Décrit une mutation par délétion, dont les conséquences sont au contraire majeures."
+      - key: D
+        label: "ne modifie pas la séquence de l'ADN"
+        correct: false
+        distractorRationale: "Nie l'existence même de la mutation : une mutation modifie toujours la séquence."
+    shortCorrection: "Grâce à la redondance du code génétique, un changement de nucléotide peut aboutir à un codon désignant le même acide aminé. La protéine reste alors inchangée."
+    tags: [genetique, mutation-silencieuse]
+
+  - id: ETL-SVT-MUT-02
+    nodeCpsId: 1re.svt.genetique.mutations
+    type: QCM_SIMPLE
+    difficulty: 3
+    targetTimeSec: 55
+    statement: "Concernant les agents mutagènes, quelle affirmation est exacte ?"
+    options:
+      - key: A
+        label: "ils augmentent la fréquence des mutations"
+        correct: true
+      - key: B
+        label: "ils provoquent des mutations orientées vers un besoin de l'organisme"
+        correct: false
+        distractorRationale: "Reprend une conception finaliste : les mutations surviennent au hasard, indépendamment de tout besoin."
+      - key: C
+        label: "ils n'affectent que les cellules germinales"
+        correct: false
+        distractorRationale: "Restreint aux cellules reproductrices un effet qui touche aussi les cellules somatiques."
+      - key: D
+        label: "ils réparent les erreurs survenues lors de la réplication"
+        correct: false
+        distractorRationale: "Attribue aux agents mutagènes le rôle inverse, qui est celui des systèmes de réparation."
+    shortCorrection: "Les mutations surviennent spontanément à faible fréquence. Un agent mutagène en augmente le taux, sans jamais en orienter la nature."
+    tags: [genetique, agents-mutagenes]
+
+  # ===========================================================================
+  # NŒUD 4 — Tectonique des plaques
+  # Pourquoi c'est structurant : la reconstitution des climats passés et
+  # l'étude des archives géologiques supposent de connaître la dynamique des
+  # plaques et la distinction lithosphère-asthénosphère.
+  # ===========================================================================
+
+  - id: ETL-SVT-TEC-01
+    nodeCpsId: 1re.svt.geologie.tectonique-des-plaques
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 55
+    statement: "Que se produit-il au niveau d'une zone de subduction ?"
+    options:
+      - key: A
+        label: "deux plaques s'écartent l'une de l'autre"
+        correct: false
+        distractorRationale: "Décrit une dorsale océanique, où les plaques divergent."
+      - key: B
+        label: "de la lithosphère océanique est créée"
+        correct: false
+        distractorRationale: "Décrit l'accrétion, phénomène propre aux dorsales et non aux zones de subduction."
+      - key: C
+        label: "de la lithosphère océanique s'enfonce dans l'asthénosphère"
+        correct: true
+      - key: D
+        label: "de la croûte continentale est produite par accrétion"
+        correct: false
+        distractorRationale: "Confond le mécanisme de production de croûte océanique avec la dynamique de subduction."
+    shortCorrection: "En subduction, une plaque océanique dense plonge sous une autre plaque et s'enfonce dans l'asthénosphère. C'est le lieu de recyclage de la lithosphère océanique."
+    tags: [geologie, subduction]
+
+  - id: ETL-SVT-TEC-02
+    nodeCpsId: 1re.svt.geologie.tectonique-des-plaques
+    type: QCM_SIMPLE
+    difficulty: 3
+    targetTimeSec: 55
+    statement: "La lithosphère se distingue de l'asthénosphère principalement par :"
+    options:
+      - key: A
+        label: "sa composition chimique, entièrement différente"
+        correct: false
+        distractorRationale: "Fait de la distinction un critère chimique, alors que le manteau lithosphérique et l'asthénosphère ont la même composition."
+      - key: B
+        label: "son comportement mécanique : elle est rigide"
+        correct: true
+      - key: C
+        label: "sa température, systématiquement plus élevée"
+        correct: false
+        distractorRationale: "Inverse le gradient : la lithosphère est au contraire plus froide."
+      - key: D
+        label: "son épaisseur, constante sur toute la surface du globe"
+        correct: false
+        distractorRationale: "Attribue à la lithosphère une épaisseur uniforme, alors qu'elle varie fortement selon les contextes."
+    shortCorrection: "La limite entre lithosphère et asthénosphère est mécanique, non chimique : la lithosphère est rigide, l'asthénosphère est ductile et se déforme sur de longues durées."
+    tags: [geologie, lithosphere]
+
+  # ===========================================================================
+  # NŒUD 5 — Magmatisme et roches magmatiques
+  # Pourquoi c'est structurant : la lecture des roches comme archives, en
+  # Terminale, suppose de savoir relier structure d'une roche et conditions de
+  # refroidissement.
+  # ===========================================================================
+
+  - id: ETL-SVT-MAG-01
+    nodeCpsId: 1re.svt.geologie.magmatisme
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 55
+    statement: "Le refroidissement lent d'un magma en profondeur produit une roche :"
+    options:
+      - key: A
+        label: "sédimentaire détritique"
+        correct: false
+        distractorRationale: "Confond l'origine magmatique avec un dépôt de particules issues de l'érosion."
+      - key: B
+        label: "métamorphique"
+        correct: false
+        distractorRationale: "Confond la cristallisation d'un magma avec la transformation d'une roche à l'état solide."
+      - key: C
+        label: "volcanique à structure microlitique"
+        correct: false
+        distractorRationale: "Associe un refroidissement lent à la structure produite par un refroidissement rapide en surface."
+      - key: D
+        label: "plutonique à structure grenue"
+        correct: true
+    shortCorrection: "Un refroidissement lent laisse le temps aux cristaux de se former entièrement : la roche est grenue. Un refroidissement rapide en surface donne au contraire une structure microlitique."
+    tags: [geologie, roches-magmatiques]
+
+  - id: ETL-SVT-MAG-02
+    nodeCpsId: 1re.svt.geologie.magmatisme
+    type: QCM_SIMPLE
+    difficulty: 3
+    targetTimeSec: 65
+    statement: "Dans une zone de subduction, la fusion partielle du manteau est principalement provoquée par :"
+    options:
+      - key: A
+        label: "l'hydratation des péridotites par l'eau libérée par la plaque plongeante"
+        correct: true
+      - key: B
+        label: "une augmentation brutale de la pression"
+        correct: false
+        distractorRationale: "Suppose qu'une hausse de pression favorise la fusion, alors qu'elle l'inhibe."
+      - key: C
+        label: "le frottement entre les deux plaques"
+        correct: false
+        distractorRationale: "Attribue la fusion à une source de chaleur mécanique dont l'ordre de grandeur est insuffisant."
+      - key: D
+        label: "la désintégration d'éléments radioactifs dans la croûte"
+        correct: false
+        distractorRationale: "Invoque une source de chaleur globale sans lien avec la localisation du magmatisme de subduction."
+    shortCorrection: "L'eau libérée par la plaque qui plonge abaisse la température de fusion des péridotites du manteau sus-jacent. Cette fusion partielle engendre le magmatisme des zones de subduction."
+    tags: [geologie, fusion-partielle]
+
+  # ===========================================================================
+  # NŒUD 6 — Immunité innée et adaptative
+  # Pourquoi c'est structurant : la connaissance des acteurs et des propriétés
+  # de la réponse adaptative conditionne l'étude de la vaccination et des
+  # dérèglements immunitaires.
+  # ===========================================================================
+
+  - id: ETL-SVT-IMM-01
+    nodeCpsId: 1re.svt.immunite.reponse-innee-adaptative
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 55
+    statement: "La réponse immunitaire adaptative se distingue de la réponse innée par :"
+    options:
+      - key: A
+        label: "sa rapidité de mise en œuvre"
+        correct: false
+        distractorRationale: "Attribue à la réponse adaptative la rapidité qui caractérise justement la réponse innée."
+      - key: B
+        label: "sa spécificité vis-à-vis de l'antigène et l'existence d'une mémoire"
+        correct: true
+      - key: C
+        label: "l'absence de cellules impliquées"
+        correct: false
+        distractorRationale: "Suppose une réponse sans acteur cellulaire, alors que les lymphocytes en sont le cœur."
+      - key: D
+        label: "son caractère héréditaire, transmis d'une génération à l'autre"
+        correct: false
+        distractorRationale: "Confond l'acquisition au cours de la vie avec une transmission génétique."
+    shortCorrection: "La réponse innée est immédiate et non spécifique. La réponse adaptative est plus lente à se mettre en place, mais spécifique de l'antigène et dotée d'une mémoire."
+    tags: [immunite, adaptative]
+
+  - id: ETL-SVT-IMM-02
+    nodeCpsId: 1re.svt.immunite.reponse-innee-adaptative
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 50
+    statement: "Un lymphocyte B activé se différencie notamment en :"
+    options:
+      - key: A
+        label: "macrophage"
+        correct: false
+        distractorRationale: "Confond une cellule de l'immunité innée, issue d'un monocyte, avec un descendant du lymphocyte B."
+      - key: B
+        label: "lymphocyte T cytotoxique"
+        correct: false
+        distractorRationale: "Confond les deux lignées lymphocytaires, dont les voies de différenciation sont distinctes."
+      - key: C
+        label: "plasmocyte sécréteur d'anticorps"
+        correct: true
+      - key: D
+        label: "cellule dendritique"
+        correct: false
+        distractorRationale: "Confond un descendant du lymphocyte B avec une cellule présentatrice de l'antigène."
+    shortCorrection: "Après activation, le lymphocyte B se multiplie puis se différencie en plasmocyte, cellule spécialisée dans la production massive d'anticorps."
+    tags: [immunite, lymphocyte-b]
+
+  # ===========================================================================
+  # NŒUD 7 — Système nerveux et transmission du message
+  # Pourquoi c'est structurant : le thème « comportements, mouvement et système
+  # nerveux » de Terminale prolonge directement l'étude du réflexe myotatique
+  # et de la synapse.
+  # ===========================================================================
+
+  - id: ETL-SVT-NER-01
+    nodeCpsId: 1re.svt.systeme-nerveux.reflexe-myotatique
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 55
+    statement: "Dans le réflexe myotatique, le message nerveux sensitif est transmis par :"
+    options:
+      - key: A
+        label: "un neurone sensitif, du fuseau neuromusculaire vers la moelle épinière"
+        correct: true
+      - key: B
+        label: "un motoneurone, de la moelle épinière vers le muscle"
+        correct: false
+        distractorRationale: "Décrit la voie motrice, qui transmet la réponse et non le message sensitif."
+      - key: C
+        label: "le cerveau, qui décide de la réponse à produire"
+        correct: false
+        distractorRationale: "Fait intervenir un centre supérieur alors que le réflexe est intégré au niveau médullaire."
+      - key: D
+        label: "une hormone libérée dans la circulation sanguine"
+        correct: false
+        distractorRationale: "Confond une communication nerveuse, rapide et ciblée, avec une communication hormonale."
+    shortCorrection: "L'étirement du muscle stimule le fuseau neuromusculaire. Le message part par le neurone sensitif vers la moelle épinière, seul centre intégrateur du réflexe."
+    tags: [systeme-nerveux, reflexe]
+
+  - id: ETL-SVT-NER-02
+    nodeCpsId: 1re.svt.systeme-nerveux.reflexe-myotatique
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 55
+    statement: "Au niveau d'une synapse chimique, le message nerveux :"
+    options:
+      - key: A
+        label: "traverse la fente synaptique sous forme électrique"
+        correct: false
+        distractorRationale: "Suppose une continuité électrique là où existe un espace franchi par des molécules."
+      - key: B
+        label: "est amplifié puis transmis sans transformation"
+        correct: false
+        distractorRationale: "Nie le changement de nature du message au niveau de la synapse."
+      - key: C
+        label: "peut circuler dans les deux sens"
+        correct: false
+        distractorRationale: "Ignore le caractère unidirectionnel imposé par la localisation des vésicules et des récepteurs."
+      - key: D
+        label: "est converti en message chimique par la libération de neurotransmetteurs"
+        correct: true
+    shortCorrection: "À la synapse, le message électrique déclenche la libération de neurotransmetteurs qui franchissent la fente. La transmission est de ce fait unidirectionnelle."
+    tags: [systeme-nerveux, synapse]
+
+  # ===========================================================================
+  # NŒUD 8 — Variation génétique et santé
+  # Pourquoi c'est structurant : l'étude du diabète et des maladies
+  # multifactorielles en Terminale suppose de savoir raisonner sur les modes de
+  # transmission et sur l'origine somatique des cancers.
+  # ===========================================================================
+
+  - id: ETL-SVT-SAN-01
+    nodeCpsId: 1re.svt.sante.variation-genetique
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 60
+    statement: "Une maladie génétique autosomique récessive se manifeste :"
+    options:
+      - key: A
+        label: "uniquement chez les garçons"
+        correct: false
+        distractorRationale: "Attribue à une maladie autosomique un mode de transmission lié au chromosome X."
+      - key: B
+        label: "chez tout individu portant un seul allèle muté"
+        correct: false
+        distractorRationale: "Décrit une transmission dominante, où un seul allèle suffit à exprimer la maladie."
+      - key: C
+        label: "chez les individus possédant deux allèles mutés"
+        correct: true
+      - key: D
+        label: "à chaque génération, sans exception"
+        correct: false
+        distractorRationale: "Attribue à une maladie récessive la continuité générationnelle typique des maladies dominantes."
+    shortCorrection: "Le caractère récessif impose la présence des deux allèles mutés. Un individu porteur d'un seul allèle est sain mais peut le transmettre : c'est ce qui explique les sauts de génération."
+    tags: [sante, transmission]
+
+  - id: ETL-SVT-SAN-02
+    nodeCpsId: 1re.svt.sante.variation-genetique
+    type: QCM_SIMPLE
+    difficulty: 3
+    targetTimeSec: 60
+    statement: "Le développement d'un cancer résulte le plus souvent :"
+    options:
+      - key: A
+        label: "de l'accumulation de plusieurs mutations dans une même lignée cellulaire"
+        correct: true
+      - key: B
+        label: "d'une mutation unique héritée des parents"
+        correct: false
+        distractorRationale: "Réduit à une cause héréditaire unique un processus généralement somatique et progressif."
+      - key: C
+        label: "d'une infection virale, dans tous les cas"
+        correct: false
+        distractorRationale: "Généralise un facteur de risque réel mais qui n'intervient que dans une minorité de cancers."
+      - key: D
+        label: "d'un défaut de réplication survenu au moment de la fécondation"
+        correct: false
+        distractorRationale: "Situe l'origine à la formation de l'individu, alors que les mutations en cause surviennent au cours de la vie."
+    shortCorrection: "Le cancer résulte d'une succession de mutations somatiques affectant la même lignée cellulaire, qui échappe progressivement aux contrôles de division et de mort programmée."
+    tags: [sante, cancer]
+
+  # ===========================================================================
+  # NŒUD 9 — Exploitation de données et raisonnement
+  # Pourquoi c'est structurant : les épreuves de Terminale reposent sur
+  # l'analyse de documents. Interpréter une corrélation ou lire une échelle
+  # logarithmique conditionne la validité de toute conclusion.
+  # ===========================================================================
+
+  - id: ETL-SVT-DON-01
+    nodeCpsId: 1re.svt.demarche.exploitation-de-donnees
+    type: QCM_SIMPLE
+    difficulty: 3
+    targetTimeSec: 55
+    statement: "Sur un graphique, deux courbes évoluent de façon parallèle au cours du temps. Que peut-on affirmer ?"
+    options:
+      - key: A
+        label: "que la première grandeur est la cause de la seconde"
+        correct: false
+        distractorRationale: "Conclut à une causalité à partir d'une simple concordance de variations."
+      - key: B
+        label: "que les deux grandeurs mesurent la même chose"
+        correct: false
+        distractorRationale: "Confond une évolution semblable avec une identité de nature."
+      - key: C
+        label: "qu'aucun lien n'existe entre les deux grandeurs"
+        correct: false
+        distractorRationale: "Nie l'information que porte pourtant le parallélisme des courbes."
+      - key: D
+        label: "qu'elles varient conjointement, sans que la cause soit établie"
+        correct: true
+    shortCorrection: "Un parallélisme établit une corrélation, non une causalité. Une troisième grandeur peut expliquer les deux évolutions : seule une expérimentation permet de trancher."
+    tags: [demarche, correlation]
+
+  - id: ETL-SVT-DON-02
+    nodeCpsId: 1re.svt.demarche.exploitation-de-donnees
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 50
+    statement: "Une échelle logarithmique est employée sur un graphique lorsque :"
+    options:
+      - key: A
+        label: "toutes les valeurs représentées sont négatives"
+        correct: false
+        distractorRationale: "Associe l'échelle logarithmique au signe des valeurs, alors qu'elle exige au contraire des valeurs strictement positives."
+      - key: B
+        label: "les valeurs s'étendent sur plusieurs ordres de grandeur"
+        correct: true
+      - key: C
+        label: "la relation entre les deux variables est linéaire"
+        correct: false
+        distractorRationale: "Invoque le cas où une échelle linéaire suffit précisément."
+      - key: D
+        label: "l'on souhaite rendre les faibles valeurs moins visibles"
+        correct: false
+        distractorRationale: "Inverse l'effet obtenu : l'échelle logarithmique rend au contraire les faibles valeurs lisibles."
+    shortCorrection: "Lorsque les valeurs varient d'un facteur mille ou davantage, une échelle linéaire écrase les petites valeurs. L'échelle logarithmique les rend toutes lisibles sur un même graphique."
+    tags: [demarche, echelles]
