@@ -3,6 +3,7 @@ import type { Session } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 
 import { auth } from '@/auth';
+import { bilanPackSubjectLabel } from '@/lib/bilans/catalog/subjects';
 import { permuteOptionsForDisplay } from '@/lib/bilans/passation/option-permutation';
 import { prisma } from '@/lib/prisma';
 
@@ -60,10 +61,18 @@ function savedAnswers(value: unknown): Readonly<Record<string, SavedAnswer>> {
   return parsed;
 }
 
-function displayTitle(subject: string, level: string): string {
-  const subjectLabel = subject === 'MATHS' ? 'Mathématiques' : subject.replaceAll('_', ' ');
-  const levelLabel = level.charAt(0) + level.slice(1).toLowerCase();
-  return `${subjectLabel} · ${levelLabel}`;
+const LEVEL_LABELS: Readonly<Record<string, string>> = Object.freeze({
+  QUATRIEME: 'Quatrième',
+  TROISIEME: 'Troisième',
+  SECONDE: 'Seconde',
+  PREMIERE: 'Première',
+  TERMINALE: 'Terminale',
+});
+
+export function displayTitle(subject: string, level: string): string {
+  const levelLabel = LEVEL_LABELS[level];
+  if (levelLabel === undefined) throw new Error(`BILAN_PACK_LEVEL_UNKNOWN:${level}`);
+  return `${bilanPackSubjectLabel(subject)} · ${levelLabel}`;
 }
 
 const defaultDependencies: GetAttemptDependencies = {
