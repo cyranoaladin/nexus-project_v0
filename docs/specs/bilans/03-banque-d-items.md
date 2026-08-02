@@ -33,6 +33,7 @@ avant `typecheck`. Elle échoue au premier item invalide (pas de tolérance).
 | V11 | Σ `targetTimeSec` ≤ `targetDurationMin × 60` | cohérence de la durée annoncée |
 | V12 | aucun nom propre d'enseignant, aucune marque tierce | |
 | V13 | chaque distracteur porte un `distractorRationale` non vide décrivant l'erreur réelle qu'il capture | sans erreur identifiée, `ERREUR_CONFIANTE` devient décoratif plutôt que diagnostique |
+| V14 | aucune position d'option ne porte la bonne réponse sur plus de 40 % des items de la banque | empêche qu'un motif de position permette de réussir sans connaissance |
 
 ## §3. Règles de conception (non bloquantes, revue humaine)
 

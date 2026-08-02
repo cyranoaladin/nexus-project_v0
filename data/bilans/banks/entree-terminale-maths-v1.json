@@ -37,14 +37,14 @@
         "options": [
           {
             "id": "A",
-            "text": "x = 2 ou x = 3",
-            "isCorrect": true
-          },
-          {
-            "id": "B",
             "text": "x = −2 ou x = −3",
             "isCorrect": false,
             "distractorRationale": "Factorise en (x+2)(x+3) sans vérifier les signes : confond la somme et le produit des racines."
+          },
+          {
+            "id": "B",
+            "text": "x = 2 ou x = 3",
+            "isCorrect": true
           },
           {
             "id": "C",
@@ -119,20 +119,20 @@
         "options": [
           {
             "id": "A",
-            "text": "x < −2 ou x > 2",
-            "isCorrect": true
-          },
-          {
-            "id": "B",
             "text": "−2 < x < 2",
             "isCorrect": false,
             "distractorRationale": "Inverse la règle : place le signe de a entre les racines au lieu de l'extérieur."
           },
           {
-            "id": "C",
+            "id": "B",
             "text": "x > 2",
             "isCorrect": false,
             "distractorRationale": "Oublie la branche négative : ne considère que la racine positive."
+          },
+          {
+            "id": "C",
+            "text": "x < −2 ou x > 2",
+            "isCorrect": true
           },
           {
             "id": "D",
@@ -242,20 +242,20 @@
         "options": [
           {
             "id": "A",
-            "text": "−3/(x − 2)²",
-            "isCorrect": true
-          },
-          {
-            "id": "B",
             "text": "3/(x − 2)²",
             "isCorrect": false,
             "distractorRationale": "Erreur de signe : calcule uv' − u'v au lieu de u'v − uv' au numérateur."
           },
           {
-            "id": "C",
+            "id": "B",
             "text": "1/(x − 2)²",
             "isCorrect": false,
             "distractorRationale": "Développe le numérateur sans distribuer le signe moins sur (x + 1)."
+          },
+          {
+            "id": "C",
+            "text": "−3/(x − 2)²",
+            "isCorrect": true
           },
           {
             "id": "D",
@@ -283,26 +283,26 @@
         "options": [
           {
             "id": "A",
-            "text": "[0 ; 2]",
-            "isCorrect": true
-          },
-          {
-            "id": "B",
             "text": "]−∞ ; 0]",
             "isCorrect": false,
             "distractorRationale": "Inverse le lien entre le signe de f' et le sens de variation."
           },
           {
-            "id": "C",
+            "id": "B",
             "text": "[2 ; +∞[",
             "isCorrect": false,
             "distractorRationale": "Inverse le lien entre le signe de f' et le sens de variation, sur l'autre branche."
           },
           {
-            "id": "D",
+            "id": "C",
             "text": "ℝ tout entier",
             "isCorrect": false,
             "distractorRationale": "Suppose une fonction polynomiale de degré 3 monotone sur ℝ, sans étude de signe."
+          },
+          {
+            "id": "D",
+            "text": "[0 ; 2]",
+            "isCorrect": true
           }
         ],
         "explanation": "f'(x) = 3x² − 6x = 3x(x − 2), qui s'annule en 0 et en 2 et reste négatif entre ces deux valeurs. La fonction f est donc décroissante sur [0 ; 2]."
@@ -365,26 +365,26 @@
         "options": [
           {
             "id": "A",
-            "text": "y = 4x − 4",
-            "isCorrect": true
-          },
-          {
-            "id": "B",
             "text": "y = 4x",
             "isCorrect": false,
             "distractorRationale": "Retient le coefficient directeur mais omet le terme f(a) − a·f'(a) dans l'équation."
           },
           {
-            "id": "C",
+            "id": "B",
             "text": "y = 4x + 4",
             "isCorrect": false,
             "distractorRationale": "Erreur de signe dans le développement de f'(a)(x − a) + f(a)."
           },
           {
-            "id": "D",
+            "id": "C",
             "text": "y = 2x − 4",
             "isCorrect": false,
             "distractorRationale": "Utilise l'expression f'(x) = 2x sans l'évaluer en a = 2."
+          },
+          {
+            "id": "D",
+            "text": "y = 4x − 4",
+            "isCorrect": true
           }
         ],
         "explanation": "L'équation de la tangente en a est y = f'(a)(x − a) + f(a). Ici f(2) = 4 et f'(2) = 4, donc y = 4(x − 2) + 4 = 4x − 4."
@@ -447,14 +447,14 @@
         "options": [
           {
             "id": "A",
-            "text": "e^(x+1)",
-            "isCorrect": true
-          },
-          {
-            "id": "B",
             "text": "e^(x−1)",
             "isCorrect": false,
             "distractorRationale": "Soustrait les exposants sans changer le signe du terme constant : écrit 2x − x − 1 en oubliant la parenthèse."
+          },
+          {
+            "id": "B",
+            "text": "e^(x+1)",
+            "isCorrect": true
           },
           {
             "id": "C",
@@ -488,26 +488,26 @@
         "options": [
           {
             "id": "A",
-            "text": "aucune solution",
-            "isCorrect": true
-          },
-          {
-            "id": "B",
             "text": "une seule solution, x = 0",
             "isCorrect": false,
             "distractorRationale": "Confond e^x = 0 et e^0 = 1 : lit l'exposant comme la valeur de la fonction."
           },
           {
-            "id": "C",
+            "id": "B",
             "text": "une solution négative, trop grande en valeur absolue pour être calculée à la main",
             "isCorrect": false,
             "distractorRationale": "Confond la limite nulle en −∞ avec l'atteinte effective de la valeur 0."
           },
           {
-            "id": "D",
+            "id": "C",
             "text": "une seule solution, x = 1",
             "isCorrect": false,
             "distractorRationale": "Associe l'équation à la valeur remarquable e¹ = e sans traiter la question posée."
+          },
+          {
+            "id": "D",
+            "text": "aucune solution",
+            "isCorrect": true
           }
         ],
         "explanation": "La fonction exponentielle est strictement positive sur ℝ : elle ne s'annule jamais. Elle tend vers 0 en −∞ sans jamais atteindre cette valeur, donc l'équation n'a aucune solution."
@@ -529,14 +529,14 @@
         "options": [
           {
             "id": "A",
-            "text": "−15",
-            "isCorrect": true
-          },
-          {
-            "id": "B",
             "text": "−20",
             "isCorrect": false,
             "distractorRationale": "Calcule 10 × (−2) et omet le premier terme u_0."
+          },
+          {
+            "id": "B",
+            "text": "−15",
+            "isCorrect": true
           },
           {
             "id": "C",
@@ -570,26 +570,26 @@
         "options": [
           {
             "id": "A",
-            "text": "162",
-            "isCorrect": true
-          },
-          {
-            "id": "B",
             "text": "14",
             "isCorrect": false,
             "distractorRationale": "Applique la formule d'une suite arithmétique : calcule 2 + 4 × 3."
           },
           {
-            "id": "C",
+            "id": "B",
             "text": "24",
             "isCorrect": false,
             "distractorRationale": "Multiplie le premier terme par la raison puis par le rang, au lieu d'élever la raison à la puissance."
           },
           {
-            "id": "D",
+            "id": "C",
             "text": "486",
             "isCorrect": false,
             "distractorRationale": "Décale l'indice et calcule v_0 × 3^5 au lieu de v_0 × 3^4."
+          },
+          {
+            "id": "D",
+            "text": "162",
+            "isCorrect": true
           }
         ],
         "explanation": "Pour une suite géométrique, v_n = v_0 × r^n. Ici v_4 = 2 × 3⁴ = 2 × 81 = 162."
@@ -611,14 +611,14 @@
         "options": [
           {
             "id": "A",
-            "text": "décroissante",
-            "isCorrect": true
-          },
-          {
-            "id": "B",
             "text": "croissante",
             "isCorrect": false,
             "distractorRationale": "Croit qu'une raison strictement positive entraîne une suite croissante, sans comparer la raison à 1."
+          },
+          {
+            "id": "B",
+            "text": "décroissante",
+            "isCorrect": true
           },
           {
             "id": "C",
@@ -652,20 +652,20 @@
         "options": [
           {
             "id": "A",
-            "text": "(u_n) est croissante",
-            "isCorrect": true
-          },
-          {
-            "id": "B",
             "text": "(u_n) est arithmétique de raison 3",
             "isCorrect": false,
             "distractorRationale": "Lit u_(n+1) = u_n + 3n comme u_(n+1) = u_n + 3 : ne voit pas que l'écart dépend de n."
           },
           {
-            "id": "C",
+            "id": "B",
             "text": "(u_n) est géométrique de raison 3",
             "isCorrect": false,
             "distractorRationale": "Confond une addition et une multiplication dans la relation de récurrence."
+          },
+          {
+            "id": "C",
+            "text": "(u_n) est croissante",
+            "isCorrect": true
           },
           {
             "id": "D",
@@ -693,14 +693,14 @@
         "options": [
           {
             "id": "A",
-            "text": "2",
-            "isCorrect": true
-          },
-          {
-            "id": "B",
             "text": "10",
             "isCorrect": false,
             "distractorRationale": "Additionne les produits en valeur absolue : ignore le signe de la seconde coordonnée."
+          },
+          {
+            "id": "B",
+            "text": "2",
+            "isCorrect": true
           },
           {
             "id": "C",
@@ -734,20 +734,20 @@
         "options": [
           {
             "id": "A",
-            "text": "u·v = 0",
-            "isCorrect": true
-          },
-          {
-            "id": "B",
             "text": "u + v = 0",
             "isCorrect": false,
             "distractorRationale": "Confond l'orthogonalité avec la relation entre deux vecteurs opposés."
           },
           {
-            "id": "C",
+            "id": "B",
             "text": "‖u‖ = ‖v‖",
             "isCorrect": false,
             "distractorRationale": "Confond l'orthogonalité avec l'égalité des normes."
+          },
+          {
+            "id": "C",
+            "text": "u·v = 0",
+            "isCorrect": true
           },
           {
             "id": "D",
