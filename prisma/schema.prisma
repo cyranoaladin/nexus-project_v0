@@ -1460,6 +1460,7 @@ model CanonicalAssessmentAttempt {
   seed      String
   startedAt DateTime @default(now())
   expiresAt DateTime
+  revision  Int      @default(0)
 
   subject     Subject
   gradeLevel  GradeLevel
@@ -1485,6 +1486,21 @@ model CanonicalAssessmentAttempt {
   @@index([assessmentPackId, assessmentPackVersion])
   @@unique([id, studentId])
   @@map("canonical_assessment_attempts")
+}
+
+model CanonicalApiIdempotencyKey {
+  id             String   @id @default(cuid())
+  userId         String
+  route          String
+  key            String
+  response       Json?
+  responseStatus Int?
+  expiresAt      DateTime
+  createdAt      DateTime @default(now())
+
+  @@unique([userId, route, key])
+  @@index([expiresAt])
+  @@map("canonical_api_idempotency_keys")
 }
 
 model ScoreSnapshot {
