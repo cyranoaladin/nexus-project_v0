@@ -2,46 +2,18 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
-type Confidence = 1 | 2 | 3 | 4;
-type SavedAnswer = Readonly<{ optionId: string | null; confidence: Confidence | null }>;
-type AttemptItem = Readonly<{
-  id: string;
-  prompt: string;
-  options: readonly Readonly<{ id: string; label: string }>[];
-  savedAnswer: SavedAnswer;
-}>;
-type AttemptDto = Readonly<{
-  attemptId: string;
-  pack: Readonly<{ slug: string; version: number; title: string }>;
-  status: 'DRAFT';
-  revision: number;
-  expiresAt: string;
-  items: readonly AttemptItem[];
-}>;
-type PendingAnswer = Readonly<{ itemId: string; optionId: string; confidence: Confidence }>;
+import {
+  loadCanonicalAttempt,
+  RunnerProtocolError,
+  saveCanonicalAnswer,
+  submitCanonicalAttempt,
+  type CanonicalAttemptDto,
+  type Confidence,
+  type PendingRunnerAnswer,
+  type SavedAnswer,
+} from '@/lib/bilans/passation/runner-protocol';
 
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
-}
-
-function parseAttemptDto(value: unknown): AttemptDto {
-  if (!isRecord(value) || !Array.isArray(value.items) || typeof value.attemptId !== 'string') {
-    throw new Error('RUNNER_RESPONSE_INVALID');
-  }
-  return value as AttemptDto;
-}
-
-async function loadAttempt(attemptId: string): Promise<AttemptDto> {
-  const response = await fetch(`/api/bilans/attempts/${encodeURIComponent(attemptId)}`, {
-    method: 'GET',
-    cache: 'no-store',
-    headers: { accept: 'application/json' },
-  });
-  if (!response.ok) throw new Error('RUNNER_LOAD_FAILED');
-  return parseAttemptDto(await response.json());
-}
-
-function answersFrom(dto: AttemptDto): Record<string, SavedAnswer> {
+function answersFrom(dto: CanonicalAttemptDto): Record<string, SavedAnswer> {
   return Object.fromEntries(dto.items.map((item) => [item.id, item.savedAnswer]));
 }
 
@@ -55,22 +27,18 @@ function confidenceLabel(value: Confidence): string {
   return labels[value];
 }
 
-function idempotencyKey(kind: 'answer' | 'submit', attemptId: string, revision: number, suffix = ''): string {
-  return `a87-${kind}-${attemptId}-${revision}-${suffix}`.slice(0, 180);
-}
-
 export function CanonicalAssessmentRunner({ attemptId }: Readonly<{ attemptId: string }>) {
-  const [attempt, setAttempt] = useState<AttemptDto | null>(null);
+  const [attempt, setAttempt] = useState<CanonicalAttemptDto | null>(null);
   const [answers, setAnswers] = useState<Record<string, SavedAnswer>>({});
   const [currentIndex, setCurrentIndex] = useState(0);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [conflict, setConflict] = useState<PendingAnswer | null>(null);
+  const [conflict, setConflict] = useState<PendingRunnerAnswer | null>(null);
   const [confirming, setConfirming] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
   const hydrate = useCallback(async () => {
-    const loaded = await loadAttempt(attemptId);
+    const loaded = await loadCanonicalAttempt(attemptId);
     setAttempt(loaded);
     setAnswers(answersFrom(loaded));
     const firstIncomplete = loaded.items.findIndex(({ id }) => {
@@ -83,7 +51,7 @@ export function CanonicalAssessmentRunner({ attemptId }: Readonly<{ attemptId: s
 
   useEffect(() => {
     let active = true;
-    loadAttempt(attemptId)
+    loadCanonicalAttempt(attemptId)
       .then((loaded) => {
         if (!active) return;
         setAttempt(loaded);
@@ -97,39 +65,21 @@ export function CanonicalAssessmentRunner({ attemptId }: Readonly<{ attemptId: s
     return () => { active = false; };
   }, [attemptId]);
 
-  const persist = useCallback(async (pending: PendingAnswer, baseRevision: number) => {
+  const persist = useCallback(async (pending: PendingRunnerAnswer, baseRevision: number) => {
     setSaving(true);
     setError(null);
     try {
-      const response = await fetch(`/api/bilans/attempts/${encodeURIComponent(attemptId)}/answers`, {
-        method: 'PATCH',
-        headers: {
-          'content-type': 'application/json',
-          'idempotency-key': idempotencyKey('answer', attemptId, baseRevision, `${pending.itemId}-${pending.optionId}-${pending.confidence}`),
-        },
-        body: JSON.stringify({ revision: baseRevision, answers: [pending] }),
-      });
-      if (response.status === 409) {
-        const body = await response.json() as unknown;
-        const serverRevision = isRecord(body)
-          && isRecord(body.error)
-          && isRecord(body.error.details)
-          && typeof body.error.details.serverRevision === 'number'
-          ? body.error.details.serverRevision
-          : null;
+      const result = await saveCanonicalAnswer({ attemptId, revision: baseRevision, answer: pending });
+      setAttempt((current) => current === null ? current : { ...current, revision: result.revision });
+      setConflict(null);
+    } catch (saveError) {
+      if (saveError instanceof RunnerProtocolError && saveError.status === 409) {
         const reloaded = await hydrate();
-        setAttempt({ ...reloaded, revision: serverRevision ?? reloaded.revision });
+        setAttempt({ ...reloaded, revision: saveError.serverRevision ?? reloaded.revision });
         setAnswers((current) => ({ ...current, [pending.itemId]: { optionId: pending.optionId, confidence: pending.confidence } }));
         setConflict(pending);
         return;
       }
-      if (!response.ok) throw new Error('RUNNER_SAVE_FAILED');
-      const body = await response.json() as { revision?: unknown };
-      if (typeof body.revision !== 'number') throw new Error('RUNNER_SAVE_INVALID');
-      const savedRevision = body.revision;
-      setAttempt((current) => current === null ? current : { ...current, revision: savedRevision });
-      setConflict(null);
-    } catch {
       setError('La réponse n’a pas été enregistrée. Votre choix reste affiché; réessayez avant de continuer.');
       setConflict(pending);
     } finally {
@@ -158,15 +108,7 @@ export function CanonicalAssessmentRunner({ attemptId }: Readonly<{ attemptId: s
     setSaving(true);
     setError(null);
     try {
-      const response = await fetch(`/api/bilans/attempts/${encodeURIComponent(attemptId)}/submit`, {
-        method: 'POST',
-        headers: {
-          'content-type': 'application/json',
-          'idempotency-key': idempotencyKey('submit', attemptId, attempt.revision),
-        },
-        body: JSON.stringify({ revision: attempt.revision }),
-      });
-      if (!response.ok) throw new Error('RUNNER_SUBMIT_FAILED');
+      await submitCanonicalAttempt({ attemptId, revision: attempt.revision });
       setSubmitted(true);
       setConfirming(false);
     } catch {
