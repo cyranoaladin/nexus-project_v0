@@ -1,0 +1,1071 @@
+{
+  "slug": "entree-terminale-maths-v1",
+  "level": "TERMINALE",
+  "subject": "MATHS",
+  "version": 1,
+  "status": "DRAFT",
+  "review": {
+    "validatedBy": null,
+    "validatedAt": null
+  },
+  "questionnaire": {
+    "targetDurationMin": 25,
+    "confidenceScale": {
+      "levels": 4,
+      "labels": [
+        "je devine",
+        "peu sûr",
+        "plutôt sûr",
+        "certain"
+      ]
+    },
+    "items": [
+      {
+        "id": "ETL-MAT-SDG-01",
+        "subject": "MATHS",
+        "category": "Second degré : discriminant et racines",
+        "domainId": "second-degre",
+        "nodeCpsId": "1re.maths.second-degre.discriminant-racines",
+        "difficulty": 1,
+        "targetTimeSec": 60,
+        "shortCorrection": "Le discriminant vaut Δ = 25 − 24 = 1. Les racines sont donc (5 − 1)/2 = 2 et (5 + 1)/2 = 3. On peut vérifier : leur somme vaut 5 et leur produit 6.",
+        "weight": 1,
+        "competencies": [
+          "1re.maths.second-degre.discriminant-racines"
+        ],
+        "questionText": "Résoudre dans ℝ l'équation x² − 5x + 6 = 0.",
+        "options": [
+          {
+            "id": "A",
+            "text": "x = 2 ou x = 3",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "x = −2 ou x = −3",
+            "isCorrect": false,
+            "distractorRationale": "Factorise en (x+2)(x+3) sans vérifier les signes : confond la somme et le produit des racines."
+          },
+          {
+            "id": "C",
+            "text": "x = 1 ou x = 6",
+            "isCorrect": false,
+            "distractorRationale": "Cherche deux nombres de produit 6 sans contrôler que leur somme vaut 5."
+          },
+          {
+            "id": "D",
+            "text": "x = 5 ou x = 6",
+            "isCorrect": false,
+            "distractorRationale": "Lit directement les coefficients de l'équation comme s'ils étaient les racines."
+          }
+        ],
+        "explanation": "Le discriminant vaut Δ = 25 − 24 = 1. Les racines sont donc (5 − 1)/2 = 2 et (5 + 1)/2 = 3. On peut vérifier : leur somme vaut 5 et leur produit 6."
+      },
+      {
+        "id": "ETL-MAT-SDG-02",
+        "subject": "MATHS",
+        "category": "Second degré : discriminant et racines",
+        "domainId": "second-degre",
+        "nodeCpsId": "1re.maths.second-degre.discriminant-racines",
+        "difficulty": 2,
+        "targetTimeSec": 60,
+        "shortCorrection": "Δ = (−4)² − 4 × 2 × 5 = 16 − 40 = −24. Le discriminant est strictement négatif : l'équation n'a aucune solution réelle.",
+        "weight": 2,
+        "competencies": [
+          "1re.maths.second-degre.discriminant-racines"
+        ],
+        "questionText": "Combien de solutions réelles l'équation 2x² − 4x + 5 = 0 admet-elle ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Aucune",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "Deux",
+            "isCorrect": false,
+            "distractorRationale": "Calcule Δ = b² + 4ac au lieu de b² − 4ac, obtient 56 > 0 et conclut à deux racines."
+          },
+          {
+            "id": "C",
+            "text": "Une seule",
+            "isCorrect": false,
+            "distractorRationale": "Applique le cas Δ = 0 sans avoir calculé le discriminant."
+          },
+          {
+            "id": "D",
+            "text": "Deux, car un polynôme du second degré a toujours deux racines",
+            "isCorrect": false,
+            "distractorRationale": "Croit que le degré du polynôme détermine à lui seul le nombre de racines réelles."
+          }
+        ],
+        "explanation": "Δ = (−4)² − 4 × 2 × 5 = 16 − 40 = −24. Le discriminant est strictement négatif : l'équation n'a aucune solution réelle."
+      },
+      {
+        "id": "ETL-MAT-SGN-01",
+        "subject": "MATHS",
+        "category": "Signe du trinôme",
+        "domainId": "second-degre",
+        "nodeCpsId": "1re.maths.second-degre.signe-trinome",
+        "difficulty": 1,
+        "targetTimeSec": 55,
+        "shortCorrection": "Le trinôme x² − 4 a pour racines −2 et 2, et son coefficient dominant est positif. Il est donc positif à l'extérieur des racines : x < −2 ou x > 2.",
+        "weight": 1,
+        "competencies": [
+          "1re.maths.second-degre.signe-trinome"
+        ],
+        "questionText": "Pour quelles valeurs de x a-t-on x² − 4 > 0 ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "x < −2 ou x > 2",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "−2 < x < 2",
+            "isCorrect": false,
+            "distractorRationale": "Inverse la règle : place le signe de a entre les racines au lieu de l'extérieur."
+          },
+          {
+            "id": "C",
+            "text": "x > 2",
+            "isCorrect": false,
+            "distractorRationale": "Oublie la branche négative : ne considère que la racine positive."
+          },
+          {
+            "id": "D",
+            "text": "x > 4",
+            "isCorrect": false,
+            "distractorRationale": "Résout x² > 4 en x > 4 : ne passe pas à la racine carrée."
+          }
+        ],
+        "explanation": "Le trinôme x² − 4 a pour racines −2 et 2, et son coefficient dominant est positif. Il est donc positif à l'extérieur des racines : x < −2 ou x > 2."
+      },
+      {
+        "id": "ETL-MAT-SGN-02",
+        "subject": "MATHS",
+        "category": "Signe du trinôme",
+        "domainId": "second-degre",
+        "nodeCpsId": "1re.maths.second-degre.signe-trinome",
+        "difficulty": 2,
+        "targetTimeSec": 75,
+        "shortCorrection": "Les racines sont 1 et 2. Le coefficient dominant vaut −1, donc le trinôme est du signe de a à l'extérieur des racines et du signe opposé entre elles : il est positif sur ]1 ; 2[.",
+        "weight": 2,
+        "competencies": [
+          "1re.maths.second-degre.signe-trinome"
+        ],
+        "questionText": "Sur quel intervalle le trinôme −x² + 3x − 2 est-il strictement positif ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "]1 ; 2[",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "]−∞ ; 1[ ∪ ]2 ; +∞[",
+            "isCorrect": false,
+            "distractorRationale": "Applique la règle « positif à l'extérieur des racines » sans tenir compte du signe négatif de a."
+          },
+          {
+            "id": "C",
+            "text": "]−∞ ; 1[",
+            "isCorrect": false,
+            "distractorRationale": "Identifie une seule branche et ne compare pas le signe sur chaque intervalle."
+          },
+          {
+            "id": "D",
+            "text": "ℝ tout entier",
+            "isCorrect": false,
+            "distractorRationale": "Ne fait aucune étude de signe et suppose le trinôme de signe constant."
+          }
+        ],
+        "explanation": "Les racines sont 1 et 2. Le coefficient dominant vaut −1, donc le trinôme est du signe de a à l'extérieur des racines et du signe opposé entre elles : il est positif sur ]1 ; 2[."
+      },
+      {
+        "id": "ETL-MAT-DER-01",
+        "subject": "MATHS",
+        "category": "Dérivation : formules usuelles et opérations",
+        "domainId": "derivation",
+        "nodeCpsId": "1re.maths.derivation.formules-usuelles-operations",
+        "difficulty": 2,
+        "targetTimeSec": 90,
+        "shortCorrection": "On applique (uv)' = u'v + uv'. Ici u' = 2 et v' = 2x, d'où f'(x) = 2(x² − 3) + (2x + 1)(2x) = 2x² − 6 + 4x² + 2x = 6x² + 2x − 6.",
+        "weight": 2,
+        "competencies": [
+          "1re.maths.derivation.formules-usuelles-operations"
+        ],
+        "questionText": "Soit f(x) = (2x + 1)(x² − 3). Quelle est l'expression de f'(x) ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "6x² + 2x − 6",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "4x",
+            "isCorrect": false,
+            "distractorRationale": "Dérive chaque facteur séparément et multiplie les dérivées : applique (uv)' = u'v'."
+          },
+          {
+            "id": "C",
+            "text": "6x² + 2x − 3",
+            "isCorrect": false,
+            "distractorRationale": "Écrit 2(x² − 3) puis ne distribue pas le facteur 2 sur le terme constant."
+          },
+          {
+            "id": "D",
+            "text": "6x² + 2x + 6",
+            "isCorrect": false,
+            "distractorRationale": "Erreur de signe sur le produit 2 × (−3) lors du développement."
+          }
+        ],
+        "explanation": "On applique (uv)' = u'v + uv'. Ici u' = 2 et v' = 2x, d'où f'(x) = 2(x² − 3) + (2x + 1)(2x) = 2x² − 6 + 4x² + 2x = 6x² + 2x − 6."
+      },
+      {
+        "id": "ETL-MAT-DER-02",
+        "subject": "MATHS",
+        "category": "Dérivation : formules usuelles et opérations",
+        "domainId": "derivation",
+        "nodeCpsId": "1re.maths.derivation.formules-usuelles-operations",
+        "difficulty": 3,
+        "targetTimeSec": 90,
+        "shortCorrection": "On applique (u/v)' = (u'v − uv')/v². Le numérateur vaut (x − 2) − (x + 1) = −3, d'où f'(x) = −3/(x − 2)².",
+        "weight": 3,
+        "competencies": [
+          "1re.maths.derivation.formules-usuelles-operations"
+        ],
+        "questionText": "Soit f(x) = (x + 1)/(x − 2), définie sur ]2 ; +∞[. Quelle est l'expression de f'(x) ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "−3/(x − 2)²",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "3/(x − 2)²",
+            "isCorrect": false,
+            "distractorRationale": "Erreur de signe : calcule uv' − u'v au lieu de u'v − uv' au numérateur."
+          },
+          {
+            "id": "C",
+            "text": "1/(x − 2)²",
+            "isCorrect": false,
+            "distractorRationale": "Développe le numérateur sans distribuer le signe moins sur (x + 1)."
+          },
+          {
+            "id": "D",
+            "text": "1",
+            "isCorrect": false,
+            "distractorRationale": "Dérive séparément numérateur et dénominateur : applique (u/v)' = u'/v'."
+          }
+        ],
+        "explanation": "On applique (u/v)' = (u'v − uv')/v². Le numérateur vaut (x − 2) − (x + 1) = −3, d'où f'(x) = −3/(x − 2)²."
+      },
+      {
+        "id": "ETL-MAT-VAR-01",
+        "subject": "MATHS",
+        "category": "Lien entre signe de la dérivée et variations",
+        "domainId": "derivation",
+        "nodeCpsId": "1re.maths.derivation.signe-derivee-variations",
+        "difficulty": 2,
+        "targetTimeSec": 80,
+        "shortCorrection": "f'(x) = 3x² − 6x = 3x(x − 2), qui s'annule en 0 et en 2 et reste négatif entre ces deux valeurs. La fonction f est donc décroissante sur [0 ; 2].",
+        "weight": 2,
+        "competencies": [
+          "1re.maths.derivation.signe-derivee-variations"
+        ],
+        "questionText": "Soit f(x) = x³ − 3x². Sur quel intervalle f est-elle décroissante ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "[0 ; 2]",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "]−∞ ; 0]",
+            "isCorrect": false,
+            "distractorRationale": "Inverse le lien entre le signe de f' et le sens de variation."
+          },
+          {
+            "id": "C",
+            "text": "[2 ; +∞[",
+            "isCorrect": false,
+            "distractorRationale": "Inverse le lien entre le signe de f' et le sens de variation, sur l'autre branche."
+          },
+          {
+            "id": "D",
+            "text": "ℝ tout entier",
+            "isCorrect": false,
+            "distractorRationale": "Suppose une fonction polynomiale de degré 3 monotone sur ℝ, sans étude de signe."
+          }
+        ],
+        "explanation": "f'(x) = 3x² − 6x = 3x(x − 2), qui s'annule en 0 et en 2 et reste négatif entre ces deux valeurs. La fonction f est donc décroissante sur [0 ; 2]."
+      },
+      {
+        "id": "ETL-MAT-VAR-02",
+        "subject": "MATHS",
+        "category": "Lien entre signe de la dérivée et variations",
+        "domainId": "derivation",
+        "nodeCpsId": "1re.maths.derivation.signe-derivee-variations",
+        "difficulty": 1,
+        "targetTimeSec": 50,
+        "shortCorrection": "Le signe de la dérivée donne le sens de variation, pas le signe de la fonction. Une dérivée strictement négative sur un intervalle signifie que la fonction y est strictement décroissante.",
+        "weight": 1,
+        "competencies": [
+          "1re.maths.derivation.signe-derivee-variations"
+        ],
+        "questionText": "On sait que f' est strictement négative sur l'intervalle ]1 ; 4[. Que peut-on affirmer ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "f est strictement décroissante sur ]1 ; 4[",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "f est strictement négative sur ]1 ; 4[",
+            "isCorrect": false,
+            "distractorRationale": "Confond le signe de la dérivée avec le signe de la fonction elle-même."
+          },
+          {
+            "id": "C",
+            "text": "f est strictement croissante sur ]1 ; 4[",
+            "isCorrect": false,
+            "distractorRationale": "Inverse le lien entre le signe de f' et le sens de variation."
+          },
+          {
+            "id": "D",
+            "text": "f admet un minimum en x = 1",
+            "isCorrect": false,
+            "distractorRationale": "Interprète une borne d'intervalle comme un extremum sans étudier le changement de signe."
+          }
+        ],
+        "explanation": "Le signe de la dérivée donne le sens de variation, pas le signe de la fonction. Une dérivée strictement négative sur un intervalle signifie que la fonction y est strictement décroissante."
+      },
+      {
+        "id": "ETL-MAT-TAN-01",
+        "subject": "MATHS",
+        "category": "Nombre dérivé et équation de tangente",
+        "domainId": "derivation",
+        "nodeCpsId": "1re.maths.derivation.nombre-derive-tangente",
+        "difficulty": 2,
+        "targetTimeSec": 80,
+        "shortCorrection": "L'équation de la tangente en a est y = f'(a)(x − a) + f(a). Ici f(2) = 4 et f'(2) = 4, donc y = 4(x − 2) + 4 = 4x − 4.",
+        "weight": 2,
+        "competencies": [
+          "1re.maths.derivation.nombre-derive-tangente"
+        ],
+        "questionText": "Soit f(x) = x². Quelle est l'équation de la tangente à la courbe de f au point d'abscisse 2 ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "y = 4x − 4",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "y = 4x",
+            "isCorrect": false,
+            "distractorRationale": "Retient le coefficient directeur mais omet le terme f(a) − a·f'(a) dans l'équation."
+          },
+          {
+            "id": "C",
+            "text": "y = 4x + 4",
+            "isCorrect": false,
+            "distractorRationale": "Erreur de signe dans le développement de f'(a)(x − a) + f(a)."
+          },
+          {
+            "id": "D",
+            "text": "y = 2x − 4",
+            "isCorrect": false,
+            "distractorRationale": "Utilise l'expression f'(x) = 2x sans l'évaluer en a = 2."
+          }
+        ],
+        "explanation": "L'équation de la tangente en a est y = f'(a)(x − a) + f(a). Ici f(2) = 4 et f'(2) = 4, donc y = 4(x − 2) + 4 = 4x − 4."
+      },
+      {
+        "id": "ETL-MAT-TAN-02",
+        "subject": "MATHS",
+        "category": "Nombre dérivé et équation de tangente",
+        "domainId": "derivation",
+        "nodeCpsId": "1re.maths.derivation.nombre-derive-tangente",
+        "difficulty": 1,
+        "targetTimeSec": 45,
+        "shortCorrection": "Le nombre dérivé en a est la limite du taux de variation quand l'écart tend vers zéro : c'est la pente de la tangente à la courbe au point d'abscisse a.",
+        "weight": 1,
+        "competencies": [
+          "1re.maths.derivation.nombre-derive-tangente"
+        ],
+        "questionText": "Le nombre dérivé f'(a) représente :",
+        "options": [
+          {
+            "id": "A",
+            "text": "le coefficient directeur de la tangente à la courbe au point d'abscisse a",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "l'ordonnée du point de la courbe d'abscisse a",
+            "isCorrect": false,
+            "distractorRationale": "Confond f'(a) et f(a)."
+          },
+          {
+            "id": "C",
+            "text": "le coefficient directeur de la sécante joignant les points d'abscisses a et a + 1",
+            "isCorrect": false,
+            "distractorRationale": "Confond le nombre dérivé avec un taux de variation sur un intervalle non réduit à un point."
+          },
+          {
+            "id": "D",
+            "text": "l'aire délimitée par la courbe entre 0 et a",
+            "isCorrect": false,
+            "distractorRationale": "Associe la dérivée à une aire, confusion avec l'interprétation de l'intégrale."
+          }
+        ],
+        "explanation": "Le nombre dérivé en a est la limite du taux de variation quand l'écart tend vers zéro : c'est la pente de la tangente à la courbe au point d'abscisse a."
+      },
+      {
+        "id": "ETL-MAT-EXP-01",
+        "subject": "MATHS",
+        "category": "Exponentielle : propriétés algébriques et positivité",
+        "domainId": "exponentielle",
+        "nodeCpsId": "1re.maths.exponentielle.proprietes-algebriques",
+        "difficulty": 2,
+        "targetTimeSec": 70,
+        "shortCorrection": "Diviser deux exponentielles revient à soustraire les exposants : 2x − (x − 1) = x + 1. L'expression vaut donc e^(x+1). La parenthèse est indispensable.",
+        "weight": 2,
+        "competencies": [
+          "1re.maths.exponentielle.proprietes-algebriques"
+        ],
+        "questionText": "Pour tout réel x, l'expression e^(2x) / e^(x−1) est égale à :",
+        "options": [
+          {
+            "id": "A",
+            "text": "e^(x+1)",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "e^(x−1)",
+            "isCorrect": false,
+            "distractorRationale": "Soustrait les exposants sans changer le signe du terme constant : écrit 2x − x − 1 en oubliant la parenthèse."
+          },
+          {
+            "id": "C",
+            "text": "e^(3x−1)",
+            "isCorrect": false,
+            "distractorRationale": "Additionne les exposants au lieu de les soustraire lors de la division."
+          },
+          {
+            "id": "D",
+            "text": "e²",
+            "isCorrect": false,
+            "distractorRationale": "Divise les exposants l'un par l'autre au lieu de les soustraire."
+          }
+        ],
+        "explanation": "Diviser deux exponentielles revient à soustraire les exposants : 2x − (x − 1) = x + 1. L'expression vaut donc e^(x+1). La parenthèse est indispensable."
+      },
+      {
+        "id": "ETL-MAT-EXP-02",
+        "subject": "MATHS",
+        "category": "Exponentielle : propriétés algébriques et positivité",
+        "domainId": "exponentielle",
+        "nodeCpsId": "1re.maths.exponentielle.proprietes-algebriques",
+        "difficulty": 2,
+        "targetTimeSec": 55,
+        "shortCorrection": "La fonction exponentielle est strictement positive sur ℝ : elle ne s'annule jamais. Elle tend vers 0 en −∞ sans jamais atteindre cette valeur, donc l'équation n'a aucune solution.",
+        "weight": 2,
+        "competencies": [
+          "1re.maths.exponentielle.proprietes-algebriques"
+        ],
+        "questionText": "L'équation e^x = 0 admet :",
+        "options": [
+          {
+            "id": "A",
+            "text": "aucune solution",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "une seule solution, x = 0",
+            "isCorrect": false,
+            "distractorRationale": "Confond e^x = 0 et e^0 = 1 : lit l'exposant comme la valeur de la fonction."
+          },
+          {
+            "id": "C",
+            "text": "une solution négative, trop grande en valeur absolue pour être calculée à la main",
+            "isCorrect": false,
+            "distractorRationale": "Confond la limite nulle en −∞ avec l'atteinte effective de la valeur 0."
+          },
+          {
+            "id": "D",
+            "text": "une seule solution, x = 1",
+            "isCorrect": false,
+            "distractorRationale": "Associe l'équation à la valeur remarquable e¹ = e sans traiter la question posée."
+          }
+        ],
+        "explanation": "La fonction exponentielle est strictement positive sur ℝ : elle ne s'annule jamais. Elle tend vers 0 en −∞ sans jamais atteindre cette valeur, donc l'équation n'a aucune solution."
+      },
+      {
+        "id": "ETL-MAT-SUI-01",
+        "subject": "MATHS",
+        "category": "Suites arithmétiques et géométriques",
+        "domainId": "suites",
+        "nodeCpsId": "1re.maths.suites.arithmetiques-geometriques",
+        "difficulty": 1,
+        "targetTimeSec": 60,
+        "shortCorrection": "Pour une suite arithmétique, u_n = u_0 + n × r. Ici u_10 = 5 + 10 × (−2) = 5 − 20 = −15.",
+        "weight": 1,
+        "competencies": [
+          "1re.maths.suites.arithmetiques-geometriques"
+        ],
+        "questionText": "La suite (u_n) est arithmétique de premier terme u_0 = 5 et de raison −2. Que vaut u_10 ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "−15",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "−20",
+            "isCorrect": false,
+            "distractorRationale": "Calcule 10 × (−2) et omet le premier terme u_0."
+          },
+          {
+            "id": "C",
+            "text": "25",
+            "isCorrect": false,
+            "distractorRationale": "Applique une raison de +2 : ignore le signe négatif."
+          },
+          {
+            "id": "D",
+            "text": "5120",
+            "isCorrect": false,
+            "distractorRationale": "Applique la formule d'une suite géométrique : confond u_0 × r^n et u_0 + n × r."
+          }
+        ],
+        "explanation": "Pour une suite arithmétique, u_n = u_0 + n × r. Ici u_10 = 5 + 10 × (−2) = 5 − 20 = −15."
+      },
+      {
+        "id": "ETL-MAT-SUI-02",
+        "subject": "MATHS",
+        "category": "Suites arithmétiques et géométriques",
+        "domainId": "suites",
+        "nodeCpsId": "1re.maths.suites.arithmetiques-geometriques",
+        "difficulty": 2,
+        "targetTimeSec": 60,
+        "shortCorrection": "Pour une suite géométrique, v_n = v_0 × r^n. Ici v_4 = 2 × 3⁴ = 2 × 81 = 162.",
+        "weight": 2,
+        "competencies": [
+          "1re.maths.suites.arithmetiques-geometriques"
+        ],
+        "questionText": "La suite (v_n) est géométrique de premier terme v_0 = 2 et de raison 3. Que vaut v_4 ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "162",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "14",
+            "isCorrect": false,
+            "distractorRationale": "Applique la formule d'une suite arithmétique : calcule 2 + 4 × 3."
+          },
+          {
+            "id": "C",
+            "text": "24",
+            "isCorrect": false,
+            "distractorRationale": "Multiplie le premier terme par la raison puis par le rang, au lieu d'élever la raison à la puissance."
+          },
+          {
+            "id": "D",
+            "text": "486",
+            "isCorrect": false,
+            "distractorRationale": "Décale l'indice et calcule v_0 × 3^5 au lieu de v_0 × 3^4."
+          }
+        ],
+        "explanation": "Pour une suite géométrique, v_n = v_0 × r^n. Ici v_4 = 2 × 3⁴ = 2 × 81 = 162."
+      },
+      {
+        "id": "ETL-MAT-SVA-01",
+        "subject": "MATHS",
+        "category": "Sens de variation d'une suite",
+        "domainId": "suites",
+        "nodeCpsId": "1re.maths.suites.sens-de-variation",
+        "difficulty": 1,
+        "targetTimeSec": 50,
+        "shortCorrection": "Pour une suite géométrique de premier terme positif, le sens de variation dépend de la raison : ici 0 < 0,5 < 1, donc la suite est strictement décroissante.",
+        "weight": 1,
+        "competencies": [
+          "1re.maths.suites.sens-de-variation"
+        ],
+        "questionText": "La suite définie pour tout entier naturel n par u_n = 0,5^n est :",
+        "options": [
+          {
+            "id": "A",
+            "text": "décroissante",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "croissante",
+            "isCorrect": false,
+            "distractorRationale": "Croit qu'une raison strictement positive entraîne une suite croissante, sans comparer la raison à 1."
+          },
+          {
+            "id": "C",
+            "text": "constante",
+            "isCorrect": false,
+            "distractorRationale": "Confond une raison strictement comprise entre 0 et 1 avec une raison égale à 1."
+          },
+          {
+            "id": "D",
+            "text": "ni croissante ni décroissante",
+            "isCorrect": false,
+            "distractorRationale": "Attribue à une raison positive le comportement alterné d'une raison négative."
+          }
+        ],
+        "explanation": "Pour une suite géométrique de premier terme positif, le sens de variation dépend de la raison : ici 0 < 0,5 < 1, donc la suite est strictement décroissante."
+      },
+      {
+        "id": "ETL-MAT-SVA-02",
+        "subject": "MATHS",
+        "category": "Sens de variation d'une suite",
+        "domainId": "suites",
+        "nodeCpsId": "1re.maths.suites.sens-de-variation",
+        "difficulty": 3,
+        "targetTimeSec": 80,
+        "shortCorrection": "On calcule u_(n+1) − u_n = 3n, qui est positif ou nul pour tout entier naturel n. La suite est donc croissante. L'écart n'étant pas constant, elle n'est pas arithmétique.",
+        "weight": 3,
+        "competencies": [
+          "1re.maths.suites.sens-de-variation"
+        ],
+        "questionText": "La suite (u_n) est définie par u_0 = 1 et, pour tout entier naturel n, u_(n+1) = u_n + 3n. Que peut-on affirmer ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "(u_n) est croissante",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "(u_n) est arithmétique de raison 3",
+            "isCorrect": false,
+            "distractorRationale": "Lit u_(n+1) = u_n + 3n comme u_(n+1) = u_n + 3 : ne voit pas que l'écart dépend de n."
+          },
+          {
+            "id": "C",
+            "text": "(u_n) est géométrique de raison 3",
+            "isCorrect": false,
+            "distractorRationale": "Confond une addition et une multiplication dans la relation de récurrence."
+          },
+          {
+            "id": "D",
+            "text": "(u_n) est décroissante",
+            "isCorrect": false,
+            "distractorRationale": "Ne calcule pas le signe de u_(n+1) − u_n avant de conclure."
+          }
+        ],
+        "explanation": "On calcule u_(n+1) − u_n = 3n, qui est positif ou nul pour tout entier naturel n. La suite est donc croissante. L'écart n'étant pas constant, elle n'est pas arithmétique."
+      },
+      {
+        "id": "ETL-MAT-PSC-01",
+        "subject": "MATHS",
+        "category": "Produit scalaire dans le plan",
+        "domainId": "produit-scalaire",
+        "nodeCpsId": "1re.maths.produit-scalaire.expression-analytique",
+        "difficulty": 1,
+        "targetTimeSec": 55,
+        "shortCorrection": "En repère orthonormé, u·v = x_u × x_v + y_u × y_v = 3 × 2 + (−1) × 4 = 6 − 4 = 2. Le résultat est un nombre, pas un vecteur.",
+        "weight": 1,
+        "competencies": [
+          "1re.maths.produit-scalaire.expression-analytique"
+        ],
+        "questionText": "Dans un repère orthonormé, on donne les vecteurs u(3 ; −1) et v(2 ; 4). Que vaut le produit scalaire u·v ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "2",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "10",
+            "isCorrect": false,
+            "distractorRationale": "Additionne les produits en valeur absolue : ignore le signe de la seconde coordonnée."
+          },
+          {
+            "id": "C",
+            "text": "le vecteur de coordonnées (6 ; −4)",
+            "isCorrect": false,
+            "distractorRationale": "Produit un vecteur au lieu d'un nombre : ne sait pas que le produit scalaire est un scalaire."
+          },
+          {
+            "id": "D",
+            "text": "−2",
+            "isCorrect": false,
+            "distractorRationale": "Erreur de signe dans la somme 6 + (−4)."
+          }
+        ],
+        "explanation": "En repère orthonormé, u·v = x_u × x_v + y_u × y_v = 3 × 2 + (−1) × 4 = 6 − 4 = 2. Le résultat est un nombre, pas un vecteur."
+      },
+      {
+        "id": "ETL-MAT-PSC-02",
+        "subject": "MATHS",
+        "category": "Produit scalaire dans le plan",
+        "domainId": "produit-scalaire",
+        "nodeCpsId": "1re.maths.produit-scalaire.expression-analytique",
+        "difficulty": 1,
+        "targetTimeSec": 45,
+        "shortCorrection": "Deux vecteurs non nuls sont orthogonaux si et seulement si leur produit scalaire est nul. C'est ce critère qui sera généralisé à l'espace en Terminale.",
+        "weight": 1,
+        "competencies": [
+          "1re.maths.produit-scalaire.expression-analytique"
+        ],
+        "questionText": "Deux vecteurs non nuls u et v sont orthogonaux si et seulement si :",
+        "options": [
+          {
+            "id": "A",
+            "text": "u·v = 0",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "u + v = 0",
+            "isCorrect": false,
+            "distractorRationale": "Confond l'orthogonalité avec la relation entre deux vecteurs opposés."
+          },
+          {
+            "id": "C",
+            "text": "‖u‖ = ‖v‖",
+            "isCorrect": false,
+            "distractorRationale": "Confond l'orthogonalité avec l'égalité des normes."
+          },
+          {
+            "id": "D",
+            "text": "u·v = 1",
+            "isCorrect": false,
+            "distractorRationale": "Retient l'idée d'une valeur remarquable du produit scalaire mais confond 0 et 1."
+          }
+        ],
+        "explanation": "Deux vecteurs non nuls sont orthogonaux si et seulement si leur produit scalaire est nul. C'est ce critère qui sera généralisé à l'espace en Terminale."
+      }
+    ]
+  },
+  "scoring": {
+    "engine": "facts.v1.0.1",
+    "domains": [
+      "second-degre",
+      "derivation",
+      "exponentielle",
+      "suites",
+      "produit-scalaire"
+    ]
+  },
+  "reporting": {
+    "rag": {
+      "enabled": false,
+      "decisionRef": "A56 — corpus RAG Terminale absent",
+      "sources": [],
+      "topK": 0
+    },
+    "promptFiles": {
+      "preAnalysis": {
+        "path": "content/bilans/prompts/entree-terminale-maths-v1/pre-analysis.md",
+        "checksum": "ca51c49538acd0f150e2a5926362eef2057540cc2b0a1ac078ae9b6db4483368"
+      },
+      "eleve": {
+        "path": "content/bilans/prompts/entree-terminale-maths-v1/eleve.md",
+        "checksum": "5d598c317c15d7593d1bcbcfdd79910eb5a079301bd146aff60dcb3014f8d3b0"
+      },
+      "parents": {
+        "path": "content/bilans/prompts/entree-terminale-maths-v1/parents.md",
+        "checksum": "419e9366483523bd6f3c8f87bec0ca4735a181e82a379ae93d3453a84ed1313f"
+      },
+      "nexus": {
+        "path": "content/bilans/prompts/entree-terminale-maths-v1/nexus.md",
+        "checksum": "98ecc878a8711036e5849fe2f6793b7db475bcc9224b7f2864949dc678ff1468"
+      },
+      "verifier": {
+        "path": "content/bilans/prompts/entree-terminale-maths-v1/verifier.md",
+        "checksum": "fd6c0c7c64aa3320686aa15015da6609d4f5ab7cf6c9293c6afa8de83fe2b88b"
+      }
+    },
+    "outputSchemas": {
+      "preAnalysis": {
+        "type": "object",
+        "properties": {
+          "synthese": {
+            "type": "string",
+            "minLength": 1
+          },
+          "forcesPercues": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "craintes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "required": [
+          "synthese",
+          "forcesPercues",
+          "craintes"
+        ],
+        "additionalProperties": false
+      },
+      "eleve": {
+        "type": "object",
+        "properties": {
+          "accroche": {
+            "type": "string",
+            "minLength": 1
+          },
+          "forces": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "minItems": 3,
+            "maxItems": 3
+          },
+          "priorites": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "domainId": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "titre": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "pourquoi": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "comment": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "domainId",
+                "titre",
+                "pourquoi",
+                "comment"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "maxItems": 5
+          },
+          "microPlan": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "action": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "dureeMin": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              },
+              "required": [
+                "action",
+                "dureeMin"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "maxItems": 5
+          },
+          "motDeFin": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "accroche",
+          "forces",
+          "priorites",
+          "microPlan",
+          "motDeFin"
+        ],
+        "additionalProperties": false
+      },
+      "parents": {
+        "type": "object",
+        "properties": {
+          "cadre": {
+            "type": "string",
+            "minLength": 1
+          },
+          "pointsAppui": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "domainId": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "texte": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "domainId",
+                "texte"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "maxItems": 5
+          },
+          "priorites": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "domainId": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "titre": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "ceQuiSeraFait": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "domainId",
+                "titre",
+                "ceQuiSeraFait"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "maxItems": 5
+          },
+          "etapeSuivante": {
+            "type": "object",
+            "properties": {
+              "texte": {
+                "type": "string",
+                "minLength": 1
+              },
+              "cta": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "texte",
+              "cta"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "cadre",
+          "pointsAppui",
+          "priorites",
+          "etapeSuivante"
+        ],
+        "additionalProperties": false
+      },
+      "nexus": {
+        "type": "object",
+        "properties": {
+          "syntheseProfil": {
+            "type": "string",
+            "minLength": 1
+          },
+          "diagnosticPedagogique": {
+            "type": "string",
+            "minLength": 1
+          },
+          "planQuatreSemaines": {
+            "type": "string",
+            "minLength": 1
+          },
+          "alertes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "ragReferences": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "required": [
+          "syntheseProfil",
+          "diagnosticPedagogique",
+          "planQuatreSemaines",
+          "alertes",
+          "ragReferences"
+        ],
+        "additionalProperties": false
+      },
+      "verifier": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "type": "boolean"
+          },
+          "violations": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "required": [
+          "ok",
+          "violations"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "validation": {
+    "lexiconPath": "data/bilans/lexique-interdit.json",
+    "forbidDigits": [
+      "eleve",
+      "parents"
+    ]
+  }
+}
