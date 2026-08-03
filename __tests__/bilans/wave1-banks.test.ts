@@ -68,6 +68,7 @@ describe('wave 1 active banks', () => {
     for (const current of bank.items) distribution[current.options!.findIndex(({ correct }) => correct)] += 1;
     expect(distribution).toEqual([5, 5, 4, 4]);
     expect(catalog.nodes).toHaveLength(9);
+    expect([...catalog.nodes].sort((left, right) => left.sequenceOrder - right.sequenceOrder).map(({ id }) => id)).toEqual([...new Set(bank.items.map(({ nodeCpsId }) => nodeCpsId))]);
 
     const pack = loadBilanPack(entry.output);
     expect(pack.status).toBe('DRAFT');

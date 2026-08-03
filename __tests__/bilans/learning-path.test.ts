@@ -64,11 +64,13 @@ describe('A90.1ter deterministic LearningPath', () => {
     expect(steps[0]?.demarche).not.toMatch(/drill/i);
   });
 
-  it('renders the complete path for parents without advice-only copy, scores or technical labels', () => {
+  it('explains how group diagnostics determine the five sessions without announcing modules', () => {
     const report = buildDeterministicReport(factSheet, 'PARENTS', identity);
     const serialized = JSON.stringify(report);
 
-    expect(report.content.learningPath.steps).toHaveLength(4);
+    expect(report.content.learningPath.steps).toHaveLength(0);
+    expect(serialized).toContain('cinq séances de deux heures');
+    expect(serialized).toContain("Aucun module n'est fixé");
     expect(serialized).not.toContain('Être conseillé');
     expect(serialized).not.toContain('Un échange');
     expect(serialized).not.toMatch(/ERREUR_CONFIANTE|LACUNE_CONSCIENTE|MAITRISE_FRAGILE|NON_TRAITE/);

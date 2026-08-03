@@ -29,7 +29,7 @@ const bank = (subject = 'MATHS', nodeCpsId = '5e.maths.calcul.fixture') => ({
 const catalog = (nodeId = '5e.maths.calcul.fixture') => ({
   schemaVersion: 'nexus-cps-catalog/v1' as const,
   slug: 'fixture-cps-v1', version: 1,
-  nodes: [{ id: nodeId, label: 'Calcul', sourceLevel: 'CINQUIEME' as const, targetLevel: 'QUATRIEME' as const, pedagogicalRationale: 'Prérequis structurant explicite.' }],
+  nodes: [{ id: nodeId, label: 'Calcul', sourceLevel: 'CINQUIEME' as const, targetLevel: 'QUATRIEME' as const, sequenceOrder: 1, pedagogicalRationale: 'Prérequis structurant explicite.' }],
 });
 
 describe('bank validation contracts V1 and V2', () => {
@@ -53,11 +53,15 @@ describe('bank validation contracts V1 and V2', () => {
       ...catalog('1re.francais.argumentation.fixture'),
       nodes: [{
         id: '1re.francais.argumentation.fixture', label: 'Argumentation', sourceLevel: 'PREMIERE' as const,
-        targetLevel: 'TERMINALE' as const, pedagogicalRationale: 'Le raisonnement argumentatif précède la philosophie.',
+        targetLevel: 'TERMINALE' as const, sequenceOrder: 1, pedagogicalRationale: 'Le raisonnement argumentatif précède la philosophie.',
       }],
     };
     const terminaleBank = { ...interdisciplinary, level: 'TERMINALE' };
     expect(validateBankSource(terminaleBank, frenchCatalog).filter(({ rule }) => rule === 'V2')).toEqual([]);
+  });
+
+  it('rejects a non-contiguous sequenceOrder', () => {
+    expect(validateBankSource(bank(), { ...catalog(), nodes: [{ ...catalog().nodes[0], sequenceOrder: 2 }] }).some(({ message }) => message.includes('CPS_SEQUENCE_ORDER'))).toBe(true);
   });
 
   it('reports a real CPS collision across catalogues', () => {

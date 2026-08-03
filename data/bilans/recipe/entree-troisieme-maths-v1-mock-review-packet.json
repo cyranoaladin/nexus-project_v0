@@ -193,13 +193,7 @@
               "equations reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Mathématiques, sur calcul-litteral. Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur calcul-litteral, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Lever une représentation incorrecte en Mathématiques, sur statistiques. Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur statistiques, puis reconstruire la notion avant tout entraînement.",
-              "Séance 3 — Installer les repères indispensables en Mathématiques, sur puissances. Poser les définitions utiles en Mathématiques, montrer des exemples sur puissances, puis proposer un entraînement court et répété.",
-              "Séance 4 — Installer les repères indispensables en Mathématiques, sur trigonometrie. Poser les définitions utiles en Mathématiques, montrer des exemples sur trigonometrie, puis proposer un entraînement court et répété.",
-              "Séance 5 — Stabiliser l'acquis encore fragile en Mathématiques, sur fractions. Organiser un entraînement espacé en Mathématiques sur fractions, sans réenseigner ce qui est déjà compris.",
-              "Séance 6 — Stabiliser l'acquis encore fragile en Mathématiques, sur geometrie. Organiser un entraînement espacé en Mathématiques sur geometrie, sans réenseigner ce qui est déjà compris.",
-              "Séance 7 — Établir le niveau réel en Mathématiques, sur equations, avant de choisir une remédiation. Commencer par un test ciblé en Mathématiques sur equations, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -251,64 +245,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "calcul-litteral",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Mathématiques, sur calcul-litteral.",
-                "demarche": "Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur calcul-litteral, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "statistiques",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Mathématiques, sur statistiques.",
-                "demarche": "Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur statistiques, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "puissances",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Mathématiques, sur puissances.",
-                "demarche": "Poser les définitions utiles en Mathématiques, montrer des exemples sur puissances, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "trigonometrie",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Mathématiques, sur trigonometrie.",
-                "demarche": "Poser les définitions utiles en Mathématiques, montrer des exemples sur trigonometrie, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "fractions",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Mathématiques, sur fractions.",
-                "demarche": "Organiser un entraînement espacé en Mathématiques sur fractions, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 5",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "geometrie",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Mathématiques, sur geometrie.",
-                "demarche": "Organiser un entraînement espacé en Mathématiques sur geometrie, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 6",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "equations",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Mathématiques, sur equations, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Mathématiques sur equations, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 7",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -732,14 +669,7 @@
               "calcul-litteral reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Mathématiques, sur puissances. Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur puissances, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Lever une représentation incorrecte en Mathématiques, sur trigonometrie. Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur trigonometrie, puis reconstruire la notion avant tout entraînement.",
-              "Séance 3 — Installer les repères indispensables en Mathématiques, sur fractions. Poser les définitions utiles en Mathématiques, montrer des exemples sur fractions, puis proposer un entraînement court et répété.",
-              "Séance 4 — Installer les repères indispensables en Mathématiques, sur geometrie. Poser les définitions utiles en Mathématiques, montrer des exemples sur geometrie, puis proposer un entraînement court et répété.",
-              "Séance 5 — Stabiliser l'acquis encore fragile en Mathématiques, sur nombres-relatifs. Organiser un entraînement espacé en Mathématiques sur nombres-relatifs, sans réenseigner ce qui est déjà compris.",
-              "Séance 6 — Stabiliser l'acquis encore fragile en Mathématiques, sur proportionnalite. Organiser un entraînement espacé en Mathématiques sur proportionnalite, sans réenseigner ce qui est déjà compris.",
-              "Séance 7 — Établir le niveau réel en Mathématiques, sur statistiques, avant de choisir une remédiation. Commencer par un test ciblé en Mathématiques sur statistiques, puis décider du travail à engager à partir des observations.",
-              "Séance 8 — Établir le niveau réel en Mathématiques, sur calcul-litteral, avant de choisir une remédiation. Commencer par un test ciblé en Mathématiques sur calcul-litteral, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -791,72 +721,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "puissances",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Mathématiques, sur puissances.",
-                "demarche": "Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur puissances, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "trigonometrie",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Mathématiques, sur trigonometrie.",
-                "demarche": "Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur trigonometrie, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "fractions",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Mathématiques, sur fractions.",
-                "demarche": "Poser les définitions utiles en Mathématiques, montrer des exemples sur fractions, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "geometrie",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Mathématiques, sur geometrie.",
-                "demarche": "Poser les définitions utiles en Mathématiques, montrer des exemples sur geometrie, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "nombres-relatifs",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Mathématiques, sur nombres-relatifs.",
-                "demarche": "Organiser un entraînement espacé en Mathématiques sur nombres-relatifs, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 5",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "proportionnalite",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Mathématiques, sur proportionnalite.",
-                "demarche": "Organiser un entraînement espacé en Mathématiques sur proportionnalite, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 6",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "statistiques",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Mathématiques, sur statistiques, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Mathématiques sur statistiques, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 7",
-                "profileLabel": "non évalué"
-              },
-              {
-                "domainId": "calcul-litteral",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Mathématiques, sur calcul-litteral, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Mathématiques sur calcul-litteral, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 8",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -1281,13 +1146,7 @@
               "puissances reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Mathématiques, sur geometrie. Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur geometrie, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Lever une représentation incorrecte en Mathématiques, sur fractions. Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur fractions, puis reconstruire la notion avant tout entraînement.",
-              "Séance 3 — Installer les repères indispensables en Mathématiques, sur nombres-relatifs. Poser les définitions utiles en Mathématiques, montrer des exemples sur nombres-relatifs, puis proposer un entraînement court et répété.",
-              "Séance 4 — Installer les repères indispensables en Mathématiques, sur proportionnalite. Poser les définitions utiles en Mathématiques, montrer des exemples sur proportionnalite, puis proposer un entraînement court et répété.",
-              "Séance 5 — Stabiliser l'acquis encore fragile en Mathématiques, sur equations. Organiser un entraînement espacé en Mathématiques sur equations, sans réenseigner ce qui est déjà compris.",
-              "Séance 6 — Établir le niveau réel en Mathématiques, sur trigonometrie, avant de choisir une remédiation. Commencer par un test ciblé en Mathématiques sur trigonometrie, puis décider du travail à engager à partir des observations.",
-              "Séance 7 — Établir le niveau réel en Mathématiques, sur puissances, avant de choisir une remédiation. Commencer par un test ciblé en Mathématiques sur puissances, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -1339,64 +1198,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "geometrie",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Mathématiques, sur geometrie.",
-                "demarche": "Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur geometrie, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "fractions",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Mathématiques, sur fractions.",
-                "demarche": "Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur fractions, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "nombres-relatifs",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Mathématiques, sur nombres-relatifs.",
-                "demarche": "Poser les définitions utiles en Mathématiques, montrer des exemples sur nombres-relatifs, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "proportionnalite",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Mathématiques, sur proportionnalite.",
-                "demarche": "Poser les définitions utiles en Mathématiques, montrer des exemples sur proportionnalite, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "equations",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Mathématiques, sur equations.",
-                "demarche": "Organiser un entraînement espacé en Mathématiques sur equations, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 5",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "trigonometrie",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Mathématiques, sur trigonometrie, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Mathématiques sur trigonometrie, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 6",
-                "profileLabel": "non évalué"
-              },
-              {
-                "domainId": "puissances",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Mathématiques, sur puissances, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Mathématiques sur puissances, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 7",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -1811,13 +1613,7 @@
               "fractions reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Mathématiques, sur proportionnalite. Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur proportionnalite, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Lever une représentation incorrecte en Mathématiques, sur nombres-relatifs. Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur nombres-relatifs, puis reconstruire la notion avant tout entraînement.",
-              "Séance 3 — Installer les repères indispensables en Mathématiques, sur equations. Poser les définitions utiles en Mathématiques, montrer des exemples sur equations, puis proposer un entraînement court et répété.",
-              "Séance 4 — Stabiliser l'acquis encore fragile en Mathématiques, sur statistiques. Organiser un entraînement espacé en Mathématiques sur statistiques, sans réenseigner ce qui est déjà compris.",
-              "Séance 5 — Stabiliser l'acquis encore fragile en Mathématiques, sur calcul-litteral. Organiser un entraînement espacé en Mathématiques sur calcul-litteral, sans réenseigner ce qui est déjà compris.",
-              "Séance 6 — Établir le niveau réel en Mathématiques, sur geometrie, avant de choisir une remédiation. Commencer par un test ciblé en Mathématiques sur geometrie, puis décider du travail à engager à partir des observations.",
-              "Séance 7 — Établir le niveau réel en Mathématiques, sur fractions, avant de choisir une remédiation. Commencer par un test ciblé en Mathématiques sur fractions, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -1869,64 +1665,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "proportionnalite",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Mathématiques, sur proportionnalite.",
-                "demarche": "Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur proportionnalite, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "nombres-relatifs",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Mathématiques, sur nombres-relatifs.",
-                "demarche": "Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur nombres-relatifs, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "equations",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Mathématiques, sur equations.",
-                "demarche": "Poser les définitions utiles en Mathématiques, montrer des exemples sur equations, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "statistiques",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Mathématiques, sur statistiques.",
-                "demarche": "Organiser un entraînement espacé en Mathématiques sur statistiques, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "calcul-litteral",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Mathématiques, sur calcul-litteral.",
-                "demarche": "Organiser un entraînement espacé en Mathématiques sur calcul-litteral, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 5",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "geometrie",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Mathématiques, sur geometrie, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Mathématiques sur geometrie, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 6",
-                "profileLabel": "non évalué"
-              },
-              {
-                "domainId": "fractions",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Mathématiques, sur fractions, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Mathématiques sur fractions, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 7",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -2341,13 +2080,7 @@
               "nombres-relatifs reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Mathématiques, sur equations. Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur equations, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en Mathématiques, sur calcul-litteral. Poser les définitions utiles en Mathématiques, montrer des exemples sur calcul-litteral, puis proposer un entraînement court et répété.",
-              "Séance 3 — Installer les repères indispensables en Mathématiques, sur statistiques. Poser les définitions utiles en Mathématiques, montrer des exemples sur statistiques, puis proposer un entraînement court et répété.",
-              "Séance 4 — Stabiliser l'acquis encore fragile en Mathématiques, sur puissances. Organiser un entraînement espacé en Mathématiques sur puissances, sans réenseigner ce qui est déjà compris.",
-              "Séance 5 — Stabiliser l'acquis encore fragile en Mathématiques, sur trigonometrie. Organiser un entraînement espacé en Mathématiques sur trigonometrie, sans réenseigner ce qui est déjà compris.",
-              "Séance 6 — Établir le niveau réel en Mathématiques, sur proportionnalite, avant de choisir une remédiation. Commencer par un test ciblé en Mathématiques sur proportionnalite, puis décider du travail à engager à partir des observations.",
-              "Séance 7 — Établir le niveau réel en Mathématiques, sur nombres-relatifs, avant de choisir une remédiation. Commencer par un test ciblé en Mathématiques sur nombres-relatifs, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -2399,64 +2132,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "equations",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Mathématiques, sur equations.",
-                "demarche": "Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur equations, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "calcul-litteral",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Mathématiques, sur calcul-litteral.",
-                "demarche": "Poser les définitions utiles en Mathématiques, montrer des exemples sur calcul-litteral, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "statistiques",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Mathématiques, sur statistiques.",
-                "demarche": "Poser les définitions utiles en Mathématiques, montrer des exemples sur statistiques, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "puissances",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Mathématiques, sur puissances.",
-                "demarche": "Organiser un entraînement espacé en Mathématiques sur puissances, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "trigonometrie",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Mathématiques, sur trigonometrie.",
-                "demarche": "Organiser un entraînement espacé en Mathématiques sur trigonometrie, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 5",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "proportionnalite",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Mathématiques, sur proportionnalite, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Mathématiques sur proportionnalite, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 6",
-                "profileLabel": "non évalué"
-              },
-              {
-                "domainId": "nombres-relatifs",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Mathématiques, sur nombres-relatifs, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Mathématiques sur nombres-relatifs, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 7",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -2871,13 +2547,7 @@
               "equations reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Mathématiques, sur calcul-litteral. Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur calcul-litteral, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Lever une représentation incorrecte en Mathématiques, sur statistiques. Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur statistiques, puis reconstruire la notion avant tout entraînement.",
-              "Séance 3 — Installer les repères indispensables en Mathématiques, sur puissances. Poser les définitions utiles en Mathématiques, montrer des exemples sur puissances, puis proposer un entraînement court et répété.",
-              "Séance 4 — Installer les repères indispensables en Mathématiques, sur trigonometrie. Poser les définitions utiles en Mathématiques, montrer des exemples sur trigonometrie, puis proposer un entraînement court et répété.",
-              "Séance 5 — Stabiliser l'acquis encore fragile en Mathématiques, sur fractions. Organiser un entraînement espacé en Mathématiques sur fractions, sans réenseigner ce qui est déjà compris.",
-              "Séance 6 — Stabiliser l'acquis encore fragile en Mathématiques, sur geometrie. Organiser un entraînement espacé en Mathématiques sur geometrie, sans réenseigner ce qui est déjà compris.",
-              "Séance 7 — Établir le niveau réel en Mathématiques, sur equations, avant de choisir une remédiation. Commencer par un test ciblé en Mathématiques sur equations, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -2929,64 +2599,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "calcul-litteral",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Mathématiques, sur calcul-litteral.",
-                "demarche": "Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur calcul-litteral, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "statistiques",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Mathématiques, sur statistiques.",
-                "demarche": "Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur statistiques, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "puissances",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Mathématiques, sur puissances.",
-                "demarche": "Poser les définitions utiles en Mathématiques, montrer des exemples sur puissances, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "trigonometrie",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Mathématiques, sur trigonometrie.",
-                "demarche": "Poser les définitions utiles en Mathématiques, montrer des exemples sur trigonometrie, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "fractions",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Mathématiques, sur fractions.",
-                "demarche": "Organiser un entraînement espacé en Mathématiques sur fractions, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 5",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "geometrie",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Mathématiques, sur geometrie.",
-                "demarche": "Organiser un entraînement espacé en Mathématiques sur geometrie, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 6",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "equations",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Mathématiques, sur equations, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Mathématiques sur equations, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 7",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -3410,14 +3023,7 @@
               "calcul-litteral reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Mathématiques, sur puissances. Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur puissances, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Lever une représentation incorrecte en Mathématiques, sur trigonometrie. Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur trigonometrie, puis reconstruire la notion avant tout entraînement.",
-              "Séance 3 — Installer les repères indispensables en Mathématiques, sur fractions. Poser les définitions utiles en Mathématiques, montrer des exemples sur fractions, puis proposer un entraînement court et répété.",
-              "Séance 4 — Installer les repères indispensables en Mathématiques, sur geometrie. Poser les définitions utiles en Mathématiques, montrer des exemples sur geometrie, puis proposer un entraînement court et répété.",
-              "Séance 5 — Stabiliser l'acquis encore fragile en Mathématiques, sur nombres-relatifs. Organiser un entraînement espacé en Mathématiques sur nombres-relatifs, sans réenseigner ce qui est déjà compris.",
-              "Séance 6 — Stabiliser l'acquis encore fragile en Mathématiques, sur proportionnalite. Organiser un entraînement espacé en Mathématiques sur proportionnalite, sans réenseigner ce qui est déjà compris.",
-              "Séance 7 — Établir le niveau réel en Mathématiques, sur statistiques, avant de choisir une remédiation. Commencer par un test ciblé en Mathématiques sur statistiques, puis décider du travail à engager à partir des observations.",
-              "Séance 8 — Établir le niveau réel en Mathématiques, sur calcul-litteral, avant de choisir une remédiation. Commencer par un test ciblé en Mathématiques sur calcul-litteral, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -3469,72 +3075,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "puissances",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Mathématiques, sur puissances.",
-                "demarche": "Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur puissances, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "trigonometrie",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Mathématiques, sur trigonometrie.",
-                "demarche": "Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur trigonometrie, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "fractions",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Mathématiques, sur fractions.",
-                "demarche": "Poser les définitions utiles en Mathématiques, montrer des exemples sur fractions, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "geometrie",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Mathématiques, sur geometrie.",
-                "demarche": "Poser les définitions utiles en Mathématiques, montrer des exemples sur geometrie, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "nombres-relatifs",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Mathématiques, sur nombres-relatifs.",
-                "demarche": "Organiser un entraînement espacé en Mathématiques sur nombres-relatifs, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 5",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "proportionnalite",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Mathématiques, sur proportionnalite.",
-                "demarche": "Organiser un entraînement espacé en Mathématiques sur proportionnalite, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 6",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "statistiques",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Mathématiques, sur statistiques, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Mathématiques sur statistiques, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 7",
-                "profileLabel": "non évalué"
-              },
-              {
-                "domainId": "calcul-litteral",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Mathématiques, sur calcul-litteral, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Mathématiques sur calcul-litteral, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 8",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -3959,13 +3500,7 @@
               "puissances reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Mathématiques, sur geometrie. Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur geometrie, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Lever une représentation incorrecte en Mathématiques, sur fractions. Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur fractions, puis reconstruire la notion avant tout entraînement.",
-              "Séance 3 — Installer les repères indispensables en Mathématiques, sur nombres-relatifs. Poser les définitions utiles en Mathématiques, montrer des exemples sur nombres-relatifs, puis proposer un entraînement court et répété.",
-              "Séance 4 — Installer les repères indispensables en Mathématiques, sur proportionnalite. Poser les définitions utiles en Mathématiques, montrer des exemples sur proportionnalite, puis proposer un entraînement court et répété.",
-              "Séance 5 — Stabiliser l'acquis encore fragile en Mathématiques, sur equations. Organiser un entraînement espacé en Mathématiques sur equations, sans réenseigner ce qui est déjà compris.",
-              "Séance 6 — Établir le niveau réel en Mathématiques, sur trigonometrie, avant de choisir une remédiation. Commencer par un test ciblé en Mathématiques sur trigonometrie, puis décider du travail à engager à partir des observations.",
-              "Séance 7 — Établir le niveau réel en Mathématiques, sur puissances, avant de choisir une remédiation. Commencer par un test ciblé en Mathématiques sur puissances, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -4017,64 +3552,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "geometrie",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Mathématiques, sur geometrie.",
-                "demarche": "Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur geometrie, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "fractions",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Mathématiques, sur fractions.",
-                "demarche": "Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur fractions, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "nombres-relatifs",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Mathématiques, sur nombres-relatifs.",
-                "demarche": "Poser les définitions utiles en Mathématiques, montrer des exemples sur nombres-relatifs, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "proportionnalite",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Mathématiques, sur proportionnalite.",
-                "demarche": "Poser les définitions utiles en Mathématiques, montrer des exemples sur proportionnalite, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "equations",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Mathématiques, sur equations.",
-                "demarche": "Organiser un entraînement espacé en Mathématiques sur equations, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 5",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "trigonometrie",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Mathématiques, sur trigonometrie, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Mathématiques sur trigonometrie, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 6",
-                "profileLabel": "non évalué"
-              },
-              {
-                "domainId": "puissances",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Mathématiques, sur puissances, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Mathématiques sur puissances, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 7",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -4489,13 +3967,7 @@
               "fractions reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Mathématiques, sur proportionnalite. Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur proportionnalite, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Lever une représentation incorrecte en Mathématiques, sur nombres-relatifs. Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur nombres-relatifs, puis reconstruire la notion avant tout entraînement.",
-              "Séance 3 — Installer les repères indispensables en Mathématiques, sur equations. Poser les définitions utiles en Mathématiques, montrer des exemples sur equations, puis proposer un entraînement court et répété.",
-              "Séance 4 — Stabiliser l'acquis encore fragile en Mathématiques, sur statistiques. Organiser un entraînement espacé en Mathématiques sur statistiques, sans réenseigner ce qui est déjà compris.",
-              "Séance 5 — Stabiliser l'acquis encore fragile en Mathématiques, sur calcul-litteral. Organiser un entraînement espacé en Mathématiques sur calcul-litteral, sans réenseigner ce qui est déjà compris.",
-              "Séance 6 — Établir le niveau réel en Mathématiques, sur geometrie, avant de choisir une remédiation. Commencer par un test ciblé en Mathématiques sur geometrie, puis décider du travail à engager à partir des observations.",
-              "Séance 7 — Établir le niveau réel en Mathématiques, sur fractions, avant de choisir une remédiation. Commencer par un test ciblé en Mathématiques sur fractions, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -4547,64 +4019,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "proportionnalite",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Mathématiques, sur proportionnalite.",
-                "demarche": "Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur proportionnalite, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "nombres-relatifs",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Mathématiques, sur nombres-relatifs.",
-                "demarche": "Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur nombres-relatifs, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "equations",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Mathématiques, sur equations.",
-                "demarche": "Poser les définitions utiles en Mathématiques, montrer des exemples sur equations, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "statistiques",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Mathématiques, sur statistiques.",
-                "demarche": "Organiser un entraînement espacé en Mathématiques sur statistiques, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "calcul-litteral",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Mathématiques, sur calcul-litteral.",
-                "demarche": "Organiser un entraînement espacé en Mathématiques sur calcul-litteral, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 5",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "geometrie",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Mathématiques, sur geometrie, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Mathématiques sur geometrie, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 6",
-                "profileLabel": "non évalué"
-              },
-              {
-                "domainId": "fractions",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Mathématiques, sur fractions, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Mathématiques sur fractions, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 7",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -5019,13 +4434,7 @@
               "nombres-relatifs reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Mathématiques, sur equations. Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur equations, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en Mathématiques, sur calcul-litteral. Poser les définitions utiles en Mathématiques, montrer des exemples sur calcul-litteral, puis proposer un entraînement court et répété.",
-              "Séance 3 — Installer les repères indispensables en Mathématiques, sur statistiques. Poser les définitions utiles en Mathématiques, montrer des exemples sur statistiques, puis proposer un entraînement court et répété.",
-              "Séance 4 — Stabiliser l'acquis encore fragile en Mathématiques, sur puissances. Organiser un entraînement espacé en Mathématiques sur puissances, sans réenseigner ce qui est déjà compris.",
-              "Séance 5 — Stabiliser l'acquis encore fragile en Mathématiques, sur trigonometrie. Organiser un entraînement espacé en Mathématiques sur trigonometrie, sans réenseigner ce qui est déjà compris.",
-              "Séance 6 — Établir le niveau réel en Mathématiques, sur proportionnalite, avant de choisir une remédiation. Commencer par un test ciblé en Mathématiques sur proportionnalite, puis décider du travail à engager à partir des observations.",
-              "Séance 7 — Établir le niveau réel en Mathématiques, sur nombres-relatifs, avant de choisir une remédiation. Commencer par un test ciblé en Mathématiques sur nombres-relatifs, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -5077,64 +4486,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "equations",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Mathématiques, sur equations.",
-                "demarche": "Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur equations, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "calcul-litteral",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Mathématiques, sur calcul-litteral.",
-                "demarche": "Poser les définitions utiles en Mathématiques, montrer des exemples sur calcul-litteral, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "statistiques",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Mathématiques, sur statistiques.",
-                "demarche": "Poser les définitions utiles en Mathématiques, montrer des exemples sur statistiques, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "puissances",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Mathématiques, sur puissances.",
-                "demarche": "Organiser un entraînement espacé en Mathématiques sur puissances, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "trigonometrie",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Mathématiques, sur trigonometrie.",
-                "demarche": "Organiser un entraînement espacé en Mathématiques sur trigonometrie, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 5",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "proportionnalite",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Mathématiques, sur proportionnalite, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Mathématiques sur proportionnalite, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 6",
-                "profileLabel": "non évalué"
-              },
-              {
-                "domainId": "nombres-relatifs",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Mathématiques, sur nombres-relatifs, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Mathématiques sur nombres-relatifs, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 7",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -5549,13 +4901,7 @@
               "equations reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Mathématiques, sur calcul-litteral. Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur calcul-litteral, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Lever une représentation incorrecte en Mathématiques, sur statistiques. Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur statistiques, puis reconstruire la notion avant tout entraînement.",
-              "Séance 3 — Installer les repères indispensables en Mathématiques, sur puissances. Poser les définitions utiles en Mathématiques, montrer des exemples sur puissances, puis proposer un entraînement court et répété.",
-              "Séance 4 — Installer les repères indispensables en Mathématiques, sur trigonometrie. Poser les définitions utiles en Mathématiques, montrer des exemples sur trigonometrie, puis proposer un entraînement court et répété.",
-              "Séance 5 — Stabiliser l'acquis encore fragile en Mathématiques, sur fractions. Organiser un entraînement espacé en Mathématiques sur fractions, sans réenseigner ce qui est déjà compris.",
-              "Séance 6 — Stabiliser l'acquis encore fragile en Mathématiques, sur geometrie. Organiser un entraînement espacé en Mathématiques sur geometrie, sans réenseigner ce qui est déjà compris.",
-              "Séance 7 — Établir le niveau réel en Mathématiques, sur equations, avant de choisir une remédiation. Commencer par un test ciblé en Mathématiques sur equations, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -5607,64 +4953,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "calcul-litteral",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Mathématiques, sur calcul-litteral.",
-                "demarche": "Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur calcul-litteral, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "statistiques",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Mathématiques, sur statistiques.",
-                "demarche": "Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur statistiques, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "puissances",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Mathématiques, sur puissances.",
-                "demarche": "Poser les définitions utiles en Mathématiques, montrer des exemples sur puissances, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "trigonometrie",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Mathématiques, sur trigonometrie.",
-                "demarche": "Poser les définitions utiles en Mathématiques, montrer des exemples sur trigonometrie, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "fractions",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Mathématiques, sur fractions.",
-                "demarche": "Organiser un entraînement espacé en Mathématiques sur fractions, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 5",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "geometrie",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Mathématiques, sur geometrie.",
-                "demarche": "Organiser un entraînement espacé en Mathématiques sur geometrie, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 6",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "equations",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Mathématiques, sur equations, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Mathématiques sur equations, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 7",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -6088,14 +5377,7 @@
               "calcul-litteral reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Mathématiques, sur trigonometrie. Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur trigonometrie, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Lever une représentation incorrecte en Mathématiques, sur puissances. Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur puissances, puis reconstruire la notion avant tout entraînement.",
-              "Séance 3 — Installer les repères indispensables en Mathématiques, sur fractions. Poser les définitions utiles en Mathématiques, montrer des exemples sur fractions, puis proposer un entraînement court et répété.",
-              "Séance 4 — Installer les repères indispensables en Mathématiques, sur geometrie. Poser les définitions utiles en Mathématiques, montrer des exemples sur geometrie, puis proposer un entraînement court et répété.",
-              "Séance 5 — Stabiliser l'acquis encore fragile en Mathématiques, sur nombres-relatifs. Organiser un entraînement espacé en Mathématiques sur nombres-relatifs, sans réenseigner ce qui est déjà compris.",
-              "Séance 6 — Stabiliser l'acquis encore fragile en Mathématiques, sur proportionnalite. Organiser un entraînement espacé en Mathématiques sur proportionnalite, sans réenseigner ce qui est déjà compris.",
-              "Séance 7 — Établir le niveau réel en Mathématiques, sur statistiques, avant de choisir une remédiation. Commencer par un test ciblé en Mathématiques sur statistiques, puis décider du travail à engager à partir des observations.",
-              "Séance 8 — Établir le niveau réel en Mathématiques, sur calcul-litteral, avant de choisir une remédiation. Commencer par un test ciblé en Mathématiques sur calcul-litteral, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -6147,72 +5429,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "trigonometrie",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Mathématiques, sur trigonometrie.",
-                "demarche": "Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur trigonometrie, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "puissances",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Mathématiques, sur puissances.",
-                "demarche": "Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur puissances, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "fractions",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Mathématiques, sur fractions.",
-                "demarche": "Poser les définitions utiles en Mathématiques, montrer des exemples sur fractions, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "geometrie",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Mathématiques, sur geometrie.",
-                "demarche": "Poser les définitions utiles en Mathématiques, montrer des exemples sur geometrie, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "nombres-relatifs",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Mathématiques, sur nombres-relatifs.",
-                "demarche": "Organiser un entraînement espacé en Mathématiques sur nombres-relatifs, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 5",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "proportionnalite",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Mathématiques, sur proportionnalite.",
-                "demarche": "Organiser un entraînement espacé en Mathématiques sur proportionnalite, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 6",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "statistiques",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Mathématiques, sur statistiques, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Mathématiques sur statistiques, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 7",
-                "profileLabel": "non évalué"
-              },
-              {
-                "domainId": "calcul-litteral",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Mathématiques, sur calcul-litteral, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Mathématiques sur calcul-litteral, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 8",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -6637,13 +5854,7 @@
               "puissances reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Mathématiques, sur geometrie. Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur geometrie, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Lever une représentation incorrecte en Mathématiques, sur fractions. Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur fractions, puis reconstruire la notion avant tout entraînement.",
-              "Séance 3 — Installer les repères indispensables en Mathématiques, sur proportionnalite. Poser les définitions utiles en Mathématiques, montrer des exemples sur proportionnalite, puis proposer un entraînement court et répété.",
-              "Séance 4 — Installer les repères indispensables en Mathématiques, sur nombres-relatifs. Poser les définitions utiles en Mathématiques, montrer des exemples sur nombres-relatifs, puis proposer un entraînement court et répété.",
-              "Séance 5 — Stabiliser l'acquis encore fragile en Mathématiques, sur equations. Organiser un entraînement espacé en Mathématiques sur equations, sans réenseigner ce qui est déjà compris.",
-              "Séance 6 — Établir le niveau réel en Mathématiques, sur trigonometrie, avant de choisir une remédiation. Commencer par un test ciblé en Mathématiques sur trigonometrie, puis décider du travail à engager à partir des observations.",
-              "Séance 7 — Établir le niveau réel en Mathématiques, sur puissances, avant de choisir une remédiation. Commencer par un test ciblé en Mathématiques sur puissances, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -6695,64 +5906,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "geometrie",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Mathématiques, sur geometrie.",
-                "demarche": "Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur geometrie, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "fractions",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Mathématiques, sur fractions.",
-                "demarche": "Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur fractions, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "proportionnalite",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Mathématiques, sur proportionnalite.",
-                "demarche": "Poser les définitions utiles en Mathématiques, montrer des exemples sur proportionnalite, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "nombres-relatifs",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Mathématiques, sur nombres-relatifs.",
-                "demarche": "Poser les définitions utiles en Mathématiques, montrer des exemples sur nombres-relatifs, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "equations",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Mathématiques, sur equations.",
-                "demarche": "Organiser un entraînement espacé en Mathématiques sur equations, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 5",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "trigonometrie",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Mathématiques, sur trigonometrie, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Mathématiques sur trigonometrie, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 6",
-                "profileLabel": "non évalué"
-              },
-              {
-                "domainId": "puissances",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Mathématiques, sur puissances, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Mathématiques sur puissances, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 7",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -7167,13 +6321,7 @@
               "fractions reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Mathématiques, sur proportionnalite. Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur proportionnalite, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Lever une représentation incorrecte en Mathématiques, sur nombres-relatifs. Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur nombres-relatifs, puis reconstruire la notion avant tout entraînement.",
-              "Séance 3 — Installer les repères indispensables en Mathématiques, sur equations. Poser les définitions utiles en Mathématiques, montrer des exemples sur equations, puis proposer un entraînement court et répété.",
-              "Séance 4 — Stabiliser l'acquis encore fragile en Mathématiques, sur calcul-litteral. Organiser un entraînement espacé en Mathématiques sur calcul-litteral, sans réenseigner ce qui est déjà compris.",
-              "Séance 5 — Stabiliser l'acquis encore fragile en Mathématiques, sur statistiques. Organiser un entraînement espacé en Mathématiques sur statistiques, sans réenseigner ce qui est déjà compris.",
-              "Séance 6 — Établir le niveau réel en Mathématiques, sur geometrie, avant de choisir une remédiation. Commencer par un test ciblé en Mathématiques sur geometrie, puis décider du travail à engager à partir des observations.",
-              "Séance 7 — Établir le niveau réel en Mathématiques, sur fractions, avant de choisir une remédiation. Commencer par un test ciblé en Mathématiques sur fractions, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -7225,64 +6373,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "proportionnalite",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Mathématiques, sur proportionnalite.",
-                "demarche": "Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur proportionnalite, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "nombres-relatifs",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Mathématiques, sur nombres-relatifs.",
-                "demarche": "Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur nombres-relatifs, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "equations",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Mathématiques, sur equations.",
-                "demarche": "Poser les définitions utiles en Mathématiques, montrer des exemples sur equations, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "calcul-litteral",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Mathématiques, sur calcul-litteral.",
-                "demarche": "Organiser un entraînement espacé en Mathématiques sur calcul-litteral, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "statistiques",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Mathématiques, sur statistiques.",
-                "demarche": "Organiser un entraînement espacé en Mathématiques sur statistiques, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 5",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "geometrie",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Mathématiques, sur geometrie, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Mathématiques sur geometrie, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 6",
-                "profileLabel": "non évalué"
-              },
-              {
-                "domainId": "fractions",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Mathématiques, sur fractions, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Mathématiques sur fractions, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 7",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -7697,13 +6788,7 @@
               "nombres-relatifs reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Mathématiques, sur equations. Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur equations, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en Mathématiques, sur calcul-litteral. Poser les définitions utiles en Mathématiques, montrer des exemples sur calcul-litteral, puis proposer un entraînement court et répété.",
-              "Séance 3 — Installer les repères indispensables en Mathématiques, sur statistiques. Poser les définitions utiles en Mathématiques, montrer des exemples sur statistiques, puis proposer un entraînement court et répété.",
-              "Séance 4 — Stabiliser l'acquis encore fragile en Mathématiques, sur puissances. Organiser un entraînement espacé en Mathématiques sur puissances, sans réenseigner ce qui est déjà compris.",
-              "Séance 5 — Stabiliser l'acquis encore fragile en Mathématiques, sur trigonometrie. Organiser un entraînement espacé en Mathématiques sur trigonometrie, sans réenseigner ce qui est déjà compris.",
-              "Séance 6 — Établir le niveau réel en Mathématiques, sur proportionnalite, avant de choisir une remédiation. Commencer par un test ciblé en Mathématiques sur proportionnalite, puis décider du travail à engager à partir des observations.",
-              "Séance 7 — Établir le niveau réel en Mathématiques, sur nombres-relatifs, avant de choisir une remédiation. Commencer par un test ciblé en Mathématiques sur nombres-relatifs, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -7755,64 +6840,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "equations",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Mathématiques, sur equations.",
-                "demarche": "Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur equations, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "calcul-litteral",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Mathématiques, sur calcul-litteral.",
-                "demarche": "Poser les définitions utiles en Mathématiques, montrer des exemples sur calcul-litteral, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "statistiques",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Mathématiques, sur statistiques.",
-                "demarche": "Poser les définitions utiles en Mathématiques, montrer des exemples sur statistiques, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "puissances",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Mathématiques, sur puissances.",
-                "demarche": "Organiser un entraînement espacé en Mathématiques sur puissances, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "trigonometrie",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Mathématiques, sur trigonometrie.",
-                "demarche": "Organiser un entraînement espacé en Mathématiques sur trigonometrie, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 5",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "proportionnalite",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Mathématiques, sur proportionnalite, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Mathématiques sur proportionnalite, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 6",
-                "profileLabel": "non évalué"
-              },
-              {
-                "domainId": "nombres-relatifs",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Mathématiques, sur nombres-relatifs, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Mathématiques sur nombres-relatifs, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 7",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -8227,13 +7255,7 @@
               "equations reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Mathématiques, sur calcul-litteral. Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur calcul-litteral, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Lever une représentation incorrecte en Mathématiques, sur statistiques. Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur statistiques, puis reconstruire la notion avant tout entraînement.",
-              "Séance 3 — Installer les repères indispensables en Mathématiques, sur puissances. Poser les définitions utiles en Mathématiques, montrer des exemples sur puissances, puis proposer un entraînement court et répété.",
-              "Séance 4 — Installer les repères indispensables en Mathématiques, sur trigonometrie. Poser les définitions utiles en Mathématiques, montrer des exemples sur trigonometrie, puis proposer un entraînement court et répété.",
-              "Séance 5 — Stabiliser l'acquis encore fragile en Mathématiques, sur fractions. Organiser un entraînement espacé en Mathématiques sur fractions, sans réenseigner ce qui est déjà compris.",
-              "Séance 6 — Stabiliser l'acquis encore fragile en Mathématiques, sur geometrie. Organiser un entraînement espacé en Mathématiques sur geometrie, sans réenseigner ce qui est déjà compris.",
-              "Séance 7 — Établir le niveau réel en Mathématiques, sur equations, avant de choisir une remédiation. Commencer par un test ciblé en Mathématiques sur equations, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -8285,64 +7307,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "calcul-litteral",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Mathématiques, sur calcul-litteral.",
-                "demarche": "Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur calcul-litteral, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "statistiques",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Mathématiques, sur statistiques.",
-                "demarche": "Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur statistiques, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "puissances",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Mathématiques, sur puissances.",
-                "demarche": "Poser les définitions utiles en Mathématiques, montrer des exemples sur puissances, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "trigonometrie",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Mathématiques, sur trigonometrie.",
-                "demarche": "Poser les définitions utiles en Mathématiques, montrer des exemples sur trigonometrie, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "fractions",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Mathématiques, sur fractions.",
-                "demarche": "Organiser un entraînement espacé en Mathématiques sur fractions, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 5",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "geometrie",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Mathématiques, sur geometrie.",
-                "demarche": "Organiser un entraînement espacé en Mathématiques sur geometrie, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 6",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "equations",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Mathématiques, sur equations, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Mathématiques sur equations, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 7",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -8766,14 +7731,7 @@
               "calcul-litteral reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Mathématiques, sur trigonometrie. Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur trigonometrie, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Lever une représentation incorrecte en Mathématiques, sur puissances. Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur puissances, puis reconstruire la notion avant tout entraînement.",
-              "Séance 3 — Installer les repères indispensables en Mathématiques, sur fractions. Poser les définitions utiles en Mathématiques, montrer des exemples sur fractions, puis proposer un entraînement court et répété.",
-              "Séance 4 — Installer les repères indispensables en Mathématiques, sur geometrie. Poser les définitions utiles en Mathématiques, montrer des exemples sur geometrie, puis proposer un entraînement court et répété.",
-              "Séance 5 — Stabiliser l'acquis encore fragile en Mathématiques, sur nombres-relatifs. Organiser un entraînement espacé en Mathématiques sur nombres-relatifs, sans réenseigner ce qui est déjà compris.",
-              "Séance 6 — Stabiliser l'acquis encore fragile en Mathématiques, sur proportionnalite. Organiser un entraînement espacé en Mathématiques sur proportionnalite, sans réenseigner ce qui est déjà compris.",
-              "Séance 7 — Établir le niveau réel en Mathématiques, sur statistiques, avant de choisir une remédiation. Commencer par un test ciblé en Mathématiques sur statistiques, puis décider du travail à engager à partir des observations.",
-              "Séance 8 — Établir le niveau réel en Mathématiques, sur calcul-litteral, avant de choisir une remédiation. Commencer par un test ciblé en Mathématiques sur calcul-litteral, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -8825,72 +7783,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "trigonometrie",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Mathématiques, sur trigonometrie.",
-                "demarche": "Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur trigonometrie, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "puissances",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Mathématiques, sur puissances.",
-                "demarche": "Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur puissances, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "fractions",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Mathématiques, sur fractions.",
-                "demarche": "Poser les définitions utiles en Mathématiques, montrer des exemples sur fractions, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "geometrie",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Mathématiques, sur geometrie.",
-                "demarche": "Poser les définitions utiles en Mathématiques, montrer des exemples sur geometrie, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "nombres-relatifs",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Mathématiques, sur nombres-relatifs.",
-                "demarche": "Organiser un entraînement espacé en Mathématiques sur nombres-relatifs, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 5",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "proportionnalite",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Mathématiques, sur proportionnalite.",
-                "demarche": "Organiser un entraînement espacé en Mathématiques sur proportionnalite, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 6",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "statistiques",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Mathématiques, sur statistiques, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Mathématiques sur statistiques, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 7",
-                "profileLabel": "non évalué"
-              },
-              {
-                "domainId": "calcul-litteral",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Mathématiques, sur calcul-litteral, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Mathématiques sur calcul-litteral, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 8",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -9315,13 +8208,7 @@
               "puissances reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Mathématiques, sur geometrie. Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur geometrie, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Lever une représentation incorrecte en Mathématiques, sur fractions. Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur fractions, puis reconstruire la notion avant tout entraînement.",
-              "Séance 3 — Installer les repères indispensables en Mathématiques, sur proportionnalite. Poser les définitions utiles en Mathématiques, montrer des exemples sur proportionnalite, puis proposer un entraînement court et répété.",
-              "Séance 4 — Installer les repères indispensables en Mathématiques, sur nombres-relatifs. Poser les définitions utiles en Mathématiques, montrer des exemples sur nombres-relatifs, puis proposer un entraînement court et répété.",
-              "Séance 5 — Stabiliser l'acquis encore fragile en Mathématiques, sur equations. Organiser un entraînement espacé en Mathématiques sur equations, sans réenseigner ce qui est déjà compris.",
-              "Séance 6 — Établir le niveau réel en Mathématiques, sur trigonometrie, avant de choisir une remédiation. Commencer par un test ciblé en Mathématiques sur trigonometrie, puis décider du travail à engager à partir des observations.",
-              "Séance 7 — Établir le niveau réel en Mathématiques, sur puissances, avant de choisir une remédiation. Commencer par un test ciblé en Mathématiques sur puissances, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -9373,64 +8260,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "geometrie",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Mathématiques, sur geometrie.",
-                "demarche": "Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur geometrie, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "fractions",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Mathématiques, sur fractions.",
-                "demarche": "Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur fractions, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "proportionnalite",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Mathématiques, sur proportionnalite.",
-                "demarche": "Poser les définitions utiles en Mathématiques, montrer des exemples sur proportionnalite, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "nombres-relatifs",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Mathématiques, sur nombres-relatifs.",
-                "demarche": "Poser les définitions utiles en Mathématiques, montrer des exemples sur nombres-relatifs, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "equations",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Mathématiques, sur equations.",
-                "demarche": "Organiser un entraînement espacé en Mathématiques sur equations, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 5",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "trigonometrie",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Mathématiques, sur trigonometrie, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Mathématiques sur trigonometrie, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 6",
-                "profileLabel": "non évalué"
-              },
-              {
-                "domainId": "puissances",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Mathématiques, sur puissances, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Mathématiques sur puissances, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 7",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -9845,13 +8675,7 @@
               "fractions reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Mathématiques, sur proportionnalite. Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur proportionnalite, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Lever une représentation incorrecte en Mathématiques, sur nombres-relatifs. Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur nombres-relatifs, puis reconstruire la notion avant tout entraînement.",
-              "Séance 3 — Installer les repères indispensables en Mathématiques, sur equations. Poser les définitions utiles en Mathématiques, montrer des exemples sur equations, puis proposer un entraînement court et répété.",
-              "Séance 4 — Stabiliser l'acquis encore fragile en Mathématiques, sur calcul-litteral. Organiser un entraînement espacé en Mathématiques sur calcul-litteral, sans réenseigner ce qui est déjà compris.",
-              "Séance 5 — Stabiliser l'acquis encore fragile en Mathématiques, sur statistiques. Organiser un entraînement espacé en Mathématiques sur statistiques, sans réenseigner ce qui est déjà compris.",
-              "Séance 6 — Établir le niveau réel en Mathématiques, sur geometrie, avant de choisir une remédiation. Commencer par un test ciblé en Mathématiques sur geometrie, puis décider du travail à engager à partir des observations.",
-              "Séance 7 — Établir le niveau réel en Mathématiques, sur fractions, avant de choisir une remédiation. Commencer par un test ciblé en Mathématiques sur fractions, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -9903,64 +8727,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "proportionnalite",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Mathématiques, sur proportionnalite.",
-                "demarche": "Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur proportionnalite, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "nombres-relatifs",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Mathématiques, sur nombres-relatifs.",
-                "demarche": "Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur nombres-relatifs, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "equations",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Mathématiques, sur equations.",
-                "demarche": "Poser les définitions utiles en Mathématiques, montrer des exemples sur equations, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "calcul-litteral",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Mathématiques, sur calcul-litteral.",
-                "demarche": "Organiser un entraînement espacé en Mathématiques sur calcul-litteral, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "statistiques",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Mathématiques, sur statistiques.",
-                "demarche": "Organiser un entraînement espacé en Mathématiques sur statistiques, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 5",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "geometrie",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Mathématiques, sur geometrie, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Mathématiques sur geometrie, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 6",
-                "profileLabel": "non évalué"
-              },
-              {
-                "domainId": "fractions",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Mathématiques, sur fractions, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Mathématiques sur fractions, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 7",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -10375,13 +9142,7 @@
               "nombres-relatifs reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Mathématiques, sur equations. Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur equations, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en Mathématiques, sur calcul-litteral. Poser les définitions utiles en Mathématiques, montrer des exemples sur calcul-litteral, puis proposer un entraînement court et répété.",
-              "Séance 3 — Installer les repères indispensables en Mathématiques, sur statistiques. Poser les définitions utiles en Mathématiques, montrer des exemples sur statistiques, puis proposer un entraînement court et répété.",
-              "Séance 4 — Stabiliser l'acquis encore fragile en Mathématiques, sur puissances. Organiser un entraînement espacé en Mathématiques sur puissances, sans réenseigner ce qui est déjà compris.",
-              "Séance 5 — Stabiliser l'acquis encore fragile en Mathématiques, sur trigonometrie. Organiser un entraînement espacé en Mathématiques sur trigonometrie, sans réenseigner ce qui est déjà compris.",
-              "Séance 6 — Établir le niveau réel en Mathématiques, sur proportionnalite, avant de choisir une remédiation. Commencer par un test ciblé en Mathématiques sur proportionnalite, puis décider du travail à engager à partir des observations.",
-              "Séance 7 — Établir le niveau réel en Mathématiques, sur nombres-relatifs, avant de choisir une remédiation. Commencer par un test ciblé en Mathématiques sur nombres-relatifs, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -10433,64 +9194,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "equations",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Mathématiques, sur equations.",
-                "demarche": "Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur equations, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "calcul-litteral",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Mathématiques, sur calcul-litteral.",
-                "demarche": "Poser les définitions utiles en Mathématiques, montrer des exemples sur calcul-litteral, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "statistiques",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Mathématiques, sur statistiques.",
-                "demarche": "Poser les définitions utiles en Mathématiques, montrer des exemples sur statistiques, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "puissances",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Mathématiques, sur puissances.",
-                "demarche": "Organiser un entraînement espacé en Mathématiques sur puissances, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "trigonometrie",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Mathématiques, sur trigonometrie.",
-                "demarche": "Organiser un entraînement espacé en Mathématiques sur trigonometrie, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 5",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "proportionnalite",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Mathématiques, sur proportionnalite, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Mathématiques sur proportionnalite, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 6",
-                "profileLabel": "non évalué"
-              },
-              {
-                "domainId": "nombres-relatifs",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Mathématiques, sur nombres-relatifs, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Mathématiques sur nombres-relatifs, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 7",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }

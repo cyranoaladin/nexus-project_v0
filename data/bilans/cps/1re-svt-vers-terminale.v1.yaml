@@ -3,46 +3,55 @@ slug: 1re-svt-vers-terminale-v1
 version: 1
 nodes:
   - id: 1re.svt.genetique.replication-cycle-cellulaire
+    sequenceOrder: 1
     label: Réplication de l'ADN et cycle cellulaire
     sourceLevel: PREMIERE
     targetLevel: TERMINALE
     pedagogicalRationale: la méiose et les brassages génétiques, qui ouvrent l'année, supposent de maîtriser la réplication et la conservation de l'information au cours de la mitose.
   - id: 1re.svt.genetique.expression-du-genome
+    sequenceOrder: 2
     label: Expression du génome
     sourceLevel: PREMIERE
     targetLevel: TERMINALE
     pedagogicalRationale: la complexification des génomes et l'étude des mutations en Terminale supposent de distinguer transcription et traduction et de connaître les propriétés du code génétique.
   - id: 1re.svt.genetique.mutations
+    sequenceOrder: 3
     label: Mutations
     sourceLevel: PREMIERE
     targetLevel: TERMINALE
     pedagogicalRationale: la variabilité génétique et son devenir dans les populations, cœur du premier thème de Terminale, reposent sur la nature et l'origine des mutations.
   - id: 1re.svt.geologie.tectonique-des-plaques
+    sequenceOrder: 4
     label: Tectonique des plaques
     sourceLevel: PREMIERE
     targetLevel: TERMINALE
     pedagogicalRationale: la reconstitution des climats passés et l'étude des archives géologiques supposent de connaître la dynamique des plaques et la distinction lithosphère-asthénosphère.
   - id: 1re.svt.geologie.magmatisme
+    sequenceOrder: 5
     label: Magmatisme et roches magmatiques
     sourceLevel: PREMIERE
     targetLevel: TERMINALE
     pedagogicalRationale: la lecture des roches comme archives, en Terminale, suppose de savoir relier structure d'une roche et conditions de refroidissement.
   - id: 1re.svt.immunite.reponse-innee-adaptative
+    sequenceOrder: 6
     label: Immunité innée et adaptative
     sourceLevel: PREMIERE
     targetLevel: TERMINALE
     pedagogicalRationale: la connaissance des acteurs et des propriétés de la réponse adaptative conditionne l'étude de la vaccination et des dérèglements immunitaires.
   - id: 1re.svt.systeme-nerveux.reflexe-myotatique
+    sequenceOrder: 7
     label: Système nerveux et transmission du message
     sourceLevel: PREMIERE
     targetLevel: TERMINALE
     pedagogicalRationale: le thème « comportements, mouvement et système nerveux » de Terminale prolonge directement l'étude du réflexe myotatique et de la synapse.
   - id: 1re.svt.sante.variation-genetique
+    sequenceOrder: 8
     label: Variation génétique et santé
     sourceLevel: PREMIERE
     targetLevel: TERMINALE
     pedagogicalRationale: l'étude du diabète et des maladies multifactorielles en Terminale suppose de savoir raisonner sur les modes de transmission et sur l'origine somatique des cancers.
   - id: 1re.svt.demarche.exploitation-de-donnees
+    sequenceOrder: 9
     label: Exploitation de données et raisonnement
     sourceLevel: PREMIERE
     targetLevel: TERMINALE

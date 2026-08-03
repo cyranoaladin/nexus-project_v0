@@ -41,9 +41,11 @@ le type d'écart qui coûte cher en devoir surveillé. »
 1. Cadre — date de passation, matière, durée, nature du test. Une phrase disant explicitement
    qu'il s'agit d'un **positionnement**, pas d'une évaluation notée ni d'un pronostic.
 2. Points d'appui — 2 à 3, qualitatifs.
-3. Priorités de travail — 2 à 3, formulées comme du contenu de séance, pas comme des manques.
-4. Ce qui sera fait — modules concernés du programme, format (groupes réduits : max 5 au lycée,
-   max 6 au collège), fréquence, livrables.
+3. Priorités observées — 2 à 3, formulées comme des repères diagnostiques, pas comme des
+   manques ni comme un programme déjà arrêté.
+4. Construction du stage — le format annoncé est fixe : cinq séances de deux heures en
+   groupe réduit. Le contenu, l'ordre et la profondeur ne sont déterminés qu'après croisement
+   des diagnostics du groupe constitué. Aucun module n'est annoncé comme décidé à l'avance.
 5. Réserve de fiabilité, si `COUVERTURE_INSUFFISANTE` ou `PASSATION_EXPRESS` : mention explicite
    que le test n'a pas été mené à son terme et que les conclusions sont partielles.
 6. Étape suivante — un CTA parmi la liste approuvée uniquement : « Être conseillé »,
@@ -52,6 +54,11 @@ le type d'écart qui coûte cher en devoir surveillé. »
 **Ne contient pas** : aucun score brut, aucun pourcentage, aucune bande de groupe, aucun nom
 d'enseignant, aucun tarif écrit en dur (si un tarif apparaît, il vient des getters de `lib/pricing.ts`),
 aucune projection de note ou de mention, aucune promesse de résultat.
+
+Le document individuel `PARENT` ne remplace pas le plan de groupe. Le quatrième livrable
+`GROUPE`, strictement interne à Nexus, agrège les FactSheets de trois à cinq élèves du même
+pack et distribue les neuf nœuds sur 600 minutes de contenu. Il porte les noms et profils des
+élèves et n'est transmis ni aux parents ni aux élèves.
 
 **Interdits de formulation, testés automatiquement** : « garanti », « assuré »,
 « 100 % », « taux de réussite », « rattrapage impossible », « il est urgent »,

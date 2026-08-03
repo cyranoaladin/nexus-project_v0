@@ -138,10 +138,7 @@
               "probabilites reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Mathématiques, sur logExp. Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur logExp, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en Mathématiques, sur geometrie. Poser les définitions utiles en Mathématiques, montrer des exemples sur geometrie, puis proposer un entraînement court et répété.",
-              "Séance 3 — Stabiliser l'acquis encore fragile en Mathématiques, sur combinatoire. Organiser un entraînement espacé en Mathématiques sur combinatoire, sans réenseigner ce qui est déjà compris.",
-              "Séance 4 — Établir le niveau réel en Mathématiques, sur probabilites, avant de choisir une remédiation. Commencer par un test ciblé en Mathématiques sur probabilites, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -173,40 +170,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "logExp",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Mathématiques, sur logExp.",
-                "demarche": "Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur logExp, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "geometrie",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Mathématiques, sur geometrie.",
-                "demarche": "Poser les définitions utiles en Mathématiques, montrer des exemples sur geometrie, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "combinatoire",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Mathématiques, sur combinatoire.",
-                "demarche": "Organiser un entraînement espacé en Mathématiques sur combinatoire, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "probabilites",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Mathématiques, sur probabilites, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Mathématiques sur probabilites, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -488,10 +452,7 @@
               "logExp reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Mathématiques, sur geometrie. Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur geometrie, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en Mathématiques, sur combinatoire. Poser les définitions utiles en Mathématiques, montrer des exemples sur combinatoire, puis proposer un entraînement court et répété.",
-              "Séance 3 — Stabiliser l'acquis encore fragile en Mathématiques, sur analyse. Organiser un entraînement espacé en Mathématiques sur analyse, sans réenseigner ce qui est déjà compris.",
-              "Séance 4 — Établir le niveau réel en Mathématiques, sur logExp, avant de choisir une remédiation. Commencer par un test ciblé en Mathématiques sur logExp, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -523,40 +484,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "geometrie",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Mathématiques, sur geometrie.",
-                "demarche": "Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur geometrie, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "combinatoire",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Mathématiques, sur combinatoire.",
-                "demarche": "Poser les définitions utiles en Mathématiques, montrer des exemples sur combinatoire, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "analyse",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Mathématiques, sur analyse.",
-                "demarche": "Organiser un entraînement espacé en Mathématiques sur analyse, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "logExp",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Mathématiques, sur logExp, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Mathématiques sur logExp, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -838,10 +766,7 @@
               "geometrie reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Mathématiques, sur combinatoire. Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur combinatoire, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en Mathématiques, sur analyse. Poser les définitions utiles en Mathématiques, montrer des exemples sur analyse, puis proposer un entraînement court et répété.",
-              "Séance 3 — Stabiliser l'acquis encore fragile en Mathématiques, sur probabilites. Organiser un entraînement espacé en Mathématiques sur probabilites, sans réenseigner ce qui est déjà compris.",
-              "Séance 4 — Établir le niveau réel en Mathématiques, sur geometrie, avant de choisir une remédiation. Commencer par un test ciblé en Mathématiques sur geometrie, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -873,40 +798,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "combinatoire",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Mathématiques, sur combinatoire.",
-                "demarche": "Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur combinatoire, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "analyse",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Mathématiques, sur analyse.",
-                "demarche": "Poser les définitions utiles en Mathématiques, montrer des exemples sur analyse, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "probabilites",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Mathématiques, sur probabilites.",
-                "demarche": "Organiser un entraînement espacé en Mathématiques sur probabilites, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "geometrie",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Mathématiques, sur geometrie, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Mathématiques sur geometrie, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -1188,10 +1080,7 @@
               "combinatoire reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Mathématiques, sur analyse. Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur analyse, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en Mathématiques, sur probabilites. Poser les définitions utiles en Mathématiques, montrer des exemples sur probabilites, puis proposer un entraînement court et répété.",
-              "Séance 3 — Stabiliser l'acquis encore fragile en Mathématiques, sur logExp. Organiser un entraînement espacé en Mathématiques sur logExp, sans réenseigner ce qui est déjà compris.",
-              "Séance 4 — Établir le niveau réel en Mathématiques, sur combinatoire, avant de choisir une remédiation. Commencer par un test ciblé en Mathématiques sur combinatoire, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -1223,40 +1112,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "analyse",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Mathématiques, sur analyse.",
-                "demarche": "Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur analyse, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "probabilites",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Mathématiques, sur probabilites.",
-                "demarche": "Poser les définitions utiles en Mathématiques, montrer des exemples sur probabilites, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "logExp",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Mathématiques, sur logExp.",
-                "demarche": "Organiser un entraînement espacé en Mathématiques sur logExp, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "combinatoire",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Mathématiques, sur combinatoire, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Mathématiques sur combinatoire, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -1538,10 +1394,7 @@
               "analyse reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Mathématiques, sur probabilites. Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur probabilites, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en Mathématiques, sur logExp. Poser les définitions utiles en Mathématiques, montrer des exemples sur logExp, puis proposer un entraînement court et répété.",
-              "Séance 3 — Stabiliser l'acquis encore fragile en Mathématiques, sur geometrie. Organiser un entraînement espacé en Mathématiques sur geometrie, sans réenseigner ce qui est déjà compris.",
-              "Séance 4 — Établir le niveau réel en Mathématiques, sur analyse, avant de choisir une remédiation. Commencer par un test ciblé en Mathématiques sur analyse, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -1573,40 +1426,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "probabilites",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Mathématiques, sur probabilites.",
-                "demarche": "Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur probabilites, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "logExp",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Mathématiques, sur logExp.",
-                "demarche": "Poser les définitions utiles en Mathématiques, montrer des exemples sur logExp, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "geometrie",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Mathématiques, sur geometrie.",
-                "demarche": "Organiser un entraînement espacé en Mathématiques sur geometrie, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "analyse",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Mathématiques, sur analyse, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Mathématiques sur analyse, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -1888,10 +1708,7 @@
               "probabilites reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Mathématiques, sur logExp. Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur logExp, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en Mathématiques, sur geometrie. Poser les définitions utiles en Mathématiques, montrer des exemples sur geometrie, puis proposer un entraînement court et répété.",
-              "Séance 3 — Stabiliser l'acquis encore fragile en Mathématiques, sur combinatoire. Organiser un entraînement espacé en Mathématiques sur combinatoire, sans réenseigner ce qui est déjà compris.",
-              "Séance 4 — Établir le niveau réel en Mathématiques, sur probabilites, avant de choisir une remédiation. Commencer par un test ciblé en Mathématiques sur probabilites, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -1923,40 +1740,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "logExp",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Mathématiques, sur logExp.",
-                "demarche": "Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur logExp, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "geometrie",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Mathématiques, sur geometrie.",
-                "demarche": "Poser les définitions utiles en Mathématiques, montrer des exemples sur geometrie, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "combinatoire",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Mathématiques, sur combinatoire.",
-                "demarche": "Organiser un entraînement espacé en Mathématiques sur combinatoire, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "probabilites",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Mathématiques, sur probabilites, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Mathématiques sur probabilites, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -2238,10 +2022,7 @@
               "logExp reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Mathématiques, sur geometrie. Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur geometrie, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en Mathématiques, sur combinatoire. Poser les définitions utiles en Mathématiques, montrer des exemples sur combinatoire, puis proposer un entraînement court et répété.",
-              "Séance 3 — Stabiliser l'acquis encore fragile en Mathématiques, sur analyse. Organiser un entraînement espacé en Mathématiques sur analyse, sans réenseigner ce qui est déjà compris.",
-              "Séance 4 — Établir le niveau réel en Mathématiques, sur logExp, avant de choisir une remédiation. Commencer par un test ciblé en Mathématiques sur logExp, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -2273,40 +2054,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "geometrie",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Mathématiques, sur geometrie.",
-                "demarche": "Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur geometrie, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "combinatoire",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Mathématiques, sur combinatoire.",
-                "demarche": "Poser les définitions utiles en Mathématiques, montrer des exemples sur combinatoire, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "analyse",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Mathématiques, sur analyse.",
-                "demarche": "Organiser un entraînement espacé en Mathématiques sur analyse, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "logExp",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Mathématiques, sur logExp, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Mathématiques sur logExp, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -2588,10 +2336,7 @@
               "geometrie reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Mathématiques, sur combinatoire. Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur combinatoire, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en Mathématiques, sur analyse. Poser les définitions utiles en Mathématiques, montrer des exemples sur analyse, puis proposer un entraînement court et répété.",
-              "Séance 3 — Stabiliser l'acquis encore fragile en Mathématiques, sur probabilites. Organiser un entraînement espacé en Mathématiques sur probabilites, sans réenseigner ce qui est déjà compris.",
-              "Séance 4 — Établir le niveau réel en Mathématiques, sur geometrie, avant de choisir une remédiation. Commencer par un test ciblé en Mathématiques sur geometrie, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -2623,40 +2368,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "combinatoire",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Mathématiques, sur combinatoire.",
-                "demarche": "Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur combinatoire, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "analyse",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Mathématiques, sur analyse.",
-                "demarche": "Poser les définitions utiles en Mathématiques, montrer des exemples sur analyse, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "probabilites",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Mathématiques, sur probabilites.",
-                "demarche": "Organiser un entraînement espacé en Mathématiques sur probabilites, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "geometrie",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Mathématiques, sur geometrie, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Mathématiques sur geometrie, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -2938,10 +2650,7 @@
               "combinatoire reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Mathématiques, sur analyse. Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur analyse, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en Mathématiques, sur probabilites. Poser les définitions utiles en Mathématiques, montrer des exemples sur probabilites, puis proposer un entraînement court et répété.",
-              "Séance 3 — Stabiliser l'acquis encore fragile en Mathématiques, sur logExp. Organiser un entraînement espacé en Mathématiques sur logExp, sans réenseigner ce qui est déjà compris.",
-              "Séance 4 — Établir le niveau réel en Mathématiques, sur combinatoire, avant de choisir une remédiation. Commencer par un test ciblé en Mathématiques sur combinatoire, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -2973,40 +2682,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "analyse",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Mathématiques, sur analyse.",
-                "demarche": "Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur analyse, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "probabilites",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Mathématiques, sur probabilites.",
-                "demarche": "Poser les définitions utiles en Mathématiques, montrer des exemples sur probabilites, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "logExp",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Mathématiques, sur logExp.",
-                "demarche": "Organiser un entraînement espacé en Mathématiques sur logExp, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "combinatoire",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Mathématiques, sur combinatoire, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Mathématiques sur combinatoire, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -3288,10 +2964,7 @@
               "analyse reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Mathématiques, sur probabilites. Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur probabilites, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en Mathématiques, sur logExp. Poser les définitions utiles en Mathématiques, montrer des exemples sur logExp, puis proposer un entraînement court et répété.",
-              "Séance 3 — Stabiliser l'acquis encore fragile en Mathématiques, sur geometrie. Organiser un entraînement espacé en Mathématiques sur geometrie, sans réenseigner ce qui est déjà compris.",
-              "Séance 4 — Établir le niveau réel en Mathématiques, sur analyse, avant de choisir une remédiation. Commencer par un test ciblé en Mathématiques sur analyse, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -3323,40 +2996,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "probabilites",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Mathématiques, sur probabilites.",
-                "demarche": "Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur probabilites, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "logExp",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Mathématiques, sur logExp.",
-                "demarche": "Poser les définitions utiles en Mathématiques, montrer des exemples sur logExp, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "geometrie",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Mathématiques, sur geometrie.",
-                "demarche": "Organiser un entraînement espacé en Mathématiques sur geometrie, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "analyse",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Mathématiques, sur analyse, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Mathématiques sur analyse, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -3638,10 +3278,7 @@
               "probabilites reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Mathématiques, sur logExp. Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur logExp, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en Mathématiques, sur geometrie. Poser les définitions utiles en Mathématiques, montrer des exemples sur geometrie, puis proposer un entraînement court et répété.",
-              "Séance 3 — Stabiliser l'acquis encore fragile en Mathématiques, sur combinatoire. Organiser un entraînement espacé en Mathématiques sur combinatoire, sans réenseigner ce qui est déjà compris.",
-              "Séance 4 — Établir le niveau réel en Mathématiques, sur probabilites, avant de choisir une remédiation. Commencer par un test ciblé en Mathématiques sur probabilites, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -3673,40 +3310,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "logExp",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Mathématiques, sur logExp.",
-                "demarche": "Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur logExp, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "geometrie",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Mathématiques, sur geometrie.",
-                "demarche": "Poser les définitions utiles en Mathématiques, montrer des exemples sur geometrie, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "combinatoire",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Mathématiques, sur combinatoire.",
-                "demarche": "Organiser un entraînement espacé en Mathématiques sur combinatoire, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "probabilites",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Mathématiques, sur probabilites, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Mathématiques sur probabilites, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -3988,10 +3592,7 @@
               "logExp reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Mathématiques, sur geometrie. Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur geometrie, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en Mathématiques, sur combinatoire. Poser les définitions utiles en Mathématiques, montrer des exemples sur combinatoire, puis proposer un entraînement court et répété.",
-              "Séance 3 — Stabiliser l'acquis encore fragile en Mathématiques, sur analyse. Organiser un entraînement espacé en Mathématiques sur analyse, sans réenseigner ce qui est déjà compris.",
-              "Séance 4 — Établir le niveau réel en Mathématiques, sur logExp, avant de choisir une remédiation. Commencer par un test ciblé en Mathématiques sur logExp, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -4023,40 +3624,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "geometrie",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Mathématiques, sur geometrie.",
-                "demarche": "Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur geometrie, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "combinatoire",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Mathématiques, sur combinatoire.",
-                "demarche": "Poser les définitions utiles en Mathématiques, montrer des exemples sur combinatoire, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "analyse",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Mathématiques, sur analyse.",
-                "demarche": "Organiser un entraînement espacé en Mathématiques sur analyse, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "logExp",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Mathématiques, sur logExp, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Mathématiques sur logExp, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -4338,10 +3906,7 @@
               "geometrie reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Mathématiques, sur combinatoire. Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur combinatoire, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en Mathématiques, sur analyse. Poser les définitions utiles en Mathématiques, montrer des exemples sur analyse, puis proposer un entraînement court et répété.",
-              "Séance 3 — Stabiliser l'acquis encore fragile en Mathématiques, sur probabilites. Organiser un entraînement espacé en Mathématiques sur probabilites, sans réenseigner ce qui est déjà compris.",
-              "Séance 4 — Établir le niveau réel en Mathématiques, sur geometrie, avant de choisir une remédiation. Commencer par un test ciblé en Mathématiques sur geometrie, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -4373,40 +3938,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "combinatoire",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Mathématiques, sur combinatoire.",
-                "demarche": "Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur combinatoire, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "analyse",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Mathématiques, sur analyse.",
-                "demarche": "Poser les définitions utiles en Mathématiques, montrer des exemples sur analyse, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "probabilites",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Mathématiques, sur probabilites.",
-                "demarche": "Organiser un entraînement espacé en Mathématiques sur probabilites, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "geometrie",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Mathématiques, sur geometrie, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Mathématiques sur geometrie, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -4688,10 +4220,7 @@
               "combinatoire reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Mathématiques, sur analyse. Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur analyse, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en Mathématiques, sur probabilites. Poser les définitions utiles en Mathématiques, montrer des exemples sur probabilites, puis proposer un entraînement court et répété.",
-              "Séance 3 — Stabiliser l'acquis encore fragile en Mathématiques, sur logExp. Organiser un entraînement espacé en Mathématiques sur logExp, sans réenseigner ce qui est déjà compris.",
-              "Séance 4 — Établir le niveau réel en Mathématiques, sur combinatoire, avant de choisir une remédiation. Commencer par un test ciblé en Mathématiques sur combinatoire, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -4723,40 +4252,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "analyse",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Mathématiques, sur analyse.",
-                "demarche": "Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur analyse, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "probabilites",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Mathématiques, sur probabilites.",
-                "demarche": "Poser les définitions utiles en Mathématiques, montrer des exemples sur probabilites, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "logExp",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Mathématiques, sur logExp.",
-                "demarche": "Organiser un entraînement espacé en Mathématiques sur logExp, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "combinatoire",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Mathématiques, sur combinatoire, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Mathématiques sur combinatoire, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -5038,10 +4534,7 @@
               "analyse reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Mathématiques, sur probabilites. Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur probabilites, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en Mathématiques, sur logExp. Poser les définitions utiles en Mathématiques, montrer des exemples sur logExp, puis proposer un entraînement court et répété.",
-              "Séance 3 — Stabiliser l'acquis encore fragile en Mathématiques, sur geometrie. Organiser un entraînement espacé en Mathématiques sur geometrie, sans réenseigner ce qui est déjà compris.",
-              "Séance 4 — Établir le niveau réel en Mathématiques, sur analyse, avant de choisir une remédiation. Commencer par un test ciblé en Mathématiques sur analyse, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -5073,40 +4566,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "probabilites",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Mathématiques, sur probabilites.",
-                "demarche": "Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur probabilites, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "logExp",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Mathématiques, sur logExp.",
-                "demarche": "Poser les définitions utiles en Mathématiques, montrer des exemples sur logExp, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "geometrie",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Mathématiques, sur geometrie.",
-                "demarche": "Organiser un entraînement espacé en Mathématiques sur geometrie, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "analyse",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Mathématiques, sur analyse, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Mathématiques sur analyse, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -5388,10 +4848,7 @@
               "probabilites reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Mathématiques, sur logExp. Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur logExp, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en Mathématiques, sur geometrie. Poser les définitions utiles en Mathématiques, montrer des exemples sur geometrie, puis proposer un entraînement court et répété.",
-              "Séance 3 — Stabiliser l'acquis encore fragile en Mathématiques, sur combinatoire. Organiser un entraînement espacé en Mathématiques sur combinatoire, sans réenseigner ce qui est déjà compris.",
-              "Séance 4 — Établir le niveau réel en Mathématiques, sur probabilites, avant de choisir une remédiation. Commencer par un test ciblé en Mathématiques sur probabilites, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -5423,40 +4880,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "logExp",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Mathématiques, sur logExp.",
-                "demarche": "Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur logExp, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "geometrie",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Mathématiques, sur geometrie.",
-                "demarche": "Poser les définitions utiles en Mathématiques, montrer des exemples sur geometrie, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "combinatoire",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Mathématiques, sur combinatoire.",
-                "demarche": "Organiser un entraînement espacé en Mathématiques sur combinatoire, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "probabilites",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Mathématiques, sur probabilites, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Mathématiques sur probabilites, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -5738,10 +5162,7 @@
               "logExp reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Mathématiques, sur geometrie. Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur geometrie, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en Mathématiques, sur combinatoire. Poser les définitions utiles en Mathématiques, montrer des exemples sur combinatoire, puis proposer un entraînement court et répété.",
-              "Séance 3 — Stabiliser l'acquis encore fragile en Mathématiques, sur analyse. Organiser un entraînement espacé en Mathématiques sur analyse, sans réenseigner ce qui est déjà compris.",
-              "Séance 4 — Établir le niveau réel en Mathématiques, sur logExp, avant de choisir une remédiation. Commencer par un test ciblé en Mathématiques sur logExp, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -5773,40 +5194,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "geometrie",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Mathématiques, sur geometrie.",
-                "demarche": "Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur geometrie, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "combinatoire",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Mathématiques, sur combinatoire.",
-                "demarche": "Poser les définitions utiles en Mathématiques, montrer des exemples sur combinatoire, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "analyse",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Mathématiques, sur analyse.",
-                "demarche": "Organiser un entraînement espacé en Mathématiques sur analyse, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "logExp",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Mathématiques, sur logExp, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Mathématiques sur logExp, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -6088,10 +5476,7 @@
               "geometrie reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Mathématiques, sur combinatoire. Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur combinatoire, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en Mathématiques, sur analyse. Poser les définitions utiles en Mathématiques, montrer des exemples sur analyse, puis proposer un entraînement court et répété.",
-              "Séance 3 — Stabiliser l'acquis encore fragile en Mathématiques, sur probabilites. Organiser un entraînement espacé en Mathématiques sur probabilites, sans réenseigner ce qui est déjà compris.",
-              "Séance 4 — Établir le niveau réel en Mathématiques, sur geometrie, avant de choisir une remédiation. Commencer par un test ciblé en Mathématiques sur geometrie, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -6123,40 +5508,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "combinatoire",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Mathématiques, sur combinatoire.",
-                "demarche": "Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur combinatoire, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "analyse",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Mathématiques, sur analyse.",
-                "demarche": "Poser les définitions utiles en Mathématiques, montrer des exemples sur analyse, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "probabilites",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Mathématiques, sur probabilites.",
-                "demarche": "Organiser un entraînement espacé en Mathématiques sur probabilites, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "geometrie",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Mathématiques, sur geometrie, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Mathématiques sur geometrie, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -6438,10 +5790,7 @@
               "combinatoire reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Mathématiques, sur analyse. Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur analyse, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en Mathématiques, sur probabilites. Poser les définitions utiles en Mathématiques, montrer des exemples sur probabilites, puis proposer un entraînement court et répété.",
-              "Séance 3 — Stabiliser l'acquis encore fragile en Mathématiques, sur logExp. Organiser un entraînement espacé en Mathématiques sur logExp, sans réenseigner ce qui est déjà compris.",
-              "Séance 4 — Établir le niveau réel en Mathématiques, sur combinatoire, avant de choisir une remédiation. Commencer par un test ciblé en Mathématiques sur combinatoire, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -6473,40 +5822,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "analyse",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Mathématiques, sur analyse.",
-                "demarche": "Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur analyse, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "probabilites",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Mathématiques, sur probabilites.",
-                "demarche": "Poser les définitions utiles en Mathématiques, montrer des exemples sur probabilites, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "logExp",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Mathématiques, sur logExp.",
-                "demarche": "Organiser un entraînement espacé en Mathématiques sur logExp, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "combinatoire",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Mathématiques, sur combinatoire, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Mathématiques sur combinatoire, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -6788,10 +6104,7 @@
               "analyse reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Mathématiques, sur probabilites. Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur probabilites, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en Mathématiques, sur logExp. Poser les définitions utiles en Mathématiques, montrer des exemples sur logExp, puis proposer un entraînement court et répété.",
-              "Séance 3 — Stabiliser l'acquis encore fragile en Mathématiques, sur geometrie. Organiser un entraînement espacé en Mathématiques sur geometrie, sans réenseigner ce qui est déjà compris.",
-              "Séance 4 — Établir le niveau réel en Mathématiques, sur analyse, avant de choisir une remédiation. Commencer par un test ciblé en Mathématiques sur analyse, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -6823,40 +6136,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "probabilites",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Mathématiques, sur probabilites.",
-                "demarche": "Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur probabilites, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "logExp",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Mathématiques, sur logExp.",
-                "demarche": "Poser les définitions utiles en Mathématiques, montrer des exemples sur logExp, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "geometrie",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Mathématiques, sur geometrie.",
-                "demarche": "Organiser un entraînement espacé en Mathématiques sur geometrie, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "analyse",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Mathématiques, sur analyse, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Mathématiques sur analyse, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }

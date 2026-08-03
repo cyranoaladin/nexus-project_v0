@@ -13,6 +13,8 @@ import { assertRenderIdentity, type RenderIdentity } from './render-identity';
 
 export const BILAN_REPORT_TEMPLATE_VERSION = 'nexus-bilan-profile-v2' as const;
 
+export const PARENT_GROUP_CONSTRUCTION_COPY = "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective.";
+
 type PublicLearningPathStep = Omit<LearningPath['steps'][number], 'profil'> & Readonly<{
   profileLabel: string;
 }>;
@@ -119,13 +121,16 @@ export function buildDeterministicReport(
     });
   });
 
-  const renderedPath = renderLearningPath(learningPath, factSheet, audience);
+  const renderedPath = audience === 'PARENTS'
+    ? Object.freeze({ version: learningPath.version, steps: Object.freeze([]) })
+    : renderLearningPath(learningPath, factSheet, audience);
   const narrativeContent = Object.freeze({
     ...frame,
     strengths: Object.freeze(narrative.forces.map(({ text }) => text)),
     priorities: Object.freeze(narrative.priorities.map(({ text }) => text)),
-    actionPlan: Object.freeze(renderedPath.steps
-      .map(({ seanceLabel, objectif, demarche }) => `${seanceLabel} — ${objectif} ${demarche}`)),
+    actionPlan: Object.freeze(audience === 'PARENTS'
+      ? [PARENT_GROUP_CONSTRUCTION_COPY]
+      : renderedPath.steps.map(({ seanceLabel, objectif, demarche }) => `${seanceLabel} — ${objectif} ${demarche}`)),
   });
   const base = {
     status: 'REPORT_PENDING_REVIEW' as const,

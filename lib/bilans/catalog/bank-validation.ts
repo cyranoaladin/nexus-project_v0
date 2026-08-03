@@ -13,6 +13,7 @@ export const cpsCatalogSchema = z.object({
     label: z.string().trim().min(1),
     sourceLevel: z.enum(['COLLEGE', 'CINQUIEME', 'QUATRIEME', 'TROISIEME', 'SECONDE', 'PREMIERE', 'TERMINALE']),
     targetLevel: z.enum(['QUATRIEME', 'TROISIEME', 'SECONDE', 'PREMIERE', 'TERMINALE']),
+    sequenceOrder: z.number().int().positive(),
     pedagogicalRationale: z.string().trim().min(1),
   }).strict()).min(1),
 }).strict();
@@ -86,6 +87,10 @@ export function validateBankSource(bank: SourceBank, catalog: CpsCatalog): BankV
 
   if (catalog.nodes.length !== catalogIds.size) {
     failures.push(failure(bank, 'V2', '$.catalog.nodes', 'CPS_NODE_ID_DUPLICATE'));
+  }
+  const sequenceOrders = catalog.nodes.map(({ sequenceOrder }) => sequenceOrder).sort((left, right) => left - right);
+  if (sequenceOrders.some((value, index) => value !== index + 1)) {
+    failures.push(failure(bank, 'V2', '$.catalog.nodes', 'CPS_SEQUENCE_ORDER_MUST_BE_CONTIGUOUS_1_TO_N'));
   }
   for (const node of catalog.nodes) {
     if (node.targetLevel !== bank.level) {
@@ -185,6 +190,7 @@ export function validateBankCollection(
         label: node.label,
         sourceLevel: node.sourceLevel,
         targetLevel: node.targetLevel,
+        sequenceOrder: node.sequenceOrder,
         pedagogicalRationale: node.pedagogicalRationale,
       });
       const existing = nodeOwners.get(node.id);

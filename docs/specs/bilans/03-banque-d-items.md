@@ -41,6 +41,12 @@ autorisée lorsqu'elle est portée par un catalogue versionné et documentée pa
 La banque d'entrée en Terminale Philosophie s'appuie ainsi sur les prérequis de français de
 Première ; aucune exception de code liée à son slug n'est admise.
 
+Chaque nœud d'un catalogue CPS porte un `sequenceOrder` entier. Pour une banque de neuf
+nœuds, les valeurs forment obligatoirement la permutation continue `1..9`. La valeur
+initiale suit l'ordre de première apparition dans la banque éditoriale. Elle reste amendable
+par le responsable pédagogique : elle exprime la logique des prérequis de la discipline,
+jamais la sévérité observée dans une passation.
+
 ## §3. Règles de conception (non bloquantes, revue humaine)
 
 - **Un item teste un seul prérequis.** Un item qui échoue pour deux raisons possibles est ininterprétable.

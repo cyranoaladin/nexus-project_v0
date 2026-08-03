@@ -107,7 +107,7 @@ describe('banque de positionnement entrée en Seconde', () => {
   test('la source satisfait les règles V1 à V14 applicables', () => {
     const source = readYaml<SourceBank>(SOURCE);
     const catalog = readYaml<{
-      nodes: Array<{ id: string; sourceLevel: string; targetLevel: string; pedagogicalRationale: string }>;
+      nodes: Array<{ id: string; sourceLevel: string; targetLevel: string; sequenceOrder: number; pedagogicalRationale: string }>;
     }>(CPS);
     const ids = source.items.map((item) => item.id);
     const nodeCounts = new Map<string, number>();
@@ -145,6 +145,7 @@ describe('banque de positionnement entrée en Seconde', () => {
     expect([...nodeCounts.values()].every((count) => count >= 2 && count <= 6)).toBe(true);
     expect(catalog.nodes.every((node) => node.sourceLevel === 'TROISIEME')).toBe(true);
     expect(catalog.nodes.every((node) => node.targetLevel === 'SECONDE')).toBe(true);
+    expect(catalog.nodes.map((node) => node.sequenceOrder)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9]);
     expect(catalog.nodes.every((node) => node.pedagogicalRationale.trim().length > 0)).toBe(true);
     expect(source.items.reduce((sum, item) => sum + item.targetTimeSec, 0))
       .toBeLessThanOrEqual(source.targetDurationMin * 60);
