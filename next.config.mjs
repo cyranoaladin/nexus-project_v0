@@ -19,6 +19,8 @@ const nextConfig = {
   },
   outputFileTracingExcludes: {
     '*': [
+      '.env',
+      '.env.*',
       'node_modules/@img/sharp-wasm32/**/*',
       'node_modules/@emnapi/runtime/**/*',
     ],
