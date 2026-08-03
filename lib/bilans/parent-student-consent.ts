@@ -2,13 +2,11 @@ import { Prisma } from '@prisma/client';
 
 const ACTIVE_STATES = ['PENDING_PARENT_CONSENT', 'VERIFIED'] as const;
 
-type ParentStudentConsentTransaction = Pick<
-  Prisma.TransactionClient,
-  '$queryRaw' | 'parentProfile' | 'parentStudentLink'
->;
+type ParentStudentConsentDatabase = Readonly<{
+  $transaction<T>(action: (transaction: Prisma.TransactionClient) => Promise<T>): Promise<T>;
+}>;
 
-type ConsentInput = Readonly<{
-  transaction: ParentStudentConsentTransaction;
+type ConsentOperationInput = Readonly<{
   parentUserId: string;
   studentId: string;
   now: Date;
@@ -26,6 +24,13 @@ type ConsentLink = Readonly<{
   verifiedAt: Date | null;
 }>;
 
+export type ParentStudentConsentContext = Readonly<{
+  transaction: Prisma.TransactionClient;
+  preparePending(input: ConsentOperationInput): Promise<ConsentLink>;
+  verify(input: ConsentOperationInput): Promise<ConsentLink>;
+  getStatus(input: ConsentOperationInput): Promise<{ state: ConsentLink['state'] | 'MISSING' }>;
+}>;
+
 export class ParentStudentConsentError extends Error {
   constructor(public readonly code: 'NOT_FOUND' | 'CONSENT_NOT_PENDING') {
     super(code);
@@ -33,14 +38,17 @@ export class ParentStudentConsentError extends Error {
   }
 }
 
-async function lockOwnedStudent(input: ConsentInput): Promise<LockedStudent> {
-  const parent = await input.transaction.parentProfile.findUnique({
+async function lockOwnedStudent(
+  transaction: Prisma.TransactionClient,
+  input: ConsentOperationInput,
+): Promise<LockedStudent> {
+  const parent = await transaction.parentProfile.findUnique({
     where: { userId: input.parentUserId },
     select: { id: true },
   });
   if (parent === null) throw new ParentStudentConsentError('NOT_FOUND');
 
-  const rows = await input.transaction.$queryRaw<LockedStudent[]>(Prisma.sql`
+  const rows = await transaction.$queryRaw<LockedStudent[]>(Prisma.sql`
     SELECT "id", "parentId"
     FROM "students"
     WHERE "id" = ${input.studentId}
@@ -53,8 +61,11 @@ async function lockOwnedStudent(input: ConsentInput): Promise<LockedStudent> {
   return student;
 }
 
-async function expireElapsedLinks(input: ConsentInput): Promise<void> {
-  await input.transaction.parentStudentLink.updateMany({
+async function expireElapsedLinks(
+  transaction: Prisma.TransactionClient,
+  input: ConsentOperationInput,
+): Promise<void> {
+  await transaction.parentStudentLink.updateMany({
     where: {
       studentId: input.studentId,
       state: { in: [...ACTIVE_STATES] },
@@ -64,8 +75,11 @@ async function expireElapsedLinks(input: ConsentInput): Promise<void> {
   });
 }
 
-async function revokeFormerParents(input: ConsentInput): Promise<void> {
-  await input.transaction.parentStudentLink.updateMany({
+async function revokeFormerParents(
+  transaction: Prisma.TransactionClient,
+  input: ConsentOperationInput,
+): Promise<void> {
+  await transaction.parentStudentLink.updateMany({
     where: {
       studentId: input.studentId,
       parentUserId: { not: input.parentUserId },
@@ -79,7 +93,7 @@ async function revokeFormerParents(input: ConsentInput): Promise<void> {
   });
 }
 
-function activeLinkWhere(input: ConsentInput) {
+function activeLinkWhere(input: ConsentOperationInput): Prisma.ParentStudentLinkWhereInput {
   return {
     parentUserId: input.parentUserId,
     studentId: input.studentId,
@@ -88,26 +102,31 @@ function activeLinkWhere(input: ConsentInput) {
       { expiresAt: null },
       { expiresAt: { gt: input.now } },
     ],
-  } satisfies Prisma.ParentStudentLinkWhereInput;
+  };
 }
 
-async function synchronizeOwnership(input: ConsentInput): Promise<void> {
-  await lockOwnedStudent(input);
-  await expireElapsedLinks(input);
-  await revokeFormerParents(input);
+async function synchronizeOwnership(
+  transaction: Prisma.TransactionClient,
+  input: ConsentOperationInput,
+): Promise<void> {
+  await lockOwnedStudent(transaction, input);
+  await expireElapsedLinks(transaction, input);
+  await revokeFormerParents(transaction, input);
 }
 
-export async function preparePendingParentStudentLink(input: ConsentInput): Promise<ConsentLink> {
-  await synchronizeOwnership(input);
-
-  const existing = await input.transaction.parentStudentLink.findFirst({
+async function preparePending(
+  transaction: Prisma.TransactionClient,
+  input: ConsentOperationInput,
+): Promise<ConsentLink> {
+  await synchronizeOwnership(transaction, input);
+  const existing = await transaction.parentStudentLink.findFirst({
     where: activeLinkWhere(input),
     orderBy: [{ createdAt: 'desc' }, { id: 'asc' }],
     select: { id: true, state: true, consentedAt: true, verifiedAt: true },
   });
   if (existing !== null) return existing;
 
-  return input.transaction.parentStudentLink.create({
+  return transaction.parentStudentLink.create({
     data: {
       parentUserId: input.parentUserId,
       studentId: input.studentId,
@@ -122,30 +141,46 @@ export async function preparePendingParentStudentLink(input: ConsentInput): Prom
   });
 }
 
-export async function verifyParentStudentConsent(input: ConsentInput): Promise<ConsentLink> {
-  await synchronizeOwnership(input);
+async function rereadLockedLink(
+  transaction: Prisma.TransactionClient,
+  input: ConsentOperationInput,
+  linkId: string,
+): Promise<ConsentLink | null> {
+  const rows = await transaction.$queryRaw<ConsentLink[]>(Prisma.sql`
+    SELECT "id", "state", "consentedAt", "verifiedAt"
+    FROM "canonical_parent_student_links"
+    WHERE "id" = ${linkId}
+      AND "parentUserId" = ${input.parentUserId}
+      AND "studentId" = ${input.studentId}
+    FOR UPDATE
+  `);
+  return rows[0] ?? null;
+}
 
-  const verified = await input.transaction.parentStudentLink.findFirst({
-    where: {
-      ...activeLinkWhere(input),
-      state: 'VERIFIED',
-    },
+async function verify(
+  transaction: Prisma.TransactionClient,
+  input: ConsentOperationInput,
+): Promise<ConsentLink> {
+  await synchronizeOwnership(transaction, input);
+  const alreadyVerified = await transaction.parentStudentLink.findFirst({
+    where: { ...activeLinkWhere(input), state: 'VERIFIED' },
     orderBy: [{ verifiedAt: 'desc' }, { id: 'asc' }],
     select: { id: true, state: true, consentedAt: true, verifiedAt: true },
   });
-  if (verified !== null) return verified;
+  if (alreadyVerified !== null) return alreadyVerified;
 
-  const pending = await input.transaction.parentStudentLink.findFirst({
-    where: {
-      ...activeLinkWhere(input),
-      state: 'PENDING_PARENT_CONSENT',
-    },
+  let pending = await transaction.parentStudentLink.findFirst({
+    where: { ...activeLinkWhere(input), state: 'PENDING_PARENT_CONSENT' },
     orderBy: [{ requestedAt: 'desc' }, { id: 'asc' }],
     select: { id: true },
   });
-  if (pending === null) throw new ParentStudentConsentError('CONSENT_NOT_PENDING');
+  if (pending === null) {
+    const prepared = await preparePending(transaction, input);
+    if (prepared.state === 'VERIFIED') return prepared;
+    pending = { id: prepared.id };
+  }
 
-  const transition = await input.transaction.parentStudentLink.updateMany({
+  const transition = await transaction.parentStudentLink.updateMany({
     where: {
       id: pending.id,
       parentUserId: input.parentUserId,
@@ -162,27 +197,39 @@ export async function verifyParentStudentConsent(input: ConsentInput): Promise<C
       verifiedAt: input.now,
     },
   });
-  if (transition.count !== 1) throw new ParentStudentConsentError('CONSENT_NOT_PENDING');
+  if (transition.count === 1) {
+    return { id: pending.id, state: 'VERIFIED', consentedAt: input.now, verifiedAt: input.now };
+  }
 
-  return {
-    id: pending.id,
-    state: 'VERIFIED',
-    consentedAt: input.now,
-    verifiedAt: input.now,
-  };
+  const current = await rereadLockedLink(transaction, input, pending.id);
+  if (current?.state === 'VERIFIED') return current;
+  throw new ParentStudentConsentError('CONSENT_NOT_PENDING');
 }
 
-export async function getParentStudentConsentStatus(input: ConsentInput): Promise<{
-  state: ConsentLink['state'] | 'MISSING';
-}> {
-  await synchronizeOwnership(input);
-  const link = await input.transaction.parentStudentLink.findFirst({
-    where: {
-      parentUserId: input.parentUserId,
-      studentId: input.studentId,
-    },
+async function getStatus(
+  transaction: Prisma.TransactionClient,
+  input: ConsentOperationInput,
+): Promise<{ state: ConsentLink['state'] | 'MISSING' }> {
+  await synchronizeOwnership(transaction, input);
+  const link = await transaction.parentStudentLink.findFirst({
+    where: { parentUserId: input.parentUserId, studentId: input.studentId },
     orderBy: [{ updatedAt: 'desc' }, { id: 'asc' }],
     select: { state: true },
   });
   return { state: link?.state ?? 'MISSING' };
+}
+
+export async function withParentStudentConsentTransaction<T>(
+  database: ParentStudentConsentDatabase,
+  action: (context: ParentStudentConsentContext) => Promise<T>,
+): Promise<T> {
+  return database.$transaction(async (transaction) => {
+    const context: ParentStudentConsentContext = Object.freeze({
+      transaction,
+      preparePending: (input) => preparePending(transaction, input),
+      verify: (input) => verify(transaction, input),
+      getStatus: (input) => getStatus(transaction, input),
+    });
+    return action(context);
+  });
 }
