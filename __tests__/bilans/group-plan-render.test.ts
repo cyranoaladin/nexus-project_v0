@@ -24,6 +24,14 @@ describe('A111 internal group plan rendering', () => {
       expect(continuation).not.toBeNull();
       expect(continuation?.[1]).toContain('Suite de la séance précédente');
       expect(continuation?.[1]).not.toContain('min au total');
+      const treatment = startBlock.match(/<strong>([^<]+)<\/strong> · ([^<]+) · \d+ min au total/);
+      expect(treatment).not.toBeNull();
+      expect(continuation?.[1]).toContain(`<strong>${treatment?.[1]}</strong> · ${treatment?.[2]}`);
+      if (startBlock.includes('Différenciation')) {
+        const divided = startBlock.match(/<div class="divided">([\s\S]*?)<\/div>/);
+        expect(divided).not.toBeNull();
+        expect(continuation?.[1]).toContain(divided?.[1]);
+      }
     }
   });
 });

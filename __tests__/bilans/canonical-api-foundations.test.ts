@@ -1,6 +1,8 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
+import { loadWaveManifest } from '@/lib/bilans/catalog/wave-manifest';
+
 function packAccess(): typeof import('@/lib/bilans/api/pack-access') {
   return require('@/lib/bilans/api/pack-access');
 }
@@ -54,6 +56,19 @@ function memoryIdempotencyDatabase() {
 }
 
 describe('A85.1 Canonical API foundations', () => {
+  test('discovers every converted active pack from the versioned catalogue', () => {
+    const { listResolvablePackSlugs, resolveCatalogPackPath } = packAccess();
+    const manifest = loadWaveManifest('data/bilans/banks/wave1.manifest.json');
+    const expected = manifest.banks.map(({ slug }) => slug).sort();
+
+    expect(listResolvablePackSlugs()).toEqual(expected);
+    expect(listResolvablePackSlugs()).toHaveLength(manifest.expectedActiveBanks);
+    for (const entry of manifest.banks) {
+      expect(resolveCatalogPackPath(entry.slug)).toBe(entry.output);
+    }
+    expect(resolveCatalogPackPath('maths-terminale-bilan-v1')).toBeNull();
+  });
+
   test('keeps every pack flag off unless that exact validated pack is explicitly true', () => {
     const { isPackEnabled, packFeatureFlagName } = packAccess();
     const validated = {
