@@ -351,7 +351,7 @@ jobs:
           NODE_ENV: test
         run: >-
           npx jest --config jest.integration.config.js --runInBand --ci
-          --testPathIgnorePatterns='/__tests__/lib/bilan/'
+          --testPathIgnorePatterns='/__tests__/lib/bilan-runtime/'
 
       - name: Upload test logs on failure
         if: failure()
@@ -919,3 +919,63 @@ jobs:
           fi
           echo ""
           echo "All CI checks passed"
+
+  # ===========================================================================
+  # JOB: BILAN RUNTIME REAL-DATABASE CONTRACT (A94)
+  # ===========================================================================
+  bilan-runtime-real-db:
+    name: Bilan Runtime Real-DB Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: nexus_bilan_runtime_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d nexus_bilan_runtime_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Pin npm version
+        run: npm install -g npm@${{ env.NPM_VERSION }}
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma Client
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_bilan_runtime_test?schema=public
+        run: npx prisma generate
+
+      - name: Apply branch migrations to the isolated database
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_bilan_runtime_test?schema=public
+        run: npx prisma migrate deploy
+
+      - name: Run the Bilan runtime schema contract
+        env:
+          NODE_ENV: test
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_bilan_runtime_test?schema=public
+          TEST_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_bilan_runtime_test?schema=public
+          NEXTAUTH_SECRET: test-secret-min-32-chars-long-for-ci-environment
+          NEXTAUTH_URL: http://localhost:3000
+        run: >-
+          ./node_modules/.bin/jest --config jest.integration.config.js --runInBand --ci
+          __tests__/lib/bilan-runtime/bilan-schema.real.test.ts
