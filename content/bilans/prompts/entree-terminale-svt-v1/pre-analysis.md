@@ -29,8 +29,20 @@ Tu produis uniquement un objet JSON strict conforme au schéma du pack :
 
 ### Bonne formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+Réponse libre : « je veux faire médecine, la génétique m'intéresse mais la
+géologie m'ennuie ».
+
+  synthese       : « L'élève déclare un projet en études de santé, un intérêt
+                     pour la génétique et un désintérêt pour la géologie. »
+  forces_percues : ["génétique"]
+  craintes       : []
+
+Un désintérêt n'est pas une crainte et ne figure pas dans ce champ. Il est
+rapporté dans la synthèse, où il éclaire l'engagement, pas la maîtrise.
 
 ### Mauvaise formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« L'élève se désintéresse de la géologie, ce qui explique ses résultats plus
+faibles dans ce domaine et pourrait lui coûter des points au baccalauréat. »
+
+Un désintérêt devient une cause, puis un pronostic d'examen.

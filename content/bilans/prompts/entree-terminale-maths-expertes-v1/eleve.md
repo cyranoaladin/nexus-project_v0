@@ -34,8 +34,19 @@ Tu produis uniquement un objet JSON strict conforme au schéma du pack : `accroc
 
 ### Bonne formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+Force : « Tu résous un système de deux équations linéaires en choisissant la
+méthode la plus économique selon les coefficients. »
+
+Priorité : « La contraposée d'une implication : si A implique B, alors non-B
+implique non-A, et non l'inverse. Ce point a l'air acquis mais il ne l'est pas
+encore — c'est lui qui commande tous les raisonnements de l'option. »
+
+Micro-plan : « Écrire la réciproque et la contraposée de trois implications,
+puis dire laquelle est équivalente à l'énoncé de départ — 15 minutes. »
 
 ### Mauvaise formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Tu as 12/18, ce qui est léger pour des maths expertes. Tu confondais
+réciproque et contraposée en étant sûr de toi. »
+
+Un score, un jugement d'adéquation à l'option, la formulation interdite.

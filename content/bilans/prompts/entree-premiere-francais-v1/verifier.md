@@ -35,8 +35,17 @@ Aucune clé supplémentaire et aucun texte autour.
 
 ### Bonne formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Violation détectée. Bilan PARENTS, champ priorites : le texte annonce le
+contenu du stage. Le prompt interdit d'anticiper l'ordre et la profondeur du
+travail avant croisement des diagnostics.
+
+Violation détectée. Bilan PARENTS, champ cadre : « note faible à l'écrit »
+constitue une projection de note.
+
+Aucune autre violation. »
 
 ### Mauvaise formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Deux formulations à revoir dans le bilan parents. »
+
+Sans champ ni règle citée, la vérification n'est pas reproductible.

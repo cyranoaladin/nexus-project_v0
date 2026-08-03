@@ -29,8 +29,22 @@ Tu produis uniquement un objet JSON strict conforme au schéma du pack :
 
 ### Bonne formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+Réponse libre : « je prends maths expertes pour les écoles d'ingénieurs, mais
+l'arithmétique remonte à la 3e ».
+
+  synthese       : « L'élève choisit l'option en vue d'études d'ingénieur et
+                     signale que ses derniers travaux d'arithmétique datent de
+                     la Troisième. »
+  forces_percues : []
+  craintes       : ["arithmétique"]
+
+Le constat de l'élève est exact et vaut pour tous : il est rapporté comme une
+information de contexte, jamais comme une lacune personnelle.
 
 ### Mauvaise formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« L'élève a oublié l'arithmétique du collège, ce qui constitue un handicap pour
+une option aussi exigeante. »
+
+Une situation commune à tous devient un handicap individuel, et l'exigence de
+l'option est invoquée comme un jugement.

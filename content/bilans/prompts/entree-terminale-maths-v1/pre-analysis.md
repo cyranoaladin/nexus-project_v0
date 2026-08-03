@@ -29,8 +29,19 @@ Tu produis uniquement un objet JSON strict conforme au schéma du pack :
 
 ### Bonne formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+Réponse libre : « je vise une prépa, je veux être sûr de mes bases ».
+
+  synthese       : « L'élève déclare un projet de classe préparatoire et une
+                     volonté de consolider ses bases. »
+  forces_percues : []
+  craintes       : []
+  Le champ craintes reste vide : aucune difficulté n'est exprimée. Une exigence
+  n'est pas une crainte.
 
 ### Mauvaise formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« L'élève ambitieux souhaite intégrer une prépa, ce qui suppose un niveau
+solide qu'il faudra vérifier. »
+
+Un commentaire sur l'ambition et une condition ajoutée que l'élève n'a pas
+formulée.

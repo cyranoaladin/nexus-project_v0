@@ -35,8 +35,16 @@ Aucune clé supplémentaire et aucun texte autour.
 
 ### Bonne formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Violation détectée. Bilan ELEVE, champ priorites : registre familier
+inadapté, et formulation « en étant sûr de toi » interdite. Deux règles.
+
+Violation détectée. Bilan PARENTS, champ priorites : le texte énumère un
+contenu de stage. Anticipation interdite.
+
+Contrôle des domaines : quatre domaines évalués, quatre représentés. »
 
 ### Mauvaise formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Le vocabulaire est parfois trop familier, à revoir. »
+
+Le constat est juste mais ni localisé, ni rattaché à une règle, ni exhaustif.

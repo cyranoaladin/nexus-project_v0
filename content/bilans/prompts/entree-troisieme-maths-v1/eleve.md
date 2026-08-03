@@ -34,8 +34,19 @@ Tu produis uniquement un objet JSON strict conforme au schéma du pack : `accroc
 
 ### Bonne formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+Force : « Tu résous une équation du premier degré et tu vérifies ton résultat
+en le remplaçant dans l'équation de départ. »
+
+Priorité : « La conversion d'une durée en heures décimales : une heure trente
+vaut 1,5 heure et non 1,30. Ce point a l'air acquis mais il ne l'est pas
+encore, et il fausse tout un calcul de vitesse. »
+
+Micro-plan : « Convertir dix durées en heures décimales, puis calculer une
+vitesse moyenne — 15 minutes. »
 
 ### Mauvaise formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Tu as raté la moitié des questions. Tu confonds les durées et tu étais sûr de
+toi. Le brevet va être difficile si tu ne travailles pas. »
+
+Un score déguisé, la formulation interdite, un pronostic anxiogène.

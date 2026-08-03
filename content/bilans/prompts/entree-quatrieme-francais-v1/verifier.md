@@ -35,8 +35,15 @@ Aucune clé supplémentaire et aucun texte autour.
 
 ### Bonne formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Violation détectée. Bilan ELEVE, champ priorites, premier élément : la
+formulation « tu crois savoir et tu te trompes » est interdite. Le prompt
+impose la formulation par l'écart non perçu.
+
+Contrôle des domaines : les quatre domaines évalués sont représentés dans les
+sorties ELEVE et PARENTS. Aucun omis. »
 
 ### Mauvaise formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Rien à signaler. »
+
+Une vérification qui ne cite ni champ, ni règle, ni valeur n'atteste de rien.

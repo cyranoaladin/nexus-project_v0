@@ -34,8 +34,19 @@ Tu produis uniquement un objet JSON strict conforme au schéma du pack : `accroc
 
 ### Bonne formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+Force : « Tu identifies le réactif limitant en comparant les quantités divisées
+par les coefficients, et non les masses. »
+
+Priorité : « Une force perpendiculaire au déplacement ne travaille pas, même si
+elle s'exerce en permanence. Ce point a l'air acquis mais il ne l'est pas
+encore, et il fausse tous les bilans d'énergie. »
+
+Micro-plan : « Calculer le travail du poids sur trois trajets — horizontal,
+vertical, incliné — en écrivant l'angle à chaque fois — 15 minutes. »
 
 ### Mauvaise formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Tu as 13/18 mais tu t'es planté sur l'énergie en étant sûr de toi. C'est
+inquiétant pour une Terminale spé. »
+
+Un score, un registre familier, la formulation interdite, un ressort anxiogène.

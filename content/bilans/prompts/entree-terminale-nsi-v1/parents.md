@@ -41,8 +41,21 @@ Tu produis uniquement un objet JSON strict conforme au schéma du pack : `cadre`
 
 ### Bonne formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+Point d'appui : « La manipulation des types construits, listes et
+dictionnaires, est sûre et raisonnée. »
+
+Priorité : « Nous reprendrons les conditions de validité des algorithmes de
+recherche, notamment le prérequis de tri, avant d'aborder l'étude du coût. »
+
+Cadre : « Ce bilan est un positionnement conduit avant le stage. Le contenu des
+cinq séances de deux heures sera arrêté après croisement des diagnostics du
+groupe constitué. »
 
 ### Mauvaise formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Votre enfant apprend par cœur sans comprendre, ce qui l'empêchera de suivre.
+Le stage traitera les tris, la complexité et les bases de données, et corrigera
+cette méthode de travail. »
+
+Un jugement sur la méthode de travail, un pronostic d'échec, un programme
+annoncé avant les diagnostics.

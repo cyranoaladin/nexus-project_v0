@@ -35,8 +35,15 @@ Aucune clé supplémentaire et aucun texte autour.
 
 ### Bonne formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Violation détectée. Bilan PARENTS, champ etapeSuivante : le texte évoque une
+mention au baccalauréat. Projection de résultat interdite.
+
+Violation détectée. Bilan ELEVE, champ accroche : contient « 12/18 ». Règle V2.
+
+Contrôle des domaines : quatre domaines évalués, quatre représentés. »
 
 ### Mauvaise formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Le bilan est bon mais manque d'encouragement pour un élève qui doute. »
+
+Le vérificateur ne compense pas un état émotionnel. Il contrôle des règles.

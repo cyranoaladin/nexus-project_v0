@@ -35,8 +35,17 @@ Aucune clé supplémentaire et aucun texte autour.
 
 ### Bonne formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Violation détectée. Bilan PARENTS, champ cadre : la phrase « risque d'échouer
+au brevet » constitue un pronostic et un ressort anxiogène. Deux règles
+enfreintes.
+
+Violation détectée. Bilan ELEVE, champ accroche : contient « la moitié des
+questions ». Règle V2.
+
+Aucune autre violation. »
 
 ### Mauvaise formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Deux problèmes détectés, à corriger. »
+
+Aucun champ, aucune règle, aucune citation. Inexploitable.

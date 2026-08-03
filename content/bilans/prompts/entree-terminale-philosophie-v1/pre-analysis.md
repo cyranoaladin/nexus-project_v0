@@ -29,8 +29,20 @@ Tu produis uniquement un objet JSON strict conforme au schéma du pack :
 
 ### Bonne formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+Réponse libre : « je n'ai jamais fait de philo, je ne sais pas à quoi
+m'attendre ».
+
+  synthese       : « L'élève n'a jamais suivi d'enseignement de philosophie et
+                     exprime une incertitude sur ce qui l'attend. »
+  forces_percues : []
+  craintes       : ["nouveauté de la discipline"]
+
+L'absence d'expérience préalable est un fait attendu de tous, jamais une
+lacune.
 
 ### Mauvaise formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« L'élève part de zéro en philosophie et devra fournir un effort important pour
+combler ce retard. »
+
+Une situation universelle est présentée comme un retard individuel.

@@ -41,8 +41,19 @@ Tu produis uniquement un objet JSON strict conforme au schéma du pack : `cadre`
 
 ### Bonne formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+Point d'appui : « Le calcul littéral et les identités remarquables sont des
+automatismes installés, mobilisés sans hésitation. »
+
+Priorité : « Nous reprendrons les fonctions de référence et leurs variations,
+en insistant sur les cas où une fonction décroît sur plusieurs intervalles sans
+décroître sur leur réunion. »
+
+Cadre : « Ce bilan est un positionnement conduit avant le stage. Il ne
+constitue ni une évaluation notée, ni un avis sur le choix de spécialité. »
 
 ### Mauvaise formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Votre enfant a un niveau limite pour la spécialité mathématiques. Avec notre
+accompagnement, il tiendra le rythme et pourra viser une mention. »
+
+Un jugement d'orientation, une promesse de résultat, une projection de mention.

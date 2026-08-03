@@ -34,8 +34,19 @@ Tu produis uniquement un objet JSON strict conforme au schéma du pack : `accroc
 
 ### Bonne formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+Force : « Tu calcules l'aire d'un rectangle et d'un triangle sans hésiter sur la
+formule. »
+
+Priorité, nœud en erreur confiante : « L'ordre des opérations quand un produit
+suit une addition. Ce point a l'air acquis mais il ne l'est pas encore — c'est
+exactement le type d'écart qui coûte cher en devoir surveillé. »
+
+Micro-plan : « Refaire huit calculs mêlant addition et multiplication en
+entourant d'abord le produit — 10 minutes. »
 
 ### Mauvaise formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Tu as 8 bonnes réponses sur 18, c'est faible. Tu confonds tout avec les signes
+et tu étais sûr de toi. Sans ça la 4e sera compliquée. »
+
+Un score, un jugement, la formulation interdite sur la confiance, une menace.

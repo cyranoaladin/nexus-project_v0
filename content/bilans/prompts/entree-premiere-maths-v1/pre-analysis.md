@@ -29,8 +29,20 @@ Tu produis uniquement un objet JSON strict conforme au schéma du pack :
 
 ### Bonne formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+Réponse libre : « j'ai choisi spé maths mais je ne sais pas si j'ai le niveau ».
+
+  synthese       : « L'élève a choisi la spécialité mathématiques et exprime un
+                     doute sur sa capacité à y réussir. »
+  forces_percues : []
+  craintes       : ["capacité à suivre la spécialité"]
+
+Le doute est rapporté comme un doute. Il n'est ni confirmé, ni infirmé, ni
+transformé en évaluation.
 
 ### Mauvaise formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« L'élève doute de son niveau, et ce doute est probablement fondé au vu de ses
+résultats. »
+
+La pré-analyse traite le déclaratif seul. Elle n'a pas accès aux résultats et
+ne doit jamais les invoquer.

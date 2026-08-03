@@ -41,8 +41,17 @@ Tu produis uniquement un objet JSON strict conforme au schéma du pack : `cadre`
 
 ### Bonne formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+Point d'appui : « Le raisonnement par changement d'échelle, de la molécule à
+l'organisme, est en place. »
+
+Priorité : « Nous reprendrons la distinction entre patrimoine génétique et
+expression des gènes, notion qui fonde le premier thème de l'année. »
+
+Étape suivante : « Être conseillé »
 
 ### Mauvaise formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Votre enfant a de grosses lacunes en génétique, ce qui compromet le premier
+trimestre. Nous garantissons une mise à niveau. »
+
+Un jugement, un pronostic, une promesse garantie.

@@ -35,8 +35,17 @@ Aucune clé supplémentaire et aucun texte autour.
 
 ### Bonne formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Violation détectée. Bilan ELEVE, champ priorites, premier élément : la
+formulation « tu en étais sûr » est interdite.
+
+Violation détectée. Bilan PARENTS, champ pointsAppui : contient « 10/18 ».
+Règle V2.
+
+Contrôle des domaines : cinq domaines évalués, cinq représentés dans les deux
+audiences. »
 
 ### Mauvaise formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Correct dans l'ensemble. »
+
+Aucune trace de ce qui a été contrôlé.

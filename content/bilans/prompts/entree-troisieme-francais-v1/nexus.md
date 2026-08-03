@@ -33,8 +33,19 @@ Aucune clé supplémentaire et aucun texte autour.
 
 ### Bonne formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Nœud orthographe.accords en erreur confiante : score 0,0, confiance 4.
+Accord systématique avec le sujet, jamais avec le complément antéposé.
+
+Discours rapporté en lacune consciente : score 25,0, confiance 1. La
+transposition n'est pas installée et l'élève le sait.
+
+Narrateur et points de vue en maîtrise, score 100,0.
+
+Indice de calibration 44,4 : surestimation nette sur l'orthographe. »
 
 ### Mauvaise formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Bon élève dans l'ensemble, quelques fautes d'inattention. »
+
+« Inattention » est un jugement, pas un diagnostic. Une erreur systématique
+avec confiance élevée n'est jamais de l'inattention.

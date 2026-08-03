@@ -33,8 +33,21 @@ Aucune clé supplémentaire et aucun texte autour.
 
 ### Bonne formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Nœud derivation.signe-derivee-variations en erreur confiante : score 50,0,
+confiance 4. Confond le signe de f prime et celui de f — erreur la plus
+coûteuse du programme, priorité 1.
+
+Nœud exponentielle.proprietes-algebriques en maîtrise fragile : réussite 75,0,
+confiance 2. Les règles sont sues, l'automatisation manque : répétition.
+
+Second degré et produit scalaire en maîtrise, score 100,0 : rappel actif,
+vingt minutes chacun.
+
+Indice de calibration 61,1 : correcte hors dérivation. »
 
 ### Mauvaise formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Bon élève, prépa jouable. À suivre. »
+
+Un pronostic d'orientation et une appréciation globale, sans usage pour la
+préparation d'une séance.

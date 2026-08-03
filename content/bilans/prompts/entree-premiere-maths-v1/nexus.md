@@ -33,8 +33,20 @@ Aucune clé supplémentaire et aucun texte autour.
 
 ### Bonne formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Nœud fonctions-reference.variations en erreur confiante : score 0,0,
+confiance 4. L'élève affirme la décroissance sur R entier.
+
+Nœud inequations.resolution-premier-degre en erreur confiante : score 50,0.
+N'inverse pas le sens lors d'une division par un négatif — deux erreurs
+confiantes sur le même geste, celui du signe.
+
+Calcul littéral en maîtrise, score 100,0 : temps rendu, rappel actif.
+
+Indice de calibration 44,4. Drapeau ERREURS_CONFIANTES_MULTIPLES levé. »
 
 ### Mauvaise formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Profil à risque pour la spécialité. Réorientation à envisager si les
+résultats ne remontent pas. »
+
+Une recommandation d'orientation, hors du champ d'un positionnement d'entrée.
