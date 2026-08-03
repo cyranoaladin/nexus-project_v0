@@ -41,8 +41,30 @@ Tu produis uniquement un objet JSON strict conforme au schéma du pack : `cadre`
 
 ### Bonne formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+Point d'appui :
+« Les automatismes de résolution d'équations sont installés et mobilisés avec
+sûreté, y compris lorsque l'inconnue figure des deux côtés de l'égalité. »
+
+Priorité :
+« Nous reprendrons les règles de signe dans les calculs avec les nombres
+relatifs, par un temps d'entraînement guidé puis en autonomie. »
+
+Cadre :
+« Ce bilan est un positionnement conduit avant le stage. Il ne constitue ni une
+évaluation notée, ni un pronostic. Le contenu des cinq séances de deux heures
+sera construit à partir des diagnostics de l'ensemble du groupe. »
+
+Ce qui rend ces formulations correctes : aucun chiffre, le singulier tenu, la
+priorité formulée comme du contenu de séance et non comme un manque, et une
+annonce honnête sur la construction du stage.
 
 ### Mauvaise formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Votre enfant a obtenu 11/20 et présente de grosses lacunes en calcul. Avec
+notre accompagnement, il rattrapera son retard et abordera la Seconde
+sereinement. Le programme du stage couvrira les fractions, les relatifs et le
+calcul littéral. »
+
+Cinq fautes : un score, un jugement de valeur sur l'élève, une promesse de
+résultat, un programme annoncé alors qu'il se construira après les diagnostics,
+et une priorité formulée comme un manque plutôt que comme un contenu de travail.

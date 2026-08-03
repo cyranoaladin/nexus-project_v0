@@ -41,8 +41,26 @@ Tu produis uniquement un objet JSON strict conforme au schéma du pack : `cadre`
 
 ### Bonne formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+Point d'appui :
+« L'identification des fonctions dans la phrase est un point d'appui solide, y
+compris sur des constructions déplacées. »
+
+Priorité :
+« Nous travaillerons la distinction entre les propositions subordonnées, d'abord
+par des repérages guidés, puis par des justifications rédigées. »
+
+Étape suivante :
+« Être conseillé »
+
+Ce qui rend ces formulations correctes : aucun chiffre, une progression de
+travail annoncée, et un appel à l'action pris dans la liste approuvée.
 
 ### Mauvaise formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Votre enfant a un niveau insuffisant en grammaire, ce qui compromet son entrée
+en Seconde. Nous garantissons une remise à niveau complète en cinq séances.
+Inscrivez-le vite, les places partent rapidement. »
+
+Cinq fautes : un jugement de niveau, un ressort anxiogène, une promesse de
+résultat garantie, une affirmation sur les places non sourcée, et un appel à
+l'action hors liste approuvée.

@@ -35,8 +35,25 @@ Aucune clé supplémentaire et aucun texte autour.
 
 ### Bonne formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Violation détectée. Bilan ELEVE, champ priorites, premier élément : la
+formulation « tu étais sûr de toi et tu t'es trompé » est interdite par le
+prompt élève, qui impose la formulation par l'écart non perçu.
+
+Violation détectée. Bilan PARENTS, champ priorites, deuxième élément : la phrase
+« votre enfant ne maîtrise pas les subordonnées » formule une priorité comme un
+manque de l'élève. Le prompt impose une formulation en contenu de séance.
+
+Contrôle des domaines : les trois domaines évalués sont représentés dans les
+sorties ELEVE et PARENTS. Aucun domaine omis. »
+
+Ce qui rend cette sortie correcte : la deuxième violation ne porte pas sur un
+mot interdit mais sur une formulation contraire à une règle. C'est le contrôle
+que les validateurs automatiques ne peuvent pas faire seuls.
 
 ### Mauvaise formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Tout me paraît correct, les trois bilans sont bien rédigés. »
+
+Une vérification qui ne cite aucun champ, aucune règle et aucune valeur de la
+FactSheet n'apporte rien. Le vérificateur doit exposer ce qu'il a contrôlé, y
+compris et surtout lorsqu'il ne trouve aucune violation.
