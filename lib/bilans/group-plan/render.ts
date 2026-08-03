@@ -3,7 +3,7 @@ import { BILAN_PRINT_BRAND, bilanPrintTokenCss } from '../render/brand';
 import { renderHtmlToPdf } from '../render/pdf';
 import { assertRenderIdentity, type RenderIdentity } from '../render/render-identity';
 import { bilanPackLevelLabel } from '../render/stage-label';
-import type { GroupNodeAllocation, GroupPlan } from './plan';
+import type { GroupNodeSessionSegment, GroupPlan } from './plan';
 
 export const GROUP_PLAN_HTML_VERSION = 'nexus-group-plan-html.v1' as const;
 
@@ -11,9 +11,17 @@ function escapeHtml(value: unknown): string {
   return String(value).replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#39;');
 }
 
-function nodeBlock(node: GroupNodeAllocation): string {
+function nodeBlock(node: GroupNodeSessionSegment): string {
   const divided = node.dividedGroups === null ? '' : `<div class="divided"><strong>Différenciation</strong><p>Acquis : ${node.dividedGroups.acquired.map(escapeHtml).join(', ')}</p><p>En difficulté : ${node.dividedGroups.difficulty.map(escapeHtml).join(', ')}</p></div>`;
-  return `<article class="node"><header><span>${escapeHtml(node.minutes)} min</span><h3>${escapeHtml(node.label)}</h3></header><p><strong>${escapeHtml(node.profile)}</strong> · ${escapeHtml(node.treatment)}</p>${divided}<table><thead><tr><th>Élève</th><th>Point de vigilance</th></tr></thead><tbody>${node.studentGuidance.map((student) => `<tr><td>${escapeHtml(student.displayName)}</td><td>${escapeHtml(student.guidance)}</td></tr>`).join('')}</tbody></table></article>`;
+  const continuation = node.segmentPosition === 'START'
+    ? '<p class="continuation">Ce nœud se poursuit en séance suivante.</p>'
+    : node.segmentPosition === 'CONTINUATION'
+      ? '<p class="continuation">Suite de la séance précédente.</p>'
+      : '';
+  const treatment = node.segmentPosition === 'CONTINUATION'
+    ? ''
+    : `<p><strong>${escapeHtml(node.profile)}</strong> · ${escapeHtml(node.treatment)} · ${escapeHtml(node.totalMinutes)} min au total</p>${divided}`;
+  return `<article class="node" data-node="${escapeHtml(node.nodeCpsId)}" data-segment="${node.segmentPosition}"><header><span>${escapeHtml(node.segmentMinutes)} min dans cette séance</span><h3>${escapeHtml(node.label)}</h3></header>${continuation}${treatment}<table><thead><tr><th>Élève</th><th>Point de vigilance</th></tr></thead><tbody>${node.studentGuidance.map((student) => `<tr><td>${escapeHtml(student.displayName)}</td><td>${escapeHtml(student.guidance)}</td></tr>`).join('')}</tbody></table></article>`;
 }
 
 function nodeList(nodeIds: readonly string[]): string {
@@ -22,7 +30,7 @@ function nodeList(nodeIds: readonly string[]): string {
 
 function styleSheet(): string {
   return `@font-face{font-family:'${BILAN_PRINT_BRAND.fonts.display}';src:url('${BILAN_PRINT_BRAND.fonts.displayAsset}') format('woff2')}@font-face{font-family:'${BILAN_PRINT_BRAND.fonts.body}';src:url('${BILAN_PRINT_BRAND.fonts.bodyAsset}') format('woff2')}
-  :root{${bilanPrintTokenCss()}}*{box-sizing:border-box}body{margin:0;background:var(--color-lux-ivory);color:var(--color-lux-ink);font-family:var(--font-dm-sans);font-size:9.5pt;line-height:1.45}.document{width:210mm;margin:0 auto;background:var(--color-lux-paper)}.page{min-height:297mm;padding:14mm 15mm 17mm;break-after:page}.page:last-child{break-after:auto}h1,h2,h3{font-family:var(--font-fraunces);font-weight:600}h1{font-size:21pt;margin:0}h2{font-size:15pt;border-bottom:1px solid var(--color-lux-gold);padding-bottom:2mm}h3{font-size:12pt;margin:0}.report-header{display:flex;gap:7mm;align-items:center;border-bottom:2px solid var(--color-lux-gold);padding-bottom:6mm}.brand-logo{width:48mm;height:auto}.eyebrow{color:var(--color-lux-gold-deep);font-weight:700;text-transform:uppercase;letter-spacing:.07em}.confidential{padding:4mm;background:var(--color-lux-ink);color:var(--color-lux-on-dark);border-left:4px solid var(--color-lux-gold)}.warning{padding:4mm;border:1px solid var(--color-lux-gold);background:var(--color-lux-gold-wash)}.summary-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:4mm}.summary-grid section,.node{border:1px solid var(--color-lux-line);border-radius:3mm;padding:4mm;background:var(--color-lux-white)}.node{margin-top:4mm;break-inside:avoid}.node header{display:flex;align-items:center;gap:4mm}.node header span{color:var(--color-lux-gold-deep);font-weight:700;white-space:nowrap}.divided{border-left:3px solid var(--color-lux-gold);padding-left:3mm}table{width:100%;border-collapse:collapse;margin-top:3mm}th,td{text-align:left;vertical-align:top;padding:2mm;border-bottom:1px solid var(--color-lux-line)}th{color:var(--color-lux-slate)}.footer{display:flex;align-items:center;gap:3mm;margin-top:8mm;padding-top:3mm;border-top:1px solid var(--color-lux-line);color:var(--color-lux-slate)}.footer img{width:9mm;height:9mm}@page{size:A4;margin:0}@media print{body{background:var(--color-lux-white)}.document{margin:0}}`;
+  :root{${bilanPrintTokenCss()}}*{box-sizing:border-box}body{margin:0;background:var(--color-lux-ivory);color:var(--color-lux-ink);font-family:var(--font-dm-sans);font-size:9.5pt;line-height:1.45}.document{width:210mm;margin:0 auto;background:var(--color-lux-paper)}.page{min-height:297mm;padding:14mm 15mm 17mm;break-after:page}.page:last-child{break-after:auto}h1,h2,h3{font-family:var(--font-fraunces);font-weight:600}h1{font-size:21pt;margin:0}h2{font-size:15pt;border-bottom:1px solid var(--color-lux-gold);padding-bottom:2mm}h3{font-size:12pt;margin:0}.report-header{display:flex;gap:7mm;align-items:center;border-bottom:2px solid var(--color-lux-gold);padding-bottom:6mm}.brand-logo{width:48mm;height:auto}.eyebrow{color:var(--color-lux-gold-deep);font-weight:700;text-transform:uppercase;letter-spacing:.07em}.confidential{padding:4mm;background:var(--color-lux-ink);color:var(--color-lux-on-dark);border-left:4px solid var(--color-lux-gold)}.warning{padding:4mm;border:1px solid var(--color-lux-gold);background:var(--color-lux-gold-wash)}.summary-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:4mm}.summary-grid section,.node{border:1px solid var(--color-lux-line);border-radius:3mm;padding:4mm;background:var(--color-lux-white)}.node{margin-top:4mm;break-inside:avoid}.node header{display:flex;align-items:center;gap:4mm}.node header span{color:var(--color-lux-gold-deep);font-weight:700;white-space:nowrap}.continuation{color:var(--color-lux-gold-deep);font-weight:700}.divided{border-left:3px solid var(--color-lux-gold);padding-left:3mm}table{width:100%;border-collapse:collapse;margin-top:3mm}th,td{text-align:left;vertical-align:top;padding:2mm;border-bottom:1px solid var(--color-lux-line)}th{color:var(--color-lux-slate)}.footer{display:flex;align-items:center;gap:3mm;margin-top:8mm;padding-top:3mm;border-top:1px solid var(--color-lux-line);color:var(--color-lux-slate)}.footer img{width:9mm;height:9mm}@page{size:A4;margin:0}@media print{body{background:var(--color-lux-white)}.document{margin:0}}`;
 }
 
 export function renderGroupPlanHtml(plan: GroupPlan, suppliedIdentity: RenderIdentity): string {

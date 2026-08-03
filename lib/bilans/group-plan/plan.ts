@@ -42,10 +42,16 @@ export type GroupNodeAllocation = Readonly<{
   studentGuidance: readonly Readonly<{ displayName: string; profile: NodeProfile; guidance: string }>[];
 }>;
 
+export type GroupNodeSessionSegment = Readonly<Omit<GroupNodeAllocation, 'minutes'> & {
+  segmentMinutes: number;
+  totalMinutes: number;
+  segmentPosition: 'WHOLE' | 'START' | 'CONTINUATION';
+}>;
+
 export type GroupSessionPlan = Readonly<{
   status: 'READY' | 'TEACHER_ARBITRATION_REQUIRED';
   cuts: readonly number[];
-  sessions: readonly Readonly<{ index: number; contentMinutes: number; nodes: readonly GroupNodeAllocation[] }>[];
+  sessions: readonly Readonly<{ index: number; contentMinutes: number; nodes: readonly GroupNodeSessionSegment[] }>[];
   warnings: readonly string[];
 }>;
 
@@ -120,59 +126,131 @@ export function allocateGroupMinutes(
   return Object.freeze(allocations.map((allocation) => Object.freeze({ ...allocation })));
 }
 
-type CutCandidate = Readonly<{ cuts: readonly number[]; durations: readonly number[]; maxDeviation: number; totalDeviation: number }>;
+type NodeInterval = Readonly<{ node: GroupNodeAllocation; start: number; end: number }>;
+type CutCandidate = Readonly<{
+  cuts: readonly number[];
+  durations: readonly number[];
+  splitNodeCount: number;
+  maxDeviation: number;
+  totalDeviation: number;
+}>;
 
-function combinations(values: readonly number[], size: number): readonly number[][] {
-  const result: number[][] = [];
-  const visit = (start: number, current: number[]): void => {
-    if (current.length === size) { result.push([...current]); return; }
-    for (let index = start; index <= values.length - (size - current.length); index += 1) {
-      current.push(values[index]); visit(index + 1, current); current.pop();
-    }
-  };
-  visit(0, []);
-  return result;
+function nodeIntervals(nodes: readonly GroupNodeAllocation[]): readonly NodeInterval[] {
+  let elapsed = 0;
+  return nodes.map((node) => {
+    const interval = Object.freeze({ node, start: elapsed, end: elapsed + node.minutes });
+    elapsed = interval.end;
+    return interval;
+  });
 }
 
-function candidateFor(cuts: readonly number[]): CutCandidate {
+function candidateFor(cuts: readonly number[], intervals: readonly NodeInterval[]): CutCandidate | null {
   const edges = [0, ...cuts, GROUP_STAGE_MINUTES];
   const durations = edges.slice(1).map((edge, index) => edge - edges[index]);
+  const fragments = intervals.map(({ start, end }) => edges.slice(0, -1)
+    .map((sessionStart, index) => Math.max(0, Math.min(end, edges[index + 1]) - Math.max(start, sessionStart)))
+    .filter((minutes) => minutes > 0));
+  if (fragments.some((parts) => parts.length > 2 || parts.some((minutes) => minutes < 15))) return null;
   const deviations = durations.map((duration) => Math.abs(duration - GROUP_SESSION_TARGET_MINUTES));
-  return Object.freeze({ cuts: Object.freeze([...cuts]), durations: Object.freeze(durations), maxDeviation: Math.max(...deviations), totalDeviation: deviations.reduce((sum, deviation) => sum + deviation, 0) });
+  return Object.freeze({
+    cuts: Object.freeze([...cuts]),
+    durations: Object.freeze(durations),
+    splitNodeCount: fragments.filter((parts) => parts.length > 1).length,
+    maxDeviation: Math.max(...deviations),
+    totalDeviation: deviations.reduce((sum, deviation) => sum + deviation, 0),
+  });
 }
 
 function compareCandidates(left: CutCandidate, right: CutCandidate): number {
+  if (left.splitNodeCount !== right.splitNodeCount) return left.splitNodeCount - right.splitNodeCount;
   if (left.maxDeviation !== right.maxDeviation) return left.maxDeviation - right.maxDeviation;
   if (left.totalDeviation !== right.totalDeviation) return left.totalDeviation - right.totalDeviation;
   for (let index = 0; index < left.cuts.length; index += 1) if (left.cuts[index] !== right.cuts[index]) return left.cuts[index] - right.cuts[index];
   return 0;
 }
 
-export function planGroupSessions(nodes: readonly GroupNodeAllocation[]): GroupSessionPlan {
-  const ordered = [...nodes].sort((left, right) => left.sequenceOrder - right.sequenceOrder);
-  const boundaries: number[] = [];
-  let elapsed = 0;
-  for (const node of ordered.slice(0, -1)) { elapsed += node.minutes; boundaries.push(elapsed); }
-  const candidates = combinations(boundaries, 4).map(candidateFor).sort(compareCandidates);
-  const hardCandidates = candidates.filter(({ durations }) => durations.every((duration) => duration >= GROUP_SESSION_MIN_MINUTES && duration <= GROUP_SESSION_MAX_MINUTES));
-  const selected = hardCandidates[0] ?? candidates[0];
-  if (selected === undefined) throw new Error('GROUP_SESSION_CUTS_UNAVAILABLE');
-  const sessions: Array<{ index: number; contentMinutes: number; nodes: GroupNodeAllocation[] }> = [];
-  const cutSet = new Set(selected.cuts);
-  let current: GroupNodeAllocation[] = [];
-  let currentMinutes = 0;
-  elapsed = 0;
-  for (const node of ordered) {
-    current.push(node); currentMinutes += node.minutes; elapsed += node.minutes;
-    if (cutSet.has(elapsed) || elapsed === GROUP_STAGE_MINUTES) {
-      sessions.push({ index: sessions.length + 1, contentMinutes: currentMinutes, nodes: current });
-      current = []; currentMinutes = 0;
+function bestHardCandidate(intervals: readonly NodeInterval[]): CutCandidate | undefined {
+  let best: CutCandidate | undefined;
+  for (let firstDuration = GROUP_SESSION_MIN_MINUTES; firstDuration <= GROUP_SESSION_MAX_MINUTES; firstDuration += 5) {
+    for (let secondDuration = GROUP_SESSION_MIN_MINUTES; secondDuration <= GROUP_SESSION_MAX_MINUTES; secondDuration += 5) {
+      for (let thirdDuration = GROUP_SESSION_MIN_MINUTES; thirdDuration <= GROUP_SESSION_MAX_MINUTES; thirdDuration += 5) {
+        for (let fourthDuration = GROUP_SESSION_MIN_MINUTES; fourthDuration <= GROUP_SESSION_MAX_MINUTES; fourthDuration += 5) {
+          const cuts = [
+            firstDuration,
+            firstDuration + secondDuration,
+            firstDuration + secondDuration + thirdDuration,
+            firstDuration + secondDuration + thirdDuration + fourthDuration,
+          ];
+          const fifthDuration = GROUP_STAGE_MINUTES - cuts[3];
+          if (fifthDuration < GROUP_SESSION_MIN_MINUTES || fifthDuration > GROUP_SESSION_MAX_MINUTES) continue;
+          const candidate = candidateFor(cuts, intervals);
+          if (candidate !== null && (best === undefined || compareCandidates(candidate, best) < 0)) best = candidate;
+        }
+      }
     }
   }
-  const warnings = selected.durations.flatMap((duration, index) => duration < GROUP_SESSION_MIN_MINUTES || duration > GROUP_SESSION_MAX_MINUTES
+  return best;
+}
+
+function bestFallbackCandidate(intervals: readonly NodeInterval[]): CutCandidate | undefined {
+  const values = Array.from({ length: 79 }, (_unused, index) => 105 + index * 5);
+  let best: CutCandidate | undefined;
+  const current: number[] = [];
+  const visit = (start: number): void => {
+    if (current.length === 4) {
+      const candidate = candidateFor(current, intervals);
+      if (candidate !== null && (best === undefined || compareCandidates(candidate, best) < 0)) best = candidate;
+      return;
+    }
+    for (let index = start; index <= values.length - (4 - current.length); index += 1) {
+      current.push(values[index]);
+      visit(index + 1);
+      current.pop();
+    }
+  };
+  visit(0);
+  return best;
+}
+
+function sessionsFor(candidate: CutCandidate, intervals: readonly NodeInterval[]): GroupSessionPlan['sessions'] {
+  const edges = [0, ...candidate.cuts, GROUP_STAGE_MINUTES];
+  return Object.freeze(candidate.durations.map((contentMinutes, sessionIndex) => {
+    const sessionStart = edges[sessionIndex];
+    const sessionEnd = edges[sessionIndex + 1];
+    const nodes = intervals.flatMap(({ node, start, end }): GroupNodeSessionSegment[] => {
+      const segmentStart = Math.max(start, sessionStart);
+      const segmentEnd = Math.min(end, sessionEnd);
+      if (segmentEnd <= segmentStart) return [];
+      const startsNode = segmentStart === start;
+      const endsNode = segmentEnd === end;
+      if (!startsNode && !endsNode) throw new Error(`GROUP_NODE_SPLIT_MORE_THAN_TWICE:${node.nodeCpsId}`);
+      return [Object.freeze({
+        ...node,
+        segmentMinutes: segmentEnd - segmentStart,
+        totalMinutes: node.minutes,
+        segmentPosition: startsNode && endsNode ? 'WHOLE' : startsNode ? 'START' : 'CONTINUATION',
+      })];
+    });
+    return Object.freeze({ index: sessionIndex + 1, contentMinutes, nodes: Object.freeze(nodes) });
+  }));
+}
+
+export function planGroupSessions(nodes: readonly GroupNodeAllocation[]): GroupSessionPlan {
+  const ordered = [...nodes].sort((left, right) => left.sequenceOrder - right.sequenceOrder);
+  if (ordered.reduce((sum, node) => sum + node.minutes, 0) !== GROUP_STAGE_MINUTES) throw new Error('GROUP_SESSION_NODE_MINUTES_MUST_TOTAL_600');
+  const intervals = nodeIntervals(ordered);
+  const hardCandidate = bestHardCandidate(intervals);
+  const selected = hardCandidate ?? bestFallbackCandidate(intervals);
+  if (selected === undefined) throw new Error('GROUP_SESSION_CUTS_UNAVAILABLE');
+  const warnings = hardCandidate === undefined ? selected.durations.flatMap((duration, index) => duration < GROUP_SESSION_MIN_MINUTES || duration > GROUP_SESSION_MAX_MINUTES
     ? [`Séance ${index + 1} : ${duration} minutes de contenu, hors fenêtre 105–135 ; arbitrage enseignant requis.`]
-    : []);
-  return Object.freeze({ status: hardCandidates.length > 0 ? 'READY' : 'TEACHER_ARBITRATION_REQUIRED', cuts: selected.cuts, sessions: Object.freeze(sessions.map((session) => Object.freeze({ ...session, nodes: Object.freeze([...session.nodes]) }))), warnings: Object.freeze(warnings) });
+    : []) : [];
+  return Object.freeze({
+    status: hardCandidate === undefined ? 'TEACHER_ARBITRATION_REQUIRED' : 'READY',
+    cuts: selected.cuts,
+    sessions: sessionsFor(selected, intervals),
+    warnings: Object.freeze(warnings),
+  });
 }
 
 export function buildGroupPlan(catalog: CpsCatalog, members: readonly GroupMember[]): GroupPlan {

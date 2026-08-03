@@ -33,6 +33,38 @@ function members(configuration: number, size = 3 + (configuration % 3)): readonl
   })));
 }
 
+type SegmentView = Readonly<{
+  nodeCpsId: string;
+  sequenceOrder: number;
+  segmentMinutes: number;
+  totalMinutes: number;
+  segmentPosition: 'WHOLE' | 'START' | 'CONTINUATION';
+}>;
+
+function minimumSplitNodeCount(nodes: readonly Readonly<{ minutes: number }>[]): number {
+  const intervals = nodes.map((node, index) => ({
+    start: nodes.slice(0, index).reduce((sum, current) => sum + current.minutes, 0),
+    end: nodes.slice(0, index + 1).reduce((sum, current) => sum + current.minutes, 0),
+  }));
+  let minimum = Number.POSITIVE_INFINITY;
+  for (let first = 105; first <= 135; first += 5) {
+    for (let second = first + 105; second <= first + 135; second += 5) {
+      for (let third = second + 105; third <= second + 135; third += 5) {
+        for (let fourth = third + 105; fourth <= third + 135; fourth += 5) {
+          if (600 - fourth < 105 || 600 - fourth > 135) continue;
+          const edges = [0, first, second, third, fourth, 600];
+          const fragments = intervals.map(({ start, end }) => edges.slice(0, -1)
+            .map((sessionStart, index) => Math.max(0, Math.min(end, edges[index + 1]) - Math.max(start, sessionStart)))
+            .filter((minutes) => minutes > 0));
+          if (fragments.some((parts) => parts.length > 2 || parts.some((minutes) => minutes < 15))) continue;
+          minimum = Math.min(minimum, fragments.filter((parts) => parts.length > 1).length);
+        }
+      }
+    }
+  }
+  return minimum;
+}
+
 describe('A108 group profile aggregation', () => {
   it('creates DIVISE only when acquired and difficulty coexist below two thirds', () => {
     expect(aggregateGroupProfile(['MAITRISE', 'MAITRISE', 'MAITRISE_FRAGILE', 'ERREUR_CONFIANTE', 'LACUNE_CONSCIENTE'])).toBe('DIVISE');
@@ -43,26 +75,36 @@ describe('A108 group profile aggregation', () => {
   });
 });
 
-describe('A109-A114 deterministic allocation and global cuts', () => {
-  it('preserves 600 node-minutes over twenty configurations and explicitly signals infeasible cuts', () => {
+describe('A109-A115 deterministic allocation and internal global cuts', () => {
+  it('finds a hard-window solution over twenty configurations without changing node durations', () => {
     let arbitrationCount = 0;
     for (let index = 0; index < 20; index += 1) {
       const inputs = members(index);
       const plan = buildGroupPlan(catalog, inputs);
       expect(plan.nodes.reduce((sum, node) => sum + node.minutes, 0)).toBe(600);
       expect(plan.sessions).toHaveLength(5);
-      expect(new Map(plan.sessions.flatMap(({ nodes }) => nodes).map(({ nodeCpsId, minutes }) => [nodeCpsId, minutes]))).toEqual(new Map(plan.nodes.map(({ nodeCpsId, minutes }) => [nodeCpsId, minutes])));
-      expect(plan.sessions.flatMap(({ nodes }) => nodes.map(({ sequenceOrder }) => sequenceOrder))).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9]);
-      expect(plan.sessions.every(({ nodes }) => nodes.every(({ minutes }) => minutes >= 15))).toBe(true);
+      const segments = plan.sessions.flatMap(({ nodes }) => nodes) as unknown as readonly SegmentView[];
+      const segmentedMinutes = new Map<string, number>();
+      const segmentCounts = new Map<string, number>();
+      for (const segment of segments) {
+        segmentedMinutes.set(segment.nodeCpsId, (segmentedMinutes.get(segment.nodeCpsId) ?? 0) + segment.segmentMinutes);
+        segmentCounts.set(segment.nodeCpsId, (segmentCounts.get(segment.nodeCpsId) ?? 0) + 1);
+        expect(segment.segmentMinutes).toBeGreaterThanOrEqual(15);
+      }
+      expect(segmentedMinutes).toEqual(new Map(plan.nodes.map(({ nodeCpsId, minutes }) => [nodeCpsId, minutes])));
+      expect(Math.max(...segmentCounts.values())).toBeLessThanOrEqual(2);
+      expect(segments.map(({ sequenceOrder }) => sequenceOrder)).toEqual([...segments.map(({ sequenceOrder }) => sequenceOrder)].sort((a, b) => a - b));
+      expect([...new Set(segments.map(({ sequenceOrder }) => sequenceOrder))]).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9]);
+      expect(segmentCounts.size - [...segmentCounts.values()].filter((count) => count === 1).length).toBe(minimumSplitNodeCount(plan.nodes));
       const outside = plan.sessions.some(({ contentMinutes }) => contentMinutes < 105 || contentMinutes > 135);
       expect(plan.schedulingStatus === 'TEACHER_ARBITRATION_REQUIRED').toBe(outside);
       if (outside) { arbitrationCount += 1; expect(plan.schedulingWarnings.length).toBeGreaterThan(0); }
       expect(buildGroupPlan(catalog, inputs)).toEqual(plan);
     }
-    expect(arbitrationCount).toBe(20);
+    expect(arbitrationCount).toBe(0);
   });
 
-  it('handles the A113 counterexample without changing the 600-minute total', () => {
+  it('handles the A114 counterexample without changing the 600-minute total', () => {
     const target = ['MAITRISE_FRAGILE', 'ERREUR_CONFIANTE', 'ERREUR_CONFIANTE', 'ERREUR_CONFIANTE', 'MAITRISE_FRAGILE', 'DIVISE', 'DIVISE', 'ERREUR_CONFIANTE', 'MAITRISE'] as const;
     const inputs = members(0, 5).map((member, studentIndex) => ({
       ...member,
@@ -71,7 +113,8 @@ describe('A109-A114 deterministic allocation and global cuts', () => {
     const plan = buildGroupPlan(catalog, inputs);
     expect(plan.nodes.reduce((sum, node) => sum + node.minutes, 0)).toBe(600);
     expect(plan.sessions).toHaveLength(5);
-    expect(plan.schedulingStatus).toBe('TEACHER_ARBITRATION_REQUIRED');
+    expect(plan.schedulingStatus).toBe('READY');
+    expect(plan.sessions.every(({ contentMinutes }) => contentMinutes >= 105 && contentMinutes <= 135)).toBe(true);
   });
 
   it.each(['MAITRISE', 'ERREUR_CONFIANTE'] as const)('keeps nine identical profiles deterministic: %s', (profile) => {
@@ -79,6 +122,7 @@ describe('A109-A114 deterministic allocation and global cuts', () => {
     const plan = buildGroupPlan(catalog, inputs);
     expect(plan.nodes.map(({ minutes }) => minutes)).toEqual([80, 65, 65, 65, 65, 65, 65, 65, 65]);
     expect(plan.sessions.reduce((sum, session) => sum + session.contentMinutes, 0)).toBe(600);
-    expect(plan.schedulingWarnings.length).toBeGreaterThan(0);
+    expect(plan.schedulingStatus).toBe('READY');
+    expect(plan.schedulingWarnings).toEqual([]);
   });
 });
