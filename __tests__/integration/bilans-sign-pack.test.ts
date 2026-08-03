@@ -13,7 +13,7 @@ import {
 const ROOT = process.cwd();
 const TEMP = path.join(ROOT, '.tmp-sign-pack-integration');
 const MANIFEST = 'data/bilans/banks/wave1.manifest.json';
-const SLUG = 'entree-terminale-maths-v1';
+const SLUG = 'entree-premiere-maths-v1';
 const PREFIX = `a897-${Date.now()}-`;
 const EMAIL = `${PREFIX}coach@example.test`;
 

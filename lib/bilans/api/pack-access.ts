@@ -7,15 +7,19 @@ import {
   type BilanPack,
 } from '@/lib/bilans/catalog/load-pack';
 import type { ValidatedPack } from '@/lib/bilans/validators/contracts';
+import { loadWaveManifest } from '@/lib/bilans/catalog/wave-manifest';
 
 import { CanonicalApiError } from './errors';
 
-const PACK_PATHS = Object.freeze<Record<string, string>>({
-  'entree-seconde-maths-v1': 'data/bilans/banks/entree-seconde-maths-v1.json',
-  'entree-premiere-maths-v1': 'data/bilans/banks/entree-premiere-maths-v1.json',
-  'entree-terminale-maths-v1': 'data/bilans/banks/entree-terminale-maths-v1.json',
-  'maths-terminale-bilan-v1': 'data/bilans/banks/maths-terminale-bilan-v1.json',
-});
+const ACTIVE_PACK_MANIFEST = 'data/bilans/banks/wave1.manifest.json';
+
+export function listResolvablePackSlugs(): readonly string[] {
+  return Object.freeze(loadWaveManifest(ACTIVE_PACK_MANIFEST).banks.map(({ slug }) => slug).sort());
+}
+
+export function resolveCatalogPackPath(slug: string): string | null {
+  return loadWaveManifest(ACTIVE_PACK_MANIFEST).banks.find((entry) => entry.slug === slug)?.output ?? null;
+}
 
 type PackActivationCandidate = Readonly<{
   slug: string;
@@ -60,8 +64,8 @@ export function resolveEnabledPack(
   version?: number,
   environment: Readonly<Record<string, string | undefined>> = process.env,
 ): EnabledBilanPack | null {
-  const packPath = PACK_PATHS[slug];
-  if (packPath === undefined) return null;
+  const packPath = resolveCatalogPackPath(slug);
+  if (packPath === null) return null;
 
   try {
     const pack = loadBilanPack(packPath);
@@ -73,6 +77,15 @@ export function resolveEnabledPack(
   } catch {
     return null;
   }
+}
+
+export function listEnabledPacks(
+  environment: Readonly<Record<string, string | undefined>> = process.env,
+): readonly EnabledBilanPack[] {
+  return Object.freeze(listResolvablePackSlugs().flatMap((slug) => {
+    const enabled = resolveEnabledPack(slug, undefined, environment);
+    return enabled === null ? [] : [enabled];
+  }));
 }
 
 export function assertAttemptPackEnabled(

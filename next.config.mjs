@@ -10,6 +10,12 @@ const nextConfig = {
     '/': [
       './src/static-pages/assistante-devis-v3/**/*',
     ],
+    '/*': [
+      './data/bilans/banks/*.json',
+      './data/bilans/cps/*.yaml',
+      './data/bilans/reviews/*.review.yaml',
+      './content/bilans/prompts/**/*.md',
+    ],
   },
   outputFileTracingExcludes: {
     '*': [

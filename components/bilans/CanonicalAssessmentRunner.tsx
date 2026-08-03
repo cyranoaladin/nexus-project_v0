@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import Link from 'next/link';
 
 import {
   loadCanonicalAttempt,
@@ -129,6 +130,7 @@ export function CanonicalAssessmentRunner({ attemptId }: Readonly<{ attemptId: s
       <section className="mx-auto max-w-2xl rounded-3xl border border-emerald-200 bg-emerald-50 p-10 text-center">
         <h1 className="font-serif text-3xl font-semibold text-slate-950">Questionnaire envoyé</h1>
         <p className="mt-4 text-slate-700">Votre bilan est maintenant en cours de préparation et de revue.</p>
+        <Link href={`/bilan-gratuit/assessment/${encodeURIComponent(attemptId)}/report`} className="mt-6 inline-flex rounded-xl bg-slate-950 px-5 py-3 font-semibold text-white">Suivre la préparation du bilan</Link>
       </section>
     );
   }

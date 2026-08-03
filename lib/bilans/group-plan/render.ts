@@ -18,9 +18,8 @@ function nodeBlock(node: GroupNodeSessionSegment): string {
     : node.segmentPosition === 'CONTINUATION'
       ? '<p class="continuation">Suite de la séance précédente.</p>'
       : '';
-  const treatment = node.segmentPosition === 'CONTINUATION'
-    ? ''
-    : `<p><strong>${escapeHtml(node.profile)}</strong> · ${escapeHtml(node.treatment)} · ${escapeHtml(node.totalMinutes)} min au total</p>${divided}`;
+  const total = node.segmentPosition === 'CONTINUATION' ? '' : ` · ${escapeHtml(node.totalMinutes)} min au total`;
+  const treatment = `<p><strong>${escapeHtml(node.profile)}</strong> · ${escapeHtml(node.treatment)}${total}</p>${divided}`;
   return `<article class="node" data-node="${escapeHtml(node.nodeCpsId)}" data-segment="${node.segmentPosition}"><header><span>${escapeHtml(node.segmentMinutes)} min dans cette séance</span><h3>${escapeHtml(node.label)}</h3></header>${continuation}${treatment}<table><thead><tr><th>Élève</th><th>Point de vigilance</th></tr></thead><tbody>${node.studentGuidance.map((student) => `<tr><td>${escapeHtml(student.displayName)}</td><td>${escapeHtml(student.guidance)}</td></tr>`).join('')}</tbody></table></article>`;
 }
 

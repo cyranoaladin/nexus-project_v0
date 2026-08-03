@@ -259,6 +259,7 @@ describe('Public lux-* charte guard', () => {
     'app/admin/directeur/page.tsx',
     'app/assessments/[id]/processing/page.tsx',
     'app/assessments/[id]/result/page.tsx',
+    'app/bilan-gratuit/assessment/[id]/report/page.tsx',
   ];
 
   test('filesystem exhaustivity: every public page.tsx is covered', () => {
