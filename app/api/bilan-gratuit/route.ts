@@ -12,6 +12,10 @@ import { createId } from '@paralleldrive/cuid2';
 import crypto from 'crypto';
 import { NextRequest, NextResponse } from 'next/server';
 import { withParentStudentConsentTransaction } from '@/lib/bilans/parent-student-consent';
+import {
+  buildStudentLoginIdentifier,
+  isStudentLoginIdentifierConflict,
+} from '@/lib/services/student-login-identifier';
 
 export async function POST(request: NextRequest) {
   try {
@@ -105,7 +109,11 @@ export async function POST(request: NextRequest) {
 
         // Créer le compte élève sans accès direct.
         // Email format: prenom.nom.random@nexus-student.local to ensure uniqueness
-        const studentEmailSlug = `${validatedData.studentFirstName.toLowerCase()}.${resolvedStudentLastName.toLowerCase()}.${createId().slice(0, 4)}@nexus-student.local`;
+        const studentEmailSlug = buildStudentLoginIdentifier({
+          firstName: validatedData.studentFirstName,
+          lastName: resolvedStudentLastName,
+          uniqueSuffix: createId().slice(0, 4),
+        });
 
         const studentUser = await tx.user.create({
           data: {
@@ -186,6 +194,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: 'Données invalides', details: error.message },
         { status: 400 }
+      );
+    }
+
+    if (isStudentLoginIdentifierConflict(error)) {
+      return NextResponse.json(
+        { error: 'STUDENT_LOGIN_IDENTIFIER_CONFLICT' },
+        { status: 409 },
       );
     }
 
