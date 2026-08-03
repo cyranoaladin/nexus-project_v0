@@ -4,7 +4,7 @@
 
 **Goal:** Add explicit, idempotent parent consent that turns the legacy parent-child relation into a verified Canonical `ParentStudentLink` without granting access at registration time.
 
-**Architecture:** One domain service owns ownership checks and link transitions. Existing child-creation transactions prepare pending links, a parent-only route and UI perform explicit consent, and a single-record CLI reconciles historical children through the same service. Existing report authorization remains unchanged and is tested against every link state.
+**Architecture:** One domain service owns ownership checks and link transitions. Existing child-creation transactions prepare pending links, a parent-only route and UI perform explicit consent, and a single-record CLI reconciles historical children through the same service. Report authorization is hardened to require both current legacy ownership and a verified Canonical link.
 
 **Tech Stack:** Next.js App Router, TypeScript, Prisma/PostgreSQL, NextAuth, Zod, React, Jest/Testing Library.
 
@@ -18,14 +18,14 @@
 - Create: `lib/bilans/parent-student-consent.ts`
 - Test: `__tests__/bilans/parent-student-consent.test.ts`
 
-- [ ] Write failing tests for legacy ownership, pending creation, active-link idempotence, a revoked historical link, and another parent's child.
+- [ ] Write failing tests for legacy ownership, pending creation, active-link idempotence, a revoked historical link, another parent's child, and two concurrent preparations converging on exactly one active `PENDING_PARENT_CONSENT` link without an uncontrolled error or any `VERIFIED` link.
 - [ ] Run `npm run test -- --runInBand __tests__/bilans/parent-student-consent.test.ts`; expect failure because the module does not exist.
-- [ ] Implement `preparePendingParentStudentLink({ transaction, parentUserId, studentId, now })`. Verify ownership through `ParentProfile.userId` and `Student.parentId`; lock the student row for existing records; revoke active links for former parents; create only `PENDING_PARENT_CONSENT`.
+- [ ] Implement `withParentStudentConsentTransaction(prisma, callback)`. The wrapper opens the interactive Prisma transaction and passes a callback-scoped context whose operations close over the real `TransactionClient`. Implement pending preparation on that context; verify ownership through `ParentProfile.userId` and `Student.parentId`, lock the student row, revoke active links for former parents, and create only `PENDING_PARENT_CONSENT`.
 - [ ] Run the focused test; expect pass.
 - [ ] Add failing tests for `verifyParentStudentConsent`: pending to verified, timestamps, one transaction, repeated-call idempotence, new active link after revoked/expired, no write for another parent, stale parent after reassignment, and revocation winning over a late compare-and-set update.
 - [ ] Run and observe the expected missing-behavior failures.
 - [ ] Implement the minimal transition plus `getParentStudentConsentStatus`, rechecking ownership under `SELECT ... FOR UPDATE` and updating only a still-pending row.
-- [ ] Run all service tests; expect pass.
+- [ ] Replace mocked concurrency with a PostgreSQL integration test using two independent interactive transactions. Run unit and isolated integration tests; expect one active pending link and no verified link.
 - [ ] Commit explicitly:
 
 ```bash
@@ -100,12 +100,12 @@ git commit -m "feat(bilans): endpoint de consentement parental Canonical"
 
 **Files:**
 - Create: `__tests__/integration/bilans-parent-link-report-access.test.ts`
-- Modify: `lib/bilans/api/get-report.ts` only if the test proves a defect.
+- Modify: `lib/bilans/api/get-report.ts` after the expected stale-parent test failure.
 
 - [ ] Seed one published, materialized report and parents representing current-owner verified, current-owner pending, current-owner revoked, unrelated verified, and stale verified after legacy reassignment.
 - [ ] Call the real GET report handler. Expect `200` only when both the verified link and current legacy ownership match; expect `404`, never `403`, otherwise.
-- [ ] Run `npm run test -- --runInBand __tests__/integration/bilans-parent-link-report-access.test.ts`.
-- [ ] If it passes immediately, record it as characterization of the existing guard. If it reveals a defect, start a separate RED/GREEN cycle before editing `get-report.ts`.
+- [ ] Run `npm run test -- --runInBand __tests__/integration/bilans-parent-link-report-access.test.ts`; expect the stale verified former-parent case to fail because the existing guard omits current legacy ownership.
+- [ ] Require simultaneously a current `Student.parentId` ownership match and a current `ParentStudentLink` in `VERIFIED` state. Return `404`, never `403`, for every mismatch; rerun and expect pass.
 - [ ] Run all V1 focused suites together; expect pass and no V1 skip.
 - [ ] Commit the access test explicitly with message `test(bilans): verrouiller l'accès parent par état du lien`.
 
