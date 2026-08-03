@@ -46,11 +46,14 @@ database-level concurrency guard.
 
 ### Domain service
 
-`lib/bilans/parent-student-consent.ts` owns all state changes. It exposes:
+`lib/bilans/parent-student-consent.ts` owns all state changes. Its public wrapper opens the
+interactive Prisma transaction and exposes a callback-scoped context bound to that exact
+`TransactionClient`; callers cannot pass an arbitrary client to lock-sensitive operations.
+The context exposes:
 
-- preparation of an idempotent pending link inside a caller-provided transaction;
+- preparation of an idempotent pending link inside the wrapper-owned transaction;
 - authenticated consent and verification in a transaction;
-- single-record reconciliation after an operator confirms recorded parent consent;
+- single-record pending-link preparation, without asserting or recording consent;
 - status lookup scoped to the authenticated parent.
 
 The service always verifies legacy ownership server-side. It never accepts ownership from
