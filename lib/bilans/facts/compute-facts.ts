@@ -100,9 +100,8 @@ export function computeRawSuccess(item: ScoringItem, raw: ScoringAnswer['rawAnsw
     }
 
     default: {
-      // Exhaustivité garantie à la compilation.
-      const _never: never = key;
-      return _never;
+      const corrupted = key as unknown as { kind?: unknown };
+      throw new TypeError(`Unsupported answer key kind: ${String(corrupted.kind)}`);
     }
   }
 }
@@ -248,7 +247,8 @@ export function score(input: ScoringInput): ScoringOutput {
 
     return {
       nodeCpsId,
-      criticality: criticalityByNode.get(nodeCpsId) ?? DEFAULT_NODE_CRITICALITY,
+      // `grouped` and `criticalityByNode` are built from the same item list.
+      criticality: criticalityByNode.get(nodeCpsId) as number,
       nodeScore,
       profile: computeNodeProfile(mass),
       itemIds: rs.map((r) => r.itemId).sort(),
@@ -266,7 +266,7 @@ export function score(input: ScoringInput): ScoringOutput {
       if (crit !== 0) return crit;
       const sc = a.nodeScore - b.nodeScore;
       if (sc !== 0) return sc;
-      return a.nodeCpsId < b.nodeCpsId ? -1 : a.nodeCpsId > b.nodeCpsId ? 1 : 0;
+      return a.nodeCpsId.localeCompare(b.nodeCpsId);
     })
     .map((n, index) => ({ ...n, priorityRank: index }));
 

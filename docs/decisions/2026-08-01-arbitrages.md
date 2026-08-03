@@ -953,3 +953,55 @@ d'indicateurs sans source.
 
 **Motif.** La séparation entre moteur legacy disciplinaire et socle Canonical neutre doit
 être vérifiée par la CI.
+
+## A103 — Inflation empirique des scores legacy sans diffusion
+
+**Constat.** Le 3 août 2026, le même fixture de réponses donne `algebre` 50 avec le bridge
+legacy contre 28,6 par pondération des faits, `analyse` 25 contre 12,5 et `probabilites`
+25 contre 11,1. La représentation binaire de maîtrise gonflait donc les scores dans des
+proportions majeures. Le contrôle agrégé de production retourne toutefois zéro ligne dans
+`canonical_report_artifacts`, zéro statut `PUBLISHED`, zéro `publishedAt` et zéro révision
+publiée associée.
+
+**Décision.** Conserver ces trois écarts comme justification empirique de A97 et clore le
+dossier de diffusion : aucun bilan n'a été publié par ce chemin.
+
+**Motif.** Une absence de diffusion observée distingue un défaut de modèle corrigé avant
+activation d'un incident ayant affecté des familles.
+
+## A104 — Recette de scoring depuis les réponses brutes
+
+**Constat.** Les recettes A53 commencent à la FactSheet. Leur stabilité après A97 prouve
+le rendu, V1 à V7 et le déterminisme, mais pas la transformation réponses vers scores.
+
+**Décision.** Versionner pour `entree-premiere-maths-v1` une preuve déterministe couvrant
+réponses brutes, `computeFacts`, `computeDomainScores`, FactSheet et trois rendus, avec les
+quatre profils traités et un cas partiel.
+
+**Motif.** Une régression du scoring doit faire diverger un artefact contrôlé en CI.
+
+## A105 — Couverture intégrale des branches du moteur de faits
+
+**Constat.** Onze branches défensives ou de tri restaient non couvertes, soit 75 sur 86.
+
+**Décision.** Couvrir les données corrompues, banques et poids vides, criticité par défaut
+et passation partielle. Le QCM multiple scalaire est récupéré comme une sélection unique ;
+un QCM sans bonne option vaut zéro ; un type de clé inconnu échoue explicitement. Deux
+branches impossibles par construction sont remplacées par leurs invariants : les maps de
+criticité et de regroupement partagent la même source, et le tie-break utilise
+`localeCompare`.
+
+**Motif.** Les garde-fous doivent rester observables sans fabriquer des entrées impossibles
+uniquement pour satisfaire un compteur de couverture.
+
+## A106 — Grille de relecture des rendus de référence
+
+**Constat.** Les six artefacts A95 entrent pour la première fois en relecture pédagogique
+humaine.
+
+**Décision.** Versionner une grille courte portant sur la non-divulgation des chiffres,
+le ton par audience, la formulation des priorités, les CTA, l'absence de nom d'enseignant,
+la lisibilité et la longueur des documents.
+
+**Motif.** La conformité technique ne décide ni de la qualité pédagogique ni du caractère
+raisonnable d'un bilan parents de cinq pages.
