@@ -35,8 +35,16 @@ Aucune clé supplémentaire et aucun texte autour.
 
 ### Bonne formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Violation détectée. Bilan ELEVE, champ priorites, premier élément :
+formulation « tu en étais sûr » interdite.
+
+Violation détectée. Bilan PARENTS, champ cadre : mention d'un projet
+d'orientation et de son coût, hors du champ du positionnement.
+
+Contrôle des domaines : quatre domaines évalués, quatre représentés. »
 
 ### Mauvaise formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Bilan conforme. »
+
+Aucune trace du contrôle effectué.

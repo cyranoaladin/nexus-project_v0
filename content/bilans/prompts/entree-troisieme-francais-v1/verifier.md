@@ -35,8 +35,14 @@ Aucune clé supplémentaire et aucun texte autour.
 
 ### Bonne formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Violation détectée. Bilan PARENTS, champ priorites, premier élément : « ne
+maîtrise pas les accords » formule une priorité comme un manque de l'élève. Le
+prompt impose une formulation en contenu de séance.
+
+Contrôle des domaines : trois domaines évalués, trois représentés. »
 
 ### Mauvaise formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« La formulation pourrait être plus positive. »
+
+Un avis de style, non une vérification.

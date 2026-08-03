@@ -29,8 +29,21 @@ Tu produis uniquement un objet JSON strict conforme au schéma du pack :
 
 ### Bonne formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+Réponse libre : « je programme bien mais les tris et la complexité, je récite
+sans comprendre ».
+
+  synthese       : « L'élève déclare une aisance en programmation et une
+                     maîtrise seulement mémorisée des algorithmes de tri. »
+  forces_percues : ["programmation"]
+  craintes       : ["algorithmes de tri"]
+
+La distinction que l'élève établit entre réciter et comprendre est conservée
+telle quelle : c'est une information précieuse, pas une formule à lisser.
 
 ### Mauvaise formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« L'élève programme bien mais son apprentissage par cœur des tris révèle un
+manque de fond en algorithmique. »
+
+Une déclaration lucide devient un verdict sur le fond, et une compétence
+déclarée est retournée contre l'élève.

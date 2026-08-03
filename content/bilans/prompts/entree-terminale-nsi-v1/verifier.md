@@ -35,8 +35,20 @@ Aucune clé supplémentaire et aucun texte autour.
 
 ### Bonne formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Violation détectée. Bilan PARENTS, champ pointsAppui : le texte porte un
+jugement sur la méthode de travail de l'élève, formulé comme un manque et non
+comme un contenu de séance.
+
+Violation détectée. Bilan PARENTS, champ priorites : énumération d'un contenu
+de stage. Anticipation interdite.
+
+Violation détectée. Bilan ELEVE, champ accroche : contient « 13/18 ». Règle V2.
+
+Contrôle des domaines : tous les domaines évalués sont représentés. »
 
 ### Mauvaise formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Plusieurs problèmes de ton dans le bilan parents. »
+
+Trois violations distinctes sont réduites à une impression de ton, sans
+localisation ni règle citée.

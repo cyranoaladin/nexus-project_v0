@@ -34,8 +34,19 @@ Tu produis uniquement un objet JSON strict conforme au schéma du pack : `accroc
 
 ### Bonne formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+Force : « Tu distingues le narrateur du personnage, même quand le récit est à
+la première personne. »
+
+Priorité : « L'accord du participe passé avec le complément d'objet placé avant
+le verbe. Ce point a l'air acquis mais il ne l'est pas encore, et il est évalué
+directement en dictée et en réécriture. »
+
+Micro-plan : « Réécrire cinq phrases en déplaçant le complément d'objet avant
+le verbe, puis accorder — 15 minutes. »
 
 ### Mauvaise formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Tu as 9/18. Tu es sûr de toi mais tu te trompes sur les accords. Attention au
+brevet. »
+
+Un score, la formulation interdite, une menace.

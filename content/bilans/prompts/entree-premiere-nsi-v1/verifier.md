@@ -35,8 +35,15 @@ Aucune clé supplémentaire et aucun texte autour.
 
 ### Bonne formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Violation détectée. Bilan PARENTS, champ priorites : le texte énumère un
+contenu de stage. Anticipation interdite.
+
+Violation détectée. Bilan ELEVE, champ motDeFin : contient « 11/18 ». Règle V2.
+
+Contrôle des domaines : trois domaines évalués, trois représentés. »
 
 ### Mauvaise formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Le ton est un peu technique pour des parents non informaticiens. »
+
+Une remarque de lisibilité, non une vérification de règle.

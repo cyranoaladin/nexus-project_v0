@@ -33,8 +33,24 @@ Aucune clé supplémentaire et aucun texte autour.
 
 ### Bonne formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Nœud 1re.maths.logique.implication-contraposee en erreur confiante : score
+0,0, confiance 4. Confond contraposée et réciproque — obstacle direct aux
+démonstrations de l'option, priorité 1.
+
+Nœud college.maths.arithmetique.pgcd en lacune consciente : score 25,0,
+confiance 1. Algorithme d'Euclide non disponible, l'élève le sait :
+enseignement direct, pas déconstruction.
+
+Systèmes linéaires et factorisation en maîtrise, score 100,0 : rappel actif,
+vingt minutes chacun.
+
+Indice de calibration 50,0. Quatre des neuf nœuds relèvent du collège : la
+réactivation domine, le rattrapage est secondaire. »
 
 ### Mauvaise formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Élève qui a choisi expertes par ambition plus que par goût. Suivi rapproché
+recommandé. »
+
+Une hypothèse sur les motivations, sans mesure, et une recommandation qui
+n'aide à préparer aucune séance.

@@ -29,8 +29,17 @@ Tu produis uniquement un objet JSON strict conforme au schéma du pack :
 
 ### Bonne formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+Réponse libre : « j'aime la SVT mais je n'arrive pas à rédiger les réponses aux
+documents ».
+
+  synthese       : « L'élève déclare un intérêt pour la discipline et une
+                     difficulté à rédiger l'exploitation de documents. »
+  forces_percues : ["intérêt pour la discipline"]
+  craintes       : ["rédaction de l'exploitation de documents"]
 
 ### Mauvaise formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« L'élève est motivé mais manque de méthode rédactionnelle, ce qui explique ses
+notes moyennes. »
+
+Une méthode est diagnostiquée, des notes sont invoquées sans donnée.

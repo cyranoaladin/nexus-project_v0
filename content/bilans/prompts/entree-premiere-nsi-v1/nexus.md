@@ -33,8 +33,20 @@ Aucune clé supplémentaire et aucun texte autour.
 
 ### Bonne formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Nœud programmation.variables-affectation en erreur confiante : score 0,0,
+confiance 4. Lit le signe égal comme une égalité mathématique — obstacle
+fondateur, priorité absolue.
+
+Nœud programmation.listes en maîtrise fragile : réussite 75,0, confiance 2.
+L'indexation à partir de zéro est connue mais pas automatisée : répétition.
+
+Réseaux en lacune consciente : score 0,0, confiance 1. Cohérent avec le
+déclaratif.
+
+Indice de calibration 44,4. »
 
 ### Mauvaise formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Élève qui bricole. Devra désapprendre avant d'apprendre. »
+
+Un jugement sur la pratique de l'élève, sans mesure et sans action possible.

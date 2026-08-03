@@ -41,8 +41,20 @@ Tu produis uniquement un objet JSON strict conforme au schéma du pack : `cadre`
 
 ### Bonne formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+Point d'appui : « La lecture d'une boucle et le décompte de ses itérations sont
+maîtrisés, y compris sur les bornes. »
+
+Priorité : « Nous reprendrons la notion d'affectation, distincte de l'égalité
+mathématique, qui conditionne la lecture et la mise au point de tout
+programme. »
+
+Cadre : « Ce bilan porte sur les prérequis issus de l'enseignement de sciences
+numériques et technologie, non sur le programme de la spécialité. »
 
 ### Mauvaise formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Votre enfant a des bases autodidactes à corriger. Le stage couvrira Python,
+les réseaux et le Web, et le mettra à niveau pour la spécialité. »
+
+Un jugement sur l'origine des acquis, un programme annoncé, une promesse de
+mise à niveau.

@@ -34,8 +34,21 @@ Tu produis uniquement un objet JSON strict conforme au schéma du pack : `accroc
 
 ### Bonne formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+Force : « Tu manipules un dictionnaire en distinguant clairement ce qui relève
+de la clé et ce qui relève de la valeur. »
+
+Priorité : « Une recherche dichotomique exige un tableau trié : sans cette
+condition, l'algorithme peut renvoyer que l'élément est absent alors qu'il y
+est. Ce point a l'air acquis mais il ne l'est pas encore, et il revient dans
+toute l'étude de la complexité. »
+
+Micro-plan : « Dérouler une recherche dichotomique sur un tableau non trié et
+noter l'étape exacte où le raisonnement se rompt — 15 minutes. »
 
 ### Mauvaise formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Tu as 13/18. Tu récites les tris sans les comprendre et tu ne t'en rends même
+pas compte. La Terminale NSI est exigeante. »
+
+Un score, un reproche formulé à partir de ce que l'élève a lui-même déclaré,
+un pronostic.

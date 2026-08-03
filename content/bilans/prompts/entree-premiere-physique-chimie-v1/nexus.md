@@ -33,8 +33,21 @@ Aucune clé supplémentaire et aucun texte autour.
 
 ### Bonne formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Nœud mecanique.forces-inertie en erreur confiante : score 0,0, confiance 4.
+Conception aristotélicienne du mouvement — obstacle épistémologique le plus
+tenace de la discipline, priorité 1.
+
+Nœud mesure.grandeurs-unites en erreur confiante : score 50,0. Chiffres
+significatifs non maîtrisés : fausse des réponses dont le raisonnement est
+juste.
+
+Mole et concentration en maîtrise, score 100,0 : cohérent avec le déclaratif,
+temps rendu.
+
+Indice de calibration 38,9. Drapeau ERREURS_CONFIANTES_MULTIPLES. »
 
 ### Mauvaise formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Profil de chimiste, pas de physicien. À orienter en conséquence. »
+
+Une catégorisation d'aptitude, hors du champ d'un positionnement d'entrée.

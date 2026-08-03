@@ -29,8 +29,17 @@ Tu produis uniquement un objet JSON strict conforme au schéma du pack :
 
 ### Bonne formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+Réponse libre : « l'oral du bac de français me fait peur, je n'arrive pas à
+analyser un texte ».
+
+  synthese       : « L'élève exprime une appréhension de l'épreuve orale
+                     anticipée et déclare une difficulté à analyser un texte. »
+  forces_percues : []
+  craintes       : ["oral des épreuves anticipées", "analyse de texte"]
 
 ### Mauvaise formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« L'élève ne sait pas analyser un texte, ce qui compromet ses chances à l'oral
+des épreuves anticipées. »
+
+Une difficulté déclarée devient un constat établi, puis un pronostic d'examen.

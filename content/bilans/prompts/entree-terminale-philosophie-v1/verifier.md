@@ -35,8 +35,16 @@ Aucune clé supplémentaire et aucun texte autour.
 
 ### Bonne formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Violation détectée. Bilan PARENTS, champ pointsAppui : le texte attribue un
+niveau en philosophie. Cette banque n'évalue aucune notion de la discipline.
+
+Violation détectée. Bilan ELEVE, champ accroche : contient « 11/18 ». Règle V2.
+
+Contrôle des domaines : trois domaines évalués, trois représentés. »
 
 ### Mauvaise formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Attention, le bilan parle de philosophie alors que ce n'est pas testé. »
+
+Le constat est juste mais ni localisé par champ, ni rattaché à une règle, et
+la seconde violation n'est pas relevée.

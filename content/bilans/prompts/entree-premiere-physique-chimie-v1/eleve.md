@@ -34,8 +34,20 @@ Tu produis uniquement un objet JSON strict conforme au schéma du pack : `accroc
 
 ### Bonne formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+Force : « Tu passes d'une masse à une quantité de matière sans hésiter sur le
+sens de la division. »
+
+Priorité : « Un objet qui avance à vitesse constante en ligne droite n'est pas
+poussé par une force : les forces qui s'exercent sur lui se compensent. Ce
+point a l'air acquis mais il ne l'est pas encore, et il bloque toute la
+mécanique. »
+
+Micro-plan : « Faire le bilan des forces sur trois objets en mouvement
+rectiligne uniforme, sans en ajouter aucune vers l'avant — 15 minutes. »
 
 ### Mauvaise formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Tu as 9/18, surtout en mécanique. Tu croyais qu'une force pousse un objet et
+tu en étais certain. Il va falloir tout reprendre. »
+
+Un score, une répartition chiffrée, la formulation interdite, une exagération.

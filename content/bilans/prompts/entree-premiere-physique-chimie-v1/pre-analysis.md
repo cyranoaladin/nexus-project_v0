@@ -29,8 +29,17 @@ Tu produis uniquement un objet JSON strict conforme au schéma du pack :
 
 ### Bonne formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+Réponse libre : « la chimie ça va, mais la mécanique je n'ai jamais compris ».
+
+  synthese       : « L'élève se déclare à l'aise en chimie et en difficulté en
+                     mécanique. »
+  forces_percues : ["chimie"]
+  craintes       : ["mécanique"]
 
 ### Mauvaise formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« L'élève est meilleur en chimie qu'en mécanique, ce que confirment ses
+résultats. »
+
+Une hiérarchie déclarée devient un constat, et des résultats sont invoqués
+alors que la pré-analyse n'y a pas accès.

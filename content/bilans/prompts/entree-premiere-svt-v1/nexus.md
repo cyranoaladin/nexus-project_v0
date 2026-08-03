@@ -33,8 +33,21 @@ Aucune clé supplémentaire et aucun texte autour.
 
 ### Bonne formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Nœud genetique.adn-gene-information en erreur confiante : score 0,0,
+confiance 4. L'élève soutient qu'une cellule de foie et une cellule de peau
+portent un ADN différent — obstacle au thème 1 entier.
+
+Nœud evolution.mecanismes en erreur confiante : score 33,3. Conception
+lamarckienne persistante sur les caractères acquis.
+
+Démarche et exploitation de données en maîtrise fragile : réussite 75,0,
+confiance 2. Automatisation, pas ré-explication.
+
+Indice de calibration 38,9. Drapeau ERREURS_CONFIANTES_MULTIPLES. »
 
 ### Mauvaise formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Élève qui apprend par cœur sans comprendre. Typique des profils
+scientifiques faibles. »
+
+Un jugement, une catégorisation, aucune mesure.

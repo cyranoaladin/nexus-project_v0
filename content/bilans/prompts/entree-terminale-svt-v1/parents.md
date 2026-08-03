@@ -41,8 +41,18 @@ Tu produis uniquement un objet JSON strict conforme au schéma du pack : `cadre`
 
 ### Bonne formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+Point d'appui : « Les mécanismes de l'expression du génome sont maîtrisés, avec
+une localisation correcte de chaque étape. »
+
+Priorité : « Nous reprendrons le caractère aléatoire des mutations,
+représentation dont dépend tout le raisonnement sur l'évolution, puis la
+distinction mécanique entre lithosphère et asthénosphère. »
+
+Étape suivante : « Être conseillé »
 
 ### Mauvaise formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Votre enfant néglige la géologie et vise médecine : ce déséquilibre lui
+coûtera cher. Notre stage rééquilibrera son niveau. »
+
+Un jugement de comportement, un pronostic, une promesse de rééquilibrage.

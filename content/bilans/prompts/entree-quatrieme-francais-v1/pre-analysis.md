@@ -29,8 +29,16 @@ Tu produis uniquement un objet JSON strict conforme au schéma du pack :
 
 ### Bonne formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+Réponse libre : « je fais beaucoup de fautes mais j'aime bien lire ».
+
+  synthese       : « L'élève déclare des difficultés orthographiques et un goût
+                     affirmé pour la lecture. »
+  forces_percues : ["lecture"]
+  craintes       : ["orthographe"]
 
 ### Mauvaise formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« L'élève aime lire, ce qui devrait compenser ses lacunes en orthographe. »
+
+Une compensation est supposée entre deux compétences distinctes. La
+pré-analyse rapporte, elle ne pronostique pas.

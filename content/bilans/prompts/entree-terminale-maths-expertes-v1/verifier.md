@@ -35,8 +35,17 @@ Aucune clé supplémentaire et aucun texte autour.
 
 ### Bonne formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Violation détectée. Bilan PARENTS, champ cadre : le texte met en doute la
+poursuite de l'option, ce qui constitue un avis d'orientation hors du champ du
+positionnement.
+
+Violation détectée. Bilan ELEVE, champ accroche : contient « 12/18 ». Règle V2.
+
+Contrôle des domaines : les domaines évalués sont tous représentés dans les
+sorties ELEVE et PARENTS. »
 
 ### Mauvaise formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Le bilan est correct pour un élève de ce niveau d'exigence. »
+
+Le vérificateur ne module pas son contrôle selon le niveau supposé de l'élève.

@@ -41,8 +41,21 @@ Tu produis uniquement un objet JSON strict conforme au schéma du pack : `cadre`
 
 ### Bonne formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+Cadre : « Ce positionnement n'évalue aucune notion de philosophie, discipline
+que votre enfant n'a pas encore étudiée. Il porte sur les compétences
+d'analyse et d'argumentation acquises en français, qui conditionnent l'entrée
+dans la discipline. »
+
+Point d'appui : « La distinction entre thèse, argument et exemple est en
+place, y compris sur un texte court non préparé. »
+
+Priorité : « Nous travaillerons la distinction entre validité d'un raisonnement
+et vérité de sa conclusion, préalable à toute discussion de texte. »
 
 ### Mauvaise formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Votre enfant a un niveau faible en philosophie, ce qui est préoccupant à
+l'entrée en Terminale. Notre stage lui donnera les bases qui lui manquent. »
+
+Un niveau est attribué dans une discipline jamais étudiée, un ressort
+anxiogène, une promesse.

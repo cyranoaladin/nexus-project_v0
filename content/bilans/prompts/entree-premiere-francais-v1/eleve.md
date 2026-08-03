@@ -34,8 +34,19 @@ Tu produis uniquement un objet JSON strict conforme au schéma du pack : `accroc
 
 ### Bonne formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+Force : « Tu nommes précisément une figure de style et tu distingues métaphore
+et métonymie sans les confondre. »
+
+Priorité : « Passer du relevé à l'interprétation. Relever un procédé sans dire
+ce qu'il produit reste un catalogue, pas un commentaire — c'est ce qui fait la
+différence à l'écrit comme à l'oral. »
+
+Micro-plan : « Reprendre trois procédés relevés dans un texte et écrire, pour
+chacun, une phrase disant l'effet produit — 20 minutes. »
 
 ### Mauvaise formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Tu as la moitié des points. Tu crois analyser mais tu ne fais que relever.
+L'oral risque d'être compliqué. »
+
+Un score, la formulation interdite, un pronostic.

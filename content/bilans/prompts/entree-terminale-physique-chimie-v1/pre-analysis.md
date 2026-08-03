@@ -29,8 +29,16 @@ Tu produis uniquement un objet JSON strict conforme au schéma du pack :
 
 ### Bonne formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+Réponse libre : « les exercices de chimie organique me bloquent toujours ».
+
+  synthese       : « L'élève identifie la chimie organique comme un point de
+                     blocage récurrent. »
+  forces_percues : []
+  craintes       : ["chimie organique"]
 
 ### Mauvaise formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« L'élève bloque en chimie organique, probablement par manque d'apprentissage
+des groupes caractéristiques. »
+
+Une cause est attribuée à un blocage que l'élève n'a pas expliqué.

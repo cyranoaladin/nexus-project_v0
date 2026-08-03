@@ -34,8 +34,20 @@ Tu produis uniquement un objet JSON strict conforme au schéma du pack : `accroc
 
 ### Bonne formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+Force : « Tu suis l'exécution d'une boucle et tu sais combien de fois son corps
+s'exécute, sans te tromper sur les bornes. »
+
+Priorité : « L'affectation n'est pas une égalité mathématique : dans x = x + 1,
+on calcule d'abord la valeur de droite, puis on la range dans x. Ce point a
+l'air acquis mais il ne l'est pas encore, et il bloque toute lecture de
+programme. »
+
+Micro-plan : « Dérouler à la main un programme de six lignes en notant la
+valeur de chaque variable après chaque instruction — 15 minutes. »
 
 ### Mauvaise formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Tu as 11/18. Tu confonds l'affectation et l'égalité, alors que tu codes déjà.
+Ça va poser problème toute l'année. »
+
+Un score, un reproche implicite, un pronostic.

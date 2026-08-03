@@ -33,8 +33,18 @@ Aucune clé supplémentaire et aucun texte autour.
 
 ### Bonne formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Nœud proportionnalite.grandeurs-composees en erreur confiante : score 0,0,
+confiance 4. L'élève convertit une heure trente en 1,30 sans hésiter.
+
+Pythagore en maîtrise, score 100,0, y compris la réciproque : temps rendu.
+Triangles semblables en lacune consciente, score 25,0, confiance 1 :
+enseignement direct nécessaire, l'élève sait qu'il ne sait pas.
+
+Indice de calibration 55,6. »
 
 ### Mauvaise formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Niveau brevet non atteint. Redoublement à envisager. »
+
+Un pronostic d'orientation qu'un positionnement de dix-huit items ne peut pas
+fonder.
