@@ -2,7 +2,11 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 import { PREMIERE_ENTRY_RECIPE_FACT_SHEETS } from '@/__tests__/bilans/fixtures/recipe-fact-sheets';
-import { normalizePdfForComparison, renderDeterministicBilanPdf } from '@/lib/bilans/render/pdf';
+import {
+  createBilanPdfRendererSession,
+  normalizePdfForComparison,
+  renderDeterministicBilanPdf,
+} from '@/lib/bilans/render/pdf';
 import type { RenderIdentity } from '@/lib/bilans/render/render-identity';
 import { buildPreRentreeStageLabel } from '@/lib/bilans/render/stage-label';
 import type { ReportAudience } from '@/lib/bilans/render/profile-copy';
@@ -22,15 +26,25 @@ const IDENTITY: RenderIdentity = Object.freeze({
 export async function buildRenderedExampleArtifacts(): Promise<ReadonlyMap<string, Buffer>> {
   const factSheet = PREMIERE_ENTRY_RECIPE_FACT_SHEETS[0];
   const artifacts = new Map<string, Buffer>();
+  const session = await createBilanPdfRendererSession();
 
-  for (const audience of AUDIENCES) {
-    const rendered = await renderDeterministicBilanPdf(factSheet, audience, IDENTITY);
-    if (rendered.status !== 'AVAILABLE') {
-      throw new Error(`A95_PDF_UNAVAILABLE:${audience}:${rendered.errorCode}`);
+  try {
+    for (const audience of AUDIENCES) {
+      const rendered = await renderDeterministicBilanPdf(
+        factSheet,
+        audience,
+        IDENTITY,
+        { renderHtmlToPdf: session.renderHtmlToPdf },
+      );
+      if (rendered.status !== 'AVAILABLE') {
+        throw new Error(`A95_PDF_UNAVAILABLE:${audience}:${rendered.errorCode}`);
+      }
+      const basename = `${SLUG}-${audience.toLowerCase()}`;
+      artifacts.set(`${basename}.html`, Buffer.from(rendered.html, 'utf8'));
+      artifacts.set(`${basename}.pdf`, normalizePdfForComparison(rendered.pdf));
     }
-    const basename = `${SLUG}-${audience.toLowerCase()}`;
-    artifacts.set(`${basename}.html`, Buffer.from(rendered.html, 'utf8'));
-    artifacts.set(`${basename}.pdf`, normalizePdfForComparison(rendered.pdf));
+  } finally {
+    await session.close();
   }
 
   return artifacts;
