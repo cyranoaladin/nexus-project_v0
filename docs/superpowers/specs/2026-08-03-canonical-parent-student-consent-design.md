@@ -32,8 +32,11 @@ Use a parent-authenticated consent surface rather than a staff-only shortcut.
 6. A different parent, or a user with another role, learns nothing about the child and
    receives `404`.
 7. A single-record reconciliation command supports existing legacy children. It requires
-   an explicit student id, parent email and literal confirmation. It never scans or
-   updates a cohort.
+   an explicit student id and parent email. It only prepares a pending record; the parent
+   must still verify it through the authenticated surface. It never scans or updates a
+   cohort.
+8. Report access requires both a current `VERIFIED` Canonical link and the current legacy
+   ownership relation. A stale verified link can never outlive a legacy reassignment.
 
 No schema migration is required. The existing partial unique index on
 `(parentUserId, studentId)` for states `PENDING_PARENT_CONSENT` and `VERIFIED` remains the
@@ -51,7 +54,9 @@ database-level concurrency guard.
 - status lookup scoped to the authenticated parent.
 
 The service always verifies legacy ownership server-side. It never accepts ownership from
-the request body and never matches by student or parent name.
+the request body and never matches by student or parent name. Consent transactions lock
+the student row with `SELECT ... FOR UPDATE`, revoke active links belonging to another
+parent, and use a compare-and-set update restricted to `PENDING_PARENT_CONSENT`.
 
 ### Authenticated route
 
@@ -62,6 +67,9 @@ the request body and never matches by student or parent name.
 
 The route returns `404` for unauthenticated users, non-parent roles, missing legacy
 ownership and another parent's child. It returns no PII.
+
+The POST also applies the repository CSRF/same-origin guard before parsing the consent.
+An authenticated cross-origin request cannot create or verify a link.
 
 ### Parent surface
 
@@ -77,20 +85,26 @@ link in their existing child-creation transaction. This grants no report access.
 ### Reconciliation command
 
 `scripts/bilans/reconcile-parent-student-link.ts` accepts exactly one student id and one
-parent email. It requires the literal confirmation
-`CONSENTEMENT_PARENT_EXPLICITE_RECU`. It verifies the legacy relation before calling the
-same service and logs only technical identifiers and the resulting state.
+parent email. It requires the literal confirmation `PREPARER_CONSENTEMENT_PARENT`. It
+verifies the legacy relation before calling the same service, creates only
+`PENDING_PARENT_CONSENT`, and logs only technical identifiers and the resulting state. The
+script never claims to record consent and never grants report access.
 
 ## Failure handling
 
 - Invalid or absent consent: `400`, no write.
 - Resource not owned by the parent: `404`, no existence disclosure.
-- Existing `VERIFIED` link: success with no additional write.
+- Existing `VERIFIED` link for the current legacy parent: success with no additional write
+  and unchanged timestamps.
 - Existing `PENDING_PARENT_CONSENT` link: transition it in place.
 - Existing `REVOKED` or `EXPIRED` link: create a new pending record, then verify it only
   for the explicit consent request.
-- Concurrent creation: the database partial unique index arbitrates; the service rereads
-  the active record and returns it.
+- Active links for a former parent: revoke them while holding the student row lock.
+- Concurrent creation: the student row lock serializes the read/insert sequence; the
+  partial unique index remains a final database invariant.
+- Concurrent consent and revocation: verification uses `updateMany` constrained to
+  `state = PENDING_PARENT_CONSENT`. A zero-row update triggers a reread and never overwrites
+  `REVOKED` or `EXPIRED`.
 - Database failure: transaction rollback, no partial state.
 
 ## Tests
@@ -100,11 +114,16 @@ Tests must demonstrate:
 - child creation creates `PENDING_PARENT_CONSENT`, never `VERIFIED`;
 - consent requires the authenticated parent and a literal boolean `true`;
 - a repeated consent is idempotent;
-- another parent receives `404`;
+- another parent receives `404` from both the consent endpoint and `GET /report`;
+- a stale verified parent receives `404` after legacy reassignment;
+- a cross-origin POST is refused without writing;
+- concurrent preparations produce one active link;
+- concurrent revocation wins over a late verification;
 - `PENDING_PARENT_CONSENT` grants no parent report access;
 - `REVOKED` grants no parent report access;
 - `VERIFIED` grants the owning parent report access;
-- reconciliation handles one explicit record and refuses missing confirmation;
+- reconciliation handles one explicit record, creates only `PENDING_PARENT_CONSENT`, and
+  refuses missing confirmation;
 - no source uses email matching to infer the child relation.
 
 ## Non-goals
