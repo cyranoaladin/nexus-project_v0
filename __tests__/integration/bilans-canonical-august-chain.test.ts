@@ -16,6 +16,10 @@ import {
   type RunnerFetch,
 } from '@/lib/bilans/passation/runner-protocol';
 import { validateAndPublishPendingReport } from '@/lib/bilans/staff/review-service';
+import { previewPendingReport } from '@/lib/bilans/staff/review-service';
+import { publishReportRevision } from '@/lib/bilans/core/report-service';
+import { renderDeterministicBilanHtml } from '@/lib/bilans/render/html';
+import { BILAN_PDF_ENGINE_VERSION } from '@/lib/bilans/render/pdf';
 import { drainScoreAttemptJobs } from '@/lib/bilans/worker/drain-outbox';
 import { processScoreAttemptJob } from '@/lib/bilans/worker/score-job';
 import {
@@ -25,6 +29,12 @@ import {
 
 const PREFIX = `a87-chain-${Date.now()}-`;
 const NOW = new Date('2026-08-17T08:00:00.000Z');
+const renderAudience = async (...args: Parameters<typeof renderDeterministicBilanHtml>) => ({
+  status: 'AVAILABLE' as const,
+  html: renderDeterministicBilanHtml(...args),
+  pdf: Buffer.from(`%PDF-1.4 ${args[1]}`),
+  engineVersion: BILAN_PDF_ENGINE_VERSION,
+});
 
 function session(userId: string, role: 'ELEVE' | 'PARENT' | 'COACH'): Session {
   return {
@@ -147,12 +157,23 @@ describe('August Canonical bilan chain', () => {
       where: { reportArtifact: { assessmentAttemptId: created.attemptId } },
     });
     expect(pending.status).toBe('PENDING_REVIEW');
+    await expect(previewPendingReport({
+      userId: coachUserId,
+      role: 'COACH',
+      revisionId: pending.id,
+    }, { resolvePack } as never)).resolves.toMatchObject({ official: false });
+    expect(await prisma.reportMaterialization.count({ where: { revisionId: pending.id } })).toBe(0);
     await validateAndPublishPendingReport({
       userId: coachUserId,
       role: 'COACH',
       revisionId: pending.id,
       motif: 'Relecture pédagogique E2E complète.',
-    }, { resolvePack } as never);
+    }, {
+      resolvePack,
+      publish: (input: Readonly<{ revisionId: string; coachId: string; publishedAt: Date }>) => (
+        publishReportRevision({ prisma, ...input, renderAudience })
+      ),
+    } as never);
     expect((await prisma.canonicalAssessmentAttempt.findUniqueOrThrow({ where: { id: created.attemptId } })).status)
       .toBe('PUBLISHED');
 
@@ -168,7 +189,7 @@ describe('August Canonical bilan chain', () => {
         { params: Promise.resolve({ id: created.attemptId }) },
       );
       expect(response.status).toBe(200);
-      return response.json() as Promise<{ audience: string; report: unknown }>;
+      return response.text();
     }
 
     const [studentReport, parentReport, nexusReport] = await Promise.all([
@@ -176,12 +197,10 @@ describe('August Canonical bilan chain', () => {
       reportFor(session(parentUserId, 'PARENT')),
       reportFor(session(coachUserId, 'COACH')),
     ]);
-    expect(studentReport.audience).toBe('ELEVE');
-    expect(parentReport.audience).toBe('PARENTS');
-    expect(nexusReport.audience).toBe('NEXUS');
-    expect(JSON.stringify(studentReport.report)).not.toContain('internalFacts');
-    expect(JSON.stringify(parentReport.report)).not.toContain('internalFacts');
-    expect(JSON.stringify(nexusReport.report)).toContain('internalFacts');
+    expect(studentReport).not.toMatch(/internalFacts|globalScore|calibrationIndex/);
+    expect(parentReport).not.toMatch(/internalFacts|globalScore|calibrationIndex/);
+    expect(nexusReport).toContain('Score global');
+    expect(await prisma.reportMaterialization.count({ where: { revisionId: pending.id } })).toBe(1);
     expect(externalFetch).not.toHaveBeenCalled();
   });
 });

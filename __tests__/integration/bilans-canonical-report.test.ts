@@ -3,6 +3,11 @@ jest.unmock('@/lib/prisma');
 import { NextRequest } from 'next/server';
 
 import { prisma } from '@/lib/prisma';
+import {
+  audienceArtifactChecksum,
+  materializationGlobalChecksum,
+} from '@/lib/bilans/core/report-materialization';
+import { BILAN_PRINT_BRAND_VERSION } from '@/lib/bilans/render/brand';
 
 const TEST_PREFIX = `a85-report-${Date.now()}-`;
 const NOW = new Date('2026-08-02T12:00:00.000Z');
@@ -13,9 +18,10 @@ const PACK = {
 
 type TestRole = 'ADMIN' | 'ASSISTANTE' | 'COACH' | 'PARENT' | 'ELEVE';
 
-function request(attemptId: string, audience?: string): NextRequest {
+function request(attemptId: string, audience?: string, format?: 'html' | 'pdf'): NextRequest {
   const url = new URL(`http://localhost/api/bilans/attempts/${attemptId}/report`);
   if (audience !== undefined) url.searchParams.set('audience', audience);
+  if (format !== undefined) url.searchParams.set('format', format);
   return new NextRequest(url);
 }
 
@@ -65,6 +71,7 @@ describe('GET /api/bilans/attempts/[id]/report — PostgreSQL réel isolé', () 
   let publishedAttemptId: string;
   let failedAttemptId: string;
   let unsafeAttemptId: string;
+  let unavailableAttemptId: string;
 
   async function createAttempt(studentId: string, suffix: string) {
     return prisma.canonicalAssessmentAttempt.create({
@@ -95,6 +102,7 @@ describe('GET /api/bilans/attempts/[id]/report — PostgreSQL réel isolé', () 
     coachId: string,
     suffix: string,
     content: object,
+    pdfAvailable = true,
   ) {
     const attempt = await createAttempt(studentId, suffix);
     const score = await prisma.scoreSnapshot.create({
@@ -136,6 +144,32 @@ describe('GET /api/bilans/attempts/[id]/report — PostgreSQL réel isolé', () 
     await prisma.reportRevision.update({
       where: { id: revision.id },
       data: { status: 'COACH_VALIDATED' },
+    });
+    const audienceArtifacts = (['ELEVE', 'PARENTS', 'NEXUS'] as const).map((audience) => {
+      const html = `<html><body>${JSON.stringify((content as Record<string, unknown>)[audience])}</body></html>`;
+      const pdf = pdfAvailable ? Buffer.from(`%PDF-1.4 ${audience}`) : null;
+      const pdfStatus = pdfAvailable ? 'READY' as const : 'UNAVAILABLE' as const;
+      return {
+        audience,
+        html,
+        pdf,
+        pdfStatus,
+        checksum: audienceArtifactChecksum({ audience, html, pdf, pdfStatus }),
+      };
+    });
+    await prisma.reportMaterialization.create({
+      data: {
+        revisionId: revision.id,
+        brandVersion: BILAN_PRINT_BRAND_VERSION,
+        globalChecksum: materializationGlobalChecksum(BILAN_PRINT_BRAND_VERSION, audienceArtifacts),
+        materializedAt: NOW,
+        audienceArtifacts: {
+          create: audienceArtifacts.map((entry) => ({
+            ...entry,
+            pdf: entry.pdf === null ? null : Uint8Array.from(entry.pdf),
+          })),
+        },
+      },
     });
     await prisma.reportArtifact.update({
       where: { id: artifact.id },
@@ -208,6 +242,13 @@ describe('GET /api/bilans/attempts/[id]/report — PostgreSQL réel isolé', () 
     assistanteUserId = assistante.id;
 
     publishedAttemptId = await seedPublishedReport(student.id, assignedCoach.id, 'published', reportBundle);
+    unavailableAttemptId = await seedPublishedReport(
+      student.id,
+      assignedCoach.id,
+      'pdf-unavailable',
+      reportBundle,
+      false,
+    );
     unsafeAttemptId = await seedPublishedReport(student.id, assignedCoach.id, 'unsafe', {
       ...reportBundle,
       PARENTS: {
@@ -284,12 +325,12 @@ describe('GET /api/bilans/attempts/[id]/report — PostgreSQL réel isolé', () 
       request(publishedAttemptId, 'NEXUS'),
       context(publishedAttemptId),
     );
-    const body = await response.json();
+    const body = await response.text();
 
     expect(response.status).toBe(200);
-    expect(body.audience).toBe('ELEVE');
-    expect(body.report).toEqual(reportBundle.ELEVE);
-    expect(JSON.stringify(body)).not.toMatch(/internalFacts|globalScore|domainScores/);
+    expect(response.headers.get('content-type')).toContain('text/html');
+    expect(body).toContain('Priorité qualitative élève.');
+    expect(body).not.toMatch(/internalFacts|globalScore|domainScores/);
   });
 
   test('returns PARENTS only through a current verified ParentStudentLink', async () => {
@@ -299,7 +340,7 @@ describe('GET /api/bilans/attempts/[id]/report — PostgreSQL réel isolé', () 
     );
 
     expect(response.status).toBe(200);
-    expect(await response.json()).toMatchObject({ audience: 'PARENTS', report: reportBundle.PARENTS });
+    expect(await response.text()).toContain('Priorité qualitative parents.');
   });
 
   test('does not reuse the legacy Student.parent relation as a parent fallback', async () => {
@@ -321,9 +362,33 @@ describe('GET /api/bilans/attempts/[id]/report — PostgreSQL réel isolé', () 
     );
 
     expect(coachResponse.status).toBe(200);
-    expect(await coachResponse.json()).toMatchObject({ audience: 'NEXUS', report: reportBundle.NEXUS });
+    expect(await coachResponse.text()).toContain('Priorité interne.');
     expect(adminResponse.status).toBe(200);
-    expect(await adminResponse.json()).toMatchObject({ audience: 'NEXUS', report: reportBundle.NEXUS });
+    expect(await adminResponse.text()).toContain('Priorité interne.');
+  });
+
+  test('serves the stored PDF through the renderer-free read path', async () => {
+    const response = await handlerFor(studentUserId, 'ELEVE')(
+      request(publishedAttemptId, undefined, 'pdf'),
+      context(publishedAttemptId),
+    );
+    expect(response.status).toBe(200);
+    expect(Buffer.from(await response.arrayBuffer()).subarray(0, 4).toString()).toBe('%PDF');
+  });
+
+  test('serves HTML but reports PDF unavailability explicitly', async () => {
+    const html = await handlerFor(studentUserId, 'ELEVE')(
+      request(unavailableAttemptId, undefined, 'html'),
+      context(unavailableAttemptId),
+    );
+    const pdf = await handlerFor(studentUserId, 'ELEVE')(
+      request(unavailableAttemptId, undefined, 'pdf'),
+      context(unavailableAttemptId),
+    );
+    expect(html.status).toBe(200);
+    expect(await html.text()).toContain('Priorité qualitative élève.');
+    expect(pdf.status).toBe(409);
+    expect(await pdf.json()).toEqual({ error: { code: 'REPORT_PDF_UNAVAILABLE' } });
   });
 
   test.each([
