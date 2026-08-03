@@ -87,7 +87,13 @@ describe('banque de positionnement entrée en Seconde', () => {
     expect(one.status).toBe(0);
     expect(two.status).toBe(0);
     expect(fs.readFileSync(first)).toEqual(fs.readFileSync(second));
-    expect(fs.readFileSync(first)).toEqual(fs.readFileSync(path.join(ROOT, TRACKED)));
+    const unsignedGenerated = JSON.parse(fs.readFileSync(first, 'utf8'));
+    const signedTracked = JSON.parse(fs.readFileSync(path.join(ROOT, TRACKED), 'utf8'));
+    expect(unsignedGenerated).toEqual({
+      ...signedTracked,
+      status: 'DRAFT',
+      review: { validatedBy: null, validatedAt: null },
+    });
 
     const pack = loadBilanPack(path.relative(ROOT, first));
     expect(pack.slug).toBe('entree-seconde-maths-v1');

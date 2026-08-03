@@ -781,23 +781,23 @@
     "promptFiles": {
       "preAnalysis": {
         "path": "content/bilans/prompts/entree-seconde-francais-v1/pre-analysis.md",
-        "checksum": "9abab66b7bd4b46c9b93bbe371679281c78296aa6a85de0527ac67a158328ec3"
+        "checksum": "c2859863bd5eec26ac148e718b33b7f84dcfda183098c073e40a3b96b9605f66"
       },
       "eleve": {
         "path": "content/bilans/prompts/entree-seconde-francais-v1/eleve.md",
-        "checksum": "5d598c317c15d7593d1bcbcfdd79910eb5a079301bd146aff60dcb3014f8d3b0"
+        "checksum": "aecd661c0691d73e781b184ae27c1a0f1c295b30f37fcdd5d94979957dd601f7"
       },
       "parents": {
         "path": "content/bilans/prompts/entree-seconde-francais-v1/parents.md",
-        "checksum": "400a2194ca2be5f17e0c405500c5fcd599d48e13e8921c2e8326e13e11bae972"
+        "checksum": "51066c975bad149eb0bd3f6be3b6026f5ed19461ec1b4f61bec52ed7e1f915ba"
       },
       "nexus": {
         "path": "content/bilans/prompts/entree-seconde-francais-v1/nexus.md",
-        "checksum": "98ecc878a8711036e5849fe2f6793b7db475bcc9224b7f2864949dc678ff1468"
+        "checksum": "3610f439b2514fade1cb6a2c1428d9f6efdf794ca727c4ac62536cb8a60cca53"
       },
       "verifier": {
         "path": "content/bilans/prompts/entree-seconde-francais-v1/verifier.md",
-        "checksum": "fd6c0c7c64aa3320686aa15015da6609d4f5ab7cf6c9293c6afa8de83fe2b88b"
+        "checksum": "f4663669c171e292c7299bbdc4670e6aa43c218fdcac5b0ac1fdd57838269e8c"
       }
     },
     "outputSchemas": {

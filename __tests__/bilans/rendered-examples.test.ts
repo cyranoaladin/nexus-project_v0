@@ -2,11 +2,13 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 import { buildRenderedExampleArtifacts } from '@/scripts/bilans/generate-rendered-examples';
+import { assertVersionedPdfChromium } from './helpers/pdf-engine';
 
 describe('A95 versioned Canonical rendered examples', () => {
   jest.setTimeout(90_000);
 
   it('matches the six committed HTML/PDF artifacts byte-for-byte', async () => {
+    assertVersionedPdfChromium();
     const artifacts = await buildRenderedExampleArtifacts();
     expect([...artifacts.keys()].sort()).toEqual([
       'entree-premiere-maths-v1-eleve.html',

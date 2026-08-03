@@ -29,6 +29,42 @@ function req(body: object) {
   });
 }
 
+function mockChildCreationTransaction({
+  userCreate,
+  studentCreate,
+  studentId,
+}: {
+  userCreate: jest.Mock;
+  studentCreate: jest.Mock;
+  studentId: string;
+}) {
+  const parentStudentLinkCreate = jest.fn().mockResolvedValue({
+    id: `link-${studentId}`,
+    state: 'PENDING_PARENT_CONSENT',
+    consentedAt: null,
+    verifiedAt: null,
+  });
+
+  (prisma.$transaction as jest.Mock).mockImplementation(async (callback: any) => callback({
+    user: { create: userCreate },
+    student: { create: studentCreate },
+    parentProfile: {
+      findUnique: jest.fn().mockResolvedValue({ id: 'parent-profile-1' }),
+    },
+    parentStudentLink: {
+      updateMany: jest.fn().mockResolvedValue({ count: 0 }),
+      findFirst: jest.fn().mockResolvedValue(null),
+      create: parentStudentLinkCreate,
+    },
+    $queryRaw: jest.fn().mockResolvedValue([{
+      id: studentId,
+      parentId: 'parent-profile-1',
+    }]),
+  }));
+
+  return { parentStudentLinkCreate };
+}
+
 describe('POST /api/parent/children — P0-03 hardening', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -57,13 +93,10 @@ describe('POST /api/parent/children — P0-03 hardening', () => {
       },
     });
 
-    (prisma.$transaction as jest.Mock).mockImplementation(async (callback: any) => {
-      const tx = {
-        user: { create: userCreate },
-        parentProfile: { create: jest.fn().mockResolvedValue({ id: 'parent-profile-1' }) },
-        student: { create: studentCreate },
-      };
-      return callback(tx);
+    const { parentStudentLinkCreate } = mockChildCreationTransaction({
+      userCreate,
+      studentCreate,
+      studentId: 'student-profile-123',
     });
 
     const response = await createChild(req({
@@ -98,6 +131,13 @@ describe('POST /api/parent/children — P0-03 hardening', () => {
         academicTrack: expect.any(String),
       }),
     }));
+    expect(parentStudentLinkCreate).toHaveBeenCalledWith(expect.objectContaining({
+      data: expect.objectContaining({
+        parentUserId: 'parent-1',
+        studentId: 'student-profile-123',
+        state: 'PENDING_PARENT_CONSENT',
+      }),
+    }));
   });
 
   it('stores a SHA-256 hash in DB, not the raw token', async () => {
@@ -115,9 +155,11 @@ describe('POST /api/parent/children — P0-03 hardening', () => {
       school: '',
       user: { firstName: 'Alice', lastName: 'Martin', email: 'alice.martin@nexus-student.local' },
     });
-    (prisma.$transaction as jest.Mock).mockImplementation(async (cb: any) =>
-      cb({ user: { create: userCreate }, student: { create: studentCreate } })
-    );
+    mockChildCreationTransaction({
+      userCreate,
+      studentCreate,
+      studentId: 'student-456',
+    });
 
     const response = await createChild(req({ firstName: 'Alice', lastName: 'Martin', grade: 'Seconde' }));
     const json = await response.json();
@@ -153,9 +195,11 @@ describe('POST /api/parent/children — P0-03 hardening', () => {
       school: '',
       user: { firstName: 'Marie', lastName: 'Curie', email: 'marie.curie@nexus-student.local' },
     });
-    (prisma.$transaction as jest.Mock).mockImplementation(async (cb: any) =>
-      cb({ user: { create: userCreate }, student: { create: studentCreate } })
-    );
+    mockChildCreationTransaction({
+      userCreate,
+      studentCreate,
+      studentId: 'student-789',
+    });
 
     mockSendMail.mockClear();
     const response = await createChild(req({ firstName: 'Marie', lastName: 'Curie', grade: 'Première' }));

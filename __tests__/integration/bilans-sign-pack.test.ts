@@ -42,6 +42,9 @@ describe('A89.7 real CoachProfile resolution', () => {
     entry.source = path.relative(ROOT, sourcePath);
     entry.promptDirectory = path.relative(ROOT, promptDirectory);
     entry.output = path.relative(ROOT, outputPath);
+    manifest.banks = [entry];
+    manifest.expectedActiveBanks = 1;
+    manifest.expectedItems = 18;
     const absoluteManifest = path.join(TEMP, 'wave1.manifest.json');
     fs.writeFileSync(absoluteManifest, `${JSON.stringify(manifest, null, 2)}\n`, 'utf8');
     manifestPath = path.relative(ROOT, absoluteManifest);

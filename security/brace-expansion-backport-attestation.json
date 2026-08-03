@@ -25,12 +25,12 @@
   "lockfileEvidence": {
     "path": "package-lock.json",
     "algorithm": "SHA-256",
-    "digest": "d564ba46dd688c40765e41980be03d15687f1ddfc6d092f77ece72e29146f4dc",
+    "digest": "c58e19c3ea6e95b71b346bf2c4eb226384309922f5afc09efa4712bd0145093e",
     "verification": {
       "command": "npm ci",
-      "verifiedOn": "2026-07-31",
-      "digestBeforeInstall": "d564ba46dd688c40765e41980be03d15687f1ddfc6d092f77ece72e29146f4dc",
-      "digestAfterInstall": "d564ba46dd688c40765e41980be03d15687f1ddfc6d092f77ece72e29146f4dc",
+      "verifiedOn": "2026-08-03",
+      "digestBeforeInstall": "c58e19c3ea6e95b71b346bf2c4eb226384309922f5afc09efa4712bd0145093e",
+      "digestAfterInstall": "c58e19c3ea6e95b71b346bf2c4eb226384309922f5afc09efa4712bd0145093e",
       "unchanged": true
     }
   },
@@ -142,7 +142,7 @@
   "runtimeGraphEvidence": {
     "schema": "nexus-runtime-component-set-recursive/v1",
     "digestAlgorithm": "SHA-256",
-    "digest": "a8922893f9ae6cb5573a4ccbcc8caf5355085d94a48f2bff7567e4710d0f24a5",
+    "digest": "194263f34d775bf299341e69b1a96a387d4095dab9887a25e906b0c7bc2b76e1",
     "componentCount": 550,
     "canonicalization": {
       "traversal": "components and nested components recursively",

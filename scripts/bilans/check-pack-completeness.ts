@@ -94,8 +94,9 @@ function dashboardRow(slug: string, requestedPath: string, format: 'pack-json' |
     if (items.length !== 18) anomalies.push(`ITEMS_${items.length}_AU_LIEU_DE_18`);
     if (complete !== items.length) anomalies.push(`INCOMPLET_${complete}/${items.length}`);
     if (nodes !== 9) anomalies.push(`NOEUDS_${nodes}_AU_LIEU_DE_9`);
-    if (status !== 'DRAFT') anomalies.push(`STATUT_${status}`);
-    if (signed) anomalies.push('SIGNE_INTERDIT');
+    if (status !== 'DRAFT' && status !== 'VALIDATED') anomalies.push(`STATUT_${status}`);
+    if (status === 'DRAFT' && signed) anomalies.push('SIGNATURE_INCOHERENTE');
+    if (status === 'VALIDATED' && !signed) anomalies.push('SIGNATURE_MANQUANTE');
     const reporting = isRecord(raw.reporting) ? raw.reporting : undefined;
     const rag = reporting !== undefined && isRecord(reporting.rag) ? reporting.rag : undefined;
     if (rag?.enabled !== false) anomalies.push('RAG_NON_DESACTIVE');
