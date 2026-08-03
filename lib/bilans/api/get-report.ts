@@ -63,6 +63,15 @@ async function resolveAudience(
   }
 
   if (session.user.role === 'PARENT') {
+    const student = await database.student.findFirst({
+      where: {
+        id: attempt.studentId,
+        parent: { userId: session.user.id },
+      },
+      select: { id: true },
+    });
+    if (student === null) throw CanonicalApiError.notFound();
+
     const link = await database.parentStudentLink.findFirst({
       where: {
         parentUserId: session.user.id,

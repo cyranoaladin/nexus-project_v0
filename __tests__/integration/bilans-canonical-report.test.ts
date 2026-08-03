@@ -64,11 +64,14 @@ describe('GET /api/bilans/attempts/[id]/report — PostgreSQL réel isolé', () 
   let studentUserId: string;
   let verifiedParentUserId: string;
   let legacyParentUserId: string;
+  let legacyOnlyParentUserId: string;
+  let legacyOnlyStudentId: string;
   let assignedCoachUserId: string;
   let unassignedCoachUserId: string;
   let adminUserId: string;
   let assistanteUserId: string;
   let publishedAttemptId: string;
+  let legacyOnlyAttemptId: string;
   let failedAttemptId: string;
   let unsafeAttemptId: string;
   let unavailableAttemptId: string;
@@ -201,7 +204,11 @@ describe('GET /api/bilans/attempts/[id]/report — PostgreSQL réel isolé', () 
       data: { email: `${TEST_PREFIX}verified-parent@example.test`, role: 'PARENT' },
     });
     verifiedParentUserId = verifiedParent.id;
-    await prisma.parentProfile.create({ data: { userId: verifiedParent.id } });
+    const verifiedParentProfile = await prisma.parentProfile.create({ data: { userId: verifiedParent.id } });
+    await prisma.student.update({
+      where: { id: student.id },
+      data: { parentId: verifiedParentProfile.id },
+    });
     await prisma.parentStudentLink.create({
       data: {
         parentUserId: verifiedParent.id,
@@ -212,6 +219,25 @@ describe('GET /api/bilans/attempts/[id]/report — PostgreSQL réel isolé', () 
         expiresAt: new Date('2027-08-02T12:00:00.000Z'),
       },
     });
+
+    const legacyOnlyParentUser = await prisma.user.create({
+      data: { email: `${TEST_PREFIX}legacy-only-parent@example.test`, role: 'PARENT' },
+    });
+    legacyOnlyParentUserId = legacyOnlyParentUser.id;
+    const legacyOnlyParent = await prisma.parentProfile.create({
+      data: { userId: legacyOnlyParentUser.id },
+    });
+    const legacyOnlyStudentUser = await prisma.user.create({
+      data: { email: `${TEST_PREFIX}legacy-only-student@example.test`, role: 'ELEVE' },
+    });
+    const legacyOnlyStudent = await prisma.student.create({
+      data: {
+        userId: legacyOnlyStudentUser.id,
+        parentId: legacyOnlyParent.id,
+        gradeLevel: 'TERMINALE',
+      },
+    });
+    legacyOnlyStudentId = legacyOnlyStudent.id;
 
     const assignedCoachUser = await prisma.user.create({
       data: { email: `${TEST_PREFIX}assigned-coach@example.test`, role: 'COACH' },
@@ -242,6 +268,12 @@ describe('GET /api/bilans/attempts/[id]/report — PostgreSQL réel isolé', () 
     assistanteUserId = assistante.id;
 
     publishedAttemptId = await seedPublishedReport(student.id, assignedCoach.id, 'published', reportBundle);
+    legacyOnlyAttemptId = await seedPublishedReport(
+      legacyOnlyStudentId,
+      assignedCoach.id,
+      'legacy-only',
+      reportBundle,
+    );
     unavailableAttemptId = await seedPublishedReport(
       student.id,
       assignedCoach.id,
@@ -344,9 +376,9 @@ describe('GET /api/bilans/attempts/[id]/report — PostgreSQL réel isolé', () 
   });
 
   test('does not reuse the legacy Student.parent relation as a parent fallback', async () => {
-    const response = await handlerFor(legacyParentUserId, 'PARENT')(
-      request(publishedAttemptId),
-      context(publishedAttemptId),
+    const response = await handlerFor(legacyOnlyParentUserId, 'PARENT')(
+      request(legacyOnlyAttemptId),
+      context(legacyOnlyAttemptId),
     );
     expect(response.status).toBe(404);
   });
