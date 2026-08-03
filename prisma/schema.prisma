@@ -1394,6 +1394,17 @@ enum ReportRevisionStatus {
   REJECTED
 }
 
+enum ReportMaterializationAudience {
+  ELEVE
+  PARENTS
+  NEXUS
+}
+
+enum ReportPdfStatus {
+  READY
+  UNAVAILABLE
+}
+
 enum ReportReviewDecision {
   APPROVED
   REJECTED
@@ -1587,6 +1598,7 @@ model ReportRevision {
 
   currentForArtifact ReportArtifact? @relation("ReportArtifactCurrentPublishedRevision")
   reviews            ReportReview[]
+  materialization    ReportMaterialization?
 
   createdAt DateTime @default(now())
 
@@ -1595,6 +1607,33 @@ model ReportRevision {
   @@unique([scoreSnapshotId])
   @@unique([id, reportArtifactId])
   @@map("canonical_report_revisions")
+}
+
+model ReportMaterialization {
+  id             String         @id @default(cuid())
+  revisionId     String         @unique
+  revision       ReportRevision @relation(fields: [revisionId], references: [id], onDelete: Restrict)
+  brandVersion   String
+  globalChecksum String
+  materializedAt DateTime
+
+  audienceArtifacts ReportAudienceArtifact[]
+
+  @@map("canonical_report_materializations")
+}
+
+model ReportAudienceArtifact {
+  id                String                        @id @default(cuid())
+  materializationId String
+  materialization   ReportMaterialization         @relation(fields: [materializationId], references: [id], onDelete: Restrict)
+  audience          ReportMaterializationAudience
+  html              String                        @db.Text
+  pdf               Bytes?
+  pdfStatus         ReportPdfStatus
+  checksum          String
+
+  @@unique([materializationId, audience])
+  @@map("canonical_report_audience_artifacts")
 }
 
 model ReportReview {
