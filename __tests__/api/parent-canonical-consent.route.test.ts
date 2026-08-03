@@ -1,11 +1,9 @@
 import { auth } from '@/auth';
 import { GET, POST } from '@/app/api/parent/children/[studentId]/canonical-consent/route';
 import {
-  getParentStudentConsentStatus,
   ParentStudentConsentError,
-  verifyParentStudentConsent,
+  withParentStudentConsentTransaction,
 } from '@/lib/bilans/parent-student-consent';
-import { prisma } from '@/lib/prisma';
 import { NextRequest } from 'next/server';
 
 jest.mock('@/auth', () => ({ auth: jest.fn() }));
@@ -16,15 +14,14 @@ jest.mock('@/lib/bilans/parent-student-consent', () => {
   const actual = jest.requireActual('@/lib/bilans/parent-student-consent');
   return {
     ...actual,
-    getParentStudentConsentStatus: jest.fn(),
-    verifyParentStudentConsent: jest.fn(),
+    withParentStudentConsentTransaction: jest.fn(),
   };
 });
 
 const mockAuth = auth as jest.Mock;
-const mockGetStatus = getParentStudentConsentStatus as jest.Mock;
-const mockVerify = verifyParentStudentConsent as jest.Mock;
-const mockTransaction = prisma.$transaction as jest.Mock;
+const mockWithConsentTransaction = withParentStudentConsentTransaction as jest.Mock;
+const mockGetStatus = jest.fn();
+const mockVerify = jest.fn();
 
 const context = {
   params: Promise.resolve({ studentId: 'student-technical-id' }),
@@ -44,14 +41,37 @@ function request(method: 'GET' | 'POST', body?: unknown, origin?: string): NextR
   );
 }
 
+function useProductionNodeEnv(): () => void {
+  const previousDescriptor = Object.getOwnPropertyDescriptor(process.env, 'NODE_ENV');
+  Object.defineProperty(process.env, 'NODE_ENV', {
+    configurable: true,
+    enumerable: true,
+    value: 'production',
+    writable: true,
+  });
+  return () => {
+    if (previousDescriptor === undefined) {
+      Reflect.deleteProperty(process.env, 'NODE_ENV');
+      return;
+    }
+    Object.defineProperty(process.env, 'NODE_ENV', previousDescriptor);
+  };
+}
+
 describe('/api/parent/children/[studentId]/canonical-consent', () => {
   const transaction = { technical: 'transaction' };
 
   beforeEach(() => {
     jest.clearAllMocks();
     mockAuth.mockResolvedValue({ user: { id: 'parent-user-id', role: 'PARENT' } });
-    mockTransaction.mockImplementation(async (callback: (tx: unknown) => unknown) =>
-      callback(transaction)
+    mockWithConsentTransaction.mockImplementation(
+      async (_database: unknown, action: (consentContext: unknown) => unknown) =>
+        action({
+          transaction,
+          preparePending: jest.fn(),
+          getStatus: mockGetStatus,
+          verify: mockVerify,
+        })
     );
   });
 
@@ -64,7 +84,7 @@ describe('/api/parent/children/[studentId]/canonical-consent', () => {
     const response = await GET(request('GET'), context);
 
     expect(response.status).toBe(404);
-    expect(mockTransaction).not.toHaveBeenCalled();
+    expect(mockWithConsentTransaction).not.toHaveBeenCalled();
   });
 
   it('GET retourne uniquement l’état scoped du lien possédé', async () => {
@@ -75,7 +95,6 @@ describe('/api/parent/children/[studentId]/canonical-consent', () => {
     expect(response.status).toBe(200);
     await expect(response.json()).resolves.toEqual({ state: 'PENDING_PARENT_CONSENT' });
     expect(mockGetStatus).toHaveBeenCalledWith(expect.objectContaining({
-      transaction,
       parentUserId: 'parent-user-id',
       studentId: 'student-technical-id',
       now: expect.any(Date),
@@ -91,8 +110,7 @@ describe('/api/parent/children/[studentId]/canonical-consent', () => {
   });
 
   it('POST applique le garde CSRF réel avant le service et toute transaction', async () => {
-    const previousNodeEnv = process.env.NODE_ENV;
-    process.env.NODE_ENV = 'production';
+    const restoreNodeEnv = useProductionNodeEnv();
     try {
       const response = await POST(
         request('POST', { consent: true }, 'https://origine-etrangere.example'),
@@ -101,15 +119,14 @@ describe('/api/parent/children/[studentId]/canonical-consent', () => {
 
       expect(response.status).toBe(403);
       expect(mockVerify).not.toHaveBeenCalled();
-      expect(mockTransaction).not.toHaveBeenCalled();
+      expect(mockWithConsentTransaction).not.toHaveBeenCalled();
     } finally {
-      process.env.NODE_ENV = previousNodeEnv;
+      restoreNodeEnv();
     }
   });
 
   it('POST masque en 404 une session absente même avec une origine étrangère', async () => {
-    const previousNodeEnv = process.env.NODE_ENV;
-    process.env.NODE_ENV = 'production';
+    const restoreNodeEnv = useProductionNodeEnv();
     mockAuth.mockResolvedValue(null);
     try {
       const response = await POST(
@@ -119,9 +136,9 @@ describe('/api/parent/children/[studentId]/canonical-consent', () => {
 
       expect(response.status).toBe(404);
       expect(mockVerify).not.toHaveBeenCalled();
-      expect(mockTransaction).not.toHaveBeenCalled();
+      expect(mockWithConsentTransaction).not.toHaveBeenCalled();
     } finally {
-      process.env.NODE_ENV = previousNodeEnv;
+      restoreNodeEnv();
     }
   });
 
@@ -134,7 +151,7 @@ describe('/api/parent/children/[studentId]/canonical-consent', () => {
     const response = await POST(request('POST', body), context);
 
     expect(response.status).toBe(400);
-    expect(mockTransaction).not.toHaveBeenCalled();
+    expect(mockWithConsentTransaction).not.toHaveBeenCalled();
   });
 
   it.each([
@@ -146,7 +163,7 @@ describe('/api/parent/children/[studentId]/canonical-consent', () => {
     const response = await POST(request('POST', { consent: true }), context);
 
     expect(response.status).toBe(404);
-    expect(mockTransaction).not.toHaveBeenCalled();
+    expect(mockWithConsentTransaction).not.toHaveBeenCalled();
   });
 
   it('POST vérifie le consentement et ne retourne que l’état', async () => {
@@ -162,7 +179,6 @@ describe('/api/parent/children/[studentId]/canonical-consent', () => {
     expect(response.status).toBe(200);
     await expect(response.json()).resolves.toEqual({ state: 'VERIFIED' });
     expect(mockVerify).toHaveBeenCalledWith(expect.objectContaining({
-      transaction,
       parentUserId: 'parent-user-id',
       studentId: 'student-technical-id',
       now: expect.any(Date),

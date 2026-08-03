@@ -29,8 +29,19 @@ jest.mock('../../lib/bilans/parent-student-consent', () => ({
 }));
 
 const mockSendWelcomeParentEmail = sendWelcomeParentEmail as jest.Mock;
-const mockWithParentStudentConsentTransaction = withParentStudentConsentTransaction as jest.Mock;
+const mockWithParentStudentConsentTransaction = withParentStudentConsentTransaction as jest.MockedFunction<
+  typeof withParentStudentConsentTransaction
+>;
 const mockPreparePending = jest.fn();
+const mockConsentTransactionImplementation: typeof withParentStudentConsentTransaction = (
+  database,
+  action,
+) => database.$transaction((transaction) => action({
+  transaction,
+  preparePending: mockPreparePending,
+  verify: jest.fn(),
+  getStatus: jest.fn(),
+}));
 
 describe('/api/bilan-gratuit', () => {
   const validRequestData = {
@@ -61,12 +72,7 @@ describe('/api/bilan-gratuit', () => {
       consentedAt: null,
       verifiedAt: null,
     });
-    mockWithParentStudentConsentTransaction.mockImplementation(
-      (database: typeof prisma, action: (context: unknown) => unknown) => database.$transaction((transaction: unknown) => action({
-        transaction,
-        preparePending: mockPreparePending,
-      })),
-    );
+    mockWithParentStudentConsentTransaction.mockImplementation(mockConsentTransactionImplementation);
   });
 
   function buildRequest(body: Record<string, unknown>) {

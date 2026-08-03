@@ -119,7 +119,7 @@ function memoryDatabase(input?: { studentParentId?: string; links?: Link[] }) {
 
 function inConsentTransaction<T>(
   database: ReturnType<typeof memoryDatabase>,
-  action: (context: any) => Promise<T>,
+  action: (context: consentService.ParentStudentConsentContext) => Promise<T>,
 ): Promise<T> {
   return consentService.withParentStudentConsentTransaction(database.database as never, action);
 }

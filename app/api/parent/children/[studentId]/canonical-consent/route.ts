@@ -1,8 +1,7 @@
 import { auth } from '@/auth';
 import {
-  getParentStudentConsentStatus,
   ParentStudentConsentError,
-  verifyParentStudentConsent,
+  withParentStudentConsentTransaction,
 } from '@/lib/bilans/parent-student-consent';
 import { checkCsrf } from '@/lib/csrf';
 import { prisma } from '@/lib/prisma';
@@ -42,9 +41,8 @@ export async function GET(
 
   const { studentId } = await context.params;
   try {
-    const result = await prisma.$transaction((transaction) =>
-      getParentStudentConsentStatus({
-        transaction,
+    const result = await withParentStudentConsentTransaction(prisma, (consentContext) =>
+      consentContext.getStatus({
         parentUserId,
         studentId,
         now: new Date(),
@@ -79,9 +77,8 @@ export async function POST(
 
   const { studentId } = await context.params;
   try {
-    await prisma.$transaction((transaction) =>
-      verifyParentStudentConsent({
-        transaction,
+    await withParentStudentConsentTransaction(prisma, (consentContext) =>
+      consentContext.verify({
         parentUserId,
         studentId,
         now: new Date(),
