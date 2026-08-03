@@ -18,6 +18,8 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const root = path.resolve(process.argv[2] ?? '.next/standalone');
+const prismaSchemaPath = path.resolve(process.argv[3] ?? 'prisma/schema.prisma');
+const requiredProductionPrismaTarget = 'debian-openssl-3.0.x';
 
 const forbiddenPackagePattern =
   /(^|\/)node_modules\/(?:@emnapi\/runtime|@img\/sharp-wasm32|brace-expansion)(\/|$)/;
@@ -63,6 +65,7 @@ const composeFiles = [];
 const configFiles = [];
 const absolutePathFiles = [];
 const gitIgnoredFiles = [];
+const prismaQueryEngines = [];
 let fileCount = 0;
 let totalSize = 0;
 const MAX_TOTAL_SIZE = 500 * 1024 * 1024;
@@ -84,6 +87,31 @@ const gitIgnoredPatterns = [
 
 function isTextFile(name) {
   return /\.(js|ts|tsx|jsx|json|yml|yaml|md|txt|css|html|env|mjs|cjs|toml|cfg|ini|sh)$/i.test(name);
+}
+
+function readDeclaredPrismaBinaryTargets() {
+  let schema;
+  try {
+    schema = fs.readFileSync(prismaSchemaPath, 'utf8');
+  } catch (err) {
+    findings.push({
+      path: path.relative(process.cwd(), prismaSchemaPath),
+      reason: `filesystem error (Prisma schema): ${err.message}`,
+    });
+    return [];
+  }
+
+  const generator = schema.match(/generator\s+client\s*\{([\s\S]*?)\}/);
+  const declaration = generator?.[1].match(/binaryTargets\s*=\s*\[([\s\S]*?)\]/);
+  if (!declaration) {
+    findings.push({
+      path: path.relative(process.cwd(), prismaSchemaPath),
+      reason: 'Prisma client binaryTargets declaration is missing',
+    });
+    return [];
+  }
+
+  return [...declaration[1].matchAll(/["']([^"']+)["']/g)].map((match) => match[1]);
 }
 
 function walk(directory, depth = 0) {
@@ -181,6 +209,11 @@ function walk(directory, depth = 0) {
         topLevelStats[topLevel].totalSize += lstats.size;
       }
 
+
+      if (/^libquery_engine-[a-z0-9_.-]+\.so\.node$/i.test(entry.name)) {
+        prismaQueryEngines.push(relativePath);
+      }
+
       // Informational: absolute local paths in text files
       const inNextBuild = relativePath.startsWith('.next/');
       if (!inNodeModules && !inNextBuild && isTextFile(entry.name) && lstats.size < 512 * 1024) {
@@ -205,6 +238,37 @@ if (!fs.existsSync(root) || !fs.statSync(root).isDirectory()) {
 }
 
 walk(root);
+
+const declaredPrismaBinaryTargets = readDeclaredPrismaBinaryTargets();
+if (!declaredPrismaBinaryTargets.includes(requiredProductionPrismaTarget)) {
+  findings.push({
+    path: path.relative(process.cwd(), prismaSchemaPath),
+    reason: `required production Prisma binary target not declared: ${requiredProductionPrismaTarget}`,
+  });
+}
+
+for (const target of declaredPrismaBinaryTargets) {
+  const present = target === 'native'
+    ? prismaQueryEngines.length > 0
+    : prismaQueryEngines.some((engine) =>
+      engine.endsWith(`/libquery_engine-${target}.so.node`)
+      || engine === `libquery_engine-${target}.so.node`);
+  if (!present) {
+    findings.push({
+      path: 'node_modules/.prisma/client',
+      reason: `missing Prisma query engine for declared target: ${target}`,
+    });
+  }
+}
+
+if (!prismaQueryEngines.some((engine) =>
+  engine.endsWith(`/libquery_engine-${requiredProductionPrismaTarget}.so.node`)
+  || engine === `libquery_engine-${requiredProductionPrismaTarget}.so.node`)) {
+  findings.push({
+    path: 'node_modules/.prisma/client',
+    reason: `required production Prisma query engine absent: ${requiredProductionPrismaTarget}`,
+  });
+}
 
 if (totalSize > MAX_TOTAL_SIZE) {
   findings.push({ path: '(total)', reason: `total size ${(totalSize / 1024 / 1024).toFixed(1)}MB exceeds limit ${MAX_TOTAL_SIZE / 1024 / 1024}MB` });
@@ -231,6 +295,12 @@ const report = {
   configFiles,
   absolutePathFiles,
   gitIgnoredFiles,
+  prisma: {
+    schemaPath: prismaSchemaPath,
+    requiredProductionTarget: requiredProductionPrismaTarget,
+    declaredBinaryTargets: declaredPrismaBinaryTargets,
+    queryEngines: prismaQueryEngines.sort(),
+  },
   findings: findings.sort((a, b) => a.path.localeCompare(b.path)),
   passed: findings.length === 0,
 };
