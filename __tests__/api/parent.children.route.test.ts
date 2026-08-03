@@ -189,8 +189,15 @@ describe('parent children routes', () => {
       }));
 
       const response = await POST(makeRequest({ firstName: 'A', lastName: 'B', grade: 'Seconde' }));
+      const body = await response.json();
 
       expect(response.status).toBe(200);
+      expect(body.activation.activationUrl).toContain('/auth/activate?token=act_');
+      expect(response.headers.get('cache-control')).toContain('private');
+      expect(response.headers.get('cache-control')).toContain('no-store');
+      expect(response.headers.get('cache-control')).toContain('max-age=0');
+      expect(response.headers.get('pragma')).toBe('no-cache');
+      expect(response.headers.get('expires')).toBe('0');
       expect(mockWithParentStudentConsentTransaction).toHaveBeenCalledWith(
         prisma,
         expect.any(Function),
@@ -202,6 +209,60 @@ describe('parent children routes', () => {
       });
       expect(mockPreparePending).toHaveBeenCalledTimes(1);
       expect(sendMail).toHaveBeenCalledTimes(1);
+    });
+
+    it('never leaks activation material through a post-generation error or its serialization', async () => {
+      const recognizableToken = 'act_POST_GENERATION_SECRET_SENTINEL';
+      const log = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+      (auth as jest.Mock).mockResolvedValue({
+        user: { id: 'parent-1', email: 'parent@test.com', role: 'PARENT' },
+      });
+      (prisma.parentProfile.findUnique as jest.Mock).mockResolvedValue({ id: 'parent-profile-1' });
+      mockPreparePending.mockRejectedValueOnce(new Error(recognizableToken));
+
+      const response = await POST(makeRequest({ firstName: 'A', lastName: 'B', grade: 'Seconde' }));
+      const body = await response.json();
+
+      expect(response.status).toBe(500);
+      expect(body).toEqual({ error: 'Internal server error' });
+      expect(JSON.stringify(body)).not.toContain(recognizableToken);
+      expect(JSON.stringify(log.mock.calls)).not.toContain(recognizableToken);
+      expect(sendMail).not.toHaveBeenCalled();
+      log.mockRestore();
+    });
+
+    it('does not log activation material when the non-blocking email delivery fails', async () => {
+      const log = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+      let recognizableToken = '';
+      (auth as jest.Mock).mockResolvedValue({
+        user: { id: 'parent-1', email: 'parent@test.com', role: 'PARENT' },
+      });
+      (prisma.parentProfile.findUnique as jest.Mock).mockResolvedValue({ id: 'parent-profile-1' });
+      (prisma.$transaction as jest.Mock).mockImplementation(async (callback: any) => callback({
+        user: { create: jest.fn().mockResolvedValue({ id: 'child-user-1' }) },
+        student: {
+          create: jest.fn().mockResolvedValue({
+            id: 'student-1',
+            grade: 'Seconde',
+            school: '',
+            user: { firstName: 'A', lastName: 'B', email: 'a.b@nexus-student.local' },
+          }),
+        },
+      }));
+      (sendMail as jest.Mock).mockImplementationOnce(async (message: { text: string }) => {
+        recognizableToken = message.text.match(/act_[a-f0-9]+/)?.[0] ?? '';
+        throw new Error(recognizableToken);
+      });
+
+      const response = await POST(makeRequest({ firstName: 'A', lastName: 'B', grade: 'Seconde' }));
+      const body = await response.json();
+      await new Promise((resolve) => setImmediate(resolve));
+
+      expect(response.status).toBe(200);
+      expect(recognizableToken).toMatch(/^act_[a-f0-9]+$/);
+      expect(body.activation.activationUrl).toContain(recognizableToken);
+      expect(JSON.stringify(log.mock.calls)).not.toContain(recognizableToken);
+      log.mockRestore();
     });
 
     it('aborts child creation response and sends no email when pending consent preparation fails', async () => {
