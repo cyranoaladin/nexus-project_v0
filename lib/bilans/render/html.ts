@@ -97,8 +97,7 @@ function publicBody(content: RenderContent, audience: 'ELEVE' | 'PARENTS'): stri
     <section class="section"><h2>${student ? 'Ta carte maîtrise × confiance' : 'Les repères observés'}</h2>${masteryMap(content.domains)}</section>
     <section class="section"><h2>Forces</h2>${list(content.narrative.strengths, 'strengths')}</section>
     <section class="section"><h2>${priorityTitle}</h2>${list(content.narrative.priorities, 'priorities')}</section>
-    ${publicLearningPath(content.learningPath.steps, audience)}
-    <section class="section"><h2>${student ? 'Ton plan d’action' : 'Ce que le stage travaillera'}</h2>${list(content.narrative.actionPlan, 'action-plan')}</section>
+    ${student ? `${publicLearningPath(content.learningPath.steps, audience)}<section class="section"><h2>Ton plan d’action</h2>${list(content.narrative.actionPlan, 'action-plan')}</section>` : `<section class="section print-break"><h2>Comment le diagnostic construit les cinq séances</h2>${list(content.narrative.actionPlan, 'action-plan')}</section>`}
     <section class="closing"><h2>${student ? 'Pour finir' : 'En synthèse'}</h2><p>${escapeHtml(content.narrative.conclusion)}</p></section>
   </main>`;
 }

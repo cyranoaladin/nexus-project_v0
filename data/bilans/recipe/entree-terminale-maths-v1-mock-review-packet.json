@@ -138,10 +138,7 @@
               "produit-scalaire reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Mathématiques, sur suites. Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur suites, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en Mathématiques, sur exponentielle. Poser les définitions utiles en Mathématiques, montrer des exemples sur exponentielle, puis proposer un entraînement court et répété.",
-              "Séance 3 — Stabiliser l'acquis encore fragile en Mathématiques, sur derivation. Organiser un entraînement espacé en Mathématiques sur derivation, sans réenseigner ce qui est déjà compris.",
-              "Séance 4 — Établir le niveau réel en Mathématiques, sur produit-scalaire, avant de choisir une remédiation. Commencer par un test ciblé en Mathématiques sur produit-scalaire, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -173,40 +170,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "suites",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Mathématiques, sur suites.",
-                "demarche": "Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur suites, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "exponentielle",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Mathématiques, sur exponentielle.",
-                "demarche": "Poser les définitions utiles en Mathématiques, montrer des exemples sur exponentielle, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "derivation",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Mathématiques, sur derivation.",
-                "demarche": "Organiser un entraînement espacé en Mathématiques sur derivation, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "produit-scalaire",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Mathématiques, sur produit-scalaire, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Mathématiques sur produit-scalaire, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -488,10 +452,7 @@
               "suites reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Mathématiques, sur exponentielle. Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur exponentielle, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en Mathématiques, sur derivation. Poser les définitions utiles en Mathématiques, montrer des exemples sur derivation, puis proposer un entraînement court et répété.",
-              "Séance 3 — Stabiliser l'acquis encore fragile en Mathématiques, sur second-degre. Organiser un entraînement espacé en Mathématiques sur second-degre, sans réenseigner ce qui est déjà compris.",
-              "Séance 4 — Établir le niveau réel en Mathématiques, sur suites, avant de choisir une remédiation. Commencer par un test ciblé en Mathématiques sur suites, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -523,40 +484,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "exponentielle",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Mathématiques, sur exponentielle.",
-                "demarche": "Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur exponentielle, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "derivation",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Mathématiques, sur derivation.",
-                "demarche": "Poser les définitions utiles en Mathématiques, montrer des exemples sur derivation, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "second-degre",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Mathématiques, sur second-degre.",
-                "demarche": "Organiser un entraînement espacé en Mathématiques sur second-degre, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "suites",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Mathématiques, sur suites, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Mathématiques sur suites, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -838,10 +766,7 @@
               "exponentielle reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Mathématiques, sur derivation. Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur derivation, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en Mathématiques, sur second-degre. Poser les définitions utiles en Mathématiques, montrer des exemples sur second-degre, puis proposer un entraînement court et répété.",
-              "Séance 3 — Stabiliser l'acquis encore fragile en Mathématiques, sur produit-scalaire. Organiser un entraînement espacé en Mathématiques sur produit-scalaire, sans réenseigner ce qui est déjà compris.",
-              "Séance 4 — Établir le niveau réel en Mathématiques, sur exponentielle, avant de choisir une remédiation. Commencer par un test ciblé en Mathématiques sur exponentielle, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -873,40 +798,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "derivation",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Mathématiques, sur derivation.",
-                "demarche": "Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur derivation, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "second-degre",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Mathématiques, sur second-degre.",
-                "demarche": "Poser les définitions utiles en Mathématiques, montrer des exemples sur second-degre, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "produit-scalaire",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Mathématiques, sur produit-scalaire.",
-                "demarche": "Organiser un entraînement espacé en Mathématiques sur produit-scalaire, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "exponentielle",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Mathématiques, sur exponentielle, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Mathématiques sur exponentielle, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -1188,10 +1080,7 @@
               "derivation reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Mathématiques, sur second-degre. Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur second-degre, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en Mathématiques, sur produit-scalaire. Poser les définitions utiles en Mathématiques, montrer des exemples sur produit-scalaire, puis proposer un entraînement court et répété.",
-              "Séance 3 — Stabiliser l'acquis encore fragile en Mathématiques, sur suites. Organiser un entraînement espacé en Mathématiques sur suites, sans réenseigner ce qui est déjà compris.",
-              "Séance 4 — Établir le niveau réel en Mathématiques, sur derivation, avant de choisir une remédiation. Commencer par un test ciblé en Mathématiques sur derivation, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -1223,40 +1112,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "second-degre",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Mathématiques, sur second-degre.",
-                "demarche": "Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur second-degre, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "produit-scalaire",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Mathématiques, sur produit-scalaire.",
-                "demarche": "Poser les définitions utiles en Mathématiques, montrer des exemples sur produit-scalaire, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "suites",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Mathématiques, sur suites.",
-                "demarche": "Organiser un entraînement espacé en Mathématiques sur suites, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "derivation",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Mathématiques, sur derivation, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Mathématiques sur derivation, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -1538,10 +1394,7 @@
               "second-degre reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Mathématiques, sur produit-scalaire. Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur produit-scalaire, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en Mathématiques, sur suites. Poser les définitions utiles en Mathématiques, montrer des exemples sur suites, puis proposer un entraînement court et répété.",
-              "Séance 3 — Stabiliser l'acquis encore fragile en Mathématiques, sur exponentielle. Organiser un entraînement espacé en Mathématiques sur exponentielle, sans réenseigner ce qui est déjà compris.",
-              "Séance 4 — Établir le niveau réel en Mathématiques, sur second-degre, avant de choisir une remédiation. Commencer par un test ciblé en Mathématiques sur second-degre, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -1573,40 +1426,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "produit-scalaire",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Mathématiques, sur produit-scalaire.",
-                "demarche": "Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur produit-scalaire, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "suites",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Mathématiques, sur suites.",
-                "demarche": "Poser les définitions utiles en Mathématiques, montrer des exemples sur suites, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "exponentielle",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Mathématiques, sur exponentielle.",
-                "demarche": "Organiser un entraînement espacé en Mathématiques sur exponentielle, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "second-degre",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Mathématiques, sur second-degre, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Mathématiques sur second-degre, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -1888,10 +1708,7 @@
               "produit-scalaire reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Mathématiques, sur suites. Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur suites, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en Mathématiques, sur exponentielle. Poser les définitions utiles en Mathématiques, montrer des exemples sur exponentielle, puis proposer un entraînement court et répété.",
-              "Séance 3 — Stabiliser l'acquis encore fragile en Mathématiques, sur derivation. Organiser un entraînement espacé en Mathématiques sur derivation, sans réenseigner ce qui est déjà compris.",
-              "Séance 4 — Établir le niveau réel en Mathématiques, sur produit-scalaire, avant de choisir une remédiation. Commencer par un test ciblé en Mathématiques sur produit-scalaire, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -1923,40 +1740,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "suites",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Mathématiques, sur suites.",
-                "demarche": "Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur suites, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "exponentielle",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Mathématiques, sur exponentielle.",
-                "demarche": "Poser les définitions utiles en Mathématiques, montrer des exemples sur exponentielle, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "derivation",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Mathématiques, sur derivation.",
-                "demarche": "Organiser un entraînement espacé en Mathématiques sur derivation, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "produit-scalaire",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Mathématiques, sur produit-scalaire, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Mathématiques sur produit-scalaire, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -2238,10 +2022,7 @@
               "suites reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Mathématiques, sur exponentielle. Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur exponentielle, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en Mathématiques, sur derivation. Poser les définitions utiles en Mathématiques, montrer des exemples sur derivation, puis proposer un entraînement court et répété.",
-              "Séance 3 — Stabiliser l'acquis encore fragile en Mathématiques, sur second-degre. Organiser un entraînement espacé en Mathématiques sur second-degre, sans réenseigner ce qui est déjà compris.",
-              "Séance 4 — Établir le niveau réel en Mathématiques, sur suites, avant de choisir une remédiation. Commencer par un test ciblé en Mathématiques sur suites, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -2273,40 +2054,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "exponentielle",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Mathématiques, sur exponentielle.",
-                "demarche": "Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur exponentielle, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "derivation",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Mathématiques, sur derivation.",
-                "demarche": "Poser les définitions utiles en Mathématiques, montrer des exemples sur derivation, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "second-degre",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Mathématiques, sur second-degre.",
-                "demarche": "Organiser un entraînement espacé en Mathématiques sur second-degre, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "suites",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Mathématiques, sur suites, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Mathématiques sur suites, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -2588,10 +2336,7 @@
               "exponentielle reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Mathématiques, sur derivation. Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur derivation, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en Mathématiques, sur second-degre. Poser les définitions utiles en Mathématiques, montrer des exemples sur second-degre, puis proposer un entraînement court et répété.",
-              "Séance 3 — Stabiliser l'acquis encore fragile en Mathématiques, sur produit-scalaire. Organiser un entraînement espacé en Mathématiques sur produit-scalaire, sans réenseigner ce qui est déjà compris.",
-              "Séance 4 — Établir le niveau réel en Mathématiques, sur exponentielle, avant de choisir une remédiation. Commencer par un test ciblé en Mathématiques sur exponentielle, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -2623,40 +2368,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "derivation",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Mathématiques, sur derivation.",
-                "demarche": "Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur derivation, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "second-degre",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Mathématiques, sur second-degre.",
-                "demarche": "Poser les définitions utiles en Mathématiques, montrer des exemples sur second-degre, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "produit-scalaire",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Mathématiques, sur produit-scalaire.",
-                "demarche": "Organiser un entraînement espacé en Mathématiques sur produit-scalaire, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "exponentielle",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Mathématiques, sur exponentielle, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Mathématiques sur exponentielle, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -2938,10 +2650,7 @@
               "derivation reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Mathématiques, sur second-degre. Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur second-degre, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en Mathématiques, sur produit-scalaire. Poser les définitions utiles en Mathématiques, montrer des exemples sur produit-scalaire, puis proposer un entraînement court et répété.",
-              "Séance 3 — Stabiliser l'acquis encore fragile en Mathématiques, sur suites. Organiser un entraînement espacé en Mathématiques sur suites, sans réenseigner ce qui est déjà compris.",
-              "Séance 4 — Établir le niveau réel en Mathématiques, sur derivation, avant de choisir une remédiation. Commencer par un test ciblé en Mathématiques sur derivation, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -2973,40 +2682,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "second-degre",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Mathématiques, sur second-degre.",
-                "demarche": "Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur second-degre, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "produit-scalaire",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Mathématiques, sur produit-scalaire.",
-                "demarche": "Poser les définitions utiles en Mathématiques, montrer des exemples sur produit-scalaire, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "suites",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Mathématiques, sur suites.",
-                "demarche": "Organiser un entraînement espacé en Mathématiques sur suites, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "derivation",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Mathématiques, sur derivation, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Mathématiques sur derivation, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -3288,10 +2964,7 @@
               "second-degre reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Mathématiques, sur produit-scalaire. Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur produit-scalaire, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en Mathématiques, sur suites. Poser les définitions utiles en Mathématiques, montrer des exemples sur suites, puis proposer un entraînement court et répété.",
-              "Séance 3 — Stabiliser l'acquis encore fragile en Mathématiques, sur exponentielle. Organiser un entraînement espacé en Mathématiques sur exponentielle, sans réenseigner ce qui est déjà compris.",
-              "Séance 4 — Établir le niveau réel en Mathématiques, sur second-degre, avant de choisir une remédiation. Commencer par un test ciblé en Mathématiques sur second-degre, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -3323,40 +2996,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "produit-scalaire",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Mathématiques, sur produit-scalaire.",
-                "demarche": "Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur produit-scalaire, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "suites",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Mathématiques, sur suites.",
-                "demarche": "Poser les définitions utiles en Mathématiques, montrer des exemples sur suites, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "exponentielle",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Mathématiques, sur exponentielle.",
-                "demarche": "Organiser un entraînement espacé en Mathématiques sur exponentielle, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "second-degre",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Mathématiques, sur second-degre, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Mathématiques sur second-degre, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -3638,10 +3278,7 @@
               "produit-scalaire reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Mathématiques, sur suites. Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur suites, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en Mathématiques, sur exponentielle. Poser les définitions utiles en Mathématiques, montrer des exemples sur exponentielle, puis proposer un entraînement court et répété.",
-              "Séance 3 — Stabiliser l'acquis encore fragile en Mathématiques, sur derivation. Organiser un entraînement espacé en Mathématiques sur derivation, sans réenseigner ce qui est déjà compris.",
-              "Séance 4 — Établir le niveau réel en Mathématiques, sur produit-scalaire, avant de choisir une remédiation. Commencer par un test ciblé en Mathématiques sur produit-scalaire, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -3673,40 +3310,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "suites",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Mathématiques, sur suites.",
-                "demarche": "Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur suites, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "exponentielle",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Mathématiques, sur exponentielle.",
-                "demarche": "Poser les définitions utiles en Mathématiques, montrer des exemples sur exponentielle, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "derivation",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Mathématiques, sur derivation.",
-                "demarche": "Organiser un entraînement espacé en Mathématiques sur derivation, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "produit-scalaire",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Mathématiques, sur produit-scalaire, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Mathématiques sur produit-scalaire, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -3988,10 +3592,7 @@
               "suites reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Mathématiques, sur exponentielle. Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur exponentielle, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en Mathématiques, sur derivation. Poser les définitions utiles en Mathématiques, montrer des exemples sur derivation, puis proposer un entraînement court et répété.",
-              "Séance 3 — Stabiliser l'acquis encore fragile en Mathématiques, sur second-degre. Organiser un entraînement espacé en Mathématiques sur second-degre, sans réenseigner ce qui est déjà compris.",
-              "Séance 4 — Établir le niveau réel en Mathématiques, sur suites, avant de choisir une remédiation. Commencer par un test ciblé en Mathématiques sur suites, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -4023,40 +3624,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "exponentielle",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Mathématiques, sur exponentielle.",
-                "demarche": "Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur exponentielle, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "derivation",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Mathématiques, sur derivation.",
-                "demarche": "Poser les définitions utiles en Mathématiques, montrer des exemples sur derivation, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "second-degre",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Mathématiques, sur second-degre.",
-                "demarche": "Organiser un entraînement espacé en Mathématiques sur second-degre, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "suites",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Mathématiques, sur suites, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Mathématiques sur suites, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -4338,10 +3906,7 @@
               "exponentielle reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Mathématiques, sur derivation. Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur derivation, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en Mathématiques, sur second-degre. Poser les définitions utiles en Mathématiques, montrer des exemples sur second-degre, puis proposer un entraînement court et répété.",
-              "Séance 3 — Stabiliser l'acquis encore fragile en Mathématiques, sur produit-scalaire. Organiser un entraînement espacé en Mathématiques sur produit-scalaire, sans réenseigner ce qui est déjà compris.",
-              "Séance 4 — Établir le niveau réel en Mathématiques, sur exponentielle, avant de choisir une remédiation. Commencer par un test ciblé en Mathématiques sur exponentielle, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -4373,40 +3938,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "derivation",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Mathématiques, sur derivation.",
-                "demarche": "Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur derivation, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "second-degre",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Mathématiques, sur second-degre.",
-                "demarche": "Poser les définitions utiles en Mathématiques, montrer des exemples sur second-degre, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "produit-scalaire",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Mathématiques, sur produit-scalaire.",
-                "demarche": "Organiser un entraînement espacé en Mathématiques sur produit-scalaire, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "exponentielle",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Mathématiques, sur exponentielle, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Mathématiques sur exponentielle, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -4688,10 +4220,7 @@
               "derivation reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Mathématiques, sur second-degre. Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur second-degre, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en Mathématiques, sur produit-scalaire. Poser les définitions utiles en Mathématiques, montrer des exemples sur produit-scalaire, puis proposer un entraînement court et répété.",
-              "Séance 3 — Stabiliser l'acquis encore fragile en Mathématiques, sur suites. Organiser un entraînement espacé en Mathématiques sur suites, sans réenseigner ce qui est déjà compris.",
-              "Séance 4 — Établir le niveau réel en Mathématiques, sur derivation, avant de choisir une remédiation. Commencer par un test ciblé en Mathématiques sur derivation, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -4723,40 +4252,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "second-degre",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Mathématiques, sur second-degre.",
-                "demarche": "Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur second-degre, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "produit-scalaire",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Mathématiques, sur produit-scalaire.",
-                "demarche": "Poser les définitions utiles en Mathématiques, montrer des exemples sur produit-scalaire, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "suites",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Mathématiques, sur suites.",
-                "demarche": "Organiser un entraînement espacé en Mathématiques sur suites, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "derivation",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Mathématiques, sur derivation, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Mathématiques sur derivation, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -5038,10 +4534,7 @@
               "second-degre reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Mathématiques, sur produit-scalaire. Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur produit-scalaire, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en Mathématiques, sur suites. Poser les définitions utiles en Mathématiques, montrer des exemples sur suites, puis proposer un entraînement court et répété.",
-              "Séance 3 — Stabiliser l'acquis encore fragile en Mathématiques, sur exponentielle. Organiser un entraînement espacé en Mathématiques sur exponentielle, sans réenseigner ce qui est déjà compris.",
-              "Séance 4 — Établir le niveau réel en Mathématiques, sur second-degre, avant de choisir une remédiation. Commencer par un test ciblé en Mathématiques sur second-degre, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -5073,40 +4566,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "produit-scalaire",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Mathématiques, sur produit-scalaire.",
-                "demarche": "Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur produit-scalaire, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "suites",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Mathématiques, sur suites.",
-                "demarche": "Poser les définitions utiles en Mathématiques, montrer des exemples sur suites, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "exponentielle",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Mathématiques, sur exponentielle.",
-                "demarche": "Organiser un entraînement espacé en Mathématiques sur exponentielle, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "second-degre",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Mathématiques, sur second-degre, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Mathématiques sur second-degre, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -5388,10 +4848,7 @@
               "produit-scalaire reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Mathématiques, sur suites. Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur suites, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en Mathématiques, sur exponentielle. Poser les définitions utiles en Mathématiques, montrer des exemples sur exponentielle, puis proposer un entraînement court et répété.",
-              "Séance 3 — Stabiliser l'acquis encore fragile en Mathématiques, sur derivation. Organiser un entraînement espacé en Mathématiques sur derivation, sans réenseigner ce qui est déjà compris.",
-              "Séance 4 — Établir le niveau réel en Mathématiques, sur produit-scalaire, avant de choisir une remédiation. Commencer par un test ciblé en Mathématiques sur produit-scalaire, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -5423,40 +4880,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "suites",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Mathématiques, sur suites.",
-                "demarche": "Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur suites, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "exponentielle",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Mathématiques, sur exponentielle.",
-                "demarche": "Poser les définitions utiles en Mathématiques, montrer des exemples sur exponentielle, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "derivation",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Mathématiques, sur derivation.",
-                "demarche": "Organiser un entraînement espacé en Mathématiques sur derivation, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "produit-scalaire",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Mathématiques, sur produit-scalaire, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Mathématiques sur produit-scalaire, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -5738,10 +5162,7 @@
               "suites reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Mathématiques, sur exponentielle. Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur exponentielle, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en Mathématiques, sur derivation. Poser les définitions utiles en Mathématiques, montrer des exemples sur derivation, puis proposer un entraînement court et répété.",
-              "Séance 3 — Stabiliser l'acquis encore fragile en Mathématiques, sur second-degre. Organiser un entraînement espacé en Mathématiques sur second-degre, sans réenseigner ce qui est déjà compris.",
-              "Séance 4 — Établir le niveau réel en Mathématiques, sur suites, avant de choisir une remédiation. Commencer par un test ciblé en Mathématiques sur suites, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -5773,40 +5194,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "exponentielle",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Mathématiques, sur exponentielle.",
-                "demarche": "Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur exponentielle, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "derivation",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Mathématiques, sur derivation.",
-                "demarche": "Poser les définitions utiles en Mathématiques, montrer des exemples sur derivation, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "second-degre",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Mathématiques, sur second-degre.",
-                "demarche": "Organiser un entraînement espacé en Mathématiques sur second-degre, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "suites",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Mathématiques, sur suites, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Mathématiques sur suites, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -6088,10 +5476,7 @@
               "exponentielle reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Mathématiques, sur derivation. Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur derivation, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en Mathématiques, sur second-degre. Poser les définitions utiles en Mathématiques, montrer des exemples sur second-degre, puis proposer un entraînement court et répété.",
-              "Séance 3 — Stabiliser l'acquis encore fragile en Mathématiques, sur produit-scalaire. Organiser un entraînement espacé en Mathématiques sur produit-scalaire, sans réenseigner ce qui est déjà compris.",
-              "Séance 4 — Établir le niveau réel en Mathématiques, sur exponentielle, avant de choisir une remédiation. Commencer par un test ciblé en Mathématiques sur exponentielle, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -6123,40 +5508,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "derivation",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Mathématiques, sur derivation.",
-                "demarche": "Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur derivation, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "second-degre",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Mathématiques, sur second-degre.",
-                "demarche": "Poser les définitions utiles en Mathématiques, montrer des exemples sur second-degre, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "produit-scalaire",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Mathématiques, sur produit-scalaire.",
-                "demarche": "Organiser un entraînement espacé en Mathématiques sur produit-scalaire, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "exponentielle",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Mathématiques, sur exponentielle, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Mathématiques sur exponentielle, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -6438,10 +5790,7 @@
               "derivation reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Mathématiques, sur second-degre. Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur second-degre, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en Mathématiques, sur produit-scalaire. Poser les définitions utiles en Mathématiques, montrer des exemples sur produit-scalaire, puis proposer un entraînement court et répété.",
-              "Séance 3 — Stabiliser l'acquis encore fragile en Mathématiques, sur suites. Organiser un entraînement espacé en Mathématiques sur suites, sans réenseigner ce qui est déjà compris.",
-              "Séance 4 — Établir le niveau réel en Mathématiques, sur derivation, avant de choisir une remédiation. Commencer par un test ciblé en Mathématiques sur derivation, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -6473,40 +5822,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "second-degre",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Mathématiques, sur second-degre.",
-                "demarche": "Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur second-degre, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "produit-scalaire",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Mathématiques, sur produit-scalaire.",
-                "demarche": "Poser les définitions utiles en Mathématiques, montrer des exemples sur produit-scalaire, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "suites",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Mathématiques, sur suites.",
-                "demarche": "Organiser un entraînement espacé en Mathématiques sur suites, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "derivation",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Mathématiques, sur derivation, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Mathématiques sur derivation, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -6788,10 +6104,7 @@
               "second-degre reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Mathématiques, sur produit-scalaire. Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur produit-scalaire, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en Mathématiques, sur suites. Poser les définitions utiles en Mathématiques, montrer des exemples sur suites, puis proposer un entraînement court et répété.",
-              "Séance 3 — Stabiliser l'acquis encore fragile en Mathématiques, sur exponentielle. Organiser un entraînement espacé en Mathématiques sur exponentielle, sans réenseigner ce qui est déjà compris.",
-              "Séance 4 — Établir le niveau réel en Mathématiques, sur second-degre, avant de choisir une remédiation. Commencer par un test ciblé en Mathématiques sur second-degre, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -6823,40 +6136,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "produit-scalaire",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Mathématiques, sur produit-scalaire.",
-                "demarche": "Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur produit-scalaire, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "suites",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Mathématiques, sur suites.",
-                "demarche": "Poser les définitions utiles en Mathématiques, montrer des exemples sur suites, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "exponentielle",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Mathématiques, sur exponentielle.",
-                "demarche": "Organiser un entraînement espacé en Mathématiques sur exponentielle, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "second-degre",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Mathématiques, sur second-degre, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Mathématiques sur second-degre, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }

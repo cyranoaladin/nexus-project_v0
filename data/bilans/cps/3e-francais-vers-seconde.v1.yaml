@@ -3,46 +3,55 @@ slug: 3e-francais-vers-seconde-v1
 version: 1
 nodes:
   - id: 3e.francais.grammaire.classes-et-fonctions
+    sequenceOrder: 1
     label: "Analyse grammaticale : classes et fonctions"
     sourceLevel: TROISIEME
     targetLevel: SECONDE
     pedagogicalRationale: le commentaire de texte exige de nommer précisément ce que l'on observe. Un élève qui ne distingue pas épithète, attribut et apposition ne peut pas analyser un effet de style.
   - id: 3e.francais.grammaire.subordonnees
+    sequenceOrder: 2
     label: Propositions subordonnées
     sourceLevel: TROISIEME
     targetLevel: SECONDE
     pedagogicalRationale: l'analyse de la phrase complexe fonde le commentaire du rythme et de la construction d'un texte, en prose comme au théâtre.
   - id: 3e.francais.conjugaison.modes-et-valeurs
+    sequenceOrder: 3
     label: Valeurs des modes et des temps
     sourceLevel: TROISIEME
     targetLevel: SECONDE
     pedagogicalRationale: l'analyse d'un texte littéraire repose sur l'interprétation des temps et des modes, notamment dans la poésie lyrique et le théâtre classique.
   - id: 3e.francais.grammaire.voix-active-passive
+    sequenceOrder: 4
     label: Voix active et voix passive
     sourceLevel: TROISIEME
     targetLevel: SECONDE
     pedagogicalRationale: la transformation passive et ses effets — notamment l'effacement de l'agent — sont des outils d'analyse essentiels en littérature d'idées et dans l'étude de la presse.
   - id: 3e.francais.lexique.figures-de-style
+    sequenceOrder: 5
     label: Figures de style
     sourceLevel: TROISIEME
     targetLevel: SECONDE
     pedagogicalRationale: le commentaire littéraire de Seconde exige de nommer précisément les procédés. Les confusions entre figures voisines rendent l'analyse imprécise.
   - id: 3e.francais.poesie.versification
+    sequenceOrder: 6
     label: Versification et formes poétiques
     sourceLevel: TROISIEME
     targetLevel: SECONDE
     pedagogicalRationale: l'objet d'étude « la poésie du XIXe au XXIe siècle » suppose un vocabulaire technique disponible dès la rentrée.
   - id: 3e.francais.argumentation.these-argument-exemple
+    sequenceOrder: 7
     label: Argumentation
     sourceLevel: TROISIEME
     targetLevel: SECONDE
     pedagogicalRationale: l'objet d'étude « littérature d'idées » et l'apprentissage de la dissertation supposent de distinguer sûrement thèse, argument et exemple, et de maîtriser les connecteurs logiques.
   - id: 3e.francais.lecture.registres
+    sequenceOrder: 8
     label: Registres littéraires
     sourceLevel: TROISIEME
     targetLevel: SECONDE
     pedagogicalRationale: l'étude du théâtre et de la poésie en Seconde exige de qualifier l'effet produit sur le lecteur ou le spectateur.
   - id: 3e.francais.lexique.formation-des-mots
+    sequenceOrder: 9
     label: "Lexique : formation des mots et niveaux de langue"
     sourceLevel: TROISIEME
     targetLevel: SECONDE

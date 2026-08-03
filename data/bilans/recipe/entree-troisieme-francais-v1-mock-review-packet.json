@@ -138,10 +138,7 @@
               "lecture reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Français, sur lexique. Créer un conflit cognitif en Français, faire verbaliser le raisonnement sur lexique, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en Français, sur orthographe. Poser les définitions utiles en Français, montrer des exemples sur orthographe, puis proposer un entraînement court et répété.",
-              "Séance 3 — Stabiliser l'acquis encore fragile en Français, sur conjugaison. Organiser un entraînement espacé en Français sur conjugaison, sans réenseigner ce qui est déjà compris.",
-              "Séance 4 — Établir le niveau réel en Français, sur lecture, avant de choisir une remédiation. Commencer par un test ciblé en Français sur lecture, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -173,40 +170,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "lexique",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Français, sur lexique.",
-                "demarche": "Créer un conflit cognitif en Français, faire verbaliser le raisonnement sur lexique, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "orthographe",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Français, sur orthographe.",
-                "demarche": "Poser les définitions utiles en Français, montrer des exemples sur orthographe, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "conjugaison",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Français, sur conjugaison.",
-                "demarche": "Organiser un entraînement espacé en Français sur conjugaison, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "lecture",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Français, sur lecture, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Français sur lecture, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -488,10 +452,7 @@
               "lexique reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Français, sur orthographe. Créer un conflit cognitif en Français, faire verbaliser le raisonnement sur orthographe, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en Français, sur conjugaison. Poser les définitions utiles en Français, montrer des exemples sur conjugaison, puis proposer un entraînement court et répété.",
-              "Séance 3 — Stabiliser l'acquis encore fragile en Français, sur grammaire. Organiser un entraînement espacé en Français sur grammaire, sans réenseigner ce qui est déjà compris.",
-              "Séance 4 — Établir le niveau réel en Français, sur lexique, avant de choisir une remédiation. Commencer par un test ciblé en Français sur lexique, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -523,40 +484,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "orthographe",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Français, sur orthographe.",
-                "demarche": "Créer un conflit cognitif en Français, faire verbaliser le raisonnement sur orthographe, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "conjugaison",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Français, sur conjugaison.",
-                "demarche": "Poser les définitions utiles en Français, montrer des exemples sur conjugaison, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "grammaire",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Français, sur grammaire.",
-                "demarche": "Organiser un entraînement espacé en Français sur grammaire, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "lexique",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Français, sur lexique, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Français sur lexique, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -838,10 +766,7 @@
               "orthographe reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Français, sur conjugaison. Créer un conflit cognitif en Français, faire verbaliser le raisonnement sur conjugaison, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en Français, sur grammaire. Poser les définitions utiles en Français, montrer des exemples sur grammaire, puis proposer un entraînement court et répété.",
-              "Séance 3 — Stabiliser l'acquis encore fragile en Français, sur lecture. Organiser un entraînement espacé en Français sur lecture, sans réenseigner ce qui est déjà compris.",
-              "Séance 4 — Établir le niveau réel en Français, sur orthographe, avant de choisir une remédiation. Commencer par un test ciblé en Français sur orthographe, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -873,40 +798,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "conjugaison",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Français, sur conjugaison.",
-                "demarche": "Créer un conflit cognitif en Français, faire verbaliser le raisonnement sur conjugaison, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "grammaire",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Français, sur grammaire.",
-                "demarche": "Poser les définitions utiles en Français, montrer des exemples sur grammaire, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "lecture",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Français, sur lecture.",
-                "demarche": "Organiser un entraînement espacé en Français sur lecture, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "orthographe",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Français, sur orthographe, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Français sur orthographe, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -1188,10 +1080,7 @@
               "conjugaison reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Français, sur grammaire. Créer un conflit cognitif en Français, faire verbaliser le raisonnement sur grammaire, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en Français, sur lecture. Poser les définitions utiles en Français, montrer des exemples sur lecture, puis proposer un entraînement court et répété.",
-              "Séance 3 — Stabiliser l'acquis encore fragile en Français, sur lexique. Organiser un entraînement espacé en Français sur lexique, sans réenseigner ce qui est déjà compris.",
-              "Séance 4 — Établir le niveau réel en Français, sur conjugaison, avant de choisir une remédiation. Commencer par un test ciblé en Français sur conjugaison, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -1223,40 +1112,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "grammaire",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Français, sur grammaire.",
-                "demarche": "Créer un conflit cognitif en Français, faire verbaliser le raisonnement sur grammaire, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "lecture",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Français, sur lecture.",
-                "demarche": "Poser les définitions utiles en Français, montrer des exemples sur lecture, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "lexique",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Français, sur lexique.",
-                "demarche": "Organiser un entraînement espacé en Français sur lexique, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "conjugaison",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Français, sur conjugaison, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Français sur conjugaison, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -1538,10 +1394,7 @@
               "grammaire reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Français, sur lecture. Créer un conflit cognitif en Français, faire verbaliser le raisonnement sur lecture, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en Français, sur lexique. Poser les définitions utiles en Français, montrer des exemples sur lexique, puis proposer un entraînement court et répété.",
-              "Séance 3 — Stabiliser l'acquis encore fragile en Français, sur orthographe. Organiser un entraînement espacé en Français sur orthographe, sans réenseigner ce qui est déjà compris.",
-              "Séance 4 — Établir le niveau réel en Français, sur grammaire, avant de choisir une remédiation. Commencer par un test ciblé en Français sur grammaire, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -1573,40 +1426,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "lecture",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Français, sur lecture.",
-                "demarche": "Créer un conflit cognitif en Français, faire verbaliser le raisonnement sur lecture, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "lexique",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Français, sur lexique.",
-                "demarche": "Poser les définitions utiles en Français, montrer des exemples sur lexique, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "orthographe",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Français, sur orthographe.",
-                "demarche": "Organiser un entraînement espacé en Français sur orthographe, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "grammaire",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Français, sur grammaire, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Français sur grammaire, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -1888,10 +1708,7 @@
               "lecture reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Français, sur lexique. Créer un conflit cognitif en Français, faire verbaliser le raisonnement sur lexique, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en Français, sur orthographe. Poser les définitions utiles en Français, montrer des exemples sur orthographe, puis proposer un entraînement court et répété.",
-              "Séance 3 — Stabiliser l'acquis encore fragile en Français, sur conjugaison. Organiser un entraînement espacé en Français sur conjugaison, sans réenseigner ce qui est déjà compris.",
-              "Séance 4 — Établir le niveau réel en Français, sur lecture, avant de choisir une remédiation. Commencer par un test ciblé en Français sur lecture, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -1923,40 +1740,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "lexique",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Français, sur lexique.",
-                "demarche": "Créer un conflit cognitif en Français, faire verbaliser le raisonnement sur lexique, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "orthographe",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Français, sur orthographe.",
-                "demarche": "Poser les définitions utiles en Français, montrer des exemples sur orthographe, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "conjugaison",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Français, sur conjugaison.",
-                "demarche": "Organiser un entraînement espacé en Français sur conjugaison, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "lecture",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Français, sur lecture, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Français sur lecture, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -2238,10 +2022,7 @@
               "lexique reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Français, sur orthographe. Créer un conflit cognitif en Français, faire verbaliser le raisonnement sur orthographe, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en Français, sur conjugaison. Poser les définitions utiles en Français, montrer des exemples sur conjugaison, puis proposer un entraînement court et répété.",
-              "Séance 3 — Stabiliser l'acquis encore fragile en Français, sur grammaire. Organiser un entraînement espacé en Français sur grammaire, sans réenseigner ce qui est déjà compris.",
-              "Séance 4 — Établir le niveau réel en Français, sur lexique, avant de choisir une remédiation. Commencer par un test ciblé en Français sur lexique, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -2273,40 +2054,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "orthographe",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Français, sur orthographe.",
-                "demarche": "Créer un conflit cognitif en Français, faire verbaliser le raisonnement sur orthographe, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "conjugaison",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Français, sur conjugaison.",
-                "demarche": "Poser les définitions utiles en Français, montrer des exemples sur conjugaison, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "grammaire",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Français, sur grammaire.",
-                "demarche": "Organiser un entraînement espacé en Français sur grammaire, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "lexique",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Français, sur lexique, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Français sur lexique, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -2588,10 +2336,7 @@
               "orthographe reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Français, sur conjugaison. Créer un conflit cognitif en Français, faire verbaliser le raisonnement sur conjugaison, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en Français, sur grammaire. Poser les définitions utiles en Français, montrer des exemples sur grammaire, puis proposer un entraînement court et répété.",
-              "Séance 3 — Stabiliser l'acquis encore fragile en Français, sur lecture. Organiser un entraînement espacé en Français sur lecture, sans réenseigner ce qui est déjà compris.",
-              "Séance 4 — Établir le niveau réel en Français, sur orthographe, avant de choisir une remédiation. Commencer par un test ciblé en Français sur orthographe, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -2623,40 +2368,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "conjugaison",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Français, sur conjugaison.",
-                "demarche": "Créer un conflit cognitif en Français, faire verbaliser le raisonnement sur conjugaison, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "grammaire",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Français, sur grammaire.",
-                "demarche": "Poser les définitions utiles en Français, montrer des exemples sur grammaire, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "lecture",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Français, sur lecture.",
-                "demarche": "Organiser un entraînement espacé en Français sur lecture, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "orthographe",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Français, sur orthographe, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Français sur orthographe, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -2938,10 +2650,7 @@
               "conjugaison reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Français, sur grammaire. Créer un conflit cognitif en Français, faire verbaliser le raisonnement sur grammaire, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en Français, sur lecture. Poser les définitions utiles en Français, montrer des exemples sur lecture, puis proposer un entraînement court et répété.",
-              "Séance 3 — Stabiliser l'acquis encore fragile en Français, sur lexique. Organiser un entraînement espacé en Français sur lexique, sans réenseigner ce qui est déjà compris.",
-              "Séance 4 — Établir le niveau réel en Français, sur conjugaison, avant de choisir une remédiation. Commencer par un test ciblé en Français sur conjugaison, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -2973,40 +2682,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "grammaire",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Français, sur grammaire.",
-                "demarche": "Créer un conflit cognitif en Français, faire verbaliser le raisonnement sur grammaire, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "lecture",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Français, sur lecture.",
-                "demarche": "Poser les définitions utiles en Français, montrer des exemples sur lecture, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "lexique",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Français, sur lexique.",
-                "demarche": "Organiser un entraînement espacé en Français sur lexique, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "conjugaison",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Français, sur conjugaison, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Français sur conjugaison, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -3288,10 +2964,7 @@
               "grammaire reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Français, sur lecture. Créer un conflit cognitif en Français, faire verbaliser le raisonnement sur lecture, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en Français, sur lexique. Poser les définitions utiles en Français, montrer des exemples sur lexique, puis proposer un entraînement court et répété.",
-              "Séance 3 — Stabiliser l'acquis encore fragile en Français, sur orthographe. Organiser un entraînement espacé en Français sur orthographe, sans réenseigner ce qui est déjà compris.",
-              "Séance 4 — Établir le niveau réel en Français, sur grammaire, avant de choisir une remédiation. Commencer par un test ciblé en Français sur grammaire, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -3323,40 +2996,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "lecture",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Français, sur lecture.",
-                "demarche": "Créer un conflit cognitif en Français, faire verbaliser le raisonnement sur lecture, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "lexique",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Français, sur lexique.",
-                "demarche": "Poser les définitions utiles en Français, montrer des exemples sur lexique, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "orthographe",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Français, sur orthographe.",
-                "demarche": "Organiser un entraînement espacé en Français sur orthographe, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "grammaire",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Français, sur grammaire, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Français sur grammaire, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -3638,10 +3278,7 @@
               "lecture reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Français, sur lexique. Créer un conflit cognitif en Français, faire verbaliser le raisonnement sur lexique, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en Français, sur orthographe. Poser les définitions utiles en Français, montrer des exemples sur orthographe, puis proposer un entraînement court et répété.",
-              "Séance 3 — Stabiliser l'acquis encore fragile en Français, sur conjugaison. Organiser un entraînement espacé en Français sur conjugaison, sans réenseigner ce qui est déjà compris.",
-              "Séance 4 — Établir le niveau réel en Français, sur lecture, avant de choisir une remédiation. Commencer par un test ciblé en Français sur lecture, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -3673,40 +3310,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "lexique",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Français, sur lexique.",
-                "demarche": "Créer un conflit cognitif en Français, faire verbaliser le raisonnement sur lexique, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "orthographe",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Français, sur orthographe.",
-                "demarche": "Poser les définitions utiles en Français, montrer des exemples sur orthographe, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "conjugaison",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Français, sur conjugaison.",
-                "demarche": "Organiser un entraînement espacé en Français sur conjugaison, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "lecture",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Français, sur lecture, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Français sur lecture, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -3988,10 +3592,7 @@
               "lexique reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Français, sur orthographe. Créer un conflit cognitif en Français, faire verbaliser le raisonnement sur orthographe, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en Français, sur conjugaison. Poser les définitions utiles en Français, montrer des exemples sur conjugaison, puis proposer un entraînement court et répété.",
-              "Séance 3 — Stabiliser l'acquis encore fragile en Français, sur grammaire. Organiser un entraînement espacé en Français sur grammaire, sans réenseigner ce qui est déjà compris.",
-              "Séance 4 — Établir le niveau réel en Français, sur lexique, avant de choisir une remédiation. Commencer par un test ciblé en Français sur lexique, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -4023,40 +3624,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "orthographe",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Français, sur orthographe.",
-                "demarche": "Créer un conflit cognitif en Français, faire verbaliser le raisonnement sur orthographe, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "conjugaison",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Français, sur conjugaison.",
-                "demarche": "Poser les définitions utiles en Français, montrer des exemples sur conjugaison, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "grammaire",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Français, sur grammaire.",
-                "demarche": "Organiser un entraînement espacé en Français sur grammaire, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "lexique",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Français, sur lexique, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Français sur lexique, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -4338,10 +3906,7 @@
               "orthographe reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Français, sur conjugaison. Créer un conflit cognitif en Français, faire verbaliser le raisonnement sur conjugaison, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en Français, sur grammaire. Poser les définitions utiles en Français, montrer des exemples sur grammaire, puis proposer un entraînement court et répété.",
-              "Séance 3 — Stabiliser l'acquis encore fragile en Français, sur lecture. Organiser un entraînement espacé en Français sur lecture, sans réenseigner ce qui est déjà compris.",
-              "Séance 4 — Établir le niveau réel en Français, sur orthographe, avant de choisir une remédiation. Commencer par un test ciblé en Français sur orthographe, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -4373,40 +3938,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "conjugaison",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Français, sur conjugaison.",
-                "demarche": "Créer un conflit cognitif en Français, faire verbaliser le raisonnement sur conjugaison, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "grammaire",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Français, sur grammaire.",
-                "demarche": "Poser les définitions utiles en Français, montrer des exemples sur grammaire, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "lecture",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Français, sur lecture.",
-                "demarche": "Organiser un entraînement espacé en Français sur lecture, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "orthographe",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Français, sur orthographe, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Français sur orthographe, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -4688,10 +4220,7 @@
               "conjugaison reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Français, sur grammaire. Créer un conflit cognitif en Français, faire verbaliser le raisonnement sur grammaire, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en Français, sur lecture. Poser les définitions utiles en Français, montrer des exemples sur lecture, puis proposer un entraînement court et répété.",
-              "Séance 3 — Stabiliser l'acquis encore fragile en Français, sur lexique. Organiser un entraînement espacé en Français sur lexique, sans réenseigner ce qui est déjà compris.",
-              "Séance 4 — Établir le niveau réel en Français, sur conjugaison, avant de choisir une remédiation. Commencer par un test ciblé en Français sur conjugaison, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -4723,40 +4252,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "grammaire",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Français, sur grammaire.",
-                "demarche": "Créer un conflit cognitif en Français, faire verbaliser le raisonnement sur grammaire, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "lecture",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Français, sur lecture.",
-                "demarche": "Poser les définitions utiles en Français, montrer des exemples sur lecture, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "lexique",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Français, sur lexique.",
-                "demarche": "Organiser un entraînement espacé en Français sur lexique, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "conjugaison",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Français, sur conjugaison, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Français sur conjugaison, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -5038,10 +4534,7 @@
               "grammaire reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Français, sur lecture. Créer un conflit cognitif en Français, faire verbaliser le raisonnement sur lecture, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en Français, sur lexique. Poser les définitions utiles en Français, montrer des exemples sur lexique, puis proposer un entraînement court et répété.",
-              "Séance 3 — Stabiliser l'acquis encore fragile en Français, sur orthographe. Organiser un entraînement espacé en Français sur orthographe, sans réenseigner ce qui est déjà compris.",
-              "Séance 4 — Établir le niveau réel en Français, sur grammaire, avant de choisir une remédiation. Commencer par un test ciblé en Français sur grammaire, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -5073,40 +4566,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "lecture",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Français, sur lecture.",
-                "demarche": "Créer un conflit cognitif en Français, faire verbaliser le raisonnement sur lecture, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "lexique",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Français, sur lexique.",
-                "demarche": "Poser les définitions utiles en Français, montrer des exemples sur lexique, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "orthographe",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Français, sur orthographe.",
-                "demarche": "Organiser un entraînement espacé en Français sur orthographe, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "grammaire",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Français, sur grammaire, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Français sur grammaire, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -5388,10 +4848,7 @@
               "lecture reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Français, sur lexique. Créer un conflit cognitif en Français, faire verbaliser le raisonnement sur lexique, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en Français, sur orthographe. Poser les définitions utiles en Français, montrer des exemples sur orthographe, puis proposer un entraînement court et répété.",
-              "Séance 3 — Stabiliser l'acquis encore fragile en Français, sur conjugaison. Organiser un entraînement espacé en Français sur conjugaison, sans réenseigner ce qui est déjà compris.",
-              "Séance 4 — Établir le niveau réel en Français, sur lecture, avant de choisir une remédiation. Commencer par un test ciblé en Français sur lecture, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -5423,40 +4880,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "lexique",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Français, sur lexique.",
-                "demarche": "Créer un conflit cognitif en Français, faire verbaliser le raisonnement sur lexique, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "orthographe",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Français, sur orthographe.",
-                "demarche": "Poser les définitions utiles en Français, montrer des exemples sur orthographe, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "conjugaison",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Français, sur conjugaison.",
-                "demarche": "Organiser un entraînement espacé en Français sur conjugaison, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "lecture",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Français, sur lecture, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Français sur lecture, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -5738,10 +5162,7 @@
               "lexique reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Français, sur orthographe. Créer un conflit cognitif en Français, faire verbaliser le raisonnement sur orthographe, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en Français, sur conjugaison. Poser les définitions utiles en Français, montrer des exemples sur conjugaison, puis proposer un entraînement court et répété.",
-              "Séance 3 — Stabiliser l'acquis encore fragile en Français, sur grammaire. Organiser un entraînement espacé en Français sur grammaire, sans réenseigner ce qui est déjà compris.",
-              "Séance 4 — Établir le niveau réel en Français, sur lexique, avant de choisir une remédiation. Commencer par un test ciblé en Français sur lexique, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -5773,40 +5194,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "orthographe",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Français, sur orthographe.",
-                "demarche": "Créer un conflit cognitif en Français, faire verbaliser le raisonnement sur orthographe, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "conjugaison",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Français, sur conjugaison.",
-                "demarche": "Poser les définitions utiles en Français, montrer des exemples sur conjugaison, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "grammaire",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Français, sur grammaire.",
-                "demarche": "Organiser un entraînement espacé en Français sur grammaire, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "lexique",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Français, sur lexique, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Français sur lexique, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -6088,10 +5476,7 @@
               "orthographe reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Français, sur conjugaison. Créer un conflit cognitif en Français, faire verbaliser le raisonnement sur conjugaison, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en Français, sur grammaire. Poser les définitions utiles en Français, montrer des exemples sur grammaire, puis proposer un entraînement court et répété.",
-              "Séance 3 — Stabiliser l'acquis encore fragile en Français, sur lecture. Organiser un entraînement espacé en Français sur lecture, sans réenseigner ce qui est déjà compris.",
-              "Séance 4 — Établir le niveau réel en Français, sur orthographe, avant de choisir une remédiation. Commencer par un test ciblé en Français sur orthographe, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -6123,40 +5508,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "conjugaison",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Français, sur conjugaison.",
-                "demarche": "Créer un conflit cognitif en Français, faire verbaliser le raisonnement sur conjugaison, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "grammaire",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Français, sur grammaire.",
-                "demarche": "Poser les définitions utiles en Français, montrer des exemples sur grammaire, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "lecture",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Français, sur lecture.",
-                "demarche": "Organiser un entraînement espacé en Français sur lecture, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "orthographe",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Français, sur orthographe, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Français sur orthographe, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -6438,10 +5790,7 @@
               "conjugaison reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Français, sur grammaire. Créer un conflit cognitif en Français, faire verbaliser le raisonnement sur grammaire, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en Français, sur lecture. Poser les définitions utiles en Français, montrer des exemples sur lecture, puis proposer un entraînement court et répété.",
-              "Séance 3 — Stabiliser l'acquis encore fragile en Français, sur lexique. Organiser un entraînement espacé en Français sur lexique, sans réenseigner ce qui est déjà compris.",
-              "Séance 4 — Établir le niveau réel en Français, sur conjugaison, avant de choisir une remédiation. Commencer par un test ciblé en Français sur conjugaison, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -6473,40 +5822,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "grammaire",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Français, sur grammaire.",
-                "demarche": "Créer un conflit cognitif en Français, faire verbaliser le raisonnement sur grammaire, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "lecture",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Français, sur lecture.",
-                "demarche": "Poser les définitions utiles en Français, montrer des exemples sur lecture, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "lexique",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Français, sur lexique.",
-                "demarche": "Organiser un entraînement espacé en Français sur lexique, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "conjugaison",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Français, sur conjugaison, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Français sur conjugaison, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -6788,10 +6104,7 @@
               "grammaire reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Français, sur lecture. Créer un conflit cognitif en Français, faire verbaliser le raisonnement sur lecture, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en Français, sur lexique. Poser les définitions utiles en Français, montrer des exemples sur lexique, puis proposer un entraînement court et répété.",
-              "Séance 3 — Stabiliser l'acquis encore fragile en Français, sur orthographe. Organiser un entraînement espacé en Français sur orthographe, sans réenseigner ce qui est déjà compris.",
-              "Séance 4 — Établir le niveau réel en Français, sur grammaire, avant de choisir une remédiation. Commencer par un test ciblé en Français sur grammaire, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -6823,40 +6136,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "lecture",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Français, sur lecture.",
-                "demarche": "Créer un conflit cognitif en Français, faire verbaliser le raisonnement sur lecture, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "lexique",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Français, sur lexique.",
-                "demarche": "Poser les définitions utiles en Français, montrer des exemples sur lexique, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "orthographe",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Français, sur orthographe.",
-                "demarche": "Organiser un entraînement espacé en Français sur orthographe, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "grammaire",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Français, sur grammaire, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Français sur grammaire, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }

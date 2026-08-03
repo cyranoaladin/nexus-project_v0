@@ -42,10 +42,10 @@ describe('A90.2 deterministic HTML reports', () => {
   it('renders the complete parent path without referral CTA or scores', () => {
     const html = renderDeterministicBilanHtml(ENTRY_RECIPE_FACT_SHEETS[0], 'PARENTS', identity);
 
-    expect(html).toContain('Le parcours de votre enfant pendant le stage');
-    expect(html).toContain('Séance 1');
-    expect(html).toContain('Objectif');
-    expect(html).toContain('Démarche');
+    expect(html).toContain('Comment le diagnostic construit les cinq séances');
+    expect(html).toContain('cinq séances de deux heures');
+    expect(html).toContain('Aucun module n&#39;est fixé');
+    expect(html).not.toContain('Le parcours de votre enfant pendant le stage');
     expect(html).not.toContain('Être conseillé');
     expect(html).not.toContain('Un échange');
     expect(html).not.toMatch(/globalScore|domainScores|calibrationIndex|\bscore\b/i);

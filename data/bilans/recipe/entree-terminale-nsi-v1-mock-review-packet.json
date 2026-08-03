@@ -161,11 +161,7 @@
               "algorithmique reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en NSI, sur programmation. Créer un conflit cognitif en NSI, faire verbaliser le raisonnement sur programmation, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en NSI, sur types-construits. Poser les définitions utiles en NSI, montrer des exemples sur types-construits, puis proposer un entraînement court et répété.",
-              "Séance 3 — Stabiliser l'acquis encore fragile en NSI, sur booleens. Organiser un entraînement espacé en NSI sur booleens, sans réenseigner ce qui est déjà compris.",
-              "Séance 4 — Stabiliser l'acquis encore fragile en NSI, sur architecture. Organiser un entraînement espacé en NSI sur architecture, sans réenseigner ce qui est déjà compris.",
-              "Séance 5 — Établir le niveau réel en NSI, sur algorithmique, avant de choisir une remédiation. Commencer par un test ciblé en NSI sur algorithmique, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -207,48 +203,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "programmation",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en NSI, sur programmation.",
-                "demarche": "Créer un conflit cognitif en NSI, faire verbaliser le raisonnement sur programmation, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "types-construits",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en NSI, sur types-construits.",
-                "demarche": "Poser les définitions utiles en NSI, montrer des exemples sur types-construits, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "booleens",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en NSI, sur booleens.",
-                "demarche": "Organiser un entraînement espacé en NSI sur booleens, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "architecture",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en NSI, sur architecture.",
-                "demarche": "Organiser un entraînement espacé en NSI sur architecture, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "algorithmique",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en NSI, sur algorithmique, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en NSI sur algorithmique, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 5",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -596,12 +551,7 @@
               "programmation reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en NSI, sur types-construits. Créer un conflit cognitif en NSI, faire verbaliser le raisonnement sur types-construits, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en NSI, sur booleens. Poser les définitions utiles en NSI, montrer des exemples sur booleens, puis proposer un entraînement court et répété.",
-              "Séance 3 — Installer les repères indispensables en NSI, sur architecture. Poser les définitions utiles en NSI, montrer des exemples sur architecture, puis proposer un entraînement court et répété.",
-              "Séance 4 — Stabiliser l'acquis encore fragile en NSI, sur representation. Organiser un entraînement espacé en NSI sur representation, sans réenseigner ce qui est déjà compris.",
-              "Séance 5 — Stabiliser l'acquis encore fragile en NSI, sur donnees. Organiser un entraînement espacé en NSI sur donnees, sans réenseigner ce qui est déjà compris.",
-              "Séance 6 — Établir le niveau réel en NSI, sur programmation, avant de choisir une remédiation. Commencer par un test ciblé en NSI sur programmation, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -643,56 +593,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "types-construits",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en NSI, sur types-construits.",
-                "demarche": "Créer un conflit cognitif en NSI, faire verbaliser le raisonnement sur types-construits, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "booleens",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en NSI, sur booleens.",
-                "demarche": "Poser les définitions utiles en NSI, montrer des exemples sur booleens, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "architecture",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en NSI, sur architecture.",
-                "demarche": "Poser les définitions utiles en NSI, montrer des exemples sur architecture, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "representation",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en NSI, sur representation.",
-                "demarche": "Organiser un entraînement espacé en NSI sur representation, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "donnees",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en NSI, sur donnees.",
-                "demarche": "Organiser un entraînement espacé en NSI sur donnees, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 5",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "programmation",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en NSI, sur programmation, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en NSI sur programmation, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 6",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -1050,12 +951,7 @@
               "types-construits reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en NSI, sur architecture. Créer un conflit cognitif en NSI, faire verbaliser le raisonnement sur architecture, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Lever une représentation incorrecte en NSI, sur booleens. Créer un conflit cognitif en NSI, faire verbaliser le raisonnement sur booleens, puis reconstruire la notion avant tout entraînement.",
-              "Séance 3 — Installer les repères indispensables en NSI, sur representation. Poser les définitions utiles en NSI, montrer des exemples sur representation, puis proposer un entraînement court et répété.",
-              "Séance 4 — Installer les repères indispensables en NSI, sur donnees. Poser les définitions utiles en NSI, montrer des exemples sur donnees, puis proposer un entraînement court et répété.",
-              "Séance 5 — Stabiliser l'acquis encore fragile en NSI, sur algorithmique. Organiser un entraînement espacé en NSI sur algorithmique, sans réenseigner ce qui est déjà compris.",
-              "Séance 6 — Établir le niveau réel en NSI, sur types-construits, avant de choisir une remédiation. Commencer par un test ciblé en NSI sur types-construits, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -1097,56 +993,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "architecture",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en NSI, sur architecture.",
-                "demarche": "Créer un conflit cognitif en NSI, faire verbaliser le raisonnement sur architecture, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "booleens",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en NSI, sur booleens.",
-                "demarche": "Créer un conflit cognitif en NSI, faire verbaliser le raisonnement sur booleens, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "representation",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en NSI, sur representation.",
-                "demarche": "Poser les définitions utiles en NSI, montrer des exemples sur representation, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "donnees",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en NSI, sur donnees.",
-                "demarche": "Poser les définitions utiles en NSI, montrer des exemples sur donnees, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "algorithmique",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en NSI, sur algorithmique.",
-                "demarche": "Organiser un entraînement espacé en NSI sur algorithmique, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 5",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "types-construits",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en NSI, sur types-construits, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en NSI sur types-construits, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 6",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -1504,12 +1351,7 @@
               "booleens reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en NSI, sur donnees. Créer un conflit cognitif en NSI, faire verbaliser le raisonnement sur donnees, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Lever une représentation incorrecte en NSI, sur representation. Créer un conflit cognitif en NSI, faire verbaliser le raisonnement sur representation, puis reconstruire la notion avant tout entraînement.",
-              "Séance 3 — Installer les repères indispensables en NSI, sur algorithmique. Poser les définitions utiles en NSI, montrer des exemples sur algorithmique, puis proposer un entraînement court et répété.",
-              "Séance 4 — Stabiliser l'acquis encore fragile en NSI, sur programmation. Organiser un entraînement espacé en NSI sur programmation, sans réenseigner ce qui est déjà compris.",
-              "Séance 5 — Établir le niveau réel en NSI, sur architecture, avant de choisir une remédiation. Commencer par un test ciblé en NSI sur architecture, puis décider du travail à engager à partir des observations.",
-              "Séance 6 — Établir le niveau réel en NSI, sur booleens, avant de choisir une remédiation. Commencer par un test ciblé en NSI sur booleens, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -1551,56 +1393,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "donnees",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en NSI, sur donnees.",
-                "demarche": "Créer un conflit cognitif en NSI, faire verbaliser le raisonnement sur donnees, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "representation",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en NSI, sur representation.",
-                "demarche": "Créer un conflit cognitif en NSI, faire verbaliser le raisonnement sur representation, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "algorithmique",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en NSI, sur algorithmique.",
-                "demarche": "Poser les définitions utiles en NSI, montrer des exemples sur algorithmique, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "programmation",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en NSI, sur programmation.",
-                "demarche": "Organiser un entraînement espacé en NSI sur programmation, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "architecture",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en NSI, sur architecture, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en NSI sur architecture, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 5",
-                "profileLabel": "non évalué"
-              },
-              {
-                "domainId": "booleens",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en NSI, sur booleens, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en NSI sur booleens, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 6",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -1949,11 +1742,7 @@
               "representation reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en NSI, sur algorithmique. Créer un conflit cognitif en NSI, faire verbaliser le raisonnement sur algorithmique, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en NSI, sur programmation. Poser les définitions utiles en NSI, montrer des exemples sur programmation, puis proposer un entraînement court et répété.",
-              "Séance 3 — Stabiliser l'acquis encore fragile en NSI, sur types-construits. Organiser un entraînement espacé en NSI sur types-construits, sans réenseigner ce qui est déjà compris.",
-              "Séance 4 — Établir le niveau réel en NSI, sur donnees, avant de choisir une remédiation. Commencer par un test ciblé en NSI sur donnees, puis décider du travail à engager à partir des observations.",
-              "Séance 5 — Établir le niveau réel en NSI, sur representation, avant de choisir une remédiation. Commencer par un test ciblé en NSI sur representation, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -1995,48 +1784,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "algorithmique",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en NSI, sur algorithmique.",
-                "demarche": "Créer un conflit cognitif en NSI, faire verbaliser le raisonnement sur algorithmique, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "programmation",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en NSI, sur programmation.",
-                "demarche": "Poser les définitions utiles en NSI, montrer des exemples sur programmation, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "types-construits",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en NSI, sur types-construits.",
-                "demarche": "Organiser un entraînement espacé en NSI sur types-construits, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "donnees",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en NSI, sur donnees, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en NSI sur donnees, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "non évalué"
-              },
-              {
-                "domainId": "representation",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en NSI, sur representation, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en NSI sur representation, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 5",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -2375,11 +2123,7 @@
               "algorithmique reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en NSI, sur programmation. Créer un conflit cognitif en NSI, faire verbaliser le raisonnement sur programmation, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en NSI, sur types-construits. Poser les définitions utiles en NSI, montrer des exemples sur types-construits, puis proposer un entraînement court et répété.",
-              "Séance 3 — Stabiliser l'acquis encore fragile en NSI, sur booleens. Organiser un entraînement espacé en NSI sur booleens, sans réenseigner ce qui est déjà compris.",
-              "Séance 4 — Stabiliser l'acquis encore fragile en NSI, sur architecture. Organiser un entraînement espacé en NSI sur architecture, sans réenseigner ce qui est déjà compris.",
-              "Séance 5 — Établir le niveau réel en NSI, sur algorithmique, avant de choisir une remédiation. Commencer par un test ciblé en NSI sur algorithmique, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -2421,48 +2165,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "programmation",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en NSI, sur programmation.",
-                "demarche": "Créer un conflit cognitif en NSI, faire verbaliser le raisonnement sur programmation, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "types-construits",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en NSI, sur types-construits.",
-                "demarche": "Poser les définitions utiles en NSI, montrer des exemples sur types-construits, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "booleens",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en NSI, sur booleens.",
-                "demarche": "Organiser un entraînement espacé en NSI sur booleens, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "architecture",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en NSI, sur architecture.",
-                "demarche": "Organiser un entraînement espacé en NSI sur architecture, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "algorithmique",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en NSI, sur algorithmique, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en NSI sur algorithmique, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 5",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -2810,12 +2513,7 @@
               "programmation reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en NSI, sur types-construits. Créer un conflit cognitif en NSI, faire verbaliser le raisonnement sur types-construits, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en NSI, sur booleens. Poser les définitions utiles en NSI, montrer des exemples sur booleens, puis proposer un entraînement court et répété.",
-              "Séance 3 — Installer les repères indispensables en NSI, sur architecture. Poser les définitions utiles en NSI, montrer des exemples sur architecture, puis proposer un entraînement court et répété.",
-              "Séance 4 — Stabiliser l'acquis encore fragile en NSI, sur representation. Organiser un entraînement espacé en NSI sur representation, sans réenseigner ce qui est déjà compris.",
-              "Séance 5 — Stabiliser l'acquis encore fragile en NSI, sur donnees. Organiser un entraînement espacé en NSI sur donnees, sans réenseigner ce qui est déjà compris.",
-              "Séance 6 — Établir le niveau réel en NSI, sur programmation, avant de choisir une remédiation. Commencer par un test ciblé en NSI sur programmation, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -2857,56 +2555,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "types-construits",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en NSI, sur types-construits.",
-                "demarche": "Créer un conflit cognitif en NSI, faire verbaliser le raisonnement sur types-construits, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "booleens",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en NSI, sur booleens.",
-                "demarche": "Poser les définitions utiles en NSI, montrer des exemples sur booleens, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "architecture",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en NSI, sur architecture.",
-                "demarche": "Poser les définitions utiles en NSI, montrer des exemples sur architecture, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "representation",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en NSI, sur representation.",
-                "demarche": "Organiser un entraînement espacé en NSI sur representation, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "donnees",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en NSI, sur donnees.",
-                "demarche": "Organiser un entraînement espacé en NSI sur donnees, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 5",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "programmation",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en NSI, sur programmation, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en NSI sur programmation, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 6",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -3264,12 +2913,7 @@
               "types-construits reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en NSI, sur architecture. Créer un conflit cognitif en NSI, faire verbaliser le raisonnement sur architecture, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Lever une représentation incorrecte en NSI, sur booleens. Créer un conflit cognitif en NSI, faire verbaliser le raisonnement sur booleens, puis reconstruire la notion avant tout entraînement.",
-              "Séance 3 — Installer les repères indispensables en NSI, sur representation. Poser les définitions utiles en NSI, montrer des exemples sur representation, puis proposer un entraînement court et répété.",
-              "Séance 4 — Installer les repères indispensables en NSI, sur donnees. Poser les définitions utiles en NSI, montrer des exemples sur donnees, puis proposer un entraînement court et répété.",
-              "Séance 5 — Stabiliser l'acquis encore fragile en NSI, sur algorithmique. Organiser un entraînement espacé en NSI sur algorithmique, sans réenseigner ce qui est déjà compris.",
-              "Séance 6 — Établir le niveau réel en NSI, sur types-construits, avant de choisir une remédiation. Commencer par un test ciblé en NSI sur types-construits, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -3311,56 +2955,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "architecture",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en NSI, sur architecture.",
-                "demarche": "Créer un conflit cognitif en NSI, faire verbaliser le raisonnement sur architecture, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "booleens",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en NSI, sur booleens.",
-                "demarche": "Créer un conflit cognitif en NSI, faire verbaliser le raisonnement sur booleens, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "representation",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en NSI, sur representation.",
-                "demarche": "Poser les définitions utiles en NSI, montrer des exemples sur representation, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "donnees",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en NSI, sur donnees.",
-                "demarche": "Poser les définitions utiles en NSI, montrer des exemples sur donnees, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "algorithmique",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en NSI, sur algorithmique.",
-                "demarche": "Organiser un entraînement espacé en NSI sur algorithmique, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 5",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "types-construits",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en NSI, sur types-construits, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en NSI sur types-construits, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 6",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -3718,12 +3313,7 @@
               "booleens reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en NSI, sur donnees. Créer un conflit cognitif en NSI, faire verbaliser le raisonnement sur donnees, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Lever une représentation incorrecte en NSI, sur representation. Créer un conflit cognitif en NSI, faire verbaliser le raisonnement sur representation, puis reconstruire la notion avant tout entraînement.",
-              "Séance 3 — Installer les repères indispensables en NSI, sur algorithmique. Poser les définitions utiles en NSI, montrer des exemples sur algorithmique, puis proposer un entraînement court et répété.",
-              "Séance 4 — Stabiliser l'acquis encore fragile en NSI, sur programmation. Organiser un entraînement espacé en NSI sur programmation, sans réenseigner ce qui est déjà compris.",
-              "Séance 5 — Établir le niveau réel en NSI, sur architecture, avant de choisir une remédiation. Commencer par un test ciblé en NSI sur architecture, puis décider du travail à engager à partir des observations.",
-              "Séance 6 — Établir le niveau réel en NSI, sur booleens, avant de choisir une remédiation. Commencer par un test ciblé en NSI sur booleens, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -3765,56 +3355,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "donnees",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en NSI, sur donnees.",
-                "demarche": "Créer un conflit cognitif en NSI, faire verbaliser le raisonnement sur donnees, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "representation",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en NSI, sur representation.",
-                "demarche": "Créer un conflit cognitif en NSI, faire verbaliser le raisonnement sur representation, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "algorithmique",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en NSI, sur algorithmique.",
-                "demarche": "Poser les définitions utiles en NSI, montrer des exemples sur algorithmique, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "programmation",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en NSI, sur programmation.",
-                "demarche": "Organiser un entraînement espacé en NSI sur programmation, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "architecture",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en NSI, sur architecture, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en NSI sur architecture, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 5",
-                "profileLabel": "non évalué"
-              },
-              {
-                "domainId": "booleens",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en NSI, sur booleens, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en NSI sur booleens, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 6",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -4163,11 +3704,7 @@
               "representation reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en NSI, sur algorithmique. Créer un conflit cognitif en NSI, faire verbaliser le raisonnement sur algorithmique, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en NSI, sur programmation. Poser les définitions utiles en NSI, montrer des exemples sur programmation, puis proposer un entraînement court et répété.",
-              "Séance 3 — Stabiliser l'acquis encore fragile en NSI, sur types-construits. Organiser un entraînement espacé en NSI sur types-construits, sans réenseigner ce qui est déjà compris.",
-              "Séance 4 — Établir le niveau réel en NSI, sur donnees, avant de choisir une remédiation. Commencer par un test ciblé en NSI sur donnees, puis décider du travail à engager à partir des observations.",
-              "Séance 5 — Établir le niveau réel en NSI, sur representation, avant de choisir une remédiation. Commencer par un test ciblé en NSI sur representation, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -4209,48 +3746,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "algorithmique",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en NSI, sur algorithmique.",
-                "demarche": "Créer un conflit cognitif en NSI, faire verbaliser le raisonnement sur algorithmique, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "programmation",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en NSI, sur programmation.",
-                "demarche": "Poser les définitions utiles en NSI, montrer des exemples sur programmation, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "types-construits",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en NSI, sur types-construits.",
-                "demarche": "Organiser un entraînement espacé en NSI sur types-construits, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "donnees",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en NSI, sur donnees, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en NSI sur donnees, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "non évalué"
-              },
-              {
-                "domainId": "representation",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en NSI, sur representation, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en NSI sur representation, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 5",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -4589,11 +4085,7 @@
               "algorithmique reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en NSI, sur programmation. Créer un conflit cognitif en NSI, faire verbaliser le raisonnement sur programmation, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en NSI, sur types-construits. Poser les définitions utiles en NSI, montrer des exemples sur types-construits, puis proposer un entraînement court et répété.",
-              "Séance 3 — Stabiliser l'acquis encore fragile en NSI, sur booleens. Organiser un entraînement espacé en NSI sur booleens, sans réenseigner ce qui est déjà compris.",
-              "Séance 4 — Stabiliser l'acquis encore fragile en NSI, sur architecture. Organiser un entraînement espacé en NSI sur architecture, sans réenseigner ce qui est déjà compris.",
-              "Séance 5 — Établir le niveau réel en NSI, sur algorithmique, avant de choisir une remédiation. Commencer par un test ciblé en NSI sur algorithmique, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -4635,48 +4127,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "programmation",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en NSI, sur programmation.",
-                "demarche": "Créer un conflit cognitif en NSI, faire verbaliser le raisonnement sur programmation, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "types-construits",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en NSI, sur types-construits.",
-                "demarche": "Poser les définitions utiles en NSI, montrer des exemples sur types-construits, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "booleens",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en NSI, sur booleens.",
-                "demarche": "Organiser un entraînement espacé en NSI sur booleens, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "architecture",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en NSI, sur architecture.",
-                "demarche": "Organiser un entraînement espacé en NSI sur architecture, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "algorithmique",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en NSI, sur algorithmique, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en NSI sur algorithmique, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 5",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -5024,12 +4475,7 @@
               "programmation reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en NSI, sur types-construits. Créer un conflit cognitif en NSI, faire verbaliser le raisonnement sur types-construits, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en NSI, sur booleens. Poser les définitions utiles en NSI, montrer des exemples sur booleens, puis proposer un entraînement court et répété.",
-              "Séance 3 — Installer les repères indispensables en NSI, sur architecture. Poser les définitions utiles en NSI, montrer des exemples sur architecture, puis proposer un entraînement court et répété.",
-              "Séance 4 — Stabiliser l'acquis encore fragile en NSI, sur representation. Organiser un entraînement espacé en NSI sur representation, sans réenseigner ce qui est déjà compris.",
-              "Séance 5 — Stabiliser l'acquis encore fragile en NSI, sur donnees. Organiser un entraînement espacé en NSI sur donnees, sans réenseigner ce qui est déjà compris.",
-              "Séance 6 — Établir le niveau réel en NSI, sur programmation, avant de choisir une remédiation. Commencer par un test ciblé en NSI sur programmation, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -5071,56 +4517,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "types-construits",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en NSI, sur types-construits.",
-                "demarche": "Créer un conflit cognitif en NSI, faire verbaliser le raisonnement sur types-construits, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "booleens",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en NSI, sur booleens.",
-                "demarche": "Poser les définitions utiles en NSI, montrer des exemples sur booleens, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "architecture",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en NSI, sur architecture.",
-                "demarche": "Poser les définitions utiles en NSI, montrer des exemples sur architecture, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "representation",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en NSI, sur representation.",
-                "demarche": "Organiser un entraînement espacé en NSI sur representation, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "donnees",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en NSI, sur donnees.",
-                "demarche": "Organiser un entraînement espacé en NSI sur donnees, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 5",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "programmation",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en NSI, sur programmation, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en NSI sur programmation, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 6",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -5478,12 +4875,7 @@
               "types-construits reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en NSI, sur architecture. Créer un conflit cognitif en NSI, faire verbaliser le raisonnement sur architecture, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Lever une représentation incorrecte en NSI, sur booleens. Créer un conflit cognitif en NSI, faire verbaliser le raisonnement sur booleens, puis reconstruire la notion avant tout entraînement.",
-              "Séance 3 — Installer les repères indispensables en NSI, sur donnees. Poser les définitions utiles en NSI, montrer des exemples sur donnees, puis proposer un entraînement court et répété.",
-              "Séance 4 — Installer les repères indispensables en NSI, sur representation. Poser les définitions utiles en NSI, montrer des exemples sur representation, puis proposer un entraînement court et répété.",
-              "Séance 5 — Stabiliser l'acquis encore fragile en NSI, sur algorithmique. Organiser un entraînement espacé en NSI sur algorithmique, sans réenseigner ce qui est déjà compris.",
-              "Séance 6 — Établir le niveau réel en NSI, sur types-construits, avant de choisir une remédiation. Commencer par un test ciblé en NSI sur types-construits, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -5525,56 +4917,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "architecture",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en NSI, sur architecture.",
-                "demarche": "Créer un conflit cognitif en NSI, faire verbaliser le raisonnement sur architecture, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "booleens",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en NSI, sur booleens.",
-                "demarche": "Créer un conflit cognitif en NSI, faire verbaliser le raisonnement sur booleens, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "donnees",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en NSI, sur donnees.",
-                "demarche": "Poser les définitions utiles en NSI, montrer des exemples sur donnees, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "representation",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en NSI, sur representation.",
-                "demarche": "Poser les définitions utiles en NSI, montrer des exemples sur representation, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "algorithmique",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en NSI, sur algorithmique.",
-                "demarche": "Organiser un entraînement espacé en NSI sur algorithmique, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 5",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "types-construits",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en NSI, sur types-construits, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en NSI sur types-construits, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 6",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -5932,12 +5275,7 @@
               "booleens reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en NSI, sur donnees. Créer un conflit cognitif en NSI, faire verbaliser le raisonnement sur donnees, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Lever une représentation incorrecte en NSI, sur representation. Créer un conflit cognitif en NSI, faire verbaliser le raisonnement sur representation, puis reconstruire la notion avant tout entraînement.",
-              "Séance 3 — Installer les repères indispensables en NSI, sur algorithmique. Poser les définitions utiles en NSI, montrer des exemples sur algorithmique, puis proposer un entraînement court et répété.",
-              "Séance 4 — Stabiliser l'acquis encore fragile en NSI, sur programmation. Organiser un entraînement espacé en NSI sur programmation, sans réenseigner ce qui est déjà compris.",
-              "Séance 5 — Établir le niveau réel en NSI, sur architecture, avant de choisir une remédiation. Commencer par un test ciblé en NSI sur architecture, puis décider du travail à engager à partir des observations.",
-              "Séance 6 — Établir le niveau réel en NSI, sur booleens, avant de choisir une remédiation. Commencer par un test ciblé en NSI sur booleens, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -5979,56 +5317,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "donnees",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en NSI, sur donnees.",
-                "demarche": "Créer un conflit cognitif en NSI, faire verbaliser le raisonnement sur donnees, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "representation",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en NSI, sur representation.",
-                "demarche": "Créer un conflit cognitif en NSI, faire verbaliser le raisonnement sur representation, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "algorithmique",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en NSI, sur algorithmique.",
-                "demarche": "Poser les définitions utiles en NSI, montrer des exemples sur algorithmique, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "programmation",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en NSI, sur programmation.",
-                "demarche": "Organiser un entraînement espacé en NSI sur programmation, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "architecture",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en NSI, sur architecture, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en NSI sur architecture, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 5",
-                "profileLabel": "non évalué"
-              },
-              {
-                "domainId": "booleens",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en NSI, sur booleens, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en NSI sur booleens, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 6",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -6377,11 +5666,7 @@
               "representation reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en NSI, sur algorithmique. Créer un conflit cognitif en NSI, faire verbaliser le raisonnement sur algorithmique, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en NSI, sur programmation. Poser les définitions utiles en NSI, montrer des exemples sur programmation, puis proposer un entraînement court et répété.",
-              "Séance 3 — Stabiliser l'acquis encore fragile en NSI, sur types-construits. Organiser un entraînement espacé en NSI sur types-construits, sans réenseigner ce qui est déjà compris.",
-              "Séance 4 — Établir le niveau réel en NSI, sur donnees, avant de choisir une remédiation. Commencer par un test ciblé en NSI sur donnees, puis décider du travail à engager à partir des observations.",
-              "Séance 5 — Établir le niveau réel en NSI, sur representation, avant de choisir une remédiation. Commencer par un test ciblé en NSI sur representation, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -6423,48 +5708,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "algorithmique",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en NSI, sur algorithmique.",
-                "demarche": "Créer un conflit cognitif en NSI, faire verbaliser le raisonnement sur algorithmique, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "programmation",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en NSI, sur programmation.",
-                "demarche": "Poser les définitions utiles en NSI, montrer des exemples sur programmation, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "types-construits",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en NSI, sur types-construits.",
-                "demarche": "Organiser un entraînement espacé en NSI sur types-construits, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "donnees",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en NSI, sur donnees, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en NSI sur donnees, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "non évalué"
-              },
-              {
-                "domainId": "representation",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en NSI, sur representation, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en NSI sur representation, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 5",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -6803,11 +6047,7 @@
               "algorithmique reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en NSI, sur programmation. Créer un conflit cognitif en NSI, faire verbaliser le raisonnement sur programmation, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en NSI, sur types-construits. Poser les définitions utiles en NSI, montrer des exemples sur types-construits, puis proposer un entraînement court et répété.",
-              "Séance 3 — Stabiliser l'acquis encore fragile en NSI, sur booleens. Organiser un entraînement espacé en NSI sur booleens, sans réenseigner ce qui est déjà compris.",
-              "Séance 4 — Stabiliser l'acquis encore fragile en NSI, sur architecture. Organiser un entraînement espacé en NSI sur architecture, sans réenseigner ce qui est déjà compris.",
-              "Séance 5 — Établir le niveau réel en NSI, sur algorithmique, avant de choisir une remédiation. Commencer par un test ciblé en NSI sur algorithmique, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -6849,48 +6089,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "programmation",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en NSI, sur programmation.",
-                "demarche": "Créer un conflit cognitif en NSI, faire verbaliser le raisonnement sur programmation, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "types-construits",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en NSI, sur types-construits.",
-                "demarche": "Poser les définitions utiles en NSI, montrer des exemples sur types-construits, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "booleens",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en NSI, sur booleens.",
-                "demarche": "Organiser un entraînement espacé en NSI sur booleens, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "architecture",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en NSI, sur architecture.",
-                "demarche": "Organiser un entraînement espacé en NSI sur architecture, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "algorithmique",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en NSI, sur algorithmique, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en NSI sur algorithmique, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 5",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -7238,12 +6437,7 @@
               "programmation reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en NSI, sur types-construits. Créer un conflit cognitif en NSI, faire verbaliser le raisonnement sur types-construits, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en NSI, sur booleens. Poser les définitions utiles en NSI, montrer des exemples sur booleens, puis proposer un entraînement court et répété.",
-              "Séance 3 — Installer les repères indispensables en NSI, sur architecture. Poser les définitions utiles en NSI, montrer des exemples sur architecture, puis proposer un entraînement court et répété.",
-              "Séance 4 — Stabiliser l'acquis encore fragile en NSI, sur representation. Organiser un entraînement espacé en NSI sur representation, sans réenseigner ce qui est déjà compris.",
-              "Séance 5 — Stabiliser l'acquis encore fragile en NSI, sur donnees. Organiser un entraînement espacé en NSI sur donnees, sans réenseigner ce qui est déjà compris.",
-              "Séance 6 — Établir le niveau réel en NSI, sur programmation, avant de choisir une remédiation. Commencer par un test ciblé en NSI sur programmation, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -7285,56 +6479,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "types-construits",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en NSI, sur types-construits.",
-                "demarche": "Créer un conflit cognitif en NSI, faire verbaliser le raisonnement sur types-construits, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "booleens",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en NSI, sur booleens.",
-                "demarche": "Poser les définitions utiles en NSI, montrer des exemples sur booleens, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "architecture",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en NSI, sur architecture.",
-                "demarche": "Poser les définitions utiles en NSI, montrer des exemples sur architecture, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "representation",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en NSI, sur representation.",
-                "demarche": "Organiser un entraînement espacé en NSI sur representation, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "donnees",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en NSI, sur donnees.",
-                "demarche": "Organiser un entraînement espacé en NSI sur donnees, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 5",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "programmation",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en NSI, sur programmation, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en NSI sur programmation, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 6",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -7692,12 +6837,7 @@
               "types-construits reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en NSI, sur architecture. Créer un conflit cognitif en NSI, faire verbaliser le raisonnement sur architecture, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Lever une représentation incorrecte en NSI, sur booleens. Créer un conflit cognitif en NSI, faire verbaliser le raisonnement sur booleens, puis reconstruire la notion avant tout entraînement.",
-              "Séance 3 — Installer les repères indispensables en NSI, sur donnees. Poser les définitions utiles en NSI, montrer des exemples sur donnees, puis proposer un entraînement court et répété.",
-              "Séance 4 — Installer les repères indispensables en NSI, sur representation. Poser les définitions utiles en NSI, montrer des exemples sur representation, puis proposer un entraînement court et répété.",
-              "Séance 5 — Stabiliser l'acquis encore fragile en NSI, sur algorithmique. Organiser un entraînement espacé en NSI sur algorithmique, sans réenseigner ce qui est déjà compris.",
-              "Séance 6 — Établir le niveau réel en NSI, sur types-construits, avant de choisir une remédiation. Commencer par un test ciblé en NSI sur types-construits, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -7739,56 +6879,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "architecture",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en NSI, sur architecture.",
-                "demarche": "Créer un conflit cognitif en NSI, faire verbaliser le raisonnement sur architecture, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "booleens",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en NSI, sur booleens.",
-                "demarche": "Créer un conflit cognitif en NSI, faire verbaliser le raisonnement sur booleens, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "donnees",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en NSI, sur donnees.",
-                "demarche": "Poser les définitions utiles en NSI, montrer des exemples sur donnees, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "representation",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en NSI, sur representation.",
-                "demarche": "Poser les définitions utiles en NSI, montrer des exemples sur representation, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "algorithmique",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en NSI, sur algorithmique.",
-                "demarche": "Organiser un entraînement espacé en NSI sur algorithmique, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 5",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "types-construits",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en NSI, sur types-construits, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en NSI sur types-construits, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 6",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -8146,12 +7237,7 @@
               "booleens reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en NSI, sur donnees. Créer un conflit cognitif en NSI, faire verbaliser le raisonnement sur donnees, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Lever une représentation incorrecte en NSI, sur representation. Créer un conflit cognitif en NSI, faire verbaliser le raisonnement sur representation, puis reconstruire la notion avant tout entraînement.",
-              "Séance 3 — Installer les repères indispensables en NSI, sur algorithmique. Poser les définitions utiles en NSI, montrer des exemples sur algorithmique, puis proposer un entraînement court et répété.",
-              "Séance 4 — Stabiliser l'acquis encore fragile en NSI, sur programmation. Organiser un entraînement espacé en NSI sur programmation, sans réenseigner ce qui est déjà compris.",
-              "Séance 5 — Établir le niveau réel en NSI, sur architecture, avant de choisir une remédiation. Commencer par un test ciblé en NSI sur architecture, puis décider du travail à engager à partir des observations.",
-              "Séance 6 — Établir le niveau réel en NSI, sur booleens, avant de choisir une remédiation. Commencer par un test ciblé en NSI sur booleens, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -8193,56 +7279,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "donnees",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en NSI, sur donnees.",
-                "demarche": "Créer un conflit cognitif en NSI, faire verbaliser le raisonnement sur donnees, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "representation",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en NSI, sur representation.",
-                "demarche": "Créer un conflit cognitif en NSI, faire verbaliser le raisonnement sur representation, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "algorithmique",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en NSI, sur algorithmique.",
-                "demarche": "Poser les définitions utiles en NSI, montrer des exemples sur algorithmique, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "programmation",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en NSI, sur programmation.",
-                "demarche": "Organiser un entraînement espacé en NSI sur programmation, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "architecture",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en NSI, sur architecture, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en NSI sur architecture, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 5",
-                "profileLabel": "non évalué"
-              },
-              {
-                "domainId": "booleens",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en NSI, sur booleens, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en NSI sur booleens, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 6",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -8591,11 +7628,7 @@
               "representation reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en NSI, sur algorithmique. Créer un conflit cognitif en NSI, faire verbaliser le raisonnement sur algorithmique, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en NSI, sur programmation. Poser les définitions utiles en NSI, montrer des exemples sur programmation, puis proposer un entraînement court et répété.",
-              "Séance 3 — Stabiliser l'acquis encore fragile en NSI, sur types-construits. Organiser un entraînement espacé en NSI sur types-construits, sans réenseigner ce qui est déjà compris.",
-              "Séance 4 — Établir le niveau réel en NSI, sur donnees, avant de choisir une remédiation. Commencer par un test ciblé en NSI sur donnees, puis décider du travail à engager à partir des observations.",
-              "Séance 5 — Établir le niveau réel en NSI, sur representation, avant de choisir une remédiation. Commencer par un test ciblé en NSI sur representation, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -8637,48 +7670,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "algorithmique",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en NSI, sur algorithmique.",
-                "demarche": "Créer un conflit cognitif en NSI, faire verbaliser le raisonnement sur algorithmique, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "programmation",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en NSI, sur programmation.",
-                "demarche": "Poser les définitions utiles en NSI, montrer des exemples sur programmation, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "types-construits",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en NSI, sur types-construits.",
-                "demarche": "Organiser un entraînement espacé en NSI sur types-construits, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "donnees",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en NSI, sur donnees, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en NSI sur donnees, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "non évalué"
-              },
-              {
-                "domainId": "representation",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en NSI, sur representation, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en NSI sur representation, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 5",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }

@@ -3,7 +3,7 @@
   "sourcePack": {
     "slug": "entree-premiere-maths-v1",
     "version": 1,
-    "checksum": "7974f87a275d5bae678de5543304eb412c34bf05520f8a7d6295cbfcd5f8fa61"
+    "checksum": "08255df0838e6e34a2e284b2891350d45a6c6088dd5ba9b104017a90f485bfe1"
   },
   "pipeline": [
     "rawAnswers",
@@ -777,14 +777,7 @@
             "fonctions reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
           ],
           "actionPlan": [
-            "Séance 1 — Lever une représentation incorrecte en Mathématiques, sur pourcentages. Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur pourcentages, puis reconstruire la notion avant tout entraînement.",
-            "Séance 2 — Lever une représentation incorrecte en Mathématiques, sur fonctions-reference. Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur fonctions-reference, puis reconstruire la notion avant tout entraînement.",
-            "Séance 3 — Lever une représentation incorrecte en Mathématiques, sur calcul-numerique. Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur calcul-numerique, puis reconstruire la notion avant tout entraînement.",
-            "Séance 4 — Installer les repères indispensables en Mathématiques, sur inequations. Poser les définitions utiles en Mathématiques, montrer des exemples sur inequations, puis proposer un entraînement court et répété.",
-            "Séance 5 — Stabiliser l'acquis encore fragile en Mathématiques, sur calcul-litteral. Organiser un entraînement espacé en Mathématiques sur calcul-litteral, sans réenseigner ce qui est déjà compris.",
-            "Séance 6 — Établir le niveau réel en Mathématiques, sur vecteurs, avant de choisir une remédiation. Commencer par un test ciblé en Mathématiques sur vecteurs, puis décider du travail à engager à partir des observations.",
-            "Séance 7 — Établir le niveau réel en Mathématiques, sur probabilites, avant de choisir une remédiation. Commencer par un test ciblé en Mathématiques sur probabilites, puis décider du travail à engager à partir des observations.",
-            "Séance 8 — Établir le niveau réel en Mathématiques, sur fonctions, avant de choisir une remédiation. Commencer par un test ciblé en Mathématiques sur fonctions, puis décider du travail à engager à partir des observations."
+            "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
           ]
         },
         "domains": [
@@ -836,72 +829,7 @@
         ],
         "learningPath": {
           "version": "learning-path.v1",
-          "steps": [
-            {
-              "domainId": "pourcentages",
-              "phaseDidactique": "Confronter",
-              "objectif": "Lever une représentation incorrecte en Mathématiques, sur pourcentages.",
-              "demarche": "Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur pourcentages, puis reconstruire la notion avant tout entraînement.",
-              "seanceLabel": "Séance 1",
-              "profileLabel": "sûr mais à revoir"
-            },
-            {
-              "domainId": "fonctions-reference",
-              "phaseDidactique": "Confronter",
-              "objectif": "Lever une représentation incorrecte en Mathématiques, sur fonctions-reference.",
-              "demarche": "Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur fonctions-reference, puis reconstruire la notion avant tout entraînement.",
-              "seanceLabel": "Séance 2",
-              "profileLabel": "sûr mais à revoir"
-            },
-            {
-              "domainId": "calcul-numerique",
-              "phaseDidactique": "Confronter",
-              "objectif": "Lever une représentation incorrecte en Mathématiques, sur calcul-numerique.",
-              "demarche": "Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur calcul-numerique, puis reconstruire la notion avant tout entraînement.",
-              "seanceLabel": "Séance 3",
-              "profileLabel": "sûr mais à revoir"
-            },
-            {
-              "domainId": "inequations",
-              "phaseDidactique": "Installer",
-              "objectif": "Installer les repères indispensables en Mathématiques, sur inequations.",
-              "demarche": "Poser les définitions utiles en Mathématiques, montrer des exemples sur inequations, puis proposer un entraînement court et répété.",
-              "seanceLabel": "Séance 4",
-              "profileLabel": "à combler (déjà repéré)"
-            },
-            {
-              "domainId": "calcul-litteral",
-              "phaseDidactique": "Consolider",
-              "objectif": "Stabiliser l'acquis encore fragile en Mathématiques, sur calcul-litteral.",
-              "demarche": "Organiser un entraînement espacé en Mathématiques sur calcul-litteral, sans réenseigner ce qui est déjà compris.",
-              "seanceLabel": "Séance 5",
-              "profileLabel": "fragile / à consolider"
-            },
-            {
-              "domainId": "vecteurs",
-              "phaseDidactique": "Diagnostiquer",
-              "objectif": "Établir le niveau réel en Mathématiques, sur vecteurs, avant de choisir une remédiation.",
-              "demarche": "Commencer par un test ciblé en Mathématiques sur vecteurs, puis décider du travail à engager à partir des observations.",
-              "seanceLabel": "Séance 6",
-              "profileLabel": "non évalué"
-            },
-            {
-              "domainId": "probabilites",
-              "phaseDidactique": "Diagnostiquer",
-              "objectif": "Établir le niveau réel en Mathématiques, sur probabilites, avant de choisir une remédiation.",
-              "demarche": "Commencer par un test ciblé en Mathématiques sur probabilites, puis décider du travail à engager à partir des observations.",
-              "seanceLabel": "Séance 7",
-              "profileLabel": "non évalué"
-            },
-            {
-              "domainId": "fonctions",
-              "phaseDidactique": "Diagnostiquer",
-              "objectif": "Établir le niveau réel en Mathématiques, sur fonctions, avant de choisir une remédiation.",
-              "demarche": "Commencer par un test ciblé en Mathématiques sur fonctions, puis décider du travail à engager à partir des observations.",
-              "seanceLabel": "Séance 8",
-              "profileLabel": "non évalué"
-            }
-          ]
+          "steps": []
         }
       }
     },

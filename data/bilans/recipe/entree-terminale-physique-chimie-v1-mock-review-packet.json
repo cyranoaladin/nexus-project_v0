@@ -161,11 +161,7 @@
               "ondes reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Physique-chimie, sur energie. Créer un conflit cognitif en Physique-chimie, faire verbaliser le raisonnement sur energie, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en Physique-chimie, sur mecanique. Poser les définitions utiles en Physique-chimie, montrer des exemples sur mecanique, puis proposer un entraînement court et répété.",
-              "Séance 3 — Stabiliser l'acquis encore fragile en Physique-chimie, sur chimie-organique. Organiser un entraînement espacé en Physique-chimie sur chimie-organique, sans réenseigner ce qui est déjà compris.",
-              "Séance 4 — Stabiliser l'acquis encore fragile en Physique-chimie, sur electricite. Organiser un entraînement espacé en Physique-chimie sur electricite, sans réenseigner ce qui est déjà compris.",
-              "Séance 5 — Établir le niveau réel en Physique-chimie, sur ondes, avant de choisir une remédiation. Commencer par un test ciblé en Physique-chimie sur ondes, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -207,48 +203,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "energie",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Physique-chimie, sur energie.",
-                "demarche": "Créer un conflit cognitif en Physique-chimie, faire verbaliser le raisonnement sur energie, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "mecanique",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Physique-chimie, sur mecanique.",
-                "demarche": "Poser les définitions utiles en Physique-chimie, montrer des exemples sur mecanique, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "chimie-organique",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Physique-chimie, sur chimie-organique.",
-                "demarche": "Organiser un entraînement espacé en Physique-chimie sur chimie-organique, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "electricite",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Physique-chimie, sur electricite.",
-                "demarche": "Organiser un entraînement espacé en Physique-chimie sur electricite, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "ondes",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Physique-chimie, sur ondes, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Physique-chimie sur ondes, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 5",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -596,12 +551,7 @@
               "energie reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Physique-chimie, sur mecanique. Créer un conflit cognitif en Physique-chimie, faire verbaliser le raisonnement sur mecanique, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en Physique-chimie, sur chimie-organique. Poser les définitions utiles en Physique-chimie, montrer des exemples sur chimie-organique, puis proposer un entraînement court et répété.",
-              "Séance 3 — Installer les repères indispensables en Physique-chimie, sur electricite. Poser les définitions utiles en Physique-chimie, montrer des exemples sur electricite, puis proposer un entraînement court et répété.",
-              "Séance 4 — Stabiliser l'acquis encore fragile en Physique-chimie, sur transformations. Organiser un entraînement espacé en Physique-chimie sur transformations, sans réenseigner ce qui est déjà compris.",
-              "Séance 5 — Stabiliser l'acquis encore fragile en Physique-chimie, sur optique. Organiser un entraînement espacé en Physique-chimie sur optique, sans réenseigner ce qui est déjà compris.",
-              "Séance 6 — Établir le niveau réel en Physique-chimie, sur energie, avant de choisir une remédiation. Commencer par un test ciblé en Physique-chimie sur energie, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -643,56 +593,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "mecanique",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Physique-chimie, sur mecanique.",
-                "demarche": "Créer un conflit cognitif en Physique-chimie, faire verbaliser le raisonnement sur mecanique, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "chimie-organique",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Physique-chimie, sur chimie-organique.",
-                "demarche": "Poser les définitions utiles en Physique-chimie, montrer des exemples sur chimie-organique, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "electricite",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Physique-chimie, sur electricite.",
-                "demarche": "Poser les définitions utiles en Physique-chimie, montrer des exemples sur electricite, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "transformations",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Physique-chimie, sur transformations.",
-                "demarche": "Organiser un entraînement espacé en Physique-chimie sur transformations, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "optique",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Physique-chimie, sur optique.",
-                "demarche": "Organiser un entraînement espacé en Physique-chimie sur optique, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 5",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "energie",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Physique-chimie, sur energie, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Physique-chimie sur energie, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 6",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -1050,12 +951,7 @@
               "mecanique reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Physique-chimie, sur electricite. Créer un conflit cognitif en Physique-chimie, faire verbaliser le raisonnement sur electricite, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Lever une représentation incorrecte en Physique-chimie, sur chimie-organique. Créer un conflit cognitif en Physique-chimie, faire verbaliser le raisonnement sur chimie-organique, puis reconstruire la notion avant tout entraînement.",
-              "Séance 3 — Installer les repères indispensables en Physique-chimie, sur transformations. Poser les définitions utiles en Physique-chimie, montrer des exemples sur transformations, puis proposer un entraînement court et répété.",
-              "Séance 4 — Installer les repères indispensables en Physique-chimie, sur optique. Poser les définitions utiles en Physique-chimie, montrer des exemples sur optique, puis proposer un entraînement court et répété.",
-              "Séance 5 — Stabiliser l'acquis encore fragile en Physique-chimie, sur ondes. Organiser un entraînement espacé en Physique-chimie sur ondes, sans réenseigner ce qui est déjà compris.",
-              "Séance 6 — Établir le niveau réel en Physique-chimie, sur mecanique, avant de choisir une remédiation. Commencer par un test ciblé en Physique-chimie sur mecanique, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -1097,56 +993,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "electricite",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Physique-chimie, sur electricite.",
-                "demarche": "Créer un conflit cognitif en Physique-chimie, faire verbaliser le raisonnement sur electricite, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "chimie-organique",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Physique-chimie, sur chimie-organique.",
-                "demarche": "Créer un conflit cognitif en Physique-chimie, faire verbaliser le raisonnement sur chimie-organique, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "transformations",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Physique-chimie, sur transformations.",
-                "demarche": "Poser les définitions utiles en Physique-chimie, montrer des exemples sur transformations, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "optique",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Physique-chimie, sur optique.",
-                "demarche": "Poser les définitions utiles en Physique-chimie, montrer des exemples sur optique, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "ondes",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Physique-chimie, sur ondes.",
-                "demarche": "Organiser un entraînement espacé en Physique-chimie sur ondes, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 5",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "mecanique",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Physique-chimie, sur mecanique, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Physique-chimie sur mecanique, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 6",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -1504,12 +1351,7 @@
               "chimie-organique reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Physique-chimie, sur optique. Créer un conflit cognitif en Physique-chimie, faire verbaliser le raisonnement sur optique, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Lever une représentation incorrecte en Physique-chimie, sur transformations. Créer un conflit cognitif en Physique-chimie, faire verbaliser le raisonnement sur transformations, puis reconstruire la notion avant tout entraînement.",
-              "Séance 3 — Installer les repères indispensables en Physique-chimie, sur ondes. Poser les définitions utiles en Physique-chimie, montrer des exemples sur ondes, puis proposer un entraînement court et répété.",
-              "Séance 4 — Stabiliser l'acquis encore fragile en Physique-chimie, sur energie. Organiser un entraînement espacé en Physique-chimie sur energie, sans réenseigner ce qui est déjà compris.",
-              "Séance 5 — Établir le niveau réel en Physique-chimie, sur electricite, avant de choisir une remédiation. Commencer par un test ciblé en Physique-chimie sur electricite, puis décider du travail à engager à partir des observations.",
-              "Séance 6 — Établir le niveau réel en Physique-chimie, sur chimie-organique, avant de choisir une remédiation. Commencer par un test ciblé en Physique-chimie sur chimie-organique, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -1551,56 +1393,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "optique",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Physique-chimie, sur optique.",
-                "demarche": "Créer un conflit cognitif en Physique-chimie, faire verbaliser le raisonnement sur optique, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "transformations",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Physique-chimie, sur transformations.",
-                "demarche": "Créer un conflit cognitif en Physique-chimie, faire verbaliser le raisonnement sur transformations, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "ondes",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Physique-chimie, sur ondes.",
-                "demarche": "Poser les définitions utiles en Physique-chimie, montrer des exemples sur ondes, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "energie",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Physique-chimie, sur energie.",
-                "demarche": "Organiser un entraînement espacé en Physique-chimie sur energie, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "electricite",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Physique-chimie, sur electricite, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Physique-chimie sur electricite, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 5",
-                "profileLabel": "non évalué"
-              },
-              {
-                "domainId": "chimie-organique",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Physique-chimie, sur chimie-organique, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Physique-chimie sur chimie-organique, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 6",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -1949,11 +1742,7 @@
               "transformations reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Physique-chimie, sur ondes. Créer un conflit cognitif en Physique-chimie, faire verbaliser le raisonnement sur ondes, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en Physique-chimie, sur energie. Poser les définitions utiles en Physique-chimie, montrer des exemples sur energie, puis proposer un entraînement court et répété.",
-              "Séance 3 — Stabiliser l'acquis encore fragile en Physique-chimie, sur mecanique. Organiser un entraînement espacé en Physique-chimie sur mecanique, sans réenseigner ce qui est déjà compris.",
-              "Séance 4 — Établir le niveau réel en Physique-chimie, sur optique, avant de choisir une remédiation. Commencer par un test ciblé en Physique-chimie sur optique, puis décider du travail à engager à partir des observations.",
-              "Séance 5 — Établir le niveau réel en Physique-chimie, sur transformations, avant de choisir une remédiation. Commencer par un test ciblé en Physique-chimie sur transformations, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -1995,48 +1784,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "ondes",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Physique-chimie, sur ondes.",
-                "demarche": "Créer un conflit cognitif en Physique-chimie, faire verbaliser le raisonnement sur ondes, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "energie",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Physique-chimie, sur energie.",
-                "demarche": "Poser les définitions utiles en Physique-chimie, montrer des exemples sur energie, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "mecanique",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Physique-chimie, sur mecanique.",
-                "demarche": "Organiser un entraînement espacé en Physique-chimie sur mecanique, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "optique",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Physique-chimie, sur optique, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Physique-chimie sur optique, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "non évalué"
-              },
-              {
-                "domainId": "transformations",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Physique-chimie, sur transformations, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Physique-chimie sur transformations, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 5",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -2375,11 +2123,7 @@
               "ondes reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Physique-chimie, sur energie. Créer un conflit cognitif en Physique-chimie, faire verbaliser le raisonnement sur energie, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en Physique-chimie, sur mecanique. Poser les définitions utiles en Physique-chimie, montrer des exemples sur mecanique, puis proposer un entraînement court et répété.",
-              "Séance 3 — Stabiliser l'acquis encore fragile en Physique-chimie, sur chimie-organique. Organiser un entraînement espacé en Physique-chimie sur chimie-organique, sans réenseigner ce qui est déjà compris.",
-              "Séance 4 — Stabiliser l'acquis encore fragile en Physique-chimie, sur electricite. Organiser un entraînement espacé en Physique-chimie sur electricite, sans réenseigner ce qui est déjà compris.",
-              "Séance 5 — Établir le niveau réel en Physique-chimie, sur ondes, avant de choisir une remédiation. Commencer par un test ciblé en Physique-chimie sur ondes, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -2421,48 +2165,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "energie",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Physique-chimie, sur energie.",
-                "demarche": "Créer un conflit cognitif en Physique-chimie, faire verbaliser le raisonnement sur energie, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "mecanique",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Physique-chimie, sur mecanique.",
-                "demarche": "Poser les définitions utiles en Physique-chimie, montrer des exemples sur mecanique, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "chimie-organique",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Physique-chimie, sur chimie-organique.",
-                "demarche": "Organiser un entraînement espacé en Physique-chimie sur chimie-organique, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "electricite",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Physique-chimie, sur electricite.",
-                "demarche": "Organiser un entraînement espacé en Physique-chimie sur electricite, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "ondes",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Physique-chimie, sur ondes, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Physique-chimie sur ondes, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 5",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -2810,12 +2513,7 @@
               "energie reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Physique-chimie, sur mecanique. Créer un conflit cognitif en Physique-chimie, faire verbaliser le raisonnement sur mecanique, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en Physique-chimie, sur chimie-organique. Poser les définitions utiles en Physique-chimie, montrer des exemples sur chimie-organique, puis proposer un entraînement court et répété.",
-              "Séance 3 — Installer les repères indispensables en Physique-chimie, sur electricite. Poser les définitions utiles en Physique-chimie, montrer des exemples sur electricite, puis proposer un entraînement court et répété.",
-              "Séance 4 — Stabiliser l'acquis encore fragile en Physique-chimie, sur transformations. Organiser un entraînement espacé en Physique-chimie sur transformations, sans réenseigner ce qui est déjà compris.",
-              "Séance 5 — Stabiliser l'acquis encore fragile en Physique-chimie, sur optique. Organiser un entraînement espacé en Physique-chimie sur optique, sans réenseigner ce qui est déjà compris.",
-              "Séance 6 — Établir le niveau réel en Physique-chimie, sur energie, avant de choisir une remédiation. Commencer par un test ciblé en Physique-chimie sur energie, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -2857,56 +2555,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "mecanique",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Physique-chimie, sur mecanique.",
-                "demarche": "Créer un conflit cognitif en Physique-chimie, faire verbaliser le raisonnement sur mecanique, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "chimie-organique",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Physique-chimie, sur chimie-organique.",
-                "demarche": "Poser les définitions utiles en Physique-chimie, montrer des exemples sur chimie-organique, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "electricite",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Physique-chimie, sur electricite.",
-                "demarche": "Poser les définitions utiles en Physique-chimie, montrer des exemples sur electricite, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "transformations",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Physique-chimie, sur transformations.",
-                "demarche": "Organiser un entraînement espacé en Physique-chimie sur transformations, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "optique",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Physique-chimie, sur optique.",
-                "demarche": "Organiser un entraînement espacé en Physique-chimie sur optique, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 5",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "energie",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Physique-chimie, sur energie, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Physique-chimie sur energie, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 6",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -3264,12 +2913,7 @@
               "mecanique reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Physique-chimie, sur electricite. Créer un conflit cognitif en Physique-chimie, faire verbaliser le raisonnement sur electricite, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Lever une représentation incorrecte en Physique-chimie, sur chimie-organique. Créer un conflit cognitif en Physique-chimie, faire verbaliser le raisonnement sur chimie-organique, puis reconstruire la notion avant tout entraînement.",
-              "Séance 3 — Installer les repères indispensables en Physique-chimie, sur transformations. Poser les définitions utiles en Physique-chimie, montrer des exemples sur transformations, puis proposer un entraînement court et répété.",
-              "Séance 4 — Installer les repères indispensables en Physique-chimie, sur optique. Poser les définitions utiles en Physique-chimie, montrer des exemples sur optique, puis proposer un entraînement court et répété.",
-              "Séance 5 — Stabiliser l'acquis encore fragile en Physique-chimie, sur ondes. Organiser un entraînement espacé en Physique-chimie sur ondes, sans réenseigner ce qui est déjà compris.",
-              "Séance 6 — Établir le niveau réel en Physique-chimie, sur mecanique, avant de choisir une remédiation. Commencer par un test ciblé en Physique-chimie sur mecanique, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -3311,56 +2955,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "electricite",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Physique-chimie, sur electricite.",
-                "demarche": "Créer un conflit cognitif en Physique-chimie, faire verbaliser le raisonnement sur electricite, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "chimie-organique",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Physique-chimie, sur chimie-organique.",
-                "demarche": "Créer un conflit cognitif en Physique-chimie, faire verbaliser le raisonnement sur chimie-organique, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "transformations",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Physique-chimie, sur transformations.",
-                "demarche": "Poser les définitions utiles en Physique-chimie, montrer des exemples sur transformations, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "optique",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Physique-chimie, sur optique.",
-                "demarche": "Poser les définitions utiles en Physique-chimie, montrer des exemples sur optique, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "ondes",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Physique-chimie, sur ondes.",
-                "demarche": "Organiser un entraînement espacé en Physique-chimie sur ondes, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 5",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "mecanique",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Physique-chimie, sur mecanique, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Physique-chimie sur mecanique, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 6",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -3718,12 +3313,7 @@
               "chimie-organique reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Physique-chimie, sur optique. Créer un conflit cognitif en Physique-chimie, faire verbaliser le raisonnement sur optique, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Lever une représentation incorrecte en Physique-chimie, sur transformations. Créer un conflit cognitif en Physique-chimie, faire verbaliser le raisonnement sur transformations, puis reconstruire la notion avant tout entraînement.",
-              "Séance 3 — Installer les repères indispensables en Physique-chimie, sur ondes. Poser les définitions utiles en Physique-chimie, montrer des exemples sur ondes, puis proposer un entraînement court et répété.",
-              "Séance 4 — Stabiliser l'acquis encore fragile en Physique-chimie, sur energie. Organiser un entraînement espacé en Physique-chimie sur energie, sans réenseigner ce qui est déjà compris.",
-              "Séance 5 — Établir le niveau réel en Physique-chimie, sur electricite, avant de choisir une remédiation. Commencer par un test ciblé en Physique-chimie sur electricite, puis décider du travail à engager à partir des observations.",
-              "Séance 6 — Établir le niveau réel en Physique-chimie, sur chimie-organique, avant de choisir une remédiation. Commencer par un test ciblé en Physique-chimie sur chimie-organique, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -3765,56 +3355,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "optique",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Physique-chimie, sur optique.",
-                "demarche": "Créer un conflit cognitif en Physique-chimie, faire verbaliser le raisonnement sur optique, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "transformations",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Physique-chimie, sur transformations.",
-                "demarche": "Créer un conflit cognitif en Physique-chimie, faire verbaliser le raisonnement sur transformations, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "ondes",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Physique-chimie, sur ondes.",
-                "demarche": "Poser les définitions utiles en Physique-chimie, montrer des exemples sur ondes, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "energie",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Physique-chimie, sur energie.",
-                "demarche": "Organiser un entraînement espacé en Physique-chimie sur energie, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "electricite",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Physique-chimie, sur electricite, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Physique-chimie sur electricite, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 5",
-                "profileLabel": "non évalué"
-              },
-              {
-                "domainId": "chimie-organique",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Physique-chimie, sur chimie-organique, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Physique-chimie sur chimie-organique, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 6",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -4163,11 +3704,7 @@
               "transformations reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Physique-chimie, sur ondes. Créer un conflit cognitif en Physique-chimie, faire verbaliser le raisonnement sur ondes, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en Physique-chimie, sur energie. Poser les définitions utiles en Physique-chimie, montrer des exemples sur energie, puis proposer un entraînement court et répété.",
-              "Séance 3 — Stabiliser l'acquis encore fragile en Physique-chimie, sur mecanique. Organiser un entraînement espacé en Physique-chimie sur mecanique, sans réenseigner ce qui est déjà compris.",
-              "Séance 4 — Établir le niveau réel en Physique-chimie, sur optique, avant de choisir une remédiation. Commencer par un test ciblé en Physique-chimie sur optique, puis décider du travail à engager à partir des observations.",
-              "Séance 5 — Établir le niveau réel en Physique-chimie, sur transformations, avant de choisir une remédiation. Commencer par un test ciblé en Physique-chimie sur transformations, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -4209,48 +3746,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "ondes",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Physique-chimie, sur ondes.",
-                "demarche": "Créer un conflit cognitif en Physique-chimie, faire verbaliser le raisonnement sur ondes, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "energie",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Physique-chimie, sur energie.",
-                "demarche": "Poser les définitions utiles en Physique-chimie, montrer des exemples sur energie, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "mecanique",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Physique-chimie, sur mecanique.",
-                "demarche": "Organiser un entraînement espacé en Physique-chimie sur mecanique, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "optique",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Physique-chimie, sur optique, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Physique-chimie sur optique, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "non évalué"
-              },
-              {
-                "domainId": "transformations",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Physique-chimie, sur transformations, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Physique-chimie sur transformations, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 5",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -4589,11 +4085,7 @@
               "ondes reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Physique-chimie, sur energie. Créer un conflit cognitif en Physique-chimie, faire verbaliser le raisonnement sur energie, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en Physique-chimie, sur mecanique. Poser les définitions utiles en Physique-chimie, montrer des exemples sur mecanique, puis proposer un entraînement court et répété.",
-              "Séance 3 — Stabiliser l'acquis encore fragile en Physique-chimie, sur chimie-organique. Organiser un entraînement espacé en Physique-chimie sur chimie-organique, sans réenseigner ce qui est déjà compris.",
-              "Séance 4 — Stabiliser l'acquis encore fragile en Physique-chimie, sur electricite. Organiser un entraînement espacé en Physique-chimie sur electricite, sans réenseigner ce qui est déjà compris.",
-              "Séance 5 — Établir le niveau réel en Physique-chimie, sur ondes, avant de choisir une remédiation. Commencer par un test ciblé en Physique-chimie sur ondes, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -4635,48 +4127,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "energie",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Physique-chimie, sur energie.",
-                "demarche": "Créer un conflit cognitif en Physique-chimie, faire verbaliser le raisonnement sur energie, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "mecanique",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Physique-chimie, sur mecanique.",
-                "demarche": "Poser les définitions utiles en Physique-chimie, montrer des exemples sur mecanique, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "chimie-organique",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Physique-chimie, sur chimie-organique.",
-                "demarche": "Organiser un entraînement espacé en Physique-chimie sur chimie-organique, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "electricite",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Physique-chimie, sur electricite.",
-                "demarche": "Organiser un entraînement espacé en Physique-chimie sur electricite, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "ondes",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Physique-chimie, sur ondes, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Physique-chimie sur ondes, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 5",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -5024,12 +4475,7 @@
               "energie reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Physique-chimie, sur mecanique. Créer un conflit cognitif en Physique-chimie, faire verbaliser le raisonnement sur mecanique, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en Physique-chimie, sur chimie-organique. Poser les définitions utiles en Physique-chimie, montrer des exemples sur chimie-organique, puis proposer un entraînement court et répété.",
-              "Séance 3 — Installer les repères indispensables en Physique-chimie, sur electricite. Poser les définitions utiles en Physique-chimie, montrer des exemples sur electricite, puis proposer un entraînement court et répété.",
-              "Séance 4 — Stabiliser l'acquis encore fragile en Physique-chimie, sur transformations. Organiser un entraînement espacé en Physique-chimie sur transformations, sans réenseigner ce qui est déjà compris.",
-              "Séance 5 — Stabiliser l'acquis encore fragile en Physique-chimie, sur optique. Organiser un entraînement espacé en Physique-chimie sur optique, sans réenseigner ce qui est déjà compris.",
-              "Séance 6 — Établir le niveau réel en Physique-chimie, sur energie, avant de choisir une remédiation. Commencer par un test ciblé en Physique-chimie sur energie, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -5071,56 +4517,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "mecanique",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Physique-chimie, sur mecanique.",
-                "demarche": "Créer un conflit cognitif en Physique-chimie, faire verbaliser le raisonnement sur mecanique, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "chimie-organique",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Physique-chimie, sur chimie-organique.",
-                "demarche": "Poser les définitions utiles en Physique-chimie, montrer des exemples sur chimie-organique, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "electricite",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Physique-chimie, sur electricite.",
-                "demarche": "Poser les définitions utiles en Physique-chimie, montrer des exemples sur electricite, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "transformations",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Physique-chimie, sur transformations.",
-                "demarche": "Organiser un entraînement espacé en Physique-chimie sur transformations, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "optique",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Physique-chimie, sur optique.",
-                "demarche": "Organiser un entraînement espacé en Physique-chimie sur optique, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 5",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "energie",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Physique-chimie, sur energie, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Physique-chimie sur energie, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 6",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -5478,12 +4875,7 @@
               "mecanique reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Physique-chimie, sur electricite. Créer un conflit cognitif en Physique-chimie, faire verbaliser le raisonnement sur electricite, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Lever une représentation incorrecte en Physique-chimie, sur chimie-organique. Créer un conflit cognitif en Physique-chimie, faire verbaliser le raisonnement sur chimie-organique, puis reconstruire la notion avant tout entraînement.",
-              "Séance 3 — Installer les repères indispensables en Physique-chimie, sur optique. Poser les définitions utiles en Physique-chimie, montrer des exemples sur optique, puis proposer un entraînement court et répété.",
-              "Séance 4 — Installer les repères indispensables en Physique-chimie, sur transformations. Poser les définitions utiles en Physique-chimie, montrer des exemples sur transformations, puis proposer un entraînement court et répété.",
-              "Séance 5 — Stabiliser l'acquis encore fragile en Physique-chimie, sur ondes. Organiser un entraînement espacé en Physique-chimie sur ondes, sans réenseigner ce qui est déjà compris.",
-              "Séance 6 — Établir le niveau réel en Physique-chimie, sur mecanique, avant de choisir une remédiation. Commencer par un test ciblé en Physique-chimie sur mecanique, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -5525,56 +4917,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "electricite",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Physique-chimie, sur electricite.",
-                "demarche": "Créer un conflit cognitif en Physique-chimie, faire verbaliser le raisonnement sur electricite, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "chimie-organique",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Physique-chimie, sur chimie-organique.",
-                "demarche": "Créer un conflit cognitif en Physique-chimie, faire verbaliser le raisonnement sur chimie-organique, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "optique",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Physique-chimie, sur optique.",
-                "demarche": "Poser les définitions utiles en Physique-chimie, montrer des exemples sur optique, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "transformations",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Physique-chimie, sur transformations.",
-                "demarche": "Poser les définitions utiles en Physique-chimie, montrer des exemples sur transformations, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "ondes",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Physique-chimie, sur ondes.",
-                "demarche": "Organiser un entraînement espacé en Physique-chimie sur ondes, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 5",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "mecanique",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Physique-chimie, sur mecanique, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Physique-chimie sur mecanique, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 6",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -5932,12 +5275,7 @@
               "chimie-organique reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Physique-chimie, sur optique. Créer un conflit cognitif en Physique-chimie, faire verbaliser le raisonnement sur optique, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Lever une représentation incorrecte en Physique-chimie, sur transformations. Créer un conflit cognitif en Physique-chimie, faire verbaliser le raisonnement sur transformations, puis reconstruire la notion avant tout entraînement.",
-              "Séance 3 — Installer les repères indispensables en Physique-chimie, sur ondes. Poser les définitions utiles en Physique-chimie, montrer des exemples sur ondes, puis proposer un entraînement court et répété.",
-              "Séance 4 — Stabiliser l'acquis encore fragile en Physique-chimie, sur energie. Organiser un entraînement espacé en Physique-chimie sur energie, sans réenseigner ce qui est déjà compris.",
-              "Séance 5 — Établir le niveau réel en Physique-chimie, sur electricite, avant de choisir une remédiation. Commencer par un test ciblé en Physique-chimie sur electricite, puis décider du travail à engager à partir des observations.",
-              "Séance 6 — Établir le niveau réel en Physique-chimie, sur chimie-organique, avant de choisir une remédiation. Commencer par un test ciblé en Physique-chimie sur chimie-organique, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -5979,56 +5317,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "optique",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Physique-chimie, sur optique.",
-                "demarche": "Créer un conflit cognitif en Physique-chimie, faire verbaliser le raisonnement sur optique, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "transformations",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Physique-chimie, sur transformations.",
-                "demarche": "Créer un conflit cognitif en Physique-chimie, faire verbaliser le raisonnement sur transformations, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "ondes",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Physique-chimie, sur ondes.",
-                "demarche": "Poser les définitions utiles en Physique-chimie, montrer des exemples sur ondes, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "energie",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Physique-chimie, sur energie.",
-                "demarche": "Organiser un entraînement espacé en Physique-chimie sur energie, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "electricite",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Physique-chimie, sur electricite, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Physique-chimie sur electricite, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 5",
-                "profileLabel": "non évalué"
-              },
-              {
-                "domainId": "chimie-organique",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Physique-chimie, sur chimie-organique, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Physique-chimie sur chimie-organique, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 6",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -6377,11 +5666,7 @@
               "transformations reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Physique-chimie, sur ondes. Créer un conflit cognitif en Physique-chimie, faire verbaliser le raisonnement sur ondes, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en Physique-chimie, sur energie. Poser les définitions utiles en Physique-chimie, montrer des exemples sur energie, puis proposer un entraînement court et répété.",
-              "Séance 3 — Stabiliser l'acquis encore fragile en Physique-chimie, sur mecanique. Organiser un entraînement espacé en Physique-chimie sur mecanique, sans réenseigner ce qui est déjà compris.",
-              "Séance 4 — Établir le niveau réel en Physique-chimie, sur optique, avant de choisir une remédiation. Commencer par un test ciblé en Physique-chimie sur optique, puis décider du travail à engager à partir des observations.",
-              "Séance 5 — Établir le niveau réel en Physique-chimie, sur transformations, avant de choisir une remédiation. Commencer par un test ciblé en Physique-chimie sur transformations, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -6423,48 +5708,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "ondes",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Physique-chimie, sur ondes.",
-                "demarche": "Créer un conflit cognitif en Physique-chimie, faire verbaliser le raisonnement sur ondes, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "energie",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Physique-chimie, sur energie.",
-                "demarche": "Poser les définitions utiles en Physique-chimie, montrer des exemples sur energie, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "mecanique",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Physique-chimie, sur mecanique.",
-                "demarche": "Organiser un entraînement espacé en Physique-chimie sur mecanique, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "optique",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Physique-chimie, sur optique, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Physique-chimie sur optique, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "non évalué"
-              },
-              {
-                "domainId": "transformations",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Physique-chimie, sur transformations, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Physique-chimie sur transformations, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 5",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -6803,11 +6047,7 @@
               "ondes reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Physique-chimie, sur energie. Créer un conflit cognitif en Physique-chimie, faire verbaliser le raisonnement sur energie, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en Physique-chimie, sur mecanique. Poser les définitions utiles en Physique-chimie, montrer des exemples sur mecanique, puis proposer un entraînement court et répété.",
-              "Séance 3 — Stabiliser l'acquis encore fragile en Physique-chimie, sur chimie-organique. Organiser un entraînement espacé en Physique-chimie sur chimie-organique, sans réenseigner ce qui est déjà compris.",
-              "Séance 4 — Stabiliser l'acquis encore fragile en Physique-chimie, sur electricite. Organiser un entraînement espacé en Physique-chimie sur electricite, sans réenseigner ce qui est déjà compris.",
-              "Séance 5 — Établir le niveau réel en Physique-chimie, sur ondes, avant de choisir une remédiation. Commencer par un test ciblé en Physique-chimie sur ondes, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -6849,48 +6089,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "energie",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Physique-chimie, sur energie.",
-                "demarche": "Créer un conflit cognitif en Physique-chimie, faire verbaliser le raisonnement sur energie, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "mecanique",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Physique-chimie, sur mecanique.",
-                "demarche": "Poser les définitions utiles en Physique-chimie, montrer des exemples sur mecanique, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "chimie-organique",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Physique-chimie, sur chimie-organique.",
-                "demarche": "Organiser un entraînement espacé en Physique-chimie sur chimie-organique, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "electricite",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Physique-chimie, sur electricite.",
-                "demarche": "Organiser un entraînement espacé en Physique-chimie sur electricite, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "ondes",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Physique-chimie, sur ondes, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Physique-chimie sur ondes, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 5",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -7238,12 +6437,7 @@
               "energie reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Physique-chimie, sur mecanique. Créer un conflit cognitif en Physique-chimie, faire verbaliser le raisonnement sur mecanique, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en Physique-chimie, sur chimie-organique. Poser les définitions utiles en Physique-chimie, montrer des exemples sur chimie-organique, puis proposer un entraînement court et répété.",
-              "Séance 3 — Installer les repères indispensables en Physique-chimie, sur electricite. Poser les définitions utiles en Physique-chimie, montrer des exemples sur electricite, puis proposer un entraînement court et répété.",
-              "Séance 4 — Stabiliser l'acquis encore fragile en Physique-chimie, sur transformations. Organiser un entraînement espacé en Physique-chimie sur transformations, sans réenseigner ce qui est déjà compris.",
-              "Séance 5 — Stabiliser l'acquis encore fragile en Physique-chimie, sur optique. Organiser un entraînement espacé en Physique-chimie sur optique, sans réenseigner ce qui est déjà compris.",
-              "Séance 6 — Établir le niveau réel en Physique-chimie, sur energie, avant de choisir une remédiation. Commencer par un test ciblé en Physique-chimie sur energie, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -7285,56 +6479,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "mecanique",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Physique-chimie, sur mecanique.",
-                "demarche": "Créer un conflit cognitif en Physique-chimie, faire verbaliser le raisonnement sur mecanique, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "chimie-organique",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Physique-chimie, sur chimie-organique.",
-                "demarche": "Poser les définitions utiles en Physique-chimie, montrer des exemples sur chimie-organique, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "electricite",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Physique-chimie, sur electricite.",
-                "demarche": "Poser les définitions utiles en Physique-chimie, montrer des exemples sur electricite, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "transformations",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Physique-chimie, sur transformations.",
-                "demarche": "Organiser un entraînement espacé en Physique-chimie sur transformations, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "optique",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Physique-chimie, sur optique.",
-                "demarche": "Organiser un entraînement espacé en Physique-chimie sur optique, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 5",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "energie",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Physique-chimie, sur energie, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Physique-chimie sur energie, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 6",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -7692,12 +6837,7 @@
               "mecanique reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Physique-chimie, sur electricite. Créer un conflit cognitif en Physique-chimie, faire verbaliser le raisonnement sur electricite, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Lever une représentation incorrecte en Physique-chimie, sur chimie-organique. Créer un conflit cognitif en Physique-chimie, faire verbaliser le raisonnement sur chimie-organique, puis reconstruire la notion avant tout entraînement.",
-              "Séance 3 — Installer les repères indispensables en Physique-chimie, sur optique. Poser les définitions utiles en Physique-chimie, montrer des exemples sur optique, puis proposer un entraînement court et répété.",
-              "Séance 4 — Installer les repères indispensables en Physique-chimie, sur transformations. Poser les définitions utiles en Physique-chimie, montrer des exemples sur transformations, puis proposer un entraînement court et répété.",
-              "Séance 5 — Stabiliser l'acquis encore fragile en Physique-chimie, sur ondes. Organiser un entraînement espacé en Physique-chimie sur ondes, sans réenseigner ce qui est déjà compris.",
-              "Séance 6 — Établir le niveau réel en Physique-chimie, sur mecanique, avant de choisir une remédiation. Commencer par un test ciblé en Physique-chimie sur mecanique, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -7739,56 +6879,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "electricite",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Physique-chimie, sur electricite.",
-                "demarche": "Créer un conflit cognitif en Physique-chimie, faire verbaliser le raisonnement sur electricite, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "chimie-organique",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Physique-chimie, sur chimie-organique.",
-                "demarche": "Créer un conflit cognitif en Physique-chimie, faire verbaliser le raisonnement sur chimie-organique, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "optique",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Physique-chimie, sur optique.",
-                "demarche": "Poser les définitions utiles en Physique-chimie, montrer des exemples sur optique, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "transformations",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Physique-chimie, sur transformations.",
-                "demarche": "Poser les définitions utiles en Physique-chimie, montrer des exemples sur transformations, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "ondes",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Physique-chimie, sur ondes.",
-                "demarche": "Organiser un entraînement espacé en Physique-chimie sur ondes, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 5",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "mecanique",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Physique-chimie, sur mecanique, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Physique-chimie sur mecanique, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 6",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -8146,12 +7237,7 @@
               "chimie-organique reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Physique-chimie, sur optique. Créer un conflit cognitif en Physique-chimie, faire verbaliser le raisonnement sur optique, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Lever une représentation incorrecte en Physique-chimie, sur transformations. Créer un conflit cognitif en Physique-chimie, faire verbaliser le raisonnement sur transformations, puis reconstruire la notion avant tout entraînement.",
-              "Séance 3 — Installer les repères indispensables en Physique-chimie, sur ondes. Poser les définitions utiles en Physique-chimie, montrer des exemples sur ondes, puis proposer un entraînement court et répété.",
-              "Séance 4 — Stabiliser l'acquis encore fragile en Physique-chimie, sur energie. Organiser un entraînement espacé en Physique-chimie sur energie, sans réenseigner ce qui est déjà compris.",
-              "Séance 5 — Établir le niveau réel en Physique-chimie, sur electricite, avant de choisir une remédiation. Commencer par un test ciblé en Physique-chimie sur electricite, puis décider du travail à engager à partir des observations.",
-              "Séance 6 — Établir le niveau réel en Physique-chimie, sur chimie-organique, avant de choisir une remédiation. Commencer par un test ciblé en Physique-chimie sur chimie-organique, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -8193,56 +7279,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "optique",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Physique-chimie, sur optique.",
-                "demarche": "Créer un conflit cognitif en Physique-chimie, faire verbaliser le raisonnement sur optique, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "transformations",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Physique-chimie, sur transformations.",
-                "demarche": "Créer un conflit cognitif en Physique-chimie, faire verbaliser le raisonnement sur transformations, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "ondes",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Physique-chimie, sur ondes.",
-                "demarche": "Poser les définitions utiles en Physique-chimie, montrer des exemples sur ondes, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "energie",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Physique-chimie, sur energie.",
-                "demarche": "Organiser un entraînement espacé en Physique-chimie sur energie, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "electricite",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Physique-chimie, sur electricite, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Physique-chimie sur electricite, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 5",
-                "profileLabel": "non évalué"
-              },
-              {
-                "domainId": "chimie-organique",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Physique-chimie, sur chimie-organique, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Physique-chimie sur chimie-organique, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 6",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -8591,11 +7628,7 @@
               "transformations reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Physique-chimie, sur ondes. Créer un conflit cognitif en Physique-chimie, faire verbaliser le raisonnement sur ondes, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en Physique-chimie, sur energie. Poser les définitions utiles en Physique-chimie, montrer des exemples sur energie, puis proposer un entraînement court et répété.",
-              "Séance 3 — Stabiliser l'acquis encore fragile en Physique-chimie, sur mecanique. Organiser un entraînement espacé en Physique-chimie sur mecanique, sans réenseigner ce qui est déjà compris.",
-              "Séance 4 — Établir le niveau réel en Physique-chimie, sur optique, avant de choisir une remédiation. Commencer par un test ciblé en Physique-chimie sur optique, puis décider du travail à engager à partir des observations.",
-              "Séance 5 — Établir le niveau réel en Physique-chimie, sur transformations, avant de choisir une remédiation. Commencer par un test ciblé en Physique-chimie sur transformations, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -8637,48 +7670,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "ondes",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Physique-chimie, sur ondes.",
-                "demarche": "Créer un conflit cognitif en Physique-chimie, faire verbaliser le raisonnement sur ondes, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "energie",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Physique-chimie, sur energie.",
-                "demarche": "Poser les définitions utiles en Physique-chimie, montrer des exemples sur energie, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "mecanique",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Physique-chimie, sur mecanique.",
-                "demarche": "Organiser un entraînement espacé en Physique-chimie sur mecanique, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "optique",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Physique-chimie, sur optique, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Physique-chimie sur optique, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "non évalué"
-              },
-              {
-                "domainId": "transformations",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Physique-chimie, sur transformations, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Physique-chimie sur transformations, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 5",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }

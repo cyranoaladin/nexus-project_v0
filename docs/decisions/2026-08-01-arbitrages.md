@@ -1005,3 +1005,67 @@ la lisibilité et la longueur des documents.
 
 **Motif.** La conformité technique ne décide ni de la qualité pédagogique ni du caractère
 raisonnable d'un bilan parents de cinq pages.
+
+## A107 — Quatrième livrable : plan de groupe
+
+**Constat.** Les trois rendus existants sont individuels, alors qu'un enseignant prépare cinq séances pour un groupe de trois à cinq élèves.
+
+**Décision.** Une audience interne `GROUPE` agrège les FactSheets d'un même pack et couvre les neuf nœuds sur 600 minutes, sans LLM, agent ni RAG. Elle reste distincte du contrat public des trois audiences et contient les identités nécessaires à la différenciation.
+
+**Motif.** Le temps, l'ordre et la profondeur varient après constitution du groupe ; aucun nœud structurant n'est supprimé.
+
+## A108 — Agrégation des profils de groupe
+
+**Constat.** Une moyenne masque les groupes divisés et confond maîtrise fragile et lacune consciente.
+
+**Décision.** L'agrégation applique dans l'ordre les règles de majorité en difficulté, de profil `DIVISE`, puis de maîtrise. `DIVISE` conserve nominativement les sous-groupes acquis et en difficulté.
+
+**Motif.** Une moitié du groupe ne doit pas recevoir un traitement moyen inadapté aux deux sous-groupes.
+
+## A109 — Allocation pédagogique figée à 600 minutes
+
+**Constat.** Les cinq profils agrégés appellent des traitements et volumes distincts.
+
+**Décision.** Les bases sont 75, 60, 55, 38 et 20 minutes, normalisées proportionnellement à 600, arrondies par cinq et bornées à 15–90. Le résiduel va à la plus grande allocation, puis au `nodeCpsId` croissant.
+
+**Motif.** La durée traduit la sévérité du diagnostic et ne doit jamais être corrigée pour faciliter le découpage horaire.
+
+## A110 — Ordre disciplinaire versionné
+
+**Constat.** Les catalogues CPS ne portaient aucune séquence explicite.
+
+**Décision.** Chaque nœud porte un `sequenceOrder` obligatoire, initialisé depuis l'ordre de première apparition dans la banque et amendable par le responsable pédagogique.
+
+**Motif.** La logique des prérequis, non l'urgence du diagnostic, ordonne le stage. La relation réelle stage-séances reste une dette : aucun modèle persistant n'est créé dans ce lot.
+
+## A111 — Contenu confidentiel du document de groupe
+
+**Constat.** L'enseignant a besoin du traitement, des durées et des vigilances individuelles, pas de cinq bilans à rapprocher manuellement.
+
+**Décision.** Le document interne affiche les cinq séances, les sous-groupes `DIVISE`, une vigilance par élève, les synthèses collectives et une bande de calibration indicative.
+
+**Motif.** Il s'agit d'un outil opérationnel Nexus contenant des données pédagogiques nominatives, jamais d'un document famille.
+
+## A112 — Bilan parents sans programme anticipé
+
+**Constat.** Le rendu promettait des modules avant que tous les diagnostics du groupe soient disponibles.
+
+**Décision.** Le bilan explique ce que révèle le diagnostic et comment il construira cinq séances de deux heures ; aucun module n'est annoncé comme fixé.
+
+**Motif.** Le programme réel naît du groupe constitué. Cette formulation est plus exacte pédagogiquement et commercialement.
+
+## A113 — Découpage local superseded
+
+**Constat.** Déplacer chaque coupe isolément vers la frontière la plus proche peut produire deux déplacements opposés et une séance de 140 minutes.
+
+**Décision.** A113 est superseded par A114. Aucune redistribution des durées n'est autorisée.
+
+**Motif.** Une heuristique locale ne garantit pas une propriété globale.
+
+## A114 — Recherche globale et repli explicite
+
+**Constat.** Les huit frontières de neuf nœuds donnent seulement 70 quadruplets possibles.
+
+**Décision.** Ils sont tous évalués selon l'écart maximal à 120, la somme des écarts puis l'ordre lexicographique des coupes. Une solution `105–135` est retenue si elle existe ; sinon le meilleur quadruplet est affiché avec un arbitrage enseignant explicite, sans modifier aucune durée.
+
+**Motif.** L'énumération est immédiate et déterministe. Avec neuf nœuds plafonnés à 90 minutes et cinq séances coupées uniquement aux frontières, au moins une séance contient un seul nœud : le repli est structurellement nécessaire tant que ces contraintes restent inchangées.

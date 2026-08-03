@@ -3,46 +3,55 @@ slug: 1re-physique-chimie-vers-terminale-v1
 version: 1
 nodes:
   - id: 1re.physique-chimie.transformations.avancement
+    sequenceOrder: 1
     label: Avancement et réactif limitant
     sourceLevel: PREMIERE
     targetLevel: TERMINALE
     pedagogicalRationale: le suivi temporel d'une transformation et les états d'équilibre, étudiés dès l'automne, reposent entièrement sur le tableau d'avancement.
   - id: 1re.physique-chimie.transformations.oxydo-reduction
+    sequenceOrder: 2
     label: Oxydo-réduction
     sourceLevel: PREMIERE
     targetLevel: TERMINALE
     pedagogicalRationale: les piles, l'électrolyse et l'évolution spontanée d'un système, au programme de Terminale, supposent de manier sûrement les couples et les transferts d'électrons.
   - id: 1re.physique-chimie.transformations.acide-base
+    sequenceOrder: 3
     label: Acide-base et pH
     sourceLevel: PREMIERE
     targetLevel: TERMINALE
     pedagogicalRationale: les équilibres acido-basiques, les titrages et la constante d'acidité, centraux en Terminale, s'appuient sur la définition de Brønsted et sur la nature logarithmique du pH.
   - id: 1re.physique-chimie.chimie-organique.familles-fonctionnelles
+    sequenceOrder: 4
     label: "Chimie organique : familles fonctionnelles"
     sourceLevel: PREMIERE
     targetLevel: TERMINALE
     pedagogicalRationale: les stratégies de synthèse et les mécanismes réactionnels de Terminale supposent d'identifier immédiatement les groupes caractéristiques.
   - id: 1re.physique-chimie.mecanique.forces-vecteur-vitesse
+    sequenceOrder: 5
     label: Forces et vecteur vitesse
     sourceLevel: PREMIERE
     targetLevel: TERMINALE
     pedagogicalRationale: la deuxième loi de Newton et l'étude des mouvements dans un champ uniforme supposent une représentation correcte du vecteur vitesse et un bilan des forces exact.
   - id: 1re.physique-chimie.energie.travail-energie-mecanique
+    sequenceOrder: 6
     label: Énergie cinétique, potentielle et travail
     sourceLevel: PREMIERE
     targetLevel: TERMINALE
     pedagogicalRationale: le premier principe et les bilans d'énergie de Terminale supposent de savoir calculer un travail et de reconnaître les formes d'énergie mécanique.
   - id: 1re.physique-chimie.ondes.caracteristiques
+    sequenceOrder: 7
     label: Caractéristiques des ondes
     sourceLevel: PREMIERE
     targetLevel: TERMINALE
     pedagogicalRationale: la diffraction, les interférences et l'effet Doppler, au programme de Terminale, exigent une relation sûre entre longueur d'onde, célérité et fréquence.
   - id: 1re.physique-chimie.optique.lentilles-images
+    sequenceOrder: 8
     label: Lentilles minces et formation des images
     sourceLevel: PREMIERE
     targetLevel: TERMINALE
     pedagogicalRationale: l'étude de la lunette astronomique en Terminale suppose la construction d'images et la connaissance des rayons particuliers.
   - id: 1re.physique-chimie.electricite.puissance-energie
+    sequenceOrder: 9
     label: Puissance et énergie électrique
     sourceLevel: PREMIERE
     targetLevel: TERMINALE

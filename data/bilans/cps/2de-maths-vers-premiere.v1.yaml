@@ -3,54 +3,63 @@ slug: 2de-maths-vers-premiere
 version: 1
 nodes:
   - id: 2de.maths.calcul-litteral.identites-remarquables
+    sequenceOrder: 1
     label: "Calcul littéral : identités remarquables et factorisation"
     sourceLevel: SECONDE
     targetLevel: PREMIERE
     pedagogicalRationale: >-
       La forme canonique du trinôme, introduite dès les premières semaines, repose entièrement sur l'identité (a ± b)². Un élève qui ne la maîtrise pas ne peut ni compléter le carré, ni établir la formule du discriminant, ni factoriser une expression du second degré.
   - id: 2de.maths.inequations.resolution-premier-degre
+    sequenceOrder: 2
     label: Inéquations et tableaux de signes
     sourceLevel: SECONDE
     targetLevel: PREMIERE
     pedagogicalRationale: >-
       L'étude du signe d'une dérivée, puis d'un trinôme, suppose de savoir dresser un tableau de signes et de connaître la règle d'inversion lors d'une division par un nombre négatif.
   - id: 2de.maths.fonctions.image-antecedent
+    sequenceOrder: 3
     label: "Fonctions : image, antécédent, notation"
     sourceLevel: SECONDE
     targetLevel: PREMIERE
     pedagogicalRationale: >-
       Tout le vocabulaire de Première — variations, extremums, résolution graphique — repose sur la distinction entre image et antécédent. Une confusion ici rend la lecture des énoncés impossible.
   - id: 2de.maths.fonctions-reference.variations
+    sequenceOrder: 4
     label: Fonctions de référence et comparaison
     sourceLevel: SECONDE
     targetLevel: PREMIERE
     pedagogicalRationale: >-
       Les variations de la fonction carré et de la fonction inverse servent de référence pour toute étude de fonction en Première, et la comparaison de x et x² fonde l'étude du signe d'un trinôme.
   - id: 2de.maths.vecteurs.coordonnees
+    sequenceOrder: 5
     label: "Vecteurs : coordonnées et colinéarité"
     sourceLevel: SECONDE
     targetLevel: PREMIERE
     pedagogicalRationale: >-
       Le produit scalaire et la géométrie repérée de Première supposent un calcul sûr des coordonnées d'un vecteur et la distinction entre colinéarité et orthogonalité.
   - id: 2de.maths.droites.coefficient-directeur
+    sequenceOrder: 6
     label: "Droites : coefficient directeur et équation réduite"
     sourceLevel: SECONDE
     targetLevel: PREMIERE
     pedagogicalRationale: >-
       Le taux de variation, puis le nombre dérivé et l'équation de tangente, prolongent directement le coefficient directeur d'une droite. Sans lui, la dérivation reste une formule sans signification.
   - id: 2de.maths.pourcentages.coefficient-multiplicateur
+    sequenceOrder: 7
     label: Pourcentages et coefficients multiplicateurs
     sourceLevel: SECONDE
     targetLevel: PREMIERE
     pedagogicalRationale: >-
       Les suites géométriques de Première sont introduites à partir des évolutions successives. Sans coefficient multiplicateur, la notion de raison reste opaque.
   - id: 2de.maths.probabilites.operations-evenements
+    sequenceOrder: 8
     label: "Probabilités : opérations sur les événements"
     sourceLevel: SECONDE
     targetLevel: PREMIERE
     pedagogicalRationale: >-
       Les probabilités conditionnelles et la loi binomiale de Première supposent une manipulation sûre de la réunion, de l'intersection et de l'événement contraire.
   - id: 2de.maths.calcul-numerique.puissances-racines
+    sequenceOrder: 9
     label: "Calcul numérique : puissances et racines carrées"
     sourceLevel: SECONDE
     targetLevel: PREMIERE

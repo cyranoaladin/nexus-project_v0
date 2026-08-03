@@ -145,10 +145,7 @@
               "sante reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en SVT, sur systeme-nerveux. Créer un conflit cognitif en SVT, faire verbaliser le raisonnement sur systeme-nerveux, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en SVT, sur immunite. Poser les définitions utiles en SVT, montrer des exemples sur immunite, puis proposer un entraînement court et répété.",
-              "Séance 3 — Stabiliser l'acquis encore fragile en SVT, sur geologie. Organiser un entraînement espacé en SVT sur geologie, sans réenseigner ce qui est déjà compris.",
-              "Séance 4 — Établir le niveau réel en SVT, sur sante, avant de choisir une remédiation. Commencer par un test ciblé en SVT sur sante, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -185,40 +182,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "systeme-nerveux",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en SVT, sur systeme-nerveux.",
-                "demarche": "Créer un conflit cognitif en SVT, faire verbaliser le raisonnement sur systeme-nerveux, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "immunite",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en SVT, sur immunite.",
-                "demarche": "Poser les définitions utiles en SVT, montrer des exemples sur immunite, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "geologie",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en SVT, sur geologie.",
-                "demarche": "Organiser un entraînement espacé en SVT sur geologie, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "sante",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en SVT, sur sante, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en SVT sur sante, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -528,11 +492,7 @@
               "systeme-nerveux reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en SVT, sur immunite. Créer un conflit cognitif en SVT, faire verbaliser le raisonnement sur immunite, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en SVT, sur geologie. Poser les définitions utiles en SVT, montrer des exemples sur geologie, puis proposer un entraînement court et répété.",
-              "Séance 3 — Stabiliser l'acquis encore fragile en SVT, sur genetique. Organiser un entraînement espacé en SVT sur genetique, sans réenseigner ce qui est déjà compris.",
-              "Séance 4 — Stabiliser l'acquis encore fragile en SVT, sur demarche. Organiser un entraînement espacé en SVT sur demarche, sans réenseigner ce qui est déjà compris.",
-              "Séance 5 — Établir le niveau réel en SVT, sur systeme-nerveux, avant de choisir une remédiation. Commencer par un test ciblé en SVT sur systeme-nerveux, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -569,48 +529,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "immunite",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en SVT, sur immunite.",
-                "demarche": "Créer un conflit cognitif en SVT, faire verbaliser le raisonnement sur immunite, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "geologie",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en SVT, sur geologie.",
-                "demarche": "Poser les définitions utiles en SVT, montrer des exemples sur geologie, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "genetique",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en SVT, sur genetique.",
-                "demarche": "Organiser un entraînement espacé en SVT sur genetique, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "demarche",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en SVT, sur demarche.",
-                "demarche": "Organiser un entraînement espacé en SVT sur demarche, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "systeme-nerveux",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en SVT, sur systeme-nerveux, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en SVT sur systeme-nerveux, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 5",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -930,11 +849,7 @@
               "immunite reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en SVT, sur geologie. Créer un conflit cognitif en SVT, faire verbaliser le raisonnement sur geologie, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en SVT, sur genetique. Poser les définitions utiles en SVT, montrer des exemples sur genetique, puis proposer un entraînement court et répété.",
-              "Séance 3 — Installer les repères indispensables en SVT, sur demarche. Poser les définitions utiles en SVT, montrer des exemples sur demarche, puis proposer un entraînement court et répété.",
-              "Séance 4 — Stabiliser l'acquis encore fragile en SVT, sur sante. Organiser un entraînement espacé en SVT sur sante, sans réenseigner ce qui est déjà compris.",
-              "Séance 5 — Établir le niveau réel en SVT, sur immunite, avant de choisir une remédiation. Commencer par un test ciblé en SVT sur immunite, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -971,48 +886,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "geologie",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en SVT, sur geologie.",
-                "demarche": "Créer un conflit cognitif en SVT, faire verbaliser le raisonnement sur geologie, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "genetique",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en SVT, sur genetique.",
-                "demarche": "Poser les définitions utiles en SVT, montrer des exemples sur genetique, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "demarche",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en SVT, sur demarche.",
-                "demarche": "Poser les définitions utiles en SVT, montrer des exemples sur demarche, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "sante",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en SVT, sur sante.",
-                "demarche": "Organiser un entraînement espacé en SVT sur sante, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "immunite",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en SVT, sur immunite, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en SVT sur immunite, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 5",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -1332,11 +1206,7 @@
               "geologie reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en SVT, sur demarche. Créer un conflit cognitif en SVT, faire verbaliser le raisonnement sur demarche, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Lever une représentation incorrecte en SVT, sur genetique. Créer un conflit cognitif en SVT, faire verbaliser le raisonnement sur genetique, puis reconstruire la notion avant tout entraînement.",
-              "Séance 3 — Installer les repères indispensables en SVT, sur sante. Poser les définitions utiles en SVT, montrer des exemples sur sante, puis proposer un entraînement court et répété.",
-              "Séance 4 — Stabiliser l'acquis encore fragile en SVT, sur systeme-nerveux. Organiser un entraînement espacé en SVT sur systeme-nerveux, sans réenseigner ce qui est déjà compris.",
-              "Séance 5 — Établir le niveau réel en SVT, sur geologie, avant de choisir une remédiation. Commencer par un test ciblé en SVT sur geologie, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -1373,48 +1243,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "demarche",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en SVT, sur demarche.",
-                "demarche": "Créer un conflit cognitif en SVT, faire verbaliser le raisonnement sur demarche, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "genetique",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en SVT, sur genetique.",
-                "demarche": "Créer un conflit cognitif en SVT, faire verbaliser le raisonnement sur genetique, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "sante",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en SVT, sur sante.",
-                "demarche": "Poser les définitions utiles en SVT, montrer des exemples sur sante, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "systeme-nerveux",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en SVT, sur systeme-nerveux.",
-                "demarche": "Organiser un entraînement espacé en SVT sur systeme-nerveux, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "geologie",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en SVT, sur geologie, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en SVT sur geologie, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 5",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -1734,11 +1563,7 @@
               "genetique reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en SVT, sur sante. Créer un conflit cognitif en SVT, faire verbaliser le raisonnement sur sante, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en SVT, sur systeme-nerveux. Poser les définitions utiles en SVT, montrer des exemples sur systeme-nerveux, puis proposer un entraînement court et répété.",
-              "Séance 3 — Stabiliser l'acquis encore fragile en SVT, sur immunite. Organiser un entraînement espacé en SVT sur immunite, sans réenseigner ce qui est déjà compris.",
-              "Séance 4 — Établir le niveau réel en SVT, sur demarche, avant de choisir une remédiation. Commencer par un test ciblé en SVT sur demarche, puis décider du travail à engager à partir des observations.",
-              "Séance 5 — Établir le niveau réel en SVT, sur genetique, avant de choisir une remédiation. Commencer par un test ciblé en SVT sur genetique, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -1775,48 +1600,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "sante",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en SVT, sur sante.",
-                "demarche": "Créer un conflit cognitif en SVT, faire verbaliser le raisonnement sur sante, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "systeme-nerveux",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en SVT, sur systeme-nerveux.",
-                "demarche": "Poser les définitions utiles en SVT, montrer des exemples sur systeme-nerveux, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "immunite",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en SVT, sur immunite.",
-                "demarche": "Organiser un entraînement espacé en SVT sur immunite, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "demarche",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en SVT, sur demarche, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en SVT sur demarche, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "non évalué"
-              },
-              {
-                "domainId": "genetique",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en SVT, sur genetique, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en SVT sur genetique, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 5",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -2127,10 +1911,7 @@
               "sante reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en SVT, sur systeme-nerveux. Créer un conflit cognitif en SVT, faire verbaliser le raisonnement sur systeme-nerveux, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en SVT, sur immunite. Poser les définitions utiles en SVT, montrer des exemples sur immunite, puis proposer un entraînement court et répété.",
-              "Séance 3 — Stabiliser l'acquis encore fragile en SVT, sur geologie. Organiser un entraînement espacé en SVT sur geologie, sans réenseigner ce qui est déjà compris.",
-              "Séance 4 — Établir le niveau réel en SVT, sur sante, avant de choisir une remédiation. Commencer par un test ciblé en SVT sur sante, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -2167,40 +1948,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "systeme-nerveux",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en SVT, sur systeme-nerveux.",
-                "demarche": "Créer un conflit cognitif en SVT, faire verbaliser le raisonnement sur systeme-nerveux, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "immunite",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en SVT, sur immunite.",
-                "demarche": "Poser les définitions utiles en SVT, montrer des exemples sur immunite, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "geologie",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en SVT, sur geologie.",
-                "demarche": "Organiser un entraînement espacé en SVT sur geologie, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "sante",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en SVT, sur sante, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en SVT sur sante, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -2510,11 +2258,7 @@
               "systeme-nerveux reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en SVT, sur immunite. Créer un conflit cognitif en SVT, faire verbaliser le raisonnement sur immunite, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en SVT, sur geologie. Poser les définitions utiles en SVT, montrer des exemples sur geologie, puis proposer un entraînement court et répété.",
-              "Séance 3 — Stabiliser l'acquis encore fragile en SVT, sur genetique. Organiser un entraînement espacé en SVT sur genetique, sans réenseigner ce qui est déjà compris.",
-              "Séance 4 — Stabiliser l'acquis encore fragile en SVT, sur demarche. Organiser un entraînement espacé en SVT sur demarche, sans réenseigner ce qui est déjà compris.",
-              "Séance 5 — Établir le niveau réel en SVT, sur systeme-nerveux, avant de choisir une remédiation. Commencer par un test ciblé en SVT sur systeme-nerveux, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -2551,48 +2295,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "immunite",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en SVT, sur immunite.",
-                "demarche": "Créer un conflit cognitif en SVT, faire verbaliser le raisonnement sur immunite, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "geologie",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en SVT, sur geologie.",
-                "demarche": "Poser les définitions utiles en SVT, montrer des exemples sur geologie, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "genetique",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en SVT, sur genetique.",
-                "demarche": "Organiser un entraînement espacé en SVT sur genetique, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "demarche",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en SVT, sur demarche.",
-                "demarche": "Organiser un entraînement espacé en SVT sur demarche, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "systeme-nerveux",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en SVT, sur systeme-nerveux, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en SVT sur systeme-nerveux, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 5",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -2912,11 +2615,7 @@
               "immunite reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en SVT, sur geologie. Créer un conflit cognitif en SVT, faire verbaliser le raisonnement sur geologie, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en SVT, sur genetique. Poser les définitions utiles en SVT, montrer des exemples sur genetique, puis proposer un entraînement court et répété.",
-              "Séance 3 — Installer les repères indispensables en SVT, sur demarche. Poser les définitions utiles en SVT, montrer des exemples sur demarche, puis proposer un entraînement court et répété.",
-              "Séance 4 — Stabiliser l'acquis encore fragile en SVT, sur sante. Organiser un entraînement espacé en SVT sur sante, sans réenseigner ce qui est déjà compris.",
-              "Séance 5 — Établir le niveau réel en SVT, sur immunite, avant de choisir une remédiation. Commencer par un test ciblé en SVT sur immunite, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -2953,48 +2652,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "geologie",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en SVT, sur geologie.",
-                "demarche": "Créer un conflit cognitif en SVT, faire verbaliser le raisonnement sur geologie, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "genetique",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en SVT, sur genetique.",
-                "demarche": "Poser les définitions utiles en SVT, montrer des exemples sur genetique, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "demarche",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en SVT, sur demarche.",
-                "demarche": "Poser les définitions utiles en SVT, montrer des exemples sur demarche, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "sante",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en SVT, sur sante.",
-                "demarche": "Organiser un entraînement espacé en SVT sur sante, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "immunite",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en SVT, sur immunite, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en SVT sur immunite, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 5",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -3314,11 +2972,7 @@
               "geologie reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en SVT, sur demarche. Créer un conflit cognitif en SVT, faire verbaliser le raisonnement sur demarche, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Lever une représentation incorrecte en SVT, sur genetique. Créer un conflit cognitif en SVT, faire verbaliser le raisonnement sur genetique, puis reconstruire la notion avant tout entraînement.",
-              "Séance 3 — Installer les repères indispensables en SVT, sur sante. Poser les définitions utiles en SVT, montrer des exemples sur sante, puis proposer un entraînement court et répété.",
-              "Séance 4 — Stabiliser l'acquis encore fragile en SVT, sur systeme-nerveux. Organiser un entraînement espacé en SVT sur systeme-nerveux, sans réenseigner ce qui est déjà compris.",
-              "Séance 5 — Établir le niveau réel en SVT, sur geologie, avant de choisir une remédiation. Commencer par un test ciblé en SVT sur geologie, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -3355,48 +3009,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "demarche",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en SVT, sur demarche.",
-                "demarche": "Créer un conflit cognitif en SVT, faire verbaliser le raisonnement sur demarche, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "genetique",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en SVT, sur genetique.",
-                "demarche": "Créer un conflit cognitif en SVT, faire verbaliser le raisonnement sur genetique, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "sante",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en SVT, sur sante.",
-                "demarche": "Poser les définitions utiles en SVT, montrer des exemples sur sante, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "systeme-nerveux",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en SVT, sur systeme-nerveux.",
-                "demarche": "Organiser un entraînement espacé en SVT sur systeme-nerveux, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "geologie",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en SVT, sur geologie, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en SVT sur geologie, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 5",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -3716,11 +3329,7 @@
               "genetique reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en SVT, sur sante. Créer un conflit cognitif en SVT, faire verbaliser le raisonnement sur sante, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en SVT, sur systeme-nerveux. Poser les définitions utiles en SVT, montrer des exemples sur systeme-nerveux, puis proposer un entraînement court et répété.",
-              "Séance 3 — Stabiliser l'acquis encore fragile en SVT, sur immunite. Organiser un entraînement espacé en SVT sur immunite, sans réenseigner ce qui est déjà compris.",
-              "Séance 4 — Établir le niveau réel en SVT, sur demarche, avant de choisir une remédiation. Commencer par un test ciblé en SVT sur demarche, puis décider du travail à engager à partir des observations.",
-              "Séance 5 — Établir le niveau réel en SVT, sur genetique, avant de choisir une remédiation. Commencer par un test ciblé en SVT sur genetique, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -3757,48 +3366,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "sante",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en SVT, sur sante.",
-                "demarche": "Créer un conflit cognitif en SVT, faire verbaliser le raisonnement sur sante, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "systeme-nerveux",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en SVT, sur systeme-nerveux.",
-                "demarche": "Poser les définitions utiles en SVT, montrer des exemples sur systeme-nerveux, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "immunite",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en SVT, sur immunite.",
-                "demarche": "Organiser un entraînement espacé en SVT sur immunite, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "demarche",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en SVT, sur demarche, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en SVT sur demarche, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "non évalué"
-              },
-              {
-                "domainId": "genetique",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en SVT, sur genetique, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en SVT sur genetique, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 5",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -4109,10 +3677,7 @@
               "sante reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en SVT, sur systeme-nerveux. Créer un conflit cognitif en SVT, faire verbaliser le raisonnement sur systeme-nerveux, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en SVT, sur immunite. Poser les définitions utiles en SVT, montrer des exemples sur immunite, puis proposer un entraînement court et répété.",
-              "Séance 3 — Stabiliser l'acquis encore fragile en SVT, sur geologie. Organiser un entraînement espacé en SVT sur geologie, sans réenseigner ce qui est déjà compris.",
-              "Séance 4 — Établir le niveau réel en SVT, sur sante, avant de choisir une remédiation. Commencer par un test ciblé en SVT sur sante, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -4149,40 +3714,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "systeme-nerveux",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en SVT, sur systeme-nerveux.",
-                "demarche": "Créer un conflit cognitif en SVT, faire verbaliser le raisonnement sur systeme-nerveux, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "immunite",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en SVT, sur immunite.",
-                "demarche": "Poser les définitions utiles en SVT, montrer des exemples sur immunite, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "geologie",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en SVT, sur geologie.",
-                "demarche": "Organiser un entraînement espacé en SVT sur geologie, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "sante",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en SVT, sur sante, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en SVT sur sante, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -4492,11 +4024,7 @@
               "systeme-nerveux reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en SVT, sur immunite. Créer un conflit cognitif en SVT, faire verbaliser le raisonnement sur immunite, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en SVT, sur geologie. Poser les définitions utiles en SVT, montrer des exemples sur geologie, puis proposer un entraînement court et répété.",
-              "Séance 3 — Stabiliser l'acquis encore fragile en SVT, sur genetique. Organiser un entraînement espacé en SVT sur genetique, sans réenseigner ce qui est déjà compris.",
-              "Séance 4 — Stabiliser l'acquis encore fragile en SVT, sur demarche. Organiser un entraînement espacé en SVT sur demarche, sans réenseigner ce qui est déjà compris.",
-              "Séance 5 — Établir le niveau réel en SVT, sur systeme-nerveux, avant de choisir une remédiation. Commencer par un test ciblé en SVT sur systeme-nerveux, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -4533,48 +4061,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "immunite",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en SVT, sur immunite.",
-                "demarche": "Créer un conflit cognitif en SVT, faire verbaliser le raisonnement sur immunite, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "geologie",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en SVT, sur geologie.",
-                "demarche": "Poser les définitions utiles en SVT, montrer des exemples sur geologie, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "genetique",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en SVT, sur genetique.",
-                "demarche": "Organiser un entraînement espacé en SVT sur genetique, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "demarche",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en SVT, sur demarche.",
-                "demarche": "Organiser un entraînement espacé en SVT sur demarche, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "systeme-nerveux",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en SVT, sur systeme-nerveux, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en SVT sur systeme-nerveux, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 5",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -4894,11 +4381,7 @@
               "immunite reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en SVT, sur geologie. Créer un conflit cognitif en SVT, faire verbaliser le raisonnement sur geologie, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en SVT, sur demarche. Poser les définitions utiles en SVT, montrer des exemples sur demarche, puis proposer un entraînement court et répété.",
-              "Séance 3 — Installer les repères indispensables en SVT, sur genetique. Poser les définitions utiles en SVT, montrer des exemples sur genetique, puis proposer un entraînement court et répété.",
-              "Séance 4 — Stabiliser l'acquis encore fragile en SVT, sur sante. Organiser un entraînement espacé en SVT sur sante, sans réenseigner ce qui est déjà compris.",
-              "Séance 5 — Établir le niveau réel en SVT, sur immunite, avant de choisir une remédiation. Commencer par un test ciblé en SVT sur immunite, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -4935,48 +4418,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "geologie",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en SVT, sur geologie.",
-                "demarche": "Créer un conflit cognitif en SVT, faire verbaliser le raisonnement sur geologie, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "demarche",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en SVT, sur demarche.",
-                "demarche": "Poser les définitions utiles en SVT, montrer des exemples sur demarche, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "genetique",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en SVT, sur genetique.",
-                "demarche": "Poser les définitions utiles en SVT, montrer des exemples sur genetique, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "sante",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en SVT, sur sante.",
-                "demarche": "Organiser un entraînement espacé en SVT sur sante, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "immunite",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en SVT, sur immunite, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en SVT sur immunite, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 5",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -5296,11 +4738,7 @@
               "geologie reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en SVT, sur demarche. Créer un conflit cognitif en SVT, faire verbaliser le raisonnement sur demarche, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Lever une représentation incorrecte en SVT, sur genetique. Créer un conflit cognitif en SVT, faire verbaliser le raisonnement sur genetique, puis reconstruire la notion avant tout entraînement.",
-              "Séance 3 — Installer les repères indispensables en SVT, sur sante. Poser les définitions utiles en SVT, montrer des exemples sur sante, puis proposer un entraînement court et répété.",
-              "Séance 4 — Stabiliser l'acquis encore fragile en SVT, sur systeme-nerveux. Organiser un entraînement espacé en SVT sur systeme-nerveux, sans réenseigner ce qui est déjà compris.",
-              "Séance 5 — Établir le niveau réel en SVT, sur geologie, avant de choisir une remédiation. Commencer par un test ciblé en SVT sur geologie, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -5337,48 +4775,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "demarche",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en SVT, sur demarche.",
-                "demarche": "Créer un conflit cognitif en SVT, faire verbaliser le raisonnement sur demarche, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "genetique",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en SVT, sur genetique.",
-                "demarche": "Créer un conflit cognitif en SVT, faire verbaliser le raisonnement sur genetique, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "sante",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en SVT, sur sante.",
-                "demarche": "Poser les définitions utiles en SVT, montrer des exemples sur sante, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "systeme-nerveux",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en SVT, sur systeme-nerveux.",
-                "demarche": "Organiser un entraînement espacé en SVT sur systeme-nerveux, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "geologie",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en SVT, sur geologie, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en SVT sur geologie, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 5",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -5698,11 +5095,7 @@
               "genetique reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en SVT, sur sante. Créer un conflit cognitif en SVT, faire verbaliser le raisonnement sur sante, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en SVT, sur systeme-nerveux. Poser les définitions utiles en SVT, montrer des exemples sur systeme-nerveux, puis proposer un entraînement court et répété.",
-              "Séance 3 — Stabiliser l'acquis encore fragile en SVT, sur immunite. Organiser un entraînement espacé en SVT sur immunite, sans réenseigner ce qui est déjà compris.",
-              "Séance 4 — Établir le niveau réel en SVT, sur demarche, avant de choisir une remédiation. Commencer par un test ciblé en SVT sur demarche, puis décider du travail à engager à partir des observations.",
-              "Séance 5 — Établir le niveau réel en SVT, sur genetique, avant de choisir une remédiation. Commencer par un test ciblé en SVT sur genetique, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -5739,48 +5132,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "sante",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en SVT, sur sante.",
-                "demarche": "Créer un conflit cognitif en SVT, faire verbaliser le raisonnement sur sante, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "systeme-nerveux",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en SVT, sur systeme-nerveux.",
-                "demarche": "Poser les définitions utiles en SVT, montrer des exemples sur systeme-nerveux, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "immunite",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en SVT, sur immunite.",
-                "demarche": "Organiser un entraînement espacé en SVT sur immunite, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "demarche",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en SVT, sur demarche, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en SVT sur demarche, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "non évalué"
-              },
-              {
-                "domainId": "genetique",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en SVT, sur genetique, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en SVT sur genetique, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 5",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -6091,10 +5443,7 @@
               "sante reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en SVT, sur systeme-nerveux. Créer un conflit cognitif en SVT, faire verbaliser le raisonnement sur systeme-nerveux, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en SVT, sur immunite. Poser les définitions utiles en SVT, montrer des exemples sur immunite, puis proposer un entraînement court et répété.",
-              "Séance 3 — Stabiliser l'acquis encore fragile en SVT, sur geologie. Organiser un entraînement espacé en SVT sur geologie, sans réenseigner ce qui est déjà compris.",
-              "Séance 4 — Établir le niveau réel en SVT, sur sante, avant de choisir une remédiation. Commencer par un test ciblé en SVT sur sante, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -6131,40 +5480,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "systeme-nerveux",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en SVT, sur systeme-nerveux.",
-                "demarche": "Créer un conflit cognitif en SVT, faire verbaliser le raisonnement sur systeme-nerveux, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "immunite",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en SVT, sur immunite.",
-                "demarche": "Poser les définitions utiles en SVT, montrer des exemples sur immunite, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "geologie",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en SVT, sur geologie.",
-                "demarche": "Organiser un entraînement espacé en SVT sur geologie, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "sante",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en SVT, sur sante, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en SVT sur sante, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -6474,11 +5790,7 @@
               "systeme-nerveux reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en SVT, sur immunite. Créer un conflit cognitif en SVT, faire verbaliser le raisonnement sur immunite, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en SVT, sur geologie. Poser les définitions utiles en SVT, montrer des exemples sur geologie, puis proposer un entraînement court et répété.",
-              "Séance 3 — Stabiliser l'acquis encore fragile en SVT, sur genetique. Organiser un entraînement espacé en SVT sur genetique, sans réenseigner ce qui est déjà compris.",
-              "Séance 4 — Stabiliser l'acquis encore fragile en SVT, sur demarche. Organiser un entraînement espacé en SVT sur demarche, sans réenseigner ce qui est déjà compris.",
-              "Séance 5 — Établir le niveau réel en SVT, sur systeme-nerveux, avant de choisir une remédiation. Commencer par un test ciblé en SVT sur systeme-nerveux, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -6515,48 +5827,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "immunite",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en SVT, sur immunite.",
-                "demarche": "Créer un conflit cognitif en SVT, faire verbaliser le raisonnement sur immunite, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "geologie",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en SVT, sur geologie.",
-                "demarche": "Poser les définitions utiles en SVT, montrer des exemples sur geologie, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "genetique",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en SVT, sur genetique.",
-                "demarche": "Organiser un entraînement espacé en SVT sur genetique, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "demarche",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en SVT, sur demarche.",
-                "demarche": "Organiser un entraînement espacé en SVT sur demarche, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "systeme-nerveux",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en SVT, sur systeme-nerveux, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en SVT sur systeme-nerveux, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 5",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -6876,11 +6147,7 @@
               "immunite reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en SVT, sur geologie. Créer un conflit cognitif en SVT, faire verbaliser le raisonnement sur geologie, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en SVT, sur demarche. Poser les définitions utiles en SVT, montrer des exemples sur demarche, puis proposer un entraînement court et répété.",
-              "Séance 3 — Installer les repères indispensables en SVT, sur genetique. Poser les définitions utiles en SVT, montrer des exemples sur genetique, puis proposer un entraînement court et répété.",
-              "Séance 4 — Stabiliser l'acquis encore fragile en SVT, sur sante. Organiser un entraînement espacé en SVT sur sante, sans réenseigner ce qui est déjà compris.",
-              "Séance 5 — Établir le niveau réel en SVT, sur immunite, avant de choisir une remédiation. Commencer par un test ciblé en SVT sur immunite, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -6917,48 +6184,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "geologie",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en SVT, sur geologie.",
-                "demarche": "Créer un conflit cognitif en SVT, faire verbaliser le raisonnement sur geologie, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "demarche",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en SVT, sur demarche.",
-                "demarche": "Poser les définitions utiles en SVT, montrer des exemples sur demarche, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "genetique",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en SVT, sur genetique.",
-                "demarche": "Poser les définitions utiles en SVT, montrer des exemples sur genetique, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "sante",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en SVT, sur sante.",
-                "demarche": "Organiser un entraînement espacé en SVT sur sante, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "immunite",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en SVT, sur immunite, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en SVT sur immunite, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 5",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -7278,11 +6504,7 @@
               "geologie reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en SVT, sur demarche. Créer un conflit cognitif en SVT, faire verbaliser le raisonnement sur demarche, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Lever une représentation incorrecte en SVT, sur genetique. Créer un conflit cognitif en SVT, faire verbaliser le raisonnement sur genetique, puis reconstruire la notion avant tout entraînement.",
-              "Séance 3 — Installer les repères indispensables en SVT, sur sante. Poser les définitions utiles en SVT, montrer des exemples sur sante, puis proposer un entraînement court et répété.",
-              "Séance 4 — Stabiliser l'acquis encore fragile en SVT, sur systeme-nerveux. Organiser un entraînement espacé en SVT sur systeme-nerveux, sans réenseigner ce qui est déjà compris.",
-              "Séance 5 — Établir le niveau réel en SVT, sur geologie, avant de choisir une remédiation. Commencer par un test ciblé en SVT sur geologie, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -7319,48 +6541,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "demarche",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en SVT, sur demarche.",
-                "demarche": "Créer un conflit cognitif en SVT, faire verbaliser le raisonnement sur demarche, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "genetique",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en SVT, sur genetique.",
-                "demarche": "Créer un conflit cognitif en SVT, faire verbaliser le raisonnement sur genetique, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "sante",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en SVT, sur sante.",
-                "demarche": "Poser les définitions utiles en SVT, montrer des exemples sur sante, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "systeme-nerveux",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en SVT, sur systeme-nerveux.",
-                "demarche": "Organiser un entraînement espacé en SVT sur systeme-nerveux, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "geologie",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en SVT, sur geologie, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en SVT sur geologie, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 5",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -7680,11 +6861,7 @@
               "genetique reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en SVT, sur sante. Créer un conflit cognitif en SVT, faire verbaliser le raisonnement sur sante, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en SVT, sur systeme-nerveux. Poser les définitions utiles en SVT, montrer des exemples sur systeme-nerveux, puis proposer un entraînement court et répété.",
-              "Séance 3 — Stabiliser l'acquis encore fragile en SVT, sur immunite. Organiser un entraînement espacé en SVT sur immunite, sans réenseigner ce qui est déjà compris.",
-              "Séance 4 — Établir le niveau réel en SVT, sur demarche, avant de choisir une remédiation. Commencer par un test ciblé en SVT sur demarche, puis décider du travail à engager à partir des observations.",
-              "Séance 5 — Établir le niveau réel en SVT, sur genetique, avant de choisir une remédiation. Commencer par un test ciblé en SVT sur genetique, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -7721,48 +6898,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "sante",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en SVT, sur sante.",
-                "demarche": "Créer un conflit cognitif en SVT, faire verbaliser le raisonnement sur sante, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "systeme-nerveux",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en SVT, sur systeme-nerveux.",
-                "demarche": "Poser les définitions utiles en SVT, montrer des exemples sur systeme-nerveux, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "immunite",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en SVT, sur immunite.",
-                "demarche": "Organiser un entraînement espacé en SVT sur immunite, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "demarche",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en SVT, sur demarche, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en SVT sur demarche, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 4",
-                "profileLabel": "non évalué"
-              },
-              {
-                "domainId": "genetique",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en SVT, sur genetique, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en SVT sur genetique, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 5",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }

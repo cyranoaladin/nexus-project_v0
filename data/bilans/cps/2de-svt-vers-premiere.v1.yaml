@@ -3,46 +3,55 @@ slug: 2de-svt-vers-premiere-v1
 version: 1
 nodes:
   - id: 2de.svt.genetique.adn-gene-information
+    sequenceOrder: 1
     label: ADN, gène et information génétique
     sourceLevel: SECONDE
     targetLevel: PREMIERE
     pedagogicalRationale: le thème « Transmission, variation et expression du patrimoine génétique » ouvre l'année. Un élève qui confond gène, chromosome et protéine ne peut aborder ni la réplication, ni l'expression différentielle des gènes.
   - id: 2de.svt.organisation-du-vivant.cellule
+    sequenceOrder: 2
     label: Organisation fonctionnelle du vivant
     sourceLevel: SECONDE
     targetLevel: PREMIERE
     pedagogicalRationale: raisonner en changeant d'échelle, de la molécule à l'organisme, est la compétence transversale de toute la spécialité.
   - id: 2de.svt.metabolisme.photosynthese-respiration
+    sequenceOrder: 3
     label: Métabolisme cellulaire
     sourceLevel: SECONDE
     targetLevel: PREMIERE
     pedagogicalRationale: les échanges d'énergie et de matière fondent l'étude du fonctionnement musculaire et de la nutrition en Première.
   - id: 2de.svt.evolution.mecanismes
+    sequenceOrder: 4
     label: Biodiversité et mécanismes de l'évolution
     sourceLevel: SECONDE
     targetLevel: PREMIERE
     pedagogicalRationale: la variation du patrimoine génétique et son devenir dans les populations sont au cœur du premier thème de Première.
   - id: 2de.svt.geologie.erosion-sedimentation
+    sequenceOrder: 5
     label: Érosion, transport, sédimentation
     sourceLevel: SECONDE
     targetLevel: PREMIERE
     pedagogicalRationale: la dynamique interne du globe étudiée en Première suppose de savoir lire l'histoire d'une roche et de distinguer les grandes familles de roches.
   - id: 2de.svt.ecosystemes.flux-matiere-energie
+    sequenceOrder: 6
     label: Écosystèmes, flux de matière et d'énergie
     sourceLevel: SECONDE
     targetLevel: PREMIERE
     pedagogicalRationale: raisonner en termes de flux et de rendement prépare l'étude du métabolisme et des relations entre organismes.
   - id: 2de.svt.corps-humain.effort-physique
+    sequenceOrder: 7
     label: Effort physique et système cardio-respiratoire
     sourceLevel: SECONDE
     targetLevel: PREMIERE
     pedagogicalRationale: le thème « Corps humain et santé » de Première prolonge directement l'étude des adaptations à l'effort vue en Seconde.
   - id: 2de.svt.corps-humain.microbiote-defenses
+    sequenceOrder: 8
     label: Microbiote et défense de l'organisme
     sourceLevel: SECONDE
     targetLevel: PREMIERE
     pedagogicalRationale: l'immunité innée et adaptative, étudiée en Première, suppose de connaître la réaction inflammatoire et la nature des micro-organismes hébergés par l'organisme.
   - id: 2de.svt.demarche.experimentation-donnees
+    sequenceOrder: 9
     label: Démarche scientifique et exploitation de données
     sourceLevel: SECONDE
     targetLevel: PREMIERE

@@ -106,8 +106,7 @@
               "lexique est fragile et demande une consolidation régulière, sans reprise intégrale du cours."
             ],
             "actionPlan": [
-              "Séance 1 — Installer les repères indispensables en Philosophie, sur ecriture. Poser les définitions utiles en Philosophie, montrer des exemples sur ecriture, puis proposer un entraînement court et répété.",
-              "Séance 2 — Stabiliser l'acquis encore fragile en Philosophie, sur lexique. Organiser un entraînement espacé en Philosophie sur lexique, sans réenseigner ce qui est déjà compris."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -129,24 +128,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "ecriture",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Philosophie, sur ecriture.",
-                "demarche": "Poser les définitions utiles en Philosophie, montrer des exemples sur ecriture, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "lexique",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Philosophie, sur lexique.",
-                "demarche": "Organiser un entraînement espacé en Philosophie sur lexique, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "fragile / à consolider"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -359,9 +341,7 @@
               "argumentation est fragile et demande une consolidation régulière, sans reprise intégrale du cours."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Philosophie, sur ecriture. Créer un conflit cognitif en Philosophie, faire verbaliser le raisonnement sur ecriture, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en Philosophie, sur lexique. Poser les définitions utiles en Philosophie, montrer des exemples sur lexique, puis proposer un entraînement court et répété.",
-              "Séance 3 — Stabiliser l'acquis encore fragile en Philosophie, sur argumentation. Organiser un entraînement espacé en Philosophie sur argumentation, sans réenseigner ce qui est déjà compris."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -383,32 +363,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "ecriture",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Philosophie, sur ecriture.",
-                "demarche": "Créer un conflit cognitif en Philosophie, faire verbaliser le raisonnement sur ecriture, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "lexique",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Philosophie, sur lexique.",
-                "demarche": "Poser les définitions utiles en Philosophie, montrer des exemples sur lexique, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "argumentation",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Philosophie, sur argumentation.",
-                "demarche": "Organiser un entraînement espacé en Philosophie sur argumentation, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "fragile / à consolider"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -630,9 +585,7 @@
               "ecriture reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Philosophie, sur lexique. Créer un conflit cognitif en Philosophie, faire verbaliser le raisonnement sur lexique, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en Philosophie, sur argumentation. Poser les définitions utiles en Philosophie, montrer des exemples sur argumentation, puis proposer un entraînement court et répété.",
-              "Séance 3 — Établir le niveau réel en Philosophie, sur ecriture, avant de choisir une remédiation. Commencer par un test ciblé en Philosophie sur ecriture, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -654,32 +607,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "lexique",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Philosophie, sur lexique.",
-                "demarche": "Créer un conflit cognitif en Philosophie, faire verbaliser le raisonnement sur lexique, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "argumentation",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Philosophie, sur argumentation.",
-                "demarche": "Poser les définitions utiles en Philosophie, montrer des exemples sur argumentation, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "ecriture",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Philosophie, sur ecriture, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Philosophie sur ecriture, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -894,8 +822,7 @@
               "lexique reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Philosophie, sur argumentation. Créer un conflit cognitif en Philosophie, faire verbaliser le raisonnement sur argumentation, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Établir le niveau réel en Philosophie, sur lexique, avant de choisir une remédiation. Commencer par un test ciblé en Philosophie sur lexique, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -917,24 +844,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "argumentation",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Philosophie, sur argumentation.",
-                "demarche": "Créer un conflit cognitif en Philosophie, faire verbaliser le raisonnement sur argumentation, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "lexique",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Philosophie, sur lexique, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Philosophie sur lexique, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -1140,8 +1050,7 @@
               "argumentation reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Stabiliser l'acquis encore fragile en Philosophie, sur ecriture. Organiser un entraînement espacé en Philosophie sur ecriture, sans réenseigner ce qui est déjà compris.",
-              "Séance 2 — Établir le niveau réel en Philosophie, sur argumentation, avant de choisir une remédiation. Commencer par un test ciblé en Philosophie sur argumentation, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -1163,24 +1072,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "ecriture",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Philosophie, sur ecriture.",
-                "demarche": "Organiser un entraînement espacé en Philosophie sur ecriture, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "argumentation",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Philosophie, sur argumentation, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Philosophie sur argumentation, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -1386,8 +1278,7 @@
               "lexique est fragile et demande une consolidation régulière, sans reprise intégrale du cours."
             ],
             "actionPlan": [
-              "Séance 1 — Installer les repères indispensables en Philosophie, sur ecriture. Poser les définitions utiles en Philosophie, montrer des exemples sur ecriture, puis proposer un entraînement court et répété.",
-              "Séance 2 — Stabiliser l'acquis encore fragile en Philosophie, sur lexique. Organiser un entraînement espacé en Philosophie sur lexique, sans réenseigner ce qui est déjà compris."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -1409,24 +1300,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "ecriture",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Philosophie, sur ecriture.",
-                "demarche": "Poser les définitions utiles en Philosophie, montrer des exemples sur ecriture, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "lexique",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Philosophie, sur lexique.",
-                "demarche": "Organiser un entraînement espacé en Philosophie sur lexique, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "fragile / à consolider"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -1639,9 +1513,7 @@
               "argumentation est fragile et demande une consolidation régulière, sans reprise intégrale du cours."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Philosophie, sur ecriture. Créer un conflit cognitif en Philosophie, faire verbaliser le raisonnement sur ecriture, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en Philosophie, sur lexique. Poser les définitions utiles en Philosophie, montrer des exemples sur lexique, puis proposer un entraînement court et répété.",
-              "Séance 3 — Stabiliser l'acquis encore fragile en Philosophie, sur argumentation. Organiser un entraînement espacé en Philosophie sur argumentation, sans réenseigner ce qui est déjà compris."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -1663,32 +1535,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "ecriture",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Philosophie, sur ecriture.",
-                "demarche": "Créer un conflit cognitif en Philosophie, faire verbaliser le raisonnement sur ecriture, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "lexique",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Philosophie, sur lexique.",
-                "demarche": "Poser les définitions utiles en Philosophie, montrer des exemples sur lexique, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "argumentation",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Philosophie, sur argumentation.",
-                "demarche": "Organiser un entraînement espacé en Philosophie sur argumentation, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "fragile / à consolider"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -1910,9 +1757,7 @@
               "ecriture reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Philosophie, sur lexique. Créer un conflit cognitif en Philosophie, faire verbaliser le raisonnement sur lexique, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en Philosophie, sur argumentation. Poser les définitions utiles en Philosophie, montrer des exemples sur argumentation, puis proposer un entraînement court et répété.",
-              "Séance 3 — Établir le niveau réel en Philosophie, sur ecriture, avant de choisir une remédiation. Commencer par un test ciblé en Philosophie sur ecriture, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -1934,32 +1779,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "lexique",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Philosophie, sur lexique.",
-                "demarche": "Créer un conflit cognitif en Philosophie, faire verbaliser le raisonnement sur lexique, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "argumentation",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Philosophie, sur argumentation.",
-                "demarche": "Poser les définitions utiles en Philosophie, montrer des exemples sur argumentation, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "ecriture",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Philosophie, sur ecriture, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Philosophie sur ecriture, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -2174,8 +1994,7 @@
               "lexique reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Philosophie, sur argumentation. Créer un conflit cognitif en Philosophie, faire verbaliser le raisonnement sur argumentation, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Établir le niveau réel en Philosophie, sur lexique, avant de choisir une remédiation. Commencer par un test ciblé en Philosophie sur lexique, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -2197,24 +2016,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "argumentation",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Philosophie, sur argumentation.",
-                "demarche": "Créer un conflit cognitif en Philosophie, faire verbaliser le raisonnement sur argumentation, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "lexique",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Philosophie, sur lexique, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Philosophie sur lexique, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -2420,8 +2222,7 @@
               "argumentation reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Stabiliser l'acquis encore fragile en Philosophie, sur ecriture. Organiser un entraînement espacé en Philosophie sur ecriture, sans réenseigner ce qui est déjà compris.",
-              "Séance 2 — Établir le niveau réel en Philosophie, sur argumentation, avant de choisir une remédiation. Commencer par un test ciblé en Philosophie sur argumentation, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -2443,24 +2244,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "ecriture",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Philosophie, sur ecriture.",
-                "demarche": "Organiser un entraînement espacé en Philosophie sur ecriture, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "argumentation",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Philosophie, sur argumentation, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Philosophie sur argumentation, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -2666,8 +2450,7 @@
               "lexique est fragile et demande une consolidation régulière, sans reprise intégrale du cours."
             ],
             "actionPlan": [
-              "Séance 1 — Installer les repères indispensables en Philosophie, sur ecriture. Poser les définitions utiles en Philosophie, montrer des exemples sur ecriture, puis proposer un entraînement court et répété.",
-              "Séance 2 — Stabiliser l'acquis encore fragile en Philosophie, sur lexique. Organiser un entraînement espacé en Philosophie sur lexique, sans réenseigner ce qui est déjà compris."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -2689,24 +2472,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "ecriture",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Philosophie, sur ecriture.",
-                "demarche": "Poser les définitions utiles en Philosophie, montrer des exemples sur ecriture, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "lexique",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Philosophie, sur lexique.",
-                "demarche": "Organiser un entraînement espacé en Philosophie sur lexique, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "fragile / à consolider"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -2919,9 +2685,7 @@
               "argumentation est fragile et demande une consolidation régulière, sans reprise intégrale du cours."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Philosophie, sur ecriture. Créer un conflit cognitif en Philosophie, faire verbaliser le raisonnement sur ecriture, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en Philosophie, sur lexique. Poser les définitions utiles en Philosophie, montrer des exemples sur lexique, puis proposer un entraînement court et répété.",
-              "Séance 3 — Stabiliser l'acquis encore fragile en Philosophie, sur argumentation. Organiser un entraînement espacé en Philosophie sur argumentation, sans réenseigner ce qui est déjà compris."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -2943,32 +2707,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "ecriture",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Philosophie, sur ecriture.",
-                "demarche": "Créer un conflit cognitif en Philosophie, faire verbaliser le raisonnement sur ecriture, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "lexique",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Philosophie, sur lexique.",
-                "demarche": "Poser les définitions utiles en Philosophie, montrer des exemples sur lexique, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "argumentation",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Philosophie, sur argumentation.",
-                "demarche": "Organiser un entraînement espacé en Philosophie sur argumentation, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "fragile / à consolider"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -3190,9 +2929,7 @@
               "ecriture reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Philosophie, sur lexique. Créer un conflit cognitif en Philosophie, faire verbaliser le raisonnement sur lexique, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en Philosophie, sur argumentation. Poser les définitions utiles en Philosophie, montrer des exemples sur argumentation, puis proposer un entraînement court et répété.",
-              "Séance 3 — Établir le niveau réel en Philosophie, sur ecriture, avant de choisir une remédiation. Commencer par un test ciblé en Philosophie sur ecriture, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -3214,32 +2951,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "lexique",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Philosophie, sur lexique.",
-                "demarche": "Créer un conflit cognitif en Philosophie, faire verbaliser le raisonnement sur lexique, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "argumentation",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Philosophie, sur argumentation.",
-                "demarche": "Poser les définitions utiles en Philosophie, montrer des exemples sur argumentation, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "ecriture",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Philosophie, sur ecriture, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Philosophie sur ecriture, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -3454,8 +3166,7 @@
               "lexique reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Philosophie, sur argumentation. Créer un conflit cognitif en Philosophie, faire verbaliser le raisonnement sur argumentation, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Établir le niveau réel en Philosophie, sur lexique, avant de choisir une remédiation. Commencer par un test ciblé en Philosophie sur lexique, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -3477,24 +3188,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "argumentation",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Philosophie, sur argumentation.",
-                "demarche": "Créer un conflit cognitif en Philosophie, faire verbaliser le raisonnement sur argumentation, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "lexique",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Philosophie, sur lexique, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Philosophie sur lexique, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -3700,8 +3394,7 @@
               "argumentation reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Stabiliser l'acquis encore fragile en Philosophie, sur ecriture. Organiser un entraînement espacé en Philosophie sur ecriture, sans réenseigner ce qui est déjà compris.",
-              "Séance 2 — Établir le niveau réel en Philosophie, sur argumentation, avant de choisir une remédiation. Commencer par un test ciblé en Philosophie sur argumentation, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -3723,24 +3416,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "ecriture",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Philosophie, sur ecriture.",
-                "demarche": "Organiser un entraînement espacé en Philosophie sur ecriture, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "argumentation",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Philosophie, sur argumentation, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Philosophie sur argumentation, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -3946,8 +3622,7 @@
               "lexique est fragile et demande une consolidation régulière, sans reprise intégrale du cours."
             ],
             "actionPlan": [
-              "Séance 1 — Installer les repères indispensables en Philosophie, sur ecriture. Poser les définitions utiles en Philosophie, montrer des exemples sur ecriture, puis proposer un entraînement court et répété.",
-              "Séance 2 — Stabiliser l'acquis encore fragile en Philosophie, sur lexique. Organiser un entraînement espacé en Philosophie sur lexique, sans réenseigner ce qui est déjà compris."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -3969,24 +3644,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "ecriture",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Philosophie, sur ecriture.",
-                "demarche": "Poser les définitions utiles en Philosophie, montrer des exemples sur ecriture, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "lexique",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Philosophie, sur lexique.",
-                "demarche": "Organiser un entraînement espacé en Philosophie sur lexique, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "fragile / à consolider"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -4199,9 +3857,7 @@
               "argumentation est fragile et demande une consolidation régulière, sans reprise intégrale du cours."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Philosophie, sur ecriture. Créer un conflit cognitif en Philosophie, faire verbaliser le raisonnement sur ecriture, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en Philosophie, sur lexique. Poser les définitions utiles en Philosophie, montrer des exemples sur lexique, puis proposer un entraînement court et répété.",
-              "Séance 3 — Stabiliser l'acquis encore fragile en Philosophie, sur argumentation. Organiser un entraînement espacé en Philosophie sur argumentation, sans réenseigner ce qui est déjà compris."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -4223,32 +3879,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "ecriture",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Philosophie, sur ecriture.",
-                "demarche": "Créer un conflit cognitif en Philosophie, faire verbaliser le raisonnement sur ecriture, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "lexique",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Philosophie, sur lexique.",
-                "demarche": "Poser les définitions utiles en Philosophie, montrer des exemples sur lexique, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "argumentation",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Philosophie, sur argumentation.",
-                "demarche": "Organiser un entraînement espacé en Philosophie sur argumentation, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "fragile / à consolider"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -4470,9 +4101,7 @@
               "ecriture reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Philosophie, sur lexique. Créer un conflit cognitif en Philosophie, faire verbaliser le raisonnement sur lexique, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Installer les repères indispensables en Philosophie, sur argumentation. Poser les définitions utiles en Philosophie, montrer des exemples sur argumentation, puis proposer un entraînement court et répété.",
-              "Séance 3 — Établir le niveau réel en Philosophie, sur ecriture, avant de choisir une remédiation. Commencer par un test ciblé en Philosophie sur ecriture, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -4494,32 +4123,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "lexique",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Philosophie, sur lexique.",
-                "demarche": "Créer un conflit cognitif en Philosophie, faire verbaliser le raisonnement sur lexique, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "argumentation",
-                "phaseDidactique": "Installer",
-                "objectif": "Installer les repères indispensables en Philosophie, sur argumentation.",
-                "demarche": "Poser les définitions utiles en Philosophie, montrer des exemples sur argumentation, puis proposer un entraînement court et répété.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "à combler (déjà repéré)"
-              },
-              {
-                "domainId": "ecriture",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Philosophie, sur ecriture, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Philosophie sur ecriture, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 3",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -4734,8 +4338,7 @@
               "lexique reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Lever une représentation incorrecte en Philosophie, sur argumentation. Créer un conflit cognitif en Philosophie, faire verbaliser le raisonnement sur argumentation, puis reconstruire la notion avant tout entraînement.",
-              "Séance 2 — Établir le niveau réel en Philosophie, sur lexique, avant de choisir une remédiation. Commencer par un test ciblé en Philosophie sur lexique, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -4757,24 +4360,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "argumentation",
-                "phaseDidactique": "Confronter",
-                "objectif": "Lever une représentation incorrecte en Philosophie, sur argumentation.",
-                "demarche": "Créer un conflit cognitif en Philosophie, faire verbaliser le raisonnement sur argumentation, puis reconstruire la notion avant tout entraînement.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "sûr mais à revoir"
-              },
-              {
-                "domainId": "lexique",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Philosophie, sur lexique, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Philosophie sur lexique, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
@@ -4980,8 +4566,7 @@
               "argumentation reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
             ],
             "actionPlan": [
-              "Séance 1 — Stabiliser l'acquis encore fragile en Philosophie, sur ecriture. Organiser un entraînement espacé en Philosophie sur ecriture, sans réenseigner ce qui est déjà compris.",
-              "Séance 2 — Établir le niveau réel en Philosophie, sur argumentation, avant de choisir une remédiation. Commencer par un test ciblé en Philosophie sur argumentation, puis décider du travail à engager à partir des observations."
+              "Les repères observés seront croisés avec ceux du groupe constitué afin de régler l'ordre, le temps et la profondeur du travail pendant cinq séances de deux heures. Aucun module n'est fixé avant cette lecture collective."
             ]
           },
           "domains": [
@@ -5003,24 +4588,7 @@
           ],
           "learningPath": {
             "version": "learning-path.v1",
-            "steps": [
-              {
-                "domainId": "ecriture",
-                "phaseDidactique": "Consolider",
-                "objectif": "Stabiliser l'acquis encore fragile en Philosophie, sur ecriture.",
-                "demarche": "Organiser un entraînement espacé en Philosophie sur ecriture, sans réenseigner ce qui est déjà compris.",
-                "seanceLabel": "Séance 1",
-                "profileLabel": "fragile / à consolider"
-              },
-              {
-                "domainId": "argumentation",
-                "phaseDidactique": "Diagnostiquer",
-                "objectif": "Établir le niveau réel en Philosophie, sur argumentation, avant de choisir une remédiation.",
-                "demarche": "Commencer par un test ciblé en Philosophie sur argumentation, puis décider du travail à engager à partir des observations.",
-                "seanceLabel": "Séance 2",
-                "profileLabel": "non évalué"
-              }
-            ]
+            "steps": []
           }
         }
       }
