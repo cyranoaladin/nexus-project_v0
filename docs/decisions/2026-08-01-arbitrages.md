@@ -321,6 +321,20 @@ n’est donc affirmée.
 **Décision.** Localiser et documenter sa couverture pendant M0.4. Une mission dédiée devra étendre la détection sans l'implémenter au passage.
 
 **Motif.** Un scanner mono-fournisseur crée une fausse assurance de couverture générale.
+## A20 — Configuration locale distincte de la production
+
+**Constat.** Le lien local `.env` pouvait compléter `.env.local` avec des variables de
+`.env.production`. La production réelle charge toutefois `/etc/nexus/nexus-prod.env`,
+hors dépôt, via `node --env-file` ; le fichier local n'est pas sa source de configuration.
+
+**Décision.** Le risque de contact avec la base de production au titre d'A19 est clos.
+La suppression du lien `.env`, le renommage de l'artefact de smoke test et la vérification
+de l'exemple de production restent une mission de configuration dédiée. Aucun serveur de
+développement ne doit être lancé avec un environnement non maîtrisé.
+
+**Motif.** Distinguer un risque local de configuration d'une exposition réelle de la
+production évite à la fois le faux sentiment de sécurité et l'alerte infondée.
+
 ## A32 - Scanner de secrets : couverture a etendre
 
 **Constat.** `scripts/security/check-telegram-secrets.mjs` ne couvre que Telegram. Il a affiche `Telegram secret scan passed` alors qu'un credential SMTP etait suivi depuis le 23 juin.
@@ -503,6 +517,120 @@ n’est donc affirmée.
 - **Décision :** le pack `maths-terminale-v1` porte `reporting.rag.enabled: false` et une référence explicite à A56. Si un pack active le RAG, le gateway refuse tout démarrage lorsque le retriever est absent ou renvoie zéro extrait.
 - **Motif :** une génération sans preuve ne doit jamais conserver l'apparence d'une génération ancrée. Le corpus vide est une erreur bloquante, pas un mode dégradé.
 
+## A57 — Sauvegarde immédiate du correctif A56
+
+**Constat.** Le fail-closed RAG et sa politique de pack étaient testés mais uniquement
+présents dans l'arbre local.
+
+**Décision.** Isoler, committer et pousser le correctif A56 avant d'ouvrir le traitement
+de la panne ARIA.
+
+**Motif.** Un correctif de sécurité non sauvegardé ne constitue pas un jalon fiable.
+
+## A58 — Une panne RAG doit être visible dans ARIA
+
+**Constat.** Le client RAG transformait timeout, exception et réponse non-2xx en tableau
+vide ; ARIA appelait ensuite le modèle sans signaler l'absence d'ancrage.
+
+**Décision.** Distinguer succès avec résultats, succès vide et échec technique. Un échec
+technique bloque le mode ancré, informe sobrement l'élève, produit un journal sans PII et
+alimente une alerte de taux d'échec. Un succès vide peut répondre seulement en déclarant
+explicitement l'absence de source du corpus.
+
+**Motif.** Un échec technique ne doit jamais être converti en succès silencieux.
+
+## A59 — Diagnostic séparé avant toute réingestion RAG
+
+**Constat.** Les erreurs d'ingestion observées combinaient des réponses 401 et 422 sans
+preuve d'une cause unique, tandis que le fallback réseau utilisait un nom Docker depuis
+un processus PM2 sur l'hôte.
+
+**Décision.** Documenter d'abord l'emplacement des tokens, la résolvabilité du service,
+le champ refusé par les 422 et une recette d'ingestion isolée. Aucune ingestion ni rotation
+de configuration n'est exécutée dans le chantier bilans.
+
+**Motif.** Réparer sans qualifier l'authentification, le réseau et le contrat de charge
+utile risquerait de produire une nouvelle ingestion partielle.
+
+## A60 — Enrichissement des cinq prompts avant relecture
+
+**Constat.** Les cinq prompts totalisaient 29 lignes et déléguaient aux validateurs des
+contraintes rédactionnelles déjà écrites dans les specs 05 et 08.
+
+**Décision.** Transposer explicitement ces contraintes dans chaque prompt, sans créer de
+règle pédagogique nouvelle, et réserver une section d'exemples positifs et négatifs à
+compléter par le responsable pédagogique.
+
+**Motif.** Les validateurs prouvent l'absence de violations, pas la présence d'une qualité
+rédactionnelle suffisante.
+
+## A61 — Fusion et suivi des métadonnées pédagogiques
+
+**Constat.** Le responsable pédagogique devait renseigner des centaines de champs sans
+outil pour mesurer l'avancement ni fusionner le formulaire dans le pack.
+
+**Décision.** Fournir un merge fail-closed et permettre au contrôleur de complétude de
+lire directement le YAML. La valeur `A REMPLACER` demeure incomplète et bloquante.
+
+**Motif.** Le suivi doit progresser pendant la relecture, avant toute fusion finale.
+
+## A62 — Gel du YAML sur une branche de relecture dédiée
+
+**Constat.** L'ingénierie et la relecture humaine pouvaient modifier concurremment le même
+formulaire de cinquante items.
+
+**Décision.** Créer `review/maths-terminale-v1-metadata` depuis le commit contenant A61,
+geler énoncés, options et clés, et réserver au responsable pédagogique le remplissage des
+champs vides. La fusion finale porte uniquement sur ce fichier.
+
+**Motif.** La séparation des branches empêche une modification technique de déplacer le
+support sous les pieds du relecteur.
+
+## A63 — La version 1 couvre toute la construction avant signature
+
+**Constat.** Le pack n'avait jamais été signé ni chargé en production lors de
+l'enrichissement initial de ses prompts.
+
+**Décision.** Conserver la version 1 jusqu'à la première signature. Après cette signature,
+toute modification d'item, d'option, de prompt ou de checksum impose une nouvelle version
+et annule la validation précédente.
+
+**Motif.** Le contrat de version protège une validation existante ; il ne doit pas figer
+artificiellement un brouillon initial.
+
+## A64 — La recette mock atteste la conformité, pas la qualité
+
+**Constat.** Multiplier par sept la taille des prompts ne changeait aucun artefact mock :
+le transport de test ne mesure pas leur effet rédactionnel.
+
+**Décision.** Ne jamais présenter les zéros violations du mock comme preuve de qualité.
+La première recette sur fournisseur réel exige une revue humaine intégrale des vingt
+FactSheets et trois audiences avant mise en service.
+
+**Motif.** Le mock prouve câblage, déterminisme, validation et absence de réseau, rien de
+plus.
+
+## A65 — Publication du support de relecture
+
+**Constat.** Les prompts enrichis et la procédure de relecture n'étaient disponibles que
+localement alors que le travail humain devait commencer.
+
+**Décision.** Les committer et pousser sur `docs/bilans-kit-integration`, puis vérifier que
+le YAML gelé reste identique sur la branche de relecture.
+
+**Motif.** La diffusion des supports ne doit pas rompre l'isolation du formulaire humain.
+
+## A66 — Exemples pédagogiques réservés au relecteur
+
+**Constat.** Une liste de règles ne suffit pas à fixer le niveau de qualité attendu d'un
+modèle ; le contraste entre bonne et mauvaise formulation relève du jugement pédagogique.
+
+**Décision.** Les cinq prompts portent une section d'exemples explicitement vide, à
+compléter par le responsable pédagogique, et non par l'ingénierie.
+
+**Motif.** Ne pas transformer une décision de ton et de qualité pédagogique en contenu
+généré sans validation humaine.
+
 ## A67 — Retrait des items hors programme
 
 - **Constat :** quatre items du pack historique portent sur des notions hors programme actuel du lycée : convergence d’une intégrale impropre, loi normale et intervalle de confiance.
@@ -581,6 +709,53 @@ n’est donc affirmée.
 
 **Limite volontaire.** La fonction n’est raccordée à aucune route tant que la spec publique Canonical annulant la spec 04 n’a pas été arbitrée. A78.2 chiffre ce raccordement séparément.
 
+## A79 — Parcours d'août sans LLM ni RAG
+
+**Constat.** La chaîne sécurisée avec agents demandait davantage de temps que la fenêtre
+d'ouverture du 17 août, tandis que le rendu déterministe consommait déjà la FactSheet.
+
+**Décision.** Pour août, produire le bilan exclusivement par passation, FactSheet, rendu
+déterministe, revue humaine et publication. Agents, LLM et RAG restent implémentés mais
+hors du chemin actif.
+
+**Motif.** Retirer trois dépendances non validées du chemin critique sans sacrifier la
+traçabilité des faits.
+
+## A80 — SPEC-04 réécrite contre les modèles Canonical
+
+**Constat.** La spec API historique avait été annulée et ne couvrait ni ownership serveur,
+ni confiance par item, ni permutation, ni cycle Canonical.
+
+**Décision.** Limiter le contrat public à six routes Canonical : création, lecture
+expurgée, sauvegarde, soumission, statut et rapport publié. Ownership par session Student,
+refus en 404, confiance 1–4 et feature flag OFF par pack sont normatifs.
+
+**Motif.** Le contrat doit précéder l'ouverture de toute route et rendre la non-divulgation
+testable.
+
+## A81 — Le runner legacy n'est pas repris
+
+**Constat.** Le runner historique chargeait côté navigateur des marqueurs de correction,
+dont `isCorrect` et `explanation`.
+
+**Décision.** Fermer ce chemin puis construire un runner alimenté uniquement par le DTO
+expurgé Canonical, avec confiance, autosave, reprise et aucun calcul de score côté client.
+
+**Motif.** Une réponse lisible dans le bundle client rend le questionnaire contournable,
+indépendamment de la qualité du futur backend.
+
+## A82 — Migration additive de la passation Canonical
+
+**Constat.** La passation ne persistait ni seed ni bornes temporelles et son statut par
+défaut Prisma divergeait de la machine à états.
+
+**Décision.** Ajouter seed, `startedAt`, `expiresAt` et aligner le défaut sur `DRAFT` par
+migration additive dev/test uniquement. Aucun objet legacy n'est supprimé et aucune
+migration n'est appliquée en production dans ce chantier.
+
+**Motif.** La permutation, l'expiration et les transitions doivent être reproductibles et
+cohérentes avant d'ouvrir la passation.
+
 ## A83 — Banque de positionnement d’entrée en Seconde, Mathématiques
 
 **Constat.** La source éditoriale `entree-seconde-maths-v1.yaml` contient 18 items complets couvrant neuf nœuds de prérequis de Troisième, avec deux items par nœud. Son audit ne relève aucun écart V1 à V14 : durée 1 055 s pour 25 minutes annoncées et distribution des bonnes réponses A=5, B=5, C=4, D=4. Le gabarit historique `seconde.maths.v1.yaml` ne contient que 12 items incomplets, sans rationales et avec une convention de clés obsolète.
@@ -588,6 +763,77 @@ n’est donc affirmée.
 **Décision.** Versionner le catalogue CPS limité aux neuf nœuds, convertir la source par le pipeline générique existant et isoler cinq prompts liés par checksum sous le slug du pack. Le RAG reste désactivé, le pack reste `DRAFT` avec `review.*` nul, et une recette mock déterministe couvre 20 FactSheets et 60 rapports. Le gabarit historique est conservé sous `_archive/` avec un en-tête d’obsolescence explicite.
 
 **Motif.** L’entrée en Seconde doit reposer sur les prérequis de Troisième réellement relus, sans maintenir deux banques actives concurrentes ni assouplir les règles V1 à V14. Cette troisième banque confirme que le convertisseur est indépendant du niveau et du slug.
+
+## A84 — Ratification API, fermeture legacy et migration additive
+
+**Constat.** La SPEC-04 nécessitait des garanties précises d'idempotence, de verrouillage,
+d'expiration et de sentinelles anti-divulgation ; le runner legacy restait exposé.
+
+**Décision.** Ratifier la spec durcie, fermer la page legacy derrière un seam fail-closed
+et produire la migration A82 pour dev/test. Aucune route Canonical ni feature flag n'est
+activé par cette ratification.
+
+**Motif.** Fermer l'exposition connue avant de bâtir le nouveau parcours, sans confondre
+schéma prêt et fonctionnalité ouverte.
+
+## A85 — Six routes Canonical derrière des flags OFF
+
+**Constat.** La passation exigeait un contrat transactionnel, idempotent et non divulgant,
+ainsi qu'un garde de pack uniforme sur toutes les ressources existantes.
+
+**Décision.** Implémenter exactement les six routes de la SPEC-04, avec Student issu de la
+session, seed serveur, sauvegarde optimiste, soumission verrouillée, outbox unique, lecture
+publiée par audience et garde partagé `assertAttemptPackEnabled`. Tous les flags restent
+désactivés par défaut.
+
+**Motif.** Une désactivation de pack doit fermer toute la surface, y compris une tentative
+créée antérieurement et un rapport déjà publié.
+
+## A86 — Worker déterministe et revue interne
+
+**Constat.** La soumission déposait un job, mais aucun chemin complet ne transformait les
+réponses en faits, artefacts et publication revue sans dépendance externe.
+
+**Décision.** Le worker enchaîne calcul des faits, FactSheet, preuves, trois rendus et
+révision en attente. Le service interne impose le cycle revue, bloque toute publication
+avec échecs de validation et ne publie jamais automatiquement.
+
+**Motif.** Un échec reste explicite et rejouable ; il ne devient jamais un statut de succès.
+
+## A87 — Draineur, runner élève et surface staff
+
+**Constat.** Le worker n'était pas raccordé à l'outbox et les interfaces de passation et de
+revue manquaient.
+
+**Décision.** Ajouter un draineur manuel avec verrou concurrent, un runner client limité au
+DTO expurgé et une surface staff réutilisant exclusivement le service de revue. Aucun daemon,
+cron, flag ou septième route publique n'est activé.
+
+**Motif.** Rendre la chaîne testable de bout en bout tout en conservant un déclenchement et
+une exposition désactivés par défaut.
+
+## A88 — Aucun arbitrage identifié
+
+**Constat.** Aucun message ou document source disponible ne formule un arbitrage A88.
+
+**Décision.** Ne lui attribuer aucune règle rétroactivement.
+
+**Motif.** Une numérotation manquante vaut mieux qu'une décision inventée après coup.
+
+## A89 — Extension à dix-sept packs et signature durable
+
+**Constat.** Deux banques validées restaient hors vague, les enums Canonical ne couvraient
+pas `MATHS_EXPERTES` et `QUATRIEME`, un nœud suites était partagé entre deux finalités, et
+une signature écrite dans un JSON généré aurait été écrasée.
+
+**Décision.** Étendre le manifeste à dix-sept packs et 306 items, ajouter les deux valeurs
+par migration additive dev/test, distinguer le nœud suites expertes, et stocker toute
+signature dans `data/bilans/reviews/<slug>.review.yaml`. Le convertisseur ne produit
+`VALIDATED` que si reviewer, source et cinq checksums de prompts correspondent ; sinon il
+retombe fail-closed en `DRAFT`.
+
+**Motif.** La vague doit être exhaustive sans collision sémantique, et la signature doit
+survivre à la régénération tout en s'invalidant dès que le contenu signé change.
 
 ## A90.1ter — Parcours pédagogique déterministe par profil
 
