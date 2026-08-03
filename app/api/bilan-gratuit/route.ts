@@ -11,6 +11,7 @@ import { synchronizePreRentreeCampaignContext } from '@/lib/campaigns/pre-rentre
 import { createId } from '@paralleldrive/cuid2';
 import crypto from 'crypto';
 import { NextRequest, NextResponse } from 'next/server';
+import { withParentStudentConsentTransaction } from '@/lib/bilans/parent-student-consent';
 
 export async function POST(request: NextRequest) {
   try {
@@ -77,71 +78,80 @@ export async function POST(request: NextRequest) {
     }
 
     // Transaction pour créer parent et élève
-    const result = await prisma.$transaction(async (tx) => {
-      // Créer le compte parent
-      const parentUser = await tx.user.create({
-        data: {
-          email: validatedData.parentEmail,
-          password: null,
-          role: UserRole.PARENT,
-          firstName: validatedData.parentFirstName,
-          lastName: validatedData.parentLastName,
-          phone: validatedData.parentPhone,
-          activatedAt: null,
-          activationToken: hashedActivationToken,
-          activationExpiry,
-        }
-      });
+    const result = await withParentStudentConsentTransaction(
+      prisma,
+      async ({ transaction: tx, preparePending }) => {
+        // Créer le compte parent
+        const parentUser = await tx.user.create({
+          data: {
+            email: validatedData.parentEmail,
+            password: null,
+            role: UserRole.PARENT,
+            firstName: validatedData.parentFirstName,
+            lastName: validatedData.parentLastName,
+            phone: validatedData.parentPhone,
+            activatedAt: null,
+            activationToken: hashedActivationToken,
+            activationExpiry,
+          }
+        });
 
-      // Créer le profil parent
-      const parentProfile = await tx.parentProfile.create({
-        data: {
-          userId: parentUser.id
-        }
-      });
+        // Créer le profil parent
+        const parentProfile = await tx.parentProfile.create({
+          data: {
+            userId: parentUser.id
+          }
+        });
 
-      // Créer le compte élève sans accès direct.
-      // Email format: prenom.nom.random@nexus-student.local to ensure uniqueness
-      const studentEmailSlug = `${validatedData.studentFirstName.toLowerCase()}.${resolvedStudentLastName.toLowerCase()}.${createId().slice(0, 4)}@nexus-student.local`;
-      
-      const studentUser = await tx.user.create({
-        data: {
-          email: studentEmailSlug,
-          role: UserRole.ELEVE,
-          firstName: validatedData.studentFirstName,
-          lastName: resolvedStudentLastName,
-          password: null,
-          activatedAt: null,
-        }
-      });
+        // Créer le compte élève sans accès direct.
+        // Email format: prenom.nom.random@nexus-student.local to ensure uniqueness
+        const studentEmailSlug = `${validatedData.studentFirstName.toLowerCase()}.${resolvedStudentLastName.toLowerCase()}.${createId().slice(0, 4)}@nexus-student.local`;
 
-      const student = await tx.student.create({
-        data: {
-          parentId: parentProfile.id,
-          userId: studentUser.id,
-          grade: validatedData.studentGrade,
-          gradeLevel: gTrack.level,
-          academicTrack: gTrack.track,
-          school: validatedData.studentSchool,
-          birthDate: validatedData.studentBirthDate ? new Date(validatedData.studentBirthDate) : null
-        }
-      });
+        const studentUser = await tx.user.create({
+          data: {
+            email: studentEmailSlug,
+            role: UserRole.ELEVE,
+            firstName: validatedData.studentFirstName,
+            lastName: resolvedStudentLastName,
+            password: null,
+            activatedAt: null,
+          }
+        });
 
-      const campaignLead = campaignContext
-        ? await tx.contactLead.create({
-            data: {
-              name: `${validatedData.parentFirstName} ${validatedData.parentLastName}`,
-              email: validatedData.parentEmail,
-              phone: validatedData.parentPhone,
-              profile: JSON.stringify(campaignContext.profile),
-              interest: `${campaignContext.packCode} · ${campaignContext.level} · ${campaignContext.subjectIds.join(', ')}`,
-              source: campaignContext.programme,
-            },
-          })
-        : null;
+        const student = await tx.student.create({
+          data: {
+            parentId: parentProfile.id,
+            userId: studentUser.id,
+            grade: validatedData.studentGrade,
+            gradeLevel: gTrack.level,
+            academicTrack: gTrack.track,
+            school: validatedData.studentSchool,
+            birthDate: validatedData.studentBirthDate ? new Date(validatedData.studentBirthDate) : null
+          }
+        });
 
-      return { parentUser, studentUser, student, campaignLead };
-    });
+        await preparePending({
+          parentUserId: parentUser.id,
+          studentId: student.id,
+          now: new Date(),
+        });
+
+        const campaignLead = campaignContext
+          ? await tx.contactLead.create({
+              data: {
+                name: `${validatedData.parentFirstName} ${validatedData.parentLastName}`,
+                email: validatedData.parentEmail,
+                phone: validatedData.parentPhone,
+                profile: JSON.stringify(campaignContext.profile),
+                interest: `${campaignContext.packCode} · ${campaignContext.level} · ${campaignContext.subjectIds.join(', ')}`,
+                source: campaignContext.programme,
+              },
+            })
+          : null;
+
+        return { parentUser, studentUser, student, campaignLead };
+      },
+    );
 
     // Envoyer email de bienvenue
     try {

@@ -1,6 +1,8 @@
 import { auth } from '@/auth';
 import { GET, POST } from '@/app/api/parent/children/route';
 import { prisma } from '@/lib/prisma';
+import { sendMail } from '@/lib/email/mailer';
+import { withParentStudentConsentTransaction } from '@/lib/bilans/parent-student-consent';
 
 jest.mock('@/auth', () => ({
   auth: jest.fn(),
@@ -15,6 +17,17 @@ jest.mock('@/lib/prisma', () => ({
   },
 }));
 
+jest.mock('@/lib/email/mailer', () => ({
+  sendMail: jest.fn().mockResolvedValue(undefined),
+}));
+
+jest.mock('@/lib/bilans/parent-student-consent', () => ({
+  withParentStudentConsentTransaction: jest.fn(),
+}));
+
+const mockWithParentStudentConsentTransaction = withParentStudentConsentTransaction as jest.Mock;
+const mockPreparePending = jest.fn();
+
 function makeRequest(body?: any) {
   const bodyStr = body !== undefined ? JSON.stringify(body) : '';
   return {
@@ -27,6 +40,18 @@ function makeRequest(body?: any) {
 describe('parent children routes', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockPreparePending.mockResolvedValue({
+      id: 'canonical-link-1',
+      state: 'PENDING_PARENT_CONSENT',
+      consentedAt: null,
+      verifiedAt: null,
+    });
+    mockWithParentStudentConsentTransaction.mockImplementation(
+      (database: typeof prisma, action: (context: unknown) => unknown) => database.$transaction((transaction: unknown) => action({
+        transaction,
+        preparePending: mockPreparePending,
+      })),
+    );
   });
 
   describe('GET /api/parent/children', () => {
@@ -132,6 +157,71 @@ describe('parent children routes', () => {
 
       expect(response.status).toBe(404);
       expect(body.error).toBe('Parent profile not found');
+    });
+
+    it('creates the child and prepares a pending Canonical link from server-owned ids', async () => {
+      (auth as jest.Mock).mockResolvedValue({
+        user: { id: 'parent-1', email: 'parent@test.com', role: 'PARENT' },
+      });
+      (prisma.user.findUnique as jest.Mock).mockResolvedValue(null);
+      (prisma.parentProfile.findUnique as jest.Mock).mockResolvedValue({ id: 'parent-profile-1' });
+      const student = {
+        id: 'student-1',
+        grade: 'Seconde',
+        school: '',
+        user: { firstName: 'A', lastName: 'B', email: 'a.b@nexus-student.local' },
+      };
+      (prisma.$transaction as jest.Mock).mockImplementation(async (callback: any) => callback({
+        user: { create: jest.fn().mockResolvedValue({ id: 'child-user-1' }) },
+        student: { create: jest.fn().mockResolvedValue(student) },
+      }));
+
+      const response = await POST(makeRequest({ firstName: 'A', lastName: 'B', grade: 'Seconde' }));
+
+      expect(response.status).toBe(200);
+      expect(mockWithParentStudentConsentTransaction).toHaveBeenCalledWith(
+        prisma,
+        expect.any(Function),
+      );
+      expect(mockPreparePending).toHaveBeenCalledWith({
+        parentUserId: 'parent-1',
+        studentId: 'student-1',
+        now: expect.any(Date),
+      });
+      expect(mockPreparePending).toHaveBeenCalledTimes(1);
+      expect(sendMail).toHaveBeenCalledTimes(1);
+    });
+
+    it('aborts child creation response and sends no email when pending consent preparation fails', async () => {
+      (auth as jest.Mock).mockResolvedValue({
+        user: { id: 'parent-1', email: 'parent@test.com', role: 'PARENT' },
+      });
+      (prisma.user.findUnique as jest.Mock).mockResolvedValue(null);
+      (prisma.parentProfile.findUnique as jest.Mock).mockResolvedValue({ id: 'parent-profile-1' });
+      (prisma.$transaction as jest.Mock).mockImplementation(async (callback: any) => callback({
+        user: { create: jest.fn().mockResolvedValue({ id: 'child-user-1' }) },
+        student: {
+          create: jest.fn().mockResolvedValue({
+            id: 'student-1',
+            grade: 'Seconde',
+            school: '',
+            user: { firstName: 'A', lastName: 'B', email: 'a.b@nexus-student.local' },
+          }),
+        },
+      }));
+      mockPreparePending.mockRejectedValueOnce(new Error('pending link failed'));
+
+      const response = await POST(makeRequest({ firstName: 'A', lastName: 'B', grade: 'Seconde' }));
+      const body = await response.json();
+
+      expect(response.status).toBe(500);
+      expect(body.error).toBe('Internal server error');
+      expect(mockPreparePending).toHaveBeenCalledWith({
+        parentUserId: 'parent-1',
+        studentId: 'student-1',
+        now: expect.any(Date),
+      });
+      expect(sendMail).not.toHaveBeenCalled();
     });
 
     it('rejects injected fields and does not create a child', async () => {
