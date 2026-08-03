@@ -588,3 +588,13 @@ n’est donc affirmée.
 **Décision.** Versionner le catalogue CPS limité aux neuf nœuds, convertir la source par le pipeline générique existant et isoler cinq prompts liés par checksum sous le slug du pack. Le RAG reste désactivé, le pack reste `DRAFT` avec `review.*` nul, et une recette mock déterministe couvre 20 FactSheets et 60 rapports. Le gabarit historique est conservé sous `_archive/` avec un en-tête d’obsolescence explicite.
 
 **Motif.** L’entrée en Seconde doit reposer sur les prérequis de Troisième réellement relus, sans maintenir deux banques actives concurrentes ni assouplir les règles V1 à V14. Cette troisième banque confirme que le convertisseur est indépendant du niveau et du slug.
+
+## A90.1ter — Parcours pédagogique déterministe par profil
+
+**Constat.** Le rendu PARENTS renvoyait vers un échange de conseil sans matérialiser le parcours pédagogique déjà déductible des profils. Aucune relation fiable ne relie encore un stage à ses séances réelles dans le modèle Canonical.
+
+**Décision.** Construire un `LearningPath` versionné comme fonction pure de la `FactSheet` et de la `RenderIdentity`. Chaque domaine non maîtrisé produit une étape ordonnée par priorité, avec une phase didactique imposée par son profil. Les formulations d’objectif et de démarche sont déterministes et contextualisées par matière. Les rendus ELEVE et PARENTS emploient les libellés familles ; le rendu NEXUS conserve les profils techniques et les scores.
+
+**Motif.** Un parcours calculé est plus utile et plus auditable qu’un renvoi générique. Il conserve la priorité absolue donnée aux erreurs tenues pour justes, sans faire intervenir de LLM, de RAG ni d’agent.
+
+**Dette bornée.** Tant que la relation `stage -> séances` n’existe pas, les étapes utilisent la configuration séquentielle `Séance 1`, `Séance 2`, etc. Ce libellé ne prétend pas refléter un planning réel. Le raccordement aux séances effectivement programmées relève d’une évolution distincte du modèle et ne doit pas être déduit du slug ou du contenu libre.

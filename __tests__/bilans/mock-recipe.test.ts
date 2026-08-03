@@ -61,8 +61,8 @@ describe.each(RECIPES)('$slug mock technical recipe', ({ slug, pack, factSheets,
     let first;
     let second;
     try {
-      first = await generateMockRecipeEvidence(factSheets, pack, slug);
-      second = await generateMockRecipeEvidence(factSheets, pack, slug);
+      first = await generateMockRecipeEvidence(factSheets, pack, slug, 'MATHS');
+      second = await generateMockRecipeEvidence(factSheets, pack, slug, 'MATHS');
     } finally {
       fetchSpy.mockRestore();
     }
