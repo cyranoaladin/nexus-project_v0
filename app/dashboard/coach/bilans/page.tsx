@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { auth } from '@/auth';
 import {
   listPendingReportReviews,
+  previewPendingReport,
   StaffReviewError,
   type PendingReportReview,
 } from '@/lib/bilans/staff/review-service';
@@ -16,7 +17,9 @@ function audienceContent(revision: PendingReportReview, audience: typeof AUDIENC
   return (revision.content as Record<string, unknown>)[audience] ?? null;
 }
 
-export default async function CanonicalBilansReviewPage() {
+export default async function CanonicalBilansReviewPage({
+  searchParams,
+}: Readonly<{ searchParams: Promise<Readonly<{ preview?: string }>> }>) {
   const session = await auth();
   if (session?.user?.id === undefined || session.user.role === undefined) notFound();
 
@@ -26,6 +29,20 @@ export default async function CanonicalBilansReviewPage() {
   } catch (error) {
     if (error instanceof StaffReviewError && error.code === 'NOT_FOUND') notFound();
     throw error;
+  }
+  const requestedPreview = (await searchParams).preview;
+  let preview: Awaited<ReturnType<typeof previewPendingReport>> | null = null;
+  if (requestedPreview !== undefined) {
+    try {
+      preview = await previewPendingReport({
+        userId: session.user.id,
+        role: session.user.role,
+        revisionId: requestedPreview,
+      });
+    } catch (error) {
+      if (error instanceof StaffReviewError && error.code === 'NOT_FOUND') notFound();
+      throw error;
+    }
   }
 
   return (
@@ -38,6 +55,22 @@ export default async function CanonicalBilansReviewPage() {
             Chaque publication exige une lecture humaine des trois audiences. La validation et la publication sont déclenchées uniquement par l’action explicite du coach.
           </p>
         </header>
+
+        {preview !== null && typeof preview === 'object' && 'audiences' in preview && (
+          <section className="mt-8 rounded-3xl border border-amber-300/30 bg-amber-300/5 p-5">
+            <p className="text-sm font-bold uppercase tracking-[0.16em] text-amber-200">
+              PRÉVISUALISATION NON OFFICIELLE — aucun artefact enregistré
+            </p>
+            <div className="mt-5 grid gap-5 xl:grid-cols-3">
+              {(preview.audiences as readonly Readonly<{ audience: string; html: string }>[]).map((item) => (
+                <section key={item.audience}>
+                  <h2 className="mb-2 text-sm font-semibold text-white">{item.audience}</h2>
+                  <iframe title={`Prévisualisation ${item.audience}`} srcDoc={item.html} className="h-[46rem] w-full bg-white" />
+                </section>
+              ))}
+            </div>
+          </section>
+        )}
 
         {revisions.length === 0 ? (
           <section className="mt-8 rounded-2xl border border-white/10 bg-white/5 p-8 text-slate-300">
@@ -81,6 +114,9 @@ export default async function CanonicalBilansReviewPage() {
                   </div>
 
                   <div className="grid gap-4 border-t border-white/10 p-6 lg:grid-cols-2">
+                    <a href={`/dashboard/coach/bilans?preview=${encodeURIComponent(revision.id)}`} className="lg:col-span-2 rounded-xl border border-amber-300 px-4 py-2.5 text-center font-semibold text-amber-100">
+                      Prévisualiser le rendu final non officiel
+                    </a>
                     <form action={validateAndPublishReportAction} className="rounded-2xl border border-emerald-300/20 bg-emerald-300/5 p-4">
                       <input type="hidden" name="revisionId" value={revision.id} />
                       <label className="block text-sm font-semibold text-white" htmlFor={`approve-${revision.id}`}>Motif de validation et publication</label>

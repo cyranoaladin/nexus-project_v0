@@ -5,6 +5,7 @@ import {
   listPendingReportReviews,
   rejectPendingReport,
   validateAndPublishPendingReport,
+  previewPendingReport,
 } from '@/lib/bilans/staff/review-service';
 
 const revision = {
@@ -30,6 +31,7 @@ function dependencies(overrides: Record<string, unknown> = {}) {
     resolvePack: jest.fn().mockReturnValue({ pack: { slug: 'fixture-pack' } }),
     validate: jest.fn().mockResolvedValue({ status: 'COACH_VALIDATED' }),
     publish: jest.fn().mockResolvedValue({ status: 'PUBLISHED' }),
+    preview: jest.fn().mockResolvedValue({ official: false, audiences: [] }),
     reject: jest.fn().mockResolvedValue({ status: 'COACH_REJECTED' }),
     now: () => new Date('2026-08-02T11:00:00.000Z'),
     ...overrides,
@@ -86,6 +88,16 @@ describe('staff Canonical report review service', () => {
     expect(deps.publish).not.toHaveBeenCalled();
   });
 
+  test('previews without validating, publishing or persisting an artifact', async () => {
+    const deps = dependencies();
+    await expect(previewPendingReport({
+      userId: 'user-coach', role: 'COACH', revisionId: revision.id,
+    }, serviceDependencies(deps))).resolves.toMatchObject({ official: false });
+    expect(deps.preview).toHaveBeenCalledWith({ revisionId: revision.id });
+    expect(deps.validate).not.toHaveBeenCalled();
+    expect(deps.publish).not.toHaveBeenCalled();
+  });
+
   test('rejects through the A86 service and preserves a non-empty motif', async () => {
     const deps = dependencies();
     await rejectPendingReport({
@@ -104,6 +116,8 @@ describe('staff Canonical report review service', () => {
     expect(source).not.toMatch(/canonicalAssessmentAttempt\.(?:update|updateMany)/);
     expect(source).not.toMatch(/reportRevision\.(?:update|updateMany)/);
     expect(source).not.toMatch(/reportArtifact\.(?:update|updateMany)/);
+    expect(source).not.toMatch(/reportMaterialization\.(?:update|updateMany)/);
+    expect(source).not.toMatch(/reportAudienceArtifact\.(?:update|updateMany)/);
     expect(source).not.toMatch(/['"]\/api\//);
   });
 });

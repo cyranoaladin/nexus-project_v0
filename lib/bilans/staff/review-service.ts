@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 
 import { resolveEnabledPack, type PackResolver } from '../api/pack-access';
 import {
+  previewReportRevision,
   publishReportRevision,
   rejectReportRevision,
   validateReportRevision,
@@ -34,6 +35,7 @@ type ReviewServiceDependencies = Readonly<{
   resolvePack: PackResolver;
   validate(input: Readonly<{ revisionId: string; coachId: string; motif: string; reviewedAt: Date }>): Promise<unknown>;
   publish(input: Readonly<{ revisionId: string; coachId: string; publishedAt: Date }>): Promise<unknown>;
+  preview(input: Readonly<{ revisionId: string }>): Promise<unknown>;
   reject(input: Readonly<{ revisionId: string; coachId: string; motif: string; reviewedAt: Date }>): Promise<unknown>;
   now: () => Date;
 }>;
@@ -84,6 +86,7 @@ const defaultDependencies: ReviewServiceDependencies = {
   resolvePack: resolveEnabledPack,
   validate: (input) => validateReportRevision({ prisma, ...input }),
   publish: (input) => publishReportRevision({ prisma, ...input }),
+  preview: (input) => previewReportRevision({ prisma, ...input }),
   reject: (input) => rejectReportRevision({ prisma, ...input }),
   now: () => new Date(),
 };
@@ -137,6 +140,18 @@ export async function validateAndPublishPendingReport(
   const reviewedAt = dependencies.now();
   await dependencies.validate({ revisionId: revision.id, coachId, motif, reviewedAt });
   return dependencies.publish({ revisionId: revision.id, coachId, publishedAt: reviewedAt });
+}
+
+export async function previewPendingReport(
+  action: ReviewActor & Readonly<{ revisionId: string }>,
+  overrides: Partial<ReviewServiceDependencies> = {},
+) {
+  const dependencies = { ...defaultDependencies, ...overrides };
+  const coachId = await coachFor(action, dependencies);
+  const revision = await dependencies.findAssignedRevision(action.revisionId, coachId);
+  if (revision === null || !packIsEnabled(revision, dependencies)) throw new StaffReviewError('NOT_FOUND');
+  if (revision.validationFailures.length > 0) throw new StaffReviewError('REPORT_VALIDATION_FAILURES');
+  return dependencies.preview({ revisionId: revision.id });
 }
 
 export async function rejectPendingReport(
