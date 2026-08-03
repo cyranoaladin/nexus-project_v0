@@ -81,8 +81,12 @@ async function resolveChromiumExecutable(playwrightPath: string): Promise<string
   throw new Error('BILAN_PDF_CHROMIUM_MISSING');
 }
 
-export async function renderHtmlToPdf(html: string): Promise<Buffer> {
-  const resolvedHtml = await inlinePrintAssets(html);
+export type BilanPdfRendererSession = Readonly<{
+  renderHtmlToPdf: (html: string) => Promise<Buffer>;
+  close: () => Promise<void>;
+}>;
+
+export async function createBilanPdfRendererSession(): Promise<BilanPdfRendererSession> {
   const { chromium } = await import('playwright');
   const executablePath = await resolveChromiumExecutable(chromium.executablePath());
   const browser = await chromium.launch({
@@ -90,20 +94,42 @@ export async function renderHtmlToPdf(html: string): Promise<Buffer> {
     executablePath,
     args: ['--no-sandbox', '--disable-gpu', '--font-render-hinting=none'],
   });
+  let closed = false;
+
+  return Object.freeze({
+    renderHtmlToPdf: async (html: string): Promise<Buffer> => {
+      if (closed) throw new Error('BILAN_PDF_SESSION_CLOSED');
+      const resolvedHtml = await inlinePrintAssets(html);
+      const page = await browser.newPage({ viewport: { width: 794, height: 1123 } });
+      try {
+        await page.emulateMedia({ media: 'print' });
+        await page.setContent(resolvedHtml, { waitUntil: 'load' });
+        await page.evaluate(() => document.fonts.ready);
+        return await page.pdf({
+          format: 'A4',
+          printBackground: true,
+          preferCSSPageSize: true,
+          displayHeaderFooter: false,
+          margin: { top: '0', right: '0', bottom: '0', left: '0' },
+        });
+      } finally {
+        await page.close();
+      }
+    },
+    close: async (): Promise<void> => {
+      if (closed) return;
+      closed = true;
+      await browser.close();
+    },
+  });
+}
+
+export async function renderHtmlToPdf(html: string): Promise<Buffer> {
+  const session = await createBilanPdfRendererSession();
   try {
-    const page = await browser.newPage({ viewport: { width: 794, height: 1123 } });
-    await page.emulateMedia({ media: 'print' });
-    await page.setContent(resolvedHtml, { waitUntil: 'load' });
-    await page.evaluate(() => document.fonts.ready);
-    return await page.pdf({
-      format: 'A4',
-      printBackground: true,
-      preferCSSPageSize: true,
-      displayHeaderFooter: false,
-      margin: { top: '0', right: '0', bottom: '0', left: '0' },
-    });
+    return await session.renderHtmlToPdf(html);
   } finally {
-    await browser.close();
+    await session.close();
   }
 }
 

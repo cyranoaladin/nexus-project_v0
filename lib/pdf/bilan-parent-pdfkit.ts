@@ -9,6 +9,10 @@ import { BILAN_PRINT_BRAND, bilanPrintTokenCss } from '@/lib/bilans/render/brand
 import { renderHtmlToPdf } from '@/lib/bilans/render/pdf';
 import type { BilanParentPDFData } from './bilan-parent-template';
 
+export type BilanParentPdfDependencies = Readonly<{
+  renderHtmlToPdf?: (html: string) => Promise<Buffer>;
+}>;
+
 function escapeHtml(value: unknown): string {
   return String(value)
     .replaceAll('&', '&amp;')
@@ -81,6 +85,9 @@ export function renderLegacyParentBilanHtml(data: BilanParentPDFData): string {
   </style></head><body><article class="page" data-audience="PARENTS"><header><img src="${BILAN_PRINT_BRAND.logos.header}" alt="Nexus Réussite"><div><p>Bilan pédagogique</p><h1>${escapeHtml(data.stageTitle)}</h1><p>${escapeHtml(data.subjectLabel)}</p></div></header><section class="meta"><p><strong>Élève :</strong> ${escapeHtml(data.studentName)}</p><p><strong>Coach :</strong> ${escapeHtml(data.coachName ?? '—')}</p><p><strong>Publié le :</strong> ${escapeHtml(published)}</p></section><main class="content">${legacyMarkdownToHtml(data.parentsMarkdown)}</main><footer><img src="${BILAN_PRINT_BRAND.logos.compact}" alt=""><span>Nexus Réussite · Document confidentiel destiné à la famille</span></footer></article></body></html>`;
 }
 
-export async function renderBilanParentPDF(data: BilanParentPDFData): Promise<Buffer> {
-  return renderHtmlToPdf(renderLegacyParentBilanHtml(data));
+export async function renderBilanParentPDF(
+  data: BilanParentPDFData,
+  dependencies: BilanParentPdfDependencies = {},
+): Promise<Buffer> {
+  return (dependencies.renderHtmlToPdf ?? renderHtmlToPdf)(renderLegacyParentBilanHtml(data));
 }

@@ -2,9 +2,11 @@ import { ENTRY_RECIPE_FACT_SHEETS } from './fixtures/recipe-fact-sheets';
 
 import type { FactSheet } from '@/lib/bilans/facts/fact-sheet';
 import {
+  createBilanPdfRendererSession,
   extractPdfText,
   normalizePdfForComparison,
   renderDeterministicBilanPdf,
+  type BilanPdfRendererSession,
 } from '@/lib/bilans/render/pdf';
 import type { RenderIdentity } from '@/lib/bilans/render/render-identity';
 
@@ -31,9 +33,15 @@ function contaminatedFactSheet(): FactSheet {
 
 describe('A90.2.3 deterministic HTML-to-PDF export', () => {
   jest.setTimeout(60_000);
+  let session: BilanPdfRendererSession;
+
+  beforeAll(async () => { session = await createBilanPdfRendererSession(); });
+  afterAll(async () => { await session.close(); });
 
   it.each(['ELEVE', 'PARENTS'] as const)('keeps private sentinels, scores and slugs out of the %s PDF text', async (audience) => {
-    const result = await renderDeterministicBilanPdf(contaminatedFactSheet(), audience, identity);
+    const result = await renderDeterministicBilanPdf(
+      contaminatedFactSheet(), audience, identity, { renderHtmlToPdf: session.renderHtmlToPdf },
+    );
 
     expect(result.status).toBe('AVAILABLE');
     if (result.status !== 'AVAILABLE') throw new Error(result.errorCode);
@@ -51,8 +59,9 @@ describe('A90.2.3 deterministic HTML-to-PDF export', () => {
   });
 
   it('is byte-stable once PDF timestamps and document identifiers are neutralized', async () => {
-    const first = await renderDeterministicBilanPdf(ENTRY_RECIPE_FACT_SHEETS[0], 'ELEVE', identity);
-    const second = await renderDeterministicBilanPdf(ENTRY_RECIPE_FACT_SHEETS[0], 'ELEVE', identity);
+    const dependencies = { renderHtmlToPdf: session.renderHtmlToPdf };
+    const first = await renderDeterministicBilanPdf(ENTRY_RECIPE_FACT_SHEETS[0], 'ELEVE', identity, dependencies);
+    const second = await renderDeterministicBilanPdf(ENTRY_RECIPE_FACT_SHEETS[0], 'ELEVE', identity, dependencies);
     if (first.status !== 'AVAILABLE' || second.status !== 'AVAILABLE') throw new Error('PDF_UNAVAILABLE');
 
     expect(normalizePdfForComparison(first.pdf)).toEqual(normalizePdfForComparison(second.pdf));
