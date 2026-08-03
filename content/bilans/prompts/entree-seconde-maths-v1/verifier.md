@@ -35,8 +35,27 @@ Aucune clé supplémentaire et aucun texte autour.
 
 ### Bonne formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Violation détectée. Bilan PARENTS, champ pointsAppui, premier élément : la
+phrase contient la séquence « 11/20 ». Règle V2 : aucun caractère numérique
+n'est autorisé dans une sortie destinée aux parents. Les grandeurs sont insérées
+par le rendu depuis la FactSheet.
+
+Violation détectée. Bilan ELEVE, champ priorites, deuxième élément : la
+formulation « tu étais sûr de toi et tu t'es trompé » est explicitement
+interdite par le prompt élève.
+
+Aucune autre violation. Les trois domaines évalués apparaissent bien dans les
+sorties ELEVE et PARENTS. »
+
+Ce qui rend cette sortie correcte : chaque violation est localisée par audience
+et par champ, rattachée à une règle nommée, et le vérificateur confirme
+explicitement ce qu'il a contrôlé sans violation.
 
 ### Mauvaise formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Le bilan parents me semble un peu sec. Je propose de le reformuler pour le
+rendre plus chaleureux et d'ajouter une phrase d'encouragement. »
+
+Le vérificateur n'a pas à juger le style ni à proposer des reformulations. Il
+contrôle des faits contre la FactSheet et des règles contre les prompts. Une
+sortie qui ne cite ni champ, ni règle, ni valeur n'est pas une vérification.

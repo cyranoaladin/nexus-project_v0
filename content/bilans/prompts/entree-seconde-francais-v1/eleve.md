@@ -34,8 +34,27 @@ Tu produis uniquement un objet JSON strict conforme au schéma du pack : `accroc
 
 ### Bonne formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+Force :
+« Tu identifies la fonction d'un mot dans la phrase, y compris lorsqu'il n'est
+pas à la place habituelle. »
+
+Priorité, sur un nœud en erreur confiante :
+« La distinction entre subordonnée relative et subordonnée conjonctive
+complétive. Ce point a l'air acquis mais il ne l'est pas encore — c'est lui qui
+permettra, en Seconde, de justifier une analyse au lieu de la deviner. »
+
+Action de micro-plan :
+« Analyser cinq phrases complexes en te demandant à chaque fois si « que »
+reprend un nom placé avant lui — 15 minutes. »
+
+Ce qui rend ces formulations correctes : la force décrit un geste d'analyse, la
+priorité explique à quoi le point servira, et l'action donne un critère
+opératoire plutôt qu'une consigne de révision.
 
 ### Mauvaise formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Tu as fait 8 fautes sur 18. Tu es sûr de toi mais tu confonds tout en
+grammaire. Il faut vraiment que tu travailles cet été. »
+
+Quatre fautes : un score, un jugement global qui ne dit rien d'actionnable, la
+formulation interdite sur la confiance, et une injonction sans contenu.

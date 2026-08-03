@@ -33,8 +33,27 @@ Aucune clé supplémentaire et aucun texte autour.
 
 ### Bonne formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Deux nœuds en erreur confiante : relatifs-priorites, score de nœud 33,3, et
+calcul-litteral-developpement, score de nœud 25,0. Indice de calibration 44,4 :
+l'élève surestime nettement sa maîtrise du calcul, ce qui explique qu'il n'ait
+pas signalé de difficulté sur ces points.
+
+Trigonométrie en maîtrise fragile, score 75,0 avec une confiance moyenne de 2 :
+traitement par automatisation, sans reprendre le cours.
+
+Vigilance : passation menée en 11 minutes pour 25 annoncées. Drapeau
+PASSATION_EXPRESS levé, fiabilité à relativiser sur les nœuds de fin. »
+
+Ce qui rend cette sortie correcte : les chiffres sont autorisés et attendus dans
+cette audience, chaque affirmation est rattachée à une mesure, et la vigilance
+opérationnelle est distinguée du constat pédagogique.
 
 ### Mauvaise formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Élève faible en calcul, profil à risque. Il faudra sans doute l'orienter vers
+un groupe de niveau inférieur, il n'a pas le niveau attendu en entrée de
+Seconde. »
+
+Trois fautes, même dans une audience interne : jugement sur la personne plutôt
+que sur des nœuds, aucune valeur mesurée à l'appui, et une recommandation
+d'orientation qui excède ce qu'un positionnement de 18 items peut établir.

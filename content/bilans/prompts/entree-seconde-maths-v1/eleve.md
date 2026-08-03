@@ -34,8 +34,29 @@ Tu produis uniquement un objet JSON strict conforme au schéma du pack : `accroc
 
 ### Bonne formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+Force :
+« Tu résous une équation du premier degré en isolant l'inconnue, sans hésiter
+sur l'ordre des étapes. »
+
+Priorité, sur un nœud en erreur confiante :
+« Les règles de signe dans un produit de nombres relatifs. Ce point a l'air
+acquis mais il ne l'est pas encore — c'est exactement le type d'écart qui coûte
+cher en devoir surveillé. »
+
+Action de micro-plan :
+« Refaire dix produits de relatifs en écrivant le signe avant de calculer —
+10 minutes. »
+
+Ce qui rend ces formulations correctes : une compétence est décrite par ce que
+l'élève sait faire, pas par un chapitre. La priorité nomme l'écart sans accuser.
+L'action est courte, précise et vérifiable.
 
 ### Mauvaise formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Tu as obtenu 11/20, c'est moyen. Tu étais sûr de toi et tu t'es trompé sur les
+relatifs. Attention, sans ça la Seconde va être très difficile. »
+
+Quatre fautes en trois phrases : un score apparaît, la formulation interdite
+« tu étais sûr de toi et tu t'es trompé » est employée, un jugement de valeur est
+porté, et la dernière phrase est anxiogène. Aucune de ces phrases ne dit à
+l'élève quoi faire.

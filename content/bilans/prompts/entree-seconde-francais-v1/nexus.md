@@ -33,8 +33,29 @@ Aucune clé supplémentaire et aucun texte autour.
 
 ### Bonne formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Nœud 3e.francais.grammaire.subordonnees en erreur confiante : score de nœud
+0,0, confiance moyenne 3,5. L'élève tranche avec assurance sur une distinction
+qu'il ne maîtrise pas — priorité 1 du stage.
+
+Figures de style en maîtrise fragile : réussite 75,0, confiance moyenne 2.
+Traitement par répétition et automatisation, sans reprendre la définition des
+figures, qui est connue.
+
+Homophones grammaticaux en maîtrise, score 100,0. Rappel actif seulement, 20
+minutes suffisent.
+
+Indice de calibration 55,6 : l'élève évalue mal sa maîtrise en analyse
+syntaxique, correctement ailleurs. »
+
+Ce qui rend cette sortie correcte : chaque nœud est nommé par son identifiant,
+assorti de ses mesures, et suivi du type de traitement qui en découle. Le coach
+peut préparer sa séance à partir de ce texte seul.
 
 ### Mauvaise formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Élève brouillon et peu rigoureux, sans doute peu de lecture à la maison. À
+surveiller. »
+
+Trois fautes : un jugement de caractère, une hypothèse sur le milieu familial
+qu'aucune donnée ne soutient, et une conclusion qui ne donne au coach aucun
+élément pour agir.

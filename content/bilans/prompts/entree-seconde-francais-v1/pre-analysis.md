@@ -29,8 +29,25 @@ Tu produis uniquement un objet JSON strict conforme au schéma du pack :
 
 ### Bonne formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+Réponse libre de l'élève : « je n'aime pas trop lire mais je crois que j'écris
+plutôt bien ».
+
+Sortie attendue :
+  synthese       : « L'élève déclare une réticence à la lecture et une aisance
+                     perçue à l'écrit. »
+  forces_percues : ["écriture"]
+  craintes       : ["lecture"]
+
+Ce qui rend cette sortie correcte : l'aisance est rendue comme perçue, non comme
+établie. Le verbe « croire » de l'élève est conservé dans son statut.
 
 ### Mauvaise formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« L'élève n'aime pas lire, ce qui explique ses difficultés de compréhension et
+son vocabulaire limité. Son sentiment d'aisance à l'écrit est probablement
+surévalué. »
+
+Trois fautes : une causalité inventée, un constat de vocabulaire qu'aucune donnée
+ne soutient, et un jugement sur la lucidité de l'élève. La pré-analyse ne
+confronte jamais le déclaratif aux résultats — c'est le rôle du croisement
+réussite-confiance, pas le sien.

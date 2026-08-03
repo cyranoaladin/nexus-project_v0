@@ -29,8 +29,26 @@ Tu produis uniquement un objet JSON strict conforme au schéma du pack :
 
 ### Bonne formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+Réponse libre de l'élève : « je bloque toujours sur les fractions et j'ai un peu
+peur des maths cette année ».
+
+Sortie attendue :
+  synthese       : « L'élève identifie les fractions comme une difficulté
+                     persistante et exprime une appréhension à l'approche de
+                     la Seconde. »
+  forces_percues : []
+  craintes       : ["fractions", "entrée en Seconde"]
+
+Ce qui rend cette sortie correcte : elle reformule sans ajouter. Aucune cause
+n'est supposée, aucun niveau n'est inféré, et l'absence de force déclarée est
+rendue par une liste vide plutôt que par une invention.
 
 ### Mauvaise formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« L'élève présente de grosses lacunes en calcul, ce qui explique son manque de
+confiance et laisse craindre des difficultés en Seconde. »
+
+Trois fautes : une lacune est diagnostiquée alors que seule une difficulté est
+déclarée, une causalité est établie entre deux éléments simplement énoncés, et
+un pronostic est formulé. La pré-analyse structure le déclaratif ; elle ne le
+juge pas et n'en tire aucune conclusion.
