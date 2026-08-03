@@ -9,6 +9,7 @@ import {
   type DeterministicBilanReportBundle,
 } from '../render/report';
 import type { RenderIdentity } from '../render/render-identity';
+import { buildPreRentreeStageLabel } from '../render/stage-label';
 import { validateDeterministicReports } from './structural-validation';
 import { computeScoringV2 } from '@/lib/diagnostics/score-diagnostic';
 import type { ScoringPolicy, ScoringV2Result } from '@/lib/diagnostics/types';
@@ -204,7 +205,7 @@ export function buildWorkerScoring(
     level: input.pack.level,
     subject: input.pack.subject,
     date: input.submittedAt.toISOString().slice(0, 10),
-    stageLabel: input.pack.slug,
+    stageLabel: buildPreRentreeStageLabel(input.pack.level, input.pack.subject),
   });
   const reports = (dependencies.buildReports ?? buildDeterministicReports)(factSheet, renderIdentity);
   dependencies.onStage?.('STRUCTURE');
