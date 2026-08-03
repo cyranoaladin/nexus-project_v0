@@ -30,6 +30,21 @@ const createChildSchema = z.object({
   school: z.string().trim().max(120).optional().default(''),
 }).strict();
 
+const activationResponseHeaders = {
+  'Cache-Control': 'private, no-store, max-age=0',
+  Pragma: 'no-cache',
+  Expires: '0',
+} as const;
+
+function logNonSensitiveFailure(context: string, error: unknown): void {
+  console.error(context, {
+    name: error instanceof Error ? error.name : 'UnknownError',
+    code: typeof error === 'object' && error !== null && 'code' in error
+      ? String((error as { code: unknown }).code)
+      : undefined,
+  });
+}
+
 export async function GET(_request: NextRequest) {
   try {
     const session = await auth();
@@ -236,25 +251,28 @@ export async function POST(request: NextRequest) {
              <p>L'équipe Nexus Réussite</p>`,
       text: `Bonjour ${firstName},\n\nVotre compte élève sur Nexus Réussite a été créé.\n\nCliquez sur le lien ci-dessous pour définir votre mot de passe et activer votre compte :\n${activationUrl}\n\nCe lien est valide pendant 72 heures.\n\nL'équipe Nexus Réussite`,
     }).catch((err) => {
-      console.error('[parent/children] Activation email failed (non-blocking):', serializeError(err));
+      logNonSensitiveFailure('[parent/children] Activation email failed (non-blocking)', err);
     });
 
-    return NextResponse.json({
-      success: true,
-      child: {
-        id: result.id,
-        firstName: result.user.firstName,
-        lastName: result.user.lastName,
-        email: result.user.email,
-        grade: result.grade,
-        school: result.school
+    return NextResponse.json(
+      {
+        success: true,
+        child: {
+          id: result.id,
+          firstName: result.user.firstName,
+          lastName: result.user.lastName,
+          email: result.user.email,
+          grade: result.grade,
+          school: result.school
+        },
+        activation: {
+          activationUrl,
+          expiresAt: activationExpiry.toISOString(),
+          message: "Lien d'activation généré pour le parent authentifié. À transmettre uniquement à l'élève concerné."
+        }
       },
-      activation: {
-        activationUrl,
-        expiresAt: activationExpiry.toISOString(),
-        message: "Lien d'activation généré pour le parent authentifié. À transmettre uniquement à l'élève concerné."
-      }
-    });
+      { headers: activationResponseHeaders },
+    );
 
   } catch (error) {
     if (isStudentLoginIdentifierConflict(error)) {
@@ -263,7 +281,7 @@ export async function POST(request: NextRequest) {
         { status: 409 },
       );
     }
-    console.error('Error creating child:', serializeError(error));
+    logNonSensitiveFailure('Error creating child', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
