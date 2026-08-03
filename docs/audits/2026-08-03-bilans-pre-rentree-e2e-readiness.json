@@ -1,0 +1,2465 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": "nexus-bilans-e2e-readiness/v1",
+  "documentSchema": {
+    "statusEnum": [
+      "PROUVE",
+      "PARTIEL",
+      "ABSENT",
+      "BLOQUE_TECHNIQUE",
+      "BLOQUE_HUMAIN",
+      "NON_APPLICABLE"
+    ],
+    "severityEnum": [
+      "P0",
+      "P1",
+      "P2"
+    ],
+    "findingRequiredFields": [
+      "id",
+      "status",
+      "severity",
+      "title",
+      "evidence",
+      "files",
+      "tests",
+      "blocking",
+      "recommendation"
+    ],
+    "packKey": "slug",
+    "evidenceRule": "PROUVE exige code observé, test pertinent exécuté et résultat vert."
+  },
+  "auditedAt": "2026-08-03",
+  "source": {
+    "sha": "6e3aedaac89c7383a8a4505f102e871e19f44e60",
+    "branch": "audit/bilans-pre-rentree-e2e-readiness-20260803",
+    "worktree": "/home/alaeddine/Bureau/nexus-bilans-e2e-readiness",
+    "manifest": "data/bilans/banks/wave1.manifest.json",
+    "productionInspected": false,
+    "productionReleaseDeclaredByRequester": "/var/www/nexus-releases/6e3aedaac-u1-20260803T205021Z"
+  },
+  "verdict": {
+    "WORKFLOW_PRE_RENTREE_FINALISE": false,
+    "status": "PARTIEL",
+    "rationale": "Les données, le scoring et le rendu sont prouvés par des tests ciblés, mais identité enfant, éligibilité niveau-pack, accès parent, exploitation du worker et E2E complet ne sont pas prouvés ou sont défaillants."
+  },
+  "totals": {
+    "MANIFEST_ACTIVE_PACKS": 17,
+    "LEVELS": 5,
+    "SUBJECTS": 7,
+    "ITEMS": 306,
+    "UNIQUE_ITEM_IDS": 306,
+    "CPS_REFERENCES": 153,
+    "UNIQUE_CPS_IDS": 153,
+    "PACKS_SCHEMA_VALID": 17,
+    "PACKS_CHECKSUM_VALID": 17,
+    "PACKS_VALIDATED": 1,
+    "PACKS_DRAFT": 16,
+    "PACKS_WITH_VALID_REVIEW": 1,
+    "PACKS_WITHOUT_REVIEW": 16,
+    "PACKS_ACTIVABLE_STATICALLY": 1,
+    "PACKS_RUNTIME_ENABLED": 0,
+    "PACKS_E2E_PROVEN": 0,
+    "ACTIVE_PROMPT_FILES": 85,
+    "ACTIVE_PROMPT_OBSOLETE_TITLES": 85,
+    "ACTIVE_PROMPT_EMPTY_EXAMPLES": 0,
+    "HISTORICAL_TRUE_PLACEHOLDERS": 10,
+    "MOCK_REPORTS": 1020,
+    "TEST_SUITES_EXECUTED": 59,
+    "TESTS_EXECUTED": 497
+  },
+  "capabilities": [
+    {
+      "id": "CAP-PACKS",
+      "name": "Inventaire, schéma, CPS et checksums",
+      "status": "PROUVE",
+      "exists": true,
+      "testedUnit": true,
+      "testedIntegration": false,
+      "testedE2E": false,
+      "provenRecipe": true,
+      "provenProduction": false,
+      "evidence": [
+        "wave1-banks.test.ts vert",
+        "check-pack-completeness exit 0",
+        "17 packs, 306 ids items, 153 ids CPS"
+      ]
+    },
+    {
+      "id": "CAP-PARENT",
+      "name": "Inscription et authentification Parent",
+      "status": "PARTIEL",
+      "exists": true,
+      "testedUnit": true,
+      "testedIntegration": false,
+      "testedE2E": false,
+      "provenRecipe": false,
+      "provenProduction": false,
+      "evidence": [
+        "Route publique transactionnelle et activation générique présentes",
+        "Échec SMTP absorbé",
+        "Aucun E2E exécuté"
+      ]
+    },
+    {
+      "id": "CAP-STUDENT",
+      "name": "Création, activation et authentification Élève",
+      "status": "BLOQUE_TECHNIQUE",
+      "exists": true,
+      "testedUnit": true,
+      "testedIntegration": false,
+      "testedE2E": false,
+      "provenRecipe": false,
+      "provenProduction": false,
+      "evidence": [
+        "Ajout d’enfant ultérieur produit un token",
+        "Enfant initial de bilan-gratuit sans token"
+      ]
+    },
+    {
+      "id": "CAP-CONSENT",
+      "name": "Consentement ParentStudentLink",
+      "status": "PROUVE",
+      "exists": true,
+      "testedUnit": true,
+      "testedIntegration": false,
+      "testedE2E": false,
+      "provenRecipe": false,
+      "provenProduction": false,
+      "evidence": [
+        "Service transactionnel idempotent",
+        "Carte non précochée",
+        "9 tests UI verts"
+      ]
+    },
+    {
+      "id": "CAP-SELECTION",
+      "name": "Sélection niveau-matière et éligibilité",
+      "status": "ABSENT",
+      "exists": true,
+      "testedUnit": true,
+      "testedIntegration": false,
+      "testedE2E": false,
+      "provenRecipe": false,
+      "provenProduction": false,
+      "evidence": [
+        "Liste manifest-driven des packs activés",
+        "Aucun contrôle du niveau Student"
+      ]
+    },
+    {
+      "id": "CAP-PASSATION",
+      "name": "Passation, autosave, reprise, confiance et soumission",
+      "status": "PARTIEL",
+      "exists": true,
+      "testedUnit": true,
+      "testedIntegration": false,
+      "testedE2E": false,
+      "provenRecipe": false,
+      "provenProduction": false,
+      "evidence": [
+        "Runner et routes unitaires verts",
+        "Intégrations PostgreSQL existantes mais non exécutées ici",
+        "Aucun E2E pack réel"
+      ]
+    },
+    {
+      "id": "CAP-SCORING",
+      "name": "Scoring déterministe et FactSheet",
+      "status": "PROUVE",
+      "exists": true,
+      "testedUnit": true,
+      "testedIntegration": false,
+      "testedE2E": false,
+      "provenRecipe": true,
+      "provenProduction": false,
+      "evidence": [
+        "compute-facts et domain-scores verts",
+        "ENGINE_VERSION 1.0.1",
+        "worker recipe sur entree-premiere-maths-v1"
+      ]
+    },
+    {
+      "id": "CAP-WORKER",
+      "name": "Outbox et worker",
+      "status": "PARTIEL",
+      "exists": true,
+      "testedUnit": true,
+      "testedIntegration": false,
+      "testedE2E": false,
+      "provenRecipe": true,
+      "provenProduction": false,
+      "evidence": [
+        "Worker déterministe sans réseau",
+        "Draineur manuel et verrous présents",
+        "Pas de preuve DB actuelle ni d’ordonnanceur"
+      ]
+    },
+    {
+      "id": "CAP-AGENTS",
+      "name": "Cinq agents et gateway LLM",
+      "status": "NON_APPLICABLE",
+      "exists": true,
+      "testedUnit": true,
+      "testedIntegration": false,
+      "testedE2E": false,
+      "provenRecipe": true,
+      "provenProduction": false,
+      "evidence": [
+        "Allowlist modèles vide",
+        "RAG false sur 17 packs",
+        "Worker Canonical n’importe aucun agent/LLM/RAG"
+      ]
+    },
+    {
+      "id": "CAP-RENDER-ELEVE",
+      "name": "Restitution Élève",
+      "status": "PROUVE",
+      "exists": true,
+      "testedUnit": true,
+      "testedIntegration": false,
+      "testedE2E": false,
+      "provenRecipe": true,
+      "provenProduction": false,
+      "evidence": [
+        "17 recettes déterministes",
+        "HTML/PDF sans score ni sentinelle"
+      ]
+    },
+    {
+      "id": "CAP-RENDER-PARENTS",
+      "name": "Restitution Parents",
+      "status": "PROUVE",
+      "exists": true,
+      "testedUnit": true,
+      "testedIntegration": false,
+      "testedE2E": false,
+      "provenRecipe": true,
+      "provenProduction": false,
+      "evidence": [
+        "17 recettes déterministes",
+        "HTML/PDF sans score ni sentinelle",
+        "Consultation web parent non fonctionnelle"
+      ]
+    },
+    {
+      "id": "CAP-RENDER-NEXUS",
+      "name": "Restitution Nexus",
+      "status": "PROUVE",
+      "exists": true,
+      "testedUnit": true,
+      "testedIntegration": false,
+      "testedE2E": false,
+      "provenRecipe": true,
+      "provenProduction": false,
+      "evidence": [
+        "17 recettes déterministes",
+        "internalFacts réservés à NEXUS"
+      ]
+    },
+    {
+      "id": "CAP-REVIEW",
+      "name": "Revue humaine et publication immuable",
+      "status": "PARTIEL",
+      "exists": true,
+      "testedUnit": true,
+      "testedIntegration": false,
+      "testedE2E": false,
+      "provenRecipe": true,
+      "provenProduction": false,
+      "evidence": [
+        "Prévisualisation non stockée",
+        "Publication matérialisée courte",
+        "Pas de correction/régénération raccordée",
+        "Intégration DB non exécutée"
+      ]
+    },
+    {
+      "id": "CAP-ACCESS",
+      "name": "Consultation par audience et étanchéité",
+      "status": "PARTIEL",
+      "exists": true,
+      "testedUnit": true,
+      "testedIntegration": false,
+      "testedE2E": false,
+      "provenRecipe": false,
+      "provenProduction": false,
+      "evidence": [
+        "GET report possède les gardes",
+        "Tests DB existent mais non exécutés",
+        "UI parent bloquée",
+        "Assistante non définie"
+      ]
+    }
+  ],
+  "packs": [
+    {
+      "slug": "entree-premiere-francais-v1",
+      "level": "PREMIERE",
+      "subject": "FRANCAIS",
+      "version": 1,
+      "sourceYaml": "data/bilans/banks/entree-premiere-francais-v1.yaml",
+      "cpsCatalogs": [
+        "data/bilans/cps/2de-francais-vers-premiere.v1.yaml"
+      ],
+      "promptDirectory": "content/bilans/prompts/entree-premiere-francais-v1",
+      "promptRoles": [
+        {
+          "role": "preAnalysis",
+          "path": "content/bilans/prompts/entree-premiere-francais-v1/pre-analysis.md",
+          "present": true,
+          "checksumMatches": true
+        },
+        {
+          "role": "eleve",
+          "path": "content/bilans/prompts/entree-premiere-francais-v1/eleve.md",
+          "present": true,
+          "checksumMatches": true
+        },
+        {
+          "role": "parents",
+          "path": "content/bilans/prompts/entree-premiere-francais-v1/parents.md",
+          "present": true,
+          "checksumMatches": true
+        },
+        {
+          "role": "nexus",
+          "path": "content/bilans/prompts/entree-premiere-francais-v1/nexus.md",
+          "present": true,
+          "checksumMatches": true
+        },
+        {
+          "role": "verifier",
+          "path": "content/bilans/prompts/entree-premiere-francais-v1/verifier.md",
+          "present": true,
+          "checksumMatches": true
+        }
+      ],
+      "jsonPack": "data/bilans/banks/entree-premiere-francais-v1.json",
+      "items": 18,
+      "cpsNodes": 9,
+      "status": "DRAFT",
+      "registry": {
+        "present": false,
+        "path": null,
+        "validatedBy": null,
+        "validatedAt": null,
+        "qualification": null,
+        "sourceChecksumMatches": null,
+        "promptChecksumsMatch": null,
+        "localReviewerResolution": "NON_APPLICABLE",
+        "productionReviewerResolution": "NON_PROUVE"
+      },
+      "sourceChecksumBinding": "NON_APPLICABLE",
+      "promptChecksumsMatch": true,
+      "ragEnabled": false,
+      "featureFlag": "NEXUS_BILAN_PACK_ENTREE_PREMIERE_FRANCAIS_V1_ENABLED",
+      "featureFlagDefault": false,
+      "runtimeResolvable": true,
+      "runtimeEnabledInAuditEnvironment": false,
+      "technicalValidation": "PROUVE",
+      "loadingTest": "PROUVE",
+      "passationTest": "PARTIEL",
+      "e2eTest": "ABSENT",
+      "matrix": {
+        "chargeable": "PROUVE",
+        "signed": "BLOQUE_HUMAIN",
+        "activable": "BLOQUE_HUMAIN",
+        "attempt": "PARTIEL",
+        "scoring": "PARTIEL",
+        "worker": "PARTIEL",
+        "eleve": "PROUVE",
+        "parents": "PROUVE",
+        "nexus": "PROUVE",
+        "verifier": "PARTIEL",
+        "e2e": "ABSENT"
+      }
+    },
+    {
+      "slug": "entree-premiere-maths-v1",
+      "level": "PREMIERE",
+      "subject": "MATHS",
+      "version": 1,
+      "sourceYaml": "data/bilans/banks/entree-premiere-maths-v1.yaml",
+      "cpsCatalogs": [
+        "data/bilans/cps/2de-maths-vers-premiere.v1.yaml"
+      ],
+      "promptDirectory": "content/bilans/prompts/entree-premiere-maths-v1",
+      "promptRoles": [
+        {
+          "role": "preAnalysis",
+          "path": "content/bilans/prompts/entree-premiere-maths-v1/pre-analysis.md",
+          "present": true,
+          "checksumMatches": true
+        },
+        {
+          "role": "eleve",
+          "path": "content/bilans/prompts/entree-premiere-maths-v1/eleve.md",
+          "present": true,
+          "checksumMatches": true
+        },
+        {
+          "role": "parents",
+          "path": "content/bilans/prompts/entree-premiere-maths-v1/parents.md",
+          "present": true,
+          "checksumMatches": true
+        },
+        {
+          "role": "nexus",
+          "path": "content/bilans/prompts/entree-premiere-maths-v1/nexus.md",
+          "present": true,
+          "checksumMatches": true
+        },
+        {
+          "role": "verifier",
+          "path": "content/bilans/prompts/entree-premiere-maths-v1/verifier.md",
+          "present": true,
+          "checksumMatches": true
+        }
+      ],
+      "jsonPack": "data/bilans/banks/entree-premiere-maths-v1.json",
+      "items": 18,
+      "cpsNodes": 9,
+      "status": "DRAFT",
+      "registry": {
+        "present": false,
+        "path": null,
+        "validatedBy": null,
+        "validatedAt": null,
+        "qualification": null,
+        "sourceChecksumMatches": null,
+        "promptChecksumsMatch": null,
+        "localReviewerResolution": "NON_APPLICABLE",
+        "productionReviewerResolution": "NON_PROUVE"
+      },
+      "sourceChecksumBinding": "NON_APPLICABLE",
+      "promptChecksumsMatch": true,
+      "ragEnabled": false,
+      "featureFlag": "NEXUS_BILAN_PACK_ENTREE_PREMIERE_MATHS_V1_ENABLED",
+      "featureFlagDefault": false,
+      "runtimeResolvable": true,
+      "runtimeEnabledInAuditEnvironment": false,
+      "technicalValidation": "PROUVE",
+      "loadingTest": "PROUVE",
+      "passationTest": "PARTIEL",
+      "e2eTest": "ABSENT",
+      "matrix": {
+        "chargeable": "PROUVE",
+        "signed": "BLOQUE_HUMAIN",
+        "activable": "BLOQUE_HUMAIN",
+        "attempt": "PARTIEL",
+        "scoring": "PROUVE",
+        "worker": "PARTIEL",
+        "eleve": "PROUVE",
+        "parents": "PROUVE",
+        "nexus": "PROUVE",
+        "verifier": "PARTIEL",
+        "e2e": "ABSENT"
+      }
+    },
+    {
+      "slug": "entree-premiere-nsi-v1",
+      "level": "PREMIERE",
+      "subject": "NSI",
+      "version": 1,
+      "sourceYaml": "data/bilans/banks/entree-premiere-nsi-v1.yaml",
+      "cpsCatalogs": [
+        "data/bilans/cps/2de-snt-vers-premiere.v1.yaml"
+      ],
+      "promptDirectory": "content/bilans/prompts/entree-premiere-nsi-v1",
+      "promptRoles": [
+        {
+          "role": "preAnalysis",
+          "path": "content/bilans/prompts/entree-premiere-nsi-v1/pre-analysis.md",
+          "present": true,
+          "checksumMatches": true
+        },
+        {
+          "role": "eleve",
+          "path": "content/bilans/prompts/entree-premiere-nsi-v1/eleve.md",
+          "present": true,
+          "checksumMatches": true
+        },
+        {
+          "role": "parents",
+          "path": "content/bilans/prompts/entree-premiere-nsi-v1/parents.md",
+          "present": true,
+          "checksumMatches": true
+        },
+        {
+          "role": "nexus",
+          "path": "content/bilans/prompts/entree-premiere-nsi-v1/nexus.md",
+          "present": true,
+          "checksumMatches": true
+        },
+        {
+          "role": "verifier",
+          "path": "content/bilans/prompts/entree-premiere-nsi-v1/verifier.md",
+          "present": true,
+          "checksumMatches": true
+        }
+      ],
+      "jsonPack": "data/bilans/banks/entree-premiere-nsi-v1.json",
+      "items": 18,
+      "cpsNodes": 9,
+      "status": "DRAFT",
+      "registry": {
+        "present": false,
+        "path": null,
+        "validatedBy": null,
+        "validatedAt": null,
+        "qualification": null,
+        "sourceChecksumMatches": null,
+        "promptChecksumsMatch": null,
+        "localReviewerResolution": "NON_APPLICABLE",
+        "productionReviewerResolution": "NON_PROUVE"
+      },
+      "sourceChecksumBinding": "NON_APPLICABLE",
+      "promptChecksumsMatch": true,
+      "ragEnabled": false,
+      "featureFlag": "NEXUS_BILAN_PACK_ENTREE_PREMIERE_NSI_V1_ENABLED",
+      "featureFlagDefault": false,
+      "runtimeResolvable": true,
+      "runtimeEnabledInAuditEnvironment": false,
+      "technicalValidation": "PROUVE",
+      "loadingTest": "PROUVE",
+      "passationTest": "PARTIEL",
+      "e2eTest": "ABSENT",
+      "matrix": {
+        "chargeable": "PROUVE",
+        "signed": "BLOQUE_HUMAIN",
+        "activable": "BLOQUE_HUMAIN",
+        "attempt": "PARTIEL",
+        "scoring": "PARTIEL",
+        "worker": "PARTIEL",
+        "eleve": "PROUVE",
+        "parents": "PROUVE",
+        "nexus": "PROUVE",
+        "verifier": "PARTIEL",
+        "e2e": "ABSENT"
+      }
+    },
+    {
+      "slug": "entree-premiere-physique-chimie-v1",
+      "level": "PREMIERE",
+      "subject": "PHYSIQUE_CHIMIE",
+      "version": 1,
+      "sourceYaml": "data/bilans/banks/entree-premiere-physique-chimie-v1.yaml",
+      "cpsCatalogs": [
+        "data/bilans/cps/2de-physique-chimie-vers-premiere.v1.yaml"
+      ],
+      "promptDirectory": "content/bilans/prompts/entree-premiere-physique-chimie-v1",
+      "promptRoles": [
+        {
+          "role": "preAnalysis",
+          "path": "content/bilans/prompts/entree-premiere-physique-chimie-v1/pre-analysis.md",
+          "present": true,
+          "checksumMatches": true
+        },
+        {
+          "role": "eleve",
+          "path": "content/bilans/prompts/entree-premiere-physique-chimie-v1/eleve.md",
+          "present": true,
+          "checksumMatches": true
+        },
+        {
+          "role": "parents",
+          "path": "content/bilans/prompts/entree-premiere-physique-chimie-v1/parents.md",
+          "present": true,
+          "checksumMatches": true
+        },
+        {
+          "role": "nexus",
+          "path": "content/bilans/prompts/entree-premiere-physique-chimie-v1/nexus.md",
+          "present": true,
+          "checksumMatches": true
+        },
+        {
+          "role": "verifier",
+          "path": "content/bilans/prompts/entree-premiere-physique-chimie-v1/verifier.md",
+          "present": true,
+          "checksumMatches": true
+        }
+      ],
+      "jsonPack": "data/bilans/banks/entree-premiere-physique-chimie-v1.json",
+      "items": 18,
+      "cpsNodes": 9,
+      "status": "DRAFT",
+      "registry": {
+        "present": false,
+        "path": null,
+        "validatedBy": null,
+        "validatedAt": null,
+        "qualification": null,
+        "sourceChecksumMatches": null,
+        "promptChecksumsMatch": null,
+        "localReviewerResolution": "NON_APPLICABLE",
+        "productionReviewerResolution": "NON_PROUVE"
+      },
+      "sourceChecksumBinding": "NON_APPLICABLE",
+      "promptChecksumsMatch": true,
+      "ragEnabled": false,
+      "featureFlag": "NEXUS_BILAN_PACK_ENTREE_PREMIERE_PHYSIQUE_CHIMIE_V1_ENABLED",
+      "featureFlagDefault": false,
+      "runtimeResolvable": true,
+      "runtimeEnabledInAuditEnvironment": false,
+      "technicalValidation": "PROUVE",
+      "loadingTest": "PROUVE",
+      "passationTest": "PARTIEL",
+      "e2eTest": "ABSENT",
+      "matrix": {
+        "chargeable": "PROUVE",
+        "signed": "BLOQUE_HUMAIN",
+        "activable": "BLOQUE_HUMAIN",
+        "attempt": "PARTIEL",
+        "scoring": "PARTIEL",
+        "worker": "PARTIEL",
+        "eleve": "PROUVE",
+        "parents": "PROUVE",
+        "nexus": "PROUVE",
+        "verifier": "PARTIEL",
+        "e2e": "ABSENT"
+      }
+    },
+    {
+      "slug": "entree-premiere-svt-v1",
+      "level": "PREMIERE",
+      "subject": "SVT",
+      "version": 1,
+      "sourceYaml": "data/bilans/banks/entree-premiere-svt-v1.yaml",
+      "cpsCatalogs": [
+        "data/bilans/cps/2de-svt-vers-premiere.v1.yaml"
+      ],
+      "promptDirectory": "content/bilans/prompts/entree-premiere-svt-v1",
+      "promptRoles": [
+        {
+          "role": "preAnalysis",
+          "path": "content/bilans/prompts/entree-premiere-svt-v1/pre-analysis.md",
+          "present": true,
+          "checksumMatches": true
+        },
+        {
+          "role": "eleve",
+          "path": "content/bilans/prompts/entree-premiere-svt-v1/eleve.md",
+          "present": true,
+          "checksumMatches": true
+        },
+        {
+          "role": "parents",
+          "path": "content/bilans/prompts/entree-premiere-svt-v1/parents.md",
+          "present": true,
+          "checksumMatches": true
+        },
+        {
+          "role": "nexus",
+          "path": "content/bilans/prompts/entree-premiere-svt-v1/nexus.md",
+          "present": true,
+          "checksumMatches": true
+        },
+        {
+          "role": "verifier",
+          "path": "content/bilans/prompts/entree-premiere-svt-v1/verifier.md",
+          "present": true,
+          "checksumMatches": true
+        }
+      ],
+      "jsonPack": "data/bilans/banks/entree-premiere-svt-v1.json",
+      "items": 18,
+      "cpsNodes": 9,
+      "status": "DRAFT",
+      "registry": {
+        "present": false,
+        "path": null,
+        "validatedBy": null,
+        "validatedAt": null,
+        "qualification": null,
+        "sourceChecksumMatches": null,
+        "promptChecksumsMatch": null,
+        "localReviewerResolution": "NON_APPLICABLE",
+        "productionReviewerResolution": "NON_PROUVE"
+      },
+      "sourceChecksumBinding": "NON_APPLICABLE",
+      "promptChecksumsMatch": true,
+      "ragEnabled": false,
+      "featureFlag": "NEXUS_BILAN_PACK_ENTREE_PREMIERE_SVT_V1_ENABLED",
+      "featureFlagDefault": false,
+      "runtimeResolvable": true,
+      "runtimeEnabledInAuditEnvironment": false,
+      "technicalValidation": "PROUVE",
+      "loadingTest": "PROUVE",
+      "passationTest": "PARTIEL",
+      "e2eTest": "ABSENT",
+      "matrix": {
+        "chargeable": "PROUVE",
+        "signed": "BLOQUE_HUMAIN",
+        "activable": "BLOQUE_HUMAIN",
+        "attempt": "PARTIEL",
+        "scoring": "PARTIEL",
+        "worker": "PARTIEL",
+        "eleve": "PROUVE",
+        "parents": "PROUVE",
+        "nexus": "PROUVE",
+        "verifier": "PARTIEL",
+        "e2e": "ABSENT"
+      }
+    },
+    {
+      "slug": "entree-quatrieme-francais-v1",
+      "level": "QUATRIEME",
+      "subject": "FRANCAIS",
+      "version": 1,
+      "sourceYaml": "data/bilans/banks/entree-quatrieme-francais-v1.yaml",
+      "cpsCatalogs": [
+        "data/bilans/cps/5e-francais-vers-quatrieme.v1.yaml"
+      ],
+      "promptDirectory": "content/bilans/prompts/entree-quatrieme-francais-v1",
+      "promptRoles": [
+        {
+          "role": "preAnalysis",
+          "path": "content/bilans/prompts/entree-quatrieme-francais-v1/pre-analysis.md",
+          "present": true,
+          "checksumMatches": true
+        },
+        {
+          "role": "eleve",
+          "path": "content/bilans/prompts/entree-quatrieme-francais-v1/eleve.md",
+          "present": true,
+          "checksumMatches": true
+        },
+        {
+          "role": "parents",
+          "path": "content/bilans/prompts/entree-quatrieme-francais-v1/parents.md",
+          "present": true,
+          "checksumMatches": true
+        },
+        {
+          "role": "nexus",
+          "path": "content/bilans/prompts/entree-quatrieme-francais-v1/nexus.md",
+          "present": true,
+          "checksumMatches": true
+        },
+        {
+          "role": "verifier",
+          "path": "content/bilans/prompts/entree-quatrieme-francais-v1/verifier.md",
+          "present": true,
+          "checksumMatches": true
+        }
+      ],
+      "jsonPack": "data/bilans/banks/entree-quatrieme-francais-v1.json",
+      "items": 18,
+      "cpsNodes": 9,
+      "status": "DRAFT",
+      "registry": {
+        "present": false,
+        "path": null,
+        "validatedBy": null,
+        "validatedAt": null,
+        "qualification": null,
+        "sourceChecksumMatches": null,
+        "promptChecksumsMatch": null,
+        "localReviewerResolution": "NON_APPLICABLE",
+        "productionReviewerResolution": "NON_PROUVE"
+      },
+      "sourceChecksumBinding": "NON_APPLICABLE",
+      "promptChecksumsMatch": true,
+      "ragEnabled": false,
+      "featureFlag": "NEXUS_BILAN_PACK_ENTREE_QUATRIEME_FRANCAIS_V1_ENABLED",
+      "featureFlagDefault": false,
+      "runtimeResolvable": true,
+      "runtimeEnabledInAuditEnvironment": false,
+      "technicalValidation": "PROUVE",
+      "loadingTest": "PROUVE",
+      "passationTest": "PARTIEL",
+      "e2eTest": "ABSENT",
+      "matrix": {
+        "chargeable": "PROUVE",
+        "signed": "BLOQUE_HUMAIN",
+        "activable": "BLOQUE_HUMAIN",
+        "attempt": "PARTIEL",
+        "scoring": "PARTIEL",
+        "worker": "PARTIEL",
+        "eleve": "PROUVE",
+        "parents": "PROUVE",
+        "nexus": "PROUVE",
+        "verifier": "PARTIEL",
+        "e2e": "ABSENT"
+      }
+    },
+    {
+      "slug": "entree-quatrieme-maths-v1",
+      "level": "QUATRIEME",
+      "subject": "MATHS",
+      "version": 1,
+      "sourceYaml": "data/bilans/banks/entree-quatrieme-maths-v1.yaml",
+      "cpsCatalogs": [
+        "data/bilans/cps/5e-maths-vers-quatrieme.v1.yaml"
+      ],
+      "promptDirectory": "content/bilans/prompts/entree-quatrieme-maths-v1",
+      "promptRoles": [
+        {
+          "role": "preAnalysis",
+          "path": "content/bilans/prompts/entree-quatrieme-maths-v1/pre-analysis.md",
+          "present": true,
+          "checksumMatches": true
+        },
+        {
+          "role": "eleve",
+          "path": "content/bilans/prompts/entree-quatrieme-maths-v1/eleve.md",
+          "present": true,
+          "checksumMatches": true
+        },
+        {
+          "role": "parents",
+          "path": "content/bilans/prompts/entree-quatrieme-maths-v1/parents.md",
+          "present": true,
+          "checksumMatches": true
+        },
+        {
+          "role": "nexus",
+          "path": "content/bilans/prompts/entree-quatrieme-maths-v1/nexus.md",
+          "present": true,
+          "checksumMatches": true
+        },
+        {
+          "role": "verifier",
+          "path": "content/bilans/prompts/entree-quatrieme-maths-v1/verifier.md",
+          "present": true,
+          "checksumMatches": true
+        }
+      ],
+      "jsonPack": "data/bilans/banks/entree-quatrieme-maths-v1.json",
+      "items": 18,
+      "cpsNodes": 9,
+      "status": "DRAFT",
+      "registry": {
+        "present": false,
+        "path": null,
+        "validatedBy": null,
+        "validatedAt": null,
+        "qualification": null,
+        "sourceChecksumMatches": null,
+        "promptChecksumsMatch": null,
+        "localReviewerResolution": "NON_APPLICABLE",
+        "productionReviewerResolution": "NON_PROUVE"
+      },
+      "sourceChecksumBinding": "NON_APPLICABLE",
+      "promptChecksumsMatch": true,
+      "ragEnabled": false,
+      "featureFlag": "NEXUS_BILAN_PACK_ENTREE_QUATRIEME_MATHS_V1_ENABLED",
+      "featureFlagDefault": false,
+      "runtimeResolvable": true,
+      "runtimeEnabledInAuditEnvironment": false,
+      "technicalValidation": "PROUVE",
+      "loadingTest": "PROUVE",
+      "passationTest": "PARTIEL",
+      "e2eTest": "ABSENT",
+      "matrix": {
+        "chargeable": "PROUVE",
+        "signed": "BLOQUE_HUMAIN",
+        "activable": "BLOQUE_HUMAIN",
+        "attempt": "PARTIEL",
+        "scoring": "PARTIEL",
+        "worker": "PARTIEL",
+        "eleve": "PROUVE",
+        "parents": "PROUVE",
+        "nexus": "PROUVE",
+        "verifier": "PARTIEL",
+        "e2e": "ABSENT"
+      }
+    },
+    {
+      "slug": "entree-seconde-francais-v1",
+      "level": "SECONDE",
+      "subject": "FRANCAIS",
+      "version": 1,
+      "sourceYaml": "data/bilans/banks/entree-seconde-francais-v1.yaml",
+      "cpsCatalogs": [
+        "data/bilans/cps/3e-francais-vers-seconde.v1.yaml"
+      ],
+      "promptDirectory": "content/bilans/prompts/entree-seconde-francais-v1",
+      "promptRoles": [
+        {
+          "role": "preAnalysis",
+          "path": "content/bilans/prompts/entree-seconde-francais-v1/pre-analysis.md",
+          "present": true,
+          "checksumMatches": true
+        },
+        {
+          "role": "eleve",
+          "path": "content/bilans/prompts/entree-seconde-francais-v1/eleve.md",
+          "present": true,
+          "checksumMatches": true
+        },
+        {
+          "role": "parents",
+          "path": "content/bilans/prompts/entree-seconde-francais-v1/parents.md",
+          "present": true,
+          "checksumMatches": true
+        },
+        {
+          "role": "nexus",
+          "path": "content/bilans/prompts/entree-seconde-francais-v1/nexus.md",
+          "present": true,
+          "checksumMatches": true
+        },
+        {
+          "role": "verifier",
+          "path": "content/bilans/prompts/entree-seconde-francais-v1/verifier.md",
+          "present": true,
+          "checksumMatches": true
+        }
+      ],
+      "jsonPack": "data/bilans/banks/entree-seconde-francais-v1.json",
+      "items": 18,
+      "cpsNodes": 9,
+      "status": "DRAFT",
+      "registry": {
+        "present": false,
+        "path": null,
+        "validatedBy": null,
+        "validatedAt": null,
+        "qualification": null,
+        "sourceChecksumMatches": null,
+        "promptChecksumsMatch": null,
+        "localReviewerResolution": "NON_APPLICABLE",
+        "productionReviewerResolution": "NON_PROUVE"
+      },
+      "sourceChecksumBinding": "NON_APPLICABLE",
+      "promptChecksumsMatch": true,
+      "ragEnabled": false,
+      "featureFlag": "NEXUS_BILAN_PACK_ENTREE_SECONDE_FRANCAIS_V1_ENABLED",
+      "featureFlagDefault": false,
+      "runtimeResolvable": true,
+      "runtimeEnabledInAuditEnvironment": false,
+      "technicalValidation": "PROUVE",
+      "loadingTest": "PROUVE",
+      "passationTest": "PARTIEL",
+      "e2eTest": "ABSENT",
+      "matrix": {
+        "chargeable": "PROUVE",
+        "signed": "BLOQUE_HUMAIN",
+        "activable": "BLOQUE_HUMAIN",
+        "attempt": "PARTIEL",
+        "scoring": "PARTIEL",
+        "worker": "PARTIEL",
+        "eleve": "PROUVE",
+        "parents": "PROUVE",
+        "nexus": "PROUVE",
+        "verifier": "PARTIEL",
+        "e2e": "ABSENT"
+      }
+    },
+    {
+      "slug": "entree-seconde-maths-v1",
+      "level": "SECONDE",
+      "subject": "MATHS",
+      "version": 1,
+      "sourceYaml": "data/bilans/banks/entree-seconde-maths-v1.yaml",
+      "cpsCatalogs": [
+        "data/bilans/cps/3e-maths-vers-seconde.v1.yaml"
+      ],
+      "promptDirectory": "content/bilans/prompts/entree-seconde-maths-v1",
+      "promptRoles": [
+        {
+          "role": "preAnalysis",
+          "path": "content/bilans/prompts/entree-seconde-maths-v1/pre-analysis.md",
+          "present": true,
+          "checksumMatches": true
+        },
+        {
+          "role": "eleve",
+          "path": "content/bilans/prompts/entree-seconde-maths-v1/eleve.md",
+          "present": true,
+          "checksumMatches": true
+        },
+        {
+          "role": "parents",
+          "path": "content/bilans/prompts/entree-seconde-maths-v1/parents.md",
+          "present": true,
+          "checksumMatches": true
+        },
+        {
+          "role": "nexus",
+          "path": "content/bilans/prompts/entree-seconde-maths-v1/nexus.md",
+          "present": true,
+          "checksumMatches": true
+        },
+        {
+          "role": "verifier",
+          "path": "content/bilans/prompts/entree-seconde-maths-v1/verifier.md",
+          "present": true,
+          "checksumMatches": true
+        }
+      ],
+      "jsonPack": "data/bilans/banks/entree-seconde-maths-v1.json",
+      "items": 18,
+      "cpsNodes": 9,
+      "status": "VALIDATED",
+      "registry": {
+        "present": true,
+        "path": "data/bilans/reviews/entree-seconde-maths-v1.review.yaml",
+        "validatedBy": "PRESENT",
+        "validatedAt": "2026-08-03T13:22:42.750Z",
+        "qualification": "Professeur agrégé de mathématiques",
+        "sourceChecksumMatches": true,
+        "promptChecksumsMatch": true,
+        "localReviewerResolution": "BLOQUE_TECHNIQUE_DATABASE_NON_CONFIGUREE",
+        "productionReviewerResolution": "PROUVE_ANTERIEUREMENT_PAR_AUDIT_PRODUCTION"
+      },
+      "sourceChecksumBinding": true,
+      "promptChecksumsMatch": true,
+      "ragEnabled": false,
+      "featureFlag": "NEXUS_BILAN_PACK_ENTREE_SECONDE_MATHS_V1_ENABLED",
+      "featureFlagDefault": false,
+      "runtimeResolvable": true,
+      "runtimeEnabledInAuditEnvironment": false,
+      "technicalValidation": "PROUVE",
+      "loadingTest": "PROUVE",
+      "passationTest": "PARTIEL",
+      "e2eTest": "ABSENT",
+      "matrix": {
+        "chargeable": "PROUVE",
+        "signed": "PROUVE",
+        "activable": "PARTIEL",
+        "attempt": "PARTIEL",
+        "scoring": "PARTIEL",
+        "worker": "PARTIEL",
+        "eleve": "PROUVE",
+        "parents": "PROUVE",
+        "nexus": "PROUVE",
+        "verifier": "PARTIEL",
+        "e2e": "ABSENT"
+      }
+    },
+    {
+      "slug": "entree-terminale-maths-expertes-v1",
+      "level": "TERMINALE",
+      "subject": "MATHS_EXPERTES",
+      "version": 1,
+      "sourceYaml": "data/bilans/banks/entree-terminale-maths-expertes-v1.yaml",
+      "cpsCatalogs": [
+        "data/bilans/cps/prerequis-maths-vers-terminale-expertes.v1.yaml"
+      ],
+      "promptDirectory": "content/bilans/prompts/entree-terminale-maths-expertes-v1",
+      "promptRoles": [
+        {
+          "role": "preAnalysis",
+          "path": "content/bilans/prompts/entree-terminale-maths-expertes-v1/pre-analysis.md",
+          "present": true,
+          "checksumMatches": true
+        },
+        {
+          "role": "eleve",
+          "path": "content/bilans/prompts/entree-terminale-maths-expertes-v1/eleve.md",
+          "present": true,
+          "checksumMatches": true
+        },
+        {
+          "role": "parents",
+          "path": "content/bilans/prompts/entree-terminale-maths-expertes-v1/parents.md",
+          "present": true,
+          "checksumMatches": true
+        },
+        {
+          "role": "nexus",
+          "path": "content/bilans/prompts/entree-terminale-maths-expertes-v1/nexus.md",
+          "present": true,
+          "checksumMatches": true
+        },
+        {
+          "role": "verifier",
+          "path": "content/bilans/prompts/entree-terminale-maths-expertes-v1/verifier.md",
+          "present": true,
+          "checksumMatches": true
+        }
+      ],
+      "jsonPack": "data/bilans/banks/entree-terminale-maths-expertes-v1.json",
+      "items": 18,
+      "cpsNodes": 9,
+      "status": "DRAFT",
+      "registry": {
+        "present": false,
+        "path": null,
+        "validatedBy": null,
+        "validatedAt": null,
+        "qualification": null,
+        "sourceChecksumMatches": null,
+        "promptChecksumsMatch": null,
+        "localReviewerResolution": "NON_APPLICABLE",
+        "productionReviewerResolution": "NON_PROUVE"
+      },
+      "sourceChecksumBinding": "NON_APPLICABLE",
+      "promptChecksumsMatch": true,
+      "ragEnabled": false,
+      "featureFlag": "NEXUS_BILAN_PACK_ENTREE_TERMINALE_MATHS_EXPERTES_V1_ENABLED",
+      "featureFlagDefault": false,
+      "runtimeResolvable": true,
+      "runtimeEnabledInAuditEnvironment": false,
+      "technicalValidation": "PROUVE",
+      "loadingTest": "PROUVE",
+      "passationTest": "PARTIEL",
+      "e2eTest": "ABSENT",
+      "matrix": {
+        "chargeable": "PROUVE",
+        "signed": "BLOQUE_HUMAIN",
+        "activable": "BLOQUE_HUMAIN",
+        "attempt": "PARTIEL",
+        "scoring": "PARTIEL",
+        "worker": "PARTIEL",
+        "eleve": "PROUVE",
+        "parents": "PROUVE",
+        "nexus": "PROUVE",
+        "verifier": "PARTIEL",
+        "e2e": "ABSENT"
+      }
+    },
+    {
+      "slug": "entree-terminale-maths-v1",
+      "level": "TERMINALE",
+      "subject": "MATHS",
+      "version": 1,
+      "sourceYaml": "data/bilans/banks/entree-terminale-maths-v1.yaml",
+      "cpsCatalogs": [
+        "data/bilans/cps/1re-maths-vers-terminale.v1.yaml"
+      ],
+      "promptDirectory": "content/bilans/prompts/entree-terminale-maths-v1",
+      "promptRoles": [
+        {
+          "role": "preAnalysis",
+          "path": "content/bilans/prompts/entree-terminale-maths-v1/pre-analysis.md",
+          "present": true,
+          "checksumMatches": true
+        },
+        {
+          "role": "eleve",
+          "path": "content/bilans/prompts/entree-terminale-maths-v1/eleve.md",
+          "present": true,
+          "checksumMatches": true
+        },
+        {
+          "role": "parents",
+          "path": "content/bilans/prompts/entree-terminale-maths-v1/parents.md",
+          "present": true,
+          "checksumMatches": true
+        },
+        {
+          "role": "nexus",
+          "path": "content/bilans/prompts/entree-terminale-maths-v1/nexus.md",
+          "present": true,
+          "checksumMatches": true
+        },
+        {
+          "role": "verifier",
+          "path": "content/bilans/prompts/entree-terminale-maths-v1/verifier.md",
+          "present": true,
+          "checksumMatches": true
+        }
+      ],
+      "jsonPack": "data/bilans/banks/entree-terminale-maths-v1.json",
+      "items": 18,
+      "cpsNodes": 9,
+      "status": "DRAFT",
+      "registry": {
+        "present": false,
+        "path": null,
+        "validatedBy": null,
+        "validatedAt": null,
+        "qualification": null,
+        "sourceChecksumMatches": null,
+        "promptChecksumsMatch": null,
+        "localReviewerResolution": "NON_APPLICABLE",
+        "productionReviewerResolution": "NON_PROUVE"
+      },
+      "sourceChecksumBinding": "NON_APPLICABLE",
+      "promptChecksumsMatch": true,
+      "ragEnabled": false,
+      "featureFlag": "NEXUS_BILAN_PACK_ENTREE_TERMINALE_MATHS_V1_ENABLED",
+      "featureFlagDefault": false,
+      "runtimeResolvable": true,
+      "runtimeEnabledInAuditEnvironment": false,
+      "technicalValidation": "PROUVE",
+      "loadingTest": "PROUVE",
+      "passationTest": "PARTIEL",
+      "e2eTest": "ABSENT",
+      "matrix": {
+        "chargeable": "PROUVE",
+        "signed": "BLOQUE_HUMAIN",
+        "activable": "BLOQUE_HUMAIN",
+        "attempt": "PARTIEL",
+        "scoring": "PARTIEL",
+        "worker": "PARTIEL",
+        "eleve": "PROUVE",
+        "parents": "PROUVE",
+        "nexus": "PROUVE",
+        "verifier": "PARTIEL",
+        "e2e": "ABSENT"
+      }
+    },
+    {
+      "slug": "entree-terminale-nsi-v1",
+      "level": "TERMINALE",
+      "subject": "NSI",
+      "version": 1,
+      "sourceYaml": "data/bilans/banks/entree-terminale-nsi-v1.yaml",
+      "cpsCatalogs": [
+        "data/bilans/cps/1re-nsi-vers-terminale.v1.yaml"
+      ],
+      "promptDirectory": "content/bilans/prompts/entree-terminale-nsi-v1",
+      "promptRoles": [
+        {
+          "role": "preAnalysis",
+          "path": "content/bilans/prompts/entree-terminale-nsi-v1/pre-analysis.md",
+          "present": true,
+          "checksumMatches": true
+        },
+        {
+          "role": "eleve",
+          "path": "content/bilans/prompts/entree-terminale-nsi-v1/eleve.md",
+          "present": true,
+          "checksumMatches": true
+        },
+        {
+          "role": "parents",
+          "path": "content/bilans/prompts/entree-terminale-nsi-v1/parents.md",
+          "present": true,
+          "checksumMatches": true
+        },
+        {
+          "role": "nexus",
+          "path": "content/bilans/prompts/entree-terminale-nsi-v1/nexus.md",
+          "present": true,
+          "checksumMatches": true
+        },
+        {
+          "role": "verifier",
+          "path": "content/bilans/prompts/entree-terminale-nsi-v1/verifier.md",
+          "present": true,
+          "checksumMatches": true
+        }
+      ],
+      "jsonPack": "data/bilans/banks/entree-terminale-nsi-v1.json",
+      "items": 18,
+      "cpsNodes": 9,
+      "status": "DRAFT",
+      "registry": {
+        "present": false,
+        "path": null,
+        "validatedBy": null,
+        "validatedAt": null,
+        "qualification": null,
+        "sourceChecksumMatches": null,
+        "promptChecksumsMatch": null,
+        "localReviewerResolution": "NON_APPLICABLE",
+        "productionReviewerResolution": "NON_PROUVE"
+      },
+      "sourceChecksumBinding": "NON_APPLICABLE",
+      "promptChecksumsMatch": true,
+      "ragEnabled": false,
+      "featureFlag": "NEXUS_BILAN_PACK_ENTREE_TERMINALE_NSI_V1_ENABLED",
+      "featureFlagDefault": false,
+      "runtimeResolvable": true,
+      "runtimeEnabledInAuditEnvironment": false,
+      "technicalValidation": "PROUVE",
+      "loadingTest": "PROUVE",
+      "passationTest": "PARTIEL",
+      "e2eTest": "ABSENT",
+      "matrix": {
+        "chargeable": "PROUVE",
+        "signed": "BLOQUE_HUMAIN",
+        "activable": "BLOQUE_HUMAIN",
+        "attempt": "PARTIEL",
+        "scoring": "PARTIEL",
+        "worker": "PARTIEL",
+        "eleve": "PROUVE",
+        "parents": "PROUVE",
+        "nexus": "PROUVE",
+        "verifier": "PARTIEL",
+        "e2e": "ABSENT"
+      }
+    },
+    {
+      "slug": "entree-terminale-philosophie-v1",
+      "level": "TERMINALE",
+      "subject": "PHILOSOPHIE",
+      "version": 1,
+      "sourceYaml": "data/bilans/banks/entree-terminale-philosophie-v1.yaml",
+      "cpsCatalogs": [
+        "data/bilans/cps/1re-francais-vers-terminale.v1.yaml"
+      ],
+      "promptDirectory": "content/bilans/prompts/entree-terminale-philosophie-v1",
+      "promptRoles": [
+        {
+          "role": "preAnalysis",
+          "path": "content/bilans/prompts/entree-terminale-philosophie-v1/pre-analysis.md",
+          "present": true,
+          "checksumMatches": true
+        },
+        {
+          "role": "eleve",
+          "path": "content/bilans/prompts/entree-terminale-philosophie-v1/eleve.md",
+          "present": true,
+          "checksumMatches": true
+        },
+        {
+          "role": "parents",
+          "path": "content/bilans/prompts/entree-terminale-philosophie-v1/parents.md",
+          "present": true,
+          "checksumMatches": true
+        },
+        {
+          "role": "nexus",
+          "path": "content/bilans/prompts/entree-terminale-philosophie-v1/nexus.md",
+          "present": true,
+          "checksumMatches": true
+        },
+        {
+          "role": "verifier",
+          "path": "content/bilans/prompts/entree-terminale-philosophie-v1/verifier.md",
+          "present": true,
+          "checksumMatches": true
+        }
+      ],
+      "jsonPack": "data/bilans/banks/entree-terminale-philosophie-v1.json",
+      "items": 18,
+      "cpsNodes": 9,
+      "status": "DRAFT",
+      "registry": {
+        "present": false,
+        "path": null,
+        "validatedBy": null,
+        "validatedAt": null,
+        "qualification": null,
+        "sourceChecksumMatches": null,
+        "promptChecksumsMatch": null,
+        "localReviewerResolution": "NON_APPLICABLE",
+        "productionReviewerResolution": "NON_PROUVE"
+      },
+      "sourceChecksumBinding": "NON_APPLICABLE",
+      "promptChecksumsMatch": true,
+      "ragEnabled": false,
+      "featureFlag": "NEXUS_BILAN_PACK_ENTREE_TERMINALE_PHILOSOPHIE_V1_ENABLED",
+      "featureFlagDefault": false,
+      "runtimeResolvable": true,
+      "runtimeEnabledInAuditEnvironment": false,
+      "technicalValidation": "PROUVE",
+      "loadingTest": "PROUVE",
+      "passationTest": "PARTIEL",
+      "e2eTest": "ABSENT",
+      "matrix": {
+        "chargeable": "PROUVE",
+        "signed": "BLOQUE_HUMAIN",
+        "activable": "BLOQUE_HUMAIN",
+        "attempt": "PARTIEL",
+        "scoring": "PARTIEL",
+        "worker": "PARTIEL",
+        "eleve": "PROUVE",
+        "parents": "PROUVE",
+        "nexus": "PROUVE",
+        "verifier": "PARTIEL",
+        "e2e": "ABSENT"
+      }
+    },
+    {
+      "slug": "entree-terminale-physique-chimie-v1",
+      "level": "TERMINALE",
+      "subject": "PHYSIQUE_CHIMIE",
+      "version": 1,
+      "sourceYaml": "data/bilans/banks/entree-terminale-physique-chimie-v1.yaml",
+      "cpsCatalogs": [
+        "data/bilans/cps/1re-physique-chimie-vers-terminale.v1.yaml"
+      ],
+      "promptDirectory": "content/bilans/prompts/entree-terminale-physique-chimie-v1",
+      "promptRoles": [
+        {
+          "role": "preAnalysis",
+          "path": "content/bilans/prompts/entree-terminale-physique-chimie-v1/pre-analysis.md",
+          "present": true,
+          "checksumMatches": true
+        },
+        {
+          "role": "eleve",
+          "path": "content/bilans/prompts/entree-terminale-physique-chimie-v1/eleve.md",
+          "present": true,
+          "checksumMatches": true
+        },
+        {
+          "role": "parents",
+          "path": "content/bilans/prompts/entree-terminale-physique-chimie-v1/parents.md",
+          "present": true,
+          "checksumMatches": true
+        },
+        {
+          "role": "nexus",
+          "path": "content/bilans/prompts/entree-terminale-physique-chimie-v1/nexus.md",
+          "present": true,
+          "checksumMatches": true
+        },
+        {
+          "role": "verifier",
+          "path": "content/bilans/prompts/entree-terminale-physique-chimie-v1/verifier.md",
+          "present": true,
+          "checksumMatches": true
+        }
+      ],
+      "jsonPack": "data/bilans/banks/entree-terminale-physique-chimie-v1.json",
+      "items": 18,
+      "cpsNodes": 9,
+      "status": "DRAFT",
+      "registry": {
+        "present": false,
+        "path": null,
+        "validatedBy": null,
+        "validatedAt": null,
+        "qualification": null,
+        "sourceChecksumMatches": null,
+        "promptChecksumsMatch": null,
+        "localReviewerResolution": "NON_APPLICABLE",
+        "productionReviewerResolution": "NON_PROUVE"
+      },
+      "sourceChecksumBinding": "NON_APPLICABLE",
+      "promptChecksumsMatch": true,
+      "ragEnabled": false,
+      "featureFlag": "NEXUS_BILAN_PACK_ENTREE_TERMINALE_PHYSIQUE_CHIMIE_V1_ENABLED",
+      "featureFlagDefault": false,
+      "runtimeResolvable": true,
+      "runtimeEnabledInAuditEnvironment": false,
+      "technicalValidation": "PROUVE",
+      "loadingTest": "PROUVE",
+      "passationTest": "PARTIEL",
+      "e2eTest": "ABSENT",
+      "matrix": {
+        "chargeable": "PROUVE",
+        "signed": "BLOQUE_HUMAIN",
+        "activable": "BLOQUE_HUMAIN",
+        "attempt": "PARTIEL",
+        "scoring": "PARTIEL",
+        "worker": "PARTIEL",
+        "eleve": "PROUVE",
+        "parents": "PROUVE",
+        "nexus": "PROUVE",
+        "verifier": "PARTIEL",
+        "e2e": "ABSENT"
+      }
+    },
+    {
+      "slug": "entree-terminale-svt-v1",
+      "level": "TERMINALE",
+      "subject": "SVT",
+      "version": 1,
+      "sourceYaml": "data/bilans/banks/entree-terminale-svt-v1.yaml",
+      "cpsCatalogs": [
+        "data/bilans/cps/1re-svt-vers-terminale.v1.yaml"
+      ],
+      "promptDirectory": "content/bilans/prompts/entree-terminale-svt-v1",
+      "promptRoles": [
+        {
+          "role": "preAnalysis",
+          "path": "content/bilans/prompts/entree-terminale-svt-v1/pre-analysis.md",
+          "present": true,
+          "checksumMatches": true
+        },
+        {
+          "role": "eleve",
+          "path": "content/bilans/prompts/entree-terminale-svt-v1/eleve.md",
+          "present": true,
+          "checksumMatches": true
+        },
+        {
+          "role": "parents",
+          "path": "content/bilans/prompts/entree-terminale-svt-v1/parents.md",
+          "present": true,
+          "checksumMatches": true
+        },
+        {
+          "role": "nexus",
+          "path": "content/bilans/prompts/entree-terminale-svt-v1/nexus.md",
+          "present": true,
+          "checksumMatches": true
+        },
+        {
+          "role": "verifier",
+          "path": "content/bilans/prompts/entree-terminale-svt-v1/verifier.md",
+          "present": true,
+          "checksumMatches": true
+        }
+      ],
+      "jsonPack": "data/bilans/banks/entree-terminale-svt-v1.json",
+      "items": 18,
+      "cpsNodes": 9,
+      "status": "DRAFT",
+      "registry": {
+        "present": false,
+        "path": null,
+        "validatedBy": null,
+        "validatedAt": null,
+        "qualification": null,
+        "sourceChecksumMatches": null,
+        "promptChecksumsMatch": null,
+        "localReviewerResolution": "NON_APPLICABLE",
+        "productionReviewerResolution": "NON_PROUVE"
+      },
+      "sourceChecksumBinding": "NON_APPLICABLE",
+      "promptChecksumsMatch": true,
+      "ragEnabled": false,
+      "featureFlag": "NEXUS_BILAN_PACK_ENTREE_TERMINALE_SVT_V1_ENABLED",
+      "featureFlagDefault": false,
+      "runtimeResolvable": true,
+      "runtimeEnabledInAuditEnvironment": false,
+      "technicalValidation": "PROUVE",
+      "loadingTest": "PROUVE",
+      "passationTest": "PARTIEL",
+      "e2eTest": "ABSENT",
+      "matrix": {
+        "chargeable": "PROUVE",
+        "signed": "BLOQUE_HUMAIN",
+        "activable": "BLOQUE_HUMAIN",
+        "attempt": "PARTIEL",
+        "scoring": "PARTIEL",
+        "worker": "PARTIEL",
+        "eleve": "PROUVE",
+        "parents": "PROUVE",
+        "nexus": "PROUVE",
+        "verifier": "PARTIEL",
+        "e2e": "ABSENT"
+      }
+    },
+    {
+      "slug": "entree-troisieme-francais-v1",
+      "level": "TROISIEME",
+      "subject": "FRANCAIS",
+      "version": 1,
+      "sourceYaml": "data/bilans/banks/entree-troisieme-francais-v1.yaml",
+      "cpsCatalogs": [
+        "data/bilans/cps/4e-francais-vers-troisieme.v1.yaml"
+      ],
+      "promptDirectory": "content/bilans/prompts/entree-troisieme-francais-v1",
+      "promptRoles": [
+        {
+          "role": "preAnalysis",
+          "path": "content/bilans/prompts/entree-troisieme-francais-v1/pre-analysis.md",
+          "present": true,
+          "checksumMatches": true
+        },
+        {
+          "role": "eleve",
+          "path": "content/bilans/prompts/entree-troisieme-francais-v1/eleve.md",
+          "present": true,
+          "checksumMatches": true
+        },
+        {
+          "role": "parents",
+          "path": "content/bilans/prompts/entree-troisieme-francais-v1/parents.md",
+          "present": true,
+          "checksumMatches": true
+        },
+        {
+          "role": "nexus",
+          "path": "content/bilans/prompts/entree-troisieme-francais-v1/nexus.md",
+          "present": true,
+          "checksumMatches": true
+        },
+        {
+          "role": "verifier",
+          "path": "content/bilans/prompts/entree-troisieme-francais-v1/verifier.md",
+          "present": true,
+          "checksumMatches": true
+        }
+      ],
+      "jsonPack": "data/bilans/banks/entree-troisieme-francais-v1.json",
+      "items": 18,
+      "cpsNodes": 9,
+      "status": "DRAFT",
+      "registry": {
+        "present": false,
+        "path": null,
+        "validatedBy": null,
+        "validatedAt": null,
+        "qualification": null,
+        "sourceChecksumMatches": null,
+        "promptChecksumsMatch": null,
+        "localReviewerResolution": "NON_APPLICABLE",
+        "productionReviewerResolution": "NON_PROUVE"
+      },
+      "sourceChecksumBinding": "NON_APPLICABLE",
+      "promptChecksumsMatch": true,
+      "ragEnabled": false,
+      "featureFlag": "NEXUS_BILAN_PACK_ENTREE_TROISIEME_FRANCAIS_V1_ENABLED",
+      "featureFlagDefault": false,
+      "runtimeResolvable": true,
+      "runtimeEnabledInAuditEnvironment": false,
+      "technicalValidation": "PROUVE",
+      "loadingTest": "PROUVE",
+      "passationTest": "PARTIEL",
+      "e2eTest": "ABSENT",
+      "matrix": {
+        "chargeable": "PROUVE",
+        "signed": "BLOQUE_HUMAIN",
+        "activable": "BLOQUE_HUMAIN",
+        "attempt": "PARTIEL",
+        "scoring": "PARTIEL",
+        "worker": "PARTIEL",
+        "eleve": "PROUVE",
+        "parents": "PROUVE",
+        "nexus": "PROUVE",
+        "verifier": "PARTIEL",
+        "e2e": "ABSENT"
+      }
+    },
+    {
+      "slug": "entree-troisieme-maths-v1",
+      "level": "TROISIEME",
+      "subject": "MATHS",
+      "version": 1,
+      "sourceYaml": "data/bilans/banks/entree-troisieme-maths-v1.yaml",
+      "cpsCatalogs": [
+        "data/bilans/cps/4e-maths-vers-troisieme.v1.yaml"
+      ],
+      "promptDirectory": "content/bilans/prompts/entree-troisieme-maths-v1",
+      "promptRoles": [
+        {
+          "role": "preAnalysis",
+          "path": "content/bilans/prompts/entree-troisieme-maths-v1/pre-analysis.md",
+          "present": true,
+          "checksumMatches": true
+        },
+        {
+          "role": "eleve",
+          "path": "content/bilans/prompts/entree-troisieme-maths-v1/eleve.md",
+          "present": true,
+          "checksumMatches": true
+        },
+        {
+          "role": "parents",
+          "path": "content/bilans/prompts/entree-troisieme-maths-v1/parents.md",
+          "present": true,
+          "checksumMatches": true
+        },
+        {
+          "role": "nexus",
+          "path": "content/bilans/prompts/entree-troisieme-maths-v1/nexus.md",
+          "present": true,
+          "checksumMatches": true
+        },
+        {
+          "role": "verifier",
+          "path": "content/bilans/prompts/entree-troisieme-maths-v1/verifier.md",
+          "present": true,
+          "checksumMatches": true
+        }
+      ],
+      "jsonPack": "data/bilans/banks/entree-troisieme-maths-v1.json",
+      "items": 18,
+      "cpsNodes": 9,
+      "status": "DRAFT",
+      "registry": {
+        "present": false,
+        "path": null,
+        "validatedBy": null,
+        "validatedAt": null,
+        "qualification": null,
+        "sourceChecksumMatches": null,
+        "promptChecksumsMatch": null,
+        "localReviewerResolution": "NON_APPLICABLE",
+        "productionReviewerResolution": "NON_PROUVE"
+      },
+      "sourceChecksumBinding": "NON_APPLICABLE",
+      "promptChecksumsMatch": true,
+      "ragEnabled": false,
+      "featureFlag": "NEXUS_BILAN_PACK_ENTREE_TROISIEME_MATHS_V1_ENABLED",
+      "featureFlagDefault": false,
+      "runtimeResolvable": true,
+      "runtimeEnabledInAuditEnvironment": false,
+      "technicalValidation": "PROUVE",
+      "loadingTest": "PROUVE",
+      "passationTest": "PARTIEL",
+      "e2eTest": "ABSENT",
+      "matrix": {
+        "chargeable": "PROUVE",
+        "signed": "BLOQUE_HUMAIN",
+        "activable": "BLOQUE_HUMAIN",
+        "attempt": "PARTIEL",
+        "scoring": "PARTIEL",
+        "worker": "PARTIEL",
+        "eleve": "PROUVE",
+        "parents": "PROUVE",
+        "nexus": "PROUVE",
+        "verifier": "PARTIEL",
+        "e2e": "ABSENT"
+      }
+    }
+  ],
+  "promptDebt": {
+    "activeDirectories": 17,
+    "activeFiles": 85,
+    "obsoleteTitles": 85,
+    "emptyActiveExamples": 0,
+    "historicalDirectory": "content/bilans/prompts/maths-terminale-bilan-v1",
+    "historicalTruePlaceholders": 10,
+    "documentationOccurrence": "content/bilans/prompts/EXEMPLES-PROMPTS-TOUS-NIVEAUX.md",
+    "legitimateOccurrence": "Le mot brouillon dans une mauvaise formulation du prompt Français Seconde."
+  },
+  "hardcodedMappings": [
+    {
+      "file": "lib/bilans/api/create-attempt.ts",
+      "symbol": "SUBJECTS / LEVELS",
+      "impact": "Nouvelle matière ou niveau non exécutable sans mapping Prisma explicite.",
+      "recommendation": "Centraliser la résolution et échouer explicitement."
+    },
+    {
+      "file": "lib/bilans/api/get-attempt.ts",
+      "symbol": "LEVEL_LABELS",
+      "impact": "Nouveau niveau sans libellé.",
+      "recommendation": "Réutiliser une configuration canonique de niveaux."
+    },
+    {
+      "file": "lib/bilans/catalog/subjects.ts",
+      "symbol": "BILAN_PACK_SUBJECTS / LABELS",
+      "impact": "Allowlist de schéma et libellés à étendre.",
+      "recommendation": "Légitime comme configuration centrale, éviter les duplications."
+    },
+    {
+      "file": "lib/bilans/render/stage-label.ts",
+      "symbol": "BILAN_PACK_LEVELS / LABELS",
+      "impact": "Libellé stage à étendre.",
+      "recommendation": "Fusionner avec la configuration canonique de niveaux."
+    },
+    {
+      "file": "lib/bilans/render/subject-display.ts",
+      "symbol": "POLICY",
+      "impact": "Politique de rendu nécessaire par matière.",
+      "recommendation": "Légitime comme configuration, test exhaustif contre allowlist."
+    },
+    {
+      "file": "prisma/schema.prisma",
+      "symbol": "Subject / GradeLevel",
+      "impact": "Migration additive requise pour une nouvelle valeur persistée.",
+      "recommendation": "Légitime au niveau persistance ; aucune valeur silencieuse."
+    },
+    {
+      "file": "scripts/bilans/generate-worker-recipe-evidence.ts",
+      "symbol": "pack fixture Première Maths",
+      "impact": "La seule recette réponses brutes est mono-pack.",
+      "recommendation": "Paramétrer au moins un pack par matière puis le manifeste complet."
+    }
+  ],
+  "tests": [
+    {
+      "step": "Données vague 1",
+      "test": "__tests__/bilans/wave1-banks.test.ts",
+      "type": "UNITAIRE + ARTEFACT",
+      "executed": true,
+      "green": true,
+      "proves": "17 banques, 306 ids, 153 CPS, V1-V14, recettes 1 020 rapports, Unicode, atomicité",
+      "doesNotProve": "Ne traverse ni authentification ni base ni publication"
+    },
+    {
+      "step": "Chargement fail-closed",
+      "test": "__tests__/bilans/pack-loader.test.ts",
+      "type": "UNITAIRE",
+      "executed": true,
+      "green": true,
+      "proves": "DRAFT refusé, checksum prompt et métadonnées invalides refusés",
+      "doesNotProve": "Ne résout pas le CoachProfile en base"
+    },
+    {
+      "step": "Prompts",
+      "test": "__tests__/bilans/prompt-contract.test.ts",
+      "type": "UNITAIRE",
+      "executed": true,
+      "green": true,
+      "proves": "Rôles, rubriques, exemples actifs remplis et checksums",
+      "doesNotProve": "N’évalue pas la qualité humaine et exclut la dette historique"
+    },
+    {
+      "step": "Passation API",
+      "test": "__tests__/api/bilans-canonical-*.route.test.ts",
+      "type": "UNITAIRE MOCK DB",
+      "executed": true,
+      "green": true,
+      "proves": "Création, DTO expurgé, autosave, confiance, conflits, flags, statut",
+      "doesNotProve": "Ne prouve pas concurrence PostgreSQL ni navigateur"
+    },
+    {
+      "step": "Runner",
+      "test": "__tests__/components/canonical-assessment-runner.test.tsx",
+      "type": "UNITAIRE DOM",
+      "executed": true,
+      "green": true,
+      "proves": "Confiance requise, reprise, conflit sans perte, pas de sentinelle",
+      "doesNotProve": "Ne contacte pas une application réelle"
+    },
+    {
+      "step": "Scoring",
+      "test": "__tests__/bilans/compute-facts.test.ts",
+      "type": "UNITAIRE",
+      "executed": true,
+      "green": true,
+      "proves": "Cas dorés, branches défensives, déterminisme, monotonie, ENGINE_VERSION",
+      "doesNotProve": "Ne prouve pas la persistance"
+    },
+    {
+      "step": "Scores domaines",
+      "test": "__tests__/bilans/domain-scores.test.ts",
+      "type": "UNITAIRE",
+      "executed": true,
+      "green": true,
+      "proves": "Pondération difficulté, partiel, nœud non rattaché fail-closed",
+      "doesNotProve": "Un seul jeu synthétique"
+    },
+    {
+      "step": "Chaîne worker recette",
+      "test": "__tests__/bilans/worker-recipe.test.ts",
+      "type": "RECETTE DÉTERMINISTE",
+      "executed": true,
+      "green": true,
+      "proves": "Réponses brutes -> facts -> domaines -> FactSheet -> trois rendus",
+      "doesNotProve": "Un seul pack et aucune base/outbox"
+    },
+    {
+      "step": "Worker boundary",
+      "test": "__tests__/bilans/canonical-worker-contract.test.ts",
+      "type": "ARCHITECTURE",
+      "executed": true,
+      "green": true,
+      "proves": "Aucun agent, LLM, RAG, HTTP, réseau ou ScoringV2",
+      "doesNotProve": "Ne traite pas un JobOutbox réel"
+    },
+    {
+      "step": "PDF",
+      "test": "__tests__/bilans/render-pdf.test.ts",
+      "type": "UNITAIRE CHROMIUM",
+      "executed": true,
+      "green": true,
+      "proves": "PDF réel, texte extrait, non-divulgation, stabilité normalisée, fallback",
+      "doesNotProve": "FactSheet synthétique"
+    },
+    {
+      "step": "Exemples versionnés",
+      "test": "__tests__/bilans/rendered-examples.test.ts",
+      "type": "RECETTE VISUELLE",
+      "executed": true,
+      "green": true,
+      "proves": "Six artefacts HTML/PDF byte-for-byte",
+      "doesNotProve": "Pas de données de passation ni revue humaine prouvée"
+    },
+    {
+      "step": "Publication",
+      "test": "__tests__/bilans/report-publication.test.ts",
+      "type": "UNITAIRE MOCK DB",
+      "executed": true,
+      "green": true,
+      "proves": "Rendu avant transaction, HTML fail-closed, course concurrente",
+      "doesNotProve": "Pas de contrainte PostgreSQL réelle"
+    },
+    {
+      "step": "Staff",
+      "test": "__tests__/bilans/staff-review-surface.test.ts",
+      "type": "UNITAIRE",
+      "executed": true,
+      "green": true,
+      "proves": "Coach assigné, motif, refus, prévisualisation, blocage validationFailures",
+      "doesNotProve": "Pas de navigateur ni rôle Assistante"
+    },
+    {
+      "step": "Plan groupe",
+      "test": "__tests__/bilans/staff-group-plan.test.ts",
+      "type": "UNITAIRE",
+      "executed": true,
+      "green": true,
+      "proves": "3 à 5 attempts scorées, même pack, assignment Coach",
+      "doesNotProve": "Pas de base ni navigateur"
+    },
+    {
+      "step": "Consentement service/UI",
+      "test": "__tests__/bilans/parent-student-consent.test.ts + parent-canonical-consent-card.test.tsx",
+      "type": "UNITAIRE",
+      "executed": true,
+      "green": true,
+      "proves": "PENDING -> VERIFIED explicite, idempotence, ownership, carte non précochée",
+      "doesNotProve": "Concurrence PostgreSQL et parcours auth non exécutés"
+    },
+    {
+      "step": "Auth et onboarding",
+      "test": "__tests__/api/bilan-gratuit.test.ts + tests auth/activation/RBAC",
+      "type": "UNITAIRE MOCK DB",
+      "executed": true,
+      "green": true,
+      "proves": "Validation, bcrypt, activation, rate limits et rôles",
+      "doesNotProve": "Réception email, sessions navigateur et enfant initial non prouvés"
+    },
+    {
+      "step": "Chaîne August",
+      "test": "__tests__/integration/bilans-canonical-august-chain.test.ts",
+      "type": "INTEGRATION POSTGRES",
+      "executed": false,
+      "green": null,
+      "proves": "Existe : backend complet avec fixture et sessions injectées",
+      "doesNotProve": "Non exécuté ici ; pas d’inscription, auth navigateur, pack réel ni Chromium"
+    },
+    {
+      "step": "Concurrence submit/outbox",
+      "test": "__tests__/integration/bilans-canonical-submit.test.ts + bilans-canonical-outbox-drainer.test.ts",
+      "type": "INTEGRATION POSTGRES",
+      "executed": false,
+      "green": null,
+      "proves": "Existe : double submit, SKIP LOCKED, replay",
+      "doesNotProve": "Non exécuté dans cet audit"
+    },
+    {
+      "step": "Accès rapports",
+      "test": "__tests__/integration/bilans-canonical-report.test.ts + bilans-parent-link-report-access.test.ts",
+      "type": "INTEGRATION POSTGRES",
+      "executed": false,
+      "green": null,
+      "proves": "Existe : audiences, lien VERIFIED, PDF stocké, flag off",
+      "doesNotProve": "Non exécuté ; ne couvre pas la page parent"
+    },
+    {
+      "step": "Playwright Canonical",
+      "test": "e2e/canonical-bilan-pilot.spec.ts",
+      "type": "E2E NAVIGATEUR",
+      "executed": false,
+      "green": null,
+      "proves": "Existe : flags OFF et refus parent inconnu",
+      "doesNotProve": "Aucun chemin complet, aucun pack activé"
+    }
+  ],
+  "failureModes": [
+    {
+      "scenario": "pack inconnu",
+      "status": "PROUVE",
+      "evidence": "__tests__/bilans/canonical-api-foundations.test.ts"
+    },
+    {
+      "scenario": "pack DRAFT",
+      "status": "PROUVE",
+      "evidence": "__tests__/bilans/pack-loader.test.ts"
+    },
+    {
+      "scenario": "registre manquant",
+      "status": "PROUVE",
+      "evidence": "__tests__/bilans/review-registry.test.ts"
+    },
+    {
+      "scenario": "reviewer inexistant",
+      "status": "PROUVE",
+      "evidence": "__tests__/bilans/sign-pack.test.ts"
+    },
+    {
+      "scenario": "checksum source divergent",
+      "status": "PROUVE",
+      "evidence": "__tests__/bilans/review-registry.test.ts"
+    },
+    {
+      "scenario": "checksum prompt divergent",
+      "status": "PROUVE",
+      "evidence": "__tests__/bilans/pack-loader.test.ts et review-registry.test.ts"
+    },
+    {
+      "scenario": "feature flag désactivé",
+      "status": "PROUVE",
+      "evidence": "tests API + bilan-canonical-pack-flag-boundary.test.ts"
+    },
+    {
+      "scenario": "tentative concurrente",
+      "status": "PARTIEL",
+      "evidence": "idempotence unitaire ; intégration DB non exécutée"
+    },
+    {
+      "scenario": "double soumission",
+      "status": "PARTIEL",
+      "evidence": "bilans-canonical-submit.test.ts existe, non exécuté"
+    },
+    {
+      "scenario": "interruption après scoring",
+      "status": "PARTIEL",
+      "evidence": "transaction worker observée ; scénario DB non exécuté"
+    },
+    {
+      "scenario": "événement outbox dupliqué",
+      "status": "PARTIEL",
+      "evidence": "contrainte et test intégration existent, non exécutés"
+    },
+    {
+      "scenario": "worker interrompu",
+      "status": "PARTIEL",
+      "evidence": "lease expirante présente ; aucune exécution actuelle"
+    },
+    {
+      "scenario": "timeout fournisseur",
+      "status": "NON_APPLICABLE",
+      "evidence": "chemin août déterministe sans fournisseur ; gateway dormant sans timeout propre"
+    },
+    {
+      "scenario": "fournisseur indisponible",
+      "status": "NON_APPLICABLE",
+      "evidence": "chemin août déterministe ; transport LLM non actif"
+    },
+    {
+      "scenario": "JSON LLM invalide",
+      "status": "NON_APPLICABLE",
+      "evidence": "gateway dormant testé unitairement"
+    },
+    {
+      "scenario": "schéma de rendu invalide",
+      "status": "PROUVE",
+      "evidence": "structural-validation et worker fail-closed unitaires"
+    },
+    {
+      "scenario": "RAG absent",
+      "status": "NON_APPLICABLE",
+      "evidence": "rag.enabled=false sur 17 packs"
+    },
+    {
+      "scenario": "RAG non vérifié",
+      "status": "NON_APPLICABLE",
+      "evidence": "RAG inactif ; gateway futur n’exige qu’une liste non vide"
+    },
+    {
+      "scenario": "échec vérificateur",
+      "status": "PARTIEL",
+      "evidence": "gateway mock retourne pending avec failures ; non connecté au worker"
+    },
+    {
+      "scenario": "rapport non publié",
+      "status": "PARTIEL",
+      "evidence": "garde source présente ; test DB non exécuté"
+    },
+    {
+      "scenario": "accès inter-familles",
+      "status": "PARTIEL",
+      "evidence": "services unitaires verts ; tests DB non exécutés"
+    },
+    {
+      "scenario": "élève accédant à un autre rapport",
+      "status": "PARTIEL",
+      "evidence": "ownership routes unitaires ; GET report DB non exécuté"
+    },
+    {
+      "scenario": "rôle insuffisant",
+      "status": "PROUVE",
+      "evidence": "staff-review-surface, RBAC et routes unitaires"
+    },
+    {
+      "scenario": "rollback worker",
+      "status": "PARTIEL",
+      "evidence": "transaction et FAILED observés ; intégration non exécutée"
+    },
+    {
+      "scenario": "révocation après modification",
+      "status": "PROUVE",
+      "evidence": "review-registry et sign-pack unitaires"
+    }
+  ],
+  "findings": [
+    {
+      "id": "BILAN-RDY-P0-001",
+      "status": "ABSENT",
+      "severity": "P0",
+      "title": "Aucun pack ne possède une preuve E2E complète",
+      "evidence": [
+        "e2e/canonical-bilan-pilot.spec.ts:5-19 ne teste que les flags OFF et un rapport inconnu.",
+        "__tests__/integration/bilans-canonical-august-chain.test.ts:32-37 remplace le PDF par un buffer factice, injecte les sessions et utilise une fixture.",
+        "Aucun test navigateur ne parcourt inscription, consentement, 18 réponses, reprise, outbox, revue, publication et accès par audience sur un pack du manifeste."
+      ],
+      "files": [
+        "e2e/canonical-bilan-pilot.spec.ts",
+        "__tests__/integration/bilans-canonical-august-chain.test.ts"
+      ],
+      "tests": [
+        "e2e/canonical-bilan-pilot.spec.ts",
+        "__tests__/integration/bilans-canonical-august-chain.test.ts"
+      ],
+      "blocking": "Le workflow ne peut pas être déclaré terminé et PACKS_E2E_PROVEN reste à 0.",
+      "recommendation": "Créer une recette navigateur isolée, pilotée par le manifeste, d’abord sur le pack Maths Seconde puis sur les 17 entrées."
+    },
+    {
+      "id": "BILAN-RDY-P0-002",
+      "status": "BLOQUE_TECHNIQUE",
+      "severity": "P0",
+      "title": "L’élève créé par le tunnel public initial ne peut pas activer son compte",
+      "evidence": [
+        "app/api/bilan-gratuit/route.ts:110-118 crée le User ELEVE sans mot de passe, sans activationToken et sans activationExpiry.",
+        "Le seul token créé par cette route est porté par le User PARENT à app/api/bilan-gratuit/route.ts:65-68 et 85-96.",
+        "POST /api/bilans/attempts exige une session ELEVE résolue depuis userId."
+      ],
+      "files": [
+        "app/api/bilan-gratuit/route.ts",
+        "lib/bilans/api/access.ts",
+        "lib/bilans/api/create-attempt.ts"
+      ],
+      "tests": [
+        "__tests__/api/bilan-gratuit.test.ts",
+        "__tests__/api/student.activate.route.test.ts"
+      ],
+      "blocking": "Le parcours demandé parent -> enfant initial -> passation s’arrête avant l’authentification de l’enfant.",
+      "recommendation": "Définir un flux d’activation explicite pour l’enfant initial, sans créer de second Student, puis le prouver en navigateur."
+    },
+    {
+      "id": "BILAN-RDY-P0-003",
+      "status": "ABSENT",
+      "severity": "P0",
+      "title": "Aucun contrôle serveur ne relie le niveau de l’élève au niveau du pack",
+      "evidence": [
+        "lib/bilans/api/create-attempt.ts:123-177 résout le Student et le pack mais ne compare pas Student.gradeLevel au pack.level.",
+        "app/bilan-gratuit/assessment/page.tsx:23-26 liste tous les packs activés sans filtrage par niveau de l’élève."
+      ],
+      "files": [
+        "lib/bilans/api/create-attempt.ts",
+        "app/bilan-gratuit/assessment/page.tsx"
+      ],
+      "tests": [
+        "__tests__/api/bilans-canonical-create.route.test.ts",
+        "__tests__/bilans/canonical-pilot-surfaces.test.tsx"
+      ],
+      "blocking": "Un élève authentifié peut demander tout pack activé, quel que soit son niveau.",
+      "recommendation": "Dériver l’éligibilité niveau-matière du manifeste et la vérifier côté serveur avant toute tentative."
+    },
+    {
+      "id": "BILAN-RDY-P0-004",
+      "status": "BLOQUE_TECHNIQUE",
+      "severity": "P0",
+      "title": "La consultation parent n’est pas un parcours web fonctionnel",
+      "evidence": [
+        "components/bilans/CanonicalReportViewer.tsx:22 interroge toujours GET /status.",
+        "lib/bilans/api/get-status.ts résout exclusivement un Student depuis une session ELEVE.",
+        "app/bilan-gratuit/assessment/[id]/report/page.tsx:8 autorise pourtant PARENT.",
+        "Le seul lien vers cette page est affiché au runner élève à components/bilans/CanonicalAssessmentRunner.tsx:133 ; aucun inventaire de rapports Canonical n’est exposé au parent."
+      ],
+      "files": [
+        "components/bilans/CanonicalReportViewer.tsx",
+        "lib/bilans/api/get-status.ts",
+        "app/bilan-gratuit/assessment/[id]/report/page.tsx",
+        "components/bilans/CanonicalAssessmentRunner.tsx"
+      ],
+      "tests": [
+        "__tests__/bilans/canonical-pilot-surfaces.test.tsx",
+        "e2e/canonical-bilan-pilot.spec.ts"
+      ],
+      "blocking": "L’API directe GET /report sait autoriser un parent vérifié, mais l’interface parent ne peut ni découvrir ni suivre ce rapport.",
+      "recommendation": "Ajouter une surface parent de découverte et un statut compatible avec l’audience autorisée, sans élargir la donnée retournée."
+    },
+    {
+      "id": "BILAN-RDY-P0-005",
+      "status": "BLOQUE_HUMAIN",
+      "severity": "P0",
+      "title": "Seul un pack sur dix-sept est pédagogiquement signé",
+      "evidence": [
+        "check-pack-completeness observe 1 VALIDATED et 16 DRAFT.",
+        "Seul data/bilans/reviews/entree-seconde-maths-v1.review.yaml existe.",
+        "La résolution de production d’un CoachProfile n’est confirmée que pour le responsable Mathématiques/NSI indiqué par le demandeur."
+      ],
+      "files": [
+        "data/bilans/banks/wave1.manifest.json",
+        "data/bilans/reviews/entree-seconde-maths-v1.review.yaml"
+      ],
+      "tests": [
+        "__tests__/bilans/wave1-banks.test.ts",
+        "__tests__/bilans/review-registry.test.ts",
+        "__tests__/bilans/sign-pack.test.ts"
+      ],
+      "blocking": "Les 16 packs DRAFT sont refusés fail-closed et ne peuvent pas être activés.",
+      "recommendation": "Créer les CoachProfile qualifiés confirmés, compléter les revues disciplinaires et signer chaque version séparément."
+    },
+    {
+      "id": "BILAN-RDY-P0-006",
+      "status": "PARTIEL",
+      "severity": "P0",
+      "title": "Le temps par item est fabriqué par répartition uniforme",
+      "evidence": [
+        "lib/bilans/worker/scoring.ts:57-59 divise la durée murale totale entre tous les items.",
+        "lib/bilans/worker/scoring.ts:76-81 persiste cette valeur uniforme dans chaque ScoringAnswer.",
+        "PATCH /answers ne collecte que optionId et confidence."
+      ],
+      "files": [
+        "lib/bilans/worker/scoring.ts",
+        "lib/bilans/api/patch-answers.ts",
+        "components/bilans/CanonicalAssessmentRunner.tsx"
+      ],
+      "tests": [
+        "__tests__/bilans/canonical-worker-contract.test.ts",
+        "__tests__/components/canonical-assessment-runner.test.tsx"
+      ],
+      "blocking": "Le champ elapsedMs ne représente pas une mesure par item et ne doit pas être présenté comme tel.",
+      "recommendation": "Collecter une mesure bornée par item ou retirer cette granularité des preuves ; conserver seulement la durée globale réellement sourcée."
+    },
+    {
+      "id": "BILAN-RDY-P1-001",
+      "status": "PARTIEL",
+      "severity": "P1",
+      "title": "Le draineur est manuel, sans ordonnanceur, backoff ni plafond de retry",
+      "evidence": [
+        "scripts/bilans/drain-scoring-outbox.ts:13-20 fournit uniquement un point d’entrée manuel.",
+        "lib/bilans/worker/drain-outbox.ts:65 accepte PENDING et FAILED ; aucun backoff ou nombre maximal n’est appliqué.",
+        "Aucun script npm ne publie la commande de drainage."
+      ],
+      "files": [
+        "scripts/bilans/drain-scoring-outbox.ts",
+        "lib/bilans/worker/drain-outbox.ts",
+        "package.json"
+      ],
+      "tests": [
+        "__tests__/bilans/outbox-drainer-contract.test.ts",
+        "__tests__/integration/bilans-canonical-outbox-drainer.test.ts"
+      ],
+      "blocking": "Une soumission reste en attente sans action opérateur et les échecs peuvent être repris sans politique d’espacement.",
+      "recommendation": "Documenter/emballer la commande, ajouter métriques, backoff, plafond et mécanisme d’exploitation avant généralisation."
+    },
+    {
+      "id": "BILAN-RDY-P1-002",
+      "status": "PARTIEL",
+      "severity": "P1",
+      "title": "La commande batch CHECK_ONLY dépend d’une base reviewer",
+      "evidence": [
+        "scripts/bilans/convert-bank-batch.ts:126-141 interroge CoachProfile dès qu’un registre existe.",
+        "La commande CHECK_ONLY a échoué dans le worktree propre avec DATABASE_URL absent.",
+        "Les validations pures de collection et les 17 packs restent vertes."
+      ],
+      "files": [
+        "scripts/bilans/convert-bank-batch.ts"
+      ],
+      "tests": [
+        "__tests__/bilans/wave1-banks.test.ts",
+        "__tests__/bilans/yaml-bank-to-pack.test.ts"
+      ],
+      "blocking": "Un audit reproductible hors base ne peut pas exécuter la commande canonique complète.",
+      "recommendation": "Séparer validation statique/checksum et résolution dynamique du reviewer, avec un statut explicite plutôt qu’un échec opaque."
+    },
+    {
+      "id": "BILAN-RDY-P1-003",
+      "status": "PARTIEL",
+      "severity": "P1",
+      "title": "Le pack n’est pas figé pendant la passation",
+      "evidence": [
+        "La tentative scelle assessmentPackChecksum à la création.",
+        "GET et PATCH résolvent néanmoins le pack courant par slug/version et ne comparent pas ce checksum.",
+        "Le worker compare le checksum et échoue tardivement si le pack a changé."
+      ],
+      "files": [
+        "lib/bilans/api/create-attempt.ts",
+        "lib/bilans/api/get-attempt.ts",
+        "lib/bilans/api/patch-answers.ts",
+        "lib/bilans/worker/score-job.ts"
+      ],
+      "tests": [
+        "__tests__/api/bilans-canonical-get.route.test.ts",
+        "__tests__/integration/bilans-canonical-worker-review.test.ts"
+      ],
+      "blocking": "Une mutation in-place de même version peut changer le questionnaire servi avant d’être refusée au scoring.",
+      "recommendation": "Comparer le checksum scellé à chaque lecture/écriture ou matérialiser le DTO de passation scellé."
+    },
+    {
+      "id": "BILAN-RDY-P1-004",
+      "status": "PARTIEL",
+      "severity": "P1",
+      "title": "Le refus d’envoi du courriel d’activation n’empêche pas un succès public",
+      "evidence": [
+        "app/api/bilan-gratuit/route.ts:156-175 absorbe l’échec SMTP puis affirme qu’un lien a été envoyé.",
+        "__tests__/api/bilan-gratuit.test.ts vérifie explicitement ce comportement."
+      ],
+      "files": [
+        "app/api/bilan-gratuit/route.ts",
+        "lib/email.ts"
+      ],
+      "tests": [
+        "__tests__/api/bilan-gratuit.test.ts"
+      ],
+      "blocking": "Un parent peut recevoir une confirmation sans moyen de définir son mot de passe.",
+      "recommendation": "Conserver l’anti-énumération mais tracer et exposer un état opérationnel récupérable ou un mécanisme de renvoi vérifié."
+    },
+    {
+      "id": "BILAN-RDY-P1-005",
+      "status": "PARTIEL",
+      "severity": "P1",
+      "title": "La revue permet valider/publier ou rejeter, mais pas corriger une révision",
+      "evidence": [
+        "app/dashboard/coach/bilans/actions.ts expose uniquement validateAndPublishReportAction et rejectReportAction.",
+        "La machine à états prévoit REQUEST_REGENERATION mais aucune surface Canonical ne la raccorde."
+      ],
+      "files": [
+        "app/dashboard/coach/bilans/actions.ts",
+        "lib/bilans/core/state-machine.ts",
+        "lib/bilans/core/report-service.ts"
+      ],
+      "tests": [
+        "__tests__/bilans/staff-review-surface.test.ts",
+        "__tests__/lib/bilans/core/state-machine.test.ts"
+      ],
+      "blocking": "Une restitution à corriger doit être rejetée sans parcours de régénération contrôlé.",
+      "recommendation": "Raccorder une nouvelle révision immuable depuis la révision rejetée, sans édition de l’artefact publié."
+    },
+    {
+      "id": "BILAN-RDY-P1-006",
+      "status": "PARTIEL",
+      "severity": "P1",
+      "title": "Les rôles internes Canonical ne couvrent pas l’Assistante",
+      "evidence": [
+        "lib/bilans/staff/review-service.ts:94-98 n’accepte que COACH.",
+        "lib/bilans/api/get-report.ts autorise ADMIN ou COACH assigné pour NEXUS ; ASSISTANTE est absente."
+      ],
+      "files": [
+        "lib/bilans/staff/review-service.ts",
+        "lib/bilans/api/get-report.ts"
+      ],
+      "tests": [
+        "__tests__/bilans/staff-review-surface.test.ts",
+        "__tests__/integration/bilans-canonical-report.test.ts"
+      ],
+      "blocking": "Le périmètre Assistante demandé n’est pas défini dans le workflow Canonical.",
+      "recommendation": "Arbitrer explicitement lecture, préparation et publication pour ASSISTANTE avant d’étendre le RBAC."
+    },
+    {
+      "id": "BILAN-RDY-P1-007",
+      "status": "PARTIEL",
+      "severity": "P1",
+      "title": "Les mappings matière et niveau restent manuels à plusieurs frontières",
+      "evidence": [
+        "lib/bilans/api/create-attempt.ts:31-54 mappe manuellement Subject et GradeLevel Prisma.",
+        "lib/bilans/api/get-attempt.ts:64-75 mappe manuellement les libellés de niveau.",
+        "lib/bilans/catalog/subjects.ts, lib/bilans/render/stage-label.ts et lib/bilans/render/subject-display.ts sont des configurations explicites à maintenir."
+      ],
+      "files": [
+        "lib/bilans/api/create-attempt.ts",
+        "lib/bilans/api/get-attempt.ts",
+        "lib/bilans/catalog/subjects.ts",
+        "lib/bilans/render/stage-label.ts",
+        "lib/bilans/render/subject-display.ts",
+        "prisma/schema.prisma"
+      ],
+      "tests": [
+        "__tests__/api/bilans-canonical-create.route.test.ts",
+        "__tests__/api/bilans-canonical-get.route.test.ts",
+        "__tests__/bilans/stage-label.test.ts"
+      ],
+      "blocking": "Un nouveau niveau ou une nouvelle matière du manifeste n’est pas automatiquement exécutable sans évolution du modèle et de ces mappings.",
+      "recommendation": "Conserver les enums de persistance explicites, mais centraliser les métadonnées d’affichage et rendre les erreurs d’absence bloquantes."
+    },
+    {
+      "id": "BILAN-RDY-P1-008",
+      "status": "PARTIEL",
+      "severity": "P1",
+      "title": "Les recettes mock ne prouvent pas le contenu réel des prompts",
+      "evidence": [
+        "lib/bilans/llm/mock-transport.ts:10-63 génère des sorties codées par agent sans interpréter le texte du prompt.",
+        "Les 1 020 rapports prouvent schémas, déterminisme et V1-V7, pas l’effet rédactionnel des 85 prompts.",
+        "Une seule recette worker traverse réponses brutes -> FactSheet -> rendu, sur entree-premiere-maths-v1."
+      ],
+      "files": [
+        "lib/bilans/llm/mock-transport.ts",
+        "data/bilans/recipe/entree-premiere-maths-v1-worker-chain.json"
+      ],
+      "tests": [
+        "__tests__/bilans/mock-recipe.test.ts",
+        "__tests__/bilans/worker-recipe.test.ts"
+      ],
+      "blocking": "La qualité rédactionnelle et la cohérence des prompts ne sont pas prouvées par le mock.",
+      "recommendation": "Maintenir cette preuve structurelle, mais ne l’assimiler ni à une recette LLM ni à une validation humaine."
+    },
+    {
+      "id": "BILAN-RDY-P1-009",
+      "status": "PARTIEL",
+      "severity": "P1",
+      "title": "Le tableau de bord enfant affiche des indicateurs de démonstration codés en dur",
+      "evidence": [
+        "app/dashboard/parent/enfant/[studentId]/page.tsx:84-88 affiche NexusIndex et Top 15%.",
+        "app/dashboard/parent/enfant/[studentId]/page.tsx:99-106 injecte des scores de cohorte statiques."
+      ],
+      "files": [
+        "app/dashboard/parent/enfant/[studentId]/page.tsx"
+      ],
+      "tests": [],
+      "blocking": "Ces chiffres peuvent être confondus avec le diagnostic réel au voisinage du consentement Canonical.",
+      "recommendation": "Retirer ou étiqueter les données de démonstration avant l’ouverture aux familles."
+    },
+    {
+      "id": "BILAN-RDY-P2-001",
+      "status": "BLOQUE_HUMAIN",
+      "severity": "P2",
+      "title": "Dette documentaire des prompts",
+      "evidence": [
+        "Les 85 prompts actifs ont des exemples remplis mais conservent le titre obsolète « Exemples à compléter par le responsable pédagogique ».",
+        "content/bilans/prompts/maths-terminale-bilan-v1 contient dix véritables placeholders et reste hors manifeste.",
+        "Une occurrence « brouillon » du prompt Français Seconde est une mauvaise formulation volontaire."
+      ],
+      "files": [
+        "content/bilans/prompts",
+        "content/bilans/prompts/maths-terminale-bilan-v1"
+      ],
+      "tests": [
+        "__tests__/bilans/prompt-contract.test.ts"
+      ],
+      "blocking": "Non bloquant pour les 17 packs actifs, bloquant pour une affirmation globale PROMPTS_FINALISES=YES.",
+      "recommendation": "Traiter le répertoire historique par complétion humaine ou archivage formel dans un lot séparé."
+    },
+    {
+      "id": "BILAN-RDY-P2-002",
+      "status": "PARTIEL",
+      "severity": "P2",
+      "title": "La signature pédagogique est une liaison de checksums, pas une signature cryptographique",
+      "evidence": [
+        "Le registre versionné lie sourceChecksum, cinq promptChecksums, CoachProfile.id et horodatage.",
+        "Aucune signature asymétrique ni chaîne de confiance cryptographique n’est présente."
+      ],
+      "files": [
+        "lib/bilans/catalog/review-registry.ts",
+        "data/bilans/reviews/entree-seconde-maths-v1.review.yaml"
+      ],
+      "tests": [
+        "__tests__/bilans/review-registry.test.ts",
+        "__tests__/bilans/sign-pack.test.ts"
+      ],
+      "blocking": "Aucun blocage fonctionnel si le terme « signature » reste défini comme validation pédagogique auditée.",
+      "recommendation": "Documenter cette distinction et réserver « signature cryptographique » à un futur mécanisme dédié."
+    },
+    {
+      "id": "BILAN-RDY-P2-003",
+      "status": "PARTIEL",
+      "severity": "P2",
+      "title": "Dépendances npm avec vulnérabilités signalées lors de npm ci",
+      "evidence": [
+        "npm ci a signalé 5 vulnérabilités : 3 modérées et 2 élevées."
+      ],
+      "files": [
+        "package-lock.json",
+        "security/brace-expansion-backport-attestation.json"
+      ],
+      "tests": [
+        "__tests__/scripts/validate-brace-expansion-attestation.test.ts"
+      ],
+      "blocking": "L’impact runtime n’a pas été réévalué dans cet audit ; la CI possède une attestation bornée.",
+      "recommendation": "Suivre l’attestation et réévaluer séparément le graphe runtime avant expiration."
+    }
+  ],
+  "humanDependencies": [
+    "Relecture et signature de 16 packs par des enseignants qualifiés dans leur discipline.",
+    "Création ou confirmation des CoachProfile disciplinaires sans attribuer des disciplines à un profil non qualifié.",
+    "Relecture humaine des exemples HTML/PDF Élève, Parents, Nexus et Groupe.",
+    "Décision sur le rôle de l’Assistante dans le workflow Canonical.",
+    "Arbitrage sur la collecte du temps par item.",
+    "Complétion ou archivage formel du répertoire historique de prompts."
+  ],
+  "recommendedPlan": [
+    "P0 : rendre l’enfant initial activable et prouver parent + enfant + consentement avec identités synthétiques.",
+    "P0 : imposer l’éligibilité niveau-pack côté serveur et conserver la découverte pilotée par le manifeste.",
+    "P0 : réparer la découverte/consultation parent et le statut par audience.",
+    "P0 : supprimer la fabrication de temps par item ou collecter une mesure réelle.",
+    "P0 : construire un E2E navigateur sur base éphémère pour Maths Seconde, puis le paramétrer sur les 17 packs.",
+    "P1 : operationaliser le draineur avec commande documentée, métriques, backoff et reprise.",
+    "P1 : raccorder correction/régénération de révision et arbitrer Assistante/Admin.",
+    "Humain : signer progressivement les 16 packs restants avec leur propre CoachProfile qualifié."
+  ],
+  "definitionOfDone": {
+    "met": false,
+    "unmet": [
+      "Tous les packs actifs pédagogiquement validés et signés.",
+      "Enfant initial activable sans duplication.",
+      "Éligibilité niveau-matière vérifiée côté serveur.",
+      "Accès parent découvrable et fonctionnel.",
+      "E2E complet par entrée du manifeste.",
+      "Outbox exploitée et observable.",
+      "Mesure du temps non fabriquée.",
+      "Rôles internes arbitrés et prouvés.",
+      "Dette historique de prompts clôturée."
+    ]
+  }
+}
