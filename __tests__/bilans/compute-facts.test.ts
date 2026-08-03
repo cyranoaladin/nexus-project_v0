@@ -84,6 +84,30 @@ describe('computeRawSuccess', () => {
     expect(computeRawSuccess(item, ['A', 'A'])).toBe(0.5); // doublon ignoré
   });
 
+  it('QCM_MULTIPLE : récupère explicitement une sélection scalaire corrompue comme un choix unique', () => {
+    const item = mkItem({
+      type: 'QCM_MULTIPLE',
+      answerKey: { kind: 'QCM_MULTIPLE', correct: ['A', 'B'] },
+    });
+    expect(computeRawSuccess(item, 'A')).toBe(0.5);
+  });
+
+  it('QCM_MULTIPLE : échoue fermé à zéro si la donnée corrompue ne déclare aucune bonne option', () => {
+    const item = mkItem({
+      type: 'QCM_MULTIPLE',
+      answerKey: { kind: 'QCM_MULTIPLE', correct: [] },
+    });
+    expect(computeRawSuccess(item, ['A'])).toBe(0);
+  });
+
+  it('refuse explicitement un type de clé inconnu au lieu de retourner une valeur plausible', () => {
+    const item = mkItem({
+      type: 'QCM_SIMPLE',
+      answerKey: { kind: 'CORRUPTED' } as unknown as ScoringItem['answerKey'],
+    });
+    expect(() => computeRawSuccess(item, 'A')).toThrow('Unsupported answer key kind: CORRUPTED');
+  });
+
   it('NUMERIC : tolérance appliquée, virgule décimale acceptée', () => {
     const item = mkItem({
       type: 'NUMERIC',
@@ -251,6 +275,37 @@ describe('priorisation', () => {
       ],
     };
     expect(score(input).nodes.map((n) => n.nodeCpsId)).toEqual(['alpha', 'zeta']);
+  });
+});
+
+describe('branches défensives du moteur', () => {
+  it('retourne des agrégats nuls pour une banque vide', () => {
+    const result = score({ items: [], answers: [], targetDurationMin: 0 });
+    expect(result.globalScore).toBe(0);
+    expect(result.coverage).toBe(0);
+    expect(result.nodes).toEqual([]);
+  });
+
+  it('reste fail-closed si une difficulté nulle corrompue atteint les agrégats', () => {
+    const item = mkItem({
+      id: 'ZERO',
+      nodeCpsId: 'node.zero',
+      type: 'QCM_SIMPLE',
+      difficulty: 0 as unknown as Difficulty,
+      answerKey: { kind: 'QCM_SIMPLE', correct: 'A' },
+    });
+    const result = score({
+      items: [item],
+      answers: [{ itemId: item.id, rawAnswer: 'A', confidence: 4, elapsedMs: 60_000 }],
+      targetDurationMin: 1,
+    });
+    expect(result.globalScore).toBe(0);
+    expect(result.nodes[0]).toMatchObject({ nodeScore: 0, criticality: 1 });
+  });
+
+  it('conserve le drapeau explicite de passation partielle', () => {
+    const result = score({ ...golden.cases['mixed-realistic'].input, partial: true });
+    expect(result.flags).toContain('PASSATION_PARTIELLE');
   });
 });
 

@@ -1,0 +1,1137 @@
+{
+  "schemaVersion": "nexus-bilan-worker-recipe/v1",
+  "sourcePack": {
+    "slug": "entree-premiere-maths-v1",
+    "version": 1,
+    "checksum": "7974f87a275d5bae678de5543304eb412c34bf05520f8a7d6295cbfcd5f8fa61"
+  },
+  "pipeline": [
+    "rawAnswers",
+    "computeFacts",
+    "computeDomainScores",
+    "buildFactSheet",
+    "buildDeterministicReports"
+  ],
+  "syntheticAttempt": {
+    "partial": true,
+    "answers": [
+      {
+        "itemId": "EPR-MAT-CLI-01",
+        "selectedOptionId": "B",
+        "confidence": 4
+      },
+      {
+        "itemId": "EPR-MAT-CLI-02",
+        "selectedOptionId": "A",
+        "confidence": 1
+      },
+      {
+        "itemId": "EPR-MAT-INE-01",
+        "selectedOptionId": "A",
+        "confidence": 4
+      },
+      {
+        "itemId": "EPR-MAT-INE-02",
+        "selectedOptionId": "A",
+        "confidence": 1
+      },
+      {
+        "itemId": "EPR-MAT-FON-01",
+        "selectedOptionId": null,
+        "confidence": null
+      },
+      {
+        "itemId": "EPR-MAT-FON-02",
+        "selectedOptionId": "C",
+        "confidence": 4
+      },
+      {
+        "itemId": "EPR-MAT-REF-01",
+        "selectedOptionId": "D",
+        "confidence": 1
+      },
+      {
+        "itemId": "EPR-MAT-REF-02",
+        "selectedOptionId": "A",
+        "confidence": 4
+      },
+      {
+        "itemId": "EPR-MAT-VEC-01",
+        "selectedOptionId": "A",
+        "confidence": 1
+      },
+      {
+        "itemId": "EPR-MAT-VEC-02",
+        "selectedOptionId": null,
+        "confidence": null
+      },
+      {
+        "itemId": "EPR-MAT-DRO-01",
+        "selectedOptionId": "D",
+        "confidence": 4
+      },
+      {
+        "itemId": "EPR-MAT-DRO-02",
+        "selectedOptionId": "B",
+        "confidence": 1
+      },
+      {
+        "itemId": "EPR-MAT-PCT-01",
+        "selectedOptionId": "B",
+        "confidence": 4
+      },
+      {
+        "itemId": "EPR-MAT-PCT-02",
+        "selectedOptionId": "A",
+        "confidence": 1
+      },
+      {
+        "itemId": "EPR-MAT-PRB-01",
+        "selectedOptionId": null,
+        "confidence": null
+      },
+      {
+        "itemId": "EPR-MAT-PRB-02",
+        "selectedOptionId": "D",
+        "confidence": 4
+      },
+      {
+        "itemId": "EPR-MAT-NUM-01",
+        "selectedOptionId": "A",
+        "confidence": 1
+      },
+      {
+        "itemId": "EPR-MAT-NUM-02",
+        "selectedOptionId": "A",
+        "confidence": 4
+      }
+    ]
+  },
+  "facts": {
+    "engineVersion": "1.0.1",
+    "globalScore": 40.6,
+    "coverage": 83.3,
+    "calibrationIndex": 42.3,
+    "items": [
+      {
+        "itemId": "EPR-MAT-CLI-01",
+        "nodeCpsId": "2de.maths.calcul-litteral.identites-remarquables",
+        "weight": 1,
+        "rawSuccess": 1,
+        "isSuccess": true,
+        "isConfident": true,
+        "profile": "MAITRISE",
+        "answered": true,
+        "elapsedMs": 60000
+      },
+      {
+        "itemId": "EPR-MAT-CLI-02",
+        "nodeCpsId": "2de.maths.calcul-litteral.identites-remarquables",
+        "weight": 2,
+        "rawSuccess": 1,
+        "isSuccess": true,
+        "isConfident": false,
+        "profile": "MAITRISE_FRAGILE",
+        "answered": true,
+        "elapsedMs": 60000
+      },
+      {
+        "itemId": "EPR-MAT-INE-01",
+        "nodeCpsId": "2de.maths.inequations.resolution-premier-degre",
+        "weight": 2,
+        "rawSuccess": 0,
+        "isSuccess": false,
+        "isConfident": true,
+        "profile": "ERREUR_CONFIANTE",
+        "answered": true,
+        "elapsedMs": 60000
+      },
+      {
+        "itemId": "EPR-MAT-INE-02",
+        "nodeCpsId": "2de.maths.inequations.resolution-premier-degre",
+        "weight": 3,
+        "rawSuccess": 0,
+        "isSuccess": false,
+        "isConfident": false,
+        "profile": "LACUNE_CONSCIENTE",
+        "answered": true,
+        "elapsedMs": 85000
+      },
+      {
+        "itemId": "EPR-MAT-FON-01",
+        "nodeCpsId": "2de.maths.fonctions.image-antecedent",
+        "weight": 1,
+        "rawSuccess": 0,
+        "isSuccess": false,
+        "isConfident": false,
+        "profile": "NON_TRAITE",
+        "answered": false,
+        "elapsedMs": 0
+      },
+      {
+        "itemId": "EPR-MAT-FON-02",
+        "nodeCpsId": "2de.maths.fonctions.image-antecedent",
+        "weight": 1,
+        "rawSuccess": 1,
+        "isSuccess": true,
+        "isConfident": true,
+        "profile": "MAITRISE",
+        "answered": true,
+        "elapsedMs": 45000
+      },
+      {
+        "itemId": "EPR-MAT-REF-01",
+        "nodeCpsId": "2de.maths.fonctions-reference.variations",
+        "weight": 2,
+        "rawSuccess": 1,
+        "isSuccess": true,
+        "isConfident": false,
+        "profile": "MAITRISE_FRAGILE",
+        "answered": true,
+        "elapsedMs": 60000
+      },
+      {
+        "itemId": "EPR-MAT-REF-02",
+        "nodeCpsId": "2de.maths.fonctions-reference.variations",
+        "weight": 2,
+        "rawSuccess": 0,
+        "isSuccess": false,
+        "isConfident": true,
+        "profile": "ERREUR_CONFIANTE",
+        "answered": true,
+        "elapsedMs": 55000
+      },
+      {
+        "itemId": "EPR-MAT-VEC-01",
+        "nodeCpsId": "2de.maths.vecteurs.coordonnees",
+        "weight": 1,
+        "rawSuccess": 0,
+        "isSuccess": false,
+        "isConfident": false,
+        "profile": "LACUNE_CONSCIENTE",
+        "answered": true,
+        "elapsedMs": 55000
+      },
+      {
+        "itemId": "EPR-MAT-VEC-02",
+        "nodeCpsId": "2de.maths.vecteurs.coordonnees",
+        "weight": 2,
+        "rawSuccess": 0,
+        "isSuccess": false,
+        "isConfident": false,
+        "profile": "NON_TRAITE",
+        "answered": false,
+        "elapsedMs": 0
+      },
+      {
+        "itemId": "EPR-MAT-DRO-01",
+        "nodeCpsId": "2de.maths.droites.coefficient-directeur",
+        "weight": 2,
+        "rawSuccess": 1,
+        "isSuccess": true,
+        "isConfident": true,
+        "profile": "MAITRISE",
+        "answered": true,
+        "elapsedMs": 60000
+      },
+      {
+        "itemId": "EPR-MAT-DRO-02",
+        "nodeCpsId": "2de.maths.droites.coefficient-directeur",
+        "weight": 1,
+        "rawSuccess": 1,
+        "isSuccess": true,
+        "isConfident": false,
+        "profile": "MAITRISE_FRAGILE",
+        "answered": true,
+        "elapsedMs": 50000
+      },
+      {
+        "itemId": "EPR-MAT-PCT-01",
+        "nodeCpsId": "2de.maths.pourcentages.coefficient-multiplicateur",
+        "weight": 2,
+        "rawSuccess": 0,
+        "isSuccess": false,
+        "isConfident": true,
+        "profile": "ERREUR_CONFIANTE",
+        "answered": true,
+        "elapsedMs": 65000
+      },
+      {
+        "itemId": "EPR-MAT-PCT-02",
+        "nodeCpsId": "2de.maths.pourcentages.coefficient-multiplicateur",
+        "weight": 1,
+        "rawSuccess": 0,
+        "isSuccess": false,
+        "isConfident": false,
+        "profile": "LACUNE_CONSCIENTE",
+        "answered": true,
+        "elapsedMs": 45000
+      },
+      {
+        "itemId": "EPR-MAT-PRB-01",
+        "nodeCpsId": "2de.maths.probabilites.operations-evenements",
+        "weight": 3,
+        "rawSuccess": 0,
+        "isSuccess": false,
+        "isConfident": false,
+        "profile": "NON_TRAITE",
+        "answered": false,
+        "elapsedMs": 0
+      },
+      {
+        "itemId": "EPR-MAT-PRB-02",
+        "nodeCpsId": "2de.maths.probabilites.operations-evenements",
+        "weight": 2,
+        "rawSuccess": 1,
+        "isSuccess": true,
+        "isConfident": true,
+        "profile": "MAITRISE",
+        "answered": true,
+        "elapsedMs": 60000
+      },
+      {
+        "itemId": "EPR-MAT-NUM-01",
+        "nodeCpsId": "2de.maths.calcul-numerique.puissances-racines",
+        "weight": 2,
+        "rawSuccess": 1,
+        "isSuccess": true,
+        "isConfident": false,
+        "profile": "MAITRISE_FRAGILE",
+        "answered": true,
+        "elapsedMs": 55000
+      },
+      {
+        "itemId": "EPR-MAT-NUM-02",
+        "nodeCpsId": "2de.maths.calcul-numerique.puissances-racines",
+        "weight": 2,
+        "rawSuccess": 0,
+        "isSuccess": false,
+        "isConfident": true,
+        "profile": "ERREUR_CONFIANTE",
+        "answered": true,
+        "elapsedMs": 55000
+      }
+    ],
+    "nodes": [
+      {
+        "nodeCpsId": "2de.maths.pourcentages.coefficient-multiplicateur",
+        "criticality": 1,
+        "nodeScore": 0,
+        "profile": "ERREUR_CONFIANTE",
+        "itemIds": [
+          "EPR-MAT-PCT-01",
+          "EPR-MAT-PCT-02"
+        ],
+        "priorityRank": 0
+      },
+      {
+        "nodeCpsId": "2de.maths.calcul-numerique.puissances-racines",
+        "criticality": 1,
+        "nodeScore": 50,
+        "profile": "ERREUR_CONFIANTE",
+        "itemIds": [
+          "EPR-MAT-NUM-01",
+          "EPR-MAT-NUM-02"
+        ],
+        "priorityRank": 1
+      },
+      {
+        "nodeCpsId": "2de.maths.fonctions-reference.variations",
+        "criticality": 1,
+        "nodeScore": 50,
+        "profile": "ERREUR_CONFIANTE",
+        "itemIds": [
+          "EPR-MAT-REF-01",
+          "EPR-MAT-REF-02"
+        ],
+        "priorityRank": 2
+      },
+      {
+        "nodeCpsId": "2de.maths.inequations.resolution-premier-degre",
+        "criticality": 1,
+        "nodeScore": 0,
+        "profile": "LACUNE_CONSCIENTE",
+        "itemIds": [
+          "EPR-MAT-INE-01",
+          "EPR-MAT-INE-02"
+        ],
+        "priorityRank": 3
+      },
+      {
+        "nodeCpsId": "2de.maths.vecteurs.coordonnees",
+        "criticality": 1,
+        "nodeScore": 0,
+        "profile": "NON_TRAITE",
+        "itemIds": [
+          "EPR-MAT-VEC-01",
+          "EPR-MAT-VEC-02"
+        ],
+        "priorityRank": 4
+      },
+      {
+        "nodeCpsId": "2de.maths.probabilites.operations-evenements",
+        "criticality": 1,
+        "nodeScore": 40,
+        "profile": "NON_TRAITE",
+        "itemIds": [
+          "EPR-MAT-PRB-01",
+          "EPR-MAT-PRB-02"
+        ],
+        "priorityRank": 5
+      },
+      {
+        "nodeCpsId": "2de.maths.fonctions.image-antecedent",
+        "criticality": 1,
+        "nodeScore": 50,
+        "profile": "NON_TRAITE",
+        "itemIds": [
+          "EPR-MAT-FON-01",
+          "EPR-MAT-FON-02"
+        ],
+        "priorityRank": 6
+      },
+      {
+        "nodeCpsId": "2de.maths.calcul-litteral.identites-remarquables",
+        "criticality": 1,
+        "nodeScore": 100,
+        "profile": "MAITRISE_FRAGILE",
+        "itemIds": [
+          "EPR-MAT-CLI-01",
+          "EPR-MAT-CLI-02"
+        ],
+        "priorityRank": 7
+      },
+      {
+        "nodeCpsId": "2de.maths.droites.coefficient-directeur",
+        "criticality": 1,
+        "nodeScore": 100,
+        "profile": "MAITRISE",
+        "itemIds": [
+          "EPR-MAT-DRO-01",
+          "EPR-MAT-DRO-02"
+        ],
+        "priorityRank": 8
+      }
+    ],
+    "flags": [
+      "CALIBRATION_A_TRAVAILLER",
+      "ERREURS_CONFIANTES_MULTIPLES",
+      "PASSATION_PARTIELLE"
+    ],
+    "groupBand": "CONSOLIDATION_STANDARD"
+  },
+  "factSheet": {
+    "engineVersion": "1.0.1",
+    "bankSlug": "entree-premiere-maths-v1",
+    "bankVersion": 1,
+    "student": {
+      "alias": "ELEVE_RECETTE",
+      "level": "PREMIERE"
+    },
+    "globalScore": 40.6,
+    "coverage": 83.3,
+    "calibrationIndex": 42.3,
+    "domains": [
+      {
+        "id": "calcul-litteral",
+        "score": 100,
+        "profile": "MAITRISE_FRAGILE"
+      },
+      {
+        "id": "inequations",
+        "score": 0,
+        "profile": "LACUNE_CONSCIENTE"
+      },
+      {
+        "id": "fonctions",
+        "score": 50,
+        "profile": "NON_TRAITE"
+      },
+      {
+        "id": "fonctions-reference",
+        "score": 50,
+        "profile": "ERREUR_CONFIANTE"
+      },
+      {
+        "id": "vecteurs",
+        "score": 0,
+        "profile": "NON_TRAITE"
+      },
+      {
+        "id": "droites",
+        "score": 100,
+        "profile": "MAITRISE"
+      },
+      {
+        "id": "pourcentages",
+        "score": 0,
+        "profile": "ERREUR_CONFIANTE"
+      },
+      {
+        "id": "probabilites",
+        "score": 40,
+        "profile": "NON_TRAITE"
+      },
+      {
+        "id": "calcul-numerique",
+        "score": 50,
+        "profile": "ERREUR_CONFIANTE"
+      }
+    ],
+    "nodes": [
+      {
+        "nodeCpsId": "2de.maths.pourcentages.coefficient-multiplicateur",
+        "criticality": 1,
+        "nodeScore": 0,
+        "profile": "ERREUR_CONFIANTE",
+        "itemIds": [
+          "EPR-MAT-PCT-01",
+          "EPR-MAT-PCT-02"
+        ],
+        "priorityRank": 0
+      },
+      {
+        "nodeCpsId": "2de.maths.calcul-numerique.puissances-racines",
+        "criticality": 1,
+        "nodeScore": 50,
+        "profile": "ERREUR_CONFIANTE",
+        "itemIds": [
+          "EPR-MAT-NUM-01",
+          "EPR-MAT-NUM-02"
+        ],
+        "priorityRank": 1
+      },
+      {
+        "nodeCpsId": "2de.maths.fonctions-reference.variations",
+        "criticality": 1,
+        "nodeScore": 50,
+        "profile": "ERREUR_CONFIANTE",
+        "itemIds": [
+          "EPR-MAT-REF-01",
+          "EPR-MAT-REF-02"
+        ],
+        "priorityRank": 2
+      },
+      {
+        "nodeCpsId": "2de.maths.inequations.resolution-premier-degre",
+        "criticality": 1,
+        "nodeScore": 0,
+        "profile": "LACUNE_CONSCIENTE",
+        "itemIds": [
+          "EPR-MAT-INE-01",
+          "EPR-MAT-INE-02"
+        ],
+        "priorityRank": 3
+      },
+      {
+        "nodeCpsId": "2de.maths.vecteurs.coordonnees",
+        "criticality": 1,
+        "nodeScore": 0,
+        "profile": "NON_TRAITE",
+        "itemIds": [
+          "EPR-MAT-VEC-01",
+          "EPR-MAT-VEC-02"
+        ],
+        "priorityRank": 4
+      },
+      {
+        "nodeCpsId": "2de.maths.probabilites.operations-evenements",
+        "criticality": 1,
+        "nodeScore": 40,
+        "profile": "NON_TRAITE",
+        "itemIds": [
+          "EPR-MAT-PRB-01",
+          "EPR-MAT-PRB-02"
+        ],
+        "priorityRank": 5
+      },
+      {
+        "nodeCpsId": "2de.maths.fonctions.image-antecedent",
+        "criticality": 1,
+        "nodeScore": 50,
+        "profile": "NON_TRAITE",
+        "itemIds": [
+          "EPR-MAT-FON-01",
+          "EPR-MAT-FON-02"
+        ],
+        "priorityRank": 6
+      },
+      {
+        "nodeCpsId": "2de.maths.calcul-litteral.identites-remarquables",
+        "criticality": 1,
+        "nodeScore": 100,
+        "profile": "MAITRISE_FRAGILE",
+        "itemIds": [
+          "EPR-MAT-CLI-01",
+          "EPR-MAT-CLI-02"
+        ],
+        "priorityRank": 7
+      },
+      {
+        "nodeCpsId": "2de.maths.droites.coefficient-directeur",
+        "criticality": 1,
+        "nodeScore": 100,
+        "profile": "MAITRISE",
+        "itemIds": [
+          "EPR-MAT-DRO-01",
+          "EPR-MAT-DRO-02"
+        ],
+        "priorityRank": 8
+      }
+    ],
+    "flags": [
+      "CALIBRATION_A_TRAVAILLER",
+      "ERREURS_CONFIANTES_MULTIPLES",
+      "PASSATION_PARTIELLE"
+    ],
+    "groupBand": "CONSOLIDATION_STANDARD"
+  },
+  "reports": {
+    "ELEVE": {
+      "status": "REPORT_PENDING_REVIEW",
+      "audience": "ELEVE",
+      "templateVersion": "nexus-bilan-profile-v2",
+      "identity": {
+        "displayName": "Élève de recette",
+        "level": "PREMIERE",
+        "subject": "MATHS",
+        "date": "1970-01-01",
+        "stageLabel": "Stage de pré-rentrée — Entrée en 1re, Mathématiques"
+      },
+      "contextChecksum": "4ccc1e3ee452ac3a931ceb3ef19d54324f7ba1e5c4b3703f021caf5c8d473a4e",
+      "content": {
+        "narrative": {
+          "headline": "Ton parcours de progression",
+          "introduction": "Ce bilan distingue tes points solides et les étapes à travailler dans un ordre utile.",
+          "conclusion": "Chaque étape franchie rendra la suivante plus accessible.",
+          "strengths": [
+            "droites est un point solide sur lequel tu peux t'appuyer."
+          ],
+          "priorities": [
+            "En pourcentages, une idée qui te paraît sûre doit être revue avant de poursuivre.",
+            "En fonctions-reference, une idée qui te paraît sûre doit être revue avant de poursuivre.",
+            "En calcul-numerique, une idée qui te paraît sûre doit être revue avant de poursuivre.",
+            "Tu as déjà repéré ce qui manque en inequations : nous allons installer les repères essentiels.",
+            "calcul-litteral est compris, mais tu dois encore le consolider pour le mobiliser sans hésiter.",
+            "vecteurs n'a pas encore été évalué : un diagnostic ciblé ouvrira le travail.",
+            "probabilites n'a pas encore été évalué : un diagnostic ciblé ouvrira le travail.",
+            "fonctions n'a pas encore été évalué : un diagnostic ciblé ouvrira le travail."
+          ],
+          "actionPlan": [
+            "Séance 1 — Lever une représentation incorrecte en Mathématiques, sur pourcentages. Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur pourcentages, puis reconstruire la notion avant tout entraînement.",
+            "Séance 2 — Lever une représentation incorrecte en Mathématiques, sur fonctions-reference. Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur fonctions-reference, puis reconstruire la notion avant tout entraînement.",
+            "Séance 3 — Lever une représentation incorrecte en Mathématiques, sur calcul-numerique. Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur calcul-numerique, puis reconstruire la notion avant tout entraînement.",
+            "Séance 4 — Installer les repères indispensables en Mathématiques, sur inequations. Poser les définitions utiles en Mathématiques, montrer des exemples sur inequations, puis proposer un entraînement court et répété.",
+            "Séance 5 — Stabiliser l'acquis encore fragile en Mathématiques, sur calcul-litteral. Organiser un entraînement espacé en Mathématiques sur calcul-litteral, sans réenseigner ce qui est déjà compris.",
+            "Séance 6 — Établir le niveau réel en Mathématiques, sur vecteurs, avant de choisir une remédiation. Commencer par un test ciblé en Mathématiques sur vecteurs, puis décider du travail à engager à partir des observations.",
+            "Séance 7 — Établir le niveau réel en Mathématiques, sur probabilites, avant de choisir une remédiation. Commencer par un test ciblé en Mathématiques sur probabilites, puis décider du travail à engager à partir des observations.",
+            "Séance 8 — Établir le niveau réel en Mathématiques, sur fonctions, avant de choisir une remédiation. Commencer par un test ciblé en Mathématiques sur fonctions, puis décider du travail à engager à partir des observations."
+          ]
+        },
+        "domains": [
+          {
+            "id": "calcul-litteral",
+            "profileLabel": "fragile / à consolider",
+            "narrative": "calcul-litteral est compris, mais tu dois encore le consolider pour le mobiliser sans hésiter."
+          },
+          {
+            "id": "inequations",
+            "profileLabel": "à combler (déjà repéré)",
+            "narrative": "Tu as déjà repéré ce qui manque en inequations : nous allons installer les repères essentiels."
+          },
+          {
+            "id": "fonctions",
+            "profileLabel": "non évalué",
+            "narrative": "fonctions n'a pas encore été évalué : un diagnostic ciblé ouvrira le travail."
+          },
+          {
+            "id": "fonctions-reference",
+            "profileLabel": "sûr mais à revoir",
+            "narrative": "En fonctions-reference, une idée qui te paraît sûre doit être revue avant de poursuivre."
+          },
+          {
+            "id": "vecteurs",
+            "profileLabel": "non évalué",
+            "narrative": "vecteurs n'a pas encore été évalué : un diagnostic ciblé ouvrira le travail."
+          },
+          {
+            "id": "droites",
+            "profileLabel": "solide",
+            "narrative": "droites est un point solide sur lequel tu peux t'appuyer."
+          },
+          {
+            "id": "pourcentages",
+            "profileLabel": "sûr mais à revoir",
+            "narrative": "En pourcentages, une idée qui te paraît sûre doit être revue avant de poursuivre."
+          },
+          {
+            "id": "probabilites",
+            "profileLabel": "non évalué",
+            "narrative": "probabilites n'a pas encore été évalué : un diagnostic ciblé ouvrira le travail."
+          },
+          {
+            "id": "calcul-numerique",
+            "profileLabel": "sûr mais à revoir",
+            "narrative": "En calcul-numerique, une idée qui te paraît sûre doit être revue avant de poursuivre."
+          }
+        ],
+        "learningPath": {
+          "version": "learning-path.v1",
+          "steps": [
+            {
+              "domainId": "pourcentages",
+              "phaseDidactique": "Confronter",
+              "objectif": "Lever une représentation incorrecte en Mathématiques, sur pourcentages.",
+              "demarche": "Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur pourcentages, puis reconstruire la notion avant tout entraînement.",
+              "seanceLabel": "Séance 1",
+              "profileLabel": "sûr mais à revoir"
+            },
+            {
+              "domainId": "fonctions-reference",
+              "phaseDidactique": "Confronter",
+              "objectif": "Lever une représentation incorrecte en Mathématiques, sur fonctions-reference.",
+              "demarche": "Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur fonctions-reference, puis reconstruire la notion avant tout entraînement.",
+              "seanceLabel": "Séance 2",
+              "profileLabel": "sûr mais à revoir"
+            },
+            {
+              "domainId": "calcul-numerique",
+              "phaseDidactique": "Confronter",
+              "objectif": "Lever une représentation incorrecte en Mathématiques, sur calcul-numerique.",
+              "demarche": "Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur calcul-numerique, puis reconstruire la notion avant tout entraînement.",
+              "seanceLabel": "Séance 3",
+              "profileLabel": "sûr mais à revoir"
+            },
+            {
+              "domainId": "inequations",
+              "phaseDidactique": "Installer",
+              "objectif": "Installer les repères indispensables en Mathématiques, sur inequations.",
+              "demarche": "Poser les définitions utiles en Mathématiques, montrer des exemples sur inequations, puis proposer un entraînement court et répété.",
+              "seanceLabel": "Séance 4",
+              "profileLabel": "à combler (déjà repéré)"
+            },
+            {
+              "domainId": "calcul-litteral",
+              "phaseDidactique": "Consolider",
+              "objectif": "Stabiliser l'acquis encore fragile en Mathématiques, sur calcul-litteral.",
+              "demarche": "Organiser un entraînement espacé en Mathématiques sur calcul-litteral, sans réenseigner ce qui est déjà compris.",
+              "seanceLabel": "Séance 5",
+              "profileLabel": "fragile / à consolider"
+            },
+            {
+              "domainId": "vecteurs",
+              "phaseDidactique": "Diagnostiquer",
+              "objectif": "Établir le niveau réel en Mathématiques, sur vecteurs, avant de choisir une remédiation.",
+              "demarche": "Commencer par un test ciblé en Mathématiques sur vecteurs, puis décider du travail à engager à partir des observations.",
+              "seanceLabel": "Séance 6",
+              "profileLabel": "non évalué"
+            },
+            {
+              "domainId": "probabilites",
+              "phaseDidactique": "Diagnostiquer",
+              "objectif": "Établir le niveau réel en Mathématiques, sur probabilites, avant de choisir une remédiation.",
+              "demarche": "Commencer par un test ciblé en Mathématiques sur probabilites, puis décider du travail à engager à partir des observations.",
+              "seanceLabel": "Séance 7",
+              "profileLabel": "non évalué"
+            },
+            {
+              "domainId": "fonctions",
+              "phaseDidactique": "Diagnostiquer",
+              "objectif": "Établir le niveau réel en Mathématiques, sur fonctions, avant de choisir une remédiation.",
+              "demarche": "Commencer par un test ciblé en Mathématiques sur fonctions, puis décider du travail à engager à partir des observations.",
+              "seanceLabel": "Séance 8",
+              "profileLabel": "non évalué"
+            }
+          ]
+        }
+      }
+    },
+    "PARENTS": {
+      "status": "REPORT_PENDING_REVIEW",
+      "audience": "PARENTS",
+      "templateVersion": "nexus-bilan-profile-v2",
+      "identity": {
+        "displayName": "Élève de recette",
+        "level": "PREMIERE",
+        "subject": "MATHS",
+        "date": "1970-01-01",
+        "stageLabel": "Stage de pré-rentrée — Entrée en 1re, Mathématiques"
+      },
+      "contextChecksum": "58d6a9f917440756d7d71ec3da189bf6c8166adbcaa836487654045095ff723a",
+      "content": {
+        "narrative": {
+          "headline": "Le parcours de progression de votre enfant",
+          "introduction": "Le bilan distingue les acquis solides et organise les priorités pédagogiques du stage.",
+          "conclusion": "Ce parcours guidera le travail du stage et permettra d’en suivre les progrès.",
+          "strengths": [
+            "droites constitue un acquis solide sur lequel le parcours peut prendre appui."
+          ],
+          "priorities": [
+            "En pourcentages, un raisonnement tenu pour juste doit d'abord être confronté puis reconstruit.",
+            "En fonctions-reference, un raisonnement tenu pour juste doit d'abord être confronté puis reconstruit.",
+            "En calcul-numerique, un raisonnement tenu pour juste doit d'abord être confronté puis reconstruit.",
+            "La difficulté en inequations est déjà repérée ; le parcours installera les notions puis un entraînement court.",
+            "calcul-litteral est fragile et demande une consolidation régulière, sans reprise intégrale du cours.",
+            "vecteurs reste non évalué ; une vérification ciblée précédera toute décision pédagogique.",
+            "probabilites reste non évalué ; une vérification ciblée précédera toute décision pédagogique.",
+            "fonctions reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
+          ],
+          "actionPlan": [
+            "Séance 1 — Lever une représentation incorrecte en Mathématiques, sur pourcentages. Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur pourcentages, puis reconstruire la notion avant tout entraînement.",
+            "Séance 2 — Lever une représentation incorrecte en Mathématiques, sur fonctions-reference. Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur fonctions-reference, puis reconstruire la notion avant tout entraînement.",
+            "Séance 3 — Lever une représentation incorrecte en Mathématiques, sur calcul-numerique. Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur calcul-numerique, puis reconstruire la notion avant tout entraînement.",
+            "Séance 4 — Installer les repères indispensables en Mathématiques, sur inequations. Poser les définitions utiles en Mathématiques, montrer des exemples sur inequations, puis proposer un entraînement court et répété.",
+            "Séance 5 — Stabiliser l'acquis encore fragile en Mathématiques, sur calcul-litteral. Organiser un entraînement espacé en Mathématiques sur calcul-litteral, sans réenseigner ce qui est déjà compris.",
+            "Séance 6 — Établir le niveau réel en Mathématiques, sur vecteurs, avant de choisir une remédiation. Commencer par un test ciblé en Mathématiques sur vecteurs, puis décider du travail à engager à partir des observations.",
+            "Séance 7 — Établir le niveau réel en Mathématiques, sur probabilites, avant de choisir une remédiation. Commencer par un test ciblé en Mathématiques sur probabilites, puis décider du travail à engager à partir des observations.",
+            "Séance 8 — Établir le niveau réel en Mathématiques, sur fonctions, avant de choisir une remédiation. Commencer par un test ciblé en Mathématiques sur fonctions, puis décider du travail à engager à partir des observations."
+          ]
+        },
+        "domains": [
+          {
+            "id": "calcul-litteral",
+            "profileLabel": "fragile / à consolider",
+            "narrative": "calcul-litteral est fragile et demande une consolidation régulière, sans reprise intégrale du cours."
+          },
+          {
+            "id": "inequations",
+            "profileLabel": "à combler (déjà repéré)",
+            "narrative": "La difficulté en inequations est déjà repérée ; le parcours installera les notions puis un entraînement court."
+          },
+          {
+            "id": "fonctions",
+            "profileLabel": "non évalué",
+            "narrative": "fonctions reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
+          },
+          {
+            "id": "fonctions-reference",
+            "profileLabel": "sûr mais à revoir",
+            "narrative": "En fonctions-reference, un raisonnement tenu pour juste doit d'abord être confronté puis reconstruit."
+          },
+          {
+            "id": "vecteurs",
+            "profileLabel": "non évalué",
+            "narrative": "vecteurs reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
+          },
+          {
+            "id": "droites",
+            "profileLabel": "solide",
+            "narrative": "droites constitue un acquis solide sur lequel le parcours peut prendre appui."
+          },
+          {
+            "id": "pourcentages",
+            "profileLabel": "sûr mais à revoir",
+            "narrative": "En pourcentages, un raisonnement tenu pour juste doit d'abord être confronté puis reconstruit."
+          },
+          {
+            "id": "probabilites",
+            "profileLabel": "non évalué",
+            "narrative": "probabilites reste non évalué ; une vérification ciblée précédera toute décision pédagogique."
+          },
+          {
+            "id": "calcul-numerique",
+            "profileLabel": "sûr mais à revoir",
+            "narrative": "En calcul-numerique, un raisonnement tenu pour juste doit d'abord être confronté puis reconstruit."
+          }
+        ],
+        "learningPath": {
+          "version": "learning-path.v1",
+          "steps": [
+            {
+              "domainId": "pourcentages",
+              "phaseDidactique": "Confronter",
+              "objectif": "Lever une représentation incorrecte en Mathématiques, sur pourcentages.",
+              "demarche": "Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur pourcentages, puis reconstruire la notion avant tout entraînement.",
+              "seanceLabel": "Séance 1",
+              "profileLabel": "sûr mais à revoir"
+            },
+            {
+              "domainId": "fonctions-reference",
+              "phaseDidactique": "Confronter",
+              "objectif": "Lever une représentation incorrecte en Mathématiques, sur fonctions-reference.",
+              "demarche": "Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur fonctions-reference, puis reconstruire la notion avant tout entraînement.",
+              "seanceLabel": "Séance 2",
+              "profileLabel": "sûr mais à revoir"
+            },
+            {
+              "domainId": "calcul-numerique",
+              "phaseDidactique": "Confronter",
+              "objectif": "Lever une représentation incorrecte en Mathématiques, sur calcul-numerique.",
+              "demarche": "Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur calcul-numerique, puis reconstruire la notion avant tout entraînement.",
+              "seanceLabel": "Séance 3",
+              "profileLabel": "sûr mais à revoir"
+            },
+            {
+              "domainId": "inequations",
+              "phaseDidactique": "Installer",
+              "objectif": "Installer les repères indispensables en Mathématiques, sur inequations.",
+              "demarche": "Poser les définitions utiles en Mathématiques, montrer des exemples sur inequations, puis proposer un entraînement court et répété.",
+              "seanceLabel": "Séance 4",
+              "profileLabel": "à combler (déjà repéré)"
+            },
+            {
+              "domainId": "calcul-litteral",
+              "phaseDidactique": "Consolider",
+              "objectif": "Stabiliser l'acquis encore fragile en Mathématiques, sur calcul-litteral.",
+              "demarche": "Organiser un entraînement espacé en Mathématiques sur calcul-litteral, sans réenseigner ce qui est déjà compris.",
+              "seanceLabel": "Séance 5",
+              "profileLabel": "fragile / à consolider"
+            },
+            {
+              "domainId": "vecteurs",
+              "phaseDidactique": "Diagnostiquer",
+              "objectif": "Établir le niveau réel en Mathématiques, sur vecteurs, avant de choisir une remédiation.",
+              "demarche": "Commencer par un test ciblé en Mathématiques sur vecteurs, puis décider du travail à engager à partir des observations.",
+              "seanceLabel": "Séance 6",
+              "profileLabel": "non évalué"
+            },
+            {
+              "domainId": "probabilites",
+              "phaseDidactique": "Diagnostiquer",
+              "objectif": "Établir le niveau réel en Mathématiques, sur probabilites, avant de choisir une remédiation.",
+              "demarche": "Commencer par un test ciblé en Mathématiques sur probabilites, puis décider du travail à engager à partir des observations.",
+              "seanceLabel": "Séance 7",
+              "profileLabel": "non évalué"
+            },
+            {
+              "domainId": "fonctions",
+              "phaseDidactique": "Diagnostiquer",
+              "objectif": "Établir le niveau réel en Mathématiques, sur fonctions, avant de choisir une remédiation.",
+              "demarche": "Commencer par un test ciblé en Mathématiques sur fonctions, puis décider du travail à engager à partir des observations.",
+              "seanceLabel": "Séance 8",
+              "profileLabel": "non évalué"
+            }
+          ]
+        }
+      }
+    },
+    "NEXUS": {
+      "status": "REPORT_PENDING_REVIEW",
+      "audience": "NEXUS",
+      "templateVersion": "nexus-bilan-profile-v2",
+      "identity": {
+        "displayName": "Élève de recette",
+        "level": "PREMIERE",
+        "subject": "MATHS",
+        "date": "1970-01-01",
+        "stageLabel": "Stage de pré-rentrée — Entrée en 1re, Mathématiques"
+      },
+      "contextChecksum": "c0c8e512fc16e08d3a4437d411a533b18ee84fac5c54095c614f2be2dbcbb640",
+      "content": {
+        "narrative": {
+          "headline": "Synthèse pédagogique Nexus",
+          "introduction": "Lecture technique des profils, priorités et phases didactiques.",
+          "conclusion": "La revue humaine reste obligatoire avant publication.",
+          "strengths": [
+            "droites : maintien actif du profil MAITRISE."
+          ],
+          "priorities": [
+            "pourcentages : conflit cognitif prioritaire pour le profil ERREUR_CONFIANTE.",
+            "fonctions-reference : conflit cognitif prioritaire pour le profil ERREUR_CONFIANTE.",
+            "calcul-numerique : conflit cognitif prioritaire pour le profil ERREUR_CONFIANTE.",
+            "inequations : installation structurée du profil LACUNE_CONSCIENTE.",
+            "calcul-litteral : consolidation espacée du profil MAITRISE_FRAGILE.",
+            "vecteurs : diagnostic préalable du profil NON_TRAITE.",
+            "probabilites : diagnostic préalable du profil NON_TRAITE.",
+            "fonctions : diagnostic préalable du profil NON_TRAITE."
+          ],
+          "actionPlan": [
+            "Séance 1 — Lever une représentation incorrecte en Mathématiques, sur pourcentages. Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur pourcentages, puis reconstruire la notion avant tout entraînement.",
+            "Séance 2 — Lever une représentation incorrecte en Mathématiques, sur fonctions-reference. Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur fonctions-reference, puis reconstruire la notion avant tout entraînement.",
+            "Séance 3 — Lever une représentation incorrecte en Mathématiques, sur calcul-numerique. Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur calcul-numerique, puis reconstruire la notion avant tout entraînement.",
+            "Séance 4 — Installer les repères indispensables en Mathématiques, sur inequations. Poser les définitions utiles en Mathématiques, montrer des exemples sur inequations, puis proposer un entraînement court et répété.",
+            "Séance 5 — Stabiliser l'acquis encore fragile en Mathématiques, sur calcul-litteral. Organiser un entraînement espacé en Mathématiques sur calcul-litteral, sans réenseigner ce qui est déjà compris.",
+            "Séance 6 — Établir le niveau réel en Mathématiques, sur vecteurs, avant de choisir une remédiation. Commencer par un test ciblé en Mathématiques sur vecteurs, puis décider du travail à engager à partir des observations.",
+            "Séance 7 — Établir le niveau réel en Mathématiques, sur probabilites, avant de choisir une remédiation. Commencer par un test ciblé en Mathématiques sur probabilites, puis décider du travail à engager à partir des observations.",
+            "Séance 8 — Établir le niveau réel en Mathématiques, sur fonctions, avant de choisir une remédiation. Commencer par un test ciblé en Mathématiques sur fonctions, puis décider du travail à engager à partir des observations."
+          ]
+        },
+        "domains": [
+          {
+            "id": "calcul-litteral",
+            "profileLabel": "fragile / à consolider",
+            "profile": "MAITRISE_FRAGILE",
+            "score": 100,
+            "narrative": "calcul-litteral : consolidation espacée du profil MAITRISE_FRAGILE."
+          },
+          {
+            "id": "inequations",
+            "profileLabel": "à combler (déjà repéré)",
+            "profile": "LACUNE_CONSCIENTE",
+            "score": 0,
+            "narrative": "inequations : installation structurée du profil LACUNE_CONSCIENTE."
+          },
+          {
+            "id": "fonctions",
+            "profileLabel": "non évalué",
+            "profile": "NON_TRAITE",
+            "score": 50,
+            "narrative": "fonctions : diagnostic préalable du profil NON_TRAITE."
+          },
+          {
+            "id": "fonctions-reference",
+            "profileLabel": "sûr mais à revoir",
+            "profile": "ERREUR_CONFIANTE",
+            "score": 50,
+            "narrative": "fonctions-reference : conflit cognitif prioritaire pour le profil ERREUR_CONFIANTE."
+          },
+          {
+            "id": "vecteurs",
+            "profileLabel": "non évalué",
+            "profile": "NON_TRAITE",
+            "score": 0,
+            "narrative": "vecteurs : diagnostic préalable du profil NON_TRAITE."
+          },
+          {
+            "id": "droites",
+            "profileLabel": "solide",
+            "profile": "MAITRISE",
+            "score": 100,
+            "narrative": "droites : maintien actif du profil MAITRISE."
+          },
+          {
+            "id": "pourcentages",
+            "profileLabel": "sûr mais à revoir",
+            "profile": "ERREUR_CONFIANTE",
+            "score": 0,
+            "narrative": "pourcentages : conflit cognitif prioritaire pour le profil ERREUR_CONFIANTE."
+          },
+          {
+            "id": "probabilites",
+            "profileLabel": "non évalué",
+            "profile": "NON_TRAITE",
+            "score": 40,
+            "narrative": "probabilites : diagnostic préalable du profil NON_TRAITE."
+          },
+          {
+            "id": "calcul-numerique",
+            "profileLabel": "sûr mais à revoir",
+            "profile": "ERREUR_CONFIANTE",
+            "score": 50,
+            "narrative": "calcul-numerique : conflit cognitif prioritaire pour le profil ERREUR_CONFIANTE."
+          }
+        ],
+        "learningPath": {
+          "version": "learning-path.v1",
+          "steps": [
+            {
+              "domainId": "pourcentages",
+              "profil": "ERREUR_CONFIANTE",
+              "phaseDidactique": "Confronter",
+              "objectif": "Lever une représentation incorrecte en Mathématiques, sur pourcentages.",
+              "demarche": "Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur pourcentages, puis reconstruire la notion avant tout entraînement.",
+              "seanceLabel": "Séance 1",
+              "score": 0
+            },
+            {
+              "domainId": "fonctions-reference",
+              "profil": "ERREUR_CONFIANTE",
+              "phaseDidactique": "Confronter",
+              "objectif": "Lever une représentation incorrecte en Mathématiques, sur fonctions-reference.",
+              "demarche": "Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur fonctions-reference, puis reconstruire la notion avant tout entraînement.",
+              "seanceLabel": "Séance 2",
+              "score": 50
+            },
+            {
+              "domainId": "calcul-numerique",
+              "profil": "ERREUR_CONFIANTE",
+              "phaseDidactique": "Confronter",
+              "objectif": "Lever une représentation incorrecte en Mathématiques, sur calcul-numerique.",
+              "demarche": "Créer un conflit cognitif en Mathématiques, faire verbaliser le raisonnement sur calcul-numerique, puis reconstruire la notion avant tout entraînement.",
+              "seanceLabel": "Séance 3",
+              "score": 50
+            },
+            {
+              "domainId": "inequations",
+              "profil": "LACUNE_CONSCIENTE",
+              "phaseDidactique": "Installer",
+              "objectif": "Installer les repères indispensables en Mathématiques, sur inequations.",
+              "demarche": "Poser les définitions utiles en Mathématiques, montrer des exemples sur inequations, puis proposer un entraînement court et répété.",
+              "seanceLabel": "Séance 4",
+              "score": 0
+            },
+            {
+              "domainId": "calcul-litteral",
+              "profil": "MAITRISE_FRAGILE",
+              "phaseDidactique": "Consolider",
+              "objectif": "Stabiliser l'acquis encore fragile en Mathématiques, sur calcul-litteral.",
+              "demarche": "Organiser un entraînement espacé en Mathématiques sur calcul-litteral, sans réenseigner ce qui est déjà compris.",
+              "seanceLabel": "Séance 5",
+              "score": 100
+            },
+            {
+              "domainId": "vecteurs",
+              "profil": "NON_TRAITE",
+              "phaseDidactique": "Diagnostiquer",
+              "objectif": "Établir le niveau réel en Mathématiques, sur vecteurs, avant de choisir une remédiation.",
+              "demarche": "Commencer par un test ciblé en Mathématiques sur vecteurs, puis décider du travail à engager à partir des observations.",
+              "seanceLabel": "Séance 6",
+              "score": 0
+            },
+            {
+              "domainId": "probabilites",
+              "profil": "NON_TRAITE",
+              "phaseDidactique": "Diagnostiquer",
+              "objectif": "Établir le niveau réel en Mathématiques, sur probabilites, avant de choisir une remédiation.",
+              "demarche": "Commencer par un test ciblé en Mathématiques sur probabilites, puis décider du travail à engager à partir des observations.",
+              "seanceLabel": "Séance 7",
+              "score": 40
+            },
+            {
+              "domainId": "fonctions",
+              "profil": "NON_TRAITE",
+              "phaseDidactique": "Diagnostiquer",
+              "objectif": "Établir le niveau réel en Mathématiques, sur fonctions, avant de choisir une remédiation.",
+              "demarche": "Commencer par un test ciblé en Mathématiques sur fonctions, puis décider du travail à engager à partir des observations.",
+              "seanceLabel": "Séance 8",
+              "score": 50
+            }
+          ]
+        },
+        "internalFacts": {
+          "globalScore": 40.6,
+          "coverage": 83.3,
+          "calibrationIndex": 42.3,
+          "domainScores": [
+            {
+              "id": "calcul-litteral",
+              "score": 100
+            },
+            {
+              "id": "inequations",
+              "score": 0
+            },
+            {
+              "id": "fonctions",
+              "score": 50
+            },
+            {
+              "id": "fonctions-reference",
+              "score": 50
+            },
+            {
+              "id": "vecteurs",
+              "score": 0
+            },
+            {
+              "id": "droites",
+              "score": 100
+            },
+            {
+              "id": "pourcentages",
+              "score": 0
+            },
+            {
+              "id": "probabilites",
+              "score": 40
+            },
+            {
+              "id": "calcul-numerique",
+              "score": 50
+            }
+          ]
+        }
+      }
+    }
+  }
+}

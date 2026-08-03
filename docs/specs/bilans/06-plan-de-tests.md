@@ -4,13 +4,13 @@ Outils existants : Jest 29 (unitaire, intégration), Playwright 1.58 (e2e),
 GitHub Actions (7 jobs : lint, typecheck, unit, integration, e2e, security, build).
 Aucun nouvel outil n'est introduit.
 
-## §1. Unitaire — `lib/positionnement/scoring.ts`
+## §1. Unitaire — `lib/bilans/facts/compute-facts.ts`
 
 Cible : **100 % de branches** sur ce fichier. C'est le seul fichier du chantier soumis à ce niveau.
 
 ### 1.1 Cas dorés
 
-`tests/positionnement/fixtures/golden-cases.json` : 6 cas entrée→sortie complets.
+`__tests__/bilans/fixtures/golden-cases.json` : 6 cas entrée→sortie complets.
 
 | Cas | Objet |
 |---|---|
@@ -90,6 +90,18 @@ aucune séquence numérique interprétable comme un score (`\d{1,3}\s*(%|\/\s*20
 - `typecheck` : exécuter `scripts/positionnement/compile-bank.ts` **avant**, en mode strict
 - `security` : ajouter la vérification statique d'absence d'import réseau dans `lib/positionnement/**`
 - `e2e` : ajouter le projet Playwright `positionnement`
+
+### 5.1 Recette de scoring bout en bout
+
+La preuve versionnée
+`data/bilans/recipe/entree-premiere-maths-v1-worker-chain.json` part de réponses
+synthétiques brutes. Elle traverse successivement `computeFacts`, `computeDomainScores`,
+`buildFactSheet` et le rendu déterministe des trois audiences. Elle couvre les quatre
+profils traités, `NON_TRAITE` et une couverture partielle.
+
+Cette preuve complète les recettes mock fondées sur des FactSheets synthétiques : ces
+dernières prouvent le rendu et V1 à V7, mais ne peuvent pas détecter une régression dans
+la transformation des réponses en scores.
 
 ## §6. Critères de sortie du chantier
 
