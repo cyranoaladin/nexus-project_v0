@@ -83,8 +83,54 @@ const scanAllowlist: Array<{ file: string; reason: string }> = [
   { file: 'lib/group-rules.ts', reason: 'canonical GROUP_RULES client mirror' },
 ];
 
+function excludeExplicitPedagogicalCounterExamples(file: string, source: string): string {
+  if (!file.startsWith('content/bilans/prompts/')) return source;
+
+  let fence: { marker: '`' | '~'; length: number } | null = null;
+  let excludedHeadingLevel: number | null = null;
+
+  return source
+    .split('\n')
+    .map((line) => {
+      const fenceMatch = (fence === null
+        ? /^ {0,3}(`{3,}|~{3,})[^\r\n]*$/u
+        : /^ {0,3}(`{3,}|~{3,})[\t ]*$/u
+      ).exec(line);
+      if (fenceMatch) {
+        const marker = fenceMatch[1][0] as '`' | '~';
+        const length = fenceMatch[1].length;
+        if (fence === null) {
+          fence = { marker, length };
+        } else if (fence.marker === marker && length >= fence.length) {
+          fence = null;
+        }
+        return excludedHeadingLevel === null ? line : '';
+      }
+
+      if (fence === null) {
+        const heading = /^(#{1,6})\s+(.+?)\s*$/u.exec(line);
+        if (heading) {
+          const level = heading[1].length;
+          if (excludedHeadingLevel !== null && level <= excludedHeadingLevel) {
+            excludedHeadingLevel = null;
+          }
+          if (level === 3 && heading[2] === 'Mauvaise formulation') {
+            excludedHeadingLevel = level;
+            return '';
+          }
+        }
+      }
+
+      return excludedHeadingLevel === null ? line : '';
+    })
+    .join('\n');
+}
+
 function sourceFor(file: string): string {
-  return readFileSync(join(root, file), 'utf8');
+  return excludeExplicitPedagogicalCounterExamples(
+    file,
+    readFileSync(join(root, file), 'utf8'),
+  );
 }
 
 function listScannedFiles(target: string): string[] {
@@ -122,6 +168,64 @@ function matchingFiles(patterns: RegExp[]): string[] {
 }
 
 describe('Lot 1 T1.2 brand trust guardrails', () => {
+  test('ignores only explicitly labelled pedagogical counter-examples', () => {
+    const counterExample = [
+      '# Prompt',
+      'Texte autorisé.',
+      '### Mauvaise formulation',
+      'Nous garantissons une remise à niveau.',
+    ].join('\n');
+    const unlabelledClaim = '# Prompt\nNous garantissons une remise à niveau.';
+    const claimAfterSection = [
+      '# Prompt',
+      '### Mauvaise formulation',
+      'Nous garantissons une remise à niveau.',
+      '## Règle suivante',
+      'Nous garantissons aussi un résultat.',
+    ].join('\n');
+    const headingInsideFence = [
+      '# Prompt',
+      '```md',
+      '### Mauvaise formulation',
+      '```',
+      'Nous garantissons une remise à niveau.',
+    ].join('\n');
+    const wrongHeadingLevel = '# Mauvaise formulation\nNous garantissons une remise à niveau.';
+    const mixedFenceMarkers = [
+      '# Prompt',
+      '````md',
+      '~~~',
+      '### Mauvaise formulation',
+      '````',
+      'Nous garantissons une remise à niveau.',
+    ].join('\n');
+    const falseClosingFence = [
+      '# Prompt',
+      '````md',
+      '````not-a-closing-fence',
+      '### Mauvaise formulation',
+      '````',
+      'Nous garantissons une remise à niveau.',
+    ].join('\n');
+
+    expect(excludeExplicitPedagogicalCounterExamples('content/bilans/prompts/test/parents.md', counterExample))
+      .not.toMatch(/Nous garantissons/i);
+    expect(excludeExplicitPedagogicalCounterExamples('content/bilans/prompts/test/parents.md', unlabelledClaim))
+      .toMatch(/Nous garantissons/i);
+    expect(excludeExplicitPedagogicalCounterExamples('app/page.tsx', counterExample))
+      .toMatch(/Nous garantissons/i);
+    expect(excludeExplicitPedagogicalCounterExamples('content/bilans/prompts/test/parents.md', claimAfterSection))
+      .toMatch(/Nous garantissons aussi/i);
+    expect(excludeExplicitPedagogicalCounterExamples('content/bilans/prompts/test/parents.md', headingInsideFence))
+      .toMatch(/Nous garantissons/i);
+    expect(excludeExplicitPedagogicalCounterExamples('content/bilans/prompts/test/parents.md', wrongHeadingLevel))
+      .toMatch(/Nous garantissons/i);
+    expect(excludeExplicitPedagogicalCounterExamples('content/bilans/prompts/test/parents.md', mixedFenceMarkers))
+      .toMatch(/Nous garantissons/i);
+    expect(excludeExplicitPedagogicalCounterExamples('content/bilans/prompts/test/parents.md', falseClosingFence))
+      .toMatch(/Nous garantissons/i);
+  });
+
   test('recursive scan does not expose result guarantees or aggressive claims outside the documented allowlist', () => {
     expect(matchingFiles(forbiddenTrustClaims)).toEqual([]);
   });

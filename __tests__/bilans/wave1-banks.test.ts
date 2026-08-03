@@ -60,7 +60,7 @@ describe('wave 1 active banks', () => {
     expect([...experts].filter((nodeId) => mathematics.has(nodeId))).toEqual([]);
   });
 
-  it.each(ACTIVE)('$entry.slug satisfies V1-V14 and remains an unsigned DRAFT', ({ entry, bank, catalog }) => {
+  it.each(ACTIVE)('$entry.slug satisfies V1-V14 and preserves its review state', ({ entry, bank, catalog }) => {
     expect(bank.items).toHaveLength(18);
     expect(new Set(bank.items.map(({ nodeCpsId }) => nodeCpsId)).size).toBe(9);
     expect(Object.hasOwn(bank, 'review')).toBe(false);
@@ -71,8 +71,14 @@ describe('wave 1 active banks', () => {
     expect([...catalog.nodes].sort((left, right) => left.sequenceOrder - right.sequenceOrder).map(({ id }) => id)).toEqual([...new Set(bank.items.map(({ nodeCpsId }) => nodeCpsId))]);
 
     const pack = loadBilanPack(entry.output);
-    expect(pack.status).toBe('DRAFT');
-    expect(pack.review).toEqual({ validatedBy: null, validatedAt: null });
+    const isSignedPilot = entry.slug === 'entree-seconde-maths-v1';
+    expect(pack.status).toBe(isSignedPilot ? 'VALIDATED' : 'DRAFT');
+    if (isSignedPilot) {
+      expect(pack.review.validatedBy).not.toBeNull();
+      expect(pack.review.validatedAt).not.toBeNull();
+    } else {
+      expect(pack.review).toEqual({ validatedBy: null, validatedAt: null });
+    }
     expect(pack.reporting.rag.enabled).toBe(false);
     expect(isPackEnabled(pack, {})).toBe(false);
     for (const reference of Object.values(pack.reporting.promptFiles)) {
@@ -162,9 +168,13 @@ describe('wave 1 active banks', () => {
     const rows = buildDashboard(MANIFEST_PATH);
     expect(rows.filter(({ kind }) => kind === 'ACTIVE')).toHaveLength(17);
     expect(rows.filter(({ kind }) => kind === 'HISTORIQUE')).toHaveLength(2);
-    expect(rows.filter(({ kind }) => kind === 'ACTIVE').every(({ complete, total, nodes, status, signature, anomalies }) =>
-      complete === 18 && total === 18 && nodes === 9 && status === 'DRAFT'
-      && signature === 'NON_SIGNE' && anomalies.length === 0)).toBe(true);
+    expect(rows.filter(({ kind }) => kind === 'ACTIVE').every(({ slug, complete, total, nodes, status, signature, anomalies }) => {
+      const isSignedPilot = slug === 'entree-seconde-maths-v1';
+      return complete === 18 && total === 18 && nodes === 9
+        && status === (isSignedPilot ? 'VALIDATED' : 'DRAFT')
+        && signature === (isSignedPilot ? 'SIGNE' : 'NON_SIGNE')
+        && anomalies.length === 0;
+    })).toBe(true);
     const command = spawnSync(path.join(process.cwd(), 'node_modules/.bin/tsx'), [
       'scripts/bilans/check-pack-completeness.ts', '--all', '--manifest', MANIFEST_PATH,
     ], { cwd: process.cwd(), encoding: 'utf8' });
