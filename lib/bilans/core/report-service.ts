@@ -2,8 +2,14 @@ import type { Prisma, PrismaClient } from '@prisma/client';
 
 import { getLegalTransition } from './state-machine';
 import type { LifecycleActor, LifecycleStatus, TransitionAction } from './types';
+import {
+  parseReportRenderContext,
+  prepareCoachPreview,
+  prepareReportMaterialization,
+  type PublicationRenderer,
+} from './report-materialization';
 
-type ReportDatabase = Pick<PrismaClient, '$transaction'>;
+type ReportDatabase = Pick<PrismaClient, '$transaction' | 'reportRevision'>;
 
 export class BilanReportServiceError extends Error {
   constructor(readonly code: string) {
@@ -167,7 +173,51 @@ export async function publishReportRevision(input: Readonly<{
   revisionId: string;
   coachId: string;
   publishedAt: Date;
+  renderAudience?: PublicationRenderer;
 }>) {
+  const candidate = await input.prisma.reportRevision.findUnique({
+    where: { id: input.revisionId },
+    select: {
+      id: true,
+      status: true,
+      validationFailures: true,
+      content: true,
+      materialization: { select: { id: true } },
+      scoreSnapshot: { select: { result: true } },
+      reviews: {
+        where: { coachId: input.coachId, decision: 'APPROVED' },
+        select: { id: true },
+        take: 1,
+      },
+      reportArtifact: {
+        select: {
+          id: true,
+          status: true,
+          assessmentAttemptId: true,
+          assessmentAttempt: { select: { status: true } },
+        },
+      },
+    },
+  });
+  if (candidate === null || candidate.status !== 'COACH_VALIDATED') {
+    throw new BilanReportServiceError('REPORT_NOT_COACH_VALIDATED');
+  }
+  if (candidate.validationFailures.length > 0) {
+    throw new BilanReportServiceError('REPORT_VALIDATION_FAILURES');
+  }
+  if (candidate.materialization !== null) throw new BilanReportServiceError('REPORT_ALREADY_MATERIALIZED');
+  if (
+    candidate.reportArtifact.status !== 'PENDING_REVIEW'
+    || candidate.reportArtifact.assessmentAttempt.status !== 'COACH_VALIDATED'
+  ) throw new BilanReportServiceError('REPORT_CONCURRENT_PUBLICATION');
+  if (candidate.reviews.length !== 1) throw new BilanReportServiceError('REPORT_APPROVED_REVIEW_REQUIRED');
+
+  // Chromium and all other rendering happen before opening the final, short transaction.
+  const prepared = await prepareReportMaterialization(
+    parseReportRenderContext(candidate.scoreSnapshot.result, candidate.content),
+    input.renderAudience,
+  );
+
   return input.prisma.$transaction(async (transaction) => {
     const revision = await transaction.reportRevision.findUnique({
       where: { id: input.revisionId },
@@ -175,7 +225,15 @@ export async function publishReportRevision(input: Readonly<{
         id: true,
         status: true,
         validationFailures: true,
-        reportArtifact: { select: { id: true, assessmentAttemptId: true, status: true } },
+        materialization: { select: { id: true } },
+        reportArtifact: {
+          select: {
+            id: true,
+            assessmentAttemptId: true,
+            status: true,
+            assessmentAttempt: { select: { status: true } },
+          },
+        },
       },
     });
     if (revision === null || revision.status !== 'COACH_VALIDATED') {
@@ -184,25 +242,78 @@ export async function publishReportRevision(input: Readonly<{
     if (revision.validationFailures.length > 0) {
       throw new BilanReportServiceError('REPORT_VALIDATION_FAILURES');
     }
+    if (revision.materialization !== null) throw new BilanReportServiceError('REPORT_ALREADY_MATERIALIZED');
+    if (
+      revision.reportArtifact.status !== 'PENDING_REVIEW'
+      || revision.reportArtifact.assessmentAttempt.status !== 'COACH_VALIDATED'
+    ) throw new BilanReportServiceError('REPORT_CONCURRENT_PUBLICATION');
     const approvedReview = await transaction.reportReview.findFirst({
       where: { reportRevisionId: revision.id, coachId: input.coachId, decision: 'APPROVED' },
       select: { id: true },
     });
     if (approvedReview === null) throw new BilanReportServiceError('REPORT_APPROVED_REVIEW_REQUIRED');
-    const artifact = await transaction.reportArtifact.update({
-      where: { id: revision.reportArtifact.id },
+    const materialization = await transaction.reportMaterialization.create({
+      data: {
+        revisionId: revision.id,
+        brandVersion: prepared.brandVersion,
+        globalChecksum: prepared.globalChecksum,
+        materializedAt: input.publishedAt,
+        audienceArtifacts: {
+          create: prepared.audiences.map((audience) => ({
+            audience: audience.audience,
+            html: audience.html,
+            pdf: audience.pdf === null ? null : Uint8Array.from(audience.pdf),
+            pdfStatus: audience.pdfStatus,
+            checksum: audience.checksum,
+          })),
+        },
+      },
+    });
+    const artifact = await transaction.reportArtifact.updateMany({
+      where: {
+        id: revision.reportArtifact.id,
+        status: 'PENDING_REVIEW',
+        currentPublishedRevisionId: null,
+      },
       data: {
         status: 'PUBLISHED',
         currentPublishedRevisionId: revision.id,
         publishedAt: input.publishedAt,
       },
     });
+    if (artifact.count !== 1) throw new BilanReportServiceError('REPORT_CONCURRENT_PUBLICATION');
     await advanceAttemptLifecycle(transaction, {
       attemptId: revision.reportArtifact.assessmentAttemptId,
       from: 'COACH_VALIDATED',
       action: 'PUBLISH_REPORT',
       actor: 'COACH',
     });
-    return Object.freeze({ revisionId: revision.id, artifactId: artifact.id, status: 'PUBLISHED' as const });
+    return Object.freeze({
+      revisionId: revision.id,
+      artifactId: revision.reportArtifact.id,
+      materializationId: materialization.id,
+      status: 'PUBLISHED' as const,
+    });
   });
+}
+
+export async function previewReportRevision(input: Readonly<{
+  prisma: Pick<PrismaClient, 'reportRevision'>;
+  revisionId: string;
+}>) {
+  const revision = await input.prisma.reportRevision.findUnique({
+    where: { id: input.revisionId },
+    select: {
+      status: true,
+      validationFailures: true,
+      content: true,
+      scoreSnapshot: { select: { result: true } },
+    },
+  });
+  if (
+    revision === null
+    || !['PENDING_REVIEW', 'COACH_VALIDATED'].includes(revision.status)
+    || revision.validationFailures.length > 0
+  ) throw new BilanReportServiceError('REPORT_PREVIEW_UNAVAILABLE');
+  return prepareCoachPreview(parseReportRenderContext(revision.scoreSnapshot.result, revision.content));
 }

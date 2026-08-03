@@ -1,0 +1,70 @@
+import {
+  audienceArtifactChecksum,
+  prepareCoachPreview,
+  prepareReportMaterialization,
+  storedAudienceArtifactIsIntact,
+} from '@/lib/bilans/core/report-materialization';
+import { renderDeterministicBilanHtml } from '@/lib/bilans/render/html';
+import { BILAN_PDF_ENGINE_VERSION } from '@/lib/bilans/render/pdf';
+import type { RenderIdentity } from '@/lib/bilans/render/render-identity';
+import { ENTRY_RECIPE_FACT_SHEETS } from '@/__tests__/bilans/fixtures/recipe-fact-sheets';
+
+const factSheet = ENTRY_RECIPE_FACT_SHEETS[0];
+const identity: RenderIdentity = {
+  displayName: factSheet.student.alias,
+  level: factSheet.student.level,
+  subject: 'MATHS',
+  date: '2026-08-03',
+  stageLabel: 'Stage de pré-rentrée — Entrée en Terminale, Mathématiques',
+};
+
+const readyRenderer = async (
+  sheet: typeof factSheet,
+  audience: 'ELEVE' | 'PARENTS' | 'NEXUS',
+  renderIdentity: RenderIdentity,
+) => ({
+  status: 'AVAILABLE' as const,
+  html: renderDeterministicBilanHtml(sheet, audience, renderIdentity),
+  pdf: Buffer.from(`%PDF-1.4 ${audience}`),
+  engineVersion: BILAN_PDF_ENGINE_VERSION,
+});
+
+describe('A90.3 report materialization preparation', () => {
+  test('renders all audiences deterministically with integrity checksums', async () => {
+    const first = await prepareReportMaterialization({ factSheet, identity }, readyRenderer);
+    const second = await prepareReportMaterialization({ factSheet, identity }, readyRenderer);
+    expect(first).toEqual(second);
+    expect(first.audiences.map(({ audience }) => audience)).toEqual(['ELEVE', 'PARENTS', 'NEXUS']);
+    expect(first.audiences.every((artifact) => storedAudienceArtifactIsIntact(artifact))).toBe(true);
+  });
+
+  test('keeps HTML publishable when Chromium is unavailable', async () => {
+    const prepared = await prepareReportMaterialization({ factSheet, identity }, async (sheet, audience, renderIdentity) => ({
+      status: 'UNAVAILABLE' as const,
+      html: renderDeterministicBilanHtml(sheet, audience, renderIdentity),
+      errorCode: 'BILAN_PDF_RENDER_FAILED' as const,
+      engineVersion: BILAN_PDF_ENGINE_VERSION,
+    }));
+    expect(prepared.audiences.every(({ pdfStatus, pdf }) => pdfStatus === 'UNAVAILABLE' && pdf === null)).toBe(true);
+  });
+
+  test('fails before persistence when HTML rendering fails', async () => {
+    await expect(prepareReportMaterialization({ factSheet, identity }, async () => {
+      throw new Error('HTML_FAILED');
+    })).rejects.toMatchObject({ code: 'REPORT_HTML_RENDER_FAILED' });
+  });
+
+  test('detects any stored content mutation', () => {
+    const input = { audience: 'ELEVE' as const, html: '<p>Solide</p>', pdfStatus: 'UNAVAILABLE' as const, pdf: null };
+    const checksum = audienceArtifactChecksum(input);
+    expect(storedAudienceArtifactIsIntact({ ...input, checksum })).toBe(true);
+    expect(storedAudienceArtifactIsIntact({ ...input, html: '<p>Altéré</p>', checksum })).toBe(false);
+  });
+
+  test('coach preview is explicitly unofficial and contains no persistence operation', () => {
+    const preview = prepareCoachPreview({ factSheet, identity });
+    expect(preview.official).toBe(false);
+    expect(preview.label).toContain('NON OFFICIELLE');
+    expect(preview.audiences).toHaveLength(3);
+  });
+});
