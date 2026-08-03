@@ -173,8 +173,12 @@ function ActivateForm() {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-lux-on-dark-muted mb-1">Email</label>
+              <label htmlFor="student-login-identifier" className="block text-sm font-medium text-lux-on-dark-muted mb-1">
+                Identifiant de connexion
+              </label>
               <input
+                id="student-login-identifier"
+                name="loginIdentifier"
                 type="email"
                 value={email}
                 disabled
@@ -183,8 +187,10 @@ function ActivateForm() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-lux-on-dark-muted mb-1">Mot de passe</label>
+              <label htmlFor="student-password" className="block text-sm font-medium text-lux-on-dark-muted mb-1">Mot de passe</label>
               <input
+                id="student-password"
+                name="password"
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -192,12 +198,15 @@ function ActivateForm() {
                 className="w-full px-3 py-2 bg-white/5 border border-lux-line/40 rounded-lg text-lux-ivory placeholder:text-lux-on-dark-subtle focus:border-lux-gold focus:outline-none"
                 minLength={8}
                 required
+                aria-describedby={error ? 'activation-error' : undefined}
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-lux-on-dark-muted mb-1">Confirmer le mot de passe</label>
+              <label htmlFor="student-password-confirmation" className="block text-sm font-medium text-lux-on-dark-muted mb-1">Confirmer le mot de passe</label>
               <input
+                id="student-password-confirmation"
+                name="passwordConfirmation"
                 type="password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
@@ -205,11 +214,17 @@ function ActivateForm() {
                 className="w-full px-3 py-2 bg-white/5 border border-lux-line/40 rounded-lg text-lux-ivory placeholder:text-lux-on-dark-subtle focus:border-lux-gold focus:outline-none"
                 minLength={8}
                 required
+                aria-describedby={error ? 'activation-error' : undefined}
               />
             </div>
 
             {error && (
-              <div className="p-3 bg-rose-500/10 border border-rose-500/20 rounded-lg">
+              <div
+                id="activation-error"
+                role="alert"
+                aria-live="assertive"
+                className="p-3 bg-rose-500/10 border border-rose-500/20 rounded-lg"
+              >
                 <p className="text-sm text-rose-300">{error}</p>
               </div>
             )}

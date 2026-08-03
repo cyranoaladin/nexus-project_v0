@@ -3,6 +3,7 @@ jest.mock('@/lib/prisma', () => ({
     user: {
       findFirst: jest.fn(),
       update: jest.fn(),
+      updateMany: jest.fn(),
       create: jest.fn(),
     },
     stageReservation: {
@@ -55,18 +56,50 @@ describe('student activation token lifecycle security', () => {
       activatedAt: null,
       student: { id: 'student-1' },
     });
-    (prisma.user.update as jest.Mock).mockResolvedValue({});
+    (prisma.user.updateMany as jest.Mock).mockResolvedValue({ count: 1 });
 
     const result = await completeStudentActivation('act_valid_token', 'securePass123');
 
     expect(result.success).toBe(true);
-    expect(prisma.user.update).toHaveBeenCalledWith({
-      where: { id: 'user-1' },
+    expect(prisma.user.updateMany).toHaveBeenCalledWith({
+      where: expect.objectContaining({
+        id: 'user-1',
+        activationToken: sha256('act_valid_token'),
+        activatedAt: null,
+      }),
       data: expect.objectContaining({
         activationToken: null,
         activationExpiry: null,
         activatedAt: expect.any(Date),
       }),
     });
+  });
+
+  it('allows exactly one winner when the same token is consumed concurrently', async () => {
+    const pendingUser = {
+      id: 'user-1',
+      firstName: 'Nour',
+      lastName: 'Test',
+      email: 'nour@example.com',
+      activatedAt: null,
+      student: { id: 'student-1' },
+    };
+    (prisma.user.findFirst as jest.Mock)
+      .mockResolvedValueOnce(pendingUser)
+      .mockResolvedValueOnce(pendingUser);
+    (prisma.user.updateMany as jest.Mock)
+      .mockResolvedValueOnce({ count: 1 })
+      .mockResolvedValueOnce({ count: 0 });
+    (prisma.stageReservation.findFirst as jest.Mock).mockResolvedValue(null);
+
+    const results = await Promise.all([
+      completeStudentActivation('act_same_token', 'securePass123'),
+      completeStudentActivation('act_same_token', 'securePass123'),
+    ]);
+
+    expect(results.filter((result) => result.success)).toHaveLength(1);
+    expect(results.filter((result) => !result.success)).toEqual([
+      { success: false, error: "Lien d'activation invalide ou expiré" },
+    ]);
   });
 });

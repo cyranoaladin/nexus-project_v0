@@ -134,19 +134,25 @@ describe('parent children routes', () => {
       expect(body.error).toBe('Invalid child payload');
     });
 
-    it('rejects existing child email', async () => {
+    it('maps the database uniqueness authority to a stable conflict without partial response', async () => {
       (auth as jest.Mock).mockResolvedValue({
-        user: { id: 'parent-1', role: 'PARENT' },
+        user: { id: 'parent-1', email: 'parent@test.com', role: 'PARENT' },
       });
-      (prisma.user.findUnique as jest.Mock).mockResolvedValue({ id: 'user-1' });
+      (prisma.user.findUnique as jest.Mock).mockResolvedValue(null);
+      (prisma.parentProfile.findUnique as jest.Mock).mockResolvedValue({ id: 'parent-profile-1' });
+      (prisma.$transaction as jest.Mock).mockRejectedValue(Object.assign(
+        new Error('unique email collision'),
+        { code: 'P2002', meta: { target: ['email'] } },
+      ));
 
       const response = await POST(
         makeRequest({ firstName: 'A', lastName: 'B', grade: 'Seconde' })
       );
       const body = await response.json();
 
-      expect(response.status).toBe(400);
-      expect(body.error).toContain('existe');
+      expect(response.status).toBe(409);
+      expect(body.error).toBe('STUDENT_LOGIN_IDENTIFIER_CONFLICT');
+      expect(sendMail).not.toHaveBeenCalled();
     });
 
     it('returns 404 when parent profile missing', async () => {

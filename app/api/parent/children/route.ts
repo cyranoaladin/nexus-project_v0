@@ -12,6 +12,11 @@ import crypto from 'crypto';
 import { parseJsonBody } from '@/lib/api/helpers';
 import { z } from 'zod';
 import { withParentStudentConsentTransaction } from '@/lib/bilans/parent-student-consent';
+import {
+  buildStudentLoginIdentifier,
+  isStudentLoginIdentifierConflict,
+} from '@/lib/services/student-login-identifier';
+import { createId } from '@paralleldrive/cuid2';
 
 /** Strip CR/LF from SMTP header values to prevent header injection. */
 function sanitizeHeader(str: string): string {
@@ -138,19 +143,11 @@ export async function POST(request: NextRequest) {
     const { firstName, lastName, grade, school } = parsedBody.data;
 
     // Generate email in the same format as bilan-gratuit
-    const email = `${firstName.toLowerCase()}.${lastName.toLowerCase()}@nexus-student.local`;
-
-    // Check if email already exists
-    const existingUser = await prisma.user.findUnique({
-      where: { email }
+    const email = buildStudentLoginIdentifier({
+      firstName,
+      lastName,
+      uniqueSuffix: createId(),
     });
-
-    if (existingUser) {
-      return NextResponse.json(
-        { error: 'Un enfant avec ce nom existe déjà' },
-        { status: 400 }
-      );
-    }
 
     const userId = session.user.id;
 
@@ -260,6 +257,12 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
+    if (isStudentLoginIdentifierConflict(error)) {
+      return NextResponse.json(
+        { error: 'STUDENT_LOGIN_IDENTIFIER_CONFLICT' },
+        { status: 409 },
+      );
+    }
     console.error('Error creating child:', serializeError(error));
     return NextResponse.json(
       { error: 'Internal server error' },

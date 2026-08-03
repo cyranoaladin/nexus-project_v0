@@ -20,6 +20,10 @@ import crypto from 'crypto';
 import bcrypt from 'bcryptjs';
 import type { AcademicTrack, GradeLevel, StmgPathway, Subject } from '@prisma/client';
 import { SYSTEM_PARENT_EMAIL } from '@/lib/constants';
+import {
+  buildStudentLoginIdentifier,
+  isStudentLoginIdentifierCompatible,
+} from '@/lib/services/student-login-identifier';
 
 /** Hash an activation token for safe storage */
 function hashToken(token: string): string {
@@ -47,6 +51,19 @@ export interface SetPasswordResult {
   error?: string;
   redirectUrl?: string;
 }
+
+export type ParentOwnedActivationResult =
+  | Readonly<{
+      success: true;
+      activationUrl: string;
+      expiresAt: Date;
+      loginIdentifier: string;
+      studentName: string;
+    }>
+  | Readonly<{
+      success: false;
+      error: 'NOT_FOUND' | 'ALREADY_ACTIVATED';
+    }>;
 
 export type StudentTrackMetadata = {
   gradeLevel: GradeLevel;
@@ -259,6 +276,92 @@ export async function initiateStudentActivation(
 }
 
 /**
+ * Issue or reissue an activation link for a child owned by the authenticated parent.
+ * Ownership and token replacement are resolved in one transaction. Reissuing replaces
+ * the stored hash, which revokes every previously issued raw token.
+ */
+export async function initiateParentOwnedStudentActivation(input: Readonly<{
+  parentUserId: string;
+  studentId: string;
+}>): Promise<ParentOwnedActivationResult> {
+  const prepared = await prisma.$transaction(async (transaction) => {
+    const parent = await transaction.parentProfile.findUnique({
+      where: { userId: input.parentUserId },
+      select: { id: true },
+    });
+    if (parent === null) return { success: false, error: 'NOT_FOUND' } as const;
+
+    const student = await transaction.student.findFirst({
+      where: {
+        id: input.studentId,
+        parentId: parent.id,
+      },
+      select: {
+        user: {
+          select: {
+            id: true,
+            role: true,
+            email: true,
+            firstName: true,
+            lastName: true,
+            activatedAt: true,
+          },
+        },
+      },
+    });
+    if (student === null || student.user.role !== 'ELEVE') {
+      return { success: false, error: 'NOT_FOUND' } as const;
+    }
+    if (student.user.activatedAt !== null) {
+      return { success: false, error: 'ALREADY_ACTIVATED' } as const;
+    }
+
+    const { raw, hashed } = generateActivationToken();
+    const expiresAt = new Date(Date.now() + TOKEN_EXPIRY_MS);
+    const loginIdentifier = isStudentLoginIdentifierCompatible(student.user.email)
+      ? student.user.email
+      : buildStudentLoginIdentifier({
+          firstName: student.user.firstName ?? 'eleve',
+          lastName: student.user.lastName ?? 'nexus',
+          uniqueSuffix: student.user.id,
+        });
+    const transition = await transaction.user.updateMany({
+      where: {
+        id: student.user.id,
+        role: 'ELEVE',
+        activatedAt: null,
+      },
+      data: {
+        ...(loginIdentifier !== student.user.email ? { email: loginIdentifier } : {}),
+        activationToken: hashed,
+        activationExpiry: expiresAt,
+      },
+    });
+    if (transition.count !== 1) {
+      return { success: false, error: 'ALREADY_ACTIVATED' } as const;
+    }
+
+    return {
+      success: true,
+      raw,
+      expiresAt,
+      loginIdentifier,
+      studentName: buildDisplayName(student.user.firstName, student.user.lastName),
+    } as const;
+  });
+
+  if (!prepared.success) return prepared;
+  const baseUrl = process.env.NEXTAUTH_URL || 'https://nexusreussite.academy';
+  return {
+    success: true,
+    activationUrl: `${baseUrl}/auth/activate?token=${encodeURIComponent(prepared.raw)}`,
+    expiresAt: prepared.expiresAt,
+    loginIdentifier: prepared.loginIdentifier,
+    studentName: prepared.studentName,
+  };
+}
+
+/**
  * Complete student activation by setting password.
  * Called when student clicks the activation link.
  *
@@ -282,16 +385,24 @@ export async function completeStudentActivation(
   if (user) {
     // Hash password and activate
     const hashedPassword = await bcrypt.hash(password, 12);
-
-    await prisma.user.update({
-      where: { id: user.id },
+    const activatedAt = new Date();
+    const transition = await prisma.user.updateMany({
+      where: {
+        id: user.id,
+        activationToken: hashedToken,
+        activationExpiry: { gt: activatedAt },
+        activatedAt: null,
+      },
       data: {
         password: hashedPassword,
-        activatedAt: new Date(),
+        activatedAt,
         activationToken: null,
         activationExpiry: null,
       },
     });
+    if (transition.count !== 1) {
+      return { success: false, error: 'Lien d\'activation invalide ou expiré' };
+    }
 
     return {
       success: true,
