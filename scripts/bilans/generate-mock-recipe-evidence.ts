@@ -2,6 +2,7 @@ import { createPseudonymizedFactSheet } from '@/lib/bilans/local-first/contracts
 import { BilanLlmGateway } from '@/lib/bilans/llm/gateway';
 import { MockBilanLlmTransport } from '@/lib/bilans/llm/mock-transport';
 import { buildDeterministicReport } from '@/lib/bilans/render/report';
+import type { BilanPackSubject } from '@/lib/bilans/catalog/subjects';
 import { validateAgentBundle, type ValidationRule } from '@/lib/bilans/validators';
 import type { ValidatedPack } from '@/lib/bilans/validators/contracts';
 
@@ -18,6 +19,7 @@ export async function generateMockRecipeEvidence(
   factSheets: readonly RecipeFactSheet[],
   pack: ValidatedPack,
   sourceDraftPack: string,
+  subject: BilanPackSubject,
 ) {
   const transport = new MockBilanLlmTransport();
   const validationViolations: Record<ValidationRule, number> = {
@@ -38,7 +40,13 @@ export async function generateMockRecipeEvidence(
       validationViolations[current.rule] += 1;
     }
     for (const audience of AUDIENCES) {
-      const report = buildDeterministicReport(factSheet, audience);
+      const report = buildDeterministicReport(factSheet, audience, {
+        displayName: factSheet.student.alias,
+        level: factSheet.student.level,
+        subject,
+        date: '1970-01-01',
+        stageLabel: sourceDraftPack,
+      });
       if (report.content.domains.length !== pack.scoring.domains.length) {
         throw new Error(`Mock recipe omitted a domain for FactSheet ${index + 1}`);
       }

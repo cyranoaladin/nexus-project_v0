@@ -8,6 +8,7 @@ import {
   buildDeterministicReports,
   type DeterministicBilanReportBundle,
 } from '../render/report';
+import type { RenderIdentity } from '../render/render-identity';
 import { validateDeterministicReports } from './structural-validation';
 import { computeScoringV2 } from '@/lib/diagnostics/score-diagnostic';
 import type { ScoringPolicy, ScoringV2Result } from '@/lib/diagnostics/types';
@@ -198,7 +199,14 @@ export function buildWorkerScoring(
     nodeDomains: prepared.nodeDomains,
   });
   dependencies.onStage?.('RENDER');
-  const reports = (dependencies.buildReports ?? buildDeterministicReports)(factSheet);
+  const renderIdentity: RenderIdentity = Object.freeze({
+    displayName: factSheet.student.alias,
+    level: input.pack.level,
+    subject: input.pack.subject,
+    date: input.submittedAt.toISOString().slice(0, 10),
+    stageLabel: input.pack.slug,
+  });
+  const reports = (dependencies.buildReports ?? buildDeterministicReports)(factSheet, renderIdentity);
   dependencies.onStage?.('STRUCTURE');
   (dependencies.validateReports ?? validateDeterministicReports)(factSheet, reports);
   return Object.freeze({ scoringV2, facts, factSheet, reports, scoringInput: prepared.facts });

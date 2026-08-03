@@ -183,8 +183,8 @@ describe.each(ACTIVE)('$entry.slug mock recipe', ({ entry, bank }) => {
     let first;
     let second;
     try {
-      first = await generateMockRecipeEvidence(facts, fixture, entry.slug);
-      second = await generateMockRecipeEvidence(facts, fixture, entry.slug);
+      first = await generateMockRecipeEvidence(facts, fixture, entry.slug, pack.subject);
+      second = await generateMockRecipeEvidence(facts, fixture, entry.slug, pack.subject);
     } finally {
       fetchSpy.mockRestore();
     }
