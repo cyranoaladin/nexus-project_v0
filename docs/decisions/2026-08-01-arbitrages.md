@@ -845,6 +845,43 @@ survivre à la régénération tout en s'invalidant dès que le contenu signé c
 
 **Dette bornée.** Tant que la relation `stage -> séances` n’existe pas, les étapes utilisent la configuration séquentielle `Séance 1`, `Séance 2`, etc. Ce libellé ne prétend pas refléter un planning réel. Le raccordement aux séances effectivement programmées relève d’une évolution distincte du modèle et ne doit pas être déduit du slug ou du contenu libre.
 
+## A93 — Un seul moteur PDF et cycle Chromium borné
+
+**Constat.** Le pont parent historique délègue déjà au moteur HTML/Chromium Canonical,
+mais chaque PDF relançait un navigateur. La mesure locale donnait 774 à 1 313 ms par
+appel one-shot.
+
+**Décision.** Conserver ce moteur unique et exposer une session explicitement fermée pour
+les lots de plusieurs PDF et les suites de tests. L'appel de production unitaire reste
+one-shot ; aucun navigateur permanent ni hausse de timeout n'est introduit.
+
+**Motif.** Mutualiser le coût mesuré sans créer de second moteur, de ressource orpheline ou
+de timeout masquant une régression.
+
+## A94 — Suite Prisma Bilan réintégrée à la CI
+
+**Constat.** Les neuf cas CRUD réels de `__tests__/lib/bilan/` étaient exclus du job
+d'intégration depuis le 26 juillet et le nom du répertoire se confondait avec le socle
+Canonical `__tests__/bilans/`.
+
+**Décision.** Renommer la suite sous `__tests__/lib/bilan-runtime/` et l'exécuter dans un
+job PostgreSQL/pgvector dédié, sur une base créée exclusivement par les migrations de la
+branche. Le job d'intégration général l'exclut explicitement pour éviter un double passage.
+
+**Motif.** Un contrat Prisma réel doit produire un résultat CI visible, isolé et non
+dépendant d'une base persistante contaminée par une autre branche.
+
+## A95 — Bilans Canonical rendus de référence
+
+**Constat.** Aucun HTML ni PDF Canonical matérialisé n'était versionné pour inspection par
+Nexus et les responsables pédagogiques.
+
+**Décision.** Versionner les trois audiences HTML/PDF d'une FactSheet synthétique du pack
+`entree-premiere-maths-v1`, et les comparer byte-for-byte en CI par le moteur partagé.
+
+**Motif.** Une validation pédagogique doit pouvoir examiner ce que le système rend, sans
+utiliser de donnée réelle ni confondre conformité structurelle et qualité visuelle.
+
 ## A97 — A1 superseded : retrait de ScoringV2 du socle Canonical
 
 **Constat.** Le bridge Canonical transformait toute passation en `BilanDiagnosticMathsData`
