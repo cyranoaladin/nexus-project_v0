@@ -3,6 +3,7 @@ import { BilanLlmGateway } from '@/lib/bilans/llm/gateway';
 import { MockBilanLlmTransport } from '@/lib/bilans/llm/mock-transport';
 import { buildDeterministicReport } from '@/lib/bilans/render/report';
 import type { BilanPackSubject } from '@/lib/bilans/catalog/subjects';
+import { buildPreRentreeStageLabel } from '@/lib/bilans/render/stage-label';
 import { validateAgentBundle, type ValidationRule } from '@/lib/bilans/validators';
 import type { ValidatedPack } from '@/lib/bilans/validators/contracts';
 
@@ -45,7 +46,7 @@ export async function generateMockRecipeEvidence(
         level: factSheet.student.level,
         subject,
         date: '1970-01-01',
-        stageLabel: sourceDraftPack,
+        stageLabel: buildPreRentreeStageLabel(factSheet.student.level, subject),
       });
       if (report.content.domains.length !== pack.scoring.domains.length) {
         throw new Error(`Mock recipe omitted a domain for FactSheet ${index + 1}`);
