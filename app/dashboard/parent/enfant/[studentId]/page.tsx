@@ -9,6 +9,7 @@ import { DashboardPilotage } from "@/components/dashboard/DashboardPilotage";
 import { ProgressEvolutionChart } from "@/components/dashboard/parent/ProgressEvolutionChart";
 import { CohortComparison } from "@/components/dashboard/parent/CohortComparison";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { CanonicalConsentCard } from "./canonical-consent-card";
 import Link from "next/link";
 
 export default function ChildDetailPage() {
@@ -127,6 +128,8 @@ export default function ChildDetailPage() {
             </div>
 
             <div className="space-y-8">
+              <CanonicalConsentCard studentId={studentId} />
+
               <Card className="bg-surface-card border border-white/10 shadow-premium">
                 <CardHeader>
                   <CardTitle className="text-white text-base flex items-center gap-2">
