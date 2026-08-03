@@ -41,8 +41,18 @@ Tu produis uniquement un objet JSON strict conforme au schéma du pack : `cadre`
 
 ### Bonne formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+Point d'appui : « La dérivation et l'équation de tangente sont des automatismes
+en place, appliqués sans erreur de calcul. »
+
+Priorité : « Nous reprendrons le lien entre le signe de la dérivée et le sens
+de variation, distinction qui commande l'étude de fonctions de toute l'année. »
+
+Cadre : « Ce bilan ne constitue ni une évaluation notée, ni un avis sur un
+projet d'orientation. »
 
 ### Mauvaise formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Votre enfant vise une prépa mais son niveau actuel ne le permet pas encore.
+Notre accompagnement lui donnera les moyens d'y prétendre. »
+
+Un avis d'orientation, une promesse de résultat, un ressort de doute.

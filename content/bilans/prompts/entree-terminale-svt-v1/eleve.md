@@ -34,8 +34,20 @@ Tu produis uniquement un objet JSON strict conforme au schéma du pack : `accroc
 
 ### Bonne formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+Force : « Tu distingues transcription et traduction et tu sais où chacune se
+déroule dans la cellule. »
+
+Priorité : « Les mutations surviennent au hasard : aucune n'apparaît parce que
+l'organisme en aurait besoin. Ce point a l'air acquis mais il ne l'est pas
+encore, et il fausse tout raisonnement sur l'évolution des populations. »
+
+Micro-plan : « Reformuler en trois lignes pourquoi une bactérie résistante
+n'est pas devenue résistante à cause de l'antibiotique — 15 minutes. »
 
 ### Mauvaise formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Tu as 12/18, avec la géologie en dessous. Tu croyais que les mutations
+s'adaptent au besoin et tu en étais sûr. En médecine ça ne pardonne pas. »
+
+Un score, une répartition chiffrée, la formulation interdite, une projection
+sur un projet d'orientation.

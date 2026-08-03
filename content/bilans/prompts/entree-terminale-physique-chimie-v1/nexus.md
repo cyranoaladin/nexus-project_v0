@@ -33,8 +33,19 @@ Aucune clé supplémentaire et aucun texte autour.
 
 ### Bonne formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Nœud energie.travail-energie-mecanique en erreur confiante : score 50,0,
+confiance 4. Considère qu'une force permanente travaille toujours — priorité 1,
+préalable au premier principe.
+
+Nœud chimie-organique.familles-fonctionnelles en lacune consciente : score
+0,0, confiance 1. Cohérent avec le déclaratif : enseignement direct.
+
+Avancement et oxydo-réduction en maîtrise, score 100,0.
+
+Indice de calibration 55,6. »
 
 ### Mauvaise formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Élève inégal, dépend de sa motivation selon les chapitres. »
+
+Une hypothèse sur la motivation, sans mesure et sans action possible.

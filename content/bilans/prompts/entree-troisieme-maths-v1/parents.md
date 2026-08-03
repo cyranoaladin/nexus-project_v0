@@ -41,8 +41,19 @@ Tu produis uniquement un objet JSON strict conforme au schéma du pack : `cadre`
 
 ### Bonne formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+Point d'appui : « La résolution d'équations est solide, et l'habitude de
+vérifier le résultat est installée. »
+
+Priorité : « Nous reprendrons les grandeurs composées, en particulier la
+conversion des durées, par des calculs courts en situation. »
+
+Cadre : « Ce bilan est un positionnement. Il ne préjuge pas des résultats au
+brevet. »
 
 ### Mauvaise formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Votre enfant risque d'échouer au brevet s'il ne comble pas ses lacunes. Notre
+stage couvrira Pythagore, Thalès et les statistiques, et sécurisera son
+examen. »
+
+Un ressort anxiogène, un pronostic, un programme annoncé, une promesse.

@@ -29,8 +29,16 @@ Tu produis uniquement un objet JSON strict conforme au schéma du pack :
 
 ### Bonne formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+Réponse libre : « le brevet me stresse et je n'ai jamais compris Thalès ».
+
+  synthese       : « L'élève exprime une appréhension liée au brevet et
+                     identifie le théorème de Thalès comme non compris. »
+  forces_percues : []
+  craintes       : ["brevet", "théorème de Thalès"]
 
 ### Mauvaise formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« L'élève est anxieux, ce qui l'empêche de comprendre la géométrie. Le stress
+explique probablement ses difficultés sur Thalès. »
+
+Un état émotionnel est transformé en cause de difficulté cognitive.

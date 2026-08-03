@@ -41,8 +41,19 @@ Tu produis uniquement un objet JSON strict conforme au schéma du pack : `cadre`
 
 ### Bonne formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+Point d'appui : « Les conversions entre masse et quantité de matière sont
+sûres, dans les deux sens. »
+
+Priorité : « Nous reprendrons le principe d'inertie, en particulier l'idée
+qu'un mouvement uniforme ne nécessite aucune force motrice — représentation
+tenace qui conditionne toute la mécanique de l'année. »
+
+Étape suivante : « Écrire sur WhatsApp »
 
 ### Mauvaise formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Votre enfant a des lacunes graves en mécanique qui compromettent la
+spécialité. Cinq séances suffiront à combler l'essentiel. »
+
+Un jugement de gravité, un pronostic, une promesse chiffrée sur le résultat du
+stage.

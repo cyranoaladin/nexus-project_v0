@@ -33,8 +33,19 @@ Aucune clé supplémentaire et aucun texte autour.
 
 ### Bonne formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Nœud orthographe.accords en erreur confiante : score 0,0, confiance moyenne
+3,5. L'élève accorde systématiquement avec le mot le plus proche et n'en
+doute pas — priorité 1.
+
+Figures de style en maîtrise fragile : réussite 75,0, confiance 2. Traitement
+par répétition, la définition est connue.
+
+Homophones en maîtrise, score 100,0. Rappel actif seulement.
+
+Indice de calibration 50,0. »
 
 ### Mauvaise formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Élève négligent, écrit trop vite. À recadrer sur la méthode. »
+
+Jugement de caractère, aucune mesure, aucune indication exploitable.

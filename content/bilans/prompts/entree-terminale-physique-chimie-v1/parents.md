@@ -41,8 +41,19 @@ Tu produis uniquement un objet JSON strict conforme au schéma du pack : `cadre`
 
 ### Bonne formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+Point d'appui : « La détermination du réactif limitant est conduite sur les
+quantités de matière rapportées aux coefficients, méthode juste et stable. »
+
+Priorité : « Nous reprendrons la notion de travail d'une force, en particulier
+le cas où une force s'exerce sans travailler, préalable à tous les bilans
+d'énergie de l'année. »
+
+Cadre : « Le contenu des cinq séances de deux heures sera arrêté après
+croisement des diagnostics du groupe. »
 
 ### Mauvaise formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Votre enfant a des fragilités inquiétantes en énergie. Le stage traitera la
+cinétique, la mécanique et les ondes, et sécurisera son année. »
+
+Un ressort anxiogène, un programme annoncé, une promesse.

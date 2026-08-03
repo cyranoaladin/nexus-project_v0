@@ -41,8 +41,18 @@ Tu produis uniquement un objet JSON strict conforme au schéma du pack : `cadre`
 
 ### Bonne formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+Point d'appui : « L'analyse du point de vue narratif est maîtrisée, y compris
+sur des récits à la première personne. »
+
+Priorité : « Nous travaillerons l'accord du participe passé avec le complément
+d'objet antéposé, exercice directement évalué à l'épreuve de réécriture. »
+
+Étape suivante : « Voir les offres et tarifs »
 
 ### Mauvaise formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Votre enfant ne maîtrise pas les accords, ce qui lui coûtera des points au
+brevet. Notre stage garantit une progression mesurable. »
+
+Une priorité formulée comme un manque, un pronostic chiffré implicite, une
+promesse de résultat.

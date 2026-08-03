@@ -33,8 +33,20 @@ Aucune clé supplémentaire et aucun texte autour.
 
 ### Bonne formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Nœud genetique.mutations en erreur confiante : score 0,0, confiance 4.
+Finalisme persistant, obstacle direct au thème 1 — priorité 1.
+
+Nœud geologie.tectonique-des-plaques en lacune consciente : score 25,0,
+confiance 1. Distinction lithosphère et asthénosphère non installée, mais
+l'élève le sait : enseignement direct, pas déconstruction.
+
+Expression du génome et immunité en maîtrise, score 100,0 : temps rendu.
+
+Indice de calibration 50,0. Déclaratif cohérent avec les mesures. »
 
 ### Mauvaise formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Profil médecine classique : fort en bio, faible en géol. Rien d'alarmant. »
+
+Une catégorisation, une appréciation rassurante sans mesure, aucune indication
+de traitement.

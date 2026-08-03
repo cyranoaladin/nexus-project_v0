@@ -29,8 +29,17 @@ Tu produis uniquement un objet JSON strict conforme au schéma du pack :
 
 ### Bonne formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+Réponse libre : « je code un peu chez moi mais je n'ai jamais fait de réseaux ».
+
+  synthese       : « L'élève déclare une pratique personnelle de la
+                     programmation et aucune expérience des réseaux. »
+  forces_percues : ["programmation"]
+  craintes       : ["réseaux"]
 
 ### Mauvaise formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« L'élève code en autodidacte, ce qui lui donne de bonnes bases mais sans
+doute de mauvaises habitudes. »
+
+Une compétence est évaluée et un défaut est supposé, à partir d'une simple
+déclaration de pratique.

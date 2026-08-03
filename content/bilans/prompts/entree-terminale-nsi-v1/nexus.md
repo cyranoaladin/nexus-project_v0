@@ -33,8 +33,23 @@ Aucune clé supplémentaire et aucun texte autour.
 
 ### Bonne formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Nœud 1re.nsi.algorithmique.recherche-tris en erreur confiante : score 0,0,
+confiance 4. Applique la recherche dichotomique sans vérifier que le tableau
+est trié — obstacle direct à l'étude de la complexité.
+
+Nœud 1re.nsi.architecture.von-neumann-os en lacune consciente : score 25,0,
+confiance 1. Rôles du processeur et de la mémoire non stabilisés, l'élève le
+sait.
+
+Types construits et fonctions en maîtrise, score 100,0 : cohérent avec le
+déclaratif, temps rendu.
+
+Indice de calibration 55,6 : l'élève se juge lucidement, sauf sur les tris —
+seul point où il se croit sûr et se trompe. »
 
 ### Mauvaise formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Élève scolaire qui applique des recettes. Manque de recul algorithmique. »
+
+Un jugement de posture intellectuelle, sans mesure, et sans indication de
+traitement pour une séance.

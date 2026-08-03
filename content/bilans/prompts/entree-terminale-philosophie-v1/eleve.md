@@ -34,8 +34,20 @@ Tu produis uniquement un objet JSON strict conforme au schéma du pack : `accroc
 
 ### Bonne formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+Force : « Tu repères la thèse d'un texte et tu la distingues des arguments qui
+la soutiennent. »
+
+Priorité : « Un raisonnement peut être valide et partir de prémisses fausses :
+la validité concerne l'enchaînement, pas la vérité de la conclusion. Ce point a
+l'air acquis mais il ne l'est pas encore, et c'est lui qui permet de discuter
+un texte au lieu d'y adhérer ou de le rejeter. »
+
+Micro-plan : « Construire un raisonnement valide dont la conclusion est fausse,
+et dire pourquoi il reste valide — 20 minutes. »
 
 ### Mauvaise formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Tu as 11/18 en logique. Tu crois qu'un raisonnement valide donne toujours une
+conclusion vraie, et tu en es persuadé. La philo va être rude. »
+
+Un score, la formulation interdite, un pronostic sur la discipline.

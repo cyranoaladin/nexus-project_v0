@@ -33,8 +33,19 @@ Aucune clé supplémentaire et aucun texte autour.
 
 ### Bonne formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Nœud methode.commentaire en erreur confiante : score 0,0, confiance 4.
+L'élève identifie le paragraphe de commentaire à un relevé de figures.
+
+Nœud grammaire.interrogation-negation en lacune consciente : score 0,0,
+confiance 1. Prérequis directement évalué à l'oral des épreuves anticipées —
+priorité opérationnelle malgré une confiance basse.
+
+Figures de style en maîtrise, score 100,0.
+
+Indice de calibration 50,0. »
 
 ### Mauvaise formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Élève scolaire, applique sans comprendre. Manque de finesse littéraire. »
+
+Un jugement de qualité personnelle, sans mesure et sans usage.

@@ -33,8 +33,19 @@ Aucune clé supplémentaire et aucun texte autour.
 
 ### Bonne formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Deux nœuds en erreur confiante : relatifs.somme-difference-priorites, score
+de nœud 25,0, et calcul-litteral.distributivite-simple, score 33,3. Indice de
+calibration 38,9 — l'élève tranche avec assurance sur le calcul, moins ailleurs.
+
+Statistiques et aires en maîtrise, score 100,0 : rappel actif suffisant, vingt
+minutes.
+
+Vigilance : trois items non traités en fin de questionnaire, tous sur la
+symétrie centrale. Fatigue ou manque de temps, à vérifier oralement. »
 
 ### Mauvaise formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Élève en grande difficulté, sans doute peu suivi à la maison. Groupe faible
+recommandé. »
+
+Jugement sur la personne, hypothèse sur le milieu familial, aucune mesure.

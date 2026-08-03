@@ -35,8 +35,15 @@ Aucune clé supplémentaire et aucun texte autour.
 
 ### Bonne formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Violation détectée. Bilan PARENTS, champ etapeSuivante : « cinq séances
+suffiront » constitue une promesse de résultat.
+
+Violation détectée. Bilan ELEVE, champ forces : contient « 9/18 ». Règle V2.
+
+Contrôle des domaines : quatre domaines évalués, quatre représentés. »
 
 ### Mauvaise formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Deux points à corriger, sinon rien à signaler. »
+
+Les deux points ne sont ni localisés ni rattachés à une règle.

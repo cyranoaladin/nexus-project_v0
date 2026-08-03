@@ -29,8 +29,20 @@ Tu produis uniquement un objet JSON strict conforme au schéma du pack :
 
 ### Bonne formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+Réponse libre : « je m'embrouille avec les moins et j'ai eu 8 de moyenne ».
+
+  synthese       : « L'élève identifie les nombres relatifs comme une source
+                     d'erreurs et mentionne une moyenne annuelle faible. »
+  forces_percues : []
+  craintes       : ["nombres relatifs"]
+
+La moyenne déclarée est enregistrée comme un élément du discours, jamais
+reprise comme une mesure ni convertie en niveau.
 
 ### Mauvaise formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Avec 8 de moyenne, l'élève est en difficulté générale en mathématiques et son
+problème avec les signes en est le symptôme. »
+
+Une moyenne déclarée devient un diagnostic, une difficulté ponctuelle devient
+générale, et un lien de cause est inventé entre les deux.

@@ -34,8 +34,20 @@ Tu produis uniquement un objet JSON strict conforme au schéma du pack : `accroc
 
 ### Bonne formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+Force : « Tu situes correctement les niveaux d'organisation du vivant, de la
+cellule à l'organisme. »
+
+Priorité : « Toutes les cellules d'un individu portent le même ADN : ce qui
+change d'un organe à l'autre, ce sont les gènes exprimés. Ce point a l'air
+acquis mais il ne l'est pas encore, et il conditionne tout le premier
+chapitre. »
+
+Micro-plan : « Écrire en trois lignes pourquoi une cellule de peau et une
+cellule de foie diffèrent malgré un ADN identique — 10 minutes. »
 
 ### Mauvaise formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Tu as 10/18. Tu pensais que l'ADN changeait selon l'organe et tu en étais
+sûr. Sans cette base, l'année sera dure. »
+
+Un score, la formulation interdite, une menace.

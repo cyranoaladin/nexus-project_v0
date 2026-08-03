@@ -33,8 +33,21 @@ Aucune clé supplémentaire et aucun texte autour.
 
 ### Bonne formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Nœud argumentation.coherence-du-raisonnement en erreur confiante : score 0,0,
+confiance 4. Identifie la validité à la vérité de la conclusion — prérequis
+logique minimal, priorité 1.
+
+Nœud lexique.vocabulaire-abstrait en lacune consciente : score 0,0, confiance
+1. Les sens stricts de « nécessaire » et « distinct » ne sont pas installés,
+et l'élève le sait.
+
+Thèse, argument et exemple en maîtrise, score 100,0 : temps rendu.
+
+Indice de calibration 50,0. Rappel : les nœuds de cette banque relèvent du
+français de Première, non de la philosophie. »
 
 ### Mauvaise formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Élève peu réflexif, aura du mal en dissertation. Profil scientifique. »
+
+Un jugement d'aptitude, une catégorisation, un pronostic sur une épreuve.

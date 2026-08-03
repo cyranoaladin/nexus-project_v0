@@ -29,8 +29,19 @@ Tu produis uniquement un objet JSON strict conforme au schéma du pack :
 
 ### Bonne formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+Réponse libre : « j'ai du mal à comprendre les textes anciens ».
+
+  synthese       : « L'élève déclare une difficulté de compréhension sur les
+                     textes anciens. »
+  forces_percues : []
+  craintes       : ["textes anciens"]
+
+Aucune extension à la compréhension en général : l'élève a nommé un type de
+texte, pas une compétence.
 
 ### Mauvaise formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« L'élève a des difficultés de compréhension écrite, sans doute liées à un
+vocabulaire insuffisant. »
+
+Une difficulté ciblée devient générale, et une cause lexicale est inventée.

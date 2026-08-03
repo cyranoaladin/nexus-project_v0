@@ -34,8 +34,19 @@ Tu produis uniquement un objet JSON strict conforme au schéma du pack : `accroc
 
 ### Bonne formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+Force : « Tu reconnais la nature d'un mot même lorsqu'il change de place dans
+la phrase. »
+
+Priorité : « L'accord du participe passé employé avec l'auxiliaire être. Ce
+point a l'air acquis mais il ne l'est pas encore — c'est exactement le type
+d'écart qui coûte cher en dictée. »
+
+Micro-plan : « Écrire cinq phrases au passé composé avec être, en entourant le
+sujet avant d'accorder — 10 minutes. »
 
 ### Mauvaise formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Tu fais trop de fautes. Tu crois savoir accorder mais tu te trompes tout le
+temps. Il faut travailler l'orthographe cet été. »
+
+Un jugement global, la formulation interdite, une injonction sans contenu.

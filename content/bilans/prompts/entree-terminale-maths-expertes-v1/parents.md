@@ -41,8 +41,21 @@ Tu produis uniquement un objet JSON strict conforme au schéma du pack : `cadre`
 
 ### Bonne formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+Cadre : « Cette option s'appuie sur des notions d'arithmétique travaillées au
+collège et peu revues depuis. Ce positionnement les réactive : il ne mesure pas
+un niveau, il situe un point de départ. »
+
+Point d'appui : « La résolution de systèmes linéaires est sûre, avec un choix
+pertinent de la méthode. »
+
+Priorité : « Nous reprendrons les règles de la logique, en particulier la
+distinction entre réciproque et contraposée, qui structure les démonstrations
+de l'option. »
 
 ### Mauvaise formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Votre enfant a d'importantes lacunes en arithmétique, ce qui rend le suivi de
+l'option incertain. Nous garantissons une remise à niveau complète. »
+
+Un jugement de lacune sur des notions non travaillées depuis trois ans, un
+doute sur la poursuite de l'option, une promesse garantie.

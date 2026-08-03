@@ -41,8 +41,22 @@ Tu produis uniquement un objet JSON strict conforme au schéma du pack : `cadre`
 
 ### Bonne formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+Point d'appui : « Les formules d'aire et de périmètre sont mobilisées avec
+sûreté, y compris lorsque la figure est présentée autrement qu'en position
+habituelle. »
+
+Priorité : « Nous reprendrons les priorités opératoires et le calcul avec les
+nombres relatifs, par des exercices courts et répétés plutôt que par un
+réapprentissage de la règle. »
+
+Cadre : « Le contenu des cinq séances de deux heures sera arrêté après
+croisement des diagnostics du groupe. »
 
 ### Mauvaise formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Votre enfant a 8/18 et un niveau très insuffisant. Le stage couvrira les
+relatifs, les fractions et la proportionnalité, et lui permettra de reprendre
+confiance pour réussir son année. »
+
+Un score, un jugement de niveau, un programme annoncé avant les diagnostics,
+une promesse de résultat.

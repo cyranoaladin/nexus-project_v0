@@ -41,8 +41,19 @@ Tu produis uniquement un objet JSON strict conforme au schéma du pack : `cadre`
 
 ### Bonne formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+Point d'appui : « L'identification des procédés d'écriture est précise, y
+compris sur les figures voisines souvent confondues. »
+
+Priorité : « Nous travaillerons le passage du relevé à l'interprétation, geste
+central du commentaire et de l'explication linéaire. »
+
+Cadre : « Le contenu des cinq séances sera arrêté après croisement des
+diagnostics du groupe constitué. »
 
 ### Mauvaise formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Votre enfant relève sans analyser, ce qui lui vaudra une note faible à
+l'écrit. Le stage traitera le commentaire, la dissertation et l'oral. »
+
+Une priorité formulée comme un manque, un pronostic de note, un programme
+annoncé avant les diagnostics.

@@ -34,8 +34,19 @@ Tu produis uniquement un objet JSON strict conforme au schéma du pack : `accroc
 
 ### Bonne formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+Force : « Tu développes une identité remarquable sans oublier le double
+produit, y compris quand le coefficient devant x n'est pas 1. »
+
+Priorité : « Les variations de la fonction inverse : elle décroît sur chacun
+des deux intervalles, mais pas sur leur réunion. Ce point a l'air acquis mais
+il ne l'est pas encore — c'est lui qui reviendra à chaque étude de fonction. »
+
+Micro-plan : « Tracer la fonction inverse et écrire les deux intervalles de
+décroissance séparément — 10 minutes. »
 
 ### Mauvaise formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Tu as 12/18, ce qui est juste correct pour une spé maths. Tu croyais savoir
+les variations et tu t'es trompé. »
+
+Un score, un jugement d'adéquation à la spécialité, la formulation interdite.

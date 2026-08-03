@@ -35,8 +35,20 @@ Aucune clé supplémentaire et aucun texte autour.
 
 ### Bonne formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Violation détectée. Bilan PARENTS, champ pointsAppui : la phrase contient
+« 8/18 ». Règle V2, aucun chiffre autorisé.
+
+Violation détectée. Bilan PARENTS, champ priorites, premier élément : le texte
+annonce un contenu de stage. Le prompt interdit d'anticiper l'ordre, le temps
+et la profondeur du travail.
+
+Aucune autre violation. Les cinq domaines évalués figurent bien dans les
+sorties ELEVE et PARENTS. »
 
 ### Mauvaise formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Le bilan me paraît un peu dur pour un élève de cet âge. Je propose d'adoucir
+la formulation des priorités. »
+
+Le vérificateur contrôle des faits et des règles. Il ne juge ni le ton ni
+l'opportunité.

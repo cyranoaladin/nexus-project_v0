@@ -41,8 +41,17 @@ Tu produis uniquement un objet JSON strict conforme au schéma du pack : `cadre`
 
 ### Bonne formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+Point d'appui : « L'identification des classes de mots est stable, y compris
+sur des constructions déplacées. »
+
+Priorité : « Nous travaillerons l'accord du participe passé, d'abord par
+repérage guidé du sujet, puis en production écrite. »
+
+Étape suivante : « Être conseillé »
 
 ### Mauvaise formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Votre enfant a un niveau d'orthographe préoccupant pour un entrant en 4e.
+Nous garantissons une remise à niveau en cinq séances. »
+
+Un jugement de niveau, un ressort anxiogène, une promesse garantie.

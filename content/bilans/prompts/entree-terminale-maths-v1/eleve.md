@@ -34,8 +34,20 @@ Tu produis uniquement un objet JSON strict conforme au schéma du pack : `accroc
 
 ### Bonne formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+Force : « Tu établis l'équation d'une tangente en évaluant correctement le
+nombre dérivé au point demandé. »
+
+Priorité : « Le signe de la dérivée donne le sens de variation de la fonction,
+pas le signe de la fonction elle-même. Ce point a l'air acquis mais il ne l'est
+pas encore — c'est le raisonnement le plus réinvesti de toute la Terminale. »
+
+Micro-plan : « Sur trois tableaux de variations, écrire à côté de chaque signe
+de f prime la phrase correspondante sur f — 15 minutes. »
 
 ### Mauvaise formulation
 
-À COMPLÉTER PAR LE RESPONSABLE PÉDAGOGIQUE
+« Tu as 14/18, c'est bien mais insuffisant pour une prépa. Tu confondais f et f
+prime en étant sûr de toi. »
+
+Un score, un jugement d'adéquation à un projet d'orientation, la formulation
+interdite.
