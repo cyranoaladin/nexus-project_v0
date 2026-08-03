@@ -11,6 +11,8 @@ import {
 } from '@/lib/bilans/core/report-service';
 import { processScoreAttemptJob } from '@/lib/bilans/worker/score-job';
 import { prisma } from '@/lib/prisma';
+import { renderDeterministicBilanHtml } from '@/lib/bilans/render/html';
+import { BILAN_PDF_ENGINE_VERSION } from '@/lib/bilans/render/pdf';
 import {
   CANONICAL_WORKER_ANSWERS,
   CANONICAL_WORKER_ENABLED_PACK,
@@ -19,6 +21,12 @@ import {
 const PREFIX = `a86-${Date.now()}-`;
 const NOW = new Date('2026-08-02T15:00:00.000Z');
 const logger = { info: jest.fn(), error: jest.fn() };
+const renderAudience = async (...args: Parameters<typeof renderDeterministicBilanHtml>) => ({
+  status: 'AVAILABLE' as const,
+  html: renderDeterministicBilanHtml(...args),
+  pdf: Buffer.from(`%PDF-1.4 ${args[1]}`),
+  engineVersion: BILAN_PDF_ENGINE_VERSION,
+});
 
 describe('A86 deterministic worker and internal review service', () => {
   let studentId: string;
@@ -125,13 +133,19 @@ describe('A86 deterministic worker and internal review service', () => {
       prisma.reportRevision.findFirstOrThrow({ where: { reportArtifact: { assessmentAttemptId: attemptA } } }),
       prisma.reportRevision.findFirstOrThrow({ where: { reportArtifact: { assessmentAttemptId: attemptB } } }),
     ]);
-    expect(JSON.stringify(artifactA.content)).toBe(JSON.stringify(artifactB.content));
+    const withoutAttemptIdentity = (content: unknown) => JSON.stringify(content, (key, value) => (
+      key === 'contextChecksum' || key === 'displayName' ? undefined : value
+    ));
+    expect(withoutAttemptIdentity(artifactA.content)).toBe(withoutAttemptIdentity(artifactB.content));
     expect(fetchSpy).not.toHaveBeenCalled();
     expect(await prisma.scoreSnapshot.count({ where: { assessmentAttemptId: attemptA } })).toBe(1);
     expect(await prisma.reportRevision.count({ where: { reportArtifact: { assessmentAttemptId: attemptA } } })).toBe(1);
     expect(await prisma.evidenceItem.count({ where: { scoreSnapshot: { assessmentAttemptId: attemptA } } })).toBe(12);
     expect((await prisma.canonicalAssessmentAttempt.findUniqueOrThrow({ where: { id: attemptA } })).status)
       .toBe('REPORT_PENDING_REVIEW');
+    expect(await prisma.reportMaterialization.count({
+      where: { revision: { reportArtifact: { assessmentAttemptId: { in: [attemptA, attemptB] } } } },
+    })).toBe(0);
   });
 
   test.each([
@@ -155,7 +169,7 @@ describe('A86 deterministic worker and internal review service', () => {
       where: { reportArtifact: { assessmentAttemptId: attemptA } },
     });
     await validateReportRevision({ prisma, revisionId: revision.id, coachId, motif: 'Relecture synthétique A86.', reviewedAt: NOW });
-    await publishReportRevision({ prisma, revisionId: revision.id, coachId, publishedAt: NOW });
+    await publishReportRevision({ prisma, revisionId: revision.id, coachId, publishedAt: NOW, renderAudience });
 
     const handler = createGetAttemptReportHandler({
       prisma,
@@ -167,10 +181,32 @@ describe('A86 deterministic worker and internal review service', () => {
       new NextRequest(`http://localhost/api/bilans/attempts/${attemptA}/report`),
       { params: Promise.resolve({ id: attemptA }) },
     );
-    const body = await response.json();
+    const body = await response.text();
     expect(response.status).toBe(200);
-    expect(body.audience).toBe('ELEVE');
-    expect(JSON.stringify(body)).not.toMatch(/"(globalScore|coverage|calibrationIndex|score)"/);
+    expect(body).not.toMatch(/globalScore|coverage|calibrationIndex/);
+    expect(await prisma.reportMaterialization.count({ where: { revisionId: revision.id } })).toBe(1);
+    expect(await prisma.reportAudienceArtifact.count({
+      where: { materialization: { revisionId: revision.id } },
+    })).toBe(3);
+    const beforeReplay = await prisma.reportMaterialization.findUniqueOrThrow({ where: { revisionId: revision.id } });
+    await expect(publishReportRevision({ prisma, revisionId: revision.id, coachId, publishedAt: NOW, renderAudience }))
+      .rejects.toThrow('REPORT_ALREADY_MATERIALIZED');
+    expect(await prisma.reportMaterialization.findUniqueOrThrow({ where: { revisionId: revision.id } }))
+      .toEqual(beforeReplay);
+    await expect(prisma.reportMaterialization.update({
+      where: { revisionId: revision.id },
+      data: { globalChecksum: 'tampered' },
+    })).rejects.toThrow(/insert-only/);
+    expect(await prisma.reportMaterialization.findUniqueOrThrow({ where: { revisionId: revision.id } }))
+      .toEqual(beforeReplay);
+    await expect(prisma.reportMaterialization.create({
+      data: {
+        revisionId: revision.id,
+        brandVersion: 'duplicate',
+        globalChecksum: 'duplicate',
+        materializedAt: NOW,
+      },
+    })).rejects.toMatchObject({ code: 'P2002' });
     const review = await prisma.reportReview.findFirstOrThrow({ where: { reportRevisionId: revision.id } });
     expect(review).toMatchObject({ coachId, reviewedAt: NOW, motif: 'Relecture synthétique A86.' });
   });

@@ -12,6 +12,10 @@ import {
   resolveEnabledPack,
   type PackResolver,
 } from './pack-access';
+import {
+  assertPublicRenderedArtifact,
+  storedAudienceArtifactIsIntact,
+} from '../core/report-artifact-integrity';
 
 type RouteContext = Readonly<{ params: Promise<Readonly<{ id: string }>> }>;
 type ReportAudience = 'ELEVE' | 'PARENTS' | 'NEXUS';
@@ -30,6 +34,7 @@ type GetReportDependencies = Readonly<{
   authenticate: () => Promise<Session | null>;
   resolvePack: PackResolver;
   now: () => Date;
+  logger?: Readonly<{ error(event: Readonly<Record<string, unknown>>): void }>;
 }>;
 
 type StoredAttempt = Readonly<{
@@ -39,41 +44,6 @@ type StoredAttempt = Readonly<{
   assessmentPackId: string;
   assessmentPackVersion: string;
 }>;
-
-const RAW_SCORE_KEYS = new Set([
-  'calibrationindex',
-  'coverage',
-  'domainscores',
-  'globalscore',
-  'internalfacts',
-  'percentage',
-  'points',
-  'rawscore',
-  'score',
-  'scoresnapshot',
-  'totalscore',
-]);
-
-function isRecord(value: unknown): value is Readonly<Record<string, unknown>> {
-  return value !== null && typeof value === 'object' && !Array.isArray(value);
-}
-
-function containsRawScore(value: unknown): boolean {
-  if (Array.isArray(value)) return value.some(containsRawScore);
-  if (!isRecord(value)) return false;
-  return Object.entries(value).some(([key, nested]) => (
-    RAW_SCORE_KEYS.has(key.replace(/[^a-zA-Z]/g, '').toLowerCase())
-    || containsRawScore(nested)
-  ));
-}
-
-function extractAudienceReport(content: unknown, audience: ReportAudience): Readonly<Record<string, unknown>> {
-  if (!isRecord(content)) throw CanonicalApiError.notFound();
-  const report = content[audience];
-  if (!isRecord(report) || report.audience !== audience) throw CanonicalApiError.notFound();
-  if (audience !== 'NEXUS' && containsRawScore(report)) throw CanonicalApiError.notFound();
-  return report;
-}
 
 async function resolveAudience(
   session: Session | null,
@@ -138,12 +108,20 @@ const defaultDependencies: GetReportDependencies = {
   authenticate: auth,
   resolvePack: resolveEnabledPack,
   now: () => new Date(),
+  logger: { error: (event) => console.error(JSON.stringify(event)) },
 };
+
+function requestedFormat(request: NextRequest): 'html' | 'pdf' {
+  const explicit = request.nextUrl.searchParams.get('format');
+  if (explicit === 'html' || explicit === 'pdf') return explicit;
+  if (explicit !== null) throw CanonicalApiError.badRequest('REPORT_FORMAT_INVALID');
+  return request.headers.get('accept')?.includes('application/pdf') === true ? 'pdf' : 'html';
+}
 
 export function createGetAttemptReportHandler(
   dependencies: GetReportDependencies = defaultDependencies,
 ): (request: NextRequest, context: RouteContext) => Promise<NextResponse> {
-  return async (_request, context) => {
+  return async (request, context) => {
     try {
       const session = await dependencies.authenticate();
       if (session?.user === undefined) throw CanonicalApiError.unauthenticated();
@@ -176,8 +154,17 @@ export function createGetAttemptReportHandler(
           currentPublishedRevision: {
             select: {
               status: true,
-              content: true,
+              id: true,
               validationFailures: true,
+              materialization: {
+                select: {
+                  audienceArtifacts: {
+                    where: { audience },
+                    select: { audience: true, html: true, pdf: true, pdfStatus: true, checksum: true },
+                    take: 1,
+                  },
+                },
+              },
             },
           },
         },
@@ -192,12 +179,59 @@ export function createGetAttemptReportHandler(
         || revision.validationFailures.length > 0
       ) throw CanonicalApiError.notFound();
 
-      const report = extractAudienceReport(revision.content, audience);
-      return NextResponse.json({
-        attemptId: attempt.id,
-        audience,
-        report,
-        publishedAt: artifact.publishedAt.toISOString(),
+      const stored = revision.materialization?.audienceArtifacts[0];
+      if (stored === undefined) {
+        (dependencies.logger ?? defaultDependencies.logger)?.error({
+          event: 'A90_REPORT_MATERIALIZATION_MISSING',
+          attemptId: attempt.id,
+          revisionId: revision.id,
+          audience,
+        });
+        throw CanonicalApiError.notFound();
+      }
+      const pdf = stored.pdf === null ? null : Buffer.from(stored.pdf);
+      if (!storedAudienceArtifactIsIntact({ ...stored, pdf })) {
+        (dependencies.logger ?? defaultDependencies.logger)?.error({
+          event: 'A90_REPORT_MATERIALIZATION_CHECKSUM_INVALID',
+          attemptId: attempt.id,
+          revisionId: revision.id,
+          audience,
+        });
+        throw CanonicalApiError.notFound();
+      }
+      try {
+        assertPublicRenderedArtifact(audience, stored.html, attempt.assessmentPackId);
+      } catch {
+        (dependencies.logger ?? defaultDependencies.logger)?.error({
+          event: 'A90_REPORT_PUBLIC_ARTIFACT_REJECTED',
+          attemptId: attempt.id,
+          revisionId: revision.id,
+          audience,
+        });
+        throw CanonicalApiError.notFound();
+      }
+      const format = requestedFormat(request);
+      if (format === 'pdf') {
+        if (stored.pdfStatus === 'UNAVAILABLE') {
+          return NextResponse.json({ error: { code: 'REPORT_PDF_UNAVAILABLE' } }, { status: 409 });
+        }
+        if (pdf === null) throw CanonicalApiError.notFound();
+        return new NextResponse(new Uint8Array(pdf), {
+          status: 200,
+          headers: {
+            'content-type': 'application/pdf',
+            'content-disposition': 'inline; filename="bilan.pdf"',
+            'cache-control': 'private, immutable',
+          },
+        });
+      }
+      return new NextResponse(stored.html, {
+        status: 200,
+        headers: {
+          'content-type': 'text/html; charset=utf-8',
+          'cache-control': 'private, immutable',
+          'x-nexus-report-published-at': artifact.publishedAt.toISOString(),
+        },
       });
     } catch (error) {
       return canonicalErrorResponse(error);
