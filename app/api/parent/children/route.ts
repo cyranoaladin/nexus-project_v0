@@ -11,6 +11,7 @@ import { escapeHtml } from '@/lib/email/templates';
 import crypto from 'crypto';
 import { parseJsonBody } from '@/lib/api/helpers';
 import { z } from 'zod';
+import { withParentStudentConsentTransaction } from '@/lib/bilans/parent-student-consent';
 
 /** Strip CR/LF from SMTP header values to prevent header injection. */
 function sanitizeHeader(str: string): string {
@@ -180,38 +181,47 @@ export async function POST(request: NextRequest) {
     const activationExpiry = new Date(Date.now() + 72 * 60 * 60 * 1000);
 
     // Create child in transaction
-    const result = await prisma.$transaction(async (tx) => {
-      // Create user in inactive state. The student chooses a password later via activation.
-      const user = await tx.user.create({
-        data: {
-          email,
-          password: null,
-          firstName,
-          lastName,
-          role: 'ELEVE',
-          activatedAt: null,
-          activationToken: hashedActivationToken,
-          activationExpiry: activationExpiry,
-        }
-      });
+    const result = await withParentStudentConsentTransaction(
+      prisma,
+      async ({ transaction: tx, preparePending }) => {
+        // Create user in inactive state. The student chooses a password later via activation.
+        const user = await tx.user.create({
+          data: {
+            email,
+            password: null,
+            firstName,
+            lastName,
+            role: 'ELEVE',
+            activatedAt: null,
+            activationToken: hashedActivationToken,
+            activationExpiry: activationExpiry,
+          }
+        });
 
-      // Create student
-      const student = await tx.student.create({
-        data: {
-          userId: user.id,
-          parentId: parentProfile.id,
-          gradeLevel: gTrack.level,
-          academicTrack: gTrack.track,
-          grade,
-          school: school || ''
-        },
-        include: {
-          user: true
-        }
-      });
+        // Create student
+        const student = await tx.student.create({
+          data: {
+            userId: user.id,
+            parentId: parentProfile.id,
+            gradeLevel: gTrack.level,
+            academicTrack: gTrack.track,
+            grade,
+            school: school || ''
+          },
+          include: {
+            user: true
+          }
+        });
 
-      return student;
-    });
+        await preparePending({
+          parentUserId: userId,
+          studentId: student.id,
+          now: new Date(),
+        });
+
+        return student;
+      },
+    );
 
     const baseUrl = process.env.NEXTAUTH_URL || 'https://nexusreussite.academy';
     const activationUrl = `${baseUrl}/auth/activate?token=${encodeURIComponent(rawActivationToken)}`;

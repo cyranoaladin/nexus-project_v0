@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server';
 import { POST } from '../../app/api/bilan-gratuit/route';
 import { prisma } from '../../lib/prisma';
 import { sendWelcomeParentEmail } from '../../lib/email';
+import { withParentStudentConsentTransaction } from '../../lib/bilans/parent-student-consent';
 
 jest.mock('bcryptjs');
 
@@ -23,7 +24,13 @@ jest.mock('../../lib/email', () => ({
   sendWelcomeParentEmail: jest.fn().mockResolvedValue(undefined),
 }));
 
+jest.mock('../../lib/bilans/parent-student-consent', () => ({
+  withParentStudentConsentTransaction: jest.fn(),
+}));
+
 const mockSendWelcomeParentEmail = sendWelcomeParentEmail as jest.Mock;
+const mockWithParentStudentConsentTransaction = withParentStudentConsentTransaction as jest.Mock;
+const mockPreparePending = jest.fn();
 
 describe('/api/bilan-gratuit', () => {
   const validRequestData = {
@@ -48,6 +55,18 @@ describe('/api/bilan-gratuit', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    mockPreparePending.mockResolvedValue({
+      id: 'canonical-link-123',
+      state: 'PENDING_PARENT_CONSENT',
+      consentedAt: null,
+      verifiedAt: null,
+    });
+    mockWithParentStudentConsentTransaction.mockImplementation(
+      (database: typeof prisma, action: (context: unknown) => unknown) => database.$transaction((transaction: unknown) => action({
+        transaction,
+        preparePending: mockPreparePending,
+      })),
+    );
   });
 
   function buildRequest(body: Record<string, unknown>) {
@@ -132,6 +151,16 @@ describe('/api/bilan-gratuit', () => {
         }),
       }),
     );
+    expect(mockWithParentStudentConsentTransaction).toHaveBeenCalledWith(
+      prisma,
+      expect.any(Function),
+    );
+    expect(mockPreparePending).toHaveBeenCalledWith({
+      parentUserId: 'parent-123',
+      studentId: 'student-profile-123',
+      now: expect.any(Date),
+    });
+    expect(mockPreparePending).toHaveBeenCalledTimes(1);
     expect(mockSendWelcomeParentEmail).toHaveBeenCalledWith(
       'jean.dupont@test.com',
       'Jean Dupont',
@@ -286,6 +315,42 @@ describe('/api/bilan-gratuit', () => {
 
     expect(response.status).toBe(500);
     expect(body.error).toBe('Erreur interne du serveur');
+  });
+
+  it('aborts registration and sends no email when pending consent preparation fails', async () => {
+    const userCreate = jest.fn()
+      .mockResolvedValueOnce({
+        id: 'parent-123',
+        email: 'jean.dupont@test.com',
+        firstName: 'Jean',
+        lastName: 'Dupont',
+      })
+      .mockResolvedValueOnce({
+        id: 'student-123',
+        email: 'marie.dupont.test@nexus-student.local',
+        firstName: 'Marie',
+        lastName: 'Dupont',
+      });
+
+    jest.spyOn(prisma.user, 'findUnique').mockResolvedValue(null as never);
+    jest.spyOn(prisma, '$transaction').mockImplementation(async (callback: any) => callback({
+      user: { create: userCreate },
+      parentProfile: { create: jest.fn().mockResolvedValue({ id: 'parent-profile-123' }) },
+      student: { create: jest.fn().mockResolvedValue({ id: 'student-profile-123' }) },
+    } as any));
+    mockPreparePending.mockRejectedValueOnce(new Error('pending link failed'));
+
+    const response = await POST(buildRequest(validRequestData));
+    const body = await response.json();
+
+    expect(response.status).toBe(500);
+    expect(body.error).toBe('Erreur interne du serveur');
+    expect(mockPreparePending).toHaveBeenCalledWith({
+      parentUserId: 'parent-123',
+      studentId: 'student-profile-123',
+      now: expect.any(Date),
+    });
+    expect(mockSendWelcomeParentEmail).not.toHaveBeenCalled();
   });
 
   it('continues even if email sending fails', async () => {
