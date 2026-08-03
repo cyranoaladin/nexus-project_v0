@@ -783,23 +783,23 @@
     "promptFiles": {
       "preAnalysis": {
         "path": "content/bilans/prompts/entree-premiere-francais-v1/pre-analysis.md",
-        "checksum": "9abab66b7bd4b46c9b93bbe371679281c78296aa6a85de0527ac67a158328ec3"
+        "checksum": "75812a71b4b7fa059fd2998074207fdceb17d6837e2b4d21358be8d7d6802b90"
       },
       "eleve": {
         "path": "content/bilans/prompts/entree-premiere-francais-v1/eleve.md",
-        "checksum": "5d598c317c15d7593d1bcbcfdd79910eb5a079301bd146aff60dcb3014f8d3b0"
+        "checksum": "b7ae354528685b1c9483af304de7edb1dc05551cd1868c029b8323498e548c43"
       },
       "parents": {
         "path": "content/bilans/prompts/entree-premiere-francais-v1/parents.md",
-        "checksum": "400a2194ca2be5f17e0c405500c5fcd599d48e13e8921c2e8326e13e11bae972"
+        "checksum": "45d5cd7dbdb305d94f7ec8bf256655109e2395a708a6a1a300919f47a2892e2c"
       },
       "nexus": {
         "path": "content/bilans/prompts/entree-premiere-francais-v1/nexus.md",
-        "checksum": "98ecc878a8711036e5849fe2f6793b7db475bcc9224b7f2864949dc678ff1468"
+        "checksum": "8acdb6e5353e3c76137083f119599269324fc21b18789018585ac1b182538ab7"
       },
       "verifier": {
         "path": "content/bilans/prompts/entree-premiere-francais-v1/verifier.md",
-        "checksum": "fd6c0c7c64aa3320686aa15015da6609d4f5ab7cf6c9293c6afa8de83fe2b88b"
+        "checksum": "33ab8a3556ba1626ff4a6aafaa2d75638c5e8f157b48358f83cb9ee34502f55f"
       }
     },
     "outputSchemas": {
