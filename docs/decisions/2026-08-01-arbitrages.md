@@ -1069,3 +1069,12 @@ raisonnable d'un bilan parents de cinq pages.
 **Décision.** Ils sont tous évalués selon l'écart maximal à 120, la somme des écarts puis l'ordre lexicographique des coupes. Une solution `105–135` est retenue si elle existe ; sinon le meilleur quadruplet est affiché avec un arbitrage enseignant explicite, sans modifier aucune durée.
 
 **Motif.** L'énumération est immédiate et déterministe. Avec neuf nœuds plafonnés à 90 minutes et cinq séances coupées uniquement aux frontières, au moins une séance contient un seul nœud : le repli est structurellement nécessaire tant que ces contraintes restent inchangées.
+## A115 — Coupes internes autorisées, fenêtre 105–135 rétablie
+
+**Constat.** La recherche limitée aux frontières de neuf nœuds, chacun plafonné à 90 minutes, plaçait les vingt configurations de référence en repli. Avec cinq séances non vides, au moins une séance ne pouvait alors contenir qu'un nœud et ne pouvait donc jamais atteindre 105 minutes.
+
+**Décision.** Les quatre coupes sont des multiples de cinq minutes et peuvent traverser un nœud. Les durées A109 restent figées. Chaque séance contient entre 105 et 135 minutes, chaque fragment de nœud dure au moins 15 minutes et un nœud ne peut occuper plus de deux séances. Le choix minimise, dans cet ordre, le nombre de nœuds coupés, l'écart maximal à 120 minutes, la somme des écarts absolus, puis le quadruplet lexicographiquement le plus petit.
+
+**Motif.** La frontière de séance est une contrainte d'organisation, pas une raison de modifier l'allocation pédagogique. Un nœud fractionné est signalé dans les deux séances ; sa durée totale et son traitement ne sont affichés que là où il commence. Le repli avec arbitrage enseignant reste explicite si aucune solution dure n'existe.
+
+**Preuve au 3 août 2026.** Les vingt configurations déterministes, dont le contre-exemple A114 et les profils uniformes, trouvent une solution dans la fenêtre : fréquence de repli `0/20`.
