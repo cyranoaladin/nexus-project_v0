@@ -29,7 +29,7 @@ script de rangement ne doit jamais stager en aveugle.
 ~/.config/nexus/openrouter.key en 600, répertoire en 700. Aucune révocation nécessaire.
 .env.production, .env.local et .env.test sont également en 600.
 
-## A1 — Composition des moteurs
+## A1 — Composition des moteurs — SUPERSEDED PAR A97
 
 **Constat.** computeScoringV2 et computeFacts semblaient concurrents faute d’articulation.
 
@@ -598,3 +598,75 @@ n’est donc affirmée.
 **Motif.** Un parcours calculé est plus utile et plus auditable qu’un renvoi générique. Il conserve la priorité absolue donnée aux erreurs tenues pour justes, sans faire intervenir de LLM, de RAG ni d’agent.
 
 **Dette bornée.** Tant que la relation `stage -> séances` n’existe pas, les étapes utilisent la configuration séquentielle `Séance 1`, `Séance 2`, etc. Ce libellé ne prétend pas refléter un planning réel. Le raccordement aux séances effectivement programmées relève d’une évolution distincte du modèle et ne doit pas être déduit du slug ou du contenu libre.
+
+## A97 — A1 superseded : retrait de ScoringV2 du socle Canonical
+
+**Constat.** Le bridge Canonical transformait toute passation en `BilanDiagnosticMathsData`
+et fabriquait des données absentes : discipline maths, stress nul, réponses vérifiées,
+ressenti positif, maîtrise binaire, mini-test sur six et poids de domaines uniformes.
+Les indices produits avaient une apparence d'autorité sans source réelle.
+
+**Décision.** A1 est superseded. `computeScoringV2` est retiré du chemin Canonical.
+La FactSheet a pour seules sources le pack validé et `computeFacts`. Le moteur diagnostics
+legacy reste disponible pour ses consommateurs historiques.
+
+**Motif.** Un indicateur plausible construit sur des données inventées est plus dangereux
+qu'une grandeur explicitement absente.
+
+## A98 — Signature sans paramètre mort
+
+**Constat.** `buildFactSheet(scoringV2, facts)` et `computed.scoringV2` permettaient à un
+consommateur futur de réutiliser silencieusement des indicateurs sans source.
+
+**Décision.** La signature normative devient `buildFactSheet(pack, facts)`. Le paramètre
+ScoringV2 et le champ de résultat `scoringV2` sont supprimés, pas rendus optionnels.
+
+**Motif.** Une frontière de type doit rendre le chemin interdit impossible, pas seulement
+le laisser inutilisé par convention.
+
+## A99 — Agrégation nommée des scores de domaine
+
+**Constat.** Une moyenne des scores de nœud perdrait le poids réel des items.
+
+**Décision.** `computeDomainScores` agrège par domaine selon
+`100 × Σ(rawSuccess × difficulty) / Σ(difficulty)`, avec la correspondance du pack
+`item → nodeCpsId → domainId`. Un domaine sans item vaut zéro ; un item sans rattachement
+valide fait échouer le calcul.
+
+**Motif.** La difficulté et la réussite partielle sont des faits mesurés et doivent rester
+présentes jusqu'à l'agrégation.
+
+## A100 — Couverture de passation uniquement
+
+**Constat.** Une passation d'entrée ne collecte ni chapitres vus, ni chapitres en cours,
+ni progression annuelle.
+
+**Décision.** `FactSheet.coverage` provient de `computeFacts` et signifie uniquement
+« proportion d'items traités ». Elle ne doit jamais être présentée comme une couverture
+du programme.
+
+**Motif.** Une couverture de programme sans source serait une grandeur inventée.
+
+## A101 — Indicateurs sans source interdits dans Canonical
+
+**Constat.** `examReadinessIndex`, `riskIndex`, `readinessScore`, `trustScore`, les
+recommandations Pallier 1/2, `quickWins`, les incohérences et les alertes de stress,
+rédaction, automatismes ou endurance dépendaient de données non collectées.
+
+**Décision.** Ces indicateurs sont absents du socle Canonical. Ils ne peuvent réapparaître
+qu'avec un modèle validé pour la discipline et des données d'entrée effectivement
+collectées.
+
+**Motif.** Ne jamais convertir l'absence d'information en score ou recommandation.
+
+## A102 — Frontière d'architecture ScoringV2
+
+**Constat.** Une suppression applicative sans garde permettrait de réintroduire le moteur
+legacy dans un autre module Canonical.
+
+**Décision.** Un test d'architecture bloquant interdit tout import de
+`lib/diagnostics/score-diagnostic.ts` depuis `lib/bilans/**` et surveille les identifiants
+d'indicateurs sans source.
+
+**Motif.** La séparation entre moteur legacy disciplinaire et socle Canonical neutre doit
+être vérifiée par la CI.

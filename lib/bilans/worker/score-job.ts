@@ -115,7 +115,6 @@ export async function processScoreAttemptJob(
         answers: attempt.answers,
         pack: enabled.pack,
       }, {
-        computeScoringV2: dependencies.computeScoringV2,
         computeFacts: dependencies.computeFacts,
         buildFactSheet: dependencies.buildFactSheet,
         buildReports: dependencies.buildReports,

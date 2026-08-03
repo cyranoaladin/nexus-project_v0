@@ -9,7 +9,7 @@ import {
 } from './fixtures/canonical-worker';
 
 describe('A86 deterministic scoring contract', () => {
-  it('composes Scoring V2 and computeFacts through one FactSheet', () => {
+  it('compose exclusivement le pack et computeFacts dans une FactSheet', () => {
     const first = buildWorkerScoring({
       attemptId: 'attempt-a86',
       startedAt: new Date('2026-08-02T08:00:00.000Z'),
@@ -28,7 +28,13 @@ describe('A86 deterministic scoring contract', () => {
     expect(JSON.stringify(first)).toBe(JSON.stringify(second));
     expect(first.factSheet.domains).toHaveLength(CANONICAL_WORKER_PACK.scoring.domains.length);
     expect(first.factSheet.domains.map(({ id }) => id)).toEqual(CANONICAL_WORKER_PACK.scoring.domains);
+    expect(first.factSheet.domains.map(({ id, score }) => ({ id, score }))).toEqual([
+      { id: 'algebre', score: 28.6 },
+      { id: 'analyse', score: 12.5 },
+      { id: 'probabilites', score: 11.1 },
+    ]);
     expect(first.factSheet.nodes.some(({ profile }) => profile === 'ERREUR_CONFIANTE')).toBe(true);
+    expect(first).not.toHaveProperty('scoringV2');
   });
 
   it('validates all three deterministic audience artifacts', () => {
