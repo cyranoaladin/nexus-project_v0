@@ -149,7 +149,7 @@ describe('A86 deterministic worker and internal review service', () => {
   });
 
   test.each([
-    ['scoring', { computeScoringV2: () => { throw new Error('injected'); } }, 'A86_SCORING_FAILED'],
+    ['scoring', { computeFacts: () => { throw new Error('injected'); } }, 'A86_SCORING_FAILED'],
     ['rendering', { buildReports: () => { throw new Error('injected'); } }, 'A86_RENDER_FAILED'],
   ])('fails closed on injected %s failure', async (_label, injected, code) => {
     const seeded = await seedAttempt(`fail-${_label}`);

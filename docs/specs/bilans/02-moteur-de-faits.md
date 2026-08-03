@@ -1,11 +1,10 @@
 # 02 — Moteur de faits déterministe
 > [!IMPORTANT]
-> **Arbitrage A1 — composition des moteurs.** Ce document décrit computeFacts, autorité
-> sur les profils par item et par nœud, dont ERREUR_CONFIANTE. Il ne décrit pas à lui
-> seul la production complète de la FactSheet. computeScoringV2 reste l’autorité sur
-> les domaines et la couverture programme. Le seul point de sortie autorisé est
-> buildFactSheet(scoringV2, facts) ; ni un agent ni un rendu ne doit appeler directement
-> l’un des deux moteurs.
+> **Arbitrage A97 — A1 superseded.** Ce document décrit computeFacts, seule autorité
+> de calcul du socle Canonical. Les domaines viennent du pack validé et leurs scores sont
+> agrégés depuis les résultats d'items de computeFacts. Le seul point de sortie autorisé est
+> buildFactSheet(pack, facts) ; ni un agent ni un rendu ne doit appeler directement
+> computeFacts.
 
 
 **Source de vérité du calcul.** `lib/bilans/facts/compute-facts.ts` implémente exactement ce document.
@@ -99,6 +98,11 @@ Aucune égalité n'est laissée non résolue : chaque comparaison est un `>=` ex
 globalScore = 100 × Σ (rawSuccess_i × weight_i) / Σ weight_i     (sur tous les items du test)
 coverage    = 100 × (nb items traités) / (nb items du test)
 ```
+
+`coverage` mesure exclusivement la couverture de la passation : la proportion d'items
+traités dans ce questionnaire. Elle ne mesure jamais une couverture du programme, des
+chapitres vus ou des notions enseignées. Une passation d'entrée ne collecte aucune donnée
+permettant d'établir cette seconde grandeur.
 
 `globalScore` est une donnée **interne**. Il n'apparaît jamais dans un bilan `ELEVE` ou `PARENT`.
 

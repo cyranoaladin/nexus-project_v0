@@ -114,6 +114,7 @@ export interface NodeResult {
 export interface ScoringOutput {
   readonly engineVersion: string;
   readonly globalScore: number;
+  /** Proportion d'items traites dans la passation, jamais une couverture du programme. */
   readonly coverage: number;
   readonly calibrationIndex: number | null;
   readonly items: readonly ItemResult[];

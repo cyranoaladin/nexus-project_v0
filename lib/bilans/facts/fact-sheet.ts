@@ -1,5 +1,4 @@
-import type { ScoringV2Result } from '@/lib/diagnostics/types';
-
+import { computeDomainScores } from './domain-scores';
 import type {
   GroupBand,
   NodeProfile,
@@ -14,6 +13,7 @@ export type FactSheet = Readonly<{
   bankVersion: number;
   student: Readonly<{ alias: string; level: string }>;
   globalScore: number;
+  /** Proportion d'items traites dans cette passation. Ce n'est pas une couverture de programme. */
   coverage: number;
   calibrationIndex: number | null;
   domains: readonly Readonly<{ id: string; score: number; profile: NodeProfile }>[];
@@ -24,9 +24,16 @@ export type FactSheet = Readonly<{
 
 export type FactSheetFactsInput = Readonly<{
   result: ScoringOutput;
-  bank: Readonly<{ slug: string; version: number; domainIds: readonly string[] }>;
   student: Readonly<{ alias: string; level: string }>;
-  nodeDomains: Readonly<Record<string, string>>;
+}>;
+
+export type FactSheetPackInput = Readonly<{
+  slug: string;
+  version: number;
+  scoring: Readonly<{ domains: readonly string[] }>;
+  questionnaire: Readonly<{
+    items: readonly Readonly<{ id: string; nodeCpsId: string; domainId: string }>[];
+  }>;
 }>;
 
 const PROFILE_SEVERITY: Readonly<Record<NodeProfile, number>> = {
@@ -51,30 +58,29 @@ function worstProfile(nodes: readonly NodeResult[]): NodeProfile {
 }
 
 export function buildFactSheet(
-  scoringV2: ScoringV2Result,
+  pack: FactSheetPackInput,
   facts: FactSheetFactsInput,
 ): FactSheet {
-  const packDomains = [...facts.bank.domainIds];
-  const scoringDomains = scoringV2.domainScores.map(({ domain }) => domain);
+  const packDomains = [...pack.scoring.domains];
   assertUniqueNonEmpty(packDomains, 'Pack domains');
-  assertUniqueNonEmpty(scoringDomains, 'Scoring V2 domains');
-
-  if (
-    packDomains.length !== scoringDomains.length
-    || packDomains.some((domain) => !scoringDomains.includes(domain))
-  ) {
-    throw new Error('FactSheet domain mismatch between validated pack and Scoring V2');
-  }
   if (!/^ELEVE_[A-Z]+$/.test(facts.student.alias)) {
     throw new TypeError('FactSheet student alias must be pseudonymous');
   }
-  if (!facts.bank.slug.trim() || !Number.isInteger(facts.bank.version) || facts.bank.version < 1) {
+  if (!pack.slug.trim() || !Number.isInteger(pack.version) || pack.version < 1) {
     throw new TypeError('FactSheet bank identity is invalid');
   }
 
+  const nodeDomains: Record<string, string> = {};
+  for (const item of pack.questionnaire.items) {
+    const current = nodeDomains[item.nodeCpsId];
+    if (current !== undefined && current !== item.domainId) {
+      throw new Error(`Pack node ${item.nodeCpsId} is bound to multiple domains`);
+    }
+    nodeDomains[item.nodeCpsId] = item.domainId;
+  }
   const nodesByDomain = new Map<string, NodeResult[]>();
   for (const node of facts.result.nodes) {
-    const domain = facts.nodeDomains[node.nodeCpsId];
+    const domain = nodeDomains[node.nodeCpsId];
     if (domain === undefined || !packDomains.includes(domain)) {
       throw new Error(`Fact node ${node.nodeCpsId} is not bound to a pack domain`);
     }
@@ -82,9 +88,8 @@ export function buildFactSheet(
     bucket.push(node);
     nodesByDomain.set(domain, bucket);
   }
-  const scoreByDomain = new Map(
-    scoringV2.domainScores.map(({ domain, score }) => [domain, score]),
-  );
+  const scoreByDomain = new Map(computeDomainScores(packDomains, nodeDomains, facts.result.items)
+    .map(({ domain, score }) => [domain, score]));
   const domains = packDomains.map((id) => Object.freeze({
     id,
     score: scoreByDomain.get(id) as number,
@@ -93,11 +98,11 @@ export function buildFactSheet(
 
   return Object.freeze({
     engineVersion: facts.result.engineVersion,
-    bankSlug: facts.bank.slug,
-    bankVersion: facts.bank.version,
+    bankSlug: pack.slug,
+    bankVersion: pack.version,
     student: Object.freeze({ ...facts.student }),
     globalScore: facts.result.globalScore,
-    coverage: scoringV2.coverageIndex,
+    coverage: facts.result.coverage,
     calibrationIndex: facts.result.calibrationIndex,
     domains: Object.freeze(domains),
     nodes: Object.freeze(facts.result.nodes.map((node) => Object.freeze({ ...node }))),
