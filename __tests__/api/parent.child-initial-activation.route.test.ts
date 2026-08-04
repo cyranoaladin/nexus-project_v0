@@ -9,6 +9,9 @@ jest.mock('@/lib/csrf', () => ({ checkCsrf: jest.fn() }));
 jest.mock('@/lib/services/student-activation.service', () => ({
   initiateParentOwnedStudentActivation: jest.fn(),
 }));
+jest.mock('@/lib/rate-limit/sensitive', () => ({
+  guardSensitiveRateLimit: jest.fn().mockResolvedValue(null),
+}));
 
 const mockAuth = auth as jest.Mock;
 const mockCheckCsrf = checkCsrf as jest.Mock;

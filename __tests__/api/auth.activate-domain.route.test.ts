@@ -7,7 +7,10 @@ jest.mock('@/lib/services/student-activation.service', () => ({
   completeStudentActivation: jest.fn(),
   verifyActivationToken: jest.fn(),
 }))
-jest.mock('@/lib/rate-limit', () => ({ guardRateLimitAsync: jest.fn().mockResolvedValue(null) }))
+jest.mock('@/lib/rate-limit/sensitive', () => ({
+  guardRateLimitAsync: jest.fn().mockResolvedValue(null),
+  guardSensitiveRateLimit: jest.fn().mockResolvedValue(null),
+}))
 
 const parentToken = 'pact_' + 'a'.repeat(43)
 const studentToken = 'sact_' + 'b'.repeat(43)

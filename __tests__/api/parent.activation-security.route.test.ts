@@ -5,15 +5,15 @@ import {
   completeStudentActivation,
   verifyActivationToken,
 } from '@/lib/services/student-activation.service'
-import { guardRateLimitAsync } from '@/lib/rate-limit'
+import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive'
 
 jest.mock('@/lib/services/student-activation.service', () => ({
   completeStudentActivation: jest.fn(),
   verifyActivationToken: jest.fn(),
 }))
 
-jest.mock('@/lib/rate-limit', () => ({
-  guardRateLimitAsync: jest.fn(),
+jest.mock('@/lib/rate-limit/sensitive', () => ({
+  guardSensitiveRateLimit: jest.fn(),
 }))
 
 const TOKEN = 'a'.repeat(43)
@@ -29,7 +29,7 @@ const secureHeaders = (response: Response) => {
 describe('generic Parent/Eleve activation route security', () => {
   beforeEach(() => {
     jest.clearAllMocks()
-    ;(guardRateLimitAsync as jest.Mock).mockResolvedValue(null)
+    ;(guardSensitiveRateLimit as jest.Mock).mockResolvedValue(null)
   })
 
   it('secures successful Parent verification and activation responses', async () => {
@@ -69,11 +69,11 @@ describe('generic Parent/Eleve activation route security', () => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ purpose: 'parent', token: 'pact_' + TOKEN, password: 'Secure-pass-2026' }),
     }))
-    ;(guardRateLimitAsync as jest.Mock).mockResolvedValueOnce(NextResponse.json({ error: 'rate' }, { status: 429 }))
+    ;(guardSensitiveRateLimit as jest.Mock).mockResolvedValueOnce(NextResponse.json({ error: 'rate' }, { status: 429 }))
     const limited = await GET(new NextRequest(
       'http://localhost/api/auth/activate?purpose=parent&token=pact_' + TOKEN,
     ))
-    ;(guardRateLimitAsync as jest.Mock).mockResolvedValue(null)
+    ;(guardSensitiveRateLimit as jest.Mock).mockResolvedValue(null)
     ;(verifyActivationToken as jest.Mock).mockRejectedValueOnce(new Error('recognizable-raw-token-must-not-leak'))
     const consoleError = jest.spyOn(console, 'error').mockImplementation(() => undefined)
     const internal = await GET(new NextRequest(

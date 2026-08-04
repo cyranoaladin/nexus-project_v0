@@ -4,7 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { bilanGratuitSchema } from '@/lib/validations';
 import { normalizeStudentLevelAndTrack } from '@/lib/utils/grade-utils';
 import { UserRole } from '@/types/enums';
-import { guardRateLimitAsync } from '@/lib/rate-limit';
+import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive';
 import { checkCsrf, checkBodySize } from '@/lib/csrf';
 import { synchronizePreRentreeCampaignContext } from '@/lib/campaigns/pre-rentree-2026/bilan-prefill';
 import { createId } from '@paralleldrive/cuid2';
@@ -50,10 +50,6 @@ export async function POST(request: NextRequest) {
     const bodySizeResponse = checkBodySize(request);
     if (bodySizeResponse) return secureResponse(bodySizeResponse);
 
-    // Rate limiting
-    const blocked = await guardRateLimitAsync(request, { preset: 'api', keySuffix: 'bilan-gratuit' });
-    if (blocked) return secureResponse(blocked);
-
     const body = await request.json();
 
     // Honeypot check — bots fill hidden fields, humans don't
@@ -61,6 +57,12 @@ export async function POST(request: NextRequest) {
       // Silently reject bot submissions with a fake success response
       return publicSuccessResponse();
     }
+
+    const blocked = await guardSensitiveRateLimit(request, {
+      scope: 'parent-signup',
+      identity: typeof body.parentEmail === 'string' ? body.parentEmail : null,
+    });
+    if (blocked) return secureResponse(blocked);
 
     // Validation des données
     const normalizedBody = body && typeof body === 'object' &&

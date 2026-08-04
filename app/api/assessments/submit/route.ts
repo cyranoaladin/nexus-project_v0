@@ -1,3 +1,4 @@
+import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive';
 import { serializeError } from '@/lib/utils/serialize-error';
 /**
  * Universal Assessment Submission API
@@ -23,11 +24,13 @@ import { scoringResultSchema } from '@/lib/assessments/core/schemas';
 import { submitAssessmentSchema, type SubmitAssessmentResponse } from './types';
 import { headers } from 'next/headers';
 import { backfillCanonicalDomains } from '@/lib/assessments/core/config';
-import { guardRateLimitAsync } from '@/lib/rate-limit';
 
 export async function POST(request: NextRequest) {
   try {
-    const blocked = await guardRateLimitAsync(request, { preset: 'expensive', keySuffix: 'assessments-submit' });
+    const blocked = await guardSensitiveRateLimit(request, {
+      scope: 'assessment-submit',
+      dimensions: ['ip'],
+    });
     if (blocked) return blocked;
 
     // Parse and validate request
@@ -46,6 +49,14 @@ export async function POST(request: NextRequest) {
     }
 
     const { subject, grade, assessmentVersion, studentData, answers, duration, metadata } = validationResult.data;
+
+    const identityBlocked = await guardSensitiveRateLimit(request, {
+      scope: 'assessment-submit',
+      identity: studentData.email,
+      resource: assessmentVersion,
+      dimensions: ['identity', 'resource'],
+    });
+    if (identityBlocked) return identityBlocked;
 
     // Get user agent and IP for tracking
     const headersList = await headers();

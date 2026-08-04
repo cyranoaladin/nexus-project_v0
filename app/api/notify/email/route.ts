@@ -1,3 +1,4 @@
+import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive';
 /**
  * POST /api/notify/email
  *
@@ -9,7 +10,7 @@
  *
  * Security:
  * - CSRF: checkCsrf rejects cross-origin requests in production.
- * - Rate limit: dedicated 'notifyEmail' bucket (5 req/min/IP via Upstash Redis).
+ * - Rate limit: dedicated distributed Redis policy with IP and identity dimensions.
  *   Fail-closed in production if Redis is not configured (503).
  * - Body size: enforced via stream reading (64KB max), not just Content-Length.
  * - Internal emails: sent only to INTERNAL_NOTIFICATION_EMAIL (never caller-controlled).
@@ -18,7 +19,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { checkCsrf } from '@/lib/csrf';
-import { guardRateLimit } from '@/lib/rate-limit';
 import { sendMail } from '@/lib/email/mailer';
 import { bilanAcknowledgement, internalNotification } from '@/lib/email/templates';
 import { LEGAL } from '@/lib/legal';
@@ -100,7 +100,10 @@ export async function POST(request: NextRequest) {
   if (csrfResponse) return csrfResponse;
 
   // 2. Dedicated rate limiting — 5 req/hour/IP
-  const blocked = guardRateLimit(request, { preset: 'notifyEmail' });
+  const blocked = await guardSensitiveRateLimit(request, {
+      scope: 'notification-email',
+      dimensions: ['ip'],
+    });
   if (blocked) return blocked;
 
   // 3. Read & parse body with stream-enforced size limit (64KB)
@@ -121,6 +124,13 @@ export async function POST(request: NextRequest) {
   }
 
   const data = parsed.data;
+
+  const identityBlocked = await guardSensitiveRateLimit(request, {
+    scope: 'notification-email',
+    identity: data.type === 'bilan_ack' ? data.to : data.eventType,
+    dimensions: ['identity'],
+  });
+  if (identityBlocked) return identityBlocked;
 
   try {
     // 5a. Bilan acknowledgement — sends to the caller-provided email

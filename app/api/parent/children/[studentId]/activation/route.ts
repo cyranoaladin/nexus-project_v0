@@ -2,6 +2,7 @@ import { auth } from '@/auth';
 import { checkCsrf } from '@/lib/csrf';
 import { initiateParentOwnedStudentActivation } from '@/lib/services/student-activation.service';
 import { isStudentLoginIdentifierConflict } from '@/lib/services/student-login-identifier';
+import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive';
 import { NextRequest, NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
@@ -23,6 +24,12 @@ export async function POST(
 
   const csrfResponse = checkCsrf(request);
   if (csrfResponse !== null) return csrfResponse;
+
+  const blocked = await guardSensitiveRateLimit(request, {
+    scope: 'child-activation',
+    identity: session.user.id,
+  });
+  if (blocked) return blocked;
 
   const { studentId } = await context.params;
   try {

@@ -3,7 +3,7 @@ export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
-import { guardRateLimitAsync, hashForKey } from '@/lib/rate-limit';
+import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive';
 import { sendMail } from '@/lib/email/mailer';
 import { prisma } from '@/lib/prisma';
 import { createActivationToken } from '@/lib/auth/activation-token';
@@ -26,10 +26,6 @@ function successResponse() {
 }
 
 export async function POST(request: NextRequest) {
-  // IP-based rate limiting: 3 req/15min (resendActivation preset)
-  const blocked = await guardRateLimitAsync(request, { preset: 'resendActivation' });
-  if (blocked) return withActivationSecurityHeaders(blocked);
-
   let body: unknown;
 
   try {
@@ -46,10 +42,9 @@ export async function POST(request: NextRequest) {
   const email = normalizeParentEmail(parsed.data.email);
   const response = successResponse();
 
-  const accountBlocked = await guardRateLimitAsync(request, {
-    preset: 'resendActivation',
-    keySuffix: 'account',
-    userId: hashForKey(email),
+  const accountBlocked = await guardSensitiveRateLimit(request, {
+    scope: 'activation-resend',
+    identity: email,
   });
   if (accountBlocked) return withActivationSecurityHeaders(accountBlocked);
 

@@ -1,9 +1,9 @@
+import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive';
 import { UserRole } from '@prisma/client';
 import { NextRequest, NextResponse } from 'next/server';
 
 import { isErrorResponse, requireAnyRole } from '@/lib/guards';
 import { renderQuotePDF, type QuotePDFData } from '@/lib/quote/pdf';
-import { guardRateLimit } from '@/lib/rate-limit';
 import { z } from 'zod';
 
 export const dynamic = 'force-dynamic';
@@ -72,7 +72,10 @@ export async function POST(request: NextRequest) {
   const sessionOrError = await requireAnyRole([UserRole.ADMIN, UserRole.ASSISTANTE]);
   if (isErrorResponse(sessionOrError)) return sessionOrError;
 
-  const blocked = guardRateLimit(request, { preset: 'expensive', keySuffix: 'quotes-pdf' });
+  const blocked = await guardSensitiveRateLimit(request, {
+      scope: 'quotes-pdf',
+      identity: sessionOrError.user.id,
+    });
   if (blocked) return blocked;
 
   let payload: unknown;

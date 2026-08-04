@@ -3,7 +3,7 @@ import { z } from 'zod'
 
 import type { ActivationPurpose } from '@/lib/auth/activation-token'
 import { withActivationSecurityHeaders } from '@/lib/auth/parent-activation'
-import { guardRateLimitAsync } from '@/lib/rate-limit'
+import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive'
 import {
   completeStudentActivation,
   verifyActivationToken,
@@ -58,9 +58,9 @@ export async function handleActivationGet(
       ))
     }
 
-    const blocked = await guardRateLimitAsync(request, {
-      preset: 'auth',
-      keySuffix: 'activate-' + purpose,
+    const blocked = await guardSensitiveRateLimit(request, {
+      scope: purpose === 'parent' ? 'parent-activation' : 'student-activation',
+      identity: token,
     })
     if (blocked) return withActivationSecurityHeaders(blocked)
 
@@ -99,9 +99,9 @@ export async function handleActivationPost(
       ))
     }
 
-    const blocked = await guardRateLimitAsync(request, {
-      preset: 'auth',
-      keySuffix: 'activate-' + purpose,
+    const blocked = await guardSensitiveRateLimit(request, {
+      scope: purpose === 'parent' ? 'parent-activation' : 'student-activation',
+      identity: parsed.data.token,
     })
     if (blocked) return withActivationSecurityHeaders(blocked)
 

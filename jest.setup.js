@@ -1,5 +1,9 @@
 // Set NODE_ENV before any imports
 process.env.NODE_ENV = 'development';
+// S3: unit tests use the deterministic in-process adapter by explicit opt-in.
+// Production rejects this backend and requires Redis.
+process.env.RATE_LIMIT_BACKEND = 'memory';
+process.env.RATE_LIMIT_KEY_SECRET = 'rate-limit-jest-only-secret-32-bytes-minimum';
 
 // Load test environment variables
 const dotenv = require('dotenv');
@@ -451,3 +455,14 @@ jest.mock('framer-motion', () => {
 
 // Mock Radix UI Tabs - Using manual mock in __mocks__/@radix-ui/react-tabs.js directory
 // The inline mock below has been moved to __mocks__ for better compatibility with Next.js jest
+process.env.RATE_LIMIT_KEY_NAMESPACE = process.env.RATE_LIMIT_KEY_NAMESPACE || 'test'
+process.env.RATE_LIMIT_TRUST_PROXY_HOPS = process.env.RATE_LIMIT_TRUST_PROXY_HOPS || '1'
+
+beforeEach(() => {
+  Object.defineProperty(process.env, 'NODE_ENV', { configurable: true, value: 'test' })
+  process.env.RATE_LIMIT_BACKEND = 'memory'
+  process.env.RATE_LIMIT_KEY_SECRET = 'jest-rate-limit-key-secret-at-least-32-bytes'
+  process.env.RATE_LIMIT_KEY_NAMESPACE = 'test'
+  process.env.RATE_LIMIT_TRUST_PROXY_HOPS = '1'
+  delete global.__nexusRateLimitState
+})

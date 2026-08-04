@@ -20,7 +20,7 @@ const createTransporter = () => {
     secure: process.env.SMTP_SECURE === 'true',
   };
 
-  // Only add auth if credentials are provided (Mailpit doesn't need auth)
+  // Only add auth if credentials are provided by the configured SMTP server.
   if (process.env.SMTP_USER && process.env.SMTP_PASSWORD) {
     transportConfig.auth = {
       user: process.env.SMTP_USER,

@@ -1,6 +1,7 @@
 jest.unmock('@/lib/prisma')
-jest.mock('@/lib/rate-limit', () => ({
+jest.mock('@/lib/rate-limit/sensitive', () => ({
   guardRateLimitAsync: jest.fn().mockResolvedValue(null),
+  guardSensitiveRateLimit: jest.fn().mockResolvedValue(null),
 }))
 
 import { NextRequest } from 'next/server'

@@ -9,6 +9,8 @@
  * @module lib/env-validation
  */
 
+import { assertRateLimitRuntimeConfiguration } from '@/lib/rate-limit';
+
 interface EnvVar {
   /** Environment variable name */
   name: string;
@@ -37,6 +39,9 @@ const ENV_CONTRACT: EnvVar[] = [
   { name: 'DATABASE_URL', level: 'REQUIRED', description: 'PostgreSQL connection string', prodOnly: false },
   { name: 'NEXTAUTH_SECRET', level: 'REQUIRED', description: 'NextAuth.js signing secret (≥32 chars recommended)', prodOnly: true },
   { name: 'NEXTAUTH_URL', level: 'REQUIRED', description: 'Canonical app URL for NextAuth callbacks', prodOnly: true },
+  { name: 'RATE_LIMIT_BACKEND', level: 'REQUIRED', description: 'Distributed rate-limit backend (redis)', prodOnly: true },
+  { name: 'RATE_LIMIT_KEY_SECRET', level: 'REQUIRED', description: 'Dedicated HMAC secret for opaque rate-limit keys', prodOnly: true },
+  { name: 'RATE_LIMIT_TRUST_PROXY_HOPS', level: 'REQUIRED', description: 'Exact trusted reverse-proxy hop count', prodOnly: true },
 
   // ─── RECOMMENDED (graceful degradation) ────────────────────────────
   { name: 'OLLAMA_URL', level: 'RECOMMENDED', description: 'Ollama LLM service URL (fallback: Docker service name in prod)' },
@@ -54,8 +59,7 @@ const ENV_CONTRACT: EnvVar[] = [
   { name: 'OLLAMA_TIMEOUT', level: 'OPTIONAL', description: 'Ollama request timeout in ms (default: 120000)' },
   { name: 'RAG_SEARCH_TIMEOUT', level: 'OPTIONAL', description: 'RAG search timeout in ms (default: 10000)' },
   { name: 'SENTRY_DSN', level: 'OPTIONAL', description: 'Sentry error tracking DSN' },
-  { name: 'UPSTASH_REDIS_REST_URL', level: 'OPTIONAL', description: 'Upstash Redis URL for rate limiting' },
-  { name: 'UPSTASH_REDIS_REST_TOKEN', level: 'OPTIONAL', description: 'Upstash Redis token for rate limiting' },
+  { name: 'REDIS_URL', level: 'OPTIONAL', description: 'Redis URL for distributed rate limiting' },
 ];
 
 /**
@@ -101,6 +105,15 @@ export function validateEnv(): { ok: boolean; missing: string[]; warnings: strin
   const secret = process.env.NEXTAUTH_SECRET;
   if (isProd && secret && secret.length < 32) {
     warnings.push(`NEXTAUTH_SECRET is ${secret.length} chars — recommended ≥32 for production security`);
+  }
+
+  if (isProd) {
+    try {
+      assertRateLimitRuntimeConfiguration();
+    } catch (error) {
+      const code = error instanceof Error ? error.message : 'RATE_LIMIT_CONFIGURATION_INVALID';
+      missing.push(`RATE_LIMIT_CONFIGURATION (${code})`);
+    }
   }
 
   // Log results

@@ -5,7 +5,10 @@
 
 jest.unmock('@/lib/prisma');
 jest.mock('@/auth', () => ({ auth: jest.fn() }));
-jest.mock('@/lib/rate-limit', () => ({ guardRateLimitAsync: jest.fn().mockResolvedValue(null) }));
+jest.mock('@/lib/rate-limit/sensitive', () => ({
+  guardRateLimitAsync: jest.fn().mockResolvedValue(null),
+  guardSensitiveRateLimit: jest.fn().mockResolvedValue(null),
+}));
 jest.mock('@/lib/email', () => ({ sendWelcomeParentEmail: jest.fn().mockResolvedValue(undefined) }));
 jest.mock('@/lib/email/mailer', () => ({ sendMail: jest.fn().mockResolvedValue(undefined) }));
 

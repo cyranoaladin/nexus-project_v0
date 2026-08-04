@@ -25,6 +25,10 @@ jest.mock('@/lib/bilans/parent-student-consent', () => ({
   withParentStudentConsentTransaction: jest.fn(),
 }));
 
+jest.mock('@/lib/rate-limit/sensitive', () => ({
+  guardSensitiveRateLimit: jest.fn().mockResolvedValue(null),
+}));
+
 const mockWithParentStudentConsentTransaction = withParentStudentConsentTransaction as jest.MockedFunction<
   typeof withParentStudentConsentTransaction
 >;

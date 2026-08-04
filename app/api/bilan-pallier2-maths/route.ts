@@ -1,3 +1,4 @@
+import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive';
 export const dynamic = 'force-dynamic';
 
 import { prisma } from '@/lib/prisma';
@@ -14,7 +15,6 @@ import { generateBilanToken, verifyBilanToken } from '@/lib/diagnostics/signed-t
 import { NextRequest, NextResponse } from 'next/server';
 import { Prisma } from '@prisma/client';
 import { createHash } from 'crypto';
-import { guardRateLimit } from '@/lib/rate-limit';
 import { checkCsrf, checkBodySize } from '@/lib/csrf';
 
 /**
@@ -34,13 +34,24 @@ export async function POST(request: NextRequest) {
     if (bodySizeResponse) return bodySizeResponse;
 
     // Rate limiting
-    const blocked = guardRateLimit(request, { preset: 'api' });
+    const blocked = await guardSensitiveRateLimit(request, {
+      scope: 'bilan-pallier2',
+      dimensions: ['ip'],
+    });
     if (blocked) return blocked;
 
     const body = await request.json();
 
     // 1. Validate input against v1.3 schema
     const validatedData = bilanDiagnosticMathsSchema.parse(body);
+
+    const identityBlocked = await guardSensitiveRateLimit(request, {
+      scope: 'bilan-pallier2',
+      identity: validatedData.identity.email,
+      resource: new URL(request.url).pathname,
+      dimensions: ['identity', 'resource'],
+    });
+    if (identityBlocked) return identityBlocked;
 
     // 1b. Idempotency: check explicit header first, then fallback to email+type dedup
     const headerKey = request.headers.get('Idempotency-Key');

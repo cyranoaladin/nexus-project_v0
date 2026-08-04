@@ -1,11 +1,14 @@
 import { NextResponse } from "next/server";
-import { guardRateLimitAsync } from "@/lib/rate-limit";
+import { guardSensitiveRateLimit } from "@/lib/rate-limit/sensitive";
 import { captureContactLead, ContactLeadValidationError } from "@/lib/crm/contact-leads";
 import { serializeError } from '@/lib/utils/serialize-error';
 
 export async function POST(request: Request) {
   try {
-    const blocked = await guardRateLimitAsync(request, { preset: "api", keySuffix: "contact" });
+    const blocked = await guardSensitiveRateLimit(request, {
+      scope: "contact-submit",
+      dimensions: ["ip"],
+    });
     if (blocked) return blocked;
 
     let payload: unknown;
@@ -17,6 +20,16 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
+
+    const identity = payload && typeof payload === "object" && "email" in payload
+      ? String(payload.email)
+      : "invalid";
+    const identityBlocked = await guardSensitiveRateLimit(request, {
+      scope: "contact-submit",
+      identity,
+      dimensions: ["identity"],
+    });
+    if (identityBlocked) return identityBlocked;
 
     const lead = await captureContactLead(payload);
 

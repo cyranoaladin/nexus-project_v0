@@ -2,8 +2,9 @@ import { POST } from '@/app/api/contact/route';
 import { prisma } from '@/lib/prisma';
 import { sendMail } from '@/lib/email/mailer';
 
-jest.mock('@/lib/rate-limit', () => ({
+jest.mock('@/lib/rate-limit/sensitive', () => ({
   guardRateLimitAsync: jest.fn().mockResolvedValue(null),
+  guardSensitiveRateLimit: jest.fn().mockResolvedValue(null),
 }));
 
 jest.mock('@/lib/email/mailer', () => ({

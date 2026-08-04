@@ -1,3 +1,4 @@
+import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive';
 export const dynamic = 'force-dynamic';
 
 import { randomUUID } from 'crypto';
@@ -9,7 +10,6 @@ import { bookFullSessionSchema } from '@/lib/validation';
 import { requireAnyRole, isErrorResponse } from '@/lib/guards';
 import { ApiError, successResponse, handleZodError, HttpStatus, errorResponse } from '@/lib/api/errors';
 import { parseBody } from '@/lib/api/helpers';
-import { RateLimitPresets } from '@/lib/middleware/rateLimit';
 import { createLogger } from '@/lib/middleware/logger';
 import { UserRole } from '@/types/enums';
 import { requireFeatureApi } from '@/lib/access';
@@ -33,12 +33,22 @@ export async function POST(req: NextRequest) {
 
   try {
     // Rate limiting
-    const rateLimitResult = RateLimitPresets.expensive(req, 'session-book');
+    const rateLimitResult = await guardSensitiveRateLimit(req, {
+      scope: 'session-book',
+      dimensions: ['ip'],
+    });
     if (rateLimitResult) return rateLimitResult;
 
     // Authentication & Authorization
     const session = await requireAnyRole([UserRole.PARENT, UserRole.ELEVE]);
     if (isErrorResponse(session)) return session;
+
+    const identityBlocked = await guardSensitiveRateLimit(req, {
+      scope: 'session-book',
+      identity: session.user.id,
+      dimensions: ['identity'],
+    });
+    if (identityBlocked) return identityBlocked;
 
     // Update logger with user context
     logger = createLogger(req, session);

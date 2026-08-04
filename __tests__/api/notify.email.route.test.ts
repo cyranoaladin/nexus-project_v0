@@ -6,9 +6,10 @@
  * Source: app/api/notify/email/route.ts
  */
 
-jest.mock('@/lib/rate-limit', () => ({
+jest.mock('@/lib/rate-limit/sensitive', () => ({
   guardRateLimit: jest.fn().mockReturnValue(null),
   guardRateLimitAsync: jest.fn().mockResolvedValue(null),
+  guardSensitiveRateLimit: jest.fn().mockResolvedValue(null),
 }));
 
 jest.mock('@/lib/email/mailer', () => ({
