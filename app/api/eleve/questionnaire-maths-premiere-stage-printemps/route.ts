@@ -1,7 +1,7 @@
-import { NextResponse } from 'next/server';
-import { requireRole, isErrorResponse } from '@/lib/guards';
-import { prisma } from '@/lib/prisma';
+import { isErrorResponse,requireRole } from '@/lib/guards';
 import { logger } from '@/lib/logger';
+import { prisma } from '@/lib/prisma';
+import { NextResponse } from 'next/server';
 import { z } from 'zod';
 
 const SOURCE_VERSION = 'maths_premiere_stage_printemps_v1';
@@ -251,7 +251,7 @@ export async function POST(request: Request) {
       bilan = await prisma.bilan.update({
         where: { id: existingBilan.id },
         data: {
-          sourceData: sourceData as any,
+          sourceData: sourceData as import('@prisma/client').Prisma.InputJsonValue,
           status: isSubmission ? 'COMPLETED' : 'PENDING',
           progress: isSubmission ? 100 : Math.round(((step + 1) / 9) * 100),
           updatedAt: new Date(),
@@ -265,7 +265,7 @@ export async function POST(request: Request) {
           studentId: student.id,
           studentEmail: student.user.email,
           studentName,
-          sourceData: sourceData as any,
+          sourceData: sourceData as import('@prisma/client').Prisma.InputJsonValue,
           sourceVersion: SOURCE_VERSION,
           status: isSubmission ? 'COMPLETED' : 'PENDING',
           progress: isSubmission ? 100 : Math.round(((step + 1) / 9) * 100),

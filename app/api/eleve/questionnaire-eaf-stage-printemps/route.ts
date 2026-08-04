@@ -1,9 +1,9 @@
-import { NextResponse } from 'next/server';
-import { requireRole, isErrorResponse } from '@/lib/guards';
-import { prisma } from '@/lib/prisma';
+import { isErrorResponse,requireRole } from '@/lib/guards';
 import { logger } from '@/lib/logger';
-import { z } from 'zod';
+import { prisma } from '@/lib/prisma';
 import { maybeCreateGeneratedReportJob } from '@/lib/reports/stage/maybeCreateGeneratedReportJob';
+import { NextResponse } from 'next/server';
+import { z } from 'zod';
 
 const SOURCE_VERSION = 'eaf_stage_printemps_v1';
 const BILAN_TYPE = 'STAGE_POST' as const;
@@ -248,7 +248,7 @@ export async function POST(request: Request) {
       bilan = await prisma.bilan.update({
         where: { id: existingBilan.id },
         data: {
-          sourceData: sourceData as any,
+          sourceData: sourceData as import('@prisma/client').Prisma.InputJsonValue,
           status: isSubmission ? 'COMPLETED' : 'PENDING',
           progress: isSubmission ? 100 : Math.round(((step + 1) / 8) * 100),
           updatedAt: new Date(),
@@ -262,7 +262,7 @@ export async function POST(request: Request) {
           studentId: student.id,
           studentEmail: student.user.email,
           studentName,
-          sourceData: sourceData as any,
+          sourceData: sourceData as import('@prisma/client').Prisma.InputJsonValue,
           sourceVersion: SOURCE_VERSION,
           status: isSubmission ? 'COMPLETED' : 'PENDING',
           progress: isSubmission ? 100 : Math.round(((step + 1) / 8) * 100),

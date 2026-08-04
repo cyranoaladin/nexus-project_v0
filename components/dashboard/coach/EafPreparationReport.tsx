@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { CheckCircle2, Loader2, Save, FileText } from "lucide-react";
+import { Card,CardContent,CardHeader,CardTitle } from "@/components/ui/card";
+import { CheckCircle2,FileText,Loader2,Save } from "lucide-react";
+import { useCallback,useEffect,useState } from "react";
 
 interface EafReportData {
   linearReading?: string;
@@ -37,16 +37,7 @@ export function EafPreparationReport({ studentId, studentName }: EafPreparationR
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
 
-  useEffect(() => {
-    setReport({});
-    setLastSavedAt(null);
-    setError(null);
-    setMessage(null);
-    setLoading(true);
-    fetchReport();
-  }, [studentId]);
-
-  const fetchReport = async () => {
+  const fetchReport = useCallback(async () => {
     try {
       const res = await fetch(`/api/coach/students/${studentId}/eaf-preparation-report`);
       if (res.ok) {
@@ -61,7 +52,16 @@ export function EafPreparationReport({ studentId, studentName }: EafPreparationR
     } finally {
       setLoading(false);
     }
-  };
+  }, [studentId]);
+
+  useEffect(() => {
+    setReport({});
+    setLastSavedAt(null);
+    setError(null);
+    setMessage(null);
+    setLoading(true);
+    void fetchReport();
+  }, [fetchReport]);
 
   const handleSave = async () => {
     // Prevent saving if already validated

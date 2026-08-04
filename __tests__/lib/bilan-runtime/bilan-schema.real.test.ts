@@ -118,13 +118,13 @@ describe('F49/F51: Bilan Schema in Database', () => {
       });
 
       // Find by legacy diagnostic ID
-      const foundByDiag = await prisma.bilan.findUnique({
+      const foundByDiag = await prisma.bilan.findFirst({
         where: { legacyDiagnosticId: 'diag-12345' },
       });
       expect(foundByDiag?.id).toBe(bilanWithLegacy.id);
 
       // Find by legacy assessment ID
-      const foundByAssess = await prisma.bilan.findUnique({
+      const foundByAssess = await prisma.bilan.findFirst({
         where: { legacyAssessmentId: 'assess-67890' },
       });
       expect(foundByAssess?.id).toBe(bilanWithLegacy.id);

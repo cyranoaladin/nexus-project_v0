@@ -2,16 +2,16 @@
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card,CardContent,CardHeader,CardTitle } from "@/components/ui/card";
+import { Dialog,DialogContent,DialogHeader,DialogTitle,DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { AlertCircle, Loader2, LogOut, Plus, Search, Settings, CreditCard } from "lucide-react";
-import { signOut, useSession } from "next-auth/react";
+import { Select,SelectContent,SelectItem,SelectTrigger,SelectValue } from "@/components/ui/select";
+import { AlertCircle,CreditCard,Loader2,LogOut,Plus,Search,Settings } from "lucide-react";
+import { signOut,useSession } from "next-auth/react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useRouter,useSearchParams } from "next/navigation";
+import { useCallback,useEffect,useState } from "react";
 
 interface Student {
   id: string;
@@ -38,19 +38,9 @@ export default function CreditsManagement() {
     type: "CREDIT_ADD",
     description: ""
   });
+  const requestedStudentId = searchParams.get("studentId");
 
-  useEffect(() => {
-    if (status === "loading") return;
-
-    if (!session || session.user.role !== 'ASSISTANTE') {
-      router.push("/auth/signin");
-      return;
-    }
-
-    fetchStudents();
-  }, [session, status, router]);
-
-  const fetchStudents = async () => {
+  const fetchStudents = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -64,9 +54,8 @@ export default function CreditsManagement() {
       const data = await response.json();
       setStudents(data);
 
-      const studentId = searchParams.get("studentId");
-      if (studentId) {
-        const match = (data as Student[]).find((s) => s.id === studentId);
+      if (requestedStudentId) {
+        const match = (data as Student[]).find((s) => s.id === requestedStudentId);
         if (match) {
           setSelectedStudent(match);
           setSearchTerm(`${match.firstName} ${match.lastName}`.trim());
@@ -77,7 +66,18 @@ export default function CreditsManagement() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [requestedStudentId]);
+
+  useEffect(() => {
+    if (status === "loading") return;
+
+    if (!session || session.user.role !== 'ASSISTANTE') {
+      router.push("/auth/signin");
+      return;
+    }
+
+    void fetchStudents();
+  }, [fetchStudents, router, session, status]);
 
   const handleAddCredits = async () => {
     if (!selectedStudent) return;

@@ -1,15 +1,16 @@
 'use client';
+import type { NiveauEleve, StageSession } from '@/components/programme/shared/types/programme';
 
-import React, { useMemo } from 'react';
-import { motion } from 'framer-motion';
-import { Calendar, Clock, Target, TrendingUp, Zap, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { getNextStage } from '@/lib/pricing-client';
+import { motion } from 'framer-motion';
+import { AlertTriangle,Calendar,CheckCircle2,Clock,Target,TrendingUp,Zap } from 'lucide-react';
+import React,{ useMemo } from 'react';
 
 interface HeroPedagogiqueProps {
   displayName: string;
   onNavigate: (tab: string) => void;
   store: {
-    getNiveau: () => any; // NiveauEleve
+    getNiveau: () => NiveauEleve; // NiveauEleve
     completedChapters: string[];
     getDueReviews: () => string[];
     totalXP: number;
@@ -18,8 +19,8 @@ interface HeroPedagogiqueProps {
     getStagePhase: (date: Date) => 'avant' | 'pendant' | 'apres';
     getDaysUntilStage: (date: Date) => number;
     getDaysUntilExam: (date: Date) => number;
-    getTodaySession: (date: Date, matiere: 'Mathématiques' | 'Français') => any;
-    getNextSession: (date: Date, matiere: 'Mathématiques' | 'Français') => any;
+    getTodaySession: (date: Date, matiere: 'Mathématiques' | 'Français') => StageSession | null;
+    getNextSession: (date: Date, matiere: 'Mathématiques' | 'Français') => StageSession | null;
     formatDateFr: (date: string) => string;
   };
 }

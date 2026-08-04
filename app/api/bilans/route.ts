@@ -5,12 +5,12 @@ import { serializeError } from '@/lib/utils/serialize-error';
  * POST /api/bilans — Create new bilan
  */
 
-import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import { requireAnyRole, isErrorResponse } from '@/lib/guards';
 import { parseJsonBody } from '@/lib/api/helpers';
+import { BilanStatus,BilanType } from '@/lib/bilan/types';
+import { isErrorResponse,requireAnyRole } from '@/lib/guards';
+import { prisma } from '@/lib/prisma';
+import { NextRequest,NextResponse } from 'next/server';
 import { z } from 'zod';
-import { BilanType, BilanStatus } from '@/lib/bilan/types';
 
 export const dynamic = 'force-dynamic';
 
@@ -62,8 +62,8 @@ export async function GET(request: NextRequest) {
     const { type, status, subject, studentId, stageId, coachId, isPublished, limit, offset } = parsedQuery.data;
 
     // RBAC: Force coachId if role is COACH
-    const userRole = (authResponse as any).user.role;
-    const userId = (authResponse as any).user.id;
+    const userRole = authResponse.user.role;
+    const userId = authResponse.user.id;
     let forcedCoachId = null;
     
     if (userRole === 'COACH') {
@@ -146,8 +146,8 @@ export async function POST(request: NextRequest) {
     const body = parsedBody.data;
 
     // RBAC: Validate coachId if role is COACH
-    const userRole = (authResponse as any).user.role;
-    const userId = (authResponse as any).user.id;
+    const userRole = authResponse.user.role;
+    const userId = authResponse.user.id;
     
     if (userRole === 'COACH') {
       const coachProfile = await prisma.coachProfile.findUnique({ where: { userId } });
@@ -166,7 +166,7 @@ export async function POST(request: NextRequest) {
     // Create bilan
     const bilan = await prisma.bilan.create({
       data: {
-        type: body.type as any,
+        type: body.type as import('@prisma/client').BilanType,
         subject: body.subject,
         studentEmail: body.studentEmail,
         studentName: body.studentName,
@@ -174,10 +174,10 @@ export async function POST(request: NextRequest) {
         studentId: body.studentId,
         stageId: body.stageId,
         coachId: body.coachId,
-        sourceData: (body.sourceData || {}) as any,
+        sourceData: (body.sourceData || {}) as import('@prisma/client').Prisma.InputJsonValue,
         globalScore: body.globalScore,
         confidenceIndex: body.confidenceIndex,
-        domainScores: body.domainScores as any,
+        domainScores: body.domainScores as import('@prisma/client').Prisma.InputJsonValue,
         status: 'PENDING',
         progress: 0,
         isPublished: false,

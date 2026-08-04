@@ -1,41 +1,40 @@
 "use client";
 
 // BadgeWidget reserved for gamification phase
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { BookOpen, Calendar, HardDrive, Loader2, LogOut, MessageSquare, Sparkles, User, Video, AlertCircle, ArrowRight, Calculator, Zap, Target } from "lucide-react";
-import { signOut, useSession } from "next-auth/react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import SessionBooking from "@/components/ui/session-booking";
-import { AriaWidget } from "@/components/ui/aria-widget";
+import { AutomatismesDashboardCard } from "@/components/automatismes/AutomatismesDashboardCard";
 import { DashboardPilotage } from "@/components/dashboard/DashboardPilotage";
 import {
-  EleveAria,
-  EleveBilans,
-  EleveCockpit,
-  EleveHubRessources,
-  EleveResources,
-  EleveSessions,
-  EleveStages,
-  TrackContentEDS,
-  TrackContentSTMG,
-  buildAriaSubjectLinks,
-  shouldShowEdsParcours,
-  shouldShowStmgLivret,
-  type EleveDashboardData,
+EleveAria,
+EleveBilans,
+EleveCockpit,
+EleveHubRessources,
+EleveSessions,
+EleveStages,
+TrackContentEDS,
+TrackContentSTMG,
+buildAriaSubjectLinks,
+shouldShowEdsParcours,
+shouldShowStmgLivret,
+type EleveDashboardData
 } from "@/components/dashboard/eleve";
-import { AutomatismesDashboardCard } from "@/components/automatismes/AutomatismesDashboardCard";
-import { SurvivalDashboard } from "@/components/dashboard/eleve/survival";
-import { resolveSubjectIcon } from "@/lib/ui-icons";
+import { AutomatismesCockpitCard } from "@/components/dashboard/eleve/AutomatismesCockpitCard";
 import { BilanDiagMathsTerminale } from "@/components/dashboard/eleve/BilanDiagMathsTerminale";
 import { EafStageQuestionnaireCard } from "@/components/dashboard/eleve/EafStageQuestionnaireCard";
 import { EAMCockpitSummary } from "@/components/dashboard/eleve/EAMCockpitSummary";
-import { AutomatismesCockpitCard } from "@/components/dashboard/eleve/AutomatismesCockpitCard";
-import { NsiCockpitCard } from "@/components/dashboard/eleve/NsiCockpitCard";
 import { MathsPremiereStageQuestionnaireCard } from "@/components/dashboard/eleve/MathsPremiereStageQuestionnaireCard";
+import { NsiCockpitCard } from "@/components/dashboard/eleve/NsiCockpitCard";
+import { SurvivalDashboard } from "@/components/dashboard/eleve/survival";
 import { StageEntryCard } from "@/components/stage-eam-stmg/StageEntryCard";
+import { AriaWidget } from "@/components/ui/aria-widget";
+import { Button } from "@/components/ui/button";
+import { Card,CardContent,CardHeader,CardTitle } from "@/components/ui/card";
+import SessionBooking from "@/components/ui/session-booking";
+import { resolveSubjectIcon } from "@/lib/ui-icons";
+import { AlertCircle,ArrowRight,BookOpen,Calculator,Calendar,Loader2,LogOut,Sparkles,Target,User,Zap } from "lucide-react";
+import { signOut,useSession } from "next-auth/react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect,useState } from "react";
 
 export default function DashboardEleve() {
   const { data: session, status } = useSession();
@@ -260,7 +259,7 @@ export default function DashboardEleve() {
                     ].map((tab) => (
                       <Button
                         key={tab.id}
-                        onClick={() => setActiveRubrique(tab.id as any)}
+                        onClick={() => setActiveRubrique(tab.id as typeof activeRubrique)}
                         variant={activeRubrique === tab.id ? 'default' : 'ghost'}
                         className={`whitespace-nowrap rounded-lg transition-all text-xs sm:text-sm px-3 sm:px-4 shrink-0 sm:flex-1 ${
                           activeRubrique === tab.id

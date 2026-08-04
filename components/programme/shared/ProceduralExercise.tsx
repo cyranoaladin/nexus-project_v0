@@ -1,8 +1,9 @@
 'use client';
+import type { ProceduralExerciseData } from '@/components/programme/shared/types/programme';
 
-import { useState } from 'react';
-import { ArrowRight, CheckCircle2, Sigma, XCircle } from 'lucide-react';
 import { MathRichText } from '@/components/programme/shared/MathContent';
+import { ArrowRight,CheckCircle2,Sigma,XCircle } from 'lucide-react';
+import { useState } from 'react';
 
 interface ProceduralExerciseProps {
   chapId: string;
@@ -11,7 +12,7 @@ interface ProceduralExerciseProps {
     resetCombo: () => void;
     addXP: (xp: number) => void;
   };
-  generators: Record<string, () => any>;
+  generators: Record<string, () => ProceduralExerciseData>;
   areEquivalentAnswers: (a: string, b: string) => boolean;
 }
 

@@ -1,17 +1,16 @@
 export const dynamic = 'force-dynamic';
 
-import { auth } from '@/auth';
-import { NextRequest, NextResponse } from 'next/server';
-import { SYSTEM_PARENT_EMAIL } from '@/lib/constants';
-import { requireAnyRole } from '@/lib/guards';
-import { prisma } from '@/lib/prisma';
-import { enqueueEmailIntent } from '@/lib/email/outbox';
-import { kickEmailOutboxDrain } from '@/lib/email/outbox-scheduler';
-import { GradeLevel, AcademicTrack } from '@prisma/client';
-import { normalizeGradeLevel, getDefaultTrackForLevel, normalizeStudentLevelAndTrack } from '@/lib/utils/grade-utils';
-import { z } from 'zod';
 import { createActivationToken } from '@/lib/auth/activation-token';
 import { getTrustedApplicationOrigin } from '@/lib/auth/parent-activation';
+import { SYSTEM_PARENT_EMAIL } from '@/lib/constants';
+import { enqueueEmailIntent } from '@/lib/email/outbox';
+import { kickEmailOutboxDrain } from '@/lib/email/outbox-scheduler';
+import { requireAnyRole } from '@/lib/guards';
+import { prisma } from '@/lib/prisma';
+import { normalizeStudentLevelAndTrack } from '@/lib/utils/grade-utils';
+import { AcademicTrack,GradeLevel } from '@prisma/client';
+import { NextRequest,NextResponse } from 'next/server';
+import { z } from 'zod';
 
 const confirmReservationParamsSchema = z.object({
   stageSlug: z.string().trim().min(1).max(120).regex(/^[a-z0-9][a-z0-9-]*$/),
@@ -138,7 +137,7 @@ export async function POST(
         return NextResponse.json({ error: 'Aucun profil parent disponible pour rattacher cet élève' }, { status: 500 });
       }
 
-      const student = await prisma.student.create({
+      await prisma.student.create({
         data: {
           userId: user.id,
           gradeLevel: gTrack.level,

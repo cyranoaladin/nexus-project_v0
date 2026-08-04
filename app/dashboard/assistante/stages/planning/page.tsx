@@ -1,21 +1,21 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
-import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
 import {
-  ArrowLeft,
-  RefreshCw,
-  ChevronLeft,
-  ChevronRight,
-  CalendarDays,
-  MapPin,
-  Video,
-  Users,
-  Clock,
-  Plus,
+ArrowLeft,
+CalendarDays,
+ChevronLeft,
+ChevronRight,
+Clock,
+MapPin,
+Plus,
+RefreshCw,
+Users,
+Video,
 } from 'lucide-react';
+import { useSession } from 'next-auth/react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useCallback,useEffect,useState } from 'react';
 
 type PlanningEventSource = 'SESSION_BOOKING' | 'STAGE_SESSION';
 
@@ -94,6 +94,19 @@ type CoachOption = {
   firstName: string | null;
   lastName: string | null;
   email: string | null;
+};
+
+type StudentSearchRecord = {
+  id: string;
+  user?: { id: string; firstName?: string | null; lastName?: string | null; email?: string | null };
+};
+
+type CoachSearchRecord = {
+  userId: string;
+  pseudonym?: string | null;
+  firstName?: string | null;
+  lastName?: string | null;
+  email?: string | null;
 };
 
 function durationMinutes(startTime: string, endTime: string): number {
@@ -179,7 +192,7 @@ export default function AssistantePlanningPage() {
       }
       try {
         const res = await fetch(`/api/assistante/students?search=${encodeURIComponent(q)}&limit=10&page=1`);
-        const data = await res.json() as { students?: any[] };
+        const data = await res.json() as { students?: StudentSearchRecord[] };
         if (!res.ok) throw new Error('fetch');
         const opts: StudentOption[] = (data.students ?? []).map((s) => ({
           studentEntityId: s.id,
@@ -187,7 +200,7 @@ export default function AssistantePlanningPage() {
           firstName: s.user?.firstName ?? null,
           lastName: s.user?.lastName ?? null,
           email: s.user?.email ?? null,
-        })).filter((s) => Boolean(s.userId));
+        })).filter((s): s is StudentOption => Boolean(s.userId));
         if (!ignore) setStudentOptions(opts);
       } catch {
         if (!ignore) setStudentOptions([]);
@@ -206,7 +219,7 @@ export default function AssistantePlanningPage() {
       }
       try {
         const res = await fetch(`/api/assistante/coaches?search=${encodeURIComponent(q)}&limit=10&page=1`);
-        const data = await res.json() as { coaches?: any[] };
+        const data = await res.json() as { coaches?: CoachSearchRecord[] };
         if (!res.ok) throw new Error('fetch');
         const opts: CoachOption[] = (data.coaches ?? []).map((c) => ({
           userId: c.userId,
@@ -245,7 +258,7 @@ export default function AssistantePlanningPage() {
 
     try {
       setCreateBusy(true);
-      const payload: any = {
+      const payload = {
         studentId: selectedStudent.userId,
         coachId: selectedCoach.userId,
         subject: formSubject,
@@ -259,15 +272,12 @@ export default function AssistantePlanningPage() {
         type: formType,
         modality: formModality,
         override: formOverride,
-      };
-
-      if (formRecurEnabled) {
-        payload.recurrence = {
+        ...(formRecurEnabled ? { recurrence: {
           frequency: 'WEEKLY',
           intervalWeeks: Math.max(1, formRecurInterval || 1),
           count: Math.max(1, formRecurCount || 1),
-        };
-      }
+        } } : {}),
+      };
 
       const res = await fetch('/api/assistante/sessions', {
         method: 'POST',
@@ -702,7 +712,7 @@ export default function AssistantePlanningPage() {
                   <label className="text-xs font-medium text-neutral-400">Matière</label>
                   <select
                     value={formSubject}
-                    onChange={(e) => setFormSubject(e.target.value as any)}
+                    onChange={(e) => setFormSubject(e.target.value as keyof typeof SUBJECT_LABELS)}
                     className="mt-2 w-full rounded-2xl border border-white/10 bg-neutral-800 px-3 py-2 text-sm text-white outline-none focus:border-brand-accent/40"
                   >
                     {Object.keys(SUBJECT_LABELS).map((s) => (
@@ -753,7 +763,7 @@ export default function AssistantePlanningPage() {
                   <label className="text-xs font-medium text-neutral-400">Type</label>
                   <select
                     value={formType}
-                    onChange={(e) => setFormType(e.target.value as any)}
+                    onChange={(e) => setFormType(e.target.value as typeof formType)}
                     className="mt-2 w-full rounded-2xl border border-white/10 bg-neutral-800 px-3 py-2 text-sm text-white outline-none focus:border-brand-accent/40"
                   >
                     <option value="INDIVIDUAL" style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Individuel</option>
@@ -765,7 +775,7 @@ export default function AssistantePlanningPage() {
                   <label className="text-xs font-medium text-neutral-400">Modalité</label>
                   <select
                     value={formModality}
-                    onChange={(e) => setFormModality(e.target.value as any)}
+                    onChange={(e) => setFormModality(e.target.value as typeof formModality)}
                     className="mt-2 w-full rounded-2xl border border-white/10 bg-neutral-800 px-3 py-2 text-sm text-white outline-none focus:border-brand-accent/40"
                   >
                     <option value="ONLINE" style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>En ligne</option>

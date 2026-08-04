@@ -1,46 +1,43 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
-import { useSession } from 'next-auth/react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardHeader, 
-  CardTitle 
-} from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { 
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+import { Button } from '@/components/ui/button';
+import {
+Card,
+CardContent,
+CardDescription,
+CardHeader,
+CardTitle
+} from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import {
+Select,
+SelectContent,
+SelectItem,
+SelectTrigger,
+SelectValue,
 } from '@/components/ui/select';
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
+import {
+Table,
+TableBody,
+TableCell,
+TableHead,
+TableHeader,
+TableRow
 } from '@/components/ui/table';
-import { 
-  Loader2, 
-  Search, 
-  Plus, 
-  GraduationCap, 
-  UserCircle,
-  Link as LinkIcon,
-  Calendar,
-  X
+import { AcademicTrack,AssignmentStatus,AssignmentType,GradeLevel,StmgPathway,Subject } from '@prisma/client';
+import {
+GraduationCap,
+Link as LinkIcon,
+Loader2,
+Plus,
+Search,
+X
 } from 'lucide-react';
+import { useSession } from 'next-auth/react';
+import { useRouter,useSearchParams } from 'next/navigation';
+import { useCallback,useEffect,useState } from 'react';
 import { toast } from 'sonner';
-import { AssignmentStatus, AssignmentType, GradeLevel, AcademicTrack, StmgPathway, Subject } from '@prisma/client';
-import { cn } from '@/lib/utils';
 
 // Types
 interface Student {
@@ -93,6 +90,17 @@ interface Stats {
   studentsWithoutCoach: number;
 }
 
+interface StudentApiRecord {
+  id: string;
+  userId: string;
+  user?: { firstName?: string | null; lastName?: string | null; email?: string | null };
+  gradeLevel?: GradeLevel | null;
+  academicTrack?: AcademicTrack | null;
+  specialties?: Subject[] | null;
+  stmgPathway?: StmgPathway | null;
+  coachAssignments?: unknown[];
+}
+
 export default function AssistanteAssignmentsPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -140,8 +148,11 @@ export default function AssistanteAssignmentsPage() {
       // Fetch students with their coach status
       const studentsRes = await fetch('/api/assistante/students?limit=100');
       if (!studentsRes.ok) throw new Error('Failed to fetch students');
-      const studentsData = await studentsRes.json();
-      const mappedStudents: Student[] = (studentsData.students || []).map((s: any) => ({
+      const studentsData = await studentsRes.json() as {
+        students?: StudentApiRecord[];
+        pagination?: { total?: number };
+      };
+      const mappedStudents: Student[] = (studentsData.students || []).map((s) => ({
         id: s.id,
         userId: s.userId,
         firstName: s.user?.firstName ?? '',

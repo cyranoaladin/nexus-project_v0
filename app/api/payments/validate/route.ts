@@ -2,26 +2,26 @@ import { serializeError } from '@/lib/utils/serialize-error';
 export const dynamic = 'force-dynamic';
 
 import { auth } from '@/auth';
-import { prisma } from '@/lib/prisma';
-import { Prisma } from '@prisma/client';
-import { mergePaymentMetadata, parsePaymentMetadata } from '@/lib/utils';
-import { NextRequest, NextResponse } from 'next/server';
-import { z } from 'zod';
-import path from 'path';
 import { getDocumentStorageRoot } from '@/lib/documents/storage-root';
-import { writeFile, mkdir } from 'fs/promises';
-import {
-  renderInvoicePDF,
-  generateInvoiceNumber,
-  storeInvoicePDF,
-  getInvoiceUrl,
-  createInvoiceEvent,
-  appendInvoiceEvent,
-  tndToMillimes,
-} from '@/lib/invoice';
-import type { InvoiceData, TaxRegime } from '@/lib/invoice';
 import { activateEntitlements } from '@/lib/entitlement/engine';
 import type { ProductCode } from '@/lib/entitlement/types';
+import type { InvoiceData,TaxRegime } from '@/lib/invoice';
+import {
+appendInvoiceEvent,
+createInvoiceEvent,
+generateInvoiceNumber,
+getInvoiceUrl,
+renderInvoicePDF,
+storeInvoicePDF,
+tndToMillimes,
+} from '@/lib/invoice';
+import { prisma } from '@/lib/prisma';
+import { mergePaymentMetadata,parsePaymentMetadata } from '@/lib/utils';
+import { Prisma } from '@prisma/client';
+import { mkdir,writeFile } from 'fs/promises';
+import { NextRequest,NextResponse } from 'next/server';
+import path from 'path';
+import { z } from 'zod';
 
 type PaymentMetadata = {
   studentId: string;
@@ -211,7 +211,7 @@ async function generateInvoicePDFAndDocument(
 
 export async function POST(request: NextRequest) {
   try {
-    let session: any = null;
+    let session: import('next-auth').Session | null = null;
     try {
       session = await auth();
     } catch {

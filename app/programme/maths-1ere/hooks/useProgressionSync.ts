@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useCallback, useEffect, useRef } from 'react';
-import { useMathsLabStore } from '../store';
+import { useCallback,useEffect,useRef,useState } from 'react';
+import { type MathsLabState,useMathsLabStore } from '../store';
 
 const PROGRESS_API_ROUTE = '/api/programme/maths-1ere/progress';
 
@@ -16,13 +16,13 @@ interface ProgressPayload {
   streak: number;
   streak_freezes: number;
   last_activity_date: string | null;
-  daily_challenge: Record<string, unknown>;
-  exercise_results: Record<string, number[]>;
-  hint_usage: Record<string, number>;
+  daily_challenge: MathsLabState['dailyChallenge'];
+  exercise_results: MathsLabState['exerciseResults'];
+  hint_usage: MathsLabState['hintUsage'];
   badges: string[];
-  srs_queue: Record<string, unknown>;
-  diagnostic_results?: Record<string, unknown>;
-  time_per_chapter?: Record<string, number>;
+  srs_queue: MathsLabState['srsQueue'];
+  diagnostic_results?: MathsLabState['diagnosticResults'];
+  time_per_chapter?: MathsLabState['timePerChapter'];
   formulaire_viewed?: boolean;
   grand_oral_seen?: number;
   lab_archimede_opened?: boolean;
@@ -72,7 +72,7 @@ async function loadProgressFromApi(userId: string): Promise<
   }
 }
 
-function toProgressPayload(state: any): ProgressPayload {
+function toProgressPayload(state: MathsLabState): ProgressPayload {
   return {
     completed_chapters: state.completedChapters,
     mastered_chapters: state.masteredChapters,
@@ -202,13 +202,13 @@ export function useProgressionSync(userId: string) {
             streak: remote.streak ?? state.streak,
             streakFreezes: remote.streak_freezes ?? state.streakFreezes,
             lastActivityDate: remote.last_activity_date ?? state.lastActivityDate,
-            dailyChallenge: remote.daily_challenge as any ?? state.dailyChallenge,
-            exerciseResults: remote.exercise_results as any ?? state.exerciseResults,
-            hintUsage: remote.hint_usage as any ?? state.hintUsage,
+            dailyChallenge: remote.daily_challenge ?? state.dailyChallenge,
+            exerciseResults: remote.exercise_results ?? state.exerciseResults,
+            hintUsage: remote.hint_usage ?? state.hintUsage,
             badges: remote.badges ?? state.badges,
-            srsQueue: remote.srs_queue as any ?? state.srsQueue,
-            diagnosticResults: remote.diagnostic_results as any ?? state.diagnosticResults,
-            timePerChapter: remote.time_per_chapter as any ?? state.timePerChapter,
+            srsQueue: remote.srs_queue ?? state.srsQueue,
+            diagnosticResults: remote.diagnostic_results ?? state.diagnosticResults,
+            timePerChapter: remote.time_per_chapter ?? state.timePerChapter,
             formulaireViewed: remote.formulaire_viewed ?? state.formulaireViewed,
             grandOralSeen: remote.grand_oral_seen ?? state.grandOralSeen,
             labArchimedeOpened: remote.lab_archimede_opened ?? state.labArchimedeOpened,

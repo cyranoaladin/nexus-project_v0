@@ -1,12 +1,11 @@
 'use client';
 
-import React from 'react';
+import { type Chapitre,type SRSQuality } from '@/components/programme/shared/types/programme';
 import {
-  RefreshCw,
-  ExternalLink
+ExternalLink,
+RefreshCw
 } from 'lucide-react';
-import { type Chapitre } from '@/components/programme/shared/types/programme';
-import { type SRSQuality } from '@/components/programme/shared/types/programme';
+import React from 'react';
 
 interface ChapterFooterProps {
   chapId: string;
@@ -70,7 +69,9 @@ export const ChapterFooter: React.FC<ChapterFooterProps> = ({
   );
 };
 
-const SRSButton = ({ quality, label, onClick }: any) => (
+type SRSButtonProps = { quality: SRSQuality; label: string; onClick: () => void };
+
+const SRSButton = ({ quality, label, onClick }: SRSButtonProps) => (
   <button
     onClick={onClick}
     className={`flex-1 py-3 rounded-2xl text-[10px] font-bold uppercase tracking-widest transition-all border ${

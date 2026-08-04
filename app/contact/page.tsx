@@ -1,21 +1,21 @@
 'use client';
 
-import { useState, useRef, useCallback, type FormEvent, type KeyboardEvent } from 'react';
-import Link from 'next/link';
-import { MessageCircle, Phone, Mail, ArrowRight, MapPin } from 'lucide-react';
-import { WhatsAppLogo, WHATSAPP_BRAND_GREEN } from '@/components/ui/whatsapp-logo';
-import { toast, Toaster } from 'sonner';
-import { CorporateNavbar } from '@/components/layout/CorporateNavbar';
 import { CorporateFooter } from '@/components/layout/CorporateFooter';
+import { CorporateNavbar } from '@/components/layout/CorporateNavbar';
+import { CallbackRequestForm } from '@/components/marketing/acadomia-inspired';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card,CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { CallbackRequestForm } from '@/components/marketing/acadomia-inspired';
-import { buildWhatsAppUrl } from '@/lib/whatsapp';
+import { WHATSAPP_BRAND_GREEN,WhatsAppLogo } from '@/components/ui/whatsapp-logo';
 import { LEGAL } from '@/lib/legal';
+import { buildWhatsAppUrl } from '@/lib/whatsapp';
+import { ArrowRight,Mail,MapPin,MessageCircle,Phone } from 'lucide-react';
+import Link from 'next/link';
+import { useCallback,useRef,useState,type FormEvent,type KeyboardEvent } from 'react';
+import { toast } from 'sonner';
 const ADMIN_ADDRESS = LEGAL.addresses.siege.full;
 const PEDA_ADDRESS = LEGAL.addresses.pedagogique.full;
 

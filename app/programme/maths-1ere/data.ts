@@ -11,23 +11,11 @@
  */
 
 import type {
-  ExerciceType,
-  ExerciceQCM,
-  ExerciceNumerique,
-  ExerciceOrdonnancement,
-  Exercice,
-  CoupDePouce,
-  ChapitreContenu,
-  CompetenceBO,
-  Chapitre,
-  Categorie,
-  QuizQuestion,
-  NiveauEleve,
-  DailyChallenge,
-  BadgeDefinition,
-  ExerciceData,
-  TableauRow,
-  CasRow
+BadgeDefinition,
+Categorie,
+DailyChallenge,
+NiveauEleve,
+QuizQuestion
 } from '@/components/programme/shared/types/programme';
 
 // ─── XP & Gamification ──────────────────────────────────────────────────────
@@ -1595,21 +1583,7 @@ export const badgeDefinitions: BadgeDefinition[] = [
 
 // Re-exports from shared (Lot E Vague 2)
 export type {
-  ExerciceType,
-  ExerciceQCM,
-  ExerciceNumerique,
-  ExerciceOrdonnancement,
-  Exercice,
-  CoupDePouce,
-  ChapitreContenu,
-  CompetenceBO,
-  Chapitre,
-  Categorie,
-  QuizQuestion,
-  NiveauEleve,
-  DailyChallenge,
-  BadgeDefinition,
-  ExerciceData,
-  TableauRow,
-  CasRow
+BadgeDefinition,CasRow,Categorie,Chapitre,ChapitreContenu,
+CompetenceBO,CoupDePouce,DailyChallenge,Exercice,ExerciceData,ExerciceNumerique,
+ExerciceOrdonnancement,ExerciceQCM,ExerciceType,NiveauEleve,QuizQuestion,TableauRow
 } from '@/components/programme/shared/types/programme';

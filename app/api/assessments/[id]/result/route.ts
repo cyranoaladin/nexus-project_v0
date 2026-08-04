@@ -7,16 +7,16 @@
  * including SSN, domain scores, skill scores, and cohort percentile.
  */
 
-import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import { AssessmentStatus } from '@prisma/client';
-import { scoringResultSchema, analysisJsonSchema, safeParse } from '@/lib/assessments/core/schemas';
-import { computePercentile } from '@/lib/core/statistics/normalize';
-import { computeCohortStats } from '@/lib/core/statistics/cohort';
-import { isCompletedAssessmentStatus, COMPLETED_STATUSES } from '@/lib/core/assessment-status';
-import { getCanonicalDomains } from '@/lib/assessments/core/config';
 import { auth } from '@/auth';
+import { getCanonicalDomains } from '@/lib/assessments/core/config';
+import { analysisJsonSchema,safeParse,scoringResultSchema } from '@/lib/assessments/core/schemas';
+import { COMPLETED_STATUSES,isCompletedAssessmentStatus } from '@/lib/core/assessment-status';
+import { computeCohortStats } from '@/lib/core/statistics/cohort';
+import { computePercentile } from '@/lib/core/statistics/normalize';
+import { prisma } from '@/lib/prisma';
 import { buildAssessmentAccessWhere } from '@/lib/security/ownership';
+import { AssessmentStatus } from '@prisma/client';
+import { NextRequest,NextResponse } from 'next/server';
 
 export async function GET(
   request: NextRequest,
@@ -144,7 +144,7 @@ export async function GET(
       generationStatus,
       ...(llmFailed && !hasBilans ? { llmUnavailableMessage: 'L\'analyse IA personnalisée est temporairement indisponible. Vos scores et résultats sont disponibles.' } : {}),
     });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       {
         error: 'Internal server error',

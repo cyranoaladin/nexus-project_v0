@@ -244,7 +244,7 @@ describe('GET /api/bilans/attempts/[id]/report — PostgreSQL réel isolé', () 
     });
     assignedCoachUserId = assignedCoachUser.id;
     const assignedCoach = await prisma.coachProfile.create({
-      data: { userId: assignedCoachUser.id, pseudonym: `${TEST_PREFIX}assigned` },
+      data: { userId: assignedCoachUser.id, pseudonym: `${TEST_PREFIX}assigned`, subjects: '[]' },
     });
     await prisma.coachStudentAssignment.create({
       data: { coachId: assignedCoach.id, studentId: student.id, status: 'ACTIVE', startsAt: NOW },
@@ -255,7 +255,7 @@ describe('GET /api/bilans/attempts/[id]/report — PostgreSQL réel isolé', () 
     });
     unassignedCoachUserId = unassignedCoachUser.id;
     await prisma.coachProfile.create({
-      data: { userId: unassignedCoachUser.id, pseudonym: `${TEST_PREFIX}unassigned` },
+      data: { userId: unassignedCoachUser.id, pseudonym: `${TEST_PREFIX}unassigned`, subjects: '[]' },
     });
 
     const admin = await prisma.user.create({

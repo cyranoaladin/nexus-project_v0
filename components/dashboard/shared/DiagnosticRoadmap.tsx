@@ -1,15 +1,19 @@
 'use client';
 
-import React from 'react';
-import {
-  Calendar, CheckCircle2, Clock, BookOpen, GraduationCap,
-  Layout, Target, Zap, ArrowRight, Download, FileText, Loader2
-} from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import type { SessionPlan, WeekPlan, DiagnosticResult } from '@/lib/diagnostic/maths-terminale/types';
-import { PDFDownloadLink } from '@react-pdf/renderer';
+import { Card,CardContent,CardHeader,CardTitle } from '@/components/ui/card';
 import { RoadmapPDFDocument } from '@/lib/diagnostic/maths-terminale/pdf-generator';
+import type { DiagnosticResult,SessionPlan,WeekPlan } from '@/lib/diagnostic/maths-terminale/types';
+import { PDFDownloadLink } from '@react-pdf/renderer';
+import {
+ArrowRight,
+BookOpen,
+CheckCircle2,
+Download,FileText,
+GraduationCap,
+Loader2,
+Target,Zap
+} from 'lucide-react';
 
 interface DiagnosticRoadmapProps {
   evaluatedData: DiagnosticResult;

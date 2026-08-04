@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { FileText, RefreshCw, Download, AlertCircle } from 'lucide-react';
+import { Card,CardContent,CardHeader,CardTitle } from '@/components/ui/card';
+import { AlertCircle,Download,FileText,RefreshCw } from 'lucide-react';
+import { useCallback,useEffect,useState } from 'react';
 
 interface Report {
   id: string;
@@ -37,7 +37,7 @@ export function GeneratedReportsPanel({ studentId }: GeneratedReportsPanelProps)
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchReports = async () => {
+  const fetchReports = useCallback(async () => {
     try {
       setLoading(true);
       const res = await fetch(`/api/coach/students/${studentId}/generated-reports`);
@@ -53,11 +53,11 @@ export function GeneratedReportsPanel({ studentId }: GeneratedReportsPanelProps)
     } finally {
       setLoading(false);
     }
-  };
+  }, [studentId]);
 
   useEffect(() => {
-    fetchReports();
-  }, [studentId]);
+    void fetchReports();
+  }, [fetchReports]);
 
   const handleCreateJob = async () => {
     try {

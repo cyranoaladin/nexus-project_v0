@@ -1,19 +1,19 @@
-import { NextResponse } from 'next/server';
-import { requireAnyRole, isErrorResponse } from '@/lib/guards';
-import { can } from '@/lib/rbac';
-import { activeAssignmentWhere } from '@/lib/rbac/coach-student-access';
-import { prisma } from '@/lib/prisma';
-import { GradeLevel, AcademicTrack, StmgPathway } from '@prisma/client';
-import { parsePagination, parseEnumParam, createPaginationMeta } from '@/lib/api/pagination';
-import { z } from 'zod';
-import { normalizeStudentLevelAndTrack } from '@/lib/utils/grade-utils';
-import { generateResetToken } from '@/lib/password-reset-token';
-import { LEGAL } from '@/lib/legal';
-import { serializeError } from '@/lib/utils/serialize-error';
+import { createPaginationMeta,parseEnumParam,parsePagination } from '@/lib/api/pagination';
 import { createActivationToken } from '@/lib/auth/activation-token';
 import { getTrustedApplicationOrigin } from '@/lib/auth/parent-activation';
 import { enqueueEmailIntent } from '@/lib/email/outbox';
 import { kickEmailOutboxDrain } from '@/lib/email/outbox-scheduler';
+import { isErrorResponse,requireAnyRole } from '@/lib/guards';
+import { LEGAL } from '@/lib/legal';
+import { generateResetToken } from '@/lib/password-reset-token';
+import { prisma } from '@/lib/prisma';
+import { can } from '@/lib/rbac';
+import { activeAssignmentWhere } from '@/lib/rbac/coach-student-access';
+import { normalizeStudentLevelAndTrack } from '@/lib/utils/grade-utils';
+import { serializeError } from '@/lib/utils/serialize-error';
+import { AcademicTrack,GradeLevel,StmgPathway } from '@prisma/client';
+import { NextResponse } from 'next/server';
+import { z } from 'zod';
 
 /**
  * GET /api/assistante/students
@@ -81,7 +81,7 @@ export async function GET(request: Request) {
     const { page, limit, skip } = parsePagination(searchParams);
 
     // Build where clause
-    const where: any = {};
+    const where: import('@prisma/client').Prisma.StudentWhereInput = {};
 
     if (gradeLevel) {
       where.gradeLevel = gradeLevel;

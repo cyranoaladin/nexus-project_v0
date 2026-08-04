@@ -1,10 +1,10 @@
 import { serializeError } from '@/lib/utils/serialize-error';
 export const dynamic = 'force-dynamic';
 
-import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
 import { auth } from '@/auth';
+import { prisma } from '@/lib/prisma';
 import { parseSubjects } from '@/lib/utils/subjects';
+import { NextRequest,NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
   try {
@@ -166,7 +166,18 @@ export async function GET(request: NextRequest) {
       }
     });
 
-    const studentMap = new Map<string, any>();
+    const studentMap = new Map<string, {
+      id: string;
+      userId: string;
+      name: string;
+      grade: string;
+      gradeLevel: string | null;
+      academicTrack: string | null;
+      subject: string;
+      lastSession: Date;
+      creditBalance: number;
+      isNew: boolean;
+    }>();
 
     // 1. Add assigned students
     for (const a of activeAssignments) {

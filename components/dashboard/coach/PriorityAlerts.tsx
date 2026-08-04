@@ -3,7 +3,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AlertCircle, Zap, Clock, ShieldAlert } from "lucide-react";
 
-interface CoachAlert {
+export interface CoachAlert {
   id: string;
   studentName: string;
   message: string;

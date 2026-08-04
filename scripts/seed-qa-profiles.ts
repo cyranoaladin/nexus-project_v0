@@ -133,7 +133,7 @@ async function main() {
       startDate: new Date(),
       endDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
       ariaCost: 50,
-      ariaSubjects: ['MATHEMATIQUES', 'NSI'],
+      ariaSubjects: JSON.stringify(['MATHEMATIQUES', 'NSI']),
     },
   });
   console.log(`✅ Student: ${studentUser.email} (${studentUser.id}) — 2 entitlements + subscription`);

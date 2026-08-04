@@ -1,27 +1,25 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import { AutomatismeSeries, SafeAutomatismeSeries, AutomatismeAttemptResult } from "@/types/automatismes";
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { MathRichText } from "@/components/programme/shared/MathContent";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card,CardContent,CardFooter,CardHeader } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import {
-  Timer,
-  ArrowRight,
-  CheckCircle2,
-  XCircle,
-  AlertTriangle,
-  Lightbulb,
-  ChevronRight,
-  Zap,
-  HelpCircle,
-  Loader2,
-  BookOpen,
-  Target,
-} from "lucide-react";
 import { cn } from "@/lib/utils";
+import { AutomatismeAttemptResult,AutomatismeSeries,SafeAutomatismeSeries } from "@/types/automatismes";
+import {
+AlertTriangle,
+ArrowRight,
+BookOpen,
+CheckCircle2,
+Lightbulb,
+Loader2,
+Target,
+Timer,
+XCircle,
+Zap
+} from "lucide-react";
+import { useCallback,useEffect,useState } from "react";
 
 interface CheckAnswerResponse {
   isCorrect: boolean;

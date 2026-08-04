@@ -80,10 +80,10 @@ describe('IDOR BDD Réelle — Coach Stage Isolation', () => {
 
     // Seed Profiles
     coachA = await prisma.coachProfile.create({
-      data: { userId: userA.id, pseudonym: 'Coach A' },
+      data: { userId: userA.id, pseudonym: 'Coach A', subjects: '[]' },
     });
     coachB = await prisma.coachProfile.create({
-      data: { userId: userB.id, pseudonym: 'Coach B' },
+      data: { userId: userB.id, pseudonym: 'Coach B', subjects: '[]' },
     });
 
     // Seed Stages

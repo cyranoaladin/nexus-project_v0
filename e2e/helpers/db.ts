@@ -325,7 +325,7 @@ export async function ensureActiveAriaSubscriptionForStudentEmail(
       status: 'ACTIVE',
       startDate: new Date(),
       endDate: null,
-      ariaSubjects,
+      ariaSubjects: JSON.stringify(ariaSubjects),
       ariaCost: 0,
     },
   });

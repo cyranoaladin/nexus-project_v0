@@ -1,19 +1,33 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
-import {
-  Target, CheckCircle, AlertTriangle, ChevronRight, ChevronLeft,
-  HelpCircle, FileQuestion, Clock, Brain, ShieldAlert, EyeOff,
-  Loader2, BarChart2, RotateCcw
-} from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { DOMAINS, CHAPTERS, QUESTIONS_QCM, QUESTIONS_OPEN } from '@/lib/diagnostic/maths-terminale/data';
-import { computeDiagnostics, generateAdvancedPath, generatePostStagePlan } from '@/lib/diagnostic/maths-terminale/scoring';
-import { DiagnosticRoadmap } from '../shared/DiagnosticRoadmap';
+import { Card,CardContent,CardHeader,CardTitle } from '@/components/ui/card';
+import { CHAPTERS,DOMAINS,QUESTIONS_OPEN,QUESTIONS_QCM } from '@/lib/diagnostic/maths-terminale/data';
+import { computeDiagnostics,generateAdvancedPath,generatePostStagePlan } from '@/lib/diagnostic/maths-terminale/scoring';
 import type {
-  ChapterProgress, OpenAnswer, DiagnosticResult, ChapterResult, PedagogicalStatus, TeacherGrade
+ChapterProgress,
+DiagnosticResult,
+OpenAnswer,
+PedagogicalStatus,TeacherGrade
 } from '@/lib/diagnostic/maths-terminale/types';
+import {
+AlertTriangle,
+BarChart2,
+Brain,
+CheckCircle,
+ChevronLeft,
+ChevronRight,
+Clock,
+EyeOff,
+FileQuestion,
+HelpCircle,
+Loader2,
+RotateCcw,
+ShieldAlert,
+Target
+} from 'lucide-react';
+import { useCallback,useEffect,useState } from 'react';
+import { DiagnosticRoadmap } from '../shared/DiagnosticRoadmap';
 
 
 // ─── Math Renderer (simple inline/block display until KaTeX is installed) ────
@@ -720,7 +734,18 @@ function SavingIndicator({ saving }: { saving: boolean }) {
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export function BilanDiagMathsTerminale() {
-  const [step, setStep] = useState<'loading' | 'intro' | 'progress' | 'qcm' | 'open' | 'results'>('loading');
+  type DiagnosticStep = 'loading' | 'intro' | 'progress' | 'qcm' | 'open' | 'results';
+  type StudentDiagnosticSource = {
+    progress?: Record<string, ChapterProgress>;
+    qcmAnswers?: Record<string, number>;
+    openAnswers?: Record<string, OpenAnswer>;
+    teacherGrades?: Record<string, TeacherGrade>;
+    evaluatedData?: DiagnosticResult;
+    step?: DiagnosticStep;
+  };
+  type StudentDiagnosticBilan = { id: string; status: string; sourceData: StudentDiagnosticSource };
+
+  const [step, setStep] = useState<DiagnosticStep>('loading');
   const [progress, setProgress] = useState<Record<string, ChapterProgress>>({});
   const [qcmAnswers, setQcmAnswers] = useState<Record<string, number>>({});
   const [openAnswers, setOpenAnswers] = useState<Record<string, OpenAnswer>>({});
@@ -728,7 +753,7 @@ export function BilanDiagMathsTerminale() {
   const [evaluatedData, setEvaluatedData] = useState<DiagnosticResult | null>(null);
   const [studentName, setStudentName] = useState('Élève');
   const [saving, setSaving] = useState(false);
-  const [bilanId, setBilanId] = useState<string | null>(null);
+  const [, setBilanId] = useState<string | null>(null);
 
   // Load existing bilan on mount
   useEffect(() => {
@@ -736,12 +761,12 @@ export function BilanDiagMathsTerminale() {
       try {
         const res = await fetch('/api/eleve/bilan-diagnostic-maths-terminale');
         if (!res.ok) { setStep('intro'); return; }
-        const data = await res.json();
+        const data = await res.json() as { bilan?: StudentDiagnosticBilan; studentName?: string };
         if (!data.bilan) { setStep('intro'); return; }
 
         const bilan = data.bilan;
         setBilanId(bilan.id);
-        const src = bilan.sourceData as any;
+        const src = bilan.sourceData;
         if (src?.progress) setProgress(src.progress);
         if (src?.qcmAnswers) setQcmAnswers(src.qcmAnswers);
         if (src?.openAnswers) setOpenAnswers(src.openAnswers);
@@ -754,7 +779,7 @@ export function BilanDiagMathsTerminale() {
         if (bilan.status === 'COMPLETED' || savedStep === 'results') {
           setStep('results');
         } else if (savedStep && ['progress', 'qcm', 'open'].includes(savedStep)) {
-          setStep(savedStep as any);
+          setStep(savedStep);
         } else {
           setStep('intro');
         }
@@ -797,7 +822,6 @@ export function BilanDiagMathsTerminale() {
   };
 
   const steps = ['intro', 'progress', 'qcm', 'open', 'results'];
-  const stepLabels = ['Intro', 'Avancement', 'QCM', 'Exercices', 'Résultats'];
   const currentStepIdx = steps.indexOf(step);
 
   if (step === 'loading') {

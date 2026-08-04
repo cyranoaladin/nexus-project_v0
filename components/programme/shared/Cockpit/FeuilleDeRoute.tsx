@@ -1,15 +1,16 @@
 'use client';
+import type { StageProgramme } from '@/components/programme/shared/types/programme';
 
-import React from 'react';
 import { motion } from 'framer-motion';
-import { CheckCircle2, Circle, Clock, Calendar, BookOpen, FileText, Award, ChevronRight } from 'lucide-react';
+import { Award,BookOpen,Calendar,CheckCircle2,ChevronRight,Circle,Clock,FileText } from 'lucide-react';
+import React from 'react';
 
 type StagePhase = 'avant' | 'pendant' | 'apres';
 
 interface FeuilleDeRouteProps {
   onNavigate: (tab: string) => void;
   stageConfig: {
-    STAGE_PRINTEMPS_2026: any;
+    STAGE_PRINTEMPS_2026: StageProgramme;
     getStagePhase: () => StagePhase;
     formatDateFr: (date: string) => string;
   };
@@ -50,10 +51,10 @@ export const FeuilleDeRoute: React.FC<FeuilleDeRouteProps> = ({ onNavigate, stag
       couleurFond: 'bg-cyan-500/10',
       couleurBord: 'border-cyan-500/30',
       etapes: STAGE_PRINTEMPS_2026.seances
-        .filter((s: any) => s.matiere === 'Mathématiques')
-        .map((s: any) => ({
-          label: `${formatDateFr(s.date).split(' ').slice(0, 2).join(' ')} — ${s.theme}`,
-          done: new Date(s.date + 'T23:59:59') < new Date(),
+        .filter((session) => session.matiere === 'Mathématiques')
+        .map((session) => ({
+          label: `${formatDateFr(session.date).split(' ').slice(0, 2).join(' ')} — ${session.theme}`,
+          done: new Date(session.date + 'T23:59:59') < new Date(),
         })),
     },
     {
@@ -159,7 +160,7 @@ export const FeuilleDeRoute: React.FC<FeuilleDeRouteProps> = ({ onNavigate, stag
 
                 {/* Etapes list */}
                 <div className={`space-y-2 ${!isCurrentPhase && 'opacity-60'}`}>
-                  {p.etapes.map((etape: any, i: number) => (
+                  {p.etapes.map((etape, i) => (
                     <div key={i} className="flex items-start gap-2.5">
                       {etape.done ? (
                         <CheckCircle2 className="h-4 w-4 text-green-500 shrink-0 mt-0.5" />

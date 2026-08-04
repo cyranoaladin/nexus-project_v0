@@ -25,7 +25,7 @@ interface CompetenceBlock {
   items: CompetenceItem[];
 }
 
-interface CompetenceMatrixProps {
+export interface CompetenceMatrixProps {
   matrix: { blocks: CompetenceBlock[] };
   globalScore: number;
   globalLevel: string;

@@ -1,15 +1,15 @@
-import { NextResponse } from 'next/server';
-import { requireRole, isErrorResponse } from '@/lib/guards';
-import {
-  assertCoachCanAccessStudent,
-  getCoachProfileForUser,
-  CoachNotAssignedError,
-} from '@/lib/rbac/coach-student-access';
-import { prisma } from '@/lib/prisma';
-import { logger } from '@/lib/logger';
-import { coachEafBilanSchema, COACH_EAF_META, STAGE_SLUG as EAF_STAGE_SLUG } from '@/lib/coach/eaf-stage-printemps/types';
-import type { CoachEafSourceData } from '@/lib/coach/eaf-stage-printemps/types';
 import { generateLLMParentEafReport } from '@/lib/coach/eaf-stage-printemps/llm-report';
+import type { CoachEafSourceData } from '@/lib/coach/eaf-stage-printemps/types';
+import { COACH_EAF_META,coachEafBilanSchema,STAGE_SLUG as EAF_STAGE_SLUG } from '@/lib/coach/eaf-stage-printemps/types';
+import { isErrorResponse,requireRole } from '@/lib/guards';
+import { logger } from '@/lib/logger';
+import { prisma } from '@/lib/prisma';
+import {
+assertCoachCanAccessStudent,
+CoachNotAssignedError,
+getCoachProfileForUser,
+} from '@/lib/rbac/coach-student-access';
+import { NextResponse } from 'next/server';
 
 export const maxDuration = 200; // seconds — allows up to ~3 min for LLM generation
 
@@ -343,12 +343,10 @@ export async function PATCH(request: Request, { params }: RouteParams) {
     }
 
     // Look up stageId for linking the bilan to its stage in the student dashboard
-    const stage = (prisma as any).stage
-      ? await (prisma as any).stage.findUnique({
-          where: { slug: EAF_STAGE_SLUG },
-          select: { id: true },
-        })
-      : null;
+    const stage = await prisma.stage.findUnique({
+      where: { slug: EAF_STAGE_SLUG },
+      select: { id: true },
+    });
 
     const bilan = await prisma.bilan.update({
       where: { id: existingBilan.id },

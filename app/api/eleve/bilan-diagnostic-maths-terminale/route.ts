@@ -1,10 +1,10 @@
-import { NextResponse } from 'next/server';
-import { requireRole, isErrorResponse } from '@/lib/guards';
-import { prisma } from '@/lib/prisma';
-import { computeDiagnostics } from '@/lib/diagnostic/maths-terminale/scoring';
-import type { ChapterProgress, DiagnosticSourceData, OpenAnswer } from '@/lib/diagnostic/maths-terminale/types';
 import { DOMAINS } from '@/lib/diagnostic/maths-terminale/data';
+import { computeDiagnostics } from '@/lib/diagnostic/maths-terminale/scoring';
+import type { ChapterProgress,DiagnosticSourceData,OpenAnswer } from '@/lib/diagnostic/maths-terminale/types';
+import { isErrorResponse,requireRole } from '@/lib/guards';
+import { prisma } from '@/lib/prisma';
 import { serializeError } from '@/lib/utils/serialize-error';
+import { NextResponse } from 'next/server';
 import { z } from 'zod';
 
 const BILAN_SOURCE_VERSION = 'maths_terminale_v1';
@@ -53,7 +53,7 @@ export async function GET() {
     const isEligible =
       student.gradeLevel === 'TERMINALE' &&
       student.academicTrack === 'EDS_GENERALE' &&
-      student.specialties.includes('MATHEMATIQUES' as any);
+      student.specialties.includes('MATHEMATIQUES' as import('@prisma/client').Subject);
 
     if (!isEligible) {
       return NextResponse.json(
@@ -128,7 +128,7 @@ export async function POST(request: Request) {
     const isEligible =
       student.gradeLevel === 'TERMINALE' &&
       student.academicTrack === 'EDS_GENERALE' &&
-      student.specialties.includes('MATHEMATIQUES' as any);
+      student.specialties.includes('MATHEMATIQUES' as import('@prisma/client').Subject);
 
     if (!isEligible) {
       return NextResponse.json(
@@ -176,9 +176,9 @@ export async function POST(request: Request) {
       bilan = await prisma.bilan.update({
         where: { id: existingBilan.id },
         data: {
-          sourceData: sourceData as any,
+          sourceData: sourceData as unknown as import('@prisma/client').Prisma.InputJsonValue,
           globalScore: evaluatedData.qcmPercentage, // provisional QCM score until teacher grades
-          domainScores: domainScoresArr as any,
+          domainScores: domainScoresArr as import('@prisma/client').Prisma.InputJsonValue,
           status: step === 'results' ? 'SCORING' : 'PENDING',
           progress: step === 'results' ? 100 : 50,
           updatedAt: new Date(),
@@ -192,9 +192,9 @@ export async function POST(request: Request) {
           studentId: student.id,
           studentEmail: student.user.email,
           studentName,
-          sourceData: sourceData as any,
+          sourceData: sourceData as unknown as import('@prisma/client').Prisma.InputJsonValue,
           globalScore: evaluatedData.qcmPercentage,
-          domainScores: domainScoresArr as any,
+          domainScores: domainScoresArr as import('@prisma/client').Prisma.InputJsonValue,
           sourceVersion: BILAN_SOURCE_VERSION,
           status: step === 'results' ? 'SCORING' : 'PENDING',
           progress: step === 'results' ? 100 : 50,

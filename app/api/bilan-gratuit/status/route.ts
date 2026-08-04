@@ -1,8 +1,8 @@
 export const dynamic = 'force-dynamic';
 
-import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
+import { NextResponse } from 'next/server';
 
 /**
  * GET /api/bilan-gratuit/status
@@ -10,7 +10,7 @@ import { prisma } from '@/lib/prisma';
  */
 export async function GET() {
   try {
-    let session: any = null;
+    let session: import('next-auth').Session | null = null;
     try {
       session = await auth();
     } catch {

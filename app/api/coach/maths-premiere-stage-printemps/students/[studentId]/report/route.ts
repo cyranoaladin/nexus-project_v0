@@ -1,15 +1,15 @@
-import { NextResponse } from 'next/server';
-import { requireRole, isErrorResponse } from '@/lib/guards';
-import {
-  assertCoachCanAccessStudent,
-  getCoachProfileForUser,
-  CoachNotAssignedError,
-} from '@/lib/rbac/coach-student-access';
-import { prisma } from '@/lib/prisma';
-import { logger } from '@/lib/logger';
-import { coachMathsBilanSchema, COACH_MATHS_META, STAGE_SLUG as MATHS_STAGE_SLUG } from '@/lib/coach/maths-premiere-stage-printemps/types';
-import type { CoachMathsSourceData } from '@/lib/coach/maths-premiere-stage-printemps/types';
 import { generateParentMathsStageReport } from '@/lib/coach/maths-premiere-stage-printemps/generate-parent-report';
+import type { CoachMathsSourceData } from '@/lib/coach/maths-premiere-stage-printemps/types';
+import { COACH_MATHS_META,coachMathsBilanSchema,STAGE_SLUG as MATHS_STAGE_SLUG } from '@/lib/coach/maths-premiere-stage-printemps/types';
+import { isErrorResponse,requireRole } from '@/lib/guards';
+import { logger } from '@/lib/logger';
+import { prisma } from '@/lib/prisma';
+import {
+assertCoachCanAccessStudent,
+CoachNotAssignedError,
+getCoachProfileForUser,
+} from '@/lib/rbac/coach-student-access';
+import { NextResponse } from 'next/server';
 
 const COACH_SOURCE_VERSION = 'coach_maths_premiere_stage_printemps_v1';
 const STUDENT_SOURCE_VERSION = 'maths_premiere_stage_printemps_v1';
@@ -241,7 +241,7 @@ export async function POST(request: Request, { params }: RouteParams) {
       bilan = await prisma.bilan.update({
         where: { id: existingBilan.id },
         data: {
-          sourceData: sourceData as any,
+          sourceData: sourceData as import('@prisma/client').Prisma.InputJsonValue,
           status: isCompletion ? 'COMPLETED' : 'PENDING',
           progress: isCompletion ? 100 : 50,
           ...(reportMarkdown ? { studentMarkdown: reportMarkdown, parentsMarkdown: reportMarkdown } : {}),
@@ -256,7 +256,7 @@ export async function POST(request: Request, { params }: RouteParams) {
           studentId,
           studentEmail: student.user?.email ?? '',
           studentName,
-          sourceData: sourceData as any,
+          sourceData: sourceData as import('@prisma/client').Prisma.InputJsonValue,
           sourceVersion: COACH_SOURCE_VERSION,
           status: isCompletion ? 'COMPLETED' : 'PENDING',
           progress: isCompletion ? 100 : 50,
@@ -335,12 +335,10 @@ export async function PATCH(request: Request, { params }: RouteParams) {
     }
 
     // Look up stageId for linking the bilan to its stage in the student dashboard
-    const stage = (prisma as any).stage
-      ? await (prisma as any).stage.findUnique({
-          where: { slug: MATHS_STAGE_SLUG },
-          select: { id: true },
-        })
-      : null;
+    const stage = await prisma.stage.findUnique({
+      where: { slug: MATHS_STAGE_SLUG },
+      select: { id: true },
+    });
 
     const bilan = await prisma.bilan.update({
       where: { id: existingBilan.id },

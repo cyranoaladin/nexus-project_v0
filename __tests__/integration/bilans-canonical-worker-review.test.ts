@@ -87,7 +87,7 @@ describe('A86 deterministic worker and internal review service', () => {
       data: { parentUserId, studentId, state: 'VERIFIED', verifiedAt: NOW, consentedAt: NOW },
     });
     const coachUser = await prisma.user.create({ data: { email: `${PREFIX}coach@example.test`, role: 'COACH' } });
-    coachId = (await prisma.coachProfile.create({ data: { userId: coachUser.id, pseudonym: `${PREFIX}coach` } })).id;
+    coachId = (await prisma.coachProfile.create({ data: { userId: coachUser.id, pseudonym: `${PREFIX}coach`, subjects: '[]' } })).id;
     await prisma.coachStudentAssignment.create({
       data: { coachId, studentId, status: 'ACTIVE', startsAt: new Date('2026-08-01T00:00:00.000Z') },
     });

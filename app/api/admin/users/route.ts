@@ -1,17 +1,17 @@
 import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive';
 export const dynamic = 'force-dynamic';
 
-import { prisma } from '@/lib/prisma';
-import bcrypt from 'bcryptjs';
-import { NextRequest, NextResponse } from 'next/server';
+import { ApiError,handleApiError,HttpStatus,successResponse } from '@/lib/api/errors';
+import { assertExists,createPaginationMeta,getPagination,parseBody,parseSearchParams } from '@/lib/api/helpers';
 import { SYSTEM_PARENT_EMAIL } from '@/lib/constants';
-import { requireRole, isErrorResponse } from '@/lib/guards';
-import { createUserSchema, updateUserSchema, listUsersSchema } from '@/lib/validation';
-import { parseBody, parseSearchParams, getPagination, createPaginationMeta, assertExists } from '@/lib/api/helpers';
-import { successResponse, handleApiError, ApiError, HttpStatus } from '@/lib/api/errors';
+import { isErrorResponse,requireRole } from '@/lib/guards';
 import { createLogger } from '@/lib/middleware/logger';
+import { prisma } from '@/lib/prisma';
+import { createUserSchema,listUsersSchema,updateUserSchema } from '@/lib/validation';
+import { AcademicTrack,GradeLevel,StmgPathway,UserRole } from '@/types/enums';
 import type { Prisma } from '@prisma/client';
-import { UserRole, GradeLevel, AcademicTrack, StmgPathway } from '@/types/enums';
+import bcrypt from 'bcryptjs';
+import { NextRequest,NextResponse } from 'next/server';
 
 /**
  * GET /api/admin/users - List users with filters and pagination
@@ -331,7 +331,7 @@ export async function PATCH(request: NextRequest) {
       };
 
       // Need parentId for create block
-      let parentId = (data as any).parentId;
+      let parentId = (data as { parentId?: string }).parentId;
       if (!parentId) {
         const existingStudent = await prisma.student.findUnique({ where: { userId: id } });
         parentId = existingStudent?.parentId;

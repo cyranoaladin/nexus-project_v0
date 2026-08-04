@@ -446,7 +446,7 @@ export const RBAC_POLICIES: Record<string, AccessPolicy> = {
  */
 export async function enforcePolicy(policyKey: string) {
   const { NextResponse } = await import('next/server');
-  const { requireAuth, isErrorResponse, enforceOwnership } = await import('./guards');
+  const { requireAuth, isErrorResponse } = await import('./guards');
 
   const policy = RBAC_POLICIES[policyKey];
   if (!policy) {

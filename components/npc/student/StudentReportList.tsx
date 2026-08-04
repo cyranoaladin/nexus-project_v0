@@ -5,12 +5,12 @@
 
 'use client';
 
-import Link from 'next/link';
-import { CopySubmission, PedagogicalReport, CoachProfile, User } from '@prisma/client';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { FileText, Eye, Clock, CheckCircle, Loader2, AlertCircle } from 'lucide-react';
+import { Card,CardContent,CardHeader } from '@/components/ui/card';
+import { CoachProfile,CopySubmission,PedagogicalReport,User } from '@prisma/client';
+import { AlertCircle,CheckCircle,Clock,Eye,FileText,Loader2 } from 'lucide-react';
+import Link from 'next/link';
 
 interface SubmissionWithRelations extends CopySubmission {
   report: PedagogicalReport | null;
@@ -34,6 +34,24 @@ const statusConfig: Record<string, { label: string; color: string; icon: typeof 
   COMPLETED: { label: 'Terminé', color: 'bg-green-100 text-green-800', icon: CheckCircle },
   ARCHIVED: { label: 'Archivé', color: 'bg-gray-100 text-gray-800', icon: FileText },
 };
+
+type DiagnosticPreview = {
+  summary?: string;
+  overallLevel?: string;
+  confidenceScore?: number;
+};
+
+function diagnosticPreview(value: unknown): DiagnosticPreview {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return {};
+  const report = value as Record<string, unknown>;
+  const diagnostic = report.diagnostic;
+  if (!diagnostic || typeof diagnostic !== 'object' || Array.isArray(diagnostic)) return {};
+  const record = diagnostic as Record<string, unknown>;
+  const candidate = record.diagnosticData ?? record;
+  return candidate && typeof candidate === 'object' && !Array.isArray(candidate)
+    ? candidate as DiagnosticPreview
+    : {};
+}
 
 export function StudentReportList({ submissions, showStatus = false }: StudentReportListProps) {
   if (submissions.length === 0) {
@@ -108,11 +126,7 @@ export function StudentReportList({ submissions, showStatus = false }: StudentRe
                 <div className="bg-gray-50 rounded-lg p-4">
                   {/* Extract summary preview from diagnostic data */}
                   {(() => {
-                    const diagnostic = ((submission.report as any).diagnostic?.diagnosticData || (submission.report as any).diagnostic || {}) as {
-                      summary?: string;
-                      overallLevel?: string;
-                      confidenceScore?: number;
-                    };
+                    const diagnostic = diagnosticPreview(submission.report);
 
                     if (!diagnostic) return null;
 

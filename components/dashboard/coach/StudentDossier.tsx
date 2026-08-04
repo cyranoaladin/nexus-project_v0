@@ -1,21 +1,21 @@
 "use client";
 
-import { type ReactNode } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { History, BookOpen } from "lucide-react";
 import { ProgressEvolutionChart } from "@/components/dashboard/parent/ProgressEvolutionChart";
-import {
-  PedagogicalAlertsFeed,
-  type PedagogicalAlert,
-} from "./PedagogicalAlertsFeed";
-import { CoachNotesPanel, type CoachNote } from "./CoachNotesPanel";
-import { AriaVerbatimsPanel, type AriaVerbatim } from "./AriaVerbatimsPanel";
-import { RagConsultedSources, type RagSource } from "./RagConsultedSources";
+import { Card,CardContent,CardHeader,CardTitle } from "@/components/ui/card";
+import { isPremiereLevel } from "@/lib/coach/gradeLevel";
+import { History } from "lucide-react";
+import { type ReactNode } from "react";
+import { AriaVerbatimsPanel,type AriaVerbatim } from "./AriaVerbatimsPanel";
 import { BilanDiagMathsTerminaleCoach } from "./BilanDiagMathsTerminaleCoach";
 import { CoachDocumentsPanel } from "./CoachDocumentsPanel";
+import { CoachNotesPanel,type CoachNote } from "./CoachNotesPanel";
 import { EafPreparationReport } from "./EafPreparationReport";
-import { isPremiereLevel } from "@/lib/coach/gradeLevel";
 import { GeneratedReportsPanel } from "./GeneratedReportsPanel";
+import {
+PedagogicalAlertsFeed,
+type PedagogicalAlert,
+} from "./PedagogicalAlertsFeed";
+import { RagConsultedSources,type RagSource } from "./RagConsultedSources";
 
 export interface DossierStudent {
   id: string;

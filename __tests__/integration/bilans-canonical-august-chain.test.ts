@@ -65,7 +65,7 @@ describe('August Canonical bilan chain', () => {
       },
     });
     const coachUser = await prisma.user.create({ data: { email: `${PREFIX}coach@example.test`, role: 'COACH' } });
-    const coach = await prisma.coachProfile.create({ data: { userId: coachUser.id, pseudonym: `${PREFIX}coach` } });
+    const coach = await prisma.coachProfile.create({ data: { userId: coachUser.id, pseudonym: `${PREFIX}coach`, subjects: '[]' } });
     await prisma.coachStudentAssignment.create({
       data: { coachId: coach.id, studentId: student.id, status: 'ACTIVE', startsAt: new Date(NOW.getTime() - 60_000) },
     });

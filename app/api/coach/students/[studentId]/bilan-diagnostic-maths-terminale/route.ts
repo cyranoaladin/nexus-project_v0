@@ -1,11 +1,11 @@
-import { NextResponse } from 'next/server';
-import { requireRole, isErrorResponse } from '@/lib/guards';
-import { assertCoachCanAccessStudent } from '@/lib/rbac/coach-student-access';
-import { prisma } from '@/lib/prisma';
+import { DOMAINS,QUESTIONS_OPEN } from '@/lib/diagnostic/maths-terminale/data';
 import { computeDiagnostics } from '@/lib/diagnostic/maths-terminale/scoring';
-import { DOMAINS, QUESTIONS_OPEN } from '@/lib/diagnostic/maths-terminale/data';
-import type { DiagnosticSourceData, TeacherGrade } from '@/lib/diagnostic/maths-terminale/types';
+import type { DiagnosticSourceData,TeacherGrade } from '@/lib/diagnostic/maths-terminale/types';
+import { isErrorResponse,requireRole } from '@/lib/guards';
+import { prisma } from '@/lib/prisma';
+import { assertCoachCanAccessStudent } from '@/lib/rbac/coach-student-access';
 import { serializeError } from '@/lib/utils/serialize-error';
+import { NextResponse } from 'next/server';
 import { z } from 'zod';
 
 interface RouteParams {
@@ -163,9 +163,9 @@ export async function PATCH(request: Request, { params }: RouteParams) {
     const updatedBilan = await prisma.bilan.update({
       where: { id: existingBilan.id },
       data: {
-        sourceData: updatedSourceData as any,
+        sourceData: updatedSourceData as unknown as import('@prisma/client').Prisma.InputJsonValue,
         globalScore: evaluatedData.globalPercentage,
-        domainScores: domainScoresArr as any,
+        domainScores: domainScoresArr as import('@prisma/client').Prisma.InputJsonValue,
         coachId: coachProfile?.id ?? undefined,
         status: 'COMPLETED',
         progress: 100,

@@ -1,25 +1,26 @@
 "use client";
 
-import { useSession } from "next-auth/react";
-import { useRouter, useParams } from "next/navigation";
-import { useEffect, useState } from "react";
-import { Loader2, ArrowLeft, TrendingUp, Calendar, Shield, Zap } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { DashboardPilotage } from "@/components/dashboard/DashboardPilotage";
-import { ProgressEvolutionChart } from "@/components/dashboard/parent/ProgressEvolutionChart";
-import { CohortComparison } from "@/components/dashboard/parent/CohortComparison";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { CanonicalConsentCard } from "./canonical-consent-card";
 import { ParentCanonicalReports } from "@/components/bilans/ParentCanonicalReports";
+import { DashboardPilotage } from "@/components/dashboard/DashboardPilotage";
+import { CohortComparison } from "@/components/dashboard/parent/CohortComparison";
+import type { ParentDashboardChild } from "@/components/dashboard/parent/ChildCard";
+import { ProgressEvolutionChart } from "@/components/dashboard/parent/ProgressEvolutionChart";
+import { Button } from "@/components/ui/button";
+import { Card,CardContent,CardHeader,CardTitle } from "@/components/ui/card";
+import { ArrowLeft,Calendar,Loader2,Shield,Zap } from "lucide-react";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
+import { useParams,useRouter } from "next/navigation";
+import { useEffect,useState } from "react";
+import { CanonicalConsentCard } from "./canonical-consent-card";
 
 export default function ChildDetailPage() {
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   const router = useRouter();
   const params = useParams();
   const studentId = params.studentId as string;
   
-  const [childData, setChildData] = useState<any>(null);
+  const [childData, setChildData] = useState<ParentDashboardChild | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -31,8 +32,8 @@ export default function ChildDetailPage() {
     const fetchChildData = async () => {
       try {
         const response = await fetch('/api/parent/dashboard');
-        const data = await response.json();
-        const child = data.children.find((c: any) => c.id === studentId);
+        const data = await response.json() as { children: ParentDashboardChild[] };
+        const child = data.children.find((candidate) => candidate.id === studentId);
         if (child) {
           setChildData(child);
         } else {
@@ -96,7 +97,7 @@ export default function ChildDetailPage() {
             <div className="lg:col-span-2 space-y-8">
               <ParentCanonicalReports studentId={studentId} />
 
-              <ProgressEvolutionChart data={childData.progressionHistory} />
+              <ProgressEvolutionChart data={childData.progressionHistory ?? []} />
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <CohortComparison 
@@ -141,11 +142,11 @@ export default function ChildDetailPage() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {childData.sessions.map((s: any) => (
-                    <div key={s.id} className="p-3 bg-white/5 rounded-lg border border-white/10">
-                      <p className="text-sm font-bold text-white">{s.subject}</p>
+                  {(childData.sessions ?? []).map((session) => (
+                    <div key={session.id} className="p-3 bg-white/5 rounded-lg border border-white/10">
+                      <p className="text-sm font-bold text-white">{session.subject}</p>
                       <p className="text-xs text-neutral-400">
-                        {new Date(s.scheduledAt).toLocaleDateString('fr-FR')} • {s.coachName}
+                        {new Date(session.scheduledAt).toLocaleDateString('fr-FR')} • {session.coachName}
                       </p>
                     </div>
                   ))}
@@ -165,7 +166,7 @@ export default function ChildDetailPage() {
                 <CardContent>
                   <div className="mb-4">
                     <p className="text-xs text-neutral-500 uppercase font-bold">Formule</p>
-                    <p className="text-lg font-bold text-white">{childData.subscription}</p>
+                    <p className="text-lg font-bold text-white">{childData.subscription ?? 'Aucune formule active'}</p>
                   </div>
                   <Button variant="outline" className="w-full border-white/10">
                     Gérer l'abonnement
