@@ -64,4 +64,4 @@ La cible Prisma dépendait implicitement du lieu de génération. Le pipeline au
 
 ## Rollback
 
-Rebasculer `/var/www/nexus-project_v0` vers la release précédente validée, redémarrer uniquement `nexus-prod`, attendre la disponibilité puis prouver une connexion réelle. La procédure détaillée est conservée dans le runbook de rollback du pilote Seconde.
+Rebasculer `<APP_DIR>` vers la release précédente validée, redémarrer uniquement `<APP_PROCESS>`, attendre la disponibilité puis prouver une connexion réelle. La procédure détaillée est conservée dans le runbook de rollback du pilote Seconde.

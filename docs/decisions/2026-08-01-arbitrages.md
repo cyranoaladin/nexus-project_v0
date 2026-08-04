@@ -324,7 +324,7 @@ n’est donc affirmée.
 ## A20 — Configuration locale distincte de la production
 
 **Constat.** Le lien local `.env` pouvait compléter `.env.local` avec des variables de
-`.env.production`. La production réelle charge toutefois `/etc/nexus/nexus-prod.env`,
+`.env.production`. La production réelle charge toutefois `/etc/nexus/<APP_PROCESS>.env`,
 hors dépôt, via `node --env-file` ; le fichier local n'est pas sa source de configuration.
 
 **Décision.** Le risque de contact avec la base de production au titre d'A19 est clos.
@@ -415,7 +415,7 @@ production évite à la fois le faux sentiment de sécurité et l'alerte infond�
 
 **Constat.** Le dump et le conteneur `nexus-m1-dryrun` contiennent des donnees personnelles de mineurs, notamment des noms, des e-mails et des resultats scolaires.
 
-**Decision.** Le fichier unique `/home/alaeddine/.local/share/nexus/m1/nexus_prod_m1_20260801.dump` reste en mode `600`, n'est jamais copie, commite ni transmis. Le dump et le conteneur jetable `nexus-m1-dryrun`, sans volume, sont supprimes au plus tard le 2026-08-03. Leur suppression doit etre constatee dans un rapport, jamais supposee.
+**Decision.** Le fichier unique `<LOCAL_PROTECTED_DUMP>` reste en mode `600`, n'est jamais copie, commite ni transmis. Le dump et le conteneur jetable `nexus-m1-dryrun`, sans volume, sont supprimes au plus tard le 2026-08-03. Leur suppression doit etre constatee dans un rapport, jamais supposee.
 
 **Motif.** Une copie de production ne doit survivre que pendant la fenetre strictement necessaire au dry-run et a sa qualification.
 
@@ -490,7 +490,7 @@ production évite à la fois le faux sentiment de sécurité et l'alerte infond�
 ## A52 — Suppression anticipée de la copie de production
 
 - **Constat :** le dry-run est terminé et le dump ainsi que le conteneur jetable ne sont plus nécessaires.
-- **Décision :** supprimer aujourd'hui uniquement `nexus-m1-dryrun` et `/home/alaeddine/.local/share/nexus/m1/nexus_prod_m1_20260801.dump`, puis constater l'absence du conteneur, du fichier et de tout volume M1.
+- **Décision :** supprimer aujourd'hui uniquement `nexus-m1-dryrun` et `<LOCAL_PROTECTED_DUMP>`, puis constater l'absence du conteneur, du fichier et de tout volume M1.
 - **Motif :** réduire au strict minimum la durée de conservation locale de données personnelles de mineurs, avant même l'échéance A42.
 
 ## A53 — Recette mock versionnée et déterministe

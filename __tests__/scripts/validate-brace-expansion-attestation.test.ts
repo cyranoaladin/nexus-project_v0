@@ -29,19 +29,7 @@ function osvReport(extra = false) {
 }
 
 function npmReport(extra = false) {
-  const vulnerabilities: Record<string, unknown> = {
-    'brace-expansion': {
-      via: [{
-        name: 'brace-expansion',
-        severity: 'high',
-        url: 'https://github.com/advisories/GHSA-mh99-v99m-4gvg',
-      }],
-      nodes: [
-        'node_modules/brace-expansion',
-        'node_modules/cacache/node_modules/brace-expansion',
-      ],
-    },
-  };
+  const vulnerabilities: Record<string, unknown> = {};
   if (extra) {
     vulnerabilities.mathlive = {
       via: [{
@@ -56,8 +44,8 @@ function npmReport(extra = false) {
     vulnerabilities,
     metadata: {
       vulnerabilities: extra
-        ? { info: 0, low: 0, moderate: 0, high: 37, critical: 0, total: 37 }
-        : { info: 0, low: 0, moderate: 0, high: 36, critical: 0, total: 36 },
+        ? { info: 0, low: 0, moderate: 0, high: 1, critical: 0, total: 1 }
+        : { info: 0, low: 0, moderate: 0, high: 0, critical: 0, total: 0 },
     },
   };
 }
@@ -117,7 +105,7 @@ describe('brace-expansion attestation validator', () => {
     expect(result.stderr).toContain('ADDITIONAL_ADVISORY');
   });
 
-  it('accepts only the documented npm advisory', () => {
+  it('accepts only a zero-finding npm audit', () => {
     const result = run('npm', npmReport());
     expect(result.status).toBe(0);
     expect(result.stdout).toContain('ATTESTATION_VALID mode=npm');

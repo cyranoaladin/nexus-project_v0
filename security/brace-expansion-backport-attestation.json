@@ -25,12 +25,12 @@
   "lockfileEvidence": {
     "path": "package-lock.json",
     "algorithm": "SHA-256",
-    "digest": "c58e19c3ea6e95b71b346bf2c4eb226384309922f5afc09efa4712bd0145093e",
+    "digest": "fee2f8402506c5a2136b846dc02d3c43399102644234b17101fbcc21b8f7be43",
     "verification": {
       "command": "npm ci",
-      "verifiedOn": "2026-08-03",
-      "digestBeforeInstall": "c58e19c3ea6e95b71b346bf2c4eb226384309922f5afc09efa4712bd0145093e",
-      "digestAfterInstall": "c58e19c3ea6e95b71b346bf2c4eb226384309922f5afc09efa4712bd0145093e",
+      "verifiedOn": "2026-08-04",
+      "digestBeforeInstall": "fee2f8402506c5a2136b846dc02d3c43399102644234b17101fbcc21b8f7be43",
+      "digestAfterInstall": "fee2f8402506c5a2136b846dc02d3c43399102644234b17101fbcc21b8f7be43",
       "unchanged": true
     }
   },
@@ -142,7 +142,7 @@
   "runtimeGraphEvidence": {
     "schema": "nexus-runtime-component-set-recursive/v1",
     "digestAlgorithm": "SHA-256",
-    "digest": "194263f34d775bf299341e69b1a96a387d4095dab9887a25e906b0c7bc2b76e1",
+    "digest": "98a056917856ea0681d2e1c97d391bf9814b513157b0f3c8e8946baef7cafae3",
     "componentCount": 550,
     "canonicalization": {
       "traversal": "components and nested components recursively",
@@ -169,8 +169,8 @@
     "format": "CycloneDX 1.6",
     "componentCount": 523,
     "algorithm": "SHA-256",
-    "digest": "e9c1d83e7dff28cebe9e4b4f787c94dd15273bac1882e65a6bb9d12ce977d951",
-    "regeneratedOn": "2026-07-31",
+    "digest": "2690c6def869c471475101fdc7427290172248eacacb9db93c45b2e766f489f7",
+    "regeneratedOn": "2026-08-04",
     "blocking": false,
     "note": "Raw CycloneDX digest retained for audit only; validation binds to runtimeGraphEvidence."
   },
@@ -198,7 +198,7 @@
       "brace-expansion@1.1.18",
       "brace-expansion@2.1.4"
     ],
-    "npmAuditHighImpactCount": 36,
+    "npmAuditHighImpactCount": 0,
     "mathliveFindings": 0,
     "unexpectedAdvisoriesAllowed": false
   },

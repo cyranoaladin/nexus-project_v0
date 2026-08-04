@@ -14,9 +14,9 @@ const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../..')
 const EXPECTED_ADVISORY = 'GHSA-mh99-v99m-4gvg';
 const EXPECTED_CVE = 'CVE-2026-14257';
 const EXPECTED_PACKAGE = 'brace-expansion';
-const EXPECTED_LOCK_SHA256 = 'c58e19c3ea6e95b71b346bf2c4eb226384309922f5afc09efa4712bd0145093e';
+const EXPECTED_LOCK_SHA256 = 'fee2f8402506c5a2136b846dc02d3c43399102644234b17101fbcc21b8f7be43';
 const EXPECTED_RUNTIME_GRAPH_DIGEST =
-  '194263f34d775bf299341e69b1a96a387d4095dab9887a25e906b0c7bc2b76e1';
+  '98a056917856ea0681d2e1c97d391bf9814b513157b0f3c8e8946baef7cafae3';
 const EXPECTED_VALIDATOR = 'scripts/security/validate-brace-expansion-attestation.mjs';
 const EXPECTED_OSV_SOURCE = 'https://api.osv.dev/v1/vulns/GHSA-mh99-v99m-4gvg';
 const EXPECTED_OSV_MODIFIED = '2026-07-25T21:44:41.250545099Z';
@@ -206,7 +206,7 @@ function validateAttestation(attestation, lock, lockfilePath, nowText) {
   const scanner = attestation.scannerEvidence;
   requireEqual(scanner?.osvScannerVersion, '1.9.0', 'SCANNER_VERSION_CHANGED');
   requireEqual(scanner?.osvScannerBinarySha256, 'd9c1deedc23372a25049458e1e2f2bb9ad4098e2e2038118b9fec42f28f93ffb', 'SCANNER_BINARY_CHANGED');
-  requireEqual(scanner?.npmAuditHighImpactCount, 36, 'SCANNER_FINDING_SET_CHANGED');
+  requireEqual(scanner?.npmAuditHighImpactCount, 0, 'SCANNER_FINDING_SET_CHANGED');
   requireEqual(scanner?.mathliveFindings, 0, 'ADDITIONAL_ADVISORY');
   requireEqual(scanner?.unexpectedAdvisoriesAllowed, false, 'ADDITIONAL_ADVISORY');
   requireEqual(scanner?.allowedResidualAdvisories?.length, 1, 'ADDITIONAL_ADVISORY');
@@ -234,62 +234,19 @@ function auditMetadata(report) {
   return report?.metadata?.vulnerabilities ?? {};
 }
 
-function collectAuditAdvisories(report) {
-  const vulnerabilities = report?.vulnerabilities ?? {};
-  const leaves = [];
-  const visiting = new Set();
-  function visit(name) {
-    if (visiting.has(name)) return;
-    const vulnerability = vulnerabilities[name];
-    if (!vulnerability) fail('ADDITIONAL_ADVISORY', `unresolved dependency ${name}`);
-    visiting.add(name);
-    for (const via of vulnerability.via ?? []) {
-      if (typeof via === 'string') visit(via);
-      else if (via && typeof via === 'object') leaves.push(via);
-      else fail('ADDITIONAL_ADVISORY', name);
-    }
-    visiting.delete(name);
-  }
-  for (const name of Object.keys(vulnerabilities)) visit(name);
-  return leaves;
-}
-
 function validateNpmReport(report, productionAudit, runtimeSbom) {
   const production = auditMetadata(productionAudit);
   if ((production.total ?? 0) !== 0) fail('PRODUCTION_AUDIT_NOT_GREEN');
 
   const metadata = auditMetadata(report);
-  const expected = { info: 0, low: 0, moderate: 0, high: 36, critical: 0, total: 36 };
+  const expected = { info: 0, low: 0, moderate: 0, high: 0, critical: 0, total: 0 };
   for (const [key, value] of Object.entries(expected)) {
     requireEqual(metadata[key], value, 'SCANNER_FINDING_SET_CHANGED');
   }
-  if (report.vulnerabilities?.mathlive) fail('ADDITIONAL_ADVISORY', 'mathlive');
-
-  const leaves = collectAuditAdvisories(report);
-  const unique = new Map();
-  for (const leaf of leaves) {
-    let advisoryId;
-    try {
-      advisoryId = new URL(leaf.url).pathname.split('/').filter(Boolean).at(-1);
-    } catch {
-      fail('ADDITIONAL_ADVISORY', 'invalid advisory URL');
-    }
-    const identity = `${advisoryId}|${leaf.name}|${leaf.severity}`;
-    unique.set(identity, leaf);
+  const vulnerabilityNames = Object.keys(report.vulnerabilities ?? {});
+  if (vulnerabilityNames.length !== 0) {
+    fail('ADDITIONAL_ADVISORY', vulnerabilityNames.join(','));
   }
-  if (unique.size !== 1) fail('ADDITIONAL_ADVISORY', `leaf count ${unique.size}`);
-  const [leaf] = unique.values();
-  const advisoryId = new URL(leaf.url).pathname.split('/').filter(Boolean).at(-1);
-  requireEqual(advisoryId, EXPECTED_ADVISORY, 'ADDITIONAL_ADVISORY');
-  requireEqual(leaf.name, EXPECTED_PACKAGE, 'ADDITIONAL_ADVISORY');
-  requireEqual(leaf.severity?.toUpperCase(), 'HIGH', 'ADDITIONAL_ADVISORY');
-
-  const expectedNodes = [
-    'node_modules/brace-expansion',
-    'node_modules/cacache/node_modules/brace-expansion',
-  ];
-  const nodes = report.vulnerabilities?.[EXPECTED_PACKAGE]?.nodes ?? [];
-  if (!equalSets(nodes, expectedNodes)) fail('NPM_TREE_CHANGED', nodes.join(','));
 
   if (containsPackage(runtimeSbom, EXPECTED_PACKAGE)) fail('RUNTIME_EXPOSURE_DETECTED');
   const runtimeGraph = runtimeGraphDigest(runtimeSbom);

@@ -59,13 +59,13 @@ Dump execute :
 ```bash
 install -d -m 700 /home/alaeddine/.local/share/nexus/a84
 umask 077
-ssh root@88.99.254.59 \
+ssh <ADMIN_USER>@<PROD_HOST> \
   'docker exec nexus-postgres-db pg_dump -U nexus_runtime -d nexus_prod \
     --format=custom --no-owner --no-privileges' \
-  > /home/alaeddine/.local/share/nexus/a84/nexus_prod_a82_20260802.dump
-chmod 600 /home/alaeddine/.local/share/nexus/a84/nexus_prod_a82_20260802.dump
+  > <LOCAL_PROTECTED_DUMP>
+chmod 600 <LOCAL_PROTECTED_DUMP>
 pg_restore --list \
-  /home/alaeddine/.local/share/nexus/a84/nexus_prod_a82_20260802.dump | wc -l
+  <LOCAL_PROTECTED_DUMP> | wc -l
 ```
 
 Sortie :
@@ -100,7 +100,7 @@ docker run -d --name nexus-a82-dryrun \
 pg_restore \
   -h 127.0.0.1 -p 5439 -U dryrun -d nexus_a82_dryrun \
   --no-owner --no-privileges \
-  /home/alaeddine/.local/share/nexus/a84/nexus_prod_a82_20260802.dump
+  <LOCAL_PROTECTED_DUMP>
 ```
 
 Sortie : `exit 0`, aucune ligne d'avertissement ou d'erreur.
@@ -150,7 +150,7 @@ Commandes :
 
 ```bash
 docker rm --force nexus-a82-dryrun
-unlink /home/alaeddine/.local/share/nexus/a84/nexus_prod_a82_20260802.dump
+unlink <LOCAL_PROTECTED_DUMP>
 ```
 
 Controle final :

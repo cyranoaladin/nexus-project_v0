@@ -33,10 +33,10 @@
   "source": {
     "sha": "6e3aedaac89c7383a8a4505f102e871e19f44e60",
     "branch": "audit/bilans-pre-rentree-e2e-readiness-20260803",
-    "worktree": "/home/alaeddine/Bureau/nexus-bilans-e2e-readiness",
+    "worktree": "<LOCAL_AUDIT_WORKTREE>",
     "manifest": "data/bilans/banks/wave1.manifest.json",
     "productionInspected": false,
-    "productionReleaseDeclaredByRequester": "/var/www/nexus-releases/6e3aedaac-u1-20260803T205021Z"
+    "productionReleaseDeclaredByRequester": "<RELEASES_DIR>/6e3aedaac-u1-20260803T205021Z"
   },
   "verdict": {
     "WORKFLOW_PRE_RENTREE_FINALISE": false,
