@@ -11,7 +11,9 @@ describe('A90.3 immutable report materialization schema', () => {
   test('keeps ReportArtifact and adds one materialization per revision and audience', () => {
     expect(schema).toMatch(/model ReportArtifact[\s\S]*@@unique\(\[assessmentAttemptId\]\)/);
     expect(schema).toMatch(/model ReportMaterialization[\s\S]*revisionId\s+String\s+@unique/);
-    expect(schema).toMatch(/model ReportAudienceArtifact[\s\S]*@@unique\(\[materializationId, audience\]\)/);
+    expect(schema).toMatch(
+      /model ReportAudienceArtifact[\s\S]*@@unique\(\[materializationId, audience\](?:,\s*map:\s*"[^"]+")?\)/,
+    );
     expect(schema).toMatch(/pdf\s+Bytes\?/);
   });
 
