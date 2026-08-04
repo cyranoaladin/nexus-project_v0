@@ -21,5 +21,8 @@ export async function register() {
     // so this await never throws — but it guarantees deterministic startup.
     const { loadConfigSnapshot } = await import('./lib/config');
     await loadConfigSnapshot();
+
+    const { startEmailOutboxScheduler } = await import('./lib/email/outbox-scheduler');
+    startEmailOutboxScheduler();
   }
 }

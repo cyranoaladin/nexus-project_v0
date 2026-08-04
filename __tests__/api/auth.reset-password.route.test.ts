@@ -15,8 +15,12 @@ jest.mock('@/lib/rate-limit/sensitive', () => ({
   guardSensitiveRateLimit: jest.fn().mockResolvedValue(null),
 }));
 
-jest.mock('@/lib/email', () => ({
-  sendPasswordResetEmail: jest.fn().mockResolvedValue(undefined),
+jest.mock('@/lib/email/outbox', () => ({
+  enqueueEmailIntent: jest.fn().mockResolvedValue({ id: 'email-job-1' }),
+}));
+
+jest.mock('@/lib/email/outbox-scheduler', () => ({
+  kickEmailOutboxDrain: jest.fn(),
 }));
 
 jest.mock('@/lib/password-reset-token', () => ({
@@ -31,7 +35,7 @@ jest.mock('bcryptjs', () => ({
 import { POST } from '@/app/api/auth/reset-password/route';
 import { NextRequest } from 'next/server';
 import { verifyResetToken } from '@/lib/password-reset-token';
-import { sendPasswordResetEmail } from '@/lib/email';
+import { enqueueEmailIntent } from '@/lib/email/outbox';
 
 let prisma: any;
 
@@ -39,6 +43,8 @@ beforeEach(async () => {
   const mod = await import('@/lib/prisma');
   prisma = (mod as any).prisma;
   jest.clearAllMocks();
+  process.env.NEXTAUTH_URL = 'http://localhost:3000';
+  prisma.$transaction.mockImplementation(async (callback: (transaction: typeof prisma) => unknown) => callback(prisma));
 });
 
 function makeRequest(body: Record<string, unknown>): NextRequest {
@@ -68,7 +74,7 @@ describe('POST /api/auth/reset-password — request reset', () => {
 
     expect(res.status).toBe(200);
     expect(body.success).toBe(true);
-    expect(sendPasswordResetEmail).toHaveBeenCalledTimes(1);
+    expect(enqueueEmailIntent).toHaveBeenCalledTimes(1);
   });
 
   it('should return success for non-existing user (prevent enumeration)', async () => {
@@ -80,7 +86,7 @@ describe('POST /api/auth/reset-password — request reset', () => {
     expect(res.status).toBe(200);
     expect(body.success).toBe(true);
     // Should NOT send email
-    expect(sendPasswordResetEmail).not.toHaveBeenCalled();
+    expect(enqueueEmailIntent).not.toHaveBeenCalled();
   });
 
   it('should reject invalid email', async () => {

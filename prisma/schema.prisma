@@ -1419,6 +1419,9 @@ enum CanonicalOutboxStatus {
   COMPLETED
   FAILED
   CANCELLED
+  AMBIGUOUS
+  RETRY_SCHEDULED
+  FAILED_FINAL
 }
 
 enum CanonicalJobType {
@@ -1426,6 +1429,7 @@ enum CanonicalJobType {
   GENERATE_REPORT
   PUBLISH_REPORT
   SEND_NOTIFICATION
+  SEND_EMAIL
 }
 
 enum CanonicalNotificationEventType {

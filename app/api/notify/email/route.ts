@@ -19,7 +19,7 @@ import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { checkCsrf } from '@/lib/csrf';
-import { sendMail } from '@/lib/email/mailer';
+import { queueCommittedEmail } from '@/lib/email/queue';
 import { bilanAcknowledgement, internalNotification } from '@/lib/email/templates';
 import { LEGAL } from '@/lib/legal';
 
@@ -141,14 +141,17 @@ export async function POST(request: NextRequest) {
         formType: data.formType,
       });
 
-      const result = await sendMail({
+      await queueCommittedEmail({
+        aggregateType: 'BILAN_ACKNOWLEDGEMENT',
+        aggregateKey: data.to,
+        dedupeKey: JSON.stringify(data),
         to: data.to,
         subject: template.subject,
         html: template.html,
         text: template.text,
       });
 
-      return NextResponse.json({ ok: true, skipped: result.skipped ?? false }, { status: 200 });
+      return NextResponse.json({ ok: true, skipped: false }, { status: 200 });
     }
 
     // 5b. Internal notification — always sent to INTERNAL_NOTIFICATION_EMAIL (never caller-controlled)
@@ -164,14 +167,17 @@ export async function POST(request: NextRequest) {
         fields: data.fields,
       });
 
-      const result = await sendMail({
+      await queueCommittedEmail({
+        aggregateType: 'INTERNAL_NOTIFICATION',
+        aggregateKey: data.eventType,
+        dedupeKey: JSON.stringify(data),
         to: internalRecipient,
         subject: template.subject,
         html: template.html,
         text: template.text,
       });
 
-      return NextResponse.json({ ok: true, skipped: result.skipped ?? false }, { status: 200 });
+      return NextResponse.json({ ok: true, skipped: false }, { status: 200 });
     }
 
     // Exhaustive check — should never reach here

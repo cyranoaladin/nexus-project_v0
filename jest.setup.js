@@ -50,6 +50,7 @@ global.setImmediate = global.setImmediate || ((fn, ...args) => setTimeout(fn, 0,
 jest.mock('@/lib/prisma', () => {
   const modelCache = {};
   const topLevel = {};
+  let prismaProxy;
   const createModelProxy = () => {
     const methodCache = {};
     return new Proxy({}, {
@@ -77,7 +78,13 @@ jest.mock('@/lib/prisma', () => {
       if (typeof prop === 'symbol') return undefined;
       // Top-level methods ($transaction, $queryRaw, $connect, $disconnect)
       if (typeof prop === 'string' && prop.startsWith('$')) {
-        if (!topLevel[prop]) topLevel[prop] = jest.fn();
+        if (!topLevel[prop]) {
+          topLevel[prop] = prop === '$transaction'
+            ? jest.fn(async (operation) => Array.isArray(operation)
+              ? Promise.all(operation)
+              : operation(prismaProxy))
+            : jest.fn();
+        }
         return topLevel[prop];
       }
       // Model proxy: auto-creates jest.fn() for any method
@@ -90,7 +97,8 @@ jest.mock('@/lib/prisma', () => {
       return true;
     }
   };
-  return { prisma: new Proxy({}, handler) };
+  prismaProxy = new Proxy({}, handler);
+  return { prisma: prismaProxy };
 });
 
 // Mock Next Auth (v5) and its ESM subpaths to avoid SyntaxError: Unexpected token 'export'
@@ -457,6 +465,7 @@ jest.mock('framer-motion', () => {
 // The inline mock below has been moved to __mocks__ for better compatibility with Next.js jest
 process.env.RATE_LIMIT_KEY_NAMESPACE = process.env.RATE_LIMIT_KEY_NAMESPACE || 'test'
 process.env.RATE_LIMIT_TRUST_PROXY_HOPS = process.env.RATE_LIMIT_TRUST_PROXY_HOPS || '1'
+process.env.EMAIL_OUTBOX_ENCRYPTION_KEY = process.env.EMAIL_OUTBOX_ENCRYPTION_KEY || 'jest-email-outbox-key-at-least-32-characters'
 
 beforeEach(() => {
   Object.defineProperty(process.env, 'NODE_ENV', { configurable: true, value: 'test' })

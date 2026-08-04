@@ -5,13 +5,17 @@ const root = process.cwd()
 const read = (file: string) => fs.readFileSync(path.join(root, file), 'utf8')
 
 describe('Parent email activation architecture boundary', () => {
-  it('uses the centralized mailer and never the legacy welcome-email transport', () => {
+  it('persists activation delivery through the outbox and keeps rendering transport-free', () => {
     const route = read('app/api/bilan-gratuit/route.ts')
     const activation = read('lib/auth/parent-activation.ts')
 
     expect(route).toContain("from '@/lib/auth/parent-activation'")
+    expect(route).toContain("from '@/lib/email/outbox'")
+    expect(route).toContain('await enqueueEmailIntent(tx,')
+    expect(route).not.toContain("from '@/lib/email/mailer'")
     expect(route).not.toContain("import('@/lib/email')")
-    expect(activation).toContain("from '@/lib/email/mailer'")
+    expect(activation).not.toContain("from '@/lib/email/mailer'")
+    expect(activation).not.toContain('sendMail(')
   })
 
   it('never derives activation links from client-controlled forwarding headers', () => {

@@ -8,11 +8,12 @@ import { parsePagination, parseEnumParam, createPaginationMeta } from '@/lib/api
 import { z } from 'zod';
 import { normalizeStudentLevelAndTrack } from '@/lib/utils/grade-utils';
 import { generateResetToken } from '@/lib/password-reset-token';
-import { sendPasswordResetEmail } from '@/lib/email';
 import { LEGAL } from '@/lib/legal';
-import crypto from 'crypto';
-import { sendMail } from '@/lib/email/mailer';
 import { serializeError } from '@/lib/utils/serialize-error';
+import { createActivationToken } from '@/lib/auth/activation-token';
+import { getTrustedApplicationOrigin } from '@/lib/auth/parent-activation';
+import { enqueueEmailIntent } from '@/lib/email/outbox';
+import { kickEmailOutboxDrain } from '@/lib/email/outbox-scheduler';
 
 /**
  * GET /api/assistante/students
@@ -198,10 +199,6 @@ const createStudentWithParentSchema = z.object({
   studentSchool: z.string().optional(),
 });
 
-function hashToken(token: string): string {
-  return crypto.createHash('sha256').update(token).digest('hex');
-}
-
 function buildActivationEmailHtml(firstName: string, activationUrl: string) {
   return `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -295,6 +292,7 @@ export async function POST(request: Request) {
       );
     }
 
+    const studentActivation = createActivationToken('student');
     const result = await prisma.$transaction(async (tx) => {
       const existingParent = await tx.user.findUnique({
         where: { email: parentEmail },
@@ -370,6 +368,8 @@ export async function POST(request: Request) {
           lastName: data.studentLastName.trim(),
           password: null,
           activatedAt: null,
+          activationToken: studentActivation.tokenHash,
+          activationExpiry: studentActivation.expiresAt,
         },
         select: { id: true, email: true, firstName: true, lastName: true },
       });
@@ -386,6 +386,31 @@ export async function POST(request: Request) {
         select: { id: true },
       });
 
+      const origin = getTrustedApplicationOrigin();
+      const resetToken = generateResetToken(parentUserId, parentEmail, parentPasswordHash);
+      const resetUrl = new URL('/auth/reset-password', origin);
+      resetUrl.searchParams.set('token', resetToken);
+      await enqueueEmailIntent(tx, {
+        aggregateId: parentUserId,
+        messageType: 'PASSWORD_RESET',
+        dedupeKey: resetToken,
+        to: parentEmail,
+        subject: 'Réinitialisation de votre mot de passe — Nexus Réussite',
+        html: `<p>Bonjour ${parentFirstName || 'Parent'},</p><p><a href="${resetUrl.toString()}">Définir mon mot de passe</a></p>`,
+        text: `Définissez votre mot de passe : ${resetUrl.toString()}`,
+      });
+      const activationUrl = new URL('/auth/activate', origin);
+      activationUrl.searchParams.set('token', studentActivation.rawToken);
+      await enqueueEmailIntent(tx, {
+        aggregateId: studentUser.id,
+        messageType: 'STUDENT_ACTIVATION',
+        dedupeKey: studentActivation.tokenHash,
+        to: studentUser.email,
+        subject: 'Activation de votre compte — Nexus Réussite',
+        html: buildActivationEmailHtml(studentUser.firstName || 'Utilisateur', activationUrl.toString()),
+        text: `Bonjour ${studentUser.firstName || 'Utilisateur'}, activez votre compte : ${activationUrl.toString()}`,
+      });
+
       return {
         ok: true as const,
         parent: { userId: parentUserId, email: parentEmail, firstName: parentFirstName, passwordHash: parentPasswordHash },
@@ -400,43 +425,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // Parent: send password reset email (so parent can set a password)
-    try {
-      const baseUrl = process.env.NEXTAUTH_URL || 'https://nexusreussite.academy';
-      const token = generateResetToken(result.parent.userId, result.parent.email, result.parent.passwordHash);
-      const resetUrl = `${baseUrl}/auth/reset-password?token=${encodeURIComponent(token)}`;
-      await sendPasswordResetEmail(result.parent.email, result.parent.firstName || 'Parent', resetUrl);
-    } catch (emailError) {
-      if (process.env.NODE_ENV !== 'test') {
-        console.error('[assistante/students POST] parent reset email failed:', serializeError(emailError));
-      }
-    }
-
-    // Student: generate activation link + send activation email
-    try {
-      const rawToken = crypto.randomBytes(32).toString('hex');
-      const hashedToken = hashToken(rawToken);
-      const expiresAt = new Date(Date.now() + 72 * 60 * 60 * 1000);
-
-      await prisma.user.update({
-        where: { id: result.student.userId },
-        data: { activationToken: hashedToken, activationExpiry: expiresAt },
-      });
-
-      const baseUrl = process.env.NEXTAUTH_URL || 'https://nexusreussite.academy';
-      const activationUrl = `${baseUrl}/auth/activate?token=${encodeURIComponent(rawToken)}`;
-
-      await sendMail({
-        to: result.student.email,
-        subject: '🔐 Activation de votre compte — Nexus Réussite',
-        html: buildActivationEmailHtml(result.student.firstName || 'Utilisateur', activationUrl),
-        text: `Bonjour ${result.student.firstName || 'Utilisateur'}, activez votre compte: ${activationUrl}`,
-      });
-    } catch (emailError) {
-      if (process.env.NODE_ENV !== 'test') {
-        console.error('[assistante/students POST] student activation email failed:', serializeError(emailError));
-      }
-    }
+    kickEmailOutboxDrain();
 
     return NextResponse.json(
       {

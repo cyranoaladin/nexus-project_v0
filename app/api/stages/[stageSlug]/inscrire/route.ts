@@ -2,7 +2,8 @@ export const dynamic = 'force-dynamic';
 
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { sendMail } from '@/lib/email/mailer';
+import { enqueueEmailIntent } from '@/lib/email/outbox';
+import { kickEmailOutboxDrain } from '@/lib/email/outbox-scheduler';
 import { telegramSendMessage } from '@/lib/telegram/client';
 import { computeReservationStatus } from '@/lib/stages/capacity';
 import { publicStageInscriptionSchema } from '@/lib/stages/inscription-schema';
@@ -107,33 +108,38 @@ export async function POST(
       dataProcessingAccepted ? 'Consentement données: oui' : null,
     ].filter(Boolean).join('\n');
 
-    await prisma.stageReservation.create({
-      data: {
-        stageId: stage.id,
-        email,
-        parentName,
-        studentName,
-        phone: phone?.trim() || parentPhone?.trim() || '',
-        classe: level ?? '',
-        academyId: stage.slug,
-        academyTitle: stage.title,
-        price: Number(stage.priceAmount),
-        richStatus,
-        notes: additionalNotes || null,
-      },
-    });
-
     const statusLabel = richStatus === 'WAITLISTED' ? "Liste d'attente" : 'En attente de confirmation';
-
-    await sendMail({
-      to: email,
-      subject: `Inscription reçue — ${stage.title}`,
-      html: `<p>Bonjour ${firstName},</p>
+    await prisma.$transaction(async (tx) => {
+      const reservation = await tx.stageReservation.create({
+        data: {
+          stageId: stage.id,
+          email,
+          parentName,
+          studentName,
+          phone: phone?.trim() || parentPhone?.trim() || '',
+          classe: level ?? '',
+          academyId: stage.slug,
+          academyTitle: stage.title,
+          price: Number(stage.priceAmount),
+          richStatus,
+          notes: additionalNotes || null,
+        },
+      });
+      await enqueueEmailIntent(tx, {
+        aggregateType: 'STAGE_RESERVATION',
+        aggregateId: reservation.id,
+        messageType: 'TRANSACTIONAL_NOTIFICATION',
+        dedupeKey: `registration:${reservation.id}`,
+        to: email,
+        subject: `Inscription reçue — ${stage.title}`,
+        html: `<p>Bonjour ${firstName},</p>
              <p>Votre inscription au <strong>${stage.title}</strong> a bien été reçue.</p>
              <p>Statut : <strong>${statusLabel}</strong>.</p>
              <p>Notre équipe vous contactera dans les 24h pour les détails de paiement.</p>
              <p>L'équipe Nexus Réussite</p>`,
+      });
     });
+    kickEmailOutboxDrain();
 
     await telegramSendMessage(
       undefined,

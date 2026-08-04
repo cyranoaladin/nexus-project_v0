@@ -1,18 +1,18 @@
 import { POST } from '@/app/api/contact/route';
 import { prisma } from '@/lib/prisma';
-import { sendMail } from '@/lib/email/mailer';
+import { enqueueEmailIntent } from '@/lib/email/outbox';
 
 jest.mock('@/lib/rate-limit/sensitive', () => ({
   guardRateLimitAsync: jest.fn().mockResolvedValue(null),
   guardSensitiveRateLimit: jest.fn().mockResolvedValue(null),
 }));
 
-jest.mock('@/lib/email/mailer', () => ({
-  sendMail: jest.fn().mockResolvedValue({ ok: true, skipped: false }),
+jest.mock('@/lib/email/outbox', () => ({
+  enqueueEmailIntent: jest.fn().mockResolvedValue({ id: 'job-1' }),
 }));
 
 const mockCreate = prisma.contactLead.create as jest.Mock;
-const mockSendMail = sendMail as jest.Mock;
+const mockSendMail = enqueueEmailIntent as jest.Mock;
 
 function makeRequest(body: any) {
   return new Request('http://localhost:3000/api/contact', {
@@ -83,14 +83,17 @@ describe('contact route', () => {
         notes: null,
       },
     });
-    expect(mockSendMail).toHaveBeenCalledWith(expect.objectContaining({
-      to: 'contact@nexusreussite.academy',
-      subject: expect.stringContaining('Nouveau prospect'),
-      replyTo: 'alex.parent@example.com',
-    }));
+    expect(mockSendMail).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({
+        to: 'contact@nexusreussite.academy',
+        subject: expect.stringContaining('Nouveau prospect'),
+        replyTo: 'alex.parent@example.com',
+      }),
+    );
   });
 
-  it('keeps the lead captured when internal email notification fails', async () => {
+  it('rolls back the lead when the durable email intent cannot be persisted', async () => {
     mockSendMail.mockRejectedValueOnce(new Error('SMTP down'));
 
     const res = await POST(makeRequest({
@@ -103,8 +106,8 @@ describe('contact route', () => {
     }));
 
     const json = await (res as any).json();
-    expect(res.status).toBe(200);
-    expect(json).toEqual({ ok: true, leadId: 'lead_123' });
+    expect(res.status).toBe(500);
+    expect(json).toEqual({ ok: false, error: 'lead_capture_failed' });
     expect(mockCreate).toHaveBeenCalledTimes(1);
     expect(mockSendMail).toHaveBeenCalledTimes(1);
   });

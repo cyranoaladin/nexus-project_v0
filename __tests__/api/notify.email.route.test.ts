@@ -12,8 +12,8 @@ jest.mock('@/lib/rate-limit/sensitive', () => ({
   guardSensitiveRateLimit: jest.fn().mockResolvedValue(null),
 }));
 
-jest.mock('@/lib/email/mailer', () => ({
-  sendMail: jest.fn().mockResolvedValue({ skipped: false }),
+jest.mock('@/lib/email/queue', () => ({
+  queueCommittedEmail: jest.fn().mockResolvedValue({ id: 'job-1' }),
 }));
 
 jest.mock('@/lib/email/templates', () => ({
@@ -30,10 +30,10 @@ jest.mock('@/lib/email/templates', () => ({
 }));
 
 import { POST } from '@/app/api/notify/email/route';
-import { sendMail } from '@/lib/email/mailer';
+import { queueCommittedEmail } from '@/lib/email/queue';
 import { NextRequest } from 'next/server';
 
-const mockSendMail = sendMail as jest.Mock;
+const mockSendMail = queueCommittedEmail as jest.Mock;
 
 beforeEach(() => {
   jest.clearAllMocks();

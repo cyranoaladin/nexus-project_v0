@@ -6,9 +6,6 @@ import { prisma } from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
 import type { CreditTransaction } from '@prisma/client';
 import { normalizeStudentLevelAndTrack } from '@/lib/utils/grade-utils';
-import { sendMail } from '@/lib/email/mailer';
-import { escapeHtml } from '@/lib/email/templates';
-import crypto from 'crypto';
 import { parseJsonBody } from '@/lib/api/helpers';
 import { z } from 'zod';
 import { withParentStudentConsentTransaction } from '@/lib/bilans/parent-student-consent';
@@ -18,11 +15,10 @@ import {
   isStudentLoginIdentifierConflict,
 } from '@/lib/services/student-login-identifier';
 import { createId } from '@paralleldrive/cuid2';
-
-/** Strip CR/LF from SMTP header values to prevent header injection. */
-function sanitizeHeader(str: string): string {
-  return str.replace(/[\r\n]/g, '').trim();
-}
+import { createActivationToken } from '@/lib/auth/activation-token';
+import { buildAccountActivationEmail, buildTrustedActivationUrl } from '@/lib/auth/parent-activation';
+import { enqueueEmailIntent } from '@/lib/email/outbox';
+import { kickEmailOutboxDrain } from '@/lib/email/outbox-scheduler';
 
 const createChildSchema = z.object({
   firstName: z.string().trim().min(1).max(80),
@@ -195,9 +191,11 @@ export async function POST(request: NextRequest) {
     }
 
     // Générer un token d'activation unique (validité 72h)
-    const rawActivationToken = `act_${crypto.randomBytes(16).toString('hex')}`;
-    const hashedActivationToken = crypto.createHash('sha256').update(rawActivationToken).digest('hex');
-    const activationExpiry = new Date(Date.now() + 72 * 60 * 60 * 1000);
+    const {
+      rawToken: rawActivationToken,
+      tokenHash: hashedActivationToken,
+      expiresAt: activationExpiry,
+    } = createActivationToken('student');
 
     // Create child in transaction
     const result = await withParentStudentConsentTransaction(
@@ -238,28 +236,27 @@ export async function POST(request: NextRequest) {
           now: new Date(),
         });
 
+        const activationMessage = buildAccountActivationEmail({
+          displayName: `${firstName} ${lastName}`,
+          rawToken: rawActivationToken,
+          accountRole: 'ELEVE',
+        });
+        await enqueueEmailIntent(tx, {
+          aggregateId: user.id,
+          messageType: 'STUDENT_ACTIVATION',
+          dedupeKey: hashedActivationToken,
+          to: session.user.email,
+          subject: activationMessage.subject,
+          html: activationMessage.html,
+          text: activationMessage.text,
+        });
+
         return student;
       },
     );
 
-    const baseUrl = process.env.NEXTAUTH_URL || 'https://nexusreussite.academy';
-    const activationUrl = `${baseUrl}/auth/activate?token=${encodeURIComponent(rawActivationToken)}`;
-
-    // Send activation email to the parent (fire-and-forget: no await — SMTP timeout must not delay the response).
-    // sanitizeHeader on subject prevents SMTP header injection; escapeHtml in HTML body prevents XSS.
-    sendMail({
-      to: session.user.email,
-      subject: sanitizeHeader(`Activation du compte élève — ${firstName} ${lastName}`),
-      html: `<p>Bonjour ${escapeHtml(firstName)},</p>
-             <p>Votre compte élève sur Nexus Réussite a été créé.</p>
-             <p>Cliquez sur le lien ci-dessous pour définir votre mot de passe et activer votre compte :</p>
-             <p><a href="${activationUrl}">${activationUrl}</a></p>
-             <p>Ce lien est valide pendant 72 heures.</p>
-             <p>L'équipe Nexus Réussite</p>`,
-      text: `Bonjour ${firstName},\n\nVotre compte élève sur Nexus Réussite a été créé.\n\nCliquez sur le lien ci-dessous pour définir votre mot de passe et activer votre compte :\n${activationUrl}\n\nCe lien est valide pendant 72 heures.\n\nL'équipe Nexus Réussite`,
-    }).catch((err) => {
-      logNonSensitiveFailure('[parent/children] Activation email failed (non-blocking)', err);
-    });
+    const activationUrl = buildTrustedActivationUrl(rawActivationToken, undefined, 'student').toString();
+    kickEmailOutboxDrain();
 
     return NextResponse.json(
       {

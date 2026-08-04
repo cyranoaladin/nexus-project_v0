@@ -20,12 +20,15 @@ jest.mock('@prisma/client', () => {
 });
 
 jest.mock('@/auth');
-jest.mock('@/lib/email/mailer', () => ({
-  sendMail: jest.fn().mockResolvedValue({ success: true }),
+jest.mock('@/lib/email/outbox', () => ({
+  enqueueEmailIntent: jest.fn().mockResolvedValue({ id: 'email-job-1' }),
+}));
+jest.mock('@/lib/email/outbox-scheduler', () => ({
+  kickEmailOutboxDrain: jest.fn(),
 }));
 
-import { sendMail as _sendMail } from '@/lib/email/mailer';
-const mockSendMail = _sendMail as jest.Mock;
+import { enqueueEmailIntent } from '@/lib/email/outbox';
+const mockEnqueueEmailIntent = enqueueEmailIntent as jest.Mock;
 
 function mockParentSession(userId = 'parent-1') {
   (auth as jest.Mock).mockResolvedValue({
@@ -79,6 +82,7 @@ function mockChildCreationTransaction({
 describe('POST /api/parent/children — P0-03 hardening', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    process.env.NEXTAUTH_URL = 'http://localhost:3000';
     mockParentSession();
     (prisma.user.findUnique as jest.Mock).mockResolvedValue(null);
     (prisma.parentProfile.findUnique as jest.Mock).mockResolvedValue({ id: 'parent-profile-1' });
@@ -120,7 +124,7 @@ describe('POST /api/parent/children — P0-03 hardening', () => {
 
     expect(response.status).toBe(200);
     expect(json.success).toBe(true);
-    expect(json.activation.activationUrl).toContain('/auth/activate?token=act_');
+    expect(json.activation.activationUrl).toContain('/auth/activate?token=sact_');
     expect(JSON.stringify(json)).not.toContain('activationToken');
     expect(JSON.stringify(json)).not.toContain('tokenHash');
     expect(json.activation).not.toHaveProperty('token');
@@ -178,7 +182,7 @@ describe('POST /api/parent/children — P0-03 hardening', () => {
     expect(response.status).toBe(200);
     // The activationUrl contains the raw token
     const rawToken = new URL(json.activation.activationUrl).searchParams.get('token');
-    expect(rawToken).toMatch(/^act_/);
+    expect(rawToken).toMatch(/^sact_/);
 
     // The DB received the SHA-256 hash of the raw token — assert cryptographic relationship
     const storedToken = userCreate.mock.calls[0][0].data.activationToken;
@@ -212,12 +216,12 @@ describe('POST /api/parent/children — P0-03 hardening', () => {
       studentId: 'student-789',
     });
 
-    mockSendMail.mockClear();
+    mockEnqueueEmailIntent.mockClear();
     const response = await createChild(req({ firstName: 'Marie', lastName: 'Curie', grade: 'Première' }));
     expect(response.status).toBe(200);
 
-    expect(mockSendMail).toHaveBeenCalledTimes(1);
-    const mailArgs = mockSendMail.mock.calls[0][0];
+    expect(mockEnqueueEmailIntent).toHaveBeenCalledTimes(1);
+    const mailArgs = mockEnqueueEmailIntent.mock.calls[0][1];
 
     // to = parent session email, NOT synthetic student address
     expect(mailArgs.to).toBe('parent@example.com');

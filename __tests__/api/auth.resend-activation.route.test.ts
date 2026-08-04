@@ -1,13 +1,16 @@
-jest.mock('@/lib/email/mailer', () => ({
-  sendMail: jest.fn().mockResolvedValue({ ok: true }),
+jest.mock('@/lib/email/outbox', () => ({
+  enqueueEmailIntent: jest.fn().mockResolvedValue({ id: 'email-job-1' }),
+}));
+jest.mock('@/lib/email/outbox-scheduler', () => ({
+  kickEmailOutboxDrain: jest.fn(),
 }));
 
 import { POST } from '@/app/api/auth/resend-activation/route';
-import { sendMail } from '@/lib/email/mailer';
+import { enqueueEmailIntent } from '@/lib/email/outbox';
 import { NextRequest } from 'next/server';
 import { _resetStoreForTests } from '@/lib/rate-limit';
 
-const mockSendMail = sendMail as jest.Mock;
+const mockEnqueueEmailIntent = enqueueEmailIntent as jest.Mock;
 
 let prisma: any;
 
@@ -18,6 +21,7 @@ beforeEach(async () => {
   _resetStoreForTests();
   process.env.NEXTAUTH_URL = 'http://localhost:3000';
   prisma.user.updateMany.mockResolvedValue({ count: 1 });
+  prisma.$transaction.mockImplementation(async (callback: (transaction: typeof prisma) => unknown) => callback(prisma));
 });
 
 function makeRequest(body: Record<string, unknown>): NextRequest {
@@ -44,7 +48,7 @@ describe('POST /api/auth/resend-activation', () => {
     expect(res.status).toBe(200);
     expect(body.success).toBe(true);
     expect(res.headers.get('Cache-Control')).toContain('no-store');
-    expect(mockSendMail).not.toHaveBeenCalled();
+    expect(mockEnqueueEmailIntent).not.toHaveBeenCalled();
   });
 
   it('returns success for already activated account without sending mail', async () => {
@@ -61,7 +65,7 @@ describe('POST /api/auth/resend-activation', () => {
     expect(res.status).toBe(200);
     expect(body.success).toBe(true);
     expect(prisma.user.update).not.toHaveBeenCalled();
-    expect(mockSendMail).not.toHaveBeenCalled();
+    expect(mockEnqueueEmailIntent).not.toHaveBeenCalled();
   });
 
   it('stores a new activation token and sends email for inactive student', async () => {
@@ -89,7 +93,8 @@ describe('POST /api/auth/resend-activation', () => {
         }),
       })
     );
-    expect(mockSendMail).toHaveBeenCalledWith(
+    expect(mockEnqueueEmailIntent).toHaveBeenCalledWith(
+      expect.anything(),
       expect.objectContaining({
         to: 'inactive@example.com',
         subject: expect.stringContaining('Activation'),
@@ -115,7 +120,7 @@ describe('POST /api/auth/resend-activation', () => {
     expect(first.status).toBe(200);
     expect(second.status).toBe(200);
     expect(prisma.user.updateMany).toHaveBeenCalledTimes(2);
-    expect(mockSendMail).toHaveBeenCalledTimes(2);
+    expect(mockEnqueueEmailIntent).toHaveBeenCalledTimes(2);
   });
 
   it('lets only one concurrent reissue replace and deliver the token', async () => {
@@ -139,10 +144,10 @@ describe('POST /api/auth/resend-activation', () => {
 
     expect(first.status).toBe(200);
     expect(second.status).toBe(200);
-    expect(mockSendMail).toHaveBeenCalledTimes(1);
+    expect(mockEnqueueEmailIntent).toHaveBeenCalledTimes(1);
   });
 
-  it('allows a safe retry after SMTP failure and never logs the raw token', async () => {
+  it('allows a safe retry after outbox persistence failure and never logs the raw token', async () => {
     const consoleError = jest.spyOn(console, 'error').mockImplementation(() => undefined);
     prisma.user.findUnique.mockResolvedValue({
       id: 'user-retry',
@@ -154,14 +159,14 @@ describe('POST /api/auth/resend-activation', () => {
       role: 'PARENT',
     });
     prisma.user.updateMany.mockResolvedValue({ count: 1 });
-    mockSendMail
+    mockEnqueueEmailIntent
       .mockRejectedValueOnce(new Error('recognizable-raw-token-must-not-leak'))
-      .mockResolvedValueOnce({ ok: true });
+      .mockResolvedValueOnce({ id: 'email-job-2' });
 
     await POST(makeRequest({ email: 'retry@example.com' }));
     await POST(makeRequest({ email: 'retry@example.com' }));
 
-    expect(mockSendMail).toHaveBeenCalledTimes(2);
+    expect(mockEnqueueEmailIntent).toHaveBeenCalledTimes(2);
     expect(JSON.stringify(consoleError.mock.calls)).not.toContain('recognizable-raw-token-must-not-leak');
     consoleError.mockRestore();
   });
@@ -189,7 +194,7 @@ describe('POST /api/auth/resend-activation', () => {
     });
     await POST(request);
 
-    const mail = mockSendMail.mock.calls[0][0];
+    const mail = mockEnqueueEmailIntent.mock.calls[0][1];
     expect(mail.html).toContain('https://nexus.test/auth/activate?token=');
     expect(mail.html).not.toContain('attacker.example');
   });

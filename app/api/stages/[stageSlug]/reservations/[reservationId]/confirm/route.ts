@@ -5,11 +5,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import { SYSTEM_PARENT_EMAIL } from '@/lib/constants';
 import { requireAnyRole } from '@/lib/guards';
 import { prisma } from '@/lib/prisma';
-import { sendMail } from '@/lib/email/mailer';
+import { enqueueEmailIntent } from '@/lib/email/outbox';
+import { kickEmailOutboxDrain } from '@/lib/email/outbox-scheduler';
 import { GradeLevel, AcademicTrack } from '@prisma/client';
 import { normalizeGradeLevel, getDefaultTrackForLevel, normalizeStudentLevelAndTrack } from '@/lib/utils/grade-utils';
-import crypto from 'crypto';
 import { z } from 'zod';
+import { createActivationToken } from '@/lib/auth/activation-token';
+import { getTrustedApplicationOrigin } from '@/lib/auth/parent-activation';
 
 const confirmReservationParamsSchema = z.object({
   stageSlug: z.string().trim().min(1).max(120).regex(/^[a-z0-9][a-z0-9-]*$/),
@@ -45,9 +47,7 @@ export async function POST(
       return NextResponse.json({ error: 'Déjà confirmée' }, { status: 409 });
     }
 
-    const rawToken = crypto.randomBytes(32).toString('hex');
-    const hashedToken = crypto.createHash('sha256').update(rawToken).digest('hex');
-    const expiresAt = new Date(Date.now() + 72 * 60 * 60 * 1000);
+    const { rawToken, tokenHash: hashedToken, expiresAt } = createActivationToken('student');
 
     let user = await prisma.user.findUnique({ 
       where: { email: reservation.email },
@@ -149,34 +149,45 @@ export async function POST(
       });
     }
 
-    await prisma.stageReservation.update({
-      where: { id: reservation.id },
-      data: {
-        richStatus: 'CONFIRMED',
-        status: 'CONFIRMED',
-        confirmedAt: new Date(),
-        activationToken: hashedToken,
-        activationTokenExpiresAt: expiresAt,
-        paymentStatus: 'COMPLETED',
-      },
-    });
-
     const stageTitle = reservation.stage?.title ?? 'Stage Nexus';
     const firstName = reservation.studentName?.split(' ')[0] ?? reservation.parentName.split(' ')[0];
-    const activationUrl = `${process.env.NEXTAUTH_URL}/auth/activate?token=${rawToken}&source=stage`;
-
-    await sendMail({
-      to: reservation.email,
-      subject: `✅ Inscription confirmée — ${stageTitle}`,
-      html: `<p>Bonjour ${firstName},</p>
+    const activationUrl = new URL('/auth/activate', getTrustedApplicationOrigin());
+    activationUrl.searchParams.set('token', rawToken);
+    activationUrl.searchParams.set('source', 'stage');
+    await prisma.$transaction(async (tx) => {
+      await tx.stageReservation.update({
+        where: { id: reservation.id },
+        data: {
+          richStatus: 'CONFIRMED',
+          status: 'CONFIRMED',
+          confirmedAt: new Date(),
+          activationToken: hashedToken,
+          activationTokenExpiresAt: expiresAt,
+          paymentStatus: 'COMPLETED',
+        },
+      });
+      await tx.user.update({
+        where: { id: user.id },
+        data: { activationToken: hashedToken, activationExpiry: expiresAt },
+      });
+      await enqueueEmailIntent(tx, {
+        aggregateType: 'STAGE_RESERVATION',
+        aggregateId: reservation.id,
+        messageType: 'STUDENT_ACTIVATION',
+        dedupeKey: hashedToken,
+        to: reservation.email,
+        subject: `✅ Inscription confirmée — ${stageTitle}`,
+        html: `<p>Bonjour ${firstName},</p>
              <p>Votre inscription au <strong>${stageTitle}</strong> est <strong>confirmée</strong>.</p>
              <p>Créez votre compte Nexus Réussite pour accéder à votre emploi du temps,
              vos ressources et votre bilan :</p>
-             <p><a href="${activationUrl}" style="background:#4f46e5;color:white;padding:12px 24px;
+             <p><a href="${activationUrl.toString()}" style="background:#4f46e5;color:white;padding:12px 24px;
              border-radius:8px;text-decoration:none;display:inline-block;margin-top:12px;">
              Activer mon compte</a></p>
              <p style="color:#6b7280;font-size:14px;">Ce lien est valable 72 heures.</p>`,
+      });
     });
+    kickEmailOutboxDrain();
 
     return NextResponse.json({
       success: true,

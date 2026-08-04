@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server';
 import { POST } from '../../app/api/bilan-gratuit/route';
 import { prisma } from '../../lib/prisma';
-import { sendMail } from '../../lib/email/mailer';
+import { enqueueEmailIntent } from '../../lib/email/outbox';
 import { withParentStudentConsentTransaction } from '../../lib/bilans/parent-student-consent';
 
 jest.mock('bcryptjs');
@@ -21,15 +21,19 @@ jest.mock('@paralleldrive/cuid2', () => ({
   createId: jest.fn().mockReturnValue('test-cuid-123'),
 }));
 
-jest.mock('../../lib/email/mailer', () => ({
-  sendMail: jest.fn().mockResolvedValue({ ok: true }),
+jest.mock('../../lib/email/outbox', () => ({
+  enqueueEmailIntent: jest.fn().mockResolvedValue({ id: 'email-job-1' }),
+}));
+
+jest.mock('../../lib/email/outbox-scheduler', () => ({
+  kickEmailOutboxDrain: jest.fn(),
 }));
 
 jest.mock('../../lib/bilans/parent-student-consent', () => ({
   withParentStudentConsentTransaction: jest.fn(),
 }));
 
-const mockSendMail = sendMail as jest.Mock;
+const mockEnqueueEmailIntent = enqueueEmailIntent as jest.Mock;
 const mockWithParentStudentConsentTransaction = withParentStudentConsentTransaction as jest.MockedFunction<
   typeof withParentStudentConsentTransaction
 >;
@@ -174,14 +178,14 @@ describe('/api/bilan-gratuit', () => {
       now: expect.any(Date),
     });
     expect(mockPreparePending).toHaveBeenCalledTimes(1);
-    expect(mockSendMail).toHaveBeenCalledWith(expect.objectContaining({
+    expect(mockEnqueueEmailIntent).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({
       to: 'jean.dupont@test.com',
       subject: expect.any(String),
       html: expect.stringContaining('https://nexus.test/auth/activate?token='),
       text: expect.stringContaining('https://nexus.test/auth/activate?token='),
     }));
     const storedTokenHash = userCreate.mock.calls[0][0].data.activationToken;
-    const mailPayload = mockSendMail.mock.calls[0][0];
+    const mailPayload = mockEnqueueEmailIntent.mock.calls[0][1];
     expect(mailPayload.html).not.toContain(storedTokenHash);
     expect(mailPayload.text).not.toMatch(/mot de passe temporaire/i);
   });
@@ -301,7 +305,7 @@ describe('/api/bilan-gratuit', () => {
     expect(body.message).toContain('Si la demande peut etre traitee');
     expect(body).not.toHaveProperty('error');
     expect(prisma.$transaction).not.toHaveBeenCalled();
-    expect(mockSendMail).not.toHaveBeenCalled();
+    expect(mockEnqueueEmailIntent).not.toHaveBeenCalled();
   });
 
   it('returns 400 when validation fails (invalid email)', async () => {
@@ -370,12 +374,12 @@ describe('/api/bilan-gratuit', () => {
       studentId: 'student-profile-123',
       now: expect.any(Date),
     });
-    expect(mockSendMail).not.toHaveBeenCalled();
+    expect(mockEnqueueEmailIntent).not.toHaveBeenCalled();
   });
 
-  it('continues even if email sending fails', async () => {
+  it('aborts registration without leaking activation material when durable intent persistence fails', async () => {
     const consoleError = jest.spyOn(console, 'error').mockImplementation(() => undefined);
-    mockSendMail.mockRejectedValueOnce(new Error('recognizable-raw-token-must-not-leak'));
+    mockEnqueueEmailIntent.mockRejectedValueOnce(new Error('recognizable-raw-token-must-not-leak'));
 
     const userCreate = jest.fn()
       .mockResolvedValueOnce({
@@ -407,8 +411,8 @@ describe('/api/bilan-gratuit', () => {
     const response = await POST(buildRequest(validRequestData));
     const body = await response.json();
 
-    expect(response.status).toBe(200);
-    expect(body.success).toBe(true);
+    expect(response.status).toBe(500);
+    expect(body.error).toBe('Erreur interne du serveur');
     expect(JSON.stringify(body)).not.toContain('recognizable-raw-token-must-not-leak');
     expect(JSON.stringify(consoleError.mock.calls)).not.toContain('recognizable-raw-token-must-not-leak');
     consoleError.mockRestore();
@@ -431,7 +435,7 @@ describe('/api/bilan-gratuit', () => {
       body: JSON.stringify(validRequestData),
     });
     const response = await POST(request);
-    const mail = mockSendMail.mock.calls[0][0];
+    const mail = mockEnqueueEmailIntent.mock.calls[0][1];
 
     expect(response.status).toBe(200);
     expect(mail.html).toContain('https://nexus.test/auth/activate?token=');
@@ -448,6 +452,6 @@ describe('/api/bilan-gratuit', () => {
     expect(response.status).toBe(200);
     expect(body.success).toBe(true);
     expect(body).not.toHaveProperty('error');
-    expect(mockSendMail).not.toHaveBeenCalled();
+    expect(mockEnqueueEmailIntent).not.toHaveBeenCalled();
   });
 });
