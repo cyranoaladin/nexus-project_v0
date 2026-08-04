@@ -107,6 +107,7 @@ async function main() {
         activatedAt: new Date(),
         activationToken: null,
         activationExpiry: null,
+        sessionVersion: { increment: 1 },
       },
       create: {
         email: student.email,

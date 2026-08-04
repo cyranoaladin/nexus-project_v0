@@ -63,6 +63,22 @@ async function signIn(page: import('@playwright/test').Page, email: string, pass
   await page.getByRole('button', { name: /accéder à mon espace/i }).click()
 }
 
+async function signOutAndVerifyCookieDeletion(page: import('@playwright/test').Page): Promise<void> {
+  const responsePromise = page.waitForResponse((response) =>
+    response.url().includes('/api/auth/signout') && response.request().method() === 'POST'
+  )
+  await page.getByRole('button', { name: 'Se déconnecter de votre compte' }).click()
+  const response = await responsePromise
+  expect(response.status()).toBe(200)
+  expect((await response.headersArray()).some(({ name, value }) =>
+    name.toLowerCase() === 'set-cookie' && /authjs\.session-token=;/.test(value)
+  )).toBe(true)
+  await page.waitForURL((url) => ['/auth/signin', '/'].includes(url.pathname))
+  await expect.poll(async () =>
+    (await page.context().cookies()).some(({ name }) => name === 'authjs.session-token')
+  ).toBe(false)
+}
+
 test.describe('P0-D Parent onboarding without direct database bootstrap', () => {
   test.beforeAll(async () => {
     assertIsolatedDatabase()
@@ -149,8 +165,7 @@ test.describe('P0-D Parent onboarding without direct database bootstrap', () => 
     const childActivationUrl = await page.getByRole('link', { name: /ouvrir l.activation/i }).getAttribute('href')
     if (!childActivationUrl) throw new Error('CHILD_ACTIVATION_LINK_MISSING')
     expect(new URL(childActivationUrl, page.url()).pathname).toBe('/auth/activate')
-    await page.getByRole('button', { name: 'Se déconnecter de votre compte' }).click()
-    await page.waitForURL((url) => ['/auth/signin', '/'].includes(url.pathname))
+    await signOutAndVerifyCookieDeletion(page)
     await page.goto(childActivationUrl)
     await expect(page.getByRole('heading', { name: 'Activer votre espace élève' })).toBeVisible()
     await page.getByLabel(/^mot de passe$/i).fill(childPassword)
@@ -166,8 +181,7 @@ test.describe('P0-D Parent onboarding without direct database bootstrap', () => 
       data: { packSlug },
     })
     expect(attempt.status()).toBe(201)
-    await page.getByRole('button', { name: 'Se déconnecter de votre compte' }).click()
-    await page.waitForURL((url) => ['/auth/signin', '/'].includes(url.pathname))
+    await signOutAndVerifyCookieDeletion(page)
 
     await signIn(page, parentEmail, parentPassword)
     await expect(page).toHaveURL(/\/dashboard\/parent/)
@@ -188,11 +202,7 @@ test.describe('P0-D Parent onboarding without direct database bootstrap', () => 
     ])
     expect(JSON.stringify(statusBody)).not.toContain('/api/student/')
 
-    await page.getByRole('button', { name: 'Se déconnecter de votre compte' }).click()
-    await page.waitForURL((url) => ['/auth/signin', '/'].includes(url.pathname))
-    await expect.poll(async () =>
-      (await page.context().cookies()).some(({ name }) => name === 'authjs.session-token')
-    ).toBe(false)
+    await signOutAndVerifyCookieDeletion(page)
     const refused = await page.request.get(`/api/parent/children/${child!.id}/bilans`)
     expect(refused.status()).toBe(404)
   })

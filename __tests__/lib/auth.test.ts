@@ -50,4 +50,5 @@ describe('auth module', () => {
     const result = await authorized({ auth: { user: { role: 'ELEVE' } }, request: req });
     expect(result).toBe(true);
   });
+
 });

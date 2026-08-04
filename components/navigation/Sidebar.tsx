@@ -1,24 +1,17 @@
-import { redirect } from 'next/navigation';
-import { auth } from '@/auth';
+import type { Session } from 'next-auth';
 import { navigationConfig } from './navigation-config';
 import { NavigationItem } from './NavigationItem';
 import UserProfile from './UserProfile';
 import { LogoutButton } from './LogoutButton';
 import { filterNsiPratiqueNavigation } from '@/lib/nsi-pratique-2026/access';
 
-export async function Sidebar() {
-  const session = await auth();
-
-  if (!session?.user) {
-    redirect('/auth/signin');
-  }
-
+export async function Sidebar({ user }: { user: Session['user'] }) {
   const navigationItems = await filterNsiPratiqueNavigation(
-    navigationConfig[session.user.role],
+    navigationConfig[user.role],
     {
-      userId: session.user.id,
-      email: session.user.email,
-      role: session.user.role,
+      userId: user.id,
+      email: user.email,
+      role: user.role,
     },
   );
 
@@ -32,7 +25,7 @@ export async function Sidebar() {
         </div>
 
         <div className="flex-1 flex flex-col overflow-y-auto py-6">
-          <UserProfile user={session.user} />
+          <UserProfile user={user} />
 
           <nav className="flex-1 px-4" aria-label="Navigation principale">
             <ul className="space-y-1">

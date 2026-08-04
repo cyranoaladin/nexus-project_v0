@@ -236,6 +236,7 @@ async function apply(prisma: StudentCreationClient, students: StmgStudentInput[]
           firstName: existing.firstName ?? student.firstName,
           lastName: existing.lastName ?? student.lastName,
           activatedAt: existing.activatedAt ?? new Date(),
+          sessionVersion: existing.activatedAt ? undefined : { increment: 1 },
         },
       });
 

@@ -197,7 +197,7 @@ describe('POST /api/admin/users', () => {
   });
 
   it('should return 409 when email already exists', async () => {
-    (prisma.user.findUnique as jest.Mock).mockResolvedValue({
+    (prisma.user.findUnique as jest.Mock).mockReset().mockResolvedValue({
       id: 'existing-user',
       email: 'existing@test.com'
     });
@@ -340,6 +340,54 @@ describe('PATCH /api/admin/users', () => {
     expect(response.status).toBe(200);
     expect(data.success).toBe(true);
     expect(data.user.firstName).toBe('Updated');
+  });
+
+  it('increments sessionVersion atomically when the password changes', async () => {
+    (prisma.user.findUnique as jest.Mock).mockReset().mockResolvedValue({
+      id: 'user-123',
+      email: 'user@test.com',
+      role: 'PARENT',
+    });
+    (bcrypt.hash as jest.Mock).mockResolvedValue('new-hash');
+    (prisma.user.update as jest.Mock).mockResolvedValue({
+      id: 'user-123', email: 'user@test.com', role: 'PARENT', updatedAt: new Date(),
+    });
+
+    const response = await PATCH(createMockRequest('http://localhost:3000/api/admin/users', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: 'user-123', password: 'NewPassword123!' }),
+    }));
+
+    expect(response.status).toBe(200);
+    expect(prisma.user.update).toHaveBeenCalledWith(expect.objectContaining({
+      data: expect.objectContaining({
+        password: 'new-hash',
+        sessionVersion: { increment: 1 },
+      }),
+    }));
+  });
+
+  it('increments sessionVersion atomically when the role changes', async () => {
+    (prisma.user.findUnique as jest.Mock).mockResolvedValue({
+      id: 'user-123',
+      email: 'user@test.com',
+      role: 'PARENT',
+    });
+    (prisma.user.update as jest.Mock).mockResolvedValue({
+      id: 'user-123', email: 'user@test.com', role: 'ELEVE', updatedAt: new Date(),
+    });
+
+    const response = await PATCH(createMockRequest('http://localhost:3000/api/admin/users', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: 'user-123', role: 'ELEVE' }),
+    }));
+
+    expect(response.status).toBe(200);
+    expect(prisma.user.update).toHaveBeenCalledWith(expect.objectContaining({
+      data: expect.objectContaining({ sessionVersion: { increment: 1 } }),
+    }));
   });
 });
 

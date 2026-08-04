@@ -1,22 +1,15 @@
-import { redirect } from 'next/navigation';
-import { auth } from '@/auth';
+import type { Session } from 'next-auth';
 import { navigationConfig } from './navigation-config';
 import { MobileMenuWrapper } from './MobileMenuWrapper';
 import { filterNsiPratiqueNavigation } from '@/lib/nsi-pratique-2026/access';
 
-export async function Navbar() {
-  const session = await auth();
-
-  if (!session?.user) {
-    redirect('/auth/signin');
-  }
-
+export async function Navbar({ user }: { user: Session['user'] }) {
   const navigationItems = await filterNsiPratiqueNavigation(
-    navigationConfig[session.user.role],
+    navigationConfig[user.role],
     {
-      userId: session.user.id,
-      email: session.user.email,
-      role: session.user.role,
+      userId: user.id,
+      email: user.email,
+      role: user.role,
     },
   );
 
@@ -24,7 +17,7 @@ export async function Navbar() {
     <header className="sticky top-0 z-50 h-16 bg-surface-card border-b border-neutral-800 lg:pl-[280px]">
       <div className="flex items-center justify-between h-full px-4 lg:px-6">
         <div className="flex items-center gap-4">
-          <MobileMenuWrapper items={navigationItems} user={session.user} />
+          <MobileMenuWrapper items={navigationItems} user={user} />
 
           <h1 className="text-lg font-bold text-brand-primary lg:hidden">
             Nexus Réussite

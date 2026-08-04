@@ -197,6 +197,7 @@ export async function initiateStudentActivation(
       email: studentEmail,
       activationToken: tokenHash,
       activationExpiry: expiresAt,
+      ...(studentEmail !== studentUser.email ? { sessionVersion: { increment: 1 } } : {}),
     },
   });
 
@@ -326,6 +327,7 @@ export async function initiateParentOwnedStudentActivation(input: Readonly<{
         ...(loginIdentifier !== student.user.email ? { email: loginIdentifier } : {}),
         activationToken: tokenHash,
         activationExpiry: expiresAt,
+        ...(loginIdentifier !== student.user.email ? { sessionVersion: { increment: 1 } } : {}),
       },
     });
     if (transition.count !== 1) {
@@ -393,6 +395,7 @@ export async function completeStudentActivation(
         activatedAt,
         activationToken: null,
         activationExpiry: null,
+        sessionVersion: { increment: 1 },
       },
     });
     if (transition.count !== 1) {
@@ -432,6 +435,7 @@ export async function completeStudentActivation(
       data: {
         password: hashedPassword,
         activatedAt,
+        sessionVersion: { increment: 1 },
       },
     });
   } else {

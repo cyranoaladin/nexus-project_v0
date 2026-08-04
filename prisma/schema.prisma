@@ -164,6 +164,7 @@ model User {
   activatedAt      DateTime? // null = compte non activé (élève en attente)
   activationToken  String? // token hashé pour activation par email
   activationExpiry DateTime? // expiration du token d'activation
+  sessionVersion   Int       @default(0)
 
   // Relations spécifiques selon le rôle
   parentProfile ParentProfile?

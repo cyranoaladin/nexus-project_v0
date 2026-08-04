@@ -71,6 +71,7 @@ describe('student activation token lifecycle security', () => {
         activationToken: null,
         activationExpiry: null,
         activatedAt: expect.any(Date),
+        sessionVersion: { increment: 1 },
       }),
     });
   });

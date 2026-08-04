@@ -1,4 +1,5 @@
 import type { NextAuthConfig } from 'next-auth';
+import { issueSessionToken, projectSessionClaims } from '@/lib/auth/session-claims';
 
 export const authConfig = {
   trustHost: true,
@@ -14,7 +15,6 @@ export const authConfig = {
                           nextUrl.pathname.startsWith('/parent') ||
                           nextUrl.pathname.startsWith('/coach');
       
-      const isOnAuth = nextUrl.pathname.startsWith('/auth');
       const role = (auth?.user as any)?.role;
 
       const roleDashboardMap: Record<string, string> = {
@@ -51,39 +51,15 @@ export const authConfig = {
         }
 
         return true;
-      } else if (isLoggedIn && isOnAuth) {
-        // Redirect logged-in users away from auth pages to their dashboard
-        let redirectPath = '/dashboard';
-        
-        switch (role) {
-            case 'ADMIN': redirectPath = '/dashboard/admin'; break;
-            case 'ASSISTANTE': redirectPath = '/dashboard/assistante'; break;
-            case 'COACH': redirectPath = '/dashboard/coach'; break;
-            case 'PARENT': redirectPath = '/dashboard/parent'; break;
-            case 'ELEVE': redirectPath = '/dashboard/eleve'; break;
-        }
-
-        return Response.redirect(new URL(redirectPath, nextUrl));
       }
       return true;
     },
     jwt({ token, user }) {
-      if (user) {
-        token.role = user.role;
-        token.id = user.id;
-        token.firstName = user.firstName;
-        token.lastName = user.lastName;
-      }
+      if (user) return issueSessionToken(token, user);
       return token;
     },
     session({ session, token }) {
-      if (token && session.user) {
-        session.user.id = token.id as string;
-        session.user.role = token.role as any;
-        session.user.firstName = token.firstName as string;
-        session.user.lastName = token.lastName as string;
-      }
-      return session;
+      return projectSessionClaims(session, token);
     },
   },
   providers: [], // Configured in auth.ts

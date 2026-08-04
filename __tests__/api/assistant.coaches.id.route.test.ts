@@ -105,9 +105,10 @@ describe('assistant coaches id', () => {
     });
     (prisma.user.findUnique as jest.Mock).mockResolvedValue(null);
     (bcrypt.hash as jest.Mock).mockResolvedValue('hashed');
+    const updateUser = jest.fn().mockResolvedValue({ id: 'coach-1', firstName: 'Coach', lastName: 'One', email: 'c@test.com' });
     (prisma.$transaction as jest.Mock).mockImplementation(async (cb: any) => {
       const tx = {
-        user: { update: jest.fn().mockResolvedValue({ id: 'coach-1', firstName: 'Coach', lastName: 'One', email: 'c@test.com' }) },
+        user: { update: updateUser },
         coachProfile: { update: jest.fn().mockResolvedValue({ pseudonym: 'CoachX' }) },
       };
       return cb(tx);
@@ -119,6 +120,12 @@ describe('assistant coaches id', () => {
     expect(response.status).toBe(200);
     expect(body.success).toBe(true);
     expect(body.coach.id).toBe('coach-1');
+    expect(updateUser).toHaveBeenCalledWith(expect.objectContaining({
+      data: expect.objectContaining({
+        password: 'hashed',
+        sessionVersion: { increment: 1 },
+      }),
+    }));
   });
 
   it('DELETE returns 404 when coach missing', async () => {

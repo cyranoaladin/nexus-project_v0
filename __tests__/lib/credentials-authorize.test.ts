@@ -17,6 +17,7 @@ const baseUser = {
   lastName: 'Synthetic',
   parentProfile: {},
   coachProfile: null,
+  sessionVersion: 0,
 }
 
 describe('credentials authorization activation matrix', () => {
@@ -38,7 +39,11 @@ describe('credentials authorization activation matrix', () => {
     findUnique.mockResolvedValue(user)
     const action = authorizeCredentials({ email: ' Parent@Example.Test ', password: 'correct-password' })
     if (allowed) {
-      await expect(action).resolves.toEqual(expect.objectContaining({ id: user.id, role: user.role }))
+      await expect(action).resolves.toEqual(expect.objectContaining({
+        id: user.id,
+        role: user.role,
+        sessionVersion: 0,
+      }))
     } else if (user.password === null) {
       await expect(action).resolves.toBeNull()
     } else {
