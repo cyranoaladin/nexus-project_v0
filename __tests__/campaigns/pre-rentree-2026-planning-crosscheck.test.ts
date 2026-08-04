@@ -4,9 +4,12 @@
  * donc vérifier JSON ↔ PDF verrouille la chaîne de bout en bout. Divergence = échec.
  */
 import { execFileSync } from 'node:child_process';
-import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 
+import {
+  cleanupPreRentreePdfFixtures,
+  ensurePreRentreePdfFixtures,
+} from '@/__tests__/helpers/pre-rentree-pdf-fixtures';
 import manifest from '@/data/campaigns/pre-rentree-2026.json';
 
 const PDF = join(
@@ -28,10 +31,17 @@ function pdfText(): string {
   return execFileSync('pdftotext', ['-layout', PDF, '-'], { encoding: 'utf8' });
 }
 
-const maybe = existsSync(PDF) ? describe : describe.skip;
+describe('Pré-rentrée 2026 — cohérence créneaux JSON ↔ PDF Planning (D3)', () => {
+  let text: string;
 
-maybe('Pré-rentrée 2026 — cohérence créneaux JSON ↔ PDF Planning (D3)', () => {
-  const text = existsSync(PDF) ? pdfText() : '';
+  beforeAll(() => {
+    ensurePreRentreePdfFixtures();
+    text = pdfText();
+  });
+
+  afterAll(() => {
+    cleanupPreRentreePdfFixtures();
+  });
 
   it('chaque créneau du JSON scellé apparaît dans le PDF Planning', () => {
     const missing: string[] = [];
