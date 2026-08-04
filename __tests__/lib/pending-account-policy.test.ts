@@ -31,7 +31,7 @@ function graph(overrides: Record<string, unknown> = {}) {
 
 describe('pending Parent lifecycle policy', () => {
   test('centralizes the approved durations and closed classification set', () => {
-    expect(PENDING_PARENT_POLICY_VERSION).toBe('2026-08-04.v2')
+    expect(PENDING_PARENT_POLICY_VERSION).toBe('2026-08-04.v3')
     expect(ACCOUNT_ACTIVATION_TTL_MS).toBe(72 * 60 * 60 * 1000)
     expect(PENDING_PARENT_ELIGIBILITY_MS).toBe(90 * 24 * 60 * 60 * 1000)
     expect(PENDING_PARENT_CLASSIFICATIONS).toEqual([
@@ -73,6 +73,9 @@ describe('pending Parent lifecycle policy', () => {
     expect(classifyPendingParentGraph(graph({ activationTokenPresent: true }), now)).toBe('INCONSISTENT_GRAPH')
     expect(classifyPendingParentGraph(graph({ conflictingLinkCount: 1 }), now)).toBe('HUMAN_REVIEW_REQUIRED')
     expect(classifyPendingParentGraph(graph({ contactDataCount: 1 }), now)).toBe('HUMAN_REVIEW_REQUIRED')
+    expect(
+      classifyPendingParentGraph(graph({ canonicalPendingLinkCount: 0, contactDataCount: 1 }), now),
+    ).toBe('RECONCILIATION_REQUIRED')
     expect(classifyPendingParentGraph(graph({ referenceTime: new Date(now.getTime() + 1) }), now)).toBe('INCONSISTENT_GRAPH')
     expect(classifyPendingParentGraph(graph({ pendingStudentUserCount: 0 }), now)).toBe('INCONSISTENT_GRAPH')
   })
