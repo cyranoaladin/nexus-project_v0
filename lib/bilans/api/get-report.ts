@@ -13,6 +13,10 @@ import {
   type PackResolver,
 } from './pack-access';
 import {
+  currentParentLinkOrderBy,
+  currentParentLinkIsVerified,
+} from './parent-access';
+import {
   assertPublicRenderedArtifact,
   storedAudienceArtifactIsIntact,
 } from '../core/report-artifact-integrity';
@@ -76,14 +80,11 @@ async function resolveAudience(
       where: {
         parentUserId: session.user.id,
         studentId: attempt.studentId,
-        state: 'VERIFIED',
-        verifiedAt: { not: null },
-        revokedAt: null,
-        OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
       },
-      select: { id: true },
+      orderBy: currentParentLinkOrderBy(),
+      select: { id: true, state: true, verifiedAt: true, revokedAt: true, expiresAt: true },
     });
-    if (link === null) throw CanonicalApiError.notFound();
+    if (!currentParentLinkIsVerified(link, now)) throw CanonicalApiError.notFound();
     return 'PARENTS';
   }
 

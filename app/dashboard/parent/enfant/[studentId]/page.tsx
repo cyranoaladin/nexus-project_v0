@@ -10,6 +10,7 @@ import { ProgressEvolutionChart } from "@/components/dashboard/parent/ProgressEv
 import { CohortComparison } from "@/components/dashboard/parent/CohortComparison";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CanonicalConsentCard } from "./canonical-consent-card";
+import { ParentCanonicalReports } from "@/components/bilans/ParentCanonicalReports";
 import Link from "next/link";
 
 export default function ChildDetailPage() {
@@ -93,6 +94,8 @@ export default function ChildDetailPage() {
         <DashboardPilotage role="PARENT" studentId={studentId}>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2 space-y-8">
+              <ParentCanonicalReports studentId={studentId} />
+
               <ProgressEvolutionChart data={childData.progressionHistory} />
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
