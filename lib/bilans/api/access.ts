@@ -1,14 +1,15 @@
+import type { GradeLevel } from '@prisma/client';
 import type { Session } from 'next-auth';
 
 import { CanonicalApiError } from './errors';
 
-type StudentIdentity = Readonly<{ id: string; userId: string }>;
+type StudentIdentity = Readonly<{ id: string; userId: string; gradeLevel: GradeLevel }>;
 
 type StudentLookup = Readonly<{
   student: {
     findUnique(args: Readonly<{
       where: Readonly<{ userId: string }>;
-      select: Readonly<{ id: true; userId: true }>;
+      select: Readonly<{ id: true; userId: true; gradeLevel: true }>;
     }>): Promise<StudentIdentity | null>;
   };
 }>;
@@ -24,7 +25,7 @@ export async function resolveSessionStudent(
 
   const student = await database.student.findUnique({
     where: { userId: session.user.id },
-    select: { id: true, userId: true },
+    select: { id: true, userId: true, gradeLevel: true },
   });
   if (student === null) throw CanonicalApiError.studentRequired();
   return student;

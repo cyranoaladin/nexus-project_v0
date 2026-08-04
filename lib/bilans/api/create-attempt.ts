@@ -1,6 +1,6 @@
 import { randomBytes } from 'node:crypto';
 
-import type { GradeLevel, PrismaClient, Subject } from '@prisma/client';
+import type { PrismaClient, Subject } from '@prisma/client';
 import type { Session } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
@@ -22,6 +22,9 @@ import {
   resolveEnabledPack,
   type PackResolver,
 } from './pack-access';
+import { assertStudentPackLevel } from './student-pack-level';
+
+export { resolvePrismaGradeLevel } from './student-pack-level';
 
 const CREATE_ROUTE = 'POST:/api/bilans/attempts';
 const EXPIRY_GRACE_MINUTES = 5;
@@ -43,25 +46,9 @@ const SUBJECTS: Readonly<Record<string, Subject>> = {
   SES: 'SES',
 };
 
-const LEVELS: Readonly<Record<string, GradeLevel>> = {
-  QUATRIEME: 'QUATRIEME',
-  TROISIEME: 'TROISIEME',
-  SECONDE: 'SECONDE',
-  PREMIERE: 'PREMIERE',
-  TERMINALE: 'TERMINALE',
-  POSTBAC: 'POSTBAC',
-  AUTRE: 'AUTRE',
-};
-
 export function resolvePrismaSubject(subject: string): Subject {
   const mapped = SUBJECTS[subject];
   if (mapped === undefined) throw CanonicalApiError.incompatible(`PACK_SUBJECT_UNMAPPED:${subject}`);
-  return mapped;
-}
-
-export function resolvePrismaGradeLevel(level: string): GradeLevel {
-  const mapped = LEVELS[level];
-  if (mapped === undefined) throw CanonicalApiError.incompatible(`PACK_LEVEL_UNMAPPED:${level}`);
   return mapped;
 }
 
@@ -126,6 +113,7 @@ export function createCreateAttemptHandler(
         { assessmentPackId: input.packSlug },
         dependencies.resolvePack,
       );
+      const gradeLevel = assertStudentPackLevel(student.gradeLevel, enabled.pack.level);
 
       const key = parseIdempotencyKey(request.headers.get('idempotency-key'));
       const startedAt = dependencies.now();
@@ -134,7 +122,6 @@ export function createCreateAttemptHandler(
           + (enabled.pack.questionnaire.targetDurationMin + EXPIRY_GRACE_MINUTES) * 60_000,
       );
       const subject = resolvePrismaSubject(enabled.pack.subject);
-      const gradeLevel = resolvePrismaGradeLevel(enabled.pack.level);
       const scoring = scoringProvenance(enabled.pack.scoring.engine);
 
       const result = await executeIdempotently({
