@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic'
 import { auth } from '@/auth'
 import { revokeAllUserSessions } from '@/lib/auth/session-revocation'
 import { checkCsrf } from '@/lib/csrf'
+import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive'
 import { NextRequest, NextResponse } from 'next/server'
 
 const PRIVATE_HEADERS = {
@@ -29,6 +30,12 @@ export async function POST(request: NextRequest) {
 
   const session = await auth()
   if (!session?.user?.id) return json({ error: 'Non authentifie' }, 401)
+
+  const blocked = await guardSensitiveRateLimit(request, {
+    scope: 'sessions-revoke',
+    identity: session.user.id,
+  })
+  if (blocked) return privateResponse(blocked)
 
   try {
     await revokeAllUserSessions(session.user.id)

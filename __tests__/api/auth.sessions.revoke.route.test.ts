@@ -1,5 +1,8 @@
 jest.mock('@/auth', () => ({ auth: jest.fn() }))
 jest.mock('@/lib/auth/session-revocation', () => ({ revokeAllUserSessions: jest.fn() }))
+jest.mock('@/lib/rate-limit/sensitive', () => ({
+  guardSensitiveRateLimit: jest.fn().mockResolvedValue(null),
+}))
 
 import { auth } from '@/auth'
 import { POST } from '@/app/api/auth/sessions/revoke/route'

@@ -1,84 +1,58 @@
-/**
- * Rate Limiting — Unit Tests
- *
- * Tests the unified rate-limit module (lib/rate-limit/).
- * No Upstash/Redis mocks needed — the unified system uses in-memory only.
- */
-
-import { NextRequest } from 'next/server';
 import {
-  checkRateLimit,
-  rateLimitResponse,
-  guardRateLimit,
-  _resetStoreForTests,
-} from '@/lib/rate-limit';
+  guardRateLimitAsync,
+  guardRateLimitValueAsync,
+  resetRateLimitRuntimeForTests,
+} from '@/lib/rate-limit/runtime'
 
-function makeRequest(ip: string): NextRequest {
-  return new NextRequest('http://localhost:3000/api/test', {
-    headers: { 'x-forwarded-for': ip },
-  });
-}
-
-describe('rate-limit', () => {
+describe('async rate-limit facade', () => {
   beforeEach(() => {
-    _resetStoreForTests();
-  });
+    process.env.RATE_LIMIT_BACKEND = 'memory'
+    process.env.RATE_LIMIT_KEY_SECRET = 'unit-rate-limit-key-secret-at-least-32-bytes'
+    process.env.RATE_LIMIT_KEY_NAMESPACE = 'test'
+    process.env.RATE_LIMIT_TRUST_PROXY_HOPS = '1'
+    resetRateLimitRuntimeForTests()
+  })
 
-  it('allows first request (success=true)', () => {
-    const req = makeRequest('1.2.3.4');
-    const result = checkRateLimit(req, { preset: 'api' });
-    expect(result.success).toBe(true);
-    expect(result.remaining).toBe(59);
-  });
+  function request(ip: string): Request {
+    return new Request('https://nexus.test/api/test', {
+      headers: { 'x-forwarded-for': ip },
+    })
+  }
 
-  it('returns limit metadata on every request', () => {
-    const req = makeRequest('1.2.3.5');
-    const result = checkRateLimit(req, { preset: 'api' });
-    expect(result.limit).toBe(60);
-    expect(result.remaining).toBeDefined();
-    expect(result.resetAt).toBeGreaterThan(0);
-    expect(result.retryAfter).toBe(0);
-  });
+  it('allows a request and applies identity normalization', async () => {
+    await expect(guardRateLimitValueAsync({
+      preset: 'authIdentity',
+      keySuffix: 'login:identity',
+      dimension: 'identity',
+      value: ' Parent@Example.Test ',
+    })).resolves.toBeNull()
+    await expect(guardRateLimitValueAsync({
+      preset: 'authIdentity',
+      keySuffix: 'login:identity',
+      dimension: 'identity',
+      value: 'parent@example.test',
+    })).resolves.toBeNull()
+  })
 
-  it('blocks after limit is exceeded', () => {
-    const req = makeRequest('1.2.3.6');
-    for (let i = 0; i < 5; i++) {
-      const r = checkRateLimit(req, { preset: 'auth' });
-      expect(r.success).toBe(true);
+  it('blocks after the configured limit and returns private retry metadata', async () => {
+    const req = request('198.51.100.30')
+    for (let index = 0; index < 5; index += 1) {
+      await expect(guardRateLimitAsync(req, { preset: 'auth', keySuffix: 'login' })).resolves.toBeNull()
     }
-    const blocked = checkRateLimit(req, { preset: 'auth' });
-    expect(blocked.success).toBe(false);
-    expect(blocked.remaining).toBe(0);
-    expect(blocked.retryAfter).toBeGreaterThan(0);
-  });
+    const response = await guardRateLimitAsync(req, { preset: 'auth', keySuffix: 'login' })
+    expect(response?.status).toBe(429)
+    expect(Number(response?.headers.get('retry-after'))).toBeGreaterThan(0)
+    expect(response?.headers.get('cache-control')).toContain('no-store')
+    expect(response?.headers.get('pragma')).toBe('no-cache')
+    expect(response?.headers.get('expires')).toBe('0')
+  })
 
-  it('creates 429 response with headers', async () => {
-    const result = {
-      success: false as const,
-      limit: 10,
-      remaining: 0,
-      resetAt: Date.now() + 60_000,
-      retryAfter: 60,
-    };
-    const response = rateLimitResponse(result);
-    expect(response.status).toBe(429);
-    expect(response.headers.get('X-RateLimit-Limit')).toBe('10');
-    expect(response.headers.get('X-RateLimit-Remaining')).toBe('0');
-    expect(response.headers.get('Retry-After')).toBe('60');
-  });
-
-  it('guardRateLimit returns null when allowed', () => {
-    const req = makeRequest('1.2.3.7');
-    expect(guardRateLimit(req, { preset: 'api' })).toBeNull();
-  });
-
-  it('guardRateLimit returns 429 when blocked', () => {
-    const req = makeRequest('1.2.3.8');
-    for (let i = 0; i < 5; i++) {
-      guardRateLimit(req, { preset: 'auth' });
+  it('isolates counters by client IP', async () => {
+    for (let index = 0; index < 5; index += 1) {
+      await guardRateLimitAsync(request('198.51.100.40'), { preset: 'auth', keySuffix: 'login' })
     }
-    const result = guardRateLimit(req, { preset: 'auth' });
-    expect(result).not.toBeNull();
-    expect(result!.status).toBe(429);
-  });
-});
+    await expect(
+      guardRateLimitAsync(request('198.51.100.41'), { preset: 'auth', keySuffix: 'login' }),
+    ).resolves.toBeNull()
+  })
+})

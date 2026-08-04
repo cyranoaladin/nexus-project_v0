@@ -6,7 +6,7 @@ import { sendMail } from '@/lib/email/mailer';
 import { telegramSendMessage } from '@/lib/telegram/client';
 import { computeReservationStatus } from '@/lib/stages/capacity';
 import { publicStageInscriptionSchema } from '@/lib/stages/inscription-schema';
-import { guardRateLimitAsync } from '@/lib/rate-limit';
+import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive';
 import { z } from 'zod';
 import { canAcceptPreRentreeCampaignSubmission } from '@/lib/campaigns/pre-rentree-2026/release-gate';
 
@@ -27,7 +27,11 @@ export async function POST(
     return NextResponse.json({ error: 'Stage introuvable' }, { status: 404 });
   }
 
-  const blocked = await guardRateLimitAsync(req, { preset: 'api', keySuffix: `stage-inscrire:${stageSlug}` });
+  const blocked = await guardSensitiveRateLimit(req, {
+    scope: 'stage-registration',
+    resource: stageSlug,
+    dimensions: ['ip', 'resource'],
+  });
   if (blocked) return blocked;
 
   let body: unknown;
@@ -41,6 +45,13 @@ export async function POST(
   if (!parsed.success) {
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
   }
+
+  const identityBlocked = await guardSensitiveRateLimit(req, {
+    scope: 'stage-registration',
+    identity: parsed.data.parentEmail || parsed.data.email,
+    dimensions: ['identity'],
+  });
+  if (identityBlocked) return identityBlocked;
 
   const {
     firstName,

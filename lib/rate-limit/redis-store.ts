@@ -1,78 +1,108 @@
-import { createClient, type RedisClientType } from 'redis';
+import { createClient } from 'redis'
 
-/**
- * Redis-backed store for VPS-local distributed rate limiting.
- *
- * Designed for a local Redis instance reachable through REDIS_URL. The store
- * connects lazily so importing the rate-limit module never opens a socket.
- */
-export class RedisStore {
-  private readonly url: string;
-  private client: RedisClientType | null = null;
-  private connecting: Promise<RedisClientType> | null = null;
+import type { DistributedRateLimitStore, RateLimitDecision } from './types'
+
+const FIXED_WINDOW_SCRIPT = `
+local count = redis.call('INCR', KEYS[1])
+if count == 1 then
+  redis.call('PEXPIRE', KEYS[1], ARGV[1])
+end
+local ttl = redis.call('PTTL', KEYS[1])
+return {count, ttl}
+`
+
+function boundedInteger(value: string | undefined, fallback: number, min: number, max: number): number {
+  const parsed = Number(value)
+  return Number.isInteger(parsed) && parsed >= min && parsed <= max ? parsed : fallback
+}
+
+function commandTimeoutMs(): number {
+  return boundedInteger(process.env.RATE_LIMIT_REDIS_COMMAND_TIMEOUT_MS, 1_500, 50, 10_000)
+}
+
+function connectTimeoutMs(): number {
+  return boundedInteger(process.env.RATE_LIMIT_REDIS_CONNECT_TIMEOUT_MS, 1_500, 50, 10_000)
+}
+
+function reconnectDelay(retries: number): number | Error {
+  const maxRetries = boundedInteger(process.env.RATE_LIMIT_REDIS_MAX_RETRIES, 2, 0, 10)
+  if (retries > maxRetries) return new Error('Redis rate-limit reconnect limit reached')
+  return Math.min(100 * (retries + 1), 500)
+}
+
+export class RedisStore implements DistributedRateLimitStore {
+  private readonly client: ReturnType<typeof createClient>
 
   constructor(url: string) {
-    this.url = url;
+    this.client = createClient({
+      url,
+      disableOfflineQueue: true,
+      socket: {
+        connectTimeout: connectTimeoutMs(),
+        reconnectStrategy: reconnectDelay,
+      },
+    })
+    this.client.on('error', () => {
+      // The caller receives a reduced fail-closed error. Never log the Redis URL.
+    })
   }
 
-  private async getClient(): Promise<RedisClientType> {
-    if (this.client?.isOpen) return this.client;
-    if (this.connecting) return this.connecting;
-
-    this.connecting = (async () => {
-      const client = createClient({ url: this.url }) as RedisClientType;
-      client.on('error', () => {
-        // Errors are surfaced through command failures and handled by caller.
-      });
-      await client.connect();
-      this.client = client;
-      this.connecting = null;
-      return client;
-    })();
-
-    try {
-      return await this.connecting;
-    } catch (error) {
-      this.connecting = null;
-      throw error;
+  async increment(key: string, limit: number, windowMs: number): Promise<RateLimitDecision> {
+    if (!this.client.isOpen) {
+      await this.withDeadline(this.client.connect())
     }
-  }
 
-  async increment(
-    key: string,
-    limit: number,
-    windowMs: number,
-  ): Promise<{
-    success: boolean;
-    limit: number;
-    remaining: number;
-    resetAt: number;
-  }> {
-    const client = await this.getClient();
-    const count = await client.incr(key);
-    const windowSeconds = Math.max(1, Math.ceil(windowMs / 1000));
-    await client.expire(key, windowSeconds, 'NX');
+    let result: unknown
+    try {
+      result = await this.withDeadline(
+        this.client.eval(FIXED_WINDOW_SCRIPT, {
+          keys: [key],
+          arguments: [String(windowMs)],
+        }),
+      )
+    } catch (error) {
+      if (this.client.isOpen) this.client.disconnect()
+      throw error
+    }
 
-    const ttlSeconds = await client.ttl(key);
-    const ttlMs = Number.isFinite(ttlSeconds) && ttlSeconds > 0
-      ? ttlSeconds * 1000
-      : windowMs;
-    const remaining = Math.max(0, limit - count);
+    if (!Array.isArray(result) || result.length !== 2) {
+      throw new Error('Redis returned an invalid rate-limit result')
+    }
+    const count = Number(result[0])
+    const ttl = Number(result[1])
+    if (!Number.isFinite(count) || !Number.isFinite(ttl) || ttl <= 0) {
+      throw new Error('Redis returned an invalid rate-limit TTL')
+    }
 
     return {
       success: count <= limit,
       limit,
-      remaining,
-      resetAt: Date.now() + ttlMs,
-    };
+      remaining: Math.max(0, limit - count),
+      resetAt: Date.now() + ttl,
+    }
+  }
+
+  async close(): Promise<void> {
+    if (this.client.isOpen) await this.client.quit()
   }
 
   async destroy(): Promise<void> {
-    const client = this.client;
-    this.client = null;
-    this.connecting = null;
-    if (client?.isOpen) {
-      await client.quit();
+    await this.close()
+  }
+
+  private async withDeadline<T>(operation: Promise<T>): Promise<T> {
+    let timer: ReturnType<typeof setTimeout> | undefined
+    const timeout = new Promise<never>((_, reject) => {
+      timer = setTimeout(
+        () => reject(new Error('Redis rate-limit command timed out')),
+        commandTimeoutMs(),
+      )
+      timer.unref?.()
+    })
+    try {
+      return await Promise.race([operation, timeout])
+    } finally {
+      if (timer) clearTimeout(timer)
     }
   }
 }

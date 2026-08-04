@@ -214,11 +214,11 @@ describe('POST /api/auth/resend-activation — rate limiting', () => {
     prisma.user.findUnique.mockResolvedValue(null);
 
     for (let i = 0; i < 3; i++) {
-      const resp = await POST(makeRequestWithIp(`test${i}@example.com`, '10.10.10.1'));
+      const resp = await POST(makeRequestWithIp('same-account@example.com', '10.10.10.1'));
       expect(resp.status).toBe(200);
     }
 
-    const blocked = await POST(makeRequestWithIp('test4@example.com', '10.10.10.1'));
+    const blocked = await POST(makeRequestWithIp('same-account@example.com', '10.10.10.1'));
     expect(blocked.status).toBe(429);
   });
 
@@ -226,10 +226,10 @@ describe('POST /api/auth/resend-activation — rate limiting', () => {
     prisma.user.findUnique.mockResolvedValue(null);
 
     for (let i = 0; i < 3; i++) {
-      await POST(makeRequestWithIp(`r${i}@example.com`, '10.10.10.2'));
+      await POST(makeRequestWithIp('retry-account@example.com', '10.10.10.2'));
     }
 
-    const resp = await POST(makeRequestWithIp('r3@example.com', '10.10.10.2'));
+    const resp = await POST(makeRequestWithIp('retry-account@example.com', '10.10.10.2'));
     expect(resp.status).toBe(429);
     const retryAfter = parseInt(resp.headers.get('Retry-After') || '0', 10);
     expect(retryAfter).toBeGreaterThan(0);
@@ -250,10 +250,10 @@ describe('POST /api/auth/resend-activation — rate limiting', () => {
     prisma.user.findUnique.mockResolvedValue(null);
 
     // Exhaust IP A
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < 30; i++) {
       await POST(makeRequestWithIp(`a${i}@example.com`, '10.10.10.4'));
     }
-    expect((await POST(makeRequestWithIp('a3@example.com', '10.10.10.4'))).status).toBe(429);
+    expect((await POST(makeRequestWithIp('a30@example.com', '10.10.10.4'))).status).toBe(429);
 
     // IP B should still work
     expect((await POST(makeRequestWithIp('b0@example.com', '10.10.10.5'))).status).toBe(200);

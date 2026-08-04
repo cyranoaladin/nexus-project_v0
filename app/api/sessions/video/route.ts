@@ -1,9 +1,9 @@
+import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive';
 import { serializeError } from '@/lib/utils/serialize-error';
 export const dynamic = 'force-dynamic';
 
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
-import { guardRateLimitAsync } from '@/lib/rate-limit';
 import { SessionStatus } from '@prisma/client';
 import { NextRequest, NextResponse } from 'next/server';
 import { parseJsonBody } from '@/lib/api/helpers';
@@ -28,9 +28,9 @@ function safeErrorSummary(error: unknown) {
 export async function POST(request: NextRequest) {
   try {
     // IP-based rate-limit first — blocks anonymous abuse before auth()
-    const ipBlocked = await guardRateLimitAsync(request, {
-      preset: 'api',
-      keySuffix: 'session-video',
+    const ipBlocked = await guardSensitiveRateLimit(request, {
+      scope: 'session-video-ip',
+      dimensions: ['ip'],
     });
     if (ipBlocked) return ipBlocked;
 
@@ -41,10 +41,10 @@ export async function POST(request: NextRequest) {
     }
 
     // Refine with userId-based rate-limit post-auth
-    const userBlocked = await guardRateLimitAsync(request, {
-      preset: 'api',
-      keySuffix: 'session-video',
-      userId: session.user.id,
+    const userBlocked = await guardSensitiveRateLimit(request, {
+      scope: 'session-video-user',
+      identity: session.user.id,
+      dimensions: ['identity'],
     });
     if (userBlocked) return userBlocked;
 

@@ -9,6 +9,7 @@ jest.mock('bcryptjs');
 jest.mock('../../lib/rate-limit', () => ({
   guardRateLimit: jest.fn().mockReturnValue(null),
   guardRateLimitAsync: jest.fn().mockResolvedValue(null),
+  guardSensitiveRateLimit: jest.fn().mockResolvedValue(null),
 }));
 
 jest.mock('../../lib/csrf', () => ({

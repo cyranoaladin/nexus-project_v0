@@ -12,6 +12,7 @@ import crypto from 'crypto';
 import { parseJsonBody } from '@/lib/api/helpers';
 import { z } from 'zod';
 import { withParentStudentConsentTransaction } from '@/lib/bilans/parent-student-consent';
+import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive';
 import {
   buildStudentLoginIdentifier,
   isStudentLoginIdentifierConflict,
@@ -138,6 +139,12 @@ export async function POST(request: NextRequest) {
         { status: 401 }
       );
     }
+
+    const blocked = await guardSensitiveRateLimit(request, {
+      scope: 'child-create',
+      identity: session.user.id,
+    });
+    if (blocked) return blocked;
 
     let rawBody: unknown;
     try {

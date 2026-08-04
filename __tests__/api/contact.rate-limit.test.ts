@@ -24,8 +24,6 @@ describe('POST /api/contact rate limiting', () => {
     _resetStoreForTests();
     delete process.env.RATE_LIMIT_DISABLE;
     delete process.env.REDIS_URL;
-    delete process.env.UPSTASH_REDIS_REST_URL;
-    delete process.env.UPSTASH_REDIS_REST_TOKEN;
     mockCreate.mockResolvedValue({
       id: 'lead_rate_limit',
       name: 'Alex',
@@ -46,11 +44,11 @@ describe('POST /api/contact rate limiting', () => {
     const payload = { name: 'Alex', email: 'alex@example.com', message: 'Bonjour' };
 
     for (let i = 0; i < 60; i++) {
-      const res = await POST(makeRequest(payload));
+      const res = await POST(makeRequest({ ...payload, email: `parent-${i}@example.test` }));
       expect(res.status).toBe(200);
     }
 
-    const blocked = await POST(makeRequest(payload));
+    const blocked = await POST(makeRequest({ ...payload, email: 'parent-blocked@example.test' }));
     expect(blocked.status).toBe(429);
     const body = await blocked.json();
     expect(body.error.code).toBe('RATE_LIMIT_EXCEEDED');

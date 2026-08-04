@@ -1,45 +1,34 @@
-/**
- * Rate limit key generation helpers.
- *
- * For public routes: IP-based key (optionally combined with route).
- * For authenticated routes: userId-based key preferred.
- * Emails are never stored in plain text — use hashForKey() if needed.
- */
+import { createHmac } from 'node:crypto'
 
-import { createHash } from 'crypto';
-/**
- * Extract client IP from request headers.
- * Respects x-forwarded-for (first entry) and x-real-ip set by nginx.
- */
-export function getClientIp(request: Request): string {
-  const forwarded = request.headers.get('x-forwarded-for');
-  if (forwarded) return forwarded.split(',')[0].trim();
-  return request.headers.get('x-real-ip') || 'anonymous';
+export const RATE_LIMIT_KEY_SCHEMA_VERSION = 'v1'
+
+function requiredSecret(): string {
+  const secret = process.env.RATE_LIMIT_KEY_SECRET?.trim()
+  if (!secret || secret.length < 32) {
+    throw new Error('RATE_LIMIT_KEY_SECRET_INVALID')
+  }
+  return secret
 }
 
-/**
- * Build a rate limit key from a request.
- *
- * @param request - The incoming request
- * @param prefix  - Namespace prefix (usually the preset name)
- * @param userId  - If available, use userId instead of IP for fairness
- */
-export function buildKey(
-  request: Request,
-  prefix: string,
-  userId?: string | null,
-): string {
-  const identifier = userId || getClientIp(request);
-  return `${prefix}:${identifier}`;
+function environmentNamespace(): string {
+  const namespace = process.env.RATE_LIMIT_KEY_NAMESPACE?.trim().toLowerCase()
+  if (!namespace || !/^[a-z0-9][a-z0-9_-]{0,31}$/.test(namespace)) {
+    throw new Error('RATE_LIMIT_KEY_NAMESPACE_INVALID')
+  }
+  return namespace
 }
 
-/**
- * One-way hash suitable for inclusion in a rate limit key.
- * Use this for emails or other PII that should not be stored in plain text.
- */
-export function hashForKey(value: string): string {
-  return createHash('sha256')
-    .update(value.trim().normalize('NFC').toLowerCase())
+function normalizeKeyMaterial(value: string): string {
+  return value.normalize('NFKC').trim().toLowerCase()
+}
+
+export function deriveRateLimitKey(scope: string, dimension: string, rawValue: string): string {
+  const namespace = environmentNamespace()
+  const normalizedScope = normalizeKeyMaterial(scope)
+  const normalizedDimension = normalizeKeyMaterial(dimension)
+  const digest = createHmac('sha256', requiredSecret())
+    .update(`${RATE_LIMIT_KEY_SCHEMA_VERSION}\0${namespace}\0${normalizedScope}\0${normalizedDimension}\0${normalizeKeyMaterial(rawValue)}`)
     .digest('hex')
-    .slice(0, 16);
+
+  return `rl:${RATE_LIMIT_KEY_SCHEMA_VERSION}:${namespace}:${normalizedScope}:${normalizedDimension}:${digest}`
 }

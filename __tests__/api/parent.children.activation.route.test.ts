@@ -8,6 +8,17 @@ import { NextRequest } from 'next/server';
 import { auth } from '@/auth';
 import crypto from 'crypto';
 
+jest.mock('@prisma/client', () => {
+  const actual = jest.requireActual('@prisma/client');
+  return {
+    ...actual,
+    Prisma: {
+      ...actual.Prisma,
+      sql: jest.fn((strings: TemplateStringsArray, ...values: unknown[]) => ({ strings, values })),
+    },
+  };
+});
+
 jest.mock('@/auth');
 jest.mock('@/lib/email/mailer', () => ({
   sendMail: jest.fn().mockResolvedValue({ success: true }),

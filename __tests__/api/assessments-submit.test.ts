@@ -6,7 +6,7 @@
 
 import { POST } from '@/app/api/assessments/submit/route';
 import { prisma } from '@/lib/prisma';
-import { guardRateLimitAsync } from '@/lib/rate-limit';
+import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive';
 import { QuestionBank } from '@/lib/assessments/questions';
 
 // Mock next/headers
@@ -16,9 +16,8 @@ jest.mock('next/headers', () => ({
   }),
 }));
 
-jest.mock('@/lib/rate-limit', () => ({
-  guardRateLimit: jest.fn().mockReturnValue(null),
-  guardRateLimitAsync: jest.fn().mockResolvedValue(null),
+jest.mock('@/lib/rate-limit/sensitive', () => ({
+  guardSensitiveRateLimit: jest.fn().mockResolvedValue(null),
 }));
 
 // Mock QuestionBank
@@ -107,7 +106,7 @@ describe('POST /api/assessments/submit', () => {
   });
 
   it('returns 429 when public submission rate limit is exceeded', async () => {
-    (guardRateLimitAsync as jest.Mock).mockResolvedValueOnce(
+    (guardSensitiveRateLimit as jest.Mock).mockResolvedValueOnce(
       Response.json({ error: 'RATE_LIMIT' }, { status: 429 })
     );
 

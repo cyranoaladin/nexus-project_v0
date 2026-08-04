@@ -10,6 +10,9 @@ jest.mock('@/lib/email-service', () => ({
   sendWelcomeEmail: jest.fn(),
   testEmailConfiguration: jest.fn(),
 }));
+jest.mock('@/lib/rate-limit/sensitive', () => ({
+  guardSensitiveRateLimit: jest.fn().mockResolvedValue(null),
+}));
 
 function makeRequest(body?: any) {
   return {

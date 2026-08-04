@@ -1,49 +1,64 @@
-import { NextRequest } from 'next/server'
+import { createClient } from 'redis'
 
-import { _resetStoreForTests, checkRateLimitAsync, hashForKey } from '@/lib/rate-limit'
+import {
+  guardRateLimitAsync,
+  resetRateLimitRuntimeForTests,
+} from '@/lib/rate-limit/runtime'
+import { deriveRateLimitKey } from '@/lib/rate-limit/keys'
 
-const mockIncrement = jest.fn()
-jest.mock('redis', () => ({
-  createClient: jest.fn(() => ({
-    isOpen: false,
-    connect: jest.fn().mockResolvedValue(undefined),
-    incr: mockIncrement,
-    expire: jest.fn(),
-    ttl: jest.fn(),
-    quit: jest.fn(),
-    on: jest.fn(),
-  })),
-}))
+jest.mock('redis', () => ({ createClient: jest.fn() }))
 
 describe('production rate-limit failure policy', () => {
-  const originalNodeEnv = process.env.NODE_ENV
-  const originalRedisUrl = process.env.REDIS_URL
+  const original = { ...process.env }
+  const mockEval = jest.fn()
 
-  afterEach(() => {
-    Object.assign(process.env, { NODE_ENV: originalNodeEnv })
-    if (originalRedisUrl === undefined) delete process.env.REDIS_URL
-    else process.env.REDIS_URL = originalRedisUrl
-    _resetStoreForTests()
+  beforeEach(() => {
+    jest.clearAllMocks()
+    resetRateLimitRuntimeForTests()
+    Object.defineProperty(process.env, 'NODE_ENV', { configurable: true, value: 'production' })
+    process.env.RATE_LIMIT_BACKEND = 'redis'
+    process.env.REDIS_URL = 'redis://127.0.0.1:6379'
+    process.env.RATE_LIMIT_KEY_SECRET = 'production-rate-limit-secret-at-least-32-bytes'
+    process.env.RATE_LIMIT_KEY_NAMESPACE = 'production'
+    process.env.RATE_LIMIT_TRUST_PROXY_HOPS = '1'
+    ;(createClient as jest.Mock).mockReturnValue({
+      isOpen: true,
+      connect: jest.fn(),
+      eval: mockEval,
+      disconnect: jest.fn(),
+      quit: jest.fn(),
+      on: jest.fn(),
+    })
+  })
+
+  afterAll(() => {
+    process.env = original
   })
 
   it('fails closed instead of silently using memory when Redis fails in production', async () => {
-    Object.assign(process.env, { NODE_ENV: 'production', REDIS_URL: 'redis://127.0.0.1:6379' })
-    mockIncrement.mockRejectedValueOnce(new Error('redis unavailable'))
-    const consoleError = jest.spyOn(console, 'error').mockImplementation(() => undefined)
-    const result = await checkRateLimitAsync(new NextRequest('http://localhost/api/test'), {
-      preset: 'auth',
+    mockEval.mockRejectedValueOnce(new Error('redis unavailable'))
+    const response = await guardRateLimitAsync(
+      new Request('https://nexus.test/api/test', {
+        headers: { 'x-forwarded-for': '198.51.100.20' },
+      }),
+      { preset: 'auth', keySuffix: 'test' },
+    )
+
+    expect(response?.status).toBe(503)
+    expect(response?.headers.get('cache-control')).toContain('no-store')
+    expect(await response?.json()).toEqual({
+      error: {
+        code: 'RATE_LIMIT_BACKEND_UNAVAILABLE',
+        message: 'Service temporarily unavailable',
+      },
     })
-    expect(result.success).toBe(false)
-    expect(result.remaining).toBe(0)
-    expect(consoleError).toHaveBeenCalledWith('[rate-limit] Distributed backend unavailable')
-    consoleError.mockRestore()
   })
 
-  it('normalizes and hashes equivalent addresses without exposing PII', () => {
-    const composed = hashForKey(' PARÉNT@EXAMPLE.TEST ')
-    const normalized = hashForKey('parént@example.test')
-    expect(composed).toBe(normalized)
-    expect(composed).not.toContain('parent')
-    expect(composed).toMatch(/^[a-f0-9]{16}$/)
+  it('normalizes and HMACs equivalent identities without exposing PII', () => {
+    const decomposed = deriveRateLimitKey('login', 'identity', ' PARE\u0301NT@EXAMPLE.TEST ')
+    const normalized = deriveRateLimitKey('login', 'identity', 'parént@example.test')
+    expect(decomposed).toBe(normalized)
+    expect(decomposed).not.toContain('parent')
+    expect(decomposed).not.toContain('example')
   })
 })

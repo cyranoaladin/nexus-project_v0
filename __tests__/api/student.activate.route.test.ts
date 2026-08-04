@@ -12,18 +12,18 @@ jest.mock('@/lib/services/student-activation.service', () => ({
   completeStudentActivation: jest.fn(),
 }));
 
-jest.mock('@/lib/rate-limit', () => ({
-  guardRateLimitAsync: jest.fn().mockResolvedValue(null),
+jest.mock('@/lib/rate-limit/sensitive', () => ({
+  guardSensitiveRateLimit: jest.fn().mockResolvedValue(null),
 }));
 
 import { GET, POST } from '@/app/api/student/activate/route';
 import { verifyActivationToken, completeStudentActivation } from '@/lib/services/student-activation.service';
-import { guardRateLimitAsync } from '@/lib/rate-limit';
+import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive';
 import { NextRequest } from 'next/server';
 
 const mockVerify = verifyActivationToken as jest.Mock;
 const mockComplete = completeStudentActivation as jest.Mock;
-const mockGuardRateLimit = guardRateLimitAsync as jest.Mock;
+const mockGuardRateLimit = guardSensitiveRateLimit as jest.Mock;
 const VALID_TOKEN = 'a'.repeat(43);
 const INVALID_TOKEN = 'b'.repeat(43);
 

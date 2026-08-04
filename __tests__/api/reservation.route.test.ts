@@ -14,9 +14,10 @@ jest.mock('@/lib/email', () => ({
   sendStageDiagnosticInvitation: jest.fn().mockResolvedValue(undefined),
 }));
 
-jest.mock('@/lib/rate-limit', () => ({
+jest.mock('@/lib/rate-limit/sensitive', () => ({
   guardRateLimit: jest.fn().mockReturnValue(null),
   guardRateLimitAsync: jest.fn().mockResolvedValue(null),
+  guardSensitiveRateLimit: jest.fn().mockResolvedValue(null),
 }));
 
 jest.mock('@/lib/csrf', () => ({
