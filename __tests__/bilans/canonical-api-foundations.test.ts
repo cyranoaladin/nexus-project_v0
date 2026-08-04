@@ -192,7 +192,7 @@ describe('A85.1 Canonical API foundations', () => {
     const migration = readFileSync(migrationPath, 'utf8');
     expect(schema).toMatch(/revision\s+Int\s+@default\(0\)/);
     expect(schema).toContain('model CanonicalApiIdempotencyKey');
-    expect(schema).toContain('@@unique([userId, route, key])');
+    expect(schema).toMatch(/@@unique\(\[userId, route, key\](?:,\s*map:\s*"[^"]+")?\)/);
     expect(migration).toContain('UNIQUE ("userId", "route", "key")');
     expect(migration).toContain('"expiresAt" TIMESTAMP(3) NOT NULL');
     expect(migration).not.toMatch(/\b(DROP TABLE|DROP COLUMN|DELETE FROM|TRUNCATE|RENAME)\b/i);

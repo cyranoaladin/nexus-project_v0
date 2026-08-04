@@ -341,11 +341,6 @@ export function generateParentEafStageReport(
     lines.push(`La compétence ayant connu la progression la plus marquée est **${skill}**, ce qui constitue un signal encourageant pour la suite de la préparation.`);
     lines.push('');
   }
-
-  // pr.observedProgressComment is internal coach note — not exposed
-
-  // ── Section 7 — Priorités de travail ──────────────────────────────────────
-  const am  = sourceData.autonomyAndMethod ?? {};
   const pra = sourceData.parentRecommendations ?? {};
   lines.push('---');
   lines.push('');

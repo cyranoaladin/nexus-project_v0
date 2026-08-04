@@ -34,6 +34,7 @@ jest.mock('@/lib/rbac/coach-student-access', () => {
 jest.mock('@/lib/prisma', () => ({
   prisma: {
     student: { findUnique: jest.fn() },
+    stage: { findUnique: jest.fn() },
     bilan: { findFirst: jest.fn(), create: jest.fn(), update: jest.fn() },
   },
 }));

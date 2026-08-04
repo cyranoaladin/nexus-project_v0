@@ -129,7 +129,7 @@ async function migrateDiagnostic(diagnostic: any, dryRun: boolean): Promise<Migr
     }
 
     // Check if already migrated
-    const existing = await prisma.bilan.findUnique({
+    const existing = await prisma.bilan.findFirst({
       where: { legacyDiagnosticId: diagnostic.id },
     });
 
@@ -238,7 +238,7 @@ async function migrateAssessment(assessment: any, dryRun: boolean): Promise<Migr
     }
 
     // Check if already migrated
-    const existing = await prisma.bilan.findUnique({
+    const existing = await prisma.bilan.findFirst({
       where: { legacyAssessmentId: assessment.id },
     });
 
@@ -344,7 +344,7 @@ async function migrateStageBilan(stageBilan: any, dryRun: boolean): Promise<Migr
     }
 
     // Check if already migrated
-    const existing = await prisma.bilan.findUnique({
+    const existing = await prisma.bilan.findFirst({
       where: { legacyStageBilanId: stageBilan.id },
     });
 

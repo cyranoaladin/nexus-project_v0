@@ -1,21 +1,20 @@
 import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive';
 export const dynamic = 'force-dynamic';
 
+import { generateBilans } from '@/lib/bilan-generator';
+import { computeScoring } from '@/lib/bilan-scoring';
+import { checkBodySize,checkCsrf } from '@/lib/csrf';
+import { getDefinition } from '@/lib/diagnostics/definitions';
+import { buildQualityFlags } from '@/lib/diagnostics/llm-contract';
+import { safeDiagnosticLog } from '@/lib/diagnostics/safe-log';
+import { computeScoringV2 } from '@/lib/diagnostics/score-diagnostic';
+import { generateBilanToken,verifyBilanToken } from '@/lib/diagnostics/signed-token';
+import { DiagnosticStatus } from '@/lib/diagnostics/types';
+import { isErrorResponse,requireAnyRole } from '@/lib/guards';
 import { prisma } from '@/lib/prisma';
 import { bilanDiagnosticMathsSchema } from '@/lib/validations';
-import { computeScoring } from '@/lib/bilan-scoring';
-import { computeScoringV2 } from '@/lib/diagnostics/score-diagnostic';
-import { generateBilans } from '@/lib/bilan-generator';
-import { buildQualityFlags } from '@/lib/diagnostics/llm-contract';
-import { getDefinition } from '@/lib/diagnostics/definitions';
-import { DiagnosticStatus } from '@/lib/diagnostics/types';
-import { requireAnyRole, isErrorResponse } from '@/lib/guards';
-import { safeSubmissionLog, safeDiagnosticLog } from '@/lib/diagnostics/safe-log';
-import { generateBilanToken, verifyBilanToken } from '@/lib/diagnostics/signed-token';
-import { NextRequest, NextResponse } from 'next/server';
 import { Prisma } from '@prisma/client';
-import { createHash } from 'crypto';
-import { checkCsrf, checkBodySize } from '@/lib/csrf';
+import { NextRequest,NextResponse } from 'next/server';
 
 /**
  * POST /api/bilan-pallier2-maths
@@ -55,9 +54,6 @@ export async function POST(request: NextRequest) {
 
     // 1b. Idempotency: check explicit header first, then fallback to email+type dedup
     const headerKey = request.headers.get('Idempotency-Key');
-    const idempotencyKey = headerKey || createHash('sha256')
-      .update(`${validatedData.identity.email}|DIAGNOSTIC_PRE_STAGE_MATHS|${Math.floor(Date.now() / 300000)}`)
-      .digest('hex');
     const existingDuplicate = await prisma.diagnostic.findFirst({
       where: headerKey
         ? { type: 'DIAGNOSTIC_PRE_STAGE_MATHS', data: { path: ['idempotencyKey'], equals: headerKey } }

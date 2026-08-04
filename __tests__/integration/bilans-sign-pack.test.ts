@@ -27,7 +27,7 @@ describe('A89.7 real CoachProfile resolution', () => {
       data: { email: EMAIL, role: 'COACH', firstName: 'Test', lastName: 'Reviewer' },
     });
     coachId = (await prisma.coachProfile.create({
-      data: { userId: user.id, pseudonym: `${PREFIX}coach` },
+      data: { userId: user.id, pseudonym: `${PREFIX}coach`, subjects: '[]' },
     })).id;
 
     fs.mkdirSync(TEMP, { recursive: true });

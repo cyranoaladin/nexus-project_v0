@@ -1,37 +1,25 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import {
+Card,
+CardContent
+} from '@/components/ui/card';
+import { cn } from '@/lib/utils';
+import { DocumentType,Subject } from '@prisma/client';
+import {
+BookOpen,
+Calendar,
+Download,
+Eye,
+FileText,
+Loader2
+} from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardHeader, 
-  CardTitle 
-} from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
-} from '@/components/ui/table';
-import { 
-  Loader2, 
-  FileText, 
-  Download, 
-  ExternalLink,
-  BookOpen,
-  Calendar,
-  Eye
-} from 'lucide-react';
+import { useEffect,useState } from 'react';
 import { toast } from 'sonner';
-import { DocumentType, Subject } from '@prisma/client';
-import { cn } from '@/lib/utils';
 
 // Types
 interface Document {

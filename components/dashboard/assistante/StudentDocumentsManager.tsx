@@ -1,33 +1,31 @@
 'use client';
 
-import { useState } from 'react';
-import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardHeader, 
-  CardTitle 
-} from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import {
+Card,
+CardContent,
+CardDescription,
+CardHeader,
+CardTitle
+} from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { 
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+import {
+Select,
+SelectContent,
+SelectItem,
+SelectTrigger,
+SelectValue,
 } from '@/components/ui/select';
-import { 
-  Loader2, 
-  FileText, 
-  Plus,
-  X,
-  Check
+import { DocumentType,DocumentVisibilityScope,Subject } from '@prisma/client';
+import {
+Check,
+FileText,
+Loader2,
+Plus,
+X
 } from 'lucide-react';
+import { useState } from 'react';
 import { toast } from 'sonner';
-import { DocumentType, DocumentVisibilityScope, Subject } from '@prisma/client';
-import { cn } from '@/lib/utils';
 
 interface StudentDocumentsManagerProps {
   studentId: string;

@@ -1,22 +1,22 @@
 "use client";
 
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card,CardContent } from "@/components/ui/card";
 import { motion } from "framer-motion";
 import {
-  ArrowLeft,
-  ArrowRight,
-  BookOpen,
-  CheckCircle2,
-  Clock,
-  FileText,
-  GraduationCap,
-  PenLine,
-  Sparkles,
-  Star,
-  Target,
+ArrowLeft,
+ArrowRight,
+BookOpen,
+CheckCircle2,
+Clock,
+FileText,
+GraduationCap,
+PenLine,
+Sparkles,
+Star,
+Target,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import React,{ useCallback,useEffect,useMemo,useState } from "react";
 
 const steps = [
   "Profil",
@@ -352,7 +352,7 @@ export default function QuestionnaireEAFStagePrintempsPage() {
           if (data.bilan.status === 'COMPLETED') setSubmitted(true);
           setLastSaved(new Date(data.bilan.updatedAt));
         }
-      } catch (err) {
+      } catch {
         // Log removed to fix client build (logger is server-side only)
       }
       finally { setIsLoading(false); }

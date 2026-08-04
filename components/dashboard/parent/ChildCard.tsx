@@ -1,14 +1,12 @@
 "use client";
 
-import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Calendar, AlertTriangle, ArrowRight, KeyRound, Loader2, User } from "lucide-react";
+import { Card,CardContent,CardHeader,CardTitle } from "@/components/ui/card";
+import { AlertTriangle,ArrowRight,Calendar,KeyRound,Loader2,User } from "lucide-react";
 import Link from "next/link";
+import { useState } from "react";
 
-interface ChildCardProps {
-  child: {
+export interface ParentDashboardChild {
     id: string;
     firstName: string;
     lastName: string;
@@ -24,7 +22,19 @@ interface ChildCardProps {
     } | null;
     alerts?: string[];
     lastBilanDate?: string | null;
-  };
+    subscriptionDetails?: { monthlyPrice?: number } | null;
+    progressionHistory?: Array<{ date: string; nexusIndex: number; ssn: number; uai: number }>;
+    sessions?: Array<{
+      id: string;
+      subject: string;
+      scheduledAt: string;
+      coachName: string;
+    }>;
+    subscription?: string | null;
+}
+
+interface ChildCardProps {
+  child: ParentDashboardChild;
 }
 
 export function ChildCard({ child }: ChildCardProps) {

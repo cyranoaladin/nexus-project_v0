@@ -1,31 +1,28 @@
 "use client";
 
-import { AutomatismeSeries, AutomatismeAttemptResult, AutomatismeDomain } from "@/types/automatismes";
-import { DOMAIN_LABELS } from "@/lib/automatismes/scoring";
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
-import { 
-  Trophy, 
-  Target, 
-  Clock, 
-  TrendingUp, 
-  AlertCircle, 
-  CheckCircle,
-  RefreshCw,
-  Home,
-  Star,
-  ChevronRight,
-  BookOpen,
-  CheckCircle2,
-  XCircle,
-  Lightbulb,
-  Zap,
-  HelpCircle,
-  MessageSquare
-} from "lucide-react";
 import { MathRichText } from "@/components/programme/shared/MathContent";
+import { Button } from "@/components/ui/button";
+import { Card,CardContent,CardHeader } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import { DOMAIN_LABELS } from "@/lib/automatismes/scoring";
 import { cn } from "@/lib/utils";
+import { AutomatismeAttemptResult,AutomatismeDomain,AutomatismeSeries } from "@/types/automatismes";
+import {
+AlertCircle,
+BookOpen,
+CheckCircle,
+CheckCircle2,
+Clock,
+HelpCircle,
+Home,
+Lightbulb,
+MessageSquare,
+RefreshCw,
+Star,
+Target,
+TrendingUp,
+XCircle
+} from "lucide-react";
 
 interface AutomatismesResultsProps {
   result: AutomatismeAttemptResult;
@@ -39,12 +36,6 @@ export function AutomatismesResults({ result, series, onRestart, onGoHome }: Aut
     if (score >= 10) return "text-emerald-400";
     if (score >= 7) return "text-amber-400";
     return "text-rose-400";
-  };
-
-  const getScoreBg = (score: number) => {
-    if (score >= 10) return "bg-emerald-400/10";
-    if (score >= 7) return "bg-amber-400/10";
-    return "bg-rose-400/10";
   };
 
   return (

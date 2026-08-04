@@ -1,14 +1,14 @@
-import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
+import { prisma } from "@/lib/prisma";
 import { serializeError } from '@/lib/utils/serialize-error';
+import { NextRequest,NextResponse } from "next/server";
 
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session: any = await auth();
+    const session: import('next-auth').Session | null = await auth();
     const { id } = await params;
 
     if (!session?.user || session.user.role !== "ELEVE") {

@@ -1,25 +1,25 @@
 'use client';
 
-import React, { useState } from 'react';
+import { type BadgeDefinition, type Categorie, type NiveauEleve } from '@/components/programme/shared/types/programme';
+import { resolveUiIcon } from '@/lib/ui-icons';
 import { motion } from 'framer-motion';
 import {
-  Zap,
-  Trophy,
-  Target,
-  CheckCircle2,
-  Snowflake,
-  Medal,
-  RefreshCw,
-  BookOpen
+BookOpen,
+CheckCircle2,
+Medal,
+RefreshCw,
+Snowflake,
+Target,
+Trophy,
+Zap
 } from 'lucide-react';
-import { type Categorie } from '@/components/programme/shared/types/programme';
-import { resolveUiIcon } from '@/lib/ui-icons';
+import React,{ useState } from 'react';
 
 interface DashboardViewProps {
   onSwitchTab: (tab: 'dashboard' | 'cours' | 'entrainement' | 'formulaire') => void;
   store: {
-    getNiveau: () => any; // NiveauEleve
-    getNextNiveau: () => any;
+    getNiveau: () => NiveauEleve; // NiveauEleve
+    getNextNiveau: () => NiveauEleve | null;
     getXPProgress: () => { percent: number; current: number; nextThreshold: number };
     completedChapters: string[];
     streak: number;
@@ -33,7 +33,7 @@ interface DashboardViewProps {
   };
   programmeData: Record<string, Categorie>;
   dailyChallenges: Array<{ id: string; question: string; reponse: string; xp: number }>;
-  badgeDefinitions: Record<string, any>;
+  badgeDefinitions: BadgeDefinition[];
 }
 
 export const DashboardView: React.FC<DashboardViewProps> = ({ onSwitchTab, store, programmeData, dailyChallenges, badgeDefinitions }) => {
@@ -232,7 +232,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onSwitchTab, store
             </span>
           </div>
           <div className="flex flex-wrap gap-3">
-            {badgeDefinitions.slice(0, 10).map((b: any) => {
+            {badgeDefinitions.slice(0, 10).map((b) => {
               const BadgeIcon = resolveUiIcon(b.icon);
               const isEarned = store.badges.includes(b.id);
               return (
@@ -309,7 +309,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onSwitchTab, store
   );
 };
 
-const StatCard = ({ icon, iconBg, label, value, unit, subtitle }: any) => (
+type StatCardProps = { icon: React.ReactNode; iconBg: string; label: string; value: string | number; unit: string; subtitle: React.ReactNode };
+
+const StatCard = ({ icon, iconBg, label, value, unit, subtitle }: StatCardProps) => (
   <motion.div 
     initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}

@@ -1,25 +1,25 @@
 'use client';
+import type { ReactNode } from 'react';
 
-import React, { useState } from 'react';
-import { 
-  Lightbulb, 
-  Search, 
-  BookOpen, 
-  PenSquare, 
-  CheckCircle2,
-  AlertTriangle,
-  Lock
+import ExerciseEngine from '@/components/programme/shared/ExerciseEngine';
+import { MathInline,MathRichText } from '@/components/programme/shared/MathContent';
+import ProceduralExercise from '@/components/programme/shared/ProceduralExercise';
+import { type Categorie,type Chapitre } from '@/components/programme/shared/types/programme';
+import {
+AlertTriangle,
+BookOpen,
+CheckCircle2,
+Lightbulb,
+PenSquare,
+Search
 } from 'lucide-react';
 import dynamic from 'next/dynamic';
-import { type Chapitre, type Categorie } from '@/components/programme/shared/types/programme';
-import { type HintLevel, useMathsLabStore } from '../../../store';
-import { MathInline, MathRichText } from '@/components/programme/shared/MathContent';
-import { areEquivalentAnswers } from '../../../lib/math-engine';
+import React,{ useState } from 'react';
 import { GENERATORS } from '../../../lib/exercise-generator';
+import { areEquivalentAnswers } from '../../../lib/math-engine';
+import { type HintLevel,useMathsLabStore } from '../../../store';
 import DiagnosticPrerequis from '../../DiagnosticPrerequis';
 import InteractiveGraph from '../../InteractiveGraph';
-import ExerciseEngine from '@/components/programme/shared/ExerciseEngine';
-import ProceduralExercise from '@/components/programme/shared/ProceduralExercise';
 
 // Dynamic imports for labs
 const ToileAraignee = dynamic(() => import('../../labs/ToileAraignee'), { ssr: false });
@@ -182,7 +182,7 @@ export const ChapterPractice: React.FC<ChapterPracticeProps> = ({
                   <div className="mt-6 pt-6 border-t border-slate-800 animate-in fade-in duration-500">
                     <div className="text-green-400 font-bold mb-4 flex items-center gap-2">
                       <CheckCircle2 className="w-4 h-4" />
-                      Réponse : <MathInline math={chap.contenu.exercice.reponse} />
+                      Réponse : <MathInline math={String(chap.contenu.exercice.reponse)} />
                     </div>
                     <ul className="space-y-2">
                       {chap.contenu.exercice.etapes.map((step, i) => (
@@ -290,7 +290,9 @@ export const ChapterPractice: React.FC<ChapterPracticeProps> = ({
   );
 };
 
-const HintButton = ({ active, onClick, icon, label, malus }: any) => (
+type HintButtonProps = { active: boolean; onClick: () => void; icon: ReactNode; label: string; malus: string };
+
+const HintButton = ({ active, onClick, icon, label, malus }: HintButtonProps) => (
   <button 
     onClick={onClick} 
     className={`inline-flex items-center gap-2 text-[10px] font-bold px-4 py-2 rounded-xl transition-all border ${

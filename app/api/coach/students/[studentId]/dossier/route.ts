@@ -1,10 +1,10 @@
 import { serializeError } from '@/lib/utils/serialize-error';
 export const dynamic = 'force-dynamic';
 
-import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { isCoachRattachedToStudent } from '@/lib/rbac/coach-student-access';
+import { NextResponse } from 'next/server';
 
 /**
  * GET /api/coach/students/[studentId]/dossier
@@ -113,28 +113,6 @@ export async function GET(
         creditsUsed: true,
       },
     });
-
-    // Maths progression (all tracks)
-    let mathsProgress: Array<{
-      level: string;
-      track: string;
-      totalXp: number;
-      updatedAt: Date;
-    }> = [];
-    try {
-      const rows = await prisma.mathsProgress.findMany({
-        where: { userId: studentUserId },
-        select: { level: true, track: true, totalXp: true, updatedAt: true },
-      });
-      mathsProgress = rows.map((r) => ({
-        level: String(r.level),
-        track: String(r.track),
-        totalXp: r.totalXp,
-        updatedAt: r.updatedAt,
-      }));
-    } catch {
-      mathsProgress = [];
-    }
 
     // Counts (cheap aggregates) — bilans + ARIA conversations
     let bilansCount = 0;

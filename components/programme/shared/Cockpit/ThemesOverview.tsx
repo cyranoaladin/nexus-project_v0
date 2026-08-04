@@ -1,8 +1,9 @@
 'use client';
+import type { Categorie } from '@/components/programme/shared/types/programme';
 
-import React from 'react';
-import { motion } from 'framer-motion';
 import { resolveUiIcon } from '@/lib/ui-icons';
+import { motion } from 'framer-motion';
+import React from 'react';
 
 type ActiveTab = 'cockpit' | 'cours' | 'examen' | 'enseignant' | 'bilan';
 
@@ -11,7 +12,7 @@ interface ThemesOverviewProps {
   store: {
     completedChapters: string[];
   };
-  programmeData: Record<string, any>;
+  programmeData: Record<string, Categorie>;
 }
 
 export const ThemesOverview: React.FC<ThemesOverviewProps> = ({ onNavigate, store, programmeData }) => {
@@ -23,10 +24,10 @@ export const ThemesOverview: React.FC<ThemesOverviewProps> = ({ onNavigate, stor
         <div className="h-px flex-1 bg-slate-800" />
       </div>
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-        {Object.entries(programmeData).map(([key, cat]: [string, any]) => {
+        {Object.entries(programmeData).map(([key, cat]) => {
           const ThemeIcon = resolveUiIcon(cat.icon);
-          const completedCount = cat.chapitres.filter((c: any) =>
-            store.completedChapters.includes(c.id)
+          const completedCount = cat.chapitres.filter((chapter) =>
+            store.completedChapters.includes(chapter.id)
           ).length;
           const progress = cat.chapitres.length > 0 ? (completedCount / cat.chapitres.length) * 100 : 0;
 

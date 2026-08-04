@@ -1,14 +1,14 @@
 'use client';
 
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Alert,AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card,CardContent,CardHeader,CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { AlertTriangle, CheckCircle, CreditCard, Mail, Settings, XCircle } from 'lucide-react';
-import { useSession } from 'next-auth/react';
-import { useEffect, useState } from 'react';
 import { CGV_POLICY } from '@/lib/cgv-policy';
+import { AlertTriangle,CheckCircle,CreditCard,Mail,Settings,XCircle } from 'lucide-react';
+import { useSession } from 'next-auth/react';
+import { useEffect,useState } from 'react';
 
 interface ConfigStatus {
   variable: string;
@@ -34,7 +34,6 @@ export default function AdminTestsPage() {
   const [paymentConfig, setPaymentConfig] = useState<PaymentConfig | null>(null);
   const [loading, setLoading] = useState(false);
   const [testEmail, setTestEmail] = useState('');
-  const [testAmount, setTestAmount] = useState('1000');
   const [results, setResults] = useState<{ [key: string]: TestResult; }>({});
 
   // Vérifier l'autorisation (éviter hook conditionnel)

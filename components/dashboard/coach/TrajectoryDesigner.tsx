@@ -1,15 +1,14 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Card,CardContent,CardHeader,CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Target, Save, Plus, Loader2 } from "lucide-react";
+import { Loader2,Plus,Save,Target } from "lucide-react";
 import { useState } from "react";
 
 interface TrajectoryDesignerProps {
   studentId: string;
-  onSave: (data: any) => void;
+  onSave: (data: unknown) => void;
 }
 
 export function TrajectoryDesigner({ studentId, onSave }: TrajectoryDesignerProps) {

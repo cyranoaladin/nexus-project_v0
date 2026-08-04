@@ -1,13 +1,13 @@
 import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive';
 export const dynamic = 'force-dynamic';
 
-import { prisma } from '@/lib/prisma';
-import { stageReservationSchema } from '@/lib/validations';
-import { sendStageBankTransferConfirmation } from '@/lib/email';
 import { auth } from '@/auth';
-import { checkCsrf, checkBodySize } from '@/lib/csrf';
-import { NextRequest, NextResponse } from 'next/server';
+import { checkBodySize,checkCsrf } from '@/lib/csrf';
+import { sendStageBankTransferConfirmation } from '@/lib/email';
+import { prisma } from '@/lib/prisma';
 import { telegramSendMessage } from '@/lib/telegram/client';
+import { stageReservationSchema } from '@/lib/validations';
+import { NextRequest,NextResponse } from 'next/server';
 
 /**
  * Sanitize user input for Telegram MarkdownV1.
@@ -133,7 +133,7 @@ export async function POST(request: NextRequest) {
       });
     } else {
       const isBankTransfer = data.paymentMethod === 'bank_transfer';
-      const reservation = await prisma.stageReservation.create({
+      await prisma.stageReservation.create({
         data: {
           parentName: data.parent,
           studentName: data.studentName || null,
@@ -315,7 +315,7 @@ export async function PATCH(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { reservationId, action, note } = body as {
+    const { reservationId, action } = body as {
       reservationId?: string;
       action?: 'approve' | 'reject';
       note?: string;

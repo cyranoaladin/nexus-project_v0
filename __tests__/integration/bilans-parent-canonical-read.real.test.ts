@@ -298,7 +298,7 @@ describe('P0-C Parent Canonical read path — PostgreSQL réel isolé', () => {
       data: { email: `${PREFIX}coach@example.test`, role: 'COACH', activatedAt: NOW },
     });
     coachId = (await prisma.coachProfile.create({
-      data: { userId: coachUser.id, pseudonym: `${PREFIX}coach` },
+      data: { userId: coachUser.id, pseudonym: `${PREFIX}coach`, subjects: '[]' },
     })).id;
     publishedA1 = await createRevision(familyA.studentIds[0], coachId, 'a1-published', true);
     draftA2 = await createRevision(familyA.studentIds[1], coachId, 'a2-draft', false);

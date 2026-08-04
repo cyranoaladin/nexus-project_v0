@@ -6,10 +6,10 @@ import { serializeError } from '@/lib/utils/serialize-error';
  */
 
 import { ollamaChat } from '@/lib/ollama-client';
-import { ragSearch, buildRAGContext } from '@/lib/rag-client';
 import { prisma } from '@/lib/prisma';
-import type { BilanType, BilanStatus, BilanSourceData, DomainScore } from './types';
+import { buildRAGContext,ragSearch } from '@/lib/rag-client';
 import { buildPromptForAudience } from './prompts';
+import type { BilanSourceData,BilanStatus,BilanType,DomainScore } from './types';
 
 /**
  * LLM_MODE controls generation behavior:
@@ -209,7 +209,7 @@ export class BilanGenerator {
         ragUsed = true;
         ragHitCount = allHits.length;
         ragCollections = collections.slice(0, 3);
-      } catch (error) {
+      } catch {
         // RAG failed, continuing without context
         ragError = true;
       }

@@ -1,12 +1,12 @@
 export const dynamic = 'force-dynamic';
 
-import { NextRequest, NextResponse } from 'next/server'
-import { auth } from '@/auth'
-import { prisma } from '@/lib/prisma'
-import { z } from 'zod'
-import { recordAriaFeedback } from '@/lib/aria'
-import { checkAndAwardBadges } from '@/lib/badges'
-import { createLogger } from '@/lib/middleware/logger'
+import { auth } from '@/auth';
+import { recordAriaFeedback } from '@/lib/aria';
+import { checkAndAwardBadges } from '@/lib/badges';
+import { createLogger } from '@/lib/middleware/logger';
+import { prisma } from '@/lib/prisma';
+import { NextRequest,NextResponse } from 'next/server';
+import { z } from 'zod';
 
 // Schema de validation pour le feedback ARIA
 const ariaFeedbackSchema = z.object({
@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
   const logger = createLogger(request)
   
   try {
-    let session: any = null
+    let session: import('next-auth').Session | null = null
     try {
       session = await auth()
     } catch {

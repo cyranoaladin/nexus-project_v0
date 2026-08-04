@@ -83,8 +83,8 @@ describe('IDOR BDD Réelle — Predict Ownership', () => {
     const uS1 = await prisma.user.create({ data: { email: 'predict-real-s1@test.com', role: 'ELEVE' } });
 
     // Seed Profiles
-    coach1 = await prisma.coachProfile.create({ data: { userId: uC1.id, pseudonym: 'Coach 1' } });
-    coach2 = await prisma.coachProfile.create({ data: { userId: uC2.id, pseudonym: 'Coach 2' } });
+    coach1 = await prisma.coachProfile.create({ data: { userId: uC1.id, pseudonym: 'Coach 1', subjects: '[]' } });
+    coach2 = await prisma.coachProfile.create({ data: { userId: uC2.id, pseudonym: 'Coach 2', subjects: '[]' } });
     parent = await prisma.parentProfile.create({ data: { userId: uP.id } });
     
     // Link Parent to Student 1

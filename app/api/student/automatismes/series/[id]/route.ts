@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { PREMIERE_EDS_SIMULATIONS } from "@/data/automatismes/premiere-eds/simulations";
 import { serializeError } from '@/lib/utils/serialize-error';
+import { NextRequest,NextResponse } from "next/server";
 import { z } from "zod";
 
 const paramsSchema = z.object({
@@ -37,14 +37,14 @@ export async function GET(
       ...series,
       questions: series.questions.map(q => {
         const { 
-          correctChoiceId, 
-          feedbackCorrect, 
-          feedbackWrong, 
-          method, 
-          trap, 
-          remediation,
-          sourceReference,
-          sourceComment,
+          correctChoiceId: _correctChoiceId,
+          feedbackCorrect: _feedbackCorrect,
+          feedbackWrong: _feedbackWrong,
+          method: _method,
+          trap: _trap,
+          remediation: _remediation,
+          sourceReference: _sourceReference,
+          sourceComment: _sourceComment,
           ...safeQuestion 
         } = q;
         return safeQuestion;

@@ -1,10 +1,10 @@
-import { NextResponse } from 'next/server';
-import { requireAnyRole, isErrorResponse } from '@/lib/guards';
+import { createPaginationMeta,parsePagination } from '@/lib/api/pagination';
+import { isErrorResponse,requireAnyRole } from '@/lib/guards';
+import { prisma } from '@/lib/prisma';
 import { can } from '@/lib/rbac';
 import { activeAssignmentWhere } from '@/lib/rbac/coach-student-access';
-import { prisma } from '@/lib/prisma';
-import { parsePagination, createPaginationMeta } from '@/lib/api/pagination';
 import { serializeError } from '@/lib/utils/serialize-error';
+import { NextResponse } from 'next/server';
 
 /**
  * GET /api/assistante/coaches
@@ -39,7 +39,7 @@ export async function GET(request: Request) {
     const { page, limit, skip } = parsePagination(searchParams);
 
     // Build where clause
-    const where: any = {};
+    const where: import('@prisma/client').Prisma.CoachProfileWhereInput = {};
 
     if (availableOnline === 'true') {
       where.availableOnline = true;

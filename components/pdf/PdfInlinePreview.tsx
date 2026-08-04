@@ -1,17 +1,21 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
-import { ChevronLeft, ChevronRight, RefreshCw } from 'lucide-react';
+import { ChevronLeft,ChevronRight,RefreshCw } from 'lucide-react';
+import { useEffect,useRef,useState } from 'react';
 
 type PdfInlinePreviewProps = {
   src: string;
   title: string;
 };
 
+type PdfJsModule = typeof import('pdfjs-dist/legacy/build/pdf.mjs');
+type PdfLoadingTask = ReturnType<PdfJsModule['getDocument']>;
+type PdfDocument = Awaited<PdfLoadingTask['promise']>;
+
 export function PdfInlinePreview({ src, title }: PdfInlinePreviewProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const pdfRef = useRef<any>(null);
+  const pdfRef = useRef<PdfDocument | null>(null);
   const renderTaskRef = useRef<{ cancel: () => void } | null>(null);
   const resizeObserverRef = useRef<ResizeObserver | null>(null);
 
@@ -29,7 +33,7 @@ export function PdfInlinePreview({ src, title }: PdfInlinePreviewProps) {
     setPageCount(0);
     pdfRef.current = null;
 
-    let loadingTask: any = null;
+    let loadingTask: PdfLoadingTask | null = null;
 
     void (async () => {
       try {
@@ -45,7 +49,7 @@ export function PdfInlinePreview({ src, title }: PdfInlinePreviewProps) {
         const pdf = await loadingTask.promise;
 
         if (cancelled) {
-          void (pdf as any).destroy?.();
+          pdf.cleanup();
           return;
         }
 
@@ -67,9 +71,7 @@ export function PdfInlinePreview({ src, title }: PdfInlinePreviewProps) {
       resizeObserverRef.current?.disconnect();
       resizeObserverRef.current = null;
       void loadingTask?.destroy().catch(() => {});
-      if ((pdfRef.current as any)?.destroy) {
-        void (pdfRef.current as any).destroy().catch(() => {});
-      }
+      pdfRef.current?.cleanup();
       pdfRef.current = null;
     };
   }, [src]);
@@ -112,6 +114,7 @@ export function PdfInlinePreview({ src, title }: PdfInlinePreviewProps) {
         context.setTransform(outputScale, 0, 0, outputScale, 0, 0);
 
         const renderTask = page.render({
+          canvas,
           canvasContext: context,
           viewport: renderedViewport,
         });

@@ -96,7 +96,7 @@ describe('POST /api/aria/chat', () => {
       id: 'student-1',
       subscriptions: [
         {
-          ariaSubjects: ['FRANCAIS'],
+          ariaSubjects: JSON.stringify(['FRANCAIS']),
         },
       ],
     });
@@ -116,7 +116,7 @@ describe('POST /api/aria/chat', () => {
       id: 'student-1',
       subscriptions: [
         {
-          ariaSubjects: ['MATHEMATIQUES'],
+          ariaSubjects: JSON.stringify(['MATHEMATIQUES']),
         },
       ],
     });
@@ -149,7 +149,7 @@ describe('POST /api/aria/chat', () => {
       id: 'student-2',
       subscriptions: [
         {
-          ariaSubjects: ['MATHEMATIQUES'],
+          ariaSubjects: JSON.stringify(['MATHEMATIQUES']),
         },
       ],
     });

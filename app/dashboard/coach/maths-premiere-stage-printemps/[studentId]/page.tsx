@@ -1,32 +1,39 @@
 'use client';
 
-import { useEffect, useState, useCallback, useRef } from 'react';
-import { useSession } from 'next-auth/react';
-import { useRouter, useParams } from 'next/navigation';
-import Link from 'next/link';
-import {
-  ArrowLeft, Save, CheckCircle2, AlertCircle, Loader2, ChevronDown,
-  ChevronUp, Eye, EyeOff, Clock, User, FileText,
-} from 'lucide-react';
 import type {
-  CoachMathsBilanFormData,
-  AttendanceAndEngagement,
-  Automatismes,
-  Analysis,
-  Sequences,
-  ScalarProduct,
-  Probabilities,
-  FinalAssessment,
-  ParentRecommendations,
-  GlobalDiagnostic,
-  ChapterDiagnostics,
-  ChapterDiagnostic,
-  AutomatismesStmg,
-  SuitesStmg,
-  FonctionsDerivationStmg,
-  StatistiquesProbabilitesStmg,
+Analysis,
+AttendanceAndEngagement,
+Automatismes,
+AutomatismesStmg,
+ChapterDiagnostic,
+ChapterDiagnostics,
+CoachMathsBilanFormData,
+FinalAssessment,
+FonctionsDerivationStmg,
+GlobalDiagnostic,
+ParentRecommendations,
+Probabilities,
+ScalarProduct,
+Sequences,
+StatistiquesProbabilitesStmg,
+SuitesStmg,
 } from '@/lib/coach/maths-premiere-stage-printemps/types';
+import {
+AlertCircle,
+ArrowLeft,
+CheckCircle2,
+ChevronDown,
+ChevronUp,Eye,EyeOff,
+FileText,
+Loader2,
+Save,
+User
+} from 'lucide-react';
+import { useSession } from 'next-auth/react';
 import dynamic from 'next/dynamic';
+import Link from 'next/link';
+import { useParams,useRouter } from 'next/navigation';
+import { useCallback,useEffect,useState } from 'react';
 const BilanParentPreview = dynamic(() => import('@/components/bilan/BilanParentPreview'), { ssr: false });
 
 type StudentInfo = {
@@ -52,17 +59,6 @@ type StudentSummary = {
 };
 
 type BilanStatus = 'NOT_STARTED' | 'DRAFT' | 'COMPLETED' | 'VALIDATED';
-
-type PriorityAxisValue =
-  | 'second-degre'
-  | 'derivation'
-  | 'suites'
-  | 'exponentielle'
-  | 'produit-scalaire'
-  | 'probabilites-conditionnelles'
-  | 'automatismes'
-  | 'redaction-justification'
-  | 'gestion-du-temps';
 
 const RATING_LABELS = ['', 'Insuffisant', 'Fragile', 'En progression', 'Satisfaisant', 'Maîtrisé'];
 
@@ -273,7 +269,7 @@ export default function CoachMathsIndividualReportPage() {
       setStudentSummary(data.studentSummary);
 
       if (data.coachBilan) {
-        const sd = data.coachBilan.sourceData as any;
+        const sd = data.coachBilan.sourceData as Partial<CoachMathsBilanFormData>;
         setAttendance(sd.attendanceAndEngagement ?? {});
         setAutomatismes(sd.automatismes ?? {});
         setAnalysis(sd.analysis ?? {});
@@ -539,7 +535,7 @@ export default function CoachMathsIndividualReportPage() {
             <SelectInput
               label="Assiduité"
               value={attendance.attendance}
-              onChange={v => setAttendance({ ...attendance, attendance: v as any })}
+              onChange={v => setAttendance({ ...attendance, attendance: v as typeof attendance.attendance })}
               disabled={isLocked}
               options={[
                 { value: 'excellente', label: 'Excellente' },
@@ -551,7 +547,7 @@ export default function CoachMathsIndividualReportPage() {
             <SelectInput
               label="Ponctualité"
               value={attendance.punctuality}
-              onChange={v => setAttendance({ ...attendance, punctuality: v as any })}
+              onChange={v => setAttendance({ ...attendance, punctuality: v as typeof attendance.punctuality })}
               disabled={isLocked}
               options={[
                 { value: 'tres-satisfaisante', label: 'Très satisfaisante' },
@@ -587,7 +583,7 @@ export default function CoachMathsIndividualReportPage() {
             <SelectInput
               label="Profil global"
               value={globalDiag.overallProfile}
-              onChange={v => setGlobalDiag({ ...globalDiag, overallProfile: v as any })}
+              onChange={v => setGlobalDiag({ ...globalDiag, overallProfile: v as typeof globalDiag.overallProfile })}
               disabled={isLocked}
               options={[
                 { value: 'RAPID_PROGRESS', label: 'Progression rapide' },
@@ -600,7 +596,7 @@ export default function CoachMathsIndividualReportPage() {
             <SelectInput
               label="Rythme de travail"
               value={globalDiag.workPace}
-              onChange={v => setGlobalDiag({ ...globalDiag, workPace: v as any })}
+              onChange={v => setGlobalDiag({ ...globalDiag, workPace: v as typeof globalDiag.workPace })}
               disabled={isLocked}
               options={[
                 { value: 'FAST_AND_ACCURATE', label: 'Rapide et précis' },
@@ -613,7 +609,7 @@ export default function CoachMathsIndividualReportPage() {
             <SelectInput
               label="Gestion des erreurs"
               value={globalDiag.errorManagement}
-              onChange={v => setGlobalDiag({ ...globalDiag, errorManagement: v as any })}
+              onChange={v => setGlobalDiag({ ...globalDiag, errorManagement: v as typeof globalDiag.errorManagement })}
               disabled={isLocked}
               options={[
                 { value: 'SELF_CORRECTING', label: 'Auto-correctif' },
@@ -626,7 +622,7 @@ export default function CoachMathsIndividualReportPage() {
             <SelectInput
               label="Niveau d'autonomie"
               value={globalDiag.autonomyLevel}
-              onChange={v => setGlobalDiag({ ...globalDiag, autonomyLevel: v as any })}
+              onChange={v => setGlobalDiag({ ...globalDiag, autonomyLevel: v as typeof globalDiag.autonomyLevel })}
               disabled={isLocked}
               options={[
                 { value: 'FULLY_AUTONOMOUS', label: 'Complètement autonome' },
@@ -639,7 +635,7 @@ export default function CoachMathsIndividualReportPage() {
             <SelectInput
               label="Niveau de confiance"
               value={globalDiag.confidenceLevel}
-              onChange={v => setGlobalDiag({ ...globalDiag, confidenceLevel: v as any })}
+              onChange={v => setGlobalDiag({ ...globalDiag, confidenceLevel: v as typeof globalDiag.confidenceLevel })}
               disabled={isLocked}
               options={[
                 { value: 'OVER_CONFIDENT', label: 'Trop confiant' },
@@ -1044,7 +1040,7 @@ export default function CoachMathsIndividualReportPage() {
             <SelectInput
               label="Ton du message"
               value={parentRec.parentTone}
-              onChange={v => setParentRec({ ...parentRec, parentTone: v as any })}
+              onChange={v => setParentRec({ ...parentRec, parentTone: v as typeof parentRec.parentTone })}
               disabled={isLocked}
               options={[
                 { value: 'REASSURING', label: 'Rassurant' },
@@ -1055,7 +1051,7 @@ export default function CoachMathsIndividualReportPage() {
             <SelectInput
               label="Niveau d'urgence"
               value={parentRec.parentUrgency}
-              onChange={v => setParentRec({ ...parentRec, parentUrgency: v as any })}
+              onChange={v => setParentRec({ ...parentRec, parentUrgency: v as typeof parentRec.parentUrgency })}
               disabled={isLocked}
               options={[
                 { value: 'NORMAL', label: 'Normal - Pas d\'inquiétude' },
@@ -1089,7 +1085,7 @@ export default function CoachMathsIndividualReportPage() {
               <SelectInput
                 label="Niveau actuel estimé (legacy)"
                 value={parentRec.estimatedCurrentLevel}
-                onChange={v => setParentRec({ ...parentRec, estimatedCurrentLevel: v as any })}
+                onChange={v => setParentRec({ ...parentRec, estimatedCurrentLevel: v as typeof parentRec.estimatedCurrentLevel })}
                 disabled={isLocked}
                 options={[
                   { value: 'tres-solide', label: 'Très solide' },
@@ -1102,7 +1098,7 @@ export default function CoachMathsIndividualReportPage() {
             <SelectInput
               label="Suivi recommandé"
               value={parentRec.recommendedFollowUp}
-              onChange={v => setParentRec({ ...parentRec, recommendedFollowUp: v as any })}
+              onChange={v => setParentRec({ ...parentRec, recommendedFollowUp: v as typeof parentRec.recommendedFollowUp })}
               disabled={isLocked}
               options={[
                 { value: 'autonomie-sufficient', label: 'Autonomie suffisante' },
