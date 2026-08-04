@@ -115,6 +115,9 @@ describe('P0 initial student activation — real PostgreSQL', () => {
     const registration = await registerBilan(registrationRequest());
     expect(registration.status).toBe(200);
     const registrationBody = await registration.json();
+    expect(registrationBody).toEqual(expect.objectContaining({ success: true }));
+    expect(registrationBody).not.toHaveProperty('parentId');
+    expect(registrationBody).not.toHaveProperty('studentId');
 
     const parent = await prisma.user.findUniqueOrThrow({
       where: { email: parentEmail },
@@ -125,7 +128,7 @@ describe('P0 initial student activation — real PostgreSQL', () => {
       },
     });
     const child = parent.parentProfile?.children[0];
-    expect(child?.id).toBe(registrationBody.studentId);
+    expect(child?.id).toEqual(expect.any(String));
     expect(child?.user).toEqual(expect.objectContaining({
       role: 'ELEVE',
       password: null,
@@ -159,7 +162,7 @@ describe('P0 initial student activation — real PostgreSQL', () => {
       /^eleve\.synthetique\.[a-z0-9]+@nexus-student\.local$/,
     );
     const rawToken = new URL(issuanceBody.activation.activationUrl).searchParams.get('token');
-    expect(rawToken).toMatch(/^act_/);
+    expect(rawToken).toMatch(/^sact_/);
 
     const pendingChild = await prisma.user.findUniqueOrThrow({ where: { id: child!.userId } });
     expect(pendingChild.id).toBe(originalUserId);
@@ -225,7 +228,8 @@ describe('P0 initial student activation — real PostgreSQL', () => {
     });
 
     const retry = await registerBilan(registrationRequest());
-    expect(retry.status).toBe(400);
+    expect(retry.status).toBe(200);
+    expect(await retry.json()).toEqual(registrationBody);
     expect(await prisma.user.count({ where: { email: parentEmail } })).toBe(1);
   });
 });

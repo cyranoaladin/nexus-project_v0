@@ -108,6 +108,15 @@ describe('lib/email/mailer', () => {
       delete process.env.SMTP_FROM;
       expect(resolveFrom()).toContain('no-reply@nexusreussite.academy');
     });
+
+    it('fails closed in production when no sender is configured', () => {
+      delete process.env.MAIL_FROM;
+      delete process.env.EMAIL_FROM;
+      delete process.env.SMTP_FROM;
+      (process.env as any).NODE_ENV = 'production';
+
+      expect(() => resolveFrom()).toThrow('SMTP_FROM_REQUIRED');
+    });
   });
 
   describe('resolveReplyTo', () => {
@@ -126,6 +135,17 @@ describe('lib/email/mailer', () => {
   // ─── sendMail ───────────────────────────────────────────────────────────
 
   describe('sendMail', () => {
+    it('fails closed when SMTP_HOST is not explicitly configured', async () => {
+      process.env.MAIL_DISABLED = 'false';
+      delete process.env.SMTP_HOST;
+
+      await expect(sendMail({
+        to: 'user@test.com',
+        subject: 'Test',
+        html: '<p>Hello</p>',
+      })).rejects.toThrow('SMTP_HOST_REQUIRED');
+    });
+
     it('skips when MAIL_DISABLED=true', async () => {
       process.env.MAIL_DISABLED = 'true';
       const result = await sendMail({
@@ -189,11 +209,16 @@ describe('lib/email/mailer', () => {
     it('throws in production on send failure', async () => {
       process.env.MAIL_DISABLED = 'false';
       (process.env as any).NODE_ENV = 'production';
-      mockSendMail.mockRejectedValueOnce(new Error('SMTP down'));
+      const consoleError = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+      const failure = Object.assign(new Error('SMTP down for private-recipient@example.test'), { code: 'ECONNECTION' });
+      mockSendMail.mockRejectedValueOnce(failure);
 
       await expect(
         sendMail({ to: 'user@test.com', subject: 'Test', html: '<p>Hi</p>' })
       ).rejects.toThrow('SMTP down');
+      expect(JSON.stringify(consoleError.mock.calls)).toContain('ECONNECTION');
+      expect(JSON.stringify(consoleError.mock.calls)).not.toContain('private-recipient@example.test');
+      consoleError.mockRestore();
     });
 
     it('swallows errors in development', async () => {
@@ -232,7 +257,7 @@ describe('lib/email/mailer', () => {
       process.env.MAIL_DISABLED = 'false';
       mockVerify.mockRejectedValueOnce(new Error('Auth failed'));
       const result = await verifySmtp();
-      expect(result).toEqual({ ok: false, error: 'Auth failed' });
+      expect(result).toEqual({ ok: false, error: 'SMTP_VERIFY_FAILED' });
     });
   });
 });

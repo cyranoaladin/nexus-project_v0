@@ -38,5 +38,8 @@ export function buildKey(
  * Use this for emails or other PII that should not be stored in plain text.
  */
 export function hashForKey(value: string): string {
-  return createHash('sha256').update(value.toLowerCase().trim()).digest('hex').slice(0, 16);
+  return createHash('sha256')
+    .update(value.trim().normalize('NFC').toLowerCase())
+    .digest('hex')
+    .slice(0, 16);
 }
