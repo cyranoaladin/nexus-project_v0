@@ -20,6 +20,7 @@ export default defineConfig({
     'assistante-devis-catalog.spec.ts',
     'initial-student-activation.spec.ts',
     'canonical-attempt-level-guard.spec.ts',
+    'parent-canonical-report-access.spec.ts',
   ],
   fullyParallel: false,
   forbidOnly: !!process.env.CI,

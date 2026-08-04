@@ -42,7 +42,9 @@ function reportArtifact() {
   };
 }
 
-function database(legacyOwnershipIsCurrent: boolean, verifiedLinkIsCurrent = true) {
+type LinkState = 'PENDING_PARENT_CONSENT' | 'VERIFIED' | 'REVOKED' | 'EXPIRED';
+
+function database(legacyOwnershipIsCurrent: boolean, linkState: LinkState | null = 'VERIFIED') {
   return {
     canonicalAssessmentAttempt: {
       findUnique: jest.fn().mockResolvedValue({
@@ -58,7 +60,13 @@ function database(legacyOwnershipIsCurrent: boolean, verifiedLinkIsCurrent = tru
       findFirst: jest.fn().mockResolvedValue(legacyOwnershipIsCurrent ? { id: 'student-1' } : null),
     },
     parentStudentLink: {
-      findFirst: jest.fn().mockResolvedValue(verifiedLinkIsCurrent ? { id: 'verified-link-1' } : null),
+      findFirst: jest.fn().mockResolvedValue(linkState === null ? null : {
+        id: `link-${linkState.toLowerCase()}`,
+        state: linkState,
+        verifiedAt: linkState === 'VERIFIED' ? NOW : null,
+        revokedAt: linkState === 'REVOKED' ? NOW : null,
+        expiresAt: linkState === 'EXPIRED' ? new Date('2026-08-02T12:00:00.000Z') : null,
+      }),
     },
     coachProfile: { findUnique: jest.fn() },
     coachStudentAssignment: { findFirst: jest.fn() },
@@ -84,12 +92,9 @@ describe('GET /api/bilans/attempts/[id]/report — double garde parentale', () =
       where: {
         parentUserId: 'parent-user-1',
         studentId: 'student-1',
-        state: 'VERIFIED',
-        verifiedAt: { not: null },
-        revokedAt: null,
-        OR: [{ expiresAt: null }, { expiresAt: { gt: NOW } }],
       },
-      select: { id: true },
+      orderBy: [{ updatedAt: 'desc' }, { id: 'asc' }],
+      select: { id: true, state: true, verifiedAt: true, revokedAt: true, expiresAt: true },
     });
   });
 
@@ -108,11 +113,34 @@ describe('GET /api/bilans/attempts/[id]/report — double garde parentale', () =
     expect(prisma.reportArtifact.findFirst).not.toHaveBeenCalled();
   });
 
-  test.each([
-    ['PENDING'],
-    ['REVOKED'],
-  ])('refuse en 404 un lien Canonical %s malgré ownership legacy courant', async () => {
-    const prisma = database(true, false);
+  test.each<LinkState>([
+    'PENDING_PARENT_CONSENT',
+    'REVOKED',
+    'EXPIRED',
+  ])('refuse en 404 un lien Canonical %s malgré ownership legacy courant', async (state) => {
+    const prisma = database(true, state);
+    const handler = createGetAttemptReportHandler({
+      prisma: prisma as never,
+      authenticate: async () => parentSession(),
+      resolvePack: () => ({ pack: PACK }) as never,
+      now: () => NOW,
+    });
+
+    const response = await handler(request(), context());
+
+    expect(response.status).toBe(404);
+    expect(prisma.reportArtifact.findFirst).not.toHaveBeenCalled();
+  });
+
+  test('refuse un lien VERIFIED expiré même si son enum n\'a pas encore été synchronisé', async () => {
+    const prisma = database(true, 'VERIFIED');
+    prisma.parentStudentLink.findFirst.mockResolvedValueOnce({
+      id: 'verified-but-expired',
+      state: 'VERIFIED',
+      verifiedAt: NOW,
+      revokedAt: null,
+      expiresAt: new Date('2026-08-02T12:00:00.000Z'),
+    });
     const handler = createGetAttemptReportHandler({
       prisma: prisma as never,
       authenticate: async () => parentSession(),
@@ -127,7 +155,7 @@ describe('GET /api/bilans/attempts/[id]/report — double garde parentale', () =
   });
 
   test('refuse en 404 un parent sans ownership legacy et sans lien Canonical', async () => {
-    const prisma = database(false, false);
+    const prisma = database(false, null);
     const handler = createGetAttemptReportHandler({
       prisma: prisma as never,
       authenticate: async () => parentSession(),
