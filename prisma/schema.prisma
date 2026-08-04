@@ -83,10 +83,10 @@ enum StmgPathway {
 
 // Enums pour les assignations coach-élève
 enum AssignmentType {
-  PRIMARY    // Coach référent principal
-  SECONDARY  // Spécialiste (maths, français...)
-  STAGE      // Assignation stage uniquement
-  TEMPORARY  // Remplacement temporaire
+  PRIMARY // Coach référent principal
+  SECONDARY // Spécialiste (maths, français...)
+  STAGE // Assignation stage uniquement
+  TEMPORARY // Remplacement temporaire
 }
 
 enum AssignmentStatus {
@@ -194,7 +194,7 @@ model User {
   notifications SessionNotification[] @relation("UserNotifications")
 
   // Canonical bilans audit trail
-  parentStudentLinks ParentStudentLink[] @relation("CanonicalParentUser")
+  parentStudentLinks ParentStudentLink[]  @relation("CanonicalParentUser")
   notificationOutbox NotificationOutbox[]
 
   // Entitlements (product access rights)
@@ -223,9 +223,9 @@ model User {
   coachStudentAssignmentsCreated CoachStudentAssignment[] @relation("CoachStudentAssignmentAssignedBy")
 
   // 2FA TOTP (Admin only)
-  totpSecret      String?   // AES-256-GCM encrypted, format: v1:iv:tag:ciphertext
+  totpSecret      String? // AES-256-GCM encrypted, format: v1:iv:tag:ciphertext
   totpEnabledAt   DateTime? // non-null = 2FA active (canonical check)
-  totpBackupCodes String?   // JSON array of hashed backup codes
+  totpBackupCodes String? // JSON array of hashed backup codes
   totpLastUsedAt  DateTime? // last successful TOTP verification
 
   @@index([role])
@@ -263,18 +263,18 @@ model Student {
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   // Informations scolaires
-  grade          String? // Classe legacy, conservée pour compatibilité
-  gradeLevel     GradeLevel
-  academicTrack  AcademicTrack @default(EDS_GENERALE)
-  specialties    Subject[]     @default([])
-  stmgPathway    StmgPathway?
-  updatedTrackAt DateTime?
-  survivalMode       Boolean   @default(false)
+  grade              String? // Classe legacy, conservée pour compatibilité
+  gradeLevel         GradeLevel
+  academicTrack      AcademicTrack @default(EDS_GENERALE)
+  specialties        Subject[]     @default([])
+  stmgPathway        StmgPathway?
+  updatedTrackAt     DateTime?
+  survivalMode       Boolean       @default(false)
   survivalModeReason String?
   survivalModeBy     String?
   survivalModeAt     DateTime?
-  school         String?
-  birthDate      DateTime?
+  school             String?
+  birthDate          DateTime?
 
   // Crédits et sessions
   credits           Int @default(0)
@@ -326,6 +326,7 @@ model Student {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@index([gradeLevel, academicTrack])
   @@map("students")
 }
 
@@ -344,7 +345,7 @@ model CoachProfile {
   expertise   String?
 
   // Spécialités
-  subjects Json @default("[]") // Array des subjects enseignés
+  subjects Json // Array des subjects enseignés
 
   // Disponibilités
   availableOnline   Boolean @default(true)
@@ -402,8 +403,8 @@ model Subscription {
   endDate   DateTime?
 
   // Add-ons ARIA
-  ariaSubjects Json @default("[]") // Array des matières ARIA activées
-  ariaCost     Int  @default(0) // Coût mensuel des add-ons ARIA
+  ariaSubjects String @default("[]") // Array des matières ARIA activées
+  ariaCost     Int    @default(0) // Coût mensuel des add-ons ARIA
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -600,8 +601,8 @@ model Payment {
   // Relations
   clicToPayTransaction ClicToPayTransaction?
 
-  // Ensure payment idempotency: prevent duplicate payments from webhook retries
-  @@unique([externalId, method], name: "payments_externalId_method_key")
+  // A partial unique index created by migration protects non-null external IDs.
+  // Prisma cannot represent partial indexes in this schema.
   @@map("payments")
 }
 
@@ -659,6 +660,7 @@ model PedagogicalContent {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@index([embedding_vector], map: "pedagogical_contents_embedding_idx")
   @@map("pedagogical_contents")
 }
 
@@ -989,7 +991,7 @@ model Diagnostic {
   promptVersion     String? // e.g. "v1.0" — tracks prompt template version
   modelUsed         String? // e.g. "llama3.2:latest" — LLM model used for generation
   ragUsed           Boolean  @default(false) // Whether RAG context was available
-  ragCollections    String[] // Collections used for RAG search
+  ragCollections    String[] @default([]) // Collections used for RAG search
 
   // Informations élève
   studentFirstName String
@@ -1501,9 +1503,9 @@ model CanonicalAssessmentAttempt {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@index([studentId, status, createdAt])
-  @@index([assessmentPackId, assessmentPackVersion])
   @@unique([id, studentId])
+  @@index([studentId, status, createdAt])
+  @@index([assessmentPackId, assessmentPackVersion], map: "canonical_assessment_attempts_assessmentPackId_assessmentPackVe")
   @@map("canonical_assessment_attempts")
 }
 
@@ -1517,7 +1519,7 @@ model CanonicalApiIdempotencyKey {
   expiresAt      DateTime
   createdAt      DateTime @default(now())
 
-  @@unique([userId, route, key])
+  @@unique([userId, route, key], map: "canonical_api_idempotency_keys_user_route_key_key")
   @@index([expiresAt])
   @@map("canonical_api_idempotency_keys")
 }
@@ -1539,8 +1541,8 @@ model ScoreSnapshot {
 
   createdAt DateTime @default(now())
 
-  @@index([assessmentAttemptId, scoredAt])
   @@unique([assessmentAttemptId])
+  @@index([assessmentAttemptId, scoredAt])
   @@map("canonical_score_snapshots")
 }
 
@@ -1563,13 +1565,13 @@ model ReportArtifact {
   studentId           String
   student             Student                    @relation(fields: [studentId], references: [id], onDelete: Restrict)
   assessmentAttemptId String
-  assessmentAttempt   CanonicalAssessmentAttempt @relation(fields: [assessmentAttemptId, studentId], references: [id, studentId], onDelete: Restrict)
+  assessmentAttempt   CanonicalAssessmentAttempt @relation(fields: [assessmentAttemptId, studentId], references: [id, studentId], onDelete: Restrict, map: "canonical_report_artifacts_attempt_student_fkey")
   status              ReportArtifactStatus       @default(DRAFT)
 
   // This pointer is set only after a reviewed revision is published. SetNull
   // protects the artifact if a deliberately purged revision is ever removed.
   currentPublishedRevisionId String?         @unique
-  currentPublishedRevision   ReportRevision? @relation("ReportArtifactCurrentPublishedRevision", fields: [currentPublishedRevisionId, id], references: [id, reportArtifactId], onDelete: Restrict)
+  currentPublishedRevision   ReportRevision? @relation("ReportArtifactCurrentPublishedRevision", fields: [currentPublishedRevisionId, id], references: [id, reportArtifactId], onDelete: Restrict, map: "canonical_report_artifacts_current_revision_same_artifact_fkey")
   publishedAt                DateTime?
 
   revisions ReportRevision[] @relation("ReportArtifactRevisions")
@@ -1577,10 +1579,10 @@ model ReportArtifact {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@index([studentId, status, createdAt])
-  @@index([assessmentAttemptId])
   @@unique([assessmentAttemptId])
   @@unique([currentPublishedRevisionId, id])
+  @@index([studentId, status, createdAt])
+  @@index([assessmentAttemptId])
   @@map("canonical_report_artifacts")
 }
 
@@ -1600,18 +1602,18 @@ model ReportRevision {
   promptRevision        String
   contextChecksum       String
   content               Json
-  validationFailures    String[]             @default([])
+  validationFailures    String[] @default([])
 
-  currentForArtifact ReportArtifact? @relation("ReportArtifactCurrentPublishedRevision")
+  currentForArtifact ReportArtifact?        @relation("ReportArtifactCurrentPublishedRevision")
   reviews            ReportReview[]
   materialization    ReportMaterialization?
 
   createdAt DateTime @default(now())
 
-  @@index([reportArtifactId, createdAt])
-  @@index([scoreSnapshotId])
   @@unique([scoreSnapshotId])
   @@unique([id, reportArtifactId])
+  @@index([reportArtifactId, createdAt])
+  @@index([scoreSnapshotId])
   @@map("canonical_report_revisions")
 }
 
@@ -1638,7 +1640,7 @@ model ReportAudienceArtifact {
   pdfStatus         ReportPdfStatus
   checksum          String
 
-  @@unique([materializationId, audience])
+  @@unique([materializationId, audience], map: "canonical_report_audience_artifacts_materializationId_audience_")
   @@map("canonical_report_audience_artifacts")
 }
 
@@ -1700,7 +1702,7 @@ model NotificationOutbox {
   createdAt       DateTime                       @default(now())
   updatedAt       DateTime                       @updatedAt
 
-  @@unique([eventType, sourceEventKey, recipientUserId])
+  @@unique([eventType, sourceEventKey, recipientUserId], map: "canonical_notification_outbox_eventType_sourceEventKey_recipien")
   @@index([status, availableAt])
   @@index([status, leaseExpiresAt])
   @@index([recipientUserId, createdAt])
@@ -1716,9 +1718,11 @@ model Bilan {
   subject String // MATHS, NSI, GENERAL, etc.
 
   // Source identification (for migration traceability)
-  legacyDiagnosticId String? @unique // FK to legacy Diagnostic (read-only after migration)
-  legacyAssessmentId String? @unique // FK to legacy Assessment (read-only after migration)
-  legacyStageBilanId String? @unique // FK to legacy StageBilan (read-only after migration)
+  // Partial unique indexes created by the canonical migration enforce these
+  // identifiers when non-null. Prisma cannot model those partial indexes.
+  legacyDiagnosticId String? // FK to legacy Diagnostic (read-only after migration)
+  legacyAssessmentId String? // FK to legacy Assessment (read-only after migration)
+  legacyStageBilanId String? // FK to legacy StageBilan (read-only after migration)
 
   // Source data (union of raw inputs from all sources)
   sourceData Json? // Union type: Diagnostic.data | Assessment.answers | StageBilan metadata
@@ -1766,7 +1770,7 @@ model Bilan {
   sourceVersion  String? // e.g., "diagnostic_v1.3", "assessment_v2.1"
   engineVersion  String? // e.g., "llm_qwen2.5:32b", "manual_coach"
   ragUsed        Boolean  @default(false)
-  ragCollections String[] // Collections used for RAG context
+  ragCollections String[] @default([]) // Collections used for RAG context
 
   // Timestamps
   createdAt DateTime @default(now())
@@ -1777,9 +1781,6 @@ model Bilan {
   @@index([studentId])
   @@index([studentEmail])
   @@index([stageId])
-  @@index([publicShareId])
-  @@index([legacyDiagnosticId])
-  @@index([legacyAssessmentId])
   @@index([createdAt])
   @@map("bilans")
 }
@@ -1862,6 +1863,7 @@ enum InvoicePaymentMethod {
   BANK_TRANSFER
   CHEQUE
   CARD
+  KONNECT
   CLICTOPAY
 }
 
@@ -2107,9 +2109,9 @@ enum MathsLevel {
 }
 
 model MathsProgress {
-  id     String     @id @default(cuid())
+  id     String        @id @default(cuid())
   userId String
-  user   User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user   User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   level  MathsLevel // PREMIERE or TERMINALE — prevents collision between levels
   track  AcademicTrack @default(EDS_GENERALE)
 
@@ -2162,9 +2164,9 @@ model EamProgress {
   checks    Json     @default("{}")
   quiz      Json     @default("{}")
   createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
 
-  @@index([userId])
+  @@index([userId], map: "idx_eam_progress_user_id")
   @@map("eam_progress")
 }
 
@@ -2173,7 +2175,7 @@ model NsiPracticeProgress {
   id        String   @id @default(cuid())
   userId    String   @unique
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  data      Json     // Full NsiProgress object (same structure as localStorage)
+  data      Json // Full NsiProgress object (same structure as localStorage)
   version   Int      @default(1)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -2195,7 +2197,7 @@ model CoachNote {
 
   // Author of the note (the coach, by User.id)
   coachId String
-  coach   User    @relation("CoachNoteAuthor", fields: [coachId], references: [id], onDelete: Cascade)
+  coach   User   @relation("CoachNoteAuthor", fields: [coachId], references: [id], onDelete: Cascade)
 
   body   String  @db.Text
   pinned Boolean @default(false)
@@ -2215,28 +2217,28 @@ model CoachNote {
 /// in migration 20260425230000_add_coach_student_assignments:
 /// coachId + studentId + assignmentType WHERE status = 'ACTIVE'
 model CoachStudentAssignment {
-  id             String           @id @default(cuid())
+  id String @id @default(cuid())
 
-  coachId        String
-  coach          CoachProfile     @relation(fields: [coachId], references: [id], onDelete: Cascade)
+  coachId String
+  coach   CoachProfile @relation(fields: [coachId], references: [id], onDelete: Cascade)
 
-  studentId      String
-  student        Student          @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  studentId String
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
-  assignedById   String?
-  assignedBy     User?            @relation("CoachStudentAssignmentAssignedBy", fields: [assignedById], references: [id], onDelete: SetNull)
+  assignedById String?
+  assignedBy   User?   @relation("CoachStudentAssignmentAssignedBy", fields: [assignedById], references: [id], onDelete: SetNull)
 
   assignmentType AssignmentType   @default(PRIMARY)
   status         AssignmentStatus @default(ACTIVE)
 
-  subjects       Subject[]        @default([])
-  notes          String?
+  subjects Subject[] @default([])
+  notes    String?
 
-  startsAt       DateTime         @default(now())
-  endsAt         DateTime?
+  startsAt DateTime  @default(now())
+  endsAt   DateTime?
 
-  createdAt      DateTime         @default(now())
-  updatedAt      DateTime         @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([coachId, status])
   @@index([studentId, status])
@@ -2259,7 +2261,7 @@ model SurvivalProgress {
   rituals       Json
 
   notePotentielle Float?
-  updatedAt        DateTime @updatedAt
+  updatedAt       DateTime @updatedAt
 
   attempts SurvivalAttempt[]
 
@@ -2288,25 +2290,25 @@ model SurvivalAttempt {
 // Generic EAF preparation reports that coaches can fill for their assigned students
 // Separate from StageBilan (stage-specific) and Bilan (canonical assessment)
 model EafPreparationReport {
-  id        String   @id @default(cuid())
+  id        String  @id @default(cuid())
   studentId String
-  student   Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
   coachId String
   coach   CoachProfile @relation(fields: [coachId], references: [id], onDelete: Cascade)
 
   // EAF rubrics (text fields, max 5000 chars each)
-  linearReading        String?  @db.Text
-  workPresentation     String?  @db.Text
-  interview            String?  @db.Text
-  oralExpression       String?  @db.Text
-  writingMethod        String?  @db.Text
-  languageMastery      String?  @db.Text
-  literaryCulture      String?  @db.Text
-  strengths            String?  @db.Text
-  areasToImprove       String?  @db.Text
-  nextSessionGoals     String?  @db.Text
-  coachFreeComment     String?  @db.Text
+  linearReading    String? @db.Text
+  workPresentation String? @db.Text
+  interview        String? @db.Text
+  oralExpression   String? @db.Text
+  writingMethod    String? @db.Text
+  languageMastery  String? @db.Text
+  literaryCulture  String? @db.Text
+  strengths        String? @db.Text
+  areasToImprove   String? @db.Text
+  nextSessionGoals String? @db.Text
+  coachFreeComment String? @db.Text
 
   status          String    @default("DRAFT")
   completionRatio Int       @default(0)
@@ -2314,7 +2316,7 @@ model EafPreparationReport {
   validatedBy     String?
 
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  updatedAt DateTime @default(now()) @updatedAt
 
   // One report per coach-student pair
   @@unique([studentId, coachId])
@@ -2344,14 +2346,14 @@ enum CopySubmissionStatus {
 }
 
 enum AssessmentSourceType {
-  DS          // Devoir surveillé
-  DM          // Devoir maison
-  BILAN       // Bilan périodique
-  STAGE       // Stage intensif
-  ANNALES     // Annales
-  EXERCICE    // Exercice
+  DS // Devoir surveillé
+  DM // Devoir maison
+  BILAN // Bilan périodique
+  STAGE // Stage intensif
+  ANNALES // Annales
+  EXERCICE // Exercice
   COMPOSITION // Composition
-  AUTRE       // Autre type
+  AUTRE // Autre type
 }
 
 enum CopyPageStatus {
@@ -2374,11 +2376,11 @@ enum CorrectionDocumentType {
 }
 
 enum AiJobType {
-  VISION_OCR            // Extraction texte/image
+  VISION_OCR // Extraction texte/image
   PEDAGOGICAL_DIAGNOSIS // Analyse pédagogique
-  COMPETENCE_MATRIX     // Matrice de compétences
-  REMEDIATION_ROADMAP   // Plan de remédiation
-  MENTOR_ADVICE         // Conseils mentor
+  COMPETENCE_MATRIX // Matrice de compétences
+  REMEDIATION_ROADMAP // Plan de remédiation
+  MENTOR_ADVICE // Conseils mentor
 }
 
 enum AiJobStatus {
@@ -2438,7 +2440,7 @@ model CopySubmission {
   coachId String?
   coach   CoachProfile? @relation(fields: [coachId], references: [id], onDelete: SetNull)
 
-  subject   Subject
+  subject    Subject
   gradeLevel GradeLevel?
 
   title       String
@@ -2446,7 +2448,7 @@ model CopySubmission {
 
   sourceType AssessmentSourceType @default(AUTRE)
   sourceId   String?
-  source     AssessmentSource? @relation(fields: [sourceId], references: [id], onDelete: SetNull)
+  source     AssessmentSource?    @relation(fields: [sourceId], references: [id], onDelete: SetNull)
 
   status CopySubmissionStatus @default(PENDING_UPLOAD)
 
@@ -2456,9 +2458,9 @@ model CopySubmission {
   ocrError String?
 
   aiJob   AiProcessingJob?
-  aiJobId String? @unique
+  aiJobId String?          @unique
 
-  report  PedagogicalReport?
+  report PedagogicalReport?
 
   storedFilePath String?
   fileSizeBytes  Int?
@@ -2482,12 +2484,12 @@ model AssessmentSource {
   type        AssessmentSourceType
 
   isOfficialAnnale Boolean @default(false)
-  year            Int?
-  examType        String?
+  year             Int?
+  examType         String?
 
-  subject      Subject
-  gradeLevel   GradeLevel?
-  academicTrack  AcademicTrack?
+  subject       Subject
+  gradeLevel    GradeLevel?
+  academicTrack AcademicTrack?
 
   submittedCopies CopySubmission[]
 
@@ -2506,17 +2508,17 @@ model CopyPage {
 
   pageNumber Int
 
-  status CopyPageStatus @default(UPLOADED)
+  status       CopyPageStatus         @default(UPLOADED)
   documentType CorrectionDocumentType @default(STUDENT_COPY)
 
-  originalFilePath    String
-  originalFilename    String?
-  mimeType            String?
-  sizeBytes           Int?
-  uploadedById        String?
-  convertedFilePaths  String[]
-  ocrText             String? @db.Text
-  ocrConfidence       Float?
+  originalFilePath   String
+  originalFilename   String?
+  mimeType           String?
+  sizeBytes          Int?
+  uploadedById       String?
+  convertedFilePaths String[] @default([])
+  ocrText            String?  @db.Text
+  ocrConfidence      Float?
 
   width  Int?
   height Int?
@@ -2537,7 +2539,7 @@ model AiProcessingJob {
   status   AiJobStatus   @default(PENDING)
   priority AiJobPriority @default(NORMAL)
 
-  copySubmissionId String?        @unique
+  copySubmissionId String?         @unique
   copySubmission   CopySubmission? @relation(fields: [copySubmissionId], references: [id], onDelete: SetNull)
 
   inputData  Json?
@@ -2547,11 +2549,11 @@ model AiProcessingJob {
   retryCount   Int     @default(0)
   maxRetries   Int     @default(3)
 
-  claimedAt      DateTime?
-  claimedBy      String?
-  startedAt      DateTime?
-  completedAt    DateTime?
-  nextRetryAt    DateTime?
+  claimedAt   DateTime?
+  claimedBy   String?
+  startedAt   DateTime?
+  completedAt DateTime?
+  nextRetryAt DateTime?
 
   processingDurationMs Int?
 
@@ -2586,7 +2588,7 @@ model PedagogicalReport {
   strengths  String[]
   weaknesses String[]
 
-  rawAiOutput Json?
+  rawAiOutput       Json?
   validatedAiOutput Json?
 
   competenceMatrix   CompetenceMatrix?
@@ -2595,10 +2597,10 @@ model PedagogicalReport {
   sentToStudentAt DateTime?
   readByStudentAt DateTime?
 
-  coachNotes      String? @db.Text
-  studentSummary  String? @db.Text
+  coachNotes     String? @db.Text
+  studentSummary String? @db.Text
 
-  feedback ReportFeedback[]
+  feedback  ReportFeedback[]
   auditLogs NpcAuditLog[]
 
   @@index([studentId, status])
@@ -2612,7 +2614,7 @@ model CompetenceMatrix {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  reportId String  @unique
+  reportId String            @unique
   report   PedagogicalReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
 
   matrixData Json
@@ -2628,7 +2630,7 @@ model RemediationRoadmap {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  reportId String  @unique
+  reportId String            @unique
   report   PedagogicalReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
 
   title       String
@@ -2654,11 +2656,11 @@ model RoadmapTask {
   description String
   order       Int
 
-  type        String
-  resourceIds   String[]
-  externalUrls  String[]
+  type         String
+  resourceIds  String[]
+  externalUrls String[]
 
-  isCompleted Boolean @default(false)
+  isCompleted Boolean   @default(false)
   completedAt DateTime?
 
   @@index([roadmapId, order])
@@ -2674,12 +2676,12 @@ model ReportFeedback {
 
   submittedById String
 
-  type        FeedbackType
-  comment     String?
-  severity    Int?        @default(1)
+  type     FeedbackType
+  comment  String?
+  severity Int?         @default(1)
 
-  isResolved Boolean  @default(false)
-  resolvedAt DateTime?
+  isResolved     Boolean   @default(false)
+  resolvedAt     DateTime?
   resolutionNote String?
 
   @@index([reportId, type])
@@ -2733,34 +2735,34 @@ model GeneratedPedagogicalReport {
   coachId String?
   coach   CoachProfile? @relation(fields: [coachId], references: [id], onDelete: SetNull)
 
-  subject     String
-  stageSlug   String?
-  studentBilanId String?
-  coachReportId  String?
-  kind        String
+  subject         String
+  stageSlug       String?
+  studentBilanId  String?
+  coachReportId   String?
+  kind            String
   promptVersion   String
   templateVersion String
 
   status GeneratedReportStatus @default(PENDING)
 
-  errorCode    String?
-  errorMessage String?
-  retryCount   Int     @default(0)
+  errorCode     String?
+  errorMessage  String?
+  retryCount    Int     @default(0)
   inputChecksum String?
 
-  contextJson    Json?
-  llmJson        Json?
-  validatedJson  Json?
-  modelUsed      String?
-  validatedAt    DateTime?
+  contextJson   Json?
+  llmJson       Json?
+  validatedJson Json?
+  modelUsed     String?
+  validatedAt   DateTime?
 
-  latexSource  String?  @db.Text
-  generatedAt  DateTime?
-  pdfUrl       String?
+  latexSource String?   @db.Text
+  generatedAt DateTime?
+  pdfUrl      String?
 
+  @@unique([studentId, stageSlug, subject, kind, inputChecksum], map: "generated_pedagogical_reports_studentId_stageSlug_subject_kin_k")
   @@index([studentId, status])
   @@index([status, createdAt])
-  @@unique([studentId, stageSlug, subject, kind, inputChecksum])
   @@map("generated_pedagogical_reports")
 }
 
@@ -2770,13 +2772,13 @@ model GeneratedPedagogicalReport {
 /// to static values from pricing.canonical.json / PRODUCT_REGISTRY.
 model BusinessConfig {
   id            String   @id @default(dbgenerated("(gen_random_uuid())::text"))
-  namespace     String   // e.g. "pricing.rules", "products.credits"
-  key           String   // e.g. "group_max", "IMMERSION.grantsCredits"
+  namespace     String // e.g. "pricing.rules", "products.credits"
+  key           String // e.g. "group_max", "IMMERSION.grantsCredits"
   value         Json     @db.JsonB
-  schemaVersion String   // Zod schema version for this namespace
+  schemaVersion String // Zod schema version for this namespace
   version       Int      @default(1) // Incremented on each update
   previousValue Json?    @db.JsonB
-  updatedBy     String   // userId of the admin who wrote
+  updatedBy     String // userId of the admin who wrote
   updatedAt     DateTime @default(now()) @updatedAt
   createdAt     DateTime @default(now())
 
@@ -2794,8 +2796,8 @@ model BusinessConfigAudit {
   key       String
   oldValue  Json?    @db.JsonB
   newValue  Json     @db.JsonB
-  version   Int      // version of the BusinessConfig row after this change
-  changedBy String   // userId
+  version   Int // version of the BusinessConfig row after this change
+  changedBy String // userId
   changedAt DateTime @default(now())
 
   @@unique([namespace, key, version])
