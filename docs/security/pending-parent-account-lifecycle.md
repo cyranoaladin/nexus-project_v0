@@ -2,7 +2,7 @@
 
 ## Politique versionnée
 
-- Version : `2026-08-04.v2`.
+- Version : `2026-08-04.v3`.
 - Expiration d’un jeton d’activation : 72 heures UTC.
 - Seuil d’éligibilité : 90 jours UTC depuis le filigrane d’activité du graphe.
 - Plan dry-run : 15 minutes.

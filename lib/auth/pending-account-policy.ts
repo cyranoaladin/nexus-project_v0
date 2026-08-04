@@ -1,4 +1,4 @@
-export const PENDING_PARENT_POLICY_VERSION = '2026-08-04.v2'
+export const PENDING_PARENT_POLICY_VERSION = '2026-08-04.v3'
 export const ACCOUNT_ACTIVATION_TTL_MS = 72 * 60 * 60 * 1000
 export const PENDING_PARENT_ELIGIBILITY_MS = 90 * 24 * 60 * 60 * 1000
 export const PENDING_PARENT_PLAN_TTL_MS = 15 * 60 * 1000
@@ -75,10 +75,10 @@ export function classifyPendingParentGraph(
     return 'INCONSISTENT_GRAPH'
   }
   if (facts.conflictingLinkCount > 0) return 'HUMAN_REVIEW_REQUIRED'
+  if (facts.canonicalPendingLinkCount === 0) return 'RECONCILIATION_REQUIRED'
   if (facts.businessRelationCount > 0 || facts.contactDataCount > 0) {
     return 'HUMAN_REVIEW_REQUIRED'
   }
-  if (facts.canonicalPendingLinkCount === 0) return 'RECONCILIATION_REQUIRED'
   if (facts.activationExpiry && !isActivationExpired(facts.activationExpiry, now)) {
     return 'NOT_ELIGIBLE'
   }
