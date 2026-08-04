@@ -7,6 +7,10 @@ import { generateResetToken, verifyResetToken } from '@/lib/password-reset-token
 import bcrypt from 'bcryptjs';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
+import { escapeHtml } from '@/lib/email/templates';
+import { getTrustedApplicationOrigin } from '@/lib/auth/parent-activation';
+import { enqueueEmailIntent } from '@/lib/email/outbox';
+import { kickEmailOutboxDrain } from '@/lib/email/outbox-scheduler';
 
 /** Common weak passwords to reject */
 const COMMON_PASSWORDS = new Set([
@@ -99,36 +103,29 @@ async function handleRequestReset(body: unknown, request: NextRequest) {
   });
 
   try {
-    const user = await prisma.user.findUnique({
-      where: { email },
-      select: { id: true, email: true, password: true, firstName: true },
+    const queued = await prisma.$transaction(async (transaction) => {
+      const user = await transaction.user.findUnique({
+        where: { email },
+        select: { id: true, email: true, password: true, firstName: true },
+      });
+      if (!user) return false;
+      const token = generateResetToken(user.id, user.email, user.password);
+      const resetUrl = new URL('/auth/reset-password', getTrustedApplicationOrigin());
+      resetUrl.searchParams.set('token', token);
+      const name = escapeHtml(user.firstName || 'Utilisateur');
+      const safeUrl = escapeHtml(resetUrl.toString());
+      await enqueueEmailIntent(transaction, {
+        aggregateId: user.id,
+        messageType: 'PASSWORD_RESET',
+        dedupeKey: token,
+        to: user.email,
+        subject: 'Réinitialisation de votre mot de passe — Nexus Réussite',
+        html: `<p>Bonjour ${name},</p><p>Utilisez ce lien personnel et temporaire pour réinitialiser votre mot de passe :</p><p><a href="${safeUrl}">Réinitialiser mon mot de passe</a></p>`,
+        text: `Bonjour ${user.firstName || 'Utilisateur'},\n\nRéinitialisez votre mot de passe :\n${resetUrl.toString()}\n\nCe lien est personnel et temporaire.`,
+      });
+      return true;
     });
-
-    if (!user) {
-      // Don't reveal that the user doesn't exist
-      return successResponse;
-    }
-
-    // Generate signed token (includes password hash → single-use)
-    const token = generateResetToken(user.id, user.email, user.password);
-
-    // Build reset URL
-    const baseUrl = process.env.NEXTAUTH_URL || 'https://nexusreussite.academy';
-    const resetUrl = `${baseUrl}/auth/reset-password?token=${encodeURIComponent(token)}`;
-
-    // Send email (non-blocking failure)
-    try {
-      const { sendPasswordResetEmail } = await import('@/lib/email');
-      await sendPasswordResetEmail(
-        user.email,
-        user.firstName || 'Utilisateur',
-        resetUrl
-      );
-    } catch (emailError) {
-      if (process.env.NODE_ENV !== 'test') {
-        console.error('[reset-password] Email send failed:', emailError instanceof Error ? emailError.message : 'unknown');
-      }
-    }
+    if (queued) kickEmailOutboxDrain();
   } catch (dbError) {
     if (process.env.NODE_ENV !== 'test') {
       console.error('[reset-password] DB error:', dbError instanceof Error ? dbError.message : 'unknown');

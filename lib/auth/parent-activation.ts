@@ -5,7 +5,6 @@ import {
   type ActivationPurpose,
   type ActivationToken,
 } from '@/lib/auth/activation-token'
-import { sendMail, type SendMailResult } from '@/lib/email/mailer'
 
 export const PARENT_ACTIVATION_PUBLIC_MESSAGE =
   "Si la demande peut etre traitee, un courriel d'activation sera envoye."
@@ -148,21 +147,6 @@ export function buildAccountActivationEmail(input: {
       '<p>Ce lien est personnel, temporaire et utilisable une seule fois.</p>',
     ].join(''),
   }
-}
-
-export async function sendParentActivationEmail(input: {
-  to: string
-  parentName: string
-  childFirstName: string
-  rawToken: string
-}): Promise<SendMailResult> {
-  const message = buildParentActivationEmail(input)
-  return sendMail({
-    to: normalizeParentEmail(input.to),
-    subject: message.subject,
-    html: message.html,
-    text: message.text,
-  })
 }
 
 export function withActivationSecurityHeaders<T extends NextResponse>(response: T): T {

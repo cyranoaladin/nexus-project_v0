@@ -2,8 +2,8 @@ jest.mock('@/auth', () => ({
   auth: jest.fn(),
 }));
 
-jest.mock('@/lib/email/mailer', () => ({
-  sendMail: jest.fn().mockResolvedValue({ ok: true }),
+jest.mock('@/lib/email/outbox', () => ({
+  enqueueEmailIntent: jest.fn().mockResolvedValue({ id: 'job-1' }),
 }));
 
 jest.mock('bcryptjs', () => ({
@@ -14,10 +14,10 @@ import { auth } from '@/auth';
 import { NextRequest } from 'next/server';
 
 import { POST } from '@/app/api/stages/[stageSlug]/reservations/[reservationId]/confirm/route';
-import { sendMail } from '@/lib/email/mailer';
+import { enqueueEmailIntent } from '@/lib/email/outbox';
 
 const mockAuth = auth as jest.Mock;
-const mockSendMail = sendMail as jest.Mock;
+const mockSendMail = enqueueEmailIntent as jest.Mock;
 
 let prisma: any;
 
@@ -214,6 +214,7 @@ describe('POST /api/stages/[slug]/reservations/[id]/confirm', () => {
     await POST(makeRequest(), { params });
 
     expect(mockSendMail).toHaveBeenCalledWith(
+      expect.anything(),
       expect.objectContaining({
         to: 'eleve@example.com',
         subject: expect.stringContaining('Printemps 2026'),
@@ -221,6 +222,7 @@ describe('POST /api/stages/[slug]/reservations/[id]/confirm', () => {
       })
     );
     expect(mockSendMail).toHaveBeenCalledWith(
+      expect.anything(),
       expect.objectContaining({
         html: expect.stringContaining('source=stage'),
       })

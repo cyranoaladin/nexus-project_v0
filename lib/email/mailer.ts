@@ -28,6 +28,8 @@ export interface SendMailOptions {
   text?: string;
   /** Override default reply-to */
   replyTo?: string;
+  /** Stable RFC Message-ID supplied by the durable delivery intent. */
+  messageId?: string;
 }
 
 export interface SendMailResult {
@@ -151,6 +153,7 @@ export async function sendMail(options: SendMailOptions): Promise<SendMailResult
       subject: options.subject,
       html: options.html,
       text: options.text,
+      messageId: options.messageId,
     });
 
     const messageId = typeof info?.messageId === 'string' ? info.messageId : undefined;

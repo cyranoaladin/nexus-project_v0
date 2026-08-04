@@ -1,7 +1,18 @@
 import { createHash } from 'node:crypto'
+import { readFileSync } from 'node:fs'
 
 import { expect, test } from '@playwright/test'
 import { PrismaClient } from '@prisma/client'
+
+import { loadBilanPack, loadValidatedPack } from '../../lib/bilans/catalog/load-pack'
+import {
+  computePromptChecksums,
+  derivePackApproval,
+  loadReviewRegistry,
+  sha256,
+} from '../../lib/bilans/catalog/review-registry'
+import { loadWaveManifest, repositoryPath } from '../../lib/bilans/catalog/wave-manifest'
+import { packFeatureFlagName } from '../../lib/bilans/api/pack-access'
 
 test.use({ trace: 'off', screenshot: 'off', video: 'off' })
 
@@ -9,6 +20,7 @@ const databaseUrl = process.env.TEST_DATABASE_URL || process.env.DATABASE_URL ||
 const mailpitBaseUrl = process.env.MAILPIT_API_URL || 'http://127.0.0.1:8025'
 const prisma = new PrismaClient({ datasources: { db: { url: databaseUrl } } })
 const packSlug = 'entree-seconde-maths-v1'
+const manifestPath = 'data/bilans/banks/wave1.manifest.json'
 
 type MailpitMessage = {
   ID?: string
@@ -56,6 +68,58 @@ async function resetDatabase(): Promise<void> {
   await prisma.$executeRawUnsafe('TRUNCATE TABLE "users" RESTART IDENTITY CASCADE')
 }
 
+async function prepareCanonicalSignedPackReviewer(): Promise<void> {
+  const manifest = loadWaveManifest(manifestPath)
+  expect(manifest.banks).toHaveLength(manifest.expectedActiveBanks)
+  const entry = manifest.banks.find(({ slug }) => slug === packSlug)
+  if (!entry) throw new Error('SIGNED_E2E_PACK_NOT_IN_MANIFEST')
+
+  const registry = loadReviewRegistry(packSlug)
+  if (!registry) throw new Error('SIGNED_E2E_PACK_REGISTRY_MISSING')
+  const sourceChecksum = sha256(readFileSync(repositoryPath(entry.source), 'utf8'))
+  const promptChecksums = computePromptChecksums(entry.promptDirectory)
+
+  expect(registry.sourceChecksum).toBe(sourceChecksum)
+  expect(registry.promptChecksums).toEqual(promptChecksums)
+
+  await prisma.user.create({
+    data: {
+      id: 'p0d-e2e-signed-reviewer-user',
+      email: 'p0d-signed-reviewer@example.test',
+      role: 'COACH',
+      activatedAt: new Date(registry.validatedAt),
+      coachProfile: {
+        create: {
+          id: registry.validatedBy,
+          pseudonym: 'Reviewer P0D E2E',
+          title: registry.qualification,
+          subjects: ['MATHEMATIQUES'],
+        },
+      },
+    },
+  })
+
+  const resolvedReviewer = await prisma.coachProfile.findUnique({
+    where: { id: registry.validatedBy },
+    select: { id: true },
+  })
+  const approval = derivePackApproval({
+    slug: packSlug,
+    packVersion: registry.packVersion,
+    sourceChecksum,
+    promptChecksums,
+    registry,
+    resolvedReviewerIds: new Set(resolvedReviewer ? [resolvedReviewer.id] : []),
+  })
+  const pack = loadBilanPack(entry.output)
+  const validatedPack = loadValidatedPack(entry.output)
+
+  expect(approval.status).toBe('VALIDATED')
+  expect(pack.review).toEqual(approval.review)
+  expect(validatedPack.review.validatedBy).toBe(registry.validatedBy)
+  expect(process.env[packFeatureFlagName(packSlug)]).toBe('true')
+}
+
 async function signIn(page: import('@playwright/test').Page, email: string, password: string): Promise<void> {
   await page.goto('/auth/signin')
   await page.getByRole('textbox', { name: 'Adresse Email' }).fill(email)
@@ -83,6 +147,7 @@ test.describe('P0-D Parent onboarding without direct database bootstrap', () => 
   test.beforeAll(async () => {
     assertIsolatedDatabase()
     await resetDatabase()
+    await prepareCanonicalSignedPackReviewer()
     await clearMailbox()
   })
 

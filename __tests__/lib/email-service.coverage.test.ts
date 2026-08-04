@@ -5,15 +5,11 @@
  * sendPasswordResetEmail, sendStageDiagnosticInvitation, sendStageBilanReady
  */
 
-// Mock nodemailer before importing
 const mockSendMail = jest.fn().mockResolvedValue({ messageId: 'test-id' });
-jest.mock('nodemailer9', () => ({
-  createTransport: jest.fn(() => ({
-    sendMail: mockSendMail,
-  })),
+jest.mock('@/lib/email/queue', () => ({
+  queueCommittedEmail: (...args: unknown[]) => mockSendMail(...args),
 }));
 
-import nodemailer from 'nodemailer9';
 import {
   sendWelcomeParentEmail,
   sendCreditExpirationReminder,
@@ -34,10 +30,6 @@ describe('Email Service', () => {
     jest.clearAllMocks();
     process.env = { ...originalEnv };
     setNodeEnv('development');
-    process.env.SMTP_HOST = 'smtp.test.com';
-    process.env.SMTP_PORT = '587';
-    process.env.SMTP_SECURE = 'false';
-    process.env.SMTP_FROM = 'test@nexus.com';
     process.env.NEXTAUTH_URL = 'http://localhost:3000';
   });
 
@@ -66,12 +58,12 @@ describe('Email Service', () => {
       expect(call.html).not.toContain('Mot de passe temporaire');
     });
 
-    it('swallows error in development mode', async () => {
+    it('propagates durable enqueue failure in development mode', async () => {
       mockSendMail.mockRejectedValueOnce(new Error('smtp down'));
       setNodeEnv('development');
       await expect(
         sendWelcomeParentEmail('parent@test.com', 'Marie', 'Karim')
-      ).resolves.toBeUndefined();
+      ).rejects.toThrow('smtp down');
     });
 
     it('throws error in production mode', async () => {
@@ -93,12 +85,12 @@ describe('Email Service', () => {
       expect(call.subject).toContain('crédits');
     });
 
-    it('swallows error in development mode', async () => {
+    it('propagates durable enqueue failure in development mode', async () => {
       mockSendMail.mockRejectedValueOnce(new Error('smtp down'));
       setNodeEnv('development');
       await expect(
         sendCreditExpirationReminder('p@t.com', 'M', 'K', 3, new Date())
-      ).resolves.toBeUndefined();
+      ).rejects.toThrow('smtp down');
     });
 
     it('throws error in production mode', async () => {
@@ -119,12 +111,12 @@ describe('Email Service', () => {
       expect(call.html).toContain('http://localhost/reset?token=abc');
     });
 
-    it('swallows error in development mode', async () => {
+    it('propagates durable enqueue failure in development mode', async () => {
       mockSendMail.mockRejectedValueOnce(new Error('smtp down'));
       setNodeEnv('development');
       await expect(
         sendPasswordResetEmail('u@t.com', 'J', 'http://reset')
-      ).resolves.toBeUndefined();
+      ).rejects.toThrow('smtp down');
     });
 
     it('throws error in production mode', async () => {
@@ -155,12 +147,12 @@ describe('Email Service', () => {
       expect(call.html).toContain('Marie');
     });
 
-    it('swallows error in development mode', async () => {
+    it('propagates durable enqueue failure in development mode', async () => {
       mockSendMail.mockRejectedValueOnce(new Error('smtp down'));
       setNodeEnv('development');
       await expect(
         sendStageDiagnosticInvitation('e@t.com', 'M', 'K', 'A', 'http://d')
-      ).resolves.toBeUndefined();
+      ).rejects.toThrow('smtp down');
     });
 
     it('throws error in production mode', async () => {
@@ -204,12 +196,12 @@ describe('Email Service', () => {
       expect(call.html).toContain('Marie');
     });
 
-    it('swallows error in development mode', async () => {
+    it('propagates durable enqueue failure in development mode', async () => {
       mockSendMail.mockRejectedValueOnce(new Error('smtp down'));
       setNodeEnv('development');
       await expect(
         sendStageBilanReady('s@t.com', 'M', 'K', 'A', 'http://b', 50, 50)
-      ).resolves.toBeUndefined();
+      ).rejects.toThrow('smtp down');
     });
 
     it('throws error in production mode', async () => {
@@ -221,19 +213,21 @@ describe('Email Service', () => {
     });
   });
 
-  describe('SMTP_FROM fallback', () => {
-    it('uses default SMTP_FROM when not set', async () => {
+  describe('canonical worker boundary', () => {
+    it('does not resolve the sender in the compatibility facade', async () => {
       delete process.env.SMTP_FROM;
       await sendWelcomeParentEmail('t@t.com', 'T', 'T');
       const call = mockSendMail.mock.calls[0][0];
-      expect(call.from).toContain('Nexus Réussite');
+      expect(call.aggregateType).toBe('LEGACY_EMAIL');
+      expect(call).not.toHaveProperty('from');
     });
 
-    it('uses custom SMTP_FROM when set', async () => {
+    it('still delegates sender resolution when SMTP_FROM is configured', async () => {
       process.env.SMTP_FROM = 'custom@nexus.com';
       await sendWelcomeParentEmail('t@t.com', 'T', 'T');
       const call = mockSendMail.mock.calls[0][0];
-      expect(call.from).toBe('custom@nexus.com');
+      expect(call.aggregateType).toBe('LEGACY_EMAIL');
+      expect(call).not.toHaveProperty('from');
     });
   });
 });

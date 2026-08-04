@@ -1,23 +1,11 @@
-var transport = {
-  sendMail: jest.fn(),
-  verify: jest.fn(),
-};
-
-jest.mock('nodemailer9', () => {
-  transport = {
-    sendMail: jest.fn(),
-    verify: jest.fn(),
-  };
-  return {
-    __esModule: true,
-    default: {
-      createTransport: jest.fn(() => ({
-        sendMail: transport.sendMail,
-        verify: transport.verify,
-      })),
-    },
-  };
-});
+const mockQueueCommittedEmail = jest.fn();
+const mockVerifySmtp = jest.fn();
+jest.mock('@/lib/email/queue', () => ({
+  queueCommittedEmail: (...args: unknown[]) => mockQueueCommittedEmail(...args),
+}));
+jest.mock('@/lib/email/mailer', () => ({
+  verifySmtp: (...args: unknown[]) => mockVerifySmtp(...args),
+}));
 
 jest.mock('@/lib/prisma', () => ({
   prisma: {
@@ -25,6 +13,7 @@ jest.mock('@/lib/prisma', () => ({
       findMany: jest.fn(),
       update: jest.fn(),
     },
+    jobOutbox: { create: jest.fn() },
   },
 }));
 
@@ -32,15 +21,17 @@ describe('email-service', () => {
   beforeEach(() => {
     process.env.SMTP_FROM = 'noreply@test.com';
     process.env.NEXTAUTH_URL = 'http://localhost:3000';
-    transport.sendMail.mockReset();
-    transport.verify.mockReset();
+    mockQueueCommittedEmail.mockReset();
+    mockQueueCommittedEmail.mockResolvedValue({ id: 'job-1' });
+    mockVerifySmtp.mockReset();
+    mockVerifySmtp.mockResolvedValue({ ok: true });
   });
 
   it('sends welcome email', async () => {
     const { sendWelcomeEmail } = await import('@/lib/email-service');
     await sendWelcomeEmail({ email: 'user@test.com', firstName: 'Alex' });
-    expect(transport.sendMail).toHaveBeenCalledTimes(1);
-    expect(transport.sendMail.mock.calls[0][0].to).toBe('user@test.com');
+    expect(mockQueueCommittedEmail).toHaveBeenCalledTimes(1);
+    expect(mockQueueCommittedEmail.mock.calls[0][0].to).toBe('user@test.com');
   });
 
   it('sends session confirmation to student and coach', async () => {
@@ -57,7 +48,7 @@ describe('email-service', () => {
       { email: 'coach@test.com', name: 'Coach A' }
     );
 
-    expect(transport.sendMail).toHaveBeenCalledTimes(2);
+    expect(mockQueueCommittedEmail).toHaveBeenCalledTimes(2);
   });
 
   it('sends session reminder email', async () => {
@@ -72,12 +63,12 @@ describe('email-service', () => {
       { email: 'student@test.com', firstName: 'Karim', lastName: 'Dupont' },
       'http://video.link'
     );
-    expect(transport.sendMail).toHaveBeenCalledTimes(1);
+    expect(mockQueueCommittedEmail).toHaveBeenCalledTimes(1);
   });
 
   it('tests email configuration', async () => {
     const { testEmailConfiguration } = await import('@/lib/email-service');
-    transport.verify.mockResolvedValueOnce(true);
+    mockVerifySmtp.mockResolvedValueOnce({ ok: true });
     const result = await testEmailConfiguration();
     expect(result).toEqual({ success: true, message: 'Configuration email valide' });
   });
@@ -96,7 +87,7 @@ describe('email-service', () => {
       },
       'parent@test.com'
     );
-    expect(transport.sendMail).toHaveBeenCalledTimes(1);
+    expect(mockQueueCommittedEmail).toHaveBeenCalledTimes(1);
   });
 
   it('sendScheduledReminders sends reminders and updates sessions', async () => {

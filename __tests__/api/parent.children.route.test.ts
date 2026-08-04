@@ -1,7 +1,7 @@
 import { auth } from '@/auth';
 import { GET, POST } from '@/app/api/parent/children/route';
 import { prisma } from '@/lib/prisma';
-import { sendMail } from '@/lib/email/mailer';
+import { enqueueEmailIntent } from '@/lib/email/outbox';
 import { withParentStudentConsentTransaction } from '@/lib/bilans/parent-student-consent';
 
 jest.mock('@/auth', () => ({
@@ -17,8 +17,12 @@ jest.mock('@/lib/prisma', () => ({
   },
 }));
 
-jest.mock('@/lib/email/mailer', () => ({
-  sendMail: jest.fn().mockResolvedValue(undefined),
+jest.mock('@/lib/email/outbox', () => ({
+  enqueueEmailIntent: jest.fn().mockResolvedValue({ id: 'email-job-1' }),
+}));
+
+jest.mock('@/lib/email/outbox-scheduler', () => ({
+  kickEmailOutboxDrain: jest.fn(),
 }));
 
 jest.mock('@/lib/bilans/parent-student-consent', () => ({
@@ -55,6 +59,7 @@ function makeRequest(body?: any) {
 describe('parent children routes', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    process.env.NEXTAUTH_URL = 'http://localhost:3000';
     mockPreparePending.mockResolvedValue({
       id: 'canonical-link-1',
       state: 'PENDING_PARENT_CONSENT',
@@ -156,7 +161,7 @@ describe('parent children routes', () => {
 
       expect(response.status).toBe(409);
       expect(body.error).toBe('STUDENT_LOGIN_IDENTIFIER_CONFLICT');
-      expect(sendMail).not.toHaveBeenCalled();
+      expect(enqueueEmailIntent).not.toHaveBeenCalled();
     });
 
     it('returns 404 when parent profile missing', async () => {
@@ -196,7 +201,7 @@ describe('parent children routes', () => {
       const body = await response.json();
 
       expect(response.status).toBe(200);
-      expect(body.activation.activationUrl).toContain('/auth/activate?token=act_');
+      expect(body.activation.activationUrl).toContain('/auth/activate?token=sact_');
       expect(response.headers.get('cache-control')).toContain('private');
       expect(response.headers.get('cache-control')).toContain('no-store');
       expect(response.headers.get('cache-control')).toContain('max-age=0');
@@ -212,7 +217,7 @@ describe('parent children routes', () => {
         now: expect.any(Date),
       });
       expect(mockPreparePending).toHaveBeenCalledTimes(1);
-      expect(sendMail).toHaveBeenCalledTimes(1);
+      expect(enqueueEmailIntent).toHaveBeenCalledTimes(1);
     });
 
     it('never leaks activation material through a post-generation error or its serialization', async () => {
@@ -231,13 +236,13 @@ describe('parent children routes', () => {
       expect(body).toEqual({ error: 'Internal server error' });
       expect(JSON.stringify(body)).not.toContain(recognizableToken);
       expect(JSON.stringify(log.mock.calls)).not.toContain(recognizableToken);
-      expect(sendMail).not.toHaveBeenCalled();
+      expect(enqueueEmailIntent).not.toHaveBeenCalled();
       log.mockRestore();
     });
 
-    it('does not log activation material when the non-blocking email delivery fails', async () => {
+    it('does not leak activation material when durable intent persistence fails', async () => {
       const log = jest.spyOn(console, 'error').mockImplementation(() => undefined);
-      let recognizableToken = '';
+      const recognizableToken = 'sact_POST_GENERATION_SECRET_SENTINEL';
       (auth as jest.Mock).mockResolvedValue({
         user: { id: 'parent-1', email: 'parent@test.com', role: 'PARENT' },
       });
@@ -253,18 +258,13 @@ describe('parent children routes', () => {
           }),
         },
       }));
-      (sendMail as jest.Mock).mockImplementationOnce(async (message: { text: string }) => {
-        recognizableToken = message.text.match(/act_[a-f0-9]+/)?.[0] ?? '';
-        throw new Error(recognizableToken);
-      });
+      (enqueueEmailIntent as jest.Mock).mockRejectedValueOnce(new Error(recognizableToken));
 
       const response = await POST(makeRequest({ firstName: 'A', lastName: 'B', grade: 'Seconde' }));
       const body = await response.json();
-      await new Promise((resolve) => setImmediate(resolve));
-
-      expect(response.status).toBe(200);
-      expect(recognizableToken).toMatch(/^act_[a-f0-9]+$/);
-      expect(body.activation.activationUrl).toContain(recognizableToken);
+      expect(response.status).toBe(500);
+      expect(body).toEqual({ error: 'Internal server error' });
+      expect(JSON.stringify(body)).not.toContain(recognizableToken);
       expect(JSON.stringify(log.mock.calls)).not.toContain(recognizableToken);
       log.mockRestore();
     });
@@ -298,7 +298,7 @@ describe('parent children routes', () => {
         studentId: 'student-1',
         now: expect.any(Date),
       });
-      expect(sendMail).not.toHaveBeenCalled();
+      expect(enqueueEmailIntent).not.toHaveBeenCalled();
     });
 
     it('rejects injected fields and does not create a child', async () => {

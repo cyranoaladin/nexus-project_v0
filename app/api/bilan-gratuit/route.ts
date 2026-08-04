@@ -16,11 +16,13 @@ import {
 } from '@/lib/services/student-login-identifier';
 import {
   createParentActivationToken,
+  buildParentActivationEmail,
   normalizeParentEmail,
   PARENT_ACTIVATION_PUBLIC_MESSAGE,
-  sendParentActivationEmail,
   withActivationSecurityHeaders,
 } from '@/lib/auth/parent-activation';
+import { enqueueEmailIntent } from '@/lib/email/outbox';
+import { kickEmailOutboxDrain } from '@/lib/email/outbox-scheduler';
 
 function publicSuccessResponse() {
   return withActivationSecurityHeaders(NextResponse.json({
@@ -112,7 +114,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Transaction pour créer parent et élève
-    const result = await withParentStudentConsentTransaction(
+    await withParentStudentConsentTransaction(
       prisma,
       async ({ transaction: tx, preparePending }) => {
         // Créer le compte parent
@@ -188,27 +190,28 @@ export async function POST(request: NextRequest) {
             })
           : null;
 
+        const activationMessage = buildParentActivationEmail({
+          parentName: `${parentUser.firstName} ${parentUser.lastName}`,
+          childFirstName: studentUser.firstName || 'votre enfant',
+          rawToken: rawActivationToken,
+        });
+        await enqueueEmailIntent(tx, {
+          aggregateId: parentUser.id,
+          messageType: 'PARENT_ACTIVATION',
+          dedupeKey: hashedActivationToken,
+          to: parentUser.email,
+          subject: activationMessage.subject,
+          html: activationMessage.html,
+          text: activationMessage.text,
+        });
+
         return { parentUser, studentUser, student, campaignLead };
       },
     );
 
-    // Envoyer email de bienvenue
-    try {
-      await sendParentActivationEmail({
-        to: result.parentUser.email,
-        parentName: `${result.parentUser.firstName} ${result.parentUser.lastName}`,
-        childFirstName: result.studentUser.firstName || 'votre enfant',
-        rawToken: rawActivationToken,
-      });
-    } catch {
-      if (!isTestEnv) {
-        console.error('[bilan-gratuit] Parent activation email failed', {
-          code: 'PARENT_ACTIVATION_EMAIL_FAILED',
-          at: new Date().toISOString(),
-        });
-      }
-      // The pending account remains recoverable through the resend endpoint.
-    }
+    // The intent was committed atomically with the account graph. Delivery is
+    // post-commit and recoverable by the scheduler after a process crash.
+    kickEmailOutboxDrain();
 
     return publicSuccessResponse();
 
