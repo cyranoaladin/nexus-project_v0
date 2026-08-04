@@ -19,6 +19,7 @@ export default defineConfig({
     'assistante-subscription-approval-invariants.spec.ts',
     'assistante-devis-catalog.spec.ts',
     'initial-student-activation.spec.ts',
+    'canonical-attempt-level-guard.spec.ts',
   ],
   fullyParallel: false,
   forbidOnly: !!process.env.CI,

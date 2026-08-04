@@ -6,7 +6,7 @@ function createHandlerModule(): typeof import('@/lib/bilans/api/create-attempt')
   return require('@/lib/bilans/api/create-attempt');
 }
 
-function createDatabase() {
+function createDatabase(studentGradeLevel: unknown = 'TERMINALE') {
   const idempotency = new Map<string, any>();
   const coordinate = ({ userId, route, key }: any) => `${userId}|${route}|${key}`;
   const idempotencyDelegate = {
@@ -36,13 +36,17 @@ function createDatabase() {
   };
   const database = {
     student: {
-      findUnique: jest.fn(async () => ({ id: 'student-1', userId: 'user-1' })),
+      findUnique: jest.fn(async () => ({
+        id: 'student-1',
+        userId: 'user-1',
+        gradeLevel: studentGradeLevel,
+      })),
     },
     canonicalApiIdempotencyKey: idempotencyDelegate,
     canonicalAssessmentAttempt: transaction.canonicalAssessmentAttempt,
     $transaction: jest.fn(async (operation: (tx: any) => Promise<unknown>) => operation(transaction)),
   };
-  return { database, createAttempt };
+  return { database, createAttempt, idempotencyDelegate };
 }
 
 const pack = {
@@ -70,7 +74,7 @@ function request(body: unknown, key = 'request-create-0001'): NextRequest {
 describe('POST /api/bilans/attempts', () => {
   test('returns 404 before writing when the exact pack is not enabled', async () => {
     const { createCreateAttemptHandler } = createHandlerModule();
-    const { database, createAttempt } = createDatabase();
+    const { database, createAttempt, idempotencyDelegate } = createDatabase();
     const handler = createCreateAttemptHandler({
       prisma: database as never,
       authenticate: async () => ({ user: { id: 'user-1', role: 'ELEVE', email: 'eleve@example.test' } }) as never,
@@ -83,6 +87,8 @@ describe('POST /api/bilans/attempts', () => {
 
     expect(response.status).toBe(404);
     expect(createAttempt).not.toHaveBeenCalled();
+    expect(idempotencyDelegate.create).not.toHaveBeenCalled();
+    expect(database.$transaction).not.toHaveBeenCalled();
   });
 
   test('creates a sealed DRAFT from session identity and never returns the seed', async () => {
@@ -127,7 +133,7 @@ describe('POST /api/bilans/attempts', () => {
 
   test('maps MATHS_EXPERTES and QUATRIEME without a silent fallback', async () => {
     const { createCreateAttemptHandler } = createHandlerModule();
-    const { database, createAttempt } = createDatabase();
+    const { database, createAttempt } = createDatabase('QUATRIEME');
     const extendedPack = {
       ...pack,
       slug: 'fixture-quatrieme-maths-expertes-v0',
@@ -160,6 +166,37 @@ describe('POST /api/bilans/attempts', () => {
     expect(() => resolvePrismaSubject('UNKNOWN_SUBJECT')).toThrow(
       'PACK_SUBJECT_UNMAPPED:UNKNOWN_SUBJECT',
     );
+  });
+
+  test.each([
+    ['a different level', 'PREMIERE'],
+    ['a missing level', null],
+    ['an unknown level', 'INCONNU'],
+  ])('rejects %s before every persistent write', async (_label, studentGradeLevel) => {
+    const { createCreateAttemptHandler } = createHandlerModule();
+    const { database, createAttempt, idempotencyDelegate } = createDatabase(studentGradeLevel);
+    const handler = createCreateAttemptHandler({
+      prisma: database as never,
+      authenticate: async () => ({ user: { id: 'user-1', role: 'ELEVE' } }) as never,
+      resolvePack: () => ({
+        pack,
+        validatedPack: ENTRY_VALIDATED_PACK_FIXTURE,
+        checksum: 'pack-checksum',
+        path: 'fixture',
+      }) as never,
+      now: () => new Date('2026-08-02T10:00:00.000Z'),
+      generateSeed: () => 'server-seed',
+    });
+
+    const response = await handler(request({ packSlug: pack.slug }));
+
+    expect(response.status).toBe(409);
+    expect(await response.json()).toEqual({
+      error: { code: 'STUDENT_PACK_LEVEL_MISMATCH' },
+    });
+    expect(createAttempt).not.toHaveBeenCalled();
+    expect(idempotencyDelegate.create).not.toHaveBeenCalled();
+    expect(database.$transaction).not.toHaveBeenCalled();
   });
 
   test('replays the committed response for the same user, route and key', async () => {

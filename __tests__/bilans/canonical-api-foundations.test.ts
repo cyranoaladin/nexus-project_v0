@@ -106,16 +106,20 @@ describe('A85.1 Canonical API foundations', () => {
 
   test('resolves an ELEVE Student from session userId without any email fallback', async () => {
     const { resolveSessionStudent } = access();
-    const findUnique = jest.fn().mockResolvedValue({ id: 'student-1', userId: 'user-1' });
+    const findUnique = jest.fn().mockResolvedValue({
+      id: 'student-1',
+      userId: 'user-1',
+      gradeLevel: 'SECONDE',
+    });
     const student = await resolveSessionStudent(
       { user: { id: 'user-1', role: 'ELEVE', email: 'ignored@example.test' } } as never,
       { student: { findUnique } } as never,
     );
 
-    expect(student).toEqual({ id: 'student-1', userId: 'user-1' });
+    expect(student).toEqual({ id: 'student-1', userId: 'user-1', gradeLevel: 'SECONDE' });
     expect(findUnique).toHaveBeenCalledWith({
       where: { userId: 'user-1' },
-      select: { id: true, userId: true },
+      select: { id: true, userId: true, gradeLevel: true },
     });
     expect(JSON.stringify(findUnique.mock.calls)).not.toContain('ignored@example.test');
   });
