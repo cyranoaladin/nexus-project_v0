@@ -21,6 +21,7 @@ export default defineConfig({
     'initial-student-activation.spec.ts',
     'canonical-attempt-level-guard.spec.ts',
     'parent-canonical-report-access.spec.ts',
+    'parent-email-onboarding.spec.ts',
   ],
   fullyParallel: false,
   forbidOnly: !!process.env.CI,

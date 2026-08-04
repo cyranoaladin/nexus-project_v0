@@ -24,6 +24,8 @@ import { NextRequest } from 'next/server';
 const mockVerify = verifyActivationToken as jest.Mock;
 const mockComplete = completeStudentActivation as jest.Mock;
 const mockGuardRateLimit = guardRateLimitAsync as jest.Mock;
+const VALID_TOKEN = 'a'.repeat(43);
+const INVALID_TOKEN = 'b'.repeat(43);
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -46,7 +48,7 @@ describe('GET /api/student/activate', () => {
   it('should return 429 when rate limit is exceeded', async () => {
     mockGuardRateLimit.mockResolvedValue(new Response(JSON.stringify({ error: 'rate limited' }), { status: 429 }));
 
-    const req = new NextRequest('http://localhost:3000/api/student/activate?token=valid-token', { method: 'GET' });
+    const req = new NextRequest(`http://localhost:3000/api/student/activate?token=${VALID_TOKEN}`, { method: 'GET' });
     const res = await GET(req);
 
     expect(res.status).toBe(429);
@@ -56,7 +58,7 @@ describe('GET /api/student/activate', () => {
   it('should verify valid token', async () => {
     mockVerify.mockResolvedValue({ valid: true, studentName: 'Ahmed', email: 'ahmed@test.com' } as any);
 
-    const req = new NextRequest('http://localhost:3000/api/student/activate?token=valid-token', { method: 'GET' });
+    const req = new NextRequest(`http://localhost:3000/api/student/activate?token=${VALID_TOKEN}`, { method: 'GET' });
     const res = await GET(req);
     const body = await res.json();
 
@@ -68,7 +70,7 @@ describe('GET /api/student/activate', () => {
   it('should return invalid for expired token', async () => {
     mockVerify.mockResolvedValue({ valid: false, error: 'Token expiré' } as any);
 
-    const req = new NextRequest('http://localhost:3000/api/student/activate?token=expired', { method: 'GET' });
+    const req = new NextRequest(`http://localhost:3000/api/student/activate?token=${INVALID_TOKEN}`, { method: 'GET' });
     const res = await GET(req);
     const body = await res.json();
 
@@ -78,7 +80,7 @@ describe('GET /api/student/activate', () => {
   it('should return 500 on service error', async () => {
     mockVerify.mockRejectedValue(new Error('DB error'));
 
-    const req = new NextRequest('http://localhost:3000/api/student/activate?token=test', { method: 'GET' });
+    const req = new NextRequest(`http://localhost:3000/api/student/activate?token=${VALID_TOKEN}`, { method: 'GET' });
     const res = await GET(req);
     const body = await res.json();
 
@@ -104,7 +106,7 @@ describe('POST /api/student/activate', () => {
       redirectUrl: '/auth/signin',
     } as any);
 
-    const res = await POST(makePostRequest({ token: 'valid-token', password: 'securePass123' }));
+    const res = await POST(makePostRequest({ token: VALID_TOKEN, password: 'securePass123' }));
     const body = await res.json();
 
     expect(res.status).toBe(200);
@@ -115,14 +117,14 @@ describe('POST /api/student/activate', () => {
   it('should return 429 when activation POST rate limit is exceeded', async () => {
     mockGuardRateLimit.mockResolvedValue(new Response(JSON.stringify({ error: 'rate limited' }), { status: 429 }));
 
-    const res = await POST(makePostRequest({ token: 'valid-token', password: 'securePass123' }));
+    const res = await POST(makePostRequest({ token: VALID_TOKEN, password: 'securePass123' }));
 
     expect(res.status).toBe(429);
     expect(mockComplete).not.toHaveBeenCalled();
   });
 
   it('should return 400 for short password', async () => {
-    const res = await POST(makePostRequest({ token: 'valid-token', password: '123' }));
+    const res = await POST(makePostRequest({ token: VALID_TOKEN, password: '123' }));
     const body = await res.json();
 
     expect(res.status).toBe(400);
@@ -132,7 +134,7 @@ describe('POST /api/student/activate', () => {
 
   it('rejects unexpected activation payload fields before service call', async () => {
     const res = await POST(makePostRequest({
-      token: 'valid-token',
+      token: VALID_TOKEN,
       password: 'securePass123',
       activationToken: 'raw-token',
     }));
@@ -156,7 +158,7 @@ describe('POST /api/student/activate', () => {
       error: 'Token invalide ou expiré',
     } as any);
 
-    const res = await POST(makePostRequest({ token: 'invalid', password: 'securePass123' }));
+    const res = await POST(makePostRequest({ token: INVALID_TOKEN, password: 'securePass123' }));
     const body = await res.json();
 
     expect(res.status).toBe(400);
@@ -166,7 +168,7 @@ describe('POST /api/student/activate', () => {
   it('should return 500 on service error', async () => {
     mockComplete.mockRejectedValue(new Error('DB error'));
 
-    const res = await POST(makePostRequest({ token: 'valid', password: 'securePass123' }));
+    const res = await POST(makePostRequest({ token: VALID_TOKEN, password: 'securePass123' }));
     const body = await res.json();
 
     expect(res.status).toBe(500);

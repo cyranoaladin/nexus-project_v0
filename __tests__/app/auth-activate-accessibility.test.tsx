@@ -18,6 +18,7 @@ describe('ActivatePage accessibility', () => {
         valid: true,
         studentName: 'Élève Synthétique',
         email: 'eleve.synthetique@nexus-student.local',
+        accountRole: 'PARENT',
       }),
     }) as jest.Mock;
   });
@@ -35,5 +36,7 @@ describe('ActivatePage accessibility', () => {
     expect(password).toHaveAttribute('name', 'password');
     expect(confirmation).toHaveAttribute('id', 'student-password-confirmation');
     expect(confirmation).toHaveAttribute('name', 'passwordConfirmation');
+    expect(screen.getByRole('heading', { name: 'Activer votre espace parent' })).toBeInTheDocument();
+    expect(screen.queryByText(/accéder à votre espace élève/i)).not.toBeInTheDocument();
   });
 });

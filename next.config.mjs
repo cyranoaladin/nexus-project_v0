@@ -70,12 +70,18 @@ const nextConfig = {
         '/api/parent/children/:studentId/bilans',
         '/api/parent/children/:studentId/bilans/:attemptId/report',
         '/api/parent/bilans/:id/pdf',
+        '/api/bilan-gratuit',
+        '/api/auth/resend-activation',
+        '/api/auth/activate',
+        '/api/student/activate',
+        '/auth/activate',
       ].map((source) => ({
         source,
         headers: [
           { key: 'Cache-Control', value: 'private, no-store, max-age=0' },
           { key: 'Pragma', value: 'no-cache' },
           { key: 'Expires', value: '0' },
+          { key: 'Referrer-Policy', value: 'no-referrer' },
         ],
       })),
       {

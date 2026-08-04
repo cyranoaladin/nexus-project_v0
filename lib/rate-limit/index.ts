@@ -170,7 +170,16 @@ export async function checkRateLimitAsync(
     } catch {
       if (!_distributedWarned && process.env.NODE_ENV !== 'test') {
         _distributedWarned = true;
-        // Distributed store unavailable, falling back to memory store
+        console.error('[rate-limit] Distributed backend unavailable');
+      }
+      if (process.env.NODE_ENV === 'production') {
+        return {
+          success: false,
+          limit: config.limit,
+          remaining: 0,
+          resetAt: Date.now() + config.windowMs,
+          retryAfter: Math.max(1, Math.ceil(config.windowMs / 1000)),
+        };
       }
     }
   }

@@ -1,18 +1,18 @@
 "use client";
 
-import { signOut } from 'next-auth/react';
 import { LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { logoutAction } from '@/lib/auth/logout-action';
 
 export function LogoutButton() {
-  const handleSignOut = () => {
-    signOut({ callbackUrl: '/auth/signin' });
+  const handleSignOut = async () => {
+    await logoutAction();
   };
 
   return (
     <Button
       variant="ghost"
-      onClick={handleSignOut}
+      onClick={() => void handleSignOut()}
       data-testid="logout-button"
       className="w-full justify-start gap-3 text-neutral-300 hover:text-neutral-50"
       aria-label="Se déconnecter de votre compte"

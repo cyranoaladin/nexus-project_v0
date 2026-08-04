@@ -172,7 +172,7 @@ export function BilanStrategiqueClient({
         throw new Error(result.error || result.details || 'Une erreur est survenue');
       }
 
-      track.bilanSuccess(result.parentId);
+      track.bilanSuccess();
       router.push('/bilan-gratuit/confirmation');
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Une erreur est survenue';
@@ -191,7 +191,7 @@ export function BilanStrategiqueClient({
         <div className="mx-auto grid max-w-6xl gap-6 lg:grid-cols-[1.15fr_0.85fr]">
           <Card className="border-lux-line bg-lux-white text-lux-ink lux-shadow">
             <CardContent className="p-6 sm:p-8">
-              <form onSubmit={onSubmit} noValidate className="space-y-8">
+              <form onSubmit={onSubmit} noValidate className="space-y-8" aria-busy={isSubmitting}>
                 {prefill && (
                   <div className="rounded-2xl border border-lux-gold/30 bg-lux-gold/10 p-4 text-sm text-lux-ink">
                     <p>Préremplissage modifiable · {prefill.contextLabel} · {selectedOffer?.title}</p>
@@ -207,43 +207,57 @@ export function BilanStrategiqueClient({
                     <Label htmlFor="parentFirstName" className="text-lux-ink">Prénom du parent</Label>
                     <Input
                       id="parentFirstName"
+                      name="parentFirstName"
+                      aria-invalid={Boolean(errors.parentFirstName)}
+                      aria-describedby={errors.parentFirstName ? 'parentFirstName-error' : undefined}
                       value={formData.parentFirstName}
                       onChange={(e) => handleChange('parentFirstName', e.target.value)}
                       className="border-lux-line bg-lux-paper text-lux-ink placeholder:text-lux-slate focus-visible:ring-lux-gold"
                     />
-                    {errors.parentFirstName && <p className="text-sm text-red-500">{errors.parentFirstName}</p>}
+                    {errors.parentFirstName && <p id="parentFirstName-error" role="alert" className="text-sm text-red-500">{errors.parentFirstName}</p>}
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="parentLastName" className="text-lux-ink">Nom du parent</Label>
                     <Input
                       id="parentLastName"
+                      name="parentLastName"
+                      aria-invalid={Boolean(errors.parentLastName)}
+                      aria-describedby={errors.parentLastName ? 'parentLastName-error' : undefined}
                       value={formData.parentLastName}
                       onChange={(e) => handleChange('parentLastName', e.target.value)}
                       className="border-lux-line bg-lux-paper text-lux-ink placeholder:text-lux-slate focus-visible:ring-lux-gold"
                     />
-                    {errors.parentLastName && <p className="text-sm text-red-500">{errors.parentLastName}</p>}
+                    {errors.parentLastName && <p id="parentLastName-error" role="alert" className="text-sm text-red-500">{errors.parentLastName}</p>}
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="parentEmail" className="text-lux-ink">Email</Label>
                     <Input
                       id="parentEmail"
+                      name="parentEmail"
                       type="email"
+                      autoComplete="email"
+                      aria-invalid={Boolean(errors.parentEmail)}
+                      aria-describedby={errors.parentEmail ? 'parentEmail-error' : undefined}
                       value={formData.parentEmail}
                       onChange={(e) => handleChange('parentEmail', e.target.value)}
                       className="border-lux-line bg-lux-paper text-lux-ink placeholder:text-lux-slate focus-visible:ring-lux-gold"
                     />
-                    {errors.parentEmail && <p className="text-sm text-red-500">{errors.parentEmail}</p>}
+                    {errors.parentEmail && <p id="parentEmail-error" role="alert" className="text-sm text-red-500">{errors.parentEmail}</p>}
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="parentPhone" className="text-lux-ink">Téléphone</Label>
                     <Input
                       id="parentPhone"
+                      name="parentPhone"
                       type="tel"
+                      autoComplete="tel"
+                      aria-invalid={Boolean(errors.parentPhone)}
+                      aria-describedby={errors.parentPhone ? 'parentPhone-error' : undefined}
                       value={formData.parentPhone}
                       onChange={(e) => handleChange('parentPhone', e.target.value)}
                       className="border-lux-line bg-lux-paper text-lux-ink placeholder:text-lux-slate focus-visible:ring-lux-gold"
                     />
-                    {errors.parentPhone && <p className="text-sm text-red-500">{errors.parentPhone}</p>}
+                    {errors.parentPhone && <p id="parentPhone-error" role="alert" className="text-sm text-red-500">{errors.parentPhone}</p>}
                   </div>
                 </div>
 
@@ -252,16 +266,22 @@ export function BilanStrategiqueClient({
                     <Label htmlFor="studentFirstName" className="text-lux-ink">Prénom de l’élève</Label>
                     <Input
                       id="studentFirstName"
+                      name="studentFirstName"
+                      aria-invalid={Boolean(errors.studentFirstName)}
+                      aria-describedby={errors.studentFirstName ? 'studentFirstName-error' : undefined}
                       value={formData.studentFirstName}
                       onChange={(e) => handleChange('studentFirstName', e.target.value)}
                       className="border-lux-line bg-lux-paper text-lux-ink placeholder:text-lux-slate focus-visible:ring-lux-gold"
                     />
-                    {errors.studentFirstName && <p className="text-sm text-red-500">{errors.studentFirstName}</p>}
+                    {errors.studentFirstName && <p id="studentFirstName-error" role="alert" className="text-sm text-red-500">{errors.studentFirstName}</p>}
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="studentGrade" className="text-lux-ink">{prefill ? 'Classe de rentrée' : 'Classe'}</Label>
                     <select
                       id="studentGrade"
+                      name="studentGrade"
+                      aria-invalid={Boolean(errors.studentGrade)}
+                      aria-describedby={errors.studentGrade ? 'studentGrade-error' : undefined}
                       value={formData.studentGrade}
                       onChange={(e) => handleChange('studentGrade', e.target.value)}
                       className="h-11 w-full rounded-lg border border-lux-line bg-lux-paper px-3 text-sm text-lux-ink outline-none focus-visible:ring-2 focus-visible:ring-lux-gold"
@@ -273,17 +293,20 @@ export function BilanStrategiqueClient({
                         </option>
                       ))}
                     </select>
-                    {errors.studentGrade && <p className="text-sm text-red-500">{errors.studentGrade}</p>}
+                    {errors.studentGrade && <p id="studentGrade-error" role="alert" className="text-sm text-red-500">{errors.studentGrade}</p>}
                   </div>
                   <div className="space-y-2 md:col-span-2">
                     <Label htmlFor="studentSchool" className="text-lux-ink">Établissement</Label>
                     <Input
                       id="studentSchool"
+                      name="studentSchool"
+                      aria-invalid={Boolean(errors.studentSchool)}
+                      aria-describedby={errors.studentSchool ? 'studentSchool-error' : undefined}
                       value={formData.studentSchool}
                       onChange={(e) => handleChange('studentSchool', e.target.value)}
                       className="border-lux-line bg-lux-paper text-lux-ink placeholder:text-lux-slate focus-visible:ring-lux-gold"
                     />
-                    {errors.studentSchool && <p className="text-sm text-red-500">{errors.studentSchool}</p>}
+                    {errors.studentSchool && <p id="studentSchool-error" role="alert" className="text-sm text-red-500">{errors.studentSchool}</p>}
                   </div>
                 </div>
 
@@ -298,12 +321,18 @@ export function BilanStrategiqueClient({
                         key={subject.value}
                         className="flex items-center gap-3 rounded-2xl border border-lux-line/60 bg-lux-paper/70 p-3 transition-colors hover:border-lux-gold/40"
                       >
-                        <Checkbox checked={selectedSubjects.includes(subject.value)} onCheckedChange={() => toggleSubject(subject.value)} />
+                        <Checkbox
+                          id={`subject-${subject.value}`}
+                          name="subjects"
+                          aria-label={subject.label}
+                          checked={selectedSubjects.includes(subject.value)}
+                          onCheckedChange={() => toggleSubject(subject.value)}
+                        />
                         <span className="text-sm text-lux-ink">{subject.label}</span>
                       </label>
                     ))}
                   </div>
-                  {errors.subjects && <p className="text-sm text-red-500">{errors.subjects}</p>}
+                  {errors.subjects && <p role="alert" className="text-sm text-red-500">{errors.subjects}</p>}
                 </div>
 
                 <div className="grid gap-4">
@@ -311,31 +340,40 @@ export function BilanStrategiqueClient({
                     <Label htmlFor="objectives" className="text-lux-ink">Besoin principal</Label>
                     <Textarea
                       id="objectives"
+                      name="objectives"
+                      aria-invalid={Boolean(errors.objectives)}
+                      aria-describedby={errors.objectives ? 'objectives-error' : undefined}
                       value={formData.objectives}
                       onChange={(e) => handleChange('objectives', e.target.value)}
                       rows={4}
                       placeholder="Ex. reprendre le rythme, consolider les bases, préparer le bac ou clarifier les priorités."
                       className="border-lux-line bg-lux-paper text-lux-ink placeholder:text-lux-slate focus-visible:ring-lux-gold"
                     />
-                    {errors.objectives && <p className="text-sm text-red-500">{errors.objectives}</p>}
+                    {errors.objectives && <p id="objectives-error" role="alert" className="text-sm text-red-500">{errors.objectives}</p>}
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="difficulties" className="text-lux-ink">Message libre</Label>
                     <Textarea
                       id="difficulties"
+                      name="difficulties"
+                      aria-invalid={Boolean(errors.difficulties)}
+                      aria-describedby={errors.difficulties ? 'difficulties-error' : undefined}
                       value={formData.difficulties}
                       onChange={(e) => handleChange('difficulties', e.target.value)}
                       rows={4}
                       placeholder="Ajoutez les précisions utiles pour notre équipe."
                       className="border-lux-line bg-lux-paper text-lux-ink placeholder:text-lux-slate focus-visible:ring-lux-gold"
                     />
-                    {errors.difficulties && <p className="text-sm text-red-500">{errors.difficulties}</p>}
+                    {errors.difficulties && <p id="difficulties-error" role="alert" className="text-sm text-red-500">{errors.difficulties}</p>}
                   </div>
                 </div>
 
                 <div className="space-y-3 rounded-2xl border border-lux-line/60 bg-lux-paper/80 p-4">
-                  <label className="flex items-start gap-3">
+                  <label htmlFor="acceptTerms" className="flex items-start gap-3">
                     <Checkbox
+                      id="acceptTerms"
+                      name="acceptTerms"
+                      aria-invalid={Boolean(errors.acceptTerms)}
                       checked={formData.acceptTerms}
                       onCheckedChange={(checked) => handleChange('acceptTerms', checked === true)}
                     />
@@ -343,11 +381,12 @@ export function BilanStrategiqueClient({
                       J’accepte d’être contacté par Nexus Réussite au sujet de ma demande et la politique de traitement des données.
                     </span>
                   </label>
-                  {errors.acceptTerms && <p className="text-sm text-red-500">{errors.acceptTerms}</p>}
+                  {errors.acceptTerms && <p role="alert" className="text-sm text-red-500">{errors.acceptTerms}</p>}
                 </div>
 
                 <input
                   type="text"
+                  name="website"
                   value={honeypot}
                   onChange={(e) => setHoneypot(e.target.value)}
                   className="hidden"
@@ -360,10 +399,14 @@ export function BilanStrategiqueClient({
                   <button
                     type="submit"
                     disabled={isSubmitting}
+                    aria-describedby="bilan-submit-status"
                     className="lux-cta-reserve rounded-lg px-6 py-3.5 text-sm font-semibold disabled:opacity-60"
                   >
                     {isSubmitting ? 'Envoi...' : 'Demander mon bilan stratégique gratuit'}
                   </button>
+                  <span id="bilan-submit-status" className="sr-only" role="status" aria-live="polite">
+                    {isSubmitting ? 'Envoi de la demande en cours' : ''}
+                  </span>
                   <Link
                     href="/contact"
                     className="lux-cta-secondary rounded-lg px-6 py-3.5 text-sm font-semibold"

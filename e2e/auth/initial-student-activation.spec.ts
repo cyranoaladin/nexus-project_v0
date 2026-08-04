@@ -117,7 +117,7 @@ test.describe('P0 initial student identity', () => {
       const activationUrl = await activationLink.getAttribute('href');
       expect(activationUrl).toContain('/auth/activate?token=');
       const rawToken = new URL(activationUrl!).searchParams.get('token');
-      expect(rawToken).toMatch(/^act_/);
+      expect(rawToken).toMatch(/^sact_/);
 
       const pending = await prisma.user.findUniqueOrThrow({ where: { id: child!.userId } });
       expect(pending.id).toBe(child!.userId);
@@ -130,7 +130,7 @@ test.describe('P0 initial student identity', () => {
       await page.getByRole('button', { name: /déconnexion/i }).click();
       await page.waitForURL((url) => url.pathname === '/');
       await page.goto(activationUrl!);
-      await expect(page.getByRole('heading', { name: /activer votre compte/i })).toBeVisible();
+      await expect(page.getByRole('heading', { name: /activer votre espace élève/i })).toBeVisible();
       await expect(page.getByRole('textbox', { name: 'Identifiant de connexion' })).toHaveValue(loginIdentifier);
       await page.getByLabel(/^mot de passe$/i).fill(childPassword);
       await page.getByLabel('Confirmer le mot de passe', { exact: true }).fill(childPassword);

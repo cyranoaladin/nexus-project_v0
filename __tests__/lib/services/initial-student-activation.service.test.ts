@@ -15,6 +15,7 @@ describe('initial student activation owned by a parent', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    process.env.NEXTAUTH_URL = 'http://localhost:3000';
     (prisma.$transaction as jest.Mock).mockImplementation(async (action) => action(transaction));
     transaction.parentProfile.findUnique.mockResolvedValue({ id: 'parent-profile-1' });
     transaction.student.findFirst.mockResolvedValue({
@@ -42,7 +43,7 @@ describe('initial student activation owned by a parent', () => {
 
     expect(result.success).toBe(true);
     const rawToken = new URL(result.activationUrl).searchParams.get('token');
-    expect(rawToken).toMatch(/^act_/);
+    expect(rawToken).toMatch(/^sact_/);
     const storedHash = transaction.user.updateMany.mock.calls[0][0].data.activationToken;
     expect(storedHash).toBe(crypto.createHash('sha256').update(rawToken!).digest('hex'));
     expect(storedHash).not.toContain(rawToken);
