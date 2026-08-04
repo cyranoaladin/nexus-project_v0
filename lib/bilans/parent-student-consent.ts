@@ -31,6 +31,17 @@ export type ParentStudentConsentContext = Readonly<{
   getStatus(input: ConsentOperationInput): Promise<{ state: ConsentLink['state'] | 'MISSING' }>;
 }>;
 
+export function createParentStudentConsentContext(
+  transaction: Prisma.TransactionClient,
+): ParentStudentConsentContext {
+  return Object.freeze({
+    transaction,
+    preparePending: (input) => preparePending(transaction, input),
+    verify: (input) => verify(transaction, input),
+    getStatus: (input) => getStatus(transaction, input),
+  });
+}
+
 export class ParentStudentConsentError extends Error {
   constructor(public readonly code: 'NOT_FOUND' | 'CONSENT_NOT_PENDING') {
     super(code);
@@ -224,12 +235,6 @@ export async function withParentStudentConsentTransaction<T>(
   action: (context: ParentStudentConsentContext) => Promise<T>,
 ): Promise<T> {
   return database.$transaction(async (transaction) => {
-    const context: ParentStudentConsentContext = Object.freeze({
-      transaction,
-      preparePending: (input) => preparePending(transaction, input),
-      verify: (input) => verify(transaction, input),
-      getStatus: (input) => getStatus(transaction, input),
-    });
-    return action(context);
+    return action(createParentStudentConsentContext(transaction));
   });
 }

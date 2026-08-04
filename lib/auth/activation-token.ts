@@ -1,5 +1,7 @@
 import { createHash, randomBytes } from 'node:crypto'
 
+import { ACCOUNT_ACTIVATION_TTL_MS } from '@/lib/auth/pending-account-policy'
+
 export type ActivationPurpose = 'parent' | 'student'
 
 export type ActivationToken = Readonly<{
@@ -8,7 +10,6 @@ export type ActivationToken = Readonly<{
   expiresAt: Date
 }>
 
-const ACTIVATION_TTL_MS = 72 * 60 * 60 * 1000
 const PURPOSE_PREFIX: Record<ActivationPurpose, string> = {
   parent: 'pact_',
   student: 'sact_',
@@ -26,7 +27,7 @@ export function createActivationToken(
   return {
     rawToken,
     tokenHash: hashActivationToken(rawToken),
-    expiresAt: new Date(now.getTime() + ACTIVATION_TTL_MS),
+    expiresAt: new Date(now.getTime() + ACCOUNT_ACTIVATION_TTL_MS),
   }
 }
 

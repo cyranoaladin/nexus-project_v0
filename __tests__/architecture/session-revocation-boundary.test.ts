@@ -166,6 +166,9 @@ describe('exhaustive User security mutation inventory', () => {
       'app/api/assistante/students/route.ts:update#2',
       'app/api/auth/resend-activation/route.ts:updateMany#1',
       'app/api/auth/reset-password/route.ts:update#1',
+      'lib/auth/pending-account-lifecycle.ts:delete#1',
+      'lib/auth/pending-account-lifecycle.ts:deleteMany#1',
+      'lib/auth/pending-account-lifecycle.ts:updateMany#1',
       'lib/auth/session-revocation.ts:update#1',
       'lib/services/student-activation.service.ts:update#1',
       'lib/services/student-activation.service.ts:update#2',
@@ -187,6 +190,14 @@ describe('exhaustive User security mutation inventory', () => {
     ].sort()
 
     expect(descriptors.sort()).toEqual(approved)
+
+    const pendingLifecycle = read('lib/auth/pending-account-lifecycle.ts')
+    expect(pendingLifecycle).toContain("plan.action === 'INVALIDATE_EXPIRED_TOKEN'")
+    expect(pendingLifecycle).toContain("plan.action === 'PURGE_GRAPH'")
+    expect(pendingLifecycle).toContain('validatePlanAgainstGraph')
+    expect(pendingLifecycle).toContain('password: null')
+    expect(pendingLifecycle).toContain('activatedAt: null')
+    expect(pendingLifecycle).toContain('client.$transaction')
 
     const versioned = [
       'app/api/admin/users/route.ts:update#1',
