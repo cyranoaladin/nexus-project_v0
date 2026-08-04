@@ -81,6 +81,7 @@
     "db:studio": "prisma studio",
     "check-config": "node scripts/check-config.js",
     "security:telegram": "node scripts/security/check-telegram-secrets.mjs .",
+    "auth:pending-accounts": "tsx scripts/auth/process-pending-parent-accounts.ts",
     "security:repo": "bash scripts/security/check-no-private-keys.sh && bash scripts/security/check-no-public-infrastructure.sh && npm run security:telegram",
     "sbom:runtime": "node scripts/generate-runtime-sbom.js --output security/sbom/runtime.cdx.json",
     "artifact:audit": "node scripts/audit-production-artifact.js .next/standalone",
