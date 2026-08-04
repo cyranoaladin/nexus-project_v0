@@ -13,7 +13,7 @@ ni aux migrations deja appliquees.
 Release de retour connue :
 
 ```text
-/var/www/nexus-releases/11e0dce93e9f1d4c79824f9cccd0a467dde4f11b
+<RELEASES_DIR>/11e0dce93e9f1d4c79824f9cccd0a467dde4f11b
 ```
 
 ## Commande exacte
@@ -23,11 +23,11 @@ A executer en `root` sur le serveur de production :
 ```bash
 set -euo pipefail
 
-previous=/var/www/nexus-releases/11e0dce93e9f1d4c79824f9cccd0a467dde4f11b
-link=/var/www/nexus-project_v0
+previous=<RELEASES_DIR>/11e0dce93e9f1d4c79824f9cccd0a467dde4f11b
+link=<APP_DIR>
 temporary_link=/var/www/.nexus-project_v0.rollback
-env_file=/etc/nexus/nexus-prod.env
-env_tmp="$(mktemp /etc/nexus/nexus-prod.env.rollback.XXXXXX)"
+env_file=/etc/nexus/<APP_PROCESS>.env
+env_tmp="$(mktemp /etc/nexus/<APP_PROCESS>.env.rollback.XXXXXX)"
 
 test -f "$previous/.next/standalone/server.js"
 ln -s "$previous" "$temporary_link"
@@ -47,7 +47,7 @@ chown root:nexusapp "$env_tmp"
 chmod 640 "$env_tmp"
 mv -f "$env_tmp" "$env_file"
 
-pm2 restart nexus-prod --update-env
+pm2 restart <APP_PROCESS> --update-env
 test "$(readlink -f "$link")" = "$previous"
 for attempt in $(seq 1 30); do
   curl -fsS -o /dev/null https://nexusreussite.academy/ && break
@@ -62,7 +62,7 @@ curl -fsS -o /dev/null https://nexusreussite.academy/auth/signin
 ## Critere de succes
 
 - le symlink resout vers la release `11e0dce93e9f1d4c79824f9cccd0a467dde4f11b` ;
-- `nexus-prod` est `online` dans PM2 ;
+- `<APP_PROCESS>` est `online` dans PM2 ;
 - le flag maths Seconde vaut `false` ;
 - les trois controles HTTP ci-dessus repondent sans erreur.
 

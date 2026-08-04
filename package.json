@@ -220,9 +220,11 @@
     "@next/eslint-plugin-next": {
       "glob": "^10.5.0"
     },
-    "postcss": "8.5.19",
+    "postcss": "8.5.25",
     "sharp": "$sharp",
-    "ws": "8.21.0"
+    "ws": "8.21.0",
+    "fast-uri": "3.1.5",
+    "ip-address": "10.4.0"
   },
   "engines": {
     "node": ">=22.13.0 <23",
