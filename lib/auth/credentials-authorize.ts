@@ -27,5 +27,6 @@ export async function authorizeCredentials(credentials: Partial<Record<'email' |
     role: user.role,
     firstName: user.firstName ?? undefined,
     lastName: user.lastName ?? undefined,
+    sessionVersion: user.sessionVersion,
   }
 }

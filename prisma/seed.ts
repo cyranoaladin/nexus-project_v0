@@ -34,7 +34,7 @@ async function main() {
 
   await prisma.user.upsert({
     where: { email: 'admin@nexus-reussite.com' },
-    update: { activatedAt: new Date() },
+    update: { activatedAt: new Date(), sessionVersion: { increment: 1 } },
     create: {
       email: 'admin@nexus-reussite.com',
       password: hashedPassword,
@@ -54,7 +54,7 @@ async function main() {
   for (const coach of namedCoaches) {
     const user = await prisma.user.upsert({
       where: { email: coach.email },
-      update: { activatedAt: new Date() },
+      update: { activatedAt: new Date(), sessionVersion: { increment: 1 } },
       create: {
         email: coach.email,
         password: hashedPassword,
@@ -80,7 +80,7 @@ async function main() {
   // Named parent + student demo pair
   const demoParentUser = await prisma.user.upsert({
     where: { email: 'parent@example.com' },
-    update: { activatedAt: new Date() },
+    update: { activatedAt: new Date(), sessionVersion: { increment: 1 } },
     create: {
       email: 'parent@example.com',
       password: hashedPassword,
@@ -195,7 +195,7 @@ async function main() {
 
   const demoStudentUser = await prisma.user.upsert({
     where: { email: 'student@example.com' },
-    update: { activatedAt: new Date() },
+    update: { activatedAt: new Date(), sessionVersion: { increment: 1 } },
     create: {
       email: 'student@example.com',
       password: hashedPassword,
@@ -234,7 +234,7 @@ async function main() {
   // Dedicated STMG Student for testing the new dashboards
   const stmgStudentUser = await prisma.user.upsert({
     where: { email: 'test@example.com' },
-    update: { activatedAt: new Date() },
+    update: { activatedAt: new Date(), sessionVersion: { increment: 1 } },
     create: {
       email: 'test@example.com',
       password: hashedPassword,
@@ -273,7 +273,7 @@ async function main() {
 
   const edsDashboardUser = await prisma.user.upsert({
     where: { email: 'eleve.eds@nexus-reussite.com' },
-    update: { activatedAt: new Date() },
+    update: { activatedAt: new Date(), sessionVersion: { increment: 1 } },
     create: {
       email: 'eleve.eds@nexus-reussite.com',
       password: hashedPassword,
@@ -312,7 +312,7 @@ async function main() {
 
   const stmgDashboardUser = await prisma.user.upsert({
     where: { email: 'eleve.stmg@nexus-reussite.com' },
-    update: { activatedAt: new Date() },
+    update: { activatedAt: new Date(), sessionVersion: { increment: 1 } },
     create: {
       email: 'eleve.stmg@nexus-reussite.com',
       password: hashedPassword,
@@ -369,7 +369,7 @@ async function main() {
 
   const survivalParentUser = await prisma.user.upsert({
     where: { email: 'parent.stmg.survival@nexus-reussite.com' },
-    update: { activatedAt: new Date() },
+    update: { activatedAt: new Date(), sessionVersion: { increment: 1 } },
     create: {
       email: 'parent.stmg.survival@nexus-reussite.com',
       password: hashedPassword,
@@ -386,7 +386,7 @@ async function main() {
   });
   const survivalStudentUser = await prisma.user.upsert({
     where: { email: 'eleve.stmg.survival@nexus-reussite.com' },
-    update: { activatedAt: new Date() },
+    update: { activatedAt: new Date(), sessionVersion: { increment: 1 } },
     create: {
       email: 'eleve.stmg.survival@nexus-reussite.com',
       password: hashedPassword,

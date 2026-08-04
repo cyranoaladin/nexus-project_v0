@@ -272,10 +272,19 @@ export async function PATCH(request: NextRequest) {
           password: undefined
         };
 
+    const revokesSessions = Boolean(
+      userUpdateFields.password ||
+      (validatedData.role && validatedData.role !== existingUser.role) ||
+      (validatedData.email && validatedData.email !== existingUser.email)
+    );
+
     // Update user
     const updatedUser = await prisma.user.update({
       where: { id },
-      data: updateData,
+      data: {
+        ...updateData,
+        ...(revokesSessions ? { sessionVersion: { increment: 1 } } : {}),
+      },
       select: {
         id: true,
         email: true,

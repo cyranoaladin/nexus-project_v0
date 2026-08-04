@@ -333,6 +333,7 @@ export async function POST(request: Request) {
             lastName: existingParent.lastName || data.parentLastName.trim(),
             phone: existingParent.phone || (data.parentPhone?.trim() || null),
             activatedAt: existingParent.activatedAt ?? new Date(),
+            sessionVersion: existingParent.activatedAt ? undefined : { increment: 1 },
           },
         });
       } else {

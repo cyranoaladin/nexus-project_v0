@@ -191,7 +191,10 @@ async function handleConfirmReset(body: unknown) {
   const hashedPassword = await bcrypt.hash(newPassword, 12);
   await prisma.user.update({
     where: { id: user.id },
-    data: { password: hashedPassword },
+    data: {
+      password: hashedPassword,
+      sessionVersion: { increment: 1 },
+    },
   });
 
   return NextResponse.json({

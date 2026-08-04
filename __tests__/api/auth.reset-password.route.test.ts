@@ -120,7 +120,10 @@ describe('POST /api/auth/reset-password — confirm reset', () => {
     expect(prisma.user.update).toHaveBeenCalledWith(
       expect.objectContaining({
         where: { id: 'user-1' },
-        data: expect.objectContaining({ password: expect.any(String) }),
+        data: expect.objectContaining({
+          password: expect.any(String),
+          sessionVersion: { increment: 1 },
+        }),
       })
     );
   });

@@ -2,11 +2,11 @@
 
 import { LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { logoutAction } from '@/lib/auth/logout-action';
+import { signOut } from 'next-auth/react';
 
 export function LogoutButton() {
   const handleSignOut = async () => {
-    await logoutAction();
+    await signOut({ callbackUrl: '/' });
   };
 
   return (

@@ -86,7 +86,7 @@ export async function PUT(
     // Update user and coach profile in a transaction
     const result = await prisma.$transaction(async (tx) => {
       // Update user
-      const userData = {
+      const userData: Record<string, unknown> = {
         firstName: validatedData.firstName,
         lastName: validatedData.lastName,
         email: validatedData.email
@@ -94,13 +94,19 @@ export async function PUT(
 
       // Only update password if provided
       if (validatedData.password) {
-        // @ts-expect-error password is a valid field for user update
         userData.password = await bcrypt.hash(validatedData.password, 10);
       }
 
+      const revokesSessions = Boolean(
+        validatedData.password || validatedData.email !== existingCoach.user.email
+      );
+
       const user = await tx.user.update({
         where: { id: coachId },
-        data: userData
+        data: {
+          ...userData,
+          ...(revokesSessions ? { sessionVersion: { increment: 1 } } : {}),
+        }
       });
 
       // Update coach profile

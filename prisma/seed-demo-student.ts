@@ -49,7 +49,7 @@ async function main() {
   // ──── 2. Create Coach ─────────────────────────────────────────────────────
   const coachUser = await prisma.user.upsert({
     where: { email: 'coach.demo@nexus-reussite.com' },
-    update: { activatedAt: new Date() },
+    update: { activatedAt: new Date(), sessionVersion: { increment: 1 } },
     create: {
       email: 'coach.demo@nexus-reussite.com',
       password: hashedPassword,
@@ -80,7 +80,7 @@ async function main() {
   const parentEmail = 'parent.demo@nexus-reussite.com';
   const parentUser = await prisma.user.upsert({
     where: { email: parentEmail },
-    update: { activatedAt: new Date() },
+    update: { activatedAt: new Date(), sessionVersion: { increment: 1 } },
     create: {
       email: parentEmail,
       password: hashedPassword,
@@ -101,7 +101,7 @@ async function main() {
   const studentEmail = 'eleve.demo@nexus-reussite.com';
   const studentUser = await prisma.user.upsert({
     where: { email: studentEmail },
-    update: { activatedAt: new Date() },
+    update: { activatedAt: new Date(), sessionVersion: { increment: 1 } },
     create: {
       email: studentEmail,
       password: hashedPassword,

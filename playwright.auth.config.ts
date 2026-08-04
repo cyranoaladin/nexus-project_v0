@@ -22,6 +22,7 @@ export default defineConfig({
     'canonical-attempt-level-guard.spec.ts',
     'parent-canonical-report-access.spec.ts',
     'parent-email-onboarding.spec.ts',
+    'session-revocation.spec.ts',
   ],
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
