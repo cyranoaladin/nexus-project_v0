@@ -10,6 +10,7 @@ import { Card,CardContent,CardHeader,CardTitle } from "@/components/ui/card";
 
 import { AlertsConsolidated } from "@/components/dashboard/parent/AlertsConsolidated";
 import { ChildCard,type ParentDashboardChild } from "@/components/dashboard/parent/ChildCard";
+import { BilanGratuitBanner } from "@/components/dashboard/BilanGratuitBanner";
 import AddChildDialog from "./add-child-dialog";
 
 interface ParentDashboardData {
@@ -108,6 +109,8 @@ export default function DashboardParent() {
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="space-y-6">
+          <BilanGratuitBanner onGoToChildren={() => setActiveRubrique('enfants')} />
+
           {/* Rubriques Switcher */}
           <div className="flex flex-wrap gap-2 p-1 bg-white/5 border border-white/10 rounded-xl">
             {([
