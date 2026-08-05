@@ -68,8 +68,8 @@ néanmoins des signatures distinctes.
 
 | Élément | IPv4 observée |
 |---|---|
-| `nexusreussite.academy` | `88.99.254.59` |
-| IP publique de la machine locale | `102.156.214.105` |
+| `nexusreussite.academy` | `<PROD_HOST>` |
+| IP publique de la machine locale | `<LOCAL_PUBLIC_IP>` |
 
 **Déduction :** la production est hébergée ailleurs que sur la machine qui porte
 le conteneur local. Cette déduction concorde avec l'architecture distante

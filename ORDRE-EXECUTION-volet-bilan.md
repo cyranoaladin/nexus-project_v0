@@ -7,7 +7,7 @@
 
 ## Cadre projet rappelé
 - Bilan = diagnostic généré/assemblé (items de packs) → passation élève → scoring → génération de rapport (LLM) → accès parent/élève. Il pilote les stages de pré-rentrée payants.
-- Stack : Next.js 15.5.21, Prisma 6.13 / PostgreSQL 15/16 + pgvector, NextAuth v5, PM2 sur Hetzner `88.99.254.59`, Nginx+TLS.
+- Stack : Next.js 15.5.21, Prisma 6.13 / PostgreSQL 15/16 + pgvector, NextAuth v5, PM2 sur Hetzner `<PROD_HOST>`, Nginx+TLS.
 - Discipline : source canonique unique, feature flags plutôt que suppression, décisions documentées. **Confirme le worktree/branche/remote réels avant d'agir** (cf. HANDOFF §0).
 
 ## Invariants NON NÉGOCIABLES (aucune pression de délai ne les lève)
