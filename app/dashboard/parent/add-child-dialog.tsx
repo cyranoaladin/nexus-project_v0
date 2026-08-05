@@ -10,14 +10,19 @@ import { Loader2, Plus, User } from "lucide-react";
 
 interface AddChildDialogProps {
   onChildAdded: () => void;
+  /** Controlled open state -- lets a parent (e.g. BilanGratuitBanner's CTA) open this dialog directly instead of just switching to the tab it lives on. Falls back to internal state when omitted. */
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
 const GRADES = [
   "Seconde", "Première", "Terminale"
 ];
 
-export default function AddChildDialog({ onChildAdded }: AddChildDialogProps) {
-  const [open, setOpen] = useState(false);
+export default function AddChildDialog({ onChildAdded, open: controlledOpen, onOpenChange: setControlledOpen }: AddChildDialogProps) {
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = controlledOpen ?? internalOpen;
+  const setOpen = setControlledOpen ?? setInternalOpen;
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     firstName: "",

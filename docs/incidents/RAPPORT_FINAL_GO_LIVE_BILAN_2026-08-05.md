@@ -1,5 +1,7 @@
 # Journal de go-live — Volet Bilan, mode PLANCHER (2026-08-05)
 
+> **Légende** (ce dépôt est public, voir `scripts/security/check-no-public-infrastructure.sh`) : `<RELEASE_DIR>` = répertoire des releases sur le serveur de production, `<APP_DIR>` = répertoire de déploiement courant (symlink), `<PROCESS_NAME>` = nom du process PM2, `<PROD_HOST>` = hôte de production, `<PROD_ENV_FILE>` = fichier d'environnement de production. Les valeurs réelles sont dans le runbook privé d'exploitation, pas dans ce dépôt.
+
 ## Résumé
 
 Go-live du volet bilan diagnostique en production, **narration LLM désactivée** (mode PLANCHER : passation → scoring → rapport structuré déterministe → accès). Tous les gates du runbook satisfaits, avec deux écarts documentés ci-dessous (permissions DB, résidu synthétique inévitable).

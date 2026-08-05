@@ -46,7 +46,13 @@ function source(path: string) {
 // Removing the subprocess entirely removes the suspect mechanism outright.
 function listFiles(dir: string, matchesName: (name: string) => boolean): string[] {
   const results: string[] = []
-  const skip = new Set(['node_modules', '.next', '.git', '.claude'])
+  // Mirrors the generated/build-artifact directory names in .gitignore that
+  // could plausibly appear under app/ or lib/ -- rg (used here previously)
+  // honored .gitignore by default; this walker doesn't parse it, but
+  // excluding these directory names by hand keeps the same practical
+  // exclusion for the realistic case (a stray build/coverage output) even
+  // though there's no such directory under app/lib today.
+  const skip = new Set(['node_modules', '.next', '.git', '.claude', 'coverage', '.nyc_output', 'dist', 'build', 'out', '.turbo'])
   const walk = (current: string) => {
     for (const entry of readdirSync(join(ROOT, current), { withFileTypes: true })) {
       if (skip.has(entry.name)) continue
