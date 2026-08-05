@@ -17,9 +17,10 @@ type ConsentStatus =
 
 type CanonicalConsentCardProps = {
   studentId: string;
+  onVerified?: () => void;
 };
 
-export function CanonicalConsentCard({ studentId }: CanonicalConsentCardProps) {
+export function CanonicalConsentCard({ studentId, onVerified }: CanonicalConsentCardProps) {
   const [consent, setConsent] = useState(false);
   const [status, setStatus] = useState<ConsentStatus>("LOADING");
 
@@ -91,6 +92,7 @@ export function CanonicalConsentCard({ studentId }: CanonicalConsentCardProps) {
       if (payload.state !== "VERIFIED") throw new Error("CANONICAL_CONSENT_NOT_VERIFIED");
 
       setStatus("VERIFIED");
+      onVerified?.();
     } catch {
       setStatus("SUBMIT_ERROR");
     }

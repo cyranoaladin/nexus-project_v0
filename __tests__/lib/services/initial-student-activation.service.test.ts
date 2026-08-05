@@ -11,6 +11,7 @@ describe('initial student activation owned by a parent', () => {
     parentProfile: { findUnique: jest.fn() },
     student: { findFirst: jest.fn() },
     user: { updateMany: jest.fn() },
+    $queryRaw: jest.fn(),
   };
 
   beforeEach(() => {
@@ -18,6 +19,7 @@ describe('initial student activation owned by a parent', () => {
     process.env.NEXTAUTH_URL = 'http://localhost:3000';
     (prisma.$transaction as jest.Mock).mockImplementation(async (action) => action(transaction));
     transaction.parentProfile.findUnique.mockResolvedValue({ id: 'parent-profile-1' });
+    transaction.$queryRaw.mockResolvedValue([{ id: 'student-1' }]);
     transaction.student.findFirst.mockResolvedValue({
       id: 'student-1',
       user: {
@@ -58,6 +60,34 @@ describe('initial student activation owned by a parent', () => {
 
     expect(result).toEqual({ success: false, error: 'NOT_FOUND' });
     expect(transaction.user.updateMany).not.toHaveBeenCalled();
+  });
+
+  it('fails closed when the row lock does not resolve legacy ownership', async () => {
+    transaction.$queryRaw.mockResolvedValue([]);
+    const initiate = (activationService as any).initiateParentOwnedStudentActivation;
+
+    const result = await initiate({ parentUserId: 'parent-user-1', studentId: 'student-1' });
+
+    expect(result).toEqual({ success: false, error: 'NOT_FOUND' });
+    expect(transaction.student.findFirst).not.toHaveBeenCalled();
+    expect(transaction.user.updateMany).not.toHaveBeenCalled();
+  });
+
+  it('locks the student row FOR UPDATE before reading or issuing a token, to serialize concurrent issuance', async () => {
+    const initiate = (activationService as any).initiateParentOwnedStudentActivation;
+
+    await initiate({ parentUserId: 'parent-user-1', studentId: 'student-1' });
+
+    expect(transaction.$queryRaw).toHaveBeenCalledTimes(1);
+    const sql = transaction.$queryRaw.mock.calls[0][0] as { strings?: readonly string[]; values?: unknown[] };
+    expect(sql.strings?.join('?')).toContain('FOR UPDATE');
+    expect(sql.strings?.join('?')).toContain('students');
+    expect(sql.values).toEqual(['student-1', 'parent-profile-1']);
+
+    // The lock must be acquired before the ownership read that decides whether to issue.
+    const lockOrder = transaction.$queryRaw.mock.invocationCallOrder[0];
+    const readOrder = transaction.student.findFirst.mock.invocationCallOrder[0];
+    expect(lockOrder).toBeLessThan(readOrder);
   });
 
   it('reissuing replaces the stored hash so the former token is revoked', async () => {

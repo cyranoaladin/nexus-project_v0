@@ -8,7 +8,7 @@ import { kickEmailOutboxDrain } from '@/lib/email/outbox-scheduler';
 import { requireAnyRole } from '@/lib/guards';
 import { prisma } from '@/lib/prisma';
 import { normalizeStudentLevelAndTrack } from '@/lib/utils/grade-utils';
-import { AcademicTrack,GradeLevel } from '@prisma/client';
+import { AcademicTrack,GradeLevel,UserRole } from '@prisma/client';
 import { NextRequest,NextResponse } from 'next/server';
 import { z } from 'zod';
 
@@ -48,10 +48,25 @@ export async function POST(
 
     const { rawToken, tokenHash: hashedToken, expiresAt } = createActivationToken('student');
 
-    let user = await prisma.user.findUnique({ 
+    let user = await prisma.user.findUnique({
       where: { email: reservation.email },
       include: { student: true }
     });
+
+    // Guard against overwriting an unrelated account's activation state: the
+    // reservation email lookup above is not role-scoped, so it can match a
+    // pre-existing PARENT/ADMIN/COACH/ASSISTANTE account that merely shares
+    // the same email address. Only a pending ELEVE account may be issued a
+    // student-purpose activation token by this flow.
+    if (user && user.role !== UserRole.ELEVE) {
+      return NextResponse.json(
+        {
+          error:
+            "Un compte non-élève existe déjà avec cet email : la confirmation ne peut pas rattacher automatiquement cette réservation.",
+        },
+        { status: 409 }
+      );
+    }
 
     if (!user) {
       const gTrack = normalizeStudentLevelAndTrack(reservation.classe) || { level: GradeLevel.AUTRE, track: AcademicTrack.EDS_GENERALE };

@@ -148,6 +148,60 @@ describe('CanonicalConsentCard', () => {
     });
   });
 
+  test('calls onVerified once consent is confirmed, so the parent report list can be refreshed', async () => {
+    const user = userEvent.setup();
+    const onVerified = jest.fn();
+    fetchMock
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ state: 'PENDING_PARENT_CONSENT' }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ state: 'VERIFIED' }),
+      });
+
+    render(<CanonicalConsentCard studentId="student-1" onVerified={onVerified} />);
+
+    await user.click(
+      await screen.findByRole('checkbox', {
+        name: /j’atteste avoir donné mon consentement explicite/i,
+      }),
+    );
+    await user.click(screen.getByRole('button', { name: /confirmer le rattachement/i }));
+
+    await waitFor(() => {
+      expect(screen.getByRole('status')).toHaveTextContent('Rattachement vérifié');
+    });
+    expect(onVerified).toHaveBeenCalledTimes(1);
+  });
+
+  test('does not call onVerified when the consent submission fails', async () => {
+    const user = userEvent.setup();
+    const onVerified = jest.fn();
+    fetchMock
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ state: 'PENDING_PARENT_CONSENT' }),
+      })
+      .mockResolvedValueOnce({
+        ok: false,
+        json: async () => ({ error: 'INTERNAL_DETAILS_MUST_NOT_LEAK' }),
+      });
+
+    render(<CanonicalConsentCard studentId="student-1" onVerified={onVerified} />);
+
+    await user.click(
+      await screen.findByRole('checkbox', {
+        name: /j’atteste avoir donné mon consentement explicite/i,
+      }),
+    );
+    await user.click(screen.getByRole('button', { name: /confirmer le rattachement/i }));
+
+    expect(await screen.findByRole('alert')).toBeInTheDocument();
+    expect(onVerified).not.toHaveBeenCalled();
+  });
+
   test('keeps the relationship unverified and shows a restrained error on failure', async () => {
     const user = userEvent.setup();
     fetchMock

@@ -3,6 +3,7 @@ import {
   ParentStudentConsentError,
   withParentStudentConsentTransaction,
 } from '@/lib/bilans/parent-student-consent';
+import { withParentPrivateNoStore } from '@/lib/bilans/api/parent-access';
 import { checkCsrf } from '@/lib/csrf';
 import { prisma } from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
@@ -17,13 +18,13 @@ type RouteContext = Readonly<{
 }>;
 
 function notFound(): NextResponse {
-  return NextResponse.json({ error: 'Not found' }, { status: 404 });
+  return withParentPrivateNoStore(NextResponse.json({ error: 'Not found' }, { status: 404 }));
 }
 
 function consentErrorResponse(error: unknown): NextResponse | null {
   if (!(error instanceof ParentStudentConsentError)) return null;
   if (error.code === 'NOT_FOUND') return notFound();
-  return NextResponse.json({ error: error.code }, { status: 409 });
+  return withParentPrivateNoStore(NextResponse.json({ error: error.code }, { status: 409 }));
 }
 
 async function parentIdentity(): Promise<string | null> {
@@ -48,10 +49,10 @@ export async function GET(
         now: new Date(),
       })
     );
-    return NextResponse.json({ state: result.state });
+    return withParentPrivateNoStore(NextResponse.json({ state: result.state }));
   } catch (error) {
     return consentErrorResponse(error) ??
-      NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+      withParentPrivateNoStore(NextResponse.json({ error: 'Internal server error' }, { status: 500 }));
   }
 }
 
@@ -63,16 +64,16 @@ export async function POST(
   if (parentUserId === null) return notFound();
 
   const csrfResponse = checkCsrf(request);
-  if (csrfResponse !== null) return csrfResponse;
+  if (csrfResponse !== null) return withParentPrivateNoStore(csrfResponse);
 
   let body: unknown;
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json({ error: 'Invalid consent payload' }, { status: 400 });
+    return withParentPrivateNoStore(NextResponse.json({ error: 'Invalid consent payload' }, { status: 400 }));
   }
   if (!consentSchema.safeParse(body).success) {
-    return NextResponse.json({ error: 'Invalid consent payload' }, { status: 400 });
+    return withParentPrivateNoStore(NextResponse.json({ error: 'Invalid consent payload' }, { status: 400 }));
   }
 
   const { studentId } = await context.params;
@@ -84,9 +85,9 @@ export async function POST(
         now: new Date(),
       })
     );
-    return NextResponse.json({ state: 'VERIFIED' });
+    return withParentPrivateNoStore(NextResponse.json({ state: 'VERIFIED' }));
   } catch (error) {
     return consentErrorResponse(error) ??
-      NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+      withParentPrivateNoStore(NextResponse.json({ error: 'Internal server error' }, { status: 500 }));
   }
 }

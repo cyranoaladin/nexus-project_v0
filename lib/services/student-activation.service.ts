@@ -16,7 +16,7 @@
 
 import { prisma } from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
-import type { AcademicTrack, GradeLevel, StmgPathway, Subject } from '@prisma/client';
+import { Prisma, type AcademicTrack, type GradeLevel, type StmgPathway, type Subject } from '@prisma/client';
 import { SYSTEM_PARENT_EMAIL } from '@/lib/constants';
 import {
   buildStudentLoginIdentifier,
@@ -273,6 +273,28 @@ export async function initiateStudentActivation(
  * Ownership and token replacement are resolved in one transaction. Reissuing replaces
  * the stored hash, which revokes every previously issued raw token.
  */
+/**
+ * Lock the student row for the duration of the transaction so two concurrent
+ * issuance calls for the SAME student (e.g. a double-click) are fully
+ * serialized: the second call only starts reading once the first has
+ * committed its new token, instead of both racing to overwrite the stored
+ * hash independently (which would silently invalidate whichever response the
+ * parent receives first, despite each request returning HTTP 200).
+ */
+async function lockOwnedStudentRowForActivation(
+  transaction: Prisma.TransactionClient,
+  parentProfileId: string,
+  studentId: string,
+): Promise<boolean> {
+  const rows = await transaction.$queryRaw<Array<{ id: string }>>(Prisma.sql`
+    SELECT "id"
+    FROM "students"
+    WHERE "id" = ${studentId} AND "parentId" = ${parentProfileId}
+    FOR UPDATE
+  `);
+  return rows.length === 1;
+}
+
 export async function initiateParentOwnedStudentActivation(input: Readonly<{
   parentUserId: string;
   studentId: string;
@@ -283,6 +305,9 @@ export async function initiateParentOwnedStudentActivation(input: Readonly<{
       select: { id: true },
     });
     if (parent === null) return { success: false, error: 'NOT_FOUND' } as const;
+
+    const locked = await lockOwnedStudentRowForActivation(transaction, parent.id, input.studentId);
+    if (!locked) return { success: false, error: 'NOT_FOUND' } as const;
 
     const student = await transaction.student.findFirst({
       where: {

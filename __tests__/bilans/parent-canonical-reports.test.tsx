@@ -72,4 +72,18 @@ describe('P0-C Parent Canonical reports surface', () => {
     );
     await waitFor(() => expect(loadReports).toHaveBeenCalledWith('student-b1'));
   });
+
+  test('re-fetches when refreshSignal changes without the studentId changing (post-consent refresh)', async () => {
+    loadReports.mockResolvedValue({ studentId: 'student-a1', bilans: [] });
+    const { rerender } = render(<ParentCanonicalReports studentId="student-a1" refreshSignal={0} />);
+
+    await waitFor(() => expect(loadReports).toHaveBeenCalledTimes(1));
+
+    // Simulate the parent having just verified consent: the list request that ran
+    // while consent was PENDING must be re-issued once consent becomes VERIFIED,
+    // even though studentId is unchanged.
+    rerender(<ParentCanonicalReports studentId="student-a1" refreshSignal={1} />);
+
+    await waitFor(() => expect(loadReports).toHaveBeenCalledTimes(2));
+  });
 });

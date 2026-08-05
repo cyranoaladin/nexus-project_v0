@@ -4,6 +4,7 @@ export const dynamic = 'force-dynamic';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
+import { Prisma } from '@prisma/client';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { Subject } from '@/types/enums';
@@ -97,8 +98,20 @@ export async function PUT(
         userData.password = await bcrypt.hash(validatedData.password, 10);
       }
 
+      // Re-read the row's CURRENT email under a row lock, inside this same
+      // transaction, rather than trusting the `existingCoach` snapshot taken
+      // before the transaction started. A concurrent edit to this coach's
+      // email (racing between the outer read and this write) could otherwise
+      // change the row without this request noticing, so the "did the email
+      // change" decision — which drives session revocation — must be based
+      // on the row actually being mutated, not a stale outer-scope read.
+      const lockedRows = await tx.$queryRaw<Array<{ email: string }>>(Prisma.sql`
+        SELECT "email" FROM "users" WHERE "id" = ${coachId} FOR UPDATE
+      `);
+      const currentEmail = lockedRows[0]?.email ?? existingCoach.user.email;
+
       const revokesSessions = Boolean(
-        validatedData.password || validatedData.email !== existingCoach.user.email
+        validatedData.password || validatedData.email !== currentEmail
       );
 
       const user = await tx.user.update({
