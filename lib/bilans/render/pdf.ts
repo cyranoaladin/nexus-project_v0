@@ -92,7 +92,14 @@ export async function createBilanPdfRendererSession(): Promise<BilanPdfRendererS
   const browser = await chromium.launch({
     headless: true,
     executablePath,
-    args: ['--no-sandbox', '--disable-gpu', '--font-render-hinting=none'],
+    // --disable-dev-shm-usage: GitHub Actions runners (and most containers)
+    // mount a tiny /dev/shm -- Chromium's default shared-memory usage
+    // crashes the renderer there (silently, from this caller's point of
+    // view: renderDeterministicBilanPdf's catch turns it into a soft
+    // UNAVAILABLE status, not a thrown error). Writes to disk instead;
+    // negligible cost for single-page PDF rendering, harmless on the real
+    // production host where /dev/shm is normal-sized.
+    args: ['--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage', '--font-render-hinting=none'],
   });
   let closed = false;
 
@@ -104,6 +111,12 @@ export async function createBilanPdfRendererSession(): Promise<BilanPdfRendererS
       try {
         await page.emulateMedia({ media: 'print' });
         await page.setContent(resolvedHtml, { waitUntil: 'load' });
+        // istanbul ignore next -- this callback is serialized and run
+        // inside the browser page, a separate JS realm with no access to
+        // Node's coverage globals. Without the ignore comment, running
+        // Jest with --coverage injects a cov_xxx() counter call into the
+        // function body, and the browser throws ReferenceError: cov_xxx
+        // is not defined the moment this line executes.
         await page.evaluate(() => document.fonts.ready);
         return await page.pdf({
           format: 'A4',

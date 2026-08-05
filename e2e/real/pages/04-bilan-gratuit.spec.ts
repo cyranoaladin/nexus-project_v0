@@ -87,8 +87,13 @@ test.describe('REAL — Bilan Gratuit (/bilan-gratuit)', () => {
       const body = await apiResponse.json();
       console.log('API response:', JSON.stringify(body));
       expect(body.success, 'API ne retourne pas success=true').toBe(true);
-      expect(body.parentId, 'API ne retourne pas parentId').toBeTruthy();
-      expect(body.studentId, 'API ne retourne pas studentId').toBeTruthy();
+      // The response deliberately never includes parentId/studentId (see
+      // publicSuccessResponse() in app/api/bilan-gratuit/route.ts) -- an
+      // already-registered email hits the exact same anti-enumeration
+      // success shape, so returning these ids would let an attacker
+      // distinguish "created" from "already exists" and enumerate parent
+      // accounts. The client (BilanStrategiqueClient.tsx) never reads them
+      // either. Real DB creation is proven by the redirect below.
       await page.waitForURL('**/bilan-gratuit/confirmation', { timeout: 10000 });
     } else {
       const body = await apiResponse.json().catch(() => ({}));
