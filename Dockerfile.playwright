@@ -24,10 +24,17 @@ COPY playwright.config.ts ./playwright.config.ts
 
 # Specs that call application code directly (not just over HTTP) --
 # e.g. e2e/auth/bilan-golden-path.spec.ts drains the bilan worker jobs
-# in-process -- need the actual lib/ tree and the bank data it reads from
-# disk (data/bilans/banks/*.json), not just the test files themselves.
+# in-process -- need the actual lib/ tree, the bank manifests
+# (data/bilans/banks/*.json), the prompt files each pack's manifest points
+# at (content/bilans/prompts/**), and every asset the PDF renderer inlines
+# into the printed report (lib/bilans/render/pdf.ts's ASSETS list:
+# public/images/*.png, app/fonts/*.woff2) -- not just the test files
+# themselves.
 COPY lib ./lib
 COPY data ./data
+COPY content ./content
+COPY public ./public
+COPY app/fonts ./app/fonts
 
 # Copy tsconfig for TypeScript resolution
 COPY tsconfig.json ./tsconfig.json
