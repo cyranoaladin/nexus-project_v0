@@ -101,6 +101,17 @@ describe('/api/parent/children/[studentId]/canonical-consent', () => {
     }));
   });
 
+  it('GET est explicitement privé et non-cacheable pour éviter un état de rattachement obsolète', async () => {
+    mockGetStatus.mockResolvedValue({ state: 'PENDING_PARENT_CONSENT' });
+
+    const response = await GET(request('GET'), context);
+
+    expect(response.headers.get('cache-control')).toEqual(expect.stringContaining('private'));
+    expect(response.headers.get('cache-control')).toEqual(expect.stringContaining('no-store'));
+    expect(response.headers.get('pragma')).toBe('no-cache');
+    expect(response.headers.get('expires')).toBe('0');
+  });
+
   it('GET masque en 404 un refus d’ownership', async () => {
     mockGetStatus.mockRejectedValue(new ParentStudentConsentError('NOT_FOUND'));
 
@@ -183,6 +194,22 @@ describe('/api/parent/children/[studentId]/canonical-consent', () => {
       studentId: 'student-technical-id',
       now: expect.any(Date),
     }));
+  });
+
+  it('POST est explicitement privé et non-cacheable une fois le consentement vérifié', async () => {
+    mockVerify.mockResolvedValue({
+      id: 'link-technical-id',
+      state: 'VERIFIED',
+      consentedAt: new Date('2026-08-03T10:00:00.000Z'),
+      verifiedAt: new Date('2026-08-03T10:00:00.000Z'),
+    });
+
+    const response = await POST(request('POST', { consent: true }), context);
+
+    expect(response.headers.get('cache-control')).toEqual(expect.stringContaining('private'));
+    expect(response.headers.get('cache-control')).toEqual(expect.stringContaining('no-store'));
+    expect(response.headers.get('pragma')).toBe('no-cache');
+    expect(response.headers.get('expires')).toBe('0');
   });
 
   it('POST masque en 404 un refus d’ownership', async () => {

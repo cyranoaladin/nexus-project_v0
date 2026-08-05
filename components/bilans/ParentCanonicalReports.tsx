@@ -27,7 +27,10 @@ function statusLabel(report: ParentCanonicalReportSummary): string {
   return STATUS_LABELS[report.status] ?? 'Bilan en cours de traitement';
 }
 
-export function ParentCanonicalReports({ studentId }: Readonly<{ studentId: string }>) {
+export function ParentCanonicalReports({
+  studentId,
+  refreshSignal,
+}: Readonly<{ studentId: string; refreshSignal?: unknown }>) {
   const [reports, setReports] = useState<readonly ParentCanonicalReportSummary[] | null>(null);
   const [error, setError] = useState(false);
   const [openAttemptId, setOpenAttemptId] = useState<string | null>(null);
@@ -47,7 +50,11 @@ export function ParentCanonicalReports({ studentId }: Readonly<{ studentId: stri
 
   useEffect(() => {
     void refresh();
-  }, [refresh]);
+    // refreshSignal is an intentional external trigger (e.g. parent-student consent
+    // just got verified): bumping it must re-run the fetch even though studentId
+    // itself did not change.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [refresh, refreshSignal]);
 
   return (
     <section aria-labelledby="canonical-parent-reports-title" className="rounded-xl border border-white/10 bg-surface-card p-5">

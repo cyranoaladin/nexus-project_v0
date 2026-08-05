@@ -22,6 +22,7 @@ export default function ChildDetailPage() {
   
   const [childData, setChildData] = useState<ParentDashboardChild | null>(null);
   const [loading, setLoading] = useState(true);
+  const [reportsRefreshSignal, setReportsRefreshSignal] = useState(0);
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -95,7 +96,7 @@ export default function ChildDetailPage() {
         <DashboardPilotage role="PARENT" studentId={studentId}>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2 space-y-8">
-              <ParentCanonicalReports studentId={studentId} />
+              <ParentCanonicalReports studentId={studentId} refreshSignal={reportsRefreshSignal} />
 
               <ProgressEvolutionChart data={childData.progressionHistory ?? []} />
               
@@ -132,7 +133,10 @@ export default function ChildDetailPage() {
             </div>
 
             <div className="space-y-8">
-              <CanonicalConsentCard studentId={studentId} />
+              <CanonicalConsentCard
+                studentId={studentId}
+                onVerified={() => setReportsRefreshSignal((current) => current + 1)}
+              />
 
               <Card className="bg-surface-card border border-white/10 shadow-premium">
                 <CardHeader>
