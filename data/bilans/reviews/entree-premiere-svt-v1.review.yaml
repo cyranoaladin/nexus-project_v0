@@ -1,0 +1,13 @@
+schemaVersion: 1
+slug: entree-premiere-svt-v1
+packVersion: 1
+sourceChecksum: c989ecd9fa74a5dfb1be01195d2d959d605641abab99afb7df885b857bfffda2
+promptChecksums:
+  preAnalysis: 2f22e78fdb7f712a6dfd486b0ba852a41b41c79d425cb85b0930b550e520f401
+  eleve: d0bb0310a1d82c2e05495bfa263e9f796658dcb3d078fd555b0ec99654bd8cf4
+  parents: 8870dd37c186a5abe5d42e95a15f9e0e9624c9b9c588c94325f0fa61f3e3eb11
+  nexus: 68a5c4c72e5ecaf014add868a648d40388836cb82810aed0f8397cc5b0e7fd25
+  verifier: dc4ea0bb7af9e06099d8b786d7513412c2dac739867ba4e84ff0f94c9a65273f
+validatedBy: cmsf8ncnz0005mguhmrfwcoud
+validatedAt: 2026-08-05T07:02:52.330Z
+qualification: Professeur certifiee de SVT

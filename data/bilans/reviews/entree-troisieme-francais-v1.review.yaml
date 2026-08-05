@@ -1,0 +1,13 @@
+schemaVersion: 1
+slug: entree-troisieme-francais-v1
+packVersion: 1
+sourceChecksum: a659b2b46e589502407a53a3230a6e135468ce7625d09b8bb924345c01cec66e
+promptChecksums:
+  preAnalysis: c72eee2cfd6acfe8aab9a1a0017af7e5bc4cb3f35cde33040db915d06b800eaa
+  eleve: 207a820a1be830fff3d965ae657a253503219643a62d877162096fe46efe3a04
+  parents: b3ccbe819720669577d77e58553cf46c15d30e6fc81f0ec10bd8687d895d3217
+  nexus: 2faaee7d287bb0ac50c5a0591cb90dcd0bf4a55db0b683060d8595f3614c2851
+  verifier: 4666e05a25a78cf974eca9e743c9a3636d7ff29185f8cac10afa2f7ab16f79a7
+validatedBy: cmsf8ncom0008mguh4z5acmu5
+validatedAt: 2026-08-05T07:03:49.110Z
+qualification: Professeur certifiee de Lettres

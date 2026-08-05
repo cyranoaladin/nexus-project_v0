@@ -82,8 +82,11 @@ describe('fail-closed bilan pack loader', () => {
     expect(() => loadBilanPack(writePack('bad-checksum.json', broken))).toThrow(/checksum/i);
   });
 
-  it('never turns the real DRAFT pack into a ValidatedPack', () => {
-    expect(() => loadValidatedPack('data/bilans/banks/entree-terminale-maths-v1.json')).toThrow(
+  it('never turns a DRAFT pack into a ValidatedPack', () => {
+    const draft = clonePack();
+    draft.status = 'DRAFT' as typeof draft.status;
+    draft.review = { validatedBy: null, validatedAt: null } as unknown as typeof draft.review;
+    expect(() => loadValidatedPack(writePack('still-draft.json', draft))).toThrow(
       /PACK_PEDAGOGICAL_VALIDATION_REQUIRED/,
     );
   });
