@@ -969,7 +969,14 @@ docker compose -f docker-compose.v2.yml -f docker-compose.prod.v2.yml up -d [ser
 
 ---
 
-## 18. Démarrage Rapide
+## 18. Environnement Docker local (vestigial — NON utilisé en production)
+
+> **AVERTISSEMENT — environnement local uniquement.** Les fichiers
+> `docker-compose.prod.yml` et `Dockerfile.prod` sont conservés comme outillage
+> historique/local. Ils ne décrivent pas la production de
+> `nexusreussite.academy` et ne doivent pas être utilisés pour la déployer. La
+> seule cible de production documentée est le serveur distant en **PM2
+> standalone derrière Nginx**, décrit au §16.
 
 ### Développement Local
 
@@ -992,11 +999,15 @@ npx prisma db seed    # 9 users de démo
 npm run dev           # http://localhost:3000
 ```
 
-### Production (Docker)
+### Simulation locale avec les fichiers Docker historiques
 
 ```bash
 docker compose -f docker-compose.prod.yml up -d
 ```
+
+Cette commande démarre un environnement Docker local. Elle ne constitue ni une
+procédure de production, ni une preuve de l'état servi par
+`https://nexusreussite.academy`.
 
 ### Scripts Utiles
 
