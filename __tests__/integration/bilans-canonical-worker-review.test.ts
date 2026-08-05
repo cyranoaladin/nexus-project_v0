@@ -13,6 +13,7 @@ import { processScoreAttemptJob } from '@/lib/bilans/worker/score-job';
 import { processGenerateReportJob } from '@/lib/bilans/worker/generate-report-job';
 import { drainGenerateReportJobs } from '@/lib/bilans/worker/drain-outbox';
 import { MockBilanLlmTransport } from '@/lib/bilans/llm/mock-transport';
+import { BilanLlmConfigError } from '@/lib/bilans/llm/config';
 import { prisma } from '@/lib/prisma';
 import { renderDeterministicBilanHtml } from '@/lib/bilans/render/html';
 import { BILAN_PDF_ENGINE_VERSION } from '@/lib/bilans/render/pdf';
@@ -205,6 +206,45 @@ describe('A86 deterministic worker and internal review service', () => {
       .toBe('REPORT_PENDING_REVIEW');
     expect(await prisma.reportRevision.count({ where: { reportArtifact: { assessmentAttemptId: seeded.attempt.id } } })).toBe(1);
     expect((await prisma.jobOutbox.findUniqueOrThrow({ where: { id: generateJob.id } }))).toMatchObject({ status: 'COMPLETED' });
+  });
+
+  test('falls back to the deterministic renderer when OpenRouter is not configured -- PLANCHER never strands an attempt at SCORED', async () => {
+    const seeded = await seedAttempt('plancher-fallback');
+    await processScoreAttemptJob(seeded.job.id, dependencies);
+    const generateJob = await prisma.jobOutbox.findUniqueOrThrow({
+      where: { idempotencyKey: `${seeded.attempt.id}.generate-report` },
+    });
+
+    await processGenerateReportJob(generateJob.id, {
+      ...dependencies,
+      buildTransport: () => { throw new BilanLlmConfigError('OPENROUTER_API_KEY_MISSING'); },
+    });
+
+    expect((await prisma.canonicalAssessmentAttempt.findUniqueOrThrow({ where: { id: seeded.attempt.id } })).status)
+      .toBe('REPORT_PENDING_REVIEW');
+    const snapshot = await prisma.scoreSnapshot.findUniqueOrThrow({ where: { assessmentAttemptId: seeded.attempt.id } });
+    const revision = await prisma.reportRevision.findUniqueOrThrow({ where: { scoreSnapshotId: snapshot.id } });
+    const deterministicContent = revision.content as { NEXUS: { content: { internalFacts: { globalScore: number } } } };
+    expect(deterministicContent.NEXUS.content.internalFacts.globalScore).toBe(snapshot.score);
+    expect((await prisma.jobOutbox.findUniqueOrThrow({ where: { id: generateJob.id } }))).toMatchObject({ status: 'COMPLETED' });
+    expect(logger.info).toHaveBeenCalledWith(expect.objectContaining({ mode: 'DETERMINISTIC_FALLBACK' }));
+  });
+
+  test('a real OpenRouter misconfiguration (not a missing key) still fails closed instead of silently falling back', async () => {
+    const seeded = await seedAttempt('misconfigured-model');
+    await processScoreAttemptJob(seeded.job.id, dependencies);
+    const generateJob = await prisma.jobOutbox.findUniqueOrThrow({
+      where: { idempotencyKey: `${seeded.attempt.id}.generate-report` },
+    });
+
+    await expect(processGenerateReportJob(generateJob.id, {
+      ...dependencies,
+      buildTransport: () => { throw new Error('BILAN_MODEL_NOT_ALLOWLISTED'); },
+    })).rejects.toThrow('A88_WORKER_FAILED');
+
+    expect(await prisma.reportRevision.count({ where: { reportArtifact: { assessmentAttemptId: seeded.attempt.id } } })).toBe(0);
+    expect((await prisma.canonicalAssessmentAttempt.findUniqueOrThrow({ where: { id: seeded.attempt.id } })).status)
+      .toBe('REPORT_GENERATION_FAILED');
   });
 
   test('reviews then publishes explicitly and A85 serves only the authorized audience', async () => {

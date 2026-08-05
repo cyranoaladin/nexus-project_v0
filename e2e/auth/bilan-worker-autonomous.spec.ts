@@ -2,14 +2,22 @@ import { expect, test } from '@playwright/test';
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 
-import { drainGenerateReportJobs, drainScoreAttemptJobs } from '../../lib/bilans/worker/drain-outbox';
-import { processGenerateReportJob } from '../../lib/bilans/worker/generate-report-job';
-import { resolveEnabledPack } from '../../lib/bilans/api/pack-access';
-import { MockBilanLlmTransport } from '../../lib/bilans/llm/mock-transport';
-import { publishReportRevision } from '../../lib/bilans/core/report-service';
 import { validateAndPublishPendingReport } from '../../lib/bilans/staff/review-service';
+import { publishReportRevision } from '../../lib/bilans/core/report-service';
 import { createBilanPdfRendererSession, BILAN_PDF_ENGINE_VERSION } from '../../lib/bilans/render/pdf';
 import seconde from '../../data/bilans/banks/entree-seconde-maths-v1.json';
+
+/**
+ * GATE A — proves the PRODUCTION posture: BILAN_WORKER_ENABLED=true,
+ * OPENROUTER_API_KEY absent. Unlike bilan-golden-path.spec.ts (which drains
+ * both jobs manually, by design, for a deterministic test), this spec never
+ * calls drainScoreAttemptJobs/drainGenerateReportJobs itself -- it only
+ * polls, so a green run here proves the SERVER's own background scheduler
+ * (lib/bilans/worker/scheduler.ts, started from instrumentation.ts) carries
+ * a submitted attempt all the way to REPORT_PENDING_REVIEW with nobody
+ * hitting drain from outside. The server process this spec targets MUST be
+ * started with BILAN_WORKER_ENABLED=true and no OPENROUTER_API_KEY.
+ */
 
 const databaseUrl = process.env.DATABASE_URL ?? '';
 function assertIsolatedDatabase(): void {
@@ -23,7 +31,7 @@ function assertIsolatedDatabase(): void {
 
 const prisma = new PrismaClient({ datasources: { db: { url: databaseUrl } } });
 const packSlug = 'entree-seconde-maths-v1';
-const prefix = 'golden-path-';
+const prefix = 'gate-a-worker-';
 
 async function cleanupFamily(parentEmail: string): Promise<void> {
   const parent = await prisma.user.findUnique({
@@ -39,6 +47,7 @@ async function cleanupFamily(parentEmail: string): Promise<void> {
   await prisma.reportRevision.deleteMany({ where: { reportArtifact: { studentId: { in: studentIds } } } });
   await prisma.reportArtifact.deleteMany({ where: { studentId: { in: studentIds } } });
   await prisma.scoreSnapshot.deleteMany({ where: { assessmentAttempt: { studentId: { in: studentIds } } } });
+  await prisma.jobOutbox.deleteMany({ where: { aggregateId: { in: await prisma.canonicalAssessmentAttempt.findMany({ where: { studentId: { in: studentIds } }, select: { id: true } }).then((rows) => rows.map((r) => r.id)) } } });
   await prisma.canonicalApiIdempotencyKey.deleteMany({ where: { userId: { in: childUserIds } } });
   await prisma.canonicalAssessmentAttempt.deleteMany({ where: { studentId: { in: studentIds } } });
   await prisma.parentStudentLink.deleteMany({ where: { OR: [{ parentUserId: parent.id }, { studentId: { in: studentIds } }] } });
@@ -47,7 +56,17 @@ async function cleanupFamily(parentEmail: string): Promise<void> {
   await prisma.user.deleteMany({ where: { id: { in: [...childUserIds, parent.id] } } });
 }
 
-test.describe('Golden-path — bilan de bout en bout (rapport LLM stubbé)', () => {
+async function pollUntil<T>(fn: () => Promise<T | null>, timeoutMs: number, intervalMs: number): Promise<T> {
+  const startedAt = Date.now();
+  for (;;) {
+    const value = await fn();
+    if (value !== null) return value;
+    if (Date.now() - startedAt > timeoutMs) throw new Error('POLL_TIMEOUT');
+    await new Promise((resolve) => setTimeout(resolve, intervalMs));
+  }
+}
+
+test.describe('GATE A — posture prod (worker ON, sans clé OpenRouter)', () => {
   test.beforeAll(() => {
     assertIsolatedDatabase();
   });
@@ -56,7 +75,7 @@ test.describe('Golden-path — bilan de bout en bout (rapport LLM stubbé)', () 
     await prisma.$disconnect();
   });
 
-  test('passation réelle 18 réponses -> scoring -> rapport LLM (stub) -> publication -> accès parent + élève', async ({ page }) => {
+  test('le scheduler autonome du serveur produit seul un bilan plancher, sans drain manuel, zéro zombie', async ({ page }) => {
     test.setTimeout(120_000);
     const nonce = Date.now();
     const parentEmail = `${prefix}${nonce}@example.test`;
@@ -65,17 +84,16 @@ test.describe('Golden-path — bilan de bout en bout (rapport LLM stubbé)', () 
 
     await cleanupFamily(parentEmail);
 
-    // 1. Inscription -> activation parent -> activation élève, via l'UI réelle.
     await page.goto('/bilan-gratuit');
     await page.locator('#parentFirstName').fill('Parent');
     await page.locator('#parentLastName').fill('Synthétique');
     await page.locator('#parentEmail').fill(parentEmail);
-    await page.locator('#parentPhone').fill('+21699000004');
+    await page.locator('#parentPhone').fill('+21699000005');
     await page.locator('#studentFirstName').fill('Élève');
     await page.locator('#studentGrade').selectOption('seconde');
     await page.locator('#studentSchool').fill('Établissement synthétique');
     await page.locator('label').filter({ hasText: 'Mathématiques' }).getByRole('checkbox').click();
-    await page.locator('#objectives').fill('Prouver le golden-path bilan de bout en bout.');
+    await page.locator('#objectives').fill('Prouver la posture worker-ON sans clé OpenRouter.');
     await page.locator('label').filter({ hasText: /J.accepte d.être contacté/ }).getByRole('checkbox').click();
     await page.getByRole('button', { name: /demander mon bilan stratégique gratuit/i }).click();
     await expect(page).toHaveURL(/\/bilan-gratuit\/confirmation/);
@@ -117,10 +135,9 @@ test.describe('Golden-path — bilan de bout en bout (rapport LLM stubbé)', () 
     await page.getByRole('button', { name: /accéder à mon espace/i }).click();
     await expect(page).toHaveURL(/\/dashboard\/eleve/);
 
-    // 2. Passation réelle : création de la tentative, 18 réponses réelles (toutes correctes,
-    //    confiance maximale) -- réutilise le cas doré "all-correct-confident" (score = 100).
+    // Passation réelle, 18 réponses toutes correctes (cas doré, score = 100).
     const created = await page.request.post('/api/bilans/attempts', {
-      headers: { 'idempotency-key': `golden-path-create-${nonce}` },
+      headers: { 'idempotency-key': `gate-a-create-${nonce}` },
       data: { packSlug },
     });
     expect(created.status()).toBe(201);
@@ -132,76 +149,46 @@ test.describe('Golden-path — bilan de bout en bout (rapport LLM stubbé)', () 
       confidence: 4 as const,
     }));
     const patched = await page.request.patch(`/api/bilans/attempts/${attemptId}/answers`, {
-      headers: { 'idempotency-key': `golden-path-answers-${nonce}` },
+      headers: { 'idempotency-key': `gate-a-answers-${nonce}` },
       data: { revision: 0, answers },
     });
     expect(patched.status()).toBe(200);
-    const { revision } = await patched.json();
-    expect(revision).toBe(1);
-
-    // 3. Idempotence : rejouer la création avec la même clé ne duplique pas la tentative.
-    const replay = await page.request.post('/api/bilans/attempts', {
-      headers: { 'idempotency-key': `golden-path-create-${nonce}` },
-      data: { packSlug },
-    });
-    expect(replay.status()).toBe(201);
-    expect((await replay.json()).attemptId).toBe(attemptId);
-    expect(await prisma.canonicalAssessmentAttempt.count({ where: { studentId: child.id } })).toBe(1);
 
     const submitted = await page.request.post(`/api/bilans/attempts/${attemptId}/submit`, {
-      headers: { 'idempotency-key': `golden-path-submit-${nonce}` },
+      headers: { 'idempotency-key': `gate-a-submit-${nonce}` },
       data: { revision: 1 },
     });
     expect(submitted.status()).toBe(200);
     expect((await submitted.json()).status).toBe('SUBMITTED');
 
-    // 4. Le pipeline automatique tourne hors requête HTTP, en deux jobs :
-    //    scoring (SCORE_ATTEMPT) puis génération du rapport par un LLM
-    //    (GENERATE_REPORT). En production les deux sont drainés par le
-    //    scheduler en process (lib/bilans/worker/scheduler.ts, gated par
-    //    BILAN_WORKER_ENABLED) ; ici on invoque directement les mêmes
-    //    fonctions de drain pour un test déterministe sans polling, avec un
-    //    transport LLM stubbé (MockBilanLlmTransport) -- aucun appel réseau
-    //    réel dans ce scénario.
-    const drainResult = await drainScoreAttemptJobs({}, {});
-    expect(drainResult.completed).toBeGreaterThanOrEqual(1);
+    // Aucun drain manuel ici : on attend seulement que le scheduler du
+    // serveur (BILAN_WORKER_ENABLED=true, sans OPENROUTER_API_KEY) fasse le
+    // travail seul -- scoring puis génération -- et amène l'attempt à
+    // REPORT_PENDING_REVIEW de lui-même.
+    const revisionRow = await pollUntil(async () => {
+      const attempt = await prisma.canonicalAssessmentAttempt.findUniqueOrThrow({ where: { id: attemptId } });
+      if (attempt.status !== 'REPORT_PENDING_REVIEW') return null;
+      return prisma.reportRevision.findFirstOrThrow({ where: { reportArtifact: { assessmentAttemptId: attemptId } } });
+    }, 30_000, 500);
 
     const snapshot = await prisma.scoreSnapshot.findUniqueOrThrow({ where: { assessmentAttemptId: attemptId } });
     expect(snapshot.score).toBe(100);
 
-    const generateResult = await drainGenerateReportJobs({}, {
-      processJob: (jobId) => processGenerateReportJob(jobId, {
-        prisma,
-        resolvePack: resolveEnabledPack,
-        buildTransport: () => new MockBilanLlmTransport(),
-        now: () => new Date(),
-        logger: { info: () => {}, error: () => {} },
-      }),
+    // Fallback déterministe : aucun appel réseau, jamais de narration LLM
+    // sans clé -- les nombres viennent du FactSheet, jamais d'un bundle.
+    const content = revisionRow.content as { NEXUS: { content: { internalFacts: { globalScore: number } } } };
+    expect(content.NEXUS.content.internalFacts.globalScore).toBe(100);
+
+    // Zéro zombie : le job GENERATE_REPORT du scheduler autonome a bien
+    // terminé, aucun job de ce pipeline ne reste PENDING/LEASED/FAILED.
+    const straySoreJobs = await prisma.jobOutbox.count({
+      where: { aggregateId: attemptId, status: { in: ['PENDING', 'LEASED', 'FAILED'] } },
     });
-    expect(generateResult.completed).toBeGreaterThanOrEqual(1);
+    expect(straySoreJobs).toBe(0);
 
-    const artifact = await prisma.reportArtifact.findUniqueOrThrow({ where: { assessmentAttemptId: attemptId } });
-    expect(artifact.status).toBe('PENDING_REVIEW');
-    const revisionRow = await prisma.reportRevision.findUniqueOrThrow({ where: { scoreSnapshotId: snapshot.id } });
-    // Les nombres viennent toujours du FactSheet, jamais du bundle LLM
-    // (buildLlmReports ne fait que narrer -- voir sa documentation).
-    const narratedContent = revisionRow.content as { NEXUS: { content: { internalFacts: { globalScore: number } } } };
-    expect(narratedContent.NEXUS.content.internalFacts.globalScore).toBe(100);
-
-    // 5. Un pack non activé (flag absent) reste inaccessible même après ce parcours.
-    const otherPackAttempt = await page.request.post('/api/bilans/attempts', {
-      headers: { 'idempotency-key': `golden-path-other-pack-${nonce}` },
-      data: { packSlug: 'entree-terminale-philosophie-v1' },
-    });
-    expect(otherPackAttempt.status()).toBe(404);
-
-    // 6. Revue humaine puis publication -- seule étape non automatisée du
-    //    pipeline. Acteur : une assistante synthétique, jamais un vrai élève,
-    //    passant par le même service (review-service.ts) que le dashboard
-    //    /dashboard/assistante/bilans -- le coach n'est plus dans ce circuit.
     const assistante = await prisma.user.create({
       data: {
-        email: `golden-path-assistante-${nonce}@example.test`,
+        email: `gate-a-assistante-${nonce}@example.test`,
         role: 'ASSISTANTE',
         firstName: 'Assistante',
         lastName: 'Synthétique',
@@ -215,7 +202,7 @@ test.describe('Golden-path — bilan de bout en bout (rapport LLM stubbé)', () 
         userId: assistante.id,
         role: 'ASSISTANTE',
         revisionId: revisionRow.id,
-        motif: 'Relecture golden-path automatisée.',
+        motif: 'Relecture GATE A — posture worker-ON sans clé.',
       }, {
         publish: (input) => publishReportRevision({
           prisma,
@@ -230,11 +217,9 @@ test.describe('Golden-path — bilan de bout en bout (rapport LLM stubbé)', () 
       await pdfSession.close();
     }
 
-    // 7. Accès élève au rapport publié.
     const studentReport = await page.request.get(`/api/bilans/attempts/${attemptId}/report`);
     expect(studentReport.status()).toBe(200);
 
-    // 8. Accès parent au rapport publié, via son propre compte.
     await page.getByRole('button', { name: 'Se déconnecter de votre compte' }).click();
     await page.waitForURL((url) => url.pathname === '/');
     await page.goto('/auth/signin');

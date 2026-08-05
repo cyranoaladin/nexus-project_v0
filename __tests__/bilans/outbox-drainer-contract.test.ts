@@ -14,10 +14,19 @@ describe('Canonical scoring outbox drainer boundary', () => {
     expect(script).not.toMatch(/cron|setInterval|setTimeout/);
   });
 
-  test('documents the exact manual command without enabling a scheduler', () => {
+  test('exposes an equivalent manual-only entrypoint for report generation, so a stopped scheduler never strands attempts at SCORED', () => {
+    const script = readFileSync(resolve(ROOT, 'scripts/bilans/drain-report-generation-outbox.ts'), 'utf8');
+
+    expect(script).toContain('drainGenerateReportJobs');
+    expect(script).not.toContain('drainScoreAttemptJobs');
+    expect(script).not.toMatch(/cron|setInterval|setTimeout/);
+  });
+
+  test('documents the exact manual commands without enabling a scheduler', () => {
     const operations = readFileSync(resolve(ROOT, 'ops/bilans/drainage-outbox.md'), 'utf8');
 
     expect(operations).toContain('scripts/bilans/drain-scoring-outbox.ts');
+    expect(operations).toContain('scripts/bilans/drain-report-generation-outbox.ts');
     expect(operations).toContain('--limit');
     expect(operations).toContain('Aucun daemon');
   });

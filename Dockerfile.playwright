@@ -22,6 +22,13 @@ COPY e2e ./e2e
 COPY playwright.config.e2e.ts ./playwright.config.e2e.ts
 COPY playwright.config.ts ./playwright.config.ts
 
+# Specs that call application code directly (not just over HTTP) --
+# e.g. e2e/auth/bilan-golden-path.spec.ts drains the bilan worker jobs
+# in-process -- need the actual lib/ tree and the bank data it reads from
+# disk (data/bilans/banks/*.json), not just the test files themselves.
+COPY lib ./lib
+COPY data ./data
+
 # Copy tsconfig for TypeScript resolution
 COPY tsconfig.json ./tsconfig.json
 

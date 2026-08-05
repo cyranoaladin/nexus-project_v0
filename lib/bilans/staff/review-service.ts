@@ -84,6 +84,15 @@ const defaultDependencies: ReviewServiceDependencies = {
  * machine: only ASSISTANTE performs VALIDATE_REPORT/REJECT_REPORT/
  * PUBLISH_REPORT). A coach's own subject knowledge no longer gates
  * publication to families.
+ *
+ * CONDITIONAL ON NARRATION STAYING OFF. This model was decided for the
+ * PLANCHER deployment, where every report is deterministically rendered --
+ * an assistante checking process, not content, is sufficient. The day
+ * OPENROUTER_API_KEY is confirmed and the worker starts producing
+ * AI-narrated reports (see the FLIP POINT comment in
+ * ../worker/generate-report-job.ts), a subject-qualified COACH review must
+ * be reintroduced as a prerequisite before ASSISTANTE can publish. That
+ * re-wiring does not exist yet -- do not flip the LLM on without rebuilding it.
  */
 function assertAssistante(actor: ReviewActor): string {
   if (actor.role !== 'ASSISTANTE' || !actor.userId.trim()) throw new StaffReviewError('NOT_FOUND');
