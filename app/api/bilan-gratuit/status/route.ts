@@ -7,6 +7,11 @@ import { NextResponse } from 'next/server';
 /**
  * GET /api/bilan-gratuit/status
  * Returns whether the current parent has completed or dismissed the bilan gratuit banner.
+ *
+ * "completed" is derived from the canonical assessment pipeline (does any
+ * child have a PUBLISHED bilan?) rather than from
+ * ParentProfile.bilanGratuitCompletedAt, which nothing in the codebase ever
+ * writes -- keeping it would mean this flag is permanently false.
  */
 export async function GET() {
   try {
@@ -24,14 +29,23 @@ export async function GET() {
     const profile = await prisma.parentProfile.findUnique({
       where: { userId: session.user.id },
       select: {
-        bilanGratuitCompletedAt: true,
+        id: true,
         bilanGratuitDismissedAt: true,
       },
     });
 
+    if (!profile) {
+      return NextResponse.json({ completed: false, dismissed: false });
+    }
+
+    const publishedAttempt = await prisma.canonicalAssessmentAttempt.findFirst({
+      where: { status: 'PUBLISHED', student: { parentId: profile.id } },
+      select: { id: true },
+    });
+
     return NextResponse.json({
-      completed: !!profile?.bilanGratuitCompletedAt,
-      dismissed: !!profile?.bilanGratuitDismissedAt,
+      completed: publishedAttempt !== null,
+      dismissed: !!profile.bilanGratuitDismissedAt,
     });
   } catch {
     return NextResponse.json({ completed: false, dismissed: false });

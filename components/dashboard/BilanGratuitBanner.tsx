@@ -1,9 +1,19 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ClipboardCheck, X } from "lucide-react";
+
+type BilanGratuitBannerProps = {
+  /**
+   * The banner only ever renders for an authenticated parent (it reads
+   * /api/bilan-gratuit/status, which requires a session) -- so "Faire le
+   * bilan" must send them to their own "Ajouter un Enfant" flow, never to
+   * the public /bilan-gratuit registration form, which assumes an
+   * anonymous visitor and silently no-ops on an already-registered email.
+   */
+  onGoToChildren: () => void;
+};
 
 /**
  * Banner displayed on the parent dashboard encouraging them to complete
@@ -11,7 +21,7 @@ import { ClipboardCheck, X } from "lucide-react";
  *
  * Dismiss state is persisted in DB via /api/bilan-gratuit/status and /dismiss.
  */
-export function BilanGratuitBanner() {
+export function BilanGratuitBanner({ onGoToChildren }: BilanGratuitBannerProps) {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -52,10 +62,8 @@ export function BilanGratuitBanner() {
         </div>
       </div>
       <div className="flex items-center gap-2 ml-8 sm:ml-0 flex-shrink-0">
-        <Button asChild size="sm" className="text-xs sm:text-sm">
-          <Link href="/bilan-gratuit">
-            Faire le bilan
-          </Link>
+        <Button size="sm" className="text-xs sm:text-sm" onClick={onGoToChildren}>
+          Faire le bilan
         </Button>
         <Button
           variant="ghost"
