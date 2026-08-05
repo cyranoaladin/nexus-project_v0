@@ -91,6 +91,19 @@ describe('parent activation security primitives', () => {
     expect(email.html).toContain('https://nexus.test/auth/activate')
   })
 
+  it('keeps a script tag out even from nested/malformed input a single tag-shaped regex pass would miss', () => {
+    process.env.NEXTAUTH_URL = 'https://nexus.test'
+
+    const email = buildParentActivationEmail({
+      parentName: '<scr<script>ipt>alert(1)</script>',
+      childFirstName: 'Lina',
+      rawToken: 'recognizable-raw-token',
+    })
+
+    expect(email.html.toLowerCase()).not.toMatch(/<script/)
+    expect(email.html).toContain('https://nexus.test/auth/activate')
+  })
+
   it('applies non-cache and no-referrer headers to success and error responses', () => {
     for (const status of [200, 400, 401, 404, 429, 500]) {
       const response = withActivationSecurityHeaders(

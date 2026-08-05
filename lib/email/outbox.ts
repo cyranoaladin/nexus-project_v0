@@ -65,7 +65,7 @@ function encryptContent(
   messageType: EmailMessageType,
 ): EncryptedPayload {
   const iv = randomBytes(12);
-  const cipher = createCipheriv('aes-256-gcm', dedicatedSecret(), iv);
+  const cipher = createCipheriv('aes-256-gcm', dedicatedSecret(), iv, { authTagLength: 16 });
   const aad = Buffer.from(`${EMAIL_OUTBOX_SCHEMA_VERSION}\0${content.messageId}\0${messageType}`);
   cipher.setAAD(aad);
   const ciphertext = Buffer.concat([
@@ -92,6 +92,7 @@ export function decryptEmailIntent(payload: unknown): Readonly<{
     'aes-256-gcm',
     dedicatedSecret(),
     Buffer.from(parsed.iv, 'base64url'),
+    { authTagLength: 16 },
   );
   decipher.setAAD(Buffer.from(
     `${parsed.schemaVersion}\0${parsed.messageId}\0${parsed.messageType}`,

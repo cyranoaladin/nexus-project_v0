@@ -88,6 +88,20 @@ describe('POST /api/reservation', () => {
     expect(telegramSendMessage).toHaveBeenCalledTimes(1);
   });
 
+  it('escapes a literal backslash before a MarkdownV1 special char, not after', async () => {
+    // A pre-existing '\' immediately before a special char (e.g. '*') must
+    // itself be escaped first -- otherwise the sanitizer's own inserted
+    // '\' pairs with the ATTACKER'S backslash instead of the special char,
+    // leaving the special char unescaped and live (e.g. "\*bold*\" would
+    // still toggle Markdown bold once rendered by Telegram).
+    await POST(makeRequest({ ...validBody, parent: String.raw`Jean\*Dupont` }));
+
+    const [, message] = (telegramSendMessage as jest.Mock).mock.calls[0];
+    // The literal backslash must be escaped to \\, and the asterisk to \*,
+    // independently -- i.e. 3 backslashes then '*', never 2.
+    expect(message).toContain(String.raw`Jean\\\*Dupont`);
+  });
+
   it('keeps the reservation when the secondary Telegram notification fails', async () => {
     (telegramSendMessage as jest.Mock).mockResolvedValue({
       ok: false,

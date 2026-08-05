@@ -85,7 +85,18 @@ function escapeHtml(value: string): string {
 function sanitizeInlineText(value: string): string {
   return value
     .replace(/[\r\n]+/g, ' ')
+    // First pass: drop whole "<...>"-shaped tags (keeps the common case
+    // readable -- an <img onerror=...> attempt disappears entirely rather
+    // than leaving its attribute text behind).
     .replace(/<[^>]*>/g, '')
+    // Second pass: a single tag-shaped regex can still be defeated by
+    // malformed/nested input (CodeQL: incomplete multi-character
+    // sanitization) -- strip any surviving '<'/'>' character individually
+    // so no fragment can later be recombined into a tag. Defense in depth
+    // only -- buildParentActivationEmail/buildAccountActivationEmail
+    // additionally run escapeHtml() on this output before it reaches the
+    // HTML template.
+    .replace(/[<>]/g, '')
     .replace(/\b(?:bcc|cc|to|from|subject)\s*:/gi, '')
     .trim()
 }
