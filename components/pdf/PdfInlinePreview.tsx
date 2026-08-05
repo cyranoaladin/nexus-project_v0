@@ -16,7 +16,7 @@ export function PdfInlinePreview({ src, title }: PdfInlinePreviewProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const pdfRef = useRef<PdfDocument | null>(null);
-  const renderTaskRef = useRef<{ cancel: () => void } | null>(null);
+  const renderTaskRef = useRef<{ cancel: () => void; promise: Promise<unknown> } | null>(null);
   const resizeObserverRef = useRef<ResizeObserver | null>(null);
 
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading');
@@ -49,7 +49,14 @@ export function PdfInlinePreview({ src, title }: PdfInlinePreviewProps) {
         const pdf = await loadingTask.promise;
 
         if (cancelled) {
-          pdf.cleanup();
+          // loadingTask is only assigned here, after the async import above
+          // resolves -- if unmount/src-change happened while that import
+          // was still in flight, the effect's own cleanup already ran with
+          // loadingTask still null, so its destroy() call was a no-op. This
+          // is the one place that still holds a reference to the task that
+          // escaped it: destroy it now instead of just clearing the
+          // resolved document's cache, or the worker leaks.
+          void loadingTask?.destroy().catch(() => {});
           return;
         }
 
@@ -150,7 +157,15 @@ export function PdfInlinePreview({ src, title }: PdfInlinePreviewProps) {
 
     return () => {
       cancelled = true;
-      renderTaskRef.current?.cancel();
+      // cancel() triggers cancellation asynchronously; renderPage()'s own
+      // try/catch normally absorbs the resulting RenderingCancelledException
+      // on renderTask.promise, but attach a defensive catch here too so an
+      // unmount mid-render can never surface as an unhandled rejection
+      // regardless of exactly when that promise settles relative to this
+      // cleanup running.
+      const task = renderTaskRef.current;
+      task?.cancel();
+      void task?.promise?.catch(() => {});
     };
   }, [pageNumber, status, title, src]);
 
