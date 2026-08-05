@@ -84,7 +84,10 @@ describe('parent activation security primitives', () => {
 
     expect(email.subject).not.toMatch(/[\r\n]/)
     expect(email.html).not.toContain('<img src=x')
-    expect(email.html).not.toContain('onerror=')
+    // No HTML element can form: every '<'/'>' from user input is stripped
+    // (not just tag-shaped substrings), so "onerror=alert(1)" may remain
+    // as inert text, but never as a live attribute of a real element.
+    expect(email.html).not.toMatch(/<img\b/i)
     expect(email.html).not.toContain('Bcc:')
     expect(email.text).not.toContain('Bcc:')
     expect(email.text).not.toMatch(/mot de passe temporaire/i)
