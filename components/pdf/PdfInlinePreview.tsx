@@ -46,6 +46,17 @@ export function PdfInlinePreview({ src, title }: PdfInlinePreviewProps) {
           isOffscreenCanvasSupported: false,
           useWorkerFetch: false,
         });
+
+        // Check immediately, before awaiting: if unmount/src-change
+        // happened during the dynamic import above (the only async gap
+        // before this point), destroy the task now rather than waiting on
+        // its network promise, which can hang indefinitely and delay
+        // cleanup until it eventually settles (if ever).
+        if (cancelled) {
+          void loadingTask.destroy().catch(() => {});
+          return;
+        }
+
         const pdf = await loadingTask.promise;
 
         if (cancelled) {
