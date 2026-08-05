@@ -11,7 +11,7 @@ Deux sorties possibles ce soir. **Le PLANCHER est garanti ; le STRETCH est optio
 ## Invariants (rappel, non négociables)
 1. L'IA ne signe pas les packs. Signature = clic humain du validateur **qualifié dans la matière du pack**.
 2. On n'allume un pack que si son parcours activé est E2E-vert **et** il est signé par un validateur compétent.
-3. Clé `OPENROUTER_API_KEY` : disponible dans le `.env` racine (OK pour câblage/test local). **Vérifier que `.env` est gitignoré et que la clé n'apparaît nulle part dans l'historique git** avant tout push. En prod, la clé doit être **chargée depuis le secret prod** (`/etc/nexus/nexus-prod.env`, convention existante), pas embarquée dans le build. Jamais loggée, jamais affichée en output terminal, jamais commitée.
+3. Clé `OPENROUTER_API_KEY` : disponible dans le `.env` racine (OK pour câblage/test local). **Vérifier que `.env` est gitignoré et que la clé n'apparaît nulle part dans l'historique git** avant tout push. En prod, la clé doit être **chargée depuis le secret prod** (`<PROD_ENV_FILE>`, convention existante), pas embarquée dans le build. Jamais loggée, jamais affichée en output terminal, jamais commitée.
 4. Preflight Redis + worker SMTP prod **réussi** avant d'allumer la chaîne (le worker/outbox/publication en dépend).
 5. Backup DB + release de rollback confirmés avant déploiement. `SYNTHETIC_DATA_RESIDUALS` = 0 en prod.
 6. Un vrai défaut se corrige, ne se masque pas. Garde-fous de purge intacts.
@@ -28,7 +28,7 @@ Deux sorties possibles ce soir. **Le PLANCHER est garanti ; le STRETCH est optio
 **GATE 0** : liste finale des packs activables ce soir = ceux qui ont un validateur qualifié. Les autres restent DRAFT/OFF.
 
 ## Étape 1 — Preflight infra prod (bloquant pour toute chaîne bilan)
-`ssh root@88.99.254.59`, lecture d'abord.
+`ssh root@<PROD_HOST>`, lecture d'abord.
 - PostgreSQL : migrations 60/60, drift nul.
 - **Redis** : joignable, healthcheck OK.
 - **Worker SMTP / outbox** : joignable, envoi test réel vers une adresse contrôlée, drainer actif.
@@ -73,6 +73,6 @@ Choisis une heure limite ce soir (ex. T-90 min avant l'arrêt souhaité). À cet
 Dans les deux cas, le résultat est un go-live où **tout ce qui est allumé est vert et certifié par un humain qualifié** — donc indiscutable. Le plancher n'est pas un repli au rabais : c'est un diagnostic chiffré fiable, lu par des enseignants certifiés. C'est un excellent lancement de pré-rentrée.
 
 ## À remonter à l'utilisateur (actions humaines)
-- Confirmer que la clé OpenRouter est chargée en prod depuis le secret prod (`/etc/nexus/nexus-prod.env`), pas seulement le `.env` local, et que `.env` est gitignoré / absent de l'historique.
+- Confirmer que la clé OpenRouter est chargée en prod depuis le secret prod (`<PROD_ENV_FILE>`), pas seulement le `.env` local, et que `.env` est gitignoré / absent de l'historique.
 - Signer les packs : **Lamia** (Français), **Baligh** (PC), **Sihem** (SVT), **vous** (`cyranoaladin@gmail.com` : Maths + NSI).
 - Fixer le cutoff (bascule stretch → plancher).

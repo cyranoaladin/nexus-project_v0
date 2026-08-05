@@ -8,8 +8,8 @@ Go-live du volet bilan diagnostique en production, **narration LLM désactivée*
 
 - Commit déployé : `dfac297a6abbadab0928a901a0e9be04303de388` (`chore(bilans): record 17/17 pack validations + align fixtures`), sur `chore/bilans-p0d-release-quality-s5`, HEAD après `91b296bc4`.
 - `BUILD_ID` : `shLZ60ShL50jlSawfylHa`, artefact standalone vérifié (`STANDALONE_ARTIFACT_VALID=true`, empreintes source/standalone identiques).
-- Release déployée : `/var/www/nexus-releases/dfac297a6-bilan-golive-20260805T074153Z`.
-- Release précédemment live (rollback immédiat) : `/var/www/nexus-releases/6e3aedaac-u1-20260803T205021Z` — **c'est la vraie cible de rollback**, distincte du SHA `11e0dce…` cité dans le runbook initial (plus ancien, également conservé sur le disque).
+- Release déployée : `<RELEASE_DIR>/dfac297a6-bilan-golive-20260805T074153Z`.
+- Release précédemment live (rollback immédiat) : `<RELEASE_DIR>/6e3aedaac-u1-20260803T205021Z` — **c'est la vraie cible de rollback**, distincte du SHA `11e0dce…` cité dans le runbook initial (plus ancien, également conservé sur le disque).
 
 ## Migrations Prisma
 
@@ -24,7 +24,7 @@ Drift résiduel hors-périmètre détecté et non traité : un index manquant su
 - PostgreSQL : joignable.
 - Redis : `PONG`.
 - Worker SMTP/outbox : envoi réel accepté par `smtp.hostinger.com` vers une adresse contrôlée.
-- Variables d'environnement manquantes pour que le build S5 démarre (`RATE_LIMIT_BACKEND`, `RATE_LIMIT_KEY_SECRET`, `RATE_LIMIT_KEY_NAMESPACE`, `RATE_LIMIT_TRUST_PROXY_HOPS`, `REDIS_URL`, `EMAIL_OUTBOX_WORKER_ENABLED`, `EMAIL_OUTBOX_ENCRYPTION_KEY`) : générées et installées dans `/etc/nexus/nexus-prod.env` (secrets aléatoires, `RATE_LIMIT_TRUST_PROXY_HOPS=1` confirmé par la config Nginx — un seul reverse-proxy). Backup de l'ancien fichier conservé (`nexus-prod.env.bak-*`).
+- Variables d'environnement manquantes pour que le build S5 démarre (`RATE_LIMIT_BACKEND`, `RATE_LIMIT_KEY_SECRET`, `RATE_LIMIT_KEY_NAMESPACE`, `RATE_LIMIT_TRUST_PROXY_HOPS`, `REDIS_URL`, `EMAIL_OUTBOX_WORKER_ENABLED`, `EMAIL_OUTBOX_ENCRYPTION_KEY`) : générées et installées dans `<PROD_ENV_FILE>` (secrets aléatoires, `RATE_LIMIT_TRUST_PROXY_HOPS=1` confirmé par la config Nginx — un seul reverse-proxy). Backup de l'ancien fichier conservé (`<PROD_ENV_FILE>.bak-*`).
 
 ## Packs activés + signataires
 
@@ -53,11 +53,11 @@ Parcours complet sur `entree-seconde-maths-v1` en production réelle : inscripti
 
 ## Rollback
 
-Release précédente conservée et intacte : `/var/www/nexus-releases/6e3aedaac-u1-20260803T205021Z`. Pour revenir en arrière :
+Release précédente conservée et intacte : `<RELEASE_DIR>/6e3aedaac-u1-20260803T205021Z`. Pour revenir en arrière :
 ```bash
-ln -sfn /var/www/nexus-releases/6e3aedaac-u1-20260803T205021Z /var/www/nexus-project_v0.new
-mv -T /var/www/nexus-project_v0.new /var/www/nexus-project_v0
-pm2 restart nexus-prod --update-env
+ln -sfn <RELEASE_DIR>/6e3aedaac-u1-20260803T205021Z <APP_DIR>.new
+mv -T <APP_DIR>.new <APP_DIR>
+pm2 restart <PROCESS_NAME> --update-env
 ```
 Backup DB disponible si nécessaire (voir ci-dessus), non utilisé ce soir.
 

@@ -10,7 +10,7 @@
 **Nexus Réussite** est une plateforme SaaS éducative (académie de soutien scolaire, système français, Tunis). Entité : STE M&M ACADEMY SUARL. Plateforme : nexusreussite.academy.
 
 - **Stack** : Next.js 15.5.21 (App Router), React 18.3, TypeScript strict, Tailwind v4, Radix UI, NextAuth v5, Prisma 6.13 / PostgreSQL 15/16 + pgvector.
-- **Déploiement** : build standalone Next.js, PM2 sur serveur Hetzner `88.99.254.59`, Nginx + TLS.
+- **Déploiement** : build standalone Next.js, PM2 sur serveur Hetzner `<PROD_HOST>`, Nginx + TLS.
 - **Discipline établie sur ce projet** (à respecter) : source tarifaire canonique unique (`data/pricing.canonical.json` + `lib/pricing.ts` + suite de validateurs), **feature flags plutôt que suppression** (pattern existant : `ONLINE_OFFERS_ENABLED = false`), décisions structurantes **formellement documentées**.
 
 **⚠️ Vérifie d'abord le worktree réel.** La mémoire projet référence le dépôt `cyranoaladin/nexus-project_v0`, mais les rapports codex travaillent dans `/home/alaeddine/Bureau/nexus-bilans-p0d-release-quality/`. **Ne présume rien** : confirme avec l'utilisateur quel worktree/branche fait foi avant toute action, et confirme le remote de déploiement.
@@ -45,7 +45,7 @@ Ce qui est **ROUGE** (bloquant, non résolu) :
 
 Sauvegardes et rollback déjà en place :
 - Backup S5 hors dépôt : `/home/alaeddine/Bureau/.nexus-s5-backup-20260804` (manifeste SHA-256 fourni dans le rapport).
-- Release de rollback prod : `/var/www/nexus-releases/11e0dce93e9f1d4c79824f9cccd0a467dde4f11b`.
+- Release de rollback prod : `<RELEASE_DIR>/11e0dce93e9f1d4c79824f9cccd0a467dde4f11b`.
 
 ---
 
@@ -111,7 +111,7 @@ Exécute dans l'ordre. **À chaque gate rouge : STOP, ne force pas, remonte à l
 - Ajoute un test qui **prouve** que passation/scoring/report/LLM/packs DRAFT/création coach sont injoignables et masqués côté UI et API quand le flag est OFF.
 - **Gate** : Track B prouvé inaccessible. Sinon → STOP.
 
-**Étape 3 — Preflight infra prod** (`ssh root@88.99.254.59`, lecture d'abord)
+**Étape 3 — Preflight infra prod** (`ssh root@<PROD_HOST>`, lecture d'abord)
 - PostgreSQL : état migrations, drift nul attendu après migration §4.
 - Redis : joignable + healthcheck.
 - Worker SMTP : joignable + envoi test réel vers une adresse contrôlée.
