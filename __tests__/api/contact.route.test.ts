@@ -57,6 +57,20 @@ describe('contact route', () => {
     expect(mockCreate).not.toHaveBeenCalled();
   });
 
+  it('returns 400 (not 500) when email is a non-string object with a non-callable toString', async () => {
+    // JSON body: { "email": { "toString": "nope" } } — a plain object whose
+    // `toString` property is a string, not a function. Coercing this with
+    // String(email) throws "toString is not a function" before validation
+    // ever runs. The route must not let that crash leak out as a 500.
+    const res = await POST(
+      makeRequest({ name: 'Alex Parent', email: { toString: 'nope' } })
+    );
+    const json = await (res as any).json();
+    expect(res.status).toBe(400);
+    expect(json.error).toBe('invalid_payload');
+    expect(mockCreate).not.toHaveBeenCalled();
+  });
+
   it('stores a CRM lead and sends an internal notification on valid payload', async () => {
     const res = await POST(makeRequest({
       name: ' Alex Parent ',
