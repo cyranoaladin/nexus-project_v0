@@ -561,6 +561,17 @@ jobs:
           RATE_LIMIT_KEY_SECRET: ci-e2e-rate-limit-key-secret-placeholder-32chars
           RATE_LIMIT_KEY_NAMESPACE: nexus-ci-e2e
           RATE_LIMIT_TRUST_PROXY_HOPS: '1'
+          # Same fail-fast reason for the email outbox scheduler
+          # (lib/email/outbox-scheduler.ts, startEmailOutboxScheduler):
+          # EMAIL_OUTBOX_WORKER_CONFIGURATION_REQUIRED in production unless
+          # EMAIL_OUTBOX_WORKER_ENABLED=true, plus a valid encryption key and
+          # SMTP shape -- no real delivery happens in this smoke, only the
+          # boot-time config needs to be valid (mirrors docker-compose.e2e.yml).
+          EMAIL_OUTBOX_WORKER_ENABLED: 'true'
+          EMAIL_OUTBOX_ENCRYPTION_KEY: ci-e2e-outbox-encryption-key-0123456789
+          SMTP_HOST: 127.0.0.1
+          SMTP_PORT: '1025'
+          SMTP_FROM: ci-e2e@example.test
         run: |
           cp -r .next/static .next/standalone/.next/static 2>/dev/null || true
           cp -r public .next/standalone/public 2>/dev/null || true
@@ -855,6 +866,14 @@ jobs:
           RATE_LIMIT_KEY_SECRET: ci-build-rate-limit-key-secret-placeholder-32ch
           RATE_LIMIT_KEY_NAMESPACE: nexus-ci-build
           RATE_LIMIT_TRUST_PROXY_HOPS: '1'
+          # Same fail-fast reason for the email outbox scheduler -- see the
+          # matching comment on the E2E job's "Start Next.js server in
+          # background" step.
+          EMAIL_OUTBOX_WORKER_ENABLED: 'true'
+          EMAIL_OUTBOX_ENCRYPTION_KEY: ci-build-outbox-encryption-key-0123456789
+          SMTP_HOST: 127.0.0.1
+          SMTP_PORT: '1025'
+          SMTP_FROM: ci-build@example.test
         run: |
           node .next/standalone/server.js &
           SERVER_PID=$!
