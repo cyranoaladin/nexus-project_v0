@@ -66,7 +66,7 @@ describe('A90.3 atomic materialized publication', () => {
     await publishReportRevision({
       prisma: value.prisma as never,
       revisionId: 'revision-1',
-      coachId: 'coach-1',
+      reviewerId: 'reviewer-1',
       publishedAt: new Date('2026-08-03T12:00:00.000Z'),
       renderAudience: value.renderAudience,
     });
@@ -79,7 +79,7 @@ describe('A90.3 atomic materialized publication', () => {
     await expect(publishReportRevision({
       prisma: value.prisma as never,
       revisionId: 'revision-1',
-      coachId: 'coach-1',
+      reviewerId: 'reviewer-1',
       publishedAt: new Date('2026-08-03T12:00:00.000Z'),
       renderAudience: async () => { throw new Error('HTML_FAILED'); },
     })).rejects.toMatchObject({ code: 'REPORT_HTML_RENDER_FAILED' });
@@ -92,7 +92,7 @@ describe('A90.3 atomic materialized publication', () => {
     await expect(publishReportRevision({
       prisma: value.prisma as never,
       revisionId: 'revision-1',
-      coachId: 'coach-1',
+      reviewerId: 'reviewer-1',
       publishedAt: new Date('2026-08-03T12:00:00.000Z'),
       renderAudience: value.renderAudience,
     })).rejects.toThrow('REPORT_NOT_COACH_VALIDATED');

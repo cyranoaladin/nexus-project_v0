@@ -161,6 +161,9 @@ describe('Canonical scoring outbox drainer', () => {
 
     expect((await prisma.jobOutbox.findUniqueOrThrow({ where: { id: job.id } })).status).toBe('COMPLETED');
     expect(await prisma.scoreSnapshot.count({ where: { assessmentAttemptId: attempt.id } })).toBe(1);
-    expect(await prisma.reportRevision.count({ where: { reportArtifact: { assessmentAttemptId: attempt.id } } })).toBe(1);
+    expect(await prisma.reportRevision.count({ where: { reportArtifact: { assessmentAttemptId: attempt.id } } })).toBe(0);
+    expect(await prisma.jobOutbox.count({
+      where: { jobType: 'GENERATE_REPORT', idempotencyKey: `${attempt.id}.generate-report` },
+    })).toBe(1);
   });
 });

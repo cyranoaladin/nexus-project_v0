@@ -5,6 +5,7 @@ import { Prisma, type PrismaClient } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 
 import { processScoreAttemptJob } from './score-job';
+import { processGenerateReportJob } from './generate-report-job';
 
 type DrainDatabase = Pick<PrismaClient, '$transaction'>;
 type DrainLogger = Readonly<{
@@ -25,14 +26,23 @@ export type DrainScoreAttemptJobsOptions = Readonly<{
   leaseDurationMs?: number;
 }>;
 
-const defaultDependencies: DrainDependencies = {
+const defaultLogger: DrainLogger = {
+  info: (event) => console.info(JSON.stringify(event)),
+  error: (event) => console.error(JSON.stringify(event)),
+};
+
+const defaultScoreDependencies: DrainDependencies = {
   prisma,
   processJob: processScoreAttemptJob,
   now: () => new Date(),
-  logger: {
-    info: (event) => console.info(JSON.stringify(event)),
-    error: (event) => console.error(JSON.stringify(event)),
-  },
+  logger: defaultLogger,
+};
+
+const defaultGenerateReportDependencies: DrainDependencies = {
+  prisma,
+  processJob: processGenerateReportJob,
+  now: () => new Date(),
+  logger: defaultLogger,
 };
 
 function boundedLimit(value: number | undefined): number {
@@ -53,13 +63,14 @@ function leaseDuration(value: number | undefined): number {
 
 async function claimJobs(
   database: DrainDatabase,
+  jobType: 'SCORE_ATTEMPT' | 'GENERATE_REPORT',
   input: Readonly<{ limit: number; owner: string; now: Date; leaseExpiresAt: Date }>,
 ): Promise<readonly string[]> {
   return database.$transaction(async (transaction) => {
     const rows = await transaction.$queryRaw<Array<{ id: string }>>(Prisma.sql`
       SELECT "id"
       FROM "canonical_job_outbox"
-      WHERE "jobType" = 'SCORE_ATTEMPT'::"CanonicalJobType"
+      WHERE "jobType" = ${jobType}::"CanonicalJobType"
         AND "availableAt" <= ${input.now}
         AND (
           "status" IN ('PENDING'::"CanonicalOutboxStatus", 'FAILED'::"CanonicalOutboxStatus")
@@ -87,17 +98,21 @@ async function claimJobs(
   });
 }
 
-export async function drainScoreAttemptJobs(
-  options: DrainScoreAttemptJobsOptions = {},
-  dependencies: Partial<DrainDependencies> = {},
+async function drainJobs(
+  jobType: 'SCORE_ATTEMPT' | 'GENERATE_REPORT',
+  ownerPrefix: string,
+  eventPrefix: string,
+  defaults: DrainDependencies,
+  options: DrainScoreAttemptJobsOptions,
+  dependencies: Partial<DrainDependencies>,
 ) {
-  const deps: DrainDependencies = { ...defaultDependencies, ...dependencies };
+  const deps: DrainDependencies = { ...defaults, ...dependencies };
   const limit = boundedLimit(options.limit);
   const duration = leaseDuration(options.leaseDurationMs);
-  const owner = options.owner?.trim() || `a87-manual-${process.pid}-${randomUUID()}`;
+  const owner = options.owner?.trim() || `${ownerPrefix}-${process.pid}-${randomUUID()}`;
   const now = deps.now();
   const startedAt = Date.now();
-  const jobIds = await claimJobs(deps.prisma, {
+  const jobIds = await claimJobs(deps.prisma, jobType, {
     limit,
     owner,
     now,
@@ -112,11 +127,25 @@ export async function drainScoreAttemptJobs(
       completed += 1;
     } catch {
       failed += 1;
-      deps.logger.error({ event: 'A87_DRAIN_JOB_FAILED', jobId });
+      deps.logger.error({ event: `${eventPrefix}_DRAIN_JOB_FAILED`, jobId });
     }
   }
 
   const result = Object.freeze({ claimed: jobIds.length, completed, failed });
-  deps.logger.info({ event: 'A87_DRAIN_COMPLETED', ...result, durationMs: Date.now() - startedAt });
+  deps.logger.info({ event: `${eventPrefix}_DRAIN_COMPLETED`, ...result, durationMs: Date.now() - startedAt });
   return result;
+}
+
+export async function drainScoreAttemptJobs(
+  options: DrainScoreAttemptJobsOptions = {},
+  dependencies: Partial<DrainDependencies> = {},
+) {
+  return drainJobs('SCORE_ATTEMPT', 'a87-manual', 'A87', defaultScoreDependencies, options, dependencies);
+}
+
+export async function drainGenerateReportJobs(
+  options: DrainScoreAttemptJobsOptions = {},
+  dependencies: Partial<DrainDependencies> = {},
+) {
+  return drainJobs('GENERATE_REPORT', 'a88-manual', 'A88', defaultGenerateReportDependencies, options, dependencies);
 }

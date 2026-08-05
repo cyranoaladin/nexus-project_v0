@@ -24,6 +24,25 @@ describe('assistante navigation', () => {
     );
   });
 
+  it('exposes the bilan review queue only in the assistante navigation', () => {
+    expect(navigationConfig[UserRole.ASSISTANTE]).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          label: 'Bilans',
+          href: '/dashboard/assistante/bilans',
+        }),
+      ])
+    );
+
+    for (const role of [UserRole.ELEVE, UserRole.PARENT, UserRole.COACH]) {
+      expect(navigationConfig[role]).not.toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ href: '/dashboard/assistante/bilans' }),
+        ])
+      );
+    }
+  });
+
   it('exposes the internal quote assistant only in the assistante navigation', () => {
     expect(navigationConfig[UserRole.ASSISTANTE]).toEqual(
       expect.arrayContaining([

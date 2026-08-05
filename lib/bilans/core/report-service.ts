@@ -84,7 +84,7 @@ export async function createPendingReport(
 type ReviewInput = Readonly<{
   prisma: ReportDatabase;
   revisionId: string;
-  coachId: string;
+  reviewerId: string;
   motif: string;
   reviewedAt: Date;
 }>;
@@ -120,7 +120,7 @@ export async function validateReportRevision(input: ReviewInput) {
     const review = await transaction.reportReview.create({
       data: {
         reportRevisionId: revision.id,
-        coachId: input.coachId,
+        reviewerId: input.reviewerId,
         decision: 'APPROVED',
         motif: assertMotif(input.motif),
         reviewedAt: input.reviewedAt,
@@ -135,7 +135,7 @@ export async function validateReportRevision(input: ReviewInput) {
       attemptId: revision.reportArtifact.assessmentAttemptId,
       from: 'REPORT_PENDING_REVIEW',
       action: 'VALIDATE_REPORT',
-      actor: 'COACH',
+      actor: 'ASSISTANTE',
     });
     return Object.freeze({ revisionId: revision.id, reviewId: review.id, status: 'COACH_VALIDATED' as const });
   });
@@ -147,7 +147,7 @@ export async function rejectReportRevision(input: ReviewInput) {
     const review = await transaction.reportReview.create({
       data: {
         reportRevisionId: revision.id,
-        coachId: input.coachId,
+        reviewerId: input.reviewerId,
         decision: 'REJECTED',
         motif: assertMotif(input.motif),
         reviewedAt: input.reviewedAt,
@@ -162,7 +162,7 @@ export async function rejectReportRevision(input: ReviewInput) {
       attemptId: revision.reportArtifact.assessmentAttemptId,
       from: 'REPORT_PENDING_REVIEW',
       action: 'REJECT_REPORT',
-      actor: 'COACH',
+      actor: 'ASSISTANTE',
     });
     return Object.freeze({ revisionId: revision.id, reviewId: review.id, status: 'COACH_REJECTED' as const });
   });
@@ -171,7 +171,7 @@ export async function rejectReportRevision(input: ReviewInput) {
 export async function publishReportRevision(input: Readonly<{
   prisma: ReportDatabase;
   revisionId: string;
-  coachId: string;
+  reviewerId: string;
   publishedAt: Date;
   renderAudience?: PublicationRenderer;
 }>) {
@@ -185,7 +185,7 @@ export async function publishReportRevision(input: Readonly<{
       materialization: { select: { id: true } },
       scoreSnapshot: { select: { result: true } },
       reviews: {
-        where: { coachId: input.coachId, decision: 'APPROVED' },
+        where: { reviewerId: input.reviewerId, decision: 'APPROVED' },
         select: { id: true },
         take: 1,
       },
@@ -248,7 +248,7 @@ export async function publishReportRevision(input: Readonly<{
       || revision.reportArtifact.assessmentAttempt.status !== 'COACH_VALIDATED'
     ) throw new BilanReportServiceError('REPORT_CONCURRENT_PUBLICATION');
     const approvedReview = await transaction.reportReview.findFirst({
-      where: { reportRevisionId: revision.id, coachId: input.coachId, decision: 'APPROVED' },
+      where: { reportRevisionId: revision.id, reviewerId: input.reviewerId, decision: 'APPROVED' },
       select: { id: true },
     });
     if (approvedReview === null) throw new BilanReportServiceError('REPORT_APPROVED_REVIEW_REQUIRED');
@@ -286,7 +286,7 @@ export async function publishReportRevision(input: Readonly<{
       attemptId: revision.reportArtifact.assessmentAttemptId,
       from: 'COACH_VALIDATED',
       action: 'PUBLISH_REPORT',
-      actor: 'COACH',
+      actor: 'ASSISTANTE',
     });
     return Object.freeze({
       revisionId: revision.id,

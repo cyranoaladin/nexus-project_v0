@@ -24,5 +24,8 @@ export async function register() {
 
     const { startEmailOutboxScheduler } = await import('./lib/email/outbox-scheduler');
     startEmailOutboxScheduler();
+
+    const { startBilanWorkerScheduler } = await import('./lib/bilans/worker/scheduler');
+    startBilanWorkerScheduler();
   }
 }

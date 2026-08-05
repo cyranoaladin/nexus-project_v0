@@ -109,23 +109,19 @@ async function prepareReviewFixture(attemptId: string, studentId: string, nonce:
     data: { status: 'REPORT_PENDING_REVIEW' },
   });
 
-  const coach = await prisma.user.create({
+  const assistante = await prisma.user.create({
     data: {
-      email: `p0c-coach-${nonce}@example.test`,
-      role: 'COACH',
-      firstName: 'Coach',
+      email: `p0c-assistante-${nonce}@example.test`,
+      role: 'ASSISTANTE',
+      firstName: 'Assistante',
       lastName: 'Synthétique',
       activatedAt: new Date(),
-      coachProfile: {
-        create: { pseudonym: `coach-p0c-${nonce}`, subjects: ['MATHS'] },
-      },
     },
-    include: { coachProfile: true },
   });
   await prisma.reportReview.create({
     data: {
       reportRevisionId: revision.id,
-      coachId: coach.coachProfile!.id,
+      reviewerId: assistante.id,
       decision: 'APPROVED',
       motif: 'Fixture contrôlée de consultation Parent.',
     },
@@ -135,16 +131,16 @@ async function prepareReviewFixture(attemptId: string, studentId: string, nonce:
     where: { id: attemptId },
     data: { status: 'COACH_VALIDATED' },
   });
-  return { revisionId: revision.id, coachId: coach.coachProfile!.id };
+  return { revisionId: revision.id, reviewerId: assistante.id };
 }
 
-async function publishFixture(revisionId: string, coachId: string): Promise<void> {
+async function publishFixture(revisionId: string, reviewerId: string): Promise<void> {
   const pdfSession = await createBilanPdfRendererSession();
   try {
     await publishReportRevision({
       prisma,
       revisionId,
-      coachId,
+      reviewerId,
       publishedAt: new Date(),
       renderAudience: async (_factSheet, audience) => {
         const marker = audience === 'PARENTS'
@@ -291,7 +287,7 @@ test.describe('P0-C — consultation Parent sécurisée', () => {
     expect(draftDirect.status()).toBe(404);
     expectPrivateNoStore(draftDirect.headers());
 
-    await publishFixture(prepared.revisionId, prepared.coachId);
+    await publishFixture(prepared.revisionId, prepared.reviewerId);
     await page.getByRole('button', { name: /actualiser les bilans/i }).click();
     await expect(page.getByText(/bilan publié/i)).toBeVisible();
     await page.getByRole('button', { name: /lire le bilan/i }).click();

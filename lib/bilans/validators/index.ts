@@ -116,6 +116,9 @@ export function validateAgentBundle(input: Readonly<{
   if (!lexicon.cta_autorises.includes(bundle.parents.etapeSuivante.cta)) {
     failures.push(failure('V7', 'parents.etapeSuivante.cta', 'CTA is not approved'));
   }
+  if (bundle.verifier.ok === false) {
+    failures.push(failure('V3', 'verifier', bundle.verifier.violations[0] ?? 'Verifier agent reported ok=false'));
+  }
   if (input.pack.scoring.domains.length !== input.factSheet.domains.length) {
     failures.push(failure('V4', 'domains', 'Pack and FactSheet domain counts differ'));
   }
