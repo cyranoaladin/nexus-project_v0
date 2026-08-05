@@ -83,7 +83,8 @@ export async function POST(request: NextRequest) {
     let ariaSubjects: string[] = []
     if (activeSubscription?.ariaSubjects) {
       try {
-        const parsed = JSON.parse(activeSubscription.ariaSubjects) as unknown
+        const raw = activeSubscription.ariaSubjects
+        const parsed = typeof raw === 'string' ? JSON.parse(raw) : raw
         if (Array.isArray(parsed) && parsed.every((subject): subject is string => typeof subject === 'string')) {
           ariaSubjects = parsed
         }
