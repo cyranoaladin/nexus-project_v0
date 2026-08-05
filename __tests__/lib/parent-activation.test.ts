@@ -57,6 +57,14 @@ describe('parent activation security primitives', () => {
     )
   })
 
+  it('trusts the docker-compose e2e hostname alongside localhost -- fixed value, never a real prod NEXTAUTH_URL', () => {
+    process.env.NEXTAUTH_URL = 'http://app-e2e:3000'
+
+    const url = buildTrustedActivationUrl('recognizable-raw-token')
+
+    expect(url.origin).toBe('http://app-e2e:3000')
+  })
+
   it('rejects activation-link construction when no trusted origin is configured', () => {
     delete process.env.NEXTAUTH_URL
 

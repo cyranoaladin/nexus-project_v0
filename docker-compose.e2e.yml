@@ -106,6 +106,9 @@ services:
       SMTP_FROM: e2e@example.test
       # Bilan worker stays off by default -- same PLANCHER posture as prod
       # until BILAN_WORKER_ENABLED is explicitly set for a given e2e run.
+      # entree-seconde-maths-v1 is the pack bilan-golden-path.spec.ts exercises;
+      # without this flag every /api/bilans/attempts call 404s (pack not enabled).
+      NEXUS_BILAN_PACK_ENTREE_SECONDE_MATHS_V1_ENABLED: "true"
     volumes:
       - e2e-shared:/app/e2e-shared
     healthcheck:
@@ -136,6 +139,10 @@ services:
       CI: "true"
       PLAYWRIGHT_ARGS: "${PLAYWRIGHT_ARGS:-}"
       DATABASE_URL: postgresql://postgres:postgres@postgres-e2e:5432/nexus_e2e?schema=public
+      # Specs that drain bilan worker jobs in-process (not over HTTP) call
+      # resolveEnabledPack directly, reading THIS container's own env -- the
+      # flag on app-e2e alone isn't enough.
+      NEXUS_BILAN_PACK_ENTREE_SECONDE_MATHS_V1_ENABLED: "true"
     networks:
       - e2e-network
 

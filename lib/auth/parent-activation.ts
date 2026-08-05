@@ -25,10 +25,18 @@ export function createParentActivationToken(now = new Date()): ParentActivationT
   return createActivationToken('parent', now)
 }
 
+// This only sanity-checks the SERVER'S OWN configured NEXTAUTH_URL (never
+// user/request input) before embedding it in an activation email -- it
+// exists to catch a misconfigured prod deploy missing HTTPS, not to guard
+// against attacker-supplied origins. app-e2e is the docker-compose-internal
+// hostname for the disposable e2e stack (docker-compose.e2e.yml) and can
+// never be a real production value, so it's as safe to trust here as
+// localhost -- same judgment already made for postgres-e2e in
+// lib/e2e/seed-guard.ts's ALLOWED_HOSTS.
 function isLocalOrigin(url: URL): boolean {
   return (
     url.protocol === 'http:' &&
-    (url.hostname === '127.0.0.1' || url.hostname === 'localhost')
+    (url.hostname === '127.0.0.1' || url.hostname === 'localhost' || url.hostname === 'app-e2e')
   )
 }
 
