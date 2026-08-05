@@ -24,6 +24,7 @@ export default function DashboardParent() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [activeRubrique, setActiveRubrique] = useState<'enfants' | 'facturation' | 'alertes'>('enfants');
+  const [addChildOpen, setAddChildOpen] = useState(false);
 
   const refreshDashboardData = useCallback(async () => {
     try {
@@ -109,7 +110,7 @@ export default function DashboardParent() {
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="space-y-6">
-          <BilanGratuitBanner onGoToChildren={() => setActiveRubrique('enfants')} />
+          <BilanGratuitBanner onGoToChildren={() => { setActiveRubrique('enfants'); setAddChildOpen(true); }} />
 
           {/* Rubriques Switcher */}
           <div className="flex flex-wrap gap-2 p-1 bg-white/5 border border-white/10 rounded-xl">
@@ -143,7 +144,7 @@ export default function DashboardParent() {
                     {dashboardData?.children.length || 0}
                   </Badge>
                 </h2>
-                <AddChildDialog onChildAdded={refreshDashboardData} />
+                <AddChildDialog onChildAdded={refreshDashboardData} open={addChildOpen} onOpenChange={setAddChildOpen} />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

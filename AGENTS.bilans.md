@@ -1,6 +1,6 @@
-# AGENTS.positionnement.md — contrat de travail Codex
+# AGENTS.bilans.md — contrat de travail Codex
 
-Complément spécifique au chantier « Tests de positionnement & Bilans ».
+Complément spécifique au chantier « Bilans diagnostiques ».
 `AGENTS.md` à la racine du dépôt reste prioritaire en cas de contradiction.
 
 ## Périmètre autorisé
@@ -8,15 +8,16 @@ Complément spécifique au chantier « Tests de positionnement & Bilans ».
 Codex peut créer et modifier :
 
 ```
-lib/positionnement/**
-app/api/positionnement/**
-app/(public)/positionnement/**
-components/positionnement/**
-data/positionnement/**
+lib/bilans/**
+app/api/bilans/**
+app/bilan-gratuit/**
+components/bilans/**
+data/bilans/**
+content/bilans/**
 prisma/schema.prisma            (ajout de modèles uniquement)
 prisma/migrations/**            (migrations additives uniquement)
-tests/positionnement/**
-docs/specs/positionnement/**
+__tests__/bilans/**
+docs/specs/bilans/**
 docs/adr/**
 ```
 
@@ -26,14 +27,16 @@ la configuration Nginx / PM2, aucun fichier `.env`.
 
 ## Interdits absolus
 
-1. **Aucun appel LLM** dans `lib/positionnement/scoring.ts` ni dans la génération du bilan.
-   Le scoring doit être une fonction pure, reproductible, testable hors réseau.
+1. **Aucun appel LLM** dans `lib/bilans/core/scoring.ts` ni dans le scoring déterministe.
+   Le scoring doit être une fonction pure, reproductible, testable hors réseau. La narration
+   LLM (`lib/bilans/llm/**`) est un chemin séparé, gaté par `OPENROUTER_API_KEY` et par la
+   condition liée « revue coach redevient prérequis si le LLM est activé ».
 2. **Aucune valeur d'affichage codée en dur**. Tarifs → getters de `lib/pricing.ts`.
-   Seuils et barèmes → `lib/positionnement/constants.ts` uniquement.
-3. **Aucune seconde source de vérité**. Les nœuds de prérequis proviennent du pipeline CPS existant
-   (YAML → JSON compilé → définitions TS). Ne pas recopier de nœuds dans la banque d'items.
-4. **Aucune promesse de résultat** dans un texte généré. Voir `data/positionnement/lexique-interdit.json`.
-5. **Aucun nom d'enseignant** dans une restitution.
+   Seuils et barèmes → les constantes du pack (`lib/bilans/catalog/**`) uniquement.
+3. **Aucune seconde source de vérité**. Les packs/bancs proviennent du catalogue canonique
+   (`data/bilans/banks/**` + `lib/bilans/catalog/**`). Ne pas recopier de contenu ailleurs.
+4. **Aucune promesse de résultat** dans un texte généré. Voir `data/bilans/lexique-interdit.json`.
+5. **Aucun nom d'enseignant** dans une restitution destinée à l'élève ou au parent.
 6. **Aucune action en production.** Pas de `prisma migrate deploy`, pas de SSH, pas de PM2.
    Les migrations sont produites en local et laissées non appliquées.
 7. **Aucun endpoint public ne révèle l'existence d'un compte.** Réponse et latence identiques
@@ -65,7 +68,7 @@ Pour un audit, le format est : `Verdict` / `Constats P0-P1-P2` / `Plan d'action`
 
 - [ ] Comportement conforme à la spec citée, section référencée dans le message de commit
 - [ ] Tests unitaires couvrant les cas nominaux **et** les cas dégradés
-- [ ] Cas dorés de `tests/positionnement/fixtures/golden-cases.json` toujours verts
+- [ ] Cas dorés de `__tests__/bilans/fixtures/**` (le cas échéant) toujours verts
 - [ ] `lint`, `typecheck`, `test`, `build` verts en local
 - [ ] Aucune valeur d'affichage nouvelle hors source canonique
 - [ ] Aucun terme du lexique interdit dans les chaînes ajoutées
@@ -74,11 +77,11 @@ Pour un audit, le format est : `Verdict` / `Constats P0-P1-P2` / `Plan d'action`
 ## Convention de commits
 
 ```
-feat(positionnement): <quoi> — spec §<section>
-fix(positionnement): <quoi> — spec §<section>
-test(positionnement): <quoi>
-docs(positionnement): <quoi>
+feat(bilans): <quoi> — spec §<section>
+fix(bilans): <quoi> — spec §<section>
+test(bilans): <quoi>
+docs(bilans): <quoi>
 ```
 
-Un ticket = une branche `feat/positionnement-L<lot>-<slug>`, rebasée sur `main`.
+Un ticket = une branche `feat/bilans-<slug>`, rebasée sur `main`.
 Aucune branche laissée non fusionnée plus de 5 jours (le dépôt en compte déjà 73 non fusionnées).
