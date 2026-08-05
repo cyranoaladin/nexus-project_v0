@@ -223,6 +223,16 @@ jobs:
           pdftotext -v
           pdfimages -v
 
+      # __tests__/bilans/render-pdf.test.ts, group-plan-render.test.ts,
+      # pdf-renderer-session.test.ts and rendered-examples.test.ts drive a
+      # real headless Chromium via lib/bilans/render/pdf.ts
+      # (createBilanPdfRendererSession) for byte-stable HTML-to-PDF export
+      # coverage -- there is no mock path. Without this, resolveChromiumExecutable
+      # throws ENOENT scanning ~/.cache/ms-playwright and the whole suite fails
+      # to even boot (beforeAll throws before any test body runs).
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
       - name: Generate Prisma Client
         run: npx prisma generate
 
@@ -463,6 +473,15 @@ jobs:
           --health-interval 5s
           --health-timeout 5s
           --health-retries 20
+      redis-e2e:
+        image: redis:7-alpine
+        ports:
+          - 6380:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
 
     steps:
       - name: Checkout code
@@ -529,6 +548,19 @@ jobs:
           OPENAI_API_KEY: sk-test-mock-key-for-ci-build-only
           NODE_ENV: production
           RATE_LIMIT_DISABLE: '1'
+          # lib/env-validation.ts fails fast in production without these --
+          # RATE_LIMIT_DISABLE alone does not satisfy that check (it isn't
+          # read by lib/rate-limit/runtime.ts at all). memory backend is
+          # explicitly refused when NODE_ENV=production
+          # (assertRateLimitRuntimeConfiguration throws
+          # RATE_LIMIT_PRODUCTION_MEMORY_REFUSED), so this job gets its own
+          # throwaway redis-e2e service above instead (mirrors
+          # docker-compose.e2e.yml).
+          RATE_LIMIT_BACKEND: redis
+          REDIS_URL: redis://localhost:6380
+          RATE_LIMIT_KEY_SECRET: ci-e2e-rate-limit-key-secret-placeholder-32chars
+          RATE_LIMIT_KEY_NAMESPACE: nexus-ci-e2e
+          RATE_LIMIT_TRUST_PROXY_HOPS: '1'
         run: |
           cp -r .next/static .next/standalone/.next/static 2>/dev/null || true
           cp -r public .next/standalone/public 2>/dev/null || true
@@ -763,6 +795,15 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 10
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
 
     steps:
       - name: Checkout code
@@ -804,6 +845,16 @@ jobs:
           NEXTAUTH_URL: http://localhost:3000
           NEXTAUTH_SECRET: test-secret-min-32-chars-long-for-ci-environment
           NODE_ENV: production
+          # lib/env-validation.ts fails fast in production without these --
+          # see the matching comment on the E2E job's "Start Next.js server
+          # in background" step and docker-compose.e2e.yml for the full
+          # rationale. memory backend is explicitly refused in production,
+          # so this job gets its own throwaway redis service above instead.
+          RATE_LIMIT_BACKEND: redis
+          REDIS_URL: redis://localhost:6379
+          RATE_LIMIT_KEY_SECRET: ci-build-rate-limit-key-secret-placeholder-32ch
+          RATE_LIMIT_KEY_NAMESPACE: nexus-ci-build
+          RATE_LIMIT_TRUST_PROXY_HOPS: '1'
         run: |
           node .next/standalone/server.js &
           SERVER_PID=$!
