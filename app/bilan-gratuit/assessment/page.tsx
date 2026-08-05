@@ -8,6 +8,7 @@ import { listEnabledPacks } from '@/lib/bilans/api/pack-access';
 import { bilanPackSubjectLabel } from '@/lib/bilans/catalog/subjects';
 import { resolveCanonicalRunnerAccess } from '@/lib/bilans/passation/runner-access';
 import { bilanPackLevelLabel } from '@/lib/bilans/render/stage-label';
+import { prisma } from '@/lib/prisma';
 
 /**
  * Existing public seam. The server resolves ownership and the pack feature flag
@@ -20,10 +21,16 @@ export default async function BilanAssessmentPage({
   const { attemptId = '' } = await searchParams;
   if (session?.user?.id === undefined || session.user.role !== 'ELEVE') notFound();
   if (!attemptId.trim()) {
-    const packs = listEnabledPacks().map(({ pack }) => ({
-      slug: pack.slug,
-      label: `${bilanPackLevelLabel(pack.level)} · ${bilanPackSubjectLabel(pack.subject)}`,
-    }));
+    const student = await prisma.student.findUnique({
+      where: { userId: session.user.id },
+      select: { gradeLevel: true },
+    });
+    const packs = listEnabledPacks()
+      .filter(({ pack }) => student !== null && pack.level === student.gradeLevel)
+      .map(({ pack }) => ({
+        slug: pack.slug,
+        label: `${bilanPackLevelLabel(pack.level)} · ${bilanPackSubjectLabel(pack.subject)}`,
+      }));
     return <CanonicalAssessmentStart packs={packs} />;
   }
 

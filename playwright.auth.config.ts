@@ -25,6 +25,7 @@ export default defineConfig({
     'session-revocation.spec.ts',
     'pending-parent-lifecycle.spec.ts',
     'bilan-golden-path.spec.ts',
+    'bilan-worker-autonomous.spec.ts',
   ],
   fullyParallel: false,
   forbidOnly: !!process.env.CI,

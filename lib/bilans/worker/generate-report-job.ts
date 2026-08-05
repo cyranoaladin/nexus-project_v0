@@ -5,13 +5,13 @@ import { resolveEnabledPack, type PackResolver } from '../api/pack-access';
 import { advanceAttemptLifecycle, createPendingReport } from '../core/report-service';
 import type { FactSheet } from '../facts/fact-sheet';
 import { BilanLlmGateway, type BilanLlmTransport } from '../llm/gateway';
-import { resolveOpenRouterConfig } from '../llm/config';
+import { BilanLlmConfigError, resolveOpenRouterConfig } from '../llm/config';
 import { OpenRouterBilanTransport } from '../llm/openrouter-transport';
 import { sha256Canonical } from '../local-first/hash';
 import { createPseudonymizedFactSheet } from '../local-first/contracts';
 import { buildLlmReports } from '../render/llm-report';
 import type { RenderIdentity } from '../render/render-identity';
-import type { DeterministicBilanReportBundle } from '../render/report';
+import { buildDeterministicReports, type DeterministicBilanReportBundle } from '../render/report';
 import { buildPreRentreeStageLabel } from '../render/stage-label';
 import type { ValidatedPack } from '../validators/contracts';
 import { prisma } from '@/lib/prisma';
@@ -57,7 +57,7 @@ const defaultDependencies: GenerateReportJobDependencies = {
   },
 };
 
-export type GenerateLlmReportResult = Readonly<{
+type GenerateLlmReportResult = Readonly<{
   content: DeterministicBilanReportBundle;
   attempts: number;
 }> | Readonly<{
@@ -69,11 +69,9 @@ export type GenerateLlmReportResult = Readonly<{
 /**
  * Pure LLM narration step, deliberately outside any DB transaction: an
  * OpenRouter round trip across 5 agents can take up to a minute, and a report
- * revision must never be written unless this succeeds -- there is no
- * fallback content to fall back to (the deterministic renderer is no longer
- * wired into the pipeline).
+ * revision must never be written unless this succeeds.
  */
-export async function generateLlmReportContent(
+async function generateLlmReportContent(
   factSheet: FactSheet,
   identity: RenderIdentity,
   validatedPack: ValidatedPack,
@@ -89,6 +87,53 @@ export async function generateLlmReportContent(
   } catch {
     return { content: null, attempts: 0, reason: 'GATEWAY_THREW' };
   }
+}
+
+type ReportContentOutcome = Readonly<{ content: DeterministicBilanReportBundle; mode: 'LLM'; attempts: number }>
+  | Readonly<{ content: DeterministicBilanReportBundle; mode: 'DETERMINISTIC_FALLBACK' }>;
+
+/**
+ * Narration is authorized only when OpenRouter is actually configured
+ * (OPENROUTER_API_KEY set). Its absence is the deliberate PLANCHER
+ * operating mode -- not a failure -- so this falls back to the same
+ * deterministic renderer the pipeline used before the LLM gateway existed,
+ * guaranteeing a submitted attempt is never stranded at SCORED for lack of
+ * a narration key. Any OTHER config error (e.g. an unallowlisted model) is
+ * a real misconfiguration and must still fail loudly, not be swallowed.
+ */
+async function resolveReportContent(
+  claim: ClaimedJob,
+  dependencies: GenerateReportJobDependencies,
+): Promise<ReportContentOutcome> {
+  let transport: BilanLlmTransport;
+  try {
+    transport = dependencies.buildTransport();
+  } catch (error) {
+    if (error instanceof BilanLlmConfigError && error.code === 'OPENROUTER_API_KEY_MISSING') {
+      return { content: buildDeterministicReports(claim.factSheet, claim.identity), mode: 'DETERMINISTIC_FALLBACK' };
+    }
+    throw error;
+  }
+  // ── FLIP POINT ──────────────────────────────────────────────────────
+  // Reaching here means OPENROUTER_API_KEY is configured and the pipeline
+  // is about to publish AI-narrated text about a child's diagnostic.
+  // review-service.ts currently authorizes ASSISTANTE ALONE to validate
+  // and publish (lib/bilans/staff/review-service.ts, assertAssistante) --
+  // that model was decided while narration was OFF. The DAY this branch
+  // starts running for real, a subject-qualified COACH review must become
+  // a prerequisite again before publication: an assistante is an
+  // administrative gate, not a check on whether the AI's text about this
+  // specific child, in this specific subject, is pedagogically sound.
+  // Do not remove this comment when re-enabling COACH in the state machine
+  // and review-service.ts -- that wiring has not been rebuilt since the
+  // assistante-only cutover. mode:'LLM' is logged on every completed job
+  // (A88_GENERATE_REPORT_JOB_COMPLETED) -- alert on it appearing to catch
+  // an accidental flip before this gap is closed.
+  const generated = await generateLlmReportContent(claim.factSheet, claim.identity, claim.enabled.validatedPack, transport);
+  if (generated.content === null) {
+    throw new GenerateReportJobError(generated.reason === 'GATEWAY_THREW' ? 'A88_GATEWAY_THREW' : 'A88_NO_VALID_BUNDLE');
+  }
+  return { content: generated.content, mode: 'LLM', attempts: generated.attempts };
 }
 
 type ClaimedJob = Readonly<{
@@ -195,16 +240,7 @@ export async function processGenerateReportJob(
     }
 
     const { claim } = claimed;
-    const generated = await generateLlmReportContent(
-      claim.factSheet,
-      claim.identity,
-      claim.enabled.validatedPack,
-      dependencies.buildTransport(),
-    );
-
-    if (generated.content === null) {
-      throw new GenerateReportJobError(generated.reason === 'GATEWAY_THREW' ? 'A88_GATEWAY_THREW' : 'A88_NO_VALID_BUNDLE');
-    }
+    const outcome = await resolveReportContent(claim, dependencies);
 
     const result = await dependencies.prisma.$transaction(async (transaction) => {
       const pending = await createPendingReport(transaction, {
@@ -213,8 +249,8 @@ export async function processGenerateReportJob(
         scoreSnapshotId: claim.scoreSnapshotId,
         reportPackId: claim.enabled.pack.slug,
         reportPackVersion: String(claim.enabled.pack.version),
-        contextChecksum: sha256Canonical(generated.content),
-        content: generated.content as unknown as Prisma.InputJsonValue,
+        contextChecksum: sha256Canonical(outcome.content),
+        content: outcome.content as unknown as Prisma.InputJsonValue,
         validationFailures: [],
       });
       await transaction.jobOutbox.update({
@@ -231,7 +267,14 @@ export async function processGenerateReportJob(
       return { jobId, revisionId: pending.revision.id, artifactId: pending.artifact.id, replayed: false };
     });
 
-    dependencies.logger.info({ event: 'A88_GENERATE_REPORT_JOB_COMPLETED', jobId, replayed: false, attempts: generated.attempts, durationMs: Date.now() - started });
+    dependencies.logger.info({
+      event: 'A88_GENERATE_REPORT_JOB_COMPLETED',
+      jobId,
+      replayed: false,
+      mode: outcome.mode,
+      attempts: outcome.mode === 'LLM' ? outcome.attempts : 0,
+      durationMs: Date.now() - started,
+    });
     return result;
   } catch (error) {
     const code = error instanceof GenerateReportJobError ? error.code : 'A88_WORKER_FAILED';
