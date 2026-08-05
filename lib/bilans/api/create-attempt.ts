@@ -81,6 +81,11 @@ function attemptDelegate(transaction: CanonicalTransaction): AttemptCreateDelega
 
 function scoringProvenance(engine: string): Readonly<{ id: string; version: string }> {
   const marker = engine.lastIndexOf('.v');
+  // Explicit -1 check first (lastIndexOf's not-found sentinel) rather than
+  // folding it into `marker < 1` -- behaviorally identical, but makes the
+  // "not found" case unambiguous on its own instead of relying on -1 also
+  // satisfying a length comparison.
+  if (marker === -1) throw CanonicalApiError.incompatible('PACK_SCORING_INVALID');
   if (marker < 1 || marker === engine.length - 2) throw CanonicalApiError.incompatible('PACK_SCORING_INVALID');
   return { id: engine.slice(0, marker), version: engine.slice(marker + 2) };
 }

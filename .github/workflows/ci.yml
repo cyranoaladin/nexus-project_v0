@@ -33,6 +33,13 @@ on:
       - main
       - release/pre-rentree-2026-public-ready
 
+# Least-privilege default for every job's GITHUB_TOKEN -- nothing in this
+# workflow comments on PRs, pushes commits/tags, or calls the GitHub API
+# with GITHUB_TOKEN, only checkout + build + test + upload-artifact, all
+# of which only need read access to repo contents.
+permissions:
+  contents: read
+
 # Cancel in-progress runs when new commits pushed
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}

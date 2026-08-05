@@ -11,9 +11,14 @@ import { NextRequest,NextResponse } from 'next/server';
 
 /**
  * Sanitize user input for Telegram MarkdownV1.
+ *
+ * Backslash is itself in the character class so a pre-existing '\' in the
+ * input is escaped too -- otherwise attacker input like `\*bold*\` pairs
+ * the sanitizer's inserted '\' with the ATTACKER's backslash instead of
+ * the special char, leaving the '*' unescaped and live.
  */
 function sanitizeTelegram(str: string): string {
-  return str.replace(/[_*[\]()~`>#+\-=|{}.!]/g, '\\$&');
+  return str.replace(/[_*[\]()~`>#+\-=|{}.!\\]/g, '\\$&');
 }
 
 function buildTelegramMessage(data: {
