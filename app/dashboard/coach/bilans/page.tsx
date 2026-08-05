@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 
 import { auth } from '@/auth';
+import { CoachGroupPlanPicker } from '@/components/bilans/CoachGroupPlanPicker';
 import {
   listStaffGroupPlanCandidates,
   StaffGroupPlanError,
@@ -39,20 +40,14 @@ export default async function CoachBilansGroupPlanPage() {
           {groupCandidates.length === 0 ? (
             <p className="mt-5 rounded-xl border border-white/10 bg-black/20 p-4 text-sm text-slate-300">Aucune passation scorée n’est disponible sur un pack activé.</p>
           ) : (
-            <form action="/dashboard/coach/bilans/group-plan" method="get" target="_blank" className="mt-5">
-              <div className="grid gap-3 md:grid-cols-2">
-                {groupCandidates.map((candidate) => (
-                  <label key={candidate.id} className="flex items-start gap-3 rounded-xl border border-white/10 bg-black/20 p-4">
-                    <input type="checkbox" name="attemptId" value={candidate.id} className="mt-1" />
-                    <span><strong className="block text-white">{candidate.displayName}</strong><span className="text-xs text-slate-400">{candidate.assessmentPackId} · {candidate.status}</span></span>
-                  </label>
-                ))}
-              </div>
-              <div className="mt-5 flex flex-wrap gap-3">
-                <button type="submit" name="format" value="html" className="rounded-xl bg-sky-300 px-4 py-2.5 font-semibold text-slate-950">Ouvrir le plan HTML</button>
-                <button type="submit" name="format" value="pdf" className="rounded-xl border border-sky-300 px-4 py-2.5 font-semibold text-sky-100">Ouvrir le PDF</button>
-              </div>
-            </form>
+            <CoachGroupPlanPicker
+              candidates={groupCandidates.map((candidate) => ({
+                id: candidate.id,
+                assessmentPackId: candidate.assessmentPackId,
+                status: candidate.status,
+                displayName: candidate.displayName,
+              }))}
+            />
           )}
         </section>
       </div>

@@ -53,8 +53,7 @@ export async function POST(request: NextRequest) {
     const identityBlocked = await guardSensitiveRateLimit(request, {
       scope: 'assessment-submit',
       identity: studentData.email,
-      resource: assessmentVersion,
-      dimensions: ['identity', 'resource'],
+      dimensions: ['identity'],
     });
     if (identityBlocked) return identityBlocked;
 
@@ -80,6 +79,17 @@ export async function POST(request: NextRequest) {
         { status: 404 }
       );
     }
+
+    // Resource-limit guard keyed on the resolved canonical version (never the raw,
+    // optional, client-supplied one) so default submissions are still capped and
+    // arbitrary unknown version strings cannot be used to split the limit across
+    // unlimited buckets — they all collapse onto the same canonical fallback.
+    const resourceBlocked = await guardSensitiveRateLimit(request, {
+      scope: 'assessment-submit',
+      resource: resolvedVersion,
+      dimensions: ['resource'],
+    });
+    if (resourceBlocked) return resourceBlocked;
 
     // ─── Step 2: Convert Answers to StudentAnswer Format ────────────────────
 

@@ -16,16 +16,20 @@ function newIdempotencyKey(): string {
 
 export function CanonicalAssessmentStart({ packs }: Readonly<{ packs: readonly CanonicalStartPack[] }>) {
   const router = useRouter();
-  const key = useRef<string | null>(null);
+  // One idempotency key per pack: retrying the SAME pack after an ambiguous
+  // failure must reuse its key, but selecting a DIFFERENT pack must never
+  // replay the first pack's stored attempt via a shared key.
+  const keys = useRef<Record<string, string>>({});
   const [loading, setLoading] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   async function start(pack: CanonicalStartPack) {
-    key.current ??= newIdempotencyKey();
+    keys.current[pack.slug] ??= newIdempotencyKey();
+    const key = keys.current[pack.slug];
     setLoading(pack.slug);
     setError(null);
     try {
-      const attempt = await createCanonicalAttempt(pack.slug, key.current);
+      const attempt = await createCanonicalAttempt(pack.slug, key);
       router.replace(`/bilan-gratuit/assessment?attemptId=${encodeURIComponent(attempt.attemptId)}`);
     } catch {
       setError('Le questionnaire ne peut pas être démarré pour le moment. Réessayez sans fermer cette page.');

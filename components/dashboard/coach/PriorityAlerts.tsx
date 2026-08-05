@@ -1,13 +1,15 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { AlertCircle, Zap, Clock, ShieldAlert } from "lucide-react";
+import { AlertCircle, Zap, Clock, FileWarning, ShieldAlert } from "lucide-react";
 
 export interface CoachAlert {
   id: string;
   studentName: string;
+  /** Present on alerts emitted by /api/coach/dashboard (e.g. BILAN_PENDING). */
+  studentId?: string;
   message: string;
-  type: 'DIAGNOSTIC_FAIL' | 'ABSENCE' | 'STAGNATION' | 'CREDIT_LOW';
+  type: 'DIAGNOSTIC_FAIL' | 'ABSENCE' | 'STAGNATION' | 'CREDIT_LOW' | 'BILAN_PENDING';
   priority: 'HIGH' | 'MEDIUM';
 }
 
@@ -40,6 +42,7 @@ export function PriorityAlerts({ alerts }: PriorityAlertsProps) {
               {alert.type === 'DIAGNOSTIC_FAIL' && <Zap className="w-4 h-4 text-rose-400" />}
               {alert.type === 'ABSENCE' && <Clock className="w-4 h-4 text-amber-400" />}
               {alert.type === 'STAGNATION' && <AlertCircle className="w-4 h-4 text-rose-400" />}
+              {alert.type === 'BILAN_PENDING' && <FileWarning className="w-4 h-4 text-rose-400" />}
             </div>
             <div className="flex-1">
               <div className="flex justify-between items-start mb-1">
