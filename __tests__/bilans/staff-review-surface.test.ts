@@ -25,9 +25,8 @@ const revision = {
 
 function dependencies(overrides: Record<string, unknown> = {}) {
   return {
-    findCoach: jest.fn().mockResolvedValue({ id: 'coach-1' }),
-    listAssignedPending: jest.fn().mockResolvedValue([revision]),
-    findAssignedRevision: jest.fn().mockResolvedValue(revision),
+    listPending: jest.fn().mockResolvedValue([revision]),
+    findPending: jest.fn().mockResolvedValue(revision),
     resolvePack: jest.fn().mockReturnValue({ pack: { slug: 'fixture-pack' } }),
     validate: jest.fn().mockResolvedValue({ status: 'COACH_VALIDATED' }),
     publish: jest.fn().mockResolvedValue({ status: 'PUBLISHED' }),
@@ -43,46 +42,46 @@ function serviceDependencies(value: ReturnType<typeof dependencies>): never {
 }
 
 describe('staff Canonical report review service', () => {
-  test('lists only assigned pending revisions whose pack remains enabled', async () => {
+  test('lists every pending revision whose pack remains enabled -- no assignment filter for an administrative reviewer', async () => {
     const disabled = { ...revision, id: 'revision-off', reportPackId: 'pack-off' };
     const deps = dependencies({
-      listAssignedPending: jest.fn().mockResolvedValue([revision, disabled]),
+      listPending: jest.fn().mockResolvedValue([revision, disabled]),
       resolvePack: jest.fn((slug: string) => slug === 'fixture-pack' ? { pack: { slug } } : null),
     });
 
-    await expect(listPendingReportReviews({ userId: 'user-coach', role: 'COACH' }, serviceDependencies(deps)))
+    await expect(listPendingReportReviews({ userId: 'user-assistante', role: 'ASSISTANTE' }, serviceDependencies(deps)))
       .resolves.toEqual([revision]);
   });
 
-  test.each(['ELEVE', 'PARENT', 'ASSISTANTE', 'ADMIN'])('returns NOT_FOUND to role %s', async (role) => {
+  test.each(['ELEVE', 'PARENT', 'COACH', 'ADMIN'])('returns NOT_FOUND to role %s -- coach is out of the review circuit', async (role) => {
     await expect(listPendingReportReviews({ userId: 'user-1', role }, serviceDependencies(dependencies())))
       .rejects.toMatchObject({ code: 'NOT_FOUND' });
   });
 
-  test('validates then publishes through A86 services with reviewer identity and time', async () => {
+  test('validates then publishes through the report service with reviewer identity and time', async () => {
     const deps = dependencies();
 
     await expect(validateAndPublishPendingReport({
-      userId: 'user-coach', role: 'COACH', revisionId: revision.id, motif: 'Rapport relu intégralement.',
+      userId: 'user-assistante', role: 'ASSISTANTE', revisionId: revision.id, motif: 'Rapport relu intégralement.',
     }, serviceDependencies(deps))).resolves.toMatchObject({ status: 'PUBLISHED' });
 
     expect(deps.validate).toHaveBeenCalledWith(expect.objectContaining({
       revisionId: revision.id,
-      coachId: 'coach-1',
+      reviewerId: 'user-assistante',
       motif: 'Rapport relu intégralement.',
       reviewedAt: new Date('2026-08-02T11:00:00.000Z'),
     }));
-    expect(deps.publish).toHaveBeenCalledWith(expect.objectContaining({ revisionId: revision.id, coachId: 'coach-1' }));
+    expect(deps.publish).toHaveBeenCalledWith(expect.objectContaining({ revisionId: revision.id, reviewerId: 'user-assistante' }));
     expect(deps.validate.mock.invocationCallOrder[0]).toBeLessThan(deps.publish.mock.invocationCallOrder[0]);
   });
 
   test('blocks validationFailures before either validation or publication', async () => {
     const deps = dependencies({
-      findAssignedRevision: jest.fn().mockResolvedValue({ ...revision, validationFailures: ['V2_NUMBER_FORBIDDEN'] }),
+      findPending: jest.fn().mockResolvedValue({ ...revision, validationFailures: ['V2_NUMBER_FORBIDDEN'] }),
     });
 
     await expect(validateAndPublishPendingReport({
-      userId: 'user-coach', role: 'COACH', revisionId: revision.id, motif: 'Ne doit pas passer.',
+      userId: 'user-assistante', role: 'ASSISTANTE', revisionId: revision.id, motif: 'Ne doit pas passer.',
     }, serviceDependencies(deps))).rejects.toMatchObject({ code: 'REPORT_VALIDATION_FAILURES' });
     expect(deps.validate).not.toHaveBeenCalled();
     expect(deps.publish).not.toHaveBeenCalled();
@@ -91,17 +90,17 @@ describe('staff Canonical report review service', () => {
   test('previews without validating, publishing or persisting an artifact', async () => {
     const deps = dependencies();
     await expect(previewPendingReport({
-      userId: 'user-coach', role: 'COACH', revisionId: revision.id,
+      userId: 'user-assistante', role: 'ASSISTANTE', revisionId: revision.id,
     }, serviceDependencies(deps))).resolves.toMatchObject({ official: false });
     expect(deps.preview).toHaveBeenCalledWith({ revisionId: revision.id });
     expect(deps.validate).not.toHaveBeenCalled();
     expect(deps.publish).not.toHaveBeenCalled();
   });
 
-  test('rejects through the A86 service and preserves a non-empty motif', async () => {
+  test('rejects through the report service and preserves a non-empty motif', async () => {
     const deps = dependencies();
     await rejectPendingReport({
-      userId: 'user-coach', role: 'COACH', revisionId: revision.id, motif: 'Priorité pédagogique incorrecte.',
+      userId: 'user-assistante', role: 'ASSISTANTE', revisionId: revision.id, motif: 'Priorité pédagogique incorrecte.',
     }, serviceDependencies(deps));
     expect(deps.reject).toHaveBeenCalledWith(expect.objectContaining({ motif: 'Priorité pédagogique incorrecte.' }));
   });
@@ -109,8 +108,8 @@ describe('staff Canonical report review service', () => {
   test('contains no direct Prisma status mutation in the staff surface', () => {
     const paths = [
       'lib/bilans/staff/review-service.ts',
-      'app/dashboard/coach/bilans/actions.ts',
-      'app/dashboard/coach/bilans/page.tsx',
+      'app/dashboard/assistante/bilans/actions.ts',
+      'app/dashboard/assistante/bilans/page.tsx',
     ];
     const source = paths.map((path) => readFileSync(resolve(process.cwd(), path), 'utf8')).join('\n');
     expect(source).not.toMatch(/canonicalAssessmentAttempt\.(?:update|updateMany)/);

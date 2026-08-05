@@ -4,11 +4,124 @@ import { buildValidatedPack } from '@/lib/bilans/validators/contracts';
 
 const DOMAINS = ['algebre', 'analyse', 'probabilites'] as const;
 
-const outputSchema = {
-  type: 'object' as const,
-  properties: { ok: { type: 'boolean' as const } },
-  required: ['ok'],
-  additionalProperties: false as const,
+const PROMPT_CHECKSUMS: Readonly<Record<string, string>> = {
+  preAnalysis: 'bd3a658fe5bcf1b34a1902873f85729b7665a345f80f20f0b788bdd41c99d17e',
+  eleve: '74266a664f6c65b38a83d9baacf5f0444058300a7a096fb133a29b7b637d2cd7',
+  parents: '34919b07d22950a8310b5b9e63a9825b50234fd6d3627789c3eb361a8496cf77',
+  nexus: '4be70fedc28946fbd60a082b441227821411125ea918c5056aaa9e984e02739a',
+  verifier: 'f341aedb13ba061ed6f6ae52bde92753727ae2550be94d58e3bd85680b3db3a8',
+};
+
+const nonEmptyString = { type: 'string' as const, minLength: 1 };
+
+const OUTPUT_SCHEMAS = {
+  preAnalysis: {
+    type: 'object' as const,
+    properties: {
+      synthese: nonEmptyString,
+      forcesPercues: { type: 'array' as const, items: nonEmptyString },
+      craintes: { type: 'array' as const, items: nonEmptyString },
+    },
+    required: ['synthese', 'forcesPercues', 'craintes'],
+    additionalProperties: false as const,
+  },
+  eleve: {
+    type: 'object' as const,
+    properties: {
+      accroche: nonEmptyString,
+      forces: { type: 'array' as const, items: nonEmptyString, minItems: 3, maxItems: 3 },
+      priorites: {
+        type: 'array' as const,
+        items: {
+          type: 'object' as const,
+          properties: {
+            domainId: nonEmptyString,
+            titre: nonEmptyString,
+            pourquoi: nonEmptyString,
+            comment: nonEmptyString,
+          },
+          required: ['domainId', 'titre', 'pourquoi', 'comment'],
+          additionalProperties: false as const,
+        },
+        minItems: 1,
+        maxItems: 8,
+      },
+      microPlan: {
+        type: 'array' as const,
+        items: {
+          type: 'object' as const,
+          properties: {
+            action: nonEmptyString,
+            dureeMin: { type: 'integer' as const, minimum: 1 },
+          },
+          required: ['action', 'dureeMin'],
+          additionalProperties: false as const,
+        },
+        minItems: 1,
+        maxItems: 5,
+      },
+      motDeFin: nonEmptyString,
+    },
+    required: ['accroche', 'forces', 'priorites', 'microPlan', 'motDeFin'],
+    additionalProperties: false as const,
+  },
+  parents: {
+    type: 'object' as const,
+    properties: {
+      cadre: nonEmptyString,
+      pointsAppui: {
+        type: 'array' as const,
+        items: {
+          type: 'object' as const,
+          properties: { domainId: nonEmptyString, texte: nonEmptyString },
+          required: ['domainId', 'texte'],
+          additionalProperties: false as const,
+        },
+        minItems: 1,
+        maxItems: 8,
+      },
+      priorites: {
+        type: 'array' as const,
+        items: {
+          type: 'object' as const,
+          properties: { domainId: nonEmptyString, titre: nonEmptyString, ceQuiSeraFait: nonEmptyString },
+          required: ['domainId', 'titre', 'ceQuiSeraFait'],
+          additionalProperties: false as const,
+        },
+        minItems: 1,
+        maxItems: 8,
+      },
+      etapeSuivante: {
+        type: 'object' as const,
+        properties: { texte: nonEmptyString, cta: nonEmptyString },
+        required: ['texte', 'cta'],
+        additionalProperties: false as const,
+      },
+    },
+    required: ['cadre', 'pointsAppui', 'priorites', 'etapeSuivante'],
+    additionalProperties: false as const,
+  },
+  nexus: {
+    type: 'object' as const,
+    properties: {
+      syntheseProfil: nonEmptyString,
+      diagnosticPedagogique: nonEmptyString,
+      planQuatreSemaines: nonEmptyString,
+      alertes: { type: 'array' as const, items: nonEmptyString },
+      ragReferences: { type: 'array' as const, items: nonEmptyString },
+    },
+    required: ['syntheseProfil', 'diagnosticPedagogique', 'planQuatreSemaines', 'alertes', 'ragReferences'],
+    additionalProperties: false as const,
+  },
+  verifier: {
+    type: 'object' as const,
+    properties: {
+      ok: { type: 'boolean' as const },
+      violations: { type: 'array' as const, items: nonEmptyString },
+    },
+    required: ['ok', 'violations'],
+    additionalProperties: false as const,
+  },
 };
 
 export const CANONICAL_WORKER_PACK: BilanPack = {
@@ -57,16 +170,10 @@ export const CANONICAL_WORKER_PACK: BilanPack = {
     promptFiles: Object.fromEntries(
       ['preAnalysis', 'eleve', 'parents', 'nexus', 'verifier'].map((id) => [id, {
         path: `__tests__/bilans/fixtures/${id}.md`,
-        checksum: 'a'.repeat(64),
+        checksum: PROMPT_CHECKSUMS[id],
       }]),
     ) as BilanPack['reporting']['promptFiles'],
-    outputSchemas: {
-      preAnalysis: outputSchema,
-      eleve: outputSchema,
-      parents: outputSchema,
-      nexus: outputSchema,
-      verifier: outputSchema,
-    },
+    outputSchemas: OUTPUT_SCHEMAS,
   },
   validation: {
     lexiconPath: 'data/bilans/lexique-interdit.json',

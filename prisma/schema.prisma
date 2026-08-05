@@ -222,6 +222,9 @@ model User {
   // Coach-student assignments created by this user (assistant/admin)
   coachStudentAssignmentsCreated CoachStudentAssignment[] @relation("CoachStudentAssignmentAssignedBy")
 
+  // Canonical bilan reviews performed by this user (ASSISTANTE)
+  bilanReportReviews ReportReview[]
+
   // 2FA TOTP (Admin only)
   totpSecret      String? // AES-256-GCM encrypted, format: v1:iv:tag:ciphertext
   totpEnabledAt   DateTime? // non-null = 2FA active (canonical check)
@@ -1648,15 +1651,24 @@ model ReportReview {
   id               String               @id @default(cuid())
   reportRevisionId String
   reportRevision   ReportRevision       @relation(fields: [reportRevisionId], references: [id], onDelete: Restrict)
-  coachId          String
-  coach            CoachProfile         @relation(fields: [coachId], references: [id], onDelete: Restrict)
-  decision         ReportReviewDecision
-  motif            String               @db.Text
-  reviewedAt       DateTime             @default(now())
-  createdAt        DateTime             @default(now())
+
+  // Historical reviewer path (COACH, via CoachProfile). Retired for new
+  // rows in favor of reviewerId (ASSISTANTE, via User) — exactly one of
+  // the two is set, enforced by a DB CHECK constraint.
+  coachId String?
+  coach   CoachProfile? @relation(fields: [coachId], references: [id], onDelete: Restrict)
+
+  reviewerId String?
+  reviewer   User?   @relation(fields: [reviewerId], references: [id], onDelete: Restrict)
+
+  decision   ReportReviewDecision
+  motif      String               @db.Text
+  reviewedAt DateTime             @default(now())
+  createdAt  DateTime             @default(now())
 
   @@index([reportRevisionId, reviewedAt])
   @@index([coachId, reviewedAt])
+  @@index([reviewerId, reviewedAt])
   @@map("canonical_report_reviews")
 }
 

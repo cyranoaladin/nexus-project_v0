@@ -24,6 +24,7 @@ export default defineConfig({
     'parent-email-onboarding.spec.ts',
     'session-revocation.spec.ts',
     'pending-parent-lifecycle.spec.ts',
+    'bilan-golden-path.spec.ts',
   ],
   fullyParallel: false,
   forbidOnly: !!process.env.CI,

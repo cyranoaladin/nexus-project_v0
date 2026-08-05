@@ -33,7 +33,7 @@ export async function validateAndPublishReportAction(formData: FormData): Promis
       revisionId: field(formData, 'revisionId'),
       motif: field(formData, 'motif'),
     });
-    revalidatePath('/dashboard/coach/bilans');
+    revalidatePath('/dashboard/assistante/bilans');
   } catch (error) {
     handleAccessError(error);
   }
@@ -46,7 +46,7 @@ export async function rejectReportAction(formData: FormData): Promise<void> {
       revisionId: field(formData, 'revisionId'),
       motif: field(formData, 'motif'),
     });
-    revalidatePath('/dashboard/coach/bilans');
+    revalidatePath('/dashboard/assistante/bilans');
   } catch (error) {
     handleAccessError(error);
   }

@@ -19,12 +19,12 @@ export const LEGAL_TRANSITIONS: readonly LifecycleTransition[] = [
   { from: 'SCORED', action: 'CREATE_REPORT', actor: 'WORKER', to: 'REPORT_PENDING_REVIEW' },
   { from: 'SCORED', action: 'MARK_REPORT_GENERATION_FAILED', actor: 'WORKER', to: 'REPORT_GENERATION_FAILED' },
   { from: 'REPORT_GENERATION_FAILED', action: 'RETRY_REPORT_GENERATION', actor: 'WORKER', to: 'SCORED' },
-  { from: 'REPORT_PENDING_REVIEW', action: 'VALIDATE_REPORT', actor: 'COACH', to: 'COACH_VALIDATED' },
-  { from: 'REPORT_PENDING_REVIEW', action: 'REJECT_REPORT', actor: 'COACH', to: 'COACH_REJECTED' },
-  { from: 'COACH_REJECTED', action: 'REQUEST_REGENERATION', actor: 'COACH', to: 'SCORED' },
-  { from: 'PUBLISHED', action: 'REQUEST_REGENERATION', actor: 'COACH', to: 'SCORED' },
+  { from: 'REPORT_PENDING_REVIEW', action: 'VALIDATE_REPORT', actor: 'ASSISTANTE', to: 'COACH_VALIDATED' },
+  { from: 'REPORT_PENDING_REVIEW', action: 'REJECT_REPORT', actor: 'ASSISTANTE', to: 'COACH_REJECTED' },
+  { from: 'COACH_REJECTED', action: 'REQUEST_REGENERATION', actor: 'ASSISTANTE', to: 'SCORED' },
+  { from: 'PUBLISHED', action: 'REQUEST_REGENERATION', actor: 'ASSISTANTE', to: 'SCORED' },
   { from: 'SCORED', action: 'REGENERATE_REPORT', actor: 'WORKER', to: 'REPORT_PENDING_REVIEW' },
-  { from: 'COACH_VALIDATED', action: 'PUBLISH_REPORT', actor: 'COACH', to: 'PUBLISHED' },
+  { from: 'COACH_VALIDATED', action: 'PUBLISH_REPORT', actor: 'ASSISTANTE', to: 'PUBLISHED' },
 ];
 
 export function getLegalTransition(

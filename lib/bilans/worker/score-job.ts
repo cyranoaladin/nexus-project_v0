@@ -2,9 +2,8 @@ import { Prisma, type PrismaClient } from '@prisma/client';
 import { z } from 'zod';
 
 import { resolveEnabledPack, type PackResolver } from '../api/pack-access';
-import { advanceAttemptLifecycle, createPendingReport } from '../core/report-service';
+import { advanceAttemptLifecycle } from '../core/report-service';
 import { sha256Canonical } from '../local-first/hash';
-import type { DeterministicBilanReportBundle } from '../render/report';
 import { buildWorkerScoring, type WorkerScoringDependencies } from './scoring';
 import { prisma } from '@/lib/prisma';
 
@@ -55,6 +54,15 @@ function failureCode(stage: 'LOAD' | 'SCORING' | 'RENDER' | 'STRUCTURE'): string
   return 'A86_WORKER_FAILED';
 }
 
+/**
+ * Scores a submitted attempt and hands off report generation to a separate
+ * GENERATE_REPORT job, rather than creating the report inline. Report
+ * generation (LLM, network-bound, can take up to a minute) must never share
+ * a transaction with scoring — and `canonical_report_revisions` is
+ * append-only, so its content must be right the first time, computed before
+ * the one INSERT that creates it. Splitting the jobs is what makes both of
+ * those true at once.
+ */
 export async function processScoreAttemptJob(
   jobId: string,
   dependencies: ScoreJobDependencies = defaultDependencies,
@@ -79,11 +87,12 @@ export async function processScoreAttemptJob(
       if (job === undefined || job.jobType !== 'SCORE_ATTEMPT') throw new ScoreJobError('A86_JOB_INVALID');
       if (job.status === 'COMPLETED') {
         const snapshot = await transaction.scoreSnapshot.findUnique({ where: { assessmentAttemptId: job.aggregateId } });
-        const artifact = await transaction.reportArtifact.findUnique({ where: { assessmentAttemptId: job.aggregateId } });
-        if (snapshot === null || artifact === null) throw new ScoreJobError('A86_COMPLETED_JOB_INCONSISTENT');
-        const revision = await transaction.reportRevision.findUnique({ where: { scoreSnapshotId: snapshot.id } });
-        if (revision === null) throw new ScoreJobError('A86_COMPLETED_JOB_INCONSISTENT');
-        return { jobId, snapshotId: snapshot.id, artifactId: artifact.id, revisionId: revision.id, replayed: true };
+        if (snapshot === null) throw new ScoreJobError('A86_COMPLETED_JOB_INCONSISTENT');
+        const generateReportJob = await transaction.jobOutbox.findUnique({
+          where: { idempotencyKey: `${job.aggregateId}.generate-report` },
+        });
+        if (generateReportJob === null) throw new ScoreJobError('A86_COMPLETED_JOB_INCONSISTENT');
+        return { jobId, snapshotId: snapshot.id, generateReportJobId: generateReportJob.id, replayed: true };
       }
       if (job.status !== 'PENDING' && job.status !== 'LEASED') throw new ScoreJobError('A86_JOB_NOT_PROCESSABLE');
       const payload = payloadSchema.parse(job.payload);
@@ -108,6 +117,10 @@ export async function processScoreAttemptJob(
           leaseExpiresAt: new Date(dependencies.now().getTime() + 5 * 60_000),
         },
       });
+      // buildReports/validateReports still run here as a structural sanity
+      // check on the FactSheet (proves it renders), even though their output
+      // is no longer persisted -- GENERATE_REPORT computes the content that
+      // actually gets stored.
       const computed = buildWorkerScoring({
         attemptId: attempt.id,
         startedAt: attempt.startedAt,
@@ -151,16 +164,18 @@ export async function processScoreAttemptJob(
         action: 'SCORE',
         actor: 'WORKER',
       });
-      const reportBundle = computed.reports satisfies DeterministicBilanReportBundle;
-      const pending = await createPendingReport(transaction, {
-        attemptId: attempt.id,
-        studentId: attempt.studentId,
-        scoreSnapshotId: snapshot.id,
-        reportPackId: enabled.pack.slug,
-        reportPackVersion: String(enabled.pack.version),
-        contextChecksum: sha256Canonical(reportBundle),
-        content: json(reportBundle),
-        validationFailures: [],
+      const generateReportJob = await transaction.jobOutbox.create({
+        data: {
+          jobType: 'GENERATE_REPORT',
+          aggregateType: 'CanonicalAssessmentAttempt',
+          aggregateId: attempt.id,
+          sourceEventKey: `${attempt.id}.scored`,
+          idempotencyKey: `${attempt.id}.generate-report`,
+          payload: {
+            attemptId: attempt.id,
+            scoreSnapshotId: snapshot.id,
+          },
+        },
       });
       await transaction.jobOutbox.update({
         where: { id: job.id },
@@ -176,8 +191,7 @@ export async function processScoreAttemptJob(
       return {
         jobId,
         snapshotId: snapshot.id,
-        artifactId: pending.artifact.id,
-        revisionId: pending.revision.id,
+        generateReportJobId: generateReportJob.id,
         replayed: false,
       };
     });

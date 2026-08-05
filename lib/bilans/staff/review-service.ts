@@ -28,25 +28,6 @@ export type PendingReportReview = Readonly<{
 type ReviewActor = Readonly<{ userId: string; role: UserRole | string }>;
 type ReviewAction = ReviewActor & Readonly<{ revisionId: string; motif: string }>;
 
-type ReviewServiceDependencies = Readonly<{
-  findCoach(userId: string): Promise<Readonly<{ id: string }> | null>;
-  listAssignedPending(coachId: string): Promise<readonly PendingReportReview[]>;
-  findAssignedRevision(revisionId: string, coachId: string): Promise<PendingReportReview | null>;
-  resolvePack: PackResolver;
-  validate(input: Readonly<{ revisionId: string; coachId: string; motif: string; reviewedAt: Date }>): Promise<unknown>;
-  publish(input: Readonly<{ revisionId: string; coachId: string; publishedAt: Date }>): Promise<unknown>;
-  preview(input: Readonly<{ revisionId: string }>): Promise<unknown>;
-  reject(input: Readonly<{ revisionId: string; coachId: string; motif: string; reviewedAt: Date }>): Promise<unknown>;
-  now: () => Date;
-}>;
-
-export class StaffReviewError extends Error {
-  constructor(readonly code: string) {
-    super(code);
-    this.name = 'StaffReviewError';
-  }
-}
-
 const revisionSelection = {
   id: true,
   status: true,
@@ -60,27 +41,32 @@ const revisionSelection = {
   },
 } as const;
 
-function assignedToCoach(coachId: string) {
-  return {
-    reportArtifact: {
-      assessmentAttempt: {
-        student: {
-          coachAssignments: { some: { coachId, status: 'ACTIVE' as const } },
-        },
-      },
-    },
-  };
+type ReviewServiceDependencies = Readonly<{
+  listPending(): Promise<readonly PendingReportReview[]>;
+  findPending(revisionId: string): Promise<PendingReportReview | null>;
+  resolvePack: PackResolver;
+  validate(input: Readonly<{ revisionId: string; reviewerId: string; motif: string; reviewedAt: Date }>): Promise<unknown>;
+  publish(input: Readonly<{ revisionId: string; reviewerId: string; publishedAt: Date }>): Promise<unknown>;
+  preview(input: Readonly<{ revisionId: string }>): Promise<unknown>;
+  reject(input: Readonly<{ revisionId: string; reviewerId: string; motif: string; reviewedAt: Date }>): Promise<unknown>;
+  now: () => Date;
+}>;
+
+export class StaffReviewError extends Error {
+  constructor(readonly code: string) {
+    super(code);
+    this.name = 'StaffReviewError';
+  }
 }
 
 const defaultDependencies: ReviewServiceDependencies = {
-  findCoach: (userId) => prisma.coachProfile.findUnique({ where: { userId }, select: { id: true } }),
-  listAssignedPending: (coachId) => prisma.reportRevision.findMany({
-    where: { status: 'PENDING_REVIEW', ...assignedToCoach(coachId) },
+  listPending: () => prisma.reportRevision.findMany({
+    where: { status: 'PENDING_REVIEW' },
     select: revisionSelection,
     orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
   }),
-  findAssignedRevision: (revisionId, coachId) => prisma.reportRevision.findFirst({
-    where: { id: revisionId, status: 'PENDING_REVIEW', ...assignedToCoach(coachId) },
+  findPending: (revisionId) => prisma.reportRevision.findFirst({
+    where: { id: revisionId, status: 'PENDING_REVIEW' },
     select: revisionSelection,
   }),
   resolvePack: resolveEnabledPack,
@@ -91,11 +77,17 @@ const defaultDependencies: ReviewServiceDependencies = {
   now: () => new Date(),
 };
 
-async function coachFor(actor: ReviewActor, dependencies: ReviewServiceDependencies): Promise<string> {
-  if (actor.role !== 'COACH' || !actor.userId.trim()) throw new StaffReviewError('NOT_FOUND');
-  const coach = await dependencies.findCoach(actor.userId);
-  if (coach === null) throw new StaffReviewError('NOT_FOUND');
-  return coach.id;
+/**
+ * Report review and publication is an administrative gate, not subject-matter
+ * expertise: any authenticated ASSISTANTE may act on any pending report from
+ * an enabled pack. Coach is deliberately not accepted here (see the state
+ * machine: only ASSISTANTE performs VALIDATE_REPORT/REJECT_REPORT/
+ * PUBLISH_REPORT). A coach's own subject knowledge no longer gates
+ * publication to families.
+ */
+function assertAssistante(actor: ReviewActor): string {
+  if (actor.role !== 'ASSISTANTE' || !actor.userId.trim()) throw new StaffReviewError('NOT_FOUND');
+  return actor.userId;
 }
 
 function versionOf(revision: PendingReportReview): number {
@@ -108,16 +100,16 @@ function packIsEnabled(revision: PendingReportReview, dependencies: ReviewServic
   return dependencies.resolvePack(revision.reportPackId, versionOf(revision)) !== null;
 }
 
-async function assignedPending(
+async function pendingReview(
   action: ReviewAction,
   dependencies: ReviewServiceDependencies,
-): Promise<Readonly<{ revision: PendingReportReview; coachId: string; motif: string }>> {
-  const coachId = await coachFor(action, dependencies);
-  const revision = await dependencies.findAssignedRevision(action.revisionId, coachId);
+): Promise<Readonly<{ revision: PendingReportReview; reviewerId: string; motif: string }>> {
+  const reviewerId = assertAssistante(action);
+  const revision = await dependencies.findPending(action.revisionId);
   if (revision === null || !packIsEnabled(revision, dependencies)) throw new StaffReviewError('NOT_FOUND');
   const motif = action.motif.trim();
   if (!motif) throw new StaffReviewError('REPORT_REVIEW_MOTIF_REQUIRED');
-  return Object.freeze({ revision, coachId, motif });
+  return Object.freeze({ revision, reviewerId, motif });
 }
 
 export async function listPendingReportReviews(
@@ -125,8 +117,8 @@ export async function listPendingReportReviews(
   overrides: Partial<ReviewServiceDependencies> = {},
 ): Promise<readonly PendingReportReview[]> {
   const dependencies = { ...defaultDependencies, ...overrides };
-  const coachId = await coachFor(actor, dependencies);
-  const revisions = await dependencies.listAssignedPending(coachId);
+  assertAssistante(actor);
+  const revisions = await dependencies.listPending();
   return Object.freeze(revisions.filter((revision) => packIsEnabled(revision, dependencies)));
 }
 
@@ -135,11 +127,11 @@ export async function validateAndPublishPendingReport(
   overrides: Partial<ReviewServiceDependencies> = {},
 ) {
   const dependencies = { ...defaultDependencies, ...overrides };
-  const { revision, coachId, motif } = await assignedPending(action, dependencies);
+  const { revision, reviewerId, motif } = await pendingReview(action, dependencies);
   if (revision.validationFailures.length > 0) throw new StaffReviewError('REPORT_VALIDATION_FAILURES');
   const reviewedAt = dependencies.now();
-  await dependencies.validate({ revisionId: revision.id, coachId, motif, reviewedAt });
-  return dependencies.publish({ revisionId: revision.id, coachId, publishedAt: reviewedAt });
+  await dependencies.validate({ revisionId: revision.id, reviewerId, motif, reviewedAt });
+  return dependencies.publish({ revisionId: revision.id, reviewerId, publishedAt: reviewedAt });
 }
 
 export async function previewPendingReport(
@@ -147,8 +139,8 @@ export async function previewPendingReport(
   overrides: Partial<ReviewServiceDependencies> = {},
 ) {
   const dependencies = { ...defaultDependencies, ...overrides };
-  const coachId = await coachFor(action, dependencies);
-  const revision = await dependencies.findAssignedRevision(action.revisionId, coachId);
+  assertAssistante(action);
+  const revision = await dependencies.findPending(action.revisionId);
   if (revision === null || !packIsEnabled(revision, dependencies)) throw new StaffReviewError('NOT_FOUND');
   if (revision.validationFailures.length > 0) throw new StaffReviewError('REPORT_VALIDATION_FAILURES');
   return dependencies.preview({ revisionId: revision.id });
@@ -159,6 +151,6 @@ export async function rejectPendingReport(
   overrides: Partial<ReviewServiceDependencies> = {},
 ) {
   const dependencies = { ...defaultDependencies, ...overrides };
-  const { revision, coachId, motif } = await assignedPending(action, dependencies);
-  return dependencies.reject({ revisionId: revision.id, coachId, motif, reviewedAt: dependencies.now() });
+  const { revision, reviewerId, motif } = await pendingReview(action, dependencies);
+  return dependencies.reject({ revisionId: revision.id, reviewerId, motif, reviewedAt: dependencies.now() });
 }

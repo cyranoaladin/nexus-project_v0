@@ -10,6 +10,9 @@ import {
   validateReportRevision,
 } from '@/lib/bilans/core/report-service';
 import { processScoreAttemptJob } from '@/lib/bilans/worker/score-job';
+import { processGenerateReportJob } from '@/lib/bilans/worker/generate-report-job';
+import { drainGenerateReportJobs } from '@/lib/bilans/worker/drain-outbox';
+import { MockBilanLlmTransport } from '@/lib/bilans/llm/mock-transport';
 import { prisma } from '@/lib/prisma';
 import { renderDeterministicBilanHtml } from '@/lib/bilans/render/html';
 import { BILAN_PDF_ENGINE_VERSION } from '@/lib/bilans/render/pdf';
@@ -32,7 +35,7 @@ describe('A86 deterministic worker and internal review service', () => {
   let studentId: string;
   let studentUserId: string;
   let parentUserId: string;
-  let coachId: string;
+  let reviewerId: string;
   let attemptA: string;
   let attemptB: string;
 
@@ -86,11 +89,8 @@ describe('A86 deterministic worker and internal review service', () => {
     await prisma.parentStudentLink.create({
       data: { parentUserId, studentId, state: 'VERIFIED', verifiedAt: NOW, consentedAt: NOW },
     });
-    const coachUser = await prisma.user.create({ data: { email: `${PREFIX}coach@example.test`, role: 'COACH' } });
-    coachId = (await prisma.coachProfile.create({ data: { userId: coachUser.id, pseudonym: `${PREFIX}coach`, subjects: '[]' } })).id;
-    await prisma.coachStudentAssignment.create({
-      data: { coachId, studentId, status: 'ACTIVE', startsAt: new Date('2026-08-01T00:00:00.000Z') },
-    });
+    const assistanteUser = await prisma.user.create({ data: { email: `${PREFIX}assistante@example.test`, role: 'ASSISTANTE' } });
+    reviewerId = assistanteUser.id;
   });
 
   afterAll(async () => {
@@ -100,9 +100,7 @@ describe('A86 deterministic worker and internal review service', () => {
         "canonical_evidence_items", "canonical_score_snapshots", "canonical_job_outbox",
         "canonical_assessment_attempts", "canonical_parent_student_links" CASCADE
     `);
-    await prisma.coachStudentAssignment.deleteMany({ where: { coach: { user: { email: { startsWith: PREFIX } } } } });
     await prisma.student.deleteMany({ where: { user: { email: { startsWith: PREFIX } } } });
-    await prisma.coachProfile.deleteMany({ where: { user: { email: { startsWith: PREFIX } } } });
     await prisma.parentProfile.deleteMany({ where: { user: { email: { startsWith: PREFIX } } } });
     await prisma.user.deleteMany({ where: { email: { startsWith: PREFIX } } });
     await prisma.$disconnect();
@@ -114,6 +112,17 @@ describe('A86 deterministic worker and internal review service', () => {
     now: () => NOW,
     logger,
   };
+  const generateReportDependencies = {
+    ...dependencies,
+    buildTransport: () => new MockBilanLlmTransport(),
+  };
+
+  async function runGenerateReportJob(attemptId: string) {
+    const job = await prisma.jobOutbox.findUniqueOrThrow({
+      where: { idempotencyKey: `${attemptId}.generate-report` },
+    });
+    return processGenerateReportJob(job.id, generateReportDependencies);
+  }
 
   test('same answers produce byte-identical artifacts without network and replay is idempotent', async () => {
     const seededA = await seedAttempt('det-a');
@@ -125,6 +134,9 @@ describe('A86 deterministic worker and internal review service', () => {
       await processScoreAttemptJob(seededA.job.id, dependencies);
       await processScoreAttemptJob(seededB.job.id, dependencies);
       await processScoreAttemptJob(seededA.job.id, dependencies);
+      await runGenerateReportJob(attemptA);
+      await runGenerateReportJob(attemptB);
+      await runGenerateReportJob(attemptA);
     } finally {
       fetchSpy.mockRestore();
     }
@@ -164,12 +176,43 @@ describe('A86 deterministic worker and internal review service', () => {
     expect(await prisma.reportArtifact.count({ where: { assessmentAttemptId: attempt.id } })).toBe(0);
   });
 
+  test('never publishes an invented report on LLM failure, then recovers on the next drain', async () => {
+    const seeded = await seedAttempt('llm-fail');
+    await processScoreAttemptJob(seeded.job.id, dependencies);
+    const generateJob = await prisma.jobOutbox.findUniqueOrThrow({
+      where: { idempotencyKey: `${seeded.attempt.id}.generate-report` },
+    });
+
+    const throwingTransport = { generate: async () => { throw new Error('network down'); } };
+    await expect(processGenerateReportJob(generateJob.id, {
+      ...dependencies,
+      buildTransport: () => throwingTransport,
+    })).rejects.toThrow('A88_NO_VALID_BUNDLE');
+
+    expect(await prisma.reportRevision.count({ where: { reportArtifact: { assessmentAttemptId: seeded.attempt.id } } })).toBe(0);
+    expect((await prisma.canonicalAssessmentAttempt.findUniqueOrThrow({ where: { id: seeded.attempt.id } })).status)
+      .toBe('REPORT_GENERATION_FAILED');
+    expect((await prisma.jobOutbox.findUniqueOrThrow({ where: { id: generateJob.id } })))
+      .toMatchObject({ status: 'FAILED', lastError: 'A88_NO_VALID_BUNDLE' });
+
+    await drainGenerateReportJobs({ limit: 1, owner: 'a88-retry' }, {
+      prisma,
+      processJob: (jobId) => processGenerateReportJob(jobId, generateReportDependencies),
+      logger,
+    });
+
+    expect((await prisma.canonicalAssessmentAttempt.findUniqueOrThrow({ where: { id: seeded.attempt.id } })).status)
+      .toBe('REPORT_PENDING_REVIEW');
+    expect(await prisma.reportRevision.count({ where: { reportArtifact: { assessmentAttemptId: seeded.attempt.id } } })).toBe(1);
+    expect((await prisma.jobOutbox.findUniqueOrThrow({ where: { id: generateJob.id } }))).toMatchObject({ status: 'COMPLETED' });
+  });
+
   test('reviews then publishes explicitly and A85 serves only the authorized audience', async () => {
     const revision = await prisma.reportRevision.findFirstOrThrow({
       where: { reportArtifact: { assessmentAttemptId: attemptA } },
     });
-    await validateReportRevision({ prisma, revisionId: revision.id, coachId, motif: 'Relecture synthétique A86.', reviewedAt: NOW });
-    await publishReportRevision({ prisma, revisionId: revision.id, coachId, publishedAt: NOW, renderAudience });
+    await validateReportRevision({ prisma, revisionId: revision.id, reviewerId, motif: 'Relecture synthétique A86.', reviewedAt: NOW });
+    await publishReportRevision({ prisma, revisionId: revision.id, reviewerId, publishedAt: NOW, renderAudience });
 
     const handler = createGetAttemptReportHandler({
       prisma,
@@ -189,7 +232,7 @@ describe('A86 deterministic worker and internal review service', () => {
       where: { materialization: { revisionId: revision.id } },
     })).toBe(3);
     const beforeReplay = await prisma.reportMaterialization.findUniqueOrThrow({ where: { revisionId: revision.id } });
-    await expect(publishReportRevision({ prisma, revisionId: revision.id, coachId, publishedAt: NOW, renderAudience }))
+    await expect(publishReportRevision({ prisma, revisionId: revision.id, reviewerId, publishedAt: NOW, renderAudience }))
       .rejects.toThrow('REPORT_ALREADY_MATERIALIZED');
     expect(await prisma.reportMaterialization.findUniqueOrThrow({ where: { revisionId: revision.id } }))
       .toEqual(beforeReplay);
@@ -208,7 +251,7 @@ describe('A86 deterministic worker and internal review service', () => {
       },
     })).rejects.toMatchObject({ code: 'P2002' });
     const review = await prisma.reportReview.findFirstOrThrow({ where: { reportRevisionId: revision.id } });
-    expect(review).toMatchObject({ coachId, reviewedAt: NOW, motif: 'Relecture synthétique A86.' });
+    expect(review).toMatchObject({ reviewerId, reviewedAt: NOW, motif: 'Relecture synthétique A86.' });
   });
 
   test('rejects publication when validationFailures is non-empty, including after a coach action attempt', async () => {
@@ -235,9 +278,9 @@ describe('A86 deterministic worker and internal review service', () => {
         content: {}, validationFailures: ['STRUCTURE_INVALID'],
       },
     });
-    await expect(validateReportRevision({ prisma, revisionId: revision.id, coachId, motif: 'Ne doit pas passer.', reviewedAt: NOW }))
+    await expect(validateReportRevision({ prisma, revisionId: revision.id, reviewerId, motif: 'Ne doit pas passer.', reviewedAt: NOW }))
       .rejects.toThrow('REPORT_VALIDATION_FAILURES');
-    await expect(publishReportRevision({ prisma, revisionId: revision.id, coachId, publishedAt: NOW }))
+    await expect(publishReportRevision({ prisma, revisionId: revision.id, reviewerId, publishedAt: NOW }))
       .rejects.toThrow('REPORT_NOT_COACH_VALIDATED');
     expect((await prisma.reportArtifact.findUniqueOrThrow({ where: { id: artifact.id } })).status).not.toBe('PUBLISHED');
   });
@@ -246,10 +289,10 @@ describe('A86 deterministic worker and internal review service', () => {
     const revision = await prisma.reportRevision.findFirstOrThrow({
       where: { reportArtifact: { assessmentAttemptId: attemptB } },
     });
-    await rejectReportRevision({ prisma, revisionId: revision.id, coachId, motif: 'Motif de rejet synthétique.', reviewedAt: NOW });
+    await rejectReportRevision({ prisma, revisionId: revision.id, reviewerId, motif: 'Motif de rejet synthétique.', reviewedAt: NOW });
     expect((await prisma.canonicalAssessmentAttempt.findUniqueOrThrow({ where: { id: attemptB } })).status).toBe('COACH_REJECTED');
     expect((await prisma.reportRevision.findUniqueOrThrow({ where: { id: revision.id } })).status).toBe('REJECTED');
-    await expect(publishReportRevision({ prisma, revisionId: revision.id, coachId, publishedAt: NOW }))
+    await expect(publishReportRevision({ prisma, revisionId: revision.id, reviewerId, publishedAt: NOW }))
       .rejects.toThrow('REPORT_NOT_COACH_VALIDATED');
   });
 });

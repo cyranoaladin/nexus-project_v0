@@ -68,4 +68,8 @@ describe('deterministic bilan validators V1-V7', () => {
     ...validBundle,
     parents: { ...validBundle.parents, etapeSuivante: { ...validBundle.parents.etapeSuivante, cta: 'Acheter maintenant' } },
   })).toContain('V7'));
+  it('rejects a bundle whose own verifier agent reports ok=false, even if all other checks pass', () => expect(rules({
+    ...validBundle,
+    verifier: { ok: false, violations: ['Le modèle a lui-même détecté un écart.'] },
+  })).toContain('V3'));
 });

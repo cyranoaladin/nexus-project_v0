@@ -20,8 +20,10 @@ import { previewPendingReport } from '@/lib/bilans/staff/review-service';
 import { publishReportRevision } from '@/lib/bilans/core/report-service';
 import { renderDeterministicBilanHtml } from '@/lib/bilans/render/html';
 import { BILAN_PDF_ENGINE_VERSION } from '@/lib/bilans/render/pdf';
-import { drainScoreAttemptJobs } from '@/lib/bilans/worker/drain-outbox';
+import { drainGenerateReportJobs, drainScoreAttemptJobs } from '@/lib/bilans/worker/drain-outbox';
 import { processScoreAttemptJob } from '@/lib/bilans/worker/score-job';
+import { processGenerateReportJob } from '@/lib/bilans/worker/generate-report-job';
+import { MockBilanLlmTransport } from '@/lib/bilans/llm/mock-transport';
 import {
   CANONICAL_WORKER_ANSWERS,
   CANONICAL_WORKER_ENABLED_PACK,
@@ -47,6 +49,7 @@ describe('August Canonical bilan chain', () => {
   let studentUserId: string;
   let parentUserId: string;
   let coachUserId: string;
+  let assistanteUserId: string;
 
   beforeAll(async () => {
     const parentUser = await prisma.user.create({ data: { email: `${PREFIX}parent@example.test`, role: 'PARENT' } });
@@ -69,9 +72,11 @@ describe('August Canonical bilan chain', () => {
     await prisma.coachStudentAssignment.create({
       data: { coachId: coach.id, studentId: student.id, status: 'ACTIVE', startsAt: new Date(NOW.getTime() - 60_000) },
     });
+    const assistanteUser = await prisma.user.create({ data: { email: `${PREFIX}assistante@example.test`, role: 'ASSISTANTE' } });
     studentUserId = studentUser.id;
     parentUserId = parentUser.id;
     coachUserId = coachUser.id;
+    assistanteUserId = assistanteUser.id;
   });
 
   afterAll(async () => {
@@ -152,25 +157,30 @@ describe('August Canonical bilan chain', () => {
       processJob: (jobId) => processScoreAttemptJob(jobId, workerDependencies),
       logger: { info: jest.fn(), error: jest.fn() },
     })).resolves.toMatchObject({ claimed: 1, completed: 1, failed: 0 });
+    await expect(drainGenerateReportJobs({ limit: 1, owner: 'a88-e2e' }, {
+      prisma,
+      processJob: (jobId) => processGenerateReportJob(jobId, { ...workerDependencies, buildTransport: () => new MockBilanLlmTransport() }),
+      logger: { info: jest.fn(), error: jest.fn() },
+    })).resolves.toMatchObject({ claimed: 1, completed: 1, failed: 0 });
 
     const pending = await prisma.reportRevision.findFirstOrThrow({
       where: { reportArtifact: { assessmentAttemptId: created.attemptId } },
     });
     expect(pending.status).toBe('PENDING_REVIEW');
     await expect(previewPendingReport({
-      userId: coachUserId,
-      role: 'COACH',
+      userId: assistanteUserId,
+      role: 'ASSISTANTE',
       revisionId: pending.id,
     }, { resolvePack } as never)).resolves.toMatchObject({ official: false });
     expect(await prisma.reportMaterialization.count({ where: { revisionId: pending.id } })).toBe(0);
     await validateAndPublishPendingReport({
-      userId: coachUserId,
-      role: 'COACH',
+      userId: assistanteUserId,
+      role: 'ASSISTANTE',
       revisionId: pending.id,
       motif: 'Relecture pédagogique E2E complète.',
     }, {
       resolvePack,
-      publish: (input: Readonly<{ revisionId: string; coachId: string; publishedAt: Date }>) => (
+      publish: (input: Readonly<{ revisionId: string; reviewerId: string; publishedAt: Date }>) => (
         publishReportRevision({ prisma, ...input, renderAudience })
       ),
     } as never);
