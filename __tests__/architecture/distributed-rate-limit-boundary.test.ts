@@ -1,6 +1,5 @@
-import { readFileSync } from 'node:fs'
+import { readFileSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
-import { execFileSync } from 'node:child_process'
 import ts from 'typescript'
 
 const ROOT = process.cwd()
@@ -36,28 +35,49 @@ function source(path: string) {
   return readFileSync(join(ROOT, path), 'utf8')
 }
 
+// Pure Node.js recursive file listing -- this test previously shelled out to
+// `rg` via spawnSync/execFileSync. That was the one thing distinguishing it
+// from every other purely in-process test in this suite, and was the prime
+// suspect for a jest-worker crash ("Converting circular structure to JSON"
+// at jest-worker's messageParent) that reproduced 100% of the time in CI
+// (maxWorkers=2, --coverage, 700+ suites) and 0% of the time locally under
+// the identical command -- consistent with a subprocess-spawn interaction
+// under CI's resource constraints, not a defect in this test's own logic.
+// Removing the subprocess entirely removes the suspect mechanism outright.
+function listFiles(dir: string, matchesName: (name: string) => boolean): string[] {
+  const results: string[] = []
+  const skip = new Set(['node_modules', '.next', '.git', '.claude'])
+  const walk = (current: string) => {
+    for (const entry of readdirSync(join(ROOT, current), { withFileTypes: true })) {
+      if (skip.has(entry.name)) continue
+      const relative = join(current, entry.name)
+      if (entry.isDirectory()) {
+        walk(relative)
+      } else if (matchesName(entry.name)) {
+        results.push(relative)
+      }
+    }
+  }
+  walk(dir)
+  return results
+}
+
+const isRouteFile = (name: string) => name === 'route.ts'
+const isTsFile = (name: string) => name.endsWith('.ts') || name.endsWith('.tsx')
+
 describe('S3 distributed rate-limit architecture boundary', () => {
   test.each(SENSITIVE_CONTROLLERS)('%s uses the central sensitive guard', (path) => {
     expect(source(path)).toContain('guardSensitiveRateLimit')
   })
 
   test('no production route calls the synchronous memory-only guard', () => {
-    const { spawnSync } = jest.requireActual<typeof import('node:child_process')>('node:child_process')
-    const result = spawnSync('rg', [
-      '-l',
-      '--glob', 'route.ts',
-      String.raw`\b(guardRateLimit|checkRateLimit)\s*\(`,
-      'app/api',
-    ], { cwd: ROOT, encoding: 'utf8' })
-    expect([0, 1]).toContain(result.status)
-    expect(result.stdout.trim()).toBe('')
+    const pattern = /\b(guardRateLimit|checkRateLimit)\s*\(/
+    const violations = listFiles('app/api', isRouteFile).filter((path) => pattern.test(source(path)))
+    expect(violations).toEqual([])
   })
 
   test('production routes use neither the legacy facade nor direct generic guards', () => {
-    const files = execFileSync('rg', ['--files', 'app/api', '-g', 'route.ts'], {
-      cwd: ROOT,
-      encoding: 'utf8',
-    }).trim().split('\n').filter(Boolean)
+    const files = listFiles('app/api', isRouteFile)
     const violations = files.filter((path) => {
       const content = source(path)
       return content.includes('@/lib/middleware/rateLimit')
@@ -68,10 +88,7 @@ describe('S3 distributed rate-limit architecture boundary', () => {
   })
 
   test('every asynchronous rate-limit decision is awaited or returned', () => {
-    const files = execFileSync('rg', ['--files', 'app', 'lib', '-g', '*.ts', '-g', '*.tsx'], {
-      cwd: ROOT,
-      encoding: 'utf8',
-    }).trim().split('\n').filter(Boolean)
+    const files = [...listFiles('app', isTsFile), ...listFiles('lib', isTsFile)]
     const asyncNames = new Set(['guardRateLimitAsync', 'guardSensitiveRateLimit', 'checkRateLimitAsync'])
     const violations: string[] = []
 
