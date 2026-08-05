@@ -119,6 +119,8 @@ describe('POST /api/stages/[slug]/reservations/[id]/confirm', () => {
     prisma.user.findUnique.mockResolvedValue({
       id: 'user-existing',
       email: 'eleve@example.com',
+      role: 'ELEVE',
+      student: { id: 'student-existing' },
     });
     prisma.stageReservation.update.mockResolvedValue({});
 
@@ -177,6 +179,8 @@ describe('POST /api/stages/[slug]/reservations/[id]/confirm', () => {
     prisma.user.findUnique.mockResolvedValue({
       id: 'user-existing',
       email: 'eleve@example.com',
+      role: 'ELEVE',
+      student: { id: 'student-existing' },
     });
     prisma.stageReservation.update.mockResolvedValue({});
 
@@ -191,6 +195,8 @@ describe('POST /api/stages/[slug]/reservations/[id]/confirm', () => {
     prisma.user.findUnique.mockResolvedValue({
       id: 'user-existing',
       email: 'eleve@example.com',
+      role: 'ELEVE',
+      student: { id: 'student-existing' },
     });
     prisma.stageReservation.update.mockResolvedValue({});
 
@@ -208,6 +214,8 @@ describe('POST /api/stages/[slug]/reservations/[id]/confirm', () => {
     prisma.user.findUnique.mockResolvedValue({
       id: 'user-existing',
       email: 'eleve@example.com',
+      role: 'ELEVE',
+      student: { id: 'student-existing' },
     });
     prisma.stageReservation.update.mockResolvedValue({});
 

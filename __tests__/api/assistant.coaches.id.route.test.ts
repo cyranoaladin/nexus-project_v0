@@ -71,6 +71,7 @@ describe('assistant coaches id', () => {
       const tx = {
         user: { update: jest.fn().mockResolvedValue({ id: 'coach-1', firstName: 'Coach', lastName: 'One', email: 'c@test.com' }) },
         coachProfile: { update: jest.fn().mockResolvedValue({ pseudonym: 'CoachX' }) },
+        $queryRaw: jest.fn().mockResolvedValue([{ email: 'old@test.com' }]),
       };
       return cb(tx);
     });
@@ -110,6 +111,7 @@ describe('assistant coaches id', () => {
       const tx = {
         user: { update: updateUser },
         coachProfile: { update: jest.fn().mockResolvedValue({ pseudonym: 'CoachX' }) },
+        $queryRaw: jest.fn().mockResolvedValue([{ email: 'old@test.com' }]),
       };
       return cb(tx);
     });
