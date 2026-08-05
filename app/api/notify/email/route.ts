@@ -20,8 +20,19 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { checkCsrf } from '@/lib/csrf';
 import { queueCommittedEmail } from '@/lib/email/queue';
+import { isMailDisabled } from '@/lib/email/mailer';
 import { bilanAcknowledgement, internalNotification } from '@/lib/email/templates';
 import { LEGAL } from '@/lib/legal';
+
+/** True when the outbox already has a matching, previously-enqueued job. */
+function isDuplicateIdempotencyKey(error: unknown): boolean {
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    'code' in error &&
+    (error as { code?: unknown }).code === 'P2002'
+  );
+}
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
@@ -125,9 +136,20 @@ export async function POST(request: NextRequest) {
 
   const data = parsed.data;
 
+  // Internal notifications always go to a fixed, environment-configured
+  // recipient — never to arbitrary caller data. `eventType` is request
+  // payload, not an identity, so it must not be used as the rate-limit
+  // identity (a caller could vary it per request to dodge the per-identity
+  // budget and fall through to the coarser IP limit instead).
+  const internalRecipient =
+    process.env.INTERNAL_NOTIFICATION_EMAIL ||
+    process.env.MAIL_REPLY_TO ||
+    process.env.EMAIL_REPLY_TO ||
+    LEGAL.contact.email;
+
   const identityBlocked = await guardSensitiveRateLimit(request, {
     scope: 'notification-email',
-    identity: data.type === 'bilan_ack' ? data.to : data.eventType,
+    identity: data.type === 'bilan_ack' ? data.to : internalRecipient,
     dimensions: ['identity'],
   });
   if (identityBlocked) return identityBlocked;
@@ -135,47 +157,64 @@ export async function POST(request: NextRequest) {
   try {
     // 5a. Bilan acknowledgement — sends to the caller-provided email
     if (data.type === 'bilan_ack') {
+      // Disabled/test environments must short-circuit before creating a
+      // durable outbox job: the outbox worker treats a disabled-mailer
+      // delivery (sendMail's `{ skipped: true }`) as a non-delivery and
+      // retries it forever, so we must never enqueue in that case.
+      if (isMailDisabled()) {
+        return NextResponse.json({ ok: true, skipped: true }, { status: 200 });
+      }
+
       const template = bilanAcknowledgement({
         parentName: data.parentName,
         studentName: data.studentName,
         formType: data.formType,
       });
 
-      await queueCommittedEmail({
-        aggregateType: 'BILAN_ACKNOWLEDGEMENT',
-        aggregateKey: data.to,
-        dedupeKey: JSON.stringify(data),
-        to: data.to,
-        subject: template.subject,
-        html: template.html,
-        text: template.text,
-      });
+      try {
+        await queueCommittedEmail({
+          aggregateType: 'BILAN_ACKNOWLEDGEMENT',
+          aggregateKey: data.to,
+          dedupeKey: JSON.stringify(data),
+          to: data.to,
+          subject: template.subject,
+          html: template.html,
+          text: template.text,
+        });
+      } catch (error) {
+        // A retry with the exact same payload hits the outbox's permanent
+        // unique idempotency key (derived from the full payload) — treat
+        // that as an already-accepted no-op rather than a failure.
+        if (!isDuplicateIdempotencyKey(error)) throw error;
+      }
 
       return NextResponse.json({ ok: true, skipped: false }, { status: 200 });
     }
 
     // 5b. Internal notification — always sent to INTERNAL_NOTIFICATION_EMAIL (never caller-controlled)
     if (data.type === 'internal') {
-      const internalRecipient =
-        process.env.INTERNAL_NOTIFICATION_EMAIL ||
-        process.env.MAIL_REPLY_TO ||
-        process.env.EMAIL_REPLY_TO ||
-        LEGAL.contact.email;
+      if (isMailDisabled()) {
+        return NextResponse.json({ ok: true, skipped: true }, { status: 200 });
+      }
 
       const template = internalNotification({
         eventType: data.eventType,
         fields: data.fields,
       });
 
-      await queueCommittedEmail({
-        aggregateType: 'INTERNAL_NOTIFICATION',
-        aggregateKey: data.eventType,
-        dedupeKey: JSON.stringify(data),
-        to: internalRecipient,
-        subject: template.subject,
-        html: template.html,
-        text: template.text,
-      });
+      try {
+        await queueCommittedEmail({
+          aggregateType: 'INTERNAL_NOTIFICATION',
+          aggregateKey: data.eventType,
+          dedupeKey: JSON.stringify(data),
+          to: internalRecipient,
+          subject: template.subject,
+          html: template.html,
+          text: template.text,
+        });
+      } catch (error) {
+        if (!isDuplicateIdempotencyKey(error)) throw error;
+      }
 
       return NextResponse.json({ ok: true, skipped: false }, { status: 200 });
     }

@@ -53,4 +53,25 @@ describe('POST /api/contact rate limiting', () => {
     const body = await blocked.json();
     expect(body.error.code).toBe('RATE_LIMIT_EXCEEDED');
   });
+
+  it('rejects a non-string email as invalid without touching the real submitter quota', async () => {
+    // An attacker sends a malformed, non-string `email` value that String()-coerces
+    // to a real submitter's address (a single-element array's toString() equals
+    // its element). Five such requests must not consume that address's identity
+    // rate-limit bucket.
+    for (let i = 0; i < 5; i++) {
+      const res = await POST(
+        makeRequest({ name: 'Attacker', email: ['victim@example.com'], message: 'x' }, '203.0.113.5'),
+      );
+      expect(res.status).toBe(400);
+    }
+
+    // The real victim (different IP, unrelated to the attacker's requests) must
+    // still be able to submit — the malformed requests above must not have
+    // poisoned/exhausted their identity quota.
+    const victimRes = await POST(
+      makeRequest({ name: 'Victim', email: 'victim@example.com', message: 'Bonjour' }, '203.0.113.9'),
+    );
+    expect(victimRes.status).toBe(200);
+  });
 });

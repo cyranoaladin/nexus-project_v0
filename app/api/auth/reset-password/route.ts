@@ -52,21 +52,46 @@ export async function POST(request: NextRequest) {
     const bodySizeResponse = checkBodySize(request);
     if (bodySizeResponse) return bodySizeResponse;
 
-    const body = await request.json();
+    // IP-only guard BEFORE parsing: a malformed body must still consume
+    // rate-limit budget. Previously request.json() ran first, so an attacker
+    // sending unlimited malformed JSON bodies bypassed both password-reset
+    // rate-limit scopes entirely — the thrown parse error fell straight to
+    // the generic 500 handler below, before any limiter ever ran.
+    const preParseIpBlocked = await guardSensitiveRateLimit(request, {
+      scope: 'password-reset-request',
+      dimensions: ['ip'],
+    });
+    if (preParseIpBlocked) return preParseIpBlocked;
 
-    const isConfirmation = typeof body?.token === 'string' && typeof body?.newPassword === 'string';
+    let body: unknown;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json(
+        { error: 'Corps de requête invalide' },
+        { status: 400 }
+      );
+    }
+
+    const bodyRecord = body as Record<string, unknown> | null | undefined;
+    const isConfirmation = typeof bodyRecord?.token === 'string' && typeof bodyRecord?.newPassword === 'string';
+    // The ip dimension for the request-flow scope was already consumed above;
+    // only add the identity dimension here to avoid double-counting the same
+    // bucket. The confirm-flow scope uses a distinct preset/bucket, so its
+    // own ip dimension still applies in full (default dimensions).
     const blocked = await guardSensitiveRateLimit(request, {
       scope: isConfirmation ? 'password-reset-confirm' : 'password-reset-request',
       identity: isConfirmation
-        ? body.token
-        : typeof body?.email === 'string'
-          ? body.email
+        ? (bodyRecord!.token as string)
+        : typeof bodyRecord?.email === 'string'
+          ? bodyRecord.email
           : null,
+      dimensions: isConfirmation ? undefined : ['identity'],
     });
     if (blocked) return blocked;
 
     // Determine action: request or confirm
-    if (body.token && body.newPassword) {
+    if (isConfirmation) {
       return handleConfirmReset(body);
     }
     return handleRequestReset(body, request);

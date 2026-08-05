@@ -37,6 +37,14 @@ const mockSendMail = queueCommittedEmail as jest.Mock;
 
 beforeEach(() => {
   jest.clearAllMocks();
+  // Mail considered "enabled" by default so existing assertions about the
+  // email actually being queued keep exercising that path. Individual tests
+  // below flip this to prove the disabled short-circuit.
+  process.env.MAIL_DISABLED = 'false';
+});
+
+afterEach(() => {
+  delete process.env.MAIL_DISABLED;
 });
 
 function makeRequest(body: Record<string, unknown>): NextRequest {
@@ -133,6 +141,70 @@ describe('POST /api/notify/email — validation', () => {
       to: 'parent@test.com',
       parentName: 'Karim',
       studentName: 'Ahmed',
+    }));
+    const body = await res.json();
+
+    expect(res.status).toBe(500);
+    expect(body.ok).toBe(false);
+  });
+});
+
+describe('POST /api/notify/email — disabled mailer short-circuit', () => {
+  it('should return skipped:true and never enqueue when mail is disabled', async () => {
+    process.env.MAIL_DISABLED = 'true';
+
+    const res = await POST(makeRequest({
+      type: 'bilan_ack',
+      to: 'parent@test.com',
+      parentName: 'Karim',
+      studentName: 'Ahmed',
+    }));
+    const body = await res.json();
+
+    expect(res.status).toBe(200);
+    expect(body).toEqual({ ok: true, skipped: true });
+    expect(mockSendMail).not.toHaveBeenCalled();
+  });
+
+  it('should return skipped:true for internal notifications when mail is disabled', async () => {
+    process.env.MAIL_DISABLED = 'true';
+
+    const res = await POST(makeRequest({
+      type: 'internal',
+      eventType: 'new_bilan_submitted',
+      fields: { studentName: 'Ahmed', score: '65' },
+    }));
+    const body = await res.json();
+
+    expect(res.status).toBe(200);
+    expect(body).toEqual({ ok: true, skipped: true });
+    expect(mockSendMail).not.toHaveBeenCalled();
+  });
+});
+
+describe('POST /api/notify/email — idempotent retry', () => {
+  it('should accept a retry that hits the outbox unique idempotency key as success, not 500', async () => {
+    mockSendMail.mockRejectedValueOnce(Object.assign(new Error('Unique constraint failed'), { code: 'P2002' }));
+
+    const res = await POST(makeRequest({
+      type: 'bilan_ack',
+      to: 'parent@test.com',
+      parentName: 'Karim',
+      studentName: 'Ahmed',
+    }));
+    const body = await res.json();
+
+    expect(res.status).toBe(200);
+    expect(body).toEqual({ ok: true, skipped: false });
+  });
+
+  it('still surfaces a genuine (non-duplicate) send failure as 500', async () => {
+    mockSendMail.mockRejectedValueOnce(new Error('SMTP down'));
+
+    const res = await POST(makeRequest({
+      type: 'internal',
+      eventType: 'new_bilan_submitted',
+      fields: { studentName: 'Ahmed', score: '65' },
     }));
     const body = await res.json();
 
