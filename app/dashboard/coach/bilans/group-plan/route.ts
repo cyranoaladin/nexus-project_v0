@@ -26,7 +26,15 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     });
   } catch (error) {
     if (error instanceof StaffGroupPlanError) {
-      const status = error.code === 'NOT_FOUND' ? 404 : 400;
+      // A PDF renderer failure is an infrastructure outage, not a client-input
+      // error — matching the established convention for this same failure family
+      // in lib/bilans/api/get-report.ts (REPORT_PDF_UNAVAILABLE -> 409), rather
+      // than returning 400 which would make the browser blame the request.
+      const status = error.code === 'NOT_FOUND'
+        ? 404
+        : error.code === 'GROUP_PLAN_PDF_RENDER_FAILED'
+          ? 409
+          : 400;
       return NextResponse.json({ error: { code: error.code } }, { status });
     }
     throw error;

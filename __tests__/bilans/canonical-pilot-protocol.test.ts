@@ -27,4 +27,14 @@ describe('A123 pilot browser protocol', () => {
     expect(canonicalReportUrl('attempt-1', 'html')).toBe('/api/bilans/attempts/attempt-1/report?format=html');
     expect(canonicalReportUrl('attempt-1', 'pdf')).toBe('/api/bilans/attempts/attempt-1/report?format=pdf');
   });
+
+  test('attaches the HTTP status to the thrown error so callers can distinguish access denial from transient failures', async () => {
+    const notFound = jest.fn(async () => new Response(JSON.stringify({ error: { code: 'NOT_FOUND' } }), {
+      status: 404, headers: { 'content-type': 'application/json' },
+    }));
+    await expect(loadCanonicalReportStatus('attempt-1', notFound)).rejects.toMatchObject({ status: 404 });
+
+    const serverError = jest.fn(async () => new Response('Internal Server Error', { status: 500 }));
+    await expect(loadCanonicalReportStatus('attempt-1', serverError)).rejects.toMatchObject({ status: 500 });
+  });
 });

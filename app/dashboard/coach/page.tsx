@@ -219,6 +219,19 @@ export default function DashboardCoach() {
                         </Button>
                       </CardContent>
                     </Card>
+
+                    <Card className="bg-gradient-to-br from-sky-500/10 to-surface-card border border-sky-500/20">
+                      <CardContent className="p-6">
+                        <Users className="w-8 h-8 text-sky-400 mb-4" />
+                        <h3 className="text-lg font-bold text-white mb-2">Plan de groupe — bilans de positionnement</h3>
+                        <p className="text-xs text-neutral-400 mb-4">
+                          Préparez le plan pédagogique des cinq séances à partir de trois à cinq passations scorées du même pack.
+                        </p>
+                        <Button variant="outline" className="w-full border-white/10" onClick={() => router.push('/dashboard/coach/bilans')}>
+                          Préparer un plan de groupe
+                        </Button>
+                      </CardContent>
+                    </Card>
                   </div>
                 </div>
               )}

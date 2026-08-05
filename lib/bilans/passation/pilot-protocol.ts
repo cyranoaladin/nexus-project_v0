@@ -14,7 +14,10 @@ export type CanonicalReportStatus = Readonly<{
 }>;
 
 async function jsonResponse(response: Response, code: string): Promise<Record<string, unknown>> {
-  if (!response.ok) throw new Error(code);
+  // The HTTP status is attached to the thrown error so callers can distinguish a
+  // real access denial (401/404) from a transient failure (5xx) — see
+  // CanonicalReportViewer, which must resume polling on the latter.
+  if (!response.ok) throw Object.assign(new Error(code), { status: response.status });
   const value: unknown = await response.json();
   if (typeof value !== 'object' || value === null || Array.isArray(value)) throw new Error(code);
   return value as Record<string, unknown>;

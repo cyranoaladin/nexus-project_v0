@@ -10,6 +10,15 @@ function waitingMessage(status: string | null): string {
   return 'Le bilan n’est pas encore disponible.';
 }
 
+/** True only for a real access denial (401/404). Anything else — network failure,
+ * 5xx, or a malformed response — is transient and must not permanently stop polling. */
+function isAccessDenied(error: unknown): boolean {
+  const status = typeof error === 'object' && error !== null && 'status' in error
+    ? (error as { status?: unknown }).status
+    : undefined;
+  return status === 401 || status === 404;
+}
+
 export function CanonicalReportViewer({ attemptId }: Readonly<{ attemptId: string }>) {
   const [status, setStatus] = useState<string | null>(null);
   const [error, setError] = useState(false);
@@ -23,8 +32,14 @@ export function CanonicalReportViewer({ attemptId }: Readonly<{ attemptId: strin
         if (!active) return;
         setStatus(current.status);
         if (current.status !== 'PUBLISHED') timer = setTimeout(() => void poll(), 5_000);
-      } catch {
-        if (active) setError(true);
+      } catch (caught) {
+        if (!active) return;
+        if (isAccessDenied(caught)) {
+          setError(true);
+        } else {
+          // Transient failure (network error or 5xx): keep the session valid and resume polling.
+          timer = setTimeout(() => void poll(), 5_000);
+        }
       }
     };
     void poll();
