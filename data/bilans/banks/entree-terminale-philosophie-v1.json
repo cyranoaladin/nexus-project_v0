@@ -3,10 +3,10 @@
   "level": "TERMINALE",
   "subject": "PHILOSOPHIE",
   "version": 1,
-  "status": "DRAFT",
+  "status": "VALIDATED",
   "review": {
-    "validatedBy": null,
-    "validatedAt": null
+    "validatedBy": "cmsf8ncom0008mguh4z5acmu5",
+    "validatedAt": "2026-08-05T07:04:01.085Z"
   },
   "questionnaire": {
     "targetDurationMin": 25,

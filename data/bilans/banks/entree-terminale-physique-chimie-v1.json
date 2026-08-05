@@ -3,10 +3,10 @@
   "level": "TERMINALE",
   "subject": "PHYSIQUE_CHIMIE",
   "version": 1,
-  "status": "DRAFT",
+  "status": "VALIDATED",
   "review": {
-    "validatedBy": null,
-    "validatedAt": null
+    "validatedBy": "cmsf8ncn10002mguhrmimhhcm",
+    "validatedAt": "2026-08-05T07:02:25.244Z"
   },
   "questionnaire": {
     "targetDurationMin": 25,

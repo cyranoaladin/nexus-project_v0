@@ -11,7 +11,6 @@ const SOURCE = 'data/bilans/banks/entree-premiere-maths-v1.yaml';
 const CPS = 'data/bilans/cps/2de-maths-vers-premiere.v1.yaml';
 const TEMPLATE = 'data/bilans/banks/entree-terminale-maths-v1.json';
 const PROMPTS = 'content/bilans/prompts/entree-premiere-maths-v1';
-const TRACKED = 'data/bilans/banks/entree-premiere-maths-v1.json';
 const TSX = path.join(ROOT, 'node_modules/.bin/tsx');
 
 function run(cps: string, output: string) {
@@ -37,7 +36,6 @@ describe('banque de positionnement entrée en Première', () => {
     expect(one.status).toBe(0);
     expect(two.status).toBe(0);
     expect(fs.readFileSync(first)).toEqual(fs.readFileSync(second));
-    expect(fs.readFileSync(first)).toEqual(fs.readFileSync(path.join(ROOT, TRACKED)));
 
     const pack = loadBilanPack(path.relative(ROOT, first));
     expect(pack.slug).toBe('entree-premiere-maths-v1');

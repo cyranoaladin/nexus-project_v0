@@ -1,0 +1,13 @@
+schemaVersion: 1
+slug: entree-seconde-francais-v1
+packVersion: 1
+sourceChecksum: 9b187e02de3ebd7a7ed64fec5b0c4a312e3dce7578fa375b517691b81ea9dcc2
+promptChecksums:
+  preAnalysis: c2859863bd5eec26ac148e718b33b7f84dcfda183098c073e40a3b96b9605f66
+  eleve: aecd661c0691d73e781b184ae27c1a0f1c295b30f37fcdd5d94979957dd601f7
+  parents: 51066c975bad149eb0bd3f6be3b6026f5ed19461ec1b4f61bec52ed7e1f915ba
+  nexus: 3610f439b2514fade1cb6a2c1428d9f6efdf794ca727c4ac62536cb8a60cca53
+  verifier: f4663669c171e292c7299bbdc4670e6aa43c218fdcac5b0ac1fdd57838269e8c
+validatedBy: cmsf8ncom0008mguh4z5acmu5
+validatedAt: 2026-08-05T07:03:52.791Z
+qualification: Professeur certifiee de Lettres

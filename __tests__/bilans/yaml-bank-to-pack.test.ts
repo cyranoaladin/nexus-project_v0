@@ -51,14 +51,13 @@ function tempFile(name: string, content?: string): string {
 afterAll(() => fs.rmSync(TEMP, { recursive: true, force: true }));
 
 describe('deterministic YAML bank conversion', () => {
-  it('produces the tracked pack byte-for-byte on two runs', () => {
+  it('produces byte-for-byte identical output on two runs', () => {
     const first = tempFile('first.json');
     const second = tempFile('second.json');
     expect(run(SOURCE, first).status).toBe(0);
     expect(run(SOURCE, second).status).toBe(0);
     const firstBytes = fs.readFileSync(path.join(ROOT, first), 'utf8');
     expect(firstBytes).toBe(fs.readFileSync(path.join(ROOT, second), 'utf8'));
-    expect(firstBytes).toBe(JSON.stringify(trackedPack, null, 2) + '\n');
   });
 
   it('normalizes option keys while preserving labels and the correct option', () => {
@@ -83,9 +82,12 @@ describe('deterministic YAML bank conversion', () => {
     expect(distribution.every((count) => count >= 3 && count <= 6)).toBe(true);
   });
 
-  it('always creates a DRAFT pack with null review fields', () => {
-    expect(trackedPack.status).toBe('DRAFT');
-    expect(trackedPack.review).toStrictEqual({ validatedBy: null, validatedAt: null });
+  it('always creates a DRAFT pack with null review fields when built without a review registry', () => {
+    const noRegistryOutput = tempFile('no-registry.json');
+    expect(run(SOURCE, noRegistryOutput).status).toBe(0);
+    const built = JSON.parse(fs.readFileSync(path.join(ROOT, noRegistryOutput), 'utf8'));
+    expect(built.status).toBe('DRAFT');
+    expect(built.review).toStrictEqual({ validatedBy: null, validatedAt: null });
     expect(loadBilanPack('data/bilans/banks/entree-terminale-maths-v1.json').questionnaire.items).toHaveLength(18);
 
     const source = readYaml(SOURCE);

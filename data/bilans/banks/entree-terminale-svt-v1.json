@@ -3,10 +3,10 @@
   "level": "TERMINALE",
   "subject": "SVT",
   "version": 1,
-  "status": "DRAFT",
+  "status": "VALIDATED",
   "review": {
-    "validatedBy": null,
-    "validatedAt": null
+    "validatedBy": "cmsf8ncnz0005mguhmrfwcoud",
+    "validatedAt": "2026-08-05T07:03:19.743Z"
   },
   "questionnaire": {
     "targetDurationMin": 25,

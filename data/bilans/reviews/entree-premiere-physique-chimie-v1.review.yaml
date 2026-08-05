@@ -1,0 +1,13 @@
+schemaVersion: 1
+slug: entree-premiere-physique-chimie-v1
+packVersion: 1
+sourceChecksum: 0694e39ff6af6acafb10ed8190abad7bfe9c8e492a3ae3426eb3f7b61162756c
+promptChecksums:
+  preAnalysis: 82493fff8e1b7ac75dd3375fdd1bad1a9a31a3f09cfa04b324d808f82da66f2a
+  eleve: 8def4313e25ecbbcd34823defdc41296c09e8f230255de1d4f3f35614ae99002
+  parents: f4bceaf02610427deaa065054390032b92850b6037623bac2495d3e4c52a6a88
+  nexus: d79b482af0bc0395fd4ca6dc34aa1b912420fe9db04da4e586cdec4c85936ae1
+  verifier: 7bdbad1c145303de92b9bffce60afbb04ab523c31bd9f9b9f5e1211226e2c6f4
+validatedBy: cmsf8ncn10002mguhrmimhhcm
+validatedAt: 2026-08-05T07:02:21.148Z
+qualification: Professeur certifie de Physique-Chimie

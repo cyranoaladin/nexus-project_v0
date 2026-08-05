@@ -28,11 +28,12 @@ function expectedPositions(items: readonly { id: string }[]): ReadonlyMap<string
 }
 
 describe('Terminale Maths bank requalification', () => {
-  it('keeps the entry pack complete, draft and limited to eighteen items', () => {
+  it('keeps the entry pack complete, signed and limited to eighteen items', () => {
     expect(entryPack.slug).toBe('entree-terminale-maths-v1');
     expect(entryPack.questionnaire.items).toHaveLength(18);
-    expect(entryPack.status).toBe('DRAFT');
-    expect(entryPack.review).toStrictEqual({ validatedBy: null, validatedAt: null });
+    expect(entryPack.status).toBe('VALIDATED');
+    expect(entryPack.review.validatedBy).not.toBeNull();
+    expect(entryPack.review.validatedAt).not.toBeNull();
   });
 
   it('keeps exactly thirty-eight end-of-Terminale items and excludes removed and transferred IDs', () => {

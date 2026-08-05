@@ -1,0 +1,13 @@
+schemaVersion: 1
+slug: entree-terminale-physique-chimie-v1
+packVersion: 1
+sourceChecksum: eb386af8ffbf40ff826f2bcc1a0e0383d494102cd6df85516c4f94cf26fb8fb5
+promptChecksums:
+  preAnalysis: c75e34cc3812dc6ffcc20a931a2e5b4e936d7deac7fccb16ef82b827b692795b
+  eleve: 7123f098f96001352c8aa9758af7d9cd1d4e4517907dda37dca541fa0a226135
+  parents: f2167a39afa01d6af35169fb8bcdafd12fd16426e20cb667fe37b7e8683136fb
+  nexus: 1c8e739e131b0967df5daa56ef7675bfa93ca6c38e91ba6f6e433dd8d7742a72
+  verifier: d48dae9f51143bc6e838df562fa67b56d81b450f65e79aad69e247ae60ac9306
+validatedBy: cmsf8ncn10002mguhrmimhhcm
+validatedAt: 2026-08-05T07:02:25.244Z
+qualification: Professeur certifie de Physique-Chimie

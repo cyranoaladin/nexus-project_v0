@@ -3,10 +3,10 @@
   "level": "QUATRIEME",
   "subject": "MATHS",
   "version": 1,
-  "status": "DRAFT",
+  "status": "VALIDATED",
   "review": {
-    "validatedBy": null,
-    "validatedAt": null
+    "validatedBy": "cmomnwolx0001mi0u8m8zj53w",
+    "validatedAt": "2026-08-05T07:01:07.112Z"
   },
   "questionnaire": {
     "targetDurationMin": 25,

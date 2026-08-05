@@ -3,10 +3,10 @@
   "level": "PREMIERE",
   "subject": "SVT",
   "version": 1,
-  "status": "DRAFT",
+  "status": "VALIDATED",
   "review": {
-    "validatedBy": null,
-    "validatedAt": null
+    "validatedBy": "cmsf8ncnz0005mguhmrfwcoud",
+    "validatedAt": "2026-08-05T07:02:52.330Z"
   },
   "questionnaire": {
     "targetDurationMin": 25,
