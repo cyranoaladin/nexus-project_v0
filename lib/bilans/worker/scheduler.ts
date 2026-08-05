@@ -23,8 +23,13 @@ function intervalMs(): number {
  * attempt should get its GENERATE_REPORT job picked up on the very next
  * tick rather than waiting a full extra interval.
  */
+function isWorkerEnabled(): boolean {
+  const val = (process.env.BILAN_WORKER_ENABLED || '').trim().toLowerCase();
+  return ['true', 'on', '1'].includes(val);
+}
+
 export function kickBilanWorkerDrain(): void {
-  if (process.env.BILAN_WORKER_ENABLED !== 'true') return;
+  if (!isWorkerEnabled()) return;
   const current = state();
   if (current.draining) return;
   current.draining = (async () => {
@@ -48,7 +53,7 @@ export async function stopBilanWorkerScheduler(): Promise<void> {
 }
 
 export function startBilanWorkerScheduler(): void {
-  if (process.env.BILAN_WORKER_ENABLED !== 'true') return;
+  if (!isWorkerEnabled()) return;
   const current = state();
   if (!current.timer) {
     current.timer = setInterval(kickBilanWorkerDrain, intervalMs());
