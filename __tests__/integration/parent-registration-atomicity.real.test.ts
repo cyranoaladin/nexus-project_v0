@@ -154,7 +154,16 @@ describe('P0-D Parent registration atomicity on real PostgreSQL', () => {
     expect(retry.status).toBe(200)
     expect(await counts()).toEqual({ users: 2, profiles: 1, students: 1, links: 1 })
     expect(await prisma.canonicalAssessmentAttempt.count()).toBe(attemptsBefore)
-    expect(await prisma.jobOutbox.count()).toBe(outboxBefore)
+    // Exactly one legitimate registration won the race (the graph assertion
+    // above already proves that), and every successful NEW registration
+    // enqueues exactly one activation email (see the unconditional
+    // enqueueEmailIntent call in app/api/bilan-gratuit/route.ts) -- so the
+    // correct expectation is +1, not +0. The loser's transaction rolled back
+    // before ever reaching that enqueue call (it fails on the parent-user
+    // unique constraint first), and the retry hits the existingUser
+    // early-return, which never enqueues anything either -- so the total
+    // growth is exactly one job, never zero and never two.
+    expect(await prisma.jobOutbox.count()).toBe(outboxBefore + 1)
     expect(await prisma.canonicalApiIdempotencyKey.count()).toBe(keysBefore)
   })
 })

@@ -21,6 +21,7 @@ import { POST as resendActivation } from '@/app/api/auth/resend-activation/route
 import { POST as registerBilan } from '@/app/api/bilan-gratuit/route'
 import { POST as activateAccount } from '@/app/api/auth/activate/route'
 import { resetTransporter } from '@/lib/email/mailer'
+import { drainEmailOutbox } from '@/lib/email/outbox-worker'
 import { prisma } from '@/lib/prisma'
 
 const PREFIX = 'p0d-real-parent-'
@@ -138,10 +139,24 @@ function activationTokenFromMessage(message: MailpitMessage): string {
 }
 
 async function resetDatabase(): Promise<void> {
+  // canonical_job_outbox has no FK to users, so truncating users alone
+  // leaves behind any job enqueued by a previous run that was never
+  // drained (e.g. before EMAIL_OUTBOX_WORKER_ENABLED was set here). Since
+  // these tests reuse fixed email addresses across runs, a stale leftover
+  // job would be drained alongside the fresh one and Mailpit would receive
+  // an extra message with an outdated activation token.
+  await prisma.$executeRawUnsafe('TRUNCATE TABLE "canonical_job_outbox" RESTART IDENTITY CASCADE')
   await prisma.$executeRawUnsafe('TRUNCATE TABLE "users" RESTART IDENTITY CASCADE')
 }
 
 describe('P0-D Parent onboarding with real PostgreSQL and SMTP', () => {
+  // waitForMessage() polls Mailpit for up to 10s per call, and several tests
+  // below call it multiple times in sequence -- comfortably above jest's
+  // default 5s per-test timeout, which is why every test here always timed
+  // out (masked until now by the database-naming gate blocking this file
+  // from ever actually running).
+  jest.setTimeout(30_000)
+
   beforeAll(async () => {
     assertIsolatedDatabase()
     process.env.NEXTAUTH_URL = 'http://127.0.0.1:3211'
@@ -150,6 +165,14 @@ describe('P0-D Parent onboarding with real PostgreSQL and SMTP', () => {
     process.env.SMTP_PORT = configuredSmtpPort
     process.env.SMTP_SECURE = 'false'
     process.env.MAIL_FROM = 'Nexus Test <no-reply@p0d.invalid>'
+    // registerBilan() only *enqueues* the activation email (see
+    // enqueueEmailIntent in app/api/bilan-gratuit/route.ts) -- actual SMTP
+    // delivery only happens if kickEmailOutboxDrain() finds the worker
+    // enabled (lib/email/outbox-scheduler.ts). Without this, the job sits
+    // in the outbox forever and Mailpit never receives anything, which is
+    // why every test below always timed out waiting for a message that was
+    // never going to be sent.
+    process.env.EMAIL_OUTBOX_WORKER_ENABLED = 'true'
     resetTransporter()
     await resetDatabase()
     await clearMailbox()
@@ -229,7 +252,12 @@ describe('P0-D Parent onboarding with real PostgreSQL and SMTP', () => {
     expect(activated.password).not.toBe(password)
     expect((await activateAccount(activationRequest(token, password))).status).toBe(400)
     expect(await prisma.canonicalAssessmentAttempt.count()).toBe(before.attempts)
-    expect(await prisma.jobOutbox.count()).toBe(before.outbox)
+    // The single registration above enqueues exactly one email job, and a
+    // COMPLETED job is kept as an audit record rather than deleted -- only
+    // maintainEmailOutbox()'s retention sweep (run on a long interval, see
+    // lib/email/outbox-scheduler.ts) removes it. So the correct expectation
+    // right after delivery is +1, never back to the baseline.
+    expect(await prisma.jobOutbox.count()).toBe(before.outbox + 1)
     expect(await prisma.user.count()).toBe(before.users + 2)
   })
 
@@ -244,12 +272,20 @@ describe('P0-D Parent onboarding with real PostgreSQL and SMTP', () => {
       resendActivation(resendRequest(email)),
     ])
     expect(responses.map((response) => response.status)).toEqual([200, 200])
+    // kickEmailOutboxDrain() is fire-and-forget (see
+    // lib/email/outbox-scheduler.ts) -- the route responds before SMTP
+    // delivery necessarily completes, so the message must be *waited for*,
+    // never snapshotted synchronously right after the requests resolve.
+    // Exactly one of the two concurrent resends wins the optimistic-
+    // concurrency update in the route (the other's updateMany matches zero
+    // rows and never enqueues), so once the winner's message has arrived,
+    // no second one is ever coming.
+    const replacement = activationTokenFromMessage(await waitForMessage(email))
+    expect(replacement).not.toBe(original)
     const messages = await listMessages()
     expect(messages.filter((message) =>
       (message.To ?? []).some((address) => (address.Address ?? address.address) === email)
     )).toHaveLength(1)
-    const replacement = activationTokenFromMessage(await waitForMessage(email))
-    expect(replacement).not.toBe(original)
     await clearMailbox()
     expect((await resendActivation(resendRequest(email))).status).toBe(200)
     const finalToken = activationTokenFromMessage(await waitForMessage(email))
@@ -283,6 +319,16 @@ describe('P0-D Parent onboarding with real PostgreSQL and SMTP', () => {
     delete process.env.SMTP_CONNECTION_TIMEOUT_MS
     resetTransporter()
     await resendActivation(resendRequest(email))
+    // The route's own kickEmailOutboxDrain() is fire-and-forget and
+    // single-flight (see lib/email/outbox-scheduler.ts): if the first
+    // (failed) delivery attempt from registerBilan() above is still
+    // in-flight when this resend's kick fires, the kick is silently
+    // dropped. In production that's harmless -- the interval scheduler
+    // (started in instrumentation.ts) picks the job up on its next tick --
+    // but this test never starts that scheduler, so nothing would ever
+    // retry the drop. Draining explicitly here removes that race instead
+    // of hoping the two kicks never overlap.
+    await drainEmailOutbox()
     const token = activationTokenFromMessage(await waitForMessage(email))
     expect((await activateAccount(activationRequest(token, 'ParentSynthetic!2026'))).status).toBe(200)
     expect(await prisma.user.count({ where: { email } })).toBe(1)
