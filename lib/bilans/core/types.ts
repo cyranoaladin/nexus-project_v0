@@ -12,7 +12,7 @@ export const LIFECYCLE_STATUSES = [
 
 export type LifecycleStatus = (typeof LIFECYCLE_STATUSES)[number];
 
-export const LIFECYCLE_ACTORS = ['STUDENT', 'PARENT', 'COACH', 'WORKER'] as const;
+export const LIFECYCLE_ACTORS = ['STUDENT', 'PARENT', 'COACH', 'ASSISTANTE', 'WORKER'] as const;
 export type LifecycleActor = (typeof LIFECYCLE_ACTORS)[number];
 
 export const TRANSITION_ACTIONS = [
@@ -97,6 +97,7 @@ export type ReportRevision = Readonly<{
   generatedAt: string;
   validatedAt?: string;
   evidence: ReadonlyArray<EvidenceItem>;
+  validationFailures: readonly string[];
 }>;
 
 export type ReportRegeneration = Readonly<{

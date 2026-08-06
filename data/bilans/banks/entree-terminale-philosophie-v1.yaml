@@ -1,0 +1,539 @@
+# =============================================================================
+# Banque de positionnement — ENTRÉE EN TERMINALE, Philosophie
+#
+# DÉCISION PÉDAGOGIQUE STRUCTURANTE, à valider explicitement :
+# Un élève entrant en Terminale n'a jamais suivi d'enseignement de philosophie.
+# Tester la discipline elle-même ne produirait aucun diagnostic exploitable.
+#
+# Cette banque évalue donc les prérequis RÉELS de l'entrée en philosophie, tous
+# issus du français de Première : analyser un texte argumentatif, distinguer
+# thèse, argument et exemple, définir une notion, repérer une contradiction,
+# distinguer un fait d'un jugement de valeur, construire un paragraphe.
+#
+# Les nodeCpsId pointent en conséquence vers 1re.francais.*
+#
+# STATUT : DRAFT — proposition à amender par le responsable pédagogique.
+# La validation relève d'un enseignant de philosophie ou de lettres.
+#
+# 18 items · 9 nœuds de prérequis · 2 items par nœud (règle V4)
+# Distribution des bonnes réponses : A=5, B=5, C=4, D=4 (règle V14 : max 40 %)
+# =============================================================================
+
+slug: entree-terminale-philosophie-v1
+level: TERMINALE
+subject: PHILOSOPHIE
+version: 1
+status: DRAFT
+targetDurationMin: 25
+
+items:
+
+  # ===========================================================================
+  # NŒUD 1 — Thèse, argument, exemple
+  # Pourquoi c'est structurant : l'explication de texte comme la dissertation
+  # supposent de repérer ce qu'un auteur soutient, ce qui le justifie et ce qui
+  # l'illustre. Confondre ces trois niveaux rend toute analyse impossible.
+  # ===========================================================================
+
+  - id: ETL-PHI-THE-01
+    nodeCpsId: 1re.francais.argumentation.these-argument-exemple
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 70
+    statement: "Lisez ce court passage : « Il faut abaisser la vitesse autorisée en ville. En effet, la gravité des accidents augmente fortement avec la vitesse du véhicule. Ainsi, dans plusieurs villes européennes, le passage à trente kilomètres par heure a réduit de moitié le nombre de blessés graves. » Quelle phrase constitue l'argument ?"
+    options:
+      - key: A
+        label: "la première phrase"
+        correct: false
+        distractorRationale: "Prend la thèse, c'est-à-dire l'opinion défendue, pour la raison qui la justifie."
+      - key: B
+        label: "la troisième phrase"
+        correct: false
+        distractorRationale: "Prend l'exemple, c'est-à-dire le cas concret, pour le raisonnement qu'il illustre."
+      - key: C
+        label: "la deuxième phrase"
+        correct: true
+      - key: D
+        label: "aucune : le texte ne contient que des faits"
+        correct: false
+        distractorRationale: "Ne reconnaît pas la structure argumentative et réduit le passage à une suite d'informations."
+    shortCorrection: "La première phrase énonce la thèse, la deuxième donne la raison qui la soutient, la troisième illustre par un cas concret. L'argument est le raisonnement, non l'opinion ni l'illustration."
+    tags: [argumentation, structure]
+
+  - id: ETL-PHI-THE-02
+    nodeCpsId: 1re.francais.argumentation.these-argument-exemple
+    type: QCM_SIMPLE
+    difficulty: 1
+    targetTimeSec: 45
+    statement: "Dans un raisonnement, un exemple sert à :"
+    options:
+      - key: A
+        label: "illustrer un argument par un cas concret"
+        correct: true
+      - key: B
+        label: "remplacer l'argument lorsqu'il est difficile à formuler"
+        correct: false
+        distractorRationale: "Fait de l'exemple un substitut du raisonnement, alors qu'il ne peut que l'appuyer."
+      - key: C
+        label: "énoncer l'opinion générale que l'on défend"
+        correct: false
+        distractorRationale: "Confond l'exemple avec la thèse."
+      - key: D
+        label: "réfuter à lui seul la position adverse"
+        correct: false
+        distractorRationale: "Attribue à un cas particulier une force de réfutation qu'il ne possède pas par lui-même."
+    shortCorrection: "L'exemple donne un contenu concret à un argument, mais il ne le remplace pas : un cas particulier n'établit jamais à lui seul une thèse générale."
+    tags: [argumentation, exemple]
+
+  # ===========================================================================
+  # NŒUD 2 — Structure et mouvement d'un texte argumentatif
+  # Pourquoi c'est structurant : l'explication de texte consiste d'abord à
+  # dégager les étapes du raisonnement de l'auteur, avant toute interprétation.
+  # ===========================================================================
+
+  - id: ETL-PHI-STR-01
+    nodeCpsId: 1re.francais.argumentation.structure-du-texte
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 50
+    statement: "Dans un texte argumentatif, un paragraphe qui s'ouvre sur « Certes… » annonce le plus souvent :"
+    options:
+      - key: A
+        label: "la conclusion du texte"
+        correct: false
+        distractorRationale: "Confond une étape intermédiaire du raisonnement avec son terme."
+      - key: B
+        label: "un nouvel argument en faveur de la thèse"
+        correct: false
+        distractorRationale: "Ignore la valeur concessive de l'adverbe, qui introduit d'abord une reconnaissance."
+      - key: C
+        label: "une simple reformulation de la thèse"
+        correct: false
+        distractorRationale: "Réduit à une répétition ce qui constitue un mouvement argumentatif."
+      - key: D
+        label: "une concession, généralement suivie d'une objection"
+        correct: true
+    shortCorrection: "« Certes » admet provisoirement un point adverse pour mieux le dépasser ensuite, souvent introduit par « mais » ou « toutefois ». C'est le mouvement de la concession."
+    tags: [argumentation, concession]
+
+  - id: ETL-PHI-STR-02
+    nodeCpsId: 1re.francais.argumentation.structure-du-texte
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 50
+    statement: "Dégager le mouvement d'un texte argumentatif consiste à :"
+    options:
+      - key: A
+        label: "résumer chaque phrase l'une après l'autre"
+        correct: false
+        distractorRationale: "Confond la paraphrase linéaire avec l'identification d'une progression."
+      - key: B
+        label: "identifier les étapes du raisonnement et la manière dont elles s'enchaînent"
+        correct: true
+      - key: C
+        label: "relever le champ lexical dominant"
+        correct: false
+        distractorRationale: "Applique un outil d'analyse stylistique là où il faut suivre une logique."
+      - key: D
+        label: "compter les paragraphes du texte"
+        correct: false
+        distractorRationale: "Substitue un repérage typographique à l'analyse du raisonnement."
+    shortCorrection: "Le mouvement d'un texte, ce sont les étapes par lesquelles l'auteur passe et les liens qui les unissent. Il ne coïncide pas nécessairement avec le découpage en paragraphes."
+    tags: [argumentation, mouvement]
+
+  # ===========================================================================
+  # NŒUD 3 — Connecteurs logiques et relations de raisonnement
+  # Pourquoi c'est structurant : identifier une prémisse, une conséquence ou
+  # une opposition est le premier geste de l'analyse d'un argument.
+  # ===========================================================================
+
+  - id: ETL-PHI-CON-01
+    nodeCpsId: 1re.francais.argumentation.connecteurs-logiques
+    type: QCM_SIMPLE
+    difficulty: 3
+    targetTimeSec: 65
+    statement: "Dans le raisonnement « Les routes sont glissantes quand il pleut ; or il pleut ; donc les routes sont glissantes », le mot « or » introduit :"
+    options:
+      - key: A
+        label: "une seconde prémisse, qui s'articule à la première"
+        correct: true
+      - key: B
+        label: "la conclusion du raisonnement"
+        correct: false
+        distractorRationale: "Confond la prémisse mineure avec la conclusion, pourtant introduite par « donc »."
+      - key: C
+        label: "une opposition à ce qui précède"
+        correct: false
+        distractorRationale: "Retient le sens adversatif que « or » peut avoir ailleurs, sans voir sa fonction dans un raisonnement déductif."
+      - key: D
+        label: "un exemple destiné à illustrer la première proposition"
+        correct: false
+        distractorRationale: "Prend une proposition générale pour un cas particulier."
+    shortCorrection: "Dans un raisonnement déductif, « or » introduit la seconde prémisse, qui applique la première à un cas donné. « Donc » introduit la conclusion qui en découle."
+    tags: [logique, premisses]
+
+  - id: ETL-PHI-CON-02
+    nodeCpsId: 1re.francais.argumentation.connecteurs-logiques
+    type: QCM_SIMPLE
+    difficulty: 1
+    targetTimeSec: 40
+    statement: "Lequel de ces connecteurs exprime une conséquence ?"
+    options:
+      - key: A
+        label: "or"
+        correct: false
+        distractorRationale: "Introduit une prémisse et non ce qui en découle."
+      - key: B
+        label: "bien que"
+        correct: false
+        distractorRationale: "Introduit une concession, c'est-à-dire une objection provisoirement admise."
+      - key: C
+        label: "par conséquent"
+        correct: true
+      - key: D
+        label: "en revanche"
+        correct: false
+        distractorRationale: "Introduit une opposition entre deux éléments, non un enchaînement logique."
+    shortCorrection: "« Par conséquent » marque ce qui découle de ce qui précède. Distinguer conséquence, cause, opposition et concession conditionne toute lecture d'argument."
+    tags: [logique, connecteurs]
+
+  # ===========================================================================
+  # NŒUD 4 — Définir une notion
+  # Pourquoi c'est structurant : la dissertation commence par la définition des
+  # termes du sujet. Une définition qui ne distingue rien laisse le devoir sans
+  # objet.
+  # ===========================================================================
+
+  - id: ETL-PHI-DEF-01
+    nodeCpsId: 1re.francais.lexique.definir-une-notion
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 50
+    statement: "Définir une notion, c'est :"
+    options:
+      - key: A
+        label: "en donner un exemple qui l'illustre"
+        correct: false
+        distractorRationale: "Substitue l'illustration à la détermination du sens."
+      - key: B
+        label: "en énoncer les caractères qui la distinguent de toute autre notion"
+        correct: true
+      - key: C
+        label: "en indiquer l'étymologie"
+        correct: false
+        distractorRationale: "Prend l'origine du mot pour le contenu de la notion : l'étymologie éclaire sans définir."
+      - key: D
+        label: "en proposer un synonyme courant"
+        correct: false
+        distractorRationale: "Remplace un mot par un autre sans rien déterminer de ce qu'il désigne."
+    shortCorrection: "Définir, c'est délimiter : dire ce que la notion est et ce qu'elle n'est pas. Une définition qui ne distingue pas la notion d'une notion voisine ne définit rien."
+    tags: [definition, methode]
+
+  - id: ETL-PHI-DEF-02
+    nodeCpsId: 1re.francais.lexique.definir-une-notion
+    type: QCM_SIMPLE
+    difficulty: 3
+    targetTimeSec: 65
+    statement: "« La liberté, c'est l'absence de toute contrainte. » Quelle objection principale peut-on adresser à cette définition ?"
+    options:
+      - key: A
+        label: "elle est trop brève pour une notion aussi vaste"
+        correct: false
+        distractorRationale: "Juge la définition sur sa longueur au lieu d'examiner ce qu'elle permet ou non de distinguer."
+      - key: B
+        label: "elle n'est reprise par aucun auteur reconnu"
+        correct: false
+        distractorRationale: "Fait dépendre la valeur d'une définition d'une autorité extérieure plutôt que de sa cohérence."
+      - key: C
+        label: "elle n'est accompagnée d'aucun exemple"
+        correct: false
+        distractorRationale: "Réclame une illustration alors que le défaut porte sur la délimitation de la notion."
+      - key: D
+        label: "elle ne distingue pas la liberté du simple caprice, ni ne dit si l'on peut être libre en obéissant à une règle"
+        correct: true
+    shortCorrection: "Une bonne définition doit permettre de trancher des cas difficiles. Celle-ci ne dit pas si un être livré à ses impulsions est libre, ni si une règle que l'on se donne soi-même supprime la liberté."
+    tags: [definition, analyse-critique]
+
+  # ===========================================================================
+  # NŒUD 5 — Cohérence et contradiction
+  # Pourquoi c'est structurant : l'examen d'une thèse consiste souvent à en
+  # éprouver la cohérence interne. Distinguer validité et vérité est le
+  # prérequis logique minimal.
+  # ===========================================================================
+
+  - id: ETL-PHI-COH-01
+    nodeCpsId: 1re.francais.argumentation.coherence-du-raisonnement
+    type: QCM_SIMPLE
+    difficulty: 3
+    targetTimeSec: 70
+    statement: "« Toute vérité est relative. » Quelle objection logique peut-on adresser à cette affirmation ?"
+    options:
+      - key: A
+        label: "si elle est vraie, elle prétend elle-même à une vérité qui ne serait pas relative"
+        correct: true
+      - key: B
+        label: "elle est trop pessimiste sur les capacités humaines"
+        correct: false
+        distractorRationale: "Substitue un jugement sur le ton de l'affirmation à l'examen de sa cohérence."
+      - key: C
+        label: "elle n'est pas partagée par la majorité des gens"
+        correct: false
+        distractorRationale: "Fait du nombre un critère de vérité, ce qui ne constitue pas une objection logique."
+      - key: D
+        label: "elle emploie un mot ambigu, ce qui la rend incompréhensible"
+        correct: false
+        distractorRationale: "Repère une difficulté lexicale sans identifier la contradiction que l'affirmation produit sur elle-même."
+    shortCorrection: "L'affirmation se contredit : si toute vérité est relative, cette affirmation l'est aussi, et perd sa portée générale. C'est ce qu'on appelle une contradiction performative."
+    tags: [logique, contradiction]
+
+  - id: ETL-PHI-COH-02
+    nodeCpsId: 1re.francais.argumentation.coherence-du-raisonnement
+    type: QCM_SIMPLE
+    difficulty: 3
+    targetTimeSec: 60
+    statement: "Un raisonnement est dit valide lorsque :"
+    options:
+      - key: A
+        label: "ses prémisses sont vraies"
+        correct: false
+        distractorRationale: "Confond la validité, qui porte sur la forme de l'enchaînement, avec la vérité des propositions de départ."
+      - key: B
+        label: "la conclusion découle nécessairement des prémisses"
+        correct: true
+      - key: C
+        label: "sa conclusion est vraie"
+        correct: false
+        distractorRationale: "Confond la validité de la déduction avec la vérité de son résultat : une conclusion vraie peut être mal déduite."
+      - key: D
+        label: "il emporte l'adhésion de ceux qui l'entendent"
+        correct: false
+        distractorRationale: "Confond la validité logique avec l'efficacité rhétorique."
+    shortCorrection: "La validité concerne la forme du raisonnement : si les prémisses sont admises, la conclusion s'impose. Un raisonnement valide peut partir de prémisses fausses."
+    tags: [logique, validite]
+
+  # ===========================================================================
+  # NŒUD 6 — Fait, opinion, jugement de valeur, savoir
+  # Pourquoi c'est structurant : toute l'année consiste à examiner des
+  # affirmations. En confondre le statut interdit d'en discuter correctement.
+  # ===========================================================================
+
+  - id: ETL-PHI-OPI-01
+    nodeCpsId: 1re.francais.argumentation.fait-et-jugement
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 50
+    statement: "Laquelle de ces affirmations relève d'un jugement de valeur, et non d'un fait ?"
+    options:
+      - key: A
+        label: "« L'eau bout à cent degrés sous pression atmosphérique normale. »"
+        correct: false
+        distractorRationale: "Prend un énoncé vérifiable par l'expérience pour une appréciation."
+      - key: B
+        label: "« La population mondiale dépasse huit milliards d'habitants. »"
+        correct: false
+        distractorRationale: "Prend une donnée mesurable pour une appréciation."
+      - key: C
+        label: "« Il est injuste que les richesses soient aussi inégalement réparties. »"
+        correct: true
+      - key: D
+        label: "« Ce musée ouvre ses portes à neuf heures. »"
+        correct: false
+        distractorRationale: "Prend une information constatable pour une appréciation."
+    shortCorrection: "Un fait peut être vérifié ; un jugement de valeur apprécie selon une norme, ici la justice. Les deux se discutent, mais pas de la même manière."
+    tags: [fait-valeur, statut-des-enonces]
+
+  - id: ETL-PHI-OPI-02
+    nodeCpsId: 1re.francais.argumentation.fait-et-jugement
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 50
+    statement: "Ce qui distingue un savoir d'une simple opinion, c'est :"
+    options:
+      - key: A
+        label: "qu'il peut être justifié et soumis à l'examen"
+        correct: true
+      - key: B
+        label: "qu'il est partagé par le plus grand nombre"
+        correct: false
+        distractorRationale: "Fait du nombre le critère du savoir, alors qu'une opinion peut être largement partagée et fausse."
+      - key: C
+        label: "qu'il est énoncé avec assurance"
+        correct: false
+        distractorRationale: "Confond la certitude subjective, qui accompagne aussi bien l'erreur, avec la justification."
+      - key: D
+        label: "qu'il ne peut jamais être remis en question"
+        correct: false
+        distractorRationale: "Fait de l'irréfutabilité une qualité, alors qu'un savoir se caractérise justement par sa capacité à être examiné."
+    shortCorrection: "Une opinion peut être vraie par hasard. Un savoir se distingue en ce qu'il s'accompagne de raisons, et qu'il accepte d'être discuté."
+    tags: [savoir-opinion, epistemologie]
+
+  # ===========================================================================
+  # NŒUD 7 — Analyser une question et repérer ses présupposés
+  # Pourquoi c'est structurant : problématiser un sujet suppose de voir ce que
+  # la question tient pour acquis. Sans ce geste, la dissertation devient un
+  # exposé de connaissances.
+  # ===========================================================================
+
+  - id: ETL-PHI-QUE-01
+    nodeCpsId: 1re.francais.argumentation.analyse-de-la-question
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 50
+    statement: "Analyser un sujet, c'est d'abord :"
+    options:
+      - key: A
+        label: "chercher la réponse la plus convaincante"
+        correct: false
+        distractorRationale: "Cherche à conclure avant d'avoir examiné ce que la question demande."
+      - key: B
+        label: "définir les termes employés et dégager le problème que la question soulève"
+        correct: true
+      - key: C
+        label: "recenser les auteurs qui ont traité la question"
+        correct: false
+        distractorRationale: "Substitue un inventaire de références à l'examen du sujet lui-même."
+      - key: D
+        label: "exposer son opinion personnelle sur la question"
+        correct: false
+        distractorRationale: "Confond l'analyse d'un problème avec l'expression d'une préférence."
+    shortCorrection: "Analyser un sujet, c'est examiner les mots qui le composent et faire apparaître la difficulté qu'il recèle. La réponse ne vient qu'ensuite."
+    tags: [methode, problematisation]
+
+  - id: ETL-PHI-QUE-02
+    nodeCpsId: 1re.francais.argumentation.analyse-de-la-question
+    type: QCM_SIMPLE
+    difficulty: 3
+    targetTimeSec: 60
+    statement: "La question « Faut-il toujours dire la vérité ? » présuppose :"
+    options:
+      - key: A
+        label: "que la vérité n'existe pas"
+        correct: false
+        distractorRationale: "Prête à la question une thèse sceptique qu'elle ne formule pas."
+      - key: B
+        label: "qu'il est impossible de mentir"
+        correct: false
+        distractorRationale: "Contredit le sens même de la question, qui suppose que le mensonge est possible."
+      - key: C
+        label: "que personne ne dit jamais la vérité"
+        correct: false
+        distractorRationale: "Confond un présupposé de la question avec un constat empirique sur les conduites."
+      - key: D
+        label: "qu'il existe des situations où l'on hésite à la dire"
+        correct: true
+    shortCorrection: "L'adverbe « toujours » suppose que la règle souffre peut-être des exceptions. Sans cette hésitation possible, la question ne se poserait pas."
+    tags: [methode, presupposes]
+
+  # ===========================================================================
+  # NŒUD 8 — Construire un paragraphe argumenté
+  # Pourquoi c'est structurant : la dissertation se compose de paragraphes
+  # articulés. Un élève qui ne sait pas ordonner idée, explication et exemple
+  # produit un devoir illisible, quelle que soit la qualité de sa réflexion.
+  # ===========================================================================
+
+  - id: ETL-PHI-PAR-01
+    nodeCpsId: 1re.francais.ecriture.paragraphe-argumente
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 50
+    statement: "Dans un paragraphe argumenté, quel ordre est généralement le plus efficace ?"
+    options:
+      - key: A
+        label: "exemple, idée, explication"
+        correct: false
+        distractorRationale: "Ouvre sur un cas particulier sans avoir annoncé ce qu'il doit établir."
+      - key: B
+        label: "explication, exemple, idée"
+        correct: false
+        distractorRationale: "Réserve pour la fin l'idée directrice, que le lecteur devrait connaître dès l'ouverture."
+      - key: C
+        label: "idée, explication, exemple"
+        correct: true
+      - key: D
+        label: "exemple, explication, idée"
+        correct: false
+        distractorRationale: "Fait remonter l'idée depuis le cas particulier, ce qui rend le paragraphe difficile à suivre."
+    shortCorrection: "On annonce d'abord l'idée, on l'explique ensuite, on l'illustre enfin. Le lecteur sait ainsi dès la première phrase ce que le paragraphe cherche à établir."
+    tags: [ecriture, paragraphe]
+
+  - id: ETL-PHI-PAR-02
+    nodeCpsId: 1re.francais.ecriture.paragraphe-argumente
+    type: QCM_SIMPLE
+    difficulty: 3
+    targetTimeSec: 55
+    statement: "Une transition entre deux parties d'un devoir sert à :"
+    options:
+      - key: A
+        label: "montrer ce que la partie précédente laisse en suspens et ce qui rend la suivante nécessaire"
+        correct: true
+      - key: B
+        label: "répéter sous une autre forme ce qui vient d'être dit"
+        correct: false
+        distractorRationale: "Réduit la transition à une reformulation, sans faire avancer le raisonnement."
+      - key: C
+        label: "annoncer par avance la conclusion générale"
+        correct: false
+        distractorRationale: "Confond la transition entre deux étapes avec la conclusion du devoir."
+      - key: D
+        label: "introduire une citation d'auteur"
+        correct: false
+        distractorRationale: "Confond un procédé d'appui avec l'articulation logique de deux moments."
+    shortCorrection: "Une transition rend le passage nécessaire : elle montre en quoi ce qui vient d'être établi appelle un nouvel examen. Sans elle, les parties se juxtaposent."
+    tags: [ecriture, transition]
+
+  # ===========================================================================
+  # NŒUD 9 — Vocabulaire de l'abstraction
+  # Pourquoi c'est structurant : les mots « nécessaire », « distinct »,
+  # « universel » ont en philosophie un sens strict, distinct de leur usage
+  # courant. Les employer approximativement rend un devoir inexact.
+  # ===========================================================================
+
+  - id: ETL-PHI-LEX-01
+    nodeCpsId: 1re.francais.lexique.vocabulaire-abstrait
+    type: QCM_SIMPLE
+    difficulty: 3
+    targetTimeSec: 50
+    statement: "Au sens strict, ce qui est « nécessaire » désigne ce qui :"
+    options:
+      - key: A
+        label: "est utile pour atteindre un but"
+        correct: false
+        distractorRationale: "Retient le sens courant de l'utilité, qui suppose une fin, et non la modalité logique."
+      - key: B
+        label: "se produit très fréquemment"
+        correct: false
+        distractorRationale: "Confond la nécessité avec une régularité statistique."
+      - key: C
+        label: "est souhaitable et devrait être fait"
+        correct: false
+        distractorRationale: "Confond ce qui doit être, au sens moral, avec ce qui ne peut pas ne pas être."
+      - key: D
+        label: "ne peut pas ne pas être"
+        correct: true
+    shortCorrection: "Le nécessaire s'oppose au contingent : est nécessaire ce dont le contraire est impossible. C'est un sens plus strict que celui de l'usage courant."
+    tags: [lexique, necessite]
+
+  - id: ETL-PHI-LEX-02
+    nodeCpsId: 1re.francais.lexique.vocabulaire-abstrait
+    type: QCM_SIMPLE
+    difficulty: 3
+    targetTimeSec: 50
+    statement: "Dire que deux notions sont « distinctes », c'est dire qu'elles :"
+    options:
+      - key: A
+        label: "s'opposent radicalement l'une à l'autre"
+        correct: false
+        distractorRationale: "Confond la distinction avec l'opposition : deux notions distinctes peuvent parfaitement se compléter."
+      - key: B
+        label: "ne se confondent pas, sans nécessairement s'exclure"
+        correct: true
+      - key: C
+        label: "ont le même sens dans des contextes différents"
+        correct: false
+        distractorRationale: "Confond la distinction avec la synonymie."
+      - key: D
+        label: "appartiennent au même champ lexical"
+        correct: false
+        distractorRationale: "Confond une proximité de vocabulaire avec un rapport entre les notions elles-mêmes."
+    shortCorrection: "Distinguer, ce n'est pas séparer ni opposer : c'est refuser la confusion. La liberté et la responsabilité sont distinctes, et pourtant liées."
+    tags: [lexique, distinction]

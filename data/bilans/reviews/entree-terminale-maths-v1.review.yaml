@@ -1,0 +1,13 @@
+schemaVersion: 1
+slug: entree-terminale-maths-v1
+packVersion: 1
+sourceChecksum: c950ecbbe7132f64445bda807daed8a749dfb85526bc241a283e95cac0c63ad7
+promptChecksums:
+  preAnalysis: 4837190861fe7ef77e9b33afe9aac4c113e606ef74f5b7314141996b5710a234
+  eleve: fd03d817f86dae44a18f505b9e3c455c52747c9b30afb880bad0d8aaba57f769
+  parents: ad4eccac3dba15541f8d8d9fd359de9befd18423e5d17b47a9edd061de99e21a
+  nexus: 15061613fee26200a0a80ca4a77e12f495c9e25f149e872224bf54f10830ca5c
+  verifier: 4aa41734e93e0dd5a2c96631c4bbc7896499af3ec9166651ba1e45cafc2b5bf7
+validatedBy: cmomnwolx0001mi0u8m8zj53w
+validatedAt: 2026-08-05T07:01:27.900Z
+qualification: Responsable pedagogique, validateur Mathematiques et NSI

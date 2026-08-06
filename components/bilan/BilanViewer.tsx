@@ -5,10 +5,10 @@
 
 'use client';
 
-import React from 'react';
-import Image from 'next/image';
-import { Printer, ArrowLeft, Download, Share2 } from 'lucide-react';
 import { BilanType } from '@/lib/bilan/types';
+import { Download,Printer,Share2 } from 'lucide-react';
+import Image from 'next/image';
+import React from 'react';
 
 export interface BilanViewerData {
   id: string;

@@ -153,6 +153,8 @@ export async function GET() {
         firstName: child.user.firstName || '',
         lastName: child.user.lastName || '',
         email: child.user.email || '',
+        activationStatus: child.user.activatedAt === null ? 'PENDING_ACTIVATION' : 'ACTIVE',
+        activationExpiresAt: child.user.activationExpiry?.toISOString() ?? null,
 
         grade: child.grade,
         gradeLevel: child.gradeLevel,

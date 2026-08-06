@@ -1,23 +1,23 @@
 'use client';
+import type { Categorie, NiveauEleve, StageProgramme } from '@/components/programme/shared/types/programme';
 
-import React, { useState, useMemo } from 'react';
-import { motion } from 'framer-motion';
-import {
-  Users,
-  Award,
-  ChevronDown,
-  ChevronUp,
-  Printer,
-  CheckCircle2,
-  AlertTriangle,
-  Target,
-  TrendingUp,
-  Calendar,
-  Download,
-} from 'lucide-react';
 import { BilanPDFDownloadButton } from '@/app/programme/maths-1ere/lib/bilan-pdf';
 import { BilanTabs } from '@/components/bilan';
 import { getNextStage } from '@/lib/pricing-client';
+import { motion } from 'framer-motion';
+import {
+AlertTriangle,
+Award,
+Calendar,
+CheckCircle2,
+ChevronDown,
+ChevronUp,
+Download,
+Printer,
+Target,
+TrendingUp
+} from 'lucide-react';
+import React,{ useMemo,useState } from 'react';
 
 type BilanType = 'eleve' | 'famille' | 'nexus';
 
@@ -37,16 +37,16 @@ const audienceReverseMap: Record<'student' | 'parents' | 'nexus', BilanType> = {
 interface BilanViewProps {
   displayName: string;
   store: {
-    getNiveau: () => any; // NiveauEleve
+    getNiveau: () => NiveauEleve; // NiveauEleve
     completedChapters: string[];
     totalXP: number;
     streak: number;
     getDueReviews: () => string[];
     diagnosticResults: Record<string, { score: number; total: number }>;
   };
-  programmeData: Record<string, any>;
+  programmeData: Record<string, Categorie>;
   stageConfig: {
-    STAGE_PRINTEMPS_2026: any;
+    STAGE_PRINTEMPS_2026: StageProgramme;
     getDaysUntilExam: () => number;
   };
   userRole?: string;
@@ -59,8 +59,8 @@ export const BilanView: React.FC<BilanViewProps> = ({ displayName, store, progra
   const isStudent = userRole === 'ELEVE';
   const isStaff = ['ADMIN', 'COACH', 'ASSISTANTE'].includes(userRole ?? '');
 
-  const allChapitres = Object.entries(programmeData).flatMap(([catKey, cat]: [string, any]) =>
-    cat.chapitres.map((chap: any) => ({ catKey, chap }))
+  const allChapitres = Object.entries(programmeData).flatMap(([catKey, cat]) =>
+    cat.chapitres.map((chap) => ({ catKey, chap }))
   );
 
   const daysUntilExam = stageConfig.getDaysUntilExam();
@@ -70,8 +70,8 @@ export const BilanView: React.FC<BilanViewProps> = ({ displayName, store, progra
   const coverage = total > 0 ? Math.round((completed / total) * 100) : 0;
   const dueReviews = store.getDueReviews().length;
 
-  const diagResults = Object.entries(store.diagnosticResults).map(([chapId, result]: [string, any]) => {
-    const found = allChapitres.find(({ chap }: any) => chap.id === chapId);
+  const diagResults = Object.entries(store.diagnosticResults).map(([chapId, result]) => {
+    const found = allChapitres.find(({ chap }) => chap.id === chapId);
     return {
       chapId,
       chapTitre: found?.chap.titre ?? chapId,
@@ -103,27 +103,6 @@ export const BilanView: React.FC<BilanViewProps> = ({ displayName, store, progra
       prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id]
     );
   };
-
-  const bilanTabs: { id: BilanType; label: string; icon: React.ReactNode; description: string }[] = [
-    {
-      id: 'eleve',
-      label: 'Bilan Élève',
-      icon: <Target className="h-4 w-4" />,
-      description: 'Synthèse personnalisée pour guider les révisions',
-    },
-    {
-      id: 'famille',
-      label: 'Bilan Famille',
-      icon: <Users className="h-4 w-4" />,
-      description: 'Rapport pour les parents (format communication Nexus)',
-    },
-    {
-      id: 'nexus',
-      label: 'Fiche Nexus',
-      icon: <Award className="h-4 w-4" />,
-      description: 'Fiche technique pour l\'équipe pédagogique',
-    },
-  ];
 
   return (
     <div className="space-y-6">
@@ -238,7 +217,7 @@ export const BilanView: React.FC<BilanViewProps> = ({ displayName, store, progra
             <div className="space-y-3">
               {[{ semaine: 'Semaine 1', objectif: `Consolider ${priorites[0]?.chapTitre ?? 'les priorités identifiées'} + révisions SRS quotidiennes (20 min/jour)` },
                 { semaine: 'Semaine 2', objectif: `Travailler ${priorites[1]?.chapTitre ?? 'un deuxième chapitre prioritaire'} + mini-épreuve blanche en fin de semaine` },
-              ].map((item: any, i: number) => (
+              ].map((item, i) => (
                 <div key={i} className="rounded-xl border border-slate-700/40 bg-slate-900/40 p-4">
                   <div className="font-bold text-cyan-400 text-xs uppercase tracking-wider mb-1">{item.semaine}</div>
                   <p className="text-sm text-slate-300">{item.objectif}</p>
@@ -311,10 +290,10 @@ export const BilanView: React.FC<BilanViewProps> = ({ displayName, store, progra
                 <div>
                   <h3 className="font-bold text-white mb-2">Points positifs</h3>
                   <div className="space-y-1">
-                    {forces.map((f: any) => (
-                      <div key={f.chapId} className="flex items-center gap-2">
+                    {forces.map((result) => (
+                      <div key={result.chapId} className="flex items-center gap-2">
                         <CheckCircle2 className="h-4 w-4 text-green-500 shrink-0" />
-                        <span>{f.chapTitre} — bien maîtrisé ({f.percent}%)</span>
+                        <span>{result.chapTitre} — bien maîtrisé ({result.percent}%)</span>
                       </div>
                     ))}
                   </div>

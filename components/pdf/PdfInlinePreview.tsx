@@ -1,18 +1,22 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
-import { ChevronLeft, ChevronRight, RefreshCw } from 'lucide-react';
+import { ChevronLeft,ChevronRight,RefreshCw } from 'lucide-react';
+import { useEffect,useRef,useState } from 'react';
 
 type PdfInlinePreviewProps = {
   src: string;
   title: string;
 };
 
+type PdfJsModule = typeof import('pdfjs-dist/legacy/build/pdf.mjs');
+type PdfLoadingTask = ReturnType<PdfJsModule['getDocument']>;
+type PdfDocument = Awaited<PdfLoadingTask['promise']>;
+
 export function PdfInlinePreview({ src, title }: PdfInlinePreviewProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const pdfRef = useRef<any>(null);
-  const renderTaskRef = useRef<{ cancel: () => void } | null>(null);
+  const pdfRef = useRef<PdfDocument | null>(null);
+  const renderTaskRef = useRef<{ cancel: () => void; promise: Promise<unknown> } | null>(null);
   const resizeObserverRef = useRef<ResizeObserver | null>(null);
 
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading');
@@ -29,7 +33,7 @@ export function PdfInlinePreview({ src, title }: PdfInlinePreviewProps) {
     setPageCount(0);
     pdfRef.current = null;
 
-    let loadingTask: any = null;
+    let loadingTask: PdfLoadingTask | null = null;
 
     void (async () => {
       try {
@@ -42,10 +46,28 @@ export function PdfInlinePreview({ src, title }: PdfInlinePreviewProps) {
           isOffscreenCanvasSupported: false,
           useWorkerFetch: false,
         });
+
+        // Check immediately, before awaiting: if unmount/src-change
+        // happened during the dynamic import above (the only async gap
+        // before this point), destroy the task now rather than waiting on
+        // its network promise, which can hang indefinitely and delay
+        // cleanup until it eventually settles (if ever).
+        if (cancelled) {
+          void loadingTask.destroy().catch(() => {});
+          return;
+        }
+
         const pdf = await loadingTask.promise;
 
         if (cancelled) {
-          void (pdf as any).destroy?.();
+          // loadingTask is only assigned here, after the async import above
+          // resolves -- if unmount/src-change happened while that import
+          // was still in flight, the effect's own cleanup already ran with
+          // loadingTask still null, so its destroy() call was a no-op. This
+          // is the one place that still holds a reference to the task that
+          // escaped it: destroy it now instead of just clearing the
+          // resolved document's cache, or the worker leaks.
+          void loadingTask?.destroy().catch(() => {});
           return;
         }
 
@@ -67,9 +89,7 @@ export function PdfInlinePreview({ src, title }: PdfInlinePreviewProps) {
       resizeObserverRef.current?.disconnect();
       resizeObserverRef.current = null;
       void loadingTask?.destroy().catch(() => {});
-      if ((pdfRef.current as any)?.destroy) {
-        void (pdfRef.current as any).destroy().catch(() => {});
-      }
+      pdfRef.current?.cleanup();
       pdfRef.current = null;
     };
   }, [src]);
@@ -112,6 +132,7 @@ export function PdfInlinePreview({ src, title }: PdfInlinePreviewProps) {
         context.setTransform(outputScale, 0, 0, outputScale, 0, 0);
 
         const renderTask = page.render({
+          canvas,
           canvasContext: context,
           viewport: renderedViewport,
         });
@@ -147,7 +168,15 @@ export function PdfInlinePreview({ src, title }: PdfInlinePreviewProps) {
 
     return () => {
       cancelled = true;
-      renderTaskRef.current?.cancel();
+      // cancel() triggers cancellation asynchronously; renderPage()'s own
+      // try/catch normally absorbs the resulting RenderingCancelledException
+      // on renderTask.promise, but attach a defensive catch here too so an
+      // unmount mid-render can never surface as an unhandled rejection
+      // regardless of exactly when that promise settles relative to this
+      // cleanup running.
+      const task = renderTaskRef.current;
+      task?.cancel();
+      void task?.promise?.catch(() => {});
     };
   }, [pageNumber, status, title, src]);
 

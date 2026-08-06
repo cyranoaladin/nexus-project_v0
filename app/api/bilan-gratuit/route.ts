@@ -4,40 +4,75 @@ import { prisma } from '@/lib/prisma';
 import { bilanGratuitSchema } from '@/lib/validations';
 import { normalizeStudentLevelAndTrack } from '@/lib/utils/grade-utils';
 import { UserRole } from '@/types/enums';
-import { guardRateLimitAsync } from '@/lib/rate-limit';
+import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive';
 import { checkCsrf, checkBodySize } from '@/lib/csrf';
-import { serializeError } from '@/lib/utils/serialize-error';
 import { synchronizePreRentreeCampaignContext } from '@/lib/campaigns/pre-rentree-2026/bilan-prefill';
 import { createId } from '@paralleldrive/cuid2';
-import crypto from 'crypto';
 import { NextRequest, NextResponse } from 'next/server';
+import { withParentStudentConsentTransaction } from '@/lib/bilans/parent-student-consent';
+import {
+  buildStudentLoginIdentifier,
+  isStudentLoginIdentifierConflict,
+} from '@/lib/services/student-login-identifier';
+import {
+  createParentActivationToken,
+  buildParentActivationEmail,
+  normalizeParentEmail,
+  PARENT_ACTIVATION_PUBLIC_MESSAGE,
+  withActivationSecurityHeaders,
+} from '@/lib/auth/parent-activation';
+import { enqueueEmailIntent } from '@/lib/email/outbox';
+import { kickEmailOutboxDrain } from '@/lib/email/outbox-scheduler';
+
+function publicSuccessResponse() {
+  return withActivationSecurityHeaders(NextResponse.json({
+    success: true,
+    message: PARENT_ACTIVATION_PUBLIC_MESSAGE,
+  }));
+}
+
+function secureResponse(response: NextResponse) {
+  return withActivationSecurityHeaders(response);
+}
+
+function isUniqueConstraintError(error: unknown): boolean {
+  return Boolean(error && typeof error === 'object' && 'code' in error && error.code === 'P2002');
+}
 
 export async function POST(request: NextRequest) {
+  let uniqueConstraintContext: 'parent' | 'student' = 'parent';
   try {
     const isTestEnv = process.env.NODE_ENV === 'test';
 
     // CSRF protection — verify same-origin
     const csrfResponse = checkCsrf(request);
-    if (csrfResponse) return csrfResponse;
+    if (csrfResponse) return secureResponse(csrfResponse);
 
     // Body size limit — reject oversized payloads (1MB)
     const bodySizeResponse = checkBodySize(request);
-    if (bodySizeResponse) return bodySizeResponse;
-
-    // Rate limiting
-    const blocked = await guardRateLimitAsync(request, { preset: 'api', keySuffix: 'bilan-gratuit' });
-    if (blocked) return blocked;
+    if (bodySizeResponse) return secureResponse(bodySizeResponse);
 
     const body = await request.json();
 
     // Honeypot check — bots fill hidden fields, humans don't
     if (body.website || body.url || body.honeypot) {
       // Silently reject bot submissions with a fake success response
-      return NextResponse.json({ success: true, message: 'Inscription réussie !' });
+      return publicSuccessResponse();
     }
 
+    const blocked = await guardSensitiveRateLimit(request, {
+      scope: 'parent-signup',
+      identity: typeof body.parentEmail === 'string' ? body.parentEmail : null,
+    });
+    if (blocked) return secureResponse(blocked);
+
     // Validation des données
-    const validatedData = bilanGratuitSchema.parse(body);
+    const normalizedBody = body && typeof body === 'object' &&
+      'parentEmail' in body && typeof body.parentEmail === 'string'
+      ? { ...body, parentEmail: normalizeParentEmail(body.parentEmail) }
+      : body;
+    const validatedData = bilanGratuitSchema.parse(normalizedBody);
+    const parentEmail = normalizeParentEmail(validatedData.parentEmail);
     const campaignContext = synchronizePreRentreeCampaignContext({
       campaignContext: validatedData.campaignContext ?? undefined,
       studentGrade: validatedData.studentGrade,
@@ -47,141 +82,168 @@ export async function POST(request: NextRequest) {
     // Vérifier si l'email parent existe déjà
     let existingUser = null;
     try {
-      existingUser = await prisma.user.findUnique({ where: { email: validatedData.parentEmail } });
+      existingUser = await prisma.user.findUnique({ where: { email: parentEmail } });
     } catch (dbErr) {
       if (!isTestEnv) {
-        console.error('DB check failed:', serializeError(dbErr));
+        console.error('[bilan-gratuit] Parent lookup failed', {
+          code: dbErr && typeof dbErr === 'object' && 'code' in dbErr ? String(dbErr.code) : 'PARENT_LOOKUP_FAILED',
+          at: new Date().toISOString(),
+        });
       }
     }
 
     if (existingUser) {
-      return NextResponse.json(
-        { error: 'Un compte existe déjà avec cet email' },
-        { status: 400 }
-      );
+      return publicSuccessResponse();
     }
 
     const resolvedStudentLastName = validatedData.studentLastName ?? validatedData.parentLastName;
-    const rawActivationToken = `act_${createId()}_${crypto.randomBytes(16).toString('hex')}`;
-    const hashedActivationToken = crypto.createHash('sha256').update(rawActivationToken).digest('hex');
-    const activationExpiry = new Date(Date.now() + 72 * 60 * 60 * 1000);
+    const {
+      rawToken: rawActivationToken,
+      tokenHash: hashedActivationToken,
+      expiresAt: activationExpiry,
+    } = createParentActivationToken();
 
     // Normaliser le niveau scolaire AVANT la transaction
     const gTrack = normalizeStudentLevelAndTrack(validatedData.studentGrade);
     
     if (!gTrack) {
-      return NextResponse.json(
+      return secureResponse(NextResponse.json(
         { error: `Niveau scolaire non reconnu : ${validatedData.studentGrade}` },
         { status: 400 }
-      );
+      ));
     }
 
     // Transaction pour créer parent et élève
-    const result = await prisma.$transaction(async (tx) => {
-      // Créer le compte parent
-      const parentUser = await tx.user.create({
-        data: {
-          email: validatedData.parentEmail,
-          password: null,
-          role: UserRole.PARENT,
-          firstName: validatedData.parentFirstName,
-          lastName: validatedData.parentLastName,
-          phone: validatedData.parentPhone,
-          activatedAt: null,
-          activationToken: hashedActivationToken,
-          activationExpiry,
-        }
-      });
+    await withParentStudentConsentTransaction(
+      prisma,
+      async ({ transaction: tx, preparePending }) => {
+        // Créer le compte parent
+        const parentUser = await tx.user.create({
+          data: {
+            email: parentEmail,
+            password: null,
+            role: UserRole.PARENT,
+            firstName: validatedData.parentFirstName,
+            lastName: validatedData.parentLastName,
+            phone: validatedData.parentPhone,
+            activatedAt: null,
+            activationToken: hashedActivationToken,
+            activationExpiry,
+          }
+        });
+        uniqueConstraintContext = 'student';
 
-      // Créer le profil parent
-      const parentProfile = await tx.parentProfile.create({
-        data: {
-          userId: parentUser.id
-        }
-      });
+        // Créer le profil parent
+        const parentProfile = await tx.parentProfile.create({
+          data: {
+            userId: parentUser.id
+          }
+        });
 
-      // Créer le compte élève sans accès direct.
-      // Email format: prenom.nom.random@nexus-student.local to ensure uniqueness
-      const studentEmailSlug = `${validatedData.studentFirstName.toLowerCase()}.${resolvedStudentLastName.toLowerCase()}.${createId().slice(0, 4)}@nexus-student.local`;
-      
-      const studentUser = await tx.user.create({
-        data: {
-          email: studentEmailSlug,
-          role: UserRole.ELEVE,
+        // Créer le compte élève sans accès direct.
+        // Email format: prenom.nom.random@nexus-student.local to ensure uniqueness
+        const studentEmailSlug = buildStudentLoginIdentifier({
           firstName: validatedData.studentFirstName,
           lastName: resolvedStudentLastName,
-          password: null,
-          activatedAt: null,
-        }
-      });
+          uniqueSuffix: createId().slice(0, 4),
+        });
 
-      const student = await tx.student.create({
-        data: {
-          parentId: parentProfile.id,
-          userId: studentUser.id,
-          grade: validatedData.studentGrade,
-          gradeLevel: gTrack.level,
-          academicTrack: gTrack.track,
-          school: validatedData.studentSchool,
-          birthDate: validatedData.studentBirthDate ? new Date(validatedData.studentBirthDate) : null
-        }
-      });
+        const studentUser = await tx.user.create({
+          data: {
+            email: studentEmailSlug,
+            role: UserRole.ELEVE,
+            firstName: validatedData.studentFirstName,
+            lastName: resolvedStudentLastName,
+            password: null,
+            activatedAt: null,
+          }
+        });
 
-      const campaignLead = campaignContext
-        ? await tx.contactLead.create({
-            data: {
-              name: `${validatedData.parentFirstName} ${validatedData.parentLastName}`,
-              email: validatedData.parentEmail,
-              phone: validatedData.parentPhone,
-              profile: JSON.stringify(campaignContext.profile),
-              interest: `${campaignContext.packCode} · ${campaignContext.level} · ${campaignContext.subjectIds.join(', ')}`,
-              source: campaignContext.programme,
-            },
-          })
-        : null;
+        const student = await tx.student.create({
+          data: {
+            parentId: parentProfile.id,
+            userId: studentUser.id,
+            grade: validatedData.studentGrade,
+            gradeLevel: gTrack.level,
+            academicTrack: gTrack.track,
+            school: validatedData.studentSchool,
+            birthDate: validatedData.studentBirthDate ? new Date(validatedData.studentBirthDate) : null
+          }
+        });
 
-      return { parentUser, studentUser, student, campaignLead };
-    });
+        await preparePending({
+          parentUserId: parentUser.id,
+          studentId: student.id,
+          now: new Date(),
+        });
 
-    // Envoyer email de bienvenue
-    try {
-      const { sendWelcomeParentEmail } = await import('@/lib/email');
-      const activationUrl = `${process.env.NEXTAUTH_URL || 'https://nexusreussite.academy'}/auth/activate?token=${encodeURIComponent(rawActivationToken)}&source=bilan-gratuit`;
-      await sendWelcomeParentEmail(
-        result.parentUser.email,
-        `${result.parentUser.firstName} ${result.parentUser.lastName}`,
-        `${result.studentUser.firstName} ${result.studentUser.lastName}`,
-        activationUrl
-      );
-    } catch (emailError) {
-      if (!isTestEnv) {
-        console.error('Erreur envoi email de bienvenue:', serializeError(emailError));
-      }
-      // Ne pas faire échouer l'inscription si l'email ne part pas
-    }
+        const campaignLead = campaignContext
+          ? await tx.contactLead.create({
+              data: {
+                name: `${validatedData.parentFirstName} ${validatedData.parentLastName}`,
+                email: parentEmail,
+                phone: validatedData.parentPhone,
+                profile: JSON.stringify(campaignContext.profile),
+                interest: `${campaignContext.packCode} · ${campaignContext.level} · ${campaignContext.subjectIds.join(', ')}`,
+                source: campaignContext.programme,
+              },
+            })
+          : null;
 
-    return NextResponse.json({
-      success: true,
-      message: 'Votre demande a bien été enregistrée. Un lien d’activation a été envoyé.',
-      parentId: result.parentUser.id,
-      studentId: result.student.id
-    });
+        const activationMessage = buildParentActivationEmail({
+          parentName: `${parentUser.firstName} ${parentUser.lastName}`,
+          childFirstName: studentUser.firstName || 'votre enfant',
+          rawToken: rawActivationToken,
+        });
+        await enqueueEmailIntent(tx, {
+          aggregateId: parentUser.id,
+          messageType: 'PARENT_ACTIVATION',
+          dedupeKey: hashedActivationToken,
+          to: parentUser.email,
+          subject: activationMessage.subject,
+          html: activationMessage.html,
+          text: activationMessage.text,
+        });
+
+        return { parentUser, studentUser, student, campaignLead };
+      },
+    );
+
+    // The intent was committed atomically with the account graph. Delivery is
+    // post-commit and recoverable by the scheduler after a process crash.
+    kickEmailOutboxDrain();
+
+    return publicSuccessResponse();
 
   } catch (error) {
-    if (process.env.NODE_ENV !== 'test') {
-      console.error('Erreur inscription bilan gratuit:', serializeError(error));
-    }
-
     if (error instanceof Error && error.name === 'ZodError') {
-      return NextResponse.json(
-        { error: 'Données invalides', details: error.message },
+      return secureResponse(NextResponse.json(
+        { error: 'Données invalides' },
         { status: 400 }
-      );
+      ));
     }
 
-    return NextResponse.json(
+    if (isUniqueConstraintError(error) && uniqueConstraintContext === 'parent') {
+      return publicSuccessResponse();
+    }
+
+    if (isStudentLoginIdentifierConflict(error)) {
+      return secureResponse(NextResponse.json(
+        { error: 'STUDENT_LOGIN_IDENTIFIER_CONFLICT' },
+        { status: 409 },
+      ));
+    }
+
+    if (process.env.NODE_ENV !== 'test') {
+      console.error('[bilan-gratuit] Registration failed', {
+        code: error && typeof error === 'object' && 'code' in error ? String(error.code) : 'REGISTRATION_FAILED',
+        at: new Date().toISOString(),
+      });
+    }
+
+    return secureResponse(NextResponse.json(
       { error: 'Erreur interne du serveur' },
       { status: 500 }
-    );
+    ));
   }
 }

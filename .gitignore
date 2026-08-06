@@ -176,3 +176,6 @@ docs/architecture/SITE_MAP.md
 docs/architecture/SITE_GRAPH.mmd
 docs/architecture/SSOT_MAP.md
 build-output.log
+
+# Secret local OpenRouter (jamais versionner)
+openrouter_cle.txt

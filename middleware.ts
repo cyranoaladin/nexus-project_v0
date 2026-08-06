@@ -1,5 +1,10 @@
 import NextAuth from 'next-auth';
-import { NextResponse } from 'next/server';
+import {
+  NextResponse,
+  type NextFetchEvent,
+  type NextMiddleware,
+  type NextRequest,
+} from 'next/server';
 import { authConfig } from './auth.config';
 import { applySecurityHeaders } from '@/lib/security-headers';
 import {
@@ -9,7 +14,7 @@ import {
 
 const { auth } = NextAuth(authConfig);
 
-export default auth((req) => {
+const authenticatedMiddleware = auth((req) => {
   const pathname = req.nextUrl.pathname;
   const isLoggedIn = !!req.auth?.user;
   const role = (req.auth?.user as any)?.role;
@@ -65,19 +70,6 @@ export default auth((req) => {
     }
   }
 
-  // Redirect logged-in users away from auth pages
-  if (isLoggedIn && pathname.startsWith('/auth')) {
-    const roleDashboardMap: Record<string, string> = {
-      ADMIN: '/dashboard/admin',
-      ASSISTANTE: '/dashboard/assistante',
-      COACH: '/dashboard/coach',
-      PARENT: '/dashboard/parent',
-      ELEVE: '/dashboard/eleve',
-    };
-    const redirectPath = roleDashboardMap[role] ?? '/dashboard';
-    return NextResponse.redirect(new URL(redirectPath, req.nextUrl));
-  }
-
   const response = NextResponse.next();
   applySecurityHeaders(response);
 
@@ -105,7 +97,17 @@ export default auth((req) => {
   }
 
   return response;
-});
+}) as unknown as NextMiddleware;
+
+export default async function middleware(request: NextRequest, event: NextFetchEvent) {
+  const response = await authenticatedMiddleware(request, event);
+  const finalResponse = response instanceof Response ? response : NextResponse.next();
+
+  // The Edge layer only performs a coarse JWT check. Letting it refresh a token can
+  // resurrect a cookie that /api/auth/signout just deleted during concurrent navigation.
+  finalResponse.headers.delete('set-cookie');
+  return finalResponse;
+}
 
 export const config = {
   // https://nextjs.org/docs/app/building-your-application/routing/middleware#matcher

@@ -13,9 +13,9 @@ export const dynamic = 'force-dynamic';
  * Returns: { hits: RAGHit[], source: 'chroma' | 'none' }
  */
 
-import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
-import { ragSearchByTrack, buildRAGContext } from '@/lib/rag-client';
+import { buildRAGContext,ragSearchByTrack } from '@/lib/rag-client';
+import { NextRequest,NextResponse } from 'next/server';
 import { z } from 'zod';
 
 const bodySchema = z.object({
@@ -103,7 +103,7 @@ export async function POST(req: NextRequest) {
         });
       }
     }
-  } catch (err) {
+  } catch {
     // RAG API unavailable — fall through to empty results
   }
 

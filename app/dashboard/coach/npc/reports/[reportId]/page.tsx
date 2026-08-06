@@ -3,19 +3,19 @@
 // Comprehensive diagnostic visualization
 // ═══════════════════════════════════════════════════════════════════════════════
 
-import { redirect } from 'next/navigation';
 import { auth } from '@/auth';
-import { prisma } from '@/lib/prisma';
+import { CompetenceMatrix,type CompetenceMatrixProps } from '@/components/npc/coach/CompetenceMatrix';
 import { DiagnosticOverview } from '@/components/npc/coach/DiagnosticOverview';
-import { CompetenceMatrix } from '@/components/npc/coach/CompetenceMatrix';
-import { RemediationRoadmap } from '@/components/npc/coach/RemediationRoadmap';
 import { MentorAdvice } from '@/components/npc/coach/MentorAdvice';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { RemediationRoadmap,type RemediationRoadmapProps } from '@/components/npc/coach/RemediationRoadmap';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, FileText, Download, Printer } from 'lucide-react';
+import { Card,CardContent } from '@/components/ui/card';
+import { Tabs,TabsContent,TabsList,TabsTrigger } from '@/components/ui/tabs';
+import { prisma } from '@/lib/prisma';
+import { ArrowLeft,Download,FileText,Printer } from 'lucide-react';
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 
 interface ReportPageProps {
   params: Promise<{ reportId: string }>;
@@ -80,7 +80,10 @@ export default async function ReportPage({ params }: ReportPageProps) {
     redirect('/dashboard/coach/npc');
   }
 
-  const diagnosticData = ((report.diagnostic as any)?.diagnosticData || report.diagnostic || {}) as {
+  const diagnosticRecord = report.diagnostic && typeof report.diagnostic === 'object' && !Array.isArray(report.diagnostic)
+    ? report.diagnostic as Record<string, unknown>
+    : {};
+  const diagnosticData = (diagnosticRecord.diagnosticData || diagnosticRecord) as {
     summary: string;
     overallLevel: string;
     confidenceScore: number;
@@ -98,7 +101,7 @@ export default async function ReportPage({ params }: ReportPageProps) {
     keyRecommendations: string[];
   };
 
-  const mentorAdvice = ((report.diagnostic as any)?.mentorAdviceData || report.diagnostic || {}) as {
+  const mentorAdvice = (diagnosticRecord.mentorAdviceData || diagnosticRecord) as {
     personalizedAdvice: string;
     motivationMessage: string;
     studyTips: string[];
@@ -187,9 +190,9 @@ export default async function ReportPage({ params }: ReportPageProps) {
         <TabsContent value="competences" className="space-y-6">
           {report.competenceMatrix ? (
             <CompetenceMatrix
-              matrix={(report.competenceMatrix as any).matrixData}
-              globalScore={Number((report.competenceMatrix as any).globalScore || 0)}
-              globalLevel={String((report.competenceMatrix as any).globalLevel || 'partially_acquired')}
+              matrix={report.competenceMatrix.matrixData as unknown as CompetenceMatrixProps['matrix']}
+              globalScore={Number(report.competenceMatrix.globalScore || 0)}
+              globalLevel="partially_acquired"
             />
           ) : (
             <Card className="p-8 text-center">
@@ -201,8 +204,29 @@ export default async function ReportPage({ params }: ReportPageProps) {
         <TabsContent value="roadmap" className="space-y-6">
           {report.remediationRoadmap ? (
             <RemediationRoadmap
-              roadmap={((report.remediationRoadmap as any).roadmapData || {}) as any}
-              tasks={((report.remediationRoadmap as any).tasks || []) as any}
+              roadmap={{
+                title: report.remediationRoadmap.title,
+                description: report.remediationRoadmap.description ?? '',
+                estimatedTotalDuration: report.remediationRoadmap.estimatedDuration ?? 'Non précisée',
+                recommendedPace: 'regular',
+                difficultyLevel: ['beginner', 'intermediate', 'advanced'].includes(report.remediationRoadmap.difficultyLevel ?? '')
+                  ? report.remediationRoadmap.difficultyLevel as RemediationRoadmapProps['roadmap']['difficultyLevel']
+                  : 'intermediate',
+              }}
+              tasks={report.remediationRoadmap.tasks.map((task) => ({
+                id: task.id,
+                title: task.title,
+                description: task.description,
+                order: task.order,
+                type: task.type as RemediationRoadmapProps['tasks'][number]['type'],
+                estimatedDuration: report.remediationRoadmap?.estimatedDuration ?? 'Non précisée',
+                difficultyLevel: ['beginner', 'intermediate', 'advanced'].includes(report.remediationRoadmap?.difficultyLevel ?? '')
+                  ? report.remediationRoadmap?.difficultyLevel as RemediationRoadmapProps['tasks'][number]['difficultyLevel']
+                  : 'intermediate',
+                resources: task.externalUrls.map((url) => ({ type: 'external' as const, title: 'Ressource externe', url })),
+                targetCompetences: [],
+                completed: task.isCompleted,
+              }))}
             />
           ) : (
             <Card className="p-8 text-center">

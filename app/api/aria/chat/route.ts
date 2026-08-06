@@ -1,16 +1,16 @@
 export const dynamic = 'force-dynamic';
 
-import { NextRequest, NextResponse } from 'next/server'
-import { auth } from '@/auth'
-import { prisma } from '@/lib/prisma'
-import { AriaMessage } from '@prisma/client'
-import { z } from 'zod'
-import { Subject } from '@/types/enums'
-import { generateAriaResponse, saveAriaConversation } from '@/lib/aria'
-import { generateAriaResponseStream } from '@/lib/aria-streaming'
-import { checkAndAwardBadges } from '@/lib/badges'
-import { createLogger } from '@/lib/middleware/logger'
-import { requireFeatureApi } from '@/lib/access'
+import { auth } from '@/auth';
+import { requireFeatureApi } from '@/lib/access';
+import { generateAriaResponse,saveAriaConversation } from '@/lib/aria';
+import { generateAriaResponseStream } from '@/lib/aria-streaming';
+import { checkAndAwardBadges } from '@/lib/badges';
+import { createLogger } from '@/lib/middleware/logger';
+import { prisma } from '@/lib/prisma';
+import { Subject } from '@/types/enums';
+import { AriaMessage } from '@prisma/client';
+import { NextRequest,NextResponse } from 'next/server';
+import { z } from 'zod';
 
 // Schema de validation pour les messages ARIA
 const ariaMessageSchema = z.object({
@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
   const isStreamingRequest = acceptHeader.includes('text/event-stream')
   
   try {
-    let session: any = null
+    let session: import('next-auth').Session | null = null
     try {
       session = await auth()
     } catch {
@@ -80,7 +80,19 @@ export async function POST(request: NextRequest) {
     
     // Vérifier l'accès à ARIA pour cette matière
     const activeSubscription = student.subscriptions[0]
-    if (!activeSubscription || !activeSubscription.ariaSubjects || !(activeSubscription.ariaSubjects as string[]).includes(validatedData.subject)) {
+    let ariaSubjects: string[] = []
+    if (activeSubscription?.ariaSubjects) {
+      try {
+        const raw = activeSubscription.ariaSubjects
+        const parsed = typeof raw === 'string' ? JSON.parse(raw) : raw
+        if (Array.isArray(parsed) && parsed.every((subject): subject is string => typeof subject === 'string')) {
+          ariaSubjects = parsed
+        }
+      } catch {
+        ariaSubjects = []
+      }
+    }
+    if (!activeSubscription || !ariaSubjects.includes(validatedData.subject)) {
       const forwarded = request.headers.get('x-forwarded-for')
       const ip = forwarded ? forwarded.split(',')[0] : request.headers.get('x-real-ip') || 'unknown'
       

@@ -1,0 +1,58 @@
+schemaVersion: nexus-cps-catalog/v1
+slug: 5e-maths-vers-quatrieme-v1
+version: 1
+nodes:
+  - id: 5e.maths.relatifs.somme-difference-priorites
+    sequenceOrder: 1
+    label: "Nombres relatifs : somme, différence, priorités"
+    sourceLevel: CINQUIEME
+    targetLevel: QUATRIEME
+    pedagogicalRationale: la 4e ajoute la multiplication et la division de relatifs sur une base d'addition et de soustraction sûres. Une erreur de signe ici se propage à tout le calcul de 4e.
+  - id: 5e.maths.fractions.somme-difference
+    sequenceOrder: 2
+    label: "Fractions : somme et différence"
+    sourceLevel: CINQUIEME
+    targetLevel: QUATRIEME
+    pedagogicalRationale: la 4e généralise aux produits et quotients. Additionner les dénominateurs interdit tout calcul fractionnaire de 4e.
+  - id: 5e.maths.proportionnalite.quatrieme-proportionnelle
+    sequenceOrder: 3
+    label: "Proportionnalité : quatrième proportionnelle et pourcentages"
+    sourceLevel: CINQUIEME
+    targetLevel: QUATRIEME
+    pedagogicalRationale: vitesses, pourcentages et agrandissements de 4e reposent sur le produit en croix, qui doit être automatique.
+  - id: 5e.maths.calcul-litteral.distributivite-simple
+    sequenceOrder: 4
+    label: "Calcul littéral : réduction et distributivité simple"
+    sourceLevel: CINQUIEME
+    targetLevel: QUATRIEME
+    pedagogicalRationale: la double distributivité de 4e s'appuie sur une distributivité simple maîtrisée et sur la réduction des termes semblables.
+  - id: 5e.maths.geometrie.angles-triangle
+    sequenceOrder: 5
+    label: "Angles : somme des angles d'un triangle"
+    sourceLevel: CINQUIEME
+    targetLevel: QUATRIEME
+    pedagogicalRationale: les démonstrations d'angles de 4e (angles alternes-internes, triangles) supposent la somme des angles connue et appliquée.
+  - id: 5e.maths.grandeurs.aires-perimetres
+    sequenceOrder: 6
+    label: Aires et périmètres
+    sourceLevel: CINQUIEME
+    targetLevel: QUATRIEME
+    pedagogicalRationale: les grandeurs composées et le théorème de Pythagore de 4e réinvestissent constamment aires et périmètres des figures usuelles.
+  - id: 5e.maths.geometrie.symetrie-centrale
+    sequenceOrder: 7
+    label: Symétrie centrale et parallélogramme
+    sourceLevel: CINQUIEME
+    targetLevel: QUATRIEME
+    pedagogicalRationale: les propriétés du parallélogramme, centrales en 4e, découlent de la symétrie centrale introduite en 5e.
+  - id: 5e.maths.statistiques.frequences-moyenne
+    sequenceOrder: 8
+    label: "Statistiques : fréquences et moyenne"
+    sourceLevel: CINQUIEME
+    targetLevel: QUATRIEME
+    pedagogicalRationale: la 4e introduit les moyennes pondérées et les fréquences en pourcentage sur cette base.
+  - id: 5e.maths.relatifs.reperage-comparaison
+    sequenceOrder: 9
+    label: Repérage et comparaison de relatifs
+    sourceLevel: CINQUIEME
+    targetLevel: QUATRIEME
+    pedagogicalRationale: le repérage dans le plan de 4e prolonge le repérage sur une droite graduée et la comparaison des relatifs.

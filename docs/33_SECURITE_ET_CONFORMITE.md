@@ -13,7 +13,7 @@ Preuves code:
 
 ## Contrôles techniques
 - CSRF same-origin sur routes mutantes.
-- Rate limiting (Upstash, fail-open contrôlé, warning prod si absent).
+- Rate limiting (Redis, fail-closed, obligatoire en production).
 - Headers de sécurité (HSTS, CSP, XFO, etc.) au middleware.
 - Limite body size (413) sur endpoints protégés.
 

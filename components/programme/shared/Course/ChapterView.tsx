@@ -1,22 +1,23 @@
 'use client';
+import type { Categorie } from '@/components/programme/shared/types/programme';
 
-import React from 'react';
+import { type HintLevel,type SRSQuality } from '@/components/programme/shared/types/programme';
 import { resolveUiIcon } from '@/lib/ui-icons';
-import { type HintLevel, type SRSQuality } from '@/components/programme/shared/types/programme';
+import React from 'react';
 
 // Sections
-import { ChapterHeader } from '@/components/programme/shared/Course/sections/ChapterHeader';
-import { ChapterCourse } from '@/components/programme/shared/Course/sections/ChapterCourse';
 import { ChapterPractice } from '@/app/programme/maths-1ere/components/Course/sections/ChapterPractice';
-import { ChapterFooter } from '@/components/programme/shared/Course/sections/ChapterFooter';
 import RAGSources from '@/app/programme/maths-1ere/components/RAGSources';
+import { ChapterCourse } from '@/components/programme/shared/Course/sections/ChapterCourse';
+import { ChapterFooter } from '@/components/programme/shared/Course/sections/ChapterFooter';
+import { ChapterHeader } from '@/components/programme/shared/Course/sections/ChapterHeader';
 
 interface ChapterViewProps {
   catKey: string;
   chapId: string;
   focusMode: boolean;
   onToggleFocus: () => void;
-  programmeData: Record<string, any>;
+  programmeData: Record<string, Categorie>;
   chapterProgress: {
     recordDiagnostic: (score: number, total: number) => void;
     recordExerciseResult: (targetChapId: string, score: number) => void;
@@ -37,7 +38,7 @@ export const ChapterView: React.FC<ChapterViewProps> = ({
   chapterProgress,
 }) => {
   const cat = programmeData[catKey];
-  const chap = cat?.chapitres.find((c: any) => c.id === chapId);
+  const chap = cat?.chapitres.find((chapter) => chapter.id === chapId);
 
   const {
     recordDiagnostic,

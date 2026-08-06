@@ -1,9 +1,9 @@
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
-import { sendMail } from '@/lib/email/mailer';
+import { enqueueEmailIntent } from '@/lib/email/outbox';
+import { kickEmailOutboxDrain } from '@/lib/email/outbox-scheduler';
 import { contactLeadNotification } from '@/lib/email/templates';
 import { LEGAL } from '@/lib/legal';
-import { serializeError } from '@/lib/utils/serialize-error';
 
 const optionalText = z
   .preprocess(
@@ -69,43 +69,45 @@ export async function captureContactLead(payload: unknown) {
     throw new ContactLeadValidationError('missing_required');
   }
 
-  const lead = await prisma.contactLead.create({
-    data: {
-      name: data.name,
-      email: data.email,
-      phone: data.phone,
-      profile: data.profile,
-      interest: data.interest,
-      urgency: data.urgency,
-      source: data.source,
-      status: 'NEW',
-      notes: data.notes,
-    },
-  });
-
-  const template = contactLeadNotification({
-    id: lead.id,
-    name: lead.name,
-    email: lead.email,
-    phone: lead.phone,
-    profile: lead.profile,
-    interest: lead.interest,
-    urgency: lead.urgency,
-    source: lead.source,
-    createdAt: lead.createdAt,
-  });
-
-  try {
-    await sendMail({
+  const lead = await prisma.$transaction(async (tx) => {
+    const created = await tx.contactLead.create({
+      data: {
+        name: data.name,
+        email: data.email,
+        phone: data.phone,
+        profile: data.profile,
+        interest: data.interest,
+        urgency: data.urgency,
+        source: data.source,
+        status: 'NEW',
+        notes: data.notes,
+      },
+    });
+    const template = contactLeadNotification({
+      id: created.id,
+      name: created.name,
+      email: created.email,
+      phone: created.phone,
+      profile: created.profile,
+      interest: created.interest,
+      urgency: created.urgency,
+      source: created.source,
+      createdAt: created.createdAt,
+    });
+    await enqueueEmailIntent(tx, {
+      aggregateType: 'CONTACT_LEAD',
+      aggregateId: created.id,
+      messageType: 'TRANSACTIONAL_NOTIFICATION',
+      dedupeKey: created.id,
       to: getLeadNotificationRecipient(),
       subject: template.subject,
       html: template.html,
       text: template.text,
-      replyTo: lead.email,
+      replyTo: created.email,
     });
-  } catch (error) {
-    console.error('[contact] lead notification failed', serializeError(error));
-  }
+    return created;
+  });
+  kickEmailOutboxDrain();
 
   return lead;
 }

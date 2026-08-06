@@ -95,8 +95,7 @@ describe('F49/F51: Prisma Schema Structure', () => {
       expect(schemaContent).toContain('@@index([studentId])');
       expect(schemaContent).toContain('@@index([studentEmail])');
       expect(schemaContent).toContain('@@index([publicShareId])');
-      expect(schemaContent).toContain('@@index([legacyDiagnosticId])');
-      expect(schemaContent).toContain('@@index([legacyAssessmentId])');
+      expect(schemaContent).toContain('Partial unique indexes created by the canonical migration');
     });
   });
 

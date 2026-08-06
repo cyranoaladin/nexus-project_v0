@@ -64,6 +64,13 @@ function main() {
     process.exit(1);
   }
 
+  // Clean forbidden .env files copied by Next.js into standalone output
+  for (const file of fs.readdirSync(standaloneDir)) {
+    if (/^\.env/i.test(file) && !['.example', '.sample', '.template'].some((s) => file.endsWith(s))) {
+      fs.unlinkSync(path.join(standaloneDir, file));
+    }
+  }
+
   console.log('Public assets and static chunks copied to standalone.');
   console.log(`  chunks: ${jsChunks.length} JS files`);
 }

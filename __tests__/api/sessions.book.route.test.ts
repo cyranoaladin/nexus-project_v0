@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { POST } from '@/app/api/sessions/book/route';
 import { requireAnyRole, isErrorResponse } from '@/lib/guards';
-import { RateLimitPresets } from '@/lib/middleware/rateLimit';
+import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive';
 import { parseBody } from '@/lib/api/helpers';
 import { createLogger } from '@/lib/middleware/logger';
 import { prisma } from '@/lib/prisma';
@@ -13,10 +13,8 @@ jest.mock('@/lib/guards', () => ({
   isErrorResponse: jest.fn(),
 }));
 
-jest.mock('@/lib/middleware/rateLimit', () => ({
-  RateLimitPresets: {
-    expensive: jest.fn(),
-  },
+jest.mock('@/lib/rate-limit/sensitive', () => ({
+  guardSensitiveRateLimit: jest.fn(),
 }));
 
 jest.mock('@/lib/api/helpers', () => ({
@@ -161,7 +159,7 @@ describe('POST /api/sessions/book', () => {
     jest.useFakeTimers().setSystemTime(new Date(2025, 0, 1, 12, 0, 0));
     jest.clearAllMocks();
 
-    (RateLimitPresets.expensive as jest.Mock).mockReturnValue(null);
+    (guardSensitiveRateLimit as jest.Mock).mockReturnValue(null);
     (requireAnyRole as jest.Mock).mockResolvedValue(mockSession);
     (isErrorResponse as unknown as jest.Mock).mockReturnValue(false);
     (requireFeatureApi as jest.Mock).mockResolvedValue(null);
@@ -174,7 +172,7 @@ describe('POST /api/sessions/book', () => {
   });
 
   it('returns 429 when rate limited', async () => {
-    (RateLimitPresets.expensive as jest.Mock).mockReturnValue(
+    (guardSensitiveRateLimit as jest.Mock).mockReturnValue(
       NextResponse.json({ error: 'RATE_LIMIT' }, { status: 429 })
     );
 

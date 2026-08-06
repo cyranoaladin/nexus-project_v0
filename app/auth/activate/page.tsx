@@ -11,12 +11,14 @@ function ActivateForm() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const token = searchParams?.get('token') ?? null;
+  const purpose = searchParams?.get('purpose') === 'parent' ? 'parent' : 'student';
   const source = searchParams?.get('source') ?? null;
   const isStageSource = source === 'stage';
 
   const [status, setStatus] = useState<'loading' | 'valid' | 'invalid' | 'submitting' | 'success' | 'error'>('loading');
   const [studentName, setStudentName] = useState('');
   const [email, setEmail] = useState('');
+  const [accountRole, setAccountRole] = useState<'PARENT' | 'ELEVE'>('ELEVE');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
@@ -29,13 +31,14 @@ function ActivateForm() {
     }
 
     try {
-      const res = await fetch(`/api/student/activate?token=${encodeURIComponent(token)}`);
+      const res = await fetch(`/api/auth/activate?purpose=${purpose}&token=${encodeURIComponent(token)}`);
       const data = await res.json();
 
       if (data.valid) {
         setStatus('valid');
         setStudentName(data.studentName || '');
         setEmail(data.email || '');
+        setAccountRole(data.accountRole === 'PARENT' ? 'PARENT' : 'ELEVE');
       } else {
         setStatus('invalid');
         setError(data.error || 'Lien d\'activation invalide ou expiré.');
@@ -44,7 +47,7 @@ function ActivateForm() {
       setStatus('invalid');
       setError('Erreur de connexion au serveur.');
     }
-  }, [token]);
+  }, [purpose, token]);
 
   useEffect(() => {
     verifyToken();
@@ -67,10 +70,10 @@ function ActivateForm() {
     setStatus('submitting');
 
     try {
-      const res = await fetch('/api/student/activate', {
+      const res = await fetch('/api/auth/activate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token, password }),
+        body: JSON.stringify({ token, password, purpose }),
       });
 
       const data = await res.json();
@@ -111,7 +114,7 @@ function ActivateForm() {
 
   if (status === 'loading') {
     return (
-      <div className="min-h-screen bg-lux-ink flex items-center justify-center">
+      <div className="min-h-screen bg-lux-ink flex items-center justify-center" role="status" aria-live="polite">
         <div className="text-center">
           <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-lux-gold" />
           <p className="text-lux-on-dark-subtle">Vérification du lien d&apos;activation...</p>
@@ -127,7 +130,7 @@ function ActivateForm() {
           <CardContent className="pt-8 text-center">
             <AlertCircle className="w-12 h-12 text-rose-400 mx-auto mb-4" />
             <h2 className="font-fraunces text-xl font-light text-lux-ivory mb-2">Lien invalide</h2>
-            <p className="text-lux-on-dark-subtle mb-6">{error}</p>
+            <p role="alert" className="text-lux-on-dark-subtle mb-6">{error}</p>
             <Button onClick={() => router.push('/auth/signin')} className="btn-primary">
               Retour à la connexion
             </Button>
@@ -141,11 +144,11 @@ function ActivateForm() {
     return (
       <div className="min-h-screen bg-lux-ink flex items-center justify-center p-4">
         <Card className="w-full max-w-md bg-white/5 border border-lux-line/40">
-          <CardContent className="pt-8 text-center">
+          <CardContent className="pt-8 text-center" role="status" aria-live="polite">
             <CheckCircle2 className="w-12 h-12 text-emerald-400 mx-auto mb-4" />
             <h2 className="font-fraunces text-xl font-light text-lux-ivory mb-2">Compte activé !</h2>
             <p className="text-lux-on-dark-subtle mb-2">
-              Bienvenue {studentName} ! Votre compte est maintenant actif.
+              Bienvenue {studentName} ! Votre compte {accountRole === 'PARENT' ? 'parent' : 'élève'} est maintenant actif.
             </p>
             <p className="text-lux-on-dark-subtle text-sm">
               {isStageSource ? 'Connexion en cours vers votre espace stages...' : 'Redirection vers la connexion...'}
@@ -162,19 +165,27 @@ function ActivateForm() {
         <CardHeader className="text-center">
           <Lock className="w-10 h-10 text-lux-gold mx-auto mb-2" />
           <CardTitle className="text-lux-ivory text-xl">
-            {isStageSource ? 'Activez votre compte — Stage Nexus Réussite' : 'Activer votre compte'}
+            {isStageSource
+              ? 'Activez votre compte — Stage Nexus Réussite'
+              : accountRole === 'PARENT'
+                ? 'Activer votre espace parent'
+                : 'Activer votre espace élève'}
           </CardTitle>
           <p className="text-lux-on-dark-subtle text-sm mt-1">
             {isStageSource
               ? 'Votre inscription au stage est confirmée. Choisissez votre mot de passe pour accéder à votre emploi du temps et vos ressources.'
-              : `Bienvenue ${studentName} ! Choisissez votre mot de passe pour accéder à votre espace élève.`}
+              : `Bienvenue ${studentName} ! Choisissez votre mot de passe pour accéder à votre espace ${accountRole === 'PARENT' ? 'parent' : 'élève'}.`}
           </p>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-lux-on-dark-muted mb-1">Email</label>
+              <label htmlFor="student-login-identifier" className="block text-sm font-medium text-lux-on-dark-muted mb-1">
+                Identifiant de connexion
+              </label>
               <input
+                id="student-login-identifier"
+                name="loginIdentifier"
                 type="email"
                 value={email}
                 disabled
@@ -183,8 +194,10 @@ function ActivateForm() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-lux-on-dark-muted mb-1">Mot de passe</label>
+              <label htmlFor="student-password" className="block text-sm font-medium text-lux-on-dark-muted mb-1">Mot de passe</label>
               <input
+                id="student-password"
+                name="password"
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -192,12 +205,15 @@ function ActivateForm() {
                 className="w-full px-3 py-2 bg-white/5 border border-lux-line/40 rounded-lg text-lux-ivory placeholder:text-lux-on-dark-subtle focus:border-lux-gold focus:outline-none"
                 minLength={8}
                 required
+                aria-describedby={error ? 'activation-error' : undefined}
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-lux-on-dark-muted mb-1">Confirmer le mot de passe</label>
+              <label htmlFor="student-password-confirmation" className="block text-sm font-medium text-lux-on-dark-muted mb-1">Confirmer le mot de passe</label>
               <input
+                id="student-password-confirmation"
+                name="passwordConfirmation"
                 type="password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
@@ -205,11 +221,17 @@ function ActivateForm() {
                 className="w-full px-3 py-2 bg-white/5 border border-lux-line/40 rounded-lg text-lux-ivory placeholder:text-lux-on-dark-subtle focus:border-lux-gold focus:outline-none"
                 minLength={8}
                 required
+                aria-describedby={error ? 'activation-error' : undefined}
               />
             </div>
 
             {error && (
-              <div className="p-3 bg-rose-500/10 border border-rose-500/20 rounded-lg">
+              <div
+                id="activation-error"
+                role="alert"
+                aria-live="assertive"
+                className="p-3 bg-rose-500/10 border border-rose-500/20 rounded-lg"
+              >
                 <p className="text-sm text-rose-300">{error}</p>
               </div>
             )}

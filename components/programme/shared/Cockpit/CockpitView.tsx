@@ -1,15 +1,16 @@
 'use client';
+import type { BadgeDefinition, Categorie, NiveauEleve, StageProgramme, StageSession } from '@/components/programme/shared/types/programme';
 
-import React from 'react';
-import { RefreshCw, BookOpen } from 'lucide-react';
-import { HeroPedagogique } from './HeroPedagogique';
-import { SyntheseEleve } from './SyntheseEleve';
-import { FeuilleDeRoute } from './FeuilleDeRoute';
-import { SeanceDuJour } from './SeanceDuJour';
 import { RAGFlashCard } from '@/components/programme/shared/RAG/RAGFlashCard';
-import { ThemesOverview } from './ThemesOverview';
+import { BookOpen,RefreshCw } from 'lucide-react';
+import React from 'react';
 import { BadgesPreview } from './BadgesPreview';
+import { FeuilleDeRoute } from './FeuilleDeRoute';
+import { HeroPedagogique } from './HeroPedagogique';
+import { SeanceDuJour } from './SeanceDuJour';
 import { StreakShop } from './StreakShop';
+import { SyntheseEleve } from './SyntheseEleve';
+import { ThemesOverview } from './ThemesOverview';
 
 type ActiveTab = 'cockpit' | 'cours' | 'examen' | 'enseignant' | 'bilan';
 
@@ -18,7 +19,7 @@ interface CockpitViewProps {
   onSwitchTab: (tab: ActiveTab) => void;
   onNavigateToChap: (catKey: string, chapId: string) => void;
   store: {
-    getNiveau: () => any;
+    getNiveau: () => NiveauEleve;
     completedChapters: string[];
     getDueReviews: () => string[];
     diagnosticResults: Record<string, { score: number; total: number }>;
@@ -28,16 +29,16 @@ interface CockpitViewProps {
     streakFreezes: number;
     buyStreakFreeze: () => void;
   };
-  programmeData: Record<string, any>;
-  badgeDefinitions: Record<string, any>;
+  programmeData: Record<string, Categorie>;
+  badgeDefinitions: BadgeDefinition[];
   stageConfig: {
-    STAGE_PRINTEMPS_2026: any;
+    STAGE_PRINTEMPS_2026: StageProgramme;
     getStagePhase: () => 'avant' | 'pendant' | 'apres';
     formatDateFr: (date: string) => string;
-    getTodaySession: () => any;
+    getTodaySession: () => StageSession | null;
     getDaysUntilStage: () => number;
     getDaysUntilExam: () => number;
-    getNextSession: () => any;
+    getNextSession: () => StageSession | null;
   };
 }
 
@@ -117,7 +118,7 @@ export const CockpitView: React.FC<CockpitViewProps> = ({ displayName, onSwitchT
                   let chapTitle = chapId;
                   let catKey = '';
                   for (const [key, cat] of Object.entries(programmeData)) {
-                    const found = cat.chapitres.find((c: any) => c.id === chapId);
+                    const found = cat.chapitres.find((chapter) => chapter.id === chapId);
                     if (found) {
                       chapTitle = found.titre;
                       catKey = key;

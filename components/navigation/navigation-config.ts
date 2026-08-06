@@ -167,6 +167,12 @@ export const navigationConfig: Record<UserRole, NavigationItem[]> = {
       match: 'exact'
     },
     {
+      label: 'Bilans',
+      href: '/dashboard/assistante/bilans',
+      icon: 'FileText',
+      match: 'prefix'
+    },
+    {
       label: 'Étudiants',
       href: '/dashboard/assistante/students',
       icon: 'Users',

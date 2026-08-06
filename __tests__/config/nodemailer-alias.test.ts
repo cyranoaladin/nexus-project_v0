@@ -3,8 +3,10 @@ import path from 'node:path';
 
 const projectRoot = path.resolve(__dirname, '../..');
 const smtpModules = [
-  'lib/email-service.ts',
   'lib/email/mailer.ts',
+];
+const queuedCompatibilityModules = [
+  'lib/email-service.ts',
   'lib/email.ts',
   'lib/invoice/send-email.ts',
 ];
@@ -28,6 +30,15 @@ describe('SMTP transport dependency boundary', () => {
       const source = fs.readFileSync(path.join(projectRoot, modulePath), 'utf8');
       expect(source).toContain("from 'nodemailer9'");
       expect(source).not.toContain("from 'nodemailer'");
+    }
+
+    for (const modulePath of queuedCompatibilityModules) {
+      const source = fs.readFileSync(path.join(projectRoot, modulePath), 'utf8');
+      expect(source).toContain("email/queue");
+      expect(source).not.toContain("from 'nodemailer9'");
+      expect(source).not.toContain("from 'nodemailer'");
+      expect(source).not.toContain('createTransport(');
+      expect(source).not.toContain('.sendMail(');
     }
 
     const lockfile = JSON.parse(

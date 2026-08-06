@@ -38,13 +38,12 @@ describe('Middleware Security Rules', () => {
     expect(result).toBe(true);
   });
   
-  it('should redirect authenticated users away from auth pages', async () => {
+  it('defers authenticated auth-page redirects to the Node session validator', async () => {
       const req = { nextUrl: mockNextUrl('/auth/signin') } as any;
       const auth = { user: { role: 'ELEVE' } } as any;
       
-      await authorized({ auth, request: req });
-      
-      // Should have called redirect
-      expect(global.Response.redirect).toHaveBeenCalled();
+      const result = await authorized({ auth, request: req });
+
+      expect(result).toBe(true);
   });
 });

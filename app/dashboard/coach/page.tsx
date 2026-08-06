@@ -1,17 +1,17 @@
 "use client";
-import { useEffect, useState } from "react";
+import { BookOpen,FileText,Loader2,Users,Zap } from "lucide-react";
+import { signOut,useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { signOut, useSession } from "next-auth/react";
-import { Loader2, BookOpen, Users, Zap, FileText } from "lucide-react";
+import { useEffect,useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card,CardContent,CardHeader,CardTitle } from "@/components/ui/card";
+import { Tabs,TabsList,TabsTrigger } from "@/components/ui/tabs";
 
+import { CohortTable,type StudentEAMSummary,type StudentRow } from "@/components/dashboard/coach/CohortTable";
+import { PriorityAlerts,type CoachAlert } from "@/components/dashboard/coach/PriorityAlerts";
 import { DashboardPilotage } from "@/components/dashboard/DashboardPilotage";
 import CoachAvailability from "@/components/ui/coach-availability";
-import { CohortTable, type StudentEAMSummary } from "@/components/dashboard/coach/CohortTable";
-import { PriorityAlerts } from "@/components/dashboard/coach/PriorityAlerts";
 
 interface TodaySession {
   id: string;
@@ -22,8 +22,8 @@ interface TodaySession {
 
 interface CoachDashboardData {
   coach: { pseudonym: string };
-  students: any[];
-  alerts: any[];
+  students: StudentRow[];
+  alerts: CoachAlert[];
   uniqueStudentsCount: number;
   todaySessions: TodaySession[];
 }
@@ -92,7 +92,7 @@ export default function DashboardCoach() {
           </div>
           {/* Row 2: tabs */}
           <div className="pb-2 -mx-1 overflow-x-auto scrollbar-none">
-            <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)}>
+            <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as typeof activeTab)}>
               <TabsList className="bg-white/5 border-white/10 w-full sm:w-auto">
                 <TabsTrigger value="dashboard" className="flex-1 sm:flex-none text-xs sm:text-sm">Pilotage</TabsTrigger>
                 <TabsTrigger value="availability" className="flex-1 sm:flex-none text-xs sm:text-sm">Agenda</TabsTrigger>
@@ -117,7 +117,7 @@ export default function DashboardCoach() {
                   ].map((tab) => (
                     <Button
                       key={tab.id}
-                      onClick={() => setActiveRubrique(tab.id as any)}
+                      onClick={() => setActiveRubrique(tab.id as typeof activeRubrique)}
                       variant={activeRubrique === tab.id ? 'default' : 'ghost'}
                       className={`whitespace-nowrap rounded-lg transition-all text-xs sm:text-sm px-3 sm:px-4 shrink-0 sm:flex-1 ${
                         activeRubrique === tab.id
@@ -216,6 +216,19 @@ export default function DashboardCoach() {
                         </p>
                         <Button variant="outline" className="w-full border-white/10" onClick={() => router.push('/dashboard/coach/maths-premiere-stage-printemps')}>
                           Gérer les bilans Maths
+                        </Button>
+                      </CardContent>
+                    </Card>
+
+                    <Card className="bg-gradient-to-br from-sky-500/10 to-surface-card border border-sky-500/20">
+                      <CardContent className="p-6">
+                        <Users className="w-8 h-8 text-sky-400 mb-4" />
+                        <h3 className="text-lg font-bold text-white mb-2">Plan de groupe — bilans de positionnement</h3>
+                        <p className="text-xs text-neutral-400 mb-4">
+                          Préparez le plan pédagogique des cinq séances à partir de trois à cinq passations scorées du même pack.
+                        </p>
+                        <Button variant="outline" className="w-full border-white/10" onClick={() => router.push('/dashboard/coach/bilans')}>
+                          Préparer un plan de groupe
                         </Button>
                       </CardContent>
                     </Card>

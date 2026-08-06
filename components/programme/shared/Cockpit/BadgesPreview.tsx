@@ -1,14 +1,15 @@
 'use client';
+import type { BadgeDefinition } from '@/components/programme/shared/types/programme';
 
-import React from 'react';
-import { Medal } from 'lucide-react';
 import { resolveUiIcon } from '@/lib/ui-icons';
+import { Medal } from 'lucide-react';
+import React from 'react';
 
 interface BadgesPreviewProps {
   store: {
     badges: string[];
   };
-  badgeDefinitions: Record<string, any>;
+  badgeDefinitions: BadgeDefinition[];
 }
 
 export const BadgesPreview: React.FC<BadgesPreviewProps> = ({ store, badgeDefinitions }) => (
@@ -23,7 +24,7 @@ export const BadgesPreview: React.FC<BadgesPreviewProps> = ({ store, badgeDefini
       </span>
     </div>
     <div className="flex flex-wrap gap-2.5">
-      {badgeDefinitions.slice(0, 10).map((b: any) => {
+      {badgeDefinitions.slice(0, 10).map((b) => {
         const BadgeIcon = resolveUiIcon(b.icon);
         const isEarned = store.badges.includes(b.id);
         return (

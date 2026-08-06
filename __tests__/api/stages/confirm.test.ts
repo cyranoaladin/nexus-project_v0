@@ -2,8 +2,8 @@ jest.mock('@/auth', () => ({
   auth: jest.fn(),
 }));
 
-jest.mock('@/lib/email/mailer', () => ({
-  sendMail: jest.fn().mockResolvedValue({ ok: true }),
+jest.mock('@/lib/email/outbox', () => ({
+  enqueueEmailIntent: jest.fn().mockResolvedValue({ id: 'job-1' }),
 }));
 
 jest.mock('bcryptjs', () => ({
@@ -14,10 +14,10 @@ import { auth } from '@/auth';
 import { NextRequest } from 'next/server';
 
 import { POST } from '@/app/api/stages/[stageSlug]/reservations/[reservationId]/confirm/route';
-import { sendMail } from '@/lib/email/mailer';
+import { enqueueEmailIntent } from '@/lib/email/outbox';
 
 const mockAuth = auth as jest.Mock;
-const mockSendMail = sendMail as jest.Mock;
+const mockSendMail = enqueueEmailIntent as jest.Mock;
 
 let prisma: any;
 
@@ -88,6 +88,42 @@ describe('POST /api/stages/[slug]/reservations/[id]/confirm', () => {
     }));
   });
 
+  it('refuse de rattacher la réservation à un compte non-ELEVE existant (PARENT/ADMIN/COACH)', async () => {
+    mockAuth.mockResolvedValue(session('ASSISTANTE'));
+    prisma.stageReservation.findFirst.mockResolvedValue(baseReservation);
+    prisma.user.findUnique.mockResolvedValue({
+      id: 'existing-parent-user',
+      email: 'eleve@example.com',
+      role: 'PARENT',
+      activatedAt: new Date('2026-01-01T00:00:00.000Z'),
+      student: null,
+    });
+
+    const res = await POST(makeRequest(), { params });
+
+    expect(res.status).toBe(409);
+    expect(prisma.stageReservation.update).not.toHaveBeenCalled();
+    expect(prisma.user.create).not.toHaveBeenCalled();
+  });
+
+  it('refuse de rattacher la réservation à un compte ELEVE déjà activé (mot de passe réel, session active)', async () => {
+    mockAuth.mockResolvedValue(session('ASSISTANTE'));
+    prisma.stageReservation.findFirst.mockResolvedValue(baseReservation);
+    prisma.user.findUnique.mockResolvedValue({
+      id: 'existing-active-eleve',
+      email: 'eleve@example.com',
+      role: 'ELEVE',
+      activatedAt: new Date('2026-01-01T00:00:00.000Z'),
+      student: { id: 'student-existing' },
+    });
+
+    const res = await POST(makeRequest(), { params });
+
+    expect(res.status).toBe(409);
+    expect(prisma.stageReservation.update).not.toHaveBeenCalled();
+    expect(prisma.user.create).not.toHaveBeenCalled();
+  });
+
   it('refuse des paramètres route invalides avant accès DB', async () => {
     mockAuth.mockResolvedValue(session('ASSISTANTE'));
 
@@ -119,6 +155,9 @@ describe('POST /api/stages/[slug]/reservations/[id]/confirm', () => {
     prisma.user.findUnique.mockResolvedValue({
       id: 'user-existing',
       email: 'eleve@example.com',
+      role: 'ELEVE',
+      activatedAt: null,
+      student: { id: 'student-existing' },
     });
     prisma.stageReservation.update.mockResolvedValue({});
 
@@ -177,6 +216,9 @@ describe('POST /api/stages/[slug]/reservations/[id]/confirm', () => {
     prisma.user.findUnique.mockResolvedValue({
       id: 'user-existing',
       email: 'eleve@example.com',
+      role: 'ELEVE',
+      activatedAt: null,
+      student: { id: 'student-existing' },
     });
     prisma.stageReservation.update.mockResolvedValue({});
 
@@ -191,6 +233,9 @@ describe('POST /api/stages/[slug]/reservations/[id]/confirm', () => {
     prisma.user.findUnique.mockResolvedValue({
       id: 'user-existing',
       email: 'eleve@example.com',
+      role: 'ELEVE',
+      activatedAt: null,
+      student: { id: 'student-existing' },
     });
     prisma.stageReservation.update.mockResolvedValue({});
 
@@ -208,12 +253,16 @@ describe('POST /api/stages/[slug]/reservations/[id]/confirm', () => {
     prisma.user.findUnique.mockResolvedValue({
       id: 'user-existing',
       email: 'eleve@example.com',
+      role: 'ELEVE',
+      activatedAt: null,
+      student: { id: 'student-existing' },
     });
     prisma.stageReservation.update.mockResolvedValue({});
 
     await POST(makeRequest(), { params });
 
     expect(mockSendMail).toHaveBeenCalledWith(
+      expect.anything(),
       expect.objectContaining({
         to: 'eleve@example.com',
         subject: expect.stringContaining('Printemps 2026'),
@@ -221,6 +270,7 @@ describe('POST /api/stages/[slug]/reservations/[id]/confirm', () => {
       })
     );
     expect(mockSendMail).toHaveBeenCalledWith(
+      expect.anything(),
       expect.objectContaining({
         html: expect.stringContaining('source=stage'),
       })

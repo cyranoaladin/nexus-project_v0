@@ -1,0 +1,58 @@
+schemaVersion: nexus-cps-catalog/v1
+slug: 2de-snt-vers-premiere-v1
+version: 1
+nodes:
+  - id: 2de.snt.representation.binaire
+    sequenceOrder: 1
+    label: Représentation binaire des entiers
+    sourceLevel: SECONDE
+    targetLevel: PREMIERE
+    pedagogicalRationale: le thème « représentation des données » ouvre l'année. Sans la numération binaire, ni les entiers signés, ni les flottants, ni l'encodage des caractères ne sont abordables.
+  - id: 2de.snt.programmation.variables-affectation
+    sequenceOrder: 2
+    label: Variables et affectation
+    sourceLevel: SECONDE
+    targetLevel: PREMIERE
+    pedagogicalRationale: confondre l'affectation avec l'égalité mathématique empêche de suivre l'exécution d'un programme, donc de le corriger.
+  - id: 2de.snt.programmation.conditions-booleens
+    sequenceOrder: 3
+    label: Conditions et logique booléenne
+    sourceLevel: SECONDE
+    targetLevel: PREMIERE
+    pedagogicalRationale: les conditions gouvernent tout algorithme. Une négation mal formée produit un programme qui semble juste et se trompe sur les cas limites.
+  - id: 2de.snt.programmation.boucles
+    sequenceOrder: 4
+    label: Boucles bornées et non bornées
+    sourceLevel: SECONDE
+    targetLevel: PREMIERE
+    pedagogicalRationale: le choix entre for et while, et le décompte exact des itérations, conditionnent les algorithmes de parcours et de tri étudiés en Première.
+  - id: 2de.snt.programmation.listes
+    sequenceOrder: 5
+    label: Listes et indexation
+    sourceLevel: SECONDE
+    targetLevel: PREMIERE
+    pedagogicalRationale: les types construits, les tableaux et les algorithmes de tri de Première reposent tous sur l'indexation, dont le départ à zéro est une source d'erreurs durable.
+  - id: 2de.snt.programmation.fonctions
+    sequenceOrder: 6
+    label: "Fonctions : paramètres et valeur de retour"
+    sourceLevel: SECONDE
+    targetLevel: PREMIERE
+    pedagogicalRationale: la spécification et la mise au point des fonctions occupent une place centrale en Première. Confondre paramètre, argument et valeur retournée rend tout débogage impossible.
+  - id: 2de.snt.web.structure-presentation
+    sequenceOrder: 7
+    label: "Web : structure, présentation, modèle client-serveur"
+    sourceLevel: SECONDE
+    targetLevel: PREMIERE
+    pedagogicalRationale: le thème « interactions homme-machine sur le Web » suppose de distinguer ce qui structure, ce qui met en forme et ce qui rend interactif.
+  - id: 2de.snt.reseaux.internet
+    sequenceOrder: 8
+    label: Réseaux et Internet
+    sourceLevel: SECONDE
+    targetLevel: PREMIERE
+    pedagogicalRationale: le thème « architectures matérielles et systèmes » de Première approfondit l'adressage, le routage et les protocoles introduits en Seconde.
+  - id: 2de.snt.donnees.structuration
+    sequenceOrder: 9
+    label: Données structurées
+    sourceLevel: SECONDE
+    targetLevel: PREMIERE
+    pedagogicalRationale: le traitement des données en tables, objet entier d'un thème de Première, suppose de savoir ce qu'est un enregistrement, un attribut et une métadonnée.

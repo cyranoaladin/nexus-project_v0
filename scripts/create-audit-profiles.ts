@@ -14,7 +14,7 @@ async function main() {
   // 1. ADMIN
   await prisma.user.upsert({
     where: { email: 'audit.admin@nexusreussite.academy' },
-    update: { password: hashedPassword, activatedAt: now },
+    update: { password: hashedPassword, activatedAt: now, sessionVersion: { increment: 1 } },
     create: {
       email: 'audit.admin@nexusreussite.academy',
       password: hashedPassword,
@@ -28,7 +28,7 @@ async function main() {
   // 2. ASSISTANTE
   await prisma.user.upsert({
     where: { email: 'audit.assistante@nexusreussite.academy' },
-    update: { password: hashedPassword, activatedAt: now },
+    update: { password: hashedPassword, activatedAt: now, sessionVersion: { increment: 1 } },
     create: {
       email: 'audit.assistante@nexusreussite.academy',
       password: hashedPassword,
@@ -42,7 +42,7 @@ async function main() {
   // 3. COACH (Assigned)
   const coachAssigned = await prisma.user.upsert({
     where: { email: 'audit.coach.assigned@nexusreussite.academy' },
-    update: { password: hashedPassword, activatedAt: now },
+    update: { password: hashedPassword, activatedAt: now, sessionVersion: { increment: 1 } },
     create: {
       email: 'audit.coach.assigned@nexusreussite.academy',
       password: hashedPassword,
@@ -68,7 +68,7 @@ async function main() {
   // 4. COACH (Idle)
   const coachIdle = await prisma.user.upsert({
     where: { email: 'audit.coach.idle@nexusreussite.academy' },
-    update: { password: hashedPassword, activatedAt: now },
+    update: { password: hashedPassword, activatedAt: now, sessionVersion: { increment: 1 } },
     create: {
       email: 'audit.coach.idle@nexusreussite.academy',
       password: hashedPassword,
@@ -94,7 +94,7 @@ async function main() {
   // 5. PARENT
   const parent = await prisma.user.upsert({
     where: { email: 'audit.parent@nexusreussite.academy' },
-    update: { password: hashedPassword, activatedAt: now },
+    update: { password: hashedPassword, activatedAt: now, sessionVersion: { increment: 1 } },
     create: {
       email: 'audit.parent@nexusreussite.academy',
       password: hashedPassword,
@@ -114,7 +114,7 @@ async function main() {
   // 6. STUDENT (P1 - Première)
   const studentP1 = await prisma.user.upsert({
     where: { email: 'audit.student.p1@nexusreussite.academy' },
-    update: { password: hashedPassword, activatedAt: now },
+    update: { password: hashedPassword, activatedAt: now, sessionVersion: { increment: 1 } },
     create: {
       email: 'audit.student.p1@nexusreussite.academy',
       password: hashedPassword,
@@ -139,7 +139,7 @@ async function main() {
   // 7. STUDENT (T - Terminale)
   const studentT = await prisma.user.upsert({
     where: { email: 'audit.student.t@nexusreussite.academy' },
-    update: { password: hashedPassword, activatedAt: now },
+    update: { password: hashedPassword, activatedAt: now, sessionVersion: { increment: 1 } },
     create: {
       email: 'audit.student.t@nexusreussite.academy',
       password: hashedPassword,
@@ -164,7 +164,7 @@ async function main() {
   // 8. STUDENT (Pending)
   const studentPending = await prisma.user.upsert({
     where: { email: 'audit.student.pending@nexusreussite.academy' },
-    update: { activatedAt: null, password: hashedPassword },
+    update: { activatedAt: null, password: hashedPassword, sessionVersion: { increment: 1 } },
     create: {
       email: 'audit.student.pending@nexusreussite.academy',
       password: hashedPassword,

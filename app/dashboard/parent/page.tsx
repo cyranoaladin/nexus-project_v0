@@ -1,19 +1,20 @@
 "use client";
-import { useEffect, useState, useCallback } from "react";
+import { AlertCircle,CreditCard,Loader2,LogOut,TrendingUp,Users } from "lucide-react";
+import { signOut,useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { signOut, useSession } from "next-auth/react";
-import { Loader2, Users, CreditCard, LogOut, TrendingUp, AlertCircle } from "lucide-react";
+import { useCallback,useEffect,useState } from "react";
 
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card,CardContent,CardHeader,CardTitle } from "@/components/ui/card";
 
-import { ChildCard } from "@/components/dashboard/parent/ChildCard";
 import { AlertsConsolidated } from "@/components/dashboard/parent/AlertsConsolidated";
+import { ChildCard,type ParentDashboardChild } from "@/components/dashboard/parent/ChildCard";
+import { BilanGratuitBanner } from "@/components/dashboard/BilanGratuitBanner";
 import AddChildDialog from "./add-child-dialog";
 
 interface ParentDashboardData {
-  children: any[];
+  children: ParentDashboardChild[];
 }
 
 export default function DashboardParent() {
@@ -23,6 +24,7 @@ export default function DashboardParent() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [activeRubrique, setActiveRubrique] = useState<'enfants' | 'facturation' | 'alertes'>('enfants');
+  const [addChildOpen, setAddChildOpen] = useState(false);
 
   const refreshDashboardData = useCallback(async () => {
     try {
@@ -76,7 +78,7 @@ export default function DashboardParent() {
   }
 
   // Consolidate alerts from all children
-  const allAlerts = (dashboardData?.children || []).flatMap((child: any) => 
+  const allAlerts = (dashboardData?.children || []).flatMap((child) =>
     (child.alerts || []).map((msg: string, i: number) => ({
       id: `${child.id}-${i}`,
       type: 'WARNING' as const,
@@ -108,16 +110,18 @@ export default function DashboardParent() {
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="space-y-6">
+          <BilanGratuitBanner onGoToChildren={() => { setActiveRubrique('enfants'); setAddChildOpen(true); }} />
+
           {/* Rubriques Switcher */}
           <div className="flex flex-wrap gap-2 p-1 bg-white/5 border border-white/10 rounded-xl">
-            {[
+            {([
               { id: 'enfants', label: 'Mes Enfants' },
               { id: 'facturation', label: 'Facturation' },
               { id: 'alertes', label: 'Alertes' },
-            ].map((tab) => (
+            ] satisfies Array<{ id: typeof activeRubrique; label: string }>).map((tab) => (
               <Button
                 key={tab.id}
-                onClick={() => setActiveRubrique(tab.id as any)}
+                onClick={() => setActiveRubrique(tab.id)}
                 variant={activeRubrique === tab.id ? 'default' : 'ghost'}
                 className={`flex-1 min-w-[120px] rounded-lg transition-all ${
                   activeRubrique === tab.id
@@ -140,12 +144,12 @@ export default function DashboardParent() {
                     {dashboardData?.children.length || 0}
                   </Badge>
                 </h2>
-                <AddChildDialog onChildAdded={refreshDashboardData} />
+                <AddChildDialog onChildAdded={refreshDashboardData} open={addChildOpen} onOpenChange={setAddChildOpen} />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {dashboardData?.children.map((child) => (
-                  <ChildCard key={child.id} child={child as any} />
+                  <ChildCard key={child.id} child={child} />
                 ))}
               </div>
             </div>

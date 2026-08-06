@@ -125,6 +125,7 @@ async function main() {
       id: fixtureData.parent.id,
       email: fixtureData.parent.email,
       password: hashedPassword,
+      activatedAt: new Date('2025-11-01T00:00:00.000Z'),
       role: UserRole.PARENT,
       firstName: fixtureData.parent.firstName,
       lastName: fixtureData.parent.lastName,

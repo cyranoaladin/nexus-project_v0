@@ -11,17 +11,17 @@ jest.mock('@/lib/guards', () => ({
   isErrorResponse: jest.fn((result) => result && typeof result === 'object' && 'status' in result),
 }));
 
-jest.mock('@/lib/rate-limit', () => ({
-  guardRateLimitAsync: jest.fn().mockResolvedValue(null),
+jest.mock('@/lib/rate-limit/sensitive', () => ({
+  guardSensitiveRateLimit: jest.fn().mockResolvedValue(null),
 }));
 
 import { GET } from '@/app/api/admin/directeur/stats/route';
 import { requireRole } from '@/lib/guards';
-import { guardRateLimitAsync } from '@/lib/rate-limit';
+import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive';
 import { NextRequest } from 'next/server';
 
 const mockRequireRole = requireRole as jest.Mock;
-const mockGuardRateLimit = guardRateLimitAsync as jest.Mock;
+const mockGuardRateLimit = guardSensitiveRateLimit as jest.Mock;
 
 let prisma: any;
 

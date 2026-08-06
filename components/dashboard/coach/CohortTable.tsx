@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Eye, TrendingUp } from "lucide-react";
 import Link from "next/link";
 
-interface StudentRow {
+export interface StudentRow {
   id: string;
   userId?: string;
   name: string;

@@ -1,9 +1,9 @@
+import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive';
 export const dynamic = 'force-dynamic';
 
 import { prisma } from '@/lib/prisma';
 import { NextRequest } from 'next/server';
 import { requireRole, isErrorResponse } from '@/lib/guards';
-import { RateLimitPresets } from '@/lib/middleware/rateLimit';
 import { createLogger } from '@/lib/middleware/logger';
 import { successResponse, handleApiError } from '@/lib/api/errors';
 import { UserRole } from '@/types/enums';
@@ -16,12 +16,22 @@ export async function GET(request: NextRequest) {
 
   try {
     // Rate limiting
-    const rateLimitResult = RateLimitPresets.api(request, 'student-sessions');
+    const rateLimitResult = await guardSensitiveRateLimit(request, {
+      scope: 'student-sessions',
+      dimensions: ['ip'],
+    });
     if (rateLimitResult) return rateLimitResult;
 
     // Require ELEVE role
     const session = await requireRole(UserRole.ELEVE);
     if (isErrorResponse(session)) return session;
+
+    const identityBlocked = await guardSensitiveRateLimit(request, {
+      scope: 'student-sessions',
+      identity: session.user.id,
+      dimensions: ['identity'],
+    });
+    if (identityBlocked) return identityBlocked;
 
     // Update logger with session context
     logger = createLogger(request, session);

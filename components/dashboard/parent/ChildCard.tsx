@@ -1,18 +1,20 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Calendar, TrendingUp, AlertTriangle, ArrowRight, User } from "lucide-react";
+import { Card,CardContent,CardHeader,CardTitle } from "@/components/ui/card";
+import { AlertTriangle,ArrowRight,Calendar,KeyRound,Loader2,User } from "lucide-react";
 import Link from "next/link";
+import { useState } from "react";
 
-interface ChildCardProps {
-  child: {
+export interface ParentDashboardChild {
     id: string;
     firstName: string;
     lastName: string;
+    email: string;
     gradeLevel: string;
     academicTrack: string;
+    activationStatus: 'PENDING_ACTIVATION' | 'ACTIVE';
+    activationExpiresAt: string | null;
     nexusIndex?: number;
     nextSession?: {
       subject: string;
@@ -20,11 +22,50 @@ interface ChildCardProps {
     } | null;
     alerts?: string[];
     lastBilanDate?: string | null;
-  };
+    subscriptionDetails?: { monthlyPrice?: number } | null;
+    progressionHistory?: Array<{ date: string; nexusIndex: number; ssn: number; uai: number }>;
+    sessions?: Array<{
+      id: string;
+      subject: string;
+      scheduledAt: string;
+      coachName: string;
+    }>;
+    subscription?: string | null;
+}
+
+interface ChildCardProps {
+  child: ParentDashboardChild;
 }
 
 export function ChildCard({ child }: ChildCardProps) {
   const hasAlerts = child.alerts && child.alerts.length > 0;
+  const [activationLoading, setActivationLoading] = useState(false);
+  const [activationError, setActivationError] = useState(false);
+  const [activation, setActivation] = useState<null | {
+    activationUrl: string;
+    expiresAt: string;
+    loginIdentifier: string;
+  }>(null);
+
+  const issueActivation = async () => {
+    setActivationLoading(true);
+    setActivationError(false);
+    try {
+      const response = await fetch(`/api/parent/children/${encodeURIComponent(child.id)}/activation`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      if (!response.ok) throw new Error('ACTIVATION_UNAVAILABLE');
+      const body = await response.json() as { activation?: typeof activation };
+      if (!body.activation) throw new Error('ACTIVATION_UNAVAILABLE');
+      setActivation(body.activation);
+    } catch {
+      setActivation(null);
+      setActivationError(true);
+    } finally {
+      setActivationLoading(false);
+    }
+  };
 
   return (
     <Card className="bg-surface-card border-white/10 hover:border-brand-accent/40 transition-all group overflow-hidden">
@@ -75,6 +116,42 @@ export function ChildCard({ child }: ChildCardProps) {
             </span>
           )}
         </div>
+
+        {child.activationStatus === 'PENDING_ACTIVATION' && (
+          <div className="space-y-3 rounded-lg border border-amber-400/30 bg-amber-400/10 p-3">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="text-xs font-semibold text-amber-100">Compte élève à activer</p>
+                <p className="text-xs text-neutral-300">Le lien est réservé à cet enfant et expire après 72 heures.</p>
+              </div>
+              <KeyRound className="h-4 w-4 shrink-0 text-amber-300" aria-hidden="true" />
+            </div>
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full border-amber-300/30 text-amber-100 hover:bg-amber-300/10"
+              disabled={activationLoading}
+              onClick={issueActivation}
+            >
+              {activationLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" /> : null}
+              Activer le compte élève
+            </Button>
+            {activationError ? (
+              <p role="alert" className="text-xs text-rose-200">Activation indisponible. Réessayez sans partager d’identifiant.</p>
+            ) : null}
+            {activation ? (
+              <div className="space-y-2 rounded-md bg-black/20 p-3 text-xs text-neutral-200">
+                <p>Identifiant de connexion : <span className="font-semibold text-white">{activation.loginIdentifier}</span></p>
+                <a
+                  href={activation.activationUrl}
+                  className="inline-flex font-semibold text-brand-accent underline underline-offset-4"
+                >
+                  Ouvrir l’activation
+                </a>
+              </div>
+            ) : null}
+          </div>
+        )}
 
         {/* Action Button */}
         <Link href={`/dashboard/parent/enfant/${child.id}`} className="block w-full">

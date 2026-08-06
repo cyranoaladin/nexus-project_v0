@@ -1,3 +1,4 @@
+import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive';
 import { serializeError } from '@/lib/utils/serialize-error';
 /**
  * Universal Assessment Submission API
@@ -23,11 +24,13 @@ import { scoringResultSchema } from '@/lib/assessments/core/schemas';
 import { submitAssessmentSchema, type SubmitAssessmentResponse } from './types';
 import { headers } from 'next/headers';
 import { backfillCanonicalDomains } from '@/lib/assessments/core/config';
-import { guardRateLimitAsync } from '@/lib/rate-limit';
 
 export async function POST(request: NextRequest) {
   try {
-    const blocked = await guardRateLimitAsync(request, { preset: 'expensive', keySuffix: 'assessments-submit' });
+    const blocked = await guardSensitiveRateLimit(request, {
+      scope: 'assessment-submit',
+      dimensions: ['ip'],
+    });
     if (blocked) return blocked;
 
     // Parse and validate request
@@ -46,6 +49,13 @@ export async function POST(request: NextRequest) {
     }
 
     const { subject, grade, assessmentVersion, studentData, answers, duration, metadata } = validationResult.data;
+
+    const identityBlocked = await guardSensitiveRateLimit(request, {
+      scope: 'assessment-submit',
+      identity: studentData.email,
+      dimensions: ['identity'],
+    });
+    if (identityBlocked) return identityBlocked;
 
     // Get user agent and IP for tracking
     const headersList = await headers();
@@ -69,6 +79,17 @@ export async function POST(request: NextRequest) {
         { status: 404 }
       );
     }
+
+    // Resource-limit guard keyed on the resolved canonical version (never the raw,
+    // optional, client-supplied one) so default submissions are still capped and
+    // arbitrary unknown version strings cannot be used to split the limit across
+    // unlimited buckets — they all collapse onto the same canonical fallback.
+    const resourceBlocked = await guardSensitiveRateLimit(request, {
+      scope: 'assessment-submit',
+      resource: resolvedVersion,
+      dimensions: ['resource'],
+    });
+    if (resourceBlocked) return resourceBlocked;
 
     // ─── Step 2: Convert Answers to StudentAnswer Format ────────────────────
 

@@ -1,13 +1,15 @@
 import { NextRequest } from 'next/server';
 import { POST } from '../../app/api/bilan-gratuit/route';
 import { prisma } from '../../lib/prisma';
-import { sendWelcomeParentEmail } from '../../lib/email';
+import { enqueueEmailIntent } from '../../lib/email/outbox';
+import { withParentStudentConsentTransaction } from '../../lib/bilans/parent-student-consent';
 
 jest.mock('bcryptjs');
 
 jest.mock('../../lib/rate-limit', () => ({
   guardRateLimit: jest.fn().mockReturnValue(null),
   guardRateLimitAsync: jest.fn().mockResolvedValue(null),
+  guardSensitiveRateLimit: jest.fn().mockResolvedValue(null),
 }));
 
 jest.mock('../../lib/csrf', () => ({
@@ -19,11 +21,32 @@ jest.mock('@paralleldrive/cuid2', () => ({
   createId: jest.fn().mockReturnValue('test-cuid-123'),
 }));
 
-jest.mock('../../lib/email', () => ({
-  sendWelcomeParentEmail: jest.fn().mockResolvedValue(undefined),
+jest.mock('../../lib/email/outbox', () => ({
+  enqueueEmailIntent: jest.fn().mockResolvedValue({ id: 'email-job-1' }),
 }));
 
-const mockSendWelcomeParentEmail = sendWelcomeParentEmail as jest.Mock;
+jest.mock('../../lib/email/outbox-scheduler', () => ({
+  kickEmailOutboxDrain: jest.fn(),
+}));
+
+jest.mock('../../lib/bilans/parent-student-consent', () => ({
+  withParentStudentConsentTransaction: jest.fn(),
+}));
+
+const mockEnqueueEmailIntent = enqueueEmailIntent as jest.Mock;
+const mockWithParentStudentConsentTransaction = withParentStudentConsentTransaction as jest.MockedFunction<
+  typeof withParentStudentConsentTransaction
+>;
+const mockPreparePending = jest.fn();
+const mockConsentTransactionImplementation: typeof withParentStudentConsentTransaction = (
+  database,
+  action,
+) => database.$transaction((transaction) => action({
+  transaction,
+  preparePending: mockPreparePending,
+  verify: jest.fn(),
+  getStatus: jest.fn(),
+}));
 
 describe('/api/bilan-gratuit', () => {
   const validRequestData = {
@@ -48,6 +71,18 @@ describe('/api/bilan-gratuit', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    mockPreparePending.mockResolvedValue({
+      id: 'canonical-link-123',
+      state: 'PENDING_PARENT_CONSENT',
+      consentedAt: null,
+      verifiedAt: null,
+    });
+    mockWithParentStudentConsentTransaction.mockImplementation(mockConsentTransactionImplementation);
+    process.env.NEXTAUTH_URL = 'https://nexus.test';
+  });
+
+  afterAll(() => {
+    delete process.env.NEXTAUTH_URL;
   });
 
   function buildRequest(body: Record<string, unknown>) {
@@ -97,9 +132,10 @@ describe('/api/bilan-gratuit', () => {
 
     expect(response.status).toBe(200);
     expect(body.success).toBe(true);
-    expect(body.message).toBe('Votre demande a bien été enregistrée. Un lien d’activation a été envoyé.');
-    expect(body.parentId).toBe('parent-123');
-    expect(body.studentId).toBe('student-profile-123');
+    expect(body.message).toContain('Si la demande peut etre traitee');
+    expect(body).not.toHaveProperty('parentId');
+    expect(body).not.toHaveProperty('studentId');
+    expect(response.headers.get('Cache-Control')).toContain('no-store');
 
     expect(userCreate).toHaveBeenNthCalledWith(
       1,
@@ -108,7 +144,7 @@ describe('/api/bilan-gratuit', () => {
           email: 'jean.dupont@test.com',
           password: null,
           activatedAt: null,
-          activationToken: expect.any(String),
+          activationToken: expect.stringMatching(/^[a-f0-9]{64}$/),
           activationExpiry: expect.any(Date),
         }),
       }),
@@ -132,12 +168,26 @@ describe('/api/bilan-gratuit', () => {
         }),
       }),
     );
-    expect(mockSendWelcomeParentEmail).toHaveBeenCalledWith(
-      'jean.dupont@test.com',
-      'Jean Dupont',
-      'Marie Dupont',
-      expect.stringContaining('/auth/activate?token='),
+    expect(mockWithParentStudentConsentTransaction).toHaveBeenCalledWith(
+      prisma,
+      expect.any(Function),
     );
+    expect(mockPreparePending).toHaveBeenCalledWith({
+      parentUserId: 'parent-123',
+      studentId: 'student-profile-123',
+      now: expect.any(Date),
+    });
+    expect(mockPreparePending).toHaveBeenCalledTimes(1);
+    expect(mockEnqueueEmailIntent).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({
+      to: 'jean.dupont@test.com',
+      subject: expect.any(String),
+      html: expect.stringContaining('https://nexus.test/auth/activate?token='),
+      text: expect.stringContaining('https://nexus.test/auth/activate?token='),
+    }));
+    const storedTokenHash = userCreate.mock.calls[0][0].data.activationToken;
+    const mailPayload = mockEnqueueEmailIntent.mock.calls[0][1];
+    expect(mailPayload.html).not.toContain(storedTokenHash);
+    expect(mailPayload.text).not.toMatch(/mot de passe temporaire/i);
   });
 
   it('never persists a campaign lead from a submitted campaignContext (Stage/Bilan boundary fail-closed)', async () => {
@@ -241,7 +291,7 @@ describe('/api/bilan-gratuit', () => {
     );
   });
 
-  it('returns 400 when parent email already exists', async () => {
+  it('returns the same non-enumerating response when parent email already exists', async () => {
     jest.spyOn(prisma.user, 'findUnique').mockResolvedValue({
       id: 'existing-user',
       email: 'jean.dupont@test.com',
@@ -250,9 +300,12 @@ describe('/api/bilan-gratuit', () => {
     const response = await POST(buildRequest(validRequestData));
     const body = await response.json();
 
-    expect(response.status).toBe(400);
-    expect(body.error).toBe('Un compte existe déjà avec cet email');
+    expect(response.status).toBe(200);
+    expect(body.success).toBe(true);
+    expect(body.message).toContain('Si la demande peut etre traitee');
+    expect(body).not.toHaveProperty('error');
     expect(prisma.$transaction).not.toHaveBeenCalled();
+    expect(mockEnqueueEmailIntent).not.toHaveBeenCalled();
   });
 
   it('returns 400 when validation fails (invalid email)', async () => {
@@ -288,8 +341,45 @@ describe('/api/bilan-gratuit', () => {
     expect(body.error).toBe('Erreur interne du serveur');
   });
 
-  it('continues even if email sending fails', async () => {
-    mockSendWelcomeParentEmail.mockRejectedValueOnce(new Error('Email service unavailable'));
+  it('aborts registration and sends no email when pending consent preparation fails', async () => {
+    const userCreate = jest.fn()
+      .mockResolvedValueOnce({
+        id: 'parent-123',
+        email: 'jean.dupont@test.com',
+        firstName: 'Jean',
+        lastName: 'Dupont',
+      })
+      .mockResolvedValueOnce({
+        id: 'student-123',
+        email: 'marie.dupont.test@nexus-student.local',
+        firstName: 'Marie',
+        lastName: 'Dupont',
+      });
+
+    jest.spyOn(prisma.user, 'findUnique').mockResolvedValue(null as never);
+    jest.spyOn(prisma, '$transaction').mockImplementation(async (callback: any) => callback({
+      user: { create: userCreate },
+      parentProfile: { create: jest.fn().mockResolvedValue({ id: 'parent-profile-123' }) },
+      student: { create: jest.fn().mockResolvedValue({ id: 'student-profile-123' }) },
+    } as any));
+    mockPreparePending.mockRejectedValueOnce(new Error('pending link failed'));
+
+    const response = await POST(buildRequest(validRequestData));
+    const body = await response.json();
+
+    expect(response.status).toBe(500);
+    expect(body.error).toBe('Erreur interne du serveur');
+    expect(mockPreparePending).toHaveBeenCalledWith({
+      parentUserId: 'parent-123',
+      studentId: 'student-profile-123',
+      now: expect.any(Date),
+    });
+    expect(mockEnqueueEmailIntent).not.toHaveBeenCalled();
+  });
+
+  it('aborts registration without leaking activation material when durable intent persistence fails', async () => {
+    const consoleError = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+    mockEnqueueEmailIntent.mockRejectedValueOnce(new Error('recognizable-raw-token-must-not-leak'));
 
     const userCreate = jest.fn()
       .mockResolvedValueOnce({
@@ -321,7 +411,47 @@ describe('/api/bilan-gratuit', () => {
     const response = await POST(buildRequest(validRequestData));
     const body = await response.json();
 
+    expect(response.status).toBe(500);
+    expect(body.error).toBe('Erreur interne du serveur');
+    expect(JSON.stringify(body)).not.toContain('recognizable-raw-token-must-not-leak');
+    expect(JSON.stringify(consoleError.mock.calls)).not.toContain('recognizable-raw-token-must-not-leak');
+    consoleError.mockRestore();
+  });
+
+  it('ignores a hostile Host header when building the activation email', async () => {
+    const userCreate = jest.fn()
+      .mockResolvedValueOnce({ id: 'parent-host', email: 'jean.dupont@test.com', firstName: 'Jean', lastName: 'Dupont' })
+      .mockResolvedValueOnce({ id: 'student-host', email: 'marie@nexus-student.local', firstName: 'Marie', lastName: 'Dupont' });
+    jest.spyOn(prisma.user, 'findUnique').mockResolvedValue(null as never);
+    jest.spyOn(prisma, '$transaction').mockImplementation(async (callback: any) => callback({
+      user: { create: userCreate },
+      parentProfile: { create: jest.fn().mockResolvedValue({ id: 'parent-profile-host' }) },
+      student: { create: jest.fn().mockResolvedValue({ id: 'student-profile-host' }) },
+    } as any));
+
+    const request = new NextRequest('http://attacker.example/api/bilan-gratuit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Host: 'attacker.example' },
+      body: JSON.stringify(validRequestData),
+    });
+    const response = await POST(request);
+    const mail = mockEnqueueEmailIntent.mock.calls[0][1];
+
+    expect(response.status).toBe(200);
+    expect(mail.html).toContain('https://nexus.test/auth/activate?token=');
+    expect(mail.html).not.toContain('attacker.example');
+  });
+
+  it('treats a concurrent parent email uniqueness race as the same public success', async () => {
+    jest.spyOn(prisma.user, 'findUnique').mockResolvedValue(null as never);
+    jest.spyOn(prisma, '$transaction').mockRejectedValue({ code: 'P2002', meta: { target: ['email'] } });
+
+    const response = await POST(buildRequest(validRequestData));
+    const body = await response.json();
+
     expect(response.status).toBe(200);
     expect(body.success).toBe(true);
+    expect(body).not.toHaveProperty('error');
+    expect(mockEnqueueEmailIntent).not.toHaveBeenCalled();
   });
 });

@@ -1,0 +1,58 @@
+schemaVersion: nexus-cps-catalog/v1
+slug: 2de-physique-chimie-vers-premiere-v1
+version: 1
+nodes:
+  - id: 2de.physique-chimie.matiere.mole-masse-molaire
+    sequenceOrder: 1
+    label: Quantité de matière, mole et masse molaire
+    sourceLevel: SECONDE
+    targetLevel: PREMIERE
+    pedagogicalRationale: tout le thème « constitution et transformations de la matière » repose sur la mole. Sans elle, ni les tableaux d'avancement, ni les dosages ne sont abordables.
+  - id: 2de.physique-chimie.matiere.solutions-concentration
+    sequenceOrder: 2
+    label: Concentration et dilution
+    sourceLevel: SECONDE
+    targetLevel: PREMIERE
+    pedagogicalRationale: les dosages par étalonnage et par titrage, travaillés dès l'automne, supposent une manipulation sûre des concentrations et la conservation de la quantité de soluté.
+  - id: 2de.physique-chimie.transformations.equation-reaction
+    sequenceOrder: 3
+    label: Équation de réaction et réactif limitant
+    sourceLevel: SECONDE
+    targetLevel: PREMIERE
+    pedagogicalRationale: le tableau d'avancement, outil central de la Première, exige une équation correctement ajustée et l'identification du réactif limitant.
+  - id: 2de.physique-chimie.matiere.atome-ion-classification
+    sequenceOrder: 4
+    label: Atome, ion et classification périodique
+    sourceLevel: SECONDE
+    targetLevel: PREMIERE
+    pedagogicalRationale: la cohésion de la matière, les liaisons et la réactivité étudiées en Première découlent de la structure électronique et de la position dans le tableau.
+  - id: 2de.physique-chimie.mecanique.forces-inertie
+    sequenceOrder: 5
+    label: Forces et principe d'inertie
+    sourceLevel: SECONDE
+    targetLevel: PREMIERE
+    pedagogicalRationale: les lois de Newton, étudiées en Première, généralisent le principe d'inertie. Croire qu'un mouvement exige une force est l'obstacle le plus tenace de toute la mécanique.
+  - id: 2de.physique-chimie.mecanique.mouvement-referentiel
+    sequenceOrder: 6
+    label: Mouvement, référentiel et vitesse
+    sourceLevel: SECONDE
+    targetLevel: PREMIERE
+    pedagogicalRationale: la cinématique vectorielle de Première suppose de savoir qu'un mouvement n'a de sens que rapporté à un référentiel, et de manipuler correctement les durées.
+  - id: 2de.physique-chimie.ondes.lumiere-spectres
+    sequenceOrder: 7
+    label: Ondes, lumière et spectres
+    sourceLevel: SECONDE
+    targetLevel: PREMIERE
+    pedagogicalRationale: le thème « ondes et signaux » de Première prolonge l'étude de la lumière, des spectres et de la réfraction abordée en Seconde.
+  - id: 2de.physique-chimie.electricite.circuits-loi-ohm
+    sequenceOrder: 8
+    label: Circuits électriques
+    sourceLevel: SECONDE
+    targetLevel: PREMIERE
+    pedagogicalRationale: l'étude de l'énergie électrique et des circuits en Première suppose la loi d'Ohm et le comportement des grandeurs dans les montages en série et en dérivation.
+  - id: 2de.physique-chimie.mesure.grandeurs-unites
+    sequenceOrder: 9
+    label: Grandeurs, unités et chiffres significatifs
+    sourceLevel: SECONDE
+    targetLevel: PREMIERE
+    pedagogicalRationale: c'est le prérequis le plus silencieux. Une conversion manquée ou un résultat mal arrondi fausse une réponse dont le raisonnement était juste, et le diagnostic passe alors à côté de la cause.

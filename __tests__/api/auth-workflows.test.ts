@@ -14,8 +14,8 @@ import { NextRequest } from 'next/server';
 
 // ─── Mocks ──────────────────────────────────────────────────────────────────
 
-jest.mock('@/lib/prisma', () => ({
-  prisma: {
+jest.mock('@/lib/prisma', () => {
+  const prisma = {
     user: {
       findUnique: jest.fn().mockResolvedValue(null),
       findFirst: jest.fn().mockResolvedValue(null),
@@ -40,12 +40,19 @@ jest.mock('@/lib/prisma', () => ({
         updatedAt: new Date('2026-06-14T00:00:00.000Z'),
       }),
     },
-  },
-}));
+  };
+  return {
+    prisma: Object.assign(prisma, {
+      $transaction: jest.fn(async (operation: (tx: typeof prisma) => unknown) => operation(prisma)),
+      jobOutbox: { create: jest.fn().mockResolvedValue({ id: 'job-1' }) },
+    }),
+  };
+});
 
-jest.mock('@/lib/rate-limit', () => ({
+jest.mock('@/lib/rate-limit/sensitive', () => ({
   guardRateLimit: jest.fn().mockReturnValue(null),
   guardRateLimitAsync: jest.fn().mockResolvedValue(null),
+  guardSensitiveRateLimit: jest.fn().mockResolvedValue(null),
 }));
 
 jest.mock('@/lib/csrf', () => ({

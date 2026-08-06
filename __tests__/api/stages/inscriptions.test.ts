@@ -1,5 +1,5 @@
-jest.mock('@/lib/email/mailer', () => ({
-  sendMail: jest.fn().mockResolvedValue({ ok: true }),
+jest.mock('@/lib/email/outbox', () => ({
+  enqueueEmailIntent: jest.fn().mockResolvedValue({ id: 'job-1' }),
 }));
 
 jest.mock('@/lib/telegram/client', () => ({
@@ -9,10 +9,10 @@ jest.mock('@/lib/telegram/client', () => ({
 import { NextRequest } from 'next/server';
 
 import { POST } from '@/app/api/stages/[stageSlug]/inscrire/route';
-import { sendMail } from '@/lib/email/mailer';
+import { enqueueEmailIntent } from '@/lib/email/outbox';
 import { telegramSendMessage } from '@/lib/telegram/client';
 
-const mockSendMail = sendMail as jest.Mock;
+const mockSendMail = enqueueEmailIntent as jest.Mock;
 const mockTelegramSendMessage = telegramSendMessage as jest.Mock;
 
 let prisma: any;
@@ -148,10 +148,11 @@ describe('POST /api/stages/[slug]/inscrire', () => {
     await POST(makeRequest(validBody), { params });
 
     expect(mockSendMail).toHaveBeenCalledWith(
+      expect.anything(),
       expect.objectContaining({
         to: 'aya@example.com',
         subject: expect.stringContaining('Printemps 2026'),
-      })
+      }),
     );
   });
 

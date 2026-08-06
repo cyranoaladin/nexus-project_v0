@@ -1,10 +1,10 @@
-import { NextResponse } from 'next/server';
-import { requireAnyRole, isErrorResponse } from '@/lib/guards';
-import { can } from '@/lib/rbac';
+import { isErrorResponse,requireAnyRole } from '@/lib/guards';
 import { prisma } from '@/lib/prisma';
-import { AssignmentStatus, Subject } from '@prisma/client';
-import { z } from 'zod';
+import { can } from '@/lib/rbac';
 import { serializeError } from '@/lib/utils/serialize-error';
+import { AssignmentStatus,Subject } from '@prisma/client';
+import { NextResponse } from 'next/server';
+import { z } from 'zod';
 
 // Validation schema for updating assignments
 const updateAssignmentSchema = z.object({
@@ -130,7 +130,7 @@ export async function PATCH(request: Request, { params }: RouteParams) {
     }
 
     // Build update data
-    const updateData: any = {
+    const updateData: import('@prisma/client').Prisma.CoachStudentAssignmentUpdateInput = {
       updatedAt: new Date(),
     };
 

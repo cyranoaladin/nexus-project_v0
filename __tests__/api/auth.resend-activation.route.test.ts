@@ -1,13 +1,16 @@
-jest.mock('@/lib/email/mailer', () => ({
-  sendMail: jest.fn().mockResolvedValue({ ok: true }),
+jest.mock('@/lib/email/outbox', () => ({
+  enqueueEmailIntent: jest.fn().mockResolvedValue({ id: 'email-job-1' }),
+}));
+jest.mock('@/lib/email/outbox-scheduler', () => ({
+  kickEmailOutboxDrain: jest.fn(),
 }));
 
 import { POST } from '@/app/api/auth/resend-activation/route';
-import { sendMail } from '@/lib/email/mailer';
+import { enqueueEmailIntent } from '@/lib/email/outbox';
 import { NextRequest } from 'next/server';
 import { _resetStoreForTests } from '@/lib/rate-limit';
 
-const mockSendMail = sendMail as jest.Mock;
+const mockEnqueueEmailIntent = enqueueEmailIntent as jest.Mock;
 
 let prisma: any;
 
@@ -16,7 +19,9 @@ beforeEach(async () => {
   prisma = (mod as any).prisma;
   jest.clearAllMocks();
   _resetStoreForTests();
-  delete process.env.NEXTAUTH_URL;
+  process.env.NEXTAUTH_URL = 'http://localhost:3000';
+  prisma.user.updateMany.mockResolvedValue({ count: 1 });
+  prisma.$transaction.mockImplementation(async (callback: (transaction: typeof prisma) => unknown) => callback(prisma));
 });
 
 function makeRequest(body: Record<string, unknown>): NextRequest {
@@ -42,7 +47,8 @@ describe('POST /api/auth/resend-activation', () => {
 
     expect(res.status).toBe(200);
     expect(body.success).toBe(true);
-    expect(mockSendMail).not.toHaveBeenCalled();
+    expect(res.headers.get('Cache-Control')).toContain('no-store');
+    expect(mockEnqueueEmailIntent).not.toHaveBeenCalled();
   });
 
   it('returns success for already activated account without sending mail', async () => {
@@ -59,7 +65,7 @@ describe('POST /api/auth/resend-activation', () => {
     expect(res.status).toBe(200);
     expect(body.success).toBe(true);
     expect(prisma.user.update).not.toHaveBeenCalled();
-    expect(mockSendMail).not.toHaveBeenCalled();
+    expect(mockEnqueueEmailIntent).not.toHaveBeenCalled();
   });
 
   it('stores a new activation token and sends email for inactive student', async () => {
@@ -69,24 +75,26 @@ describe('POST /api/auth/resend-activation', () => {
       firstName: 'Ines',
       activatedAt: null,
       role: 'ELEVE',
+      activationToken: null,
+      activationExpiry: null,
     });
-    prisma.user.update.mockResolvedValue({});
 
     const res = await POST(makeRequest({ email: 'inactive@example.com' }));
     const body = await res.json();
 
     expect(res.status).toBe(200);
     expect(body.success).toBe(true);
-    expect(prisma.user.update).toHaveBeenCalledWith(
+    expect(prisma.user.updateMany).toHaveBeenCalledWith(
       expect.objectContaining({
-        where: { id: 'user-2' },
+        where: expect.objectContaining({ id: 'user-2', activatedAt: null }),
         data: expect.objectContaining({
           activationToken: expect.any(String),
           activationExpiry: expect.any(Date),
         }),
       })
     );
-    expect(mockSendMail).toHaveBeenCalledWith(
+    expect(mockEnqueueEmailIntent).toHaveBeenCalledWith(
+      expect.anything(),
       expect.objectContaining({
         to: 'inactive@example.com',
         subject: expect.stringContaining('Activation'),
@@ -95,23 +103,100 @@ describe('POST /api/auth/resend-activation', () => {
     );
   });
 
-  it('silently throttles repeated requests within 15 minutes', async () => {
+  it('allows bounded reissue requests under the account and IP limits', async () => {
     prisma.user.findUnique.mockResolvedValue({
       id: 'user-3',
       email: 'throttle@example.com',
       firstName: 'Theo',
       activatedAt: null,
       role: 'ELEVE',
+      activationToken: null,
+      activationExpiry: null,
     });
-    prisma.user.update.mockResolvedValue({});
 
     const first = await POST(makeRequest({ email: 'throttle@example.com' }));
     const second = await POST(makeRequest({ email: 'throttle@example.com' }));
 
     expect(first.status).toBe(200);
     expect(second.status).toBe(200);
-    expect(prisma.user.update).toHaveBeenCalledTimes(1);
-    expect(mockSendMail).toHaveBeenCalledTimes(1);
+    expect(prisma.user.updateMany).toHaveBeenCalledTimes(2);
+    expect(mockEnqueueEmailIntent).toHaveBeenCalledTimes(2);
+  });
+
+  it('lets only one concurrent reissue replace and deliver the token', async () => {
+    prisma.user.findUnique.mockResolvedValue({
+      id: 'user-race',
+      email: 'race@example.com',
+      firstName: 'Race',
+      activatedAt: null,
+      activationToken: 'old-hash',
+      activationExpiry: new Date('2026-08-04T12:00:00Z'),
+      role: 'PARENT',
+    });
+    prisma.user.updateMany
+      .mockResolvedValueOnce({ count: 1 })
+      .mockResolvedValueOnce({ count: 0 });
+
+    const [first, second] = await Promise.all([
+      POST(makeRequest({ email: 'race@example.com' })),
+      POST(makeRequest({ email: 'race@example.com' })),
+    ]);
+
+    expect(first.status).toBe(200);
+    expect(second.status).toBe(200);
+    expect(mockEnqueueEmailIntent).toHaveBeenCalledTimes(1);
+  });
+
+  it('allows a safe retry after outbox persistence failure and never logs the raw token', async () => {
+    const consoleError = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+    prisma.user.findUnique.mockResolvedValue({
+      id: 'user-retry',
+      email: 'retry@example.com',
+      firstName: 'Retry',
+      activatedAt: null,
+      activationToken: null,
+      activationExpiry: null,
+      role: 'PARENT',
+    });
+    prisma.user.updateMany.mockResolvedValue({ count: 1 });
+    mockEnqueueEmailIntent
+      .mockRejectedValueOnce(new Error('recognizable-raw-token-must-not-leak'))
+      .mockResolvedValueOnce({ id: 'email-job-2' });
+
+    await POST(makeRequest({ email: 'retry@example.com' }));
+    await POST(makeRequest({ email: 'retry@example.com' }));
+
+    expect(mockEnqueueEmailIntent).toHaveBeenCalledTimes(2);
+    expect(JSON.stringify(consoleError.mock.calls)).not.toContain('recognizable-raw-token-must-not-leak');
+    consoleError.mockRestore();
+  });
+
+  it('uses NEXTAUTH_URL rather than hostile request forwarding headers', async () => {
+    process.env.NEXTAUTH_URL = 'https://nexus.test';
+    prisma.user.findUnique.mockResolvedValue({
+      id: 'user-host',
+      email: 'host@example.com',
+      firstName: 'Host',
+      activatedAt: null,
+      activationToken: null,
+      activationExpiry: null,
+      role: 'PARENT',
+    });
+
+    const request = new NextRequest('http://attacker.example/api/auth/resend-activation', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Host: 'attacker.example',
+        'X-Forwarded-Host': 'attacker.example',
+      },
+      body: JSON.stringify({ email: 'host@example.com' }),
+    });
+    await POST(request);
+
+    const mail = mockEnqueueEmailIntent.mock.calls[0][1];
+    expect(mail.html).toContain('https://nexus.test/auth/activate?token=');
+    expect(mail.html).not.toContain('attacker.example');
   });
 });
 
@@ -134,11 +219,11 @@ describe('POST /api/auth/resend-activation — rate limiting', () => {
     prisma.user.findUnique.mockResolvedValue(null);
 
     for (let i = 0; i < 3; i++) {
-      const resp = await POST(makeRequestWithIp(`test${i}@example.com`, '10.10.10.1'));
+      const resp = await POST(makeRequestWithIp('same-account@example.com', '10.10.10.1'));
       expect(resp.status).toBe(200);
     }
 
-    const blocked = await POST(makeRequestWithIp('test4@example.com', '10.10.10.1'));
+    const blocked = await POST(makeRequestWithIp('same-account@example.com', '10.10.10.1'));
     expect(blocked.status).toBe(429);
   });
 
@@ -146,10 +231,10 @@ describe('POST /api/auth/resend-activation — rate limiting', () => {
     prisma.user.findUnique.mockResolvedValue(null);
 
     for (let i = 0; i < 3; i++) {
-      await POST(makeRequestWithIp(`r${i}@example.com`, '10.10.10.2'));
+      await POST(makeRequestWithIp('retry-account@example.com', '10.10.10.2'));
     }
 
-    const resp = await POST(makeRequestWithIp('r3@example.com', '10.10.10.2'));
+    const resp = await POST(makeRequestWithIp('retry-account@example.com', '10.10.10.2'));
     expect(resp.status).toBe(429);
     const retryAfter = parseInt(resp.headers.get('Retry-After') || '0', 10);
     expect(retryAfter).toBeGreaterThan(0);
@@ -170,10 +255,10 @@ describe('POST /api/auth/resend-activation — rate limiting', () => {
     prisma.user.findUnique.mockResolvedValue(null);
 
     // Exhaust IP A
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < 30; i++) {
       await POST(makeRequestWithIp(`a${i}@example.com`, '10.10.10.4'));
     }
-    expect((await POST(makeRequestWithIp('a3@example.com', '10.10.10.4'))).status).toBe(429);
+    expect((await POST(makeRequestWithIp('a30@example.com', '10.10.10.4'))).status).toBe(429);
 
     // IP B should still work
     expect((await POST(makeRequestWithIp('b0@example.com', '10.10.10.5'))).status).toBe(200);

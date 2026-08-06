@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 import { Sidebar } from "@/components/navigation/Sidebar";
 import { Navbar } from "@/components/navigation/Navbar";
+import { auth } from '@/auth';
+import { redirect } from 'next/navigation';
+
+export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
   title: "Dashboard | Nexus Réussite",
@@ -10,11 +14,14 @@ export const metadata: Metadata = {
   },
 };
 
-export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
+  const session = await auth();
+  if (!session?.user) redirect('/auth/signin');
+
   return (
     <div className="dashboard-soft min-h-screen bg-surface-darker">
-      <Sidebar />
-      <Navbar />
+      <Sidebar user={session.user} />
+      <Navbar user={session.user} />
       <main id="main-content" className="lg:pl-[280px] pt-16">
         <div className="p-4 lg:p-6">
           {children}

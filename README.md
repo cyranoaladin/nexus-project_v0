@@ -410,7 +410,7 @@ Assistante confirme réservation → POST /api/stages/[slug]/reservations/[id]/c
 - **Session** : JWT strategy (pas d'adapter DB)
 - **Cookie** : `authjs.session-token` (httpOnly, sameSite: lax)
 - **CSRF** : Protection native NextAuth v5
-- **Rate Limiting** : Upstash Redis (configurable)
+- **Rate Limiting** : Redis distribué (obligatoire en production)
 - **Password Reset** : Tokens hashés, expiration, CSRF, rejet mots de passe courants
 - **Anti-Enumeration** : Réponse "success" systématique sur forgot password
 - **Élèves non activés** : Bloqués au login
@@ -947,8 +947,6 @@ docker compose -f docker-compose.v2.yml -f docker-compose.prod.v2.yml up -d [ser
 | `OLLAMA_TIMEOUT` | Timeout Ollama (ms) | `180000` |
 | `RAG_INGESTOR_URL` | URL FastAPI ingestor | `http://ingestor:8001` |
 | `RAG_SEARCH_TIMEOUT` | Timeout RAG (ms) | `10000` |
-| `UPSTASH_REDIS_REST_URL` | Redis rate limiting | (vide = désactivé) |
-| `UPSTASH_REDIS_REST_TOKEN` | Token Redis | — |
 | `SMTP_HOST` | Serveur SMTP | `smtp.hostinger.com` |
 | `SMTP_PORT` | Port SMTP (STARTTLS, pas 465) | `587` |
 | `SMTP_SECURE` | TLS implicite | `false` |
@@ -971,7 +969,14 @@ docker compose -f docker-compose.v2.yml -f docker-compose.prod.v2.yml up -d [ser
 
 ---
 
-## 18. Démarrage Rapide
+## 18. Environnement Docker local (vestigial — NON utilisé en production)
+
+> **AVERTISSEMENT — environnement local uniquement.** Les fichiers
+> `docker-compose.prod.yml` et `Dockerfile.prod` sont conservés comme outillage
+> historique/local. Ils ne décrivent pas la production de
+> `nexusreussite.academy` et ne doivent pas être utilisés pour la déployer. La
+> seule cible de production documentée est le serveur distant en **PM2
+> standalone derrière Nginx**, décrit au §16.
 
 ### Développement Local
 
@@ -994,11 +999,15 @@ npx prisma db seed    # 9 users de démo
 npm run dev           # http://localhost:3000
 ```
 
-### Production (Docker)
+### Simulation locale avec les fichiers Docker historiques
 
 ```bash
 docker compose -f docker-compose.prod.yml up -d
 ```
+
+Cette commande démarre un environnement Docker local. Elle ne constitue ni une
+procédure de production, ni une preuve de l'état servi par
+`https://nexusreussite.academy`.
 
 ### Scripts Utiles
 

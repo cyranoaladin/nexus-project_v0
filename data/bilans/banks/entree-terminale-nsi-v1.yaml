@@ -1,0 +1,501 @@
+# =============================================================================
+# Banque de positionnement — ENTRÉE EN TERMINALE, spécialité NSI
+#
+# Doctrine : intersection Première NSI / Terminale NSI. Chaque item porte sur un
+# prérequis structurant de Première (représentation des données, types construits,
+# programmation, algorithmique de base, tables, architecture). Aucun item ne teste
+# une notion de Terminale (POO, récursivité, arbres/graphes, SQL, programmation
+# dynamique, protocoles de routage).
+# Source de référence : programme officiel de NSI (eduscol).
+#
+# STATUT : DRAFT — proposition à amender par le responsable pédagogique.
+#
+# 18 items · 9 nœuds de prérequis · 2 items par nœud (règle V4)
+# Distribution des bonnes réponses : A=5, B=5, C=4, D=4 (règle V14 : max 40 %)
+# =============================================================================
+
+slug: entree-terminale-nsi-v1
+level: TERMINALE
+subject: NSI
+version: 1
+status: DRAFT
+targetDurationMin: 25
+
+items:
+
+  # ===========================================================================
+  # NŒUD 1 — Représentation des entiers (binaire, hexadécimal)
+  # Pourquoi structurant : la Terminale manipule tableaux d'octets, encodages et bases. Une conversion binaire mal maîtrisée bloque cette entrée.
+  # ===========================================================================
+  - id: ETN-NSI-BIN-01
+    nodeCpsId: 1re.nsi.representation.entiers-binaire-hexa
+    type: QCM_SIMPLE
+    difficulty: 1
+    targetTimeSec: 55
+    statement: "Quelle est l'écriture binaire de l'entier 13 ?"
+    options:
+      - key: A
+        label: "1011"
+        correct: false
+        distractorRationale: "Inverse l'ordre ou se trompe sur un bit : 1011 vaut 11."
+      - key: B
+        label: "1110"
+        correct: false
+        distractorRationale: "Vaut 14 : décale d'une unité."
+      - key: C
+        label: "1101"
+        correct: true
+      - key: D
+        label: "1100"
+        correct: false
+        distractorRationale: "Vaut 12 : oublie le bit des unités."
+    shortCorrection: "13 = 8 + 4 + 1 = 2³ + 2² + 2⁰, ce qui s'écrit 1101 en binaire."
+    tags: [representation, binaire]
+  - id: ETN-NSI-BIN-02
+    nodeCpsId: 1re.nsi.representation.entiers-binaire-hexa
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 60
+    statement: "Que vaut l'entier hexadécimal 0x1F en base 10 ?"
+    options:
+      - key: A
+        label: "31"
+        correct: true
+      - key: B
+        label: "15"
+        correct: false
+        distractorRationale: "Ne compte que le chiffre F et oublie le 1 des « seizaines »."
+      - key: C
+        label: "16"
+        correct: false
+        distractorRationale: "Ne retient que le poids du 1 sans ajouter F."
+      - key: D
+        label: "25"
+        correct: false
+        distractorRationale: "Traite F comme s'il valait 9."
+    shortCorrection: "0x1F = 1 × 16 + 15 = 31, car en hexadécimal F représente 15."
+    tags: [representation, hexadecimal]
+
+  # ===========================================================================
+  # NŒUD 2 — Booléens et logique
+  # Pourquoi structurant : conditions, tests et circuits reposent sur l'algèbre de Boole, réinvestie partout en Terminale.
+  # ===========================================================================
+  - id: ETN-NSI-LOG-01
+    nodeCpsId: 1re.nsi.booleens.logique
+    type: QCM_SIMPLE
+    difficulty: 1
+    targetTimeSec: 45
+    statement: "En Python, que vaut l'expression (True and not False) ?"
+    options:
+      - key: A
+        label: "False"
+        correct: false
+        distractorRationale: "Applique mal la négation : not False vaut True."
+      - key: B
+        label: "True"
+        correct: true
+      - key: C
+        label: "None"
+        correct: false
+        distractorRationale: "Confond une expression booléenne avec une absence de valeur."
+      - key: D
+        label: "0"
+        correct: false
+        distractorRationale: "Donne un entier là où l'expression est booléenne."
+    shortCorrection: "not False vaut True, et True and True vaut True."
+    tags: [booleens, logique]
+  - id: ETN-NSI-LOG-02
+    nodeCpsId: 1re.nsi.booleens.logique
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 55
+    statement: "L'expression « A OU B » est fausse uniquement lorsque :"
+    options:
+      - key: A
+        label: "A est vrai et B est faux"
+        correct: false
+        distractorRationale: "Dans ce cas A OU B est vrai grâce à A."
+      - key: B
+        label: "A et B sont tous les deux vrais"
+        correct: false
+        distractorRationale: "A OU B est alors vrai, pas faux."
+      - key: C
+        label: "A est faux et B est vrai"
+        correct: false
+        distractorRationale: "A OU B est alors vrai grâce à B."
+      - key: D
+        label: "A et B sont tous les deux faux"
+        correct: true
+    shortCorrection: "Une disjonction n'est fausse que si aucun des deux opérandes n'est vrai."
+    tags: [booleens, disjonction]
+
+  # ===========================================================================
+  # NŒUD 3 — Types construits : listes et indexation
+  # Pourquoi structurant : les structures de données de Terminale (piles, files, arbres) se construisent sur des listes bien comprises.
+  # ===========================================================================
+  - id: ETN-NSI-LST-01
+    nodeCpsId: 1re.nsi.types-construits.listes
+    type: QCM_SIMPLE
+    difficulty: 1
+    targetTimeSec: 45
+    statement: "En Python, on définit L = [10, 20, 30, 40]. Que vaut L[1] ?"
+    options:
+      - key: A
+        label: "20"
+        correct: true
+      - key: B
+        label: "10"
+        correct: false
+        distractorRationale: "Oublie que l'indexation commence à 0 : L[0] vaut 10."
+      - key: C
+        label: "30"
+        correct: false
+        distractorRationale: "Décale l'indice d'une unité de trop."
+      - key: D
+        label: "40"
+        correct: false
+        distractorRationale: "Prend le dernier élément au lieu du deuxième."
+    shortCorrection: "Les listes sont indexées à partir de 0 : L[0]=10, L[1]=20."
+    tags: [listes, indexation]
+  - id: ETN-NSI-LST-02
+    nodeCpsId: 1re.nsi.types-construits.listes
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 55
+    statement: "Après L = [1, 2, 3] puis L.append(4), que contient L ?"
+    options:
+      - key: A
+        label: "[4, 1, 2, 3]"
+        correct: false
+        distractorRationale: "append ajoute en fin de liste, pas au début."
+      - key: B
+        label: "[1, 2, 3, 4]"
+        correct: true
+      - key: C
+        label: "[1, 2, 3]"
+        correct: false
+        distractorRationale: "Oublie que append modifie la liste en y ajoutant un élément."
+      - key: D
+        label: "[1, 2, 4]"
+        correct: false
+        distractorRationale: "Remplace un élément au lieu d'en ajouter un."
+    shortCorrection: "append(4) ajoute 4 à la fin : L devient [1, 2, 3, 4]."
+    tags: [listes, methodes]
+
+  # ===========================================================================
+  # NŒUD 4 — Types construits : dictionnaires
+  # Pourquoi structurant : dictionnaires et clés fondent le traitement de données et les graphes de Terminale.
+  # ===========================================================================
+  - id: ETN-NSI-DIC-01
+    nodeCpsId: 1re.nsi.types-construits.dictionnaires
+    type: QCM_SIMPLE
+    difficulty: 1
+    targetTimeSec: 45
+    statement: "On définit d = {'a': 1, 'b': 2}. Que vaut d['b'] ?"
+    options:
+      - key: A
+        label: "1"
+        correct: false
+        distractorRationale: "Renvoie la valeur de la clé 'a' au lieu de 'b'."
+      - key: B
+        label: "'b'"
+        correct: false
+        distractorRationale: "Confond la clé avec la valeur associée."
+      - key: C
+        label: "2"
+        correct: true
+      - key: D
+        label: "une erreur"
+        correct: false
+        distractorRationale: "Suppose à tort que la clé 'b' n'existe pas."
+    shortCorrection: "d['b'] renvoie la valeur associée à la clé 'b', soit 2."
+    tags: [dictionnaires, acces]
+  - id: ETN-NSI-DIC-02
+    nodeCpsId: 1re.nsi.types-construits.dictionnaires
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 55
+    statement: "Comment ajouter au dictionnaire d la clé 'c' associée à la valeur 3 ?"
+    options:
+      - key: A
+        label: "d.append('c', 3)"
+        correct: false
+        distractorRationale: "append est une méthode des listes, pas des dictionnaires."
+      - key: B
+        label: "d['c'] == 3"
+        correct: false
+        distractorRationale: "== est un test d'égalité, il n'affecte aucune valeur."
+      - key: C
+        label: "d + {'c': 3}"
+        correct: false
+        distractorRationale: "L'opérateur + n'est pas défini pour ajouter une clé à un dictionnaire."
+      - key: D
+        label: "d['c'] = 3"
+        correct: true
+    shortCorrection: "On crée ou modifie une entrée par affectation : d['c'] = 3."
+    tags: [dictionnaires, modification]
+
+  # ===========================================================================
+  # NŒUD 5 — Programmation : fonctions et valeur de retour
+  # Pourquoi structurant : la récursivité et la modularité de Terminale exigent une compréhension solide de fonctions et de return.
+  # ===========================================================================
+  - id: ETN-NSI-FON-01
+    nodeCpsId: 1re.nsi.programmation.fonctions
+    type: QCM_SIMPLE
+    difficulty: 1
+    targetTimeSec: 45
+    statement: "Soit la fonction : def f(x): return x * 2. Que renvoie f(5) ?"
+    options:
+      - key: A
+        label: "5"
+        correct: false
+        distractorRationale: "Renvoie l'argument sans appliquer le calcul."
+      - key: B
+        label: "10"
+        correct: true
+      - key: C
+        label: "7"
+        correct: false
+        distractorRationale: "Additionne 5 et 2 au lieu de multiplier."
+      - key: D
+        label: "None"
+        correct: false
+        distractorRationale: "Suppose à tort que la fonction ne renvoie rien."
+    shortCorrection: "f(5) calcule 5 * 2 et renvoie 10."
+    tags: [fonctions, retour]
+  - id: ETN-NSI-FON-02
+    nodeCpsId: 1re.nsi.programmation.fonctions
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 55
+    statement: "En Python, que renvoie une fonction qui ne comporte aucune instruction return ?"
+    options:
+      - key: A
+        label: "None"
+        correct: true
+      - key: B
+        label: "0"
+        correct: false
+        distractorRationale: "Confond l'absence de valeur avec l'entier zéro."
+      - key: C
+        label: "une chaîne vide"
+        correct: false
+        distractorRationale: "Confond l'absence de valeur avec une chaîne vide."
+      - key: D
+        label: "une erreur"
+        correct: false
+        distractorRationale: "Une fonction sans return est valide ; elle ne provoque pas d'erreur."
+    shortCorrection: "Sans return, une fonction renvoie implicitement la valeur None."
+    tags: [fonctions, none]
+
+  # ===========================================================================
+  # NŒUD 6 — Structures de contrôle : boucles et conditions
+  # Pourquoi structurant : tout algorithme de Terminale combine boucles et conditions. Une erreur de portée ou de compteur fausse le résultat.
+  # ===========================================================================
+  - id: ETN-NSI-BCL-01
+    nodeCpsId: 1re.nsi.programmation.boucles-conditions
+    type: QCM_SIMPLE
+    difficulty: 1
+    targetTimeSec: 50
+    statement: "Combien d'itérations effectue la boucle « for i in range(3): » ?"
+    options:
+      - key: A
+        label: "2"
+        correct: false
+        distractorRationale: "Oublie que range(3) produit 0, 1, 2."
+      - key: B
+        label: "4"
+        correct: false
+        distractorRationale: "Compte une itération de trop."
+      - key: C
+        label: "de 1 à 3"
+        correct: false
+        distractorRationale: "range(3) commence à 0, pas à 1."
+      - key: D
+        label: "3"
+        correct: true
+    shortCorrection: "range(3) produit les valeurs 0, 1, 2 : la boucle s'exécute 3 fois."
+    tags: [boucles, range]
+  - id: ETN-NSI-BCL-02
+    nodeCpsId: 1re.nsi.programmation.boucles-conditions
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 60
+    statement: "Que vaut s après : s = 0 puis « for i in range(1, 4): s = s + i » ?"
+    options:
+      - key: A
+        label: "3"
+        correct: false
+        distractorRationale: "Ne conserve que la dernière valeur de i au lieu de cumuler."
+      - key: B
+        label: "10"
+        correct: false
+        distractorRationale: "Inclut à tort la valeur 4 dans la somme."
+      - key: C
+        label: "6"
+        correct: true
+      - key: D
+        label: "4"
+        correct: false
+        distractorRationale: "Compte le nombre d'itérations au lieu de la somme."
+    shortCorrection: "range(1, 4) donne 1, 2, 3 ; la somme cumulée vaut 1 + 2 + 3 = 6."
+    tags: [boucles, accumulation]
+
+  # ===========================================================================
+  # NŒUD 7 — Algorithmique : recherche et coût
+  # Pourquoi structurant : la recherche dichotomique et la notion de coût préparent l'étude de complexité de Terminale.
+  # ===========================================================================
+  - id: ETN-NSI-ALG-01
+    nodeCpsId: 1re.nsi.algorithmique.recherche-tris
+    type: QCM_SIMPLE
+    difficulty: 1
+    targetTimeSec: 50
+    statement: "La recherche dichotomique ne fonctionne que si le tableau est :"
+    options:
+      - key: A
+        label: "trié"
+        correct: true
+      - key: B
+        label: "de taille paire"
+        correct: false
+        distractorRationale: "La dichotomie fonctionne quelle que soit la parité de la taille."
+      - key: C
+        label: "non trié"
+        correct: false
+        distractorRationale: "C'est l'inverse : sans tri, la dichotomie est invalide."
+      - key: D
+        label: "composé uniquement d'entiers"
+        correct: false
+        distractorRationale: "La dichotomie s'applique à toute donnée ordonnable, pas seulement aux entiers."
+    shortCorrection: "La recherche dichotomique compare à l'élément central : elle exige un tableau trié."
+    tags: [algorithmique, dichotomie]
+  - id: ETN-NSI-ALG-02
+    nodeCpsId: 1re.nsi.algorithmique.recherche-tris
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 65
+    statement: "Dans un tableau trié de 16 éléments, le nombre de comparaisons d'une recherche dichotomique est de l'ordre de :"
+    options:
+      - key: A
+        label: "16"
+        correct: false
+        distractorRationale: "Correspond à une recherche séquentielle, pas dichotomique."
+      - key: B
+        label: "4 (log₂ de 16)"
+        correct: true
+      - key: C
+        label: "8"
+        correct: false
+        distractorRationale: "Suppose que l'on divise une seule fois la taille par deux."
+      - key: D
+        label: "2"
+        correct: false
+        distractorRationale: "Sous-estime : diviser 16 par 2 quatre fois donne 1."
+    shortCorrection: "La dichotomie divise la taille par deux à chaque étape : log₂(16) = 4 comparaisons environ."
+    tags: [algorithmique, cout]
+
+  # ===========================================================================
+  # NŒUD 8 — Traitement de données en tables
+  # Pourquoi structurant : les opérations sur tables de Première précèdent directement les bases de données et SQL de Terminale.
+  # ===========================================================================
+  - id: ETN-NSI-TAB-01
+    nodeCpsId: 1re.nsi.donnees.tables
+    type: QCM_SIMPLE
+    difficulty: 1
+    targetTimeSec: 50
+    statement: "Dans une table de données (type CSV), une ligne représente en général :"
+    options:
+      - key: A
+        label: "un attribut"
+        correct: false
+        distractorRationale: "L'attribut correspond à une colonne, pas à une ligne."
+      - key: B
+        label: "une colonne"
+        correct: false
+        distractorRationale: "La colonne est verticale ; la ligne décrit un enregistrement."
+      - key: C
+        label: "un enregistrement (un individu ou objet)"
+        correct: true
+      - key: D
+        label: "un fichier entier"
+        correct: false
+        distractorRationale: "Une ligne n'est qu'un enregistrement du fichier, pas le fichier."
+    shortCorrection: "Dans une table, chaque ligne est un enregistrement, chaque colonne un attribut."
+    tags: [donnees, tables]
+  - id: ETN-NSI-TAB-02
+    nodeCpsId: 1re.nsi.donnees.tables
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 60
+    statement: "Ne garder que les lignes d'une table vérifiant « âge > 18 » est une opération de :"
+    options:
+      - key: A
+        label: "projection"
+        correct: false
+        distractorRationale: "La projection choisit des colonnes, pas des lignes."
+      - key: B
+        label: "tri"
+        correct: false
+        distractorRationale: "Le tri réordonne les lignes sans en supprimer."
+      - key: C
+        label: "fusion"
+        correct: false
+        distractorRationale: "La fusion combine deux tables, elle ne filtre pas."
+      - key: D
+        label: "sélection (filtrage des lignes)"
+        correct: true
+    shortCorrection: "Choisir les lignes selon une condition est une sélection (ou filtrage) ; choisir des colonnes serait une projection."
+    tags: [donnees, selection]
+
+  # ===========================================================================
+  # NŒUD 9 — Architecture et systèmes
+  # Pourquoi structurant : von Neumann et le rôle du système d'exploitation cadrent la gestion des processus vue en Terminale.
+  # ===========================================================================
+  - id: ETN-NSI-ARC-01
+    nodeCpsId: 1re.nsi.architecture.von-neumann-os
+    type: QCM_SIMPLE
+    difficulty: 1
+    targetTimeSec: 50
+    statement: "Dans le modèle de von Neumann, la partie qui effectue les calculs est :"
+    options:
+      - key: A
+        label: "l'unité arithmétique et logique (UAL)"
+        correct: true
+      - key: B
+        label: "la mémoire"
+        correct: false
+        distractorRationale: "La mémoire stocke données et instructions, elle ne calcule pas."
+      - key: C
+        label: "le disque dur"
+        correct: false
+        distractorRationale: "Le disque est un stockage de masse, pas une unité de calcul."
+      - key: D
+        label: "l'écran"
+        correct: false
+        distractorRationale: "L'écran affiche, il n'effectue aucun calcul."
+    shortCorrection: "Dans le processeur, l'UAL réalise les opérations arithmétiques et logiques."
+    tags: [architecture, von-neumann]
+  - id: ETN-NSI-ARC-02
+    nodeCpsId: 1re.nsi.architecture.von-neumann-os
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 55
+    statement: "Quel est le rôle principal d'un système d'exploitation ?"
+    options:
+      - key: A
+        label: "compiler le code source"
+        correct: false
+        distractorRationale: "La compilation est le rôle d'un compilateur, pas du système."
+      - key: B
+        label: "gérer les ressources matérielles et l'exécution des programmes"
+        correct: true
+      - key: C
+        label: "afficher des pages web"
+        correct: false
+        distractorRationale: "C'est le rôle d'un navigateur, application parmi d'autres."
+      - key: D
+        label: "protéger contre les virus, et rien d'autre"
+        correct: false
+        distractorRationale: "La protection n'est qu'une facette ; le système gère avant tout les ressources."
+    shortCorrection: "Le système d'exploitation gère mémoire, processeur, périphériques et l'exécution des programmes."
+    tags: [architecture, systeme]

@@ -3,21 +3,14 @@
 // Overview of all children's diagnostics
 // ═══════════════════════════════════════════════════════════════════════════════
 
-import { redirect } from 'next/navigation';
 import { auth } from '@/auth';
-import { prisma } from '@/lib/prisma';
 import { ParentReportList } from '@/components/npc/parent/ParentReportList';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Users, BookOpen, CheckCircle, Clock, GraduationCap } from 'lucide-react';
+import { Card,CardContent,CardHeader,CardTitle } from '@/components/ui/card';
+import { Tabs,TabsContent,TabsList,TabsTrigger } from '@/components/ui/tabs';
+import { prisma } from '@/lib/prisma';
+import { BookOpen,CheckCircle,Clock,GraduationCap,Users } from 'lucide-react';
+import { redirect } from 'next/navigation';
 
 export const metadata = {
   title: 'NPC - Diagnostics de mes enfants',

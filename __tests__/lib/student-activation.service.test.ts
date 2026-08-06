@@ -33,6 +33,7 @@ describe('student activation service', () => {
       firstName: 'Aya',
       lastName: 'Ben Ali',
       email: 'aya@example.com',
+      role: 'PARENT',
     });
     prisma.stageReservation.findFirst.mockResolvedValue(null);
 
@@ -42,6 +43,7 @@ describe('student activation service', () => {
       valid: true,
       studentName: 'Aya Ben Ali',
       email: 'aya@example.com',
+      accountRole: 'PARENT',
     });
     expect(prisma.user.findFirst).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -67,6 +69,7 @@ describe('student activation service', () => {
       valid: true,
       studentName: 'Stage Student',
       email: 'stage@example.com',
+      accountRole: 'ELEVE',
     });
     expect(prisma.stageReservation.findFirst).toHaveBeenCalledWith(
       expect.objectContaining({

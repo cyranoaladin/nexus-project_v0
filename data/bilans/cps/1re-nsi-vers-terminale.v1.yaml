@@ -1,0 +1,58 @@
+schemaVersion: nexus-cps-catalog/v1
+slug: 1re-nsi-vers-terminale
+version: 1
+nodes:
+  - id: 1re.nsi.representation.entiers-binaire-hexa
+    sequenceOrder: 1
+    label: Représentation des entiers (binaire, hexadécimal)
+    sourceLevel: PREMIERE
+    targetLevel: TERMINALE
+    pedagogicalRationale: la Terminale manipule tableaux d'octets, encodages et bases. Une conversion binaire mal maîtrisée bloque cette entrée.
+  - id: 1re.nsi.booleens.logique
+    sequenceOrder: 2
+    label: Booléens et logique
+    sourceLevel: PREMIERE
+    targetLevel: TERMINALE
+    pedagogicalRationale: conditions, tests et circuits reposent sur l'algèbre de Boole, réinvestie partout en Terminale.
+  - id: 1re.nsi.types-construits.listes
+    sequenceOrder: 3
+    label: "Types construits : listes et indexation"
+    sourceLevel: PREMIERE
+    targetLevel: TERMINALE
+    pedagogicalRationale: les structures de données de Terminale (piles, files, arbres) se construisent sur des listes bien comprises.
+  - id: 1re.nsi.types-construits.dictionnaires
+    sequenceOrder: 4
+    label: "Types construits : dictionnaires"
+    sourceLevel: PREMIERE
+    targetLevel: TERMINALE
+    pedagogicalRationale: dictionnaires et clés fondent le traitement de données et les graphes de Terminale.
+  - id: 1re.nsi.programmation.fonctions
+    sequenceOrder: 5
+    label: "Programmation : fonctions et valeur de retour"
+    sourceLevel: PREMIERE
+    targetLevel: TERMINALE
+    pedagogicalRationale: la récursivité et la modularité de Terminale exigent une compréhension solide de fonctions et de return.
+  - id: 1re.nsi.programmation.boucles-conditions
+    sequenceOrder: 6
+    label: "Structures de contrôle : boucles et conditions"
+    sourceLevel: PREMIERE
+    targetLevel: TERMINALE
+    pedagogicalRationale: tout algorithme de Terminale combine boucles et conditions. Une erreur de portée ou de compteur fausse le résultat.
+  - id: 1re.nsi.algorithmique.recherche-tris
+    sequenceOrder: 7
+    label: "Algorithmique : recherche et coût"
+    sourceLevel: PREMIERE
+    targetLevel: TERMINALE
+    pedagogicalRationale: la recherche dichotomique et la notion de coût préparent l'étude de complexité de Terminale.
+  - id: 1re.nsi.donnees.tables
+    sequenceOrder: 8
+    label: Traitement de données en tables
+    sourceLevel: PREMIERE
+    targetLevel: TERMINALE
+    pedagogicalRationale: les opérations sur tables de Première précèdent directement les bases de données et SQL de Terminale.
+  - id: 1re.nsi.architecture.von-neumann-os
+    sequenceOrder: 9
+    label: Architecture et systèmes
+    sourceLevel: PREMIERE
+    targetLevel: TERMINALE
+    pedagogicalRationale: von Neumann et le rôle du système d'exploitation cadrent la gestion des processus vue en Terminale.

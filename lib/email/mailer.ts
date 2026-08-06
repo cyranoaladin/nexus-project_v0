@@ -28,6 +28,8 @@ export interface SendMailOptions {
   text?: string;
   /** Override default reply-to */
   replyTo?: string;
+  /** Stable RFC Message-ID supplied by the durable delivery intent. */
+  messageId?: string;
 }
 
 export interface SendMailResult {
@@ -65,12 +67,14 @@ function resolveSmtpPassword(): string | undefined {
  * Priority: MAIL_FROM > EMAIL_FROM > SMTP_FROM > fallback.
  */
 export function resolveFrom(): string {
-  return (
+  const configured = (
     process.env.MAIL_FROM ||
     process.env.EMAIL_FROM ||
-    process.env.SMTP_FROM ||
-    'Nexus Réussite <no-reply@nexusreussite.academy>'
+    process.env.SMTP_FROM
   );
+  if (configured) return configured;
+  if (process.env.NODE_ENV === 'production') throw new Error('SMTP_FROM_REQUIRED');
+  return 'Nexus Réussite <no-reply@nexusreussite.academy>';
 }
 
 /**
@@ -86,20 +90,12 @@ let _transporter: Mail | null = null;
 
 /**
  * Get or create the nodemailer transporter (singleton).
- * In development without SMTP_HOST, falls back to localhost:1025 (Mailpit/MailHog).
+ * The host must be configured explicitly in every environment that sends mail.
  */
 export function getTransporter(): Mail {
   if (_transporter) return _transporter;
 
-  if (process.env.NODE_ENV === 'development' && !process.env.SMTP_HOST) {
-    _transporter = nodemailer.createTransport({
-      host: 'localhost',
-      port: 1025,
-      secure: false,
-      ignoreTLS: true,
-    } as SMTPTransport.Options);
-    return _transporter;
-  }
+  if (!process.env.SMTP_HOST) throw new Error('SMTP_HOST_REQUIRED');
 
   const smtpPassword = resolveSmtpPassword();
 
@@ -107,6 +103,9 @@ export function getTransporter(): Mail {
     host: process.env.SMTP_HOST,
     port: parseInt(process.env.SMTP_PORT || '587', 10),
     secure: process.env.SMTP_SECURE === 'true',
+    connectionTimeout: Number(process.env.SMTP_CONNECTION_TIMEOUT_MS || 10_000),
+    greetingTimeout: Number(process.env.SMTP_GREETING_TIMEOUT_MS || 10_000),
+    socketTimeout: Number(process.env.SMTP_SOCKET_TIMEOUT_MS || 15_000),
   };
 
   if (process.env.SMTP_USER && smtpPassword) {
@@ -154,12 +153,16 @@ export async function sendMail(options: SendMailOptions): Promise<SendMailResult
       subject: options.subject,
       html: options.html,
       text: options.text,
+      messageId: options.messageId,
     });
 
     const messageId = typeof info?.messageId === 'string' ? info.messageId : undefined;
     return { ok: true, messageId };
   } catch (error) {
-    console.error('[mailer] Send failed:', error instanceof Error ? error.message : 'unknown');
+    const code = error && typeof error === 'object' && 'code' in error
+      ? String(error.code)
+      : 'SMTP_SEND_FAILED';
+    console.error('[mailer] Send failed', { code, at: new Date().toISOString() });
 
     if (process.env.NODE_ENV === 'development') {
       return { ok: false };
@@ -182,8 +185,10 @@ export async function verifySmtp(): Promise<{ ok: boolean; error?: string }> {
     await transporter.verify();
     return { ok: true };
   } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    console.error('[mailer] SMTP verify failed:', message);
-    return { ok: false, error: message };
+    const code = error && typeof error === 'object' && 'code' in error
+      ? String(error.code)
+      : 'SMTP_VERIFY_FAILED';
+    console.error('[mailer] SMTP verify failed', { code, at: new Date().toISOString() });
+    return { ok: false, error: code };
   }
 }

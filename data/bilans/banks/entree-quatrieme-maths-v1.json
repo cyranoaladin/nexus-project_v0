@@ -1,0 +1,1073 @@
+{
+  "slug": "entree-quatrieme-maths-v1",
+  "level": "QUATRIEME",
+  "subject": "MATHS",
+  "version": 1,
+  "status": "VALIDATED",
+  "review": {
+    "validatedBy": "cmomnwolx0001mi0u8m8zj53w",
+    "validatedAt": "2026-08-05T07:01:07.112Z"
+  },
+  "questionnaire": {
+    "targetDurationMin": 25,
+    "confidenceScale": {
+      "levels": 4,
+      "labels": [
+        "je devine",
+        "peu sûr",
+        "plutôt sûr",
+        "certain"
+      ]
+    },
+    "items": [
+      {
+        "id": "4E-MAT-REL-01",
+        "subject": "MATHS",
+        "category": "Nombres relatifs : somme, différence, priorités",
+        "domainId": "relatifs",
+        "nodeCpsId": "5e.maths.relatifs.somme-difference-priorites",
+        "difficulty": 1,
+        "targetTimeSec": 45,
+        "shortCorrection": "Deux nombres négatifs s'ajoutent en distance et gardent le signe négatif : (−7) + (−5) = −12.",
+        "weight": 1,
+        "competencies": [
+          "5e.maths.relatifs.somme-difference-priorites"
+        ],
+        "questionText": "Calculer (−7) + (−5).",
+        "options": [
+          {
+            "id": "A",
+            "text": "−2",
+            "isCorrect": false,
+            "distractorRationale": "Soustrait les nombres au lieu de les additionner."
+          },
+          {
+            "id": "B",
+            "text": "2",
+            "isCorrect": false,
+            "distractorRationale": "Soustrait puis se trompe de signe."
+          },
+          {
+            "id": "C",
+            "text": "−12",
+            "isCorrect": true
+          },
+          {
+            "id": "D",
+            "text": "12",
+            "isCorrect": false,
+            "distractorRationale": "Additionne bien les distances mais oublie le signe négatif."
+          }
+        ],
+        "explanation": "Deux nombres négatifs s'ajoutent en distance et gardent le signe négatif : (−7) + (−5) = −12."
+      },
+      {
+        "id": "4E-MAT-REL-02",
+        "subject": "MATHS",
+        "category": "Nombres relatifs : somme, différence, priorités",
+        "domainId": "relatifs",
+        "nodeCpsId": "5e.maths.relatifs.somme-difference-priorites",
+        "difficulty": 2,
+        "targetTimeSec": 55,
+        "shortCorrection": "Soustraire (−4) revient à ajouter 4 : 3 + 4 − 6 = 1.",
+        "weight": 2,
+        "competencies": [
+          "5e.maths.relatifs.somme-difference-priorites"
+        ],
+        "questionText": "Calculer 3 − (−4) + (−6).",
+        "options": [
+          {
+            "id": "A",
+            "text": "1",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "−7",
+            "isCorrect": false,
+            "distractorRationale": "Traite − (−4) comme − 4 : erreur de signe sur la soustraction d'un négatif."
+          },
+          {
+            "id": "C",
+            "text": "13",
+            "isCorrect": false,
+            "distractorRationale": "Additionne tout sans tenir compte du dernier terme négatif."
+          },
+          {
+            "id": "D",
+            "text": "−1",
+            "isCorrect": false,
+            "distractorRationale": "Calcule 3 − 4 + 6 en inversant deux signes."
+          }
+        ],
+        "explanation": "Soustraire (−4) revient à ajouter 4 : 3 + 4 − 6 = 1."
+      },
+      {
+        "id": "4E-MAT-FRA-01",
+        "subject": "MATHS",
+        "category": "Fractions : somme et différence",
+        "domainId": "fractions",
+        "nodeCpsId": "5e.maths.fractions.somme-difference",
+        "difficulty": 1,
+        "targetTimeSec": 45,
+        "shortCorrection": "Avec le même dénominateur, on additionne les numérateurs : 3/7 + 2/7 = 5/7.",
+        "weight": 1,
+        "competencies": [
+          "5e.maths.fractions.somme-difference"
+        ],
+        "questionText": "Calculer 3/7 + 2/7.",
+        "options": [
+          {
+            "id": "A",
+            "text": "5/14",
+            "isCorrect": false,
+            "distractorRationale": "Additionne aussi les dénominateurs."
+          },
+          {
+            "id": "B",
+            "text": "5/7",
+            "isCorrect": true
+          },
+          {
+            "id": "C",
+            "text": "6/7",
+            "isCorrect": false,
+            "distractorRationale": "Additionne les numérateurs mais recopie un dénominateur erroné."
+          },
+          {
+            "id": "D",
+            "text": "5/49",
+            "isCorrect": false,
+            "distractorRationale": "Multiplie les dénominateurs au lieu de les conserver."
+          }
+        ],
+        "explanation": "Avec le même dénominateur, on additionne les numérateurs : 3/7 + 2/7 = 5/7."
+      },
+      {
+        "id": "4E-MAT-FRA-02",
+        "subject": "MATHS",
+        "category": "Fractions : somme et différence",
+        "domainId": "fractions",
+        "nodeCpsId": "5e.maths.fractions.somme-difference",
+        "difficulty": 2,
+        "targetTimeSec": 60,
+        "shortCorrection": "On convertit 1/3 = 2/6, donc 5/6 − 2/6 = 3/6 = 1/2.",
+        "weight": 2,
+        "competencies": [
+          "5e.maths.fractions.somme-difference"
+        ],
+        "questionText": "Calculer 5/6 − 1/3.",
+        "options": [
+          {
+            "id": "A",
+            "text": "4/3",
+            "isCorrect": false,
+            "distractorRationale": "Soustrait numérateurs et dénominateurs entre eux sans dénominateur commun."
+          },
+          {
+            "id": "B",
+            "text": "2/3",
+            "isCorrect": false,
+            "distractorRationale": "Met au même dénominateur mais oublie de convertir le numérateur de 1/3."
+          },
+          {
+            "id": "C",
+            "text": "1/3",
+            "isCorrect": false,
+            "distractorRationale": "Se trompe de résultat en ne simplifiant pas 2/6."
+          },
+          {
+            "id": "D",
+            "text": "1/2",
+            "isCorrect": true
+          }
+        ],
+        "explanation": "On convertit 1/3 = 2/6, donc 5/6 − 2/6 = 3/6 = 1/2."
+      },
+      {
+        "id": "4E-MAT-PRP-01",
+        "subject": "MATHS",
+        "category": "Proportionnalité : quatrième proportionnelle et pourcentages",
+        "domainId": "proportionnalite",
+        "nodeCpsId": "5e.maths.proportionnalite.quatrieme-proportionnelle",
+        "difficulty": 1,
+        "targetTimeSec": 55,
+        "shortCorrection": "Le prix unitaire est 12 ÷ 5 = 2,4 dinars. Pour 15 cahiers : 15 × 2,4 = 36 dinars.",
+        "weight": 1,
+        "competencies": [
+          "5e.maths.proportionnalite.quatrieme-proportionnelle"
+        ],
+        "questionText": "5 cahiers identiques coûtent 12 dinars. Combien coûtent 15 cahiers au même prix unitaire ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "36 dinars",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "22 dinars",
+            "isCorrect": false,
+            "distractorRationale": "Ajoute 10 dinars pour 10 cahiers de plus, en raisonnant de façon additive."
+          },
+          {
+            "id": "C",
+            "text": "60 dinars",
+            "isCorrect": false,
+            "distractorRationale": "Multiplie le prix par le nombre de cahiers sans revenir au prix unitaire."
+          },
+          {
+            "id": "D",
+            "text": "2,4 dinars",
+            "isCorrect": false,
+            "distractorRationale": "Donne le prix d'un seul cahier au lieu de quinze."
+          }
+        ],
+        "explanation": "Le prix unitaire est 12 ÷ 5 = 2,4 dinars. Pour 15 cahiers : 15 × 2,4 = 36 dinars."
+      },
+      {
+        "id": "4E-MAT-PRP-02",
+        "subject": "MATHS",
+        "category": "Proportionnalité : quatrième proportionnelle et pourcentages",
+        "domainId": "proportionnalite",
+        "nodeCpsId": "5e.maths.proportionnalite.quatrieme-proportionnelle",
+        "difficulty": 2,
+        "targetTimeSec": 55,
+        "shortCorrection": "20 % de 25, c'est (20/100) × 25 = 5 élèves.",
+        "weight": 2,
+        "competencies": [
+          "5e.maths.proportionnalite.quatrieme-proportionnelle"
+        ],
+        "questionText": "Dans une classe de 25 élèves, 20 % sont absents. Combien d'élèves sont absents ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "20",
+            "isCorrect": false,
+            "distractorRationale": "Confond le pourcentage avec un nombre d'élèves."
+          },
+          {
+            "id": "B",
+            "text": "5",
+            "isCorrect": true
+          },
+          {
+            "id": "C",
+            "text": "4",
+            "isCorrect": false,
+            "distractorRationale": "Calcule 25 ÷ 5 puis se trompe, ou divise par 5 sans raison."
+          },
+          {
+            "id": "D",
+            "text": "45",
+            "isCorrect": false,
+            "distractorRationale": "Ajoute le pourcentage au nombre d'élèves."
+          }
+        ],
+        "explanation": "20 % de 25, c'est (20/100) × 25 = 5 élèves."
+      },
+      {
+        "id": "4E-MAT-CLI-01",
+        "subject": "MATHS",
+        "category": "Calcul littéral : réduction et distributivité simple",
+        "domainId": "calcul-litteral",
+        "nodeCpsId": "5e.maths.calcul-litteral.distributivite-simple",
+        "difficulty": 1,
+        "targetTimeSec": 50,
+        "shortCorrection": "La distributivité donne 4 × x + 4 × 3 = 4x + 12.",
+        "weight": 1,
+        "competencies": [
+          "5e.maths.calcul-litteral.distributivite-simple"
+        ],
+        "questionText": "Développer 4(x + 3).",
+        "options": [
+          {
+            "id": "A",
+            "text": "4x + 3",
+            "isCorrect": false,
+            "distractorRationale": "Distribue le 4 au premier terme seulement."
+          },
+          {
+            "id": "B",
+            "text": "x + 12",
+            "isCorrect": false,
+            "distractorRationale": "Distribue au 3 mais oublie le facteur devant x."
+          },
+          {
+            "id": "C",
+            "text": "4x + 12",
+            "isCorrect": true
+          },
+          {
+            "id": "D",
+            "text": "4x + 7",
+            "isCorrect": false,
+            "distractorRationale": "Additionne 4 et 3 au lieu de multiplier."
+          }
+        ],
+        "explanation": "La distributivité donne 4 × x + 4 × 3 = 4x + 12."
+      },
+      {
+        "id": "4E-MAT-CLI-02",
+        "subject": "MATHS",
+        "category": "Calcul littéral : réduction et distributivité simple",
+        "domainId": "calcul-litteral",
+        "nodeCpsId": "5e.maths.calcul-litteral.distributivite-simple",
+        "difficulty": 2,
+        "targetTimeSec": 55,
+        "shortCorrection": "On regroupe : (5x + 3x) + (2 − 6) = 8x − 4.",
+        "weight": 2,
+        "competencies": [
+          "5e.maths.calcul-litteral.distributivite-simple"
+        ],
+        "questionText": "Réduire l'expression 5x + 2 + 3x − 6.",
+        "options": [
+          {
+            "id": "A",
+            "text": "8x + 4",
+            "isCorrect": false,
+            "distractorRationale": "Additionne les termes constants sans tenir compte du signe de −6."
+          },
+          {
+            "id": "B",
+            "text": "8x − 8",
+            "isCorrect": false,
+            "distractorRationale": "Soustrait 2 au lieu de l'ajouter."
+          },
+          {
+            "id": "C",
+            "text": "2x − 4",
+            "isCorrect": false,
+            "distractorRationale": "Soustrait les termes en x au lieu de les additionner."
+          },
+          {
+            "id": "D",
+            "text": "8x − 4",
+            "isCorrect": true
+          }
+        ],
+        "explanation": "On regroupe : (5x + 3x) + (2 − 6) = 8x − 4."
+      },
+      {
+        "id": "4E-MAT-ANG-01",
+        "subject": "MATHS",
+        "category": "Angles : somme des angles d'un triangle",
+        "domainId": "geometrie",
+        "nodeCpsId": "5e.maths.geometrie.angles-triangle",
+        "difficulty": 1,
+        "targetTimeSec": 50,
+        "shortCorrection": "La somme des angles d'un triangle vaut 180° : 180 − (50 + 70) = 60°.",
+        "weight": 1,
+        "competencies": [
+          "5e.maths.geometrie.angles-triangle"
+        ],
+        "questionText": "Dans un triangle, deux angles mesurent 50° et 70°. Quelle est la mesure du troisième angle ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "120°",
+            "isCorrect": false,
+            "distractorRationale": "Additionne les deux angles sans conclure sur le troisième."
+          },
+          {
+            "id": "B",
+            "text": "60°",
+            "isCorrect": true
+          },
+          {
+            "id": "C",
+            "text": "180°",
+            "isCorrect": false,
+            "distractorRationale": "Donne la somme des trois angles au lieu du troisième."
+          },
+          {
+            "id": "D",
+            "text": "70°",
+            "isCorrect": false,
+            "distractorRationale": "Suppose le triangle isocèle sans justification."
+          }
+        ],
+        "explanation": "La somme des angles d'un triangle vaut 180° : 180 − (50 + 70) = 60°."
+      },
+      {
+        "id": "4E-MAT-ANG-02",
+        "subject": "MATHS",
+        "category": "Angles : somme des angles d'un triangle",
+        "domainId": "geometrie",
+        "nodeCpsId": "5e.maths.geometrie.angles-triangle",
+        "difficulty": 2,
+        "targetTimeSec": 55,
+        "shortCorrection": "Dans un triangle rectangle, les deux angles aigus sont complémentaires : 90 − 35 = 55°.",
+        "weight": 2,
+        "competencies": [
+          "5e.maths.geometrie.angles-triangle"
+        ],
+        "questionText": "Un triangle est rectangle et l'un de ses angles aigus mesure 35°. Que vaut l'autre angle aigu ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "55°",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "65°",
+            "isCorrect": false,
+            "distractorRationale": "Soustrait 35 de 100 au lieu de 90."
+          },
+          {
+            "id": "C",
+            "text": "45°",
+            "isCorrect": false,
+            "distractorRationale": "Suppose les deux angles aigus égaux."
+          },
+          {
+            "id": "D",
+            "text": "145°",
+            "isCorrect": false,
+            "distractorRationale": "Soustrait 35 de 180 en oubliant l'angle droit."
+          }
+        ],
+        "explanation": "Dans un triangle rectangle, les deux angles aigus sont complémentaires : 90 − 35 = 55°."
+      },
+      {
+        "id": "4E-MAT-AIR-01",
+        "subject": "MATHS",
+        "category": "Aires et périmètres",
+        "domainId": "grandeurs",
+        "nodeCpsId": "5e.maths.grandeurs.aires-perimetres",
+        "difficulty": 1,
+        "targetTimeSec": 50,
+        "shortCorrection": "L'aire d'un rectangle est longueur × largeur = 8 × 5 = 40 cm².",
+        "weight": 1,
+        "competencies": [
+          "5e.maths.grandeurs.aires-perimetres"
+        ],
+        "questionText": "Quelle est l'aire d'un rectangle de longueur 8 cm et de largeur 5 cm ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "26 cm",
+            "isCorrect": false,
+            "distractorRationale": "Calcule le périmètre au lieu de l'aire."
+          },
+          {
+            "id": "B",
+            "text": "13 cm",
+            "isCorrect": false,
+            "distractorRationale": "Additionne la longueur et la largeur."
+          },
+          {
+            "id": "C",
+            "text": "40 cm",
+            "isCorrect": false,
+            "distractorRationale": "Donne le bon nombre mais une unité de longueur au lieu d'aire."
+          },
+          {
+            "id": "D",
+            "text": "40 cm²",
+            "isCorrect": true
+          }
+        ],
+        "explanation": "L'aire d'un rectangle est longueur × largeur = 8 × 5 = 40 cm²."
+      },
+      {
+        "id": "4E-MAT-AIR-02",
+        "subject": "MATHS",
+        "category": "Aires et périmètres",
+        "domainId": "grandeurs",
+        "nodeCpsId": "5e.maths.grandeurs.aires-perimetres",
+        "difficulty": 2,
+        "targetTimeSec": 60,
+        "shortCorrection": "L'aire d'un triangle est (base × hauteur) ÷ 2 = (6 × 4) ÷ 2 = 12 cm².",
+        "weight": 2,
+        "competencies": [
+          "5e.maths.grandeurs.aires-perimetres"
+        ],
+        "questionText": "Quelle est l'aire d'un triangle de base 6 cm et de hauteur 4 cm ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "24 cm²",
+            "isCorrect": false,
+            "distractorRationale": "Oublie de diviser par 2 : calcule base × hauteur."
+          },
+          {
+            "id": "B",
+            "text": "10 cm²",
+            "isCorrect": false,
+            "distractorRationale": "Additionne la base et la hauteur."
+          },
+          {
+            "id": "C",
+            "text": "12 cm²",
+            "isCorrect": true
+          },
+          {
+            "id": "D",
+            "text": "12 cm",
+            "isCorrect": false,
+            "distractorRationale": "Trouve le bon nombre mais une unité de longueur au lieu d'aire."
+          }
+        ],
+        "explanation": "L'aire d'un triangle est (base × hauteur) ÷ 2 = (6 × 4) ÷ 2 = 12 cm²."
+      },
+      {
+        "id": "4E-MAT-SYM-01",
+        "subject": "MATHS",
+        "category": "Symétrie centrale et parallélogramme",
+        "domainId": "geometrie",
+        "nodeCpsId": "5e.maths.geometrie.symetrie-centrale",
+        "difficulty": 1,
+        "targetTimeSec": 55,
+        "shortCorrection": "La symétrie centrale conserve les longueurs : l'image de [AB] est un segment de même longueur, parallèle à [AB].",
+        "weight": 1,
+        "competencies": [
+          "5e.maths.geometrie.symetrie-centrale"
+        ],
+        "questionText": "Par la symétrie centrale de centre O, l'image d'un segment [AB] est :",
+        "options": [
+          {
+            "id": "A",
+            "text": "un segment de même longueur que [AB]",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "un segment deux fois plus long que [AB]",
+            "isCorrect": false,
+            "distractorRationale": "Confond symétrie centrale et agrandissement."
+          },
+          {
+            "id": "C",
+            "text": "le point O",
+            "isCorrect": false,
+            "distractorRationale": "Confond l'image du segment avec le centre de symétrie."
+          },
+          {
+            "id": "D",
+            "text": "un segment perpendiculaire à [AB]",
+            "isCorrect": false,
+            "distractorRationale": "Confond symétrie centrale et symétrie axiale."
+          }
+        ],
+        "explanation": "La symétrie centrale conserve les longueurs : l'image de [AB] est un segment de même longueur, parallèle à [AB]."
+      },
+      {
+        "id": "4E-MAT-SYM-02",
+        "subject": "MATHS",
+        "category": "Symétrie centrale et parallélogramme",
+        "domainId": "geometrie",
+        "nodeCpsId": "5e.maths.geometrie.symetrie-centrale",
+        "difficulty": 2,
+        "targetTimeSec": 55,
+        "shortCorrection": "Un quadrilatère possédant un centre de symétrie est un parallélogramme ; carré et rectangle n'en sont que des cas particuliers.",
+        "weight": 2,
+        "competencies": [
+          "5e.maths.geometrie.symetrie-centrale"
+        ],
+        "questionText": "Un quadrilatère qui admet un centre de symétrie est nécessairement :",
+        "options": [
+          {
+            "id": "A",
+            "text": "un carré",
+            "isCorrect": false,
+            "distractorRationale": "Ajoute des conditions non exigées : le carré est un cas particulier."
+          },
+          {
+            "id": "B",
+            "text": "un parallélogramme",
+            "isCorrect": true
+          },
+          {
+            "id": "C",
+            "text": "un trapèze quelconque",
+            "isCorrect": false,
+            "distractorRationale": "Un trapèze quelconque n'a pas de centre de symétrie."
+          },
+          {
+            "id": "D",
+            "text": "un triangle",
+            "isCorrect": false,
+            "distractorRationale": "Un triangle n'est pas un quadrilatère."
+          }
+        ],
+        "explanation": "Un quadrilatère possédant un centre de symétrie est un parallélogramme ; carré et rectangle n'en sont que des cas particuliers."
+      },
+      {
+        "id": "4E-MAT-STA-01",
+        "subject": "MATHS",
+        "category": "Statistiques : fréquences et moyenne",
+        "domainId": "statistiques",
+        "nodeCpsId": "5e.maths.statistiques.frequences-moyenne",
+        "difficulty": 1,
+        "targetTimeSec": 50,
+        "shortCorrection": "Moyenne = (6 + 9 + 12 + 9) ÷ 4 = 36 ÷ 4 = 9.",
+        "weight": 1,
+        "competencies": [
+          "5e.maths.statistiques.frequences-moyenne"
+        ],
+        "questionText": "Quelle est la moyenne de la série 6 ; 9 ; 12 ; 9 ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "12",
+            "isCorrect": false,
+            "distractorRationale": "Donne la valeur la plus fréquente au lieu de la moyenne."
+          },
+          {
+            "id": "B",
+            "text": "36",
+            "isCorrect": false,
+            "distractorRationale": "Donne la somme sans diviser."
+          },
+          {
+            "id": "C",
+            "text": "9",
+            "isCorrect": true
+          },
+          {
+            "id": "D",
+            "text": "6",
+            "isCorrect": false,
+            "distractorRationale": "Donne la plus petite valeur."
+          }
+        ],
+        "explanation": "Moyenne = (6 + 9 + 12 + 9) ÷ 4 = 36 ÷ 4 = 9."
+      },
+      {
+        "id": "4E-MAT-STA-02",
+        "subject": "MATHS",
+        "category": "Statistiques : fréquences et moyenne",
+        "domainId": "statistiques",
+        "nodeCpsId": "5e.maths.statistiques.frequences-moyenne",
+        "difficulty": 2,
+        "targetTimeSec": 60,
+        "shortCorrection": "La fréquence est 8 ÷ 20 = 0,4, soit 40 %.",
+        "weight": 2,
+        "competencies": [
+          "5e.maths.statistiques.frequences-moyenne"
+        ],
+        "questionText": "Sur 20 élèves, 8 pratiquent le football. Quelle est la fréquence, en pourcentage, des footballeurs ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "8 %",
+            "isCorrect": false,
+            "distractorRationale": "Confond l'effectif avec la fréquence en pourcentage."
+          },
+          {
+            "id": "B",
+            "text": "12 %",
+            "isCorrect": false,
+            "distractorRationale": "Compte les élèves qui ne jouent pas au football."
+          },
+          {
+            "id": "C",
+            "text": "2,5 %",
+            "isCorrect": false,
+            "distractorRationale": "Divise 20 par 8 au lieu de 8 par 20."
+          },
+          {
+            "id": "D",
+            "text": "40 %",
+            "isCorrect": true
+          }
+        ],
+        "explanation": "La fréquence est 8 ÷ 20 = 0,4, soit 40 %."
+      },
+      {
+        "id": "4E-MAT-REP-01",
+        "subject": "MATHS",
+        "category": "Repérage et comparaison de relatifs",
+        "domainId": "relatifs",
+        "nodeCpsId": "5e.maths.relatifs.reperage-comparaison",
+        "difficulty": 1,
+        "targetTimeSec": 45,
+        "shortCorrection": "Plus un nombre négatif est éloigné de 0, plus il est petit : −7 < −3 < 0 < 2.",
+        "weight": 1,
+        "competencies": [
+          "5e.maths.relatifs.reperage-comparaison"
+        ],
+        "questionText": "Ranger dans l'ordre croissant : −3 ; 2 ; −7 ; 0.",
+        "options": [
+          {
+            "id": "A",
+            "text": "−7 < −3 < 0 < 2",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "−3 < −7 < 0 < 2",
+            "isCorrect": false,
+            "distractorRationale": "Range les négatifs comme s'ils étaient positifs : place −7 après −3."
+          },
+          {
+            "id": "C",
+            "text": "2 < 0 < −3 < −7",
+            "isCorrect": false,
+            "distractorRationale": "Range dans l'ordre décroissant."
+          },
+          {
+            "id": "D",
+            "text": "0 < −3 < 2 < −7",
+            "isCorrect": false,
+            "distractorRationale": "Ne compare pas correctement les signes."
+          }
+        ],
+        "explanation": "Plus un nombre négatif est éloigné de 0, plus il est petit : −7 < −3 < 0 < 2."
+      },
+      {
+        "id": "4E-MAT-REP-02",
+        "subject": "MATHS",
+        "category": "Repérage et comparaison de relatifs",
+        "domainId": "relatifs",
+        "nodeCpsId": "5e.maths.relatifs.reperage-comparaison",
+        "difficulty": 2,
+        "targetTimeSec": 55,
+        "shortCorrection": "Se déplacer de 6 vers la droite revient à ajouter 6 : −4 + 6 = 2.",
+        "weight": 2,
+        "competencies": [
+          "5e.maths.relatifs.reperage-comparaison"
+        ],
+        "questionText": "Sur une droite graduée, un point a pour abscisse −4. Un second point est situé 6 unités à sa droite. Quelle est son abscisse ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "−10",
+            "isCorrect": false,
+            "distractorRationale": "Se déplace vers la gauche au lieu de la droite."
+          },
+          {
+            "id": "B",
+            "text": "2",
+            "isCorrect": true
+          },
+          {
+            "id": "C",
+            "text": "−2",
+            "isCorrect": false,
+            "distractorRationale": "Ajoute 6 en valeur absolue mais garde le signe négatif."
+          },
+          {
+            "id": "D",
+            "text": "10",
+            "isCorrect": false,
+            "distractorRationale": "Additionne les distances sans tenir compte du point de départ négatif."
+          }
+        ],
+        "explanation": "Se déplacer de 6 vers la droite revient à ajouter 6 : −4 + 6 = 2."
+      }
+    ]
+  },
+  "scoring": {
+    "engine": "facts.v1.0.1",
+    "domains": [
+      "relatifs",
+      "fractions",
+      "proportionnalite",
+      "calcul-litteral",
+      "geometrie",
+      "grandeurs",
+      "statistiques"
+    ]
+  },
+  "reporting": {
+    "rag": {
+      "enabled": false,
+      "decisionRef": "A56 — RAG désactivé tant que le corpus du niveau n’est pas validé",
+      "sources": [],
+      "topK": 0
+    },
+    "promptFiles": {
+      "preAnalysis": {
+        "path": "content/bilans/prompts/entree-quatrieme-maths-v1/pre-analysis.md",
+        "checksum": "3e0d7cea76c1461fc233ad8c3f699aeb81761936f6f1c5ddc362675d01671ebd"
+      },
+      "eleve": {
+        "path": "content/bilans/prompts/entree-quatrieme-maths-v1/eleve.md",
+        "checksum": "de83510e188e47dfb019ca59fb4f0f643d1632de148ba9e2321480ecf76befcb"
+      },
+      "parents": {
+        "path": "content/bilans/prompts/entree-quatrieme-maths-v1/parents.md",
+        "checksum": "33fce9325fc6b6a4bfc55e9c2d6f20e7cb40cbe39f9bfdc95575bd7ef1db9b51"
+      },
+      "nexus": {
+        "path": "content/bilans/prompts/entree-quatrieme-maths-v1/nexus.md",
+        "checksum": "47972b6da0cf0ac33c5fe181371328b6012edfc33c5b514652a944866a86ff9d"
+      },
+      "verifier": {
+        "path": "content/bilans/prompts/entree-quatrieme-maths-v1/verifier.md",
+        "checksum": "0c42144e50dda5f9706d7e4e36de07dac7c6978848689a05b5bf975adc2c5ecc"
+      }
+    },
+    "outputSchemas": {
+      "preAnalysis": {
+        "type": "object",
+        "properties": {
+          "synthese": {
+            "type": "string",
+            "minLength": 1
+          },
+          "forcesPercues": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "craintes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "required": [
+          "synthese",
+          "forcesPercues",
+          "craintes"
+        ],
+        "additionalProperties": false
+      },
+      "eleve": {
+        "type": "object",
+        "properties": {
+          "accroche": {
+            "type": "string",
+            "minLength": 1
+          },
+          "forces": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "minItems": 3,
+            "maxItems": 3
+          },
+          "priorites": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "domainId": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "titre": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "pourquoi": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "comment": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "domainId",
+                "titre",
+                "pourquoi",
+                "comment"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "maxItems": 7
+          },
+          "microPlan": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "action": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "dureeMin": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              },
+              "required": [
+                "action",
+                "dureeMin"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "maxItems": 5
+          },
+          "motDeFin": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "accroche",
+          "forces",
+          "priorites",
+          "microPlan",
+          "motDeFin"
+        ],
+        "additionalProperties": false
+      },
+      "parents": {
+        "type": "object",
+        "properties": {
+          "cadre": {
+            "type": "string",
+            "minLength": 1
+          },
+          "pointsAppui": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "domainId": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "texte": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "domainId",
+                "texte"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "maxItems": 7
+          },
+          "priorites": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "domainId": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "titre": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "ceQuiSeraFait": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "domainId",
+                "titre",
+                "ceQuiSeraFait"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "maxItems": 7
+          },
+          "etapeSuivante": {
+            "type": "object",
+            "properties": {
+              "texte": {
+                "type": "string",
+                "minLength": 1
+              },
+              "cta": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "texte",
+              "cta"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "cadre",
+          "pointsAppui",
+          "priorites",
+          "etapeSuivante"
+        ],
+        "additionalProperties": false
+      },
+      "nexus": {
+        "type": "object",
+        "properties": {
+          "syntheseProfil": {
+            "type": "string",
+            "minLength": 1
+          },
+          "diagnosticPedagogique": {
+            "type": "string",
+            "minLength": 1
+          },
+          "planQuatreSemaines": {
+            "type": "string",
+            "minLength": 1
+          },
+          "alertes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "ragReferences": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "required": [
+          "syntheseProfil",
+          "diagnosticPedagogique",
+          "planQuatreSemaines",
+          "alertes",
+          "ragReferences"
+        ],
+        "additionalProperties": false
+      },
+      "verifier": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "type": "boolean"
+          },
+          "violations": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "required": [
+          "ok",
+          "violations"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "validation": {
+    "lexiconPath": "data/bilans/lexique-interdit.json",
+    "forbidDigits": [
+      "eleve",
+      "parents"
+    ]
+  }
+}

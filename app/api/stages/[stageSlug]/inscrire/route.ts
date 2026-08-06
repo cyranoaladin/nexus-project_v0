@@ -2,11 +2,12 @@ export const dynamic = 'force-dynamic';
 
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { sendMail } from '@/lib/email/mailer';
+import { enqueueEmailIntent } from '@/lib/email/outbox';
+import { kickEmailOutboxDrain } from '@/lib/email/outbox-scheduler';
 import { telegramSendMessage } from '@/lib/telegram/client';
 import { computeReservationStatus } from '@/lib/stages/capacity';
 import { publicStageInscriptionSchema } from '@/lib/stages/inscription-schema';
-import { guardRateLimitAsync } from '@/lib/rate-limit';
+import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive';
 import { z } from 'zod';
 import { canAcceptPreRentreeCampaignSubmission } from '@/lib/campaigns/pre-rentree-2026/release-gate';
 
@@ -27,7 +28,11 @@ export async function POST(
     return NextResponse.json({ error: 'Stage introuvable' }, { status: 404 });
   }
 
-  const blocked = await guardRateLimitAsync(req, { preset: 'api', keySuffix: `stage-inscrire:${stageSlug}` });
+  const blocked = await guardSensitiveRateLimit(req, {
+    scope: 'stage-registration',
+    resource: stageSlug,
+    dimensions: ['ip', 'resource'],
+  });
   if (blocked) return blocked;
 
   let body: unknown;
@@ -41,6 +46,13 @@ export async function POST(
   if (!parsed.success) {
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
   }
+
+  const identityBlocked = await guardSensitiveRateLimit(req, {
+    scope: 'stage-registration',
+    identity: parsed.data.parentEmail || parsed.data.email,
+    dimensions: ['identity'],
+  });
+  if (identityBlocked) return identityBlocked;
 
   const {
     firstName,
@@ -96,33 +108,38 @@ export async function POST(
       dataProcessingAccepted ? 'Consentement données: oui' : null,
     ].filter(Boolean).join('\n');
 
-    await prisma.stageReservation.create({
-      data: {
-        stageId: stage.id,
-        email,
-        parentName,
-        studentName,
-        phone: phone?.trim() || parentPhone?.trim() || '',
-        classe: level ?? '',
-        academyId: stage.slug,
-        academyTitle: stage.title,
-        price: Number(stage.priceAmount),
-        richStatus,
-        notes: additionalNotes || null,
-      },
-    });
-
     const statusLabel = richStatus === 'WAITLISTED' ? "Liste d'attente" : 'En attente de confirmation';
-
-    await sendMail({
-      to: email,
-      subject: `Inscription reçue — ${stage.title}`,
-      html: `<p>Bonjour ${firstName},</p>
+    await prisma.$transaction(async (tx) => {
+      const reservation = await tx.stageReservation.create({
+        data: {
+          stageId: stage.id,
+          email,
+          parentName,
+          studentName,
+          phone: phone?.trim() || parentPhone?.trim() || '',
+          classe: level ?? '',
+          academyId: stage.slug,
+          academyTitle: stage.title,
+          price: Number(stage.priceAmount),
+          richStatus,
+          notes: additionalNotes || null,
+        },
+      });
+      await enqueueEmailIntent(tx, {
+        aggregateType: 'STAGE_RESERVATION',
+        aggregateId: reservation.id,
+        messageType: 'TRANSACTIONAL_NOTIFICATION',
+        dedupeKey: `registration:${reservation.id}`,
+        to: email,
+        subject: `Inscription reçue — ${stage.title}`,
+        html: `<p>Bonjour ${firstName},</p>
              <p>Votre inscription au <strong>${stage.title}</strong> a bien été reçue.</p>
              <p>Statut : <strong>${statusLabel}</strong>.</p>
              <p>Notre équipe vous contactera dans les 24h pour les détails de paiement.</p>
              <p>L'équipe Nexus Réussite</p>`,
+      });
     });
+    kickEmailOutboxDrain();
 
     await telegramSendMessage(
       undefined,

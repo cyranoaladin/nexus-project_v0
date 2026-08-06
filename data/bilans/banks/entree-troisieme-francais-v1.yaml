@@ -1,0 +1,532 @@
+# =============================================================================
+# Banque de positionnement — ENTRÉE EN TROISIÈME, Français
+#
+# Doctrine : intersection Quatrième / Troisième. Chaque item porte sur un
+# prérequis structurant SANS LEQUEL les premières semaines de Troisième — et
+# la préparation du brevet — sont inaccessibles.
+#
+# STATUT : DRAFT — proposition à amender par le responsable pédagogique.
+# La validation relève d'un enseignant de lettres.
+#
+# 18 items · 9 nœuds de prérequis · 2 items par nœud (règle V4)
+# Distribution des bonnes réponses : A=5, B=5, C=4, D=4 (règle V14 : max 40 %)
+# =============================================================================
+
+slug: entree-troisieme-francais-v1
+level: TROISIEME
+subject: FRANCAIS
+version: 1
+status: DRAFT
+targetDurationMin: 25
+
+items:
+
+  # ===========================================================================
+  # NŒUD 1 — Classes grammaticales
+  # Pourquoi c'est structurant : identifier la nature d'un mot conditionne
+  # l'analyse grammaticale, la réécriture du brevet et l'accord. Un élève qui
+  # confond adjectif et adverbe ne peut pas justifier une transformation.
+  # ===========================================================================
+
+  - id: ETR-FRA-CLA-01
+    nodeCpsId: 4e.francais.grammaire.classes-grammaticales
+    type: QCM_SIMPLE
+    difficulty: 1
+    targetTimeSec: 50
+    statement: "Dans la phrase « Elle a répondu calmement », quelle est la classe grammaticale du mot « calmement » ?"
+    options:
+      - key: A
+        label: "adjectif qualificatif"
+        correct: false
+        distractorRationale: "Confond l'adverbe, qui modifie le verbe et reste invariable, avec l'adjectif, qui s'accorde avec un nom."
+      - key: B
+        label: "préposition"
+        correct: false
+        distractorRationale: "Range le mot parmi les invariables sans distinguer leurs rôles dans la phrase."
+      - key: C
+        label: "adverbe"
+        correct: true
+      - key: D
+        label: "conjonction de coordination"
+        correct: false
+        distractorRationale: "Confond un modificateur du verbe avec un mot de liaison entre propositions."
+    shortCorrection: "Un mot invariable qui modifie le sens d'un verbe est un adverbe. Le suffixe -ment en est souvent l'indice, mais c'est le rôle dans la phrase qui décide."
+    tags: [grammaire, classes-grammaticales]
+
+  - id: ETR-FRA-CLA-02
+    nodeCpsId: 4e.francais.grammaire.classes-grammaticales
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 50
+    statement: "Dans la phrase « Ce livre est passionnant », quelle est la classe grammaticale du mot « ce » ?"
+    options:
+      - key: A
+        label: "déterminant démonstratif"
+        correct: true
+      - key: B
+        label: "pronom démonstratif"
+        correct: false
+        distractorRationale: "Confond « ce » déterminant, qui accompagne un nom, avec « ce » pronom, qui le remplace comme dans « ce que je dis »."
+      - key: C
+        label: "adjectif qualificatif"
+        correct: false
+        distractorRationale: "Croit que tout mot placé devant un nom le qualifie, sans distinguer déterminer et qualifier."
+      - key: D
+        label: "préposition"
+        correct: false
+        distractorRationale: "Classe le mot parmi les outils grammaticaux sans identifier son rapport au nom."
+    shortCorrection: "« Ce » accompagne le nom « livre » et ne peut être supprimé : c'est un déterminant démonstratif. Le pronom, lui, remplace le nom au lieu de l'accompagner."
+    tags: [grammaire, determinants]
+
+  # ===========================================================================
+  # NŒUD 2 — Fonctions dans la phrase
+  # Pourquoi c'est structurant : l'exercice de réécriture du brevet et l'accord
+  # du participe passé supposent d'identifier sûrement le sujet, le complément
+  # d'objet et l'attribut.
+  # ===========================================================================
+
+  - id: ETR-FRA-FON-01
+    nodeCpsId: 4e.francais.grammaire.fonctions
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 55
+    statement: "Dans « Les élèves offrent des fleurs à leur professeure », quelle est la fonction du groupe « à leur professeure » ?"
+    options:
+      - key: A
+        label: "complément d'objet direct"
+        correct: false
+        distractorRationale: "Ne tient pas compte de la préposition, qui rend le complément indirect."
+      - key: B
+        label: "sujet"
+        correct: false
+        distractorRationale: "Attribue la fonction sujet à un groupe placé après le verbe."
+      - key: C
+        label: "complément circonstanciel de lieu"
+        correct: false
+        distractorRationale: "Interprète la préposition « à » comme une indication de lieu, alors qu'elle introduit ici le destinataire de l'action."
+      - key: D
+        label: "complément d'objet indirect"
+        correct: true
+    shortCorrection: "Le complément est relié au verbe par la préposition « à » : il est indirect. On le trouve en posant la question « à qui ? » après le verbe."
+    tags: [grammaire, fonctions]
+
+  - id: ETR-FRA-FON-02
+    nodeCpsId: 4e.francais.grammaire.fonctions
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 55
+    statement: "Dans « Cette histoire semble incroyable », quelle est la fonction du mot « incroyable » ?"
+    options:
+      - key: A
+        label: "complément d'objet direct"
+        correct: false
+        distractorRationale: "Traite tout mot placé après le verbe comme un complément d'objet, sans reconnaître un verbe d'état."
+      - key: B
+        label: "attribut du sujet"
+        correct: true
+      - key: C
+        label: "épithète"
+        correct: false
+        distractorRationale: "Confond l'adjectif attribut, relié au sujet par un verbe d'état, avec l'épithète, directement accolée au nom."
+      - key: D
+        label: "complément du nom"
+        correct: false
+        distractorRationale: "Cherche un rattachement au nom alors que l'adjectif dépend ici du verbe."
+    shortCorrection: "« Sembler » est un verbe d'état : il relie le sujet à une caractéristique. L'adjectif qui suit est donc attribut du sujet, et il s'accorde avec lui."
+    tags: [grammaire, attribut]
+
+  # ===========================================================================
+  # NŒUD 3 — Temps du récit et conjugaison
+  # Pourquoi c'est structurant : le récit au passé structure toutes les
+  # lectures et les rédactions de Troisième. Le passé simple, peu employé à
+  # l'oral, reste fragile à l'écrit.
+  # ===========================================================================
+
+  - id: ETR-FRA-CNJ-01
+    nodeCpsId: 4e.francais.conjugaison.temps-du-recit
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 45
+    statement: "Quelle est la forme correcte du verbe « prendre » à la troisième personne du pluriel du passé simple ?"
+    options:
+      - key: A
+        label: "ils prirent"
+        correct: true
+      - key: B
+        label: "ils prenaient"
+        correct: false
+        distractorRationale: "Donne l'imparfait, temps de l'arrière-plan, au lieu du passé simple."
+      - key: C
+        label: "ils prendrent"
+        correct: false
+        distractorRationale: "Construit une forme inexistante par analogie avec les verbes du premier groupe."
+      - key: D
+        label: "ils ont pris"
+        correct: false
+        distractorRationale: "Donne le passé composé, temps du discours, au lieu du passé simple, temps du récit."
+    shortCorrection: "Le passé simple de « prendre » est irrégulier : je pris, tu pris, il prit, nous prîmes, vous prîtes, ils prirent."
+    tags: [conjugaison, passe-simple]
+
+  - id: ETR-FRA-CNJ-02
+    nodeCpsId: 4e.francais.conjugaison.temps-du-recit
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 55
+    statement: "Dans un récit au passé, quel temps emploie-t-on pour une action brève, achevée, qui fait avancer l'histoire ?"
+    options:
+      - key: A
+        label: "l'imparfait"
+        correct: false
+        distractorRationale: "Attribue au premier plan le temps qui sert justement à l'arrière-plan, aux descriptions et aux habitudes."
+      - key: B
+        label: "le présent de narration"
+        correct: false
+        distractorRationale: "Retient un effet de style ponctuel comme s'il était le temps de base du récit au passé."
+      - key: C
+        label: "le passé simple"
+        correct: true
+      - key: D
+        label: "le plus-que-parfait"
+        correct: false
+        distractorRationale: "Confond l'action de premier plan avec une action antérieure au récit."
+    shortCorrection: "Le passé simple porte les actions de premier plan, brèves et achevées. L'imparfait installe le décor et les actions qui durent."
+    tags: [conjugaison, valeurs-des-temps]
+
+  # ===========================================================================
+  # NŒUD 4 — Accords : sujet-verbe et participe passé
+  # Pourquoi c'est structurant : la dictée et la réécriture du brevet évaluent
+  # directement ces accords, et la rédaction en dépend entièrement.
+  # ===========================================================================
+
+  - id: ETR-FRA-ACC-01
+    nodeCpsId: 4e.francais.orthographe.accords
+    type: QCM_SIMPLE
+    difficulty: 3
+    targetTimeSec: 65
+    statement: "Quelle phrase est correctement orthographiée ?"
+    options:
+      - key: A
+        label: "Les lettres qu'elle a écrit sont longues."
+        correct: false
+        distractorRationale: "N'accorde pas le participe passé avec le complément d'objet direct placé avant le verbe."
+      - key: B
+        label: "Les lettres qu'elle a écrites sont longues."
+        correct: true
+      - key: C
+        label: "Les lettres qu'elle a écrit sont longue."
+        correct: false
+        distractorRationale: "Cumule l'absence d'accord du participe passé et celle de l'adjectif attribut."
+      - key: D
+        label: "Les lettres qu'elles a écrites sont longues."
+        correct: false
+        distractorRationale: "Accorde le pronom sujet avec le nom pluriel qui précède, alors que le sujet est singulier."
+    shortCorrection: "Avec l'auxiliaire avoir, le participe passé s'accorde avec le complément d'objet direct lorsque celui-ci est placé avant le verbe. Ici « qu' » reprend « les lettres »."
+    tags: [orthographe, participe-passe]
+
+  - id: ETR-FRA-ACC-02
+    nodeCpsId: 4e.francais.orthographe.accords
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 50
+    statement: "Complétez correctement : « La liste des candidats … affichée dans le hall. »"
+    options:
+      - key: A
+        label: "sont"
+        correct: false
+        distractorRationale: "Accorde le verbe avec le nom le plus proche au lieu du noyau du groupe sujet."
+      - key: B
+        label: "seront"
+        correct: false
+        distractorRationale: "Change le temps sans justification et conserve un accord au pluriel."
+      - key: C
+        label: "ont été"
+        correct: false
+        distractorRationale: "Introduit un temps composé injustifié et maintient l'accord avec le complément du nom."
+      - key: D
+        label: "est"
+        correct: true
+    shortCorrection: "Le noyau du groupe sujet est « la liste », au singulier. Le complément du nom « des candidats » ne commande pas l'accord du verbe."
+    tags: [orthographe, accord-sujet-verbe]
+
+  # ===========================================================================
+  # NŒUD 5 — Phrase simple, phrase complexe, propositions
+  # Pourquoi c'est structurant : l'analyse des subordonnées, au programme de
+  # Troisième, suppose de savoir compter et identifier les propositions.
+  # ===========================================================================
+
+  - id: ETR-FRA-PRO-01
+    nodeCpsId: 4e.francais.grammaire.phrase-complexe
+    type: QCM_SIMPLE
+    difficulty: 3
+    targetTimeSec: 70
+    statement: "Combien de propositions compte la phrase « Quand il est arrivé, la fête avait commencé et personne ne l'attendait plus » ?"
+    options:
+      - key: A
+        label: "trois"
+        correct: true
+      - key: B
+        label: "deux"
+        correct: false
+        distractorRationale: "Ne compte que les propositions indépendantes et néglige la subordonnée introduite par « quand »."
+      - key: C
+        label: "une"
+        correct: false
+        distractorRationale: "Compte une proposition par phrase, sans repérer les verbes conjugués."
+      - key: D
+        label: "quatre"
+        correct: false
+        distractorRationale: "Compte un participe ou un infinitif comme un verbe conjugué supplémentaire."
+    shortCorrection: "On compte autant de propositions que de verbes conjugués : « est arrivé », « avait commencé » et « attendait ». La phrase en compte donc trois."
+    tags: [grammaire, propositions]
+
+  - id: ETR-FRA-PRO-02
+    nodeCpsId: 4e.francais.grammaire.phrase-complexe
+    type: QCM_SIMPLE
+    difficulty: 3
+    targetTimeSec: 60
+    statement: "Dans la phrase « Je sais que tu viendras », la proposition « que tu viendras » est :"
+    options:
+      - key: A
+        label: "une proposition indépendante"
+        correct: false
+        distractorRationale: "Ignore le lien de subordination et traite la seconde proposition comme autonome."
+      - key: B
+        label: "une subordonnée conjonctive complétive"
+        correct: true
+      - key: C
+        label: "une subordonnée relative"
+        correct: false
+        distractorRationale: "Confond « que » conjonction de subordination et « que » pronom relatif, qui reprendrait un nom antécédent."
+      - key: D
+        label: "une proposition juxtaposée"
+        correct: false
+        distractorRationale: "Suppose une simple mise côte à côte, alors que « que » établit une dépendance."
+    shortCorrection: "« Que » introduit ici une subordonnée qui complète le verbe « sais » : elle est conjonctive complétive. Une relative reprendrait un nom placé avant elle."
+    tags: [grammaire, subordonnees]
+
+  # ===========================================================================
+  # NŒUD 6 — Discours rapporté
+  # Pourquoi c'est structurant : le passage du discours direct à l'indirect est
+  # un exercice récurrent de la réécriture du brevet, et il conditionne
+  # l'analyse des dialogues romanesques.
+  # ===========================================================================
+
+  - id: ETR-FRA-DIS-01
+    nodeCpsId: 4e.francais.grammaire.discours-rapporte
+    type: QCM_SIMPLE
+    difficulty: 3
+    targetTimeSec: 70
+    statement: "Transposez au discours indirect : Il a dit : « Je viendrai demain. »"
+    options:
+      - key: A
+        label: "Il a dit qu'il viendra demain."
+        correct: false
+        distractorRationale: "Ne fait ni la concordance des temps ni la transposition de l'indicateur temporel."
+      - key: B
+        label: "Il a dit : qu'il viendrait demain."
+        correct: false
+        distractorRationale: "Mélange la ponctuation du discours direct et la subordination du discours indirect."
+      - key: C
+        label: "Il a dit qu'il viendrait le lendemain."
+        correct: true
+      - key: D
+        label: "Il a dit qu'il vient demain."
+        correct: false
+        distractorRationale: "Passe au présent au lieu du conditionnel et conserve l'indicateur du discours direct."
+    shortCorrection: "Au discours indirect, le futur devient conditionnel et les indicateurs de temps se transposent : « demain » devient « le lendemain ». Les guillemets disparaissent."
+    tags: [discours-rapporte, transposition]
+
+  - id: ETR-FRA-DIS-02
+    nodeCpsId: 4e.francais.grammaire.discours-rapporte
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 50
+    statement: "Quel est l'effet principal du discours direct dans un récit ?"
+    options:
+      - key: A
+        label: "rapporter les paroles telles qu'elles ont été prononcées et rendre la scène vivante"
+        correct: true
+      - key: B
+        label: "résumer les paroles pour accélérer le récit"
+        correct: false
+        distractorRationale: "Donne l'effet du discours narrativisé, qui condense les paroles au lieu de les citer."
+      - key: C
+        label: "exprimer les pensées du narrateur plutôt que celles des personnages"
+        correct: false
+        distractorRationale: "Confond la parole rapportée d'un personnage avec le commentaire du narrateur."
+      - key: D
+        label: "marquer la distance du narrateur avec les personnages"
+        correct: false
+        distractorRationale: "Attribue au discours direct l'effet de mise à distance propre au discours indirect."
+    shortCorrection: "Le discours direct cite les paroles sans les transformer. Il ralentit le récit, donne à entendre la voix des personnages et rend la scène plus vivante."
+    tags: [discours-rapporte, effets]
+
+  # ===========================================================================
+  # NŒUD 7 — Lexique et figures de style
+  # Pourquoi c'est structurant : la poésie et l'argumentation de Troisième
+  # exigent de nommer précisément les images. La confusion entre comparaison,
+  # métaphore et personnification est la plus fréquente.
+  # ===========================================================================
+
+  - id: ETR-FRA-LEX-01
+    nodeCpsId: 4e.francais.lexique.figures-de-style
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 45
+    statement: "Dans la phrase « Cet homme est un lion », quelle figure de style est employée ?"
+    options:
+      - key: A
+        label: "une comparaison"
+        correct: false
+        distractorRationale: "Identifie bien un rapprochement mais ne voit pas qu'aucun outil comparatif n'est employé."
+      - key: B
+        label: "une personnification"
+        correct: false
+        distractorRationale: "Confond l'attribution de traits animaux à un humain avec l'attribution de traits humains à un être inanimé."
+      - key: C
+        label: "une hyperbole"
+        correct: false
+        distractorRationale: "Retient l'idée d'exagération sans identifier le rapprochement entre deux réalités."
+      - key: D
+        label: "une métaphore"
+        correct: true
+    shortCorrection: "Le rapprochement se fait sans outil comparatif comme « comme » ou « tel » : c'est une métaphore. Avec un outil, ce serait une comparaison."
+    tags: [lexique, metaphore]
+
+  - id: ETR-FRA-LEX-02
+    nodeCpsId: 4e.francais.lexique.figures-de-style
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 45
+    statement: "Dans l'expression « la ville dort », quelle figure de style est employée ?"
+    options:
+      - key: A
+        label: "une métaphore"
+        correct: false
+        distractorRationale: "Reconnaît une image mais ne voit pas qu'une action proprement humaine est prêtée à un être inanimé."
+      - key: B
+        label: "une personnification"
+        correct: true
+      - key: C
+        label: "une comparaison"
+        correct: false
+        distractorRationale: "Cherche un outil comparatif qui n'est pas présent dans l'expression."
+      - key: D
+        label: "une litote"
+        correct: false
+        distractorRationale: "Confond l'attribution de traits humains avec une atténuation qui suggère plus qu'elle ne dit."
+    shortCorrection: "Une action humaine, dormir, est attribuée à un être inanimé, la ville : c'est une personnification."
+    tags: [lexique, personnification]
+
+  # ===========================================================================
+  # NŒUD 8 — Narrateur et points de vue
+  # Pourquoi c'est structurant : l'autobiographie et le roman du XXe siècle,
+  # au programme de Troisième, reposent entièrement sur l'identification du
+  # narrateur et du point de vue adopté.
+  # ===========================================================================
+
+  - id: ETR-FRA-NAR-01
+    nodeCpsId: 4e.francais.lecture.narrateur-points-de-vue
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 55
+    statement: "Dans un récit, lorsque le narrateur dit « je » et participe lui-même à l'histoire, on parle de :"
+    options:
+      - key: A
+        label: "point de vue externe"
+        correct: false
+        distractorRationale: "Attribue au narrateur-personnage le regard extérieur d'un observateur qui ignore les pensées."
+      - key: B
+        label: "narrateur omniscient"
+        correct: false
+        distractorRationale: "Confond la présence du narrateur dans l'histoire avec sa connaissance illimitée de tous les personnages."
+      - key: C
+        label: "narrateur personnage, en focalisation interne"
+        correct: true
+      - key: D
+        label: "discours indirect libre"
+        correct: false
+        distractorRationale: "Confond un procédé de rapport des paroles avec la position du narrateur dans le récit."
+    shortCorrection: "Un narrateur qui dit « je » et prend part à l'histoire est un narrateur personnage. Le lecteur ne connaît alors que ce que ce personnage perçoit."
+    tags: [lecture, narrateur]
+
+  - id: ETR-FRA-NAR-02
+    nodeCpsId: 4e.francais.lecture.narrateur-points-de-vue
+    type: QCM_SIMPLE
+    difficulty: 3
+    targetTimeSec: 55
+    statement: "Un narrateur qui connaît les pensées de tous les personnages adopte :"
+    options:
+      - key: A
+        label: "une focalisation interne"
+        correct: false
+        distractorRationale: "Confond l'accès aux pensées d'un seul personnage avec l'accès à celles de tous."
+      - key: B
+        label: "une focalisation externe"
+        correct: false
+        distractorRationale: "Attribue au narrateur omniscient le regard purement extérieur d'une caméra."
+      - key: C
+        label: "le point de vue d'un personnage secondaire"
+        correct: false
+        distractorRationale: "Cherche un porteur du regard dans l'histoire alors que le narrateur lui est extérieur."
+      - key: D
+        label: "une focalisation zéro, dite omnisciente"
+        correct: true
+    shortCorrection: "Quand le narrateur sait tout de tous les personnages, y compris de leurs pensées, on parle de focalisation zéro ou de narrateur omniscient."
+    tags: [lecture, focalisation]
+
+  # ===========================================================================
+  # NŒUD 9 — Homophones grammaticaux
+  # Pourquoi c'est structurant : la dictée du brevet évalue directement ces
+  # distinctions, et une confusion récurrente pénalise toute production écrite.
+  # ===========================================================================
+
+  - id: ETR-FRA-ORT-01
+    nodeCpsId: 4e.francais.orthographe.homophones-grammaticaux
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 55
+    statement: "Quelle phrase est correctement orthographiée ?"
+    options:
+      - key: A
+        label: "Il s'est aperçu qu'il avait tort."
+        correct: true
+      - key: B
+        label: "Il c'est aperçu qu'il avait tort."
+        correct: false
+        distractorRationale: "Confond « c'est », présentatif, et « s'est », forme du verbe pronominal."
+      - key: C
+        label: "Il s'est aperçu qu'il avais tort."
+        correct: false
+        distractorRationale: "Accorde le verbe de la subordonnée à la deuxième personne alors que son sujet est « il »."
+      - key: D
+        label: "Il ces aperçu qu'il avait tort."
+        correct: false
+        distractorRationale: "Confond le déterminant démonstratif pluriel « ces » avec la forme pronominale « s'est »."
+    shortCorrection: "Le verbe « s'apercevoir » est pronominal : il se conjugue avec le pronom réfléchi « se », qui devient « s' » devant une voyelle. On écrit donc « il s'est aperçu »."
+    tags: [orthographe, homophones]
+
+  - id: ETR-FRA-ORT-02
+    nodeCpsId: 4e.francais.orthographe.homophones-grammaticaux
+    type: QCM_SIMPLE
+    difficulty: 3
+    targetTimeSec: 60
+    statement: "Quelle phrase est correctement orthographiée ?"
+    options:
+      - key: A
+        label: "Ils sont partis sans qu'on les es prévenus."
+        correct: false
+        distractorRationale: "Écrit une forme verbale inexistante à partir de la seule ressemblance sonore."
+      - key: B
+        label: "Ils sont partis sans qu'on les ait prévenus."
+        correct: true
+      - key: C
+        label: "Ils sont partis sans qu'on les a prévenus."
+        correct: false
+        distractorRationale: "Emploie l'indicatif après une locution conjonctive qui exige le subjonctif."
+      - key: D
+        label: "Ils sont partis sans qu'on les et prévenus."
+        correct: false
+        distractorRationale: "Confond la conjonction de coordination « et » avec la forme conjuguée de l'auxiliaire avoir."
+    shortCorrection: "La locution « sans que » est suivie du subjonctif : « qu'on les ait prévenus ». On distingue « ait », forme du verbe avoir, de « et », qui relie deux éléments."
+    tags: [orthographe, homophones, subjonctif]

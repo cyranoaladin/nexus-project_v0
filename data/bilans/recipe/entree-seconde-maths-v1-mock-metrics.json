@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "nexus-bilan-mock-recipe-metrics/v1",
+  "fixtureCount": 20,
+  "audienceReportCount": 60,
+  "gatewayRunCount": 20,
+  "agentCallCount": 100,
+  "validationViolations": {
+    "V1": 0,
+    "V2": 0,
+    "V3": 0,
+    "V4": 0,
+    "V5": 0,
+    "V6": 0,
+    "V7": 0
+  }
+}

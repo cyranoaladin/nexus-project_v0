@@ -163,7 +163,7 @@ describe('PR #79 complete CI evidence workflow', () => {
       '__tests__/integration/predict-ownership.real.test.ts',
     );
     expect(commands).toContain('__tests__/security/idor-real.test.ts');
-    expect(commands).not.toContain('__tests__/lib/bilan/');
+    expect(commands).not.toContain('__tests__/lib/bilan-runtime/');
     expect(commands).not.toContain('prisma db push');
     expect(commands).not.toMatch(/\bseed\b/i);
     expect(source).not.toContain('${{ secrets.');
@@ -172,15 +172,25 @@ describe('PR #79 complete CI evidence workflow', () => {
 
   test('keeps protected Bilan real tests outside general integration evidence', () => {
     const integration = workflow.jobs.integration;
+    const bilanRuntime = workflow.jobs['bilan-runtime-real-db'];
     const commands = integration.steps
+      .filter((step) => typeof step.run === 'string')
+      .map((step) => step.run)
+      .join('\n');
+    const bilanRuntimeCommands = bilanRuntime.steps
       .filter((step) => typeof step.run === 'string')
       .map((step) => step.run)
       .join('\n');
 
     expect(commands).toContain(
-      "--testPathIgnorePatterns='/__tests__/lib/bilan/'",
+      "--testPathIgnorePatterns='/__tests__/lib/bilan-runtime/'",
     );
     expect(commands).not.toContain('npm run test:db-integration');
+    expect(bilanRuntime.services.postgres.image).toBe('pgvector/pgvector:pg16');
+    expect(bilanRuntimeCommands).toContain('npx prisma migrate deploy');
+    expect(bilanRuntimeCommands).toContain(
+      '__tests__/lib/bilan-runtime/bilan-schema.real.test.ts',
+    );
   });
 
   test('verifies frozen public documents without regenerating them', () => {

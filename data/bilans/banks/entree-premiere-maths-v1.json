@@ -1,0 +1,1075 @@
+{
+  "slug": "entree-premiere-maths-v1",
+  "level": "PREMIERE",
+  "subject": "MATHS",
+  "version": 1,
+  "status": "VALIDATED",
+  "review": {
+    "validatedBy": "cmomnwolx0001mi0u8m8zj53w",
+    "validatedAt": "2026-08-05T07:01:23.387Z"
+  },
+  "questionnaire": {
+    "targetDurationMin": 25,
+    "confidenceScale": {
+      "levels": 4,
+      "labels": [
+        "je devine",
+        "peu sûr",
+        "plutôt sûr",
+        "certain"
+      ]
+    },
+    "items": [
+      {
+        "id": "EPR-MAT-CLI-01",
+        "subject": "MATHS",
+        "category": "Calcul littéral : identités remarquables et factorisation",
+        "domainId": "calcul-litteral",
+        "nodeCpsId": "2de.maths.calcul-litteral.identites-remarquables",
+        "difficulty": 1,
+        "targetTimeSec": 60,
+        "shortCorrection": "L'identité (a − b)² = a² − 2ab + b² donne (2x)² − 2 × 2x × 3 + 3² = 4x² − 12x + 9. Le double produit ne doit jamais être oublié.",
+        "weight": 1,
+        "competencies": [
+          "2de.maths.calcul-litteral.identites-remarquables"
+        ],
+        "questionText": "Développer et réduire (2x − 3)².",
+        "options": [
+          {
+            "id": "A",
+            "text": "4x² + 9",
+            "isCorrect": false,
+            "distractorRationale": "Élève chaque terme au carré et oublie le double produit : applique (a − b)² = a² + b²."
+          },
+          {
+            "id": "B",
+            "text": "4x² − 12x + 9",
+            "isCorrect": true
+          },
+          {
+            "id": "C",
+            "text": "4x² − 9",
+            "isCorrect": false,
+            "distractorRationale": "Confond le carré d'une différence avec le produit (a − b)(a + b)."
+          },
+          {
+            "id": "D",
+            "text": "2x² − 12x + 9",
+            "isCorrect": false,
+            "distractorRationale": "N'élève pas au carré le coefficient 2 du terme en x."
+          }
+        ],
+        "explanation": "L'identité (a − b)² = a² − 2ab + b² donne (2x)² − 2 × 2x × 3 + 3² = 4x² − 12x + 9. Le double produit ne doit jamais être oublié."
+      },
+      {
+        "id": "EPR-MAT-CLI-02",
+        "subject": "MATHS",
+        "category": "Calcul littéral : identités remarquables et factorisation",
+        "domainId": "calcul-litteral",
+        "nodeCpsId": "2de.maths.calcul-litteral.identites-remarquables",
+        "difficulty": 2,
+        "targetTimeSec": 60,
+        "shortCorrection": "x² − 9 est une différence de deux carrés : x² − 3². Elle se factorise en (x − 3)(x + 3).",
+        "weight": 2,
+        "competencies": [
+          "2de.maths.calcul-litteral.identites-remarquables"
+        ],
+        "questionText": "Factoriser l'expression x² − 9.",
+        "options": [
+          {
+            "id": "A",
+            "text": "(x − 3)(x + 3)",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "(x − 3)²",
+            "isCorrect": false,
+            "distractorRationale": "Confond la différence de deux carrés avec l'identité a² − 2ab + b²."
+          },
+          {
+            "id": "C",
+            "text": "(x − 9)(x + 9)",
+            "isCorrect": false,
+            "distractorRationale": "Reporte le nombre 9 tel quel sans en prendre la racine carrée."
+          },
+          {
+            "id": "D",
+            "text": "x(x − 9)",
+            "isCorrect": false,
+            "distractorRationale": "Factorise par x alors que le terme constant n'est pas un multiple de x."
+          }
+        ],
+        "explanation": "x² − 9 est une différence de deux carrés : x² − 3². Elle se factorise en (x − 3)(x + 3)."
+      },
+      {
+        "id": "EPR-MAT-INE-01",
+        "subject": "MATHS",
+        "category": "Inéquations et tableaux de signes",
+        "domainId": "inequations",
+        "nodeCpsId": "2de.maths.inequations.resolution-premier-degre",
+        "difficulty": 2,
+        "targetTimeSec": 60,
+        "shortCorrection": "On isole x : −2x ≥ −6. En divisant par −2, nombre négatif, le sens de l'inégalité s'inverse : x ≤ 3.",
+        "weight": 2,
+        "competencies": [
+          "2de.maths.inequations.resolution-premier-degre"
+        ],
+        "questionText": "Résoudre dans ℝ l'inéquation −2x + 6 ≥ 0.",
+        "options": [
+          {
+            "id": "A",
+            "text": "x ≥ 3",
+            "isCorrect": false,
+            "distractorRationale": "N'inverse pas le sens de l'inégalité lors de la division par −2."
+          },
+          {
+            "id": "B",
+            "text": "x ≥ −3",
+            "isCorrect": false,
+            "distractorRationale": "Cumule l'oubli de l'inversion et une erreur de signe sur le second membre."
+          },
+          {
+            "id": "C",
+            "text": "x ≤ 3",
+            "isCorrect": true
+          },
+          {
+            "id": "D",
+            "text": "x ≤ −3",
+            "isCorrect": false,
+            "distractorRationale": "Inverse correctement l'inégalité mais commet une erreur de signe en isolant x."
+          }
+        ],
+        "explanation": "On isole x : −2x ≥ −6. En divisant par −2, nombre négatif, le sens de l'inégalité s'inverse : x ≤ 3."
+      },
+      {
+        "id": "EPR-MAT-INE-02",
+        "subject": "MATHS",
+        "category": "Inéquations et tableaux de signes",
+        "domainId": "inequations",
+        "nodeCpsId": "2de.maths.inequations.resolution-premier-degre",
+        "difficulty": 3,
+        "targetTimeSec": 85,
+        "shortCorrection": "Les facteurs s'annulent en 3 et en −1. Un tableau de signes montre que le produit est négatif uniquement entre ces deux valeurs : −1 < x < 3.",
+        "weight": 3,
+        "competencies": [
+          "2de.maths.inequations.resolution-premier-degre"
+        ],
+        "questionText": "Pour quelles valeurs de x le produit (2x − 6)(x + 1) est-il strictement négatif ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "x < −1 ou x > 3",
+            "isCorrect": false,
+            "distractorRationale": "Inverse la lecture du tableau de signes et retient les intervalles où le produit est positif."
+          },
+          {
+            "id": "B",
+            "text": "x < 3",
+            "isCorrect": false,
+            "distractorRationale": "N'étudie que le premier facteur et néglige le second."
+          },
+          {
+            "id": "C",
+            "text": "−6 < x < 1",
+            "isCorrect": false,
+            "distractorRationale": "Lit les constantes des facteurs comme si elles étaient les valeurs d'annulation."
+          },
+          {
+            "id": "D",
+            "text": "−1 < x < 3",
+            "isCorrect": true
+          }
+        ],
+        "explanation": "Les facteurs s'annulent en 3 et en −1. Un tableau de signes montre que le produit est négatif uniquement entre ces deux valeurs : −1 < x < 3."
+      },
+      {
+        "id": "EPR-MAT-FON-01",
+        "subject": "MATHS",
+        "category": "Fonctions : image, antécédent, notation",
+        "domainId": "fonctions",
+        "nodeCpsId": "2de.maths.fonctions.image-antecedent",
+        "difficulty": 1,
+        "targetTimeSec": 55,
+        "shortCorrection": "On remplace x par −2 : (−2)² − 3 × (−2) = 4 + 6 = 10. Les parenthèses autour d'une valeur négative sont indispensables.",
+        "weight": 1,
+        "competencies": [
+          "2de.maths.fonctions.image-antecedent"
+        ],
+        "questionText": "Soit f la fonction définie par f(x) = x² − 3x. Que vaut f(−2) ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "10",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "2",
+            "isCorrect": false,
+            "distractorRationale": "Calcule (−2)² comme s'il valait −4 : ne met pas la valeur négative entre parenthèses."
+          },
+          {
+            "id": "C",
+            "text": "−2",
+            "isCorrect": false,
+            "distractorRationale": "Oublie que le produit −3 × (−2) est positif."
+          },
+          {
+            "id": "D",
+            "text": "−10",
+            "isCorrect": false,
+            "distractorRationale": "Cumule les deux erreurs de signe précédentes."
+          }
+        ],
+        "explanation": "On remplace x par −2 : (−2)² − 3 × (−2) = 4 + 6 = 10. Les parenthèses autour d'une valeur négative sont indispensables."
+      },
+      {
+        "id": "EPR-MAT-FON-02",
+        "subject": "MATHS",
+        "category": "Fonctions : image, antécédent, notation",
+        "domainId": "fonctions",
+        "nodeCpsId": "2de.maths.fonctions.image-antecedent",
+        "difficulty": 1,
+        "targetTimeSec": 45,
+        "shortCorrection": "L'abscisse est l'antécédent, l'ordonnée est l'image. Le point (3 ; 7) traduit donc f(3) = 7 : 7 est l'image de 3.",
+        "weight": 1,
+        "competencies": [
+          "2de.maths.fonctions.image-antecedent"
+        ],
+        "questionText": "La courbe représentative d'une fonction f passe par le point de coordonnées (3 ; 7). On peut affirmer que :",
+        "options": [
+          {
+            "id": "A",
+            "text": "3 est l'image de 7 par f",
+            "isCorrect": false,
+            "distractorRationale": "Intervertit les rôles de l'abscisse et de l'ordonnée."
+          },
+          {
+            "id": "B",
+            "text": "7 est l'antécédent de 3 par f",
+            "isCorrect": false,
+            "distractorRationale": "Intervertit le vocabulaire image et antécédent."
+          },
+          {
+            "id": "C",
+            "text": "7 est l'image de 3 par f",
+            "isCorrect": true
+          },
+          {
+            "id": "D",
+            "text": "f(7) = 3",
+            "isCorrect": false,
+            "distractorRationale": "Écrit la notation fonctionnelle dans le mauvais sens."
+          }
+        ],
+        "explanation": "L'abscisse est l'antécédent, l'ordonnée est l'image. Le point (3 ; 7) traduit donc f(3) = 7 : 7 est l'image de 3."
+      },
+      {
+        "id": "EPR-MAT-REF-01",
+        "subject": "MATHS",
+        "category": "Fonctions de référence et comparaison",
+        "domainId": "fonctions-reference",
+        "nodeCpsId": "2de.maths.fonctions-reference.variations",
+        "difficulty": 2,
+        "targetTimeSec": 60,
+        "shortCorrection": "La fonction inverse est décroissante sur chacun des deux intervalles, mais pas sur leur réunion : elle n'est pas définie en 0, et on ne peut pas comparer une valeur négative et une valeur positive de f.",
+        "weight": 2,
+        "competencies": [
+          "2de.maths.fonctions-reference.variations"
+        ],
+        "questionText": "La fonction inverse, définie par f(x) = 1/x, est :",
+        "options": [
+          {
+            "id": "A",
+            "text": "décroissante sur ℝ",
+            "isCorrect": false,
+            "distractorRationale": "Recolle les deux branches et affirme une décroissance sur ℝ, alors que la fonction n'est pas définie en 0."
+          },
+          {
+            "id": "B",
+            "text": "croissante sur ]0 ; +∞[ et décroissante sur ]−∞ ; 0[",
+            "isCorrect": false,
+            "distractorRationale": "Attribue des sens de variation opposés aux deux branches."
+          },
+          {
+            "id": "C",
+            "text": "croissante sur ℝ privé de 0",
+            "isCorrect": false,
+            "distractorRationale": "Inverse le sens de variation de la fonction inverse."
+          },
+          {
+            "id": "D",
+            "text": "décroissante sur ]−∞ ; 0[ et décroissante sur ]0 ; +∞[",
+            "isCorrect": true
+          }
+        ],
+        "explanation": "La fonction inverse est décroissante sur chacun des deux intervalles, mais pas sur leur réunion : elle n'est pas définie en 0, et on ne peut pas comparer une valeur négative et une valeur positive de f."
+      },
+      {
+        "id": "EPR-MAT-REF-02",
+        "subject": "MATHS",
+        "category": "Fonctions de référence et comparaison",
+        "domainId": "fonctions-reference",
+        "nodeCpsId": "2de.maths.fonctions-reference.variations",
+        "difficulty": 2,
+        "targetTimeSec": 55,
+        "shortCorrection": "Entre 0 et 1, élever au carré diminue la valeur : par exemple 0,5² = 0,25. On a donc x² < x sur cet intervalle.",
+        "weight": 2,
+        "competencies": [
+          "2de.maths.fonctions-reference.variations"
+        ],
+        "questionText": "Soit x un réel tel que 0 < x < 1. Que peut-on affirmer ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "x² > x",
+            "isCorrect": false,
+            "distractorRationale": "Généralise à tort la propriété vraie uniquement pour x > 1."
+          },
+          {
+            "id": "B",
+            "text": "x² < x",
+            "isCorrect": true
+          },
+          {
+            "id": "C",
+            "text": "x² = x",
+            "isCorrect": false,
+            "distractorRationale": "Confond l'égalité vérifiée en 0 et en 1 avec une propriété générale."
+          },
+          {
+            "id": "D",
+            "text": "On ne peut pas comparer sans connaître la valeur exacte de x",
+            "isCorrect": false,
+            "distractorRationale": "Refuse de raisonner sur un intervalle et exige une valeur numérique."
+          }
+        ],
+        "explanation": "Entre 0 et 1, élever au carré diminue la valeur : par exemple 0,5² = 0,25. On a donc x² < x sur cet intervalle."
+      },
+      {
+        "id": "EPR-MAT-VEC-01",
+        "subject": "MATHS",
+        "category": "Vecteurs : coordonnées et colinéarité",
+        "domainId": "vecteurs",
+        "nodeCpsId": "2de.maths.vecteurs.coordonnees",
+        "difficulty": 1,
+        "targetTimeSec": 55,
+        "shortCorrection": "Les coordonnées du vecteur AB s'obtiennent en soustrayant celles de A à celles de B : (4 − 1 ; −3 − 2) = (3 ; −5).",
+        "weight": 1,
+        "competencies": [
+          "2de.maths.vecteurs.coordonnees"
+        ],
+        "questionText": "Dans un repère, on donne A(1 ; 2) et B(4 ; −3). Quelles sont les coordonnées du vecteur AB ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "(−3 ; 5)",
+            "isCorrect": false,
+            "distractorRationale": "Calcule les coordonnées de A moins B au lieu de B moins A."
+          },
+          {
+            "id": "B",
+            "text": "(5 ; −1)",
+            "isCorrect": false,
+            "distractorRationale": "Additionne les coordonnées des deux points au lieu de les soustraire."
+          },
+          {
+            "id": "C",
+            "text": "(3 ; −5)",
+            "isCorrect": true
+          },
+          {
+            "id": "D",
+            "text": "(3 ; 5)",
+            "isCorrect": false,
+            "distractorRationale": "Erreur de signe sur l'ordonnée : calcule −3 − 2 comme s'il valait 5."
+          }
+        ],
+        "explanation": "Les coordonnées du vecteur AB s'obtiennent en soustrayant celles de A à celles de B : (4 − 1 ; −3 − 2) = (3 ; −5)."
+      },
+      {
+        "id": "EPR-MAT-VEC-02",
+        "subject": "MATHS",
+        "category": "Vecteurs : coordonnées et colinéarité",
+        "domainId": "vecteurs",
+        "nodeCpsId": "2de.maths.vecteurs.coordonnees",
+        "difficulty": 2,
+        "targetTimeSec": 70,
+        "shortCorrection": "Le déterminant vaut 2 × 6 − (−3) × (−4) = 12 − 12 = 0. Les vecteurs sont donc colinéaires : v est égal à −2 fois u.",
+        "weight": 2,
+        "competencies": [
+          "2de.maths.vecteurs.coordonnees"
+        ],
+        "questionText": "Les vecteurs u(2 ; −3) et v(−4 ; 6) sont :",
+        "options": [
+          {
+            "id": "A",
+            "text": "colinéaires",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "orthogonaux",
+            "isCorrect": false,
+            "distractorRationale": "Confond la colinéarité avec l'orthogonalité, deux relations distinctes."
+          },
+          {
+            "id": "C",
+            "text": "égaux",
+            "isCorrect": false,
+            "distractorRationale": "Confond la proportionnalité des coordonnées avec leur égalité."
+          },
+          {
+            "id": "D",
+            "text": "ni colinéaires ni orthogonaux",
+            "isCorrect": false,
+            "distractorRationale": "Ne calcule pas le déterminant et conclut sans critère."
+          }
+        ],
+        "explanation": "Le déterminant vaut 2 × 6 − (−3) × (−4) = 12 − 12 = 0. Les vecteurs sont donc colinéaires : v est égal à −2 fois u."
+      },
+      {
+        "id": "EPR-MAT-DRO-01",
+        "subject": "MATHS",
+        "category": "Droites : coefficient directeur et équation réduite",
+        "domainId": "droites",
+        "nodeCpsId": "2de.maths.droites.coefficient-directeur",
+        "difficulty": 2,
+        "targetTimeSec": 60,
+        "shortCorrection": "Le coefficient directeur est le rapport de l'écart des ordonnées sur l'écart des abscisses : (9 − 3)/(4 − 1) = 6/3 = 2.",
+        "weight": 2,
+        "competencies": [
+          "2de.maths.droites.coefficient-directeur"
+        ],
+        "questionText": "Quel est le coefficient directeur de la droite passant par A(1 ; 3) et B(4 ; 9) ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "1/2",
+            "isCorrect": false,
+            "distractorRationale": "Inverse le rapport et calcule l'écart des abscisses divisé par l'écart des ordonnées."
+          },
+          {
+            "id": "B",
+            "text": "6",
+            "isCorrect": false,
+            "distractorRationale": "Retient l'écart des ordonnées sans le diviser par l'écart des abscisses."
+          },
+          {
+            "id": "C",
+            "text": "12/5",
+            "isCorrect": false,
+            "distractorRationale": "Additionne les coordonnées au lieu de les soustraire."
+          },
+          {
+            "id": "D",
+            "text": "2",
+            "isCorrect": true
+          }
+        ],
+        "explanation": "Le coefficient directeur est le rapport de l'écart des ordonnées sur l'écart des abscisses : (9 − 3)/(4 − 1) = 6/3 = 2."
+      },
+      {
+        "id": "EPR-MAT-DRO-02",
+        "subject": "MATHS",
+        "category": "Droites : coefficient directeur et équation réduite",
+        "domainId": "droites",
+        "nodeCpsId": "2de.maths.droites.coefficient-directeur",
+        "difficulty": 1,
+        "targetTimeSec": 50,
+        "shortCorrection": "Dans l'équation réduite y = mx + p, m est le coefficient directeur et p l'ordonnée à l'origine. Ici m = −3, négatif, donc la droite est décroissante, et elle coupe l'axe des ordonnées en 5.",
+        "weight": 1,
+        "competencies": [
+          "2de.maths.droites.coefficient-directeur"
+        ],
+        "questionText": "La droite d'équation y = −3x + 5 :",
+        "options": [
+          {
+            "id": "A",
+            "text": "est croissante et coupe l'axe des ordonnées au point d'ordonnée 5",
+            "isCorrect": false,
+            "distractorRationale": "Ignore le signe du coefficient directeur pour déterminer le sens de variation."
+          },
+          {
+            "id": "B",
+            "text": "est décroissante et coupe l'axe des ordonnées au point d'ordonnée 5",
+            "isCorrect": true
+          },
+          {
+            "id": "C",
+            "text": "est décroissante et coupe l'axe des abscisses au point d'abscisse 5",
+            "isCorrect": false,
+            "distractorRationale": "Confond l'ordonnée à l'origine avec la valeur qui annule la fonction."
+          },
+          {
+            "id": "D",
+            "text": "a pour coefficient directeur 5",
+            "isCorrect": false,
+            "distractorRationale": "Confond le coefficient directeur et l'ordonnée à l'origine dans l'équation réduite."
+          }
+        ],
+        "explanation": "Dans l'équation réduite y = mx + p, m est le coefficient directeur et p l'ordonnée à l'origine. Ici m = −3, négatif, donc la droite est décroissante, et elle coupe l'axe des ordonnées en 5."
+      },
+      {
+        "id": "EPR-MAT-PCT-01",
+        "subject": "MATHS",
+        "category": "Pourcentages et coefficients multiplicateurs",
+        "domainId": "pourcentages",
+        "nodeCpsId": "2de.maths.pourcentages.coefficient-multiplicateur",
+        "difficulty": 2,
+        "targetTimeSec": 65,
+        "shortCorrection": "Le taux d'évolution se calcule à partir de la valeur de départ : (90 − 120)/120 = −0,25, soit une réduction de 25 %.",
+        "weight": 2,
+        "competencies": [
+          "2de.maths.pourcentages.coefficient-multiplicateur"
+        ],
+        "questionText": "Un article coûtait 120 dinars ; il coûte désormais 90 dinars. Quel est le pourcentage de réduction ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "25 %",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "30 %",
+            "isCorrect": false,
+            "distractorRationale": "Prend la différence brute de 30 dinars comme s'il s'agissait d'un pourcentage."
+          },
+          {
+            "id": "C",
+            "text": "33 %",
+            "isCorrect": false,
+            "distractorRationale": "Rapporte la baisse au prix d'arrivée au lieu du prix de départ."
+          },
+          {
+            "id": "D",
+            "text": "75 %",
+            "isCorrect": false,
+            "distractorRationale": "Donne le coefficient multiplicateur exprimé en pourcentage au lieu du taux de variation."
+          }
+        ],
+        "explanation": "Le taux d'évolution se calcule à partir de la valeur de départ : (90 − 120)/120 = −0,25, soit une réduction de 25 %."
+      },
+      {
+        "id": "EPR-MAT-PCT-02",
+        "subject": "MATHS",
+        "category": "Pourcentages et coefficients multiplicateurs",
+        "domainId": "pourcentages",
+        "nodeCpsId": "2de.maths.pourcentages.coefficient-multiplicateur",
+        "difficulty": 1,
+        "targetTimeSec": 45,
+        "shortCorrection": "Une baisse de 15 % revient à conserver 85 % de la valeur : le coefficient multiplicateur vaut 1 − 0,15 = 0,85.",
+        "weight": 1,
+        "competencies": [
+          "2de.maths.pourcentages.coefficient-multiplicateur"
+        ],
+        "questionText": "Quel coefficient multiplicateur correspond à une baisse de 15 % ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "1,15",
+            "isCorrect": false,
+            "distractorRationale": "Applique le coefficient d'une hausse au lieu de celui d'une baisse."
+          },
+          {
+            "id": "B",
+            "text": "0,15",
+            "isCorrect": false,
+            "distractorRationale": "Donne le taux d'évolution exprimé en décimal au lieu du coefficient multiplicateur."
+          },
+          {
+            "id": "C",
+            "text": "0,85",
+            "isCorrect": true
+          },
+          {
+            "id": "D",
+            "text": "−0,15",
+            "isCorrect": false,
+            "distractorRationale": "Confond un coefficient multiplicateur, toujours positif, avec un taux de variation négatif."
+          }
+        ],
+        "explanation": "Une baisse de 15 % revient à conserver 85 % de la valeur : le coefficient multiplicateur vaut 1 − 0,15 = 0,85."
+      },
+      {
+        "id": "EPR-MAT-PRB-01",
+        "subject": "MATHS",
+        "category": "Probabilités : opérations sur les événements",
+        "domainId": "probabilites",
+        "nodeCpsId": "2de.maths.probabilites.operations-evenements",
+        "difficulty": 3,
+        "targetTimeSec": 80,
+        "shortCorrection": "A ∪ B correspond aux issues 2, 4, 5 et 6, soit 4 issues sur 6. On peut aussi écrire P(A) + P(B) − P(A ∩ B) = 3/6 + 2/6 − 1/6 = 4/6 = 2/3.",
+        "weight": 3,
+        "competencies": [
+          "2de.maths.probabilites.operations-evenements"
+        ],
+        "questionText": "On lance un dé équilibré à six faces. Soit A l'événement « obtenir un nombre pair » et B l'événement « obtenir un nombre supérieur ou égal à 5 ». Que vaut P(A ∪ B) ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "5/6",
+            "isCorrect": false,
+            "distractorRationale": "Additionne les deux probabilités sans retrancher celle de l'intersection."
+          },
+          {
+            "id": "B",
+            "text": "2/3",
+            "isCorrect": true
+          },
+          {
+            "id": "C",
+            "text": "1/6",
+            "isCorrect": false,
+            "distractorRationale": "Calcule la probabilité de l'intersection au lieu de celle de la réunion."
+          },
+          {
+            "id": "D",
+            "text": "1/2",
+            "isCorrect": false,
+            "distractorRationale": "Retient la seule probabilité de A et ignore l'apport de B."
+          }
+        ],
+        "explanation": "A ∪ B correspond aux issues 2, 4, 5 et 6, soit 4 issues sur 6. On peut aussi écrire P(A) + P(B) − P(A ∩ B) = 3/6 + 2/6 − 1/6 = 4/6 = 2/3."
+      },
+      {
+        "id": "EPR-MAT-PRB-02",
+        "subject": "MATHS",
+        "category": "Probabilités : opérations sur les événements",
+        "domainId": "probabilites",
+        "nodeCpsId": "2de.maths.probabilites.operations-evenements",
+        "difficulty": 2,
+        "targetTimeSec": 60,
+        "shortCorrection": "La négation de « au moins un » est « aucun ». L'événement contraire de « obtenir au moins un six » est donc « n'obtenir aucun six ».",
+        "weight": 2,
+        "competencies": [
+          "2de.maths.probabilites.operations-evenements"
+        ],
+        "questionText": "On lance deux fois un dé. Quel est l'événement contraire de « obtenir au moins un six » ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "obtenir exactement un six",
+            "isCorrect": false,
+            "distractorRationale": "Confond la négation de « au moins un » avec le cas d'un seul succès."
+          },
+          {
+            "id": "B",
+            "text": "obtenir deux six",
+            "isCorrect": false,
+            "distractorRationale": "Prend le cas extrême opposé au lieu de la négation logique."
+          },
+          {
+            "id": "C",
+            "text": "obtenir au plus un six",
+            "isCorrect": false,
+            "distractorRationale": "Confond la négation de « au moins un » avec « au plus un »."
+          },
+          {
+            "id": "D",
+            "text": "n'obtenir aucun six",
+            "isCorrect": true
+          }
+        ],
+        "explanation": "La négation de « au moins un » est « aucun ». L'événement contraire de « obtenir au moins un six » est donc « n'obtenir aucun six »."
+      },
+      {
+        "id": "EPR-MAT-NUM-01",
+        "subject": "MATHS",
+        "category": "Calcul numérique : puissances et racines carrées",
+        "domainId": "calcul-numerique",
+        "nodeCpsId": "2de.maths.calcul-numerique.puissances-racines",
+        "difficulty": 2,
+        "targetTimeSec": 55,
+        "shortCorrection": "On additionne les exposants au produit et on soustrait celui du dénominateur : 2^(3+5−4) = 2⁴, soit 16.",
+        "weight": 2,
+        "competencies": [
+          "2de.maths.calcul-numerique.puissances-racines"
+        ],
+        "questionText": "Simplifier l'expression (2³ × 2⁵)/2⁴.",
+        "options": [
+          {
+            "id": "A",
+            "text": "2⁴",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "2¹¹",
+            "isCorrect": false,
+            "distractorRationale": "Multiplie les exposants lors du produit au lieu de les additionner."
+          },
+          {
+            "id": "C",
+            "text": "2¹²",
+            "isCorrect": false,
+            "distractorRationale": "Additionne les trois exposants sans tenir compte de la division."
+          },
+          {
+            "id": "D",
+            "text": "2⁸",
+            "isCorrect": false,
+            "distractorRationale": "Additionne correctement les exposants du produit mais omet de soustraire celui du dénominateur."
+          }
+        ],
+        "explanation": "On additionne les exposants au produit et on soustrait celui du dénominateur : 2^(3+5−4) = 2⁴, soit 16."
+      },
+      {
+        "id": "EPR-MAT-NUM-02",
+        "subject": "MATHS",
+        "category": "Calcul numérique : puissances et racines carrées",
+        "domainId": "calcul-numerique",
+        "nodeCpsId": "2de.maths.calcul-numerique.puissances-racines",
+        "difficulty": 2,
+        "targetTimeSec": 55,
+        "shortCorrection": "On repère le carré parfait 25 dans 50 : √50 = √(25 × 2) = 5√2.",
+        "weight": 2,
+        "competencies": [
+          "2de.maths.calcul-numerique.puissances-racines"
+        ],
+        "questionText": "L'écriture simplifiée de √50 est :",
+        "options": [
+          {
+            "id": "A",
+            "text": "25√2",
+            "isCorrect": false,
+            "distractorRationale": "Extrait le facteur 25 de la racine sans en prendre la racine carrée."
+          },
+          {
+            "id": "B",
+            "text": "5√2",
+            "isCorrect": true
+          },
+          {
+            "id": "C",
+            "text": "2√5",
+            "isCorrect": false,
+            "distractorRationale": "Intervertit le facteur extrait et le facteur restant sous la racine."
+          },
+          {
+            "id": "D",
+            "text": "√50 ne peut pas être simplifiée",
+            "isCorrect": false,
+            "distractorRationale": "Ne cherche pas de carré parfait parmi les diviseurs du nombre."
+          }
+        ],
+        "explanation": "On repère le carré parfait 25 dans 50 : √50 = √(25 × 2) = 5√2."
+      }
+    ]
+  },
+  "scoring": {
+    "engine": "facts.v1.0.1",
+    "domains": [
+      "calcul-litteral",
+      "inequations",
+      "fonctions",
+      "fonctions-reference",
+      "vecteurs",
+      "droites",
+      "pourcentages",
+      "probabilites",
+      "calcul-numerique"
+    ]
+  },
+  "reporting": {
+    "rag": {
+      "enabled": false,
+      "decisionRef": "A56 — RAG désactivé tant que le corpus du niveau n’est pas validé",
+      "sources": [],
+      "topK": 0
+    },
+    "promptFiles": {
+      "preAnalysis": {
+        "path": "content/bilans/prompts/entree-premiere-maths-v1/pre-analysis.md",
+        "checksum": "06b748dcc004bca77e7f7fe118c8c4986338a36cb7a823042373adef1a1957f7"
+      },
+      "eleve": {
+        "path": "content/bilans/prompts/entree-premiere-maths-v1/eleve.md",
+        "checksum": "427e8e5d97252649cc22f3066c4efc18f25f499a6226d4af0a0d40ffaa6ccfb6"
+      },
+      "parents": {
+        "path": "content/bilans/prompts/entree-premiere-maths-v1/parents.md",
+        "checksum": "8261301e38658bfa4a5b3304dc0c474d5769b1dc47fa1c7ab777416dbb18e452"
+      },
+      "nexus": {
+        "path": "content/bilans/prompts/entree-premiere-maths-v1/nexus.md",
+        "checksum": "c343726dab16e0c8d45886c0116c114ced7b2d8763206ec906dfc6bc82d3a9ce"
+      },
+      "verifier": {
+        "path": "content/bilans/prompts/entree-premiere-maths-v1/verifier.md",
+        "checksum": "73a8117426343f94e735b1753b4749b9c754028806d484a97719d52cd742acfb"
+      }
+    },
+    "outputSchemas": {
+      "preAnalysis": {
+        "type": "object",
+        "properties": {
+          "synthese": {
+            "type": "string",
+            "minLength": 1
+          },
+          "forcesPercues": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "craintes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "required": [
+          "synthese",
+          "forcesPercues",
+          "craintes"
+        ],
+        "additionalProperties": false
+      },
+      "eleve": {
+        "type": "object",
+        "properties": {
+          "accroche": {
+            "type": "string",
+            "minLength": 1
+          },
+          "forces": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "minItems": 3,
+            "maxItems": 3
+          },
+          "priorites": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "domainId": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "titre": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "pourquoi": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "comment": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "domainId",
+                "titre",
+                "pourquoi",
+                "comment"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "maxItems": 9
+          },
+          "microPlan": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "action": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "dureeMin": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              },
+              "required": [
+                "action",
+                "dureeMin"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "maxItems": 5
+          },
+          "motDeFin": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "accroche",
+          "forces",
+          "priorites",
+          "microPlan",
+          "motDeFin"
+        ],
+        "additionalProperties": false
+      },
+      "parents": {
+        "type": "object",
+        "properties": {
+          "cadre": {
+            "type": "string",
+            "minLength": 1
+          },
+          "pointsAppui": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "domainId": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "texte": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "domainId",
+                "texte"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "maxItems": 9
+          },
+          "priorites": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "domainId": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "titre": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "ceQuiSeraFait": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "domainId",
+                "titre",
+                "ceQuiSeraFait"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "maxItems": 9
+          },
+          "etapeSuivante": {
+            "type": "object",
+            "properties": {
+              "texte": {
+                "type": "string",
+                "minLength": 1
+              },
+              "cta": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "texte",
+              "cta"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "cadre",
+          "pointsAppui",
+          "priorites",
+          "etapeSuivante"
+        ],
+        "additionalProperties": false
+      },
+      "nexus": {
+        "type": "object",
+        "properties": {
+          "syntheseProfil": {
+            "type": "string",
+            "minLength": 1
+          },
+          "diagnosticPedagogique": {
+            "type": "string",
+            "minLength": 1
+          },
+          "planQuatreSemaines": {
+            "type": "string",
+            "minLength": 1
+          },
+          "alertes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "ragReferences": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "required": [
+          "syntheseProfil",
+          "diagnosticPedagogique",
+          "planQuatreSemaines",
+          "alertes",
+          "ragReferences"
+        ],
+        "additionalProperties": false
+      },
+      "verifier": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "type": "boolean"
+          },
+          "violations": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "required": [
+          "ok",
+          "violations"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "validation": {
+    "lexiconPath": "data/bilans/lexique-interdit.json",
+    "forbidDigits": [
+      "eleve",
+      "parents"
+    ]
+  }
+}

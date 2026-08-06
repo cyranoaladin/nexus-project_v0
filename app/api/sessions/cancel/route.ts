@@ -1,3 +1,4 @@
+import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive';
 export const dynamic = 'force-dynamic';
 
 import { refundSessionBookingById, canCancelBooking } from '@/lib/credits';
@@ -8,7 +9,6 @@ import { requireAnyRole, isErrorResponse } from '@/lib/guards';
 import { cancelSessionSchema } from '@/lib/validation';
 import { safeJsonParse, assertExists } from '@/lib/api/helpers';
 import { successResponse, handleApiError, ApiError } from '@/lib/api/errors';
-import { RateLimitPresets } from '@/lib/middleware/rateLimit';
 import { createLogger } from '@/lib/middleware/logger';
 import { UserRole } from '@/types/enums';
 
@@ -25,12 +25,22 @@ export async function POST(request: NextRequest) {
 
   try {
     // Rate limiting (stricter for write operations)
-    const rateLimitResult = RateLimitPresets.expensive(request, 'session-cancel');
+    const rateLimitResult = await guardSensitiveRateLimit(request, {
+      scope: 'session-cancel',
+      dimensions: ['ip'],
+    });
     if (rateLimitResult) return rateLimitResult;
 
     // Require ELEVE, COACH, or ASSISTANTE role
     const session = await requireAnyRole([UserRole.ELEVE, UserRole.COACH, UserRole.ASSISTANTE]);
     if (isErrorResponse(session)) return session;
+
+    const identityBlocked = await guardSensitiveRateLimit(request, {
+      scope: 'session-cancel',
+      identity: session.user.id,
+      dimensions: ['identity'],
+    });
+    if (identityBlocked) return identityBlocked;
 
     // Update logger with session context
     logger = createLogger(request, session);

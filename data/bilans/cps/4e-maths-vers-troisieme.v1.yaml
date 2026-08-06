@@ -1,0 +1,58 @@
+schemaVersion: nexus-cps-catalog/v1
+slug: 4e-maths-vers-troisieme-v1
+version: 1
+nodes:
+  - id: 4e.maths.nombres-relatifs.operations
+    sequenceOrder: 1
+    label: "Nombres relatifs : les quatre opérations"
+    sourceLevel: QUATRIEME
+    targetLevel: TROISIEME
+    pedagogicalRationale: la 3e enchaîne calcul littéral et équations où les signes circulent en permanence. Une hésitation sur (−)×(−) ou sur la priorité contamine tout le reste et masque la vraie cause des erreurs.
+  - id: 4e.maths.fractions.operations
+    sequenceOrder: 2
+    label: "Fractions : somme et produit"
+    sourceLevel: QUATRIEME
+    targetLevel: TROISIEME
+    pedagogicalRationale: les quotients réapparaissent dans les équations et les proportions de 3e. Un élève qui additionne les dénominateurs ne peut pas mener un calcul de 3e à son terme.
+  - id: 4e.maths.puissances.exposant-entier
+    sequenceOrder: 3
+    label: "Puissances : définition et produit"
+    sourceLevel: QUATRIEME
+    targetLevel: TROISIEME
+    pedagogicalRationale: la 3e formalise les règles de calcul sur les puissances et la notation scientifique. Confondre 2^5 avec 2×5, ou multiplier les bases, bloque cette entrée.
+  - id: 4e.maths.calcul-litteral.distributivite
+    sequenceOrder: 4
+    label: "Calcul littéral : distributivité simple et réduction"
+    sourceLevel: QUATRIEME
+    targetLevel: TROISIEME
+    pedagogicalRationale: la double distributivité et les identités de 3e reposent sur une distributivité simple sûre. Oublier de distribuer au second terme est l'erreur qui se propage le plus loin.
+  - id: 4e.maths.equations.premier-degre
+    sequenceOrder: 5
+    label: Équations du premier degré
+    sourceLevel: QUATRIEME
+    targetLevel: TROISIEME
+    pedagogicalRationale: la mise en équation d'un problème est un attendu central de 3e. Sans résolution fiable de ax + b = cx + d, la modélisation échoue avant même d'être posée.
+  - id: 4e.maths.proportionnalite.quatrieme-proportionnelle
+    sequenceOrder: 6
+    label: "Proportionnalité : quatrième proportionnelle et vitesse"
+    sourceLevel: QUATRIEME
+    targetLevel: TROISIEME
+    pedagogicalRationale: pourcentages, vitesses et agrandissements de 3e sont tous des situations de proportionnalité. Le produit en croix doit être un réflexe, pas une reconstruction.
+  - id: 4e.maths.geometrie.pythagore
+    sequenceOrder: 7
+    label: Théorème de Pythagore
+    sourceLevel: QUATRIEME
+    targetLevel: TROISIEME
+    pedagogicalRationale: Pythagore introduit en 4e est réinvesti sans relâche en 3e (réciproque, géométrie repérée). Additionner les côtés au lieu de leurs carrés rend tout le chapitre inopérant.
+  - id: 4e.maths.trigonometrie.cosinus
+    sequenceOrder: 8
+    label: Cosinus dans le triangle rectangle
+    sourceLevel: QUATRIEME
+    targetLevel: TROISIEME
+    pedagogicalRationale: la 3e ajoute sinus et tangente sur la base du cosinus de 4e. Confondre côté adjacent et opposé compromet toute la trigonométrie du collège.
+  - id: 4e.maths.statistiques.moyenne
+    sequenceOrder: 9
+    label: "Statistiques : moyenne simple et pondérée"
+    sourceLevel: QUATRIEME
+    targetLevel: TROISIEME
+    pedagogicalRationale: la moyenne pondérée de 4e prépare la médiane et les indicateurs de 3e. Traiter une moyenne pondérée comme une moyenne simple fausse toute lecture de données.

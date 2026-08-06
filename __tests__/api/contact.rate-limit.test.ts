@@ -24,8 +24,6 @@ describe('POST /api/contact rate limiting', () => {
     _resetStoreForTests();
     delete process.env.RATE_LIMIT_DISABLE;
     delete process.env.REDIS_URL;
-    delete process.env.UPSTASH_REDIS_REST_URL;
-    delete process.env.UPSTASH_REDIS_REST_TOKEN;
     mockCreate.mockResolvedValue({
       id: 'lead_rate_limit',
       name: 'Alex',
@@ -46,13 +44,34 @@ describe('POST /api/contact rate limiting', () => {
     const payload = { name: 'Alex', email: 'alex@example.com', message: 'Bonjour' };
 
     for (let i = 0; i < 60; i++) {
-      const res = await POST(makeRequest(payload));
+      const res = await POST(makeRequest({ ...payload, email: `parent-${i}@example.test` }));
       expect(res.status).toBe(200);
     }
 
-    const blocked = await POST(makeRequest(payload));
+    const blocked = await POST(makeRequest({ ...payload, email: 'parent-blocked@example.test' }));
     expect(blocked.status).toBe(429);
     const body = await blocked.json();
     expect(body.error.code).toBe('RATE_LIMIT_EXCEEDED');
+  });
+
+  it('rejects a non-string email as invalid without touching the real submitter quota', async () => {
+    // An attacker sends a malformed, non-string `email` value that String()-coerces
+    // to a real submitter's address (a single-element array's toString() equals
+    // its element). Five such requests must not consume that address's identity
+    // rate-limit bucket.
+    for (let i = 0; i < 5; i++) {
+      const res = await POST(
+        makeRequest({ name: 'Attacker', email: ['victim@example.com'], message: 'x' }, '203.0.113.5'),
+      );
+      expect(res.status).toBe(400);
+    }
+
+    // The real victim (different IP, unrelated to the attacker's requests) must
+    // still be able to submit — the malformed requests above must not have
+    // poisoned/exhausted their identity quota.
+    const victimRes = await POST(
+      makeRequest({ name: 'Victim', email: 'victim@example.com', message: 'Bonjour' }, '203.0.113.9'),
+    );
+    expect(victimRes.status).toBe(200);
   });
 });

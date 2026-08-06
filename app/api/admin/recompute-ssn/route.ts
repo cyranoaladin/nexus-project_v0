@@ -1,3 +1,4 @@
+import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive';
 /**
  * POST /api/admin/recompute-ssn
  *
@@ -12,7 +13,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { recomputeSSNBatch } from '@/lib/core/ssn/computeSSN';
 import { computeCohortStatsWithAudit } from '@/lib/core/statistics/cohort';
 import { isErrorResponse, requireRole } from '@/lib/guards';
-import { guardRateLimitAsync } from '@/lib/rate-limit';
 import { UserRole } from '@prisma/client';
 import { z } from 'zod';
 
@@ -27,10 +27,9 @@ export async function POST(request: NextRequest) {
     const sessionOrError = await requireRole(UserRole.ADMIN);
     if (isErrorResponse(sessionOrError)) return sessionOrError;
 
-    const rateLimited = await guardRateLimitAsync(request, {
-      preset: 'expensive',
-      keySuffix: 'admin-recompute-ssn',
-      userId: sessionOrError.user.id,
+    const rateLimited = await guardSensitiveRateLimit(request, {
+      scope: 'admin-recompute',
+      identity: sessionOrError.user.id,
     });
     if (rateLimited) return rateLimited;
 

@@ -1,0 +1,1072 @@
+{
+  "slug": "entree-seconde-francais-v1",
+  "level": "SECONDE",
+  "subject": "FRANCAIS",
+  "version": 1,
+  "status": "VALIDATED",
+  "review": {
+    "validatedBy": "cmsf8ncom0008mguh4z5acmu5",
+    "validatedAt": "2026-08-05T07:03:52.791Z"
+  },
+  "questionnaire": {
+    "targetDurationMin": 25,
+    "confidenceScale": {
+      "levels": 4,
+      "labels": [
+        "je devine",
+        "peu sûr",
+        "plutôt sûr",
+        "certain"
+      ]
+    },
+    "items": [
+      {
+        "id": "ESE-FRA-GRA-01",
+        "subject": "FRANCAIS",
+        "category": "Analyse grammaticale : classes et fonctions",
+        "domainId": "grammaire",
+        "nodeCpsId": "3e.francais.grammaire.classes-et-fonctions",
+        "difficulty": 2,
+        "targetTimeSec": 55,
+        "shortCorrection": "Le pronom relatif reprend « le tableau » et occupe dans la subordonnée la fonction de complément d'objet direct : on achète quelque chose.",
+        "weight": 2,
+        "competencies": [
+          "3e.francais.grammaire.classes-et-fonctions"
+        ],
+        "questionText": "Dans la phrase « Le tableau que j'ai acheté est ancien », quelle est la fonction du mot « que » ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "sujet du verbe « ai acheté »",
+            "isCorrect": false,
+            "distractorRationale": "Confond le pronom relatif complément avec le pronom relatif sujet « qui »."
+          },
+          {
+            "id": "B",
+            "text": "complément d'objet direct du verbe « ai acheté »",
+            "isCorrect": true
+          },
+          {
+            "id": "C",
+            "text": "attribut du sujet",
+            "isCorrect": false,
+            "distractorRationale": "Cherche un attribut alors que le verbe de la subordonnée n'est pas un verbe d'état."
+          },
+          {
+            "id": "D",
+            "text": "complément du nom « tableau »",
+            "isCorrect": false,
+            "distractorRationale": "Confond l'antécédent du pronom relatif avec la fonction que ce pronom occupe dans la subordonnée."
+          }
+        ],
+        "explanation": "Le pronom relatif reprend « le tableau » et occupe dans la subordonnée la fonction de complément d'objet direct : on achète quelque chose."
+      },
+      {
+        "id": "ESE-FRA-GRA-02",
+        "subject": "FRANCAIS",
+        "category": "Analyse grammaticale : classes et fonctions",
+        "domainId": "grammaire",
+        "nodeCpsId": "3e.francais.grammaire.classes-et-fonctions",
+        "difficulty": 3,
+        "targetTimeSec": 60,
+        "shortCorrection": "L'adjectif est séparé du nom par une virgule et le caractérise à distance : c'est une épithète détachée, aussi appelée apposition. Elle peut être déplacée dans la phrase.",
+        "weight": 3,
+        "competencies": [
+          "3e.francais.grammaire.classes-et-fonctions"
+        ],
+        "questionText": "Dans la phrase « Fatiguée, elle s'assit sur un banc », quelle est la fonction du mot « fatiguée » ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "attribut du sujet",
+            "isCorrect": false,
+            "distractorRationale": "Confond l'adjectif détaché avec l'adjectif relié au sujet par un verbe d'état."
+          },
+          {
+            "id": "B",
+            "text": "complément d'objet direct",
+            "isCorrect": false,
+            "distractorRationale": "Traite l'adjectif comme un complément du verbe, alors qu'il caractérise le sujet."
+          },
+          {
+            "id": "C",
+            "text": "complément circonstanciel de cause",
+            "isCorrect": false,
+            "distractorRationale": "Retient la nuance causale que l'adjectif détaché peut suggérer, mais nomme une fonction réservée aux groupes complétant le verbe."
+          },
+          {
+            "id": "D",
+            "text": "épithète détachée, apposée au sujet",
+            "isCorrect": true
+          }
+        ],
+        "explanation": "L'adjectif est séparé du nom par une virgule et le caractérise à distance : c'est une épithète détachée, aussi appelée apposition. Elle peut être déplacée dans la phrase."
+      },
+      {
+        "id": "ESE-FRA-SUB-01",
+        "subject": "FRANCAIS",
+        "category": "Propositions subordonnées",
+        "domainId": "grammaire",
+        "nodeCpsId": "3e.francais.grammaire.subordonnees",
+        "difficulty": 2,
+        "targetTimeSec": 55,
+        "shortCorrection": "La locution « dès que » situe l'action principale dans le temps : la subordonnée est circonstancielle de temps. On peut la déplacer en tête de phrase.",
+        "weight": 2,
+        "competencies": [
+          "3e.francais.grammaire.subordonnees"
+        ],
+        "questionText": "Dans « Il partira dès qu'il aura terminé son travail », la subordonnée est une :",
+        "options": [
+          {
+            "id": "A",
+            "text": "subordonnée circonstancielle de temps",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "subordonnée relative",
+            "isCorrect": false,
+            "distractorRationale": "Cherche un pronom relatif là où figure une locution conjonctive."
+          },
+          {
+            "id": "C",
+            "text": "subordonnée conjonctive complétive",
+            "isCorrect": false,
+            "distractorRationale": "Confond la subordonnée qui complète le verbe avec celle qui précise les circonstances de l'action."
+          },
+          {
+            "id": "D",
+            "text": "subordonnée circonstancielle de cause",
+            "isCorrect": false,
+            "distractorRationale": "Interprète « dès que » comme une cause alors qu'elle marque une antériorité."
+          }
+        ],
+        "explanation": "La locution « dès que » situe l'action principale dans le temps : la subordonnée est circonstancielle de temps. On peut la déplacer en tête de phrase."
+      },
+      {
+        "id": "ESE-FRA-SUB-02",
+        "subject": "FRANCAIS",
+        "category": "Propositions subordonnées",
+        "domainId": "grammaire",
+        "nodeCpsId": "3e.francais.grammaire.subordonnees",
+        "difficulty": 3,
+        "targetTimeSec": 60,
+        "shortCorrection": "« Dont » reprend « le livre » et équivaut à « de ce livre ». Comme on parle de quelque chose, il occupe la fonction de complément d'objet indirect.",
+        "weight": 3,
+        "competencies": [
+          "3e.francais.grammaire.subordonnees"
+        ],
+        "questionText": "Dans « Le livre dont je t'ai parlé est passionnant », le mot « dont » est :",
+        "options": [
+          {
+            "id": "A",
+            "text": "une conjonction de subordination",
+            "isCorrect": false,
+            "distractorRationale": "Classe le mot parmi les conjonctions sans voir qu'il reprend un nom placé avant lui."
+          },
+          {
+            "id": "B",
+            "text": "un pronom relatif, sujet du verbe « ai parlé »",
+            "isCorrect": false,
+            "distractorRationale": "Attribue la fonction sujet à un pronom qui remplace un complément introduit par « de »."
+          },
+          {
+            "id": "C",
+            "text": "un pronom relatif, complément d'objet indirect du verbe « ai parlé »",
+            "isCorrect": true
+          },
+          {
+            "id": "D",
+            "text": "une préposition",
+            "isCorrect": false,
+            "distractorRationale": "Confond le mot qui introduit la relative avec une simple préposition, sans rôle de reprise."
+          }
+        ],
+        "explanation": "« Dont » reprend « le livre » et équivaut à « de ce livre ». Comme on parle de quelque chose, il occupe la fonction de complément d'objet indirect."
+      },
+      {
+        "id": "ESE-FRA-MOD-01",
+        "subject": "FRANCAIS",
+        "category": "Valeurs des modes et des temps",
+        "domainId": "conjugaison",
+        "nodeCpsId": "3e.francais.conjugaison.modes-et-valeurs",
+        "difficulty": 3,
+        "targetTimeSec": 60,
+        "shortCorrection": "L'auxiliaire « serais » est au conditionnel présent et il est suivi d'un participe passé : l'ensemble forme un conditionnel passé, qui exprime ici un fait irréel dans le passé.",
+        "weight": 3,
+        "competencies": [
+          "3e.francais.conjugaison.modes-et-valeurs"
+        ],
+        "questionText": "Dans « Si j'avais su, je serais venu », à quel mode et à quel temps est le verbe de la seconde proposition ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "subjonctif plus-que-parfait",
+            "isCorrect": false,
+            "distractorRationale": "Confond la forme composée du conditionnel avec celle du subjonctif."
+          },
+          {
+            "id": "B",
+            "text": "conditionnel passé",
+            "isCorrect": true
+          },
+          {
+            "id": "C",
+            "text": "indicatif futur antérieur",
+            "isCorrect": false,
+            "distractorRationale": "Lit l'auxiliaire comme un futur alors que « serais » est une forme du conditionnel."
+          },
+          {
+            "id": "D",
+            "text": "conditionnel présent",
+            "isCorrect": false,
+            "distractorRationale": "Reconnaît le mode mais ignore l'auxiliaire, qui fait de la forme un temps composé."
+          }
+        ],
+        "explanation": "L'auxiliaire « serais » est au conditionnel présent et il est suivi d'un participe passé : l'ensemble forme un conditionnel passé, qui exprime ici un fait irréel dans le passé."
+      },
+      {
+        "id": "ESE-FRA-MOD-02",
+        "subject": "FRANCAIS",
+        "category": "Valeurs des modes et des temps",
+        "domainId": "conjugaison",
+        "nodeCpsId": "3e.francais.conjugaison.modes-et-valeurs",
+        "difficulty": 2,
+        "targetTimeSec": 45,
+        "shortCorrection": "Le présent exprime ici un fait vrai en permanence, indépendamment du moment où l'on parle : c'est le présent de vérité générale.",
+        "weight": 2,
+        "competencies": [
+          "3e.francais.conjugaison.modes-et-valeurs"
+        ],
+        "questionText": "Quelle est la valeur du présent dans la phrase « L'eau bout à cent degrés » ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "présent de vérité générale",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "présent d'énonciation",
+            "isCorrect": false,
+            "distractorRationale": "Rattache l'énoncé au moment où l'on parle, alors qu'il énonce une propriété permanente."
+          },
+          {
+            "id": "C",
+            "text": "présent de narration",
+            "isCorrect": false,
+            "distractorRationale": "Confond une vérité intemporelle avec un effet de style employé pour raviver un récit au passé."
+          },
+          {
+            "id": "D",
+            "text": "présent à valeur de futur proche",
+            "isCorrect": false,
+            "distractorRationale": "Projette l'énoncé dans l'avenir alors qu'il vaut en tout temps."
+          }
+        ],
+        "explanation": "Le présent exprime ici un fait vrai en permanence, indépendamment du moment où l'on parle : c'est le présent de vérité générale."
+      },
+      {
+        "id": "ESE-FRA-VOI-01",
+        "subject": "FRANCAIS",
+        "category": "Voix active et voix passive",
+        "domainId": "grammaire",
+        "nodeCpsId": "3e.francais.grammaire.voix-active-passive",
+        "difficulty": 2,
+        "targetTimeSec": 60,
+        "shortCorrection": "Le complément d'objet direct devient sujet, le sujet devient complément d'agent, et le verbe se conjugue avec l'auxiliaire être au même temps : « ont été récompensés ».",
+        "weight": 2,
+        "competencies": [
+          "3e.francais.grammaire.voix-active-passive"
+        ],
+        "questionText": "Mettez à la voix passive : « Le jury a récompensé les meilleurs élèves. »",
+        "options": [
+          {
+            "id": "A",
+            "text": "Les meilleurs élèves sont récompensés par le jury.",
+            "isCorrect": false,
+            "distractorRationale": "Effectue la transformation mais modifie le temps du verbe, qui doit rester au passé composé."
+          },
+          {
+            "id": "B",
+            "text": "Le jury a été récompensé par les meilleurs élèves.",
+            "isCorrect": false,
+            "distractorRationale": "Intervertit les rôles : le sujet de la phrase active devient à tort le sujet de la passive."
+          },
+          {
+            "id": "C",
+            "text": "Les meilleurs élèves ont été récompensés par le jury.",
+            "isCorrect": true
+          },
+          {
+            "id": "D",
+            "text": "Les meilleurs élèves ont récompensé le jury.",
+            "isCorrect": false,
+            "distractorRationale": "Permute les groupes sans employer d'auxiliaire : la phrase reste active et change de sens."
+          }
+        ],
+        "explanation": "Le complément d'objet direct devient sujet, le sujet devient complément d'agent, et le verbe se conjugue avec l'auxiliaire être au même temps : « ont été récompensés »."
+      },
+      {
+        "id": "ESE-FRA-VOI-02",
+        "subject": "FRANCAIS",
+        "category": "Voix active et voix passive",
+        "domainId": "grammaire",
+        "nodeCpsId": "3e.francais.grammaire.voix-active-passive",
+        "difficulty": 3,
+        "targetTimeSec": 50,
+        "shortCorrection": "Le complément d'agent n'est pas exprimé : on ne sait pas qui a pris la décision. La voix passive permet ainsi de masquer le responsable de l'action.",
+        "weight": 3,
+        "competencies": [
+          "3e.francais.grammaire.voix-active-passive"
+        ],
+        "questionText": "Quel effet principal produit la voix passive dans la phrase « La décision a été prise » ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "insister sur celui qui accomplit l'action",
+            "isCorrect": false,
+            "distractorRationale": "Attribue à la passive l'effet inverse de celui qu'elle produit lorsque l'agent est absent."
+          },
+          {
+            "id": "B",
+            "text": "effacer l'agent, c'est-à-dire celui qui accomplit l'action",
+            "isCorrect": true
+          },
+          {
+            "id": "C",
+            "text": "situer l'action dans le futur",
+            "isCorrect": false,
+            "distractorRationale": "Confond un changement de voix avec un changement de temps."
+          },
+          {
+            "id": "D",
+            "text": "exprimer un doute sur la réalité de l'action",
+            "isCorrect": false,
+            "distractorRationale": "Attribue à la voix passive une valeur modale qui relèverait du conditionnel."
+          }
+        ],
+        "explanation": "Le complément d'agent n'est pas exprimé : on ne sait pas qui a pris la décision. La voix passive permet ainsi de masquer le responsable de l'action."
+      },
+      {
+        "id": "ESE-FRA-FIG-01",
+        "subject": "FRANCAIS",
+        "category": "Figures de style",
+        "domainId": "lexique",
+        "nodeCpsId": "3e.francais.lexique.figures-de-style",
+        "difficulty": 3,
+        "targetTimeSec": 50,
+        "shortCorrection": "Deux mots de sens opposés sont réunis dans le même groupe : c'est un oxymore. L'antithèse, elle, oppose deux idées développées séparément.",
+        "weight": 3,
+        "competencies": [
+          "3e.francais.lexique.figures-de-style"
+        ],
+        "questionText": "Dans le vers « Cette obscure clarté qui tombe des étoiles », quelle figure de style est employée ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "une antithèse",
+            "isCorrect": false,
+            "distractorRationale": "Repère l'opposition mais ne voit pas que les deux termes contraires sont directement accolés."
+          },
+          {
+            "id": "B",
+            "text": "une hyperbole",
+            "isCorrect": false,
+            "distractorRationale": "Cherche une exagération là où se trouve un rapprochement de contraires."
+          },
+          {
+            "id": "C",
+            "text": "une métaphore",
+            "isCorrect": false,
+            "distractorRationale": "Identifie une image sans percevoir que l'effet vient de la contradiction entre deux mots voisins."
+          },
+          {
+            "id": "D",
+            "text": "un oxymore",
+            "isCorrect": true
+          }
+        ],
+        "explanation": "Deux mots de sens opposés sont réunis dans le même groupe : c'est un oxymore. L'antithèse, elle, oppose deux idées développées séparément."
+      },
+      {
+        "id": "ESE-FRA-FIG-02",
+        "subject": "FRANCAIS",
+        "category": "Figures de style",
+        "domainId": "lexique",
+        "nodeCpsId": "3e.francais.lexique.figures-de-style",
+        "difficulty": 3,
+        "targetTimeSec": 50,
+        "shortCorrection": "La litote consiste à en dire moins pour faire entendre davantage. L'euphémisme, au contraire, atténue pour ne pas heurter.",
+        "weight": 3,
+        "competencies": [
+          "3e.francais.lexique.figures-de-style"
+        ],
+        "questionText": "Dire « Je ne te hais point » pour signifier « je t'aime » relève de :",
+        "options": [
+          {
+            "id": "A",
+            "text": "la litote",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "l'euphémisme",
+            "isCorrect": false,
+            "distractorRationale": "Confond l'atténuation qui suggère davantage avec celle qui adoucit une réalité pénible."
+          },
+          {
+            "id": "C",
+            "text": "l'hyperbole",
+            "isCorrect": false,
+            "distractorRationale": "Attribue à un procédé d'atténuation l'effet d'exagération qui lui est opposé."
+          },
+          {
+            "id": "D",
+            "text": "l'ironie",
+            "isCorrect": false,
+            "distractorRationale": "Suppose que l'on dit le contraire de ce que l'on pense, alors que la litote dit moins pour suggérer plus."
+          }
+        ],
+        "explanation": "La litote consiste à en dire moins pour faire entendre davantage. L'euphémisme, au contraire, atténue pour ne pas heurter."
+      },
+      {
+        "id": "ESE-FRA-VER-01",
+        "subject": "FRANCAIS",
+        "category": "Versification et formes poétiques",
+        "domainId": "poesie",
+        "nodeCpsId": "3e.francais.poesie.versification",
+        "difficulty": 2,
+        "targetTimeSec": 45,
+        "shortCorrection": "Deux quatrains puis deux tercets, soit quatorze vers : c'est la structure du sonnet, forme fixe majeure de la poésie française.",
+        "weight": 2,
+        "competencies": [
+          "3e.francais.poesie.versification"
+        ],
+        "questionText": "Un poème composé de deux quatrains suivis de deux tercets est :",
+        "options": [
+          {
+            "id": "A",
+            "text": "une ballade",
+            "isCorrect": false,
+            "distractorRationale": "Confond avec une forme fixe organisée en strophes suivies d'un envoi."
+          },
+          {
+            "id": "B",
+            "text": "une ode",
+            "isCorrect": false,
+            "distractorRationale": "Retient un genre poétique défini par son ton et non par sa structure strophique."
+          },
+          {
+            "id": "C",
+            "text": "un sonnet",
+            "isCorrect": true
+          },
+          {
+            "id": "D",
+            "text": "un rondeau",
+            "isCorrect": false,
+            "distractorRationale": "Confond avec une forme fixe fondée sur la reprise d'un refrain."
+          }
+        ],
+        "explanation": "Deux quatrains puis deux tercets, soit quatorze vers : c'est la structure du sonnet, forme fixe majeure de la poésie française."
+      },
+      {
+        "id": "ESE-FRA-VER-02",
+        "subject": "FRANCAIS",
+        "category": "Versification et formes poétiques",
+        "domainId": "poesie",
+        "nodeCpsId": "3e.francais.poesie.versification",
+        "difficulty": 2,
+        "targetTimeSec": 45,
+        "shortCorrection": "Les rimes alternent une à une : elles sont croisées. Suivies deux à deux, elles seraient plates ; encadrées, elles seraient embrassées.",
+        "weight": 2,
+        "competencies": [
+          "3e.francais.poesie.versification"
+        ],
+        "questionText": "Dans une strophe dont les rimes suivent le schéma ABAB, les rimes sont dites :",
+        "options": [
+          {
+            "id": "A",
+            "text": "plates",
+            "isCorrect": false,
+            "distractorRationale": "Attribue au schéma ABAB la disposition AABB, où les rimes se suivent deux à deux."
+          },
+          {
+            "id": "B",
+            "text": "croisées",
+            "isCorrect": true
+          },
+          {
+            "id": "C",
+            "text": "embrassées",
+            "isCorrect": false,
+            "distractorRationale": "Attribue au schéma ABAB la disposition ABBA, où une rime en encadre une autre."
+          },
+          {
+            "id": "D",
+            "text": "redoublées",
+            "isCorrect": false,
+            "distractorRationale": "Emploie un terme qui ne désigne pas une disposition de rimes."
+          }
+        ],
+        "explanation": "Les rimes alternent une à une : elles sont croisées. Suivies deux à deux, elles seraient plates ; encadrées, elles seraient embrassées."
+      },
+      {
+        "id": "ESE-FRA-ARG-01",
+        "subject": "FRANCAIS",
+        "category": "Argumentation",
+        "domainId": "argumentation",
+        "nodeCpsId": "3e.francais.argumentation.these-argument-exemple",
+        "difficulty": 2,
+        "targetTimeSec": 50,
+        "shortCorrection": "La thèse est l'idée générale que l'auteur veut faire admettre. Les arguments la justifient, les exemples les illustrent.",
+        "weight": 2,
+        "competencies": [
+          "3e.francais.argumentation.these-argument-exemple"
+        ],
+        "questionText": "Dans un texte argumentatif, la thèse est :",
+        "options": [
+          {
+            "id": "A",
+            "text": "l'opinion que l'auteur défend",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "le fait précis qui illustre un raisonnement",
+            "isCorrect": false,
+            "distractorRationale": "Donne la définition de l'exemple, qui illustre l'argument sans porter l'opinion générale."
+          },
+          {
+            "id": "C",
+            "text": "le raisonnement qui soutient l'opinion",
+            "isCorrect": false,
+            "distractorRationale": "Donne la définition de l'argument, qui vient appuyer la thèse sans se confondre avec elle."
+          },
+          {
+            "id": "D",
+            "text": "l'opinion adverse que l'auteur combat",
+            "isCorrect": false,
+            "distractorRationale": "Donne la définition de la thèse adverse, ou réfutée, et non de celle que l'auteur soutient."
+          }
+        ],
+        "explanation": "La thèse est l'idée générale que l'auteur veut faire admettre. Les arguments la justifient, les exemples les illustrent."
+      },
+      {
+        "id": "ESE-FRA-ARG-02",
+        "subject": "FRANCAIS",
+        "category": "Argumentation",
+        "domainId": "argumentation",
+        "nodeCpsId": "3e.francais.argumentation.these-argument-exemple",
+        "difficulty": 2,
+        "targetTimeSec": 45,
+        "shortCorrection": "« Bien que » admet une objection avant de maintenir la thèse : c'est une concession. Elle est suivie du subjonctif.",
+        "weight": 2,
+        "competencies": [
+          "3e.francais.argumentation.these-argument-exemple"
+        ],
+        "questionText": "Lequel de ces connecteurs logiques introduit une concession ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "donc",
+            "isCorrect": false,
+            "distractorRationale": "Introduit une conséquence et non une objection admise."
+          },
+          {
+            "id": "B",
+            "text": "car",
+            "isCorrect": false,
+            "distractorRationale": "Introduit une cause qui justifie ce qui précède."
+          },
+          {
+            "id": "C",
+            "text": "en effet",
+            "isCorrect": false,
+            "distractorRationale": "Introduit une explication qui confirme ce qui précède, sans admettre d'objection."
+          },
+          {
+            "id": "D",
+            "text": "bien que",
+            "isCorrect": true
+          }
+        ],
+        "explanation": "« Bien que » admet une objection avant de maintenir la thèse : c'est une concession. Elle est suivie du subjonctif."
+      },
+      {
+        "id": "ESE-FRA-REG-01",
+        "subject": "FRANCAIS",
+        "category": "Registres littéraires",
+        "domainId": "lecture",
+        "nodeCpsId": "3e.francais.lecture.registres",
+        "difficulty": 2,
+        "targetTimeSec": 50,
+        "shortCorrection": "Le registre pathétique cherche à émouvoir et à faire naître la pitié. Le tragique suppose en outre une fatalité contre laquelle le personnage ne peut rien.",
+        "weight": 2,
+        "competencies": [
+          "3e.francais.lecture.registres"
+        ],
+        "questionText": "Un texte qui suscite la pitié du lecteur devant le malheur d'un personnage relève du registre :",
+        "options": [
+          {
+            "id": "A",
+            "text": "tragique",
+            "isCorrect": false,
+            "distractorRationale": "Confond l'émotion de pitié avec la fatalité inéluctable qui écrase le héros tragique."
+          },
+          {
+            "id": "B",
+            "text": "pathétique",
+            "isCorrect": true
+          },
+          {
+            "id": "C",
+            "text": "lyrique",
+            "isCorrect": false,
+            "distractorRationale": "Attribue à l'émotion suscitée chez le lecteur le registre qui exprime les sentiments du locuteur."
+          },
+          {
+            "id": "D",
+            "text": "épique",
+            "isCorrect": false,
+            "distractorRationale": "Confond l'émotion douloureuse avec l'amplification héroïque d'un exploit."
+          }
+        ],
+        "explanation": "Le registre pathétique cherche à émouvoir et à faire naître la pitié. Le tragique suppose en outre une fatalité contre laquelle le personnage ne peut rien."
+      },
+      {
+        "id": "ESE-FRA-REG-02",
+        "subject": "FRANCAIS",
+        "category": "Registres littéraires",
+        "domainId": "lecture",
+        "nodeCpsId": "3e.francais.lecture.registres",
+        "difficulty": 2,
+        "targetTimeSec": 50,
+        "shortCorrection": "Le registre lyrique exprime les sentiments intimes du locuteur : amour, mélancolie, nostalgie. La première personne et le champ lexical des émotions en sont les marques.",
+        "weight": 2,
+        "competencies": [
+          "3e.francais.lecture.registres"
+        ],
+        "questionText": "Le registre lyrique se reconnaît principalement à :",
+        "options": [
+          {
+            "id": "A",
+            "text": "l'amplification des exploits d'un héros",
+            "isCorrect": false,
+            "distractorRationale": "Donne la caractéristique du registre épique."
+          },
+          {
+            "id": "B",
+            "text": "la dénonciation d'un travers par le rire",
+            "isCorrect": false,
+            "distractorRationale": "Donne la caractéristique du registre satirique."
+          },
+          {
+            "id": "C",
+            "text": "l'expression des sentiments personnels du locuteur",
+            "isCorrect": true
+          },
+          {
+            "id": "D",
+            "text": "la fatalité qui pèse sur le personnage",
+            "isCorrect": false,
+            "distractorRationale": "Donne la caractéristique du registre tragique."
+          }
+        ],
+        "explanation": "Le registre lyrique exprime les sentiments intimes du locuteur : amour, mélancolie, nostalgie. La première personne et le champ lexical des émotions en sont les marques."
+      },
+      {
+        "id": "ESE-FRA-LEX-01",
+        "subject": "FRANCAIS",
+        "category": "Lexique : formation des mots et niveaux de langue",
+        "domainId": "lexique",
+        "nodeCpsId": "3e.francais.lexique.formation-des-mots",
+        "difficulty": 1,
+        "targetTimeSec": 45,
+        "shortCorrection": "Le préfixe « in- » exprime la négation : est inévitable ce qui ne peut être évité. On le retrouve dans « injuste » ou « incapable ».",
+        "weight": 1,
+        "competencies": [
+          "3e.francais.lexique.formation-des-mots"
+        ],
+        "questionText": "Dans le mot « inévitable », quel est le préfixe et quelle valeur porte-t-il ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "« in- », qui indique l'intériorité",
+            "isCorrect": false,
+            "distractorRationale": "Attribue au préfixe la valeur spatiale qu'il a dans des mots comme « inclure »."
+          },
+          {
+            "id": "B",
+            "text": "« iné- », sans valeur particulière",
+            "isCorrect": false,
+            "distractorRationale": "Découpe le mot au mauvais endroit et lui refuse toute valeur."
+          },
+          {
+            "id": "C",
+            "text": "« in-évi- », qui marque la répétition",
+            "isCorrect": false,
+            "distractorRationale": "Invente un préfixe composé et lui prête la valeur de « re- »."
+          },
+          {
+            "id": "D",
+            "text": "« in- », qui exprime la négation",
+            "isCorrect": true
+          }
+        ],
+        "explanation": "Le préfixe « in- » exprime la négation : est inévitable ce qui ne peut être évité. On le retrouve dans « injuste » ou « incapable »."
+      },
+      {
+        "id": "ESE-FRA-LEX-02",
+        "subject": "FRANCAIS",
+        "category": "Lexique : formation des mots et niveaux de langue",
+        "domainId": "lexique",
+        "nodeCpsId": "3e.francais.lexique.formation-des-mots",
+        "difficulty": 1,
+        "targetTimeSec": 45,
+        "shortCorrection": "« Bagnole » appartient au registre familier, « voiture » au registre courant et « automobile » au registre soutenu. À l'écrit, on emploie le courant ou le soutenu.",
+        "weight": 1,
+        "competencies": [
+          "3e.francais.lexique.formation-des-mots"
+        ],
+        "questionText": "Les mots « bagnole », « voiture » et « automobile » relèvent respectivement des niveaux de langue :",
+        "options": [
+          {
+            "id": "A",
+            "text": "familier, courant, soutenu",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "courant, familier, soutenu",
+            "isCorrect": false,
+            "distractorRationale": "Inverse les deux premiers niveaux et ne reconnaît pas la marque familière du premier mot."
+          },
+          {
+            "id": "C",
+            "text": "soutenu, courant, familier",
+            "isCorrect": false,
+            "distractorRationale": "Inverse complètement l'échelle des niveaux de langue."
+          },
+          {
+            "id": "D",
+            "text": "familier, soutenu, courant",
+            "isCorrect": false,
+            "distractorRationale": "Identifie le niveau familier mais intervertit les deux autres."
+          }
+        ],
+        "explanation": "« Bagnole » appartient au registre familier, « voiture » au registre courant et « automobile » au registre soutenu. À l'écrit, on emploie le courant ou le soutenu."
+      }
+    ]
+  },
+  "scoring": {
+    "engine": "facts.v1.0.1",
+    "domains": [
+      "grammaire",
+      "conjugaison",
+      "lexique",
+      "poesie",
+      "argumentation",
+      "lecture"
+    ]
+  },
+  "reporting": {
+    "rag": {
+      "enabled": false,
+      "decisionRef": "A56 — RAG désactivé tant que le corpus du niveau n’est pas validé",
+      "sources": [],
+      "topK": 0
+    },
+    "promptFiles": {
+      "preAnalysis": {
+        "path": "content/bilans/prompts/entree-seconde-francais-v1/pre-analysis.md",
+        "checksum": "c2859863bd5eec26ac148e718b33b7f84dcfda183098c073e40a3b96b9605f66"
+      },
+      "eleve": {
+        "path": "content/bilans/prompts/entree-seconde-francais-v1/eleve.md",
+        "checksum": "aecd661c0691d73e781b184ae27c1a0f1c295b30f37fcdd5d94979957dd601f7"
+      },
+      "parents": {
+        "path": "content/bilans/prompts/entree-seconde-francais-v1/parents.md",
+        "checksum": "51066c975bad149eb0bd3f6be3b6026f5ed19461ec1b4f61bec52ed7e1f915ba"
+      },
+      "nexus": {
+        "path": "content/bilans/prompts/entree-seconde-francais-v1/nexus.md",
+        "checksum": "3610f439b2514fade1cb6a2c1428d9f6efdf794ca727c4ac62536cb8a60cca53"
+      },
+      "verifier": {
+        "path": "content/bilans/prompts/entree-seconde-francais-v1/verifier.md",
+        "checksum": "f4663669c171e292c7299bbdc4670e6aa43c218fdcac5b0ac1fdd57838269e8c"
+      }
+    },
+    "outputSchemas": {
+      "preAnalysis": {
+        "type": "object",
+        "properties": {
+          "synthese": {
+            "type": "string",
+            "minLength": 1
+          },
+          "forcesPercues": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "craintes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "required": [
+          "synthese",
+          "forcesPercues",
+          "craintes"
+        ],
+        "additionalProperties": false
+      },
+      "eleve": {
+        "type": "object",
+        "properties": {
+          "accroche": {
+            "type": "string",
+            "minLength": 1
+          },
+          "forces": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "minItems": 3,
+            "maxItems": 3
+          },
+          "priorites": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "domainId": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "titre": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "pourquoi": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "comment": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "domainId",
+                "titre",
+                "pourquoi",
+                "comment"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "maxItems": 6
+          },
+          "microPlan": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "action": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "dureeMin": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              },
+              "required": [
+                "action",
+                "dureeMin"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "maxItems": 5
+          },
+          "motDeFin": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "accroche",
+          "forces",
+          "priorites",
+          "microPlan",
+          "motDeFin"
+        ],
+        "additionalProperties": false
+      },
+      "parents": {
+        "type": "object",
+        "properties": {
+          "cadre": {
+            "type": "string",
+            "minLength": 1
+          },
+          "pointsAppui": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "domainId": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "texte": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "domainId",
+                "texte"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "maxItems": 6
+          },
+          "priorites": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "domainId": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "titre": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "ceQuiSeraFait": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "domainId",
+                "titre",
+                "ceQuiSeraFait"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "maxItems": 6
+          },
+          "etapeSuivante": {
+            "type": "object",
+            "properties": {
+              "texte": {
+                "type": "string",
+                "minLength": 1
+              },
+              "cta": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "texte",
+              "cta"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "cadre",
+          "pointsAppui",
+          "priorites",
+          "etapeSuivante"
+        ],
+        "additionalProperties": false
+      },
+      "nexus": {
+        "type": "object",
+        "properties": {
+          "syntheseProfil": {
+            "type": "string",
+            "minLength": 1
+          },
+          "diagnosticPedagogique": {
+            "type": "string",
+            "minLength": 1
+          },
+          "planQuatreSemaines": {
+            "type": "string",
+            "minLength": 1
+          },
+          "alertes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "ragReferences": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "required": [
+          "syntheseProfil",
+          "diagnosticPedagogique",
+          "planQuatreSemaines",
+          "alertes",
+          "ragReferences"
+        ],
+        "additionalProperties": false
+      },
+      "verifier": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "type": "boolean"
+          },
+          "violations": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "required": [
+          "ok",
+          "violations"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "validation": {
+    "lexiconPath": "data/bilans/lexique-interdit.json",
+    "forbidDigits": [
+      "eleve",
+      "parents"
+    ]
+  }
+}

@@ -1,37 +1,24 @@
-import nodemailer from 'nodemailer9';
 import { LEGAL, compactBankIdentifier } from '@/lib/legal';
-import { serializeError } from '@/lib/utils/serialize-error';
+import { queueCommittedEmail } from '@/lib/email/queue';
 
-// Configuration SMTP avec fallback pour développement
-const createTransporter = () => {
-  // En développement, utiliser un service de test si pas de SMTP configuré
-  if ((process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test') && !process.env.SMTP_HOST) {
-    return nodemailer.createTransport({
-      host: 'localhost',
-      port: 1025,
-      secure: false,
-      ignoreTLS: true
-    });
-  }
+type LegacyMailOptions = Readonly<{
+  to: string;
+  subject: string;
+  html: string;
+  text?: string;
+}>;
 
-  const transportConfig: nodemailer.TransportOptions & { host: string; port: number; secure: boolean; ignoreTLS?: boolean; auth?: { user: string; pass: string } } = {
-    host: process.env.SMTP_HOST!,
-    port: parseInt(process.env.SMTP_PORT || '587'),
-    secure: process.env.SMTP_SECURE === 'true',
-  };
-
-  // Only add auth if credentials are provided (Mailpit doesn't need auth)
-  if (process.env.SMTP_USER && process.env.SMTP_PASSWORD) {
-    transportConfig.auth = {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASSWORD,
-    };
-  } else {
-    transportConfig.ignoreTLS = true;
-  }
-
-  return nodemailer.createTransport(transportConfig);
-};
+async function queueLegacyMail(mail: LegacyMailOptions) {
+  return queueCommittedEmail({
+    aggregateType: 'LEGACY_EMAIL',
+    aggregateKey: mail.to,
+    dedupeKey: JSON.stringify([mail.subject, mail.html, mail.text ?? '']),
+    to: mail.to,
+    subject: mail.subject,
+    html: mail.html,
+    text: mail.text,
+  });
+}
 
 // Template d'email de bienvenue parent
 export async function sendWelcomeParentEmail(
@@ -92,17 +79,7 @@ export async function sendWelcomeParentEmail(
     `
   };
 
-  try {
-    const transporter = createTransporter();
-    await transporter.sendMail(mailOptions);
-  } catch (error) {
-    console.error('Erreur envoi email:', serializeError(error));
-    // En développement, ne pas faire échouer l'application si l'email ne part pas
-    if ((process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test')) {
-      return;
-    }
-    throw error;
-  }
+  await queueLegacyMail(mailOptions);
 }
 
 // Email de rappel d'expiration des crédits
@@ -152,17 +129,7 @@ export async function sendCreditExpirationReminder(
     `
   };
 
-  try {
-    const transporter = createTransporter();
-    await transporter.sendMail(mailOptions);
-  } catch (error) {
-    console.error('Erreur envoi email rappel:', serializeError(error));
-    // En développement, ne pas faire échouer l'application si l'email ne part pas
-    if ((process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test')) {
-      return;
-    }
-    throw error;
-  }
+  await queueLegacyMail(mailOptions);
 }
 
 // ─── Password Reset Email ────────────────────────────────────────────────────
@@ -227,16 +194,7 @@ export async function sendPasswordResetEmail(
     `
   };
 
-  try {
-    const transporter = createTransporter();
-    await transporter.sendMail(mailOptions);
-  } catch (error) {
-    console.error('[Password Reset] Erreur envoi email:', serializeError(error));
-    if ((process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test')) {
-      return;
-    }
-    throw error;
-  }
+  await queueLegacyMail(mailOptions);
 }
 
 // ─── Stage Février 2026 Email Templates ──────────────────────────────────────
@@ -332,16 +290,7 @@ export async function sendStageDiagnosticInvitation(
     `
   };
 
-  try {
-    const transporter = createTransporter();
-    await transporter.sendMail(mailOptions);
-  } catch (error) {
-    console.error('[Stage] Erreur envoi email diagnostic:', serializeError(error));
-    if ((process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test')) {
-      return;
-    }
-    throw error;
-  }
+  await queueLegacyMail(mailOptions);
 }
 
 /**
@@ -431,16 +380,7 @@ export async function sendStageBankTransferConfirmation(
     `
   };
 
-  try {
-    const transporter = createTransporter();
-    await transporter.sendMail(mailOptions);
-  } catch (error) {
-    console.error('[Stage] Bank transfer email error:', serializeError(error));
-    if ((process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test')) {
-      return;
-    }
-    throw error;
-  }
+  await queueLegacyMail(mailOptions);
 }
 
 /**
@@ -548,14 +488,5 @@ export async function sendStageBilanReady(
     `
   };
 
-  try {
-    const transporter = createTransporter();
-    await transporter.sendMail(mailOptions);
-  } catch (error) {
-    console.error('[Stage] Erreur envoi email bilan:', serializeError(error));
-    if ((process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test')) {
-      return;
-    }
-    throw error;
-  }
+  await queueLegacyMail(mailOptions);
 }

@@ -87,8 +87,18 @@ test.describe('REAL — Bilan Gratuit (/bilan-gratuit)', () => {
       const body = await apiResponse.json();
       console.log('API response:', JSON.stringify(body));
       expect(body.success, 'API ne retourne pas success=true').toBe(true);
-      expect(body.parentId, 'API ne retourne pas parentId').toBeTruthy();
-      expect(body.studentId, 'API ne retourne pas studentId').toBeTruthy();
+      // The response deliberately never includes parentId/studentId (see
+      // publicSuccessResponse() in app/api/bilan-gratuit/route.ts) -- an
+      // already-registered email hits the exact same anti-enumeration
+      // success shape, so returning these ids would let an attacker
+      // distinguish "created" from "already exists" and enumerate parent
+      // accounts. The client (BilanStrategiqueClient.tsx) never reads them
+      // either. Note this redirect alone does NOT prove a new DB row was
+      // created -- the "already exists" branch returns the identical 200
+      // and the client redirects on any response.ok, by the same
+      // anti-enumeration design. This test uses a fresh timestamped email
+      // each run, so in practice it does exercise the creation path, but
+      // that's incidental to what this specific assertion can prove.
       await page.waitForURL('**/bilan-gratuit/confirmation', { timeout: 10000 });
     } else {
       const body = await apiResponse.json().catch(() => ({}));

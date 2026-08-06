@@ -215,6 +215,7 @@ const admin = await prisma.user.create({
       role: UserRole.PARENT,
       firstName: 'Marie',
       lastName: 'Dupont',
+      activatedAt: new Date(),
       parentProfile: {
         create: {
           address: '12 Rue de la République',
