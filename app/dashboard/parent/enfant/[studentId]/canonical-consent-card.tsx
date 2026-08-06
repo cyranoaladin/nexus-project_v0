@@ -92,9 +92,20 @@ export function CanonicalConsentCard({ studentId, onVerified }: CanonicalConsent
       if (payload.state !== "VERIFIED") throw new Error("CANONICAL_CONSENT_NOT_VERIFIED");
 
       setStatus("VERIFIED");
-      onVerified?.();
     } catch {
       setStatus("SUBMIT_ERROR");
+      return;
+    }
+
+    // Outside the try/catch above: the server has already verified consent
+    // at this point, so a failure in this callback (e.g. the parent's
+    // report-list refresh) must never flip the card back to an error state
+    // and tell the parent to retry a consent that already succeeded. Handled
+    // in its own try/catch so it can't escape as an unhandled exception either.
+    try {
+      onVerified?.();
+    } catch (refreshError) {
+      console.error('[CanonicalConsentCard] onVerified callback failed after a successful consent', refreshError);
     }
   }
 

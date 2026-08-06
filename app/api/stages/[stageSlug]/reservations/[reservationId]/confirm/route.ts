@@ -56,13 +56,17 @@ export async function POST(
     // Guard against overwriting an unrelated account's activation state: the
     // reservation email lookup above is not role-scoped, so it can match a
     // pre-existing PARENT/ADMIN/COACH/ASSISTANTE account that merely shares
-    // the same email address. Only a pending ELEVE account may be issued a
-    // student-purpose activation token by this flow.
-    if (user && user.role !== UserRole.ELEVE) {
+    // the same email address. Only a pending (never-activated) ELEVE account
+    // may be issued a student-purpose activation token by this flow -- an
+    // already-activated ELEVE has a real password and a live session; this
+    // path must never wipe that account's credentials and force a fresh
+    // activation link just because a reservation with the same email was
+    // re-confirmed.
+    if (user && (user.role !== UserRole.ELEVE || user.activatedAt !== null)) {
       return NextResponse.json(
         {
           error:
-            "Un compte non-élève existe déjà avec cet email : la confirmation ne peut pas rattacher automatiquement cette réservation.",
+            "Un compte existe déjà avec cet email et ne peut pas être rattaché automatiquement à cette réservation.",
         },
         { status: 409 }
       );

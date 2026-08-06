@@ -20,6 +20,15 @@ function validateSelection(
   if (chosen.length === 0) {
     return 'Sélectionnez entre trois et cinq passations du même pack.';
   }
+  // A raw <form method="get"> submission reads whatever checkboxes are
+  // actually checked in the live DOM at submit time, not this component's
+  // React state -- a forged/injected extra checkbox with name="attemptId"
+  // and an id outside `candidates` would silently be dropped by the
+  // .filter() above and never counted against the 3-5 limit. Reject
+  // outright instead of silently ignoring it.
+  if (chosen.length !== selected.size) {
+    return 'Sélection invalide : un identifiant sélectionné ne correspond à aucune passation proposée.';
+  }
   const packIds = new Set(chosen.map((candidate) => candidate.assessmentPackId));
   if (packIds.size > 1) {
     return 'Les passations sélectionnées doivent toutes appartenir au même pack.';

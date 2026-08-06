@@ -154,4 +154,42 @@ describe('GET /api/parent/stages — coachBilans scoped to verified canonical li
     const body = await response.json();
     expect(body.coachBilans).toHaveLength(1);
   });
+
+  it('picks the most recently updated link when a single student has more than one', async () => {
+    prisma.parentProfile.findUnique.mockResolvedValue({
+      children: [{ id: 'student-1', user: { firstName: 'A', lastName: 'B', email: 'a@b.test' } }],
+    });
+    // Ordered exactly as currentParentLinkOrderBy() (updatedAt desc) would
+    // return from the DB: the newest link is REVOKED, an older one is still
+    // VERIFIED. The dedup must keep the first (newest) link per student, not
+    // just any link with state VERIFIED -- otherwise a stale VERIFIED link
+    // would win over a real revocation.
+    prisma.parentStudentLink.findMany.mockResolvedValue([
+      {
+        id: 'link-newer-revoked',
+        studentId: 'student-1',
+        state: 'REVOKED',
+        verifiedAt: new Date('2026-01-01T10:00:00.000Z'),
+        revokedAt: new Date('2026-08-01T10:00:00.000Z'),
+        expiresAt: null,
+      },
+      {
+        id: 'link-older-verified',
+        studentId: 'student-1',
+        state: 'VERIFIED',
+        verifiedAt: new Date('2026-01-01T10:00:00.000Z'),
+        revokedAt: null,
+        expiresAt: null,
+      },
+    ]);
+    prisma.stageReservation.findMany.mockResolvedValue([]);
+    prisma.stageBilan.findMany.mockResolvedValue([]);
+    prisma.bilan.findMany.mockResolvedValue([coachBilan('student-1')]);
+
+    const response = await GET();
+    const body = await response.json();
+
+    expect(body.coachBilans).toEqual([]);
+    expect(prisma.bilan.findMany).not.toHaveBeenCalled();
+  });
 });
