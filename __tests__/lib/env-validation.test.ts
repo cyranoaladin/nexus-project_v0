@@ -15,6 +15,12 @@ describe('validateEnv', () => {
   /** Helper to set NODE_ENV without TS readonly complaint */
   function setNodeEnv(val: string) {
     (process.env as Record<string, string | undefined>).NODE_ENV = val;
+    if (val === 'production') {
+      process.env.RATE_LIMIT_BACKEND = 'redis';
+      process.env.RATE_LIMIT_KEY_SECRET = 'rate-limit-env-validation-secret-32-bytes';
+      process.env.RATE_LIMIT_TRUST_PROXY_HOPS = '1';
+      process.env.REDIS_URL = 'redis://127.0.0.1:6379';
+    }
   }
 
   beforeEach(() => {
@@ -106,6 +112,18 @@ describe('validateEnv', () => {
       const result = validateEnv();
       expect(result.ok).toBe(true);
       expect(result.missing).toHaveLength(0);
+    });
+
+    it('fails fast when the distributed rate-limit configuration is absent', () => {
+      setNodeEnv('production');
+      process.env.DATABASE_URL = 'postgresql://prod';
+      process.env.NEXTAUTH_SECRET = 'a'.repeat(32);
+      process.env.NEXTAUTH_URL = 'https://nexusreussite.academy';
+      delete process.env.RATE_LIMIT_BACKEND;
+      delete process.env.REDIS_URL;
+
+      const validateEnv = loadValidateEnv();
+      expect(() => validateEnv()).toThrow('RATE_LIMIT');
     });
 
     it('warns if NEXTAUTH_SECRET is too short', () => {

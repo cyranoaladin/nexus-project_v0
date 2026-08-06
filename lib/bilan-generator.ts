@@ -1,14 +1,14 @@
-import { ollamaChat } from '@/lib/ollama-client';
-import { ragSearch, buildRAGContext } from '@/lib/rag-client';
-import type { BilanDiagnosticMathsData } from '@/lib/validations';
 import type { ScoringResult } from '@/lib/bilan-scoring';
-import type { ScoringV2Result, DiagnosticDefinition } from '@/lib/diagnostics/types';
-import { serializeError } from '@/lib/utils/serialize-error';
 import {
-  buildPromptContextPack,
-  renderPromptContext,
-  buildChapterAwareRAGQueries,
+buildChapterAwareRAGQueries,
+buildPromptContextPack,
+renderPromptContext,
 } from '@/lib/diagnostics/prompt-context';
+import type { DiagnosticDefinition,ScoringV2Result } from '@/lib/diagnostics/types';
+import { ollamaChat } from '@/lib/ollama-client';
+import { buildRAGContext,ragSearch } from '@/lib/rag-client';
+import { serializeError } from '@/lib/utils/serialize-error';
+import type { BilanDiagnosticMathsData } from '@/lib/validations';
 
 /**
  * Bilan Generator — Generates 3 audience-specific reports using:
@@ -279,7 +279,7 @@ export async function generateBilans(
       new Map(allHits.map((h) => [h.id, h])).values()
     ).slice(0, 6);
     ragContext = buildRAGContext(uniqueHits);
-  } catch (error) {
+  } catch {
     // RAG search failed, proceeding without pedagogical context
     uniqueHits = []; // Ensure empty on error
   }
@@ -317,7 +317,6 @@ VERBATIMS:
   let eleve = fallback.eleve;
   let parents = fallback.parents;
   let nexus = fallback.nexus;
-  let llmSuccessCount = 0;
 
   for (const audience of ['eleve', 'parents', 'nexus'] as const) {
     try {
@@ -325,7 +324,6 @@ VERBATIMS:
       if (audience === 'eleve') eleve = result;
       else if (audience === 'parents') parents = result;
       else nexus = result;
-      llmSuccessCount++;
     } catch (error) {
       console.error(`LLM ${audience} failed, using fallback:`, serializeError(error));
     }

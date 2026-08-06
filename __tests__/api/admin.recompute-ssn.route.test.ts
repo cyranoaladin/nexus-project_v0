@@ -11,8 +11,8 @@ jest.mock('@/lib/guards', () => ({
   isErrorResponse: jest.fn((result) => result && typeof result === 'object' && 'status' in result),
 }));
 
-jest.mock('@/lib/rate-limit', () => ({
-  guardRateLimitAsync: jest.fn().mockResolvedValue(null),
+jest.mock('@/lib/rate-limit/sensitive', () => ({
+  guardSensitiveRateLimit: jest.fn().mockResolvedValue(null),
 }));
 
 jest.mock('@/lib/core/ssn/computeSSN', () => ({
@@ -27,13 +27,13 @@ import { POST } from '@/app/api/admin/recompute-ssn/route';
 import { requireRole } from '@/lib/guards';
 import { recomputeSSNBatch } from '@/lib/core/ssn/computeSSN';
 import { computeCohortStatsWithAudit } from '@/lib/core/statistics/cohort';
-import { guardRateLimitAsync } from '@/lib/rate-limit';
+import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive';
 import { NextRequest } from 'next/server';
 
 const mockRequireRole = requireRole as jest.Mock;
 const mockRecompute = recomputeSSNBatch as jest.Mock;
 const mockAudit = computeCohortStatsWithAudit as jest.Mock;
-const mockGuardRateLimit = guardRateLimitAsync as jest.Mock;
+const mockGuardRateLimit = guardSensitiveRateLimit as jest.Mock;
 
 beforeEach(() => {
   jest.clearAllMocks();

@@ -27,7 +27,7 @@ interface Resource {
   url?: string;
 }
 
-interface RoadmapTask {
+export interface RoadmapTask {
   id: string;
   title: string;
   description: string;
@@ -40,7 +40,7 @@ interface RoadmapTask {
   completed?: boolean;
 }
 
-interface RemediationRoadmapProps {
+export interface RemediationRoadmapProps {
   roadmap: {
     title: string;
     description: string;

@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
-import { useDropzone } from 'react-dropzone';
-import { UploadCloud, FileText, Search, CheckCircle, X, Loader2 } from 'lucide-react';
-import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { CheckCircle,FileText,Loader2,Search,UploadCloud,X } from 'lucide-react';
+import { useCallback,useEffect,useState } from 'react';
+import { useDropzone } from 'react-dropzone';
+import { toast } from 'sonner';
 
 // Types pour la recherche utilisateur
 interface UserResult {
@@ -101,7 +101,7 @@ export function DocumentUploadForm() {
       setFile(null);
       setSelectedUser(null);
       setSearchQuery('');
-    } catch (_error) {
+    } catch {
       toast.error("Erreur lors de l'upload");
     } finally {
       setIsUploading(false);

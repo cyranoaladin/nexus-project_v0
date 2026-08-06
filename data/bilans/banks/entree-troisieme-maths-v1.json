@@ -1,0 +1,1075 @@
+{
+  "slug": "entree-troisieme-maths-v1",
+  "level": "TROISIEME",
+  "subject": "MATHS",
+  "version": 1,
+  "status": "VALIDATED",
+  "review": {
+    "validatedBy": "cmomnwolx0001mi0u8m8zj53w",
+    "validatedAt": "2026-08-05T07:01:14.685Z"
+  },
+  "questionnaire": {
+    "targetDurationMin": 25,
+    "confidenceScale": {
+      "levels": 4,
+      "labels": [
+        "je devine",
+        "peu sûr",
+        "plutôt sûr",
+        "certain"
+      ]
+    },
+    "items": [
+      {
+        "id": "ETR-MAT-REL-01",
+        "subject": "MATHS",
+        "category": "Nombres relatifs : les quatre opérations",
+        "domainId": "nombres-relatifs",
+        "nodeCpsId": "4e.maths.nombres-relatifs.operations",
+        "difficulty": 1,
+        "targetTimeSec": 45,
+        "shortCorrection": "Le produit de deux nombres négatifs est positif : (−5) × (−3) = 15. Le signe se décide avant de calculer.",
+        "weight": 1,
+        "competencies": [
+          "4e.maths.nombres-relatifs.operations"
+        ],
+        "questionText": "Calculer (−5) × (−3).",
+        "options": [
+          {
+            "id": "A",
+            "text": "−15",
+            "isCorrect": false,
+            "distractorRationale": "Applique la règle des signes à l'envers : un produit de deux négatifs est positif."
+          },
+          {
+            "id": "B",
+            "text": "−8",
+            "isCorrect": false,
+            "distractorRationale": "Additionne les nombres au lieu de les multiplier, et se trompe de signe."
+          },
+          {
+            "id": "C",
+            "text": "15",
+            "isCorrect": true
+          },
+          {
+            "id": "D",
+            "text": "8",
+            "isCorrect": false,
+            "distractorRationale": "Additionne au lieu de multiplier."
+          }
+        ],
+        "explanation": "Le produit de deux nombres négatifs est positif : (−5) × (−3) = 15. Le signe se décide avant de calculer."
+      },
+      {
+        "id": "ETR-MAT-REL-02",
+        "subject": "MATHS",
+        "category": "Nombres relatifs : les quatre opérations",
+        "domainId": "nombres-relatifs",
+        "nodeCpsId": "4e.maths.nombres-relatifs.operations",
+        "difficulty": 2,
+        "targetTimeSec": 70,
+        "shortCorrection": "On applique les priorités : (−12) ÷ 4 = −3 et (−2) × (−3) = 6, donc −3 + 6 = 3.",
+        "weight": 2,
+        "competencies": [
+          "4e.maths.nombres-relatifs.operations"
+        ],
+        "questionText": "Calculer (−12) ÷ 4 + (−2) × (−3).",
+        "options": [
+          {
+            "id": "A",
+            "text": "3",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "−9",
+            "isCorrect": false,
+            "distractorRationale": "Traite (−2) × (−3) comme −6 : erreur de signe sur le produit."
+          },
+          {
+            "id": "C",
+            "text": "−3",
+            "isCorrect": false,
+            "distractorRationale": "Oublie le second terme et ne garde que (−12) ÷ 4."
+          },
+          {
+            "id": "D",
+            "text": "9",
+            "isCorrect": false,
+            "distractorRationale": "Additionne 3 et 6 sans tenir compte du signe du quotient."
+          }
+        ],
+        "explanation": "On applique les priorités : (−12) ÷ 4 = −3 et (−2) × (−3) = 6, donc −3 + 6 = 3."
+      },
+      {
+        "id": "ETR-MAT-FRA-01",
+        "subject": "MATHS",
+        "category": "Fractions : somme et produit",
+        "domainId": "fractions",
+        "nodeCpsId": "4e.maths.fractions.operations",
+        "difficulty": 1,
+        "targetTimeSec": 55,
+        "shortCorrection": "On réduit au même dénominateur 10 : 6/10 − 5/10 = 1/10.",
+        "weight": 1,
+        "competencies": [
+          "4e.maths.fractions.operations"
+        ],
+        "questionText": "Calculer 3/5 − 1/2.",
+        "options": [
+          {
+            "id": "A",
+            "text": "2/3",
+            "isCorrect": false,
+            "distractorRationale": "Soustrait les numérateurs et les dénominateurs entre eux : erreur classique sans dénominateur commun."
+          },
+          {
+            "id": "B",
+            "text": "1/10",
+            "isCorrect": true
+          },
+          {
+            "id": "C",
+            "text": "2/10",
+            "isCorrect": false,
+            "distractorRationale": "Met au même dénominateur mais oublie de convertir aussi les numérateurs."
+          },
+          {
+            "id": "D",
+            "text": "4/10",
+            "isCorrect": false,
+            "distractorRationale": "Additionne au lieu de soustraire après mise au même dénominateur."
+          }
+        ],
+        "explanation": "On réduit au même dénominateur 10 : 6/10 − 5/10 = 1/10."
+      },
+      {
+        "id": "ETR-MAT-FRA-02",
+        "subject": "MATHS",
+        "category": "Fractions : somme et produit",
+        "domainId": "fractions",
+        "nodeCpsId": "4e.maths.fractions.operations",
+        "difficulty": 2,
+        "targetTimeSec": 55,
+        "shortCorrection": "On multiplie numérateurs entre eux et dénominateurs entre eux : (2×9)/(3×4) = 18/12 = 3/2.",
+        "weight": 2,
+        "competencies": [
+          "4e.maths.fractions.operations"
+        ],
+        "questionText": "Calculer 2/3 × 9/4.",
+        "options": [
+          {
+            "id": "A",
+            "text": "11/12",
+            "isCorrect": false,
+            "distractorRationale": "Additionne les fractions au lieu de les multiplier."
+          },
+          {
+            "id": "B",
+            "text": "18/7",
+            "isCorrect": false,
+            "distractorRationale": "Multiplie les numérateurs mais additionne les dénominateurs."
+          },
+          {
+            "id": "C",
+            "text": "8/27",
+            "isCorrect": false,
+            "distractorRationale": "Croise numérateurs et dénominateurs à l'envers."
+          },
+          {
+            "id": "D",
+            "text": "3/2",
+            "isCorrect": true
+          }
+        ],
+        "explanation": "On multiplie numérateurs entre eux et dénominateurs entre eux : (2×9)/(3×4) = 18/12 = 3/2."
+      },
+      {
+        "id": "ETR-MAT-PUI-01",
+        "subject": "MATHS",
+        "category": "Puissances : définition et produit",
+        "domainId": "puissances",
+        "nodeCpsId": "4e.maths.puissances.exposant-entier",
+        "difficulty": 1,
+        "targetTimeSec": 40,
+        "shortCorrection": "2⁵ signifie 2 × 2 × 2 × 2 × 2 = 32. L'exposant compte le nombre de facteurs, il ne multiplie pas la base.",
+        "weight": 1,
+        "competencies": [
+          "4e.maths.puissances.exposant-entier"
+        ],
+        "questionText": "Calculer 2⁵.",
+        "options": [
+          {
+            "id": "A",
+            "text": "32",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "10",
+            "isCorrect": false,
+            "distractorRationale": "Multiplie la base par l'exposant : 2 × 5 au lieu de 2 × 2 × 2 × 2 × 2."
+          },
+          {
+            "id": "C",
+            "text": "25",
+            "isCorrect": false,
+            "distractorRationale": "Confond 2⁵ avec 5² ou avec 25."
+          },
+          {
+            "id": "D",
+            "text": "16",
+            "isCorrect": false,
+            "distractorRationale": "Oublie un facteur : calcule 2⁴."
+          }
+        ],
+        "explanation": "2⁵ signifie 2 × 2 × 2 × 2 × 2 = 32. L'exposant compte le nombre de facteurs, il ne multiplie pas la base."
+      },
+      {
+        "id": "ETR-MAT-PUI-02",
+        "subject": "MATHS",
+        "category": "Puissances : définition et produit",
+        "domainId": "puissances",
+        "nodeCpsId": "4e.maths.puissances.exposant-entier",
+        "difficulty": 2,
+        "targetTimeSec": 55,
+        "shortCorrection": "Pour un produit de puissances de même base, on additionne les exposants : 3⁴ × 3² = 3⁶.",
+        "weight": 2,
+        "competencies": [
+          "4e.maths.puissances.exposant-entier"
+        ],
+        "questionText": "Écrire 3⁴ × 3² sous la forme d'une seule puissance.",
+        "options": [
+          {
+            "id": "A",
+            "text": "3⁸",
+            "isCorrect": false,
+            "distractorRationale": "Multiplie les exposants au lieu de les additionner."
+          },
+          {
+            "id": "B",
+            "text": "3⁶",
+            "isCorrect": true
+          },
+          {
+            "id": "C",
+            "text": "9⁶",
+            "isCorrect": false,
+            "distractorRationale": "Multiplie les bases : garde 3 × 3 = 9 en plus d'additionner les exposants."
+          },
+          {
+            "id": "D",
+            "text": "3²",
+            "isCorrect": false,
+            "distractorRationale": "Soustrait les exposants au lieu de les additionner."
+          }
+        ],
+        "explanation": "Pour un produit de puissances de même base, on additionne les exposants : 3⁴ × 3² = 3⁶."
+      },
+      {
+        "id": "ETR-MAT-CLI-01",
+        "subject": "MATHS",
+        "category": "Calcul littéral : distributivité simple et réduction",
+        "domainId": "calcul-litteral",
+        "nodeCpsId": "4e.maths.calcul-litteral.distributivite",
+        "difficulty": 1,
+        "targetTimeSec": 50,
+        "shortCorrection": "La distributivité s'applique à chaque terme : 3 × 2x − 3 × 5 = 6x − 15.",
+        "weight": 1,
+        "competencies": [
+          "4e.maths.calcul-litteral.distributivite"
+        ],
+        "questionText": "Développer 3(2x − 5).",
+        "options": [
+          {
+            "id": "A",
+            "text": "6x − 5",
+            "isCorrect": false,
+            "distractorRationale": "Distribue le 3 au premier terme seulement, pas au −5."
+          },
+          {
+            "id": "B",
+            "text": "6x + 15",
+            "isCorrect": false,
+            "distractorRationale": "Se trompe de signe en distribuant au terme négatif."
+          },
+          {
+            "id": "C",
+            "text": "6x − 15",
+            "isCorrect": true
+          },
+          {
+            "id": "D",
+            "text": "5x − 15",
+            "isCorrect": false,
+            "distractorRationale": "Additionne 3 et 2 au lieu de les multiplier pour le terme en x."
+          }
+        ],
+        "explanation": "La distributivité s'applique à chaque terme : 3 × 2x − 3 × 5 = 6x − 15."
+      },
+      {
+        "id": "ETR-MAT-CLI-02",
+        "subject": "MATHS",
+        "category": "Calcul littéral : distributivité simple et réduction",
+        "domainId": "calcul-litteral",
+        "nodeCpsId": "4e.maths.calcul-litteral.distributivite",
+        "difficulty": 2,
+        "targetTimeSec": 55,
+        "shortCorrection": "On regroupe les termes de même nature : (4x + 2x) + (−7 + 3) = 6x − 4.",
+        "weight": 2,
+        "competencies": [
+          "4e.maths.calcul-litteral.distributivite"
+        ],
+        "questionText": "Réduire l'expression 4x − 7 + 2x + 3.",
+        "options": [
+          {
+            "id": "A",
+            "text": "6x + 4",
+            "isCorrect": false,
+            "distractorRationale": "Additionne les termes constants sans tenir compte du signe de −7."
+          },
+          {
+            "id": "B",
+            "text": "6x − 10",
+            "isCorrect": false,
+            "distractorRationale": "Soustrait 3 au lieu de l'ajouter à −7."
+          },
+          {
+            "id": "C",
+            "text": "2x − 4",
+            "isCorrect": false,
+            "distractorRationale": "Soustrait les termes en x au lieu de les additionner."
+          },
+          {
+            "id": "D",
+            "text": "6x − 4",
+            "isCorrect": true
+          }
+        ],
+        "explanation": "On regroupe les termes de même nature : (4x + 2x) + (−7 + 3) = 6x − 4."
+      },
+      {
+        "id": "ETR-MAT-EQU-01",
+        "subject": "MATHS",
+        "category": "Équations du premier degré",
+        "domainId": "equations",
+        "nodeCpsId": "4e.maths.equations.premier-degre",
+        "difficulty": 1,
+        "targetTimeSec": 50,
+        "shortCorrection": "On isole x : 2x = 11 − 3 = 8, puis x = 8 ÷ 2 = 4.",
+        "weight": 1,
+        "competencies": [
+          "4e.maths.equations.premier-degre"
+        ],
+        "questionText": "Résoudre l'équation 2x + 3 = 11.",
+        "options": [
+          {
+            "id": "A",
+            "text": "x = 8",
+            "isCorrect": false,
+            "distractorRationale": "Soustrait 3 mais oublie de diviser par 2."
+          },
+          {
+            "id": "B",
+            "text": "x = 4",
+            "isCorrect": true
+          },
+          {
+            "id": "C",
+            "text": "x = 7",
+            "isCorrect": false,
+            "distractorRationale": "Soustrait 3 de façon erronée puis ne divise pas."
+          },
+          {
+            "id": "D",
+            "text": "x = −4",
+            "isCorrect": false,
+            "distractorRationale": "Se trompe de signe en isolant x."
+          }
+        ],
+        "explanation": "On isole x : 2x = 11 − 3 = 8, puis x = 8 ÷ 2 = 4."
+      },
+      {
+        "id": "ETR-MAT-EQU-02",
+        "subject": "MATHS",
+        "category": "Équations du premier degré",
+        "domainId": "equations",
+        "nodeCpsId": "4e.maths.equations.premier-degre",
+        "difficulty": 2,
+        "targetTimeSec": 70,
+        "shortCorrection": "On regroupe : 5x − 3x = 8 + 2, soit 2x = 10, donc x = 5.",
+        "weight": 2,
+        "competencies": [
+          "4e.maths.equations.premier-degre"
+        ],
+        "questionText": "Résoudre l'équation 5x − 2 = 3x + 8.",
+        "options": [
+          {
+            "id": "A",
+            "text": "x = 5",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "x = 3",
+            "isCorrect": false,
+            "distractorRationale": "Calcule 8 − 2 au lieu de 8 + 2 en regroupant les constantes."
+          },
+          {
+            "id": "C",
+            "text": "x = 10",
+            "isCorrect": false,
+            "distractorRationale": "Regroupe correctement mais oublie de diviser par 2."
+          },
+          {
+            "id": "D",
+            "text": "x = −5",
+            "isCorrect": false,
+            "distractorRationale": "Se trompe de signe au moment d'isoler x."
+          }
+        ],
+        "explanation": "On regroupe : 5x − 3x = 8 + 2, soit 2x = 10, donc x = 5."
+      },
+      {
+        "id": "ETR-MAT-PRP-01",
+        "subject": "MATHS",
+        "category": "Proportionnalité : quatrième proportionnelle et vitesse",
+        "domainId": "proportionnalite",
+        "nodeCpsId": "4e.maths.proportionnalite.quatrieme-proportionnelle",
+        "difficulty": 1,
+        "targetTimeSec": 55,
+        "shortCorrection": "Le prix unitaire est 6 ÷ 4 = 1,5 dinar. Pour 10 stylos : 10 × 1,5 = 15 dinars.",
+        "weight": 1,
+        "competencies": [
+          "4e.maths.proportionnalite.quatrieme-proportionnelle"
+        ],
+        "questionText": "4 stylos identiques coûtent 6 dinars. Combien coûtent 10 stylos au même prix unitaire ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "12 dinars",
+            "isCorrect": false,
+            "distractorRationale": "Ajoute 6 dinars pour 6 stylos de plus, en raisonnant de façon additive."
+          },
+          {
+            "id": "B",
+            "text": "24 dinars",
+            "isCorrect": false,
+            "distractorRationale": "Multiplie le prix par le nombre de stylos sans revenir au prix unitaire."
+          },
+          {
+            "id": "C",
+            "text": "2,4 dinars",
+            "isCorrect": false,
+            "distractorRationale": "Divise sans conclure : donne le prix d'un seul stylo, pas de dix."
+          },
+          {
+            "id": "D",
+            "text": "15 dinars",
+            "isCorrect": true
+          }
+        ],
+        "explanation": "Le prix unitaire est 6 ÷ 4 = 1,5 dinar. Pour 10 stylos : 10 × 1,5 = 15 dinars."
+      },
+      {
+        "id": "ETR-MAT-PRP-02",
+        "subject": "MATHS",
+        "category": "Proportionnalité : quatrième proportionnelle et vitesse",
+        "domainId": "proportionnalite",
+        "nodeCpsId": "4e.maths.proportionnalite.quatrieme-proportionnelle",
+        "difficulty": 2,
+        "targetTimeSec": 60,
+        "shortCorrection": "La vitesse est 150 ÷ 2 = 75 km/h. En 5 h : 5 × 75 = 375 km.",
+        "weight": 2,
+        "competencies": [
+          "4e.maths.proportionnalite.quatrieme-proportionnelle"
+        ],
+        "questionText": "Une voiture parcourt 150 km en 2 h à vitesse constante. Quelle distance parcourt-elle en 5 h ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "300 km",
+            "isCorrect": false,
+            "distractorRationale": "Double la distance pour 4 h et oublie la cinquième heure."
+          },
+          {
+            "id": "B",
+            "text": "450 km",
+            "isCorrect": false,
+            "distractorRationale": "Multiplie 150 par 3 en confondant le nombre d'heures."
+          },
+          {
+            "id": "C",
+            "text": "375 km",
+            "isCorrect": true
+          },
+          {
+            "id": "D",
+            "text": "75 km",
+            "isCorrect": false,
+            "distractorRationale": "Divise au lieu de multiplier : donne la distance par heure."
+          }
+        ],
+        "explanation": "La vitesse est 150 ÷ 2 = 75 km/h. En 5 h : 5 × 75 = 375 km."
+      },
+      {
+        "id": "ETR-MAT-PYT-01",
+        "subject": "MATHS",
+        "category": "Théorème de Pythagore",
+        "domainId": "geometrie",
+        "nodeCpsId": "4e.maths.geometrie.pythagore",
+        "difficulty": 1,
+        "targetTimeSec": 55,
+        "shortCorrection": "Pythagore donne BC² = 6² + 8² = 36 + 64 = 100, donc BC = 10 cm.",
+        "weight": 1,
+        "competencies": [
+          "4e.maths.geometrie.pythagore"
+        ],
+        "questionText": "Le triangle ABC est rectangle en A, avec AB = 6 cm et AC = 8 cm. Quelle est la longueur BC ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "10 cm",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "14 cm",
+            "isCorrect": false,
+            "distractorRationale": "Additionne les deux côtés au lieu de leurs carrés."
+          },
+          {
+            "id": "C",
+            "text": "100 cm",
+            "isCorrect": false,
+            "distractorRationale": "Oublie d'extraire la racine carrée après avoir calculé 6² + 8²."
+          },
+          {
+            "id": "D",
+            "text": "2 cm",
+            "isCorrect": false,
+            "distractorRationale": "Soustrait les côtés au lieu d'appliquer le théorème."
+          }
+        ],
+        "explanation": "Pythagore donne BC² = 6² + 8² = 36 + 64 = 100, donc BC = 10 cm."
+      },
+      {
+        "id": "ETR-MAT-PYT-02",
+        "subject": "MATHS",
+        "category": "Théorème de Pythagore",
+        "domainId": "geometrie",
+        "nodeCpsId": "4e.maths.geometrie.pythagore",
+        "difficulty": 2,
+        "targetTimeSec": 70,
+        "shortCorrection": "Ici BC est l'hypoténuse : AC² = BC² − AB² = 169 − 25 = 144, donc AC = 12 cm.",
+        "weight": 2,
+        "competencies": [
+          "4e.maths.geometrie.pythagore"
+        ],
+        "questionText": "Le triangle ABC est rectangle en A. On a BC = 13 cm et AB = 5 cm. Quelle est la longueur AC ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "8 cm",
+            "isCorrect": false,
+            "distractorRationale": "Soustrait les longueurs (13 − 5) au lieu de soustraire leurs carrés."
+          },
+          {
+            "id": "B",
+            "text": "12 cm",
+            "isCorrect": true
+          },
+          {
+            "id": "C",
+            "text": "18 cm",
+            "isCorrect": false,
+            "distractorRationale": "Additionne les deux longueurs connues."
+          },
+          {
+            "id": "D",
+            "text": "194 cm",
+            "isCorrect": false,
+            "distractorRationale": "Additionne les carrés au lieu de les soustraire : traite un côté comme l'hypoténuse."
+          }
+        ],
+        "explanation": "Ici BC est l'hypoténuse : AC² = BC² − AB² = 169 − 25 = 144, donc AC = 12 cm."
+      },
+      {
+        "id": "ETR-MAT-COS-01",
+        "subject": "MATHS",
+        "category": "Cosinus dans le triangle rectangle",
+        "domainId": "trigonometrie",
+        "nodeCpsId": "4e.maths.trigonometrie.cosinus",
+        "difficulty": 1,
+        "targetTimeSec": 55,
+        "shortCorrection": "Le cosinus est le rapport côté adjacent sur hypoténuse. Pour l'angle B, le côté adjacent est AB : cos(B) = AB/BC.",
+        "weight": 1,
+        "competencies": [
+          "4e.maths.trigonometrie.cosinus"
+        ],
+        "questionText": "Dans un triangle ABC rectangle en A, le cosinus de l'angle B est égal à :",
+        "options": [
+          {
+            "id": "A",
+            "text": "AC/BC",
+            "isCorrect": false,
+            "distractorRationale": "Prend le côté opposé sur l'hypoténuse : c'est le sinus, pas le cosinus."
+          },
+          {
+            "id": "B",
+            "text": "AC/AB",
+            "isCorrect": false,
+            "distractorRationale": "Prend le côté opposé sur le côté adjacent : c'est la tangente."
+          },
+          {
+            "id": "C",
+            "text": "AB/BC",
+            "isCorrect": true
+          },
+          {
+            "id": "D",
+            "text": "BC/AB",
+            "isCorrect": false,
+            "distractorRationale": "Inverse le rapport : place l'hypoténuse au numérateur."
+          }
+        ],
+        "explanation": "Le cosinus est le rapport côté adjacent sur hypoténuse. Pour l'angle B, le côté adjacent est AB : cos(B) = AB/BC."
+      },
+      {
+        "id": "ETR-MAT-COS-02",
+        "subject": "MATHS",
+        "category": "Cosinus dans le triangle rectangle",
+        "domainId": "trigonometrie",
+        "nodeCpsId": "4e.maths.trigonometrie.cosinus",
+        "difficulty": 2,
+        "targetTimeSec": 75,
+        "shortCorrection": "cos(B) = 4/8 = 0,5. Or cos(60°) = 0,5, donc l'angle B mesure 60°.",
+        "weight": 2,
+        "competencies": [
+          "4e.maths.trigonometrie.cosinus"
+        ],
+        "questionText": "Dans un triangle rectangle en A, le côté adjacent à l'angle B mesure 4 cm et l'hypoténuse 8 cm. Quelle est la mesure de l'angle B, au degré près ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "30°",
+            "isCorrect": false,
+            "distractorRationale": "Utilise le rapport comme s'il donnait directement l'angle, ou confond avec le sinus."
+          },
+          {
+            "id": "B",
+            "text": "45°",
+            "isCorrect": false,
+            "distractorRationale": "Suppose un triangle isocèle sans vérifier le rapport des côtés."
+          },
+          {
+            "id": "C",
+            "text": "0,5°",
+            "isCorrect": false,
+            "distractorRationale": "Confond la valeur du cosinus (0,5) avec la mesure de l'angle."
+          },
+          {
+            "id": "D",
+            "text": "60°",
+            "isCorrect": true
+          }
+        ],
+        "explanation": "cos(B) = 4/8 = 0,5. Or cos(60°) = 0,5, donc l'angle B mesure 60°."
+      },
+      {
+        "id": "ETR-MAT-STA-01",
+        "subject": "MATHS",
+        "category": "Statistiques : moyenne simple et pondérée",
+        "domainId": "statistiques",
+        "nodeCpsId": "4e.maths.statistiques.moyenne",
+        "difficulty": 1,
+        "targetTimeSec": 50,
+        "shortCorrection": "La moyenne vaut (8 + 12 + 10 + 14) ÷ 4 = 44 ÷ 4 = 11.",
+        "weight": 1,
+        "competencies": [
+          "4e.maths.statistiques.moyenne"
+        ],
+        "questionText": "Quelle est la moyenne de la série 8 ; 12 ; 10 ; 14 ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "11",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "12",
+            "isCorrect": false,
+            "distractorRationale": "Donne une valeur centrale au jugé sans calculer la somme."
+          },
+          {
+            "id": "C",
+            "text": "44",
+            "isCorrect": false,
+            "distractorRationale": "Donne la somme des valeurs sans diviser par leur nombre."
+          },
+          {
+            "id": "D",
+            "text": "10",
+            "isCorrect": false,
+            "distractorRationale": "Oublie une valeur dans la somme."
+          }
+        ],
+        "explanation": "La moyenne vaut (8 + 12 + 10 + 14) ÷ 4 = 44 ÷ 4 = 11."
+      },
+      {
+        "id": "ETR-MAT-STA-02",
+        "subject": "MATHS",
+        "category": "Statistiques : moyenne simple et pondérée",
+        "domainId": "statistiques",
+        "nodeCpsId": "4e.maths.statistiques.moyenne",
+        "difficulty": 2,
+        "targetTimeSec": 70,
+        "shortCorrection": "Moyenne pondérée = (12×1 + 8×3) ÷ (1 + 3) = (12 + 24) ÷ 4 = 36 ÷ 4 = 9.",
+        "weight": 2,
+        "competencies": [
+          "4e.maths.statistiques.moyenne"
+        ],
+        "questionText": "Un élève obtient 12 (coefficient 1) et 8 (coefficient 3). Quelle est sa moyenne pondérée ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "10",
+            "isCorrect": false,
+            "distractorRationale": "Fait la moyenne simple de 12 et 8 en ignorant les coefficients."
+          },
+          {
+            "id": "B",
+            "text": "9",
+            "isCorrect": true
+          },
+          {
+            "id": "C",
+            "text": "20",
+            "isCorrect": false,
+            "distractorRationale": "Additionne les deux notes sans pondérer ni diviser."
+          },
+          {
+            "id": "D",
+            "text": "6",
+            "isCorrect": false,
+            "distractorRationale": "Divise la somme pondérée par le nombre de notes (2) au lieu de la somme des coefficients (4)."
+          }
+        ],
+        "explanation": "Moyenne pondérée = (12×1 + 8×3) ÷ (1 + 3) = (12 + 24) ÷ 4 = 36 ÷ 4 = 9."
+      }
+    ]
+  },
+  "scoring": {
+    "engine": "facts.v1.0.1",
+    "domains": [
+      "nombres-relatifs",
+      "fractions",
+      "puissances",
+      "calcul-litteral",
+      "equations",
+      "proportionnalite",
+      "geometrie",
+      "trigonometrie",
+      "statistiques"
+    ]
+  },
+  "reporting": {
+    "rag": {
+      "enabled": false,
+      "decisionRef": "A56 — RAG désactivé tant que le corpus du niveau n’est pas validé",
+      "sources": [],
+      "topK": 0
+    },
+    "promptFiles": {
+      "preAnalysis": {
+        "path": "content/bilans/prompts/entree-troisieme-maths-v1/pre-analysis.md",
+        "checksum": "d766b3b5032b10b0c75ee52d6b1dccdd093526f1a8f3362eb98d0b89d9033b94"
+      },
+      "eleve": {
+        "path": "content/bilans/prompts/entree-troisieme-maths-v1/eleve.md",
+        "checksum": "937e97e1457c3f0781c977f27f4200af861724af7032f79c9a7bbefa49057ac6"
+      },
+      "parents": {
+        "path": "content/bilans/prompts/entree-troisieme-maths-v1/parents.md",
+        "checksum": "0f9be087d5b5cc89615c4b6d922beef6925f10659094c1b390d14a8e48c2684d"
+      },
+      "nexus": {
+        "path": "content/bilans/prompts/entree-troisieme-maths-v1/nexus.md",
+        "checksum": "d0885692eb6a5cab20beb128d1bb4eebd2c513a44310a5482eba5c2b36873c9a"
+      },
+      "verifier": {
+        "path": "content/bilans/prompts/entree-troisieme-maths-v1/verifier.md",
+        "checksum": "72a781dc0c87d45237b9af8bf0bb245a4b85837e3c1ba76125089ba965dc32cc"
+      }
+    },
+    "outputSchemas": {
+      "preAnalysis": {
+        "type": "object",
+        "properties": {
+          "synthese": {
+            "type": "string",
+            "minLength": 1
+          },
+          "forcesPercues": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "craintes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "required": [
+          "synthese",
+          "forcesPercues",
+          "craintes"
+        ],
+        "additionalProperties": false
+      },
+      "eleve": {
+        "type": "object",
+        "properties": {
+          "accroche": {
+            "type": "string",
+            "minLength": 1
+          },
+          "forces": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "minItems": 3,
+            "maxItems": 3
+          },
+          "priorites": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "domainId": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "titre": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "pourquoi": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "comment": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "domainId",
+                "titre",
+                "pourquoi",
+                "comment"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "maxItems": 9
+          },
+          "microPlan": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "action": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "dureeMin": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              },
+              "required": [
+                "action",
+                "dureeMin"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "maxItems": 5
+          },
+          "motDeFin": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "accroche",
+          "forces",
+          "priorites",
+          "microPlan",
+          "motDeFin"
+        ],
+        "additionalProperties": false
+      },
+      "parents": {
+        "type": "object",
+        "properties": {
+          "cadre": {
+            "type": "string",
+            "minLength": 1
+          },
+          "pointsAppui": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "domainId": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "texte": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "domainId",
+                "texte"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "maxItems": 9
+          },
+          "priorites": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "domainId": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "titre": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "ceQuiSeraFait": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "domainId",
+                "titre",
+                "ceQuiSeraFait"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "maxItems": 9
+          },
+          "etapeSuivante": {
+            "type": "object",
+            "properties": {
+              "texte": {
+                "type": "string",
+                "minLength": 1
+              },
+              "cta": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "texte",
+              "cta"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "cadre",
+          "pointsAppui",
+          "priorites",
+          "etapeSuivante"
+        ],
+        "additionalProperties": false
+      },
+      "nexus": {
+        "type": "object",
+        "properties": {
+          "syntheseProfil": {
+            "type": "string",
+            "minLength": 1
+          },
+          "diagnosticPedagogique": {
+            "type": "string",
+            "minLength": 1
+          },
+          "planQuatreSemaines": {
+            "type": "string",
+            "minLength": 1
+          },
+          "alertes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "ragReferences": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "required": [
+          "syntheseProfil",
+          "diagnosticPedagogique",
+          "planQuatreSemaines",
+          "alertes",
+          "ragReferences"
+        ],
+        "additionalProperties": false
+      },
+      "verifier": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "type": "boolean"
+          },
+          "violations": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "required": [
+          "ok",
+          "violations"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "validation": {
+    "lexiconPath": "data/bilans/lexique-interdit.json",
+    "forbidDigits": [
+      "eleve",
+      "parents"
+    ]
+  }
+}

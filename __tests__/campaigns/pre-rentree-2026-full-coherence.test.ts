@@ -21,6 +21,10 @@ import { execFileSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 
+import {
+  cleanupPreRentreePdfFixtures,
+  ensurePreRentreePdfFixtures,
+} from '@/__tests__/helpers/pre-rentree-pdf-fixtures';
 import pricingCanonical from '@/data/pricing.canonical.json';
 import campaignSource from '@/data/campaigns/pre-rentree-2026.json';
 import { getCommercialPublicOffers } from '@/lib/campaigns/pre-rentree-2026/commercial-contract';
@@ -58,9 +62,15 @@ const GENERIC_LABEL: Record<string, string> = {
 
 const LEVELS: EntryLevelCode[] = ['QUATRIEME', 'TROISIEME', 'SECONDE', 'PREMIERE', 'TERMINALE'];
 
-const maybe = existsSync(PDF) ? describe : describe.skip;
+describe('Pré-rentrée 2026 — cohérence intégrale par niveau (JSON / catalogue / contrat commercial / sélecteur / PDF / page)', () => {
+  beforeAll(() => {
+    ensurePreRentreePdfFixtures();
+  });
 
-maybe('Pré-rentrée 2026 — cohérence intégrale par niveau (JSON / catalogue / contrat commercial / sélecteur / PDF / page)', () => {
+  afterAll(() => {
+    cleanupPreRentreePdfFixtures();
+  });
+
   const schedule = getPreRentreeSchedule();
   const campaign = getPreRentreeCampaign();
   const offers = PreRentreeOffersSchema.parse(offersData);
@@ -68,7 +78,11 @@ maybe('Pré-rentrée 2026 — cohérence intégrale par niveau (JSON / catalogue
   const incompatibilities = computeSubjectIncompatibilities(schedule);
   const pageDto = compilePreRentreeReviewSurfaceDTO();
   const commercialOffers = getCommercialPublicOffers();
-  const pdfText = execFileSync('pdftotext', ['-layout', PDF, '-'], { encoding: 'utf8' });
+  let pdfText: string;
+
+  beforeAll(() => {
+    pdfText = execFileSync('pdftotext', ['-layout', PDF, '-'], { encoding: 'utf8' });
+  });
 
   const gridSubjectsByLevel = new Map<EntryLevelCode, Set<string>>();
   for (const session of schedule) {

@@ -34,7 +34,7 @@ async function main() {
   // ─── 1. Admin ────────────────────────────────────────────────────────
   const admin = await prisma.user.upsert({
     where: { email: 'admin@nexus-reussite.com' },
-    update: { activatedAt: new Date() },
+    update: { activatedAt: new Date(), sessionVersion: { increment: 1 } },
     create: {
       email: 'admin@nexus-reussite.com',
       password: QA_PASSWORD_HASH,
@@ -49,7 +49,7 @@ async function main() {
   // ─── 2. Parent (activated, with child) ───────────────────────────────
   const parentUser = await prisma.user.upsert({
     where: { email: 'parent@example.com' },
-    update: { activatedAt: new Date() },
+    update: { activatedAt: new Date(), sessionVersion: { increment: 1 } },
     create: {
       email: 'parent@example.com',
       password: QA_PASSWORD_HASH,
@@ -74,7 +74,7 @@ async function main() {
   // ─── 3. Student (activated, linked to parent, entitlements) ──────────
   const studentUser = await prisma.user.upsert({
     where: { email: 'student@example.com' },
-    update: { activatedAt: new Date() },
+    update: { activatedAt: new Date(), sessionVersion: { increment: 1 } },
     create: {
       email: 'student@example.com',
       password: QA_PASSWORD_HASH,
@@ -133,7 +133,7 @@ async function main() {
       startDate: new Date(),
       endDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
       ariaCost: 50,
-      ariaSubjects: ['MATHEMATIQUES', 'NSI'],
+      ariaSubjects: JSON.stringify(['MATHEMATIQUES', 'NSI']),
     },
   });
   console.log(`✅ Student: ${studentUser.email} (${studentUser.id}) — 2 entitlements + subscription`);
@@ -146,6 +146,7 @@ async function main() {
       activatedAt: null,
       activationToken: hashToken(inactiveToken),
       activationExpiry: new Date(Date.now() + 72 * 60 * 60 * 1000),
+      sessionVersion: { increment: 1 },
     },
     create: {
       email: 'qa-inactive@nexus-test.local',
@@ -176,7 +177,7 @@ async function main() {
   // ─── 5. Student with no entitlements (activated, but no ARIA access) ─
   const noEntUser = await prisma.user.upsert({
     where: { email: 'qa-no-entitlement@nexus-test.local' },
-    update: { activatedAt: new Date() },
+    update: { activatedAt: new Date(), sessionVersion: { increment: 1 } },
     create: {
       email: 'qa-no-entitlement@nexus-test.local',
       password: QA_PASSWORD_HASH,
@@ -203,7 +204,7 @@ async function main() {
   // ─── 6. Coach (activated) ────────────────────────────────────────────
   const coachUser = await prisma.user.upsert({
     where: { email: 'qa-coach@nexus-reussite.com' },
-    update: { activatedAt: new Date() },
+    update: { activatedAt: new Date(), sessionVersion: { increment: 1 } },
     create: {
       email: 'qa-coach@nexus-reussite.com',
       password: QA_PASSWORD_HASH,
@@ -232,7 +233,7 @@ async function main() {
   // ─── 7. Parent with no children ──────────────────────────────────────
   const loneParent = await prisma.user.upsert({
     where: { email: 'qa-parent-nochild@nexus-test.local' },
-    update: { activatedAt: new Date() },
+    update: { activatedAt: new Date(), sessionVersion: { increment: 1 } },
     create: {
       email: 'qa-parent-nochild@nexus-test.local',
       password: QA_PASSWORD_HASH,

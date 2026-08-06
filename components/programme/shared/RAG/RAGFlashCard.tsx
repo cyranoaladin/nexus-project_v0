@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, RefreshCw, Loader2, AlertCircle, BookOpen } from 'lucide-react';
 import { MathRichText } from '@/components/programme/shared/MathContent';
+import { AnimatePresence,motion } from 'framer-motion';
+import { AlertCircle,BookOpen,Loader2,RefreshCw,Sparkles } from 'lucide-react';
+import React,{ useCallback,useEffect,useState } from 'react';
 
 interface RAGHit {
   id: string;
@@ -37,9 +37,14 @@ function getTypeConfig(type?: string) {
 }
 
 /** Find the chapter title in programmeData given a chapId. */
-function resolveChapTitle(chapId: string, programmeData: Record<string, any>): string {
+type ProgrammeCategorySummary = {
+  titre: string;
+  chapitres: Array<{ id: string; titre: string }>;
+};
+
+function resolveChapTitle(chapId: string, programmeData: Record<string, ProgrammeCategorySummary>): string {
   for (const cat of Object.values(programmeData)) {
-    const chap = cat.chapitres.find((c: any) => c.id === chapId);
+    const chap = cat.chapitres.find((chapter) => chapter.id === chapId);
     if (chap) return chap.titre;
   }
   return chapId.replace(/-/g, ' ');
@@ -54,7 +59,7 @@ function resolveChapTitle(chapId: string, programmeData: Record<string, any>): s
 function getTargetChapter(
   diagnosticResults: Record<string, { score: number; total: number }>,
   dueReviews: string[],
-  programmeData: Record<string, any>,
+  programmeData: Record<string, ProgrammeCategorySummary>,
 ): { chapId: string; chapTitre: string } {
   const weak = Object.entries(diagnosticResults)
     .filter(([, r]) => r.total > 0)
@@ -81,7 +86,7 @@ interface RAGFlashCardProps {
     getDueReviews: () => string[];
     diagnosticResults: Record<string, { score: number; total: number }>;
   };
-  programmeData: Record<string, any>;
+  programmeData: Record<string, ProgrammeCategorySummary>;
 }
 
 /**

@@ -8,15 +8,14 @@
  * Source: lib/email-service.ts
  */
 
-jest.mock('nodemailer9', () => {
-  const sendMail = jest.fn().mockResolvedValue({ messageId: 'mock-id' });
-  const verify = jest.fn().mockResolvedValue(true);
-  return {
-    createTransport: jest.fn().mockReturnValue({ sendMail, verify }),
-    __mockSendMail: sendMail,
-    __mockVerify: verify,
-  };
-});
+const mockSendMail = jest.fn().mockResolvedValue({ messageId: 'mock-id' });
+const mockVerify = jest.fn().mockResolvedValue({ ok: true });
+jest.mock('@/lib/email/queue', () => ({
+  queueCommittedEmail: (...args: unknown[]) => mockSendMail(...args),
+}));
+jest.mock('@/lib/email/mailer', () => ({
+  verifySmtp: (...args: unknown[]) => mockVerify(...args),
+}));
 
 import {
   sendWelcomeEmail,
@@ -25,8 +24,6 @@ import {
   testEmailConfiguration,
   sendSessionReportNotification,
 } from '@/lib/email-service';
-
-const { __mockSendMail: mockSendMail, __mockVerify: mockVerify } = require('nodemailer9');
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -163,7 +160,7 @@ describe('sendSessionReminderEmail', () => {
 
 describe('testEmailConfiguration', () => {
   it('should return success when SMTP is valid', async () => {
-    mockVerify.mockResolvedValueOnce(true);
+    mockVerify.mockResolvedValueOnce({ ok: true });
 
     const result = await testEmailConfiguration();
 
@@ -172,12 +169,12 @@ describe('testEmailConfiguration', () => {
   });
 
   it('should return failure when SMTP is invalid', async () => {
-    mockVerify.mockRejectedValueOnce(new Error('Connection refused'));
+    mockVerify.mockResolvedValueOnce({ ok: false, error: 'ECONNREFUSED' });
 
     const result = await testEmailConfiguration();
 
     expect(result.success).toBe(false);
-    expect(result.error).toContain('Connection refused');
+    expect(result.error).toBe('ECONNREFUSED');
   });
 });
 

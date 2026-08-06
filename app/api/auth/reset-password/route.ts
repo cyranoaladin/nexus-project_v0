@@ -1,12 +1,16 @@
 export const dynamic = 'force-dynamic';
 
 import { prisma } from '@/lib/prisma';
-import { guardRateLimitAsync } from '@/lib/rate-limit';
+import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive';
 import { checkCsrf, checkBodySize } from '@/lib/csrf';
 import { generateResetToken, verifyResetToken } from '@/lib/password-reset-token';
 import bcrypt from 'bcryptjs';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
+import { escapeHtml } from '@/lib/email/templates';
+import { getTrustedApplicationOrigin } from '@/lib/auth/parent-activation';
+import { enqueueEmailIntent } from '@/lib/email/outbox';
+import { kickEmailOutboxDrain } from '@/lib/email/outbox-scheduler';
 
 /** Common weak passwords to reject */
 const COMMON_PASSWORDS = new Set([
@@ -48,14 +52,46 @@ export async function POST(request: NextRequest) {
     const bodySizeResponse = checkBodySize(request);
     if (bodySizeResponse) return bodySizeResponse;
 
-    // Rate limiting: strict for password reset (5 req/15min)
-    const blocked = await guardRateLimitAsync(request, { preset: 'auth' });
+    // IP-only guard BEFORE parsing: a malformed body must still consume
+    // rate-limit budget. Previously request.json() ran first, so an attacker
+    // sending unlimited malformed JSON bodies bypassed both password-reset
+    // rate-limit scopes entirely — the thrown parse error fell straight to
+    // the generic 500 handler below, before any limiter ever ran.
+    const preParseIpBlocked = await guardSensitiveRateLimit(request, {
+      scope: 'password-reset-request',
+      dimensions: ['ip'],
+    });
+    if (preParseIpBlocked) return preParseIpBlocked;
+
+    let body: unknown;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json(
+        { error: 'Corps de requête invalide' },
+        { status: 400 }
+      );
+    }
+
+    const bodyRecord = body as Record<string, unknown> | null | undefined;
+    const isConfirmation = typeof bodyRecord?.token === 'string' && typeof bodyRecord?.newPassword === 'string';
+    // The ip dimension for the request-flow scope was already consumed above;
+    // only add the identity dimension here to avoid double-counting the same
+    // bucket. The confirm-flow scope uses a distinct preset/bucket, so its
+    // own ip dimension still applies in full (default dimensions).
+    const blocked = await guardSensitiveRateLimit(request, {
+      scope: isConfirmation ? 'password-reset-confirm' : 'password-reset-request',
+      identity: isConfirmation
+        ? (bodyRecord!.token as string)
+        : typeof bodyRecord?.email === 'string'
+          ? bodyRecord.email
+          : null,
+      dimensions: isConfirmation ? undefined : ['identity'],
+    });
     if (blocked) return blocked;
 
-    const body = await request.json();
-
     // Determine action: request or confirm
-    if (body.token && body.newPassword) {
+    if (isConfirmation) {
       return handleConfirmReset(body);
     }
     return handleRequestReset(body, request);
@@ -92,36 +128,29 @@ async function handleRequestReset(body: unknown, request: NextRequest) {
   });
 
   try {
-    const user = await prisma.user.findUnique({
-      where: { email },
-      select: { id: true, email: true, password: true, firstName: true },
+    const queued = await prisma.$transaction(async (transaction) => {
+      const user = await transaction.user.findUnique({
+        where: { email },
+        select: { id: true, email: true, password: true, firstName: true },
+      });
+      if (!user) return false;
+      const token = generateResetToken(user.id, user.email, user.password);
+      const resetUrl = new URL('/auth/reset-password', getTrustedApplicationOrigin());
+      resetUrl.searchParams.set('token', token);
+      const name = escapeHtml(user.firstName || 'Utilisateur');
+      const safeUrl = escapeHtml(resetUrl.toString());
+      await enqueueEmailIntent(transaction, {
+        aggregateId: user.id,
+        messageType: 'PASSWORD_RESET',
+        dedupeKey: token,
+        to: user.email,
+        subject: 'Réinitialisation de votre mot de passe — Nexus Réussite',
+        html: `<p>Bonjour ${name},</p><p>Utilisez ce lien personnel et temporaire pour réinitialiser votre mot de passe :</p><p><a href="${safeUrl}">Réinitialiser mon mot de passe</a></p>`,
+        text: `Bonjour ${user.firstName || 'Utilisateur'},\n\nRéinitialisez votre mot de passe :\n${resetUrl.toString()}\n\nCe lien est personnel et temporaire.`,
+      });
+      return true;
     });
-
-    if (!user) {
-      // Don't reveal that the user doesn't exist
-      return successResponse;
-    }
-
-    // Generate signed token (includes password hash → single-use)
-    const token = generateResetToken(user.id, user.email, user.password);
-
-    // Build reset URL
-    const baseUrl = process.env.NEXTAUTH_URL || 'https://nexusreussite.academy';
-    const resetUrl = `${baseUrl}/auth/reset-password?token=${encodeURIComponent(token)}`;
-
-    // Send email (non-blocking failure)
-    try {
-      const { sendPasswordResetEmail } = await import('@/lib/email');
-      await sendPasswordResetEmail(
-        user.email,
-        user.firstName || 'Utilisateur',
-        resetUrl
-      );
-    } catch (emailError) {
-      if (process.env.NODE_ENV !== 'test') {
-        console.error('[reset-password] Email send failed:', emailError instanceof Error ? emailError.message : 'unknown');
-      }
-    }
+    if (queued) kickEmailOutboxDrain();
   } catch (dbError) {
     if (process.env.NODE_ENV !== 'test') {
       console.error('[reset-password] DB error:', dbError instanceof Error ? dbError.message : 'unknown');
@@ -191,7 +220,10 @@ async function handleConfirmReset(body: unknown) {
   const hashedPassword = await bcrypt.hash(newPassword, 12);
   await prisma.user.update({
     where: { id: user.id },
-    data: { password: hashedPassword },
+    data: {
+      password: hashedPassword,
+      sessionVersion: { increment: 1 },
+    },
   });
 
   return NextResponse.json({

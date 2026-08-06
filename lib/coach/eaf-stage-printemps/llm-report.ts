@@ -14,9 +14,9 @@
  */
 
 import { ollamaChat } from '@/lib/ollama-client';
-import { ragSearch, buildRAGContext } from '@/lib/rag-client';
-import type { CoachEafSourceData } from './types';
+import { buildRAGContext,ragSearch } from '@/lib/rag-client';
 import { generateParentEafStageReport } from './generate-parent-report';
+import type { CoachEafSourceData } from './types';
 
 const RAG_COLLECTION = 'rag_francais_premiere';
 
@@ -376,8 +376,7 @@ export async function generateLLMParentEafReport(
 
     return { markdown, llmUsed: true, ragHitCount: uniqueHits.length };
 
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
+  } catch {
 
     const markdown = generateParentEafStageReport(sourceData, student, date);
     return { markdown, llmUsed: false, ragHitCount: 0 };

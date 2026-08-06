@@ -1,352 +1,93 @@
 /**
- * Premium PDF template for parent-facing stage bilans.
- * Uses PDFKit — server-side only, no React SSR issues.
- * Features: Nexus logo, colored section headers, inline bold, multi-page footer.
+ * Compatibility bridge for the legacy parent-bilan API.
+ *
+ * The historical PDFKit renderer was removed by A90.2.3. This module keeps its
+ * public function name but delegates to the single Nexus HTML-to-PDF engine.
  */
 
-import PDFDocument from 'pdfkit';
-import * as fs from 'fs';
-import * as path from 'path';
+import { BILAN_PRINT_BRAND, bilanPrintTokenCss } from '@/lib/bilans/render/brand';
+import { renderHtmlToPdf } from '@/lib/bilans/render/pdf';
 import type { BilanParentPDFData } from './bilan-parent-template';
 
-// ─── Design tokens ────────────────────────────────────────────────────────────
-const C = {
-  brand:     '#4F46E5',
-  brandSoft: '#EEF2FF',
-  brandMid:  '#C7D2FE',
-  accent:    '#0EA5E9',
-  gold:      '#F59E0B',
-  text:      '#0F172A',
-  muted:     '#64748B',
-  border:    '#E2E8F0',
-  white:     '#FFFFFF',
-} as const;
+export type BilanParentPdfDependencies = Readonly<{
+  renderHtmlToPdf?: (html: string) => Promise<Buffer>;
+}>;
 
-const PW        = 595.28;   // A4 width  (pt)
-const PH        = 841.89;   // A4 height (pt)
-const MX        = 48;       // left/right margin
-const CW        = PW - MX * 2;
-const FOOTER_H  = 44;
-const HEADER_H  = 76;       // height of the brand band
+function escapeHtml(value: unknown): string {
+  return String(value)
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
+}
 
-// ─── Markdown AST ─────────────────────────────────────────────────────────────
-type Block =
-  | { type: 'h2'; text: string }
-  | { type: 'h3'; text: string }
-  | { type: 'h4'; text: string }
-  | { type: 'p';  text: string }
-  | { type: 'ul'; items: string[] }
-  | { type: 'ol'; items: string[] }
-  | { type: 'hr' };
+function inlineMarkdown(value: string): string {
+  return escapeHtml(value).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+}
 
-function parseMarkdown(raw: string): Block[] {
-  const cleaned = raw
+function legacyMarkdownToHtml(markdown: string): string {
+  const cleaned = markdown
     .replace(/```[\s\S]*?```/g, '')
     .replace(/\$\$([\s\S]*?)\$\$/g, '$1')
     .replace(/\$([^$\n]+)\$/g, '$1')
-    .replace(/^[─═]{4,}$/gm, '---')       // normalize box-drawing separators
-    .replace(/%{5,}/g, '')                 // strip %%%%% from coach free text
-    .replace(/^[#]{1}\s+/gm, '## ');      // promote h1 → h2
-
-  const lines   = cleaned.split('\n');
-  const blocks: Block[] = [];
-  let listBuf: { type: 'ul' | 'ol'; items: string[] } | null = null;
-  let paraBuf: string[] = [];
+    .replace(/^[─═]{4,}$/gm, '---')
+    .replace(/%{5,}/g, '');
+  const blocks: string[] = [];
+  let paragraph: string[] = [];
+  let list: { ordered: boolean; items: string[] } | undefined;
 
   const flush = () => {
-    if (paraBuf.length) {
-      const t = paraBuf.join(' ').trim();
-      if (t) blocks.push({ type: 'p', text: t });
-      paraBuf = [];
+    if (paragraph.length > 0) {
+      blocks.push(`<p>${inlineMarkdown(paragraph.join(' ').trim())}</p>`);
+      paragraph = [];
     }
-    if (listBuf) {
-      blocks.push({ type: listBuf.type, items: [...listBuf.items] });
-      listBuf = null;
+    if (list !== undefined) {
+      const tag = list.ordered ? 'ol' : 'ul';
+      blocks.push(`<${tag}>${list.items.map((item) => `<li>${inlineMarkdown(item)}</li>`).join('')}</${tag}>`);
+      list = undefined;
     }
   };
 
-  for (const rawLine of lines) {
-    const line    = rawLine.trimEnd();
-    const trimmed = line.trim();
-
-    if (!trimmed) { flush(); continue; }
-
-    const h2 = line.match(/^##\s+(.+)$/);
-    const h3 = line.match(/^###\s+(.+)$/);
-    const h4 = line.match(/^####\s+(.+)$/);
-    const ul = line.match(/^\s*[-*•]\s+(.+)$/);
-    const ol = line.match(/^\s*\d+\.\s+(.+)$/);
-    const hr = trimmed === '---' || trimmed === '***' || trimmed === '___';
-
-    if (h4) { flush(); blocks.push({ type: 'h4', text: h4[1] }); }
-    else if (h3) { flush(); blocks.push({ type: 'h3', text: h3[1] }); }
-    else if (h2) { flush(); blocks.push({ type: 'h2', text: h2[1] }); }
-    else if (hr) { flush(); blocks.push({ type: 'hr' }); }
-    else if (ul) {
-      if (paraBuf.length) paraBuf = [];
-      if (!listBuf || listBuf.type !== 'ul') { if (listBuf) { blocks.push({ type: listBuf.type, items: [...listBuf.items] }); } listBuf = { type: 'ul', items: [] }; }
-      listBuf.items.push(ul[1]);
-    } else if (ol) {
-      if (paraBuf.length) paraBuf = [];
-      if (!listBuf || listBuf.type !== 'ol') { if (listBuf) { blocks.push({ type: listBuf.type, items: [...listBuf.items] }); } listBuf = { type: 'ol', items: [] }; }
-      listBuf.items.push(ol[1]);
+  for (const rawLine of cleaned.split('\n')) {
+    const line = rawLine.trim();
+    if (line === '') { flush(); continue; }
+    const heading = line.match(/^(#{1,4})\s+(.+)$/);
+    const unordered = line.match(/^[-*•]\s+(.+)$/);
+    const ordered = line.match(/^\d+\.\s+(.+)$/);
+    if (heading !== null) {
+      flush();
+      const level = Math.min(3, Math.max(2, heading[1].length));
+      blocks.push(`<h${level}>${inlineMarkdown(heading[2])}</h${level}>`);
+    } else if (unordered !== null || ordered !== null) {
+      if (paragraph.length > 0) flush();
+      const isOrdered = ordered !== null;
+      if (list === undefined || list.ordered !== isOrdered) { flush(); list = { ordered: isOrdered, items: [] }; }
+      list!.items.push((ordered ?? unordered)![1]);
+    } else if (line === '---' || line === '***') {
+      flush(); blocks.push('<hr>');
     } else {
-      if (listBuf) { blocks.push({ type: listBuf.type, items: [...listBuf.items] }); listBuf = null; }
-      paraBuf.push(line);
+      if (list !== undefined) flush();
+      paragraph.push(line);
     }
   }
   flush();
-  return blocks;
+  return blocks.join('');
 }
 
-// Strip **bold** for PDFKit calls that don't handle inline bold themselves
-function plain(t: string): string {
-  return t.replace(/\*\*(.+?)\*\*/g, '$1');
-}
-
-// ─── Inline bold renderer ─────────────────────────────────────────────────────
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function textWithBold(doc: any, raw: string, x: number, y: number, opts: Record<string, unknown> = {}): void {
-  const parts = raw.split(/(\*\*[^*]+\*\*)/g).filter(Boolean);
-  if (parts.length === 0) { doc.font('Helvetica').text('', x, y, opts); return; }
-
-  for (let i = 0; i < parts.length; i++) {
-    const part   = parts[i];
-    const isBold = part.startsWith('**') && part.endsWith('**');
-    const content = isBold ? part.slice(2, -2) : part;
-    const isLast  = i === parts.length - 1;
-
-    doc.font(isBold ? 'Helvetica-Bold' : 'Helvetica');
-
-    if (i === 0) {
-      doc.text(content, x, y, { ...opts, continued: !isLast });
-    } else {
-      doc.text(content, { ...opts, continued: !isLast });
-    }
-  }
-}
-
-// ─── Page helpers ─────────────────────────────────────────────────────────────
-function estimateHeight(block: Block): number {
-  switch (block.type) {
-    case 'h2': return 40;
-    case 'h3': return 30;
-    case 'h4': return 24;
-    case 'p':  return Math.max(20, Math.ceil(plain(block.text).length / 85) * 16) + 12;
-    case 'ul':
-    case 'ol': return block.items.length * 20 + 10;
-    case 'hr': return 18;
-  }
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function ensureSpace(doc: any, needed: number): void {
-  if (doc.y + needed > PH - FOOTER_H - 16) {
-    doc.addPage();
-    doc.y = MX;
-  }
-}
-
-// ─── Block renderers ──────────────────────────────────────────────────────────
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function renderH2(doc: any, text: string): void {
-  ensureSpace(doc, 50);
-  const y = doc.y + 10;
-  const H = 30;
-  doc.rect(MX, y, CW, H).fill(C.brand);
-  doc.rect(MX, y, 5, H).fill(C.gold);
-  doc.fillColor(C.white).fontSize(11.5).font('Helvetica-Bold')
-     .text(plain(text), MX + 16, y + 9, { width: CW - 24, lineBreak: false });
-  doc.y = y + H + 8;
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function renderH3(doc: any, text: string): void {
-  ensureSpace(doc, 36);
-  const y = doc.y + 8;
-  doc.rect(MX, y + 1, 3, 16).fill(C.accent);
-  doc.fillColor(C.brand).fontSize(11).font('Helvetica-Bold')
-     .text(plain(text), MX + 10, y, { width: CW - 10 });
-  doc.y = doc.y + 6;
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function renderH4(doc: any, text: string): void {
-  ensureSpace(doc, 26);
-  doc.y += 4;
-  doc.fillColor(C.accent).fontSize(10.5).font('Helvetica-Bold')
-     .text(plain(text), MX, doc.y, { width: CW });
-  doc.y += 4;
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function renderParagraph(doc: any, text: string): void {
-  ensureSpace(doc, 20);
-  doc.fillColor(C.text).fontSize(10.5);
-  textWithBold(doc, text, MX, doc.y, { width: CW, lineGap: 2.5, align: 'justify' });
-  doc.y += 8;
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function renderList(doc: any, items: string[], ordered: boolean): void {
-  const bulletW = ordered ? 22 : 16;
-  for (let i = 0; i < items.length; i++) {
-    ensureSpace(doc, 20);
-    const itemY  = doc.y;
-    const bullet = ordered ? `${i + 1}.` : '•';
-    doc.fillColor(C.brand).fontSize(10.5).font('Helvetica-Bold')
-       .text(bullet, MX + 4, itemY, { width: bulletW, lineBreak: false });
-    doc.fillColor(C.text).fontSize(10.5);
-    textWithBold(doc, items[i], MX + 4 + bulletW, itemY, { width: CW - 4 - bulletW, lineGap: 2 });
-    doc.y += 3;
-  }
-  doc.y += 5;
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function renderHR(doc: any): void {
-  ensureSpace(doc, 20);
-  doc.y += 8;
-  doc.moveTo(MX, doc.y).lineTo(PW - MX, doc.y).lineWidth(0.4).strokeColor(C.border).stroke();
-  doc.y += 12;
-}
-
-// ─── Header & meta ────────────────────────────────────────────────────────────
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function drawPageHeader(doc: any, data: BilanParentPDFData): void {
-  // Brand band
-  doc.rect(0, 0, PW, HEADER_H).fill(C.brand);
-  // Gold accent stripe
-  doc.rect(0, HEADER_H, PW, 3).fill(C.gold);
-
-  // Logo
-  try {
-    const logoPath = path.join(process.cwd(), 'public', 'images', 'logo_slogan_nexus.png');
-    if (fs.existsSync(logoPath)) {
-      doc.image(logoPath, MX, 13, { height: 50, fit: [165, 50] });
-    } else {
-      doc.fillColor(C.white).fontSize(15).font('Helvetica-Bold').text('NEXUS RÉUSSITE', MX, 28, { lineBreak: false });
-    }
-  } catch {
-    doc.fillColor(C.white).fontSize(15).font('Helvetica-Bold').text('NEXUS RÉUSSITE', MX, 28, { lineBreak: false });
-  }
-
-  // Website (right-aligned in band)
-  doc.fillColor('#A5B4FC').fontSize(7.5).font('Helvetica')
-     .text('nexusreussite.academy', 0, 60, { width: PW - MX, align: 'right', lineBreak: false });
-
-  // Title & subtitle below band
-  const titleY = HEADER_H + 3 + 16;
-  doc.fillColor(C.text).fontSize(21).font('Helvetica-Bold')
-     .text(`Bilan de stage — ${data.subjectLabel}`, MX, titleY, { width: CW });
-  doc.fillColor(C.muted).fontSize(11).font('Helvetica')
-     .text(data.stageTitle, MX, doc.y + 4, { width: CW });
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function drawMetaBox(doc: any, data: BilanParentPDFData): number {
-  const hasScore = data.globalScore !== null;
-  const boxTop   = doc.y + 20;
-  const boxH     = hasScore ? 84 : 68;
-  const half     = MX + CW / 2 + 8;
-
-  doc.roundedRect(MX, boxTop, CW, boxH, 8).fillAndStroke(C.brandSoft, C.brandMid);
-
-  const lbl = (txt: string, x: number, y: number) =>
-    doc.fillColor(C.muted).fontSize(7.5).font('Helvetica')
-       .text(txt, x, y, { lineBreak: false, characterSpacing: 0.4 });
-  const val = (txt: string, x: number, y: number, size = 11) =>
-    doc.fillColor(C.text).fontSize(size).font('Helvetica-Bold')
-       .text(txt, x, y, { lineBreak: false });
-
-  lbl('ÉLÈVE',   MX + 14, boxTop + 12); val(data.studentName,        MX + 14, boxTop + 23);
-  lbl('COACH',   half,     boxTop + 12); val(data.coachName ?? '—',  half,     boxTop + 23);
-
-  const dateLabel = new Date(data.publishedAt).toLocaleDateString('fr-FR', {
-    day: '2-digit', month: 'long', year: 'numeric',
+export function renderLegacyParentBilanHtml(data: BilanParentPDFData): string {
+  const published = new Date(data.publishedAt).toLocaleDateString('fr-FR', {
+    timeZone: 'UTC', day: '2-digit', month: 'long', year: 'numeric',
   });
-  lbl('PUBLIÉ LE', MX + 14, boxTop + (hasScore ? 48 : 44));
-  doc.fillColor(C.text).fontSize(10).font('Helvetica')
-     .text(dateLabel, MX + 14, boxTop + (hasScore ? 59 : 55), { lineBreak: false });
-
-  if (hasScore) {
-    lbl('SCORE GLOBAL', half, boxTop + 48);
-    doc.fillColor(C.brand).fontSize(20).font('Helvetica-Bold')
-       .text(`${Math.round(data.globalScore!)}/100`, half, boxTop + 56, { lineBreak: false });
-  }
-
-  return boxTop + boxH;
+  return `<!doctype html><html lang="fr"><head><meta charset="utf-8"><title>${escapeHtml(data.stageTitle)}</title><style>
+  @font-face{font-family:'${BILAN_PRINT_BRAND.fonts.display}';src:url('${BILAN_PRINT_BRAND.fonts.displayAsset}') format('woff2')}@font-face{font-family:'${BILAN_PRINT_BRAND.fonts.body}';src:url('${BILAN_PRINT_BRAND.fonts.bodyAsset}') format('woff2')}
+  :root{${bilanPrintTokenCss()}}*{box-sizing:border-box}body{margin:0;background:var(--color-lux-ivory);color:var(--color-lux-ink);font-family:var(--font-dm-sans);font-size:10.5pt;line-height:1.55}.page{width:210mm;min-height:297mm;margin:auto;padding:16mm;background:var(--color-lux-paper)}header{display:flex;gap:8mm;align-items:center;border-bottom:2px solid var(--color-lux-gold);padding-bottom:6mm;margin-bottom:8mm}header img{width:48mm;height:auto}h1,h2,h3{font-family:var(--font-fraunces)}h1{font-size:21pt;margin:0}h2{font-size:15pt;border-bottom:1px solid var(--color-lux-gold);padding-bottom:2mm;break-after:avoid}h3{font-size:12pt;break-after:avoid}.meta{padding:4mm;border:1px solid var(--color-lux-line);background:var(--color-lux-white);border-radius:3mm;margin-bottom:8mm}.content p,.content li{orphans:3;widows:3}.content h2,.content h3,.content ul,.content ol{break-inside:avoid}.content hr{border:0;border-top:1px solid var(--color-lux-line);margin:6mm 0}footer{display:flex;gap:3mm;align-items:center;margin-top:10mm;padding-top:4mm;border-top:1px solid var(--color-lux-line);color:var(--color-lux-slate)}footer img{width:9mm;height:9mm}@page{size: A4;margin:0}@media print{body{background:var(--color-lux-white)}.page{margin:0}}
+  </style></head><body><article class="page" data-audience="PARENTS"><header><img src="${BILAN_PRINT_BRAND.logos.header}" alt="Nexus Réussite"><div><p>Bilan pédagogique</p><h1>${escapeHtml(data.stageTitle)}</h1><p>${escapeHtml(data.subjectLabel)}</p></div></header><section class="meta"><p><strong>Élève :</strong> ${escapeHtml(data.studentName)}</p><p><strong>Coach :</strong> ${escapeHtml(data.coachName ?? '—')}</p><p><strong>Publié le :</strong> ${escapeHtml(published)}</p></section><main class="content">${legacyMarkdownToHtml(data.parentsMarkdown)}</main><footer><img src="${BILAN_PRINT_BRAND.logos.compact}" alt=""><span>Nexus Réussite · Document confidentiel destiné à la famille</span></footer></article></body></html>`;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function drawFooter(doc: any, studentName: string, page: number, total: number): void {
-  const y = PH - FOOTER_H;
-  doc.rect(0, y, PW, 2).fill(C.brand);
-  doc.rect(0, y + 2, PW, FOOTER_H - 2).fill(C.brandSoft);
-
-  doc.fillColor(C.muted).fontSize(7.5).font('Helvetica')
-     .text(
-       `Bilan généré par Nexus Réussite — Document confidentiel destiné à la famille de ${studentName}`,
-       MX, y + 12, { width: CW - 50 }
-     );
-  doc.fillColor(C.muted).fontSize(7.5).font('Helvetica')
-     .text('© Nexus Réussite', MX, y + 24, { width: CW - 50 });
-  doc.fillColor(C.brand).fontSize(8.5).font('Helvetica-Bold')
-     .text(`${page} / ${total}`, 0, y + 16, { width: PW - MX, align: 'right' });
-}
-
-// ─── Main export ──────────────────────────────────────────────────────────────
-export async function renderBilanParentPDF(data: BilanParentPDFData): Promise<Buffer> {
-  return new Promise((resolve, reject) => {
-    const doc = new PDFDocument({
-      size: 'A4',
-      margin: 0,          // margin:0 → auto-wrap at PH (841pt), not PH-margin
-      bufferPages: true,
-      info: {
-        Title:   `Bilan de stage — ${data.subjectLabel} — ${data.studentName}`,
-        Author:  'Nexus Réussite',
-        Subject: 'Bilan pédagogique de stage',
-        Keywords: 'bilan,stage,nexus,réussite',
-      },
-    });
-
-    const chunks: Buffer[] = [];
-    doc.on('data',  (c: Buffer) => chunks.push(c));
-    doc.on('end',   () => resolve(Buffer.concat(chunks)));
-    doc.on('error', reject);
-
-    // ── Page 1 layout ────────────────────────────────────────────────────────
-    drawPageHeader(doc, data);
-    const metaBottom = drawMetaBox(doc, data);
-
-    // Separator
-    const contentStart = metaBottom + 22;
-    doc.moveTo(MX, contentStart - 10).lineTo(PW - MX, contentStart - 10)
-       .lineWidth(0.4).strokeColor(C.border).stroke();
-
-    doc.y = contentStart;
-
-    // ── Content ───────────────────────────────────────────────────────────────
-    const blocks = parseMarkdown(data.parentsMarkdown);
-    for (const block of blocks) {
-      switch (block.type) {
-        case 'h2': renderH2(doc, block.text); break;
-        case 'h3': renderH3(doc, block.text); break;
-        case 'h4': renderH4(doc, block.text); break;
-        case 'p':  renderParagraph(doc, block.text); break;
-        case 'ul': renderList(doc, block.items, false); break;
-        case 'ol': renderList(doc, block.items, true);  break;
-        case 'hr': renderHR(doc); break;
-      }
-    }
-
-    // ── Footers on all pages ──────────────────────────────────────────────────
-    const range = doc.bufferedPageRange();
-    for (let i = 0; i < range.count; i++) {
-      doc.switchToPage(range.start + i);
-      drawFooter(doc, data.studentName, i + 1, range.count);
-    }
-
-    doc.end();
-  });
+export async function renderBilanParentPDF(
+  data: BilanParentPDFData,
+  dependencies: BilanParentPdfDependencies = {},
+): Promise<Buffer> {
+  return (dependencies.renderHtmlToPdf ?? renderHtmlToPdf)(renderLegacyParentBilanHtml(data));
 }

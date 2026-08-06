@@ -1,0 +1,536 @@
+# =============================================================================
+# Banque de positionnement — ENTRÉE EN TERMINALE, spécialité Physique-Chimie
+#
+# Doctrine : intersection Première / Terminale. Chaque item porte sur un
+# prérequis structurant SANS LEQUEL les quatre thèmes de Terminale — cinétique
+# et équilibres, mécanique newtonienne, bilans d'énergie, ondes et signaux —
+# sont inaccessibles.
+#
+# STATUT : DRAFT — proposition à amender par le responsable pédagogique.
+# La validation relève d'un enseignant de physique-chimie.
+#
+# 18 items · 9 nœuds de prérequis · 2 items par nœud (règle V4)
+# Distribution des bonnes réponses : A=5, B=5, C=4, D=4 (règle V14 : max 40 %)
+# =============================================================================
+
+slug: entree-terminale-physique-chimie-v1
+level: TERMINALE
+subject: PHYSIQUE_CHIMIE
+version: 1
+status: DRAFT
+targetDurationMin: 25
+
+items:
+
+  # ===========================================================================
+  # NŒUD 1 — Avancement et réactif limitant
+  # Pourquoi c'est structurant : le suivi temporel d'une transformation et les
+  # états d'équilibre, étudiés dès l'automne, reposent entièrement sur le
+  # tableau d'avancement.
+  # ===========================================================================
+
+  - id: ETL-PHC-AVA-01
+    nodeCpsId: 1re.physique-chimie.transformations.avancement
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 55
+    statement: "Dans un tableau d'avancement, à quoi correspond l'avancement maximal ?"
+    options:
+      - key: A
+        label: "à la quantité initiale du réactif en excès"
+        correct: false
+        distractorRationale: "Fait dépendre l'avancement du réactif qui subsiste, alors qu'il est fixé par celui qui disparaît."
+      - key: B
+        label: "à la somme des quantités initiales de réactifs"
+        correct: false
+        distractorRationale: "Additionne des quantités sans tenir compte des coefficients stœchiométriques."
+      - key: C
+        label: "à la valeur de l'avancement pour laquelle le réactif limitant est totalement consommé"
+        correct: true
+      - key: D
+        label: "à la quantité de produit formé, quel que soit le réactif considéré"
+        correct: false
+        distractorRationale: "Confond l'avancement, exprimé en moles, avec la quantité d'un produit, qui en dépend par un coefficient."
+    shortCorrection: "L'avancement maximal est atteint lorsque le premier réactif disparaît. On le détermine en comparant, pour chaque réactif, sa quantité divisée par son coefficient."
+    tags: [chimie, avancement]
+
+  - id: ETL-PHC-AVA-02
+    nodeCpsId: 1re.physique-chimie.transformations.avancement
+    type: QCM_SIMPLE
+    difficulty: 3
+    targetTimeSec: 70
+    statement: "Pour la transformation d'équation 2 A + B → C, on introduit 0,4 mol de A et 0,3 mol de B. Quel est le réactif limitant ?"
+    options:
+      - key: A
+        label: "le réactif A"
+        correct: true
+      - key: B
+        label: "le réactif B"
+        correct: false
+        distractorRationale: "Compare directement les quantités initiales sans les diviser par les coefficients stœchiométriques."
+      - key: C
+        label: "aucun : le mélange est stœchiométrique"
+        correct: false
+        distractorRationale: "Conclut à l'équivalence sans effectuer la comparaison des rapports."
+      - key: D
+        label: "on ne peut pas conclure sans connaître les masses molaires"
+        correct: false
+        distractorRationale: "Croit qu'un raisonnement sur les quantités de matière exige de repasser par les masses."
+    shortCorrection: "On compare 0,4 divisé par 2, soit 0,2, et 0,3 divisé par 1, soit 0,3. Le plus petit rapport désigne le réactif limitant : c'est A."
+    tags: [chimie, reactif-limitant]
+
+  # ===========================================================================
+  # NŒUD 2 — Oxydo-réduction
+  # Pourquoi c'est structurant : les piles, l'électrolyse et l'évolution
+  # spontanée d'un système, au programme de Terminale, supposent de manier
+  # sûrement les couples et les transferts d'électrons.
+  # ===========================================================================
+
+  - id: ETL-PHC-OXY-01
+    nodeCpsId: 1re.physique-chimie.transformations.oxydo-reduction
+    type: QCM_SIMPLE
+    difficulty: 1
+    targetTimeSec: 45
+    statement: "Un réducteur est une espèce chimique capable de :"
+    options:
+      - key: A
+        label: "capter des électrons"
+        correct: false
+        distractorRationale: "Donne la définition de l'oxydant."
+      - key: B
+        label: "céder des électrons"
+        correct: true
+      - key: C
+        label: "capter des protons"
+        correct: false
+        distractorRationale: "Confond une réaction d'oxydo-réduction avec une réaction acide-base."
+      - key: D
+        label: "céder des protons"
+        correct: false
+        distractorRationale: "Donne la définition d'un acide au sens de Brønsted."
+    shortCorrection: "Le réducteur donne des électrons, l'oxydant les capte. Les transferts de protons relèvent au contraire des réactions acide-base."
+    tags: [chimie, oxydo-reduction]
+
+  - id: ETL-PHC-OXY-02
+    nodeCpsId: 1re.physique-chimie.transformations.oxydo-reduction
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 50
+    statement: "Dans le couple Cu²⁺ / Cu, que peut-on affirmer ?"
+    options:
+      - key: A
+        label: "Cu est l'oxydant du couple"
+        correct: false
+        distractorRationale: "Intervertit les deux membres du couple : la forme métallique est réductrice."
+      - key: B
+        label: "Cu²⁺ est le réducteur du couple"
+        correct: false
+        distractorRationale: "Attribue à l'ion, déjà oxydé, le rôle de donneur d'électrons."
+      - key: C
+        label: "les deux espèces sont des oxydants"
+        correct: false
+        distractorRationale: "Nie la structure même d'un couple, qui associe toujours un oxydant et un réducteur."
+      - key: D
+        label: "Cu²⁺ est l'oxydant et Cu le réducteur"
+        correct: true
+    shortCorrection: "Un couple s'écrit oxydant sur réducteur. L'ion Cu²⁺ peut capter deux électrons pour donner Cu, qui peut à l'inverse les céder."
+    tags: [chimie, couples-redox]
+
+  # ===========================================================================
+  # NŒUD 3 — Acide-base et pH
+  # Pourquoi c'est structurant : les équilibres acido-basiques, les titrages et
+  # la constante d'acidité, centraux en Terminale, s'appuient sur la définition
+  # de Brønsted et sur la nature logarithmique du pH.
+  # ===========================================================================
+
+  - id: ETL-PHC-ACB-01
+    nodeCpsId: 1re.physique-chimie.transformations.acide-base
+    type: QCM_SIMPLE
+    difficulty: 1
+    targetTimeSec: 45
+    statement: "Selon la définition de Brønsted, un acide est une espèce capable de :"
+    options:
+      - key: A
+        label: "céder un proton H⁺"
+        correct: true
+      - key: B
+        label: "capter un proton H⁺"
+        correct: false
+        distractorRationale: "Donne la définition de la base au sens de Brønsted."
+      - key: C
+        label: "céder un électron"
+        correct: false
+        distractorRationale: "Confond une réaction acide-base avec une réaction d'oxydo-réduction."
+      - key: D
+        label: "libérer des ions hydroxyde HO⁻"
+        correct: false
+        distractorRationale: "Reprend la définition d'Arrhenius d'une base, et non celle de Brønsted d'un acide."
+    shortCorrection: "Au sens de Brønsted, un acide donne un proton et une base le capte. Le couple acide-base associe les deux formes d'une même espèce."
+    tags: [chimie, bronsted]
+
+  - id: ETL-PHC-ACB-02
+    nodeCpsId: 1re.physique-chimie.transformations.acide-base
+    type: QCM_SIMPLE
+    difficulty: 3
+    targetTimeSec: 65
+    statement: "Une solution de pH égal à 3 est :"
+    options:
+      - key: A
+        label: "basique"
+        correct: false
+        distractorRationale: "Inverse l'échelle du pH, où les valeurs faibles correspondent à l'acidité."
+      - key: B
+        label: "neutre"
+        correct: false
+        distractorRationale: "Situe la neutralité ailleurs qu'à pH 7 à vingt-cinq degrés."
+      - key: C
+        label: "acide, et cent fois plus concentrée en ions H₃O⁺ qu'une solution de pH égal à 5"
+        correct: true
+      - key: D
+        label: "acide, et deux fois plus concentrée en ions H₃O⁺ qu'une solution de pH égal à 5"
+        correct: false
+        distractorRationale: "Traite l'écart de pH comme une différence proportionnelle, alors que l'échelle est logarithmique."
+    shortCorrection: "Le pH est l'opposé du logarithme décimal de la concentration en ions H₃O⁺. Deux unités de pH d'écart correspondent donc à un facteur cent."
+    tags: [chimie, ph]
+
+  # ===========================================================================
+  # NŒUD 4 — Chimie organique : familles fonctionnelles
+  # Pourquoi c'est structurant : les stratégies de synthèse et les mécanismes
+  # réactionnels de Terminale supposent d'identifier immédiatement les groupes
+  # caractéristiques.
+  # ===========================================================================
+
+  - id: ETL-PHC-ORG-01
+    nodeCpsId: 1re.physique-chimie.chimie-organique.familles-fonctionnelles
+    type: QCM_SIMPLE
+    difficulty: 1
+    targetTimeSec: 40
+    statement: "Le groupe caractéristique −COOH définit la famille des :"
+    options:
+      - key: A
+        label: "alcools"
+        correct: false
+        distractorRationale: "Ne retient que la présence d'un groupe hydroxyle et néglige le groupe carbonyle qui l'accompagne."
+      - key: B
+        label: "acides carboxyliques"
+        correct: true
+      - key: C
+        label: "cétones"
+        correct: false
+        distractorRationale: "Identifie le groupe carbonyle sans voir qu'il porte ici un groupe hydroxyle."
+      - key: D
+        label: "aldéhydes"
+        correct: false
+        distractorRationale: "Confond un carbonyle porteur d'un hydrogène avec un carbonyle porteur d'un hydroxyle."
+    shortCorrection: "Le groupe −COOH associe un carbonyle et un hydroxyle sur le même atome de carbone : c'est le groupe caractéristique des acides carboxyliques."
+    tags: [chimie-organique, groupes-caracteristiques]
+
+  - id: ETL-PHC-ORG-02
+    nodeCpsId: 1re.physique-chimie.chimie-organique.familles-fonctionnelles
+    type: QCM_SIMPLE
+    difficulty: 1
+    targetTimeSec: 40
+    statement: "À quelle famille appartient le composé de formule CH₃−CH₂−OH ?"
+    options:
+      - key: A
+        label: "les alcools"
+        correct: true
+      - key: B
+        label: "les acides carboxyliques"
+        correct: false
+        distractorRationale: "Attribue au groupe hydroxyle seul les propriétés du groupe carboxyle."
+      - key: C
+        label: "les esters"
+        correct: false
+        distractorRationale: "Suppose la présence d'un groupe issu d'une réaction entre acide et alcool."
+      - key: D
+        label: "les amines"
+        correct: false
+        distractorRationale: "Confond un atome d'oxygène avec un atome d'azote dans le groupe caractéristique."
+    shortCorrection: "Le groupe hydroxyle −OH porté par un carbone tétragonal caractérise les alcools. Ce composé est l'éthanol."
+    tags: [chimie-organique, alcools]
+
+  # ===========================================================================
+  # NŒUD 5 — Forces et vecteur vitesse
+  # Pourquoi c'est structurant : la deuxième loi de Newton et l'étude des
+  # mouvements dans un champ uniforme supposent une représentation correcte du
+  # vecteur vitesse et un bilan des forces exact.
+  # ===========================================================================
+
+  - id: ETL-PHC-FOR-01
+    nodeCpsId: 1re.physique-chimie.mecanique.forces-vecteur-vitesse
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 55
+    statement: "À chaque instant, le vecteur vitesse d'un point mobile est :"
+    options:
+      - key: A
+        label: "dirigé vers le centre de courbure de la trajectoire"
+        correct: false
+        distractorRationale: "Attribue au vecteur vitesse la direction du vecteur accélération dans un mouvement circulaire uniforme."
+      - key: B
+        label: "toujours colinéaire à la résultante des forces"
+        correct: false
+        distractorRationale: "Confond vitesse et accélération : c'est cette dernière qui est colinéaire à la résultante des forces."
+      - key: C
+        label: "de norme constante lorsque la trajectoire est courbe"
+        correct: false
+        distractorRationale: "Généralise une propriété du mouvement circulaire uniforme à toute trajectoire courbe."
+      - key: D
+        label: "tangent à la trajectoire"
+        correct: true
+    shortCorrection: "Le vecteur vitesse est toujours tangent à la trajectoire et orienté dans le sens du mouvement. Sa norme, elle, peut varier."
+    tags: [mecanique, vecteur-vitesse]
+
+  - id: ETL-PHC-FOR-02
+    nodeCpsId: 1re.physique-chimie.mecanique.forces-vecteur-vitesse
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 50
+    statement: "Un objet en chute libre est soumis :"
+    options:
+      - key: A
+        label: "à son poids et à la force de frottement de l'air"
+        correct: false
+        distractorRationale: "Ajoute une force que la définition même de la chute libre exclut."
+      - key: B
+        label: "à son seul poids"
+        correct: true
+      - key: C
+        label: "à aucune force, puisqu'il tombe librement"
+        correct: false
+        distractorRationale: "Interprète le mot « libre » comme une absence de force, alors qu'il désigne l'absence de toute force autre que le poids."
+      - key: D
+        label: "à une force dirigée vers le haut qui ralentit sa chute"
+        correct: false
+        distractorRationale: "Introduit une force opposée au mouvement, exclue par définition de la chute libre."
+    shortCorrection: "Un mouvement est dit de chute libre lorsque le poids est la seule force exercée. C'est une modélisation, valable lorsque les frottements sont négligeables."
+    tags: [mecanique, chute-libre]
+
+  # ===========================================================================
+  # NŒUD 6 — Énergie cinétique, potentielle et travail
+  # Pourquoi c'est structurant : le premier principe et les bilans d'énergie de
+  # Terminale supposent de savoir calculer un travail et de reconnaître les
+  # formes d'énergie mécanique.
+  # ===========================================================================
+
+  - id: ETL-PHC-ENE-01
+    nodeCpsId: 1re.physique-chimie.energie.travail-energie-mecanique
+    type: QCM_SIMPLE
+    difficulty: 1
+    targetTimeSec: 40
+    statement: "L'énergie cinétique d'un objet de masse m animé d'une vitesse v vaut :"
+    options:
+      - key: A
+        label: "½ m v²"
+        correct: true
+      - key: B
+        label: "m v"
+        correct: false
+        distractorRationale: "Donne l'expression de la quantité de mouvement, non celle d'une énergie."
+      - key: C
+        label: "m g h"
+        correct: false
+        distractorRationale: "Donne l'expression de l'énergie potentielle de pesanteur."
+      - key: D
+        label: "m v²"
+        correct: false
+        distractorRationale: "Omet le facteur un demi de l'expression de l'énergie cinétique."
+    shortCorrection: "L'énergie cinétique s'exprime en joules et vaut un demi de la masse multipliée par le carré de la vitesse. Doubler la vitesse quadruple cette énergie."
+    tags: [energie, cinetique]
+
+  - id: ETL-PHC-ENE-02
+    nodeCpsId: 1re.physique-chimie.energie.travail-energie-mecanique
+    type: QCM_SIMPLE
+    difficulty: 3
+    targetTimeSec: 60
+    statement: "Un objet se déplace horizontalement sur une distance donnée. Que vaut le travail de son poids ?"
+    options:
+      - key: A
+        label: "il est maximal, car le poids agit en permanence"
+        correct: false
+        distractorRationale: "Confond l'existence permanente d'une force avec la production d'un travail."
+      - key: B
+        label: "il vaut m g h, où h est la distance parcourue"
+        correct: false
+        distractorRationale: "Applique une formule valable pour un déplacement vertical à un déplacement horizontal."
+      - key: C
+        label: "il est nul, car le poids est perpendiculaire au déplacement"
+        correct: true
+      - key: D
+        label: "il est négatif, car le poids s'oppose au mouvement"
+        correct: false
+        distractorRationale: "Suppose une opposition entre force et déplacement, alors qu'ils sont ici perpendiculaires."
+    shortCorrection: "Le travail dépend de l'angle entre la force et le déplacement. Une force perpendiculaire au déplacement ne travaille pas, même si elle s'exerce en permanence."
+    tags: [energie, travail]
+
+  # ===========================================================================
+  # NŒUD 7 — Caractéristiques des ondes
+  # Pourquoi c'est structurant : la diffraction, les interférences et l'effet
+  # Doppler, au programme de Terminale, exigent une relation sûre entre
+  # longueur d'onde, célérité et fréquence.
+  # ===========================================================================
+
+  - id: ETL-PHC-OND-01
+    nodeCpsId: 1re.physique-chimie.ondes.caracteristiques
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 45
+    statement: "Quelle relation lie la longueur d'onde λ, la célérité v et la fréquence f d'une onde périodique ?"
+    options:
+      - key: A
+        label: "λ = v × f"
+        correct: false
+        distractorRationale: "Remplace le quotient par un produit, ce qui rend la longueur d'onde croissante avec la fréquence."
+      - key: B
+        label: "λ = v / f"
+        correct: true
+      - key: C
+        label: "λ = f / v"
+        correct: false
+        distractorRationale: "Inverse le rapport et attribue à la longueur d'onde une dimension incorrecte."
+      - key: D
+        label: "λ = v + f"
+        correct: false
+        distractorRationale: "Additionne des grandeurs de dimensions différentes."
+    shortCorrection: "La longueur d'onde est la distance parcourue pendant une période : elle vaut la célérité divisée par la fréquence. À célérité fixée, elle diminue quand la fréquence augmente."
+    tags: [ondes, longueur-d-onde]
+
+  - id: ETL-PHC-OND-02
+    nodeCpsId: 1re.physique-chimie.ondes.caracteristiques
+    type: QCM_SIMPLE
+    difficulty: 3
+    targetTimeSec: 60
+    statement: "Une onde sonore passe de l'air à l'eau. Que devient sa fréquence ?"
+    options:
+      - key: A
+        label: "elle augmente, car le son se propage plus vite dans l'eau"
+        correct: false
+        distractorRationale: "Confond la fréquence, imposée par la source, avec la célérité, qui dépend du milieu."
+      - key: B
+        label: "elle diminue, car le milieu est plus dense"
+        correct: false
+        distractorRationale: "Fait dépendre la fréquence des propriétés du milieu traversé."
+      - key: C
+        label: "elle devient nulle, car le son ne se propage pas dans l'eau"
+        correct: false
+        distractorRationale: "Nie la propagation du son dans les liquides."
+      - key: D
+        label: "elle reste inchangée"
+        correct: true
+    shortCorrection: "La fréquence est imposée par la source et ne change pas au passage d'un milieu à l'autre. La célérité varie, et la longueur d'onde s'ajuste en conséquence."
+    tags: [ondes, frequence]
+
+  # ===========================================================================
+  # NŒUD 8 — Lentilles minces et formation des images
+  # Pourquoi c'est structurant : l'étude de la lunette astronomique en
+  # Terminale suppose la construction d'images et la connaissance des rayons
+  # particuliers.
+  # ===========================================================================
+
+  - id: ETL-PHC-OPT-01
+    nodeCpsId: 1re.physique-chimie.optique.lentilles-images
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 55
+    statement: "D'un objet situé à l'infini, une lentille convergente donne une image située :"
+    options:
+      - key: A
+        label: "à l'infini également"
+        correct: false
+        distractorRationale: "Suppose que la lentille conserve la position de l'objet, ce qui correspondrait à un système afocal."
+      - key: B
+        label: "au centre optique de la lentille"
+        correct: false
+        distractorRationale: "Confond le point de convergence des rayons avec le centre de la lentille."
+      - key: C
+        label: "dans le plan focal image"
+        correct: true
+      - key: D
+        label: "à une distance égale à deux fois la distance focale"
+        correct: false
+        distractorRationale: "Applique la position correspondant à un objet situé à deux fois la distance focale."
+    shortCorrection: "Les rayons issus d'un objet à l'infini arrivent parallèles entre eux et convergent dans le plan focal image. C'est le principe de l'objectif d'une lunette."
+    tags: [optique, lentilles]
+
+  - id: ETL-PHC-OPT-02
+    nodeCpsId: 1re.physique-chimie.optique.lentilles-images
+    type: QCM_SIMPLE
+    difficulty: 1
+    targetTimeSec: 40
+    statement: "Un rayon lumineux qui passe par le centre optique d'une lentille mince :"
+    options:
+      - key: A
+        label: "n'est pas dévié"
+        correct: true
+      - key: B
+        label: "émerge parallèlement à l'axe optique"
+        correct: false
+        distractorRationale: "Décrit le comportement d'un rayon passant par le foyer objet."
+      - key: C
+        label: "passe ensuite par le foyer image"
+        correct: false
+        distractorRationale: "Décrit le comportement d'un rayon incident parallèle à l'axe optique."
+      - key: D
+        label: "est réfléchi vers la source"
+        correct: false
+        distractorRationale: "Attribue à une lentille le comportement d'un miroir."
+    shortCorrection: "Le rayon passant par le centre optique traverse la lentille sans déviation. C'est l'un des trois rayons particuliers utilisés pour construire une image."
+    tags: [optique, rayons-particuliers]
+
+  # ===========================================================================
+  # NŒUD 9 — Puissance et énergie électrique
+  # Pourquoi c'est structurant : les bilans énergétiques et l'étude du circuit
+  # RC en Terminale supposent de savoir relier tension, intensité, puissance et
+  # énergie dissipée.
+  # ===========================================================================
+
+  - id: ETL-PHC-ELE-01
+    nodeCpsId: 1re.physique-chimie.electricite.puissance-energie
+    type: QCM_SIMPLE
+    difficulty: 1
+    targetTimeSec: 40
+    statement: "La puissance électrique reçue par un dipôle vaut :"
+    options:
+      - key: A
+        label: "P = U / I"
+        correct: false
+        distractorRationale: "Remplace le produit par un quotient, ce qui donne la dimension d'une résistance."
+      - key: B
+        label: "P = U + I"
+        correct: false
+        distractorRationale: "Additionne deux grandeurs de dimensions différentes."
+      - key: C
+        label: "P = U / R"
+        correct: false
+        distractorRationale: "Donne une expression homogène à une intensité, non à une puissance."
+      - key: D
+        label: "P = U × I"
+        correct: true
+    shortCorrection: "La puissance électrique est le produit de la tension par l'intensité, en watts. L'énergie s'obtient en multipliant cette puissance par la durée."
+    tags: [electricite, puissance]
+
+  - id: ETL-PHC-ELE-02
+    nodeCpsId: 1re.physique-chimie.electricite.puissance-energie
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 45
+    statement: "L'effet Joule correspond :"
+    options:
+      - key: A
+        label: "à la production de lumière par un conducteur parcouru par un courant"
+        correct: false
+        distractorRationale: "Retient un effet visible dans certains cas particuliers plutôt que le phénomène général de dissipation."
+      - key: B
+        label: "à la dissipation d'énergie sous forme de chaleur dans un conducteur"
+        correct: true
+      - key: C
+        label: "à la création d'un champ magnétique autour d'un conducteur"
+        correct: false
+        distractorRationale: "Confond l'effet Joule avec l'effet magnétique du courant."
+      - key: D
+        label: "au stockage d'énergie dans un condensateur"
+        correct: false
+        distractorRationale: "Confond une dissipation irréversible avec un stockage réversible d'énergie."
+    shortCorrection: "Le passage d'un courant dans un conducteur résistant s'accompagne d'un transfert thermique vers l'extérieur. Cette énergie dissipée vaut R multiplié par I au carré et par la durée."
+    tags: [electricite, effet-joule]

@@ -1,7 +1,7 @@
 import { auth } from '@/auth';
 import { POST } from '@/app/api/sessions/video/route';
 import { prisma } from '@/lib/prisma';
-import { guardRateLimitAsync } from '@/lib/rate-limit';
+import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive';
 import { SessionStatus } from '@prisma/client';
 
 jest.mock('@/auth', () => ({
@@ -17,8 +17,8 @@ jest.mock('@/lib/prisma', () => ({
   },
 }));
 
-jest.mock('@/lib/rate-limit', () => ({
-  guardRateLimitAsync: jest.fn().mockResolvedValue(null),
+jest.mock('@/lib/rate-limit/sensitive', () => ({
+  guardSensitiveRateLimit: jest.fn().mockResolvedValue(null),
 }));
 
 const baseSession = {
@@ -60,7 +60,7 @@ describe('POST /api/sessions/video', () => {
     jest.useFakeTimers().setSystemTime(new Date(2025, 0, 2, 10, 0, 0));
     jest.clearAllMocks();
     (auth as jest.Mock).mockResolvedValue(baseSession);
-    (guardRateLimitAsync as jest.Mock).mockResolvedValue(null);
+    (guardSensitiveRateLimit as jest.Mock).mockResolvedValue(null);
     (prisma.sessionBooking.findFirst as jest.Mock).mockResolvedValue(buildBooking());
   });
 
@@ -77,7 +77,7 @@ describe('POST /api/sessions/video', () => {
   });
 
   it('returns 429 before reading the body when rate limited', async () => {
-    (guardRateLimitAsync as jest.Mock).mockResolvedValue(
+    (guardSensitiveRateLimit as jest.Mock).mockResolvedValue(
       new Response(JSON.stringify({ error: 'RATE_LIMIT' }), { status: 429 })
     );
     const request = {

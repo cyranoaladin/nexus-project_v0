@@ -42,8 +42,8 @@ Les fichiers suivants continuent de fonctionner avec leur code actuel (aucune mo
 
 - **Aucun envoi en CI/test** : `MAIL_DISABLED` est `true` par défaut quand `NODE_ENV=test`.
 - **CSRF** : `POST /api/notify/email` est protégé par `checkCsrf` (same-origin uniquement en production).
-- **Rate limit** : bucket dédié `notifyEmail` — **5 req/min/IP** via Upstash Redis distribué.
-  - **Fail-closed en production** : si `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` ne sont pas configurés, l'endpoint renvoie **503** (jamais de bypass silencieux).
+- **Rate limit** : bucket dédié `notifyEmail` — **5 req/min/IP** via Redis distribué.
+  - **Fail-closed en production** : si `RATE_LIMIT_BACKEND=redis` / `REDIS_URL` ne sont pas configurés, l'endpoint renvoie **503** (jamais de bypass silencieux).
   - En dev/test sans Redis : rate limiting désactivé avec warning.
 - **Body size** : limité à 64KB via lecture stream (pas seulement `Content-Length`). Protège contre le bypass chunked-encoding.
   - **Recommandation proxy** : configurer aussi `client_max_body_size 64k;` (nginx) ou équivalent.

@@ -217,7 +217,7 @@ export async function generateWithFallback(
   try {
     const content = await ollamaGenerate(prompt, model);
     return { content, fromFallback: false };
-  } catch (error) {
+  } catch {
     return {
       content:
         "Le service d'analyse IA a rencontré une erreur. " +

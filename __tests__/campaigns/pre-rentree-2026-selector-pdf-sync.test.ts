@@ -5,9 +5,12 @@
  * sélecteur ↔ PDF, en plus de la synchro JSON ↔ PDF déjà couverte séparément.
  */
 import { execFileSync } from 'node:child_process';
-import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 
+import {
+  cleanupPreRentreePdfFixtures,
+  ensurePreRentreePdfFixtures,
+} from '@/__tests__/helpers/pre-rentree-pdf-fixtures';
 import { getPreRentreeSchedule } from '@/lib/campaigns/pre-rentree-2026/getters';
 import type { EntryLevelCode } from '@/lib/campaigns/pre-rentree-2026/schema';
 
@@ -16,11 +19,18 @@ const PDF = join(
   'assets/campaigns/pre-rentree-2026/documents-final/NexusReussite_PreRentree2026_Planning_InfosPratiques.pdf',
 );
 
-const maybe = existsSync(PDF) ? describe : describe.skip;
-
-maybe('Pré-rentrée 2026 — synchro sélecteur de planning ↔ PDF Planning', () => {
-  const text = existsSync(PDF) ? execFileSync('pdftotext', ['-layout', PDF, '-'], { encoding: 'utf8' }) : '';
+describe('Pré-rentrée 2026 — synchro sélecteur de planning ↔ PDF Planning', () => {
+  let text: string;
   const schedule = getPreRentreeSchedule();
+
+  beforeAll(() => {
+    ensurePreRentreePdfFixtures();
+    text = execFileSync('pdftotext', ['-layout', PDF, '-'], { encoding: 'utf8' });
+  });
+
+  afterAll(() => {
+    cleanupPreRentreePdfFixtures();
+  });
 
   /** Reproduit exactement ce que StagePlanningSelector affiche pour un niveau + toutes ses matières. */
   function selectorSlotsForLevel(level: EntryLevelCode) {

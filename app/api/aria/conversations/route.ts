@@ -1,16 +1,16 @@
 export const dynamic = 'force-dynamic';
 
-import { NextRequest, NextResponse } from 'next/server'
-import { auth } from '@/auth'
-import { prisma } from '@/lib/prisma'
-import { Subject } from '@/types/enums'
-import { createLogger } from '@/lib/middleware/logger'
+import { auth } from '@/auth';
+import { createLogger } from '@/lib/middleware/logger';
+import { prisma } from '@/lib/prisma';
+import { Subject } from '@/types/enums';
+import { NextRequest,NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
   const logger = createLogger(request)
   
   try {
-    let session: any = null
+    let session: import('next-auth').Session | null = null
     try {
       session = await auth()
     } catch {

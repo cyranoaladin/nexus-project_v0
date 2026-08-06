@@ -1,11 +1,11 @@
-import { NextResponse } from 'next/server';
-import { requireAnyRole, isErrorResponse } from '@/lib/guards';
-import { can } from '@/lib/rbac';
+import { createPaginationMeta,parsePagination } from '@/lib/api/pagination';
+import { isErrorResponse,requireAnyRole } from '@/lib/guards';
 import { prisma } from '@/lib/prisma';
-import { AssignmentType, AssignmentStatus, Subject, Prisma } from '@prisma/client';
-import { z } from 'zod';
-import { parsePagination, createPaginationMeta } from '@/lib/api/pagination';
+import { can } from '@/lib/rbac';
 import { serializeError } from '@/lib/utils/serialize-error';
+import { AssignmentStatus,AssignmentType,Prisma,Subject } from '@prisma/client';
+import { NextResponse } from 'next/server';
+import { z } from 'zod';
 
 // Validation schema for query parameters
 const statusQuerySchema = z.nativeEnum(AssignmentStatus).optional().default(AssignmentStatus.ACTIVE);
@@ -42,8 +42,6 @@ export async function GET(request: Request) {
     const sessionOrError = await requireAnyRole(['ADMIN', 'ASSISTANTE']);
     if (isErrorResponse(sessionOrError)) return sessionOrError;
 
-    const session = sessionOrError;
-
     const { searchParams } = new URL(request.url);
     const coachId = searchParams.get('coachId');
     const studentId = searchParams.get('studentId');
@@ -60,7 +58,7 @@ export async function GET(request: Request) {
 
     const { page, limit, skip } = parsePagination(searchParams);
 
-    const where: any = {};
+    const where: import('@prisma/client').Prisma.CoachStudentAssignmentWhereInput = {};
     if (coachId) where.coachId = coachId;
     if (studentId) where.studentId = studentId;
     if (status) where.status = status;

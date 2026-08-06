@@ -3,6 +3,11 @@ export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
 import { requireRole } from '@/lib/guards';
 import { prisma } from '@/lib/prisma';
+import {
+  currentParentLinkIsVerified,
+  currentParentLinkOrderBy,
+  type CurrentParentLink,
+} from '@/lib/bilans/api/parent-access';
 
 export async function GET() {
   const sessionOrError = await requireRole('PARENT');
@@ -27,6 +32,28 @@ export async function GET() {
 
     const childEmails = parent.children.map((c) => c.user.email);
     const childIds = parent.children.map((c) => c.id);
+
+    // The unified Bilan model (coachBilans below) is served through
+    // GET /api/parent/bilans/[id]/pdf, which requires a currently VERIFIED
+    // canonical ParentStudentLink (see resolveParentOwnedStudent). A legacy
+    // child (Student.parentId FK) with no such link would otherwise show a
+    // PDF button here that 404s when clicked. Scope coachBilans visibility to
+    // the same guard so the button never appears when it would fail.
+    const now = new Date();
+    const links = childIds.length === 0 ? [] : await prisma.parentStudentLink.findMany({
+      where: { parentUserId: sessionOrError.user.id, studentId: { in: childIds } },
+      orderBy: currentParentLinkOrderBy(),
+      select: { id: true, studentId: true, state: true, verifiedAt: true, revokedAt: true, expiresAt: true },
+    });
+    const latestLinkByStudent = new Map<string, CurrentParentLink & { studentId: string }>();
+    for (const link of links) {
+      if (!latestLinkByStudent.has(link.studentId)) {
+        latestLinkByStudent.set(link.studentId, link);
+      }
+    }
+    const canonicalVerifiedChildIds = childIds.filter((id) =>
+      currentParentLinkIsVerified(latestLinkByStudent.get(id) ?? null, now)
+    );
 
     const reservations = await prisma.stageReservation.findMany({
       where: {
@@ -63,10 +90,13 @@ export async function GET() {
       },
     });
 
-    // Unified Bilan model (maths-premiere-stage-printemps + eaf-stage-printemps)
-    const coachBilans = await prisma.bilan.findMany({
+    // Unified Bilan model (maths-premiere-stage-printemps + eaf-stage-printemps).
+    // Scoped to canonicalVerifiedChildIds (not the raw legacy childIds) so the
+    // dashboard never shows a PDF/report button for a child whose canonical
+    // parent-student consent isn't currently VERIFIED — see the guard note above.
+    const coachBilans = canonicalVerifiedChildIds.length === 0 ? [] : await prisma.bilan.findMany({
       where: {
-        studentId: { in: childIds },
+        studentId: { in: canonicalVerifiedChildIds },
         type: 'STAGE_POST',
         isPublished: true,
       },

@@ -1,17 +1,8 @@
-var transport = {
-  sendMail: jest.fn(),
-};
+const queueCommittedEmail = jest.fn();
 
-jest.mock('nodemailer9', () => {
-  const localTransport = { sendMail: jest.fn() };
-  (globalThis as any).__emailTransport = localTransport;
-  return {
-    __esModule: true,
-    default: {
-      createTransport: jest.fn(() => localTransport),
-    },
-  };
-});
+jest.mock('@/lib/email/queue', () => ({
+  queueCommittedEmail: (...args: unknown[]) => queueCommittedEmail(...args),
+}));
 
 import { sendCreditExpirationReminder, sendWelcomeParentEmail } from '@/lib/email';
 
@@ -20,35 +11,37 @@ describe('email', () => {
 
   beforeEach(() => {
     process.env = { ...originalEnv };
-    transport = (globalThis as any).__emailTransport || transport;
-    transport.sendMail.mockReset();
+    queueCommittedEmail.mockReset().mockResolvedValue({ id: 'email-intent-test' });
   });
 
   afterAll(() => {
     process.env = originalEnv;
   });
 
-  it('sends welcome parent email', async () => {
+  it('persists the welcome parent email intent without direct SMTP delivery', async () => {
     (process.env as any).NODE_ENV = 'production';
     await sendWelcomeParentEmail('parent@test.com', 'Parent', 'Student', 'https://nexusreussite.academy/auth/activate?token=abc');
-    expect(transport.sendMail).toHaveBeenCalledTimes(1);
+    expect(queueCommittedEmail).toHaveBeenCalledTimes(1);
+    expect(queueCommittedEmail).toHaveBeenCalledWith(expect.objectContaining({
+      aggregateType: 'LEGACY_EMAIL',
+      aggregateKey: 'parent@test.com',
+      to: 'parent@test.com',
+    }));
   });
 
-  it('handles send error in development without throwing', async () => {
+  it('propagates persistence errors in development', async () => {
     (process.env as any).NODE_ENV = 'development';
-    const errSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-    transport.sendMail.mockRejectedValueOnce(new Error('smtp down'));
+    queueCommittedEmail.mockRejectedValueOnce(new Error('outbox unavailable'));
     await expect(
       sendWelcomeParentEmail('parent@test.com', 'Parent', 'Student')
-    ).resolves.toBeUndefined();
-    errSpy.mockRestore();
+    ).rejects.toThrow('outbox unavailable');
   });
 
-  it('throws send error in production', async () => {
+  it('propagates persistence errors in production', async () => {
     (process.env as any).NODE_ENV = 'production';
-    transport.sendMail.mockRejectedValueOnce(new Error('smtp down'));
+    queueCommittedEmail.mockRejectedValueOnce(new Error('outbox unavailable'));
     await expect(
       sendCreditExpirationReminder('parent@test.com', 'Parent', 'Student', 2, new Date())
-    ).rejects.toThrow('smtp down');
+    ).rejects.toThrow('outbox unavailable');
   });
 });

@@ -6,7 +6,7 @@
 
 import { POST } from '@/app/api/assessments/submit/route';
 import { prisma } from '@/lib/prisma';
-import { guardRateLimitAsync } from '@/lib/rate-limit';
+import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive';
 import { QuestionBank } from '@/lib/assessments/questions';
 
 // Mock next/headers
@@ -16,9 +16,8 @@ jest.mock('next/headers', () => ({
   }),
 }));
 
-jest.mock('@/lib/rate-limit', () => ({
-  guardRateLimit: jest.fn().mockReturnValue(null),
-  guardRateLimitAsync: jest.fn().mockResolvedValue(null),
+jest.mock('@/lib/rate-limit/sensitive', () => ({
+  guardSensitiveRateLimit: jest.fn().mockResolvedValue(null),
 }));
 
 // Mock QuestionBank
@@ -107,7 +106,7 @@ describe('POST /api/assessments/submit', () => {
   });
 
   it('returns 429 when public submission rate limit is exceeded', async () => {
-    (guardRateLimitAsync as jest.Mock).mockResolvedValueOnce(
+    (guardSensitiveRateLimit as jest.Mock).mockResolvedValueOnce(
       Response.json({ error: 'RATE_LIMIT' }, { status: 429 })
     );
 
@@ -294,6 +293,89 @@ describe('POST /api/assessments/submit', () => {
 
     expect(response.status).toBe(400);
     expect(QuestionBank.loadByVersion).not.toHaveBeenCalled();
+  });
+
+  it('keys the resource rate-limit guard on the resolved canonical version, not an unknown client-supplied one', async () => {
+    (QuestionBank.loadByVersion as jest.Mock).mockResolvedValueOnce({
+      questions: [
+        {
+          id: 'MATH-COMB-01',
+          subject: 'MATHS',
+          category: 'Combinatoire',
+          weight: 1,
+          competencies: ['Restituer'],
+          questionText: 'Test Q1',
+          options: [
+            { id: 'a', text: '10', isCorrect: true },
+            { id: 'b', text: '20', isCorrect: false },
+          ],
+        },
+      ],
+      // Unknown version strings fall back to the canonical default resolvedVersion.
+      resolvedVersion: 'maths_terminale_default',
+    });
+
+    const request = new Request('http://localhost/api/assessments/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        subject: 'MATHS',
+        grade: 'TERMINALE',
+        studentData: { email: 'test@example.com', name: 'Test Student' },
+        assessmentVersion: 'totally-unknown-version-xyz',
+        answers: { 'MATH-COMB-01': 'a' },
+      }),
+    });
+
+    await POST(request as any);
+
+    const resourceCalls = (guardSensitiveRateLimit as jest.Mock).mock.calls.filter(
+      ([, input]) => input?.resource !== undefined
+    );
+    expect(resourceCalls.length).toBeGreaterThan(0);
+    for (const [, input] of resourceCalls) {
+      expect(input.resource).toBe('maths_terminale_default');
+    }
+  });
+
+  it('still applies the resource rate limit for default submissions without an assessmentVersion', async () => {
+    (QuestionBank.loadByVersion as jest.Mock).mockResolvedValueOnce({
+      questions: [
+        {
+          id: 'MATH-COMB-01',
+          subject: 'MATHS',
+          category: 'Combinatoire',
+          weight: 1,
+          competencies: ['Restituer'],
+          questionText: 'Test Q1',
+          options: [
+            { id: 'a', text: '10', isCorrect: true },
+            { id: 'b', text: '20', isCorrect: false },
+          ],
+        },
+      ],
+      resolvedVersion: 'maths_terminale_default',
+    });
+
+    const request = new Request('http://localhost/api/assessments/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        subject: 'MATHS',
+        grade: 'TERMINALE',
+        studentData: { email: 'test@example.com', name: 'Test Student' },
+        // no assessmentVersion supplied
+        answers: { 'MATH-COMB-01': 'a' },
+      }),
+    });
+
+    await POST(request as any);
+
+    const resourceCalls = (guardSensitiveRateLimit as jest.Mock).mock.calls.filter(
+      ([, input]) => input?.resource !== undefined
+    );
+    expect(resourceCalls.length).toBeGreaterThan(0);
+    expect(resourceCalls[0][1].resource).toBe('maths_terminale_default');
   });
 
   it('does not expose internal exception messages in 500 responses', async () => {

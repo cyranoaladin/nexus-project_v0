@@ -1,0 +1,148 @@
+// ---------------------------------------------------------------------------
+// Fragment à fusionner dans prisma/schema.prisma — NE PAS remplacer le fichier.
+// Migration ADDITIVE uniquement. Ne jamais appliquer en production sans demande
+// explicite (voir AGENTS.positionnement.md).
+//
+// Contrainte non exprimable en Prisma, à ajouter en SQL brut dans la migration :
+//   ALTER TABLE "PositioningAttempt"
+//     ADD CONSTRAINT "attempt_subject_xor"
+//     CHECK (("leadId" IS NULL) <> ("userId" IS NULL));
+// ---------------------------------------------------------------------------
+
+enum PositioningLevel {
+  QUATRIEME
+  TROISIEME
+  SECONDE
+  PREMIERE
+  TERMINALE
+}
+
+enum PositioningSubject {
+  MATHS
+  MATHS_EXPERTES
+  NSI
+  PHYSIQUE_CHIMIE
+  SVT
+  FRANCAIS
+  PHILOSOPHIE
+}
+
+enum PositioningTestStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum PositioningAttemptStatus {
+  CREATED
+  IN_PROGRESS
+  SUBMITTED
+  SCORED
+  RESTITUTED
+  EXPIRED
+  ABANDONED
+}
+
+enum PositioningContext {
+  BILAN_GRATUIT
+  STAGE
+  RENTREE
+  INTERNE
+}
+
+enum BilanAudience {
+  ELEVE
+  PARENT
+  NEXUS
+}
+
+model PositioningTest {
+  id                String                 @id @default(cuid())
+  slug              String                 @unique
+  level             PositioningLevel
+  subject           PositioningSubject
+  version           Int                    @default(1)
+  status            PositioningTestStatus  @default(DRAFT)
+  targetDurationMin Int
+  itemIds           String[]
+  publishedAt       DateTime?
+  createdAt         DateTime               @default(now())
+  updatedAt         DateTime               @updatedAt
+
+  attempts          PositioningAttempt[]
+
+  @@index([level, subject, status])
+}
+
+model PositioningAttempt {
+  id           String                   @id @default(cuid())
+  accessToken  String                   @unique
+  seed         Int
+  test         PositioningTest          @relation(fields: [testId], references: [id])
+  testId       String
+  testVersion  Int
+  // Exactement l'un des deux — contrainte CHECK ci-dessus.
+  leadId       String?
+  userId       String?
+  context      PositioningContext
+  status       PositioningAttemptStatus @default(CREATED)
+  startedAt    DateTime?
+  submittedAt  DateTime?
+  expiresAt    DateTime
+  createdAt    DateTime                 @default(now())
+
+  answers      PositioningAnswer[]
+  result       PositioningResult?
+  bilans       PositioningBilan[]
+
+  @@index([testId, status])
+  @@index([leadId])
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model PositioningAnswer {
+  id         String             @id @default(cuid())
+  attempt    PositioningAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  attemptId  String
+  itemId     String
+  rawAnswer  Json?
+  confidence Int? // 1..4, null si non traité
+  elapsedMs  Int                @default(0)
+  answeredAt DateTime           @default(now())
+
+  @@unique([attemptId, itemId])
+  @@index([attemptId])
+}
+
+model PositioningResult {
+  id               String             @id @default(cuid())
+  attempt          PositioningAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  attemptId        String             @unique
+  engineVersion    String
+  globalScore      Float
+  calibrationIndex Float?
+  coverage         Float
+  nodes            Json // NodeResult[]
+  flags            String[]
+  groupBand        String
+  computedAt       DateTime           @default(now())
+
+  @@index([groupBand])
+}
+
+model PositioningBilan {
+  id            String             @id @default(cuid())
+  attempt       PositioningAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  attemptId     String
+  audience      BilanAudience
+  payload       Json // BilanPayload structuré — jamais de HTML
+  renderVersion String
+  pdfPath       String?
+  generatedAt   DateTime           @default(now())
+  reviewedBy    String?
+  reviewedAt    DateTime?
+
+  @@unique([attemptId, audience])
+  @@index([audience, reviewedAt])
+}

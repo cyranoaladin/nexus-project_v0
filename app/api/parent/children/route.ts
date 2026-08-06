@@ -6,16 +6,19 @@ import { prisma } from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
 import type { CreditTransaction } from '@prisma/client';
 import { normalizeStudentLevelAndTrack } from '@/lib/utils/grade-utils';
-import { sendMail } from '@/lib/email/mailer';
-import { escapeHtml } from '@/lib/email/templates';
-import crypto from 'crypto';
 import { parseJsonBody } from '@/lib/api/helpers';
 import { z } from 'zod';
-
-/** Strip CR/LF from SMTP header values to prevent header injection. */
-function sanitizeHeader(str: string): string {
-  return str.replace(/[\r\n]/g, '').trim();
-}
+import { withParentStudentConsentTransaction } from '@/lib/bilans/parent-student-consent';
+import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive';
+import {
+  buildStudentLoginIdentifier,
+  isStudentLoginIdentifierConflict,
+} from '@/lib/services/student-login-identifier';
+import { createId } from '@paralleldrive/cuid2';
+import { createActivationToken } from '@/lib/auth/activation-token';
+import { buildAccountActivationEmail, buildTrustedActivationUrl } from '@/lib/auth/parent-activation';
+import { enqueueEmailIntent } from '@/lib/email/outbox';
+import { kickEmailOutboxDrain } from '@/lib/email/outbox-scheduler';
 
 const createChildSchema = z.object({
   firstName: z.string().trim().min(1).max(80),
@@ -23,6 +26,21 @@ const createChildSchema = z.object({
   grade: z.string().trim().min(1).max(80),
   school: z.string().trim().max(120).optional().default(''),
 }).strict();
+
+const activationResponseHeaders = {
+  'Cache-Control': 'private, no-store, max-age=0',
+  Pragma: 'no-cache',
+  Expires: '0',
+} as const;
+
+function logNonSensitiveFailure(context: string, error: unknown): void {
+  console.error(context, {
+    name: error instanceof Error ? error.name : 'UnknownError',
+    code: typeof error === 'object' && error !== null && 'code' in error
+      ? String((error as { code: unknown }).code)
+      : undefined,
+  });
+}
 
 export async function GET(_request: NextRequest) {
   try {
@@ -118,6 +136,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const blocked = await guardSensitiveRateLimit(request, {
+      scope: 'child-create',
+      identity: session.user.id,
+    });
+    if (blocked) return blocked;
+
     let rawBody: unknown;
     try {
       rawBody = await parseJsonBody(request);
@@ -137,19 +161,11 @@ export async function POST(request: NextRequest) {
     const { firstName, lastName, grade, school } = parsedBody.data;
 
     // Generate email in the same format as bilan-gratuit
-    const email = `${firstName.toLowerCase()}.${lastName.toLowerCase()}@nexus-student.local`;
-
-    // Check if email already exists
-    const existingUser = await prisma.user.findUnique({
-      where: { email }
+    const email = buildStudentLoginIdentifier({
+      firstName,
+      lastName,
+      uniqueSuffix: createId(),
     });
-
-    if (existingUser) {
-      return NextResponse.json(
-        { error: 'Un enfant avec ce nom existe déjà' },
-        { status: 400 }
-      );
-    }
 
     const userId = session.user.id;
 
@@ -175,82 +191,101 @@ export async function POST(request: NextRequest) {
     }
 
     // Générer un token d'activation unique (validité 72h)
-    const rawActivationToken = `act_${crypto.randomBytes(16).toString('hex')}`;
-    const hashedActivationToken = crypto.createHash('sha256').update(rawActivationToken).digest('hex');
-    const activationExpiry = new Date(Date.now() + 72 * 60 * 60 * 1000);
+    const {
+      rawToken: rawActivationToken,
+      tokenHash: hashedActivationToken,
+      expiresAt: activationExpiry,
+    } = createActivationToken('student');
 
     // Create child in transaction
-    const result = await prisma.$transaction(async (tx) => {
-      // Create user in inactive state. The student chooses a password later via activation.
-      const user = await tx.user.create({
-        data: {
-          email,
-          password: null,
-          firstName,
-          lastName,
-          role: 'ELEVE',
-          activatedAt: null,
-          activationToken: hashedActivationToken,
-          activationExpiry: activationExpiry,
-        }
-      });
+    const result = await withParentStudentConsentTransaction(
+      prisma,
+      async ({ transaction: tx, preparePending }) => {
+        // Create user in inactive state. The student chooses a password later via activation.
+        const user = await tx.user.create({
+          data: {
+            email,
+            password: null,
+            firstName,
+            lastName,
+            role: 'ELEVE',
+            activatedAt: null,
+            activationToken: hashedActivationToken,
+            activationExpiry: activationExpiry,
+          }
+        });
 
-      // Create student
-      const student = await tx.student.create({
-        data: {
-          userId: user.id,
-          parentId: parentProfile.id,
-          gradeLevel: gTrack.level,
-          academicTrack: gTrack.track,
-          grade,
-          school: school || ''
-        },
-        include: {
-          user: true
-        }
-      });
+        // Create student
+        const student = await tx.student.create({
+          data: {
+            userId: user.id,
+            parentId: parentProfile.id,
+            gradeLevel: gTrack.level,
+            academicTrack: gTrack.track,
+            grade,
+            school: school || ''
+          },
+          include: {
+            user: true
+          }
+        });
 
-      return student;
-    });
+        await preparePending({
+          parentUserId: userId,
+          studentId: student.id,
+          now: new Date(),
+        });
 
-    const baseUrl = process.env.NEXTAUTH_URL || 'https://nexusreussite.academy';
-    const activationUrl = `${baseUrl}/auth/activate?token=${encodeURIComponent(rawActivationToken)}`;
+        const activationMessage = buildAccountActivationEmail({
+          displayName: `${firstName} ${lastName}`,
+          rawToken: rawActivationToken,
+          accountRole: 'ELEVE',
+        });
+        await enqueueEmailIntent(tx, {
+          aggregateId: user.id,
+          messageType: 'STUDENT_ACTIVATION',
+          dedupeKey: hashedActivationToken,
+          to: session.user.email,
+          subject: activationMessage.subject,
+          html: activationMessage.html,
+          text: activationMessage.text,
+        });
 
-    // Send activation email to the parent (fire-and-forget: no await — SMTP timeout must not delay the response).
-    // sanitizeHeader on subject prevents SMTP header injection; escapeHtml in HTML body prevents XSS.
-    sendMail({
-      to: session.user.email,
-      subject: sanitizeHeader(`Activation du compte élève — ${firstName} ${lastName}`),
-      html: `<p>Bonjour ${escapeHtml(firstName)},</p>
-             <p>Votre compte élève sur Nexus Réussite a été créé.</p>
-             <p>Cliquez sur le lien ci-dessous pour définir votre mot de passe et activer votre compte :</p>
-             <p><a href="${activationUrl}">${activationUrl}</a></p>
-             <p>Ce lien est valide pendant 72 heures.</p>
-             <p>L'équipe Nexus Réussite</p>`,
-      text: `Bonjour ${firstName},\n\nVotre compte élève sur Nexus Réussite a été créé.\n\nCliquez sur le lien ci-dessous pour définir votre mot de passe et activer votre compte :\n${activationUrl}\n\nCe lien est valide pendant 72 heures.\n\nL'équipe Nexus Réussite`,
-    }).catch((err) => {
-      console.error('[parent/children] Activation email failed (non-blocking):', serializeError(err));
-    });
-
-    return NextResponse.json({
-      success: true,
-      child: {
-        id: result.id,
-        firstName: result.user.firstName,
-        lastName: result.user.lastName,
-        email: result.user.email,
-        grade: result.grade,
-        school: result.school
+        return student;
       },
-      activation: {
-        activationUrl,
-        expiresAt: activationExpiry.toISOString(),
-        message: "Lien d'activation généré pour le parent authentifié. À transmettre uniquement à l'élève concerné."
-      }
-    });
+    );
+
+    const activationUrl = buildTrustedActivationUrl(rawActivationToken, undefined, 'student').toString();
+    kickEmailOutboxDrain();
+
+    return NextResponse.json(
+      {
+        success: true,
+        child: {
+          id: result.id,
+          firstName: result.user.firstName,
+          lastName: result.user.lastName,
+          email: result.user.email,
+          grade: result.grade,
+          school: result.school
+        },
+        activation: {
+          activationUrl,
+          expiresAt: activationExpiry.toISOString(),
+          message: "Lien d'activation généré pour le parent authentifié. À transmettre uniquement à l'élève concerné."
+        }
+      },
+      { headers: activationResponseHeaders },
+    );
 
   } catch (error) {
-    console.error('Error creating child:', serializeError(error));
+    if (isStudentLoginIdentifierConflict(error)) {
+      return NextResponse.json(
+        { error: 'STUDENT_LOGIN_IDENTIFIER_CONFLICT' },
+        { status: 409 },
+      );
+    }
+    logNonSensitiveFailure('Error creating child', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

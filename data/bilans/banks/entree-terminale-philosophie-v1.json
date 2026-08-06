@@ -1,0 +1,1069 @@
+{
+  "slug": "entree-terminale-philosophie-v1",
+  "level": "TERMINALE",
+  "subject": "PHILOSOPHIE",
+  "version": 1,
+  "status": "VALIDATED",
+  "review": {
+    "validatedBy": "cmsf8ncom0008mguh4z5acmu5",
+    "validatedAt": "2026-08-05T07:04:01.085Z"
+  },
+  "questionnaire": {
+    "targetDurationMin": 25,
+    "confidenceScale": {
+      "levels": 4,
+      "labels": [
+        "je devine",
+        "peu sûr",
+        "plutôt sûr",
+        "certain"
+      ]
+    },
+    "items": [
+      {
+        "id": "ETL-PHI-THE-01",
+        "subject": "PHILOSOPHIE",
+        "category": "Thèse, argument, exemple",
+        "domainId": "argumentation",
+        "nodeCpsId": "1re.francais.argumentation.these-argument-exemple",
+        "difficulty": 2,
+        "targetTimeSec": 70,
+        "shortCorrection": "La première phrase énonce la thèse, la deuxième donne la raison qui la soutient, la troisième illustre par un cas concret. L'argument est le raisonnement, non l'opinion ni l'illustration.",
+        "weight": 2,
+        "competencies": [
+          "1re.francais.argumentation.these-argument-exemple"
+        ],
+        "questionText": "Lisez ce court passage : « Il faut abaisser la vitesse autorisée en ville. En effet, la gravité des accidents augmente fortement avec la vitesse du véhicule. Ainsi, dans plusieurs villes européennes, le passage à trente kilomètres par heure a réduit de moitié le nombre de blessés graves. » Quelle phrase constitue l'argument ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "la première phrase",
+            "isCorrect": false,
+            "distractorRationale": "Prend la thèse, c'est-à-dire l'opinion défendue, pour la raison qui la justifie."
+          },
+          {
+            "id": "B",
+            "text": "la troisième phrase",
+            "isCorrect": false,
+            "distractorRationale": "Prend l'exemple, c'est-à-dire le cas concret, pour le raisonnement qu'il illustre."
+          },
+          {
+            "id": "C",
+            "text": "la deuxième phrase",
+            "isCorrect": true
+          },
+          {
+            "id": "D",
+            "text": "aucune : le texte ne contient que des faits",
+            "isCorrect": false,
+            "distractorRationale": "Ne reconnaît pas la structure argumentative et réduit le passage à une suite d'informations."
+          }
+        ],
+        "explanation": "La première phrase énonce la thèse, la deuxième donne la raison qui la soutient, la troisième illustre par un cas concret. L'argument est le raisonnement, non l'opinion ni l'illustration."
+      },
+      {
+        "id": "ETL-PHI-THE-02",
+        "subject": "PHILOSOPHIE",
+        "category": "Thèse, argument, exemple",
+        "domainId": "argumentation",
+        "nodeCpsId": "1re.francais.argumentation.these-argument-exemple",
+        "difficulty": 1,
+        "targetTimeSec": 45,
+        "shortCorrection": "L'exemple donne un contenu concret à un argument, mais il ne le remplace pas : un cas particulier n'établit jamais à lui seul une thèse générale.",
+        "weight": 1,
+        "competencies": [
+          "1re.francais.argumentation.these-argument-exemple"
+        ],
+        "questionText": "Dans un raisonnement, un exemple sert à :",
+        "options": [
+          {
+            "id": "A",
+            "text": "illustrer un argument par un cas concret",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "remplacer l'argument lorsqu'il est difficile à formuler",
+            "isCorrect": false,
+            "distractorRationale": "Fait de l'exemple un substitut du raisonnement, alors qu'il ne peut que l'appuyer."
+          },
+          {
+            "id": "C",
+            "text": "énoncer l'opinion générale que l'on défend",
+            "isCorrect": false,
+            "distractorRationale": "Confond l'exemple avec la thèse."
+          },
+          {
+            "id": "D",
+            "text": "réfuter à lui seul la position adverse",
+            "isCorrect": false,
+            "distractorRationale": "Attribue à un cas particulier une force de réfutation qu'il ne possède pas par lui-même."
+          }
+        ],
+        "explanation": "L'exemple donne un contenu concret à un argument, mais il ne le remplace pas : un cas particulier n'établit jamais à lui seul une thèse générale."
+      },
+      {
+        "id": "ETL-PHI-STR-01",
+        "subject": "PHILOSOPHIE",
+        "category": "Structure et mouvement d'un texte argumentatif",
+        "domainId": "argumentation",
+        "nodeCpsId": "1re.francais.argumentation.structure-du-texte",
+        "difficulty": 2,
+        "targetTimeSec": 50,
+        "shortCorrection": "« Certes » admet provisoirement un point adverse pour mieux le dépasser ensuite, souvent introduit par « mais » ou « toutefois ». C'est le mouvement de la concession.",
+        "weight": 2,
+        "competencies": [
+          "1re.francais.argumentation.structure-du-texte"
+        ],
+        "questionText": "Dans un texte argumentatif, un paragraphe qui s'ouvre sur « Certes… » annonce le plus souvent :",
+        "options": [
+          {
+            "id": "A",
+            "text": "la conclusion du texte",
+            "isCorrect": false,
+            "distractorRationale": "Confond une étape intermédiaire du raisonnement avec son terme."
+          },
+          {
+            "id": "B",
+            "text": "un nouvel argument en faveur de la thèse",
+            "isCorrect": false,
+            "distractorRationale": "Ignore la valeur concessive de l'adverbe, qui introduit d'abord une reconnaissance."
+          },
+          {
+            "id": "C",
+            "text": "une simple reformulation de la thèse",
+            "isCorrect": false,
+            "distractorRationale": "Réduit à une répétition ce qui constitue un mouvement argumentatif."
+          },
+          {
+            "id": "D",
+            "text": "une concession, généralement suivie d'une objection",
+            "isCorrect": true
+          }
+        ],
+        "explanation": "« Certes » admet provisoirement un point adverse pour mieux le dépasser ensuite, souvent introduit par « mais » ou « toutefois ». C'est le mouvement de la concession."
+      },
+      {
+        "id": "ETL-PHI-STR-02",
+        "subject": "PHILOSOPHIE",
+        "category": "Structure et mouvement d'un texte argumentatif",
+        "domainId": "argumentation",
+        "nodeCpsId": "1re.francais.argumentation.structure-du-texte",
+        "difficulty": 2,
+        "targetTimeSec": 50,
+        "shortCorrection": "Le mouvement d'un texte, ce sont les étapes par lesquelles l'auteur passe et les liens qui les unissent. Il ne coïncide pas nécessairement avec le découpage en paragraphes.",
+        "weight": 2,
+        "competencies": [
+          "1re.francais.argumentation.structure-du-texte"
+        ],
+        "questionText": "Dégager le mouvement d'un texte argumentatif consiste à :",
+        "options": [
+          {
+            "id": "A",
+            "text": "résumer chaque phrase l'une après l'autre",
+            "isCorrect": false,
+            "distractorRationale": "Confond la paraphrase linéaire avec l'identification d'une progression."
+          },
+          {
+            "id": "B",
+            "text": "identifier les étapes du raisonnement et la manière dont elles s'enchaînent",
+            "isCorrect": true
+          },
+          {
+            "id": "C",
+            "text": "relever le champ lexical dominant",
+            "isCorrect": false,
+            "distractorRationale": "Applique un outil d'analyse stylistique là où il faut suivre une logique."
+          },
+          {
+            "id": "D",
+            "text": "compter les paragraphes du texte",
+            "isCorrect": false,
+            "distractorRationale": "Substitue un repérage typographique à l'analyse du raisonnement."
+          }
+        ],
+        "explanation": "Le mouvement d'un texte, ce sont les étapes par lesquelles l'auteur passe et les liens qui les unissent. Il ne coïncide pas nécessairement avec le découpage en paragraphes."
+      },
+      {
+        "id": "ETL-PHI-CON-01",
+        "subject": "PHILOSOPHIE",
+        "category": "Connecteurs logiques et relations de raisonnement",
+        "domainId": "argumentation",
+        "nodeCpsId": "1re.francais.argumentation.connecteurs-logiques",
+        "difficulty": 3,
+        "targetTimeSec": 65,
+        "shortCorrection": "Dans un raisonnement déductif, « or » introduit la seconde prémisse, qui applique la première à un cas donné. « Donc » introduit la conclusion qui en découle.",
+        "weight": 3,
+        "competencies": [
+          "1re.francais.argumentation.connecteurs-logiques"
+        ],
+        "questionText": "Dans le raisonnement « Les routes sont glissantes quand il pleut ; or il pleut ; donc les routes sont glissantes », le mot « or » introduit :",
+        "options": [
+          {
+            "id": "A",
+            "text": "une seconde prémisse, qui s'articule à la première",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "la conclusion du raisonnement",
+            "isCorrect": false,
+            "distractorRationale": "Confond la prémisse mineure avec la conclusion, pourtant introduite par « donc »."
+          },
+          {
+            "id": "C",
+            "text": "une opposition à ce qui précède",
+            "isCorrect": false,
+            "distractorRationale": "Retient le sens adversatif que « or » peut avoir ailleurs, sans voir sa fonction dans un raisonnement déductif."
+          },
+          {
+            "id": "D",
+            "text": "un exemple destiné à illustrer la première proposition",
+            "isCorrect": false,
+            "distractorRationale": "Prend une proposition générale pour un cas particulier."
+          }
+        ],
+        "explanation": "Dans un raisonnement déductif, « or » introduit la seconde prémisse, qui applique la première à un cas donné. « Donc » introduit la conclusion qui en découle."
+      },
+      {
+        "id": "ETL-PHI-CON-02",
+        "subject": "PHILOSOPHIE",
+        "category": "Connecteurs logiques et relations de raisonnement",
+        "domainId": "argumentation",
+        "nodeCpsId": "1re.francais.argumentation.connecteurs-logiques",
+        "difficulty": 1,
+        "targetTimeSec": 40,
+        "shortCorrection": "« Par conséquent » marque ce qui découle de ce qui précède. Distinguer conséquence, cause, opposition et concession conditionne toute lecture d'argument.",
+        "weight": 1,
+        "competencies": [
+          "1re.francais.argumentation.connecteurs-logiques"
+        ],
+        "questionText": "Lequel de ces connecteurs exprime une conséquence ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "or",
+            "isCorrect": false,
+            "distractorRationale": "Introduit une prémisse et non ce qui en découle."
+          },
+          {
+            "id": "B",
+            "text": "bien que",
+            "isCorrect": false,
+            "distractorRationale": "Introduit une concession, c'est-à-dire une objection provisoirement admise."
+          },
+          {
+            "id": "C",
+            "text": "par conséquent",
+            "isCorrect": true
+          },
+          {
+            "id": "D",
+            "text": "en revanche",
+            "isCorrect": false,
+            "distractorRationale": "Introduit une opposition entre deux éléments, non un enchaînement logique."
+          }
+        ],
+        "explanation": "« Par conséquent » marque ce qui découle de ce qui précède. Distinguer conséquence, cause, opposition et concession conditionne toute lecture d'argument."
+      },
+      {
+        "id": "ETL-PHI-DEF-01",
+        "subject": "PHILOSOPHIE",
+        "category": "Définir une notion",
+        "domainId": "lexique",
+        "nodeCpsId": "1re.francais.lexique.definir-une-notion",
+        "difficulty": 2,
+        "targetTimeSec": 50,
+        "shortCorrection": "Définir, c'est délimiter : dire ce que la notion est et ce qu'elle n'est pas. Une définition qui ne distingue pas la notion d'une notion voisine ne définit rien.",
+        "weight": 2,
+        "competencies": [
+          "1re.francais.lexique.definir-une-notion"
+        ],
+        "questionText": "Définir une notion, c'est :",
+        "options": [
+          {
+            "id": "A",
+            "text": "en donner un exemple qui l'illustre",
+            "isCorrect": false,
+            "distractorRationale": "Substitue l'illustration à la détermination du sens."
+          },
+          {
+            "id": "B",
+            "text": "en énoncer les caractères qui la distinguent de toute autre notion",
+            "isCorrect": true
+          },
+          {
+            "id": "C",
+            "text": "en indiquer l'étymologie",
+            "isCorrect": false,
+            "distractorRationale": "Prend l'origine du mot pour le contenu de la notion : l'étymologie éclaire sans définir."
+          },
+          {
+            "id": "D",
+            "text": "en proposer un synonyme courant",
+            "isCorrect": false,
+            "distractorRationale": "Remplace un mot par un autre sans rien déterminer de ce qu'il désigne."
+          }
+        ],
+        "explanation": "Définir, c'est délimiter : dire ce que la notion est et ce qu'elle n'est pas. Une définition qui ne distingue pas la notion d'une notion voisine ne définit rien."
+      },
+      {
+        "id": "ETL-PHI-DEF-02",
+        "subject": "PHILOSOPHIE",
+        "category": "Définir une notion",
+        "domainId": "lexique",
+        "nodeCpsId": "1re.francais.lexique.definir-une-notion",
+        "difficulty": 3,
+        "targetTimeSec": 65,
+        "shortCorrection": "Une bonne définition doit permettre de trancher des cas difficiles. Celle-ci ne dit pas si un être livré à ses impulsions est libre, ni si une règle que l'on se donne soi-même supprime la liberté.",
+        "weight": 3,
+        "competencies": [
+          "1re.francais.lexique.definir-une-notion"
+        ],
+        "questionText": "« La liberté, c'est l'absence de toute contrainte. » Quelle objection principale peut-on adresser à cette définition ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "elle est trop brève pour une notion aussi vaste",
+            "isCorrect": false,
+            "distractorRationale": "Juge la définition sur sa longueur au lieu d'examiner ce qu'elle permet ou non de distinguer."
+          },
+          {
+            "id": "B",
+            "text": "elle n'est reprise par aucun auteur reconnu",
+            "isCorrect": false,
+            "distractorRationale": "Fait dépendre la valeur d'une définition d'une autorité extérieure plutôt que de sa cohérence."
+          },
+          {
+            "id": "C",
+            "text": "elle n'est accompagnée d'aucun exemple",
+            "isCorrect": false,
+            "distractorRationale": "Réclame une illustration alors que le défaut porte sur la délimitation de la notion."
+          },
+          {
+            "id": "D",
+            "text": "elle ne distingue pas la liberté du simple caprice, ni ne dit si l'on peut être libre en obéissant à une règle",
+            "isCorrect": true
+          }
+        ],
+        "explanation": "Une bonne définition doit permettre de trancher des cas difficiles. Celle-ci ne dit pas si un être livré à ses impulsions est libre, ni si une règle que l'on se donne soi-même supprime la liberté."
+      },
+      {
+        "id": "ETL-PHI-COH-01",
+        "subject": "PHILOSOPHIE",
+        "category": "Cohérence et contradiction",
+        "domainId": "argumentation",
+        "nodeCpsId": "1re.francais.argumentation.coherence-du-raisonnement",
+        "difficulty": 3,
+        "targetTimeSec": 70,
+        "shortCorrection": "L'affirmation se contredit : si toute vérité est relative, cette affirmation l'est aussi, et perd sa portée générale. C'est ce qu'on appelle une contradiction performative.",
+        "weight": 3,
+        "competencies": [
+          "1re.francais.argumentation.coherence-du-raisonnement"
+        ],
+        "questionText": "« Toute vérité est relative. » Quelle objection logique peut-on adresser à cette affirmation ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "si elle est vraie, elle prétend elle-même à une vérité qui ne serait pas relative",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "elle est trop pessimiste sur les capacités humaines",
+            "isCorrect": false,
+            "distractorRationale": "Substitue un jugement sur le ton de l'affirmation à l'examen de sa cohérence."
+          },
+          {
+            "id": "C",
+            "text": "elle n'est pas partagée par la majorité des gens",
+            "isCorrect": false,
+            "distractorRationale": "Fait du nombre un critère de vérité, ce qui ne constitue pas une objection logique."
+          },
+          {
+            "id": "D",
+            "text": "elle emploie un mot ambigu, ce qui la rend incompréhensible",
+            "isCorrect": false,
+            "distractorRationale": "Repère une difficulté lexicale sans identifier la contradiction que l'affirmation produit sur elle-même."
+          }
+        ],
+        "explanation": "L'affirmation se contredit : si toute vérité est relative, cette affirmation l'est aussi, et perd sa portée générale. C'est ce qu'on appelle une contradiction performative."
+      },
+      {
+        "id": "ETL-PHI-COH-02",
+        "subject": "PHILOSOPHIE",
+        "category": "Cohérence et contradiction",
+        "domainId": "argumentation",
+        "nodeCpsId": "1re.francais.argumentation.coherence-du-raisonnement",
+        "difficulty": 3,
+        "targetTimeSec": 60,
+        "shortCorrection": "La validité concerne la forme du raisonnement : si les prémisses sont admises, la conclusion s'impose. Un raisonnement valide peut partir de prémisses fausses.",
+        "weight": 3,
+        "competencies": [
+          "1re.francais.argumentation.coherence-du-raisonnement"
+        ],
+        "questionText": "Un raisonnement est dit valide lorsque :",
+        "options": [
+          {
+            "id": "A",
+            "text": "ses prémisses sont vraies",
+            "isCorrect": false,
+            "distractorRationale": "Confond la validité, qui porte sur la forme de l'enchaînement, avec la vérité des propositions de départ."
+          },
+          {
+            "id": "B",
+            "text": "la conclusion découle nécessairement des prémisses",
+            "isCorrect": true
+          },
+          {
+            "id": "C",
+            "text": "sa conclusion est vraie",
+            "isCorrect": false,
+            "distractorRationale": "Confond la validité de la déduction avec la vérité de son résultat : une conclusion vraie peut être mal déduite."
+          },
+          {
+            "id": "D",
+            "text": "il emporte l'adhésion de ceux qui l'entendent",
+            "isCorrect": false,
+            "distractorRationale": "Confond la validité logique avec l'efficacité rhétorique."
+          }
+        ],
+        "explanation": "La validité concerne la forme du raisonnement : si les prémisses sont admises, la conclusion s'impose. Un raisonnement valide peut partir de prémisses fausses."
+      },
+      {
+        "id": "ETL-PHI-OPI-01",
+        "subject": "PHILOSOPHIE",
+        "category": "Fait, opinion, jugement de valeur, savoir",
+        "domainId": "argumentation",
+        "nodeCpsId": "1re.francais.argumentation.fait-et-jugement",
+        "difficulty": 2,
+        "targetTimeSec": 50,
+        "shortCorrection": "Un fait peut être vérifié ; un jugement de valeur apprécie selon une norme, ici la justice. Les deux se discutent, mais pas de la même manière.",
+        "weight": 2,
+        "competencies": [
+          "1re.francais.argumentation.fait-et-jugement"
+        ],
+        "questionText": "Laquelle de ces affirmations relève d'un jugement de valeur, et non d'un fait ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "« L'eau bout à cent degrés sous pression atmosphérique normale. »",
+            "isCorrect": false,
+            "distractorRationale": "Prend un énoncé vérifiable par l'expérience pour une appréciation."
+          },
+          {
+            "id": "B",
+            "text": "« La population mondiale dépasse huit milliards d'habitants. »",
+            "isCorrect": false,
+            "distractorRationale": "Prend une donnée mesurable pour une appréciation."
+          },
+          {
+            "id": "C",
+            "text": "« Il est injuste que les richesses soient aussi inégalement réparties. »",
+            "isCorrect": true
+          },
+          {
+            "id": "D",
+            "text": "« Ce musée ouvre ses portes à neuf heures. »",
+            "isCorrect": false,
+            "distractorRationale": "Prend une information constatable pour une appréciation."
+          }
+        ],
+        "explanation": "Un fait peut être vérifié ; un jugement de valeur apprécie selon une norme, ici la justice. Les deux se discutent, mais pas de la même manière."
+      },
+      {
+        "id": "ETL-PHI-OPI-02",
+        "subject": "PHILOSOPHIE",
+        "category": "Fait, opinion, jugement de valeur, savoir",
+        "domainId": "argumentation",
+        "nodeCpsId": "1re.francais.argumentation.fait-et-jugement",
+        "difficulty": 2,
+        "targetTimeSec": 50,
+        "shortCorrection": "Une opinion peut être vraie par hasard. Un savoir se distingue en ce qu'il s'accompagne de raisons, et qu'il accepte d'être discuté.",
+        "weight": 2,
+        "competencies": [
+          "1re.francais.argumentation.fait-et-jugement"
+        ],
+        "questionText": "Ce qui distingue un savoir d'une simple opinion, c'est :",
+        "options": [
+          {
+            "id": "A",
+            "text": "qu'il peut être justifié et soumis à l'examen",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "qu'il est partagé par le plus grand nombre",
+            "isCorrect": false,
+            "distractorRationale": "Fait du nombre le critère du savoir, alors qu'une opinion peut être largement partagée et fausse."
+          },
+          {
+            "id": "C",
+            "text": "qu'il est énoncé avec assurance",
+            "isCorrect": false,
+            "distractorRationale": "Confond la certitude subjective, qui accompagne aussi bien l'erreur, avec la justification."
+          },
+          {
+            "id": "D",
+            "text": "qu'il ne peut jamais être remis en question",
+            "isCorrect": false,
+            "distractorRationale": "Fait de l'irréfutabilité une qualité, alors qu'un savoir se caractérise justement par sa capacité à être examiné."
+          }
+        ],
+        "explanation": "Une opinion peut être vraie par hasard. Un savoir se distingue en ce qu'il s'accompagne de raisons, et qu'il accepte d'être discuté."
+      },
+      {
+        "id": "ETL-PHI-QUE-01",
+        "subject": "PHILOSOPHIE",
+        "category": "Analyser une question et repérer ses présupposés",
+        "domainId": "argumentation",
+        "nodeCpsId": "1re.francais.argumentation.analyse-de-la-question",
+        "difficulty": 2,
+        "targetTimeSec": 50,
+        "shortCorrection": "Analyser un sujet, c'est examiner les mots qui le composent et faire apparaître la difficulté qu'il recèle. La réponse ne vient qu'ensuite.",
+        "weight": 2,
+        "competencies": [
+          "1re.francais.argumentation.analyse-de-la-question"
+        ],
+        "questionText": "Analyser un sujet, c'est d'abord :",
+        "options": [
+          {
+            "id": "A",
+            "text": "chercher la réponse la plus convaincante",
+            "isCorrect": false,
+            "distractorRationale": "Cherche à conclure avant d'avoir examiné ce que la question demande."
+          },
+          {
+            "id": "B",
+            "text": "définir les termes employés et dégager le problème que la question soulève",
+            "isCorrect": true
+          },
+          {
+            "id": "C",
+            "text": "recenser les auteurs qui ont traité la question",
+            "isCorrect": false,
+            "distractorRationale": "Substitue un inventaire de références à l'examen du sujet lui-même."
+          },
+          {
+            "id": "D",
+            "text": "exposer son opinion personnelle sur la question",
+            "isCorrect": false,
+            "distractorRationale": "Confond l'analyse d'un problème avec l'expression d'une préférence."
+          }
+        ],
+        "explanation": "Analyser un sujet, c'est examiner les mots qui le composent et faire apparaître la difficulté qu'il recèle. La réponse ne vient qu'ensuite."
+      },
+      {
+        "id": "ETL-PHI-QUE-02",
+        "subject": "PHILOSOPHIE",
+        "category": "Analyser une question et repérer ses présupposés",
+        "domainId": "argumentation",
+        "nodeCpsId": "1re.francais.argumentation.analyse-de-la-question",
+        "difficulty": 3,
+        "targetTimeSec": 60,
+        "shortCorrection": "L'adverbe « toujours » suppose que la règle souffre peut-être des exceptions. Sans cette hésitation possible, la question ne se poserait pas.",
+        "weight": 3,
+        "competencies": [
+          "1re.francais.argumentation.analyse-de-la-question"
+        ],
+        "questionText": "La question « Faut-il toujours dire la vérité ? » présuppose :",
+        "options": [
+          {
+            "id": "A",
+            "text": "que la vérité n'existe pas",
+            "isCorrect": false,
+            "distractorRationale": "Prête à la question une thèse sceptique qu'elle ne formule pas."
+          },
+          {
+            "id": "B",
+            "text": "qu'il est impossible de mentir",
+            "isCorrect": false,
+            "distractorRationale": "Contredit le sens même de la question, qui suppose que le mensonge est possible."
+          },
+          {
+            "id": "C",
+            "text": "que personne ne dit jamais la vérité",
+            "isCorrect": false,
+            "distractorRationale": "Confond un présupposé de la question avec un constat empirique sur les conduites."
+          },
+          {
+            "id": "D",
+            "text": "qu'il existe des situations où l'on hésite à la dire",
+            "isCorrect": true
+          }
+        ],
+        "explanation": "L'adverbe « toujours » suppose que la règle souffre peut-être des exceptions. Sans cette hésitation possible, la question ne se poserait pas."
+      },
+      {
+        "id": "ETL-PHI-PAR-01",
+        "subject": "PHILOSOPHIE",
+        "category": "Construire un paragraphe argumenté",
+        "domainId": "ecriture",
+        "nodeCpsId": "1re.francais.ecriture.paragraphe-argumente",
+        "difficulty": 2,
+        "targetTimeSec": 50,
+        "shortCorrection": "On annonce d'abord l'idée, on l'explique ensuite, on l'illustre enfin. Le lecteur sait ainsi dès la première phrase ce que le paragraphe cherche à établir.",
+        "weight": 2,
+        "competencies": [
+          "1re.francais.ecriture.paragraphe-argumente"
+        ],
+        "questionText": "Dans un paragraphe argumenté, quel ordre est généralement le plus efficace ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "exemple, idée, explication",
+            "isCorrect": false,
+            "distractorRationale": "Ouvre sur un cas particulier sans avoir annoncé ce qu'il doit établir."
+          },
+          {
+            "id": "B",
+            "text": "explication, exemple, idée",
+            "isCorrect": false,
+            "distractorRationale": "Réserve pour la fin l'idée directrice, que le lecteur devrait connaître dès l'ouverture."
+          },
+          {
+            "id": "C",
+            "text": "idée, explication, exemple",
+            "isCorrect": true
+          },
+          {
+            "id": "D",
+            "text": "exemple, explication, idée",
+            "isCorrect": false,
+            "distractorRationale": "Fait remonter l'idée depuis le cas particulier, ce qui rend le paragraphe difficile à suivre."
+          }
+        ],
+        "explanation": "On annonce d'abord l'idée, on l'explique ensuite, on l'illustre enfin. Le lecteur sait ainsi dès la première phrase ce que le paragraphe cherche à établir."
+      },
+      {
+        "id": "ETL-PHI-PAR-02",
+        "subject": "PHILOSOPHIE",
+        "category": "Construire un paragraphe argumenté",
+        "domainId": "ecriture",
+        "nodeCpsId": "1re.francais.ecriture.paragraphe-argumente",
+        "difficulty": 3,
+        "targetTimeSec": 55,
+        "shortCorrection": "Une transition rend le passage nécessaire : elle montre en quoi ce qui vient d'être établi appelle un nouvel examen. Sans elle, les parties se juxtaposent.",
+        "weight": 3,
+        "competencies": [
+          "1re.francais.ecriture.paragraphe-argumente"
+        ],
+        "questionText": "Une transition entre deux parties d'un devoir sert à :",
+        "options": [
+          {
+            "id": "A",
+            "text": "montrer ce que la partie précédente laisse en suspens et ce qui rend la suivante nécessaire",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "répéter sous une autre forme ce qui vient d'être dit",
+            "isCorrect": false,
+            "distractorRationale": "Réduit la transition à une reformulation, sans faire avancer le raisonnement."
+          },
+          {
+            "id": "C",
+            "text": "annoncer par avance la conclusion générale",
+            "isCorrect": false,
+            "distractorRationale": "Confond la transition entre deux étapes avec la conclusion du devoir."
+          },
+          {
+            "id": "D",
+            "text": "introduire une citation d'auteur",
+            "isCorrect": false,
+            "distractorRationale": "Confond un procédé d'appui avec l'articulation logique de deux moments."
+          }
+        ],
+        "explanation": "Une transition rend le passage nécessaire : elle montre en quoi ce qui vient d'être établi appelle un nouvel examen. Sans elle, les parties se juxtaposent."
+      },
+      {
+        "id": "ETL-PHI-LEX-01",
+        "subject": "PHILOSOPHIE",
+        "category": "Vocabulaire de l'abstraction",
+        "domainId": "lexique",
+        "nodeCpsId": "1re.francais.lexique.vocabulaire-abstrait",
+        "difficulty": 3,
+        "targetTimeSec": 50,
+        "shortCorrection": "Le nécessaire s'oppose au contingent : est nécessaire ce dont le contraire est impossible. C'est un sens plus strict que celui de l'usage courant.",
+        "weight": 3,
+        "competencies": [
+          "1re.francais.lexique.vocabulaire-abstrait"
+        ],
+        "questionText": "Au sens strict, ce qui est « nécessaire » désigne ce qui :",
+        "options": [
+          {
+            "id": "A",
+            "text": "est utile pour atteindre un but",
+            "isCorrect": false,
+            "distractorRationale": "Retient le sens courant de l'utilité, qui suppose une fin, et non la modalité logique."
+          },
+          {
+            "id": "B",
+            "text": "se produit très fréquemment",
+            "isCorrect": false,
+            "distractorRationale": "Confond la nécessité avec une régularité statistique."
+          },
+          {
+            "id": "C",
+            "text": "est souhaitable et devrait être fait",
+            "isCorrect": false,
+            "distractorRationale": "Confond ce qui doit être, au sens moral, avec ce qui ne peut pas ne pas être."
+          },
+          {
+            "id": "D",
+            "text": "ne peut pas ne pas être",
+            "isCorrect": true
+          }
+        ],
+        "explanation": "Le nécessaire s'oppose au contingent : est nécessaire ce dont le contraire est impossible. C'est un sens plus strict que celui de l'usage courant."
+      },
+      {
+        "id": "ETL-PHI-LEX-02",
+        "subject": "PHILOSOPHIE",
+        "category": "Vocabulaire de l'abstraction",
+        "domainId": "lexique",
+        "nodeCpsId": "1re.francais.lexique.vocabulaire-abstrait",
+        "difficulty": 3,
+        "targetTimeSec": 50,
+        "shortCorrection": "Distinguer, ce n'est pas séparer ni opposer : c'est refuser la confusion. La liberté et la responsabilité sont distinctes, et pourtant liées.",
+        "weight": 3,
+        "competencies": [
+          "1re.francais.lexique.vocabulaire-abstrait"
+        ],
+        "questionText": "Dire que deux notions sont « distinctes », c'est dire qu'elles :",
+        "options": [
+          {
+            "id": "A",
+            "text": "s'opposent radicalement l'une à l'autre",
+            "isCorrect": false,
+            "distractorRationale": "Confond la distinction avec l'opposition : deux notions distinctes peuvent parfaitement se compléter."
+          },
+          {
+            "id": "B",
+            "text": "ne se confondent pas, sans nécessairement s'exclure",
+            "isCorrect": true
+          },
+          {
+            "id": "C",
+            "text": "ont le même sens dans des contextes différents",
+            "isCorrect": false,
+            "distractorRationale": "Confond la distinction avec la synonymie."
+          },
+          {
+            "id": "D",
+            "text": "appartiennent au même champ lexical",
+            "isCorrect": false,
+            "distractorRationale": "Confond une proximité de vocabulaire avec un rapport entre les notions elles-mêmes."
+          }
+        ],
+        "explanation": "Distinguer, ce n'est pas séparer ni opposer : c'est refuser la confusion. La liberté et la responsabilité sont distinctes, et pourtant liées."
+      }
+    ]
+  },
+  "scoring": {
+    "engine": "facts.v1.0.1",
+    "domains": [
+      "argumentation",
+      "lexique",
+      "ecriture"
+    ]
+  },
+  "reporting": {
+    "rag": {
+      "enabled": false,
+      "decisionRef": "A56 — corpus RAG Terminale absent",
+      "sources": [],
+      "topK": 0
+    },
+    "promptFiles": {
+      "preAnalysis": {
+        "path": "content/bilans/prompts/entree-terminale-philosophie-v1/pre-analysis.md",
+        "checksum": "23ddf8f9ca9955c23e4343659cd0bceff9e5019a5f7e5b89be9af8ed5e7512a1"
+      },
+      "eleve": {
+        "path": "content/bilans/prompts/entree-terminale-philosophie-v1/eleve.md",
+        "checksum": "4498f8848926f2c26b3820d761016e97b8c253e2a058f20d0b33ddaf614870b5"
+      },
+      "parents": {
+        "path": "content/bilans/prompts/entree-terminale-philosophie-v1/parents.md",
+        "checksum": "7ea22076d548f609583dd4a4d316d059231d72ad527555f6a866c5516d28f242"
+      },
+      "nexus": {
+        "path": "content/bilans/prompts/entree-terminale-philosophie-v1/nexus.md",
+        "checksum": "949cb91285f5c3fd8e7f9aaa637e2cb557aac538cbed9a4b529bbe2db923783d"
+      },
+      "verifier": {
+        "path": "content/bilans/prompts/entree-terminale-philosophie-v1/verifier.md",
+        "checksum": "102573723bd544de46e959f2595a193adf908280af49911a9a7ec11535354e8e"
+      }
+    },
+    "outputSchemas": {
+      "preAnalysis": {
+        "type": "object",
+        "properties": {
+          "synthese": {
+            "type": "string",
+            "minLength": 1
+          },
+          "forcesPercues": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "craintes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "required": [
+          "synthese",
+          "forcesPercues",
+          "craintes"
+        ],
+        "additionalProperties": false
+      },
+      "eleve": {
+        "type": "object",
+        "properties": {
+          "accroche": {
+            "type": "string",
+            "minLength": 1
+          },
+          "forces": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "minItems": 3,
+            "maxItems": 3
+          },
+          "priorites": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "domainId": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "titre": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "pourquoi": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "comment": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "domainId",
+                "titre",
+                "pourquoi",
+                "comment"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "maxItems": 3
+          },
+          "microPlan": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "action": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "dureeMin": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              },
+              "required": [
+                "action",
+                "dureeMin"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "maxItems": 5
+          },
+          "motDeFin": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "accroche",
+          "forces",
+          "priorites",
+          "microPlan",
+          "motDeFin"
+        ],
+        "additionalProperties": false
+      },
+      "parents": {
+        "type": "object",
+        "properties": {
+          "cadre": {
+            "type": "string",
+            "minLength": 1
+          },
+          "pointsAppui": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "domainId": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "texte": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "domainId",
+                "texte"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "maxItems": 3
+          },
+          "priorites": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "domainId": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "titre": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "ceQuiSeraFait": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "domainId",
+                "titre",
+                "ceQuiSeraFait"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "maxItems": 3
+          },
+          "etapeSuivante": {
+            "type": "object",
+            "properties": {
+              "texte": {
+                "type": "string",
+                "minLength": 1
+              },
+              "cta": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "texte",
+              "cta"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "cadre",
+          "pointsAppui",
+          "priorites",
+          "etapeSuivante"
+        ],
+        "additionalProperties": false
+      },
+      "nexus": {
+        "type": "object",
+        "properties": {
+          "syntheseProfil": {
+            "type": "string",
+            "minLength": 1
+          },
+          "diagnosticPedagogique": {
+            "type": "string",
+            "minLength": 1
+          },
+          "planQuatreSemaines": {
+            "type": "string",
+            "minLength": 1
+          },
+          "alertes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "ragReferences": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "required": [
+          "syntheseProfil",
+          "diagnosticPedagogique",
+          "planQuatreSemaines",
+          "alertes",
+          "ragReferences"
+        ],
+        "additionalProperties": false
+      },
+      "verifier": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "type": "boolean"
+          },
+          "violations": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "required": [
+          "ok",
+          "violations"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "validation": {
+    "lexiconPath": "data/bilans/lexique-interdit.json",
+    "forbidDigits": [
+      "eleve",
+      "parents"
+    ]
+  }
+}

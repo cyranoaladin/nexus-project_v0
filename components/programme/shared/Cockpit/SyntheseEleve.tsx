@@ -1,8 +1,9 @@
 'use client';
+import type { Categorie } from '@/components/programme/shared/types/programme';
 
-import React from 'react';
 import { motion } from 'framer-motion';
-import { TrendingUp, TrendingDown, Star, AlertTriangle, RefreshCw, BookOpen, Target } from 'lucide-react';
+import { AlertTriangle,BookOpen,RefreshCw,Star,Target,TrendingDown,TrendingUp } from 'lucide-react';
+import React from 'react';
 
 export const SyntheseEleve: React.FC<{
   onNavigateToChap: (catKey: string, chapId: string) => void;
@@ -13,11 +14,11 @@ export const SyntheseEleve: React.FC<{
     totalXP: number;
     streak: number;
   };
-  programmeData: Record<string, any>;
+  programmeData: Record<string, Categorie>;
 }> = ({ onNavigateToChap, store, programmeData }) => {
 
   const allChapitres = Object.entries(programmeData).flatMap(([catKey, cat]) =>
-    cat.chapitres.map((chap: any) => ({ catKey, chap }))
+    cat.chapitres.map((chap) => ({ catKey, chap }))
   );
 
   // Top 3 forces : chapitres complétés avec diagnostic réussi

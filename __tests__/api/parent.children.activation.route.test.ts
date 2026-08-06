@@ -8,13 +8,27 @@ import { NextRequest } from 'next/server';
 import { auth } from '@/auth';
 import crypto from 'crypto';
 
+jest.mock('@prisma/client', () => {
+  const actual = jest.requireActual('@prisma/client');
+  return {
+    ...actual,
+    Prisma: {
+      ...actual.Prisma,
+      sql: jest.fn((strings: TemplateStringsArray, ...values: unknown[]) => ({ strings, values })),
+    },
+  };
+});
+
 jest.mock('@/auth');
-jest.mock('@/lib/email/mailer', () => ({
-  sendMail: jest.fn().mockResolvedValue({ success: true }),
+jest.mock('@/lib/email/outbox', () => ({
+  enqueueEmailIntent: jest.fn().mockResolvedValue({ id: 'email-job-1' }),
+}));
+jest.mock('@/lib/email/outbox-scheduler', () => ({
+  kickEmailOutboxDrain: jest.fn(),
 }));
 
-import { sendMail as _sendMail } from '@/lib/email/mailer';
-const mockSendMail = _sendMail as jest.Mock;
+import { enqueueEmailIntent } from '@/lib/email/outbox';
+const mockEnqueueEmailIntent = enqueueEmailIntent as jest.Mock;
 
 function mockParentSession(userId = 'parent-1') {
   (auth as jest.Mock).mockResolvedValue({
@@ -29,9 +43,46 @@ function req(body: object) {
   });
 }
 
+function mockChildCreationTransaction({
+  userCreate,
+  studentCreate,
+  studentId,
+}: {
+  userCreate: jest.Mock;
+  studentCreate: jest.Mock;
+  studentId: string;
+}) {
+  const parentStudentLinkCreate = jest.fn().mockResolvedValue({
+    id: `link-${studentId}`,
+    state: 'PENDING_PARENT_CONSENT',
+    consentedAt: null,
+    verifiedAt: null,
+  });
+
+  (prisma.$transaction as jest.Mock).mockImplementation(async (callback: any) => callback({
+    user: { create: userCreate },
+    student: { create: studentCreate },
+    parentProfile: {
+      findUnique: jest.fn().mockResolvedValue({ id: 'parent-profile-1' }),
+    },
+    parentStudentLink: {
+      updateMany: jest.fn().mockResolvedValue({ count: 0 }),
+      findFirst: jest.fn().mockResolvedValue(null),
+      create: parentStudentLinkCreate,
+    },
+    $queryRaw: jest.fn().mockResolvedValue([{
+      id: studentId,
+      parentId: 'parent-profile-1',
+    }]),
+  }));
+
+  return { parentStudentLinkCreate };
+}
+
 describe('POST /api/parent/children — P0-03 hardening', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    process.env.NEXTAUTH_URL = 'http://localhost:3000';
     mockParentSession();
     (prisma.user.findUnique as jest.Mock).mockResolvedValue(null);
     (prisma.parentProfile.findUnique as jest.Mock).mockResolvedValue({ id: 'parent-profile-1' });
@@ -57,13 +108,10 @@ describe('POST /api/parent/children — P0-03 hardening', () => {
       },
     });
 
-    (prisma.$transaction as jest.Mock).mockImplementation(async (callback: any) => {
-      const tx = {
-        user: { create: userCreate },
-        parentProfile: { create: jest.fn().mockResolvedValue({ id: 'parent-profile-1' }) },
-        student: { create: studentCreate },
-      };
-      return callback(tx);
+    const { parentStudentLinkCreate } = mockChildCreationTransaction({
+      userCreate,
+      studentCreate,
+      studentId: 'student-profile-123',
     });
 
     const response = await createChild(req({
@@ -76,7 +124,7 @@ describe('POST /api/parent/children — P0-03 hardening', () => {
 
     expect(response.status).toBe(200);
     expect(json.success).toBe(true);
-    expect(json.activation.activationUrl).toContain('/auth/activate?token=act_');
+    expect(json.activation.activationUrl).toContain('/auth/activate?token=sact_');
     expect(JSON.stringify(json)).not.toContain('activationToken');
     expect(JSON.stringify(json)).not.toContain('tokenHash');
     expect(json.activation).not.toHaveProperty('token');
@@ -98,6 +146,13 @@ describe('POST /api/parent/children — P0-03 hardening', () => {
         academicTrack: expect.any(String),
       }),
     }));
+    expect(parentStudentLinkCreate).toHaveBeenCalledWith(expect.objectContaining({
+      data: expect.objectContaining({
+        parentUserId: 'parent-1',
+        studentId: 'student-profile-123',
+        state: 'PENDING_PARENT_CONSENT',
+      }),
+    }));
   });
 
   it('stores a SHA-256 hash in DB, not the raw token', async () => {
@@ -115,9 +170,11 @@ describe('POST /api/parent/children — P0-03 hardening', () => {
       school: '',
       user: { firstName: 'Alice', lastName: 'Martin', email: 'alice.martin@nexus-student.local' },
     });
-    (prisma.$transaction as jest.Mock).mockImplementation(async (cb: any) =>
-      cb({ user: { create: userCreate }, student: { create: studentCreate } })
-    );
+    mockChildCreationTransaction({
+      userCreate,
+      studentCreate,
+      studentId: 'student-456',
+    });
 
     const response = await createChild(req({ firstName: 'Alice', lastName: 'Martin', grade: 'Seconde' }));
     const json = await response.json();
@@ -125,7 +182,7 @@ describe('POST /api/parent/children — P0-03 hardening', () => {
     expect(response.status).toBe(200);
     // The activationUrl contains the raw token
     const rawToken = new URL(json.activation.activationUrl).searchParams.get('token');
-    expect(rawToken).toMatch(/^act_/);
+    expect(rawToken).toMatch(/^sact_/);
 
     // The DB received the SHA-256 hash of the raw token — assert cryptographic relationship
     const storedToken = userCreate.mock.calls[0][0].data.activationToken;
@@ -153,16 +210,18 @@ describe('POST /api/parent/children — P0-03 hardening', () => {
       school: '',
       user: { firstName: 'Marie', lastName: 'Curie', email: 'marie.curie@nexus-student.local' },
     });
-    (prisma.$transaction as jest.Mock).mockImplementation(async (cb: any) =>
-      cb({ user: { create: userCreate }, student: { create: studentCreate } })
-    );
+    mockChildCreationTransaction({
+      userCreate,
+      studentCreate,
+      studentId: 'student-789',
+    });
 
-    mockSendMail.mockClear();
+    mockEnqueueEmailIntent.mockClear();
     const response = await createChild(req({ firstName: 'Marie', lastName: 'Curie', grade: 'Première' }));
     expect(response.status).toBe(200);
 
-    expect(mockSendMail).toHaveBeenCalledTimes(1);
-    const mailArgs = mockSendMail.mock.calls[0][0];
+    expect(mockEnqueueEmailIntent).toHaveBeenCalledTimes(1);
+    const mailArgs = mockEnqueueEmailIntent.mock.calls[0][1];
 
     // to = parent session email, NOT synthetic student address
     expect(mailArgs.to).toBe('parent@example.com');

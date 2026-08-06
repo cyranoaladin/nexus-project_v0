@@ -1,0 +1,13 @@
+schemaVersion: 1
+slug: entree-terminale-svt-v1
+packVersion: 1
+sourceChecksum: e5467321953dd6baa0bbec22a26363d24d55c499cf2555527a689b8d658675b8
+promptChecksums:
+  preAnalysis: 0821be11374d166089eeb9d770ba3a671e1d776bf7c6d7ee2908e8c9c1bdcf9f
+  eleve: bdd024b9da54a0d1e1ee6da6f9a093c0f32d3cd55755647539df7158149db2a6
+  parents: 793e0b3c48cf07afba4b04ca5e29919f8d3cf5a7d9c60557965b1dbbdff802cb
+  nexus: d561ad4a4a0e196ea877889f99e1d1e647bc3e65375f0918cae1cd2ddd620575
+  verifier: 64d533314d66532b3f0b45a439ad03bede21d2516eeb379934cbac87318b4b75
+validatedBy: cmsf8ncnz0005mguhmrfwcoud
+validatedAt: 2026-08-05T07:03:19.743Z
+qualification: Professeur certifiee de SVT

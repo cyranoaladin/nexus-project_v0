@@ -1,0 +1,58 @@
+schemaVersion: nexus-cps-catalog/v1
+slug: 2de-francais-vers-premiere-v1
+version: 1
+nodes:
+  - id: 2de.francais.methode.commentaire
+    sequenceOrder: 1
+    label: "Méthode du commentaire : du procédé à l'interprétation"
+    sourceLevel: SECONDE
+    targetLevel: PREMIERE
+    pedagogicalRationale: c'est le geste central de l'épreuve écrite. Un élève qui relève sans interpréter produit un catalogue, non un commentaire, quelle que soit la finesse de ses repérages.
+  - id: 2de.francais.grammaire.subordonnees
+    sequenceOrder: 2
+    label: "Analyse syntaxique : les subordonnées"
+    sourceLevel: SECONDE
+    targetLevel: PREMIERE
+    pedagogicalRationale: la question de grammaire de l'oral des EAF porte directement sur l'analyse d'une phrase complexe. Le prérequis est évalué tel quel à l'examen.
+  - id: 2de.francais.grammaire.interrogation-negation
+    sequenceOrder: 3
+    label: Interrogation et négation
+    sourceLevel: SECONDE
+    targetLevel: PREMIERE
+    pedagogicalRationale: ces deux notions figurent explicitement au programme de grammaire évalué à l'oral des épreuves anticipées.
+  - id: 2de.francais.lexique.figures-de-style
+    sequenceOrder: 4
+    label: Figures de style
+    sourceLevel: SECONDE
+    targetLevel: PREMIERE
+    pedagogicalRationale: les quatre objets d'étude de Première exigent de nommer les procédés avec exactitude. Métaphore et métonymie sont les deux figures les plus souvent confondues.
+  - id: 2de.francais.poesie.versification
+    sequenceOrder: 5
+    label: Versification
+    sourceLevel: SECONDE
+    targetLevel: PREMIERE
+    pedagogicalRationale: l'objet d'étude « la poésie du XIXe au XXIe siècle » et l'explication linéaire d'un texte versifié exigent ce vocabulaire dès la rentrée.
+  - id: 2de.francais.lecture.registres-et-genres
+    sequenceOrder: 6
+    label: Registres et genres
+    sourceLevel: SECONDE
+    targetLevel: PREMIERE
+    pedagogicalRationale: la dissertation sur œuvre suppose de qualifier le ton d'un texte et de reconnaître les genres, notamment ceux de la littérature d'idées.
+  - id: 2de.francais.argumentation.strategies
+    sequenceOrder: 7
+    label: Argumentation et littérature d'idées
+    sourceLevel: SECONDE
+    targetLevel: PREMIERE
+    pedagogicalRationale: l'objet d'étude « la littérature d'idées du XVIe au XVIIIe siècle » suppose de reconnaître les stratégies indirectes, dont l'ironie est la plus fréquente et la plus mal identifiée.
+  - id: 2de.francais.theatre.parole-dramatique
+    sequenceOrder: 8
+    label: Spécificités du texte théâtral
+    sourceLevel: SECONDE
+    targetLevel: PREMIERE
+    pedagogicalRationale: l'objet d'étude « le théâtre du XVIIe au XXIe siècle » exige de connaître les formes de la parole dramatique et le principe de la double énonciation.
+  - id: 2de.francais.recit.rythme-et-focalisation
+    sequenceOrder: 9
+    label: Rythme du récit et point de vue
+    sourceLevel: SECONDE
+    targetLevel: PREMIERE
+    pedagogicalRationale: l'objet d'étude « le roman et le récit » suppose d'analyser la vitesse narrative et la focalisation, deux outils constamment mobilisés au commentaire.

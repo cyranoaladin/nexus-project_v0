@@ -1,0 +1,13 @@
+schemaVersion: 1
+slug: entree-premiere-francais-v1
+packVersion: 1
+sourceChecksum: 82d3f340250c8549cab45a83949bf96f36760d23a397a96ea93efcd9f2ed8a03
+promptChecksums:
+  preAnalysis: 75812a71b4b7fa059fd2998074207fdceb17d6837e2b4d21358be8d7d6802b90
+  eleve: b7ae354528685b1c9483af304de7edb1dc05551cd1868c029b8323498e548c43
+  parents: 45d5cd7dbdb305d94f7ec8bf256655109e2395a708a6a1a300919f47a2892e2c
+  nexus: 8acdb6e5353e3c76137083f119599269324fc21b18789018585ac1b182538ab7
+  verifier: 33ab8a3556ba1626ff4a6aafaa2d75638c5e8f157b48358f83cb9ee34502f55f
+validatedBy: cmsf8ncom0008mguh4z5acmu5
+validatedAt: 2026-08-05T07:03:56.586Z
+qualification: Professeur certifiee de Lettres

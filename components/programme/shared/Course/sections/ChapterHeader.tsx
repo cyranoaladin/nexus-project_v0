@@ -1,21 +1,22 @@
 'use client';
 
-import React from 'react';
+import type { LucideIcon } from 'lucide-react';
+import { type Categorie,type Chapitre,type CompetenceBO } from '@/components/programme/shared/types/programme';
 import { motion } from 'framer-motion';
 import {
-  Printer,
-  Maximize2,
-  PanelLeft,
-  Check,
-  Search,
-  Puzzle,
-  BarChart3,
-  Brain,
-  Calculator,
-  MessageSquare,
-  Sparkles
+BarChart3,
+Brain,
+Calculator,
+Check,
+Maximize2,
+MessageSquare,
+PanelLeft,
+Printer,
+Puzzle,
+Search,
+Sparkles
 } from 'lucide-react';
-import { type Chapitre, type Categorie, type CompetenceBO } from '@/components/programme/shared/types/programme';
+import React from 'react';
 
 interface ChapterHeaderProps {
   cat: Categorie;
@@ -108,7 +109,7 @@ export const ChapterHeader: React.FC<ChapterHeaderProps> = ({
 };
 
 const CompetenceBadge = ({ type }: { type: CompetenceBO }) => {
-  const config: Record<string, { label: string; icon: any; color: string }> = {
+  const config: Record<string, { label: string; icon: LucideIcon; color: string }> = {
     chercher: { label: 'Chercher', icon: Search, color: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' },
     modeliser: { label: 'Modéliser', icon: Puzzle, color: 'bg-blue-500/10 text-blue-400 border-blue-500/20' },
     representer: { label: 'Représenter', icon: BarChart3, color: 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20' },

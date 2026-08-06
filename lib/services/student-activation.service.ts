@@ -15,25 +15,20 @@
  */
 
 import { prisma } from '@/lib/prisma';
-import { createId } from '@paralleldrive/cuid2';
-import crypto from 'crypto';
 import bcrypt from 'bcryptjs';
-import type { AcademicTrack, GradeLevel, StmgPathway, Subject } from '@prisma/client';
+import { Prisma, type AcademicTrack, type GradeLevel, type StmgPathway, type Subject } from '@prisma/client';
 import { SYSTEM_PARENT_EMAIL } from '@/lib/constants';
-
-/** Hash an activation token for safe storage */
-function hashToken(token: string): string {
-  return crypto.createHash('sha256').update(token).digest('hex');
-}
-
-/** Generate a secure random activation token */
-function generateActivationToken(): { raw: string; hashed: string } {
-  const raw = `act_${createId()}_${crypto.randomBytes(16).toString('hex')}`;
-  return { raw, hashed: hashToken(raw) };
-}
-
-/** Token validity duration: 72 hours */
-const TOKEN_EXPIRY_MS = 72 * 60 * 60 * 1000;
+import {
+  buildStudentLoginIdentifier,
+  isStudentLoginIdentifierCompatible,
+} from '@/lib/services/student-login-identifier';
+import {
+  activationTokenMatchesPurpose,
+  createActivationToken,
+  hashActivationToken,
+  type ActivationPurpose,
+} from '@/lib/auth/activation-token';
+import { buildTrustedActivationUrl } from '@/lib/auth/parent-activation';
 
 export interface ActivationResult {
   success: boolean;
@@ -47,6 +42,19 @@ export interface SetPasswordResult {
   error?: string;
   redirectUrl?: string;
 }
+
+export type ParentOwnedActivationResult =
+  | Readonly<{
+      success: true;
+      activationUrl: string;
+      expiresAt: Date;
+      loginIdentifier: string;
+      studentName: string;
+    }>
+  | Readonly<{
+      success: false;
+      error: 'NOT_FOUND' | 'ALREADY_ACTIVATED';
+    }>;
 
 export type StudentTrackMetadata = {
   gradeLevel: GradeLevel;
@@ -62,6 +70,7 @@ type ActivationUserRecord = {
   firstName: string | null;
   lastName: string | null;
   email: string;
+  role: string;
   activatedAt?: Date | null;
   student?: { id: string } | null;
 };
@@ -84,13 +93,15 @@ function buildDisplayName(
 }
 
 async function findPendingUserActivation(
-  hashedToken: string
+  hashedToken: string,
+  purpose: ActivationPurpose,
 ): Promise<ActivationUserRecord | null> {
   return prisma.user.findFirst({
     where: {
       activationToken: hashedToken,
       activationExpiry: { gt: new Date() },
       activatedAt: null,
+      role: purpose === 'parent' ? 'PARENT' : 'ELEVE',
     },
     include: {
       student: { select: { id: true } },
@@ -177,16 +188,16 @@ export async function initiateStudentActivation(
   }
 
   // Generate activation token
-  const { raw, hashed } = generateActivationToken();
-  const expiry = new Date(Date.now() + TOKEN_EXPIRY_MS);
+  const { rawToken, tokenHash, expiresAt } = createActivationToken('student');
 
   // Update student user with real email + activation token
   await prisma.user.update({
     where: { id: studentUserId },
     data: {
       email: studentEmail,
-      activationToken: hashed,
-      activationExpiry: expiry,
+      activationToken: tokenHash,
+      activationExpiry: expiresAt,
+      ...(studentEmail !== studentUser.email ? { sessionVersion: { increment: 1 } } : {}),
     },
   });
 
@@ -248,13 +259,122 @@ export async function initiateStudentActivation(
   }
 
   // Build activation URL
-  const baseUrl = process.env.NEXTAUTH_URL || 'https://nexusreussite.academy';
-  const activationUrl = `${baseUrl}/auth/activate?token=${encodeURIComponent(raw)}`;
+  const activationUrl = buildTrustedActivationUrl(rawToken, undefined, 'student').toString();
 
   return {
     success: true,
     activationUrl,
     studentName: `${studentUser.firstName} ${studentUser.lastName}`,
+  };
+}
+
+/**
+ * Issue or reissue an activation link for a child owned by the authenticated parent.
+ * Ownership and token replacement are resolved in one transaction. Reissuing replaces
+ * the stored hash, which revokes every previously issued raw token.
+ */
+/**
+ * Lock the student row for the duration of the transaction so two concurrent
+ * issuance calls for the SAME student (e.g. a double-click) are fully
+ * serialized: the second call only starts reading once the first has
+ * committed its new token, instead of both racing to overwrite the stored
+ * hash independently (which would silently invalidate whichever response the
+ * parent receives first, despite each request returning HTTP 200).
+ */
+async function lockOwnedStudentRowForActivation(
+  transaction: Prisma.TransactionClient,
+  parentProfileId: string,
+  studentId: string,
+): Promise<boolean> {
+  const rows = await transaction.$queryRaw<Array<{ id: string }>>(Prisma.sql`
+    SELECT "id"
+    FROM "students"
+    WHERE "id" = ${studentId} AND "parentId" = ${parentProfileId}
+    FOR UPDATE
+  `);
+  return rows.length === 1;
+}
+
+export async function initiateParentOwnedStudentActivation(input: Readonly<{
+  parentUserId: string;
+  studentId: string;
+}>): Promise<ParentOwnedActivationResult> {
+  const prepared = await prisma.$transaction(async (transaction) => {
+    const parent = await transaction.parentProfile.findUnique({
+      where: { userId: input.parentUserId },
+      select: { id: true },
+    });
+    if (parent === null) return { success: false, error: 'NOT_FOUND' } as const;
+
+    const locked = await lockOwnedStudentRowForActivation(transaction, parent.id, input.studentId);
+    if (!locked) return { success: false, error: 'NOT_FOUND' } as const;
+
+    const student = await transaction.student.findFirst({
+      where: {
+        id: input.studentId,
+        parentId: parent.id,
+      },
+      select: {
+        user: {
+          select: {
+            id: true,
+            role: true,
+            email: true,
+            firstName: true,
+            lastName: true,
+            activatedAt: true,
+          },
+        },
+      },
+    });
+    if (student === null || student.user.role !== 'ELEVE') {
+      return { success: false, error: 'NOT_FOUND' } as const;
+    }
+    if (student.user.activatedAt !== null) {
+      return { success: false, error: 'ALREADY_ACTIVATED' } as const;
+    }
+
+    const { rawToken, tokenHash, expiresAt } = createActivationToken('student');
+    const loginIdentifier = isStudentLoginIdentifierCompatible(student.user.email)
+      ? student.user.email
+      : buildStudentLoginIdentifier({
+          firstName: student.user.firstName ?? 'eleve',
+          lastName: student.user.lastName ?? 'nexus',
+          uniqueSuffix: student.user.id,
+        });
+    const transition = await transaction.user.updateMany({
+      where: {
+        id: student.user.id,
+        role: 'ELEVE',
+        activatedAt: null,
+      },
+      data: {
+        ...(loginIdentifier !== student.user.email ? { email: loginIdentifier } : {}),
+        activationToken: tokenHash,
+        activationExpiry: expiresAt,
+        ...(loginIdentifier !== student.user.email ? { sessionVersion: { increment: 1 } } : {}),
+      },
+    });
+    if (transition.count !== 1) {
+      return { success: false, error: 'ALREADY_ACTIVATED' } as const;
+    }
+
+    return {
+      success: true,
+      rawToken,
+      expiresAt,
+      loginIdentifier,
+      studentName: buildDisplayName(student.user.firstName, student.user.lastName),
+    } as const;
+  });
+
+  if (!prepared.success) return prepared;
+  return {
+    success: true,
+    activationUrl: buildTrustedActivationUrl(prepared.rawToken, undefined, 'student').toString(),
+    expiresAt: prepared.expiresAt,
+    loginIdentifier: prepared.loginIdentifier,
+    studentName: prepared.studentName,
   };
 }
 
@@ -267,36 +387,54 @@ export async function initiateStudentActivation(
  */
 export async function completeStudentActivation(
   token: string,
-  password: string
+  password: string,
+  purpose: ActivationPurpose = 'student',
 ): Promise<SetPasswordResult> {
   // Validate password strength
   if (!password || password.length < 8) {
     return { success: false, error: 'Le mot de passe doit contenir au moins 8 caractères' };
   }
 
-  // Hash the token to find the matching user
-  const hashedToken = hashToken(token);
+  if (!activationTokenMatchesPurpose(token, purpose)) {
+    return { success: false, error: 'Lien d\'activation invalide ou expiré' };
+  }
 
-  const user = await findPendingUserActivation(hashedToken);
+  // Hash the token to find the matching role-bound user.
+  const hashedToken = hashActivationToken(token);
+
+  const user = await findPendingUserActivation(hashedToken, purpose);
 
   if (user) {
     // Hash password and activate
     const hashedPassword = await bcrypt.hash(password, 12);
-
-    await prisma.user.update({
-      where: { id: user.id },
+    const activatedAt = new Date();
+    const transition = await prisma.user.updateMany({
+      where: {
+        id: user.id,
+        activationToken: hashedToken,
+        activationExpiry: { gt: activatedAt },
+        activatedAt: null,
+      },
       data: {
         password: hashedPassword,
-        activatedAt: new Date(),
+        activatedAt,
         activationToken: null,
         activationExpiry: null,
+        sessionVersion: { increment: 1 },
       },
     });
+    if (transition.count !== 1) {
+      return { success: false, error: 'Lien d\'activation invalide ou expiré' };
+    }
 
     return {
       success: true,
       redirectUrl: '/auth/signin?activated=true',
     };
+  }
+
+  if (purpose !== 'student') {
+    return { success: false, error: 'Lien d\'activation invalide ou expiré' };
   }
 
   const reservation = await findPendingStageReservation(hashedToken);
@@ -322,6 +460,7 @@ export async function completeStudentActivation(
       data: {
         password: hashedPassword,
         activatedAt,
+        sessionVersion: { increment: 1 },
       },
     });
   } else {
@@ -359,18 +498,24 @@ export async function completeStudentActivation(
  * @param token - The raw activation token from the URL
  */
 export async function verifyActivationToken(
-  token: string
-): Promise<{ valid: boolean; studentName?: string; email?: string }> {
-  const hashedToken = hashToken(token);
+  token: string,
+  purpose: ActivationPurpose = 'student',
+): Promise<{ valid: boolean; studentName?: string; email?: string; accountRole?: string }> {
+  if (!activationTokenMatchesPurpose(token, purpose)) return { valid: false };
 
-  const user = await findPendingUserActivation(hashedToken);
+  const hashedToken = hashActivationToken(token);
+
+  const user = await findPendingUserActivation(hashedToken, purpose);
   if (user) {
     return {
       valid: true,
       studentName: buildDisplayName(user.firstName, user.lastName),
       email: user.email,
+      accountRole: user.role,
     };
   }
+
+  if (purpose !== 'student') return { valid: false };
 
   const reservation = await findPendingStageReservation(hashedToken);
   if (!reservation) {
@@ -381,5 +526,6 @@ export async function verifyActivationToken(
     valid: true,
     studentName: buildDisplayName(null, null, reservation.studentName || reservation.parentName),
     email: reservation.email,
+    accountRole: 'ELEVE',
   };
 }

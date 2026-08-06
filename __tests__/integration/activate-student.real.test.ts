@@ -33,18 +33,28 @@ const validTrackMetadata = {
   specialties: ['MATHEMATIQUES'],
 };
 
+async function cleanupActivateStudentFixtures() {
+  const users = await prisma.user.findMany({
+    where: { email: { startsWith: 'activate-real-' } },
+    select: { id: true },
+  });
+  const userIds = users.map(({ id }) => id);
+
+  if (userIds.length === 0) return;
+
+  await prisma.student.deleteMany({ where: { userId: { in: userIds } } });
+  await prisma.parentProfile.deleteMany({ where: { userId: { in: userIds } } });
+  await prisma.user.deleteMany({ where: { id: { in: userIds } } });
+}
+
 describe('IDOR BDD Réelle — Activate Student', () => {
   let parent1: any;
   let parent2: any;
   let student1: any;
 
   beforeAll(async () => {
-    // Nettoyage initial
-    await prisma.parentProfile.deleteMany();
-    await prisma.student.deleteMany();
-    await prisma.user.deleteMany({
-      where: { email: { startsWith: 'activate-real-' } },
-    });
+    // Nettoyage initial limité aux fixtures de cette suite.
+    await cleanupActivateStudentFixtures();
 
     // Seed User P1
     const uP1 = await prisma.user.create({
@@ -77,11 +87,7 @@ describe('IDOR BDD Réelle — Activate Student', () => {
   });
 
   afterAll(async () => {
-    await prisma.parentProfile.deleteMany();
-    await prisma.student.deleteMany();
-    await prisma.user.deleteMany({
-      where: { email: { startsWith: 'activate-real-' } },
-    });
+    await cleanupActivateStudentFixtures();
     await prisma.$disconnect();
   });
 

@@ -1,19 +1,20 @@
 'use client';
+import type { Categorie, NiveauEleve } from '@/components/programme/shared/types/programme';
 
-import React, { useState } from 'react';
-import {
-  LayoutDashboard,
-  BookOpen,
-  Target,
-  Calculator,
-  ChevronRight,
-  Menu,
-  X,
-  Search,
-  Command
-} from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { resolveUiIcon } from '@/lib/ui-icons';
+import { AnimatePresence,motion } from 'framer-motion';
+import {
+BookOpen,
+Calculator,
+ChevronRight,
+Command,
+LayoutDashboard,
+Menu,
+Search,
+Target,
+X
+} from 'lucide-react';
+import React,{ useState } from 'react';
 
 interface NavigationProps {
   activeTab: 'cockpit' | 'cours' | 'examen' | 'enseignant' | 'bilan';
@@ -27,10 +28,10 @@ interface NavigationProps {
   isTeacher: boolean;
   store: {
     completedChapters: string[];
-    getNiveau: () => any; // NiveauEleve
+    getNiveau: () => NiveauEleve; // NiveauEleve
     totalXP: number;
   };
-  programmeData: Record<string, any>;
+  programmeData: Record<string, Categorie>;
 }
 
 export const Navigation: React.FC<NavigationProps> = ({
@@ -55,7 +56,7 @@ export const Navigation: React.FC<NavigationProps> = ({
     );
   };
 
-  const navItems = [
+  const navItems: Array<{ id: NavigationProps['activeTab']; label: string; icon: typeof BookOpen }> = [
     { id: 'cockpit', label: 'Cockpit Pédagogique', icon: LayoutDashboard },
     { id: 'cours', label: 'Programme & Cours', icon: BookOpen },
     { id: 'examen', label: 'Objectif Épreuve', icon: Target },
@@ -66,11 +67,11 @@ export const Navigation: React.FC<NavigationProps> = ({
     navItems.push({ id: 'enseignant', label: 'Pilotage Enseignant', icon: Command });
   }
 
-  const filteredData = Object.entries(programmeData).filter(([key, cat]: [string, any]) => {
+  const filteredData = Object.entries(programmeData).filter(([, cat]) => {
     if (!searchQuery) return true;
     const q = searchQuery.toLowerCase();
     return cat.titre.toLowerCase().includes(q) ||
-           cat.chapitres.some((c: any) => c.titre.toLowerCase().includes(q));
+           cat.chapitres.some((chapter) => chapter.titre.toLowerCase().includes(q));
   });
 
   return (
@@ -125,7 +126,7 @@ export const Navigation: React.FC<NavigationProps> = ({
               <button
                 key={item.id}
                 onClick={() => {
-                  setActiveTab(item.id as any);
+                  setActiveTab(item.id);
                   if (window.innerWidth < 1024) setIsSidebarOpen(false);
                 }}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 font-medium text-sm ${
@@ -168,7 +169,7 @@ export const Navigation: React.FC<NavigationProps> = ({
                           exit={{ height: 0, opacity: 0 }}
                           className="overflow-hidden pl-11 space-y-1"
                         >
-                          {cat.chapitres.map((chap: any) => {
+                          {cat.chapitres.map((chap) => {
                             const isCurrent = activeChap === chap.id;
                             const isCompleted = store.completedChapters.includes(chap.id);
                             return (

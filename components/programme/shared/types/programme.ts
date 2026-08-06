@@ -112,7 +112,7 @@ export interface NiveauEleve {
 export interface DailyChallenge {
   id: string;
   question: string;
-  reponse: string;
+  reponse: string | number;
   categorie: string;
   xp: number;
 }
@@ -127,11 +127,43 @@ export interface BadgeDefinition {
   condition: string;
 }
 
+// ─── Stage schedule shared contract ─────────────────────────────────────────
+
+export interface StageSession {
+  date: string;
+  heureDebut: string;
+  heureFin: string;
+  duree: string | number;
+  format: string;
+  matiere: string;
+  theme: string;
+  objectifs: string[];
+  competences: string[];
+  chapitresClés: string[];
+}
+
+export interface StageProgramme {
+  debut: string;
+  fin: string;
+  heuresMaths: number;
+  promessesNexus: string[];
+  seances: StageSession[];
+}
+
+export interface ProceduralExerciseData {
+  question: string;
+  reponse: string | number;
+  etapes?: string[];
+  explication: string;
+  tolerance?: number;
+  [key: string]: string | number | string[] | undefined;
+}
+
 // ─── Legacy compat aliases (utilisés dans ChapitreContenu) ──────────────────
 
 export interface ExerciceData {
   question: string;
-  reponse: string;
+  reponse: string | number;
   etapes: string[];
 }
 

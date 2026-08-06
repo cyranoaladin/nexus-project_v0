@@ -1,23 +1,23 @@
 'use client';
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import {
-  Clock,
-  AlertTriangle,
-  CheckCircle2,
-  ChevronDown,
-  ChevronUp,
-  Timer,
-  BookOpen,
-  RotateCcw,
-  Trophy,
-  Info,
-  Lightbulb,
-} from 'lucide-react';
-import { EPREUVE_MATHS_1ERE, SUJET_BLANC_1, type ExerciceBloc, type QuestionExercice } from '../../config/exam';
 import { MathRichText } from '@/components/programme/shared/MathContent';
 import { RAGRemediation } from '@/components/programme/shared/RAG/RAGRemediation';
+import { AnimatePresence,motion } from 'framer-motion';
+import {
+AlertTriangle,
+BookOpen,
+CheckCircle2,
+ChevronDown,
+ChevronUp,
+Clock,
+Info,
+Lightbulb,
+RotateCcw,
+Timer,
+Trophy,
+} from 'lucide-react';
+import React,{ useCallback,useEffect,useRef,useState } from 'react';
+import { EPREUVE_MATHS_1ERE,SUJET_BLANC_1,type ExerciceBloc,type QuestionExercice } from '../../config/exam';
 import { useMathsLabStore } from '../../store';
 
 type ExamMode = 'accueil' | 'automatismes' | 'exercices' | 'correction';
@@ -36,7 +36,6 @@ export const ExamenBlancView: React.FC = () => {
   const [autoStates, setAutoStates] = useState<AutomatismeState>(persistedExam.autoStates);
   const [exScores, setExScores] = useState<ExerciceScoreState>(persistedExam.exScores);
   const [expandedEx, setExpandedEx] = useState<string | null>(null);
-  const [expandedQ, setExpandedQ] = useState<string | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Persist exam state to store on changes

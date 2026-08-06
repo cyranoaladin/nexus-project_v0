@@ -1,0 +1,532 @@
+# =============================================================================
+# Banque de positionnement — ENTRÉE EN PREMIÈRE, spécialité SVT
+#
+# Doctrine : intersection Seconde / Première. Chaque item porte sur un prérequis
+# structurant SANS LEQUEL les trois thèmes de Première — patrimoine génétique,
+# dynamique interne du globe, corps humain et santé — sont inaccessibles.
+#
+# STATUT : DRAFT — proposition à amender par le responsable pédagogique.
+# La validation relève d'un enseignant de sciences de la vie et de la Terre.
+#
+# 18 items · 9 nœuds de prérequis · 2 items par nœud (règle V4)
+# Distribution des bonnes réponses : A=5, B=5, C=4, D=4 (règle V14 : max 40 %)
+# =============================================================================
+
+slug: entree-premiere-svt-v1
+level: PREMIERE
+subject: SVT
+version: 1
+status: DRAFT
+targetDurationMin: 25
+
+items:
+
+  # ===========================================================================
+  # NŒUD 1 — ADN, gène et information génétique
+  # Pourquoi c'est structurant : le thème « Transmission, variation et
+  # expression du patrimoine génétique » ouvre l'année. Un élève qui confond
+  # gène, chromosome et protéine ne peut aborder ni la réplication, ni
+  # l'expression différentielle des gènes.
+  # ===========================================================================
+
+  - id: EPR-SVT-ADN-01
+    nodeCpsId: 2de.svt.genetique.adn-gene-information
+    type: QCM_SIMPLE
+    difficulty: 1
+    targetTimeSec: 50
+    statement: "Un gène est :"
+    options:
+      - key: A
+        label: "une molécule d'ADN entière"
+        correct: false
+        distractorRationale: "Confond le gène avec la molécule d'ADN complète ou avec le chromosome qui la contient."
+      - key: B
+        label: "une protéine fabriquée par la cellule"
+        correct: false
+        distractorRationale: "Confond le gène avec le produit de son expression."
+      - key: C
+        label: "une portion d'ADN porteuse d'une information génétique"
+        correct: true
+      - key: D
+        label: "un ensemble de chromosomes"
+        correct: false
+        distractorRationale: "Situe le gène à une échelle supérieure à celle du chromosome."
+    shortCorrection: "Le gène est une séquence localisée d'ADN, portée par un chromosome, qui contient l'information nécessaire à la fabrication d'une protéine."
+    tags: [genetique, gene]
+
+  - id: EPR-SVT-ADN-02
+    nodeCpsId: 2de.svt.genetique.adn-gene-information
+    type: QCM_SIMPLE
+    difficulty: 3
+    targetTimeSec: 65
+    statement: "Chez un même individu, une cellule de la peau et une cellule du foie :"
+    options:
+      - key: A
+        label: "possèdent le même ADN mais n'expriment pas les mêmes gènes"
+        correct: true
+      - key: B
+        label: "possèdent un ADN différent, propre à chaque organe"
+        correct: false
+        distractorRationale: "Suppose que la spécialisation cellulaire résulte d'un ADN différent, alors qu'elle résulte d'une expression différente."
+      - key: C
+        label: "possèdent le même ADN et expriment les mêmes gènes"
+        correct: false
+        distractorRationale: "Identifie bien l'ADN commun mais n'explique pas alors la différence de forme et de fonction entre les deux cellules."
+      - key: D
+        label: "possèdent une quantité identique d'ADN mais des séquences différentes"
+        correct: false
+        distractorRationale: "Dissocie à tort la quantité d'ADN de sa séquence, qui est pourtant identique dans toutes les cellules de l'organisme."
+    shortCorrection: "Toutes les cellules d'un individu portent le même ADN. Leur spécialisation vient de ce que chacune n'exprime qu'une partie de ses gènes."
+    tags: [genetique, expression-des-genes]
+
+  # ===========================================================================
+  # NŒUD 2 — Organisation fonctionnelle du vivant
+  # Pourquoi c'est structurant : raisonner en changeant d'échelle, de la
+  # molécule à l'organisme, est la compétence transversale de toute la
+  # spécialité.
+  # ===========================================================================
+
+  - id: EPR-SVT-CEL-01
+    nodeCpsId: 2de.svt.organisation-du-vivant.cellule
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 55
+    statement: "Quel caractère est commun à toutes les cellules du vivant ?"
+    options:
+      - key: A
+        label: "la présence d'un noyau"
+        correct: false
+        distractorRationale: "Oublie les cellules procaryotes, dépourvues de noyau mais bien vivantes."
+      - key: B
+        label: "la présence d'une membrane plasmique et de matériel génétique"
+        correct: true
+      - key: C
+        label: "la présence d'une paroi rigide"
+        correct: false
+        distractorRationale: "Généralise à toutes les cellules une structure propre aux végétaux, aux champignons et à certaines bactéries."
+      - key: D
+        label: "la présence de chloroplastes"
+        correct: false
+        distractorRationale: "Généralise un organite propre aux cellules chlorophylliennes."
+    shortCorrection: "Toute cellule est délimitée par une membrane plasmique, contient un cytoplasme et du matériel génétique. Le noyau, la paroi et les chloroplastes ne sont pas universels."
+    tags: [cellule, universalite]
+
+  - id: EPR-SVT-CEL-02
+    nodeCpsId: 2de.svt.organisation-du-vivant.cellule
+    type: QCM_SIMPLE
+    difficulty: 1
+    targetTimeSec: 45
+    statement: "Classez ces niveaux d'organisation du plus petit au plus grand."
+    options:
+      - key: A
+        label: "cellule, organe, tissu, organisme"
+        correct: false
+        distractorRationale: "Intervertit tissu et organe, en supposant que l'organe est l'assemblage le plus simple."
+      - key: B
+        label: "tissu, cellule, organe, organisme"
+        correct: false
+        distractorRationale: "Place le tissu avant la cellule, alors que le tissu en est un regroupement."
+      - key: C
+        label: "cellule, tissu, organisme, organe"
+        correct: false
+        distractorRationale: "Place l'organisme avant l'organe, alors que l'organisme est le niveau le plus intégré."
+      - key: D
+        label: "cellule, tissu, organe, organisme"
+        correct: true
+    shortCorrection: "Les cellules semblables forment un tissu, les tissus s'associent en organes, et les organes constituent l'organisme."
+    tags: [echelles, organisation]
+
+  # ===========================================================================
+  # NŒUD 3 — Métabolisme cellulaire
+  # Pourquoi c'est structurant : les échanges d'énergie et de matière fondent
+  # l'étude du fonctionnement musculaire et de la nutrition en Première.
+  # ===========================================================================
+
+  - id: EPR-SVT-MET-01
+    nodeCpsId: 2de.svt.metabolisme.photosynthese-respiration
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 55
+    statement: "La photosynthèse permet à une cellule chlorophyllienne de :"
+    options:
+      - key: A
+        label: "produire de la matière organique à partir de matière minérale et d'énergie lumineuse"
+        correct: true
+      - key: B
+        label: "produire de l'énergie sans consommer de matière première"
+        correct: false
+        distractorRationale: "Suppose une production d'énergie à partir de rien, en contradiction avec la conservation de la matière et de l'énergie."
+      - key: C
+        label: "dégrader de la matière organique pour libérer de l'énergie"
+        correct: false
+        distractorRationale: "Décrit la respiration cellulaire, qui est la réaction inverse de la photosynthèse."
+      - key: D
+        label: "fabriquer du dioxyde de carbone à partir de dioxygène"
+        correct: false
+        distractorRationale: "Inverse les rôles des deux gaz dans la photosynthèse."
+    shortCorrection: "La photosynthèse convertit l'énergie lumineuse en énergie chimique : à partir d'eau et de dioxyde de carbone, la cellule produit de la matière organique et rejette du dioxygène."
+    tags: [metabolisme, photosynthese]
+
+  - id: EPR-SVT-MET-02
+    nodeCpsId: 2de.svt.metabolisme.photosynthese-respiration
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 55
+    statement: "Quelle différence essentielle sépare la respiration cellulaire de la fermentation ?"
+    options:
+      - key: A
+        label: "la fermentation libère davantage d'énergie que la respiration"
+        correct: false
+        distractorRationale: "Inverse les rendements énergétiques des deux voies métaboliques."
+      - key: B
+        label: "la respiration se déroule sans intervention d'enzymes"
+        correct: false
+        distractorRationale: "Suppose qu'une voie métabolique peut se dérouler sans catalyseur biologique."
+      - key: C
+        label: "la respiration consomme du dioxygène, la fermentation non"
+        correct: true
+      - key: D
+        label: "seule la fermentation dégrade le glucose"
+        correct: false
+        distractorRationale: "Attribue à la seule fermentation la dégradation du glucose, qui est le point de départ des deux voies."
+    shortCorrection: "Les deux voies dégradent le glucose, mais seule la respiration utilise du dioxygène. Elle libère de ce fait beaucoup plus d'énergie que la fermentation."
+    tags: [metabolisme, respiration-fermentation]
+
+  # ===========================================================================
+  # NŒUD 4 — Biodiversité et mécanismes de l'évolution
+  # Pourquoi c'est structurant : la variation du patrimoine génétique et son
+  # devenir dans les populations sont au cœur du premier thème de Première.
+  # ===========================================================================
+
+  - id: EPR-SVT-EVO-01
+    nodeCpsId: 2de.svt.evolution.mecanismes
+    type: QCM_SIMPLE
+    difficulty: 3
+    targetTimeSec: 65
+    statement: "La sélection naturelle agit :"
+    options:
+      - key: A
+        label: "sur les caractères acquis par un individu au cours de sa vie"
+        correct: false
+        distractorRationale: "Reprend la conception lamarckienne de la transmission des caractères acquis, abandonnée depuis."
+      - key: B
+        label: "sur la variabilité génétique déjà présente dans la population"
+        correct: true
+      - key: C
+        label: "en provoquant les mutations dont l'organisme a besoin"
+        correct: false
+        distractorRationale: "Suppose que les mutations apparaissent en réponse à un besoin, alors qu'elles surviennent au hasard."
+      - key: D
+        label: "uniquement sur les espèces menacées de disparition"
+        correct: false
+        distractorRationale: "Restreint à un cas particulier un mécanisme qui s'exerce dans toutes les populations."
+    shortCorrection: "Les mutations apparaissent au hasard et créent de la diversité. La sélection naturelle trie ensuite cette diversité selon l'avantage qu'elle procure dans un milieu donné."
+    tags: [evolution, selection-naturelle]
+
+  - id: EPR-SVT-EVO-02
+    nodeCpsId: 2de.svt.evolution.mecanismes
+    type: QCM_SIMPLE
+    difficulty: 3
+    targetTimeSec: 60
+    statement: "La dérive génétique se distingue de la sélection naturelle parce qu'elle :"
+    options:
+      - key: A
+        label: "résulte du hasard et agit surtout dans les populations de petit effectif"
+        correct: true
+      - key: B
+        label: "favorise systématiquement les individus les mieux adaptés"
+        correct: false
+        distractorRationale: "Attribue à la dérive le tri selon l'avantage, qui caractérise la sélection naturelle."
+      - key: C
+        label: "ne modifie jamais les fréquences des allèles"
+        correct: false
+        distractorRationale: "Nie l'effet même de la dérive, qui est précisément une modification aléatoire des fréquences alléliques."
+      - key: D
+        label: "ne concerne que les espèces végétales"
+        correct: false
+        distractorRationale: "Restreint à un groupe un mécanisme qui s'exerce dans toutes les populations."
+    shortCorrection: "La dérive génétique fait varier les fréquences alléliques au hasard, indépendamment de tout avantage. Son effet est d'autant plus marqué que la population est petite."
+    tags: [evolution, derive-genetique]
+
+  # ===========================================================================
+  # NŒUD 5 — Érosion, transport, sédimentation
+  # Pourquoi c'est structurant : la dynamique interne du globe étudiée en
+  # Première suppose de savoir lire l'histoire d'une roche et de distinguer
+  # les grandes familles de roches.
+  # ===========================================================================
+
+  - id: EPR-SVT-GEO-01
+    nodeCpsId: 2de.svt.geologie.erosion-sedimentation
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 55
+    statement: "Quelle est la succession correcte des étapes menant d'un massif rocheux à une roche sédimentaire ?"
+    options:
+      - key: A
+        label: "sédimentation, érosion, transport, diagenèse"
+        correct: false
+        distractorRationale: "Place le dépôt avant l'arrachement des particules, ce qui inverse la chronologie."
+      - key: B
+        label: "érosion, diagenèse, transport, sédimentation"
+        correct: false
+        distractorRationale: "Place la transformation en roche avant le dépôt des sédiments."
+      - key: C
+        label: "transport, érosion, sédimentation, diagenèse"
+        correct: false
+        distractorRationale: "Place le transport avant l'érosion, alors qu'il faut d'abord arracher les particules."
+      - key: D
+        label: "érosion, transport, sédimentation, diagenèse"
+        correct: true
+    shortCorrection: "Les particules sont d'abord arrachées par l'érosion, transportées, puis déposées. La diagenèse les transforme ensuite en roche cohérente."
+    tags: [geologie, cycle-des-roches]
+
+  - id: EPR-SVT-GEO-02
+    nodeCpsId: 2de.svt.geologie.erosion-sedimentation
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 55
+    statement: "Le grès est une roche sédimentaire formée principalement à partir :"
+    options:
+      - key: A
+        label: "de la précipitation chimique de sels dissous"
+        correct: false
+        distractorRationale: "Décrit la formation d'une roche évaporitique comme le gypse ou le sel gemme."
+      - key: B
+        label: "de grains de quartz issus de l'érosion, ensuite cimentés"
+        correct: true
+      - key: C
+        label: "de restes de coquilles et de squelettes calcaires"
+        correct: false
+        distractorRationale: "Décrit la formation d'une roche biogène comme le calcaire coquillier."
+      - key: D
+        label: "du refroidissement et de la cristallisation d'un magma"
+        correct: false
+        distractorRationale: "Décrit la formation d'une roche magmatique, et non sédimentaire."
+    shortCorrection: "Le grès est une roche détritique : il résulte de l'accumulation de grains de quartz issus de l'érosion, puis de leur cimentation lors de la diagenèse."
+    tags: [geologie, roches-sedimentaires]
+
+  # ===========================================================================
+  # NŒUD 6 — Écosystèmes, flux de matière et d'énergie
+  # Pourquoi c'est structurant : raisonner en termes de flux et de rendement
+  # prépare l'étude du métabolisme et des relations entre organismes.
+  # ===========================================================================
+
+  - id: EPR-SVT-ECO-01
+    nodeCpsId: 2de.svt.ecosystemes.flux-matiere-energie
+    type: QCM_SIMPLE
+    difficulty: 1
+    targetTimeSec: 45
+    statement: "Dans un écosystème, les producteurs primaires sont :"
+    options:
+      - key: A
+        label: "les décomposeurs, bactéries et champignons"
+        correct: false
+        distractorRationale: "Confond les organismes qui recyclent la matière morte avec ceux qui produisent la matière organique initiale."
+      - key: B
+        label: "les consommateurs herbivores"
+        correct: false
+        distractorRationale: "Confond le premier niveau de consommation avec le niveau de production."
+      - key: C
+        label: "les organismes autotrophes, comme les végétaux chlorophylliens"
+        correct: true
+      - key: D
+        label: "les prédateurs situés au sommet de la chaîne alimentaire"
+        correct: false
+        distractorRationale: "Associe la production au sommet de la chaîne alimentaire plutôt qu'à sa base."
+    shortCorrection: "Les producteurs primaires sont autotrophes : ils fabriquent leur matière organique à partir de matière minérale. Ils forment la base de toute chaîne alimentaire."
+    tags: [ecosystemes, chaine-alimentaire]
+
+  - id: EPR-SVT-ECO-02
+    nodeCpsId: 2de.svt.ecosystemes.flux-matiere-energie
+    type: QCM_SIMPLE
+    difficulty: 3
+    targetTimeSec: 60
+    statement: "Pourquoi la biomasse diminue-t-elle d'un niveau à l'autre d'une chaîne alimentaire ?"
+    options:
+      - key: A
+        label: "parce qu'une partie de l'énergie est dissipée, notamment sous forme de chaleur"
+        correct: true
+      - key: B
+        label: "parce que la matière disparaît définitivement à chaque niveau"
+        correct: false
+        distractorRationale: "Contredit la conservation de la matière : celle-ci se transforme mais ne disparaît pas."
+      - key: C
+        label: "parce que les prédateurs sont moins nombreux, par simple hasard"
+        correct: false
+        distractorRationale: "Décrit une conséquence observée sans en donner la cause énergétique."
+      - key: D
+        label: "parce que les décomposeurs consomment la totalité de la matière"
+        correct: false
+        distractorRationale: "Attribue aux décomposeurs une consommation totale qui interromprait toute chaîne alimentaire."
+    shortCorrection: "À chaque niveau, une part importante de l'énergie sert au fonctionnement de l'organisme et se dissipe sous forme de chaleur. Seule une fraction est transmise au niveau suivant."
+    tags: [ecosystemes, rendement]
+
+  # ===========================================================================
+  # NŒUD 7 — Effort physique et système cardio-respiratoire
+  # Pourquoi c'est structurant : le thème « Corps humain et santé » de Première
+  # prolonge directement l'étude des adaptations à l'effort vue en Seconde.
+  # ===========================================================================
+
+  - id: EPR-SVT-EFF-01
+    nodeCpsId: 2de.svt.corps-humain.effort-physique
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 55
+    statement: "Le débit cardiaque est le produit :"
+    options:
+      - key: A
+        label: "de la fréquence respiratoire par le volume courant"
+        correct: false
+        distractorRationale: "Donne la formule du débit ventilatoire, qui concerne la respiration et non la circulation."
+      - key: B
+        label: "de la fréquence cardiaque par le volume d'éjection systolique"
+        correct: true
+      - key: C
+        label: "de la pression artérielle par la fréquence cardiaque"
+        correct: false
+        distractorRationale: "Combine deux grandeurs mesurables mais qui ne définissent pas un débit."
+      - key: D
+        label: "du volume sanguin total par la fréquence cardiaque"
+        correct: false
+        distractorRationale: "Utilise le volume sanguin de l'organisme au lieu du volume éjecté à chaque contraction."
+    shortCorrection: "Le débit cardiaque est le volume de sang éjecté par minute : il vaut la fréquence cardiaque multipliée par le volume éjecté à chaque battement."
+    tags: [corps-humain, debit-cardiaque]
+
+  - id: EPR-SVT-EFF-02
+    nodeCpsId: 2de.svt.corps-humain.effort-physique
+    type: QCM_SIMPLE
+    difficulty: 1
+    targetTimeSec: 45
+    statement: "Lors d'un effort physique intense et prolongé, les muscles consomment davantage :"
+    options:
+      - key: A
+        label: "de dioxyde de carbone et de glucose"
+        correct: false
+        distractorRationale: "Fait du dioxyde de carbone un réactif alors qu'il est un déchet produit par la respiration cellulaire."
+      - key: B
+        label: "de dioxygène uniquement, sans apport de nutriment"
+        correct: false
+        distractorRationale: "Oublie que le dioxygène sert à dégrader un nutriment, sans lequel aucune énergie n'est libérée."
+      - key: C
+        label: "de nutriments uniquement, sans apport de dioxygène"
+        correct: false
+        distractorRationale: "Oublie le rôle du dioxygène dans la respiration cellulaire, principale voie de production d'énergie à l'effort prolongé."
+      - key: D
+        label: "de dioxygène et de glucose, tous deux apportés par le sang"
+        correct: true
+    shortCorrection: "L'effort augmente les besoins énergétiques du muscle. La respiration cellulaire consomme à la fois du glucose et du dioxygène, apportés par la circulation sanguine."
+    tags: [corps-humain, effort]
+
+  # ===========================================================================
+  # NŒUD 8 — Microbiote et défense de l'organisme
+  # Pourquoi c'est structurant : l'immunité innée et adaptative, étudiée en
+  # Première, suppose de connaître la réaction inflammatoire et la nature des
+  # micro-organismes hébergés par l'organisme.
+  # ===========================================================================
+
+  - id: EPR-SVT-IMM-01
+    nodeCpsId: 2de.svt.corps-humain.microbiote-defenses
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 50
+    statement: "Le microbiote intestinal est constitué :"
+    options:
+      - key: A
+        label: "exclusivement de virus pathogènes"
+        correct: false
+        distractorRationale: "Assimile tout micro-organisme à un agent pathogène."
+      - key: B
+        label: "des cellules du système immunitaire présentes dans l'intestin"
+        correct: false
+        distractorRationale: "Confond les micro-organismes hébergés avec les cellules de défense de l'hôte."
+      - key: C
+        label: "de micro-organismes, majoritairement bactériens, vivant en symbiose avec l'hôte"
+        correct: true
+      - key: D
+        label: "de cellules intestinales spécialisées dans l'absorption"
+        correct: false
+        distractorRationale: "Confond le microbiote avec les cellules de la paroi intestinale."
+    shortCorrection: "Le microbiote rassemble les micro-organismes, surtout des bactéries, hébergés par l'organisme. Loin d'être nuisibles, ils participent à la digestion et à la défense."
+    tags: [microbiote, symbiose]
+
+  - id: EPR-SVT-IMM-02
+    nodeCpsId: 2de.svt.corps-humain.microbiote-defenses
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 50
+    statement: "Une réaction inflammatoire locale se manifeste notamment par :"
+    options:
+      - key: A
+        label: "une baisse de la température de la zone atteinte"
+        correct: false
+        distractorRationale: "Inverse l'un des signes cardinaux : la zone atteinte devient au contraire plus chaude."
+      - key: B
+        label: "une rougeur, un gonflement, une chaleur et une douleur"
+        correct: true
+      - key: C
+        label: "l'élimination immédiate de l'agent infectieux sans intervention cellulaire"
+        correct: false
+        distractorRationale: "Suppose une défense sans cellules, alors que la phagocytose est au cœur de la réaction."
+      - key: D
+        label: "la production immédiate d'anticorps spécifiques"
+        correct: false
+        distractorRationale: "Confond la réponse innée, immédiate et non spécifique, avec la réponse adaptative, plus tardive."
+    shortCorrection: "Rougeur, gonflement, chaleur et douleur sont les quatre signes de la réaction inflammatoire. Elle relève de l'immunité innée et précède toute réponse spécifique."
+    tags: [immunite, inflammation]
+
+  # ===========================================================================
+  # NŒUD 9 — Démarche scientifique et exploitation de données
+  # Pourquoi c'est structurant : chaque évaluation de Première repose sur
+  # l'exploitation de documents. Confondre corrélation et causalité, ou
+  # négliger un témoin, fausse toute conclusion.
+  # ===========================================================================
+
+  - id: EPR-SVT-DEM-01
+    nodeCpsId: 2de.svt.demarche.experimentation-donnees
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 50
+    statement: "Dans une expérience, à quoi sert le témoin ?"
+    options:
+      - key: A
+        label: "à confirmer l'hypothèse formulée au départ"
+        correct: false
+        distractorRationale: "Fait du témoin un moyen de valider l'hypothèse, alors qu'il sert à la mettre à l'épreuve."
+      - key: B
+        label: "à remplacer une mesure qu'il est impossible de réaliser"
+        correct: false
+        distractorRationale: "Confond le témoin avec une estimation de substitution."
+      - key: C
+        label: "à augmenter le nombre de résultats disponibles"
+        correct: false
+        distractorRationale: "Confond le témoin avec la répétition des mesures, qui répond à un autre objectif."
+      - key: D
+        label: "à comparer, en ne faisant varier que le paramètre étudié"
+        correct: true
+    shortCorrection: "Le témoin est identique au dispositif testé, à l'exception du seul paramètre étudié. Sans lui, aucune différence observée ne peut être attribuée à ce paramètre."
+    tags: [demarche, temoin]
+
+  - id: EPR-SVT-DEM-02
+    nodeCpsId: 2de.svt.demarche.experimentation-donnees
+    type: QCM_SIMPLE
+    difficulty: 3
+    targetTimeSec: 55
+    statement: "Une corrélation observée entre deux variables permet d'affirmer :"
+    options:
+      - key: A
+        label: "qu'un lien existe entre elles, sans que la causalité soit démontrée"
+        correct: true
+      - key: B
+        label: "que la première variable est la cause de la seconde"
+        correct: false
+        distractorRationale: "Conclut à une causalité à partir d'une simple concordance de variations."
+      - key: C
+        label: "que les deux variables sont indépendantes l'une de l'autre"
+        correct: false
+        distractorRationale: "Nie l'existence même du lien que la corrélation met en évidence."
+      - key: D
+        label: "qu'une démarche expérimentale devient inutile"
+        correct: false
+        distractorRationale: "Considère la corrélation comme une preuve suffisante, alors qu'elle appelle au contraire une expérimentation."
+    shortCorrection: "Une corrélation signale que deux grandeurs varient ensemble. Établir que l'une cause l'autre exige une expérimentation contrôlée, avec témoin."
+    tags: [demarche, correlation-causalite]

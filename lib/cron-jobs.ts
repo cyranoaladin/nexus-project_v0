@@ -1,7 +1,7 @@
-import { prisma } from './prisma'
-import { Prisma, CronExecutionStatus } from '@prisma/client'
-import { sendCreditExpirationReminder } from './email'
 import { serializeError } from '@/lib/utils/serialize-error';
+import { CronExecutionStatus,Prisma } from '@prisma/client';
+import { sendCreditExpirationReminder } from './email';
+import { prisma } from './prisma';
 
 /**
  * Helper: Start a cron job execution with idempotency tracking
@@ -113,7 +113,7 @@ export async function checkExpiringCredits() {
 // CRITICAL: Uses transaction to ensure atomicity of expiration operations (INV-CRON-2)
 export async function expireOldCredits() {
   // Wrap expiration in transaction to ensure both create and update happen atomically
-  const totalExpired = await prisma.$transaction(async (tx) => {
+  await prisma.$transaction(async (tx) => {
     const expiredTransactions = await tx.creditTransaction.findMany({
       where: {
         expiresAt: { lt: new Date() },
@@ -167,7 +167,7 @@ export async function allocateMonthlyCredits() {
 
   try {
     // Wrap allocation in transaction for atomicity (INV-CRON-2)
-    const totalAllocated = await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx) => {
       const activeSubscriptions = await tx.subscription.findMany({
         where: {
           status: 'ACTIVE',

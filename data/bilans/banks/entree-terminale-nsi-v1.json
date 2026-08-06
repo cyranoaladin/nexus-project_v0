@@ -1,0 +1,1073 @@
+{
+  "slug": "entree-terminale-nsi-v1",
+  "level": "TERMINALE",
+  "subject": "NSI",
+  "version": 1,
+  "status": "VALIDATED",
+  "review": {
+    "validatedBy": "cmomnwolx0001mi0u8m8zj53w",
+    "validatedAt": "2026-08-05T07:01:41.106Z"
+  },
+  "questionnaire": {
+    "targetDurationMin": 25,
+    "confidenceScale": {
+      "levels": 4,
+      "labels": [
+        "je devine",
+        "peu sûr",
+        "plutôt sûr",
+        "certain"
+      ]
+    },
+    "items": [
+      {
+        "id": "ETN-NSI-BIN-01",
+        "subject": "NSI",
+        "category": "Représentation des entiers (binaire, hexadécimal)",
+        "domainId": "representation",
+        "nodeCpsId": "1re.nsi.representation.entiers-binaire-hexa",
+        "difficulty": 1,
+        "targetTimeSec": 55,
+        "shortCorrection": "13 = 8 + 4 + 1 = 2³ + 2² + 2⁰, ce qui s'écrit 1101 en binaire.",
+        "weight": 1,
+        "competencies": [
+          "1re.nsi.representation.entiers-binaire-hexa"
+        ],
+        "questionText": "Quelle est l'écriture binaire de l'entier 13 ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "1011",
+            "isCorrect": false,
+            "distractorRationale": "Inverse l'ordre ou se trompe sur un bit : 1011 vaut 11."
+          },
+          {
+            "id": "B",
+            "text": "1110",
+            "isCorrect": false,
+            "distractorRationale": "Vaut 14 : décale d'une unité."
+          },
+          {
+            "id": "C",
+            "text": "1101",
+            "isCorrect": true
+          },
+          {
+            "id": "D",
+            "text": "1100",
+            "isCorrect": false,
+            "distractorRationale": "Vaut 12 : oublie le bit des unités."
+          }
+        ],
+        "explanation": "13 = 8 + 4 + 1 = 2³ + 2² + 2⁰, ce qui s'écrit 1101 en binaire."
+      },
+      {
+        "id": "ETN-NSI-BIN-02",
+        "subject": "NSI",
+        "category": "Représentation des entiers (binaire, hexadécimal)",
+        "domainId": "representation",
+        "nodeCpsId": "1re.nsi.representation.entiers-binaire-hexa",
+        "difficulty": 2,
+        "targetTimeSec": 60,
+        "shortCorrection": "0x1F = 1 × 16 + 15 = 31, car en hexadécimal F représente 15.",
+        "weight": 2,
+        "competencies": [
+          "1re.nsi.representation.entiers-binaire-hexa"
+        ],
+        "questionText": "Que vaut l'entier hexadécimal 0x1F en base 10 ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "31",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "15",
+            "isCorrect": false,
+            "distractorRationale": "Ne compte que le chiffre F et oublie le 1 des « seizaines »."
+          },
+          {
+            "id": "C",
+            "text": "16",
+            "isCorrect": false,
+            "distractorRationale": "Ne retient que le poids du 1 sans ajouter F."
+          },
+          {
+            "id": "D",
+            "text": "25",
+            "isCorrect": false,
+            "distractorRationale": "Traite F comme s'il valait 9."
+          }
+        ],
+        "explanation": "0x1F = 1 × 16 + 15 = 31, car en hexadécimal F représente 15."
+      },
+      {
+        "id": "ETN-NSI-LOG-01",
+        "subject": "NSI",
+        "category": "Booléens et logique",
+        "domainId": "booleens",
+        "nodeCpsId": "1re.nsi.booleens.logique",
+        "difficulty": 1,
+        "targetTimeSec": 45,
+        "shortCorrection": "not False vaut True, et True and True vaut True.",
+        "weight": 1,
+        "competencies": [
+          "1re.nsi.booleens.logique"
+        ],
+        "questionText": "En Python, que vaut l'expression (True and not False) ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "False",
+            "isCorrect": false,
+            "distractorRationale": "Applique mal la négation : not False vaut True."
+          },
+          {
+            "id": "B",
+            "text": "True",
+            "isCorrect": true
+          },
+          {
+            "id": "C",
+            "text": "None",
+            "isCorrect": false,
+            "distractorRationale": "Confond une expression booléenne avec une absence de valeur."
+          },
+          {
+            "id": "D",
+            "text": "0",
+            "isCorrect": false,
+            "distractorRationale": "Donne un entier là où l'expression est booléenne."
+          }
+        ],
+        "explanation": "not False vaut True, et True and True vaut True."
+      },
+      {
+        "id": "ETN-NSI-LOG-02",
+        "subject": "NSI",
+        "category": "Booléens et logique",
+        "domainId": "booleens",
+        "nodeCpsId": "1re.nsi.booleens.logique",
+        "difficulty": 2,
+        "targetTimeSec": 55,
+        "shortCorrection": "Une disjonction n'est fausse que si aucun des deux opérandes n'est vrai.",
+        "weight": 2,
+        "competencies": [
+          "1re.nsi.booleens.logique"
+        ],
+        "questionText": "L'expression « A OU B » est fausse uniquement lorsque :",
+        "options": [
+          {
+            "id": "A",
+            "text": "A est vrai et B est faux",
+            "isCorrect": false,
+            "distractorRationale": "Dans ce cas A OU B est vrai grâce à A."
+          },
+          {
+            "id": "B",
+            "text": "A et B sont tous les deux vrais",
+            "isCorrect": false,
+            "distractorRationale": "A OU B est alors vrai, pas faux."
+          },
+          {
+            "id": "C",
+            "text": "A est faux et B est vrai",
+            "isCorrect": false,
+            "distractorRationale": "A OU B est alors vrai grâce à B."
+          },
+          {
+            "id": "D",
+            "text": "A et B sont tous les deux faux",
+            "isCorrect": true
+          }
+        ],
+        "explanation": "Une disjonction n'est fausse que si aucun des deux opérandes n'est vrai."
+      },
+      {
+        "id": "ETN-NSI-LST-01",
+        "subject": "NSI",
+        "category": "Types construits : listes et indexation",
+        "domainId": "types-construits",
+        "nodeCpsId": "1re.nsi.types-construits.listes",
+        "difficulty": 1,
+        "targetTimeSec": 45,
+        "shortCorrection": "Les listes sont indexées à partir de 0 : L[0]=10, L[1]=20.",
+        "weight": 1,
+        "competencies": [
+          "1re.nsi.types-construits.listes"
+        ],
+        "questionText": "En Python, on définit L = [10, 20, 30, 40]. Que vaut L[1] ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "20",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "10",
+            "isCorrect": false,
+            "distractorRationale": "Oublie que l'indexation commence à 0 : L[0] vaut 10."
+          },
+          {
+            "id": "C",
+            "text": "30",
+            "isCorrect": false,
+            "distractorRationale": "Décale l'indice d'une unité de trop."
+          },
+          {
+            "id": "D",
+            "text": "40",
+            "isCorrect": false,
+            "distractorRationale": "Prend le dernier élément au lieu du deuxième."
+          }
+        ],
+        "explanation": "Les listes sont indexées à partir de 0 : L[0]=10, L[1]=20."
+      },
+      {
+        "id": "ETN-NSI-LST-02",
+        "subject": "NSI",
+        "category": "Types construits : listes et indexation",
+        "domainId": "types-construits",
+        "nodeCpsId": "1re.nsi.types-construits.listes",
+        "difficulty": 2,
+        "targetTimeSec": 55,
+        "shortCorrection": "append(4) ajoute 4 à la fin : L devient [1, 2, 3, 4].",
+        "weight": 2,
+        "competencies": [
+          "1re.nsi.types-construits.listes"
+        ],
+        "questionText": "Après L = [1, 2, 3] puis L.append(4), que contient L ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "[4, 1, 2, 3]",
+            "isCorrect": false,
+            "distractorRationale": "append ajoute en fin de liste, pas au début."
+          },
+          {
+            "id": "B",
+            "text": "[1, 2, 3, 4]",
+            "isCorrect": true
+          },
+          {
+            "id": "C",
+            "text": "[1, 2, 3]",
+            "isCorrect": false,
+            "distractorRationale": "Oublie que append modifie la liste en y ajoutant un élément."
+          },
+          {
+            "id": "D",
+            "text": "[1, 2, 4]",
+            "isCorrect": false,
+            "distractorRationale": "Remplace un élément au lieu d'en ajouter un."
+          }
+        ],
+        "explanation": "append(4) ajoute 4 à la fin : L devient [1, 2, 3, 4]."
+      },
+      {
+        "id": "ETN-NSI-DIC-01",
+        "subject": "NSI",
+        "category": "Types construits : dictionnaires",
+        "domainId": "types-construits",
+        "nodeCpsId": "1re.nsi.types-construits.dictionnaires",
+        "difficulty": 1,
+        "targetTimeSec": 45,
+        "shortCorrection": "d['b'] renvoie la valeur associée à la clé 'b', soit 2.",
+        "weight": 1,
+        "competencies": [
+          "1re.nsi.types-construits.dictionnaires"
+        ],
+        "questionText": "On définit d = {'a': 1, 'b': 2}. Que vaut d['b'] ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "1",
+            "isCorrect": false,
+            "distractorRationale": "Renvoie la valeur de la clé 'a' au lieu de 'b'."
+          },
+          {
+            "id": "B",
+            "text": "'b'",
+            "isCorrect": false,
+            "distractorRationale": "Confond la clé avec la valeur associée."
+          },
+          {
+            "id": "C",
+            "text": "2",
+            "isCorrect": true
+          },
+          {
+            "id": "D",
+            "text": "une erreur",
+            "isCorrect": false,
+            "distractorRationale": "Suppose à tort que la clé 'b' n'existe pas."
+          }
+        ],
+        "explanation": "d['b'] renvoie la valeur associée à la clé 'b', soit 2."
+      },
+      {
+        "id": "ETN-NSI-DIC-02",
+        "subject": "NSI",
+        "category": "Types construits : dictionnaires",
+        "domainId": "types-construits",
+        "nodeCpsId": "1re.nsi.types-construits.dictionnaires",
+        "difficulty": 2,
+        "targetTimeSec": 55,
+        "shortCorrection": "On crée ou modifie une entrée par affectation : d['c'] = 3.",
+        "weight": 2,
+        "competencies": [
+          "1re.nsi.types-construits.dictionnaires"
+        ],
+        "questionText": "Comment ajouter au dictionnaire d la clé 'c' associée à la valeur 3 ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "d.append('c', 3)",
+            "isCorrect": false,
+            "distractorRationale": "append est une méthode des listes, pas des dictionnaires."
+          },
+          {
+            "id": "B",
+            "text": "d['c'] == 3",
+            "isCorrect": false,
+            "distractorRationale": "== est un test d'égalité, il n'affecte aucune valeur."
+          },
+          {
+            "id": "C",
+            "text": "d + {'c': 3}",
+            "isCorrect": false,
+            "distractorRationale": "L'opérateur + n'est pas défini pour ajouter une clé à un dictionnaire."
+          },
+          {
+            "id": "D",
+            "text": "d['c'] = 3",
+            "isCorrect": true
+          }
+        ],
+        "explanation": "On crée ou modifie une entrée par affectation : d['c'] = 3."
+      },
+      {
+        "id": "ETN-NSI-FON-01",
+        "subject": "NSI",
+        "category": "Programmation : fonctions et valeur de retour",
+        "domainId": "programmation",
+        "nodeCpsId": "1re.nsi.programmation.fonctions",
+        "difficulty": 1,
+        "targetTimeSec": 45,
+        "shortCorrection": "f(5) calcule 5 * 2 et renvoie 10.",
+        "weight": 1,
+        "competencies": [
+          "1re.nsi.programmation.fonctions"
+        ],
+        "questionText": "Soit la fonction : def f(x): return x * 2. Que renvoie f(5) ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "5",
+            "isCorrect": false,
+            "distractorRationale": "Renvoie l'argument sans appliquer le calcul."
+          },
+          {
+            "id": "B",
+            "text": "10",
+            "isCorrect": true
+          },
+          {
+            "id": "C",
+            "text": "7",
+            "isCorrect": false,
+            "distractorRationale": "Additionne 5 et 2 au lieu de multiplier."
+          },
+          {
+            "id": "D",
+            "text": "None",
+            "isCorrect": false,
+            "distractorRationale": "Suppose à tort que la fonction ne renvoie rien."
+          }
+        ],
+        "explanation": "f(5) calcule 5 * 2 et renvoie 10."
+      },
+      {
+        "id": "ETN-NSI-FON-02",
+        "subject": "NSI",
+        "category": "Programmation : fonctions et valeur de retour",
+        "domainId": "programmation",
+        "nodeCpsId": "1re.nsi.programmation.fonctions",
+        "difficulty": 2,
+        "targetTimeSec": 55,
+        "shortCorrection": "Sans return, une fonction renvoie implicitement la valeur None.",
+        "weight": 2,
+        "competencies": [
+          "1re.nsi.programmation.fonctions"
+        ],
+        "questionText": "En Python, que renvoie une fonction qui ne comporte aucune instruction return ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "None",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "0",
+            "isCorrect": false,
+            "distractorRationale": "Confond l'absence de valeur avec l'entier zéro."
+          },
+          {
+            "id": "C",
+            "text": "une chaîne vide",
+            "isCorrect": false,
+            "distractorRationale": "Confond l'absence de valeur avec une chaîne vide."
+          },
+          {
+            "id": "D",
+            "text": "une erreur",
+            "isCorrect": false,
+            "distractorRationale": "Une fonction sans return est valide ; elle ne provoque pas d'erreur."
+          }
+        ],
+        "explanation": "Sans return, une fonction renvoie implicitement la valeur None."
+      },
+      {
+        "id": "ETN-NSI-BCL-01",
+        "subject": "NSI",
+        "category": "Structures de contrôle : boucles et conditions",
+        "domainId": "programmation",
+        "nodeCpsId": "1re.nsi.programmation.boucles-conditions",
+        "difficulty": 1,
+        "targetTimeSec": 50,
+        "shortCorrection": "range(3) produit les valeurs 0, 1, 2 : la boucle s'exécute 3 fois.",
+        "weight": 1,
+        "competencies": [
+          "1re.nsi.programmation.boucles-conditions"
+        ],
+        "questionText": "Combien d'itérations effectue la boucle « for i in range(3): » ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "2",
+            "isCorrect": false,
+            "distractorRationale": "Oublie que range(3) produit 0, 1, 2."
+          },
+          {
+            "id": "B",
+            "text": "4",
+            "isCorrect": false,
+            "distractorRationale": "Compte une itération de trop."
+          },
+          {
+            "id": "C",
+            "text": "de 1 à 3",
+            "isCorrect": false,
+            "distractorRationale": "range(3) commence à 0, pas à 1."
+          },
+          {
+            "id": "D",
+            "text": "3",
+            "isCorrect": true
+          }
+        ],
+        "explanation": "range(3) produit les valeurs 0, 1, 2 : la boucle s'exécute 3 fois."
+      },
+      {
+        "id": "ETN-NSI-BCL-02",
+        "subject": "NSI",
+        "category": "Structures de contrôle : boucles et conditions",
+        "domainId": "programmation",
+        "nodeCpsId": "1re.nsi.programmation.boucles-conditions",
+        "difficulty": 2,
+        "targetTimeSec": 60,
+        "shortCorrection": "range(1, 4) donne 1, 2, 3 ; la somme cumulée vaut 1 + 2 + 3 = 6.",
+        "weight": 2,
+        "competencies": [
+          "1re.nsi.programmation.boucles-conditions"
+        ],
+        "questionText": "Que vaut s après : s = 0 puis « for i in range(1, 4): s = s + i » ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "3",
+            "isCorrect": false,
+            "distractorRationale": "Ne conserve que la dernière valeur de i au lieu de cumuler."
+          },
+          {
+            "id": "B",
+            "text": "10",
+            "isCorrect": false,
+            "distractorRationale": "Inclut à tort la valeur 4 dans la somme."
+          },
+          {
+            "id": "C",
+            "text": "6",
+            "isCorrect": true
+          },
+          {
+            "id": "D",
+            "text": "4",
+            "isCorrect": false,
+            "distractorRationale": "Compte le nombre d'itérations au lieu de la somme."
+          }
+        ],
+        "explanation": "range(1, 4) donne 1, 2, 3 ; la somme cumulée vaut 1 + 2 + 3 = 6."
+      },
+      {
+        "id": "ETN-NSI-ALG-01",
+        "subject": "NSI",
+        "category": "Algorithmique : recherche et coût",
+        "domainId": "algorithmique",
+        "nodeCpsId": "1re.nsi.algorithmique.recherche-tris",
+        "difficulty": 1,
+        "targetTimeSec": 50,
+        "shortCorrection": "La recherche dichotomique compare à l'élément central : elle exige un tableau trié.",
+        "weight": 1,
+        "competencies": [
+          "1re.nsi.algorithmique.recherche-tris"
+        ],
+        "questionText": "La recherche dichotomique ne fonctionne que si le tableau est :",
+        "options": [
+          {
+            "id": "A",
+            "text": "trié",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "de taille paire",
+            "isCorrect": false,
+            "distractorRationale": "La dichotomie fonctionne quelle que soit la parité de la taille."
+          },
+          {
+            "id": "C",
+            "text": "non trié",
+            "isCorrect": false,
+            "distractorRationale": "C'est l'inverse : sans tri, la dichotomie est invalide."
+          },
+          {
+            "id": "D",
+            "text": "composé uniquement d'entiers",
+            "isCorrect": false,
+            "distractorRationale": "La dichotomie s'applique à toute donnée ordonnable, pas seulement aux entiers."
+          }
+        ],
+        "explanation": "La recherche dichotomique compare à l'élément central : elle exige un tableau trié."
+      },
+      {
+        "id": "ETN-NSI-ALG-02",
+        "subject": "NSI",
+        "category": "Algorithmique : recherche et coût",
+        "domainId": "algorithmique",
+        "nodeCpsId": "1re.nsi.algorithmique.recherche-tris",
+        "difficulty": 2,
+        "targetTimeSec": 65,
+        "shortCorrection": "La dichotomie divise la taille par deux à chaque étape : log₂(16) = 4 comparaisons environ.",
+        "weight": 2,
+        "competencies": [
+          "1re.nsi.algorithmique.recherche-tris"
+        ],
+        "questionText": "Dans un tableau trié de 16 éléments, le nombre de comparaisons d'une recherche dichotomique est de l'ordre de :",
+        "options": [
+          {
+            "id": "A",
+            "text": "16",
+            "isCorrect": false,
+            "distractorRationale": "Correspond à une recherche séquentielle, pas dichotomique."
+          },
+          {
+            "id": "B",
+            "text": "4 (log₂ de 16)",
+            "isCorrect": true
+          },
+          {
+            "id": "C",
+            "text": "8",
+            "isCorrect": false,
+            "distractorRationale": "Suppose que l'on divise une seule fois la taille par deux."
+          },
+          {
+            "id": "D",
+            "text": "2",
+            "isCorrect": false,
+            "distractorRationale": "Sous-estime : diviser 16 par 2 quatre fois donne 1."
+          }
+        ],
+        "explanation": "La dichotomie divise la taille par deux à chaque étape : log₂(16) = 4 comparaisons environ."
+      },
+      {
+        "id": "ETN-NSI-TAB-01",
+        "subject": "NSI",
+        "category": "Traitement de données en tables",
+        "domainId": "donnees",
+        "nodeCpsId": "1re.nsi.donnees.tables",
+        "difficulty": 1,
+        "targetTimeSec": 50,
+        "shortCorrection": "Dans une table, chaque ligne est un enregistrement, chaque colonne un attribut.",
+        "weight": 1,
+        "competencies": [
+          "1re.nsi.donnees.tables"
+        ],
+        "questionText": "Dans une table de données (type CSV), une ligne représente en général :",
+        "options": [
+          {
+            "id": "A",
+            "text": "un attribut",
+            "isCorrect": false,
+            "distractorRationale": "L'attribut correspond à une colonne, pas à une ligne."
+          },
+          {
+            "id": "B",
+            "text": "une colonne",
+            "isCorrect": false,
+            "distractorRationale": "La colonne est verticale ; la ligne décrit un enregistrement."
+          },
+          {
+            "id": "C",
+            "text": "un enregistrement (un individu ou objet)",
+            "isCorrect": true
+          },
+          {
+            "id": "D",
+            "text": "un fichier entier",
+            "isCorrect": false,
+            "distractorRationale": "Une ligne n'est qu'un enregistrement du fichier, pas le fichier."
+          }
+        ],
+        "explanation": "Dans une table, chaque ligne est un enregistrement, chaque colonne un attribut."
+      },
+      {
+        "id": "ETN-NSI-TAB-02",
+        "subject": "NSI",
+        "category": "Traitement de données en tables",
+        "domainId": "donnees",
+        "nodeCpsId": "1re.nsi.donnees.tables",
+        "difficulty": 2,
+        "targetTimeSec": 60,
+        "shortCorrection": "Choisir les lignes selon une condition est une sélection (ou filtrage) ; choisir des colonnes serait une projection.",
+        "weight": 2,
+        "competencies": [
+          "1re.nsi.donnees.tables"
+        ],
+        "questionText": "Ne garder que les lignes d'une table vérifiant « âge > 18 » est une opération de :",
+        "options": [
+          {
+            "id": "A",
+            "text": "projection",
+            "isCorrect": false,
+            "distractorRationale": "La projection choisit des colonnes, pas des lignes."
+          },
+          {
+            "id": "B",
+            "text": "tri",
+            "isCorrect": false,
+            "distractorRationale": "Le tri réordonne les lignes sans en supprimer."
+          },
+          {
+            "id": "C",
+            "text": "fusion",
+            "isCorrect": false,
+            "distractorRationale": "La fusion combine deux tables, elle ne filtre pas."
+          },
+          {
+            "id": "D",
+            "text": "sélection (filtrage des lignes)",
+            "isCorrect": true
+          }
+        ],
+        "explanation": "Choisir les lignes selon une condition est une sélection (ou filtrage) ; choisir des colonnes serait une projection."
+      },
+      {
+        "id": "ETN-NSI-ARC-01",
+        "subject": "NSI",
+        "category": "Architecture et systèmes",
+        "domainId": "architecture",
+        "nodeCpsId": "1re.nsi.architecture.von-neumann-os",
+        "difficulty": 1,
+        "targetTimeSec": 50,
+        "shortCorrection": "Dans le processeur, l'UAL réalise les opérations arithmétiques et logiques.",
+        "weight": 1,
+        "competencies": [
+          "1re.nsi.architecture.von-neumann-os"
+        ],
+        "questionText": "Dans le modèle de von Neumann, la partie qui effectue les calculs est :",
+        "options": [
+          {
+            "id": "A",
+            "text": "l'unité arithmétique et logique (UAL)",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "la mémoire",
+            "isCorrect": false,
+            "distractorRationale": "La mémoire stocke données et instructions, elle ne calcule pas."
+          },
+          {
+            "id": "C",
+            "text": "le disque dur",
+            "isCorrect": false,
+            "distractorRationale": "Le disque est un stockage de masse, pas une unité de calcul."
+          },
+          {
+            "id": "D",
+            "text": "l'écran",
+            "isCorrect": false,
+            "distractorRationale": "L'écran affiche, il n'effectue aucun calcul."
+          }
+        ],
+        "explanation": "Dans le processeur, l'UAL réalise les opérations arithmétiques et logiques."
+      },
+      {
+        "id": "ETN-NSI-ARC-02",
+        "subject": "NSI",
+        "category": "Architecture et systèmes",
+        "domainId": "architecture",
+        "nodeCpsId": "1re.nsi.architecture.von-neumann-os",
+        "difficulty": 2,
+        "targetTimeSec": 55,
+        "shortCorrection": "Le système d'exploitation gère mémoire, processeur, périphériques et l'exécution des programmes.",
+        "weight": 2,
+        "competencies": [
+          "1re.nsi.architecture.von-neumann-os"
+        ],
+        "questionText": "Quel est le rôle principal d'un système d'exploitation ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "compiler le code source",
+            "isCorrect": false,
+            "distractorRationale": "La compilation est le rôle d'un compilateur, pas du système."
+          },
+          {
+            "id": "B",
+            "text": "gérer les ressources matérielles et l'exécution des programmes",
+            "isCorrect": true
+          },
+          {
+            "id": "C",
+            "text": "afficher des pages web",
+            "isCorrect": false,
+            "distractorRationale": "C'est le rôle d'un navigateur, application parmi d'autres."
+          },
+          {
+            "id": "D",
+            "text": "protéger contre les virus, et rien d'autre",
+            "isCorrect": false,
+            "distractorRationale": "La protection n'est qu'une facette ; le système gère avant tout les ressources."
+          }
+        ],
+        "explanation": "Le système d'exploitation gère mémoire, processeur, périphériques et l'exécution des programmes."
+      }
+    ]
+  },
+  "scoring": {
+    "engine": "facts.v1.0.1",
+    "domains": [
+      "representation",
+      "booleens",
+      "types-construits",
+      "programmation",
+      "algorithmique",
+      "donnees",
+      "architecture"
+    ]
+  },
+  "reporting": {
+    "rag": {
+      "enabled": false,
+      "decisionRef": "A56 — corpus RAG Terminale absent",
+      "sources": [],
+      "topK": 0
+    },
+    "promptFiles": {
+      "preAnalysis": {
+        "path": "content/bilans/prompts/entree-terminale-nsi-v1/pre-analysis.md",
+        "checksum": "6a282719d02e9b5803382eac53c0dab5b44a0f96d64221df86640a3e59334550"
+      },
+      "eleve": {
+        "path": "content/bilans/prompts/entree-terminale-nsi-v1/eleve.md",
+        "checksum": "630b2eb36d7103b4b5d0f527ae99f527dbf3923cc2e2e054cf5a0684b1c7d383"
+      },
+      "parents": {
+        "path": "content/bilans/prompts/entree-terminale-nsi-v1/parents.md",
+        "checksum": "daf06dd43385e4cad9ef1b5d7ada55106f8b83ff27994944d8af3fbefece754f"
+      },
+      "nexus": {
+        "path": "content/bilans/prompts/entree-terminale-nsi-v1/nexus.md",
+        "checksum": "d2cfd547877048100bd5cffabb1fc3ffaab1d95b19e52840cc3aa1724e994abc"
+      },
+      "verifier": {
+        "path": "content/bilans/prompts/entree-terminale-nsi-v1/verifier.md",
+        "checksum": "9fae8e82cb0c80ca1d5c23e382261b45e0173e141a50724315b905da74f95a07"
+      }
+    },
+    "outputSchemas": {
+      "preAnalysis": {
+        "type": "object",
+        "properties": {
+          "synthese": {
+            "type": "string",
+            "minLength": 1
+          },
+          "forcesPercues": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "craintes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "required": [
+          "synthese",
+          "forcesPercues",
+          "craintes"
+        ],
+        "additionalProperties": false
+      },
+      "eleve": {
+        "type": "object",
+        "properties": {
+          "accroche": {
+            "type": "string",
+            "minLength": 1
+          },
+          "forces": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "minItems": 3,
+            "maxItems": 3
+          },
+          "priorites": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "domainId": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "titre": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "pourquoi": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "comment": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "domainId",
+                "titre",
+                "pourquoi",
+                "comment"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "maxItems": 7
+          },
+          "microPlan": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "action": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "dureeMin": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              },
+              "required": [
+                "action",
+                "dureeMin"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "maxItems": 5
+          },
+          "motDeFin": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "accroche",
+          "forces",
+          "priorites",
+          "microPlan",
+          "motDeFin"
+        ],
+        "additionalProperties": false
+      },
+      "parents": {
+        "type": "object",
+        "properties": {
+          "cadre": {
+            "type": "string",
+            "minLength": 1
+          },
+          "pointsAppui": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "domainId": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "texte": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "domainId",
+                "texte"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "maxItems": 7
+          },
+          "priorites": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "domainId": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "titre": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "ceQuiSeraFait": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "domainId",
+                "titre",
+                "ceQuiSeraFait"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "maxItems": 7
+          },
+          "etapeSuivante": {
+            "type": "object",
+            "properties": {
+              "texte": {
+                "type": "string",
+                "minLength": 1
+              },
+              "cta": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "texte",
+              "cta"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "cadre",
+          "pointsAppui",
+          "priorites",
+          "etapeSuivante"
+        ],
+        "additionalProperties": false
+      },
+      "nexus": {
+        "type": "object",
+        "properties": {
+          "syntheseProfil": {
+            "type": "string",
+            "minLength": 1
+          },
+          "diagnosticPedagogique": {
+            "type": "string",
+            "minLength": 1
+          },
+          "planQuatreSemaines": {
+            "type": "string",
+            "minLength": 1
+          },
+          "alertes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "ragReferences": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "required": [
+          "syntheseProfil",
+          "diagnosticPedagogique",
+          "planQuatreSemaines",
+          "alertes",
+          "ragReferences"
+        ],
+        "additionalProperties": false
+      },
+      "verifier": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "type": "boolean"
+          },
+          "violations": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "required": [
+          "ok",
+          "violations"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "validation": {
+    "lexiconPath": "data/bilans/lexique-interdit.json",
+    "forbidDigits": [
+      "eleve",
+      "parents"
+    ]
+  }
+}

@@ -6,15 +6,32 @@ import { spawnSync } from 'node:child_process';
 const projectRoot = path.resolve(__dirname, '../..');
 const auditScript = path.join(projectRoot, 'scripts/audit-production-artifact.js');
 
-function runAudit(files: string[], opts?: { setup?: (root: string) => void }) {
-  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'nexus-artifact-'));
-  for (const relativePath of files) {
+const REQUIRED_PRISMA_ENGINE =
+  'node_modules/.prisma/client/libquery_engine-debian-openssl-3.0.x.so.node';
+
+function runAudit(
+  files: string[],
+  opts?: { setup?: (root: string) => void; includePrismaEngine?: boolean },
+) {
+  const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'nexus-artifact-project-'));
+  const root = path.join(projectRoot, 'standalone');
+  fs.mkdirSync(root, { recursive: true });
+  const schemaPath = path.join(projectRoot, 'prisma/schema.prisma');
+  fs.mkdirSync(path.dirname(schemaPath), { recursive: true });
+  fs.writeFileSync(
+    schemaPath,
+    'generator client {\n  provider = "prisma-client-js"\n  binaryTargets = ["native", "debian-openssl-3.0.x"]\n}\n',
+  );
+  const artifactFiles = opts?.includePrismaEngine === false
+    ? files
+    : [...files, REQUIRED_PRISMA_ENGINE];
+  for (const relativePath of artifactFiles) {
     const fullPath = path.join(root, relativePath);
     fs.mkdirSync(path.dirname(fullPath), { recursive: true });
     fs.writeFileSync(fullPath, 'fixture');
   }
   if (opts?.setup) opts.setup(root);
-  return spawnSync(process.execPath, [auditScript, root], { encoding: 'utf8' });
+  return spawnSync(process.execPath, [auditScript, root, schemaPath], { encoding: 'utf8' });
 }
 
 describe('production standalone artifact audit', () => {
@@ -27,6 +44,24 @@ describe('production standalone artifact audit', () => {
       'public/logo.png',
     ]);
     expect(result.status).toBe(0);
+  });
+
+  it('accepts an artifact containing every declared Prisma query engine target', () => {
+    const result = runAudit(['server.js']);
+    expect(result.status).toBe(0);
+    const report = JSON.parse(result.stdout);
+    expect(report.prisma.declaredBinaryTargets).toEqual([
+      'native',
+      'debian-openssl-3.0.x',
+    ]);
+    expect(report.prisma.queryEngines).toContain(REQUIRED_PRISMA_ENGINE);
+  });
+
+  it('rejects an artifact missing the declared Prisma OpenSSL 3 query engine', () => {
+    const result = runAudit(['server.js'], { includePrismaEngine: false });
+    expect(result.status).not.toBe(0);
+    expect(result.stdout).toContain('missing Prisma query engine for declared target');
+    expect(result.stdout).toContain('debian-openssl-3.0.x');
   });
 
   // Forbidden packages

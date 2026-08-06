@@ -10,6 +10,10 @@
 
 import { renderBilanParentPDF } from '@/lib/pdf/bilan-parent-pdfkit';
 import type { BilanParentPDFData } from '@/lib/pdf/bilan-parent-template';
+import {
+  createBilanPdfRendererSession,
+  type BilanPdfRendererSession,
+} from '@/lib/bilans/render/pdf';
 
 // Count /Page objects in PDF bytes (reliable page-count heuristic)
 function countPdfPages(buf: Buffer): number {
@@ -154,35 +158,44 @@ Votre enfant a fourni un travail sérieux durant ce stage.
 *Il est destiné aux familles et strictement confidentiel.*
 `.trim();
 
+let pdfSession: BilanPdfRendererSession;
+
+beforeAll(async () => { pdfSession = await createBilanPdfRendererSession(); });
+afterAll(async () => { await pdfSession.close(); });
+
+function renderWithSharedSession(data: BilanParentPDFData): Promise<Buffer> {
+  return renderBilanParentPDF(data, { renderHtmlToPdf: pdfSession.renderHtmlToPdf });
+}
+
 // ─── Tests ────────────────────────────────────────────────────────────────────
 
 describe('renderBilanParentPDF', () => {
   it('génère un Buffer non-vide', async () => {
-    const buf = await renderBilanParentPDF({ ...BASE, parentsMarkdown: SHORT_MARKDOWN });
+    const buf = await renderWithSharedSession({ ...BASE, parentsMarkdown: SHORT_MARKDOWN });
     expect(buf).toBeInstanceOf(Buffer);
     expect(buf.length).toBeGreaterThan(1000);
   });
 
   it('les magic bytes sont %PDF (fichier PDF valide)', async () => {
-    const buf = await renderBilanParentPDF({ ...BASE, parentsMarkdown: SHORT_MARKDOWN });
+    const buf = await renderWithSharedSession({ ...BASE, parentsMarkdown: SHORT_MARKDOWN });
     expect(buf.slice(0, 4).toString()).toBe('%PDF');
   });
 
   it('contenu court → 1 page (pas de pages vides)', async () => {
-    const buf = await renderBilanParentPDF({ ...BASE, parentsMarkdown: SHORT_MARKDOWN });
+    const buf = await renderWithSharedSession({ ...BASE, parentsMarkdown: SHORT_MARKDOWN });
     const pages = countPdfPages(buf);
     expect(pages).toBe(1);
   });
 
   it('contenu long (8 sections) → entre 2 et 6 pages (proportionnel, pas de pages vides)', async () => {
-    const buf = await renderBilanParentPDF({ ...BASE, parentsMarkdown: LONG_MARKDOWN });
+    const buf = await renderWithSharedSession({ ...BASE, parentsMarkdown: LONG_MARKDOWN });
     const pages = countPdfPages(buf);
     expect(pages).toBeGreaterThanOrEqual(2);
     expect(pages).toBeLessThanOrEqual(6);
   });
 
   it('bilan EAF complet (8 sections) → 2 ou 3 pages, jamais 8', async () => {
-    const buf = await renderBilanParentPDF({
+    const buf = await renderWithSharedSession({
       ...BASE,
       subjectLabel: 'Français / EAF',
       coachName: 'Raja Gmir',
@@ -196,41 +209,41 @@ describe('renderBilanParentPDF', () => {
   });
 
   it('sans score global → PDF généré sans erreur', async () => {
-    const buf = await renderBilanParentPDF({ ...BASE, globalScore: null, parentsMarkdown: SHORT_MARKDOWN });
+    const buf = await renderWithSharedSession({ ...BASE, globalScore: null, parentsMarkdown: SHORT_MARKDOWN });
     expect(buf.slice(0, 4).toString()).toBe('%PDF');
   });
 
   it('sans coach → PDF généré sans erreur', async () => {
-    const buf = await renderBilanParentPDF({ ...BASE, coachName: null, parentsMarkdown: SHORT_MARKDOWN });
+    const buf = await renderWithSharedSession({ ...BASE, coachName: null, parentsMarkdown: SHORT_MARKDOWN });
     expect(buf.slice(0, 4).toString()).toBe('%PDF');
   });
 
   it('markdown avec bold inline → PDF généré sans erreur', async () => {
     const md = '## Section\n\n**Texte en gras** suivi de texte normal et encore **du gras**.';
-    const buf = await renderBilanParentPDF({ ...BASE, parentsMarkdown: md });
+    const buf = await renderWithSharedSession({ ...BASE, parentsMarkdown: md });
     expect(buf.slice(0, 4).toString()).toBe('%PDF');
   });
 
   it('markdown avec séparateurs ────── nettoyés → pas de plantage', async () => {
     const md = '## Section\n\n────────────────────────────\n\nTexte après séparateur.';
-    const buf = await renderBilanParentPDF({ ...BASE, parentsMarkdown: md });
+    const buf = await renderWithSharedSession({ ...BASE, parentsMarkdown: md });
     expect(buf.slice(0, 4).toString()).toBe('%PDF');
   });
 
   it('markdown avec %%%%% (commentaires coach) nettoyés → pas de plantage', async () => {
     const md = '## Section\n\n%%%%%%%%%%%%%\n\nCommentaire du coach après les séparateurs.';
-    const buf = await renderBilanParentPDF({ ...BASE, parentsMarkdown: md });
+    const buf = await renderWithSharedSession({ ...BASE, parentsMarkdown: md });
     expect(buf.slice(0, 4).toString()).toBe('%PDF');
   });
 
   it('parentsMarkdown vide → PDF généré sans erreur (1 page)', async () => {
-    const buf = await renderBilanParentPDF({ ...BASE, parentsMarkdown: '' });
+    const buf = await renderWithSharedSession({ ...BASE, parentsMarkdown: '' });
     expect(buf.slice(0, 4).toString()).toBe('%PDF');
     expect(countPdfPages(buf)).toBe(1);
   });
 
   it('résultat est un Buffer (pas une Promise non résolue)', async () => {
-    const result = renderBilanParentPDF({ ...BASE, parentsMarkdown: SHORT_MARKDOWN });
+    const result = renderWithSharedSession({ ...BASE, parentsMarkdown: SHORT_MARKDOWN });
     expect(result).toBeInstanceOf(Promise);
     const buf = await result;
     expect(buf).toBeInstanceOf(Buffer);

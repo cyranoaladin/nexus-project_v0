@@ -1,3 +1,4 @@
+import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive';
 /**
  * GET /api/admin/directeur/stats
  *
@@ -10,7 +11,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { isErrorResponse, requireRole } from '@/lib/guards';
-import { guardRateLimitAsync } from '@/lib/rate-limit';
 import { UserRole } from '@prisma/client';
 import { z } from 'zod';
 
@@ -55,10 +55,9 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const rateLimited = await guardRateLimitAsync(request, {
-      preset: 'api',
-      keySuffix: 'admin-directeur-stats',
-      userId: sessionOrError.user.id,
+    const rateLimited = await guardSensitiveRateLimit(request, {
+      scope: 'admin-stats',
+      identity: sessionOrError.user.id,
     });
     if (rateLimited) return rateLimited;
 

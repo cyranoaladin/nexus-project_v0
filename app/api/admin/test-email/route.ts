@@ -4,6 +4,7 @@ export const dynamic = 'force-dynamic';
 import { auth } from '@/auth';
 import { sendWelcomeEmail, testEmailConfiguration } from '@/lib/email-service';
 import type { AuthSession } from '@/lib/guards';
+import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
@@ -30,6 +31,12 @@ export async function POST(request: NextRequest) {
     const session = await auth();
     const guard = requireAdmin(session as AuthSession | null);
     if (guard) return guard;
+
+    const blocked = await guardSensitiveRateLimit(request, {
+      scope: 'test-email',
+      identity: session!.user!.id,
+    });
+    if (blocked) return blocked;
 
     let json: unknown;
     try {

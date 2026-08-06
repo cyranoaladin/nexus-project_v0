@@ -1,7 +1,7 @@
 # =============================================================================
 # Docker Compose — E2E Ephemeral (Autonomous, One-Shot)
 # =============================================================================
-# 3 services: postgres-e2e → app-e2e (migrate+seed+Next.js) → playwright
+# 4 services: postgres-e2e + redis-e2e → app-e2e (migrate+seed+Next.js) → playwright
 #
 # Usage:
 #   npm run test:e2e:ephemeral
@@ -30,7 +30,10 @@ services:
     tmpfs:
       - /var/lib/postgresql/data:rw,noexec,nosuid,size=512m
     ports:
-      - "5435:5432"
+      # Host-side only, for local debugging access; other services in this
+      # stack always reach it via the internal DNS name postgres-e2e:5432.
+      # Overridable so a locally-occupied 5435 never blocks this stack.
+      - "${POSTGRES_E2E_HOST_PORT:-5435}:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d nexus_e2e"]
       interval: 3s
@@ -40,7 +43,20 @@ services:
     networks:
       - e2e-network
 
-  # ─── 2. Next.js App (build + migrate + seed + serve) ─────────────────────
+  # ─── 2. Redis (ephemeral, rate-limit backend only) ────────────────────────
+  redis-e2e:
+    image: redis:7-alpine
+    restart: "no"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 3s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+    networks:
+      - e2e-network
+
+  # ─── 3. Next.js App (build + migrate + seed + serve) ─────────────────────
   app-e2e:
     build:
       context: .
@@ -48,6 +64,8 @@ services:
     restart: "no"
     depends_on:
       postgres-e2e:
+        condition: service_healthy
+      redis-e2e:
         condition: service_healthy
     environment:
       NODE_ENV: production
@@ -63,9 +81,34 @@ services:
       OLLAMA_URL: ""
       RAG_INGESTOR_URL: ""
       NEXT_PUBLIC_SUPABASE_URL: ""
-      UPSTASH_REDIS_REST_URL: ""
       RATE_LIMIT_DISABLE: "1"
       CI: "true"
+      # lib/env-validation.ts fails fast in production without these --
+      # RATE_LIMIT_DISABLE alone does not satisfy that check (it isn't read
+      # by lib/rate-limit/runtime.ts at all). memory backend is explicitly
+      # refused when NODE_ENV=production (assertRateLimitRuntimeConfiguration
+      # throws RATE_LIMIT_PRODUCTION_MEMORY_REFUSED), so this disposable
+      # stack gets its own throwaway redis-e2e service below instead.
+      RATE_LIMIT_BACKEND: redis
+      REDIS_URL: redis://redis-e2e:6379
+      RATE_LIMIT_KEY_SECRET: e2e-compose-rate-limit-key-secret-please-rotate
+      RATE_LIMIT_KEY_NAMESPACE: nexus-e2e-compose
+      RATE_LIMIT_TRUST_PROXY_HOPS: "1"
+      # Same fail-fast reason for the email outbox scheduler
+      # (lib/email/outbox-scheduler.ts, startEmailOutboxScheduler). No real
+      # SMTP server runs in this stack -- delivery attempts fail and retry
+      # via the outbox, which is fine; only the boot-time config shape
+      # needs to be valid.
+      EMAIL_OUTBOX_WORKER_ENABLED: "true"
+      EMAIL_OUTBOX_ENCRYPTION_KEY: e2e-compose-outbox-encryption-key-0123456789
+      SMTP_HOST: 127.0.0.1
+      SMTP_PORT: "1025"
+      SMTP_FROM: e2e@example.test
+      # Bilan worker stays off by default -- same PLANCHER posture as prod
+      # until BILAN_WORKER_ENABLED is explicitly set for a given e2e run.
+      # entree-seconde-maths-v1 is the pack bilan-golden-path.spec.ts exercises;
+      # without this flag every /api/bilans/attempts call 404s (pack not enabled).
+      NEXUS_BILAN_PACK_ENTREE_SECONDE_MATHS_V1_ENABLED: "true"
     volumes:
       - e2e-shared:/app/e2e-shared
     healthcheck:
@@ -77,7 +120,7 @@ services:
     networks:
       - e2e-network
 
-  # ─── 3. Playwright (wait for app → run tests → exit) ─────────────────────
+  # ─── 4. Playwright (wait for app → run tests → exit) ─────────────────────
   playwright:
     build:
       context: .
@@ -96,6 +139,10 @@ services:
       CI: "true"
       PLAYWRIGHT_ARGS: "${PLAYWRIGHT_ARGS:-}"
       DATABASE_URL: postgresql://postgres:postgres@postgres-e2e:5432/nexus_e2e?schema=public
+      # Specs that drain bilan worker jobs in-process (not over HTTP) call
+      # resolveEnabledPack directly, reading THIS container's own env -- the
+      # flag on app-e2e alone isn't enough.
+      NEXUS_BILAN_PACK_ENTREE_SECONDE_MATHS_V1_ENABLED: "true"
     networks:
       - e2e-network
 

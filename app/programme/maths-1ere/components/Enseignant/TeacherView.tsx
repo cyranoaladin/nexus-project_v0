@@ -1,49 +1,33 @@
 'use client';
 
-import React, { useState, useCallback } from 'react';
-import { motion } from 'framer-motion';
-import {
-  Users,
-  BookOpen,
-  AlertTriangle,
-  TrendingUp,
-  TrendingDown,
-  Calendar,
-  Target,
-  Database,
-  Loader2,
-  Sparkles,
-  FileText,
-  RefreshCw,
-  CheckCircle2,
-  Info,
-  BarChart3,
-  ClipboardList,
-  Command,
-} from 'lucide-react';
-import { useMathsLabStore } from '../../store';
-import { programmeData } from '../../data';
-import { STAGE_PRINTEMPS_2026, getTodaySession, getNextSession, formatDateFr } from '../../config/stage';
-import { EPREUVE_MATHS_1ERE } from '../../config/exam';
 import { RAGRemediation } from '@/components/programme/shared/RAG/RAGRemediation';
-import { BilanPDFDownloadButton } from '../../lib/bilan-pdf';
-import { Download } from 'lucide-react';
 import { getNextStage } from '@/lib/pricing-client';
+import {
+AlertTriangle,
+BarChart3,
+BookOpen,
+Calendar,
+ClipboardList,
+Command,
+Database,
+Download,
+FileText,
+Info,
+RefreshCw,
+Sparkles,
+Target,
+TrendingDown,
+TrendingUp,
+Users
+} from 'lucide-react';
+import React,{ useState } from 'react';
+import { EPREUVE_MATHS_1ERE } from '../../config/exam';
+import { STAGE_PRINTEMPS_2026,formatDateFr,getNextSession,getTodaySession } from '../../config/stage';
+import { programmeData } from '../../data';
+import { BilanPDFDownloadButton } from '../../lib/bilan-pdf';
+import { useMathsLabStore } from '../../store';
 
 const _stageLabel = getNextStage()?.title ?? 'Stage Nexus Réussite';
-
-interface RAGHit {
-  id: string;
-  document: string;
-  score: number;
-  metadata: Record<string, unknown>;
-}
-
-type RAGState =
-  | { status: 'idle' }
-  | { status: 'loading' }
-  | { status: 'done'; hits: RAGHit[]; source: string }
-  | { status: 'error'; message: string };
 
 type TeacherTab = 'profil' | 'groupe' | 'programme' | 'seance' | 'remediation' | 'bilan';
 
@@ -53,9 +37,7 @@ interface TeacherViewProps {
 
 export const TeacherView: React.FC<TeacherViewProps> = ({ studentName }) => {
   const [activeTab, setActiveTab] = useState<TeacherTab>('profil');
-  const [ragState, setRagState] = useState<RAGState>({ status: 'idle' });
   const [ragQuery, setRagQuery] = useState('');
-  const [isPrintingBilan, setIsPrintingBilan] = useState(false);
   const store = useMathsLabStore();
 
   const niveau = typeof store.getNiveau === 'function' ? store.getNiveau() : { nom: 'Première' };
@@ -83,24 +65,6 @@ export const TeacherView: React.FC<TeacherViewProps> = ({ studentName }) => {
 
   const weakChaps = diagResults.filter((d) => d.percent < 60).sort((a, b) => a.percent - b.percent);
   const strongChaps = diagResults.filter((d) => d.percent >= 80).sort((a, b) => b.percent - a.percent);
-  const incompleteCount = allChapitres.length - store.completedChapters.length;
-
-  const searchRAG = useCallback(async (query: string) => {
-    if (!query.trim()) return;
-    setRagState({ status: 'loading' });
-    try {
-      const res = await fetch('/api/programme/maths-1ere/rag', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ chapId: 'teacher-view', chapTitre: query, query }),
-      });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json() as { hits: RAGHit[]; source: string };
-      setRagState({ status: 'done', hits: data.hits, source: data.source });
-    } catch (e) {
-      setRagState({ status: 'error', message: (e as Error).message });
-    }
-  }, []);
 
   const tabs: { id: TeacherTab; label: string; icon: React.ReactNode }[] = [
     { id: 'profil', label: 'Profil Élève', icon: <Users className="h-4 w-4" /> },
@@ -697,41 +661,6 @@ const SeanceDetail: React.FC<{ seance: (typeof STAGE_PRINTEMPS_2026.seances)[0] 
   </div>
 );
 
-const RAGHitCard: React.FC<{ hit: RAGHit }> = ({ hit }) => {
-  const [expanded, setExpanded] = useState(false);
-  const title = (hit.metadata?.title as string) ?? 'Source pédagogique';
-  const preview = hit.document.slice(0, 200);
-  const hasMore = hit.document.length > 200;
-  const score = Math.round(hit.score * 100);
-
-  return (
-    <div className="rounded-xl border border-slate-700/60 bg-slate-900/60 p-4">
-      <div className="flex items-center gap-2 mb-2">
-        <span className={`rounded-full border px-2 py-0.5 text-[10px] font-bold ${
-          score >= 70 ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30' :
-          score >= 50 ? 'text-amber-400 bg-amber-500/10 border-amber-500/30' :
-          'text-slate-400 bg-slate-700/20 border-slate-600/30'
-        }`}>
-          {score}%
-        </span>
-        <span className="text-xs font-semibold text-white truncate">{title}</span>
-      </div>
-      <p className="text-xs text-slate-300 leading-relaxed">
-        {expanded ? hit.document : preview}
-        {!expanded && hasMore && <span className="text-slate-600">…</span>}
-      </p>
-      {hasMore && (
-        <button
-          onClick={() => setExpanded(!expanded)}
-          className="mt-1.5 text-[11px] text-violet-400 hover:text-violet-300 transition-colors"
-        >
-          {expanded ? 'Réduire' : 'Lire plus'}
-        </button>
-      )}
-    </div>
-  );
-};
-
 const ProfilGroupeCard: React.FC<{
   xp: number;
   completed: number;
@@ -775,7 +704,7 @@ const ProfilGroupeCard: React.FC<{
   );
 };
 
-const HeatmapCompetences: React.FC<{ diagResults: any[] }> = ({ diagResults }) => {
+const HeatmapCompetences: React.FC<{ diagResults: Array<{ chapTitre: string; percent: number }> }> = ({ diagResults }) => {
   const competences = [
     'Second degré', 'Suites', 'Dérivation', 'Variations', 'Exponentielle',
     'Trigonométrie', 'Produit scalaire', 'Probabilités cond.', 'Variables aléatoires', 'Algorithmique'

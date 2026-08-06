@@ -1,0 +1,13 @@
+schemaVersion: 1
+slug: entree-terminale-nsi-v1
+packVersion: 1
+sourceChecksum: d4535b9afdec6fd125a85cdecebffd696ee412935bec61831bc0341444b6c467
+promptChecksums:
+  preAnalysis: 6a282719d02e9b5803382eac53c0dab5b44a0f96d64221df86640a3e59334550
+  eleve: 630b2eb36d7103b4b5d0f527ae99f527dbf3923cc2e2e054cf5a0684b1c7d383
+  parents: daf06dd43385e4cad9ef1b5d7ada55106f8b83ff27994944d8af3fbefece754f
+  nexus: d2cfd547877048100bd5cffabb1fc3ffaab1d95b19e52840cc3aa1724e994abc
+  verifier: 9fae8e82cb0c80ca1d5c23e382261b45e0173e141a50724315b905da74f95a07
+validatedBy: cmomnwolx0001mi0u8m8zj53w
+validatedAt: 2026-08-05T07:01:41.106Z
+qualification: Responsable pedagogique, validateur Mathematiques et NSI

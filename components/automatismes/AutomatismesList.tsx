@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Zap, Timer, Trophy, History, Play, CheckCircle2, ChevronRight, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card,CardContent,CardDescription,CardHeader,CardTitle } from "@/components/ui/card";
+import { CheckCircle2,ChevronRight,History,Loader2,Play,Timer,Trophy,Zap } from "lucide-react";
+import { useEffect,useState } from "react";
 
 interface SeriesMetadata {
   id: string;
@@ -19,7 +19,11 @@ interface Attempt {
   id: string;
   createdAt: string;
   globalScore: number;
-  scoringResult: any;
+  scoringResult: {
+    seriesId?: string;
+    seriesTitle?: string;
+    scoreSur6?: number;
+  } | null;
 }
 
 interface AutomatismesListProps {
@@ -79,9 +83,8 @@ export function AutomatismesList({ onSelectSeries }: AutomatismesListProps) {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {series.map((s) => {
-              const lastAttempt = attempts.find(a => (a.scoringResult as any)?.seriesId === s.id);
               const bestScore = attempts
-                .filter(a => (a.scoringResult as any)?.seriesId === s.id)
+                .filter((attempt) => attempt.scoringResult?.seriesId === s.id)
                 .reduce((max, a) => Math.max(max, a.globalScore), 0);
 
               return (
@@ -160,11 +163,11 @@ export function AutomatismesList({ onSelectSeries }: AutomatismesListProps) {
                         </span>
                       </div>
                       <h4 className="text-sm font-semibold text-white group-hover:text-brand-accent transition-colors">
-                        {(attempt.scoringResult as any)?.seriesTitle || "Simulation"}
+                        {attempt.scoringResult?.seriesTitle || "Simulation"}
                       </h4>
                       <div className="mt-2 flex items-center justify-between">
                         <span className="text-[10px] text-neutral-500 italic">
-                          Score: {(attempt.scoringResult as any)?.scoreSur6}/6
+                          Score: {attempt.scoringResult?.scoreSur6 ?? 0}/6
                         </span>
                         <ChevronRight className="w-4 h-4 text-neutral-600 group-hover:text-brand-accent transition-colors" />
                       </div>

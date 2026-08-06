@@ -2,7 +2,7 @@
  * GET /api/internal/health
  *
  * Protected healthcheck for infrastructure monitoring.
- * Covers: DB, SMTP, RAG, Redis/Upstash, disk, worker queue.
+ * Covers: DB, SMTP, RAG, Redis, disk, worker queue.
  *
  * Access: ADMIN or ASSISTANTE only (enforced by enforcePolicy).
  */
@@ -13,7 +13,7 @@ import { NextResponse } from 'next/server';
 import { enforcePolicy } from '@/lib/rbac';
 import { isErrorResponse } from '@/lib/guards';
 import { prisma } from '@/lib/prisma';
-import { getRateLimitRuntimeMode } from '@/lib/rate-limit';
+import { assertRateLimitRuntimeConfiguration, getRateLimitRuntimeMode } from '@/lib/rate-limit';
 import { ragSearch } from '@/lib/rag-client';
 
 export async function GET() {
@@ -47,11 +47,17 @@ export async function GET() {
     checks.rag = { ok: false, detail: err instanceof Error ? err.message : 'unknown' };
   }
 
-  // 5. Redis / Upstash
+  // 5. Redis
   const rateLimitMode = getRateLimitRuntimeMode();
+  let rateLimitConfigurationValid = true;
+  try {
+    assertRateLimitRuntimeConfiguration();
+  } catch {
+    rateLimitConfigurationValid = false;
+  }
   checks.redis = {
-    ok: rateLimitMode !== 'memory',
-    detail: rateLimitMode,
+    ok: rateLimitConfigurationValid && rateLimitMode !== 'memory' && rateLimitMode !== 'invalid',
+    detail: rateLimitConfigurationValid ? rateLimitMode : 'configuration-invalid',
   };
 
   // 6. Disk (basic check via cwd access)

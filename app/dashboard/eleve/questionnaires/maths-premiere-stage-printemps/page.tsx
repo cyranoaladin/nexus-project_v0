@@ -1,19 +1,19 @@
 "use client";
 
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card,CardContent } from "@/components/ui/card";
 import { motion } from "framer-motion";
 import {
-  ArrowLeft,
-  ArrowRight,
-  CheckCircle2,
-  Clock,
-  FileText,
-  GraduationCap,
-  Sparkles,
-  Target,
+ArrowLeft,
+ArrowRight,
+CheckCircle2,
+Clock,
+FileText,
+GraduationCap,
+Sparkles,
+Target,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import React,{ useCallback,useEffect,useMemo,useState } from "react";
 
 const steps = [
   "Profil",
@@ -311,7 +311,7 @@ export default function QuestionnaireMathsPremiereStagePrintempsPage() {
           if (data.bilan.status === 'COMPLETED') setSubmitted(true);
           if (data.bilan.updatedAt) setLastSaved(new Date(data.bilan.updatedAt));
         }
-      } catch (_err) {
+      } catch {
         // Ignored
       } finally {
         setIsLoading(false);
@@ -383,7 +383,7 @@ export default function QuestionnaireMathsPremiereStagePrintempsPage() {
 
       setSubmitted(true);
       window.scrollTo({ top: 0, behavior: "smooth" });
-    } catch (_err) {
+    } catch {
       // ignored
     } finally {
       setIsSubmitting(false);

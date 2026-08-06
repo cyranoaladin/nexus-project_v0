@@ -9,17 +9,9 @@
 
 const mockSendMail = jest.fn().mockResolvedValue({ messageId: 'test-msg-id' });
 
-jest.mock('nodemailer9', () => {
+jest.mock('@/lib/email/queue', () => {
   return {
-    __esModule: true,
-    default: {
-      createTransport: jest.fn().mockReturnValue({
-        sendMail: (...args: any[]) => mockSendMail(...args),
-      }),
-    },
-    createTransport: jest.fn().mockReturnValue({
-      sendMail: (...args: any[]) => mockSendMail(...args),
-    }),
+    queueCommittedEmail: (...args: unknown[]) => mockSendMail(...args),
   };
 });
 
@@ -75,12 +67,12 @@ describe('sendWelcomeParentEmail', () => {
     expect(call.html).not.toContain('Mot de passe temporaire');
   });
 
-  it('should use SMTP_FROM env or default sender', async () => {
+  it('should delegate sender resolution to the canonical worker', async () => {
     await sendWelcomeParentEmail('parent@example.com', 'Ahmed', 'Mehdi');
 
     const call = mockSendMail.mock.calls[0][0];
-    expect(call.from).toBeDefined();
-    expect(typeof call.from).toBe('string');
+    expect(call.aggregateType).toBe('LEGACY_EMAIL');
+    expect(call).not.toHaveProperty('from');
   });
 });
 

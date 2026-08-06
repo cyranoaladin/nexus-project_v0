@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 import { PREMIERE_EDS_SIMULATIONS } from "@/data/automatismes/premiere-eds/simulations";
 import { calculateAutomatismeScore } from "@/lib/automatismes/scoring";
+import { prisma } from "@/lib/prisma";
 import { serializeError } from '@/lib/utils/serialize-error';
+import { NextRequest,NextResponse } from "next/server";
 import { z } from 'zod';
 
 const attemptSchema = z.object({
@@ -14,7 +14,7 @@ const attemptSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
-    const session: any = await auth();
+    const session: import('next-auth').Session | null = await auth();
 
     if (!session?.user || session.user.role !== "ELEVE") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
         completedAt: new Date(),
         status: "COMPLETED",
         globalScore: result.percentage,
-        scoringResult: result as any,
+        scoringResult: result as unknown as import('@prisma/client').Prisma.InputJsonValue,
         assessmentVersion: `automatismes_premiere_eds_v1_${seriesId}`,
         engineVersion: "automatisme_scorer_v1",
       },
@@ -81,7 +81,7 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   try {
-    const session: any = await auth();
+    const session: import('next-auth').Session | null = await auth();
 
     if (!session?.user || session.user.role !== "ELEVE") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

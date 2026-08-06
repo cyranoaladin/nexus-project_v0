@@ -10,9 +10,19 @@ const nextConfig = {
     '/': [
       './src/static-pages/assistante-devis-v3/**/*',
     ],
+    '/*': [
+      './data/bilans/banks/*.json',
+      './data/bilans/cps/*.yaml',
+      './data/bilans/reviews/*.review.yaml',
+      './content/bilans/prompts/**/*.md',
+      './app/fonts/Fraunces-Variable.woff2',
+      './app/fonts/DMSans-Variable.woff2',
+    ],
   },
   outputFileTracingExcludes: {
     '*': [
+      '.env',
+      '.env.*',
       'node_modules/@img/sharp-wasm32/**/*',
       'node_modules/@emnapi/runtime/**/*',
     ],
@@ -52,10 +62,30 @@ const nextConfig = {
         headers: [
           {
             key: 'Cache-Control',
-            value: 'no-cache, no-store, must-revalidate',
+            value: 'private, no-store, max-age=0, must-revalidate',
           },
+          { key: 'Pragma', value: 'no-cache' },
+          { key: 'Expires', value: '0' },
         ],
       },
+      ...[
+        '/api/parent/children/:studentId/bilans',
+        '/api/parent/children/:studentId/bilans/:attemptId/report',
+        '/api/parent/bilans/:id/pdf',
+        '/api/bilan-gratuit',
+        '/api/auth/resend-activation',
+        '/api/auth/activate',
+        '/api/student/activate',
+        '/auth/activate',
+      ].map((source) => ({
+        source,
+        headers: [
+          { key: 'Cache-Control', value: 'private, no-store, max-age=0' },
+          { key: 'Pragma', value: 'no-cache' },
+          { key: 'Expires', value: '0' },
+          { key: 'Referrer-Policy', value: 'no-referrer' },
+        ],
+      })),
       {
         // But static hashed chunks CAN be cached long-term
         source: '/_next/static/(.*)',

@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { GET } from '@/app/api/student/credits/route';
 import { requireRole, isErrorResponse } from '@/lib/guards';
-import { RateLimitPresets } from '@/lib/middleware/rateLimit';
+import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive';
 import { createLogger } from '@/lib/middleware/logger';
 import { prisma } from '@/lib/prisma';
 
@@ -11,10 +11,8 @@ jest.mock('@/lib/guards', () => ({
   isErrorResponse: jest.fn(),
 }));
 
-jest.mock('@/lib/middleware/rateLimit', () => ({
-  RateLimitPresets: {
-    api: jest.fn(),
-  },
+jest.mock('@/lib/rate-limit/sensitive', () => ({
+  guardSensitiveRateLimit: jest.fn(),
 }));
 
 jest.mock('@/lib/middleware/logger', () => ({
@@ -46,14 +44,14 @@ function mockLogger() {
 describe('GET /api/student/credits', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    (RateLimitPresets.api as jest.Mock).mockReturnValue(null);
+    (guardSensitiveRateLimit as jest.Mock).mockReturnValue(null);
     (requireRole as jest.Mock).mockResolvedValue(mockSession);
     (isErrorResponse as unknown as jest.Mock).mockReturnValue(false);
     (createLogger as jest.Mock).mockReturnValue(mockLogger());
   });
 
   it('returns 429 when rate limited', async () => {
-    (RateLimitPresets.api as jest.Mock).mockReturnValue(
+    (guardSensitiveRateLimit as jest.Mock).mockReturnValue(
       NextResponse.json({ error: 'RATE_LIMIT' }, { status: 429 })
     );
 

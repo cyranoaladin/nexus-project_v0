@@ -8,6 +8,7 @@ import {
   scoreSnapshotSchema,
 } from '@/lib/bilans/core/schemas';
 import {
+  canApplyReportTransition,
   getLegalTransition,
   isFreshReportRevision,
   isLegalTransition,
@@ -35,22 +36,26 @@ describe('canonical bilan lifecycle', () => {
     { from: 'SCORED', action: 'CREATE_REPORT', actor: 'WORKER', to: 'REPORT_PENDING_REVIEW' },
     { from: 'SCORED', action: 'MARK_REPORT_GENERATION_FAILED', actor: 'WORKER', to: 'REPORT_GENERATION_FAILED' },
     { from: 'REPORT_GENERATION_FAILED', action: 'RETRY_REPORT_GENERATION', actor: 'WORKER', to: 'SCORED' },
-    { from: 'REPORT_PENDING_REVIEW', action: 'VALIDATE_REPORT', actor: 'COACH', to: 'COACH_VALIDATED' },
-    { from: 'REPORT_PENDING_REVIEW', action: 'REJECT_REPORT', actor: 'COACH', to: 'COACH_REJECTED' },
-    { from: 'COACH_REJECTED', action: 'REQUEST_REGENERATION', actor: 'COACH', to: 'SCORED' },
-    { from: 'PUBLISHED', action: 'REQUEST_REGENERATION', actor: 'COACH', to: 'SCORED' },
+    { from: 'REPORT_PENDING_REVIEW', action: 'VALIDATE_REPORT', actor: 'ASSISTANTE', to: 'COACH_VALIDATED' },
+    { from: 'REPORT_PENDING_REVIEW', action: 'REJECT_REPORT', actor: 'ASSISTANTE', to: 'COACH_REJECTED' },
+    { from: 'COACH_REJECTED', action: 'REQUEST_REGENERATION', actor: 'ASSISTANTE', to: 'SCORED' },
+    { from: 'PUBLISHED', action: 'REQUEST_REGENERATION', actor: 'ASSISTANTE', to: 'SCORED' },
     { from: 'SCORED', action: 'REGENERATE_REPORT', actor: 'WORKER', to: 'REPORT_PENDING_REVIEW' },
-    { from: 'COACH_VALIDATED', action: 'PUBLISH_REPORT', actor: 'COACH', to: 'PUBLISHED' },
+    { from: 'COACH_VALIDATED', action: 'PUBLISH_REPORT', actor: 'ASSISTANTE', to: 'PUBLISHED' },
   ];
 
   const illegalTransitions: TransitionFixture[] = [
     { from: 'DRAFT', action: 'SUBMIT', actor: 'PARENT', to: 'SUBMITTED' },
     { from: 'SUBMITTED', action: 'SCORE', actor: 'STUDENT', to: 'SCORED' },
-    { from: 'SCORED', action: 'MARK_REPORT_GENERATION_FAILED', actor: 'COACH', to: 'REPORT_GENERATION_FAILED' },
+    { from: 'SCORED', action: 'MARK_REPORT_GENERATION_FAILED', actor: 'ASSISTANTE', to: 'REPORT_GENERATION_FAILED' },
     { from: 'REPORT_GENERATION_FAILED', action: 'RETRY_REPORT_GENERATION', actor: 'STUDENT', to: 'SCORED' },
-    { from: 'REPORT_PENDING_REVIEW', action: 'PUBLISH_REPORT', actor: 'COACH', to: 'PUBLISHED' },
+    { from: 'REPORT_PENDING_REVIEW', action: 'PUBLISH_REPORT', actor: 'ASSISTANTE', to: 'PUBLISHED' },
     { from: 'COACH_REJECTED', action: 'CREATE_REPORT', actor: 'WORKER', to: 'REPORT_PENDING_REVIEW' },
-    { from: 'PUBLISHED', action: 'VALIDATE_REPORT', actor: 'COACH', to: 'COACH_VALIDATED' },
+    { from: 'PUBLISHED', action: 'VALIDATE_REPORT', actor: 'ASSISTANTE', to: 'COACH_VALIDATED' },
+    // Coach is out of the review circuit: none of its former review actions remain legal.
+    { from: 'REPORT_PENDING_REVIEW', action: 'VALIDATE_REPORT', actor: 'COACH', to: 'COACH_VALIDATED' },
+    { from: 'REPORT_PENDING_REVIEW', action: 'REJECT_REPORT', actor: 'COACH', to: 'COACH_REJECTED' },
+    { from: 'COACH_VALIDATED', action: 'PUBLISH_REPORT', actor: 'COACH', to: 'PUBLISHED' },
   ];
 
   it.each(legalTransitions)('allows $from --$action/$actor--> $to', (transition) => {
@@ -128,6 +133,7 @@ describe('canonical bilan schemas', () => {
       status: 'COACH_REJECTED' as const,
       generatedAt: '2026-07-14T09:00:00.000Z',
       evidence: [],
+      validationFailures: [],
     };
     const nextRevision = {
       ...previousRevision,
@@ -135,6 +141,7 @@ describe('canonical bilan schemas', () => {
       revision: 2,
       status: 'REPORT_PENDING_REVIEW' as const,
       generatedAt: '2026-07-14T09:05:00.000Z',
+      validationFailures: [],
     };
 
     expect(isFreshReportRevision(previousRevision, nextRevision)).toBe(true);
@@ -181,5 +188,25 @@ describe('canonical bilan schemas', () => {
       previousRevision: validatedRevision,
       nextRevision,
     }).success).toBe(false);
+  });
+
+  it('never validates or publishes a revision with validation failures', () => {
+    const pending = {
+      id: 'report-failed', attemptId: 'attempt-1', revision: 1,
+      status: 'REPORT_PENDING_REVIEW' as const,
+      generatedAt: '2026-07-14T09:00:00.000Z', evidence: [],
+      validationFailures: ['V2: digit in parent prose'],
+    };
+    const validated = {
+      ...pending,
+      status: 'COACH_VALIDATED' as const,
+      validatedAt: '2026-07-14T09:05:00.000Z',
+    };
+
+    expect(canApplyReportTransition(pending, 'VALIDATE_REPORT', 'ASSISTANTE')).toBe(false);
+    expect(canApplyReportTransition(validated, 'PUBLISH_REPORT', 'ASSISTANTE')).toBe(false);
+    expect(canApplyReportTransition(pending, 'REJECT_REPORT', 'ASSISTANTE')).toBe(true);
+    expect(reportRevisionSchema.safeParse(validated).success).toBe(false);
+    expect(reportRevisionSchema.safeParse({ ...validated, status: 'PUBLISHED' }).success).toBe(false);
   });
 });

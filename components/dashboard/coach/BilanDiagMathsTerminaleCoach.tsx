@@ -1,20 +1,31 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import {
-  Brain, Target, AlertTriangle, CheckCircle, ShieldAlert, Zap,
-  BarChart2, Edit3, EyeOff, Loader2, Save, Check
-} from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { DOMAINS, QUESTIONS_OPEN, ERROR_TYPES } from '@/lib/diagnostic/maths-terminale/data';
+import { Card,CardContent,CardHeader,CardTitle } from '@/components/ui/card';
+import { DOMAINS,ERROR_TYPES,QUESTIONS_OPEN } from '@/lib/diagnostic/maths-terminale/data';
 import {
-  computeDiagnostics, aggregateTeacherErrors, generateAdvancedPath, generateRecommendations, generatePostStagePlan
+aggregateTeacherErrors,generateAdvancedPath,
+generatePostStagePlan,
+generateRecommendations
 } from '@/lib/diagnostic/maths-terminale/scoring';
-import { DiagnosticRoadmap } from '../shared/DiagnosticRoadmap';
 import type {
-  DiagnosticResult, ChapterResult, TeacherGrade, OpenAnswer, PedagogicalStatus, SessionPlan, WeekPlan
+ChapterResult,
+DiagnosticResult,
+OpenAnswer,PedagogicalStatus,
+TeacherGrade
 } from '@/lib/diagnostic/maths-terminale/types';
+import {
+AlertTriangle,
+BarChart2,
+Check,
+CheckCircle,
+Edit3,EyeOff,Loader2,
+ShieldAlert,
+Target,
+Zap
+} from 'lucide-react';
+import { useEffect,useState } from 'react';
+import { DiagnosticRoadmap } from '../shared/DiagnosticRoadmap';
 
 
 // ─── Status Badge ─────────────────────────────────────────────────────────────
@@ -341,10 +352,18 @@ interface BilanDiagMathsTerminaleCoachProps {
   studentName: string;
 }
 
+type CoachDiagnosticSource = {
+  teacherGrades?: Record<string, TeacherGrade>;
+  openAnswers?: Record<string, OpenAnswer>;
+  evaluatedData?: DiagnosticResult;
+};
+
+type CoachDiagnosticBilan = { sourceData: CoachDiagnosticSource };
+
 export function BilanDiagMathsTerminaleCoach({ studentId, studentName }: BilanDiagMathsTerminaleCoachProps) {
 
   const [loading, setLoading] = useState(true);
-  const [bilan, setBilan] = useState<any | null>(null);
+  const [bilan, setBilan] = useState<CoachDiagnosticBilan | null>(null);
   const [teacherGrades, setTeacherGrades] = useState<Record<string, TeacherGrade>>({});
   const [evaluatedData, setEvaluatedData] = useState<DiagnosticResult | null>(null);
   const [openAnswers, setOpenAnswers] = useState<Record<string, OpenAnswer>>({});
@@ -356,12 +375,12 @@ export function BilanDiagMathsTerminaleCoach({ studentId, studentName }: BilanDi
       try {
         const res = await fetch(`/api/coach/students/${studentId}/bilan-diagnostic-maths-terminale`);
         if (!res.ok) { setLoading(false); return; }
-        const data = await res.json();
+        const data = await res.json() as { bilan?: CoachDiagnosticBilan };
         if (!data.bilan) { setLoading(false); return; }
 
         const b = data.bilan;
         setBilan(b);
-        const src = b.sourceData as any;
+        const src = b.sourceData;
         if (src?.teacherGrades) setTeacherGrades(src.teacherGrades);
         if (src?.openAnswers) setOpenAnswers(src.openAnswers);
         if (src?.evaluatedData) setEvaluatedData(src.evaluatedData);
@@ -380,8 +399,8 @@ export function BilanDiagMathsTerminaleCoach({ studentId, studentName }: BilanDi
         body: JSON.stringify({ teacherGrades }),
       });
       if (res.ok) {
-        const data = await res.json();
-        const src = data.bilan?.sourceData as any;
+        const data = await res.json() as { bilan: CoachDiagnosticBilan };
+        const src = data.bilan.sourceData;
         if (src?.evaluatedData) setEvaluatedData(src.evaluatedData);
         setBilan(data.bilan);
         setView('summary');
@@ -414,7 +433,7 @@ export function BilanDiagMathsTerminaleCoach({ studentId, studentName }: BilanDi
 
   const {
     globalRawScore, globalMaxScore, qcmRawScore, qcmMaxScore, qcmPercentage,
-    openRawScore, openMaxScore, isProvisional, calculatedProfile, chapterResults, domainScores
+    openRawScore, openMaxScore, isProvisional, chapterResults, domainScores
   } = evaluatedData;
 
   const recs = generateRecommendations(chapterResults, teacherGrades);

@@ -1,23 +1,24 @@
 'use client';
+import type { Categorie, StageSession } from '@/components/programme/shared/types/programme';
 
-import React, { useMemo } from 'react';
-import { motion } from 'framer-motion';
-import { Sparkles, BookOpen, Target, ChevronRight } from 'lucide-react';
 import { getNextStage } from '@/lib/pricing-client';
+import { motion } from 'framer-motion';
+import { BookOpen,ChevronRight,Sparkles,Target } from 'lucide-react';
+import React,{ useMemo } from 'react';
 
 interface SeanceDuJourProps {
   onNavigateToChap: (catKey: string, chapId: string) => void;
   stageConfig: {
-    getTodaySession: (baseDate?: Date, matiere?: 'Mathématiques' | 'Français') => any;
+    getTodaySession: (baseDate?: Date, matiere?: 'Mathématiques' | 'Français') => StageSession | null;
     formatDateFr: (date: string) => string;
   };
-  programmeData: Record<string, any>;
+  programmeData: Record<string, Categorie>;
 }
 
 // Helper to find catKey for a given chapter id
-function findCatKeyForChapter(chapId: string, programmeData: Record<string, any>): string | null {
+function findCatKeyForChapter(chapId: string, programmeData: Record<string, Categorie>): string | null {
   for (const [catKey, cat] of Object.entries(programmeData)) {
-    if (cat.chapitres.some((chap: any) => chap.id === chapId)) {
+    if (cat.chapitres.some((chapter) => chapter.id === chapId)) {
       return catKey;
     }
   }
@@ -101,9 +102,9 @@ export const SeanceDuJour: React.FC<SeanceDuJourProps> = ({ onNavigateToChap, st
             </div>
 
             <div className="flex flex-wrap gap-2">
-              {session.objectifs.map((obj: any, i: number) => (
+              {session.objectifs.map((objective, i) => (
                 <span key={i} className="rounded-lg bg-slate-800/80 px-2.5 py-1.5 text-[10px] font-bold text-slate-400 border border-slate-700">
-                   ✓ {obj}
+                   ✓ {objective}
                 </span>
               ))}
             </div>

@@ -1,0 +1,516 @@
+# =============================================================================
+# Banque de positionnement — ENTRÉE EN TERMINALE, spécialité Mathématiques
+#
+# Doctrine : intersection Première / Terminale. Chaque item porte sur un
+# prérequis structurant SANS LEQUEL les premières semaines de Terminale sont
+# inaccessibles. Aucun item ne teste une notion du programme de Terminale.
+#
+# STATUT : DRAFT — proposition à amender par le responsable pédagogique.
+# Aucun item ne doit être publié sans relecture disciplinaire.
+#
+# 18 items · 9 nœuds de prérequis · 2 items par nœud (règle V4)
+# =============================================================================
+
+slug: entree-terminale-maths-v1
+level: TERMINALE
+subject: MATHS
+version: 1
+status: DRAFT
+targetDurationMin: 25
+
+items:
+
+  # ===========================================================================
+  # NŒUD 1 — Second degré : discriminant et racines
+  # Pourquoi c'est structurant : toute étude de signe de f' en Terminale passe
+  # par un trinôme. Un élève qui ne factorise pas ne peut pas dresser un
+  # tableau de variations, donc ne peut ni étudier la convexité, ni appliquer
+  # le TVI, ni conclure sur un nombre de solutions.
+  # ===========================================================================
+  - id: ETL-MAT-SDG-01
+    nodeCpsId: 1re.maths.second-degre.discriminant-racines
+    type: QCM_SIMPLE
+    difficulty: 1
+    targetTimeSec: 60
+    statement: "Résoudre dans ℝ l'équation x² − 5x + 6 = 0."
+    options:
+      - key: A
+        label: "x = −2 ou x = −3"
+        correct: false
+        distractorRationale: "Factorise en (x+2)(x+3) sans vérifier les signes : confond la somme et le produit des racines."
+      - key: B
+        label: "x = 2 ou x = 3"
+        correct: true
+      - key: C
+        label: "x = 1 ou x = 6"
+        correct: false
+        distractorRationale: "Cherche deux nombres de produit 6 sans contrôler que leur somme vaut 5."
+      - key: D
+        label: "x = 5 ou x = 6"
+        correct: false
+        distractorRationale: "Lit directement les coefficients de l'équation comme s'ils étaient les racines."
+    shortCorrection: "Le discriminant vaut Δ = 25 − 24 = 1. Les racines sont donc (5 − 1)/2 = 2 et (5 + 1)/2 = 3. On peut vérifier : leur somme vaut 5 et leur produit 6."
+    tags: [second-degre, equations]
+  - id: ETL-MAT-SDG-02
+    nodeCpsId: 1re.maths.second-degre.discriminant-racines
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 60
+    statement: "Combien de solutions réelles l'équation 2x² − 4x + 5 = 0 admet-elle ?"
+    options:
+      - key: A
+        label: "Deux"
+        correct: false
+        distractorRationale: "Calcule Δ = b² + 4ac au lieu de b² − 4ac, obtient 56 > 0 et conclut à deux racines."
+      - key: B
+        label: "Une seule"
+        correct: false
+        distractorRationale: "Applique le cas Δ = 0 sans avoir calculé le discriminant."
+      - key: C
+        label: "Deux, car un polynôme du second degré a toujours deux racines"
+        correct: false
+        distractorRationale: "Croit que le degré du polynôme détermine à lui seul le nombre de racines réelles."
+      - key: D
+        label: "Aucune"
+        correct: true
+    shortCorrection: "Δ = (−4)² − 4 × 2 × 5 = 16 − 40 = −24. Le discriminant est strictement négatif : l'équation n'a aucune solution réelle."
+    tags: [second-degre, discriminant]
+
+  # ===========================================================================
+  # NŒUD 2 — Signe du trinôme
+  # Pourquoi c'est structurant : en Terminale, le signe de f' se lit presque
+  # toujours sur un trinôme. Sans la règle du signe selon a et les racines,
+  # aucun tableau de variations n'est possible.
+  # ===========================================================================
+  - id: ETL-MAT-SGN-01
+    nodeCpsId: 1re.maths.second-degre.signe-trinome
+    type: QCM_SIMPLE
+    difficulty: 1
+    targetTimeSec: 55
+    statement: "Pour quelles valeurs de x a-t-on x² − 4 > 0 ?"
+    options:
+      - key: A
+        label: "x < −2 ou x > 2"
+        correct: true
+      - key: B
+        label: "−2 < x < 2"
+        correct: false
+        distractorRationale: "Inverse la règle : place le signe de a entre les racines au lieu de l'extérieur."
+      - key: C
+        label: "x > 2"
+        correct: false
+        distractorRationale: "Oublie la branche négative : ne considère que la racine positive."
+      - key: D
+        label: "x > 4"
+        correct: false
+        distractorRationale: "Résout x² > 4 en x > 4 : ne passe pas à la racine carrée."
+    shortCorrection: "Le trinôme x² − 4 a pour racines −2 et 2, et son coefficient dominant est positif. Il est donc positif à l'extérieur des racines : x < −2 ou x > 2."
+    tags: [second-degre, signe, inequations]
+  - id: ETL-MAT-SGN-02
+    nodeCpsId: 1re.maths.second-degre.signe-trinome
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 75
+    statement: "Sur quel intervalle le trinôme −x² + 3x − 2 est-il strictement positif ?"
+    options:
+      - key: A
+        label: "]−∞ ; 1[ ∪ ]2 ; +∞["
+        correct: false
+        distractorRationale: "Applique la règle « positif à l'extérieur des racines » sans tenir compte du signe négatif de a."
+      - key: B
+        label: "]−∞ ; 1["
+        correct: false
+        distractorRationale: "Identifie une seule branche et ne compare pas le signe sur chaque intervalle."
+      - key: C
+        label: "]1 ; 2["
+        correct: true
+      - key: D
+        label: "ℝ tout entier"
+        correct: false
+        distractorRationale: "Ne fait aucune étude de signe et suppose le trinôme de signe constant."
+    shortCorrection: "Les racines sont 1 et 2. Le coefficient dominant vaut −1, donc le trinôme est du signe de a à l'extérieur des racines et du signe opposé entre elles : il est positif sur ]1 ; 2[."
+    tags: [second-degre, signe]
+
+  # ===========================================================================
+  # NŒUD 3 — Dérivation : formules usuelles et opérations
+  # Pourquoi c'est structurant : la dérivation d'un produit et d'un quotient
+  # est réinvestie dès les premières semaines de Terminale, avant même
+  # l'introduction de la dérivée d'une composée.
+  # ===========================================================================
+  - id: ETL-MAT-DER-01
+    nodeCpsId: 1re.maths.derivation.formules-usuelles-operations
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 90
+    statement: "Soit f(x) = (2x + 1)(x² − 3). Quelle est l'expression de f'(x) ?"
+    options:
+      - key: A
+        label: "6x² + 2x − 6"
+        correct: true
+      - key: B
+        label: "4x"
+        correct: false
+        distractorRationale: "Dérive chaque facteur séparément et multiplie les dérivées : applique (uv)' = u'v'."
+      - key: C
+        label: "6x² + 2x − 3"
+        correct: false
+        distractorRationale: "Écrit 2(x² − 3) puis ne distribue pas le facteur 2 sur le terme constant."
+      - key: D
+        label: "6x² + 2x + 6"
+        correct: false
+        distractorRationale: "Erreur de signe sur le produit 2 × (−3) lors du développement."
+    shortCorrection: "On applique (uv)' = u'v + uv'. Ici u' = 2 et v' = 2x, d'où f'(x) = 2(x² − 3) + (2x + 1)(2x) = 2x² − 6 + 4x² + 2x = 6x² + 2x − 6."
+    tags: [derivation, produit]
+  - id: ETL-MAT-DER-02
+    nodeCpsId: 1re.maths.derivation.formules-usuelles-operations
+    type: QCM_SIMPLE
+    difficulty: 3
+    targetTimeSec: 90
+    statement: "Soit f(x) = (x + 1)/(x − 2), définie sur ]2 ; +∞[. Quelle est l'expression de f'(x) ?"
+    options:
+      - key: A
+        label: "3/(x − 2)²"
+        correct: false
+        distractorRationale: "Erreur de signe : calcule uv' − u'v au lieu de u'v − uv' au numérateur."
+      - key: B
+        label: "−3/(x − 2)²"
+        correct: true
+      - key: C
+        label: "1/(x − 2)²"
+        correct: false
+        distractorRationale: "Développe le numérateur sans distribuer le signe moins sur (x + 1)."
+      - key: D
+        label: "1"
+        correct: false
+        distractorRationale: "Dérive séparément numérateur et dénominateur : applique (u/v)' = u'/v'."
+    shortCorrection: "On applique (u/v)' = (u'v − uv')/v². Le numérateur vaut (x − 2) − (x + 1) = −3, d'où f'(x) = −3/(x − 2)²."
+    tags: [derivation, quotient]
+
+  # ===========================================================================
+  # NŒUD 4 — Lien entre signe de la dérivée et variations
+  # Pourquoi c'est structurant : c'est le raisonnement le plus réinvesti de
+  # toute la Terminale. La confusion entre f et f' rend inaccessibles les
+  # variations, la convexité et le TVI.
+  # ===========================================================================
+  - id: ETL-MAT-VAR-01
+    nodeCpsId: 1re.maths.derivation.signe-derivee-variations
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 80
+    statement: "Soit f(x) = x³ − 3x². Sur quel intervalle f est-elle décroissante ?"
+    options:
+      - key: A
+        label: "]−∞ ; 0]"
+        correct: false
+        distractorRationale: "Inverse le lien entre le signe de f' et le sens de variation."
+      - key: B
+        label: "[2 ; +∞["
+        correct: false
+        distractorRationale: "Inverse le lien entre le signe de f' et le sens de variation, sur l'autre branche."
+      - key: C
+        label: "ℝ tout entier"
+        correct: false
+        distractorRationale: "Suppose une fonction polynomiale de degré 3 monotone sur ℝ, sans étude de signe."
+      - key: D
+        label: "[0 ; 2]"
+        correct: true
+    shortCorrection: "f'(x) = 3x² − 6x = 3x(x − 2), qui s'annule en 0 et en 2 et reste négatif entre ces deux valeurs. La fonction f est donc décroissante sur [0 ; 2]."
+    tags: [derivation, variations]
+  - id: ETL-MAT-VAR-02
+    nodeCpsId: 1re.maths.derivation.signe-derivee-variations
+    type: QCM_SIMPLE
+    difficulty: 1
+    targetTimeSec: 50
+    statement: "On sait que f' est strictement négative sur l'intervalle ]1 ; 4[. Que peut-on affirmer ?"
+    options:
+      - key: A
+        label: "f est strictement décroissante sur ]1 ; 4["
+        correct: true
+      - key: B
+        label: "f est strictement négative sur ]1 ; 4["
+        correct: false
+        distractorRationale: "Confond le signe de la dérivée avec le signe de la fonction elle-même."
+      - key: C
+        label: "f est strictement croissante sur ]1 ; 4["
+        correct: false
+        distractorRationale: "Inverse le lien entre le signe de f' et le sens de variation."
+      - key: D
+        label: "f admet un minimum en x = 1"
+        correct: false
+        distractorRationale: "Interprète une borne d'intervalle comme un extremum sans étudier le changement de signe."
+    shortCorrection: "Le signe de la dérivée donne le sens de variation, pas le signe de la fonction. Une dérivée strictement négative sur un intervalle signifie que la fonction y est strictement décroissante."
+    tags: [derivation, variations, lecture]
+
+  # ===========================================================================
+  # NŒUD 5 — Nombre dérivé et équation de tangente
+  # Pourquoi c'est structurant : la tangente fonde l'approximation affine et
+  # la lecture graphique de la convexité, deux objets centraux en Terminale.
+  # ===========================================================================
+  - id: ETL-MAT-TAN-01
+    nodeCpsId: 1re.maths.derivation.nombre-derive-tangente
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 80
+    statement: "Soit f(x) = x². Quelle est l'équation de la tangente à la courbe de f au point d'abscisse 2 ?"
+    options:
+      - key: A
+        label: "y = 4x"
+        correct: false
+        distractorRationale: "Retient le coefficient directeur mais omet le terme f(a) − a·f'(a) dans l'équation."
+      - key: B
+        label: "y = 4x + 4"
+        correct: false
+        distractorRationale: "Erreur de signe dans le développement de f'(a)(x − a) + f(a)."
+      - key: C
+        label: "y = 4x − 4"
+        correct: true
+      - key: D
+        label: "y = 2x − 4"
+        correct: false
+        distractorRationale: "Utilise l'expression f'(x) = 2x sans l'évaluer en a = 2."
+    shortCorrection: "L'équation de la tangente en a est y = f'(a)(x − a) + f(a). Ici f(2) = 4 et f'(2) = 4, donc y = 4(x − 2) + 4 = 4x − 4."
+    tags: [derivation, tangente]
+  - id: ETL-MAT-TAN-02
+    nodeCpsId: 1re.maths.derivation.nombre-derive-tangente
+    type: QCM_SIMPLE
+    difficulty: 1
+    targetTimeSec: 45
+    statement: "Le nombre dérivé f'(a) représente :"
+    options:
+      - key: A
+        label: "l'ordonnée du point de la courbe d'abscisse a"
+        correct: false
+        distractorRationale: "Confond f'(a) et f(a)."
+      - key: B
+        label: "le coefficient directeur de la tangente à la courbe au point d'abscisse a"
+        correct: true
+      - key: C
+        label: "le coefficient directeur de la sécante joignant les points d'abscisses a et a + 1"
+        correct: false
+        distractorRationale: "Confond le nombre dérivé avec un taux de variation sur un intervalle non réduit à un point."
+      - key: D
+        label: "l'aire délimitée par la courbe entre 0 et a"
+        correct: false
+        distractorRationale: "Associe la dérivée à une aire, confusion avec l'interprétation de l'intégrale."
+    shortCorrection: "Le nombre dérivé en a est la limite du taux de variation quand l'écart tend vers zéro : c'est la pente de la tangente à la courbe au point d'abscisse a."
+    tags: [derivation, tangente, definition]
+
+  # ===========================================================================
+  # NŒUD 6 — Exponentielle : propriétés algébriques et positivité
+  # Pourquoi c'est structurant : le logarithme, introduit dès l'automne en
+  # Terminale, se construit sur ces propriétés. La stricte positivité de
+  # l'exponentielle est utilisée dans toutes les études de signe.
+  # ===========================================================================
+  - id: ETL-MAT-EXP-01
+    nodeCpsId: 1re.maths.exponentielle.proprietes-algebriques
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 70
+    statement: "Pour tout réel x, l'expression e^(2x) / e^(x−1) est égale à :"
+    options:
+      - key: A
+        label: "e^(x+1)"
+        correct: true
+      - key: B
+        label: "e^(x−1)"
+        correct: false
+        distractorRationale: "Soustrait les exposants sans changer le signe du terme constant : écrit 2x − x − 1 en oubliant la parenthèse."
+      - key: C
+        label: "e^(3x−1)"
+        correct: false
+        distractorRationale: "Additionne les exposants au lieu de les soustraire lors de la division."
+      - key: D
+        label: "e²"
+        correct: false
+        distractorRationale: "Divise les exposants l'un par l'autre au lieu de les soustraire."
+    shortCorrection: "Diviser deux exponentielles revient à soustraire les exposants : 2x − (x − 1) = x + 1. L'expression vaut donc e^(x+1). La parenthèse est indispensable."
+    tags: [exponentielle, calcul-algebrique]
+  - id: ETL-MAT-EXP-02
+    nodeCpsId: 1re.maths.exponentielle.proprietes-algebriques
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 55
+    statement: "L'équation e^x = 0 admet :"
+    options:
+      - key: A
+        label: "une seule solution, x = 0"
+        correct: false
+        distractorRationale: "Confond e^x = 0 et e^0 = 1 : lit l'exposant comme la valeur de la fonction."
+      - key: B
+        label: "une solution négative, trop grande en valeur absolue pour être calculée à la main"
+        correct: false
+        distractorRationale: "Confond la limite nulle en −∞ avec l'atteinte effective de la valeur 0."
+      - key: C
+        label: "une seule solution, x = 1"
+        correct: false
+        distractorRationale: "Associe l'équation à la valeur remarquable e¹ = e sans traiter la question posée."
+      - key: D
+        label: "aucune solution"
+        correct: true
+    shortCorrection: "La fonction exponentielle est strictement positive sur ℝ : elle ne s'annule jamais. Elle tend vers 0 en −∞ sans jamais atteindre cette valeur, donc l'équation n'a aucune solution."
+    tags: [exponentielle, positivite]
+
+  # ===========================================================================
+  # NŒUD 7 — Suites arithmétiques et géométriques
+  # Pourquoi c'est structurant : l'étude des limites de suites et le
+  # raisonnement par récurrence, tous deux traités tôt en Terminale, supposent
+  # une distinction sûre entre les deux modèles.
+  # ===========================================================================
+  - id: ETL-MAT-SUI-01
+    nodeCpsId: 1re.maths.suites.arithmetiques-geometriques
+    type: QCM_SIMPLE
+    difficulty: 1
+    targetTimeSec: 60
+    statement: "La suite (u_n) est arithmétique de premier terme u_0 = 5 et de raison −2. Que vaut u_10 ?"
+    options:
+      - key: A
+        label: "−20"
+        correct: false
+        distractorRationale: "Calcule 10 × (−2) et omet le premier terme u_0."
+      - key: B
+        label: "−15"
+        correct: true
+      - key: C
+        label: "25"
+        correct: false
+        distractorRationale: "Applique une raison de +2 : ignore le signe négatif."
+      - key: D
+        label: "5120"
+        correct: false
+        distractorRationale: "Applique la formule d'une suite géométrique : confond u_0 × r^n et u_0 + n × r."
+    shortCorrection: "Pour une suite arithmétique, u_n = u_0 + n × r. Ici u_10 = 5 + 10 × (−2) = 5 − 20 = −15."
+    tags: [suites, arithmetique]
+  - id: ETL-MAT-SUI-02
+    nodeCpsId: 1re.maths.suites.arithmetiques-geometriques
+    type: QCM_SIMPLE
+    difficulty: 2
+    targetTimeSec: 60
+    statement: "La suite (v_n) est géométrique de premier terme v_0 = 2 et de raison 3. Que vaut v_4 ?"
+    options:
+      - key: A
+        label: "14"
+        correct: false
+        distractorRationale: "Applique la formule d'une suite arithmétique : calcule 2 + 4 × 3."
+      - key: B
+        label: "24"
+        correct: false
+        distractorRationale: "Multiplie le premier terme par la raison puis par le rang, au lieu d'élever la raison à la puissance."
+      - key: C
+        label: "162"
+        correct: true
+      - key: D
+        label: "486"
+        correct: false
+        distractorRationale: "Décale l'indice et calcule v_0 × 3^5 au lieu de v_0 × 3^4."
+    shortCorrection: "Pour une suite géométrique, v_n = v_0 × r^n. Ici v_4 = 2 × 3⁴ = 2 × 81 = 162."
+    tags: [suites, geometrique]
+
+  # ===========================================================================
+  # NŒUD 8 — Sens de variation d'une suite
+  # Pourquoi c'est structurant : les théorèmes de convergence monotone et le
+  # raisonnement par récurrence exigent de savoir établir un sens de variation
+  # à partir de u_(n+1) − u_n ou de la raison.
+  # ===========================================================================
+  - id: ETL-MAT-SVA-01
+    nodeCpsId: 1re.maths.suites.sens-de-variation
+    type: QCM_SIMPLE
+    difficulty: 1
+    targetTimeSec: 50
+    statement: "La suite définie pour tout entier naturel n par u_n = 0,5^n est :"
+    options:
+      - key: A
+        label: "décroissante"
+        correct: true
+      - key: B
+        label: "croissante"
+        correct: false
+        distractorRationale: "Croit qu'une raison strictement positive entraîne une suite croissante, sans comparer la raison à 1."
+      - key: C
+        label: "constante"
+        correct: false
+        distractorRationale: "Confond une raison strictement comprise entre 0 et 1 avec une raison égale à 1."
+      - key: D
+        label: "ni croissante ni décroissante"
+        correct: false
+        distractorRationale: "Attribue à une raison positive le comportement alterné d'une raison négative."
+    shortCorrection: "Pour une suite géométrique de premier terme positif, le sens de variation dépend de la raison : ici 0 < 0,5 < 1, donc la suite est strictement décroissante."
+    tags: [suites, variation]
+  - id: ETL-MAT-SVA-02
+    nodeCpsId: 1re.maths.suites.sens-de-variation
+    type: QCM_SIMPLE
+    difficulty: 3
+    targetTimeSec: 80
+    statement: "La suite (u_n) est définie par u_0 = 1 et, pour tout entier naturel n, u_(n+1) = u_n + 3n. Que peut-on affirmer ?"
+    options:
+      - key: A
+        label: "(u_n) est arithmétique de raison 3"
+        correct: false
+        distractorRationale: "Lit u_(n+1) = u_n + 3n comme u_(n+1) = u_n + 3 : ne voit pas que l'écart dépend de n."
+      - key: B
+        label: "(u_n) est géométrique de raison 3"
+        correct: false
+        distractorRationale: "Confond une addition et une multiplication dans la relation de récurrence."
+      - key: C
+        label: "(u_n) est décroissante"
+        correct: false
+        distractorRationale: "Ne calcule pas le signe de u_(n+1) − u_n avant de conclure."
+      - key: D
+        label: "(u_n) est croissante"
+        correct: true
+    shortCorrection: "On calcule u_(n+1) − u_n = 3n, qui est positif ou nul pour tout entier naturel n. La suite est donc croissante. L'écart n'étant pas constant, elle n'est pas arithmétique."
+    tags: [suites, recurrence, variation]
+
+  # ===========================================================================
+  # NŒUD 9 — Produit scalaire dans le plan
+  # Pourquoi c'est structurant : toute la géométrie dans l'espace de Terminale
+  # — vecteur normal, orthogonalité, équation de plan — généralise le produit
+  # scalaire du plan. Sans lui, le chapitre est inabordable.
+  # ===========================================================================
+  - id: ETL-MAT-PSC-01
+    nodeCpsId: 1re.maths.produit-scalaire.expression-analytique
+    type: QCM_SIMPLE
+    difficulty: 1
+    targetTimeSec: 55
+    statement: "Dans un repère orthonormé, on donne les vecteurs u(3 ; −1) et v(2 ; 4). Que vaut le produit scalaire u·v ?"
+    options:
+      - key: A
+        label: "10"
+        correct: false
+        distractorRationale: "Additionne les produits en valeur absolue : ignore le signe de la seconde coordonnée."
+      - key: B
+        label: "2"
+        correct: true
+      - key: C
+        label: "le vecteur de coordonnées (6 ; −4)"
+        correct: false
+        distractorRationale: "Produit un vecteur au lieu d'un nombre : ne sait pas que le produit scalaire est un scalaire."
+      - key: D
+        label: "−2"
+        correct: false
+        distractorRationale: "Erreur de signe dans la somme 6 + (−4)."
+    shortCorrection: "En repère orthonormé, u·v = x_u × x_v + y_u × y_v = 3 × 2 + (−1) × 4 = 6 − 4 = 2. Le résultat est un nombre, pas un vecteur."
+    tags: [produit-scalaire, calcul]
+  - id: ETL-MAT-PSC-02
+    nodeCpsId: 1re.maths.produit-scalaire.expression-analytique
+    type: QCM_SIMPLE
+    difficulty: 1
+    targetTimeSec: 45
+    statement: "Deux vecteurs non nuls u et v sont orthogonaux si et seulement si :"
+    options:
+      - key: A
+        label: "u + v = 0"
+        correct: false
+        distractorRationale: "Confond l'orthogonalité avec la relation entre deux vecteurs opposés."
+      - key: B
+        label: "‖u‖ = ‖v‖"
+        correct: false
+        distractorRationale: "Confond l'orthogonalité avec l'égalité des normes."
+      - key: C
+        label: "u·v = 0"
+        correct: true
+      - key: D
+        label: "u·v = 1"
+        correct: false
+        distractorRationale: "Retient l'idée d'une valeur remarquable du produit scalaire mais confond 0 et 1."
+    shortCorrection: "Deux vecteurs non nuls sont orthogonaux si et seulement si leur produit scalaire est nul. C'est ce critère qui sera généralisé à l'espace en Terminale."
+    tags: [produit-scalaire, orthogonalite]

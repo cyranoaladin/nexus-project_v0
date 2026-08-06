@@ -1,0 +1,1071 @@
+{
+  "slug": "entree-troisieme-francais-v1",
+  "level": "TROISIEME",
+  "subject": "FRANCAIS",
+  "version": 1,
+  "status": "VALIDATED",
+  "review": {
+    "validatedBy": "cmsf8ncom0008mguh4z5acmu5",
+    "validatedAt": "2026-08-05T07:03:49.110Z"
+  },
+  "questionnaire": {
+    "targetDurationMin": 25,
+    "confidenceScale": {
+      "levels": 4,
+      "labels": [
+        "je devine",
+        "peu sûr",
+        "plutôt sûr",
+        "certain"
+      ]
+    },
+    "items": [
+      {
+        "id": "ETR-FRA-CLA-01",
+        "subject": "FRANCAIS",
+        "category": "Classes grammaticales",
+        "domainId": "grammaire",
+        "nodeCpsId": "4e.francais.grammaire.classes-grammaticales",
+        "difficulty": 1,
+        "targetTimeSec": 50,
+        "shortCorrection": "Un mot invariable qui modifie le sens d'un verbe est un adverbe. Le suffixe -ment en est souvent l'indice, mais c'est le rôle dans la phrase qui décide.",
+        "weight": 1,
+        "competencies": [
+          "4e.francais.grammaire.classes-grammaticales"
+        ],
+        "questionText": "Dans la phrase « Elle a répondu calmement », quelle est la classe grammaticale du mot « calmement » ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "adjectif qualificatif",
+            "isCorrect": false,
+            "distractorRationale": "Confond l'adverbe, qui modifie le verbe et reste invariable, avec l'adjectif, qui s'accorde avec un nom."
+          },
+          {
+            "id": "B",
+            "text": "préposition",
+            "isCorrect": false,
+            "distractorRationale": "Range le mot parmi les invariables sans distinguer leurs rôles dans la phrase."
+          },
+          {
+            "id": "C",
+            "text": "adverbe",
+            "isCorrect": true
+          },
+          {
+            "id": "D",
+            "text": "conjonction de coordination",
+            "isCorrect": false,
+            "distractorRationale": "Confond un modificateur du verbe avec un mot de liaison entre propositions."
+          }
+        ],
+        "explanation": "Un mot invariable qui modifie le sens d'un verbe est un adverbe. Le suffixe -ment en est souvent l'indice, mais c'est le rôle dans la phrase qui décide."
+      },
+      {
+        "id": "ETR-FRA-CLA-02",
+        "subject": "FRANCAIS",
+        "category": "Classes grammaticales",
+        "domainId": "grammaire",
+        "nodeCpsId": "4e.francais.grammaire.classes-grammaticales",
+        "difficulty": 2,
+        "targetTimeSec": 50,
+        "shortCorrection": "« Ce » accompagne le nom « livre » et ne peut être supprimé : c'est un déterminant démonstratif. Le pronom, lui, remplace le nom au lieu de l'accompagner.",
+        "weight": 2,
+        "competencies": [
+          "4e.francais.grammaire.classes-grammaticales"
+        ],
+        "questionText": "Dans la phrase « Ce livre est passionnant », quelle est la classe grammaticale du mot « ce » ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "déterminant démonstratif",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "pronom démonstratif",
+            "isCorrect": false,
+            "distractorRationale": "Confond « ce » déterminant, qui accompagne un nom, avec « ce » pronom, qui le remplace comme dans « ce que je dis »."
+          },
+          {
+            "id": "C",
+            "text": "adjectif qualificatif",
+            "isCorrect": false,
+            "distractorRationale": "Croit que tout mot placé devant un nom le qualifie, sans distinguer déterminer et qualifier."
+          },
+          {
+            "id": "D",
+            "text": "préposition",
+            "isCorrect": false,
+            "distractorRationale": "Classe le mot parmi les outils grammaticaux sans identifier son rapport au nom."
+          }
+        ],
+        "explanation": "« Ce » accompagne le nom « livre » et ne peut être supprimé : c'est un déterminant démonstratif. Le pronom, lui, remplace le nom au lieu de l'accompagner."
+      },
+      {
+        "id": "ETR-FRA-FON-01",
+        "subject": "FRANCAIS",
+        "category": "Fonctions dans la phrase",
+        "domainId": "grammaire",
+        "nodeCpsId": "4e.francais.grammaire.fonctions",
+        "difficulty": 2,
+        "targetTimeSec": 55,
+        "shortCorrection": "Le complément est relié au verbe par la préposition « à » : il est indirect. On le trouve en posant la question « à qui ? » après le verbe.",
+        "weight": 2,
+        "competencies": [
+          "4e.francais.grammaire.fonctions"
+        ],
+        "questionText": "Dans « Les élèves offrent des fleurs à leur professeure », quelle est la fonction du groupe « à leur professeure » ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "complément d'objet direct",
+            "isCorrect": false,
+            "distractorRationale": "Ne tient pas compte de la préposition, qui rend le complément indirect."
+          },
+          {
+            "id": "B",
+            "text": "sujet",
+            "isCorrect": false,
+            "distractorRationale": "Attribue la fonction sujet à un groupe placé après le verbe."
+          },
+          {
+            "id": "C",
+            "text": "complément circonstanciel de lieu",
+            "isCorrect": false,
+            "distractorRationale": "Interprète la préposition « à » comme une indication de lieu, alors qu'elle introduit ici le destinataire de l'action."
+          },
+          {
+            "id": "D",
+            "text": "complément d'objet indirect",
+            "isCorrect": true
+          }
+        ],
+        "explanation": "Le complément est relié au verbe par la préposition « à » : il est indirect. On le trouve en posant la question « à qui ? » après le verbe."
+      },
+      {
+        "id": "ETR-FRA-FON-02",
+        "subject": "FRANCAIS",
+        "category": "Fonctions dans la phrase",
+        "domainId": "grammaire",
+        "nodeCpsId": "4e.francais.grammaire.fonctions",
+        "difficulty": 2,
+        "targetTimeSec": 55,
+        "shortCorrection": "« Sembler » est un verbe d'état : il relie le sujet à une caractéristique. L'adjectif qui suit est donc attribut du sujet, et il s'accorde avec lui.",
+        "weight": 2,
+        "competencies": [
+          "4e.francais.grammaire.fonctions"
+        ],
+        "questionText": "Dans « Cette histoire semble incroyable », quelle est la fonction du mot « incroyable » ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "complément d'objet direct",
+            "isCorrect": false,
+            "distractorRationale": "Traite tout mot placé après le verbe comme un complément d'objet, sans reconnaître un verbe d'état."
+          },
+          {
+            "id": "B",
+            "text": "attribut du sujet",
+            "isCorrect": true
+          },
+          {
+            "id": "C",
+            "text": "épithète",
+            "isCorrect": false,
+            "distractorRationale": "Confond l'adjectif attribut, relié au sujet par un verbe d'état, avec l'épithète, directement accolée au nom."
+          },
+          {
+            "id": "D",
+            "text": "complément du nom",
+            "isCorrect": false,
+            "distractorRationale": "Cherche un rattachement au nom alors que l'adjectif dépend ici du verbe."
+          }
+        ],
+        "explanation": "« Sembler » est un verbe d'état : il relie le sujet à une caractéristique. L'adjectif qui suit est donc attribut du sujet, et il s'accorde avec lui."
+      },
+      {
+        "id": "ETR-FRA-CNJ-01",
+        "subject": "FRANCAIS",
+        "category": "Temps du récit et conjugaison",
+        "domainId": "conjugaison",
+        "nodeCpsId": "4e.francais.conjugaison.temps-du-recit",
+        "difficulty": 2,
+        "targetTimeSec": 45,
+        "shortCorrection": "Le passé simple de « prendre » est irrégulier : je pris, tu pris, il prit, nous prîmes, vous prîtes, ils prirent.",
+        "weight": 2,
+        "competencies": [
+          "4e.francais.conjugaison.temps-du-recit"
+        ],
+        "questionText": "Quelle est la forme correcte du verbe « prendre » à la troisième personne du pluriel du passé simple ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "ils prirent",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "ils prenaient",
+            "isCorrect": false,
+            "distractorRationale": "Donne l'imparfait, temps de l'arrière-plan, au lieu du passé simple."
+          },
+          {
+            "id": "C",
+            "text": "ils prendrent",
+            "isCorrect": false,
+            "distractorRationale": "Construit une forme inexistante par analogie avec les verbes du premier groupe."
+          },
+          {
+            "id": "D",
+            "text": "ils ont pris",
+            "isCorrect": false,
+            "distractorRationale": "Donne le passé composé, temps du discours, au lieu du passé simple, temps du récit."
+          }
+        ],
+        "explanation": "Le passé simple de « prendre » est irrégulier : je pris, tu pris, il prit, nous prîmes, vous prîtes, ils prirent."
+      },
+      {
+        "id": "ETR-FRA-CNJ-02",
+        "subject": "FRANCAIS",
+        "category": "Temps du récit et conjugaison",
+        "domainId": "conjugaison",
+        "nodeCpsId": "4e.francais.conjugaison.temps-du-recit",
+        "difficulty": 2,
+        "targetTimeSec": 55,
+        "shortCorrection": "Le passé simple porte les actions de premier plan, brèves et achevées. L'imparfait installe le décor et les actions qui durent.",
+        "weight": 2,
+        "competencies": [
+          "4e.francais.conjugaison.temps-du-recit"
+        ],
+        "questionText": "Dans un récit au passé, quel temps emploie-t-on pour une action brève, achevée, qui fait avancer l'histoire ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "l'imparfait",
+            "isCorrect": false,
+            "distractorRationale": "Attribue au premier plan le temps qui sert justement à l'arrière-plan, aux descriptions et aux habitudes."
+          },
+          {
+            "id": "B",
+            "text": "le présent de narration",
+            "isCorrect": false,
+            "distractorRationale": "Retient un effet de style ponctuel comme s'il était le temps de base du récit au passé."
+          },
+          {
+            "id": "C",
+            "text": "le passé simple",
+            "isCorrect": true
+          },
+          {
+            "id": "D",
+            "text": "le plus-que-parfait",
+            "isCorrect": false,
+            "distractorRationale": "Confond l'action de premier plan avec une action antérieure au récit."
+          }
+        ],
+        "explanation": "Le passé simple porte les actions de premier plan, brèves et achevées. L'imparfait installe le décor et les actions qui durent."
+      },
+      {
+        "id": "ETR-FRA-ACC-01",
+        "subject": "FRANCAIS",
+        "category": "Accords : sujet-verbe et participe passé",
+        "domainId": "orthographe",
+        "nodeCpsId": "4e.francais.orthographe.accords",
+        "difficulty": 3,
+        "targetTimeSec": 65,
+        "shortCorrection": "Avec l'auxiliaire avoir, le participe passé s'accorde avec le complément d'objet direct lorsque celui-ci est placé avant le verbe. Ici « qu' » reprend « les lettres ».",
+        "weight": 3,
+        "competencies": [
+          "4e.francais.orthographe.accords"
+        ],
+        "questionText": "Quelle phrase est correctement orthographiée ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Les lettres qu'elle a écrit sont longues.",
+            "isCorrect": false,
+            "distractorRationale": "N'accorde pas le participe passé avec le complément d'objet direct placé avant le verbe."
+          },
+          {
+            "id": "B",
+            "text": "Les lettres qu'elle a écrites sont longues.",
+            "isCorrect": true
+          },
+          {
+            "id": "C",
+            "text": "Les lettres qu'elle a écrit sont longue.",
+            "isCorrect": false,
+            "distractorRationale": "Cumule l'absence d'accord du participe passé et celle de l'adjectif attribut."
+          },
+          {
+            "id": "D",
+            "text": "Les lettres qu'elles a écrites sont longues.",
+            "isCorrect": false,
+            "distractorRationale": "Accorde le pronom sujet avec le nom pluriel qui précède, alors que le sujet est singulier."
+          }
+        ],
+        "explanation": "Avec l'auxiliaire avoir, le participe passé s'accorde avec le complément d'objet direct lorsque celui-ci est placé avant le verbe. Ici « qu' » reprend « les lettres »."
+      },
+      {
+        "id": "ETR-FRA-ACC-02",
+        "subject": "FRANCAIS",
+        "category": "Accords : sujet-verbe et participe passé",
+        "domainId": "orthographe",
+        "nodeCpsId": "4e.francais.orthographe.accords",
+        "difficulty": 2,
+        "targetTimeSec": 50,
+        "shortCorrection": "Le noyau du groupe sujet est « la liste », au singulier. Le complément du nom « des candidats » ne commande pas l'accord du verbe.",
+        "weight": 2,
+        "competencies": [
+          "4e.francais.orthographe.accords"
+        ],
+        "questionText": "Complétez correctement : « La liste des candidats … affichée dans le hall. »",
+        "options": [
+          {
+            "id": "A",
+            "text": "sont",
+            "isCorrect": false,
+            "distractorRationale": "Accorde le verbe avec le nom le plus proche au lieu du noyau du groupe sujet."
+          },
+          {
+            "id": "B",
+            "text": "seront",
+            "isCorrect": false,
+            "distractorRationale": "Change le temps sans justification et conserve un accord au pluriel."
+          },
+          {
+            "id": "C",
+            "text": "ont été",
+            "isCorrect": false,
+            "distractorRationale": "Introduit un temps composé injustifié et maintient l'accord avec le complément du nom."
+          },
+          {
+            "id": "D",
+            "text": "est",
+            "isCorrect": true
+          }
+        ],
+        "explanation": "Le noyau du groupe sujet est « la liste », au singulier. Le complément du nom « des candidats » ne commande pas l'accord du verbe."
+      },
+      {
+        "id": "ETR-FRA-PRO-01",
+        "subject": "FRANCAIS",
+        "category": "Phrase simple, phrase complexe, propositions",
+        "domainId": "grammaire",
+        "nodeCpsId": "4e.francais.grammaire.phrase-complexe",
+        "difficulty": 3,
+        "targetTimeSec": 70,
+        "shortCorrection": "On compte autant de propositions que de verbes conjugués : « est arrivé », « avait commencé » et « attendait ». La phrase en compte donc trois.",
+        "weight": 3,
+        "competencies": [
+          "4e.francais.grammaire.phrase-complexe"
+        ],
+        "questionText": "Combien de propositions compte la phrase « Quand il est arrivé, la fête avait commencé et personne ne l'attendait plus » ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "trois",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "deux",
+            "isCorrect": false,
+            "distractorRationale": "Ne compte que les propositions indépendantes et néglige la subordonnée introduite par « quand »."
+          },
+          {
+            "id": "C",
+            "text": "une",
+            "isCorrect": false,
+            "distractorRationale": "Compte une proposition par phrase, sans repérer les verbes conjugués."
+          },
+          {
+            "id": "D",
+            "text": "quatre",
+            "isCorrect": false,
+            "distractorRationale": "Compte un participe ou un infinitif comme un verbe conjugué supplémentaire."
+          }
+        ],
+        "explanation": "On compte autant de propositions que de verbes conjugués : « est arrivé », « avait commencé » et « attendait ». La phrase en compte donc trois."
+      },
+      {
+        "id": "ETR-FRA-PRO-02",
+        "subject": "FRANCAIS",
+        "category": "Phrase simple, phrase complexe, propositions",
+        "domainId": "grammaire",
+        "nodeCpsId": "4e.francais.grammaire.phrase-complexe",
+        "difficulty": 3,
+        "targetTimeSec": 60,
+        "shortCorrection": "« Que » introduit ici une subordonnée qui complète le verbe « sais » : elle est conjonctive complétive. Une relative reprendrait un nom placé avant elle.",
+        "weight": 3,
+        "competencies": [
+          "4e.francais.grammaire.phrase-complexe"
+        ],
+        "questionText": "Dans la phrase « Je sais que tu viendras », la proposition « que tu viendras » est :",
+        "options": [
+          {
+            "id": "A",
+            "text": "une proposition indépendante",
+            "isCorrect": false,
+            "distractorRationale": "Ignore le lien de subordination et traite la seconde proposition comme autonome."
+          },
+          {
+            "id": "B",
+            "text": "une subordonnée conjonctive complétive",
+            "isCorrect": true
+          },
+          {
+            "id": "C",
+            "text": "une subordonnée relative",
+            "isCorrect": false,
+            "distractorRationale": "Confond « que » conjonction de subordination et « que » pronom relatif, qui reprendrait un nom antécédent."
+          },
+          {
+            "id": "D",
+            "text": "une proposition juxtaposée",
+            "isCorrect": false,
+            "distractorRationale": "Suppose une simple mise côte à côte, alors que « que » établit une dépendance."
+          }
+        ],
+        "explanation": "« Que » introduit ici une subordonnée qui complète le verbe « sais » : elle est conjonctive complétive. Une relative reprendrait un nom placé avant elle."
+      },
+      {
+        "id": "ETR-FRA-DIS-01",
+        "subject": "FRANCAIS",
+        "category": "Discours rapporté",
+        "domainId": "grammaire",
+        "nodeCpsId": "4e.francais.grammaire.discours-rapporte",
+        "difficulty": 3,
+        "targetTimeSec": 70,
+        "shortCorrection": "Au discours indirect, le futur devient conditionnel et les indicateurs de temps se transposent : « demain » devient « le lendemain ». Les guillemets disparaissent.",
+        "weight": 3,
+        "competencies": [
+          "4e.francais.grammaire.discours-rapporte"
+        ],
+        "questionText": "Transposez au discours indirect : Il a dit : « Je viendrai demain. »",
+        "options": [
+          {
+            "id": "A",
+            "text": "Il a dit qu'il viendra demain.",
+            "isCorrect": false,
+            "distractorRationale": "Ne fait ni la concordance des temps ni la transposition de l'indicateur temporel."
+          },
+          {
+            "id": "B",
+            "text": "Il a dit : qu'il viendrait demain.",
+            "isCorrect": false,
+            "distractorRationale": "Mélange la ponctuation du discours direct et la subordination du discours indirect."
+          },
+          {
+            "id": "C",
+            "text": "Il a dit qu'il viendrait le lendemain.",
+            "isCorrect": true
+          },
+          {
+            "id": "D",
+            "text": "Il a dit qu'il vient demain.",
+            "isCorrect": false,
+            "distractorRationale": "Passe au présent au lieu du conditionnel et conserve l'indicateur du discours direct."
+          }
+        ],
+        "explanation": "Au discours indirect, le futur devient conditionnel et les indicateurs de temps se transposent : « demain » devient « le lendemain ». Les guillemets disparaissent."
+      },
+      {
+        "id": "ETR-FRA-DIS-02",
+        "subject": "FRANCAIS",
+        "category": "Discours rapporté",
+        "domainId": "grammaire",
+        "nodeCpsId": "4e.francais.grammaire.discours-rapporte",
+        "difficulty": 2,
+        "targetTimeSec": 50,
+        "shortCorrection": "Le discours direct cite les paroles sans les transformer. Il ralentit le récit, donne à entendre la voix des personnages et rend la scène plus vivante.",
+        "weight": 2,
+        "competencies": [
+          "4e.francais.grammaire.discours-rapporte"
+        ],
+        "questionText": "Quel est l'effet principal du discours direct dans un récit ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "rapporter les paroles telles qu'elles ont été prononcées et rendre la scène vivante",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "résumer les paroles pour accélérer le récit",
+            "isCorrect": false,
+            "distractorRationale": "Donne l'effet du discours narrativisé, qui condense les paroles au lieu de les citer."
+          },
+          {
+            "id": "C",
+            "text": "exprimer les pensées du narrateur plutôt que celles des personnages",
+            "isCorrect": false,
+            "distractorRationale": "Confond la parole rapportée d'un personnage avec le commentaire du narrateur."
+          },
+          {
+            "id": "D",
+            "text": "marquer la distance du narrateur avec les personnages",
+            "isCorrect": false,
+            "distractorRationale": "Attribue au discours direct l'effet de mise à distance propre au discours indirect."
+          }
+        ],
+        "explanation": "Le discours direct cite les paroles sans les transformer. Il ralentit le récit, donne à entendre la voix des personnages et rend la scène plus vivante."
+      },
+      {
+        "id": "ETR-FRA-LEX-01",
+        "subject": "FRANCAIS",
+        "category": "Lexique et figures de style",
+        "domainId": "lexique",
+        "nodeCpsId": "4e.francais.lexique.figures-de-style",
+        "difficulty": 2,
+        "targetTimeSec": 45,
+        "shortCorrection": "Le rapprochement se fait sans outil comparatif comme « comme » ou « tel » : c'est une métaphore. Avec un outil, ce serait une comparaison.",
+        "weight": 2,
+        "competencies": [
+          "4e.francais.lexique.figures-de-style"
+        ],
+        "questionText": "Dans la phrase « Cet homme est un lion », quelle figure de style est employée ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "une comparaison",
+            "isCorrect": false,
+            "distractorRationale": "Identifie bien un rapprochement mais ne voit pas qu'aucun outil comparatif n'est employé."
+          },
+          {
+            "id": "B",
+            "text": "une personnification",
+            "isCorrect": false,
+            "distractorRationale": "Confond l'attribution de traits animaux à un humain avec l'attribution de traits humains à un être inanimé."
+          },
+          {
+            "id": "C",
+            "text": "une hyperbole",
+            "isCorrect": false,
+            "distractorRationale": "Retient l'idée d'exagération sans identifier le rapprochement entre deux réalités."
+          },
+          {
+            "id": "D",
+            "text": "une métaphore",
+            "isCorrect": true
+          }
+        ],
+        "explanation": "Le rapprochement se fait sans outil comparatif comme « comme » ou « tel » : c'est une métaphore. Avec un outil, ce serait une comparaison."
+      },
+      {
+        "id": "ETR-FRA-LEX-02",
+        "subject": "FRANCAIS",
+        "category": "Lexique et figures de style",
+        "domainId": "lexique",
+        "nodeCpsId": "4e.francais.lexique.figures-de-style",
+        "difficulty": 2,
+        "targetTimeSec": 45,
+        "shortCorrection": "Une action humaine, dormir, est attribuée à un être inanimé, la ville : c'est une personnification.",
+        "weight": 2,
+        "competencies": [
+          "4e.francais.lexique.figures-de-style"
+        ],
+        "questionText": "Dans l'expression « la ville dort », quelle figure de style est employée ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "une métaphore",
+            "isCorrect": false,
+            "distractorRationale": "Reconnaît une image mais ne voit pas qu'une action proprement humaine est prêtée à un être inanimé."
+          },
+          {
+            "id": "B",
+            "text": "une personnification",
+            "isCorrect": true
+          },
+          {
+            "id": "C",
+            "text": "une comparaison",
+            "isCorrect": false,
+            "distractorRationale": "Cherche un outil comparatif qui n'est pas présent dans l'expression."
+          },
+          {
+            "id": "D",
+            "text": "une litote",
+            "isCorrect": false,
+            "distractorRationale": "Confond l'attribution de traits humains avec une atténuation qui suggère plus qu'elle ne dit."
+          }
+        ],
+        "explanation": "Une action humaine, dormir, est attribuée à un être inanimé, la ville : c'est une personnification."
+      },
+      {
+        "id": "ETR-FRA-NAR-01",
+        "subject": "FRANCAIS",
+        "category": "Narrateur et points de vue",
+        "domainId": "lecture",
+        "nodeCpsId": "4e.francais.lecture.narrateur-points-de-vue",
+        "difficulty": 2,
+        "targetTimeSec": 55,
+        "shortCorrection": "Un narrateur qui dit « je » et prend part à l'histoire est un narrateur personnage. Le lecteur ne connaît alors que ce que ce personnage perçoit.",
+        "weight": 2,
+        "competencies": [
+          "4e.francais.lecture.narrateur-points-de-vue"
+        ],
+        "questionText": "Dans un récit, lorsque le narrateur dit « je » et participe lui-même à l'histoire, on parle de :",
+        "options": [
+          {
+            "id": "A",
+            "text": "point de vue externe",
+            "isCorrect": false,
+            "distractorRationale": "Attribue au narrateur-personnage le regard extérieur d'un observateur qui ignore les pensées."
+          },
+          {
+            "id": "B",
+            "text": "narrateur omniscient",
+            "isCorrect": false,
+            "distractorRationale": "Confond la présence du narrateur dans l'histoire avec sa connaissance illimitée de tous les personnages."
+          },
+          {
+            "id": "C",
+            "text": "narrateur personnage, en focalisation interne",
+            "isCorrect": true
+          },
+          {
+            "id": "D",
+            "text": "discours indirect libre",
+            "isCorrect": false,
+            "distractorRationale": "Confond un procédé de rapport des paroles avec la position du narrateur dans le récit."
+          }
+        ],
+        "explanation": "Un narrateur qui dit « je » et prend part à l'histoire est un narrateur personnage. Le lecteur ne connaît alors que ce que ce personnage perçoit."
+      },
+      {
+        "id": "ETR-FRA-NAR-02",
+        "subject": "FRANCAIS",
+        "category": "Narrateur et points de vue",
+        "domainId": "lecture",
+        "nodeCpsId": "4e.francais.lecture.narrateur-points-de-vue",
+        "difficulty": 3,
+        "targetTimeSec": 55,
+        "shortCorrection": "Quand le narrateur sait tout de tous les personnages, y compris de leurs pensées, on parle de focalisation zéro ou de narrateur omniscient.",
+        "weight": 3,
+        "competencies": [
+          "4e.francais.lecture.narrateur-points-de-vue"
+        ],
+        "questionText": "Un narrateur qui connaît les pensées de tous les personnages adopte :",
+        "options": [
+          {
+            "id": "A",
+            "text": "une focalisation interne",
+            "isCorrect": false,
+            "distractorRationale": "Confond l'accès aux pensées d'un seul personnage avec l'accès à celles de tous."
+          },
+          {
+            "id": "B",
+            "text": "une focalisation externe",
+            "isCorrect": false,
+            "distractorRationale": "Attribue au narrateur omniscient le regard purement extérieur d'une caméra."
+          },
+          {
+            "id": "C",
+            "text": "le point de vue d'un personnage secondaire",
+            "isCorrect": false,
+            "distractorRationale": "Cherche un porteur du regard dans l'histoire alors que le narrateur lui est extérieur."
+          },
+          {
+            "id": "D",
+            "text": "une focalisation zéro, dite omnisciente",
+            "isCorrect": true
+          }
+        ],
+        "explanation": "Quand le narrateur sait tout de tous les personnages, y compris de leurs pensées, on parle de focalisation zéro ou de narrateur omniscient."
+      },
+      {
+        "id": "ETR-FRA-ORT-01",
+        "subject": "FRANCAIS",
+        "category": "Homophones grammaticaux",
+        "domainId": "orthographe",
+        "nodeCpsId": "4e.francais.orthographe.homophones-grammaticaux",
+        "difficulty": 2,
+        "targetTimeSec": 55,
+        "shortCorrection": "Le verbe « s'apercevoir » est pronominal : il se conjugue avec le pronom réfléchi « se », qui devient « s' » devant une voyelle. On écrit donc « il s'est aperçu ».",
+        "weight": 2,
+        "competencies": [
+          "4e.francais.orthographe.homophones-grammaticaux"
+        ],
+        "questionText": "Quelle phrase est correctement orthographiée ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Il s'est aperçu qu'il avait tort.",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "Il c'est aperçu qu'il avait tort.",
+            "isCorrect": false,
+            "distractorRationale": "Confond « c'est », présentatif, et « s'est », forme du verbe pronominal."
+          },
+          {
+            "id": "C",
+            "text": "Il s'est aperçu qu'il avais tort.",
+            "isCorrect": false,
+            "distractorRationale": "Accorde le verbe de la subordonnée à la deuxième personne alors que son sujet est « il »."
+          },
+          {
+            "id": "D",
+            "text": "Il ces aperçu qu'il avait tort.",
+            "isCorrect": false,
+            "distractorRationale": "Confond le déterminant démonstratif pluriel « ces » avec la forme pronominale « s'est »."
+          }
+        ],
+        "explanation": "Le verbe « s'apercevoir » est pronominal : il se conjugue avec le pronom réfléchi « se », qui devient « s' » devant une voyelle. On écrit donc « il s'est aperçu »."
+      },
+      {
+        "id": "ETR-FRA-ORT-02",
+        "subject": "FRANCAIS",
+        "category": "Homophones grammaticaux",
+        "domainId": "orthographe",
+        "nodeCpsId": "4e.francais.orthographe.homophones-grammaticaux",
+        "difficulty": 3,
+        "targetTimeSec": 60,
+        "shortCorrection": "La locution « sans que » est suivie du subjonctif : « qu'on les ait prévenus ». On distingue « ait », forme du verbe avoir, de « et », qui relie deux éléments.",
+        "weight": 3,
+        "competencies": [
+          "4e.francais.orthographe.homophones-grammaticaux"
+        ],
+        "questionText": "Quelle phrase est correctement orthographiée ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Ils sont partis sans qu'on les es prévenus.",
+            "isCorrect": false,
+            "distractorRationale": "Écrit une forme verbale inexistante à partir de la seule ressemblance sonore."
+          },
+          {
+            "id": "B",
+            "text": "Ils sont partis sans qu'on les ait prévenus.",
+            "isCorrect": true
+          },
+          {
+            "id": "C",
+            "text": "Ils sont partis sans qu'on les a prévenus.",
+            "isCorrect": false,
+            "distractorRationale": "Emploie l'indicatif après une locution conjonctive qui exige le subjonctif."
+          },
+          {
+            "id": "D",
+            "text": "Ils sont partis sans qu'on les et prévenus.",
+            "isCorrect": false,
+            "distractorRationale": "Confond la conjonction de coordination « et » avec la forme conjuguée de l'auxiliaire avoir."
+          }
+        ],
+        "explanation": "La locution « sans que » est suivie du subjonctif : « qu'on les ait prévenus ». On distingue « ait », forme du verbe avoir, de « et », qui relie deux éléments."
+      }
+    ]
+  },
+  "scoring": {
+    "engine": "facts.v1.0.1",
+    "domains": [
+      "grammaire",
+      "conjugaison",
+      "orthographe",
+      "lexique",
+      "lecture"
+    ]
+  },
+  "reporting": {
+    "rag": {
+      "enabled": false,
+      "decisionRef": "A56 — RAG désactivé tant que le corpus du niveau n’est pas validé",
+      "sources": [],
+      "topK": 0
+    },
+    "promptFiles": {
+      "preAnalysis": {
+        "path": "content/bilans/prompts/entree-troisieme-francais-v1/pre-analysis.md",
+        "checksum": "c72eee2cfd6acfe8aab9a1a0017af7e5bc4cb3f35cde33040db915d06b800eaa"
+      },
+      "eleve": {
+        "path": "content/bilans/prompts/entree-troisieme-francais-v1/eleve.md",
+        "checksum": "207a820a1be830fff3d965ae657a253503219643a62d877162096fe46efe3a04"
+      },
+      "parents": {
+        "path": "content/bilans/prompts/entree-troisieme-francais-v1/parents.md",
+        "checksum": "b3ccbe819720669577d77e58553cf46c15d30e6fc81f0ec10bd8687d895d3217"
+      },
+      "nexus": {
+        "path": "content/bilans/prompts/entree-troisieme-francais-v1/nexus.md",
+        "checksum": "2faaee7d287bb0ac50c5a0591cb90dcd0bf4a55db0b683060d8595f3614c2851"
+      },
+      "verifier": {
+        "path": "content/bilans/prompts/entree-troisieme-francais-v1/verifier.md",
+        "checksum": "4666e05a25a78cf974eca9e743c9a3636d7ff29185f8cac10afa2f7ab16f79a7"
+      }
+    },
+    "outputSchemas": {
+      "preAnalysis": {
+        "type": "object",
+        "properties": {
+          "synthese": {
+            "type": "string",
+            "minLength": 1
+          },
+          "forcesPercues": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "craintes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "required": [
+          "synthese",
+          "forcesPercues",
+          "craintes"
+        ],
+        "additionalProperties": false
+      },
+      "eleve": {
+        "type": "object",
+        "properties": {
+          "accroche": {
+            "type": "string",
+            "minLength": 1
+          },
+          "forces": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "minItems": 3,
+            "maxItems": 3
+          },
+          "priorites": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "domainId": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "titre": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "pourquoi": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "comment": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "domainId",
+                "titre",
+                "pourquoi",
+                "comment"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "maxItems": 5
+          },
+          "microPlan": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "action": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "dureeMin": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              },
+              "required": [
+                "action",
+                "dureeMin"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "maxItems": 5
+          },
+          "motDeFin": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "accroche",
+          "forces",
+          "priorites",
+          "microPlan",
+          "motDeFin"
+        ],
+        "additionalProperties": false
+      },
+      "parents": {
+        "type": "object",
+        "properties": {
+          "cadre": {
+            "type": "string",
+            "minLength": 1
+          },
+          "pointsAppui": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "domainId": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "texte": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "domainId",
+                "texte"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "maxItems": 5
+          },
+          "priorites": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "domainId": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "titre": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "ceQuiSeraFait": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "domainId",
+                "titre",
+                "ceQuiSeraFait"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "maxItems": 5
+          },
+          "etapeSuivante": {
+            "type": "object",
+            "properties": {
+              "texte": {
+                "type": "string",
+                "minLength": 1
+              },
+              "cta": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "texte",
+              "cta"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "cadre",
+          "pointsAppui",
+          "priorites",
+          "etapeSuivante"
+        ],
+        "additionalProperties": false
+      },
+      "nexus": {
+        "type": "object",
+        "properties": {
+          "syntheseProfil": {
+            "type": "string",
+            "minLength": 1
+          },
+          "diagnosticPedagogique": {
+            "type": "string",
+            "minLength": 1
+          },
+          "planQuatreSemaines": {
+            "type": "string",
+            "minLength": 1
+          },
+          "alertes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "ragReferences": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "required": [
+          "syntheseProfil",
+          "diagnosticPedagogique",
+          "planQuatreSemaines",
+          "alertes",
+          "ragReferences"
+        ],
+        "additionalProperties": false
+      },
+      "verifier": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "type": "boolean"
+          },
+          "violations": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "required": [
+          "ok",
+          "violations"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "validation": {
+    "lexiconPath": "data/bilans/lexique-interdit.json",
+    "forbidDigits": [
+      "eleve",
+      "parents"
+    ]
+  }
+}

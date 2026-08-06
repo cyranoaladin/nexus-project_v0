@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
-import { serializeError } from '@/lib/utils/serialize-error';
-import { isCoachRattachedToStudent } from '@/lib/rbac/coach-student-access';
 import { parseJsonBody } from '@/lib/api/helpers';
+import { prisma } from "@/lib/prisma";
+import { isCoachRattachedToStudent } from '@/lib/rbac/coach-student-access';
+import { serializeError } from '@/lib/utils/serialize-error';
+import { NextRequest,NextResponse } from "next/server";
 import { z } from 'zod';
 
 const createTrajectorySchema = z.object({
@@ -18,7 +18,7 @@ const createTrajectorySchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
-    const session: any = await auth();
+    const session: import('next-auth').Session | null = await auth();
     if (!session?.user || (session.user.role !== "COACH" && session.user.role !== "ADMIN")) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }

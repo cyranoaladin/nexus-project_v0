@@ -1,17 +1,17 @@
+import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive';
 export const dynamic = 'force-dynamic';
 
-import { prisma } from '@/lib/prisma';
-import bcrypt from 'bcryptjs';
-import { NextRequest, NextResponse } from 'next/server';
+import { ApiError,handleApiError,HttpStatus,successResponse } from '@/lib/api/errors';
+import { assertExists,createPaginationMeta,getPagination,parseBody,parseSearchParams } from '@/lib/api/helpers';
 import { SYSTEM_PARENT_EMAIL } from '@/lib/constants';
-import { requireRole, isErrorResponse } from '@/lib/guards';
-import { createUserSchema, updateUserSchema, listUsersSchema } from '@/lib/validation';
-import { parseBody, parseSearchParams, getPagination, createPaginationMeta, assertExists } from '@/lib/api/helpers';
-import { successResponse, handleApiError, ApiError, HttpStatus } from '@/lib/api/errors';
-import { RateLimitPresets } from '@/lib/middleware/rateLimit';
+import { isErrorResponse,requireRole } from '@/lib/guards';
 import { createLogger } from '@/lib/middleware/logger';
+import { prisma } from '@/lib/prisma';
+import { createUserSchema,listUsersSchema,updateUserSchema } from '@/lib/validation';
+import { AcademicTrack,GradeLevel,StmgPathway,UserRole } from '@/types/enums';
 import type { Prisma } from '@prisma/client';
-import { UserRole, GradeLevel, AcademicTrack, StmgPathway } from '@/types/enums';
+import bcrypt from 'bcryptjs';
+import { NextRequest,NextResponse } from 'next/server';
 
 /**
  * GET /api/admin/users - List users with filters and pagination
@@ -21,12 +21,22 @@ export async function GET(request: NextRequest) {
 
   try {
     // Rate limiting
-    const rateLimitResult = RateLimitPresets.api(request, 'admin-users');
+    const rateLimitResult = await guardSensitiveRateLimit(request, {
+      scope: 'admin-users-read',
+      dimensions: ['ip'],
+    });
     if (rateLimitResult) return rateLimitResult;
 
     // Require ADMIN role
     const session = await requireRole(UserRole.ADMIN);
     if (isErrorResponse(session)) return session;
+
+    const identityBlocked = await guardSensitiveRateLimit(request, {
+      scope: 'admin-users-read',
+      identity: session.user.id,
+      dimensions: ['identity'],
+    });
+    if (identityBlocked) return identityBlocked;
 
     // Update logger with session context
     logger = createLogger(request, session);
@@ -120,12 +130,22 @@ export async function POST(request: NextRequest) {
 
   try {
     // Rate limiting (stricter for write operations)
-    const rateLimitResult = RateLimitPresets.expensive(request, 'admin-users-create');
+    const rateLimitResult = await guardSensitiveRateLimit(request, {
+      scope: 'admin-users-create',
+      dimensions: ['ip'],
+    });
     if (rateLimitResult) return rateLimitResult;
 
     // Require ADMIN role
     const session = await requireRole(UserRole.ADMIN);
     if (isErrorResponse(session)) return session;
+
+    const identityBlocked = await guardSensitiveRateLimit(request, {
+      scope: 'admin-users-create',
+      identity: session.user.id,
+      dimensions: ['identity'],
+    });
+    if (identityBlocked) return identityBlocked;
 
     // Update logger with session context
     logger = createLogger(request, session);
@@ -272,10 +292,19 @@ export async function PATCH(request: NextRequest) {
           password: undefined
         };
 
+    const revokesSessions = Boolean(
+      userUpdateFields.password ||
+      (validatedData.role && validatedData.role !== existingUser.role) ||
+      (validatedData.email && validatedData.email !== existingUser.email)
+    );
+
     // Update user
     const updatedUser = await prisma.user.update({
       where: { id },
-      data: updateData,
+      data: {
+        ...updateData,
+        ...(revokesSessions ? { sessionVersion: { increment: 1 } } : {}),
+      },
       select: {
         id: true,
         email: true,
@@ -302,7 +331,7 @@ export async function PATCH(request: NextRequest) {
       };
 
       // Need parentId for create block
-      let parentId = (data as any).parentId;
+      let parentId = (data as { parentId?: string }).parentId;
       if (!parentId) {
         const existingStudent = await prisma.student.findUnique({ where: { userId: id } });
         parentId = existingStudent?.parentId;

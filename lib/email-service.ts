@@ -1,6 +1,7 @@
-import nodemailer from 'nodemailer9';
 import type { Prisma } from '@prisma/client';
 import { serializeError } from '@/lib/utils/serialize-error';
+import { queueCommittedEmail } from '@/lib/email/queue';
+import { verifySmtp } from '@/lib/email/mailer';
 
 type EmailUser = {
   firstName?: string | null;
@@ -29,16 +30,21 @@ type EmailSession = {
   creditCost?: number;
 };
 
-// Configuration du transporteur SMTP
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST,
-  port: parseInt(process.env.SMTP_PORT || '587'),
-  secure: process.env.SMTP_SECURE === 'true',
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASSWORD
-  }
-});
+async function queueServiceMail(input: Readonly<{
+  to: string;
+  subject: string;
+  html: string;
+  dedupeKey: string;
+}>) {
+  return queueCommittedEmail({
+    aggregateType: 'SESSION_EMAIL',
+    aggregateKey: input.to,
+    dedupeKey: input.dedupeKey,
+    to: input.to,
+    subject: input.subject,
+    html: input.html,
+  });
+}
 
 // Templates d'email
 const EMAIL_TEMPLATES = {
@@ -162,11 +168,11 @@ export async function sendWelcomeEmail(user: EmailUser) {
   try {
     const template = EMAIL_TEMPLATES.WELCOME;
 
-    await transporter.sendMail({
-      from: `"Nexus Réussite" <${process.env.SMTP_FROM}>`,
+    await queueServiceMail({
       to: user.email,
       subject: template.subject,
-      html: template.html(user)
+      html: template.html(user),
+      dedupeKey: `welcome:${user.email.normalize('NFC').toLowerCase()}`,
     });
 
   } catch (error) {
@@ -179,17 +185,16 @@ export async function sendSessionConfirmationEmail(session: EmailSession, studen
   try {
     const template = EMAIL_TEMPLATES.SESSION_CONFIRMATION;
 
-    await transporter.sendMail({
-      from: `"Nexus Réussite" <${process.env.SMTP_FROM}>`,
+    await queueServiceMail({
       to: student.email,
       subject: template.subject,
-      html: template.html(session, student, coach ?? null)
+      html: template.html(session, student, coach ?? null),
+      dedupeKey: `session-confirmation:${session.id}:student`,
     });
 
     // Envoyer aussi au coach si assigné
     if (coach?.email) {
-      await transporter.sendMail({
-        from: `"Nexus Réussite" <${process.env.SMTP_FROM}>`,
+      await queueServiceMail({
         to: coach.email,
         subject: `Nouvelle session assignée - ${session.subject}`,
         html: `
@@ -211,7 +216,8 @@ export async function sendSessionConfirmationEmail(session: EmailSession, studen
               </div>
             </div>
           </div>
-        `
+        `,
+        dedupeKey: `session-confirmation:${session.id}:coach`,
       });
     }
 
@@ -225,11 +231,11 @@ export async function sendSessionReminderEmail(session: EmailSession, student: E
   try {
     const template = EMAIL_TEMPLATES.SESSION_REMINDER;
 
-    await transporter.sendMail({
-      from: `"Nexus Réussite" <${process.env.SMTP_FROM}>`,
+    await queueServiceMail({
       to: student.email,
       subject: template.subject,
-      html: template.html(session, student, videoLink)
+      html: template.html(session, student, videoLink),
+      dedupeKey: `session-reminder:${session.id}:${new Date(session.scheduledAt).toISOString()}`,
     });
 
   } catch (error) {
@@ -240,13 +246,10 @@ export async function sendSessionReminderEmail(session: EmailSession, student: E
 
 // Fonction de test de configuration email
 export async function testEmailConfiguration() {
-  try {
-    await transporter.verify();
-    return { success: true, message: 'Configuration email valide' };
-  } catch (error) {
-    console.error('Erreur configuration email:', serializeError(error));
-    return { success: false, error: error instanceof Error ? error.message : String(error) };
-  }
+  const result = await verifySmtp();
+  return result.ok
+    ? { success: true, message: 'Configuration email valide' }
+    : { success: false, error: result.error ?? 'SMTP_VERIFY_FAILED' };
 }
 
 export async function sendSessionReportNotification(
@@ -314,11 +317,11 @@ export async function sendSessionReportNotification(
       </div>
     `;
 
-    await transporter.sendMail({
-      from: `"Nexus Réussite" <${process.env.SMTP_FROM}>`,
+    await queueServiceMail({
       to: parentEmail,
-      subject: subject,
-      html: html
+      subject,
+      html,
+      dedupeKey: `session-report:${session.id}:${report.performanceRating}:${report.summary}`,
     });
 
   } catch (error) {

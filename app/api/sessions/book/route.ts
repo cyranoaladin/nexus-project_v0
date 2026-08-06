@@ -1,19 +1,19 @@
+import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive';
 export const dynamic = 'force-dynamic';
 
+import { requireFeatureApi } from '@/lib/access';
+import { ApiError,errorResponse,handleZodError,HttpStatus,successResponse } from '@/lib/api/errors';
+import { parseBody } from '@/lib/api/helpers';
+import { isErrorResponse,requireAnyRole } from '@/lib/guards';
+import { createLogger } from '@/lib/middleware/logger';
+import { prisma } from '@/lib/prisma';
+import { parseSubjects } from '@/lib/utils/subjects';
+import { bookFullSessionSchema } from '@/lib/validation';
+import { UserRole } from '@/types/enums';
+import { Prisma } from '@prisma/client';
 import { randomUUID } from 'crypto';
 import { NextRequest } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import { Prisma, type CreditTransaction } from '@prisma/client';
 import { ZodError } from 'zod';
-import { bookFullSessionSchema } from '@/lib/validation';
-import { requireAnyRole, isErrorResponse } from '@/lib/guards';
-import { ApiError, successResponse, handleZodError, HttpStatus, errorResponse } from '@/lib/api/errors';
-import { parseBody } from '@/lib/api/helpers';
-import { RateLimitPresets } from '@/lib/middleware/rateLimit';
-import { createLogger } from '@/lib/middleware/logger';
-import { UserRole } from '@/types/enums';
-import { requireFeatureApi } from '@/lib/access';
-import { parseSubjects } from '@/lib/utils/subjects';
 
 function normalizeTime(time: string): string {
   const [h, m] = time.split(':').map((v) => parseInt(v, 10));
@@ -33,12 +33,22 @@ export async function POST(req: NextRequest) {
 
   try {
     // Rate limiting
-    const rateLimitResult = RateLimitPresets.expensive(req, 'session-book');
+    const rateLimitResult = await guardSensitiveRateLimit(req, {
+      scope: 'session-book',
+      dimensions: ['ip'],
+    });
     if (rateLimitResult) return rateLimitResult;
 
     // Authentication & Authorization
     const session = await requireAnyRole([UserRole.PARENT, UserRole.ELEVE]);
     if (isErrorResponse(session)) return session;
+
+    const identityBlocked = await guardSensitiveRateLimit(req, {
+      scope: 'session-book',
+      identity: session.user.id,
+      dimensions: ['identity'],
+    });
+    if (identityBlocked) return identityBlocked;
 
     // Update logger with user context
     logger = createLogger(req, session);

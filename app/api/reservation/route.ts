@@ -1,19 +1,24 @@
+import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive';
 export const dynamic = 'force-dynamic';
 
-import { prisma } from '@/lib/prisma';
-import { stageReservationSchema } from '@/lib/validations';
-import { sendStageBankTransferConfirmation } from '@/lib/email';
 import { auth } from '@/auth';
-import { guardRateLimit } from '@/lib/rate-limit';
-import { checkCsrf, checkBodySize } from '@/lib/csrf';
-import { NextRequest, NextResponse } from 'next/server';
+import { checkBodySize,checkCsrf } from '@/lib/csrf';
+import { sendStageBankTransferConfirmation } from '@/lib/email';
+import { prisma } from '@/lib/prisma';
 import { telegramSendMessage } from '@/lib/telegram/client';
+import { stageReservationSchema } from '@/lib/validations';
+import { NextRequest,NextResponse } from 'next/server';
 
 /**
  * Sanitize user input for Telegram MarkdownV1.
+ *
+ * Backslash is itself in the character class so a pre-existing '\' in the
+ * input is escaped too -- otherwise attacker input like `\*bold*\` pairs
+ * the sanitizer's inserted '\' with the ATTACKER's backslash instead of
+ * the special char, leaving the '*' unescaped and live.
  */
 function sanitizeTelegram(str: string): string {
-  return str.replace(/[_*[\]()~`>#+\-=|{}.!]/g, '\\$&');
+  return str.replace(/[_*[\]()~`>#+\-=|{}.!\\]/g, '\\$&');
 }
 
 function buildTelegramMessage(data: {
@@ -61,7 +66,10 @@ export async function POST(request: NextRequest) {
     if (bodySizeResponse) return bodySizeResponse;
 
     // 1. Rate Limiting
-    const blocked = guardRateLimit(request, { preset: 'api' });
+    const blocked = await guardSensitiveRateLimit(request, {
+      scope: 'reservation-submit',
+      dimensions: ['ip'],
+    });
     if (blocked) return blocked;
 
     const body = await request.json();
@@ -91,6 +99,14 @@ export async function POST(request: NextRequest) {
     }
 
     const data = parseResult.data;
+
+    const identityBlocked = await guardSensitiveRateLimit(request, {
+      scope: 'reservation-submit',
+      identity: data.email,
+      resource: data.academyId,
+      dimensions: ['identity', 'resource'],
+    });
+    if (identityBlocked) return identityBlocked;
 
     // 3. Upsert: create or update (anti-duplicate on email+academyId)
     let isUpdate = false;
@@ -122,7 +138,7 @@ export async function POST(request: NextRequest) {
       });
     } else {
       const isBankTransfer = data.paymentMethod === 'bank_transfer';
-      const reservation = await prisma.stageReservation.create({
+      await prisma.stageReservation.create({
         data: {
           parentName: data.parent,
           studentName: data.studentName || null,
@@ -304,7 +320,7 @@ export async function PATCH(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { reservationId, action, note } = body as {
+    const { reservationId, action } = body as {
       reservationId?: string;
       action?: 'approve' | 'reject';
       note?: string;

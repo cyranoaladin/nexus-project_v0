@@ -1,0 +1,1071 @@
+{
+  "slug": "entree-quatrieme-francais-v1",
+  "level": "QUATRIEME",
+  "subject": "FRANCAIS",
+  "version": 1,
+  "status": "VALIDATED",
+  "review": {
+    "validatedBy": "cmsf8ncom0008mguh4z5acmu5",
+    "validatedAt": "2026-08-05T07:03:45.322Z"
+  },
+  "questionnaire": {
+    "targetDurationMin": 25,
+    "confidenceScale": {
+      "levels": 4,
+      "labels": [
+        "je devine",
+        "peu sûr",
+        "plutôt sûr",
+        "certain"
+      ]
+    },
+    "items": [
+      {
+        "id": "4E-FRA-CLA-01",
+        "subject": "FRANCAIS",
+        "category": "Classes grammaticales (nature des mots)",
+        "domainId": "grammaire",
+        "nodeCpsId": "5e.francais.grammaire.classes-de-mots",
+        "difficulty": 1,
+        "targetTimeSec": 45,
+        "shortCorrection": "« Paisiblement » modifie le verbe « dort » et se termine par -ment : c'est un adverbe, mot invariable.",
+        "weight": 1,
+        "competencies": [
+          "5e.francais.grammaire.classes-de-mots"
+        ],
+        "questionText": "Dans la phrase « Le vieux chien dort paisiblement. », quelle est la classe grammaticale du mot « paisiblement » ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "un adjectif",
+            "isCorrect": false,
+            "distractorRationale": "Confond l'adverbe, invariable et complément du verbe, avec l'adjectif qui qualifie un nom."
+          },
+          {
+            "id": "B",
+            "text": "un verbe",
+            "isCorrect": false,
+            "distractorRationale": "Confond l'adverbe avec le verbe « dort »."
+          },
+          {
+            "id": "C",
+            "text": "un adverbe",
+            "isCorrect": true
+          },
+          {
+            "id": "D",
+            "text": "un nom",
+            "isCorrect": false,
+            "distractorRationale": "Attribue au mot une nature de nom alors qu'il modifie le verbe."
+          }
+        ],
+        "explanation": "« Paisiblement » modifie le verbe « dort » et se termine par -ment : c'est un adverbe, mot invariable."
+      },
+      {
+        "id": "4E-FRA-CLA-02",
+        "subject": "FRANCAIS",
+        "category": "Classes grammaticales (nature des mots)",
+        "domainId": "grammaire",
+        "nodeCpsId": "5e.francais.grammaire.classes-de-mots",
+        "difficulty": 2,
+        "targetTimeSec": 55,
+        "shortCorrection": "« Ce » précède et introduit le nom « cadeau » : c'est un déterminant (démonstratif).",
+        "weight": 2,
+        "competencies": [
+          "5e.francais.grammaire.classes-de-mots"
+        ],
+        "questionText": "Dans « Elle lui a offert ce cadeau. », quelle est la classe grammaticale du mot « ce » ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "un déterminant",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "un pronom",
+            "isCorrect": false,
+            "distractorRationale": "Confond le déterminant, qui précède le nom, avec un pronom qui le remplace."
+          },
+          {
+            "id": "C",
+            "text": "un adjectif qualificatif",
+            "isCorrect": false,
+            "distractorRationale": "Confond le déterminant démonstratif avec un adjectif qualificatif."
+          },
+          {
+            "id": "D",
+            "text": "une conjonction",
+            "isCorrect": false,
+            "distractorRationale": "Attribue à « ce » un rôle de liaison qu'il n'a pas ici."
+          }
+        ],
+        "explanation": "« Ce » précède et introduit le nom « cadeau » : c'est un déterminant (démonstratif)."
+      },
+      {
+        "id": "4E-FRA-FON-01",
+        "subject": "FRANCAIS",
+        "category": "Fonctions dans la phrase (sujet, COD, COI)",
+        "domainId": "grammaire",
+        "nodeCpsId": "5e.francais.grammaire.fonctions",
+        "difficulty": 1,
+        "targetTimeSec": 50,
+        "shortCorrection": "« Un film » répond à « regardent quoi ? » sans préposition : c'est un COD.",
+        "weight": 1,
+        "competencies": [
+          "5e.francais.grammaire.fonctions"
+        ],
+        "questionText": "Dans « Les enfants regardent un film. », quelle est la fonction du groupe « un film » ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "sujet",
+            "isCorrect": false,
+            "distractorRationale": "Confond le COD avec le sujet, qui est « les enfants »."
+          },
+          {
+            "id": "B",
+            "text": "complément d'objet direct (COD)",
+            "isCorrect": true
+          },
+          {
+            "id": "C",
+            "text": "complément d'objet indirect (COI)",
+            "isCorrect": false,
+            "distractorRationale": "Oublie qu'il n'y a pas de préposition : le complément est direct."
+          },
+          {
+            "id": "D",
+            "text": "attribut du sujet",
+            "isCorrect": false,
+            "distractorRationale": "Confond le COD avec un attribut, qui suppose un verbe d'état."
+          }
+        ],
+        "explanation": "« Un film » répond à « regardent quoi ? » sans préposition : c'est un COD."
+      },
+      {
+        "id": "4E-FRA-FON-02",
+        "subject": "FRANCAIS",
+        "category": "Fonctions dans la phrase (sujet, COD, COI)",
+        "domainId": "grammaire",
+        "nodeCpsId": "5e.francais.grammaire.fonctions",
+        "difficulty": 2,
+        "targetTimeSec": 60,
+        "shortCorrection": "« À son voisin » répond à « parle à qui ? » avec la préposition « à » : c'est un COI.",
+        "weight": 2,
+        "competencies": [
+          "5e.francais.grammaire.fonctions"
+        ],
+        "questionText": "Dans « Il parle à son voisin. », quelle est la fonction du groupe « à son voisin » ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "complément d'objet direct (COD)",
+            "isCorrect": false,
+            "distractorRationale": "Ignore la préposition « à », qui rend le complément indirect."
+          },
+          {
+            "id": "B",
+            "text": "complément circonstanciel de lieu",
+            "isCorrect": false,
+            "distractorRationale": "Confond la personne à qui l'on parle avec un lieu."
+          },
+          {
+            "id": "C",
+            "text": "sujet",
+            "isCorrect": false,
+            "distractorRationale": "Confond le complément avec le sujet, qui est « il »."
+          },
+          {
+            "id": "D",
+            "text": "complément d'objet indirect (COI)",
+            "isCorrect": true
+          }
+        ],
+        "explanation": "« À son voisin » répond à « parle à qui ? » avec la préposition « à » : c'est un COI."
+      },
+      {
+        "id": "4E-FRA-PRE-01",
+        "subject": "FRANCAIS",
+        "category": "Conjugaison : présent de l'indicatif",
+        "domainId": "conjugaison",
+        "nodeCpsId": "5e.francais.conjugaison.present-indicatif",
+        "difficulty": 1,
+        "targetTimeSec": 45,
+        "shortCorrection": "Le verbe « prendre » à la 1re personne du pluriel donne « nous prenons ».",
+        "weight": 1,
+        "competencies": [
+          "5e.francais.conjugaison.present-indicatif"
+        ],
+        "questionText": "Quelle est la forme correcte au présent de l'indicatif : « Nous ... (prendre) le train. » ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "prenons",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "prendons",
+            "isCorrect": false,
+            "distractorRationale": "Applique une terminaison régulière à un verbe irrégulier du 3e groupe."
+          },
+          {
+            "id": "C",
+            "text": "prennons",
+            "isCorrect": false,
+            "distractorRationale": "Double la consonne à tort à la 1re personne du pluriel."
+          },
+          {
+            "id": "D",
+            "text": "prenez",
+            "isCorrect": false,
+            "distractorRationale": "Utilise la 2e personne du pluriel au lieu de la 1re."
+          }
+        ],
+        "explanation": "Le verbe « prendre » à la 1re personne du pluriel donne « nous prenons »."
+      },
+      {
+        "id": "4E-FRA-PRE-02",
+        "subject": "FRANCAIS",
+        "category": "Conjugaison : présent de l'indicatif",
+        "domainId": "conjugaison",
+        "nodeCpsId": "5e.francais.conjugaison.present-indicatif",
+        "difficulty": 2,
+        "targetTimeSec": 50,
+        "shortCorrection": "À la 2e personne du singulier, « faire » donne « tu fais ».",
+        "weight": 2,
+        "competencies": [
+          "5e.francais.conjugaison.present-indicatif"
+        ],
+        "questionText": "Quelle est la forme correcte : « Tu ... (faire) tes devoirs. » ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "fait",
+            "isCorrect": false,
+            "distractorRationale": "Utilise la forme de la 3e personne du singulier au lieu de la 2e."
+          },
+          {
+            "id": "B",
+            "text": "fais",
+            "isCorrect": true
+          },
+          {
+            "id": "C",
+            "text": "fais-tu",
+            "isCorrect": false,
+            "distractorRationale": "Ajoute le pronom sujet dans la forme conjuguée."
+          },
+          {
+            "id": "D",
+            "text": "faits",
+            "isCorrect": false,
+            "distractorRationale": "Confond le verbe conjugué avec un participe passé au pluriel."
+          }
+        ],
+        "explanation": "À la 2e personne du singulier, « faire » donne « tu fais »."
+      },
+      {
+        "id": "4E-FRA-REC-01",
+        "subject": "FRANCAIS",
+        "category": "Conjugaison : imparfait et passé simple",
+        "domainId": "conjugaison",
+        "nodeCpsId": "5e.francais.conjugaison.temps-du-recit",
+        "difficulty": 1,
+        "targetTimeSec": 55,
+        "shortCorrection": "L'imparfait exprime la description et l'arrière-plan dans le récit : « brillait », « chantaient ».",
+        "weight": 1,
+        "competencies": [
+          "5e.francais.conjugaison.temps-du-recit"
+        ],
+        "questionText": "Dans un récit au passé, quelle phrase emploie correctement l'imparfait pour une description ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "« Le soleil brilla et les oiseaux chantèrent. »",
+            "isCorrect": false,
+            "distractorRationale": "Emploie le passé simple, qui exprime une action ponctuelle, non une description."
+          },
+          {
+            "id": "B",
+            "text": "« Le soleil brille et les oiseaux chantent. »",
+            "isCorrect": false,
+            "distractorRationale": "Emploie le présent, incompatible avec un récit au passé."
+          },
+          {
+            "id": "C",
+            "text": "« Le soleil brillait et les oiseaux chantaient. »",
+            "isCorrect": true
+          },
+          {
+            "id": "D",
+            "text": "« Le soleil a brillé et les oiseaux ont chanté. »",
+            "isCorrect": false,
+            "distractorRationale": "Emploie le passé composé, qui ne convient pas à la description d'arrière-plan."
+          }
+        ],
+        "explanation": "L'imparfait exprime la description et l'arrière-plan dans le récit : « brillait », « chantaient »."
+      },
+      {
+        "id": "4E-FRA-REC-02",
+        "subject": "FRANCAIS",
+        "category": "Conjugaison : imparfait et passé simple",
+        "domainId": "conjugaison",
+        "nodeCpsId": "5e.francais.conjugaison.temps-du-recit",
+        "difficulty": 2,
+        "targetTimeSec": 60,
+        "shortCorrection": "Au passé simple, « voir » à la 3e personne du singulier donne « il vit », marquant l'action soudaine.",
+        "weight": 2,
+        "competencies": [
+          "5e.francais.conjugaison.temps-du-recit"
+        ],
+        "questionText": "Quelle est la forme correcte au passé simple : « Soudain, il ... (voir) une lumière. » ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "voyait",
+            "isCorrect": false,
+            "distractorRationale": "Emploie l'imparfait, qui ne convient pas à une action soudaine et ponctuelle."
+          },
+          {
+            "id": "B",
+            "text": "voit",
+            "isCorrect": false,
+            "distractorRationale": "Emploie le présent au lieu du passé simple."
+          },
+          {
+            "id": "C",
+            "text": "voya",
+            "isCorrect": false,
+            "distractorRationale": "Applique une terminaison régulière à un verbe irrégulier."
+          },
+          {
+            "id": "D",
+            "text": "vit",
+            "isCorrect": true
+          }
+        ],
+        "explanation": "Au passé simple, « voir » à la 3e personne du singulier donne « il vit », marquant l'action soudaine."
+      },
+      {
+        "id": "4E-FRA-ACC-01",
+        "subject": "FRANCAIS",
+        "category": "Accords (sujet-verbe, groupe nominal)",
+        "domainId": "orthographe",
+        "nodeCpsId": "5e.francais.orthographe.accords",
+        "difficulty": 1,
+        "targetTimeSec": 50,
+        "shortCorrection": "Le sujet « les fleurs » commande l'accord : verbe au pluriel et attribut « fanées » au féminin pluriel.",
+        "weight": 1,
+        "competencies": [
+          "5e.francais.orthographe.accords"
+        ],
+        "questionText": "Quelle phrase est correctement accordée ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "« Les fleurs du jardin sont fané. »",
+            "isCorrect": false,
+            "distractorRationale": "N'accorde pas l'attribut « fanées » avec le sujet féminin pluriel."
+          },
+          {
+            "id": "B",
+            "text": "« Les fleurs du jardin sont fanées. »",
+            "isCorrect": true
+          },
+          {
+            "id": "C",
+            "text": "« Les fleurs du jardin est fanées. »",
+            "isCorrect": false,
+            "distractorRationale": "Accorde le verbe avec « jardin » au lieu du sujet « les fleurs »."
+          },
+          {
+            "id": "D",
+            "text": "« Les fleur du jardin sont fanées. »",
+            "isCorrect": false,
+            "distractorRationale": "Oublie la marque du pluriel sur le nom « fleurs »."
+          }
+        ],
+        "explanation": "Le sujet « les fleurs » commande l'accord : verbe au pluriel et attribut « fanées » au féminin pluriel."
+      },
+      {
+        "id": "4E-FRA-ACC-02",
+        "subject": "FRANCAIS",
+        "category": "Accords (sujet-verbe, groupe nominal)",
+        "domainId": "orthographe",
+        "nodeCpsId": "5e.francais.orthographe.accords",
+        "difficulty": 2,
+        "targetTimeSec": 60,
+        "shortCorrection": "Le sujet « les élèves » est à la 3e personne du pluriel : « ils posent ».",
+        "weight": 2,
+        "competencies": [
+          "5e.francais.orthographe.accords"
+        ],
+        "questionText": "Complète correctement : « Les élèves ... leurs cahiers sur la table. »",
+        "options": [
+          {
+            "id": "A",
+            "text": "posent",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "pose",
+            "isCorrect": false,
+            "distractorRationale": "N'accorde pas le verbe avec le sujet pluriel « les élèves »."
+          },
+          {
+            "id": "C",
+            "text": "poses",
+            "isCorrect": false,
+            "distractorRationale": "Utilise la terminaison de la 2e personne du singulier."
+          },
+          {
+            "id": "D",
+            "text": "posent-ils",
+            "isCorrect": false,
+            "distractorRationale": "Ajoute le pronom sujet dans la forme conjuguée."
+          }
+        ],
+        "explanation": "Le sujet « les élèves » est à la 3e personne du pluriel : « ils posent »."
+      },
+      {
+        "id": "4E-FRA-HOM-01",
+        "subject": "FRANCAIS",
+        "category": "Homophones grammaticaux",
+        "domainId": "orthographe",
+        "nodeCpsId": "5e.francais.orthographe.homophones",
+        "difficulty": 1,
+        "targetTimeSec": 45,
+        "shortCorrection": "« Est » est le verbe être (on peut dire « était ») ; « sa » est un déterminant possessif devant « valise ».",
+        "weight": 1,
+        "competencies": [
+          "5e.francais.orthographe.homophones"
+        ],
+        "questionText": "Choisis la forme correcte : « Il ... parti sans ... valise. »",
+        "options": [
+          {
+            "id": "A",
+            "text": "et / sa",
+            "isCorrect": false,
+            "distractorRationale": "Confond « est » (verbe être) avec « et » (conjonction de coordination)."
+          },
+          {
+            "id": "B",
+            "text": "est / ça",
+            "isCorrect": false,
+            "distractorRationale": "Confond le déterminant possessif « sa » avec le pronom « ça »."
+          },
+          {
+            "id": "C",
+            "text": "et / ça",
+            "isCorrect": false,
+            "distractorRationale": "Se trompe sur les deux homophones à la fois."
+          },
+          {
+            "id": "D",
+            "text": "est / sa",
+            "isCorrect": true
+          }
+        ],
+        "explanation": "« Est » est le verbe être (on peut dire « était ») ; « sa » est un déterminant possessif devant « valise »."
+      },
+      {
+        "id": "4E-FRA-HOM-02",
+        "subject": "FRANCAIS",
+        "category": "Homophones grammaticaux",
+        "domainId": "orthographe",
+        "nodeCpsId": "5e.francais.orthographe.homophones",
+        "difficulty": 2,
+        "targetTimeSec": 55,
+        "shortCorrection": "« Ses » marque la possession (ses amis) ; « ont » est le verbe avoir (on peut dire « avaient »).",
+        "weight": 2,
+        "competencies": [
+          "5e.francais.orthographe.homophones"
+        ],
+        "questionText": "Choisis la forme correcte : « ... amis ... déjà arrivés. »",
+        "options": [
+          {
+            "id": "A",
+            "text": "Ces / ont",
+            "isCorrect": false,
+            "distractorRationale": "Confond « ses » (possessif : ses amis à lui) avec « ces » (démonstratif) dans ce contexte de possession."
+          },
+          {
+            "id": "B",
+            "text": "Ses / on",
+            "isCorrect": false,
+            "distractorRationale": "Confond « ont » (verbe avoir) avec « on » (pronom)."
+          },
+          {
+            "id": "C",
+            "text": "Ses / ont",
+            "isCorrect": true
+          },
+          {
+            "id": "D",
+            "text": "Ces / on",
+            "isCorrect": false,
+            "distractorRationale": "Se trompe sur les deux homophones."
+          }
+        ],
+        "explanation": "« Ses » marque la possession (ses amis) ; « ont » est le verbe avoir (on peut dire « avaient »)."
+      },
+      {
+        "id": "4E-FRA-LEX-01",
+        "subject": "FRANCAIS",
+        "category": "Lexique : formation des mots (préfixes, suffixes, familles)",
+        "domainId": "lexique",
+        "nodeCpsId": "5e.francais.lexique.formation-des-mots",
+        "difficulty": 1,
+        "targetTimeSec": 50,
+        "shortCorrection": "Le préfixe « in- » exprime la négation : « inutile » signifie « qui n'est pas utile ».",
+        "weight": 1,
+        "competencies": [
+          "5e.francais.lexique.formation-des-mots"
+        ],
+        "questionText": "Dans le mot « inutile », que signifie le préfixe « in- » ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "le contraire, la négation",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "l'intérieur",
+            "isCorrect": false,
+            "distractorRationale": "Confond le préfixe négatif « in- » avec l'idée de « dans »."
+          },
+          {
+            "id": "C",
+            "text": "la répétition",
+            "isCorrect": false,
+            "distractorRationale": "Attribue à « in- » le sens du préfixe « re- »."
+          },
+          {
+            "id": "D",
+            "text": "l'excès",
+            "isCorrect": false,
+            "distractorRationale": "Attribue à « in- » un sens d'intensité qu'il n'a pas."
+          }
+        ],
+        "explanation": "Le préfixe « in- » exprime la négation : « inutile » signifie « qui n'est pas utile »."
+      },
+      {
+        "id": "4E-FRA-LEX-02",
+        "subject": "FRANCAIS",
+        "category": "Lexique : formation des mots (préfixes, suffixes, familles)",
+        "domainId": "lexique",
+        "nodeCpsId": "5e.francais.lexique.formation-des-mots",
+        "difficulty": 2,
+        "targetTimeSec": 55,
+        "shortCorrection": "« Terrible » vient de « terreur », non de « terre ». Terrain, enterrer et terrestre partagent le radical « terr- » lié à la terre.",
+        "weight": 2,
+        "competencies": [
+          "5e.francais.lexique.formation-des-mots"
+        ],
+        "questionText": "Quel mot n'appartient pas à la même famille que « terre » ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "terrain",
+            "isCorrect": false,
+            "distractorRationale": "Appartient bien à la famille de « terre » : rejeté à tort."
+          },
+          {
+            "id": "B",
+            "text": "terrible",
+            "isCorrect": true
+          },
+          {
+            "id": "C",
+            "text": "enterrer",
+            "isCorrect": false,
+            "distractorRationale": "Appartient bien à la famille de « terre » : rejeté à tort."
+          },
+          {
+            "id": "D",
+            "text": "terrestre",
+            "isCorrect": false,
+            "distractorRationale": "Appartient bien à la famille de « terre » : rejeté à tort."
+          }
+        ],
+        "explanation": "« Terrible » vient de « terreur », non de « terre ». Terrain, enterrer et terrestre partagent le radical « terr- » lié à la terre."
+      },
+      {
+        "id": "4E-FRA-SEN-01",
+        "subject": "FRANCAIS",
+        "category": "Lexique : sens propre et figuré, synonymes",
+        "domainId": "lexique",
+        "nodeCpsId": "5e.francais.lexique.sens",
+        "difficulty": 1,
+        "targetTimeSec": 50,
+        "shortCorrection": "« Dévorer les livres » signifie lire avidement : c'est un sens figuré, non le sens propre de « manger ».",
+        "weight": 1,
+        "competencies": [
+          "5e.francais.lexique.sens"
+        ],
+        "questionText": "Dans « Cet élève dévore les livres. », le verbe « dévore » est employé au sens :",
+        "options": [
+          {
+            "id": "A",
+            "text": "propre",
+            "isCorrect": false,
+            "distractorRationale": "Prend l'expression au premier degré, comme si l'élève mangeait réellement les livres."
+          },
+          {
+            "id": "B",
+            "text": "interrogatif",
+            "isCorrect": false,
+            "distractorRationale": "Confond une valeur de sens avec un type de phrase."
+          },
+          {
+            "id": "C",
+            "text": "figuré",
+            "isCorrect": true
+          },
+          {
+            "id": "D",
+            "text": "impératif",
+            "isCorrect": false,
+            "distractorRationale": "Confond une valeur de sens avec un mode verbal."
+          }
+        ],
+        "explanation": "« Dévorer les livres » signifie lire avidement : c'est un sens figuré, non le sens propre de « manger »."
+      },
+      {
+        "id": "4E-FRA-SEN-02",
+        "subject": "FRANCAIS",
+        "category": "Lexique : sens propre et figuré, synonymes",
+        "domainId": "lexique",
+        "nodeCpsId": "5e.francais.lexique.sens",
+        "difficulty": 2,
+        "targetTimeSec": 55,
+        "shortCorrection": "Un synonyme a un sens proche : « content » et « joyeux » expriment tous deux la satisfaction.",
+        "weight": 2,
+        "competencies": [
+          "5e.francais.lexique.sens"
+        ],
+        "questionText": "Quel mot est un synonyme de « content » ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "triste",
+            "isCorrect": false,
+            "distractorRationale": "Donne un antonyme au lieu d'un synonyme."
+          },
+          {
+            "id": "B",
+            "text": "rapide",
+            "isCorrect": false,
+            "distractorRationale": "Propose un mot sans rapport de sens avec « content »."
+          },
+          {
+            "id": "C",
+            "text": "contenu",
+            "isCorrect": false,
+            "distractorRationale": "Confond « content » (adjectif) avec « contenu » par ressemblance sonore."
+          },
+          {
+            "id": "D",
+            "text": "joyeux",
+            "isCorrect": true
+          }
+        ],
+        "explanation": "Un synonyme a un sens proche : « content » et « joyeux » expriment tous deux la satisfaction."
+      },
+      {
+        "id": "4E-FRA-FIG-01",
+        "subject": "FRANCAIS",
+        "category": "Figures de style (comparaison, métaphore)",
+        "domainId": "lecture",
+        "nodeCpsId": "5e.francais.lecture.figures-de-style",
+        "difficulty": 1,
+        "targetTimeSec": 50,
+        "shortCorrection": "La comparaison relie deux éléments par un outil comparatif (« comme ») : « fort comme un lion ».",
+        "weight": 1,
+        "competencies": [
+          "5e.francais.lecture.figures-de-style"
+        ],
+        "questionText": "Quelle phrase contient une comparaison ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "« Il est fort comme un lion. »",
+            "isCorrect": true
+          },
+          {
+            "id": "B",
+            "text": "« C'est un lion au combat. »",
+            "isCorrect": false,
+            "distractorRationale": "Est une métaphore : l'image est directe, sans outil de comparaison."
+          },
+          {
+            "id": "C",
+            "text": "« Le lion rugit dans la savane. »",
+            "isCorrect": false,
+            "distractorRationale": "Ne contient aucune image : sens propre."
+          },
+          {
+            "id": "D",
+            "text": "« Ce lion est le roi des animaux. »",
+            "isCorrect": false,
+            "distractorRationale": "Énonce une expression figée, sans outil de comparaison."
+          }
+        ],
+        "explanation": "La comparaison relie deux éléments par un outil comparatif (« comme ») : « fort comme un lion »."
+      },
+      {
+        "id": "4E-FRA-FIG-02",
+        "subject": "FRANCAIS",
+        "category": "Figures de style (comparaison, métaphore)",
+        "domainId": "lecture",
+        "nodeCpsId": "5e.francais.lecture.figures-de-style",
+        "difficulty": 2,
+        "targetTimeSec": 60,
+        "shortCorrection": "L'image « est un roc » assimile directement l'homme à un roc, sans mot-outil : c'est une métaphore.",
+        "weight": 2,
+        "competencies": [
+          "5e.francais.lecture.figures-de-style"
+        ],
+        "questionText": "Dans « Cet homme est un roc. », quelle figure de style est employée ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "une comparaison",
+            "isCorrect": false,
+            "distractorRationale": "Oublie qu'il n'y a aucun outil de comparaison comme « comme » ou « tel »."
+          },
+          {
+            "id": "B",
+            "text": "une métaphore",
+            "isCorrect": true
+          },
+          {
+            "id": "C",
+            "text": "une énumération",
+            "isCorrect": false,
+            "distractorRationale": "Confond une image avec une liste d'éléments."
+          },
+          {
+            "id": "D",
+            "text": "une répétition",
+            "isCorrect": false,
+            "distractorRationale": "Cherche un mot répété, absent de la phrase."
+          }
+        ],
+        "explanation": "L'image « est un roc » assimile directement l'homme à un roc, sans mot-outil : c'est une métaphore."
+      }
+    ]
+  },
+  "scoring": {
+    "engine": "facts.v1.0.1",
+    "domains": [
+      "grammaire",
+      "conjugaison",
+      "orthographe",
+      "lexique",
+      "lecture"
+    ]
+  },
+  "reporting": {
+    "rag": {
+      "enabled": false,
+      "decisionRef": "A56 — RAG désactivé tant que le corpus du niveau n’est pas validé",
+      "sources": [],
+      "topK": 0
+    },
+    "promptFiles": {
+      "preAnalysis": {
+        "path": "content/bilans/prompts/entree-quatrieme-francais-v1/pre-analysis.md",
+        "checksum": "73a37cd318040093b958ad4fb34f3b605d572215792f41e6a431ff706b7e5340"
+      },
+      "eleve": {
+        "path": "content/bilans/prompts/entree-quatrieme-francais-v1/eleve.md",
+        "checksum": "a4847a0d58b904373830e245e44b88bb52eae706d3e9dafee9b188aa45f7a686"
+      },
+      "parents": {
+        "path": "content/bilans/prompts/entree-quatrieme-francais-v1/parents.md",
+        "checksum": "6f143a12d1a0ac104242e139db805090650e3954c948a53cccbbc22cfc5437f8"
+      },
+      "nexus": {
+        "path": "content/bilans/prompts/entree-quatrieme-francais-v1/nexus.md",
+        "checksum": "9e671381c6577fe76f51a2b03b828f7c7877f72d5979c6ddc9f9af2a8920fba0"
+      },
+      "verifier": {
+        "path": "content/bilans/prompts/entree-quatrieme-francais-v1/verifier.md",
+        "checksum": "b5801bd318eed09568198f2d8383ff765471e7555a0af2d2bc797d2407a1369a"
+      }
+    },
+    "outputSchemas": {
+      "preAnalysis": {
+        "type": "object",
+        "properties": {
+          "synthese": {
+            "type": "string",
+            "minLength": 1
+          },
+          "forcesPercues": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "craintes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "required": [
+          "synthese",
+          "forcesPercues",
+          "craintes"
+        ],
+        "additionalProperties": false
+      },
+      "eleve": {
+        "type": "object",
+        "properties": {
+          "accroche": {
+            "type": "string",
+            "minLength": 1
+          },
+          "forces": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "minItems": 3,
+            "maxItems": 3
+          },
+          "priorites": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "domainId": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "titre": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "pourquoi": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "comment": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "domainId",
+                "titre",
+                "pourquoi",
+                "comment"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "maxItems": 5
+          },
+          "microPlan": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "action": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "dureeMin": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              },
+              "required": [
+                "action",
+                "dureeMin"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "maxItems": 5
+          },
+          "motDeFin": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "accroche",
+          "forces",
+          "priorites",
+          "microPlan",
+          "motDeFin"
+        ],
+        "additionalProperties": false
+      },
+      "parents": {
+        "type": "object",
+        "properties": {
+          "cadre": {
+            "type": "string",
+            "minLength": 1
+          },
+          "pointsAppui": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "domainId": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "texte": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "domainId",
+                "texte"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "maxItems": 5
+          },
+          "priorites": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "domainId": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "titre": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "ceQuiSeraFait": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "domainId",
+                "titre",
+                "ceQuiSeraFait"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "maxItems": 5
+          },
+          "etapeSuivante": {
+            "type": "object",
+            "properties": {
+              "texte": {
+                "type": "string",
+                "minLength": 1
+              },
+              "cta": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "texte",
+              "cta"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "cadre",
+          "pointsAppui",
+          "priorites",
+          "etapeSuivante"
+        ],
+        "additionalProperties": false
+      },
+      "nexus": {
+        "type": "object",
+        "properties": {
+          "syntheseProfil": {
+            "type": "string",
+            "minLength": 1
+          },
+          "diagnosticPedagogique": {
+            "type": "string",
+            "minLength": 1
+          },
+          "planQuatreSemaines": {
+            "type": "string",
+            "minLength": 1
+          },
+          "alertes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "ragReferences": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "required": [
+          "syntheseProfil",
+          "diagnosticPedagogique",
+          "planQuatreSemaines",
+          "alertes",
+          "ragReferences"
+        ],
+        "additionalProperties": false
+      },
+      "verifier": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "type": "boolean"
+          },
+          "violations": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "required": [
+          "ok",
+          "violations"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "validation": {
+    "lexiconPath": "data/bilans/lexique-interdit.json",
+    "forbidDigits": [
+      "eleve",
+      "parents"
+    ]
+  }
+}

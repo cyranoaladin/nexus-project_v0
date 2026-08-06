@@ -1,0 +1,7 @@
+{
+  "schemaVersion": "nexus-bilan-model-policy/v1",
+  "allowedModels": [
+    "mistralai/mistral-large-2512",
+    "openai/gpt-4o-mini"
+  ]
+}

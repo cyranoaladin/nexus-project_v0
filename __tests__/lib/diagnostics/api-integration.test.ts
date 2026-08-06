@@ -59,9 +59,10 @@ jest.mock('@/lib/bilan-scoring', () => ({
 }));
 
 // Mock rate-limit
-jest.mock('@/lib/rate-limit', () => ({
+jest.mock('@/lib/rate-limit/sensitive', () => ({
   guardRateLimit: jest.fn().mockReturnValue(null),
   guardRateLimitAsync: jest.fn().mockResolvedValue(null),
+  guardSensitiveRateLimit: jest.fn().mockResolvedValue(null),
 }));
 
 // Mock csrf

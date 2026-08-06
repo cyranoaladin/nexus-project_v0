@@ -1,24 +1,24 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence,motion } from 'framer-motion';
 import { Menu } from 'lucide-react';
-import { useMathsLabStore } from '../store';
-import { useProgressionSync } from '../hooks/useProgressionSync';
+import { useEffect,useState } from 'react';
+import { STAGE_PRINTEMPS_2026,formatDateFr,getDaysUntilExam,getDaysUntilStage,getNextSession,getStagePhase,getTodaySession } from '../config/stage';
+import { badgeDefinitions,programmeData } from '../data';
 import { useChapterProgress } from '../hooks/useChapterProgress';
-import { programmeData, badgeDefinitions } from '../data';
-import { STAGE_PRINTEMPS_2026, getStagePhase, formatDateFr, getTodaySession, getDaysUntilStage, getDaysUntilExam, getNextSession } from '../config/stage';
+import { useProgressionSync } from '../hooks/useProgressionSync';
+import { useMathsLabStore } from '../store';
 
 // Layout & Views
+import { BilanView } from '@/components/programme/shared/Bilan/BilanView';
+import { LoadingScreen } from '@/components/programme/shared/layout/LoadingScreen';
+import { TopBar } from '@/components/programme/shared/layout/TopBar';
 import { Navigation } from '@/components/programme/shared/Navigation/Navigation';
+import { toast } from 'sonner';
 import { CockpitView } from './Cockpit/CockpitView';
 import { ChapterView } from './Course/ChapterView';
-import { ExamenBlancView } from './Examen/ExamenBlancView';
 import { TeacherView } from './Enseignant/TeacherView';
-import { BilanView } from '@/components/programme/shared/Bilan/BilanView';
-import { TopBar } from '@/components/programme/shared/layout/TopBar';
-import { LoadingScreen } from '@/components/programme/shared/layout/LoadingScreen';
-import { toast } from 'sonner';
+import { ExamenBlancView } from './Examen/ExamenBlancView';
 
 export type ActiveTab = 'cockpit' | 'cours' | 'examen' | 'enseignant' | 'bilan';
 
@@ -47,7 +47,7 @@ export default function MathsRevisionClient({ user }: MathsRevisionClientProps) 
 
   // Get current chapter data for ChapterView
   const currentCat = programmeData[activeCat];
-  const currentChap = currentCat?.chapitres.find((c: any) => c.id === activeChap);
+  const currentChap = currentCat?.chapitres.find((chapter) => chapter.id === activeChap);
   const chapterProgress = useChapterProgress(activeChap, currentChap?.pointsXP || 0);
 
   // Keyboard shortcuts

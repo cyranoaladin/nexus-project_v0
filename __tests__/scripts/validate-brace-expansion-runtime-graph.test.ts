@@ -43,26 +43,12 @@ beforeAll(() => {
         info: 0,
         low: 0,
         moderate: 0,
-        high: 36,
+        high: 0,
         critical: 0,
-        total: 36,
+        total: 0,
       },
     },
-    vulnerabilities: {
-      'brace-expansion': {
-        name: 'brace-expansion',
-        severity: 'high',
-        via: [{
-          name: 'brace-expansion',
-          severity: 'high',
-          url: 'https://github.com/advisories/GHSA-mh99-v99m-4gvg',
-        }],
-        nodes: [
-          'node_modules/brace-expansion',
-          'node_modules/cacache/node_modules/brace-expansion',
-        ],
-      },
-    },
+    vulnerabilities: {},
   }));
 });
 
