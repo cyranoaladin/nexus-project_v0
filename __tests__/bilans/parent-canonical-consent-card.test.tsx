@@ -202,6 +202,36 @@ describe('CanonicalConsentCard', () => {
     expect(onVerified).not.toHaveBeenCalled();
   });
 
+  test('still shows the verified state when onVerified itself throws -- the server already succeeded', async () => {
+    const user = userEvent.setup();
+    const onVerified = jest.fn(() => {
+      throw new Error('refresh failed');
+    });
+    fetchMock
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ state: 'PENDING_PARENT_CONSENT' }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ state: 'VERIFIED' }),
+      });
+
+    render(<CanonicalConsentCard studentId="student-1" onVerified={onVerified} />);
+
+    await user.click(
+      await screen.findByRole('checkbox', {
+        name: /j’atteste avoir donné mon consentement explicite/i,
+      }),
+    );
+    await user.click(screen.getByRole('button', { name: /confirmer le rattachement/i }));
+
+    await waitFor(() => {
+      expect(screen.getByRole('status')).toHaveTextContent('Rattachement vérifié');
+    });
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  });
+
   test('keeps the relationship unverified and shows a restrained error on failure', async () => {
     const user = userEvent.setup();
     fetchMock

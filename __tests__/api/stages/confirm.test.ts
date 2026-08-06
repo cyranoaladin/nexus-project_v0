@@ -88,6 +88,24 @@ describe('POST /api/stages/[slug]/reservations/[id]/confirm', () => {
     }));
   });
 
+  it('refuse de rattacher la réservation à un compte non-ELEVE existant (PARENT/ADMIN/COACH)', async () => {
+    mockAuth.mockResolvedValue(session('ASSISTANTE'));
+    prisma.stageReservation.findFirst.mockResolvedValue(baseReservation);
+    prisma.user.findUnique.mockResolvedValue({
+      id: 'existing-parent-user',
+      email: 'eleve@example.com',
+      role: 'PARENT',
+      activatedAt: new Date('2026-01-01T00:00:00.000Z'),
+      student: null,
+    });
+
+    const res = await POST(makeRequest(), { params });
+
+    expect(res.status).toBe(409);
+    expect(prisma.stageReservation.update).not.toHaveBeenCalled();
+    expect(prisma.user.create).not.toHaveBeenCalled();
+  });
+
   it('refuse des paramètres route invalides avant accès DB', async () => {
     mockAuth.mockResolvedValue(session('ASSISTANTE'));
 
@@ -120,6 +138,7 @@ describe('POST /api/stages/[slug]/reservations/[id]/confirm', () => {
       id: 'user-existing',
       email: 'eleve@example.com',
       role: 'ELEVE',
+      activatedAt: null,
       student: { id: 'student-existing' },
     });
     prisma.stageReservation.update.mockResolvedValue({});
@@ -180,6 +199,7 @@ describe('POST /api/stages/[slug]/reservations/[id]/confirm', () => {
       id: 'user-existing',
       email: 'eleve@example.com',
       role: 'ELEVE',
+      activatedAt: null,
       student: { id: 'student-existing' },
     });
     prisma.stageReservation.update.mockResolvedValue({});
@@ -196,6 +216,7 @@ describe('POST /api/stages/[slug]/reservations/[id]/confirm', () => {
       id: 'user-existing',
       email: 'eleve@example.com',
       role: 'ELEVE',
+      activatedAt: null,
       student: { id: 'student-existing' },
     });
     prisma.stageReservation.update.mockResolvedValue({});
@@ -215,6 +236,7 @@ describe('POST /api/stages/[slug]/reservations/[id]/confirm', () => {
       id: 'user-existing',
       email: 'eleve@example.com',
       role: 'ELEVE',
+      activatedAt: null,
       student: { id: 'student-existing' },
     });
     prisma.stageReservation.update.mockResolvedValue({});

@@ -99,12 +99,13 @@ describe('POST /api/stages/[stageSlug]/reservations/[reservationId]/confirm — 
     );
   });
 
-  it('still confirms normally for an existing ELEVE account with the same email', async () => {
+  it('still confirms normally for an existing, not-yet-activated ELEVE account with the same email', async () => {
     prisma.stageReservation.findFirst.mockResolvedValue(pendingReservation());
     prisma.user.findUnique.mockResolvedValue({
       id: 'existing-eleve-user',
       email: 'shared@example.com',
       role: 'ELEVE',
+      activatedAt: null,
       student: { id: 'student-entity-1' },
     });
     prisma.$transaction.mockImplementation(async (fn: any) => fn(prisma));
@@ -117,5 +118,23 @@ describe('POST /api/stages/[stageSlug]/reservations/[reservationId]/confirm — 
     expect(prisma.user.update).toHaveBeenCalledWith(
       expect.objectContaining({ where: { id: 'existing-eleve-user' } }),
     );
+  });
+
+  it('refuses to overwrite an ALREADY ACTIVATED ELEVE account -- must never wipe a real password or issue a fresh activation link for a live account', async () => {
+    prisma.stageReservation.findFirst.mockResolvedValue(pendingReservation());
+    prisma.user.findUnique.mockResolvedValue({
+      id: 'active-eleve-user',
+      email: 'shared@example.com',
+      role: 'ELEVE',
+      activatedAt: new Date('2026-01-15T00:00:00.000Z'),
+      student: { id: 'student-entity-1' },
+    });
+
+    const response = await POST(makeRequest(), params());
+
+    expect(response.status).toBeGreaterThanOrEqual(400);
+    expect(response.status).toBeLessThan(500);
+    expect(prisma.user.update).not.toHaveBeenCalled();
+    expect(prisma.$transaction).not.toHaveBeenCalled();
   });
 });
