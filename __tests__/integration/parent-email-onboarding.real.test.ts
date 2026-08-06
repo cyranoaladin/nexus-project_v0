@@ -304,6 +304,16 @@ describe('P0-D Parent onboarding with real PostgreSQL and SMTP', () => {
 
     const registration = await registerBilan(registrationRequest(email, 'Recovery'))
     expect(registration.status).toBe(200)
+    // registerBilan()'s own kickEmailOutboxDrain() is fire-and-forget, so
+    // without waiting for it here the "0 messages" check below would only
+    // prove delivery hasn't happened *yet*, not that it genuinely failed --
+    // and the still in-flight attempt could later resolve concurrently
+    // with the resend's own drain, racing to deliver this job's
+    // pre-reissue token instead of (or alongside) the resend's fresh one.
+    // Draining synchronously here forces the failed attempt to fully
+    // settle (job A -> RETRY_SCHEDULED, several seconds in the future)
+    // before the resend ever creates job B, so the two can never overlap.
+    await drainEmailOutbox()
     const pending = await prisma.user.findUniqueOrThrow({
       where: { email },
       include: { parentProfile: { include: { children: true } } },
@@ -319,15 +329,11 @@ describe('P0-D Parent onboarding with real PostgreSQL and SMTP', () => {
     delete process.env.SMTP_CONNECTION_TIMEOUT_MS
     resetTransporter()
     await resendActivation(resendRequest(email))
-    // The route's own kickEmailOutboxDrain() is fire-and-forget and
-    // single-flight (see lib/email/outbox-scheduler.ts): if the first
-    // (failed) delivery attempt from registerBilan() above is still
-    // in-flight when this resend's kick fires, the kick is silently
-    // dropped. In production that's harmless -- the interval scheduler
-    // (started in instrumentation.ts) picks the job up on its next tick --
-    // but this test never starts that scheduler, so nothing would ever
-    // retry the drop. Draining explicitly here removes that race instead
-    // of hoping the two kicks never overlap.
+    // Job A (the failed registration attempt) is now RETRY_SCHEDULED with
+    // availableAt several seconds out (see retryDelayMs in
+    // lib/email/outbox-worker.ts), so this drain can only ever claim job
+    // B (the resend) -- it cannot race with or resurrect job A's
+    // now-revoked token.
     await drainEmailOutbox()
     const token = activationTokenFromMessage(await waitForMessage(email))
     expect((await activateAccount(activationRequest(token, 'ParentSynthetic!2026'))).status).toBe(200)
