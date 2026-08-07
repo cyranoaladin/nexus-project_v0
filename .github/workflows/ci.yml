@@ -620,6 +620,13 @@ jobs:
           AUTH_TRUST_HOST: 'true'
           OPENAI_API_KEY: sk-test-mock-key-for-ci-build-only
           NODE_ENV: production
+          # "next build"'s own type-check pass (not the separate, fast
+          # `tsc --noEmit` typecheck job) OOMs on the runner's default V8
+          # heap ceiling (~2GB) once the type surface grows past a point --
+          # confirmed via the OOM log itself ("Scavenge 2042.9 (2084.5)").
+          # This is a memory ceiling, not a type error: raising the ceiling
+          # is correct here, disabling type-checking would not be.
+          NODE_OPTIONS: --max-old-space-size=4096
         run: npm run build:e2e
 
       - name: Start Next.js server in background
@@ -925,6 +932,9 @@ jobs:
           NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET || 'test-secret-min-32-chars-long-for-ci-environment' }}
           OPENAI_API_KEY: sk-test-mock-key-for-ci-build-only
           NODE_ENV: production
+          # See the matching comment on the E2E job's "Build Next.js for
+          # E2E" step -- same OOM, same fix, same reasoning.
+          NODE_OPTIONS: --max-old-space-size=4096
         run: npm run build
 
       - name: Validate Next.js traces

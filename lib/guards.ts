@@ -171,8 +171,10 @@ export async function requireCoachAssignedToStudent(
   coachUserId: string,
   studentId: string
 ): Promise<true | NextResponse> {
+  // coachStudentAssignment.coachId references CoachProfile.id, which is distinct
+  // from User.id — resolve through the relation rather than comparing ids directly.
   const assignment = await prisma.coachStudentAssignment.findFirst({
-    where: { coachId: coachUserId, studentId, status: 'ACTIVE' },
+    where: { studentId, status: 'ACTIVE', coach: { userId: coachUserId } },
     select: { id: true },
   });
   if (!assignment) {
