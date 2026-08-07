@@ -225,6 +225,11 @@ model User {
   // Canonical bilan reviews performed by this user (ASSISTANTE)
   bilanReportReviews ReportReview[]
 
+  // Diagnostic candidat libre 2027 (feature isolée)
+  createdCandidateDiagnostics          CandidateDiagnostic[]         @relation("CandidateDiagnosticCreatedBy")
+  candidateDiagnosticDocumentsUploaded CandidateDiagnosticDocument[] @relation("CandidateDiagnosticDocumentUploader")
+  candidateDiagnosticAuditLogs         CandidateDiagnosticAuditLog[] @relation("CandidateDiagnosticAuditActor")
+
   // 2FA TOTP (Admin only)
   totpSecret      String? // AES-256-GCM encrypted, format: v1:iv:tag:ciphertext
   totpEnabledAt   DateTime? // non-null = 2FA active (canonical check)
@@ -325,6 +330,9 @@ model Student {
   parentLinks                 ParentStudentLink[]
   canonicalAssessmentAttempts CanonicalAssessmentAttempt[]
   reportArtifacts             ReportArtifact[]
+
+  // Diagnostic candidat libre 2027 (feature isolée, non liée aux bilans/assessments historiques)
+  candidateDiagnostics CandidateDiagnostic[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -1648,9 +1656,9 @@ model ReportAudienceArtifact {
 }
 
 model ReportReview {
-  id               String               @id @default(cuid())
+  id               String         @id @default(cuid())
   reportRevisionId String
-  reportRevision   ReportRevision       @relation(fields: [reportRevisionId], references: [id], onDelete: Restrict)
+  reportRevision   ReportRevision @relation(fields: [reportRevisionId], references: [id], onDelete: Restrict)
 
   // Historical reviewer path (COACH, via CoachProfile). Retired for new
   // rows in favor of reviewerId (ASSISTANTE, via User) — exactly one of
@@ -2816,4 +2824,160 @@ model BusinessConfigAudit {
   @@index([namespace, key])
   @@index([changedAt])
   @@map("business_config_audit")
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Diagnostic candidat libre 2027 (bac général, candidat individuel)
+//
+// Feature isolée, non liée aux modèles historiques Assessment/Bilan/Diagnostic.
+// Un CandidateDiagnostic par élève × diagnosticKey × targetSession. Chaque
+// module conserve un snapshot immuable de sa définition au moment de la
+// passation. L'affectation coach réutilise le modèle CoachStudentAssignment
+// existant (lib/guards.ts: requireCoachAssignedToStudent) — pas de modèle
+// d'affectation dédié.
+// ═══════════════════════════════════════════════════════════════════════════
+
+enum CandidateDiagnosticStatus {
+  DRAFT
+  ACTIVE
+  WAITING_PARENT
+  WAITING_RETENTION
+  SUBMITTED
+  IN_REVIEW
+  REVIEWED
+  CLOSED
+  CANCELLED
+}
+
+enum CandidateDiagnosticModuleStatus {
+  LOCKED
+  AVAILABLE
+  IN_PROGRESS
+  SUBMITTED
+  AUTO_SCORED
+  NEEDS_REVIEW
+  REVIEWED
+}
+
+enum CandidateDiagnosticDocumentStatus {
+  UPLOADED
+  ACCEPTED
+  REJECTED
+  NEEDS_REPLACEMENT
+}
+
+enum CandidateDiagnosticActorRole {
+  ELEVE
+  PARENT
+  COACH
+  ADMIN
+  SYSTEM
+}
+
+model CandidateDiagnostic {
+  id                String                        @id @default(cuid())
+  diagnosticKey     String
+  definitionVersion String
+  targetSession     Int
+  status            CandidateDiagnosticStatus     @default(DRAFT)
+  studentId         String
+  student           Student                       @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  createdById       String
+  createdBy         User                          @relation("CandidateDiagnosticCreatedBy", fields: [createdById], references: [id], onDelete: Restrict)
+  studentConsentAt  DateTime?
+  parentConsentAt   DateTime?
+  parentSubmittedAt DateTime?
+  retentionDueAt    DateTime?
+  submittedAt       DateTime?
+  reviewedAt        DateTime?
+  closedAt          DateTime?
+  metadata          Json?
+  synthesis         Json?
+  modules           CandidateDiagnosticModule[]
+  documents         CandidateDiagnosticDocument[]
+  audits            CandidateDiagnosticAuditLog[]
+  createdAt         DateTime                      @default(now())
+  updatedAt         DateTime                      @updatedAt
+
+  @@unique([studentId, diagnosticKey, targetSession])
+  @@index([studentId, status])
+  @@index([status, updatedAt])
+  @@map("candidate_diagnostics")
+}
+
+model CandidateDiagnosticModule {
+  id                   String                          @id @default(cuid())
+  diagnosticId         String
+  diagnostic           CandidateDiagnostic             @relation(fields: [diagnosticId], references: [id], onDelete: Cascade)
+  moduleKey            String
+  audience             String
+  status               CandidateDiagnosticModuleStatus @default(LOCKED)
+  answers              Json?
+  currentQuestionIndex Int                             @default(0)
+  elapsedMs            Int                             @default(0)
+  integrity            Json?
+  autoScore            Json?
+  manualScore          Json?
+  reviewSummary        String?
+  definitionSnapshot   Json
+  lastMutationId       String?
+  availableAt          DateTime?
+  startedAt            DateTime?
+  submittedAt          DateTime?
+  reviewedAt           DateTime?
+  createdAt            DateTime                        @default(now())
+  updatedAt            DateTime                        @updatedAt
+
+  @@unique([diagnosticId, moduleKey])
+  @@index([diagnosticId, status])
+  @@map("candidate_diagnostic_modules")
+}
+
+model CandidateDiagnosticDocument {
+  id               String                            @id @default(cuid())
+  diagnosticId     String
+  diagnostic       CandidateDiagnostic               @relation(fields: [diagnosticId], references: [id], onDelete: Cascade)
+  uploadedById     String
+  uploadedBy       User                              @relation("CandidateDiagnosticDocumentUploader", fields: [uploadedById], references: [id], onDelete: Restrict)
+  category         String
+  title            String
+  description      String?
+  originalName     String
+  storageKey       String
+  mimeType         String
+  sizeBytes        Int
+  sha256           String
+  status           CandidateDiagnosticDocumentStatus @default(UPLOADED)
+  reviewNote       String?
+  reviewedById     String?
+  reviewedAt       DateTime?
+  clientMutationId String
+  createdAt        DateTime                          @default(now())
+  updatedAt        DateTime                          @updatedAt
+
+  @@unique([diagnosticId, clientMutationId], map: "candidate_diagnostic_documents_diag_mutation_key")
+  @@index([diagnosticId, category])
+  @@index([sha256])
+  @@map("candidate_diagnostic_documents")
+}
+
+model CandidateDiagnosticAuditLog {
+  id            String                       @id @default(cuid())
+  diagnosticId  String
+  diagnostic    CandidateDiagnostic          @relation(fields: [diagnosticId], references: [id], onDelete: Cascade)
+  actorId       String?
+  actor         User?                        @relation("CandidateDiagnosticAuditActor", fields: [actorId], references: [id], onDelete: SetNull)
+  actorRole     CandidateDiagnosticActorRole
+  action        String
+  entityType    String
+  entityId      String?
+  requestId     String?
+  ipHash        String?
+  userAgentHash String?
+  details       Json?
+  createdAt     DateTime                     @default(now())
+
+  @@index([diagnosticId, createdAt])
+  @@index([actorId, createdAt])
+  @@map("candidate_diagnostic_audit_logs")
 }
