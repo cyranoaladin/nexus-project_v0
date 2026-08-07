@@ -36,6 +36,11 @@ COPY content ./content
 COPY public ./public
 COPY app/fonts ./app/fonts
 
+# e2e/auth/parent-canonical-report-access.spec.ts imports its fact-sheet
+# fixture from the Jest tree (__tests__/bilans/fixtures) rather than
+# duplicating it under e2e/ — only that one fixture dir is needed here.
+COPY __tests__/bilans/fixtures ./__tests__/bilans/fixtures
+
 # Copy tsconfig for TypeScript resolution
 COPY tsconfig.json ./tsconfig.json
 
