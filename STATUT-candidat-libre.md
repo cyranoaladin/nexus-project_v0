@@ -13,10 +13,15 @@ Dernière mise à jour : 2026-08-07. Branche `feat/candidat-libre-diagnostic`, P
 - **Guard IDOR coach** (`lib/guards.ts`, `requireCoachAssignedToStudent`) : comparait un `User.id` à
   `CoachStudentAssignment.coachId`, qui référence en réalité `CoachProfile.id` — espaces d'id distincts.
   Corrigé via la relation (`coach: { userId }`), 3 tests de régression.
-- **Migration validée sur clone schéma seul** (Postgres jetable `pgvector/pgvector:pg16`, aucune donnée
-  réelle) : 60 migrations existantes rejouées, la nôtre appliquée seule par-dessus, idempotente, `migrate
-  status` clean, `migrate diff` sans écart, zéro instruction destructive. Un nom d'index à 64 caractères
-  (limite Postgres 63) trouvé et corrigé (`map:` explicite, 48 caractères).
+- **Migration validée sur clone schéma seul** — redo du 2026-08-07 sur `pgvector/pgvector:pg15` (version
+  réelle de prod, pas pg16 comme le premier dry-run l'avait fait par erreur — voir
+  `docs/audits/2026-08-07-gate2-migration-dryrun-pg15.md`) : 61 migrations existantes + la nôtre
+  rejouées, succès, `migrate status` clean, additivité confirmée (aucun `ALTER` sur table préexistante),
+  nature des locks vérifiée empiriquement (`ShareRowExclusiveLock` sur `users`/`students`, borné par la
+  taille des nouvelles tables donc indépendant du volume de données réel), aucun `CREATE INDEX` non
+  concurrent sur table peuplée. Un écart `migrate diff` trouvé sur `eam_progress` : préexistant sur
+  `main`, sans rapport avec ce lot, signalé et non traité ici. Un nom d'index à 64 caractères (limite
+  Postgres 63) trouvé et corrigé (`map:` explicite, 48 caractères) lors du premier passage.
 - **Fuite cross-audience scores/avis** : le GET diagnostic partagé élève/parent renvoyait `autoScore`/
   `reviewSummary` de tous les modules à tout viewer. Corrigé dans `serializeCandidateDiagnostic` —
   statut/progression restent visibles (UX « en attente du parent »), score/avis masqués hors audience.
@@ -28,8 +33,12 @@ Dernière mise à jour : 2026-08-07. Branche `feat/candidat-libre-diagnostic`, P
   (`docs/DIAGNOSTIC_CANDIDAT_LIBRE_CROSS_AUDIENCE_AUDIT.md`), tests qui assertent l'ensemble exact des
   clés retournées par audience et la matrice catégorie × audience des 9 catégories de documents — une
   régression future casse un test, pas seulement les cas déjà connus.
-- **Grilles de relecture pédagogique tronc commun** (Q6, partiel) : 218 items extraits (14 modules
-  communs à tout profil), 7 grilles CSV staff/offline + index (`docs/relecture-pedagogique/tronc-commun/`).
+- **Grilles de relecture pédagogique tronc commun (Q6)** : **retirées de git le 2026-08-07** — commises
+  en clair (clé de correction + noms de 3 relecteurs) dans ce dépôt alors public. Dépôt repassé en privé,
+  historique purgé (rebase + force-push), demande de garbage collection envoyée à GitHub Support. Les 218
+  items sont considérés compromis et seront rebattus avant tout usage réel. Distribution future prévue
+  hors git (Drive restreint, dossier nominatif par relecteur) une fois les nouveaux items produits — pas
+  avant.
 - **Flag OFF prouvé, pas seulement déclaré** : `lib/diagnostics/candidat-libre/feature-flag.ts`, câblé
   sur les 16 points d'entrée (8 fichiers de routes API + 2 pages). Test
   `__tests__/api/diagnostics/candidat-libre/feature-flag-dark.test.ts` : chaque route renvoie 404 sans
