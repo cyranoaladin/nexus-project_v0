@@ -889,11 +889,10 @@ la réalité du serveur — voir `docs/incidents/` pour l'historique des
 collisions de déploiement que le modèle in-place avait causées) :
 
 ```
-<APP_DIR> (ex: /var/www/nexus-project_v0) est un SYMLINK vers
-<APP_DIR>-releases/<short-sha>-<slug>-<timestamp>/, jamais un répertoire réel.
-PM2 lance `<PROCESS_NAME>` via un launcher qui résout ce symlink à CHAQUE
-démarrage (donc jamais figé sur un chemin absolu) :
-  /usr/local/libexec/nexus-prod-launcher <APP_DIR>
+<APP_DIR> est un SYMLINK vers <APP_DIR>-releases/<short-sha>-<slug>-<timestamp>/,
+jamais un répertoire réel. PM2 lance `<PROCESS_NAME>` via un launcher qui
+résout ce symlink à CHAQUE démarrage (donc jamais figé sur un chemin absolu) :
+  <LAUNCHER_PATH> <APP_DIR>
 ```
 
 Séquence de déploiement (à exécuter depuis un poste qui build, PAS forcément
