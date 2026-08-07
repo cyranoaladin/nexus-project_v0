@@ -1,8 +1,9 @@
 # Statut — Diagnostic candidat libre 2027
 
-Dernière mise à jour : 2026-08-07. Branche `feat/candidat-libre-diagnostic`, PR #100 (ouverte, non mergée).
-Flag produit `CANDIDATE_DIAGNOSTIC_ENABLED` : **OFF partout, y compris en prod**. Aucun compte réel
-provisionné. `main` intact.
+Dernière mise à jour : 2026-08-07. Branche `feat/candidat-libre-diagnostic`, PR #100 (ouverte, non mergée),
+**rebasée sur `origin/main` post-PR #98** (commit `cf52146e`). Flag produit
+`CANDIDATE_DIAGNOSTIC_ENABLED` : **OFF partout, y compris en prod**. Aucun compte réel provisionné.
+`main` intact — PR #100 prête à merger, en attente de la seule approbation du responsable.
 
 ## Fait
 
@@ -34,15 +35,23 @@ provisionné. `main` intact.
   `__tests__/api/diagnostics/candidat-libre/feature-flag-dark.test.ts` : chaque route renvoie 404 sans
   toucher auth/RBAC/rate-limit/DB, y compris pour une session qui serait normalement admise (ADMIN) —
   le flag court-circuite avant toute résolution de rôle, donc la protection ne dépend d'aucun rôle.
+- **Rebasé sur `origin/main` post-#98** (`cf52146e`) : `git rebase origin/main` sans conflit — #98
+  (bilans staff, README, CI, `package-lock.json`) ne touche aucun fichier de notre périmètre. Migration
+  candidat libre **re-testée sur un Postgres jetable neuf reflétant le nouveau baseline** (61 migrations
+  existantes + la nôtre par-dessus) : applique proprement, idempotente, `migrate status` clean,
+  `migrate diff` sans écart, aucune instruction destructive, le fix d'index à 63 caractères tient
+  toujours. `build` + `typecheck` + `lint` + 116 tests verts sur la branche rebasée. Force-push effectué
+  — l'approbation devra être redonnée après ce push (attendu, normal après un rebase).
 
 ## Gaté (et sur qui)
 
 ### 1. Merge — séquencement avec l'instance A
-- Attendre le merge de **PR #98** (instance A) dans `main`.
-- Rebaser #100 sur le nouveau `main`.
-- **Re-tester la migration sur un clone du nouveau baseline** (répéter la procédure Postgres jetable +
-  schéma seul, pas maintenant — le baseline va changer avec #98).
-- Approbation du responsable → merge #100.
+- ✅ PR #98 mergée dans `main` (`cf52146e`).
+- ✅ #100 rebasée sur le nouveau `main`, sans conflit.
+- ✅ Migration re-testée sur clone du nouveau baseline (voir ci-dessus).
+- **Reste à faire** : approbation du responsable (réinitialisée par le force-push du rebase) → merge #100.
+- La migration ne touchera la prod qu'au déploiement délibéré ultérieur, jamais au merge lui-même —
+  précédé d'un nouveau clone-test sur l'état prod exact au moment du déploiement.
 - Jamais deux migrations/déploiements prod concurrents.
 
 ### 2. Ops / légal (hors code, prérequis dur avant tout dossier réel — mineur concerné)
