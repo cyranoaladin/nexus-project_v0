@@ -3,7 +3,8 @@ import type { Prisma } from '@prisma/client';
 import { UserRole } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { isErrorResponse, requireRole } from '@/lib/guards';
-import { guardRateLimitAsync } from '@/lib/rate-limit';
+import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive';
+import type { SensitiveRateLimitScope } from '@/lib/rate-limit/sensitive';
 import { getDiagnosticForActor, actorRole } from '@/lib/diagnostics/candidat-libre/access.server';
 import { getPublicModuleDefinition } from '@/lib/diagnostics/candidat-libre/definition.public';
 import { parentQuestionnaireSchema } from '@/lib/diagnostics/candidat-libre/schemas';
@@ -51,11 +52,14 @@ export async function POST(request: Request, context: Params) {
 async function saveParentQuestionnaire(request: Request, { params }: Params, action: 'draft' | 'submit') {
   const disabled = guardCandidateDiagnosticFeature();
   if (disabled) return disabled;
-  const limited = await guardRateLimitAsync(request, { preset: 'api', keySuffix: 'candidate-parent-questionnaire' });
-  if (limited) return limited;
+  const scope: SensitiveRateLimitScope = action === 'submit' ? 'candidate-parent-submit' : 'candidate-parent-draft';
+  const ipLimited = await guardSensitiveRateLimit(request, { scope, dimensions: ['ip'] });
+  if (ipLimited) return ipLimited;
   const { diagnosticId } = await params;
   const sessionOrError = await requireRole(UserRole.PARENT);
   if (isErrorResponse(sessionOrError)) return sessionOrError;
+  const identityLimited = await guardSensitiveRateLimit(request, { scope, identity: sessionOrError.user.id, dimensions: ['identity'] });
+  if (identityLimited) return identityLimited;
   const diagnosticOrError = await getDiagnosticForActor(sessionOrError, diagnosticId);
   if (diagnosticOrError instanceof NextResponse) return diagnosticOrError;
   if (diagnosticOrError.submittedAt) return NextResponse.json({ error: 'Diagnostic locked' }, { status: 423 });

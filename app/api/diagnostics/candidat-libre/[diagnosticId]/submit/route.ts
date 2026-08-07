@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { UserRole } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { isErrorResponse, requireRole } from '@/lib/guards';
-import { guardRateLimitAsync } from '@/lib/rate-limit';
+import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive';
 import { getDiagnosticForActor, actorRole } from '@/lib/diagnostics/candidat-libre/access.server';
 import { CANDIDATE_DIAGNOSTIC_MODULES } from '@/lib/diagnostics/candidat-libre/definition.public';
 import { isModuleComplete } from '@/lib/diagnostics/candidat-libre/progression';
@@ -13,11 +13,17 @@ interface Params { params: Promise<{ diagnosticId: string }> }
 export async function POST(request: Request, { params }: Params) {
   const disabled = guardCandidateDiagnosticFeature();
   if (disabled) return disabled;
-  const limited = await guardRateLimitAsync(request, { preset: 'expensive', keySuffix: 'candidate-diagnostic-final-submit' });
-  if (limited) return limited;
+  const ipLimited = await guardSensitiveRateLimit(request, { scope: 'candidate-diagnostic-final-submit', dimensions: ['ip'] });
+  if (ipLimited) return ipLimited;
   const { diagnosticId } = await params;
   const sessionOrError = await requireRole(UserRole.ELEVE);
   if (isErrorResponse(sessionOrError)) return sessionOrError;
+  const identityLimited = await guardSensitiveRateLimit(request, {
+    scope: 'candidate-diagnostic-final-submit',
+    identity: sessionOrError.user.id,
+    dimensions: ['identity'],
+  });
+  if (identityLimited) return identityLimited;
   const diagnosticOrError = await getDiagnosticForActor(sessionOrError, diagnosticId);
   if (diagnosticOrError instanceof NextResponse) return diagnosticOrError;
   if (diagnosticOrError.submittedAt) return NextResponse.json({ success: true, idempotent: true, status: diagnosticOrError.status });

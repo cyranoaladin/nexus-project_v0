@@ -3,7 +3,8 @@ import type { Prisma } from '@prisma/client';
 import { UserRole } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { isErrorResponse } from '@/lib/guards';
-import { guardRateLimitAsync } from '@/lib/rate-limit';
+import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive';
+import type { SensitiveRateLimitScope } from '@/lib/rate-limit/sensitive';
 import { getDiagnosticForActor, requireDiagnosticActor, actorRole } from '@/lib/diagnostics/candidat-libre/access.server';
 import { getPublicModuleDefinition, CANDIDATE_DIAGNOSTIC_MODULES } from '@/lib/diagnostics/candidat-libre/definition.public';
 import { moduleDraftSchema, moduleKeySchema } from '@/lib/diagnostics/candidat-libre/schemas';
@@ -77,8 +78,9 @@ export async function POST(request: Request, context: Params) {
 async function saveModule(request: Request, { params }: Params, forcedAction: 'draft' | 'submit') {
   const disabled = guardCandidateDiagnosticFeature();
   if (disabled) return disabled;
-  const limited = await guardRateLimitAsync(request, { preset: 'api', keySuffix: `candidate-module-${forcedAction}` });
-  if (limited) return limited;
+  const scope: SensitiveRateLimitScope = forcedAction === 'submit' ? 'candidate-module-submit' : 'candidate-module-draft';
+  const ipLimited = await guardSensitiveRateLimit(request, { scope, dimensions: ['ip'] });
+  if (ipLimited) return ipLimited;
   const { diagnosticId, moduleKey: rawModuleKey } = await params;
   const parsedKey = moduleKeySchema.safeParse(rawModuleKey);
   if (!parsedKey.success) return NextResponse.json({ error: 'Invalid module key' }, { status: 400 });
@@ -87,6 +89,8 @@ async function saveModule(request: Request, { params }: Params, forcedAction: 'd
 
   const sessionOrError = await requireDiagnosticActor();
   if (isErrorResponse(sessionOrError)) return sessionOrError;
+  const identityLimited = await guardSensitiveRateLimit(request, { scope, identity: sessionOrError.user.id, dimensions: ['identity'] });
+  if (identityLimited) return identityLimited;
   if (!canEditAudience(sessionOrError.user.role, definition.audience)) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   const diagnosticOrError = await getDiagnosticForActor(sessionOrError, diagnosticId);
   if (diagnosticOrError instanceof NextResponse) return diagnosticOrError;

@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { UserRole } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { isErrorResponse } from '@/lib/guards';
-import { guardRateLimitAsync } from '@/lib/rate-limit';
+import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive';
 import { documentMetadataSchema } from '@/lib/diagnostics/candidat-libre/schemas';
 import { getDiagnosticForActor, requireDiagnosticActor, actorRole, isDocumentVisibleToViewer } from '@/lib/diagnostics/candidat-libre/access.server';
 import { persistDiagnosticFile, removePersistedDiagnosticFile } from '@/lib/diagnostics/candidat-libre/storage.server';
@@ -49,14 +49,21 @@ export async function GET(_request: Request, { params }: Params) {
 export async function POST(request: Request, { params }: Params) {
   const disabled = guardCandidateDiagnosticFeature();
   if (disabled) return disabled;
-  const limited = await guardRateLimitAsync(request, { preset: 'api', keySuffix: 'candidate-document-upload' });
-  if (limited) return limited;
+  const ipLimited = await guardSensitiveRateLimit(request, { scope: 'candidate-document-upload', dimensions: ['ip'] });
+  if (ipLimited) return ipLimited;
   const { diagnosticId } = await params;
   const sessionOrError = await requireDiagnosticActor();
   if (isErrorResponse(sessionOrError)) return sessionOrError;
   if (!([UserRole.ELEVE, UserRole.PARENT, UserRole.ADMIN, UserRole.ASSISTANTE] as UserRole[]).includes(sessionOrError.user.role)) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
+  const identityLimited = await guardSensitiveRateLimit(request, {
+    scope: 'candidate-document-upload',
+    identity: sessionOrError.user.id,
+    resource: diagnosticId,
+    dimensions: ['identity', 'resource'],
+  });
+  if (identityLimited) return identityLimited;
   const diagnosticOrError = await getDiagnosticForActor(sessionOrError, diagnosticId);
   if (diagnosticOrError instanceof NextResponse) return diagnosticOrError;
   if (diagnosticOrError.submittedAt) return NextResponse.json({ error: 'Diagnostic locked' }, { status: 423 });

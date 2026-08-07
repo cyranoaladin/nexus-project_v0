@@ -80,13 +80,13 @@ describe('GET staff-export — content visibility aligned with modules/[moduleKe
     const body = await response.json();
 
     expect(response.status).toBe(200);
-    const module = body.diagnostic.modules[0];
-    expect(module.moduleKey).toBe('questionnaire-parent');
-    expect(module.status).toBe('REVIEWED');
-    expect(module.answers).toBeUndefined();
-    expect(module.autoScore).toBeUndefined();
-    expect(module.manualScore).toBeUndefined();
-    expect(module.reviewSummary).toBeUndefined();
+    const moduleView = body.diagnostic.modules[0];
+    expect(moduleView.moduleKey).toBe('questionnaire-parent');
+    expect(moduleView.status).toBe('REVIEWED');
+    expect(moduleView.answers).toBeUndefined();
+    expect(moduleView.autoScore).toBeUndefined();
+    expect(moduleView.manualScore).toBeUndefined();
+    expect(moduleView.reviewSummary).toBeUndefined();
   });
 
   it.each(['ADMIN', 'ASSISTANTE'])('keeps full content for %s', async (role) => {
@@ -95,9 +95,9 @@ describe('GET staff-export — content visibility aligned with modules/[moduleKe
     const response = await staffExportGet(req(), params());
     const body = await response.json();
 
-    const module = body.diagnostic.modules[0];
-    expect(module.answers).toEqual(MODULE.answers);
-    expect(module.autoScore).toEqual(MODULE.autoScore);
-    expect(module.reviewSummary).toEqual(MODULE.reviewSummary);
+    const moduleView = body.diagnostic.modules[0];
+    expect(moduleView.answers).toEqual(MODULE.answers);
+    expect(moduleView.autoScore).toEqual(MODULE.autoScore);
+    expect(moduleView.reviewSummary).toEqual(MODULE.reviewSummary);
   });
 });

@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { Prisma, UserRole } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
-import { guardRateLimitAsync } from '@/lib/rate-limit';
+import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive';
 import { isErrorResponse } from '@/lib/guards';
 import { CANDIDATE_DIAGNOSTIC_MODULES } from '@/lib/diagnostics/candidat-libre/definition.public';
 import { createDiagnosticSchema } from '@/lib/diagnostics/candidat-libre/schemas';
@@ -42,13 +42,19 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   const disabled = guardCandidateDiagnosticFeature();
   if (disabled) return disabled;
-  const limited = await guardRateLimitAsync(request, { preset: 'api', keySuffix: 'candidate-diagnostic-create' });
-  if (limited) return limited;
+  const ipLimited = await guardSensitiveRateLimit(request, { scope: 'candidate-diagnostic-create', dimensions: ['ip'] });
+  if (ipLimited) return ipLimited;
   const sessionOrError = await requireDiagnosticActor();
   if (isErrorResponse(sessionOrError)) return sessionOrError;
   if (!([UserRole.ELEVE, UserRole.PARENT, UserRole.ADMIN, UserRole.ASSISTANTE] as UserRole[]).includes(sessionOrError.user.role)) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
+  const identityLimited = await guardSensitiveRateLimit(request, {
+    scope: 'candidate-diagnostic-create',
+    identity: sessionOrError.user.id,
+    dimensions: ['identity'],
+  });
+  if (identityLimited) return identityLimited;
 
   const parsed = createDiagnosticSchema.safeParse(await request.json());
   if (!parsed.success) return NextResponse.json({ error: 'Validation failed', details: parsed.error.flatten() }, { status: 400 });
