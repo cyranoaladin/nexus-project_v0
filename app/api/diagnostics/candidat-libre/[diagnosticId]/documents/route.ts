@@ -4,7 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { isErrorResponse } from '@/lib/guards';
 import { guardRateLimitAsync } from '@/lib/rate-limit';
 import { documentMetadataSchema } from '@/lib/diagnostics/candidat-libre/schemas';
-import { getDiagnosticForActor, requireDiagnosticActor, actorRole } from '@/lib/diagnostics/candidat-libre/access.server';
+import { getDiagnosticForActor, requireDiagnosticActor, actorRole, isDocumentVisibleToViewer } from '@/lib/diagnostics/candidat-libre/access.server';
 import { persistDiagnosticFile, removePersistedDiagnosticFile } from '@/lib/diagnostics/candidat-libre/storage.server';
 import { CANDIDATE_DIAGNOSTIC_MODULES } from '@/lib/diagnostics/candidat-libre/definition.public';
 import { scanDiagnosticFile } from '@/lib/diagnostics/candidat-libre/virus-scan.server';
@@ -23,8 +23,11 @@ export async function GET(_request: Request, { params }: Params) {
   if (isErrorResponse(sessionOrError)) return sessionOrError;
   const diagnosticOrError = await getDiagnosticForActor(sessionOrError, diagnosticId);
   if (diagnosticOrError instanceof NextResponse) return diagnosticOrError;
+  const viewerRole = actorRole(sessionOrError);
   return NextResponse.json({
-    documents: diagnosticOrError.documents.map((document: any) => ({
+    documents: diagnosticOrError.documents
+      .filter((document: any) => isDocumentVisibleToViewer(document.category, viewerRole))
+      .map((document: any) => ({
       id: document.id,
       category: document.category,
       title: document.title,
