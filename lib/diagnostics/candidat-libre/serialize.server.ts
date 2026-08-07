@@ -1,6 +1,7 @@
 import 'server-only';
 
 import { computeCompletionPercentage } from './progression';
+import { isDocumentVisibleToViewer } from './access.server';
 import type { DiagnosticCampaignView, DiagnosticModuleView } from './types';
 
 /**
@@ -48,17 +49,19 @@ export function serializeCandidateDiagnostic(
       gradeLevel: diagnostic.student.gradeLevel,
     },
     modules,
-    documents: diagnostic.documents.map((document: any) => ({
-      id: document.id,
-      category: document.category,
-      originalName: document.originalName,
-      mimeType: document.mimeType,
-      sizeBytes: document.sizeBytes,
-      status: document.status,
-      reviewNote: document.reviewNote,
-      createdAt: document.createdAt?.toISOString?.() ?? document.createdAt,
-      downloadUrl: `/api/diagnostics/candidat-libre/${diagnostic.id}/documents/${document.id}`,
-    })),
+    documents: diagnostic.documents
+      .filter((document: any) => !viewerRole || isDocumentVisibleToViewer(document.category, viewerRole))
+      .map((document: any) => ({
+        id: document.id,
+        category: document.category,
+        originalName: document.originalName,
+        mimeType: document.mimeType,
+        sizeBytes: document.sizeBytes,
+        status: document.status,
+        reviewNote: document.reviewNote,
+        createdAt: document.createdAt?.toISOString?.() ?? document.createdAt,
+        downloadUrl: `/api/diagnostics/candidat-libre/${diagnostic.id}/documents/${document.id}`,
+      })),
     completionPercentage: computeCompletionPercentage(modules),
     studentConsentAt: diagnostic.studentConsentAt?.toISOString?.() ?? diagnostic.studentConsentAt ?? null,
     parentConsentAt: diagnostic.parentConsentAt?.toISOString?.() ?? diagnostic.parentConsentAt ?? null,

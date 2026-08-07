@@ -5,7 +5,7 @@ import { UserRole } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { getDocumentStorageRoot } from '@/lib/documents/storage-root';
 import { isErrorResponse } from '@/lib/guards';
-import { getDiagnosticForActor, requireDiagnosticActor, actorRole } from '@/lib/diagnostics/candidat-libre/access.server';
+import { getDiagnosticForActor, requireDiagnosticActor, actorRole, isDocumentVisibleToViewer } from '@/lib/diagnostics/candidat-libre/access.server';
 
 interface Params { params: Promise<{ diagnosticId: string; documentId: string }> }
 
@@ -24,6 +24,9 @@ export async function GET(_request: Request, { params }: Params) {
   if (diagnosticOrError instanceof NextResponse) return diagnosticOrError;
   const document = diagnosticOrError.documents.find((item: any) => item.id === documentId);
   if (!document) return NextResponse.json({ error: 'Not Found' }, { status: 404 });
+  if (!isDocumentVisibleToViewer(document.category, actorRole(sessionOrError))) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  }
   try {
     const buffer = await readFile(safeAbsolutePath(document.storageKey));
     return new NextResponse(buffer, {

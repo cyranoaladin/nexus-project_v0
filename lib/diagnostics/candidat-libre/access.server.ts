@@ -62,3 +62,14 @@ export function actorRole(session: AuthSession): 'ELEVE' | 'PARENT' | 'COACH' | 
   if (session.user.role === UserRole.COACH) return 'COACH';
   return 'ADMIN';
 }
+
+// Documents in these categories are the student's own academic productions
+// (a written copy, an oral recording) — equivalent in sensitivity to a
+// detailed academic answer, not an administrative/identity document the
+// family jointly manages. A PARENT viewer must not list or download them.
+const STUDENT_ACADEMIC_DOCUMENT_CATEGORIES = new Set(['WRITTEN_COPY', 'ORAL_RECORDING']);
+
+export function isDocumentVisibleToViewer(category: string, viewerRole: ReturnType<typeof actorRole>): boolean {
+  if (viewerRole === 'PARENT' && STUDENT_ACADEMIC_DOCUMENT_CATEGORIES.has(category)) return false;
+  return true;
+}
