@@ -1,11 +1,21 @@
 import { NextResponse } from 'next/server';
 import { UserRole } from '@prisma/client';
 import { isErrorResponse } from '@/lib/guards';
-import { getDiagnosticForActor, requireDiagnosticActor } from '@/lib/diagnostics/candidat-libre/access.server';
+import { getDiagnosticForActor, isDocumentVisibleToViewer, requireDiagnosticActor, actorRole } from '@/lib/diagnostics/candidat-libre/access.server';
 import { buildStaffDiagnosticSynthesis } from '@/lib/diagnostics/candidat-libre/synthesis.server';
 import { guardCandidateDiagnosticFeature } from '@/lib/diagnostics/candidat-libre/feature-flag';
 
 interface Params { params: Promise<{ diagnosticId: string }> }
+
+// Same rule as modules/[moduleKey]: a COACH sees module structure/status but
+// never raw answers or scores — the questionnaire-parent module in particular
+// is not COACH's audience. Only ADMIN/ASSISTANTE (pedagogical direction) see
+// content. Kept local rather than importing canEditAudience from the module
+// route: that helper is audience-conditional (ELEVE/PARENT edit their own),
+// which doesn't apply here — staff-export is read-only for staff.
+function canViewModuleContent(role: UserRole) {
+  return role === UserRole.ADMIN || role === UserRole.ASSISTANTE;
+}
 
 export async function GET(_request: Request, { params }: Params) {
   const disabled = guardCandidateDiagnosticFeature();
@@ -34,31 +44,36 @@ export async function GET(_request: Request, { params }: Params) {
         school: diagnosticOrError.student.school,
         gradeLevel: diagnosticOrError.student.gradeLevel,
       },
-      modules: diagnosticOrError.modules.map((module: any) => ({
-        moduleKey: module.moduleKey,
-        audience: module.audience,
-        status: module.status,
-        answers: module.answers,
-        autoScore: module.autoScore,
-        manualScore: module.manualScore,
-        integrity: module.integrity,
-        elapsedMs: module.elapsedMs,
-        submittedAt: module.submittedAt,
-        reviewSummary: module.reviewSummary,
-        definitionSnapshot: module.definitionSnapshot,
-      })),
-      documents: diagnosticOrError.documents.map((document: any) => ({
-        id: document.id,
-        category: document.category,
-        title: document.title,
-        originalName: document.originalName,
-        mimeType: document.mimeType,
-        sizeBytes: document.sizeBytes,
-        sha256: document.sha256,
-        status: document.status,
-        reviewNote: document.reviewNote,
-        createdAt: document.createdAt,
-      })),
+      modules: diagnosticOrError.modules.map((module: any) => {
+        const canViewContent = canViewModuleContent(sessionOrError.user.role);
+        return {
+          moduleKey: module.moduleKey,
+          audience: module.audience,
+          status: module.status,
+          answers: canViewContent ? module.answers : undefined,
+          autoScore: canViewContent ? module.autoScore : undefined,
+          manualScore: canViewContent ? module.manualScore : undefined,
+          integrity: module.integrity,
+          elapsedMs: module.elapsedMs,
+          submittedAt: module.submittedAt,
+          reviewSummary: canViewContent ? module.reviewSummary : undefined,
+          definitionSnapshot: module.definitionSnapshot,
+        };
+      }),
+      documents: diagnosticOrError.documents
+        .filter((document: any) => isDocumentVisibleToViewer(document.category, actorRole(sessionOrError)))
+        .map((document: any) => ({
+          id: document.id,
+          category: document.category,
+          title: document.title,
+          originalName: document.originalName,
+          mimeType: document.mimeType,
+          sizeBytes: document.sizeBytes,
+          sha256: document.sha256,
+          status: document.status,
+          reviewNote: document.reviewNote,
+          createdAt: document.createdAt,
+        })),
       studentConsentAt: diagnosticOrError.studentConsentAt,
       parentConsentAt: diagnosticOrError.parentConsentAt,
       parentSubmittedAt: diagnosticOrError.parentSubmittedAt,
