@@ -1,0 +1,15 @@
+import type { Metadata } from 'next';
+import { notFound } from 'next/navigation';
+import { DiagnosticPortal } from '@/components/diagnostics/candidat-libre/DiagnosticPortal';
+import { isCandidateDiagnosticFeatureEnabled } from '@/lib/diagnostics/candidat-libre/feature-flag';
+
+export const metadata: Metadata = {
+  title: 'Diagnostic candidat individuel | Nexus Réussite',
+  description: 'Parcours sécurisé de diagnostic académique, méthodologique et documentaire.',
+};
+export const dynamic = 'force-dynamic';
+
+export default function StudentCandidateDiagnosticPage() {
+  if (!isCandidateDiagnosticFeatureEnabled()) notFound();
+  return <DiagnosticPortal />;
+}
