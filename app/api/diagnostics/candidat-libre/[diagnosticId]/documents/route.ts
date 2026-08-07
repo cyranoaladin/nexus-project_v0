@@ -8,6 +8,7 @@ import { getDiagnosticForActor, requireDiagnosticActor, actorRole, isDocumentVis
 import { persistDiagnosticFile, removePersistedDiagnosticFile } from '@/lib/diagnostics/candidat-libre/storage.server';
 import { CANDIDATE_DIAGNOSTIC_MODULES } from '@/lib/diagnostics/candidat-libre/definition.public';
 import { scanDiagnosticFile } from '@/lib/diagnostics/candidat-libre/virus-scan.server';
+import { guardCandidateDiagnosticFeature } from '@/lib/diagnostics/candidat-libre/feature-flag';
 
 interface Params { params: Promise<{ diagnosticId: string }> }
 
@@ -18,6 +19,8 @@ const CATEGORY_RULES = new Map(
 );
 
 export async function GET(_request: Request, { params }: Params) {
+  const disabled = guardCandidateDiagnosticFeature();
+  if (disabled) return disabled;
   const { diagnosticId } = await params;
   const sessionOrError = await requireDiagnosticActor();
   if (isErrorResponse(sessionOrError)) return sessionOrError;
@@ -44,6 +47,8 @@ export async function GET(_request: Request, { params }: Params) {
 }
 
 export async function POST(request: Request, { params }: Params) {
+  const disabled = guardCandidateDiagnosticFeature();
+  if (disabled) return disabled;
   const limited = await guardRateLimitAsync(request, { preset: 'api', keySuffix: 'candidate-document-upload' });
   if (limited) return limited;
   const { diagnosticId } = await params;

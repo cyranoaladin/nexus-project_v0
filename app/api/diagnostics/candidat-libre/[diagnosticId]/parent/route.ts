@@ -9,11 +9,14 @@ import { getPublicModuleDefinition } from '@/lib/diagnostics/candidat-libre/defi
 import { parentQuestionnaireSchema } from '@/lib/diagnostics/candidat-libre/schemas';
 import { scoreDiagnosticModule, validateRequiredAnswers } from '@/lib/diagnostics/candidat-libre/scoring.server';
 import type { DiagnosticAnswer } from '@/lib/diagnostics/candidat-libre/types';
+import { guardCandidateDiagnosticFeature } from '@/lib/diagnostics/candidat-libre/feature-flag';
 
 interface Params { params: Promise<{ diagnosticId: string }> }
 const MODULE_KEY = 'questionnaire-parent';
 
 export async function GET(_request: Request, { params }: Params) {
+  const disabled = guardCandidateDiagnosticFeature();
+  if (disabled) return disabled;
   const { diagnosticId } = await params;
   const sessionOrError = await requireRole(UserRole.PARENT);
   if (isErrorResponse(sessionOrError)) return sessionOrError;
@@ -46,6 +49,8 @@ export async function POST(request: Request, context: Params) {
 }
 
 async function saveParentQuestionnaire(request: Request, { params }: Params, action: 'draft' | 'submit') {
+  const disabled = guardCandidateDiagnosticFeature();
+  if (disabled) return disabled;
   const limited = await guardRateLimitAsync(request, { preset: 'api', keySuffix: 'candidate-parent-questionnaire' });
   if (limited) return limited;
   const { diagnosticId } = await params;
