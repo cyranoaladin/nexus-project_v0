@@ -1,5 +1,14 @@
 # 🚀 Deployment Guide - Production
 
+> **⚠️ OBSOLÈTE — ne pas utiliser.** Ce document décrit un déploiement Docker
+> Compose. ADR 006 (`docs/adr/006-pm2-standalone-production-target.md`,
+> 31/07/2026) a tranché : la production publique (`nexusreussite.academy`)
+> tourne en **PM2 standalone derrière Nginx**, jamais en Docker pour
+> Next.js. `Dockerfile.prod` et `docker-compose.prod.yml` sont vestigiaux.
+> La procédure canonique et à jour est **README.md §16**. Ce fichier est
+> conservé pour référence historique uniquement — voir ADR 006 avant toute
+> suppression.
+
 Guide complet pour déployer Nexus Réussite en production avec Docker Compose + Nginx.
 
 ## Table des Matières

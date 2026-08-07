@@ -881,23 +881,71 @@ ne sont PAS utilisés en production. Les autres services (ollama, chroma,
 rag-ingestor, Korrigo) tournent en Docker.
 ```
 
-### Déploiement Nexus (PM2)
+### Déploiement Nexus (PM2) — modèle release-dir + symlink
 
-```bash
-# Sur <PROCESS_NAME> (ssh <PROCESS_NAME>)
-cd <APP_DIR>
-git fetch origin && git reset --hard origin/main
-npx next build
-cp -r .next/static .next/standalone/.next/static
-cp -r public .next/standalone/public
-pm2 restart <PROCESS_NAME>
-pm2 save
+**Vérifié par inspection directe du serveur le 06/08/2026** (ceci remplace la
+procédure in-place précédemment documentée ici, qui ne correspondait plus à
+la réalité du serveur — voir `docs/incidents/` pour l'historique des
+collisions de déploiement que le modèle in-place avait causées) :
+
+```
+<APP_DIR> (ex: /var/www/nexus-project_v0) est un SYMLINK vers
+<APP_DIR>-releases/<short-sha>-<slug>-<timestamp>/, jamais un répertoire réel.
+PM2 lance `<PROCESS_NAME>` via un launcher qui résout ce symlink à CHAQUE
+démarrage (donc jamais figé sur un chemin absolu) :
+  /usr/local/libexec/nexus-prod-launcher <APP_DIR>
 ```
 
-- **PM2 process** : `<PROCESS_NAME>`, mode cluster, port 3001
+Séquence de déploiement (à exécuter depuis un poste qui build, PAS forcément
+sur le serveur — le build peut se faire n'importe où avec le même Node/npm
+pinné que la CI, puis être transféré) :
+
+```bash
+# 1. Build (env identique au job "Production Build" de la CI)
+npm ci
+npx prisma generate
+NODE_ENV=production npm run build
+cp -r .next/static .next/standalone/.next/static
+cp -r public .next/standalone/public
+
+# 2. Vérifier qu'aucun résidu local (storage/, data/, fichiers de test) ne
+#    s'est glissé dans .next/standalone/ avant de transférer — un incident
+#    a été évité de justesse le 06/08/2026 (des PDF de test locaux
+#    référencés via process.cwd() ont failli partir en prod).
+
+# 3. Transférer vers un NOUVEAU répertoire de release, jamais écraser
+#    l'existant :
+rsync -az .next/standalone/ <PROCESS_NAME>@<PROD_HOST>:<APP_DIR>-releases/<sha>-<slug>-<timestamp>/.next/standalone/
+rsync -az .next/static/     <PROCESS_NAME>@<PROD_HOST>:<APP_DIR>-releases/<sha>-<slug>-<timestamp>/.next/static/
+
+# 4. Bascule atomique du symlink (jamais un `rm` + `ln`, toujours via un
+#    lien temporaire + `mv -T`) :
+ln -sfn <APP_DIR>-releases/<sha>-<slug>-<timestamp> <APP_DIR>.new
+mv -T <APP_DIR>.new <APP_DIR>
+
+# 5. Redémarrage + persistance
+pm2 restart <PROCESS_NAME>
+pm2 save
+
+# 6. Vérification 3-way obligatoire — les 3 doivent concorder sur la
+#    nouvelle release avant de considérer le déploiement terminé :
+readlink -f <APP_DIR>                                   # cible du symlink
+pm2 jlist | jq '.[] | select(.name=="<PROCESS_NAME>") | .pm2_env.args'
+ps -eo pid,args | grep 'standalone/server.js'            # cmdline réel du process
+```
+
+- **PM2 process** : `<PROCESS_NAME>`, mode fork, port 3001
 - **Persistance reboot** : `pm2 startup systemd` + `pm2 save`
 - **Healthcheck** : `curl http://127.0.0.1:3001/api/health`
 - **Nginx** : reverse proxy TLS → 127.0.0.1:3001 (ne pose aucun en-tête sécurité, tout vient du middleware Next.js)
+- **Migrations Prisma** : `npx prisma migrate deploy` seulement si `prisma/migrations/` a changé depuis la dernière release déployée (`git diff --stat <ancien-sha> <nouveau-sha> -- prisma/`) — aucune migration n'est nécessaire à chaque déploiement
+- **Anciennes releases** : ne jamais supprimer un répertoire de release sans confirmation explicite du responsable (permet un rollback instantané en re-basculant le symlink)
+
+**Discipline single-writer (obligatoire)** : avant tout déploiement, confirmer
+explicitement avec le responsable qu'aucun autre agent, session ou pipeline
+CI ne pousse ou ne déploie en parallèle. Plusieurs incidents de production
+antérieurs (collision de déploiements concurrents, symlink figé par un
+autre acteur) ont eu cette absence de coordination comme cause racine.
 
 ### RAG & autres services (Docker)
 
