@@ -6,6 +6,7 @@ import { prisma } from '@/lib/prisma';
 import { getDocumentStorageRoot } from '@/lib/documents/storage-root';
 import { isErrorResponse } from '@/lib/guards';
 import { getDiagnosticForActor, requireDiagnosticActor, actorRole, isDocumentVisibleToViewer } from '@/lib/diagnostics/candidat-libre/access.server';
+import { guardCandidateDiagnosticFeature } from '@/lib/diagnostics/candidat-libre/feature-flag';
 
 interface Params { params: Promise<{ diagnosticId: string; documentId: string }> }
 
@@ -17,6 +18,8 @@ function safeAbsolutePath(storageKey: string) {
 }
 
 export async function GET(_request: Request, { params }: Params) {
+  const disabled = guardCandidateDiagnosticFeature();
+  if (disabled) return disabled;
   const { diagnosticId, documentId } = await params;
   const sessionOrError = await requireDiagnosticActor();
   if (isErrorResponse(sessionOrError)) return sessionOrError;
@@ -44,6 +47,8 @@ export async function GET(_request: Request, { params }: Params) {
 }
 
 export async function DELETE(_request: Request, { params }: Params) {
+  const disabled = guardCandidateDiagnosticFeature();
+  if (disabled) return disabled;
   const { diagnosticId, documentId } = await params;
   const sessionOrError = await requireDiagnosticActor();
   if (isErrorResponse(sessionOrError)) return sessionOrError;

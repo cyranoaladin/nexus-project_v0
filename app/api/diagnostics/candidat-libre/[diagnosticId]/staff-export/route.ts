@@ -3,10 +3,13 @@ import { UserRole } from '@prisma/client';
 import { isErrorResponse } from '@/lib/guards';
 import { getDiagnosticForActor, requireDiagnosticActor } from '@/lib/diagnostics/candidat-libre/access.server';
 import { buildStaffDiagnosticSynthesis } from '@/lib/diagnostics/candidat-libre/synthesis.server';
+import { guardCandidateDiagnosticFeature } from '@/lib/diagnostics/candidat-libre/feature-flag';
 
 interface Params { params: Promise<{ diagnosticId: string }> }
 
 export async function GET(_request: Request, { params }: Params) {
+  const disabled = guardCandidateDiagnosticFeature();
+  if (disabled) return disabled;
   const { diagnosticId } = await params;
   const sessionOrError = await requireDiagnosticActor();
   if (isErrorResponse(sessionOrError)) return sessionOrError;

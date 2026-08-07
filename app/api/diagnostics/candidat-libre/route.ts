@@ -8,8 +8,11 @@ import { createDiagnosticSchema } from '@/lib/diagnostics/candidat-libre/schemas
 import { DIAGNOSTIC_KEY, DIAGNOSTIC_VERSION } from '@/lib/diagnostics/candidat-libre/types';
 import { getStudentForActor, requireDiagnosticActor, actorRole } from '@/lib/diagnostics/candidat-libre/access.server';
 import { serializeCandidateDiagnostic } from '@/lib/diagnostics/candidat-libre/serialize.server';
+import { guardCandidateDiagnosticFeature } from '@/lib/diagnostics/candidat-libre/feature-flag';
 
 export async function GET(request: Request) {
+  const disabled = guardCandidateDiagnosticFeature();
+  if (disabled) return disabled;
   const sessionOrError = await requireDiagnosticActor();
   if (isErrorResponse(sessionOrError)) return sessionOrError;
   const url = new URL(request.url);
@@ -37,6 +40,8 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
+  const disabled = guardCandidateDiagnosticFeature();
+  if (disabled) return disabled;
   const limited = await guardRateLimitAsync(request, { preset: 'api', keySuffix: 'candidate-diagnostic-create' });
   if (limited) return limited;
   const sessionOrError = await requireDiagnosticActor();

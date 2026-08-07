@@ -9,6 +9,7 @@ import { getPublicModuleDefinition, CANDIDATE_DIAGNOSTIC_MODULES } from '@/lib/d
 import { moduleDraftSchema, moduleKeySchema } from '@/lib/diagnostics/candidat-libre/schemas';
 import { scoreDiagnosticModule, validateRequiredAnswers } from '@/lib/diagnostics/candidat-libre/scoring.server';
 import { resolveModuleAvailability } from '@/lib/diagnostics/candidat-libre/progression';
+import { guardCandidateDiagnosticFeature } from '@/lib/diagnostics/candidat-libre/feature-flag';
 import type { DiagnosticAnswer, DiagnosticModuleView } from '@/lib/diagnostics/candidat-libre/types';
 
 interface Params { params: Promise<{ diagnosticId: string; moduleKey: string }> }
@@ -30,6 +31,8 @@ function moduleViews(diagnostic: any): DiagnosticModuleView[] {
 }
 
 export async function GET(_request: Request, { params }: Params) {
+  const disabled = guardCandidateDiagnosticFeature();
+  if (disabled) return disabled;
   const { diagnosticId, moduleKey: rawModuleKey } = await params;
   const parsedKey = moduleKeySchema.safeParse(rawModuleKey);
   if (!parsedKey.success) return NextResponse.json({ error: 'Invalid module key' }, { status: 400 });
@@ -72,6 +75,8 @@ export async function POST(request: Request, context: Params) {
 }
 
 async function saveModule(request: Request, { params }: Params, forcedAction: 'draft' | 'submit') {
+  const disabled = guardCandidateDiagnosticFeature();
+  if (disabled) return disabled;
   const limited = await guardRateLimitAsync(request, { preset: 'api', keySuffix: `candidate-module-${forcedAction}` });
   if (limited) return limited;
   const { diagnosticId, moduleKey: rawModuleKey } = await params;

@@ -6,10 +6,13 @@ import { guardRateLimitAsync } from '@/lib/rate-limit';
 import { getDiagnosticForActor, actorRole } from '@/lib/diagnostics/candidat-libre/access.server';
 import { CANDIDATE_DIAGNOSTIC_MODULES } from '@/lib/diagnostics/candidat-libre/definition.public';
 import { isModuleComplete } from '@/lib/diagnostics/candidat-libre/progression';
+import { guardCandidateDiagnosticFeature } from '@/lib/diagnostics/candidat-libre/feature-flag';
 
 interface Params { params: Promise<{ diagnosticId: string }> }
 
 export async function POST(request: Request, { params }: Params) {
+  const disabled = guardCandidateDiagnosticFeature();
+  if (disabled) return disabled;
   const limited = await guardRateLimitAsync(request, { preset: 'expensive', keySuffix: 'candidate-diagnostic-final-submit' });
   if (limited) return limited;
   const { diagnosticId } = await params;
