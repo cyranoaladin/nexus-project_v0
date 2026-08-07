@@ -1036,6 +1036,7 @@ jobs:
       - security
       - build
       - documents
+      - bilan-runtime-real-db
     if: ${{ always() }}
 
     steps:
@@ -1054,7 +1055,8 @@ jobs:
             "e2e:${{ needs.e2e.result }}" \
             "security:${{ needs.security.result }}" \
             "build:${{ needs.build.result }}" \
-            "documents:${{ needs.documents.result }}"; do
+            "documents:${{ needs.documents.result }}" \
+            "bilan-runtime-real-db:${{ needs.bilan-runtime-real-db.result }}"; do
             job="${result_pair%%:*}"
             result="${result_pair#*:}"
             if [ "$result" != "success" ]; then

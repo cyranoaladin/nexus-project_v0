@@ -16,6 +16,7 @@ const independentEvidenceJobs = [
   'security',
   'build',
   'documents',
+  'bilan-runtime-real-db',
 ];
 const requiredJobs = ['dependency-integrity', ...independentEvidenceJobs];
 

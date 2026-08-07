@@ -105,6 +105,44 @@ describe('staff Canonical report review service', () => {
     expect(deps.reject).toHaveBeenCalledWith(expect.objectContaining({ motif: 'Priorité pédagogique incorrecte.' }));
   });
 
+  test('retries publication for a stranded COACH_VALIDATED revision without re-validating', async () => {
+    // A revision reaches COACH_VALIDATED and materialization=null when
+    // validateReportRevision() succeeded but publishReportRevision() then
+    // threw (e.g. a Chromium render failure) -- the two are separate
+    // service calls, not one transaction (see the "Chromium and all other
+    // rendering happen before opening the final, short transaction"
+    // comment in report-service.ts). Retrying must skip validate (it would
+    // fail: its own DB guard only matches status='PENDING_REVIEW') and go
+    // straight to publish.
+    const stranded = { ...revision, status: 'COACH_VALIDATED' };
+    const deps = dependencies({ findPending: jest.fn().mockResolvedValue(stranded) });
+
+    await expect(validateAndPublishPendingReport({
+      userId: 'user-assistante', role: 'ASSISTANTE', revisionId: revision.id, motif: 'Nouvelle tentative.',
+    }, serviceDependencies(deps))).resolves.toMatchObject({ status: 'PUBLISHED' });
+
+    expect(deps.validate).not.toHaveBeenCalled();
+    expect(deps.publish).toHaveBeenCalledWith(expect.objectContaining({ revisionId: revision.id, reviewerId: 'user-assistante' }));
+  });
+
+  test('lists stranded COACH_VALIDATED revisions alongside genuinely pending ones', async () => {
+    const stranded = { ...revision, id: 'revision-stranded', status: 'COACH_VALIDATED' };
+    const deps = dependencies({ listPending: jest.fn().mockResolvedValue([revision, stranded]) });
+
+    await expect(listPendingReportReviews({ userId: 'user-assistante', role: 'ASSISTANTE' }, serviceDependencies(deps)))
+      .resolves.toEqual([revision, stranded]);
+  });
+
+  test('refuses to reject an already-validated revision instead of surfacing a confusing DB-guard error', async () => {
+    const stranded = { ...revision, status: 'COACH_VALIDATED' };
+    const deps = dependencies({ findPending: jest.fn().mockResolvedValue(stranded) });
+
+    await expect(rejectPendingReport({
+      userId: 'user-assistante', role: 'ASSISTANTE', revisionId: revision.id, motif: 'Trop tard.',
+    }, serviceDependencies(deps))).rejects.toMatchObject({ code: 'REPORT_ALREADY_VALIDATED' });
+    expect(deps.reject).not.toHaveBeenCalled();
+  });
+
   test('contains no direct Prisma status mutation in the staff surface', () => {
     const paths = [
       'lib/bilans/staff/review-service.ts',

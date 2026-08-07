@@ -98,6 +98,12 @@ SECRET_SCAN_VALUE_ALLOWLIST=(
   # scripts/gate-all.sh: NEXTAUTH_SECRET extracted via $(node -p ...) — not a literal secret.
   # Grep truncates at whitespace → value seen is "$(node or $(node. Regex matches both.
   "scripts/gate-all.sh|NEXTAUTH_SECRET=|^\"?\\\$\(node"
+  # docs/DEPLOY_PRODUCTION.md: illustrative placeholders in a setup guide,
+  # never real values (all-X secret, French "YOUR_..." labels).
+  "docs/DEPLOY_PRODUCTION.md|NEXTAUTH_SECRET=|^X+$"
+  "docs/DEPLOY_PRODUCTION.md|SMTP_PASSWORD=|^VOTRE_MOT_DE_PASSE_SMTP$"
+  "docs/DEPLOY_PRODUCTION.md|POSTGRES_PASSWORD=|^VOTRE_MOT_DE_PASSE_FORT$"
+  "docs/DEPLOY_PRODUCTION.md|DATABASE_URL=postgresql://.*:.*@|^postgresql://nexus_user:VOTRE_MOT_DE_PASSE_FORT@postgres:5432/nexus_reussite_prod\?schema=public$"
 )
 
 # Returns 0 (exempt) only if ALL lines matching the secret pattern in the file
