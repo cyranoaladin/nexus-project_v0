@@ -1,4 +1,4 @@
-import type { Prisma, UserRole } from '@prisma/client';
+import { ReportRevisionStatus, type Prisma, type UserRole } from '@prisma/client';
 
 import { prisma } from '@/lib/prisma';
 
@@ -59,14 +59,28 @@ export class StaffReviewError extends Error {
   }
 }
 
+// validateReportRevision() and publishReportRevision() are two separate
+// service calls (see the "Chromium and all other rendering happen before
+// opening the final, short transaction" comment in report-service.ts --
+// rendering deliberately happens outside any transaction). If publish
+// throws after validate already committed COACH_VALIDATED, the revision
+// would otherwise vanish from every assistante-facing query below (both
+// scoped to PENDING_REVIEW only) with no way to retry -- stranded forever,
+// invisible in the dashboard, any resubmission 404-ing via NOT_FOUND.
+// Including not-yet-materialized COACH_VALIDATED revisions here surfaces
+// them again so a retry can pick up exactly where publish failed.
+const actionableStatus = {
+  in: [ReportRevisionStatus.PENDING_REVIEW, ReportRevisionStatus.COACH_VALIDATED],
+};
+
 const defaultDependencies: ReviewServiceDependencies = {
   listPending: () => prisma.reportRevision.findMany({
-    where: { status: 'PENDING_REVIEW' },
+    where: { status: actionableStatus, materialization: null },
     select: revisionSelection,
     orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
   }),
   findPending: (revisionId) => prisma.reportRevision.findFirst({
-    where: { id: revisionId, status: 'PENDING_REVIEW' },
+    where: { id: revisionId, status: actionableStatus, materialization: null },
     select: revisionSelection,
   }),
   resolvePack: resolveEnabledPack,
@@ -139,7 +153,14 @@ export async function validateAndPublishPendingReport(
   const { revision, reviewerId, motif } = await pendingReview(action, dependencies);
   if (revision.validationFailures.length > 0) throw new StaffReviewError('REPORT_VALIDATION_FAILURES');
   const reviewedAt = dependencies.now();
-  await dependencies.validate({ revisionId: revision.id, reviewerId, motif, reviewedAt });
+  // A stranded retry (see actionableStatus above) already has an APPROVED
+  // review on record from the attempt that validated it -- re-running
+  // validate would fail outright (its DB guard only matches
+  // status='PENDING_REVIEW') and would also record a second, redundant
+  // review. Only genuinely PENDING_REVIEW revisions get validated here.
+  if (revision.status === 'PENDING_REVIEW') {
+    await dependencies.validate({ revisionId: revision.id, reviewerId, motif, reviewedAt });
+  }
   return dependencies.publish({ revisionId: revision.id, reviewerId, publishedAt: reviewedAt });
 }
 
@@ -161,5 +182,12 @@ export async function rejectPendingReport(
 ) {
   const dependencies = { ...defaultDependencies, ...overrides };
   const { revision, reviewerId, motif } = await pendingReview(action, dependencies);
+  // REJECT_REPORT is only a legal transition from REPORT_PENDING_REVIEW
+  // (see state-machine.ts) -- a stranded COACH_VALIDATED revision (see
+  // actionableStatus above) is visible here for publish-retry, not reject.
+  // Without this guard the request would still fail safely one layer down
+  // (rejectReportRevision's own DB guard only matches PENDING_REVIEW), but
+  // as a generic REPORT_CONCURRENT_REVIEW that doesn't explain why.
+  if (revision.status !== 'PENDING_REVIEW') throw new StaffReviewError('REPORT_ALREADY_VALIDATED');
   return dependencies.reject({ revisionId: revision.id, reviewerId, motif, reviewedAt: dependencies.now() });
 }
