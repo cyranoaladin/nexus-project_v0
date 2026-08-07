@@ -5,7 +5,7 @@ import { prisma } from '@/lib/prisma';
 import { isErrorResponse } from '@/lib/guards';
 import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive';
 import type { SensitiveRateLimitScope } from '@/lib/rate-limit/sensitive';
-import { getDiagnosticForActor, requireDiagnosticActor, actorRole } from '@/lib/diagnostics/candidat-libre/access.server';
+import { canViewModuleDetail, getDiagnosticForActor, requireDiagnosticActor, actorRole } from '@/lib/diagnostics/candidat-libre/access.server';
 import { getPublicModuleDefinition, CANDIDATE_DIAGNOSTIC_MODULES } from '@/lib/diagnostics/candidat-libre/definition.public';
 import { moduleDraftSchema, moduleKeySchema } from '@/lib/diagnostics/candidat-libre/schemas';
 import { scoreDiagnosticModule, validateRequiredAnswers } from '@/lib/diagnostics/candidat-libre/scoring.server';
@@ -15,6 +15,22 @@ import type { DiagnosticAnswer, DiagnosticModuleView } from '@/lib/diagnostics/c
 
 interface Params { params: Promise<{ diagnosticId: string; moduleKey: string }> }
 
+// WRITE permission only — who may submit/save answers for this module.
+// Distinct from READ visibility (canViewModuleDetail, access.server.ts):
+// conflating the two previously produced a false parallel (a COACH blocked
+// from editing was wrongly assumed blocked from reading too). This function
+// still governs edit gating below (PUT/POST) and the 403 on GET; the GET
+// response's `answers` field now uses canViewModuleDetail instead (see
+// below) — a COACH can read an ELEVE-audience module's answers without
+// being able to edit them.
+//
+// Known residual inconsistency, not fixed here (flagged, not routed
+// around): ASSISTANTE returns true unconditionally, same as ADMIN — she can
+// still WRITE any module's answers even though canViewModuleDetail now
+// denies her READ access to that same content. Product decision needed:
+// either ASSISTANTE never had a real reason to write academic answers
+// either (tighten this function), or her write access is intentional
+// (e.g. transcribing on behalf of family) and only read is restricted.
 function canEditAudience(role: UserRole, audience: string) {
   if (role === UserRole.ELEVE) return audience === 'ELEVE';
   if (role === UserRole.PARENT) return audience === 'PARENT';
@@ -56,7 +72,7 @@ export async function GET(_request: Request, { params }: Params) {
     module: {
       key: moduleRecord.moduleKey,
       status: moduleRecord.status,
-      answers: canEditAudience(sessionOrError.user.role, definition.audience) ? moduleRecord.answers ?? {} : undefined,
+      answers: canViewModuleDetail(sessionOrError.user.role, definition.audience) ? moduleRecord.answers ?? {} : undefined,
       currentQuestionIndex: moduleRecord.currentQuestionIndex,
       elapsedMs: moduleRecord.elapsedMs,
       integrity: moduleRecord.integrity,

@@ -1,7 +1,7 @@
 jest.mock('server-only', () => ({}));
 
 import { serializeCandidateDiagnostic } from '@/lib/diagnostics/candidat-libre/serialize.server';
-import { isDocumentVisibleToViewer } from '@/lib/diagnostics/candidat-libre/access.server';
+import { canViewModuleDetail, isDocumentVisibleToViewer } from '@/lib/diagnostics/candidat-libre/access.server';
 
 /**
  * Exhaustive cross-audience field matrix for the shared diagnostic view.
@@ -107,8 +107,8 @@ const MODULE_CROSS_AUDIENCE_REDACTED_FIELDS = new Set(['autoScore', 'reviewSumma
 describe('serializeCandidateDiagnostic — exhaustive audience matrix', () => {
   it('module view exposes exactly the documented field set (no undocumented field can slip through)', () => {
     const view = serializeCandidateDiagnostic(buildDiagnostic(), 'ELEVE');
-    for (const module of view.modules) {
-      expect(Object.keys(module).sort()).toEqual([...MODULE_FIELD_KEYS].sort());
+    for (const moduleView of view.modules) {
+      expect(Object.keys(moduleView).sort()).toEqual([...MODULE_FIELD_KEYS].sort());
     }
     // every field is classified as either safe-to-cross or must-be-redacted — none left unclassified
     expect(new Set([...MODULE_CROSS_AUDIENCE_SAFE_FIELDS, ...MODULE_CROSS_AUDIENCE_REDACTED_FIELDS])).toEqual(new Set(MODULE_FIELD_KEYS));
@@ -136,11 +136,33 @@ describe('serializeCandidateDiagnostic — exhaustive audience matrix', () => {
     expect(ownModule.reviewSummary).not.toBeNull();
   });
 
-  it('staff viewers (COACH/ADMIN) and internal callers with no role see full detail on every module', () => {
-    for (const viewer of ['COACH', 'ADMIN', undefined] as const) {
+  // Arbitrated 2026-08-07: canEditAudience (WRITE) and read visibility are
+  // distinct rules — a COACH cannot edit either module but CAN read the
+  // ELEVE-audience one (their working material); questionnaire-parent stays
+  // out of reach. ADMIN and internal callers (no role) keep full access
+  // everywhere, unchanged. ASSISTANTE is new here: no academic detail on
+  // any module, stricter than the "staff sees everything" default this
+  // suite used to assert.
+  it('COACH sees full detail on the ELEVE-audience module but not on questionnaire-parent', () => {
+    const view = serializeCandidateDiagnostic(buildDiagnostic(), 'COACH');
+    const eleveModule = view.modules.find((m) => m.key === 'mathematiques')!;
+    const parentModule = view.modules.find((m) => m.key === 'questionnaire-parent')!;
+    expect(eleveModule.autoScore).not.toBeNull();
+    expect(eleveModule.reviewSummary).not.toBeNull();
+    expect(parentModule.autoScore).toBeNull();
+    expect(parentModule.reviewSummary).toBeNull();
+  });
+
+  it('ADMIN and internal callers (no role) see full detail on every module', () => {
+    for (const viewer of ['ADMIN', undefined] as const) {
       const view = serializeCandidateDiagnostic(buildDiagnostic(), viewer);
       expect(view.modules.every((m) => m.autoScore !== null && m.reviewSummary !== null)).toBe(true);
     }
+  });
+
+  it('ASSISTANTE sees no academic detail on any module', () => {
+    const view = serializeCandidateDiagnostic(buildDiagnostic(), 'ASSISTANTE');
+    expect(view.modules.every((m) => m.autoScore === null && m.reviewSummary === null)).toBe(true);
   });
 
   it('PARENT viewer never receives the student academic production documents (written copy, oral recording)', () => {
@@ -155,12 +177,42 @@ describe('serializeCandidateDiagnostic — exhaustive audience matrix', () => {
     expect(categories).toEqual(['IDENTITY', 'ORAL_RECORDING', 'WRITTEN_COPY']);
   });
 
-  it('staff viewers and internal callers see every document regardless of category', () => {
+  it('COACH, ADMIN and internal callers see every document regardless of category', () => {
     for (const viewer of ['COACH', 'ADMIN', undefined] as const) {
       const view = serializeCandidateDiagnostic(buildDiagnostic(), viewer);
       expect(view.documents).toHaveLength(3);
     }
   });
+
+  it('ASSISTANTE never receives the student academic production documents, same boundary as PARENT', () => {
+    const view = serializeCandidateDiagnostic(buildDiagnostic(), 'ASSISTANTE');
+    const categories = view.documents.map((d) => d.category).sort();
+    expect(categories).toEqual(['IDENTITY']);
+  });
+});
+
+describe('canViewModuleDetail — read-visibility matrix, single source of truth for 4 routes', () => {
+  const ROLES = ['ELEVE', 'PARENT', 'COACH', 'ADMIN', 'ASSISTANTE'] as const;
+  const AUDIENCES = ['ELEVE', 'PARENT'] as const;
+
+  // One explicit expectation per (role, audience) pair — a role or audience
+  // added later without updating this table fails type-checking on the
+  // ROLES/AUDIENCES arrays above before it can silently pass a test.
+  const EXPECTED: Record<(typeof ROLES)[number], Record<(typeof AUDIENCES)[number], boolean>> = {
+    ELEVE: { ELEVE: true, PARENT: false },
+    PARENT: { ELEVE: false, PARENT: true },
+    COACH: { ELEVE: true, PARENT: false },
+    ADMIN: { ELEVE: true, PARENT: true },
+    ASSISTANTE: { ELEVE: false, PARENT: false },
+  };
+
+  for (const role of ROLES) {
+    for (const audience of AUDIENCES) {
+      it(`${role} on a ${audience}-audience module → ${EXPECTED[role][audience]}`, () => {
+        expect(canViewModuleDetail(role as any, audience)).toBe(EXPECTED[role][audience]);
+      });
+    }
+  }
 });
 
 describe('isDocumentVisibleToViewer — category × audience matrix', () => {
@@ -174,12 +226,16 @@ describe('isDocumentVisibleToViewer — category × audience matrix', () => {
     expect(isDocumentVisibleToViewer(category, 'ELEVE')).toBe(true);
   });
 
-  it.each(ALL_CATEGORIES)('staff (COACH/ADMIN/ASSISTANTE) always sees category %s', (category) => {
+  it.each(ALL_CATEGORIES)('COACH/ADMIN always see category %s — student productions are their working material', (category) => {
     expect(isDocumentVisibleToViewer(category, 'COACH')).toBe(true);
     expect(isDocumentVisibleToViewer(category, 'ADMIN')).toBe(true);
   });
 
   it.each(ALL_CATEGORIES)('PARENT sees category %s only when it is not a student academic production', (category) => {
     expect(isDocumentVisibleToViewer(category, 'PARENT')).toBe(!STUDENT_ACADEMIC_CATEGORIES.has(category));
+  });
+
+  it.each(ALL_CATEGORIES)('ASSISTANTE sees category %s only when it is not a student academic production — same boundary as PARENT', (category) => {
+    expect(isDocumentVisibleToViewer(category, 'ASSISTANTE')).toBe(!STUDENT_ACADEMIC_CATEGORIES.has(category));
   });
 });
