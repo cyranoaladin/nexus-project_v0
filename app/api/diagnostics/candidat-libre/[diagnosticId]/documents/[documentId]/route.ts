@@ -27,7 +27,7 @@ export async function GET(_request: Request, { params }: Params) {
   if (diagnosticOrError instanceof NextResponse) return diagnosticOrError;
   const document = diagnosticOrError.documents.find((item: any) => item.id === documentId);
   if (!document) return NextResponse.json({ error: 'Not Found' }, { status: 404 });
-  if (!isDocumentVisibleToViewer(document.category, actorRole(sessionOrError))) {
+  if (!isDocumentVisibleToViewer(document.category, sessionOrError.user.role)) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
   try {

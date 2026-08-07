@@ -1,13 +1,16 @@
 /**
- * A COACH is not the audience of the parent questionnaire (or of any
- * module's raw answers) — same rule GET .../modules/[moduleKey] already
- * enforces via canEditAudience. staff-export previously bypassed that rule
- * by treating COACH/ADMIN/ASSISTANTE as an undifferentiated "staff" block,
- * exposing every module's answers/autoScore/manualScore/reviewSummary
- * (including questionnaire-parent) to any assigned coach. This suite locks
- * the aligned behavior: ADMIN/ASSISTANTE keep full content, COACH gets
- * structure/status only, never content — for every module regardless of
- * audience.
+ * Read-visibility matrix for staff-export, arbitrated 2026-08-07: COACH is
+ * not the audience of questionnaire-parent (a confidential family
+ * instrument) but IS the audience of the student's own ELEVE-audience
+ * modules (their working material for coaching) — canEditAudience
+ * (modules/[moduleKey]) governs WRITE only and was previously
+ * mis-generalized to READ, producing a false parallel. ASSISTANTE gets no
+ * academic detail anywhere (logistics role, least privilege on a minor's
+ * data) — a stricter default than the original "staff sees everything"
+ * this route shipped with. ADMIN keeps full access, including
+ * questionnaire-parent (pedagogical direction, where the confidential
+ * family instrument is meant to land) and gets the full synthesis;
+ * ASSISTANTE gets none.
  */
 
 import { NextResponse } from 'next/server';
@@ -21,7 +24,7 @@ jest.mock('@/lib/diagnostics/candidat-libre/access.server', () => ({
   requireDiagnosticActor: (...args: unknown[]) => mockRequireDiagnosticActor(...args),
   getDiagnosticForActor: (...args: unknown[]) => mockGetDiagnosticForActor(...args),
   isDocumentVisibleToViewer: jest.requireActual('@/lib/diagnostics/candidat-libre/access.server').isDocumentVisibleToViewer,
-  actorRole: jest.requireActual('@/lib/diagnostics/candidat-libre/access.server').actorRole,
+  canViewModuleDetail: jest.requireActual('@/lib/diagnostics/candidat-libre/access.server').canViewModuleDetail,
 }));
 
 jest.mock('@/lib/guards', () => ({
@@ -33,7 +36,21 @@ import { GET as staffExportGet } from '@/app/api/diagnostics/candidat-libre/[dia
 const params = () => ({ params: Promise.resolve({ diagnosticId: 'diag-1' }) });
 const req = () => new Request('http://localhost/api/diagnostics/candidat-libre/diag-1/staff-export');
 
-const MODULE = {
+const ELEVE_MODULE = {
+  moduleKey: 'mathematiques',
+  audience: 'ELEVE',
+  status: 'REVIEWED',
+  answers: { q1: 'réponse élève' },
+  autoScore: { percentage: 70 },
+  manualScore: null,
+  integrity: {},
+  elapsedMs: 500,
+  submittedAt: new Date('2026-08-01'),
+  reviewSummary: { note: 'bon niveau' },
+  definitionSnapshot: { questions: [] },
+};
+
+const PARENT_MODULE = {
   moduleKey: 'questionnaire-parent',
   audience: 'PARENT',
   status: 'REVIEWED',
@@ -45,6 +62,19 @@ const MODULE = {
   submittedAt: new Date('2026-08-01'),
   reviewSummary: { note: 'commentaire de relecture' },
   definitionSnapshot: { questions: [] },
+};
+
+const WRITTEN_COPY_DOC = {
+  id: 'doc-1',
+  category: 'WRITTEN_COPY',
+  title: 'Copie maths',
+  originalName: 'copie.pdf',
+  mimeType: 'application/pdf',
+  sizeBytes: 1000,
+  sha256: 'abc',
+  status: 'ACCEPTED',
+  reviewNote: null,
+  createdAt: new Date('2026-08-01'),
 };
 
 const diagnosticFixture = () => ({
@@ -59,45 +89,71 @@ const diagnosticFixture = () => ({
     school: 'X',
     gradeLevel: 'TERMINALE',
   },
-  modules: [{ ...MODULE }],
-  documents: [],
+  modules: [{ ...ELEVE_MODULE }, { ...PARENT_MODULE }],
+  documents: [{ ...WRITTEN_COPY_DOC }],
   studentConsentAt: null,
   parentConsentAt: null,
   parentSubmittedAt: new Date('2026-08-01'),
   submittedAt: null,
 });
 
-describe('GET staff-export — content visibility aligned with modules/[moduleKey]', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-    mockGetDiagnosticForActor.mockResolvedValue(diagnosticFixture());
-  });
+async function getAs(role: string) {
+  mockRequireDiagnosticActor.mockResolvedValue({ user: { id: `${role}-1`, role } });
+  mockGetDiagnosticForActor.mockResolvedValue(diagnosticFixture());
+  const response = await staffExportGet(req(), params());
+  return { response, body: await response.json() };
+}
 
-  it('withholds answers/autoScore/manualScore/reviewSummary from COACH on every module, including questionnaire-parent', async () => {
-    mockRequireDiagnosticActor.mockResolvedValue({ user: { id: 'coach-1', role: 'COACH' } });
+function moduleByKey(body: any, key: string) {
+  return body.diagnostic.modules.find((m: any) => m.moduleKey === key);
+}
 
-    const response = await staffExportGet(req(), params());
-    const body = await response.json();
+describe('GET staff-export — read-visibility matrix (arbitrated 2026-08-07)', () => {
+  beforeEach(() => jest.clearAllMocks());
 
+  it('COACH sees content on the ELEVE-audience module but not on questionnaire-parent', async () => {
+    const { response, body } = await getAs('COACH');
     expect(response.status).toBe(200);
-    const moduleView = body.diagnostic.modules[0];
-    expect(moduleView.moduleKey).toBe('questionnaire-parent');
-    expect(moduleView.status).toBe('REVIEWED');
-    expect(moduleView.answers).toBeUndefined();
-    expect(moduleView.autoScore).toBeUndefined();
-    expect(moduleView.manualScore).toBeUndefined();
-    expect(moduleView.reviewSummary).toBeUndefined();
+
+    const eleveModule = moduleByKey(body, 'mathematiques');
+    expect(eleveModule.answers).toEqual(ELEVE_MODULE.answers);
+    expect(eleveModule.autoScore).toEqual(ELEVE_MODULE.autoScore);
+    expect(eleveModule.reviewSummary).toEqual(ELEVE_MODULE.reviewSummary);
+
+    const parentModule = moduleByKey(body, 'questionnaire-parent');
+    expect(parentModule.status).toBe('REVIEWED');
+    expect(parentModule.answers).toBeUndefined();
+    expect(parentModule.autoScore).toBeUndefined();
+    expect(parentModule.manualScore).toBeUndefined();
+    expect(parentModule.reviewSummary).toBeUndefined();
+
+    expect(body.diagnostic.documents).toHaveLength(1);
+    expect(body.synthesis).not.toBeNull();
   });
 
-  it.each(['ADMIN', 'ASSISTANTE'])('keeps full content for %s', async (role) => {
-    mockRequireDiagnosticActor.mockResolvedValue({ user: { id: 'staff-1', role } });
+  it('ADMIN sees full content on both modules, including questionnaire-parent', async () => {
+    const { body } = await getAs('ADMIN');
+    expect(moduleByKey(body, 'mathematiques').answers).toEqual(ELEVE_MODULE.answers);
+    expect(moduleByKey(body, 'questionnaire-parent').answers).toEqual(PARENT_MODULE.answers);
+    expect(body.diagnostic.documents).toHaveLength(1);
+    expect(body.synthesis).not.toBeNull();
+  });
 
-    const response = await staffExportGet(req(), params());
-    const body = await response.json();
+  it('ASSISTANTE sees no academic detail on any module, no student productions, and no synthesis', async () => {
+    const { response, body } = await getAs('ASSISTANTE');
+    expect(response.status).toBe(200);
 
-    const moduleView = body.diagnostic.modules[0];
-    expect(moduleView.answers).toEqual(MODULE.answers);
-    expect(moduleView.autoScore).toEqual(MODULE.autoScore);
-    expect(moduleView.reviewSummary).toEqual(MODULE.reviewSummary);
+    const eleveModule = moduleByKey(body, 'mathematiques');
+    expect(eleveModule.answers).toBeUndefined();
+    expect(eleveModule.autoScore).toBeUndefined();
+    expect(eleveModule.reviewSummary).toBeUndefined();
+
+    const parentModule = moduleByKey(body, 'questionnaire-parent');
+    expect(parentModule.answers).toBeUndefined();
+    expect(parentModule.autoScore).toBeUndefined();
+    expect(parentModule.reviewSummary).toBeUndefined();
+
+    expect(body.diagnostic.documents).toHaveLength(0);
+    expect(body.synthesis).toBeNull();
   });
 });

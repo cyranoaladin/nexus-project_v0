@@ -1,26 +1,26 @@
 import 'server-only';
 
+import type { UserRole } from '@prisma/client';
 import { computeCompletionPercentage } from './progression';
-import { isDocumentVisibleToViewer } from './access.server';
+import { canViewModuleDetail, isDocumentVisibleToViewer } from './access.server';
 import type { DiagnosticCampaignView, DiagnosticModuleView } from './types';
 
 /**
- * viewerRole scopes cross-audience module detail: a diagnostic has both ELEVE
- * and PARENT modules, and this serializer backs the shared GET/PATCH routes
- * both audiences call. Without this, an ELEVE viewer received the parent
- * module's autoScore (per-question evidence) and vice versa — completion
- * status/progress stay visible (the UI needs "waiting on parent" states),
- * only score/review detail outside the viewer's own audience is redacted.
- * Staff (COACH/ADMIN/ASSISTANTE) or no role (internal callers) see everything.
+ * viewerRole scopes cross-audience module detail — a diagnostic has both
+ * ELEVE and PARENT modules, and this serializer backs the shared GET/PATCH
+ * routes every role calls. Detail visibility (autoScore/reviewSummary) is
+ * delegated to canViewModuleDetail (access.server.ts), the single source of
+ * truth for this rule shared with modules/[moduleKey] and staff-export —
+ * do not re-implement the matrix here. completion status/progress stay
+ * visible regardless of role (the UI needs "waiting on parent" states).
+ * No role (internal callers) sees everything, same as before.
  */
 export function serializeCandidateDiagnostic(
   diagnostic: any,
-  viewerRole?: 'ELEVE' | 'PARENT' | 'COACH' | 'ADMIN' | 'SYSTEM',
+  viewerRole?: UserRole,
 ): DiagnosticCampaignView {
-  const restrictToAudience = viewerRole === 'ELEVE' || viewerRole === 'PARENT' ? viewerRole : null;
-
   const modules: DiagnosticModuleView[] = diagnostic.modules.map((module: any) => {
-    const ownAudience = !restrictToAudience || module.audience === restrictToAudience;
+    const canViewDetail = !viewerRole || canViewModuleDetail(viewerRole, module.audience);
     return {
       key: module.moduleKey,
       status: module.status,
@@ -29,8 +29,8 @@ export function serializeCandidateDiagnostic(
       submittedAt: module.submittedAt?.toISOString?.() ?? module.submittedAt ?? null,
       availableAt: module.availableAt?.toISOString?.() ?? module.availableAt ?? null,
       elapsedMs: module.elapsedMs,
-      autoScore: ownAudience ? module.autoScore ?? null : null,
-      reviewSummary: ownAudience ? module.reviewSummary ?? null : null,
+      autoScore: canViewDetail ? module.autoScore ?? null : null,
+      reviewSummary: canViewDetail ? module.reviewSummary ?? null : null,
     };
   });
 

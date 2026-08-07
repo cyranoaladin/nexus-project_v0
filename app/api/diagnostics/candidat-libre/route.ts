@@ -6,7 +6,7 @@ import { isErrorResponse } from '@/lib/guards';
 import { CANDIDATE_DIAGNOSTIC_MODULES } from '@/lib/diagnostics/candidat-libre/definition.public';
 import { createDiagnosticSchema } from '@/lib/diagnostics/candidat-libre/schemas';
 import { DIAGNOSTIC_KEY, DIAGNOSTIC_VERSION } from '@/lib/diagnostics/candidat-libre/types';
-import { getStudentForActor, requireDiagnosticActor, actorRole } from '@/lib/diagnostics/candidat-libre/access.server';
+import { getStudentForActor, requireDiagnosticActor } from '@/lib/diagnostics/candidat-libre/access.server';
 import { serializeCandidateDiagnostic } from '@/lib/diagnostics/candidat-libre/serialize.server';
 import { guardCandidateDiagnosticFeature } from '@/lib/diagnostics/candidat-libre/feature-flag';
 
@@ -36,7 +36,7 @@ export async function GET(request: Request) {
       documents: { orderBy: { createdAt: 'desc' } },
     },
   });
-  return NextResponse.json({ diagnostic: diagnostic ? serializeCandidateDiagnostic(diagnostic, actorRole(sessionOrError)) : null });
+  return NextResponse.json({ diagnostic: diagnostic ? serializeCandidateDiagnostic(diagnostic, sessionOrError.user.role) : null });
 }
 
 export async function POST(request: Request) {
@@ -114,5 +114,5 @@ export async function POST(request: Request) {
     });
   });
 
-  return NextResponse.json({ diagnostic: serializeCandidateDiagnostic(diagnostic, actorRole(sessionOrError)) }, { status: 201 });
+  return NextResponse.json({ diagnostic: serializeCandidateDiagnostic(diagnostic, sessionOrError.user.role) }, { status: 201 });
 }

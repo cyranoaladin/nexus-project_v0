@@ -1,21 +1,11 @@
 import { NextResponse } from 'next/server';
 import { UserRole } from '@prisma/client';
 import { isErrorResponse } from '@/lib/guards';
-import { getDiagnosticForActor, isDocumentVisibleToViewer, requireDiagnosticActor, actorRole } from '@/lib/diagnostics/candidat-libre/access.server';
+import { canViewModuleDetail, getDiagnosticForActor, isDocumentVisibleToViewer, requireDiagnosticActor } from '@/lib/diagnostics/candidat-libre/access.server';
 import { buildStaffDiagnosticSynthesis } from '@/lib/diagnostics/candidat-libre/synthesis.server';
 import { guardCandidateDiagnosticFeature } from '@/lib/diagnostics/candidat-libre/feature-flag';
 
 interface Params { params: Promise<{ diagnosticId: string }> }
-
-// Same rule as modules/[moduleKey]: a COACH sees module structure/status but
-// never raw answers or scores — the questionnaire-parent module in particular
-// is not COACH's audience. Only ADMIN/ASSISTANTE (pedagogical direction) see
-// content. Kept local rather than importing canEditAudience from the module
-// route: that helper is audience-conditional (ELEVE/PARENT edit their own),
-// which doesn't apply here — staff-export is read-only for staff.
-function canViewModuleContent(role: UserRole) {
-  return role === UserRole.ADMIN || role === UserRole.ASSISTANTE;
-}
 
 export async function GET(_request: Request, { params }: Params) {
   const disabled = guardCandidateDiagnosticFeature();
@@ -45,7 +35,7 @@ export async function GET(_request: Request, { params }: Params) {
         gradeLevel: diagnosticOrError.student.gradeLevel,
       },
       modules: diagnosticOrError.modules.map((module: any) => {
-        const canViewContent = canViewModuleContent(sessionOrError.user.role);
+        const canViewContent = canViewModuleDetail(sessionOrError.user.role, module.audience);
         return {
           moduleKey: module.moduleKey,
           audience: module.audience,
@@ -61,7 +51,7 @@ export async function GET(_request: Request, { params }: Params) {
         };
       }),
       documents: diagnosticOrError.documents
-        .filter((document: any) => isDocumentVisibleToViewer(document.category, actorRole(sessionOrError)))
+        .filter((document: any) => isDocumentVisibleToViewer(document.category, sessionOrError.user.role))
         .map((document: any) => ({
           id: document.id,
           category: document.category,
@@ -79,7 +69,14 @@ export async function GET(_request: Request, { params }: Params) {
       parentSubmittedAt: diagnosticOrError.parentSubmittedAt,
       submittedAt: diagnosticOrError.submittedAt,
     },
-    synthesis: buildStaffDiagnosticSynthesis(diagnosticOrError),
+    // The synthesis aggregates academic detail (percentages, coverage,
+    // learning-potential flags derived from module content) across every
+    // module — the same "no academic detail" boundary that governs modules[]
+    // above applies here: ASSISTANTE gets none. Not per-module redacted for
+    // COACH (would need buildStaffDiagnosticSynthesis itself to know audience
+    // per field it derives from) — residual minor exposure documented in the
+    // audit doc, not fixed here.
+    synthesis: sessionOrError.user.role === UserRole.ASSISTANTE ? null : buildStaffDiagnosticSynthesis(diagnosticOrError),
   }, {
     headers: { 'Cache-Control': 'private, no-store', 'X-Content-Type-Options': 'nosniff' },
   });

@@ -26,7 +26,7 @@ export async function GET(_request: Request, { params }: Params) {
   if (isErrorResponse(sessionOrError)) return sessionOrError;
   const diagnosticOrError = await getDiagnosticForActor(sessionOrError, diagnosticId);
   if (diagnosticOrError instanceof NextResponse) return diagnosticOrError;
-  const viewerRole = actorRole(sessionOrError);
+  const viewerRole = sessionOrError.user.role;
   return NextResponse.json({
     documents: diagnosticOrError.documents
       .filter((document: any) => isDocumentVisibleToViewer(document.category, viewerRole))

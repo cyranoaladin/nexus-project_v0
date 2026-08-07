@@ -17,7 +17,7 @@ export async function GET(_request: Request, { params }: Params) {
   if (isErrorResponse(sessionOrError)) return sessionOrError;
   const diagnosticOrError = await getDiagnosticForActor(sessionOrError, diagnosticId);
   if (diagnosticOrError instanceof NextResponse) return diagnosticOrError;
-  return NextResponse.json({ diagnostic: serializeCandidateDiagnostic(diagnosticOrError, actorRole(sessionOrError)) });
+  return NextResponse.json({ diagnostic: serializeCandidateDiagnostic(diagnosticOrError, sessionOrError.user.role) });
 }
 
 export async function PATCH(request: Request, { params }: Params) {
@@ -61,5 +61,5 @@ export async function PATCH(request: Request, { params }: Params) {
       },
     });
   });
-  return NextResponse.json({ diagnostic: serializeCandidateDiagnostic(updated, actorRole(sessionOrError)) });
+  return NextResponse.json({ diagnostic: serializeCandidateDiagnostic(updated, sessionOrError.user.role) });
 }

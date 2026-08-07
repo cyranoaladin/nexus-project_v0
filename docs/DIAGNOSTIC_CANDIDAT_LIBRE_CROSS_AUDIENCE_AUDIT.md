@@ -2,138 +2,108 @@
 
 ## Source de vérité
 
-- Sérialiseur partagé : `lib/diagnostics/candidat-libre/serialize.server.ts`
-- Filtre documents par audience : `lib/diagnostics/candidat-libre/access.server.ts` (`isDocumentVisibleToViewer`)
-- Guard coach : `lib/guards.ts` (`requireCoachAssignedToStudent`)
-- Routes API : `app/api/diagnostics/candidat-libre/**`
-- Preuve tests : `__tests__/lib/diagnostics/candidat-libre/serialize.test.ts`,
-  `__tests__/api/diagnostics/candidat-libre/staff-export-content-visibility.test.ts`
+- Matrice de lecture (single source of truth) : `lib/diagnostics/candidat-libre/access.server.ts` —
+  `canViewModuleDetail(role, moduleAudience)` pour le détail des modules,
+  `isDocumentVisibleToViewer(category, role)` pour les documents.
+- Sérialiseur partagé (routes racine) : `lib/diagnostics/candidat-libre/serialize.server.ts` — délègue
+  entièrement à `canViewModuleDetail`/`isDocumentVisibleToViewer`, ne réimplémente rien.
+- Permission d'écriture (distincte de la lecture) : `canEditAudience` dans
+  `app/api/diagnostics/candidat-libre/[diagnosticId]/modules/[moduleKey]/route.ts`.
+- Preuve tests : `__tests__/lib/diagnostics/candidat-libre/serialize.test.ts` (matrice `canViewModuleDetail`
+  exhaustive par couple rôle × audience, `isDocumentVisibleToViewer` par catégorie × rôle),
+  `__tests__/api/diagnostics/candidat-libre/staff-export-content-visibility.test.ts`,
+  `__tests__/api/diagnostics/candidat-libre/module-detail-visibility.test.ts`.
 
-## Pourquoi cette révision (V2)
+## V3 — le critère change de nouveau, et pourquoi
 
-La V1 de cet audit (classification par route, colonne unique « Staff ») a laissé passer un trou réel :
-`GET .../staff-export` renvoyait `answers`/`autoScore`/`manualScore`/`reviewSummary` de tous les modules,
-y compris `questionnaire-parent`, à tout `COACH` — alors que `GET .../modules/{moduleKey}` refuse
-explicitement ce même contenu à ce même rôle. Le défaut de méthode : la V1 classait par « qui passe le
-gate de rôle » (ELEVE/PARENT exclus ⇒ jugé sûr), pas par **l'audience réelle que chaque champ vise**. Un
-COACH n'est ni ELEVE ni PARENT, donc il passait le gate — mais passer le gate ne veut pas dire être
-l'audience légitime du contenu.
+**V1** classait par rôle exclu par le gate (« ELEVE/PARENT bloqués ⇒ jugé sûr ») — a laissé passer le trou
+`staff-export`/COACH.
 
-**Nouveau critère de classification, appliqué ci-dessous à toutes les routes, pas seulement à
-`staff-export`** : pour chaque champ, on ne demande plus « quels rôles sont bloqués ? » mais « à qui ce
-contenu est-il fonctionnellement destiné ? ». Deux familles de légitimité, distinctes :
+**V2** classait par « quelle audience le champ vise », mais a fait une erreur inverse : elle a traité
+`canEditAudience` (qui gouverne qui peut MODIFIER une réponse) comme si elle gouvernait aussi qui peut la
+LIRE. Sur cette base, un COACH — qui ne peut jamais éditer — a été considéré comme ne devant jamais lire
+non plus. C'est un faux parallèle : le COACH travaille précisément à partir du détail des modules ELEVE de
+l'élève qu'il accompagne ; le priver de lecture aurait rendu le diagnostic illisible pour la personne même
+qui en a l'usage pédagogique.
 
-- **Audience directe** : ELEVE et PARENT sur leurs propres modules (l'élève sur son travail, le parent sur
-  son propre questionnaire — jamais l'inverse).
-- **Pilotage administratif du dossier** : ADMIN/ASSISTANTE, qui arbitrent le dossier dans son ensemble et
-  en ont besoin pour cette fonction — une légitimité différente de « être l'audience », documentée comme
-  telle, pas fusionnée avec elle.
+**V3 (arbitrée 2026-08-07)** sépare explicitement deux matrices :
+- **Écriture** — `canEditAudience(role, audience)` : qui peut soumettre des réponses. Inchangée.
+- **Lecture** — `canViewModuleDetail(role, audience)` : qui peut voir `answers`/`autoScore`/`manualScore`/
+  `reviewSummary`. Nouvelle, c'est le sujet de cette révision.
 
-`COACH` n'appartient à aucune des deux familles pour le **contenu** (réponses/scores/avis de correction).
-Il reste légitime sur la **structure/statut** (suivi pédagogique du parcours) et sur les **productions
-académiques de l'élève** (`WRITTEN_COPY`/`ORAL_RECORDING` — pertinentes à l'accompagnement), ce qui est une
-troisième famille de légitimité distincte, documentée séparément par champ/catégorie ci-dessous plutôt que
-supposée.
+## Matrice de lecture arbitrée
 
-## Routes partagées entre plusieurs audiences (candidates à une fuite)
-
-| Route | Audiences pouvant l'atteindre | Vecteur de fuite possible | Statut (critère audience-du-champ) |
+| Rôle | Modules audience ELEVE | Module audience PARENT (`questionnaire-parent`) | Justification |
 |---|---|---|---|
-| `GET /api/diagnostics/candidat-libre` | ELEVE, PARENT, COACH, ADMIN, ASSISTANTE | `serializeCandidateDiagnostic` | ⚠️ **gap ouvert** — voir ci-dessous |
-| `POST /api/diagnostics/candidat-libre` | ELEVE, PARENT, ADMIN, ASSISTANTE | `serializeCandidateDiagnostic` | pas de COACH sur ce verbe — sûr |
-| `GET /api/diagnostics/candidat-libre/{id}` | ELEVE, PARENT, COACH, ADMIN, ASSISTANTE | `serializeCandidateDiagnostic` | ⚠️ **gap ouvert** — voir ci-dessous |
-| `PATCH /api/diagnostics/candidat-libre/{id}` | idem | `serializeCandidateDiagnostic` | ⚠️ **gap ouvert** — voir ci-dessous |
-| `GET /api/diagnostics/candidat-libre/{id}/documents` | idem | liste de documents non filtrée | ✅ correct (COACH légitime sur les productions académiques, PARENT exclu) |
-| `GET .../documents/{documentId}` | idem | téléchargement du fichier lui-même | ✅ correct, même filtre |
-| `DELETE .../documents/{documentId}` | idem | — | ✅ déjà sûr (ownership `uploadedById`) |
-| `GET .../modules/{moduleKey}` | ELEVE, PARENT, COACH, ADMIN, ASSISTANTE | `canEditAudience` | ✅ correct — implémentation de référence du critère audience-du-champ |
+| ELEVE | Détail complet (propre travail) | Statut/progression uniquement | Élève ne lit jamais le questionnaire parent |
+| PARENT | Statut/progression uniquement | Détail complet (propre questionnaire) | Parent ne lit jamais le détail académique de l'enfant |
+| **COACH** | **Détail complet** — matière de travail | Statut/progression uniquement | Le coach travaille à partir du diagnostic académique réel de l'élève ; le questionnaire parent est un instrument famille/direction, pas un outil de coaching |
+| **ASSISTANTE** | **Aucun détail** — statut/progression uniquement | **Aucun détail** — statut/progression uniquement | Rôle logistique, moindre privilège sur les données d'un mineur, sur toute la surface académique |
+| ADMIN | Détail complet | Détail complet | Direction pédagogique — c'est là qu'atterrit l'instrument confidentiel famille |
+
+Le critère n'est donc ni « qui est exclu par rôle » (V1) ni « qui peut éditer » (V2), mais **le besoin
+légitime établi par rôle, évalué séparément de la permission d'écriture**.
+
+## Routes partagées entre plusieurs audiences
+
+| Route | Audiences pouvant l'atteindre | Mécanisme | Statut |
+|---|---|---|---|
+| `GET /api/diagnostics/candidat-libre` | ELEVE, PARENT, COACH, ADMIN, ASSISTANTE | `serializeCandidateDiagnostic` → `canViewModuleDetail` | ✅ conforme à la matrice V3 |
+| `GET /api/diagnostics/candidat-libre/{id}` | idem | idem | ✅ |
+| `PATCH /api/diagnostics/candidat-libre/{id}` | idem | idem | ✅ |
+| `GET .../documents` | idem | `isDocumentVisibleToViewer` | ✅ PARENT et ASSISTANTE exclus de `WRITTEN_COPY`/`ORAL_RECORDING`, COACH/ADMIN les voient (matière de travail) |
+| `GET .../documents/{documentId}` | idem | idem | ✅ même filtre sur le téléchargement direct |
+| `DELETE .../documents/{documentId}` | idem | ownership `uploadedById`, ADMIN/ASSISTANTE bypass | déjà sûr, non changé par cette révision |
+| `GET .../modules/{moduleKey}` | ELEVE, PARENT, COACH, ADMIN, ASSISTANTE | `canViewModuleDetail` pour `answers` (changé — utilisait `canEditAudience` avant), `canEditAudience` toujours pour le 403 cross-audience ELEVE/PARENT et pour PUT/POST | ✅ conforme à la matrice V3 |
 | `GET/PUT/POST .../parent` | PARENT uniquement | — | pas de surface cross-audience |
-| `GET .../staff-export` | COACH, ADMIN, ASSISTANTE uniquement | `answers`/`autoScore`/`manualScore`/`reviewSummary` par module | ✅ **corrigé** (alignement sur `canEditAudience`, voir commit `3d29af76`) |
+| `GET .../staff-export` | COACH, ADMIN, ASSISTANTE uniquement | `canViewModuleDetail` par module, `isDocumentVisibleToViewer`, `synthesis` masqué à ASSISTANTE | ✅ conforme à la matrice V3 |
 | `POST .../submit` | ELEVE uniquement | — | pas de surface cross-audience |
 
-## ⚠️ Gap ouvert — `serializeCandidateDiagnostic` (routes racine, pas `staff-export`)
+## Champ `synthesis` (`staff-export` uniquement) — décision prise, résidu documenté
 
-`lib/diagnostics/candidat-libre/serialize.server.ts` calcule `restrictToAudience = viewerRole === 'ELEVE'
-|| viewerRole === 'PARENT' ? viewerRole : null`. Pour `COACH`, `viewerRole` ne vaut ni `'ELEVE'` ni
-`'PARENT'`, donc `restrictToAudience = null`, donc `ownAudience = true` pour **tous** les modules — un
-`COACH` reçoit `autoScore`/`reviewSummary` de `questionnaire-parent` par `GET /candidat-libre` et
-`GET .../{id}`, exactement le même contenu que `staff-export` exposait avant correction. Le docstring de
-la fonction documente ce choix comme intentionnel (« Staff (COACH/ADMIN/ASSISTANTE) ... see everything »)
-et `serialize.test.ts` le verrouille par un test explicite (« pour le staff ... détail complet partout »)
-— ce n'est donc pas un défaut ponctuel isolé, c'est la même décision de conception que `staff-export`
-avait, prise à un autre endroit, testée, et jamais reconsidérée à la lumière de la décision sur
-`staff-export`.
+`buildStaffDiagnosticSynthesis` agrège des pourcentages/couvertures/flags dérivés du contenu académique de
+tous les modules, sans distinction d'audience par champ interne. Puisque ASSISTANTE ne doit voir aucun
+détail académique, `synthesis` lui est retourné `null` en bloc — cohérent avec la matrice, pas une
+extension arbitraire.
 
-**Pas corrigé dans ce commit.** Contrairement à `staff-export` (aucun test préexistant, verrouillait un
-comportement jamais examiné), toucher `serializeCandidateDiagnostic` casserait un contrat testé
-explicitement et partagé par plusieurs routes (`GET /candidat-libre`, `GET/PATCH {id}`) — un changement
-silencieux ici est plus risqué qu'un gap documenté. Décision produit nécessaire avant correctif : un COACH
-doit-il perdre l'accès à `autoScore`/`reviewSummary` de **tous** les modules hors de son audience (symétrie
-stricte avec `modules/{moduleKey}`), ou seulement à ceux d'audience `PARENT` (le coach garde le détail des
-modules `ELEVE`, pertinent à l'accompagnement) ? Les deux corrigent la fuite sur `questionnaire-parent` ;
-elles diffèrent sur ce qu'un coach voit du travail de l'élève lui-même, question hors du périmètre
-sécurité de cet audit.
+**Résidu non traité, documenté explicitement** : pour un COACH, `synthesis.moduleScores` inclut une
+entrée `questionnaire-parent` (percentage/coverage — vraisemblablement `null` en pratique puisque ces
+items ne sont pas notés, `Points max: 0` dans la banque), et le flag `PARENT_MISSING` (un fait procédural,
+pas un contenu). C'est une fuite structurelle mineure de la matrice de lecture stricte : pour la corriger
+complètement, `buildStaffDiagnosticSynthesis` devrait connaître l'audience de chaque module qu'il agrège
+et exclure `questionnaire-parent` du calcul pour un viewer COACH. Non fait dans cette révision — hors
+périmètre de ce qui a été arbitré, signalé pour arbitrage séparé si jugé nécessaire.
 
-## Matrice champ × audience — vue diagnostic (`DiagnosticCampaignView`)
+## Incohérences trouvées, remontées et non contournées
 
-### Niveau racine
-
-| Champ | ELEVE | PARENT | COACH | ADMIN/ASSISTANTE | Audience visée |
-|---|---|---|---|---|---|
-| `id`, `diagnosticKey`, `definitionVersion`, `status`, `targetSession` | ✅ | ✅ | ✅ | ✅ | métadonnées de campagne — dossier entier |
-| `student.{id,firstName,lastName,email,school,gradeLevel}` | ✅ | ✅ | ✅ | ✅ | identité de l'élève — légitime aux 4 (le parent est le tuteur légal, le coach suit cet élève nommément) |
-| `completionPercentage` | ✅ | ✅ | ✅ | ✅ | agrégat de progression, jamais de contenu |
-| `studentConsentAt`, `parentConsentAt`, `submittedAt`, `retentionDueAt`, `createdAt`, `updatedAt` | ✅ | ✅ | ✅ | ✅ | jalons de statut, nécessaires au suivi par les 4 |
-
-### `modules[]` — un élément par module (16 au total, 15 audience ELEVE + 1 audience PARENT)
-
-| Champ | Audience visée | ELEVE (même audience) | ELEVE (autre audience) | PARENT (même audience) | PARENT (autre audience) | COACH | ADMIN/ASSISTANTE |
-|---|---|---|---|---|---|---|---|
-| `key`, `status`, `progress`, `startedAt`, `submittedAt`, `availableAt`, `elapsedMs` | dossier entier | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| `autoScore`, `reviewSummary` | ELEVE **ou** PARENT selon `module.audience` — jamais l'autre, jamais COACH | ✅ | ❌ null | ✅ | ❌ null | ⚠️ **voir gap ci-dessus** | ✅ (pilotage dossier) |
-| `answers` | idem, uniquement via `modules/{moduleKey}` | n/a (champ absent de cette vue) | | | | | |
-
-Aucun champ `answers` n'apparaît dans `DiagnosticCampaignView` — les réponses brutes ne transitent que par
-`GET .../modules/{moduleKey}`, qui a son propre contrôle (`canEditAudience`, déjà correct pour COACH).
-
-### `documents[]`
-
-| Catégorie | Audience visée | ELEVE | PARENT | COACH | ADMIN/ASSISTANTE |
-|---|---|---|---|---|---|
-| `IDENTITY`, `CYCLADES`, `FRENCH_BAC_TRANSCRIPT`, `TUNISIAN_BAC_TRANSCRIPT`, `SCHOOL_REPORT`, `EXAM_ACCOMMODATION`, `OTHER` | dossier entier | ✅ | ✅ | ✅ | ✅ | pièces administratives, gérées conjointement |
-| `WRITTEN_COPY` (copie français/maths/tronc commun) | ELEVE + suivi pédagogique | ✅ | ❌ | ✅ | ✅ | production académique — pertinente au coach qui accompagne, pas au parent |
-| `ORAL_RECORDING` (Grand oral) | idem | ✅ | ❌ | ✅ | ✅ | idem |
-
-Filtrage appliqué sur la **liste** (`GET .../documents`, `serializeCandidateDiagnostic`), le
-**téléchargement** (`GET .../documents/{documentId}`) et désormais aussi sur `staff-export`
-(`isDocumentVisibleToViewer`, ajouté par cohérence — sans effet pratique aujourd'hui puisque `PARENT`
-n'atteint pas cette route).
-
-## Route `modules/{moduleKey}` — implémentation de référence du critère audience-du-champ
-
-`canEditAudience(role, audience)` bloque tout accès cross-audience élève/parent (403 en écriture). En
-lecture, un `COACH` passe le gate de rôle (n'est bloqué ni ELEVE ni PARENT) mais `canEditAudience(COACH,
-*)` vaut toujours `false` pour toute audience — donc `answers` est explicitement `undefined`, **quelle que
-soit l'audience du module**, y compris les modules ELEVE. C'est plus strict que la classification retenue
-pour `documents[]` (où COACH garde `WRITTEN_COPY`/`ORAL_RECORDING`) : cette route ne distingue pas
-« module ELEVE » de « module PARENT » pour COACH, elle exclut COACH du contenu partout. `staff-export` est
-maintenant aligné sur exactement ce comportement (commit `3d29af76`). `serializeCandidateDiagnostic` ne
-l'est pas encore (gap documenté plus haut).
+1. **`canEditAudience` autorise toujours ASSISTANTE à écrire des réponses** (`return role === ADMIN ||
+   role === ASSISTANTE`), y compris sur des modules dont elle ne peut désormais plus rien lire — elle
+   pourrait écraser un contenu qu'elle ne voit jamais. Décision produit nécessaire : soit ASSISTANTE
+   perd aussi l'écriture (cohérence stricte avec la lecture), soit c'est un cas d'usage réel (ex. saisie
+   pour le compte de la famille) et seule la lecture doit rester restreinte. Non tranché, non codé.
+2. **L'upload de documents ne restreint aucune catégorie par rôle** (`documents/route.ts` POST) —
+   ASSISTANTE peut aujourd'hui déposer un `WRITTEN_COPY`/`ORAL_RECORDING` qu'elle ne peut plus voir dans
+   la liste une fois déposé. Comportement inchangé par cette révision (l'upload n'était pas dans le
+   périmètre arbitré), signalé pour cohérence future.
 
 ## Ce qui reste hors périmètre de cet audit
 
-- **Qui a le droit d'uploader dans quelle catégorie** (ex. un parent peut aujourd'hui POSTer un document
-  `WRITTEN_COPY`) n'a pas été modifié — question de permission d'écriture, pas de fuite de lecture.
+- Qui a le droit d'uploader dans quelle catégorie — question de permission d'écriture, cf. point 2
+  ci-dessus.
 - Les points ops/légal identifiés au Gate 5 (RGPD, rétention, sauvegarde chiffrée, CSP, alerting) restent
   ouverts et hors code.
-- Le gap `serializeCandidateDiagnostic` documenté ci-dessus attend une décision produit avant correctif.
+- Le résidu `synthesis`/COACH documenté ci-dessus.
 
 ## Preuve
 
-- `__tests__/lib/diagnostics/candidat-libre/serialize.test.ts` verrouille l'ensemble exact des clés d'une
-  vue de module, le masquage ELEVE/PARENT réciproque, le comportement staff actuel (y compris le gap COACH
-  documenté ci-dessus — ce test devra changer le jour où ce gap sera tranché), et la matrice catégorie ×
-  audience de `isDocumentVisibleToViewer` sur les 9 catégories existantes.
-- `__tests__/api/diagnostics/candidat-libre/staff-export-content-visibility.test.ts` verrouille le
-  comportement corrigé de `staff-export` : COACH sans contenu sur `questionnaire-parent`, ADMIN/ASSISTANTE
-  avec contenu complet.
+- `canViewModuleDetail` : verrouillé exhaustivement pour les 5 rôles × 2 audiences (10 cas explicites,
+  `__tests__/lib/diagnostics/candidat-libre/serialize.test.ts`).
+- `isDocumentVisibleToViewer` : verrouillé pour les 9 catégories × ELEVE/COACH/ADMIN/PARENT/ASSISTANTE.
+- `serializeCandidateDiagnostic` : verrouille l'ensemble exact des clés d'une vue de module, le masquage
+  réciproque ELEVE/PARENT, le comportement COACH (détail ELEVE, pas PARENT), ASSISTANTE (aucun détail),
+  ADMIN et appelant interne (détail complet).
+- `staff-export` : verrouille COACH (détail ELEVE, pas PARENT, synthesis non nul), ADMIN (tout),
+  ASSISTANTE (rien, `synthesis: null`, documents administratifs uniquement).
+- `modules/{moduleKey}` GET : verrouille que `answers` suit désormais `canViewModuleDetail`, pas
+  `canEditAudience` — COACH lit `mathematiques` sans pouvoir l'éditer, ASSISTANTE ne lit rien malgré une
+  permission d'édition inchangée.
