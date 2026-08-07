@@ -6,7 +6,7 @@ const root = resolve(__dirname, '../..');
 const validator = join(root, 'scripts/security/validate-brace-expansion-attestation.mjs');
 const attestation = join(root, 'security/brace-expansion-backport-attestation.json');
 const lockfile = join(root, 'package-lock.json');
-const now = '2026-08-01T12:00:00Z';
+const now = '2026-08-08T12:00:00Z';
 
 function osvReport(extra = false) {
   const packages = [

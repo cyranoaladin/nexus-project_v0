@@ -72,7 +72,7 @@ function runValidator(sbom: Record<string, unknown>, name: string) {
     '--mode', 'npm',
     '--attestation', 'security/brace-expansion-backport-attestation.json',
     '--lockfile', 'package-lock.json',
-    '--now', '2026-07-31T18:00:00.000Z',
+    '--now', '2026-08-08T18:00:00.000Z',
     '--report', repositoryPath(join(fixtureDirectory, 'npm-audit.json')),
     '--production-audit', repositoryPath(join(fixtureDirectory, 'production-audit.json')),
     '--runtime-sbom', repositoryPath(runtimePath),
