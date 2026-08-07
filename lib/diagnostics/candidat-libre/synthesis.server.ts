@@ -74,6 +74,6 @@ export function buildStaffDiagnosticSynthesis(diagnostic: {
     manualReviewPending,
     flags,
     decisionStatus: manualReviewPending > 0 || flags.some((flag) => flag.severity === 'BLOCKING') ? 'INSUFFICIENT_EVIDENCE_FOR_FINAL_DECISION' : 'READY_FOR_PEDAGOGICAL_COMMITTEE',
-    disclaimer: 'Synthèse technique interne. Elle ne constitue ni une garantie de réussite ni une décision pédagogique définitive.',
+    disclaimer: 'Synthèse technique interne, sans valeur prédictive. Ne remplace pas une décision pédagogique définitive.',
   };
 }
