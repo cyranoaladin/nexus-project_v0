@@ -1,5 +1,9 @@
 import type { FactSheet } from '../facts/fact-sheet';
 import type { BilanPackSubject } from '../catalog/subjects';
+import {
+  PAPER_ENTRY_DURATION_MEASUREMENT,
+  type ReportDurationMeasurement,
+} from './passation-presentation';
 
 export const RENDER_IDENTITY_VERSION = 'render-identity.v1' as const;
 
@@ -9,6 +13,7 @@ export type RenderIdentity = Readonly<{
   subject: BilanPackSubject;
   date: string;
   stageLabel: string;
+  durationMeasurement?: ReportDurationMeasurement;
 }>;
 
 /**
@@ -19,6 +24,12 @@ export type RenderIdentity = Readonly<{
 const PSEUDONYMOUS_DISPLAY_NAME = /^ELEVE_[A-Z]+$/;
 
 export function assertRenderIdentity(identity: RenderIdentity): RenderIdentity {
+  if (
+    identity.durationMeasurement !== undefined
+    && identity.durationMeasurement !== PAPER_ENTRY_DURATION_MEASUREMENT
+  ) {
+    throw new Error('RENDER_IDENTITY_INVALID:durationMeasurement');
+  }
   for (const [field, value] of Object.entries(identity)) {
     if (typeof value !== 'string' || value.trim().length === 0) {
       throw new Error(`RENDER_IDENTITY_INVALID:${field}`);

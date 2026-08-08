@@ -1,6 +1,10 @@
 import { ENTRY_RECIPE_FACT_SHEETS } from './fixtures/recipe-fact-sheets';
 
 import { renderDeterministicBilanHtml } from '@/lib/bilans/render/html';
+import {
+  PAPER_ENTRY_DURATION_MEASUREMENT,
+  PAPER_ENTRY_DURATION_NOTICE,
+} from '@/lib/bilans/render/passation-presentation';
 import type { RenderIdentity } from '@/lib/bilans/render/render-identity';
 
 const identity: RenderIdentity = {
@@ -71,5 +75,16 @@ describe('A90.2 deterministic HTML reports', () => {
 
     expect(html).toContain('Tableau des aptitudes');
     expect(html).not.toContain('score de maîtrise');
+  });
+
+  it('affiche une mention neutre pour la durée non mesurée d’une saisie papier', () => {
+    const paperHtml = renderDeterministicBilanHtml(ENTRY_RECIPE_FACT_SHEETS[0], 'PARENTS', {
+      ...identity,
+      durationMeasurement: PAPER_ENTRY_DURATION_MEASUREMENT,
+    });
+    const onlineHtml = renderDeterministicBilanHtml(ENTRY_RECIPE_FACT_SHEETS[0], 'PARENTS', identity);
+
+    expect(paperHtml).toContain(PAPER_ENTRY_DURATION_NOTICE);
+    expect(onlineHtml).not.toContain(PAPER_ENTRY_DURATION_NOTICE);
   });
 });

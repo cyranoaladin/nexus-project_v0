@@ -51,6 +51,13 @@ describe('assertPseudonymousRenderIdentity — pseudonymity of the immutable cha
       .toThrow('RENDER_IDENTITY_INVALID:stageLabel');
   });
 
+  it('rejects any uncontrolled duration marker', () => {
+    expect(() => assertPseudonymousRenderIdentity({
+      ...VALID,
+      durationMeasurement: 'MEASURED' as never,
+    })).toThrow('RENDER_IDENTITY_INVALID:durationMeasurement');
+  });
+
   it('matches the alias format enforced upstream by buildFactSheet', () => {
     // buildFactSheet (lib/bilans/facts/fact-sheet.ts) rejects any alias that is
     // not /^ELEVE_[A-Z]+$/. The render boundary must not be laxer than the
