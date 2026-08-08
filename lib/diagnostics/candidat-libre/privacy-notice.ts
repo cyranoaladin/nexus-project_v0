@@ -102,12 +102,24 @@ export const CANDIDATE_DIAGNOSTIC_PRIVACY_NOTICE: Readonly<{
 });
 
 /**
- * Emplacements que le texte laisse volontairement ouverts, en attente de
- * validation juridique. Exposés pour qu'un test puisse refuser la mise en
- * ligne tant qu'ils subsistent, plutôt que de les découvrir en production.
+ * Constantes légales que le texte laisse ouvertes en attente du juriste.
+ *
+ * Elles font partie du texte consenti : les renseigner **doit** incrémenter
+ * `CANDIDATE_DIAGNOSTIC_NOTICE_VERSION`, car les familles auront alors consenti
+ * à un texte différent.
  */
-export const NOTICE_PENDING_PLACEHOLDERS: readonly string[] = Object.freeze([
+export const NOTICE_PENDING_LEGAL_CONSTANTS: readonly string[] = Object.freeze([
   '{{CONTACT_VIE_PRIVEE}}',
   '{{DUREE_CONSERVATION}}',
+]);
+
+/**
+ * Variables interpolées par dossier au moment du consentement.
+ *
+ * Elles ne font **pas** partie du texte légal versionné : le nom de l'élève
+ * change à chaque famille sans que le texte consenti change. Les renseigner ne
+ * doit donc jamais incrémenter la version de la notice.
+ */
+export const NOTICE_PER_DOSSIER_VARIABLES: readonly string[] = Object.freeze([
   '{{ELEVE_NOM}}',
 ]);
