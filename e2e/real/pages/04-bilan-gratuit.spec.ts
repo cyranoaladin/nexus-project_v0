@@ -49,7 +49,7 @@ test.describe('REAL — Bilan Gratuit (/bilan-gratuit)', () => {
   });
 
   test('Validation empêche soumission vide', async ({ page }) => {
-    const submitBtn = page.getByRole('button', { name: /demander mon bilan stratégique gratuit/i });
+    const submitBtn = page.getByRole('button', { name: /lancer le bilan diagnostic/i });
     await submitBtn.click();
     await expect(page.locator('text=Email invalide')).toBeVisible({ timeout: 5000 });
     await expect(page.locator('#parentFirstName')).toBeVisible();
@@ -69,7 +69,7 @@ test.describe('REAL — Bilan Gratuit (/bilan-gratuit)', () => {
     await page.locator('#objectives').fill('Préparer le baccalauréat avec un suivi personnalisé');
     await page.locator('label').filter({ hasText: /j’accepte d’être contacté/i }).click();
 
-    const submitBtn = page.getByRole('button', { name: /demander mon bilan stratégique gratuit/i });
+    const submitBtn = page.getByRole('button', { name: /lancer le bilan diagnostic/i });
     await expect(submitBtn, 'Bouton submit non trouvé').toBeVisible({ timeout: 3000 });
 
     const [apiResponse] = await Promise.all([

@@ -55,7 +55,7 @@ async function waitForActivationUrls(recipient: string, expected: number): Promi
 async function submitPublicSignup(page: import('@playwright/test').Page, email: string) {
   await page.goto('/bilan-gratuit')
   const form = page.locator('form').filter({
-    has: page.getByRole('button', { name: /demander mon bilan stratégique gratuit/i }),
+    has: page.getByRole('button', { name: /lancer le bilan diagnostic/i }),
   })
   await form.getByRole('textbox', { name: 'Prénom du parent' }).fill('Parent')
   await form.getByRole('textbox', { name: 'Nom du parent', exact: true }).fill('Lifecycle')
@@ -67,7 +67,7 @@ async function submitPublicSignup(page: import('@playwright/test').Page, email: 
   await form.getByRole('checkbox', { name: 'Mathématiques' }).check()
   await form.getByRole('textbox', { name: 'Besoin principal' }).fill('Preuve synthétique du cycle PENDING.')
   await form.getByRole('checkbox', { name: /j’accepte d’être contacté/i }).check()
-  await form.getByRole('button', { name: /demander mon bilan stratégique gratuit/i }).click()
+  await form.getByRole('button', { name: /lancer le bilan diagnostic/i }).click()
   await expect(page).toHaveURL(/\/bilan-gratuit\/confirmation/)
 }
 

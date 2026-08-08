@@ -77,7 +77,7 @@ test.describe('Golden-path — bilan de bout en bout (rapport LLM stubbé)', () 
     await page.locator('label').filter({ hasText: 'Mathématiques' }).getByRole('checkbox').click();
     await page.locator('#objectives').fill('Prouver le golden-path bilan de bout en bout.');
     await page.locator('label').filter({ hasText: /J.accepte d.être contacté/ }).getByRole('checkbox').click();
-    await page.getByRole('button', { name: /demander mon bilan stratégique gratuit/i }).click();
+    await page.getByRole('button', { name: /lancer le bilan diagnostic/i }).click();
     await expect(page).toHaveURL(/\/bilan-gratuit\/confirmation/);
 
     const parent = await prisma.user.findUniqueOrThrow({

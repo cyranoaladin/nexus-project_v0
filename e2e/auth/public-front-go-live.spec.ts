@@ -10,7 +10,7 @@ const PUBLIC_PAGES: PublicPageCase[] = [
   { url: '/', h1: /préparer le bac français avec méthode, suivi et exigence/i, cta: /bilan gratuit|offres|trouver ma formule/i },
   { url: '/offres', h1: /offres\s*&\s*tarifs/i, cta: /réserver ma place|trouver ma formule|whatsapp/i },
   { url: '/recommandation', h1: /trouver ma formule|diagnostic/i, cta: /demander un bilan gratuit|offres|whatsapp/i },
-  { url: '/bilan-gratuit', h1: /bilan stratégique gratuit/i, cta: /demander mon bilan stratégique gratuit|whatsapp|voir les offres/i },
+  { url: '/bilan-gratuit', h1: /bilan stratégique gratuit/i, cta: /lancer le bilan diagnostic|whatsapp|voir les offres/i },
   { url: '/stages', h1: /viser\.\s*atteindre\.\s*dépasser/i, cta: /pré-inscription|demander un bilan|whatsapp/i },
   { url: '/plateforme-aria', h1: /aria/i, cta: /demander un bilan|voir les offres/i },
   { url: '/accompagnement-scolaire', h1: /accompagnement scolaire|progresser avec méthode/i, cta: /demander un bilan gratuit|whatsapp|voir les offres/i },
@@ -314,7 +314,7 @@ test.describe('Public front go-live smoke', () => {
       });
     });
 
-    await page.getByRole('button', { name: /demander mon bilan stratégique gratuit/i }).click();
+    await page.getByRole('button', { name: /lancer le bilan diagnostic/i }).click();
     await expect(page).toHaveURL(/\/bilan-gratuit\/confirmation$/);
     await expect(page.getByRole('heading', { name: /demande de bilan a bien été enregistrée/i })).toBeVisible();
   });
@@ -355,7 +355,7 @@ test.describe('Public front go-live smoke', () => {
       });
     });
 
-    await page.getByRole('button', { name: /demander mon bilan stratégique gratuit/i }).click();
+    await page.getByRole('button', { name: /lancer le bilan diagnostic/i }).click();
     await expect(page.getByText(/bot detected|erreur/i).first()).toBeVisible();
 
     await page.unroute('**/api/bilan-gratuit');
@@ -379,7 +379,7 @@ test.describe('Public front go-live smoke', () => {
     await page.locator('#objectives').fill('Preparer une remise a niveau avant la rentree.');
     await page.locator('#difficulties').fill("Besoin d'un echange pedagogique pour clarifier les priorites.");
     await page.locator('label').filter({ hasText: /accepte|consent/i }).first().click();
-    await page.getByRole('button', { name: /demander mon bilan stratégique gratuit/i }).click();
+    await page.getByRole('button', { name: /lancer le bilan diagnostic/i }).click();
     await expect(page.getByText(/server error|erreur/i).first()).toBeVisible();
   });
 

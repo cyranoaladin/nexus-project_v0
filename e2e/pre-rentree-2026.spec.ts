@@ -228,7 +228,7 @@ test.describe('Landing Pré-rentrée 2026', () => {
 
     const requestPromise = page.waitForRequest((request) => request.url().endsWith('/api/bilan-gratuit'));
     await page.route('**/api/bilan-gratuit', (route) => route.abort());
-    await page.getByRole('button', { name: /demander mon bilan stratégique gratuit/i }).click();
+    await page.getByRole('button', { name: /lancer le bilan diagnostic/i }).click();
     const request = await requestPromise;
     const payload = request.postDataJSON() as {
       campaignContext: { packCode: string; level: string; subjectIds: string[] } | null;
