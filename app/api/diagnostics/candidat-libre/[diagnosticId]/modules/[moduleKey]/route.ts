@@ -11,6 +11,7 @@ import { moduleDraftSchema, moduleKeySchema } from '@/lib/diagnostics/candidat-l
 import { scoreDiagnosticModule, validateRequiredAnswers } from '@/lib/diagnostics/candidat-libre/scoring.server';
 import { resolveModuleAvailability } from '@/lib/diagnostics/candidat-libre/progression';
 import { requireVerifiedParentalConsent } from '@/lib/diagnostics/candidat-libre/consent-gate.server';
+import { noteStudentActivity } from '@/lib/rgpd/last-activity.server';
 import { guardCandidateDiagnosticFeature, guardCandidateDiagnosticForStudent } from '@/lib/diagnostics/candidat-libre/feature-flag';
 import type { DiagnosticAnswer, DiagnosticModuleView } from '@/lib/diagnostics/candidat-libre/types';
 
@@ -210,6 +211,11 @@ async function saveModule(request: Request, { params }: Params, forcedAction: 'd
 
     const updated = await tx.candidateDiagnosticModule.findUniqueOrThrow({ where: { id: moduleRecord.id } });
     return { updated, unlocked };
+  });
+
+  // Le module vient d'être renseigné : l'étudiant a réellement travaillé son dossier.
+  await noteStudentActivity({
+    diagnosticId, activity: 'MODULE_RENSEIGNE', actorRole: sessionOrError.user.role,
   });
 
   return NextResponse.json({
