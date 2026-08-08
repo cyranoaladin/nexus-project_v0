@@ -1,4 +1,4 @@
-import { accessSync, constants, readdirSync, statSync } from 'node:fs';
+import { accessSync, constants, mkdirSync, readdirSync, statSync } from 'node:fs';
 import path from 'node:path';
 
 import { getDocumentStorageRoot } from './storage-root';
@@ -125,4 +125,25 @@ export function assertDocumentStorageReady(): DocumentStorageHealth {
     throw new Error(`DOCUMENT_STORAGE_UNAVAILABLE:${blocking.join(',')}:${health.root}`);
   }
   return health;
+}
+
+/**
+ * Prépare puis valide le stockage. C'est le point d'entrée du démarrage.
+ *
+ * Une racine absente est **créée** plutôt que traitée comme une panne : c'est le
+ * cas normal d'un environnement neuf — un checkout de CI, une nouvelle machine,
+ * un premier déploiement. La même logique est déjà appliquée aux factures
+ * (`ensureInvoiceStorageReady`). Ce qui doit rester bloquant, c'est une racine
+ * qu'on ne peut **pas** rendre utilisable : impossible à créer, occupée par un
+ * fichier, ou non inscriptible. Ces cas-là font toujours échouer le démarrage.
+ */
+export function ensureDocumentStorageReady(): DocumentStorageHealth {
+  const root = path.resolve(getDocumentStorageRoot());
+  try {
+    mkdirSync(root, { recursive: true });
+  } catch {
+    // Laisse `checkDocumentStorageHealth` qualifier précisément le défaut
+    // (absente, fichier, non inscriptible) plutôt que d'inventer un message.
+  }
+  return assertDocumentStorageReady();
 }

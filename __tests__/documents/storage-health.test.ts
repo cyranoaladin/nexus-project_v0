@@ -5,6 +5,7 @@ import path from 'node:path';
 import {
   assertDocumentStorageReady,
   checkDocumentStorageHealth,
+  ensureDocumentStorageReady,
 } from '@/lib/documents/storage-health';
 
 /**
@@ -143,5 +144,47 @@ describe('assertDocumentStorageReady', () => {
     fs.writeFileSync(path.join(legacy, 'orphelin.pdf'), 'x');
 
     expect(() => assertDocumentStorageReady()).not.toThrow();
+  });
+});
+
+describe('ensureDocumentStorageReady', () => {
+  /**
+   * Une racine absente n'est pas une panne : c'est le cas normal d'un
+   * environnement neuf — checkout de CI, nouvelle machine, premier
+   * déploiement. La refuser faisait échouer le démarrage partout sauf en
+   * production, ce qui a bloqué Production Build et E2E sur la PR #104.
+   */
+  it('crée une racine absente au lieu d’échouer', () => {
+    const root = useRoot(path.join('creee', 'documents'));
+    expect(fs.existsSync(root)).toBe(false);
+
+    const health = ensureDocumentStorageReady();
+
+    expect(fs.existsSync(root)).toBe(true);
+    expect(health.healthy).toBe(true);
+  });
+
+  it('reste silencieux si la racine existe déjà', () => {
+    const root = useRoot('documents');
+    fs.mkdirSync(root, { recursive: true });
+    fs.writeFileSync(path.join(root, 'garde.pdf'), 'x');
+
+    expect(() => ensureDocumentStorageReady()).not.toThrow();
+    // Ne détruit rien de ce qui existe.
+    expect(fs.existsSync(path.join(root, 'garde.pdf'))).toBe(true);
+  });
+
+  it('échoue quand la racine est occupée par un fichier', () => {
+    const root = useRoot('documents');
+    fs.writeFileSync(root, 'x');
+    expect(() => ensureDocumentStorageReady()).toThrow(/ROOT_NOT_A_DIRECTORY/);
+  });
+
+  it('échoue quand la racine ne peut pas être créée', () => {
+    const blocker = path.join(workspace, 'bloqueur');
+    fs.writeFileSync(blocker, 'x');
+    // Un fichier sur le chemin parent rend la création impossible.
+    process.env.DOCUMENT_STORAGE_ROOT = path.join(blocker, 'documents');
+    expect(() => ensureDocumentStorageReady()).toThrow(/DOCUMENT_STORAGE_UNAVAILABLE/);
   });
 });
