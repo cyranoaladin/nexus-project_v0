@@ -6,9 +6,9 @@ import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive';
 import { getStudentForActor, requireDiagnosticActor } from '@/lib/diagnostics/candidat-libre/access.server';
 import {
   ConsentRecordingError,
-  grantParentalConsent,
-  recordStudentAssent,
-  withdrawParentalConsent,
+  grantStudentConsent,
+  setParentAccessAuthorization,
+  withdrawStudentConsent,
 } from '@/lib/diagnostics/candidat-libre/consent-recording.server';
 import { getCandidateDiagnosticConsentState } from '@/lib/diagnostics/candidat-libre/consent-gate.server';
 import {
@@ -71,7 +71,10 @@ export async function POST(request: Request) {
   });
   if (ipLimited) return ipLimited;
 
-  let body: { action?: string; studentId?: string; noticeVersion?: string; reason?: string };
+  let body: {
+    action?: string; studentId?: string; noticeVersion?: string;
+    reason?: string; parentAccess?: boolean;
+  };
   try {
     body = await request.json();
   } catch {
@@ -84,36 +87,36 @@ export async function POST(request: Request) {
 
   try {
     switch (body.action) {
-      case 'GRANT_PARENTAL_CONSENT': {
-        if (session.user.role !== UserRole.PARENT) {
+      // L'étudiant est majeur : lui seul consent, retire, et décide de ce qu'il
+      // partage. Aucune de ces actions n'est ouverte au parent.
+      case 'GRANT_STUDENT_CONSENT': {
+        if (session.user.role !== UserRole.ELEVE) {
           return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
         }
         // La version consentie vient du client : elle doit correspondre à celle
         // réellement présentée. Le service refuse toute autre valeur, ce qui
-        // écarte un consentement donné sur un texte que la famille n'a pas vu.
-        await grantParentalConsent({
+        // écarte un consentement donné sur un texte que l'étudiant n'a pas vu.
+        await grantStudentConsent({
           studentId: student.id,
-          parentUserId: session.user.id,
           noticeVersion: body.noticeVersion ?? '',
         });
         break;
       }
-      case 'RECORD_STUDENT_ASSENT': {
+      case 'SET_PARENT_ACCESS': {
         if (session.user.role !== UserRole.ELEVE) {
           return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
         }
-        await recordStudentAssent({ studentId: student.id });
+        await setParentAccessAuthorization({
+          studentId: student.id,
+          authorized: body.parentAccess === true,
+        });
         break;
       }
-      case 'WITHDRAW_PARENTAL_CONSENT': {
-        if (session.user.role !== UserRole.PARENT) {
+      case 'WITHDRAW_STUDENT_CONSENT': {
+        if (session.user.role !== UserRole.ELEVE) {
           return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
         }
-        await withdrawParentalConsent({
-          studentId: student.id,
-          parentUserId: session.user.id,
-          reason: body.reason,
-        });
+        await withdrawStudentConsent({ studentId: student.id, reason: body.reason });
         break;
       }
       default:

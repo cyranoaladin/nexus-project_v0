@@ -1,13 +1,14 @@
 /**
- * Recueil du consentement candidat libre.
+ * Recueil du consentement candidat libre — étudiant majeur.
  *
- * La Phase 1 a posé le garde-fou qui **lit** le consentement ; sans moyen de
- * l'enregistrer, l'état restait `MISSING` en permanence. Ce service le rend
- * recueillable — et lui seul écrit dans `CandidateDiagnosticConsent`.
+ * L'étudiant est adulte : **son** consentement autorise le traitement de ses
+ * données. Le lien parental subsiste pour la structure du dossier, mais
+ * n'autorise plus rien.
  *
- * Trois exigences que le stockage seul ne garantit pas : le consentement vient
- * du parent **actuellement** rattaché, il porte la **version de notice**
- * réellement présentée, et il est **retirable**.
+ * La propriété que ces tests protègent avant tout : le parent **ne voit rien
+ * par défaut**. Ses documents d'identité, son enregistrement audio et le
+ * jugement de faisabilité qui le concerne ne regardent que lui, tant qu'il n'a
+ * pas explicitement ouvert l'accès — et il peut le refermer.
  */
 
 const mockStudentFindUnique = jest.fn();
@@ -30,163 +31,163 @@ jest.mock('@/lib/prisma', () => ({
 
 import {
   ConsentRecordingError,
-  grantParentalConsent,
-  recordStudentAssent,
-  withdrawParentalConsent,
+  grantStudentConsent,
+  isParentAccessAuthorized,
+  setParentAccessAuthorization,
+  withdrawStudentConsent,
 } from '@/lib/diagnostics/candidat-libre/consent-recording.server';
 import { CANDIDATE_DIAGNOSTIC_NOTICE_VERSION } from '@/lib/diagnostics/candidat-libre/privacy-notice';
 
 const STUDENT_ID = 'stu_1';
 const PARENT_ID = 'usr_parent_1';
 
-beforeEach(() => {
-  jest.clearAllMocks();
-  mockStudentFindUnique.mockResolvedValue({ id: STUDENT_ID, parent: { userId: PARENT_ID } });
-  mockConsentUpsert.mockImplementation(async ({ create }: any) => ({ id: 'c1', ...create }));
-  mockConsentFindFirst.mockResolvedValue({
+function consentRow(over: Record<string, unknown> = {}) {
+  return {
     id: 'c1',
     studentId: STUDENT_ID,
     parentUserId: PARENT_ID,
     noticeVersion: CANDIDATE_DIAGNOSTIC_NOTICE_VERSION,
+    studentConsentedAt: new Date('2026-08-08T09:00:00Z'),
+    parentAccessAuthorizedAt: null,
     withdrawnAt: null,
-  });
+    ...over,
+  };
+}
+
+beforeEach(() => {
+  jest.clearAllMocks();
+  mockStudentFindUnique.mockResolvedValue({ id: STUDENT_ID, parent: { userId: PARENT_ID } });
+  mockConsentUpsert.mockImplementation(async ({ create }: any) => ({ id: 'c1', ...create }));
   mockConsentUpdate.mockImplementation(async ({ data }: any) => ({ id: 'c1', ...data }));
+  mockConsentFindFirst.mockResolvedValue(consentRow());
 });
 
-describe('grantParentalConsent', () => {
-  it('enregistre le consentement du parent rattaché', async () => {
-    await grantParentalConsent({
+describe('grantStudentConsent', () => {
+  it('enregistre le consentement de l’étudiant lui-même', async () => {
+    await grantStudentConsent({
       studentId: STUDENT_ID,
-      parentUserId: PARENT_ID,
       noticeVersion: CANDIDATE_DIAGNOSTIC_NOTICE_VERSION,
     });
-
     const { create } = mockConsentUpsert.mock.calls[0][0];
-    expect(create.studentId).toBe(STUDENT_ID);
-    expect(create.parentUserId).toBe(PARENT_ID);
+    expect(create.studentConsentedAt).toBeInstanceOf(Date);
     expect(create.noticeVersion).toBe(CANDIDATE_DIAGNOSTIC_NOTICE_VERSION);
-    expect(create.parentConsentedAt).toBeInstanceOf(Date);
   });
 
-  /** Le titulaire de l'autorité parentale peut avoir changé. */
-  it('refuse un parent qui n’est pas celui actuellement rattaché', async () => {
-    await expect(grantParentalConsent({
+  /** Le parent est enregistré pour la structure, pas comme autorité consentante. */
+  it('n’enregistre aucun consentement parental', async () => {
+    await grantStudentConsent({
       studentId: STUDENT_ID,
-      parentUserId: 'usr_autre_parent',
       noticeVersion: CANDIDATE_DIAGNOSTIC_NOTICE_VERSION,
-    })).rejects.toThrow(ConsentRecordingError);
-    expect(mockConsentUpsert).not.toHaveBeenCalled();
+    });
+    const { create } = mockConsentUpsert.mock.calls[0][0];
+    expect(create.parentConsentedAt).toBeUndefined();
+    expect(create.parentUserId).toBe(PARENT_ID);
   });
 
-  it('refuse quand l’élève n’a aucun parent rattaché', async () => {
-    mockStudentFindUnique.mockResolvedValue({ id: STUDENT_ID, parent: null });
-    await expect(grantParentalConsent({
+  it('n’ouvre aucun accès au parent à la création', async () => {
+    await grantStudentConsent({
       studentId: STUDENT_ID,
-      parentUserId: PARENT_ID,
       noticeVersion: CANDIDATE_DIAGNOSTIC_NOTICE_VERSION,
-    })).rejects.toThrow(/NO_PARENT/);
+    });
+    const { create } = mockConsentUpsert.mock.calls[0][0];
+    expect(create.parentAccessAuthorizedAt ?? null).toBeNull();
   });
 
-  /**
-   * Le consentement porte sur un texte précis : accepter une version que la
-   * famille n'a pas vue reviendrait à enregistrer un consentement non éclairé.
-   */
   it('refuse une version de notice qui n’est pas la version courante', async () => {
-    await expect(grantParentalConsent({
+    await expect(grantStudentConsent({
       studentId: STUDENT_ID,
-      parentUserId: PARENT_ID,
       noticeVersion: 'candidat-libre-notice.v0',
     })).rejects.toThrow(/NOTICE_VERSION/);
     expect(mockConsentUpsert).not.toHaveBeenCalled();
   });
 
-  it('journalise le recueil', async () => {
-    await grantParentalConsent({
+  it('relève un retrait antérieur sans effacer la trace', async () => {
+    await grantStudentConsent({
       studentId: STUDENT_ID,
-      parentUserId: PARENT_ID,
+      noticeVersion: CANDIDATE_DIAGNOSTIC_NOTICE_VERSION,
+    });
+    const { update } = mockConsentUpsert.mock.calls[0][0];
+    expect(update.withdrawnAt).toBeNull();
+    expect(update.studentConsentedAt).toBeInstanceOf(Date);
+  });
+
+  it('journalise le consentement comme acte de l’étudiant', async () => {
+    await grantStudentConsent({
+      studentId: STUDENT_ID,
       noticeVersion: CANDIDATE_DIAGNOSTIC_NOTICE_VERSION,
       diagnosticId: 'diag_1',
     });
-    expect(mockAuditCreate).toHaveBeenCalled();
     const { data } = mockAuditCreate.mock.calls[0][0];
-    expect(data.action).toBe('PARENTAL_CONSENT_GRANTED');
-  });
-
-  it('ne journalise pas sans dossier existant', async () => {
-    await grantParentalConsent({
-      studentId: STUDENT_ID,
-      parentUserId: PARENT_ID,
-      noticeVersion: CANDIDATE_DIAGNOSTIC_NOTICE_VERSION,
-    });
-    expect(mockAuditCreate).not.toHaveBeenCalled();
+    expect(data.action).toBe('STUDENT_CONSENT_GRANTED');
+    expect(data.actorRole).toBe('ELEVE');
   });
 });
 
-describe('recordStudentAssent', () => {
-  it('horodate l’assentiment de l’élève sur le consentement courant', async () => {
-    await recordStudentAssent({ studentId: STUDENT_ID });
-    const { data } = mockConsentUpdate.mock.calls[0][0];
-    expect(data.studentAssentedAt).toBeInstanceOf(Date);
+describe('accès du parent — fermé par défaut', () => {
+  it('est refusé tant que l’étudiant n’a rien autorisé', async () => {
+    await expect(isParentAccessAuthorized(STUDENT_ID)).resolves.toBe(false);
   });
 
-  it('refuse tant que le parent n’a pas consenti', async () => {
-    mockConsentFindFirst.mockResolvedValue(null);
-    await expect(recordStudentAssent({ studentId: STUDENT_ID }))
-      .rejects.toThrow(/PARENTAL_CONSENT_REQUIRED/);
+  it('s’ouvre sur autorisation explicite de l’étudiant', async () => {
+    await setParentAccessAuthorization({ studentId: STUDENT_ID, authorized: true });
+    expect(mockConsentUpdate.mock.calls[0][0].data.parentAccessAuthorizedAt).toBeInstanceOf(Date);
+  });
+
+  it('se referme sur révocation', async () => {
+    await setParentAccessAuthorization({ studentId: STUDENT_ID, authorized: false });
+    expect(mockConsentUpdate.mock.calls[0][0].data.parentAccessAuthorizedAt).toBeNull();
+  });
+
+  it('est autorisé quand l’étudiant l’a ouvert', async () => {
+    mockConsentFindFirst.mockResolvedValue(consentRow({ parentAccessAuthorizedAt: new Date() }));
+    await expect(isParentAccessAuthorized(STUDENT_ID)).resolves.toBe(true);
+  });
+
+  /** Un retrait de consentement referme tout, y compris un accès déjà ouvert. */
+  it('retombe à refusé si le consentement est retiré', async () => {
+    mockConsentFindFirst.mockResolvedValue(consentRow({
+      parentAccessAuthorizedAt: new Date(),
+      withdrawnAt: new Date(),
+    }));
+    await expect(isParentAccessAuthorized(STUDENT_ID)).resolves.toBe(false);
+  });
+
+  it('refuse d’ouvrir un accès sur un consentement retiré', async () => {
+    mockConsentFindFirst.mockResolvedValue(consentRow({ withdrawnAt: new Date() }));
+    await expect(setParentAccessAuthorization({ studentId: STUDENT_ID, authorized: true }))
+      .rejects.toThrow(/WITHDRAWN/);
     expect(mockConsentUpdate).not.toHaveBeenCalled();
   });
 
-  it('refuse sur un consentement retiré', async () => {
-    mockConsentFindFirst.mockResolvedValue({
-      id: 'c1', studentId: STUDENT_ID, parentUserId: PARENT_ID,
-      noticeVersion: CANDIDATE_DIAGNOSTIC_NOTICE_VERSION, withdrawnAt: new Date(),
-    });
-    await expect(recordStudentAssent({ studentId: STUDENT_ID })).rejects.toThrow(/WITHDRAWN/);
-  });
-
-  it('refuse sur une notice périmée', async () => {
-    mockConsentFindFirst.mockResolvedValue({
-      id: 'c1', studentId: STUDENT_ID, parentUserId: PARENT_ID,
-      noticeVersion: 'candidat-libre-notice.v0', withdrawnAt: null,
-    });
-    await expect(recordStudentAssent({ studentId: STUDENT_ID })).rejects.toThrow(/NOTICE_VERSION/);
+  it('refuse d’ouvrir un accès sans consentement', async () => {
+    mockConsentFindFirst.mockResolvedValue(null);
+    await expect(setParentAccessAuthorization({ studentId: STUDENT_ID, authorized: true }))
+      .rejects.toThrow(ConsentRecordingError);
   });
 });
 
-describe('withdrawParentalConsent', () => {
+describe('withdrawStudentConsent', () => {
   it('horodate le retrait', async () => {
-    await withdrawParentalConsent({ studentId: STUDENT_ID, parentUserId: PARENT_ID });
-    const { data } = mockConsentUpdate.mock.calls[0][0];
-    expect(data.withdrawnAt).toBeInstanceOf(Date);
+    await withdrawStudentConsent({ studentId: STUDENT_ID });
+    expect(mockConsentUpdate.mock.calls[0][0].data.withdrawnAt).toBeInstanceOf(Date);
   });
 
   it('conserve le motif quand il est fourni', async () => {
-    await withdrawParentalConsent({
-      studentId: STUDENT_ID, parentUserId: PARENT_ID, reason: 'Demande de la famille',
-    });
-    expect(mockConsentUpdate.mock.calls[0][0].data.withdrawnReason).toBe('Demande de la famille');
-  });
-
-  it('refuse un retrait demandé par un autre que le parent rattaché', async () => {
-    await expect(withdrawParentalConsent({ studentId: STUDENT_ID, parentUserId: 'usr_autre' }))
-      .rejects.toThrow(ConsentRecordingError);
-    expect(mockConsentUpdate).not.toHaveBeenCalled();
+    await withdrawStudentConsent({ studentId: STUDENT_ID, reason: 'Je préfère arrêter' });
+    expect(mockConsentUpdate.mock.calls[0][0].data.withdrawnReason).toBe('Je préfère arrêter');
   });
 
   it('est idempotent sur un consentement déjà retiré', async () => {
     const already = new Date('2026-08-01T10:00:00Z');
-    mockConsentFindFirst.mockResolvedValue({
-      id: 'c1', studentId: STUDENT_ID, parentUserId: PARENT_ID,
-      noticeVersion: CANDIDATE_DIAGNOSTIC_NOTICE_VERSION, withdrawnAt: already,
-    });
-    const result = await withdrawParentalConsent({ studentId: STUDENT_ID, parentUserId: PARENT_ID });
+    mockConsentFindFirst.mockResolvedValue(consentRow({ withdrawnAt: already }));
+    const result = await withdrawStudentConsent({ studentId: STUDENT_ID });
     expect(result.withdrawnAt).toEqual(already);
     expect(mockConsentUpdate).not.toHaveBeenCalled();
   });
 
-  it('ne fait rien s’il n’y a aucun consentement à retirer', async () => {
+  it('refuse quand il n’y a rien à retirer', async () => {
     mockConsentFindFirst.mockResolvedValue(null);
-    await expect(withdrawParentalConsent({ studentId: STUDENT_ID, parentUserId: PARENT_ID }))
+    await expect(withdrawStudentConsent({ studentId: STUDENT_ID }))
       .rejects.toThrow(/NO_CONSENT/);
   });
 });

@@ -5,18 +5,23 @@ import { prisma } from '@/lib/prisma';
 import { CANDIDATE_DIAGNOSTIC_NOTICE_VERSION } from './privacy-notice';
 
 /**
- * Consentement parental bloquant du diagnostic candidat libre.
+ * Consentement bloquant du diagnostic candidat libre.
  *
- * Le dossier porte sur un mineur : aucune collecte — création de dossier,
- * réponse à un module, dépôt de document, enregistrement audio, soumission —
- * ne commence avant que le consentement parental soit recueilli et courant.
+ * L'étudiant est majeur : **c'est son consentement** qui autorise le
+ * traitement de ses données. Aucune collecte — création de dossier, réponse à
+ * un module, dépôt de document, enregistrement audio, soumission — ne commence
+ * avant qu'il soit recueilli et courant.
+ *
+ * Le lien parental subsiste pour la structure et le provisionnement, mais
+ * n'autorise rien : le parent ne consent plus à la place de l'étudiant, et ne
+ * voit ses résultats que si l'étudiant l'a explicitement autorisé.
  *
  * Ce consentement est **spécifique au candidat libre**. Il ne réutilise pas
  * délibérément le rattachement parent-élève du bilan gratuit
  * (`canonical_parent_student_links`) : la notice décrit le diagnostic, le dépôt
  * de documents officiels et un enregistrement audio, trois traitements absents
  * du bilan gratuit. S'appuyer sur l'autre rattachement reviendrait à traiter
- * les données d'un mineur sur la foi d'un consentement donné pour autre chose.
+ * ces données sur la foi d'un consentement donné pour autre chose.
  *
  * Le consentement porte sur une **version de notice** précise : publier une
  * nouvelle version le périme et impose de le recueillir à nouveau. Il est
@@ -24,21 +29,20 @@ import { CANDIDATE_DIAGNOSTIC_NOTICE_VERSION } from './privacy-notice';
  * traitement.
  */
 
-export const PARENTAL_CONSENT_REQUIRED_CODE = 'PARENTAL_CONSENT_REQUIRED' as const;
+export const CONSENT_REQUIRED_CODE = 'CONSENT_REQUIRED' as const;
+
+/** @deprecated Ancien nom, conservé le temps que les appelants migrent. */
+export const PARENTAL_CONSENT_REQUIRED_CODE = CONSENT_REQUIRED_CODE;
 
 export type CandidateDiagnosticConsentState =
-  /** Consentement parental courant, assentiment élève recueilli. Seul état permissif. */
+  /** Consentement de l'étudiant courant. Seul état permissif. */
   | 'GRANTED'
-  /** Aucun consentement enregistré pour cet élève, ou pas par le parent rattaché. */
+  /** Aucun consentement enregistré pour cet étudiant. */
   | 'MISSING'
-  /** Le parent a retiré son consentement : traitement bloqué, effacement à déclencher. */
+  /** L'étudiant a retiré son consentement : traitement bloqué, effacement à déclencher. */
   | 'WITHDRAWN'
   /** Consentement donné sur une version antérieure de la notice : à renouveler. */
-  | 'OUTDATED_NOTICE'
-  /** Le parent a consenti, l'élève n'a pas encore donné son assentiment. */
-  | 'STUDENT_ASSENT_MISSING'
-  /** L'élève n'a aucun compte parent rattaché : personne ne peut consentir. */
-  | 'NO_PARENT';
+  | 'OUTDATED_NOTICE';
 
 /**
  * Lit l'état du consentement candidat libre pour un élève.
@@ -49,35 +53,21 @@ export type CandidateDiagnosticConsentState =
 export async function getCandidateDiagnosticConsentState(
   studentId: string,
 ): Promise<CandidateDiagnosticConsentState> {
-  const student = await prisma.student.findUnique({
-    where: { id: studentId },
-    select: { id: true, parent: { select: { userId: true } } },
-  });
-
-  const parentUserId = student?.parent?.userId;
-  if (!parentUserId) return 'NO_PARENT';
-
   const consent = await prisma.candidateDiagnosticConsent.findFirst({
     where: { studentId },
-    orderBy: [{ parentConsentedAt: 'desc' }, { id: 'asc' }],
+    orderBy: [{ createdAt: 'desc' }, { id: 'asc' }],
     select: {
-      parentUserId: true,
       noticeVersion: true,
-      studentAssentedAt: true,
+      studentConsentedAt: true,
       withdrawnAt: true,
     },
   });
 
-  if (!consent) return 'MISSING';
-
-  // Un consentement enregistré par quelqu'un d'autre que le parent actuellement
-  // rattaché ne vaut pas autorisation : le titulaire de l'autorité parentale
-  // peut avoir changé depuis.
-  if (consent.parentUserId !== parentUserId) return 'MISSING';
-
+  // Seul le consentement de l'étudiant compte : il est majeur. Le lien parental
+  // n'est plus consulté ici — il ne conditionne rien.
+  if (!consent || consent.studentConsentedAt === null) return 'MISSING';
   if (consent.withdrawnAt !== null) return 'WITHDRAWN';
   if (consent.noticeVersion !== CANDIDATE_DIAGNOSTIC_NOTICE_VERSION) return 'OUTDATED_NOTICE';
-  if (consent.studentAssentedAt === null) return 'STUDENT_ASSENT_MISSING';
 
   return 'GRANTED';
 }
@@ -87,9 +77,8 @@ export async function getCandidateDiagnosticConsentState(
  *
  * Retourne `null` quand la collecte est autorisée, sinon la réponse 403 à
  * renvoyer telle quelle. Le refus est **fail-closed** : une erreur de lecture
- * bloque au lieu de laisser passer, et la réponse ne divulgue jamais
- * l'identité du parent. Elle indique en revanche la version de notice courante,
- * pour que l'interface sache laquelle présenter.
+ * bloque au lieu de laisser passer. Elle indique la version de notice
+ * courante, pour que l'interface sache laquelle présenter.
  */
 export async function requireVerifiedParentalConsent(
   studentId: string,
@@ -106,11 +95,11 @@ export async function requireVerifiedParentalConsent(
   return NextResponse.json(
     {
       error: 'Forbidden',
-      code: PARENTAL_CONSENT_REQUIRED_CODE,
+      code: CONSENT_REQUIRED_CODE,
       consentState: state,
       noticeVersion: CANDIDATE_DIAGNOSTIC_NOTICE_VERSION,
       message:
-        "Le consentement parental, spécifique à ce diagnostic, doit être recueilli avant toute collecte de données.",
+        "Votre consentement, spécifique à ce diagnostic, doit être recueilli avant toute collecte de données.",
     },
     { status: 403 },
   );
