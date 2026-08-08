@@ -91,7 +91,7 @@ export async function provisionCandidateLibreStudent(input: Readonly<{
         // lui-même à l'activation. Personne d'autre ne le fixe.
         password: null,
         activationToken: token.tokenHash,
-        activationTokenExpiresAt: token.expiresAt,
+        activationExpiry: token.expiresAt,
       },
     });
 

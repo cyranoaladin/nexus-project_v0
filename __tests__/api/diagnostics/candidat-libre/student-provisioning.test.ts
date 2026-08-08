@@ -81,8 +81,8 @@ describe('provisionCandidateLibreStudent', () => {
     const result = await provisionCandidateLibreStudent(INPUT);
     expect(result.activationToken.startsWith('sact_')).toBe(true);
     const { data } = mockUserCreate.mock.calls[0][0];
-    expect(data.activationTokenExpiresAt).toBeInstanceOf(Date);
-    expect(data.activationTokenExpiresAt.getTime()).toBeGreaterThan(Date.now());
+    expect(data.activationExpiry).toBeInstanceOf(Date);
+    expect(data.activationExpiry.getTime()).toBeGreaterThan(Date.now());
   });
 
   it('laisse le compte inactif jusqu’à l’activation par l’élève', async () => {
