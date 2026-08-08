@@ -15,6 +15,8 @@ import { join, relative, resolve } from 'path';
 import { writeFile } from 'fs/promises';
 import { execSync } from 'child_process';
 
+import { findRuntimeDataLeaks } from './runtime-data-leak.mjs';
+
 const buildDir = resolve(process.argv[2] || process.cwd());
 const errors = [];
 
@@ -153,6 +155,21 @@ let publicFileCount = 0;
 if (await exists(publicDir)) {
   publicFileCount = (await walkFiles(publicDir)).length;
   ok(`Public files: ${publicFileCount}`);
+}
+
+// ── 7b. Runtime data leak (real customer files swept in by output-file-tracing) ──
+const runtimeDataLeaks = findRuntimeDataLeaks(buildDir);
+if (runtimeDataLeaks.length > 0) {
+  const preview = runtimeDataLeaks.slice(0, 10);
+  fail(
+    `RUNTIME_DATA_LEAK: ${runtimeDataLeaks.length} runtime data file(s) bundled in the artifact. `
+    + 'These are real, gitignored files (invoices carry a customer name and postal address) that '
+    + 'output-file-tracing copied from the working tree. Remove them before transferring: '
+    + preview.join(', ')
+    + (runtimeDataLeaks.length > preview.length ? `, … (+${runtimeDataLeaks.length - preview.length})` : ''),
+  );
+} else {
+  ok('No runtime data leaked into the artifact');
 }
 
 // ── 8. Resolve RELEASE_SHA ──
