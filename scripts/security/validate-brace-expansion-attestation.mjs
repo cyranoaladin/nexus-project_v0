@@ -14,9 +14,9 @@ const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../..')
 const EXPECTED_ADVISORY = 'GHSA-mh99-v99m-4gvg';
 const EXPECTED_CVE = 'CVE-2026-14257';
 const EXPECTED_PACKAGE = 'brace-expansion';
-const EXPECTED_LOCK_SHA256 = 'c257141643ae551d6a286771dd4f9855964297b010593b1067d7e4bafcb9644f';
+const EXPECTED_LOCK_SHA256 = '5c06c916c402a9d9cf9844255f7c244462e89b33ac9a830bd542a4809f32d111';
 const EXPECTED_RUNTIME_GRAPH_DIGEST =
-  '427e5577f280de60c27ab770c97d9dc5e46575a099934648ecd01a771eb8edff';
+  '2bb3673d01e86ee3520f0035804cb9ecefee0c3be0750adc660e06dfee417d2b';
 const EXPECTED_VALIDATOR = 'scripts/security/validate-brace-expansion-attestation.mjs';
 const EXPECTED_OSV_SOURCE = 'https://api.osv.dev/v1/vulns/GHSA-mh99-v99m-4gvg';
 const EXPECTED_OSV_MODIFIED = '2026-07-25T21:44:41.250545099Z';

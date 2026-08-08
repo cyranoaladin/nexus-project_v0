@@ -8,6 +8,7 @@ import { createDiagnosticSchema } from '@/lib/diagnostics/candidat-libre/schemas
 import { DIAGNOSTIC_KEY, DIAGNOSTIC_VERSION } from '@/lib/diagnostics/candidat-libre/types';
 import { getStudentForActor, requireDiagnosticActor } from '@/lib/diagnostics/candidat-libre/access.server';
 import { serializeCandidateDiagnostic } from '@/lib/diagnostics/candidat-libre/serialize.server';
+import { requireVerifiedParentalConsent } from '@/lib/diagnostics/candidat-libre/consent-gate.server';
 import { guardCandidateDiagnosticFeature } from '@/lib/diagnostics/candidat-libre/feature-flag';
 
 export async function GET(request: Request) {
@@ -61,6 +62,10 @@ export async function POST(request: Request) {
   const studentOrError = await getStudentForActor(sessionOrError, parsed.data.studentId);
   if (studentOrError instanceof NextResponse) return studentOrError;
   if (!studentOrError) return NextResponse.json({ error: 'Student not found' }, { status: 404 });
+
+  // Dossier portant sur un mineur : aucune collecte avant consentement parental vérifié.
+  const consentBlocked = await requireVerifiedParentalConsent(studentOrError.id);
+  if (consentBlocked) return consentBlocked;
 
   const diagnostic = await prisma.$transaction(async (tx) => {
     const existing = await tx.candidateDiagnostic.findUnique({

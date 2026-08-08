@@ -1,6 +1,6 @@
 import type { FactSheet } from '../facts/fact-sheet';
 import type { AgentBundle } from '../validators';
-import { assertRenderIdentity, type RenderIdentity } from './render-identity';
+import { assertPseudonymousRenderIdentity, type RenderIdentity } from './render-identity';
 import {
   buildDeterministicReport,
   type DeterministicBilanReport,
@@ -25,7 +25,7 @@ export function buildLlmReport(
   identity: RenderIdentity,
   bundle: AgentBundle,
 ): DeterministicBilanReport {
-  const base = buildDeterministicReport(factSheet, audience, assertRenderIdentity(identity));
+  const base = buildDeterministicReport(factSheet, audience, assertPseudonymousRenderIdentity(identity));
 
   if (audience === 'ELEVE') {
     return Object.freeze({
