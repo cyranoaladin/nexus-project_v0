@@ -118,19 +118,15 @@ export const CANDIDATE_DIAGNOSTIC_PRIVACY_NOTICE: Readonly<{
 export const NOTICE_PENDING_LEGAL_CONSTANTS: readonly string[] = Object.freeze([]);
 
 /**
- * Question encore ouverte, signalée telle qu'elle figure dans le document
- * source : celui-ci indique que le **régime applicable** (loi tunisienne
- * 2004-63 / INPDP, RGPD le cas échéant) attend un dernier aval du juriste.
+ * Aucune question juridique ouverte : l'aval du juriste sur le régime
+ * applicable est acquis. Conservé comme point d'extension si une nouvelle
+ * réserve apparaissait.
  *
- * Elle ne bloque ni le texte, ni la purge : la durée de conservation est
- * désormais datable et automatisable. Elle est conservée ici parce que le
- * document de référence la mentionne encore — à retirer dès que l'aval est
- * confirmé, ce qui ne changera pas le texte consenti et n'imposera donc pas
- * d'incrément de version.
+ * Vider cette liste ne change pas le texte consenti et n'impose donc aucun
+ * incrément de version — contrairement aux emplacements de
+ * `NOTICE_PENDING_LEGAL_CONSTANTS`, qui en font partie.
  */
-export const NOTICE_OPEN_QUESTIONS: readonly string[] = Object.freeze([
-  'Régime applicable (loi tunisienne 2004-63 / INPDP ; RGPD le cas échéant) — dernier aval du juriste.',
-]);
+export const NOTICE_OPEN_QUESTIONS: readonly string[] = Object.freeze([]);
 
 /** Durée de conservation, en mois, à compter de la dernière activité sur le dossier. */
 export const RETENTION_MONTHS_AFTER_LAST_ACTIVITY = 12;
