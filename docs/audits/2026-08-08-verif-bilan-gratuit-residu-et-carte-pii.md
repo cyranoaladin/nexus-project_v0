@@ -99,38 +99,61 @@ mécanisme d'effacement RGPD qui n'affaiblit jamais l'append-only.
 | `parent_profiles` | Mutable | address, city (nom/email via FK `users`) | Référencé uniquement |
 | `students` | Mutable | school, birthDate, survivalModeReason (texte libre) | Référencé uniquement |
 | `canonical_assessment_attempts` | Mutable tant que `DRAFT`/`IN_PROGRESS`, puis verrouillé en pratique | `answers` = strictement `{itemId, optionId, confidence}`, validé `zod .strict()` | Référencé uniquement (`studentId`) |
-| `canonical_score_snapshots` | **Append-only** (trigger inconditionnel) | `result` = `FactSheet`, `student.alias` pseudonymisé (`ELEVE_A`, regex-imposé) | Aucune PII embarquée |
-| `canonical_report_revisions` | **Append-only** (exception étroite : transition `PENDING_REVIEW→COACH_VALIDATED`, contenu inchangé) | `content.identity.displayName` = nom réel de l'élève (`generate-report-job.ts:209`) | **PII embarquée en dur** |
+| `canonical_score_snapshots` | **Append-only** (trigger inconditionnel) | `result` = `FactSheet`, `student.alias` pseudonymisé (`ELEVE_XXXX`, regex-imposé) | Aucune PII embarquée |
+| `canonical_report_revisions` | **Append-only** (exception étroite : transition `PENDING_REVIEW→COACH_VALIDATED`, contenu inchangé) | `content.identity.displayName` = **le pseudonyme**, pas le nom réel | Aucune PII embarquée |
 | `canonical_report_artifacts` | Verrouillé de fait (RESTRICT depuis `revisions`, elle-même append-only) | aucune | Référencé uniquement |
 | `canonical_report_materializations` | **Append-only** (trigger inconditionnel) | aucune colonne PII directe | Référencé uniquement |
-| `canonical_report_audience_artifacts` | **Append-only** (trigger inconditionnel) | `html`/`pdf` = documents rendus, `identity.displayName` et autres champs d'identité gravés dans les octets (`render/html.ts:71`) | **PII embarquée en dur, dans le PDF/HTML final** |
+| `canonical_report_audience_artifacts` | **Append-only** (trigger inconditionnel) | `html`/`pdf` = documents rendus, portant le **pseudonyme** (`render/html.ts:71`) | Aucune PII embarquée |
 | `canonical_report_reviews` | **Append-only** (trigger inconditionnel) | `motif` (texte libre, non validé, un·e réviseur·se peut y écrire un nom) | **Risque d'embarquement en dur, non garanti** |
 | `candidate_diagnostics` + `candidate_diagnostic_documents` | Mutable (CASCADE simple, aucun trigger) | `metadata`/`synthesis` (JSON) ; `title`/`description`/`originalName` des documents (texte libre) | Metadata référencé ; `originalName`/`title` peuvent embarquer de la PII ; fichiers réels hors base (`storageKey`) |
 
-### Mécanisme de séparation déjà existant, partiellement
+### Correction — la frontière de pseudonymisation va jusqu'au bout
 
-`createPseudonymizedFactSheet` (`lib/bilans/local-first/contracts.ts`) fait
-tourner `scanPiiFields` sur tout le `FactSheet` et rejette si non `CLEAN` ;
-`FactSheet.student.alias` est pseudonymisé par construction. C'est une
-vraie frontière pseudonyme-ID / identité-réelle, fonctionnelle — mais
-strictement limitée au `FactSheet` côté LLM (`ScoreSnapshot.result`). Le
-nom réel est **réinjecté délibérément** en aval via `RenderIdentity.displayName`
-au moment de construire `content` puis `html`/`pdf` — c'est exactement là
-que la séparation s'arrête.
+Une première version de ce document affirmait que le nom réel était
+réinjecté en aval via `RenderIdentity.displayName` et gravé dans `content`
+puis dans les octets `html`/`pdf`. **C'est faux.** Vérification faite
+directement sur les octets stockés en production (les 3 artefacts
+d'audience de la vérification, l'élève s'appelant réellement
+« E2ESecondEnfant VerifBilanGratuit ») :
 
-### Cas les plus durs
+| Colonne vérifiée | Nom réel présent ? | Pseudonyme présent ? |
+|---|---|---|
+| `audience_artifacts.html` (ELEVE / PARENTS / NEXUS) | non | oui (`ELEVE_LYDEIFKVRKDB`) |
+| `audience_artifacts.pdf` | non | — |
+| `report_revisions.content` | non | oui |
+| `score_snapshots.result` | non | oui |
+| `assessment_attempts.answers` | non | — |
+| `report_reviews.motif` | non (texte saisi sans PII) | — |
 
-`canonical_report_audience_artifacts` (PDF/HTML avec le nom gravé dans les
-octets) et `canonical_report_revisions` (`content` JSON avec
-`identity.displayName` en clair) sont **à la fois** append-only **et** PII
-embarquée en dur. Une anonymisation par séparation des tables mutables
-(`users`/`students`/`parent_profiles`) ne suffit pas à les effacer : seul
-un crypto-shredding (clé de chiffrement par sujet, détruite à la demande
-d'effacement) — ou l'acceptation explicite d'une rétention PII permanente
-sur les lignes d'audit — permettrait de répondre à un droit à l'effacement
-sur ces deux tables précises. `canonical_report_reviews.motif` est un
-risque secondaire, moins certain (texte libre non validé).
+La cause : `RenderIdentity.displayName` est alimenté par
+`factSheet.student.alias` aux deux sites de construction
+(`worker/generate-report-job.ts:209`, `worker/scoring.ts:112`), et cet
+alias est un dérivé SHA-256 de l'`attemptId` au format `ELEVE_XXXX`
+(`worker/scoring.ts:93-96`), dont le format est imposé par `buildFactSheet`
+(`facts/fact-sheet.ts:66-67`). La chaîne append-only ne contient donc
+**aucune PII réelle** : elle est pseudonyme de bout en bout.
 
-Ce trou concerne dès aujourd'hui les vraies familles ayant fait un bilan
-gratuit publié, pas seulement les données synthétiques de cette
-vérification.
+### Conséquence sur la conception de l'effacement
+
+L'effacement RGPD ne nécessite **ni crypto-shredding ni chiffrement des
+artefacts** : il suffit d'anonymiser les tables **mutables**
+(`users`, `students`, `parent_profiles`), qui portent seules la clé de
+ré-identification. Les lignes append-only deviennent alors des données
+pseudonymes non ré-identifiables, ce qui est exactement le résultat visé
+par une anonymisation par séparation. Aucun trigger n'est touché.
+
+Les seuls points restants sont :
+
+1. `canonical_report_reviews.motif` — texte libre non validé, où un membre
+   du personnel *pourrait* écrire un nom. Seul trou réel restant ; se
+   traite en contraignant l'écriture, pas en chiffrant.
+2. La garantie de pseudonymité tenait par construction sans être
+   **imposée** : `assertRenderIdentity` ne vérifiait que la non-vacuité des
+   champs. Un changement futur écrivant le vrai nom aurait été
+   irrattrapable (append-only). C'est désormais verrouillé par
+   `assertPseudonymousRenderIdentity`, appliqué aux trois chemins qui
+   alimentent l'immuable.
+3. L'effacement lui-même n'existe toujours pas : la suppression d'un compte
+   élève ayant un bilan échoue sur les FK `RESTRICT`, et aucun chemin
+   d'anonymisation n'est implémenté. C'est le vrai manque fonctionnel, et
+   il concerne dès aujourd'hui les vraies familles ayant un bilan publié.
