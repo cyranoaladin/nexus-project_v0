@@ -7,7 +7,7 @@ import { getDocumentStorageRoot } from '@/lib/documents/storage-root';
 import { isErrorResponse } from '@/lib/guards';
 import { getDiagnosticForActor, requireDiagnosticActor, actorRole, isDocumentVisibleToViewer } from '@/lib/diagnostics/candidat-libre/access.server';
 import { requireVerifiedParentalConsent } from '@/lib/diagnostics/candidat-libre/consent-gate.server';
-import { guardCandidateDiagnosticFeature } from '@/lib/diagnostics/candidat-libre/feature-flag';
+import { guardCandidateDiagnosticFeature, guardCandidateDiagnosticForStudent } from '@/lib/diagnostics/candidat-libre/feature-flag';
 
 interface Params { params: Promise<{ diagnosticId: string; documentId: string }> }
 
@@ -58,6 +58,10 @@ export async function DELETE(_request: Request, { params }: Params) {
   }
   const diagnosticOrError = await getDiagnosticForActor(sessionOrError, diagnosticId);
   if (diagnosticOrError instanceof NextResponse) return diagnosticOrError;
+  // Hors allowlist, le dossier doit paraitre absent : 404 avant tout autre verdict.
+  const notAllowed = guardCandidateDiagnosticForStudent(diagnosticOrError.studentId);
+  if (notAllowed) return notAllowed;
+
   // Dossier portant sur un mineur : aucune collecte avant consentement parental verifie.
   const consentBlocked = await requireVerifiedParentalConsent(diagnosticOrError.studentId);
   if (consentBlocked) return consentBlocked;
