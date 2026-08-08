@@ -6,7 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Plus, User } from "lucide-react";
+import { Check, Copy, Loader2, Plus, User } from "lucide-react";
 
 interface AddChildDialogProps {
   onChildAdded: () => void;
@@ -30,6 +30,14 @@ export default function AddChildDialog({ onChildAdded, open: controlledOpen, onO
     grade: "",
     school: ""
   });
+  /**
+   * Enfant qui vient d'être ajouté. Tant qu'il est là, on affiche son lien
+   * d'activation plutôt que le formulaire : le parent doit pouvoir le lire,
+   * le copier et comprendre à quoi il sert — une URL jetée dans une alerte
+   * navigateur ne remplissait aucune de ces trois conditions.
+   */
+  const [justAdded, setJustAdded] = useState<{ firstName: string; activationUrl: string | null } | null>(null);
+  const [copied, setCopied] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,13 +60,13 @@ export default function AddChildDialog({ onChildAdded, open: controlledOpen, onO
       const responseData = await response.json().catch(() => null);
 
       if (response.ok) {
-        const activationUrl = responseData?.activation?.activationUrl;
-        alert(
-          activationUrl
-            ? `Enfant ajouté avec succès. Transmettez ce lien d'activation uniquement à l'élève concerné : ${activationUrl}`
-            : "Enfant ajouté avec succès!"
-        );
-        setOpen(false);
+        // La boîte reste ouverte : le parent doit voir le lien, et peut
+        // enchaîner sur un autre enfant sans rouvrir quoi que ce soit.
+        setJustAdded({
+          firstName: formData.firstName,
+          activationUrl: responseData?.activation?.activationUrl ?? null,
+        });
+        setCopied(false);
         setFormData({
           firstName: "",
           lastName: "",
@@ -98,6 +106,53 @@ export default function AddChildDialog({ onChildAdded, open: controlledOpen, onO
             Un lien d'activation élève sera généré après la création.
           </p>
         </DialogHeader>
+        {justAdded ? (
+          <div className="space-y-4">
+            <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-4">
+              <p className="font-medium text-emerald-200">
+                {`${justAdded.firstName} peut maintenant passer son bilan.`}
+              </p>
+              <p className="mt-1 text-sm text-neutral-300">
+                Transmettez-lui ce lien : il choisira son mot de passe, puis accédera à son bilan
+                diagnostic. Ce lien est personnel et ne doit être communiqué qu'à lui.
+              </p>
+            </div>
+
+            {justAdded.activationUrl ? (
+              <div className="space-y-2">
+                <Label className="text-neutral-200">{`Lien d'activation de ${justAdded.firstName}`}</Label>
+                <div className="flex gap-2">
+                  <Input readOnly value={justAdded.activationUrl} className="font-mono text-xs" />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      void navigator.clipboard?.writeText(justAdded.activationUrl ?? '');
+                      setCopied(true);
+                    }}
+                  >
+                    {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                    <span className="ml-2">{copied ? 'Copié' : 'Copier'}</span>
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <p className="text-sm text-neutral-400">
+                Le lien d'activation sera disponible depuis la fiche de l'enfant.
+              </p>
+            )}
+
+            <div className="flex gap-2 pt-2">
+              <Button type="button" variant="outline" className="flex-1" onClick={() => setJustAdded(null)}>
+                <Plus className="mr-2 h-4 w-4" />
+                Ajouter un autre enfant
+              </Button>
+              <Button type="button" className="flex-1" onClick={() => { setJustAdded(null); setOpen(false); }}>
+                Terminer
+              </Button>
+            </div>
+          </div>
+        ) : (
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
@@ -180,6 +235,7 @@ export default function AddChildDialog({ onChildAdded, open: controlledOpen, onO
             </Button>
           </div>
         </form>
+        )}
       </DialogContent>
     </Dialog>
   );
