@@ -32,9 +32,13 @@ const nextConfig = {
       // nominatives et les déployait — quatre fois. Le garde de la gate reste
       // le filet ; ces exclusions sont le correctif.
       // `data/bilans/**` reste inclus plus haut : c'est du contenu, pas des données.
-      'storage/**/*',
-      'data/invoices/**/*',
-      'uploads/**/*',
+      // Répertoires visés **nommément**, jamais par motif large : `storage/**`
+      // capturait aussi `node_modules/next/dist/server/async-storage/**`, dont
+      // l'absence empêche le serveur standalone de démarrer.
+      './storage/documents/**/*',
+      './storage/invoices/**/*',
+      './data/invoices/**/*',
+      './uploads/copies/**/*',
     ],
   },
 
