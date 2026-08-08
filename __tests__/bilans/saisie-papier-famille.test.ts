@@ -12,6 +12,18 @@ import { createPaperEntryFamilyHandler } from '@/lib/bilans/saisie-papier/famill
 jest.mock('@/lib/email/outbox', () => ({ enqueueEmailIntent: jest.fn(async () => undefined) }));
 jest.mock('@/lib/email/outbox-scheduler', () => ({ kickEmailOutboxDrain: jest.fn() }));
 
+import { enqueueEmailIntent } from '@/lib/email/outbox';
+
+const enqueued = enqueueEmailIntent as jest.MockedFunction<typeof enqueueEmailIntent>;
+
+beforeEach(() => { enqueued.mockClear(); });
+
+type EnqueuedIntent = Readonly<{ messageType: string; to: string; aggregateId: string }>;
+
+function intents(): readonly EnqueuedIntent[] {
+  return enqueued.mock.calls.map(([, intent]) => intent as unknown as EnqueuedIntent);
+}
+
 const NOW = new Date('2026-08-08T16:00:00.000Z');
 const STAFF_ID = 'assistante-1';
 
@@ -256,6 +268,82 @@ describe('Création du foyer — activation en attente', () => {
 
     expect(response.status).toBe(400);
     expect(students).toHaveLength(0);
+  });
+
+  /**
+   * « Le parent pose lui-même son mot de passe » n'est vrai que si le courriel
+   * d'activation part réellement. Sans cette vérification, un compte sans mot
+   * de passe et sans lien serait un compte inaccessible.
+   */
+  it('met en file le courriel d’activation du parent', async () => {
+    const { database } = memoryDatabase();
+    await handlerWith('ASSISTANTE', database)(familyRequest());
+
+    const parentIntent = intents().find(({ messageType }) => messageType === 'PARENT_ACTIVATION');
+    expect(parentIntent).toBeDefined();
+    expect(parentIntent!.to).toBe('parent.test@example.test');
+  });
+
+  it('met en file un courriel d’activation par enfant, vers l’adresse du parent', async () => {
+    const { database } = memoryDatabase();
+    await handlerWith('ASSISTANTE', database)(familyRequest({
+      ...BODY,
+      children: [
+        { firstName: 'Inès', grade: 'Terminale' },
+        { firstName: 'Malik', grade: 'Seconde' },
+      ],
+    }));
+
+    const studentIntents = intents().filter(({ messageType }) => messageType === 'STUDENT_ACTIVATION');
+    expect(studentIntents).toHaveLength(2);
+    // L'enfant n'a pas d'adresse à lui : le lien part chez le parent.
+    for (const intent of studentIntents) expect(intent.to).toBe('parent.test@example.test');
+  });
+
+  it('n’envoie pas d’activation parent à un parent déjà connu', async () => {
+    const { database, transaction, profiles } = memoryDatabase();
+    profiles.push({ id: 'profile-existant', userId: 'parent-existant' });
+    transaction.user.findUnique = jest.fn(async () => ({
+      id: 'parent-existant',
+      role: 'PARENT',
+      parentProfile: { id: 'profile-existant' },
+    })) as never;
+
+    await handlerWith('ASSISTANTE', database)(familyRequest());
+
+    expect(intents().some(({ messageType }) => messageType === 'PARENT_ACTIVATION')).toBe(false);
+    expect(intents().filter(({ messageType }) => messageType === 'STUDENT_ACTIVATION')).toHaveLength(1);
+  });
+
+  it('refuse plus de six enfants en une fois', async () => {
+    const { database, students } = memoryDatabase();
+    const response = await handlerWith('ASSISTANTE', database)(familyRequest({
+      ...BODY,
+      children: Array.from({ length: 7 }, (_, index) => ({
+        firstName: `Enfant${index}`,
+        grade: 'Seconde',
+      })),
+    }));
+
+    expect(response.status).toBe(400);
+    expect(students).toHaveLength(0);
+  });
+
+  /**
+   * Deux assistantes créant le même parent au même instant : c'est un conflit
+   * ordinaire, pas une panne. Un 500 enverrait chercher une erreur serveur là
+   * où il suffit de recharger.
+   */
+  it('signale un conflit, et non une panne, sur une création concurrente', async () => {
+    const { database, transaction } = memoryDatabase();
+    transaction.user.create = jest.fn(async () => {
+      throw Object.assign(new Error('unique'), { code: 'P2002' });
+    }) as never;
+
+    const response = await handlerWith('ASSISTANTE', database)(familyRequest());
+
+    expect(response.status).toBe(409);
+    expect(await response.json()).toEqual({ error: { code: 'PARENT_EMAIL_TAKEN' } });
   });
 
   it('refuse de réutiliser une adresse portée par un autre rôle', async () => {

@@ -52,12 +52,18 @@ const childSchema = z.object({
   grade: z.string().trim().min(1).max(80),
 }).strict();
 
+export const PAPER_ENTRY_MAX_CHILDREN = 6;
+
 const requestSchema = z.object({
   parentEmail: z.string().trim().email().max(160),
   parentFirstName: z.string().trim().min(1).max(80),
   parentLastName: z.string().trim().min(1).max(80),
-  children: z.array(childSchema).min(1).max(6),
+  children: z.array(childSchema).min(1).max(PAPER_ENTRY_MAX_CHILDREN),
 }).strict();
+
+function isUniqueConstraintViolation(error: unknown): boolean {
+  return typeof error === 'object' && error !== null && 'code' in error && error.code === 'P2002';
+}
 
 type FamilyDatabase = IdempotencyDatabase & Readonly<Record<string, unknown>>;
 
@@ -294,6 +300,14 @@ export function createPaperEntryFamilyHandler(
       kickEmailOutboxDrain();
       return NextResponse.json(result.body, { status: result.status });
     } catch (error) {
+      // Deux assistantes créant le même parent au même instant : l'une gagne,
+      // l'autre bute sur l'unicité de l'adresse. C'est un conflit ordinaire,
+      // pas une panne — le dire évite de faire chercher une erreur serveur
+      // là où il suffit de recharger et de rattacher l'enfant au parent
+      // désormais existant.
+      if (isUniqueConstraintViolation(error)) {
+        return canonicalErrorResponse(CanonicalApiError.conflict('PARENT_EMAIL_TAKEN'));
+      }
       return canonicalErrorResponse(error);
     }
   };

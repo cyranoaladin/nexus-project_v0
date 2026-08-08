@@ -39,7 +39,17 @@ import { buildPaperEntryAnswers } from '../saisie-papier/entry';
  * SAISIE_PAPIER, saisisseur, date de saisie.
  */
 
-const PAPER_ENTRY_ROUTE = 'POST:/api/bilans/saisie-papier';
+/**
+ * La coordonnée d'idempotence inclut l'élève et le pack.
+ *
+ * Les routes canoniques portent l'identifiant de l'attempt dans leur chemin, ce
+ * qui les scope naturellement. Celle-ci est fixe : sans ce complément, une clé
+ * réutilisée pour une autre copie rejouerait la réponse de la première, et la
+ * seconde copie ne serait jamais enregistrée — une perte silencieuse.
+ */
+function paperEntryRoute(studentId: string, packSlug: string): string {
+  return `POST:/api/bilans/saisie-papier/${studentId}/${packSlug}`;
+}
 
 const confidenceSchema = z.union([
   z.literal(1),
@@ -237,7 +247,7 @@ export function createPaperEntryHandler(
       const result = await executeIdempotently({
         prisma: dependencies.prisma,
         userId: actor.userId,
-        route: PAPER_ENTRY_ROUTE,
+        route: paperEntryRoute(input.studentId, input.packSlug),
         key,
         now,
         action: async (transaction) => {

@@ -105,7 +105,17 @@ L'adaptateur a été élargi pour laisser passer `null`. La passation en ligne n
 peut pas produire ce cas — sa validation d'entrée impose la certitude — donc
 rien n'y change.
 
-### Limite connue, à arbitrer
+### Deux limites connues, à arbitrer
+
+**ADMIN n'ouvre pas l'écran.** Le garde et la route d'API acceptent
+`ASSISTANTE` et `ADMIN`. Mais `middleware.ts` renvoie tout ADMIN de
+`/dashboard/assistante/*` vers `/dashboard/admin` : en pratique l'écran n'est
+ouvrable que par une assistante, un ADMIN ne passant que par l'API. C'est une
+convention de plateforme partagée par toutes les pages assistante ; la lever se
+déciderait pour l'ensemble du tableau de bord, pas au détour de cette
+fonctionnalité.
+
+**PASSATION_EXPRESS.**
 
 La durée de composition ne figure pas sur une copie. `startedAt` et
 `submittedAt` d'un attempt saisi valent donc l'instant de la saisie, le moteur

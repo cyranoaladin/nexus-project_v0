@@ -40,7 +40,18 @@ export function mergeAttemptAnswers(
 ): Record<string, Prisma.JsonValue> {
   const merged = attemptAnswerRecord(existing);
   for (const patch of patches) {
-    merged[patch.itemId] = { optionId: patch.optionId, confidence: patch.confidence };
+    // `defineProperty` plutôt qu'une affectation : un item nommé `__proto__`
+    // détournerait `merged[id] = …` vers le prototype. La lecture semblerait
+    // réussir — la complétude passerait — mais `JSON.stringify` ne sérialise
+    // pas un prototype, la réponse disparaîtrait à l'enregistrement et le
+    // worker échouerait plus tard sur A86_ANSWER_MISSING. Accepter puis
+    // échouer en différé est le pire des deux mondes.
+    Object.defineProperty(merged, patch.itemId, {
+      value: { optionId: patch.optionId, confidence: patch.confidence },
+      enumerable: true,
+      writable: true,
+      configurable: true,
+    });
   }
   return merged;
 }

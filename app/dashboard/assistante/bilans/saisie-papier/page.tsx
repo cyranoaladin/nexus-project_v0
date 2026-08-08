@@ -15,8 +15,17 @@ import { PaperEntryFamilyForm } from './family-form';
 /**
  * Saisie papier — écran staff.
  *
- * Réservé à l'assistante et à l'administration. Un parent ou un élève qui
- * atteindrait cette URL reçoit un 404 : la surface ne se révèle pas.
+ * Un parent ou un élève qui atteindrait cette URL reçoit un 404 : la surface
+ * ne se révèle pas.
+ *
+ * NOTE sur ADMIN. Le garde accepte ASSISTANTE et ADMIN, et la route d'API les
+ * accepte tous deux — c'est l'énoncé d'autorisation correct. En pratique,
+ * `middleware.ts` renvoie tout ADMIN de `/dashboard/assistante/*` vers
+ * `/dashboard/admin` (`rolePrefixMap`), donc **cet écran n'est ouvrable que
+ * par une assistante** ; un ADMIN ne peut passer que par l'API. C'est une
+ * convention de la plateforme, partagée par toutes les pages assistante — la
+ * lever se déciderait pour l'ensemble du tableau de bord, pas au détour de
+ * cette fonctionnalité.
  *
  * Le pack et ses items sont résolus côté serveur ; le composant client ne
  * reçoit que la projection sans corrigé (voir `projection.ts`).

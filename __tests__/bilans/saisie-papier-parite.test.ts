@@ -168,6 +168,36 @@ describe('Saisie papier — certitude absente', () => {
   });
 });
 
+describe('Saisie papier — un item nommé « __proto__ »', () => {
+  /**
+   * Une affectation `merged[itemId] = …` détournerait un item nommé
+   * `__proto__` vers le prototype : la lecture semblerait réussir, la
+   * complétude passerait, mais `JSON.stringify` ne sérialise pas un prototype
+   * — la réponse disparaîtrait à l'enregistrement et le worker échouerait plus
+   * tard. Accepter puis échouer en différé est le pire des deux mondes.
+   */
+  it('enregistre la réponse comme propriété propre, et non sur le prototype', () => {
+    const merged = mergeAttemptAnswers({}, [
+      { itemId: '__proto__', optionId: 'A', confidence: 3 },
+      { itemId: 'constructor', optionId: 'B', confidence: null },
+    ]);
+
+    expect(Object.prototype.hasOwnProperty.call(merged, '__proto__')).toBe(true);
+    expect(Object.prototype.hasOwnProperty.call(merged, 'constructor')).toBe(true);
+    expect(Object.getPrototypeOf(merged)).toBe(Object.prototype);
+
+    // Ce qui compte vraiment : la réponse survit à la sérialisation, donc à
+    // l'enregistrement. Les assertions passent par les descripteurs de
+    // propriété — un littéral `{ __proto__: … }` retomberait dans le piège
+    // même que ce test surveille.
+    const roundTripped = JSON.parse(JSON.stringify(merged)) as object;
+    expect(Object.getOwnPropertyDescriptor(roundTripped, '__proto__')?.value)
+      .toEqual({ optionId: 'A', confidence: 3 });
+    expect(Object.getOwnPropertyDescriptor(roundTripped, 'constructor')?.value)
+      .toEqual({ optionId: 'B', confidence: null });
+  });
+});
+
 describe('Saisie papier — refus des réponses hors pack', () => {
   it('rejette un item inconnu du pack', () => {
     expect(() => buildPaperEntryAnswers(CANONICAL_WORKER_ENABLED_PACK, [
