@@ -189,14 +189,12 @@ async function writePaperAttempt(
       // passation. Il est soumis immédiatement, dans cette transaction, et
       // n'est donc jamais reprenable comme un brouillon en ligne.
       //
-      // LIMITE CONNUE : la durée réelle de composition n'est pas sur la copie.
-      // `startedAt` et `submittedAt` valent donc l'instant de la saisie, et le
-      // moteur en déduit une durée nulle, ce qui lève le drapeau
-      // PASSATION_EXPRESS sur tout bilan saisi. Le score, les profils et la
-      // calibration n'en dépendent pas ; seul ce drapeau est trompeur. Le
-      // corriger supposerait soit d'inventer une durée, soit de faire entrer
-      // la provenance dans le moteur de faits — les deux sont exclus. À
-      // arbitrer avec le responsable, hors de ce périmètre.
+      // La durée réelle de composition n'est pas sur la copie. `startedAt` et
+      // `submittedAt` valent donc l'instant de la saisie : le snapshot brut
+      // reste strictement produit par le moteur commun, sans durée inventée ni
+      // branche de scoring liée à la provenance. La vue de rapport neutralise
+      // ensuite le faux PASSATION_EXPRESS et indique « durée non mesurée —
+      // saisie papier » (render/passation-presentation.ts).
       startedAt: input.now,
       expiresAt: input.now,
       subject: resolvePrismaSubject(enabled.pack.subject),

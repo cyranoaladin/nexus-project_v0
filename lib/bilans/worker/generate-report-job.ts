@@ -10,6 +10,7 @@ import { OpenRouterBilanTransport } from '../llm/openrouter-transport';
 import { sha256Canonical } from '../local-first/hash';
 import { createPseudonymizedFactSheet } from '../local-first/contracts';
 import { buildLlmReports } from '../render/llm-report';
+import { prepareReportPassationPresentation } from '../render/passation-presentation';
 import type { RenderIdentity } from '../render/render-identity';
 import { buildDeterministicReports, type DeterministicBilanReportBundle } from '../render/report';
 import { buildPreRentreeStageLabel } from '../render/stage-label';
@@ -205,18 +206,29 @@ async function claimJob(
     },
   });
 
-  const factSheet = snapshot.result as unknown as FactSheet;
+  const rawFactSheet = snapshot.result as unknown as FactSheet;
+  const presentation = prepareReportPassationPresentation(rawFactSheet, attempt.provenance);
   const identity: RenderIdentity = Object.freeze({
-    displayName: factSheet.student.alias,
+    displayName: rawFactSheet.student.alias,
     level: enabled.pack.level,
     subject: enabled.pack.subject,
     date: attempt.submittedAt.toISOString().slice(0, 10),
     stageLabel: buildPreRentreeStageLabel(enabled.pack.level, enabled.pack.subject),
+    ...(presentation.durationMeasurement === undefined
+      ? {}
+      : { durationMeasurement: presentation.durationMeasurement }),
   });
 
   return {
     replayed: false,
-    claim: { attemptId: attempt.id, studentId: attempt.studentId, scoreSnapshotId: snapshot.id, factSheet, identity, enabled },
+    claim: {
+      attemptId: attempt.id,
+      studentId: attempt.studentId,
+      scoreSnapshotId: snapshot.id,
+      factSheet: presentation.factSheet,
+      identity,
+      enabled,
+    },
   };
 }
 

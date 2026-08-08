@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { BILAN_PACK_SUBJECTS } from '../catalog/subjects';
 import type { FactSheet } from '../facts/fact-sheet';
 import { BILAN_REPORT_TEMPLATE_VERSION, type DeterministicBilanReportBundle } from '../render/report';
+import { PAPER_ENTRY_DURATION_MEASUREMENT } from '../render/passation-presentation';
 
 const technicalProfileSchema = z.enum([
   'NON_TRAITE',
@@ -26,6 +27,7 @@ const identitySchema = z.object({
   subject: z.enum(BILAN_PACK_SUBJECTS),
   date: z.string().trim().min(1),
   stageLabel: z.string().trim().min(1),
+  durationMeasurement: z.literal(PAPER_ENTRY_DURATION_MEASUREMENT).optional(),
 }).strict();
 
 const narrativeSchema = z.object({
