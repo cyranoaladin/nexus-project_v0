@@ -54,6 +54,12 @@ export default async function CanonicalBilansReviewPage({
           <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-300">
             Chaque diffusion aux familles exige une lecture humaine des trois audiences. La validation et la publication sont déclenchées uniquement par l’action explicite de l’assistante.
           </p>
+          <a
+            href="/dashboard/assistante/bilans/saisie-papier"
+            className="mt-5 inline-block rounded-xl border border-amber-300 px-4 py-2.5 text-sm font-semibold text-amber-100"
+          >
+            Saisir un bilan passé sur copie papier
+          </a>
         </header>
 
         {preview !== null && typeof preview === 'object' && 'audiences' in preview && (

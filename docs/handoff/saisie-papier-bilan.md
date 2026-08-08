@@ -80,6 +80,42 @@ une colonne est possible — c'est du DDL, pas une mutation de ligne — mais la
 valeur devra être posée **à la création** de l'attempt, jamais par un `UPDATE`
 ultérieur, qui serait rejeté.
 
+## Livré
+
+Le 8 août 2026, branche `feat/saisie-papier-bilan`.
+
+| Élément | Emplacement |
+|---|---|
+| Route de saisie | `POST /api/bilans/saisie-papier` — `lib/bilans/api/paper-entry.ts` |
+| Création du foyer | `POST /api/bilans/saisie-papier/famille` — `lib/bilans/saisie-papier/famille.ts` |
+| Écran staff | `app/dashboard/assistante/bilans/saisie-papier/` + `components/bilans/PaperEntryGrid.tsx` |
+| Garde de rôle | `lib/bilans/saisie-papier/access.ts` (ASSISTANTE, ADMIN — refus en 404) |
+| Provenance | migration `20260808153000_add_canonical_attempt_provenance` |
+
+Le moteur n'a pas été dupliqué. Les invariants de soumission ont été extraits
+dans `lib/bilans/api/submission-core.ts` et la fusion des réponses dans
+`lib/bilans/api/answer-merge.ts` : la passation en ligne et la saisie papier
+les **importent tous les deux**. Un test d'architecture le vérifie, et vérifie
+aussi qu'aucun fichier du pipeline de scoring ne mentionne la provenance.
+
+Une seule modification de comportement ailleurs : `lib/bilans/worker/scoring.ts`
+acceptait 1 à 4 et rejetait `null`. Le moteur de faits, lui, typait déjà
+`Confidence = 1|2|3|4|null` et traitait `null` comme une absence de confiance.
+L'adaptateur a été élargi pour laisser passer `null`. La passation en ligne ne
+peut pas produire ce cas — sa validation d'entrée impose la certitude — donc
+rien n'y change.
+
+### Limite connue, à arbitrer
+
+La durée de composition ne figure pas sur une copie. `startedAt` et
+`submittedAt` d'un attempt saisi valent donc l'instant de la saisie, le moteur
+en déduit une durée nulle, et **le drapeau `PASSATION_EXPRESS` est levé sur
+tout bilan saisi**. Le score, les profils et la calibration n'en dépendent pas ;
+seul ce drapeau est trompeur. Le corriger supposerait soit d'inventer une
+durée, soit de faire entrer la provenance dans le moteur de faits — les deux
+étaient exclus. Le comportement est épinglé par un test (`bilans-saisie-papier.real.test.ts`)
+pour qu'un arbitrage futur échoue à l'endroit exact où il faut reconsidérer.
+
 ## Ce qui a été livré avant ce handoff
 
 - PR #109 : chemin public, lien d'activation lisible, ajout d'enfants répétable.
