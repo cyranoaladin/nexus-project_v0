@@ -12,6 +12,18 @@ jest.mock('@/lib/documents/storage-root', () => ({
 }));
 
 import { persistDiagnosticFile } from '@/lib/diagnostics/candidat-libre/storage.server';
+import { isEncryptedDocument } from '@/lib/documents/encryption';
+
+// Les dépôts sont désormais chiffrés au repos : sans clé, `persistDiagnosticFile`
+// échoue fermé plutôt que d'écrire en clair. Les tests doivent donc en fournir une.
+const ORIGINAL_DOCUMENT_KEY = process.env.DOCUMENT_ENCRYPTION_KEY;
+beforeAll(() => {
+  process.env.DOCUMENT_ENCRYPTION_KEY = 'test-document-encryption-key-0123456789abcd';
+});
+afterAll(() => {
+  if (ORIGINAL_DOCUMENT_KEY === undefined) delete process.env.DOCUMENT_ENCRYPTION_KEY;
+  else process.env.DOCUMENT_ENCRYPTION_KEY = ORIGINAL_DOCUMENT_KEY;
+});
 
 function fakeFile(bytes: number[], type: string, name = 'upload.bin'): File {
   const buffer = Buffer.from(bytes);
@@ -67,5 +79,46 @@ describe('persistDiagnosticFile — audio signature validation', () => {
     await expect(
       persistDiagnosticFile({ diagnosticId: 'diag-1', category: 'ORAL_RECORDING', file: spoofed }),
     ).rejects.toThrow('MIME_SIGNATURE_MISMATCH');
+  });
+});
+
+describe('persistDiagnosticFile — chiffrement au repos', () => {
+  /**
+   * Le mock `fs/promises` de ce fichier n'intercepte pas réellement les
+   * écritures : les fichiers atterrissent sur le disque. On s'en sert plutôt
+   * que de lutter contre — lire les octets réellement écrits est une preuve
+   * plus forte qu'une assertion sur un mock.
+   */
+  const realFs = jest.requireActual('fs') as typeof import('fs');
+  const ROOT = '/tmp/candidate-diagnostics-test-root';
+
+  afterAll(() => {
+    realFs.rmSync(`${ROOT}/candidate-diagnostics`, { recursive: true, force: true });
+  });
+
+  it('écrit une enveloppe chiffrée, jamais le contenu en clair', async () => {
+    const marker = [0x25, 0x50, 0x44, 0x46, 0x2d, 0x31, 0x2e, 0x37];
+    const result = await persistDiagnosticFile({
+      diagnosticId: 'diag-crypto',
+      category: 'IDENTITY',
+      file: fakeFile(marker, 'application/pdf', 'piece-identite.pdf'),
+    });
+
+    const written = realFs.readFileSync(`${ROOT}/${result.storageKey}`);
+    expect(isEncryptedDocument(written)).toBe(true);
+    expect(written.includes(Buffer.from(marker))).toBe(false);
+  });
+
+  it('n’inscrit pas le nom du fichier d’origine dans le chemin', async () => {
+    const result = await persistDiagnosticFile({
+      diagnosticId: 'diag-crypto',
+      category: 'SCHOOL_REPORT',
+      file: fakeFile([0x25, 0x50, 0x44, 0x46, 0x2d], 'application/pdf', 'bulletin_Dupont.pdf'),
+    });
+
+    expect(result.storageKey).not.toContain('Dupont');
+    expect(result.storageKey).not.toContain('bulletin');
+    // Le nom d'origine reste disponible pour l'affichage, en base seulement.
+    expect(result.safeName).toBe('bulletin_Dupont.pdf');
   });
 });

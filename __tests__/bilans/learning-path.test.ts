@@ -24,7 +24,7 @@ const factSheet: FactSheet = Object.freeze({
 });
 
 const identity: RenderIdentity = Object.freeze({
-  displayName: 'Élève de démonstration',
+  displayName: 'ELEVE_DEMONSTRATION',
   level: 'TERMINALE',
   subject: 'MATHS',
   date: '2026-08-03',

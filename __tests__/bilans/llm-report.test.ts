@@ -3,7 +3,7 @@ import { buildDeterministicReport } from '@/lib/bilans/render/report';
 import { RECIPE_FACT_SHEETS } from './fixtures/recipe-fact-sheets';
 
 const identity = {
-  displayName: 'Élève de démonstration',
+  displayName: 'ELEVE_DEMONSTRATION',
   level: 'TERMINALE' as const,
   subject: 'MATHS' as const,
   date: '2026-08-03',

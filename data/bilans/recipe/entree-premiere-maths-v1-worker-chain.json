@@ -592,13 +592,13 @@
       "audience": "ELEVE",
       "templateVersion": "nexus-bilan-profile-v2",
       "identity": {
-        "displayName": "Élève de recette",
+        "displayName": "ELEVE_RECETTE",
         "level": "PREMIERE",
         "subject": "MATHS",
         "date": "1970-01-01",
         "stageLabel": "Stage de pré-rentrée — Entrée en 1re, Mathématiques"
       },
-      "contextChecksum": "4ccc1e3ee452ac3a931ceb3ef19d54324f7ba1e5c4b3703f021caf5c8d473a4e",
+      "contextChecksum": "8bce18de88703cb39e081b6e842759802d9fa3734517dd96611f389da1028e7f",
       "content": {
         "narrative": {
           "headline": "Ton parcours de progression",
@@ -751,13 +751,13 @@
       "audience": "PARENTS",
       "templateVersion": "nexus-bilan-profile-v2",
       "identity": {
-        "displayName": "Élève de recette",
+        "displayName": "ELEVE_RECETTE",
         "level": "PREMIERE",
         "subject": "MATHS",
         "date": "1970-01-01",
         "stageLabel": "Stage de pré-rentrée — Entrée en 1re, Mathématiques"
       },
-      "contextChecksum": "58d6a9f917440756d7d71ec3da189bf6c8166adbcaa836487654045095ff723a",
+      "contextChecksum": "4d023663008912665962b16e2e56b88aa6484c742ea0df06a6034f381aba04d8",
       "content": {
         "narrative": {
           "headline": "Le parcours de progression de votre enfant",
@@ -838,13 +838,13 @@
       "audience": "NEXUS",
       "templateVersion": "nexus-bilan-profile-v2",
       "identity": {
-        "displayName": "Élève de recette",
+        "displayName": "ELEVE_RECETTE",
         "level": "PREMIERE",
         "subject": "MATHS",
         "date": "1970-01-01",
         "stageLabel": "Stage de pré-rentrée — Entrée en 1re, Mathématiques"
       },
-      "contextChecksum": "c0c8e512fc16e08d3a4437d411a533b18ee84fac5c54095c614f2be2dbcbb640",
+      "contextChecksum": "5066bd8f797fd006284191b1ccda6b9660e48397a5d934253598a3041225776d",
       "content": {
         "narrative": {
           "headline": "Synthèse pédagogique Nexus",

@@ -6,7 +6,7 @@ import {
 } from '../render/pdf';
 import type { ReportAudience } from '../render/profile-copy';
 import {
-  assertRenderIdentity,
+  assertPseudonymousRenderIdentity,
   type RenderIdentity,
 } from '../render/render-identity';
 import { renderDeterministicBilanHtml } from '../render/html';
@@ -79,7 +79,7 @@ function parseIdentity(content: unknown): RenderIdentity {
   if (!isRecord(content) || !isRecord(content.NEXUS) || !isRecord(content.NEXUS.identity)) {
     throw new ReportMaterializationError('REPORT_RENDER_INPUT_INVALID');
   }
-  return assertRenderIdentity(content.NEXUS.identity as unknown as RenderIdentity);
+  return assertPseudonymousRenderIdentity(content.NEXUS.identity as unknown as RenderIdentity);
 }
 
 export function parseReportRenderContext(scoreResult: unknown, reportContent: unknown): ReportRenderContext {

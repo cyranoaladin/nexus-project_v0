@@ -81,6 +81,7 @@ export async function GET(
         id: true,
         userId: true,
         localPath: true,
+        unavailableReason: true,
         mimeType: true,
         originalName: true,
         sizeBytes: true,
@@ -147,6 +148,13 @@ export async function GET(
     }
 
     // ── Serve file ──
+    // Référence tombstonée : le fichier a été perdu lors de la migration Docker
+    // et ne peut pas être restauré. Répondre franchement plutôt que de laisser
+    // croire à une panne passagère.
+    if (document.unavailableReason) {
+      return new NextResponse(document.unavailableReason, { status: 410 });
+    }
+
     const rawPath = document.localPath;
 
     if (/^https?:\/\//i.test(rawPath)) {

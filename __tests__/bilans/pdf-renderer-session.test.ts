@@ -12,7 +12,7 @@ describe('A93 shared Chromium renderer session', () => {
         PREMIERE_ENTRY_RECIPE_FACT_SHEETS[0],
         'ELEVE',
         {
-          displayName: 'A93_FIXTURE',
+          displayName: 'ELEVE_AFIXTURE',
           level: 'PREMIERE',
           subject: 'MATHS',
           date: '2026-08-03',

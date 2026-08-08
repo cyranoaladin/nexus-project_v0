@@ -25,12 +25,12 @@
   "lockfileEvidence": {
     "path": "package-lock.json",
     "algorithm": "SHA-256",
-    "digest": "c257141643ae551d6a286771dd4f9855964297b010593b1067d7e4bafcb9644f",
+    "digest": "5c06c916c402a9d9cf9844255f7c244462e89b33ac9a830bd542a4809f32d111",
     "verification": {
       "command": "npm ci",
       "verifiedOn": "2026-08-07",
-      "digestBeforeInstall": "c257141643ae551d6a286771dd4f9855964297b010593b1067d7e4bafcb9644f",
-      "digestAfterInstall": "c257141643ae551d6a286771dd4f9855964297b010593b1067d7e4bafcb9644f",
+      "digestBeforeInstall": "5c06c916c402a9d9cf9844255f7c244462e89b33ac9a830bd542a4809f32d111",
+      "digestAfterInstall": "5c06c916c402a9d9cf9844255f7c244462e89b33ac9a830bd542a4809f32d111",
       "unchanged": true
     }
   },
@@ -142,7 +142,7 @@
   "runtimeGraphEvidence": {
     "schema": "nexus-runtime-component-set-recursive/v1",
     "digestAlgorithm": "SHA-256",
-    "digest": "427e5577f280de60c27ab770c97d9dc5e46575a099934648ecd01a771eb8edff",
+    "digest": "2bb3673d01e86ee3520f0035804cb9ecefee0c3be0750adc660e06dfee417d2b",
     "componentCount": 550,
     "canonicalization": {
       "traversal": "components and nested components recursively",
@@ -169,8 +169,8 @@
     "format": "CycloneDX 1.6",
     "componentCount": 523,
     "algorithm": "SHA-256",
-    "digest": "8a036fb25faa0dd1fcbdd41089242eb19d716d9123f125afe4413ac9629c4565",
-    "regeneratedOn": "2026-08-07",
+    "digest": "1e5b2f60bf51caa4d298545895e6f78d2a939b3eec875714f6ba5798cfa620ad",
+    "regeneratedOn": "2026-08-08",
     "blocking": false,
     "note": "Raw CycloneDX digest retained for audit only; validation binds to runtimeGraphEvidence."
   },
@@ -210,7 +210,7 @@
       "PACKAGE_VERSION_CHANGED",
       "PACKAGE_INTEGRITY_CHANGED",
       "DEPENDENCY_PATH_CHANGED",
-    "RUNTIME_GRAPH_DIGEST_CHANGED",
+      "RUNTIME_GRAPH_DIGEST_CHANGED",
       "RUNTIME_EXPOSURE_DETECTED",
       "ADDITIONAL_ADVISORY_DETECTED",
       "UPSTREAM_BACKPORT_RETRACTED",
@@ -220,5 +220,6 @@
       "SCANNER_METADATA_CORRECTED",
       "EXPIRY_REACHED"
     ]
-  }
+  },
+  "approvalReference": "Régénération autorisée explicitement par le responsable dans la consigne de déblocage CI de la PR #104 : « Si l'attestation est invalidée par le changement de lockfile du fix ci-dessus → régénérer avec les vrais outils du dépôt. » Cause : bump nanoid 3.3.16 → 3.3.18 (GHSA-2v37-7h3g-55p8)."
 }
