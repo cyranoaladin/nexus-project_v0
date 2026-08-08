@@ -4,9 +4,9 @@ import { prisma } from '@/lib/prisma';
 import { isErrorResponse, requireRole } from '@/lib/guards';
 import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive';
 import { getDiagnosticForActor, actorRole } from '@/lib/diagnostics/candidat-libre/access.server';
-import { CANDIDATE_DIAGNOSTIC_MODULES } from '@/lib/diagnostics/candidat-libre/definition.public';
 import { isModuleComplete } from '@/lib/diagnostics/candidat-libre/progression';
 import { requireVerifiedParentalConsent } from '@/lib/diagnostics/candidat-libre/consent-gate.server';
+import { isStudentAdultAt, requiredModuleKeysForDossier } from '@/lib/diagnostics/candidat-libre/module-scoping';
 import { guardCandidateDiagnosticFeature, guardCandidateDiagnosticForStudent } from '@/lib/diagnostics/candidat-libre/feature-flag';
 
 interface Params { params: Promise<{ diagnosticId: string }> }
@@ -44,11 +44,14 @@ export async function POST(request: Request, { params }: Params) {
   }
 
   const byKey = new Map(diagnosticOrError.modules.map((module: any) => [module.moduleKey, module]));
-  const required = CANDIDATE_DIAGNOSTIC_MODULES.filter((module) => module.requiredForSubmission);
-  const incomplete = required.filter((definition) => {
-    const moduleRecord = byKey.get(definition.key) as any;
+  // Le questionnaire parent n'est pas exigé d'un étudiant majeur : il recueille
+  // l'avis d'une autorité parentale qui n'existe plus.
+  const studentIsAdult = isStudentAdultAt(diagnosticOrError.student?.birthDate ?? null, new Date());
+  const required = requiredModuleKeysForDossier({ studentIsAdult });
+  const incomplete = required.filter((key) => {
+    const moduleRecord = byKey.get(key) as any;
     return !moduleRecord || !isModuleComplete(moduleRecord.status);
-  }).map((module) => module.key);
+  });
   if (incomplete.length > 0) return NextResponse.json({ error: 'Incomplete diagnostic', incompleteModuleKeys: incomplete }, { status: 422 });
 
   const now = new Date();
