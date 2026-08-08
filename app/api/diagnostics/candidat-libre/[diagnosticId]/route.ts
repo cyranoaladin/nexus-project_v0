@@ -5,7 +5,7 @@ import { getDiagnosticForActor, requireDiagnosticActor, actorRole } from '@/lib/
 import { updateDiagnosticProfileSchema } from '@/lib/diagnostics/candidat-libre/schemas';
 import { serializeCandidateDiagnostic } from '@/lib/diagnostics/candidat-libre/serialize.server';
 import { requireVerifiedParentalConsent } from '@/lib/diagnostics/candidat-libre/consent-gate.server';
-import { guardCandidateDiagnosticFeature } from '@/lib/diagnostics/candidat-libre/feature-flag';
+import { guardCandidateDiagnosticFeature, guardCandidateDiagnosticForStudent } from '@/lib/diagnostics/candidat-libre/feature-flag';
 import type { Prisma } from '@prisma/client';
 
 interface Params { params: Promise<{ diagnosticId: string }> }
@@ -29,6 +29,10 @@ export async function PATCH(request: Request, { params }: Params) {
   if (isErrorResponse(sessionOrError)) return sessionOrError;
   const diagnosticOrError = await getDiagnosticForActor(sessionOrError, diagnosticId);
   if (diagnosticOrError instanceof NextResponse) return diagnosticOrError;
+  // Hors allowlist, le dossier doit paraitre absent : 404 avant tout autre verdict.
+  const notAllowed = guardCandidateDiagnosticForStudent(diagnosticOrError.studentId);
+  if (notAllowed) return notAllowed;
+
   // Dossier portant sur un mineur : aucune collecte avant consentement parental verifie.
   const consentBlocked = await requireVerifiedParentalConsent(diagnosticOrError.studentId);
   if (consentBlocked) return consentBlocked;
