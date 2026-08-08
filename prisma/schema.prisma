@@ -2096,6 +2096,10 @@ model UserDocument {
   // Chemin physique sécurisé (Hors dossier public)
   // Ex: /app/storage/documents/cl9...xyz.pdf
   localPath String @unique
+  /// Renseigné quand le fichier référencé n'existe plus et ne peut pas être
+  /// restauré (perte lors de la migration Docker → répertoires de release).
+  /// La ligne est conservée pour la traçabilité ; le téléchargement répond 410.
+  unavailableReason String?
 
   // Document metadata (Phase A+B enhancement)
   documentType    DocumentType            @default(AUTRE)
