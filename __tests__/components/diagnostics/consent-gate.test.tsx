@@ -4,12 +4,16 @@ import userEvent from '@testing-library/user-event';
 import { ConsentGate } from '@/components/diagnostics/candidat-libre/ConsentGate';
 
 /**
- * Écran de recueil du consentement.
+ * Écran de recueil du consentement — étudiant majeur.
  *
- * Ce que ces tests protègent n'est pas l'apparence mais deux propriétés de
- * fond : la notice est rendue **verbatim** telle que le serveur la fournit, et
- * la **version présentée** est celle renvoyée au serveur. Reformuler le texte
- * ou renvoyer une autre version rendrait le consentement non éclairé.
+ * Trois propriétés de fond, que l'apparence ne doit pas masquer :
+ *
+ * - la notice est rendue **verbatim** telle que le serveur la fournit, et la
+ *   **version présentée** est celle renvoyée — reformuler ou renvoyer autre
+ *   chose rendrait le consentement non éclairé ;
+ * - le partage avec le parent est **décoché par défaut** et n'est envoyé que si
+ *   l'étudiant l'a explicitement coché ;
+ * - consentir et partager sont **deux actes distincts**.
  */
 
 const NOTICE = {
@@ -19,15 +23,15 @@ const NOTICE = {
     { heading: 'Qui traite les données', body: ['Nexus Réussite (STE M&M ACADEMY SUARL), Tunis.'] },
     { heading: 'Sur quelle base', body: ['Sur la base de votre consentement.'] },
   ],
-  parentConsentStatement: "En tant que titulaire de l'autorité parentale sur {{ELEVE_NOM}}, je consens.",
-  parentConsentCheckbox: 'Je consens au traitement décrit, pour mon enfant mineur.',
-  studentAssentStatement: "J'ai compris à quoi sert ce diagnostic et j'accepte d'y participer.",
+  parentConsentStatement: 'Concernant {{ELEVE_NOM}}, je consens au traitement décrit.',
+  parentConsentCheckbox: 'Je consens au traitement décrit.',
+  studentAssentStatement: "J'ai compris à quoi sert ce diagnostic.",
 };
 
-function mockFetch(consentState: string, onPost?: (body: unknown) => void) {
-  return jest.fn(async (url: string, init?: RequestInit) => {
+function mockFetch(consentState: string, posted: unknown[] = []) {
+  return jest.fn(async (_url: string, init?: RequestInit) => {
     if (init?.method === 'POST') {
-      onPost?.(JSON.parse(String(init.body)));
+      posted.push(JSON.parse(String(init.body)));
       return { ok: true, json: async () => ({ consentState: 'GRANTED' }) } as Response;
     }
     return { ok: true, json: async () => ({ notice: NOTICE, consentState }) } as Response;
@@ -36,93 +40,118 @@ function mockFetch(consentState: string, onPost?: (body: unknown) => void) {
 
 beforeEach(() => { jest.restoreAllMocks(); });
 
-describe('ConsentGate — écran parent', () => {
+describe('ConsentGate — notice', () => {
   it('rend la notice verbatim, sans reformulation', async () => {
     global.fetch = mockFetch('MISSING') as unknown as typeof fetch;
-    render(<ConsentGate audience="PARENT" studentId="stu_1" studentName="Ahmed" />);
+    render(<ConsentGate studentId="stu_1" studentName="Ahmed" />);
 
     expect(await screen.findByText(NOTICE.title)).toBeInTheDocument();
     for (const section of NOTICE.sections) {
       expect(screen.getByText(section.heading)).toBeInTheDocument();
-      for (const paragraph of section.body) {
-        expect(screen.getByText(paragraph)).toBeInTheDocument();
-      }
+      for (const p of section.body) expect(screen.getByText(p)).toBeInTheDocument();
     }
   });
 
-  it('interpole le nom de l’élève dans l’engagement parental', async () => {
+  it('interpole le nom de l’étudiant', async () => {
     global.fetch = mockFetch('MISSING') as unknown as typeof fetch;
-    render(<ConsentGate audience="PARENT" studentId="stu_1" studentName="Ahmed" />);
-
-    expect(await screen.findByText(/sur Ahmed, je consens/)).toBeInTheDocument();
+    render(<ConsentGate studentId="stu_1" studentName="Ahmed" />);
+    expect(await screen.findByText(/Concernant Ahmed/)).toBeInTheDocument();
     expect(screen.queryByText(/\{\{ELEVE_NOM\}\}/)).not.toBeInTheDocument();
   });
 
-  it('n’active le consentement qu’après cochage explicite', async () => {
+  it('affiche la version consentie', async () => {
     global.fetch = mockFetch('MISSING') as unknown as typeof fetch;
-    render(<ConsentGate audience="PARENT" studentId="stu_1" />);
-
-    const button = await screen.findByRole('button', { name: /je consens/i });
-    expect(button).toBeDisabled();
-
-    await userEvent.click(screen.getByRole('checkbox'));
-    expect(button).toBeEnabled();
-  });
-
-  it('renvoie la version réellement présentée', async () => {
-    const posted: unknown[] = [];
-    global.fetch = mockFetch('MISSING', (body) => posted.push(body)) as unknown as typeof fetch;
-    render(<ConsentGate audience="PARENT" studentId="stu_1" />);
-
-    await userEvent.click(await screen.findByRole('checkbox'));
-    await userEvent.click(screen.getByRole('button', { name: /je consens/i }));
-
-    await waitFor(() => expect(posted).toHaveLength(1));
-    expect(posted[0]).toMatchObject({
-      action: 'GRANT_PARENTAL_CONSENT',
-      noticeVersion: NOTICE.version,
-      studentId: 'stu_1',
-    });
-  });
-
-  it('affiche la version consentie, pour que la famille sache sur quoi elle s’engage', async () => {
-    global.fetch = mockFetch('MISSING') as unknown as typeof fetch;
-    render(<ConsentGate audience="PARENT" studentId="stu_1" />);
+    render(<ConsentGate studentId="stu_1" />);
     expect(await screen.findByText(/candidat-libre-notice\.v1/)).toBeInTheDocument();
   });
 });
 
-describe('ConsentGate — écran élève', () => {
-  it('recueille un assentiment distinct, dans sa propre formulation', async () => {
+describe('ConsentGate — consentement de l’étudiant', () => {
+  it('n’active le bouton qu’après cochage explicite', async () => {
+    global.fetch = mockFetch('MISSING') as unknown as typeof fetch;
+    render(<ConsentGate studentId="stu_1" />);
+
+    const button = await screen.findByRole('button', { name: /je consens/i });
+    expect(button).toBeDisabled();
+
+    await userEvent.click(screen.getByRole('checkbox', { name: /je consens au traitement/i }));
+    expect(button).toBeEnabled();
+  });
+
+  it('enregistre le consentement de l’étudiant, avec la version présentée', async () => {
     const posted: unknown[] = [];
-    global.fetch = mockFetch('STUDENT_ASSENT_MISSING', (b) => posted.push(b)) as unknown as typeof fetch;
-    render(<ConsentGate audience="ELEVE" />);
+    global.fetch = mockFetch('MISSING', posted) as unknown as typeof fetch;
+    render(<ConsentGate studentId="stu_1" />);
 
-    expect(await screen.findByText(NOTICE.studentAssentStatement)).toBeInTheDocument();
-    expect(screen.queryByText(/autorité parentale/)).not.toBeInTheDocument();
+    await userEvent.click(await screen.findByRole('checkbox', { name: /je consens au traitement/i }));
+    await userEvent.click(screen.getByRole('button', { name: /je consens/i }));
 
-    await userEvent.click(screen.getByRole('checkbox'));
-    await userEvent.click(screen.getByRole('button', { name: /j'accepte de participer/i }));
+    await waitFor(() => expect(posted.length).toBeGreaterThan(0));
+    expect(posted[0]).toMatchObject({
+      action: 'GRANT_STUDENT_CONSENT',
+      noticeVersion: NOTICE.version,
+      studentId: 'stu_1',
+    });
+  });
+});
 
-    await waitFor(() => expect(posted).toHaveLength(1));
-    expect(posted[0]).toMatchObject({ action: 'RECORD_STUDENT_ASSENT' });
+describe('ConsentGate — partage avec le parent', () => {
+  it('propose le partage décoché par défaut', async () => {
+    global.fetch = mockFetch('MISSING') as unknown as typeof fetch;
+    render(<ConsentGate studentId="stu_1" parentName="M. Ben Hadj Salem" />);
+
+    const share = await screen.findByRole('checkbox', { name: /j’autorise M\. Ben Hadj Salem/i });
+    expect(share).not.toBeChecked();
+  });
+
+  it('annonce que le partage est facultatif et révocable', async () => {
+    global.fetch = mockFetch('MISSING') as unknown as typeof fetch;
+    render(<ConsentGate studentId="stu_1" />);
+    expect(await screen.findByText(/Facultatif/i)).toBeInTheDocument();
+    expect(screen.getByText(/retirer à tout moment/i)).toBeInTheDocument();
+  });
+
+  /** Le cœur de la décision : consentir ne partage rien. */
+  it('n’envoie aucune autorisation de partage si la case reste décochée', async () => {
+    const posted: unknown[] = [];
+    global.fetch = mockFetch('MISSING', posted) as unknown as typeof fetch;
+    render(<ConsentGate studentId="stu_1" />);
+
+    await userEvent.click(await screen.findByRole('checkbox', { name: /je consens au traitement/i }));
+    await userEvent.click(screen.getByRole('button', { name: /je consens/i }));
+
+    await waitFor(() => expect(posted.length).toBeGreaterThan(0));
+    const actions = posted.map((p) => (p as { action: string }).action);
+    expect(actions).toContain('GRANT_STUDENT_CONSENT');
+    expect(actions).not.toContain('SET_PARENT_ACCESS');
+  });
+
+  it('envoie l’autorisation seulement si l’étudiant l’a cochée', async () => {
+    const posted: unknown[] = [];
+    global.fetch = mockFetch('MISSING', posted) as unknown as typeof fetch;
+    render(<ConsentGate studentId="stu_1" parentName="M. Ben Hadj Salem" />);
+
+    await userEvent.click(await screen.findByRole('checkbox', { name: /je consens au traitement/i }));
+    await userEvent.click(screen.getByRole('checkbox', { name: /j’autorise/i }));
+    await userEvent.click(screen.getByRole('button', { name: /je consens/i }));
+
+    await waitFor(() => expect(posted.length).toBe(2));
+    expect(posted[1]).toMatchObject({ action: 'SET_PARENT_ACCESS', parentAccess: true });
   });
 });
 
 describe('ConsentGate — états', () => {
-  it('ne redemande rien quand le consentement est déjà acquis', async () => {
+  it('ne redemande rien quand le consentement est acquis', async () => {
     global.fetch = mockFetch('GRANTED') as unknown as typeof fetch;
-    render(<ConsentGate audience="PARENT" studentId="stu_1" />);
-
+    render(<ConsentGate studentId="stu_1" />);
     expect(await screen.findByText(/consentement est enregistré/i)).toBeInTheDocument();
     expect(screen.queryByRole('checkbox')).not.toBeInTheDocument();
   });
 
-  /** Hors allowlist, l'API répond 404 : l'écran ne doit rien révéler du dossier. */
+  /** Hors allowlist, l'API répond 404 : l'écran ne révèle rien du dossier. */
   it('reste discret quand le parcours n’est pas accessible', async () => {
     global.fetch = jest.fn(async () => ({ ok: false, json: async () => ({}) })) as unknown as typeof fetch;
-    render(<ConsentGate audience="PARENT" studentId="stu_1" />);
-
+    render(<ConsentGate studentId="stu_1" />);
     expect(await screen.findByText(/n'est pas accessible avec ce compte/i)).toBeInTheDocument();
     expect(screen.queryByRole('checkbox')).not.toBeInTheDocument();
   });

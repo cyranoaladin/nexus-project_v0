@@ -2927,7 +2927,9 @@ model CandidateDiagnosticConsent {
   studentId String
   student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
-  /// Parent titulaire de l'autorité parentale ayant consenti.
+  /// Parent rattaché au dossier. Conservé pour la structure et le
+  /// provisionnement ; il ne consent plus à la place de l'étudiant majeur, et
+  /// n'a accès à rien tant que l'étudiant ne l'a pas explicitement autorisé.
   parentUserId String
   parentUser   User   @relation("CandidateDiagnosticConsentParent", fields: [parentUserId], references: [id], onDelete: Restrict)
 
@@ -2935,11 +2937,18 @@ model CandidateDiagnosticConsent {
   /// notice invalide le consentement : il doit être recueilli à nouveau.
   noticeVersion String
 
-  /// Horodatage du consentement parental. Fait juridique principal.
-  parentConsentedAt DateTime
+  /// Consentement de l'étudiant. **Fait juridique principal** : l'étudiant est
+  /// majeur, c'est lui qui autorise le traitement de ses propres données.
+  studentConsentedAt DateTime?
 
-  /// Assentiment de l'élève, distinct et adapté à son âge.
-  studentAssentedAt DateTime?
+  /// Consentement parental. N'est plus requis pour un étudiant majeur ; ne
+  /// subsiste que pour les dossiers ouverts sur un mineur.
+  parentConsentedAt DateTime?
+
+  /// Autorisation, donnée par l'étudiant, que le parent consulte ses résultats.
+  /// **Nul par défaut** : le parent ne voit rien tant que l'étudiant n'a pas
+  /// coché explicitement. Révocable à tout moment.
+  parentAccessAuthorizedAt DateTime?
 
   /// Retrait du consentement. Bloque tout traitement et déclenche l'effacement.
   withdrawnAt     DateTime?

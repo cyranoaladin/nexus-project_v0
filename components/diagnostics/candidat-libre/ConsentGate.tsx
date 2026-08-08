@@ -42,17 +42,21 @@ const IVORY = '#F7F4ED';
 const SLATE = '#5A6B82';
 
 export type ConsentGateProps = Readonly<{
-  audience: 'PARENT' | 'ELEVE';
   studentId?: string;
-  /** Nom de l'élève, interpolé dans l'engagement parental. */
+  /** Nom de l'étudiant, interpolé dans l'engagement. */
   studentName?: string;
+  /** Nom du parent rattaché, pour nommer précisément qui serait autorisé. */
+  parentName?: string;
   onGranted?: () => void;
 }>;
 
-export function ConsentGate({ audience, studentId, studentName, onGranted }: ConsentGateProps) {
+export function ConsentGate({ studentId, studentName, parentName, onGranted }: ConsentGateProps) {
   const [notice, setNotice] = useState<Notice | null>(null);
   const [state, setState] = useState<CandidateDiagnosticConsentState | null>(null);
   const [accepted, setAccepted] = useState(false);
+  // Décochée par défaut, et c'est le point : rien n'est partagé sans un geste
+  // explicite de l'étudiant. Il est majeur, ces données sont les siennes.
+  const [shareWithParent, setShareWithParent] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -87,7 +91,7 @@ export function ConsentGate({ audience, studentId, studentName, onGranted }: Con
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          action: audience === 'PARENT' ? 'GRANT_PARENTAL_CONSENT' : 'RECORD_STUDENT_ASSENT',
+          action: 'GRANT_STUDENT_CONSENT',
           studentId,
           // La version rendue est renvoyée telle quelle : le serveur refuse
           // toute valeur autre que la version courante.
@@ -104,7 +108,18 @@ export function ConsentGate({ audience, studentId, studentName, onGranted }: Con
         return;
       }
       setState(payload.consentState);
-      if (payload.consentState === 'GRANTED') onGranted?.();
+      if (payload.consentState === 'GRANTED') {
+        // L'autorisation d'accès du parent est un acte distinct du consentement :
+        // elle n'est envoyée que si l'étudiant l'a explicitement cochée.
+        if (shareWithParent) {
+          await fetch('/api/diagnostics/candidat-libre/consent', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'SET_PARENT_ACCESS', studentId, parentAccess: true }),
+          });
+        }
+        onGranted?.();
+      }
     } catch {
       setError('Le service est momentanément indisponible.');
     } finally {
@@ -139,10 +154,9 @@ export function ConsentGate({ audience, studentId, studentName, onGranted }: Con
     );
   }
 
-  const isParent = audience === 'PARENT';
-  const parentStatement = notice.parentConsentStatement.replace(
+  const statement = notice.parentConsentStatement.replace(
     '{{ELEVE_NOM}}',
-    studentName ?? 'votre enfant',
+    studentName ?? 'moi-même',
   );
 
   return (
@@ -190,7 +204,7 @@ export function ConsentGate({ audience, studentId, studentName, onGranted }: Con
           style={{ backgroundColor: IVORY, border: `1px solid ${GOLD_WASH}` }}
         >
           <p className="text-[15px] leading-relaxed" style={{ color: INK }}>
-            {isParent ? parentStatement : notice.studentAssentStatement}
+            {statement}
           </p>
 
           <label className="mt-5 flex cursor-pointer items-start gap-3 text-[15px]" style={{ color: INK }}>
@@ -201,14 +215,25 @@ export function ConsentGate({ audience, studentId, studentName, onGranted }: Con
               className="mt-1 h-4 w-4"
               style={{ accentColor: GOLD }}
             />
-            <span>{isParent ? notice.parentConsentCheckbox : "J'accepte de participer."}</span>
+            <span>{notice.parentConsentCheckbox}</span>
           </label>
 
-          {state === 'STUDENT_ASSENT_MISSING' && isParent ? (
-            <p className="mt-4 text-sm" style={{ color: SLATE }}>
-              Votre consentement est enregistré ; il reste l'accord de votre enfant.
-            </p>
-          ) : null}
+          <label className="mt-4 flex cursor-pointer items-start gap-3 text-[15px]" style={{ color: INK }}>
+            <input
+              type="checkbox"
+              checked={shareWithParent}
+              onChange={(event) => setShareWithParent(event.target.checked)}
+              className="mt-1 h-4 w-4"
+              style={{ accentColor: GOLD }}
+            />
+            <span>
+              J’autorise {parentName ?? 'mon parent'} à consulter mes résultats.
+              <span className="mt-1 block text-xs" style={{ color: SLATE }}>
+                Facultatif. Sans cette autorisation, personne d’autre que vous et l’équipe
+                pédagogique n’y a accès. Vous pouvez la retirer à tout moment.
+              </span>
+            </span>
+          </label>
 
           {error ? (
             <p className="mt-4 text-sm" role="alert" style={{ color: '#7A6535' }}>
@@ -223,7 +248,7 @@ export function ConsentGate({ audience, studentId, studentName, onGranted }: Con
             className="mt-6 rounded-lg px-6 py-3 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-40"
             style={{ backgroundColor: INK, color: IVORY }}
           >
-            {busy ? 'Enregistrement…' : isParent ? 'Je consens' : "J'accepte de participer"}
+            {busy ? 'Enregistrement…' : 'Je consens'}
           </button>
 
           <p className="mt-4 text-xs" style={{ color: SLATE }}>

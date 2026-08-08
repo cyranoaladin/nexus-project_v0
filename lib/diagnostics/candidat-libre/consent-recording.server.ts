@@ -39,7 +39,8 @@ type ConsentRow = Readonly<{
   parentUserId: string;
   noticeVersion: string;
   withdrawnAt: Date | null;
-  studentAssentedAt?: Date | null;
+  studentConsentedAt: Date | null;
+  parentAccessAuthorizedAt: Date | null;
 }>;
 
 /** Résout le parent actuellement rattaché, ou refuse. */
@@ -67,9 +68,8 @@ async function currentConsent(studentId: string): Promise<ConsentRow | null> {
  * consentement précédant normalement sa création, la journalisation est alors
  * simplement omise faute d'entité à rattacher.
  */
-export async function grantParentalConsent(input: Readonly<{
+export async function grantStudentConsent(input: Readonly<{
   studentId: string;
-  parentUserId: string;
   noticeVersion: string;
   diagnosticId?: string;
 }>): Promise<{ id: string }> {
@@ -77,10 +77,9 @@ export async function grantParentalConsent(input: Readonly<{
     throw new ConsentRecordingError('NOTICE_VERSION_MISMATCH');
   }
 
+  // Le parent rattaché est enregistré pour la structure, mais il n'autorise
+  // rien : c'est l'étudiant, majeur, qui consent pour lui-même.
   const linkedParent = await requireLinkedParent(input.studentId);
-  if (linkedParent !== input.parentUserId) {
-    throw new ConsentRecordingError('NOT_THE_LINKED_PARENT');
-  }
 
   const now = new Date();
   const consent = await prisma.candidateDiagnosticConsent.upsert({
@@ -92,15 +91,14 @@ export async function grantParentalConsent(input: Readonly<{
     },
     create: {
       studentId: input.studentId,
-      parentUserId: input.parentUserId,
+      parentUserId: linkedParent,
       noticeVersion: input.noticeVersion,
-      parentConsentedAt: now,
+      studentConsentedAt: now,
     },
     // Re-consentir après un retrait doit relever le blocage, sans effacer la
     // trace : `withdrawnAt` est remis à nul et l'horodatage rafraîchi.
     update: {
-      parentUserId: input.parentUserId,
-      parentConsentedAt: now,
+      studentConsentedAt: now,
       withdrawnAt: null,
       withdrawnReason: null,
     },
@@ -110,9 +108,8 @@ export async function grantParentalConsent(input: Readonly<{
     await prisma.candidateDiagnosticAuditLog.create({
       data: {
         diagnosticId: input.diagnosticId,
-        actorId: input.parentUserId,
-        actorRole: 'PARENT',
-        action: 'PARENTAL_CONSENT_GRANTED',
+        actorRole: 'ELEVE',
+        action: 'STUDENT_CONSENT_GRANTED',
         entityType: 'CandidateDiagnosticConsent',
         entityId: consent.id,
         details: { noticeVersion: input.noticeVersion },
@@ -124,27 +121,27 @@ export async function grantParentalConsent(input: Readonly<{
 }
 
 /**
- * Enregistre l'assentiment de l'élève.
+ * Autorise, ou révoque, la consultation des résultats par le parent rattaché.
  *
- * Distinct du consentement parental et exigé en plus de lui : un mineur
- * participe, il ne subit pas. Il ne peut être recueilli que sur un consentement
- * parental courant — sans quoi on demanderait son accord à un enfant pour un
- * traitement que personne n'a autorisé.
+ * **Rien n'est partagé par défaut.** L'étudiant est majeur : ses documents
+ * d'identité, son enregistrement audio et le jugement de faisabilité qui le
+ * concerne ne regardent que lui. Le lien parental existe pour la structure du
+ * dossier, pas pour donner à voir. C'est donc un geste explicite de l'étudiant
+ * qui ouvre l'accès — et le même geste, inversé, qui le referme.
  */
-export async function recordStudentAssent(input: Readonly<{
+export async function setParentAccessAuthorization(input: Readonly<{
   studentId: string;
+  authorized: boolean;
   diagnosticId?: string;
-}>): Promise<{ id: string }> {
+}>): Promise<{ id: string; parentAccessAuthorizedAt: Date | null }> {
   const consent = await currentConsent(input.studentId);
-  if (!consent) throw new ConsentRecordingError('PARENTAL_CONSENT_REQUIRED');
+  if (!consent) throw new ConsentRecordingError('CONSENT_REQUIRED');
   if (consent.withdrawnAt !== null) throw new ConsentRecordingError('CONSENT_WITHDRAWN');
-  if (consent.noticeVersion !== CANDIDATE_DIAGNOSTIC_NOTICE_VERSION) {
-    throw new ConsentRecordingError('NOTICE_VERSION_MISMATCH');
-  }
 
+  const parentAccessAuthorizedAt = input.authorized ? new Date() : null;
   await prisma.candidateDiagnosticConsent.update({
     where: { id: consent.id },
-    data: { studentAssentedAt: new Date() },
+    data: { parentAccessAuthorizedAt },
   });
 
   if (input.diagnosticId) {
@@ -152,33 +149,38 @@ export async function recordStudentAssent(input: Readonly<{
       data: {
         diagnosticId: input.diagnosticId,
         actorRole: 'ELEVE',
-        action: 'STUDENT_ASSENT_RECORDED',
+        action: input.authorized ? 'PARENT_ACCESS_AUTHORIZED' : 'PARENT_ACCESS_REVOKED',
         entityType: 'CandidateDiagnosticConsent',
         entityId: consent.id,
       },
     });
   }
 
-  return { id: consent.id };
+  return { id: consent.id, parentAccessAuthorizedAt };
 }
 
 /**
- * Retire le consentement parental. Bloque immédiatement tout traitement.
+ * Le parent rattaché est-il autorisé à consulter les résultats ?
+ *
+ * Fermé par défaut : sans autorisation explicite et courante de l'étudiant, la
+ * réponse est non.
+ */
+export async function isParentAccessAuthorized(studentId: string): Promise<boolean> {
+  const consent = await currentConsent(studentId);
+  return Boolean(consent && consent.withdrawnAt === null && consent.parentAccessAuthorizedAt);
+}
+
+/**
+ * Retire le consentement de l'étudiant. Bloque immédiatement tout traitement.
  *
  * Idempotent : retirer un consentement déjà retiré ne réécrit pas la date, pour
  * que la trace du retrait initial reste exacte.
  */
-export async function withdrawParentalConsent(input: Readonly<{
+export async function withdrawStudentConsent(input: Readonly<{
   studentId: string;
-  parentUserId: string;
   reason?: string;
   diagnosticId?: string;
 }>): Promise<{ id: string; withdrawnAt: Date }> {
-  const linkedParent = await requireLinkedParent(input.studentId);
-  if (linkedParent !== input.parentUserId) {
-    throw new ConsentRecordingError('NOT_THE_LINKED_PARENT');
-  }
-
   const consent = await currentConsent(input.studentId);
   if (!consent) throw new ConsentRecordingError('NO_CONSENT_TO_WITHDRAW');
   if (consent.withdrawnAt !== null) {
@@ -195,9 +197,8 @@ export async function withdrawParentalConsent(input: Readonly<{
     await prisma.candidateDiagnosticAuditLog.create({
       data: {
         diagnosticId: input.diagnosticId,
-        actorId: input.parentUserId,
-        actorRole: 'PARENT',
-        action: 'PARENTAL_CONSENT_WITHDRAWN',
+        actorRole: 'ELEVE',
+        action: 'STUDENT_CONSENT_WITHDRAWN',
         entityType: 'CandidateDiagnosticConsent',
         entityId: consent.id,
       },
