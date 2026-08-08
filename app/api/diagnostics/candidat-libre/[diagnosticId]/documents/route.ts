@@ -8,6 +8,7 @@ import { getDiagnosticForActor, requireDiagnosticActor, actorRole, isDocumentVis
 import { persistDiagnosticFile, removePersistedDiagnosticFile } from '@/lib/diagnostics/candidat-libre/storage.server';
 import { CANDIDATE_DIAGNOSTIC_MODULES } from '@/lib/diagnostics/candidat-libre/definition.public';
 import { scanDiagnosticFile } from '@/lib/diagnostics/candidat-libre/virus-scan.server';
+import { requireVerifiedParentalConsent } from '@/lib/diagnostics/candidat-libre/consent-gate.server';
 import { guardCandidateDiagnosticFeature } from '@/lib/diagnostics/candidat-libre/feature-flag';
 
 interface Params { params: Promise<{ diagnosticId: string }> }
@@ -66,6 +67,9 @@ export async function POST(request: Request, { params }: Params) {
   if (identityLimited) return identityLimited;
   const diagnosticOrError = await getDiagnosticForActor(sessionOrError, diagnosticId);
   if (diagnosticOrError instanceof NextResponse) return diagnosticOrError;
+  // Dossier portant sur un mineur : aucune collecte avant consentement parental verifie.
+  const consentBlocked = await requireVerifiedParentalConsent(diagnosticOrError.studentId);
+  if (consentBlocked) return consentBlocked;
   if (diagnosticOrError.submittedAt) return NextResponse.json({ error: 'Diagnostic locked' }, { status: 423 });
 
   const contentType = request.headers.get('content-type') ?? '';

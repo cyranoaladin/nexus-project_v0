@@ -6,6 +6,7 @@ import { prisma } from '@/lib/prisma';
 import { getDocumentStorageRoot } from '@/lib/documents/storage-root';
 import { isErrorResponse } from '@/lib/guards';
 import { getDiagnosticForActor, requireDiagnosticActor, actorRole, isDocumentVisibleToViewer } from '@/lib/diagnostics/candidat-libre/access.server';
+import { requireVerifiedParentalConsent } from '@/lib/diagnostics/candidat-libre/consent-gate.server';
 import { guardCandidateDiagnosticFeature } from '@/lib/diagnostics/candidat-libre/feature-flag';
 
 interface Params { params: Promise<{ diagnosticId: string; documentId: string }> }
@@ -57,6 +58,9 @@ export async function DELETE(_request: Request, { params }: Params) {
   }
   const diagnosticOrError = await getDiagnosticForActor(sessionOrError, diagnosticId);
   if (diagnosticOrError instanceof NextResponse) return diagnosticOrError;
+  // Dossier portant sur un mineur : aucune collecte avant consentement parental verifie.
+  const consentBlocked = await requireVerifiedParentalConsent(diagnosticOrError.studentId);
+  if (consentBlocked) return consentBlocked;
   if (diagnosticOrError.submittedAt) return NextResponse.json({ error: 'Diagnostic locked' }, { status: 423 });
   const document = diagnosticOrError.documents.find((item: any) => item.id === documentId);
   if (!document) return NextResponse.json({ error: 'Not Found' }, { status: 404 });
