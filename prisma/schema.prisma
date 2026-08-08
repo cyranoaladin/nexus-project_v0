@@ -2913,6 +2913,9 @@ model CandidateDiagnostic {
   @@unique([studentId, diagnosticKey, targetSession])
   @@index([studentId, status])
   @@index([status, updatedAt])
+  /// Créé par la migration `20260808180000` : la purge de conservation
+  /// balaie les dossiers par date de dernière activité.
+  @@index([lastActivityAt])
   @@map("candidate_diagnostics")
 }
 
@@ -2978,6 +2981,14 @@ model CandidateDiagnosticConsent {
   /// Consentement parental. N'est plus requis pour un étudiant majeur ; ne
   /// subsiste que pour les dossiers ouverts sur un mineur.
   parentConsentedAt DateTime?
+
+  /// Champ historique de la version mineur, où l'assentiment de l'élève
+  /// complétait le consentement parental. Le passage au régime adulte l'a
+  /// remplacé par `studentConsentedAt`, mais la colonne existe en base et
+  /// n'est pas supprimée : la déclarer ici évite un écart de schéma qu'un
+  /// futur `migrate dev` proposerait de « réconcilier » par un DROP.
+  /// Plus aucun code ne la lit ni ne l'écrit.
+  studentAssentedAt DateTime?
 
   /// Autorisation, donnée par l'étudiant, que le parent consulte ses résultats.
   /// **Nul par défaut** : le parent ne voit rien tant que l'étudiant n'a pas
