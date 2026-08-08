@@ -11,7 +11,7 @@ import { parentQuestionnaireSchema } from '@/lib/diagnostics/candidat-libre/sche
 import { scoreDiagnosticModule, validateRequiredAnswers } from '@/lib/diagnostics/candidat-libre/scoring.server';
 import type { DiagnosticAnswer } from '@/lib/diagnostics/candidat-libre/types';
 import { requireVerifiedParentalConsent } from '@/lib/diagnostics/candidat-libre/consent-gate.server';
-import { guardCandidateDiagnosticFeature } from '@/lib/diagnostics/candidat-libre/feature-flag';
+import { guardCandidateDiagnosticFeature, guardCandidateDiagnosticForStudent } from '@/lib/diagnostics/candidat-libre/feature-flag';
 
 interface Params { params: Promise<{ diagnosticId: string }> }
 const MODULE_KEY = 'questionnaire-parent';
@@ -63,6 +63,10 @@ async function saveParentQuestionnaire(request: Request, { params }: Params, act
   if (identityLimited) return identityLimited;
   const diagnosticOrError = await getDiagnosticForActor(sessionOrError, diagnosticId);
   if (diagnosticOrError instanceof NextResponse) return diagnosticOrError;
+  // Hors allowlist, le dossier doit paraitre absent : 404 avant tout autre verdict.
+  const notAllowed = guardCandidateDiagnosticForStudent(diagnosticOrError.studentId);
+  if (notAllowed) return notAllowed;
+
   // Dossier portant sur un mineur : aucune collecte avant consentement parental verifie.
   const consentBlocked = await requireVerifiedParentalConsent(diagnosticOrError.studentId);
   if (consentBlocked) return consentBlocked;
@@ -98,8 +102,8 @@ async function saveParentQuestionnaire(request: Request, { params }: Params, act
       // `parentConsentAt` n'est volontairement plus alimenté ici. La question
       // `parent-22` autorise l'exploitation des réponses du parent lui-même ;
       // elle ne vaut pas autorisation de traiter les données du mineur. Le
-      // consentement parental fait foi dans `canonical_parent_student_links`
-      // et conditionne désormais l'accès à cette route.
+      // consentement parental fait foi dans `CandidateDiagnosticConsent`,
+      // spécifique à ce diagnostic, et conditionne l'accès à cette route.
       await tx.candidateDiagnostic.update({
         where: { id: diagnosticId },
         data: { parentSubmittedAt: now },

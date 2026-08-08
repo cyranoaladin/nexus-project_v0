@@ -14,6 +14,7 @@ import path from 'node:path';
 
 const ROUTES_ROOT = path.join(process.cwd(), 'app/api/diagnostics/candidat-libre');
 const GATE = 'requireVerifiedParentalConsent';
+const ALLOWLIST = 'guardCandidateDiagnosticForStudent';
 
 /** Routes de lecture seule ou d'export staff : pas de collecte, donc non gatées. */
 const READ_ONLY_ROUTES = new Set(['staff-export/route.ts']);
@@ -74,6 +75,28 @@ describe('candidat libre — consentement parental sur tout chemin d’écriture
     expect(parentRoute).toContain('parentSubmittedAt');
     expect(parentRoute).not.toMatch(/parentConsentAt:\s*now/);
   });
+
+  it.each(routeFiles.map((file) => [path.relative(ROUTES_ROOT, file), file]))(
+    'allowlist — %s',
+    (relative, file) => {
+      const source = fs.readFileSync(file, 'utf8');
+      if (!WRITE_HANDLER.test(source)) return;
+      if (READ_ONLY_ROUTES.has(relative)) return;
+
+      // Sans allowlist, allumer le drapeau ouvrirait le diagnostic à tous les
+      // élèves et parents de la base : le rôle dédié n'existe pas et aucune
+      // éligibilité n'est vérifiée ailleurs.
+      expect(source).toContain(ALLOWLIST);
+
+      // L'allowlist doit précéder le consentement : hors périmètre, la
+      // fonctionnalité doit paraître absente (404) plutôt que de révéler
+      // qu'un consentement serait requis (403).
+      const allowlistAt = source.indexOf(`${ALLOWLIST}(`);
+      const gateAt = source.indexOf(`await ${GATE}(`);
+      expect(allowlistAt).toBeGreaterThanOrEqual(0);
+      expect(allowlistAt).toBeLessThan(gateAt);
+    },
+  );
 
   it('conserve le garde-fou du kill switch avant le consentement', () => {
     // L'ordre importe : la fonctionnalité doit rester invisible (404) avant
