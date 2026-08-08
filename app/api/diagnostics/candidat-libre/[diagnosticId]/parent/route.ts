@@ -10,6 +10,7 @@ import { getPublicModuleDefinition } from '@/lib/diagnostics/candidat-libre/defi
 import { parentQuestionnaireSchema } from '@/lib/diagnostics/candidat-libre/schemas';
 import { scoreDiagnosticModule, validateRequiredAnswers } from '@/lib/diagnostics/candidat-libre/scoring.server';
 import type { DiagnosticAnswer } from '@/lib/diagnostics/candidat-libre/types';
+import { requireVerifiedParentalConsent } from '@/lib/diagnostics/candidat-libre/consent-gate.server';
 import { guardCandidateDiagnosticFeature } from '@/lib/diagnostics/candidat-libre/feature-flag';
 
 interface Params { params: Promise<{ diagnosticId: string }> }
@@ -62,6 +63,9 @@ async function saveParentQuestionnaire(request: Request, { params }: Params, act
   if (identityLimited) return identityLimited;
   const diagnosticOrError = await getDiagnosticForActor(sessionOrError, diagnosticId);
   if (diagnosticOrError instanceof NextResponse) return diagnosticOrError;
+  // Dossier portant sur un mineur : aucune collecte avant consentement parental verifie.
+  const consentBlocked = await requireVerifiedParentalConsent(diagnosticOrError.studentId);
+  if (consentBlocked) return consentBlocked;
   if (diagnosticOrError.submittedAt) return NextResponse.json({ error: 'Diagnostic locked' }, { status: 423 });
   const parsed = parentQuestionnaireSchema.safeParse({ ...(await request.json()), action });
   if (!parsed.success) return NextResponse.json({ error: 'Validation failed', details: parsed.error.flatten() }, { status: 400 });
@@ -91,9 +95,14 @@ async function saveParentQuestionnaire(request: Request, { params }: Params, act
       },
     });
     if (action === 'submit') {
+      // `parentConsentAt` n'est volontairement plus alimenté ici. La question
+      // `parent-22` autorise l'exploitation des réponses du parent lui-même ;
+      // elle ne vaut pas autorisation de traiter les données du mineur. Le
+      // consentement parental fait foi dans `canonical_parent_student_links`
+      // et conditionne désormais l'accès à cette route.
       await tx.candidateDiagnostic.update({
         where: { id: diagnosticId },
-        data: { parentConsentAt: now, parentSubmittedAt: now },
+        data: { parentSubmittedAt: now },
       });
     }
     await tx.candidateDiagnosticAuditLog.create({

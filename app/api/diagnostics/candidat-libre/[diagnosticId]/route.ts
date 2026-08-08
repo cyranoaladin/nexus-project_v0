@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { getDiagnosticForActor, requireDiagnosticActor, actorRole } from '@/lib/diagnostics/candidat-libre/access.server';
 import { updateDiagnosticProfileSchema } from '@/lib/diagnostics/candidat-libre/schemas';
 import { serializeCandidateDiagnostic } from '@/lib/diagnostics/candidat-libre/serialize.server';
+import { requireVerifiedParentalConsent } from '@/lib/diagnostics/candidat-libre/consent-gate.server';
 import { guardCandidateDiagnosticFeature } from '@/lib/diagnostics/candidat-libre/feature-flag';
 import type { Prisma } from '@prisma/client';
 
@@ -28,6 +29,9 @@ export async function PATCH(request: Request, { params }: Params) {
   if (isErrorResponse(sessionOrError)) return sessionOrError;
   const diagnosticOrError = await getDiagnosticForActor(sessionOrError, diagnosticId);
   if (diagnosticOrError instanceof NextResponse) return diagnosticOrError;
+  // Dossier portant sur un mineur : aucune collecte avant consentement parental verifie.
+  const consentBlocked = await requireVerifiedParentalConsent(diagnosticOrError.studentId);
+  if (consentBlocked) return consentBlocked;
   if (diagnosticOrError.submittedAt) return NextResponse.json({ error: 'Locked' }, { status: 423 });
 
   const parsed = updateDiagnosticProfileSchema.safeParse(await request.json());

@@ -10,6 +10,7 @@ import { getPublicModuleDefinition, CANDIDATE_DIAGNOSTIC_MODULES } from '@/lib/d
 import { moduleDraftSchema, moduleKeySchema } from '@/lib/diagnostics/candidat-libre/schemas';
 import { scoreDiagnosticModule, validateRequiredAnswers } from '@/lib/diagnostics/candidat-libre/scoring.server';
 import { resolveModuleAvailability } from '@/lib/diagnostics/candidat-libre/progression';
+import { requireVerifiedParentalConsent } from '@/lib/diagnostics/candidat-libre/consent-gate.server';
 import { guardCandidateDiagnosticFeature } from '@/lib/diagnostics/candidat-libre/feature-flag';
 import type { DiagnosticAnswer, DiagnosticModuleView } from '@/lib/diagnostics/candidat-libre/types';
 
@@ -110,6 +111,9 @@ async function saveModule(request: Request, { params }: Params, forcedAction: 'd
   if (!canEditAudience(sessionOrError.user.role, definition.audience)) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   const diagnosticOrError = await getDiagnosticForActor(sessionOrError, diagnosticId);
   if (diagnosticOrError instanceof NextResponse) return diagnosticOrError;
+  // Dossier portant sur un mineur : aucune collecte avant consentement parental verifie.
+  const consentBlocked = await requireVerifiedParentalConsent(diagnosticOrError.studentId);
+  if (consentBlocked) return consentBlocked;
   if (diagnosticOrError.submittedAt) return NextResponse.json({ error: 'Diagnostic locked' }, { status: 423 });
 
   const parsed = moduleDraftSchema.safeParse({ ...(await request.json()), action: forcedAction });

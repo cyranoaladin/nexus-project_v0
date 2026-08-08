@@ -6,6 +6,7 @@ import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive';
 import { getDiagnosticForActor, actorRole } from '@/lib/diagnostics/candidat-libre/access.server';
 import { CANDIDATE_DIAGNOSTIC_MODULES } from '@/lib/diagnostics/candidat-libre/definition.public';
 import { isModuleComplete } from '@/lib/diagnostics/candidat-libre/progression';
+import { requireVerifiedParentalConsent } from '@/lib/diagnostics/candidat-libre/consent-gate.server';
 import { guardCandidateDiagnosticFeature } from '@/lib/diagnostics/candidat-libre/feature-flag';
 
 interface Params { params: Promise<{ diagnosticId: string }> }
@@ -26,6 +27,9 @@ export async function POST(request: Request, { params }: Params) {
   if (identityLimited) return identityLimited;
   const diagnosticOrError = await getDiagnosticForActor(sessionOrError, diagnosticId);
   if (diagnosticOrError instanceof NextResponse) return diagnosticOrError;
+  // Dossier portant sur un mineur : aucune collecte avant consentement parental verifie.
+  const consentBlocked = await requireVerifiedParentalConsent(diagnosticOrError.studentId);
+  if (consentBlocked) return consentBlocked;
   if (diagnosticOrError.submittedAt) return NextResponse.json({ success: true, idempotent: true, status: diagnosticOrError.status });
 
   const body = await request.json().catch(() => ({}));
