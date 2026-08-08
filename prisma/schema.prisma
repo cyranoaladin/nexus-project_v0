@@ -227,6 +227,7 @@ model User {
 
   // Diagnostic candidat libre 2027 (feature isolée)
   createdCandidateDiagnostics          CandidateDiagnostic[]         @relation("CandidateDiagnosticCreatedBy")
+  candidateDiagnosticConsents          CandidateDiagnosticConsent[]  @relation("CandidateDiagnosticConsentParent")
   candidateDiagnosticDocumentsUploaded CandidateDiagnosticDocument[] @relation("CandidateDiagnosticDocumentUploader")
   candidateDiagnosticAuditLogs         CandidateDiagnosticAuditLog[] @relation("CandidateDiagnosticAuditActor")
 
@@ -333,6 +334,7 @@ model Student {
 
   // Diagnostic candidat libre 2027 (feature isolée, non liée aux bilans/assessments historiques)
   candidateDiagnostics CandidateDiagnostic[]
+  candidateDiagnosticConsents CandidateDiagnosticConsent[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -2903,6 +2905,48 @@ model CandidateDiagnostic {
   @@index([studentId, status])
   @@index([status, updatedAt])
   @@map("candidate_diagnostics")
+}
+
+/// Consentement parental spécifique au diagnostic candidat libre.
+///
+/// Volontairement distinct du rattachement parent-élève du bilan gratuit
+/// (`canonical_parent_student_links`) : le consentement doit être *spécifique*
+/// et *éclairé* — la notice décrit le diagnostic, le dépôt de documents
+/// officiels et l'enregistrement audio, qui n'existent pas dans le bilan
+/// gratuit. Réutiliser l'autre rattachement reviendrait à traiter des données
+/// d'un mineur sur la foi d'un consentement donné pour autre chose.
+///
+/// Vit hors de `CandidateDiagnostic` parce que le consentement doit précéder la
+/// création du dossier : la notice est présentée avant tout traitement.
+model CandidateDiagnosticConsent {
+  id        String @id @default(cuid())
+  studentId String
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  /// Parent titulaire de l'autorité parentale ayant consenti.
+  parentUserId String
+  parentUser   User   @relation("CandidateDiagnosticConsentParent", fields: [parentUserId], references: [id], onDelete: Restrict)
+
+  /// Version de la notice effectivement consentie. Une nouvelle version de la
+  /// notice invalide le consentement : il doit être recueilli à nouveau.
+  noticeVersion String
+
+  /// Horodatage du consentement parental. Fait juridique principal.
+  parentConsentedAt DateTime
+
+  /// Assentiment de l'élève, distinct et adapté à son âge.
+  studentAssentedAt DateTime?
+
+  /// Retrait du consentement. Bloque tout traitement et déclenche l'effacement.
+  withdrawnAt     DateTime?
+  withdrawnReason String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([studentId, noticeVersion])
+  @@index([studentId, withdrawnAt])
+  @@map("candidate_diagnostic_consents")
 }
 
 model CandidateDiagnosticModule {
