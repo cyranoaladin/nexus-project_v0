@@ -131,10 +131,11 @@ describe('points encore ouverts', () => {
    * opérationnelle : impossible d'automatiser une purge sans le trancher.
    */
   /**
-   * Le document source mentionne encore un dernier aval du juriste sur le
-   * régime applicable. Tant qu'il y figure, la question reste consignée.
+   * L'aval du juriste est acquis : plus aucune question ouverte. Vider cette
+   * liste ne touche pas au texte consenti, donc la version reste v3.
    */
-  it('conserve la question du régime applicable, telle qu’elle figure au document', () => {
-    expect(NOTICE_OPEN_QUESTIONS.join(' ')).toMatch(/régime applicable/i);
+  it('ne laisse aucune question juridique ouverte', () => {
+    expect(NOTICE_OPEN_QUESTIONS).toEqual([]);
+    expect(CANDIDATE_DIAGNOSTIC_NOTICE_VERSION).toBe('candidat-libre-notice.v3');
   });
 });
