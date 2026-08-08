@@ -19,6 +19,14 @@ const ALLOWLIST = 'guardCandidateDiagnosticForStudent';
 /** Routes de lecture seule ou d'export staff : pas de collecte, donc non gatées. */
 const READ_ONLY_ROUTES = new Set(['staff-export/route.ts']);
 
+/**
+ * La route de recueil est la seule exception au garde-fou de consentement :
+ * exiger un consentement pour joindre la route qui le recueille rendrait le
+ * parcours impossible. Elle reste soumise au kill switch et à l'allowlist, et
+ * n'écrit que le consentement — jamais de donnée de diagnostic.
+ */
+const CONSENT_COLLECTION_ROUTE = 'consent/route.ts';
+
 function listRouteFiles(directory: string): string[] {
   const found: string[] = [];
   for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
@@ -46,6 +54,7 @@ describe('candidat libre — consentement parental sur tout chemin d’écriture
 
       if (!WRITE_HANDLER.test(source)) return; // route de lecture seule
       if (READ_ONLY_ROUTES.has(relative)) return;
+      if (relative === CONSENT_COLLECTION_ROUTE) return;
 
       expect(source).toContain(GATE);
 
@@ -92,8 +101,9 @@ describe('candidat libre — consentement parental sur tout chemin d’écriture
       // fonctionnalité doit paraître absente (404) plutôt que de révéler
       // qu'un consentement serait requis (403).
       const allowlistAt = source.indexOf(`${ALLOWLIST}(`);
-      const gateAt = source.indexOf(`await ${GATE}(`);
       expect(allowlistAt).toBeGreaterThanOrEqual(0);
+      if (relative === CONSENT_COLLECTION_ROUTE) return;
+      const gateAt = source.indexOf(`await ${GATE}(`);
       expect(allowlistAt).toBeLessThan(gateAt);
     },
   );
@@ -109,5 +119,14 @@ describe('candidat libre — consentement parental sur tout chemin d’écriture
       expect(flagAt).toBeGreaterThanOrEqual(0);
       expect(flagAt).toBeLessThan(gateAt);
     }
+  });
+
+  it('la route de recueil reste protégée par le kill switch et l’allowlist', () => {
+    const source = fs.readFileSync(path.join(ROUTES_ROOT, CONSENT_COLLECTION_ROUTE), 'utf8');
+    expect(source).toContain('guardCandidateDiagnosticFeature()');
+    expect(source).toContain(ALLOWLIST);
+    // Elle ne doit écrire aucune donnée de diagnostic : seulement le consentement.
+    expect(source).not.toMatch(/candidateDiagnosticModule\.(create|update)/);
+    expect(source).not.toMatch(/candidateDiagnosticDocument\.(create|update)/);
   });
 });
