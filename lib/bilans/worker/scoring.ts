@@ -12,7 +12,7 @@ import type { RenderIdentity } from '../render/render-identity';
 import { buildPreRentreeStageLabel } from '../render/stage-label';
 import { validateDeterministicReports } from './structural-validation';
 
-type StoredAnswer = Readonly<{ optionId: string; confidence: 1 | 2 | 3 | 4 }>;
+type StoredAnswer = Readonly<{ optionId: string; confidence: 1 | 2 | 3 | 4 | null }>;
 type WorkerStage = 'SCORING' | 'RENDER' | 'STRUCTURE';
 
 export type WorkerScoringInput = Readonly<{
@@ -45,8 +45,18 @@ function answerRecord(value: unknown): Readonly<Record<string, StoredAnswer>> {
   return value as Readonly<Record<string, StoredAnswer>>;
 }
 
-function confidence(value: unknown): Exclude<Confidence, null> {
-  if (value === 1 || value === 2 || value === 3 || value === 4) return value;
+/**
+ * `null` est une certitude non déclarée, pas une donnée corrompue.
+ *
+ * Le moteur de faits le prévoit depuis toujours -- `Confidence = 1|2|3|4|null`
+ * -- et le traite comme une absence de confiance. Seul cet adaptateur le
+ * refusait, parce que la passation en ligne ne peut pas le produire. Une copie
+ * papier, elle, n'a pas toujours la case cochée : la seule autre issue serait
+ * d'inventer une valeur, ce qui fausserait la calibration de l'élève.
+ * `undefined` ou toute autre valeur reste une erreur.
+ */
+function confidence(value: unknown): Confidence {
+  if (value === 1 || value === 2 || value === 3 || value === 4 || value === null) return value;
   throw new Error('A86_CONFIDENCE_INVALID');
 }
 

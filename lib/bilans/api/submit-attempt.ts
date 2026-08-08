@@ -18,9 +18,9 @@ import {
 import {
   assertAttemptPackEnabled,
   resolveEnabledPack,
-  type EnabledBilanPack,
   type PackResolver,
 } from './pack-access';
+import { assertAttemptComplete, enqueueScoreJob } from './submission-core';
 
 type RouteContext = Readonly<{ params: Promise<Readonly<{ id: string }>> }>;
 const requestSchema = z.object({ revision: z.number().int().nonnegative() }).strict();
@@ -50,27 +50,6 @@ type SubmitAttemptDependencies = Readonly<{
   resolvePack: PackResolver;
   now: () => Date;
 }>;
-
-function submissionAnswers(value: unknown): Readonly<Record<string, Readonly<{
-  optionId?: unknown;
-  confidence?: unknown;
-}>>> {
-  if (value === null || typeof value !== 'object' || Array.isArray(value)) return {};
-  return value as Record<string, Readonly<{ optionId?: unknown; confidence?: unknown }>>;
-}
-
-function assertComplete(attempt: LockedAttempt, pack: EnabledBilanPack): void {
-  const answers = submissionAnswers(attempt.answers);
-  for (const item of pack.pack.questionnaire.items) {
-    const answer = answers[item.id];
-    if (
-      answer === undefined
-      || typeof answer.optionId !== 'string'
-      || !item.options.some(({ id }) => id === answer.optionId)
-      || ![1, 2, 3, 4].includes(answer.confidence as number)
-    ) throw CanonicalApiError.incompatible('ATTEMPT_INCOMPLETE');
-  }
-}
 
 async function requestBody(request: NextRequest): Promise<z.infer<typeof requestSchema>> {
   try {
@@ -135,25 +114,16 @@ export function createSubmitAttemptHandler(
             throw CanonicalApiError.conflict('REVISION_CONFLICT', { serverRevision: attempt.revision });
           }
 
-          assertComplete(attempt, enabled);
+          assertAttemptComplete(attempt.answers, enabled);
 
           await tx.canonicalAssessmentAttempt.update({
             where: { id: attempt.id },
             data: { status: 'SUBMITTED', submittedAt: now, revision: { increment: 1 } },
           });
-          await tx.jobOutbox.create({
-            data: {
-              jobType: 'SCORE_ATTEMPT',
-              aggregateType: 'CanonicalAssessmentAttempt',
-              aggregateId: attempt.id,
-              sourceEventKey: `${attempt.id}.submitted`,
-              idempotencyKey: `${attempt.id}.score`,
-              payload: {
-                attemptId: attempt.id,
-                packSlug: enabled.pack.slug,
-                packVersion: enabled.pack.version,
-              },
-            },
+          await enqueueScoreJob(tx, {
+            attemptId: attempt.id,
+            packSlug: enabled.pack.slug,
+            packVersion: enabled.pack.version,
           });
 
           return {
