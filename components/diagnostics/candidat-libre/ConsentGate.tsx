@@ -29,9 +29,8 @@ type Notice = Readonly<{
   version: string;
   title: string;
   sections: readonly NoticeSection[];
-  parentConsentStatement: string;
-  parentConsentCheckbox: string;
-  studentAssentStatement: string;
+  consentStatement: string;
+  consentCheckbox: string;
 }>;
 
 const INK = '#071A3A';
@@ -43,14 +42,12 @@ const SLATE = '#5A6B82';
 
 export type ConsentGateProps = Readonly<{
   studentId?: string;
-  /** Nom de l'étudiant, interpolé dans l'engagement. */
-  studentName?: string;
   /** Nom du parent rattaché, pour nommer précisément qui serait autorisé. */
   parentName?: string;
   onGranted?: () => void;
 }>;
 
-export function ConsentGate({ studentId, studentName, parentName, onGranted }: ConsentGateProps) {
+export function ConsentGate({ studentId, parentName, onGranted }: ConsentGateProps) {
   const [notice, setNotice] = useState<Notice | null>(null);
   const [state, setState] = useState<CandidateDiagnosticConsentState | null>(null);
   const [accepted, setAccepted] = useState(false);
@@ -154,11 +151,6 @@ export function ConsentGate({ studentId, studentName, parentName, onGranted }: C
     );
   }
 
-  const statement = notice.parentConsentStatement.replace(
-    '{{ELEVE_NOM}}',
-    studentName ?? 'moi-même',
-  );
-
   return (
     <article
       className="mx-auto max-w-3xl overflow-hidden rounded-2xl"
@@ -204,7 +196,7 @@ export function ConsentGate({ studentId, studentName, parentName, onGranted }: C
           style={{ backgroundColor: IVORY, border: `1px solid ${GOLD_WASH}` }}
         >
           <p className="text-[15px] leading-relaxed" style={{ color: INK }}>
-            {statement}
+            {notice.consentStatement}
           </p>
 
           <label className="mt-5 flex cursor-pointer items-start gap-3 text-[15px]" style={{ color: INK }}>
@@ -215,7 +207,7 @@ export function ConsentGate({ studentId, studentName, parentName, onGranted }: C
               className="mt-1 h-4 w-4"
               style={{ accentColor: GOLD }}
             />
-            <span>{notice.parentConsentCheckbox}</span>
+            <span>{notice.consentCheckbox}</span>
           </label>
 
           <label className="mt-4 flex cursor-pointer items-start gap-3 text-[15px]" style={{ color: INK }}>

@@ -23,9 +23,8 @@ const NOTICE = {
     { heading: 'Qui traite les données', body: ['Nexus Réussite (STE M&M ACADEMY SUARL), Tunis.'] },
     { heading: 'Sur quelle base', body: ['Sur la base de votre consentement.'] },
   ],
-  parentConsentStatement: 'Concernant {{ELEVE_NOM}}, je consens au traitement décrit.',
-  parentConsentCheckbox: 'Je consens au traitement décrit.',
-  studentAssentStatement: "J'ai compris à quoi sert ce diagnostic.",
+  consentStatement: "J'ai lu et compris la présente notice. Je consens au traitement décrit.",
+  consentCheckbox: 'Je consens au traitement décrit.',
 };
 
 function mockFetch(consentState: string, posted: unknown[] = []) {
@@ -43,7 +42,7 @@ beforeEach(() => { jest.restoreAllMocks(); });
 describe('ConsentGate — notice', () => {
   it('rend la notice verbatim, sans reformulation', async () => {
     global.fetch = mockFetch('MISSING') as unknown as typeof fetch;
-    render(<ConsentGate studentId="stu_1" studentName="Ahmed" />);
+    render(<ConsentGate studentId="stu_1" />);
 
     expect(await screen.findByText(NOTICE.title)).toBeInTheDocument();
     for (const section of NOTICE.sections) {
@@ -52,11 +51,16 @@ describe('ConsentGate — notice', () => {
     }
   });
 
-  it('interpole le nom de l’étudiant', async () => {
+  /**
+   * Le texte versionné ne dépend d'aucun dossier : le nom de l'étudiant n'y est
+   * plus interpolé, sans quoi renseigner un nom ferait croire à un changement
+   * du texte consenti.
+   */
+  it('n’interpole aucun nom dans le texte consenti', async () => {
     global.fetch = mockFetch('MISSING') as unknown as typeof fetch;
-    render(<ConsentGate studentId="stu_1" studentName="Ahmed" />);
-    expect(await screen.findByText(/Concernant Ahmed/)).toBeInTheDocument();
-    expect(screen.queryByText(/\{\{ELEVE_NOM\}\}/)).not.toBeInTheDocument();
+    render(<ConsentGate studentId="stu_1" />);
+    expect(await screen.findByText(NOTICE.consentStatement)).toBeInTheDocument();
+    expect(screen.queryByText(/\{\{/)).not.toBeInTheDocument();
   });
 
   it('affiche la version consentie', async () => {
