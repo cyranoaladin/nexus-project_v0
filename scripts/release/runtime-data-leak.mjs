@@ -30,7 +30,24 @@ const RUNTIME_DATA_DIRECTORIES = Object.freeze([
   join('uploads'),
 ]);
 
-const ARTIFACT_PREFIXES = Object.freeze(['', join('.next', 'standalone')]);
+/**
+ * Ce qui part réellement en production est `.next/standalone/`. Quand il
+ * existe, lui seul est inspecté : les répertoires de données présents à la
+ * racine du dépôt sont la **source** du développeur, jamais déployée, et les
+ * signaler noierait un vrai incident sous un bruit permanent.
+ *
+ * Quand il n'existe pas, la racine examinée *est* l'arbre déployé — un
+ * répertoire de release déjà transféré — et c'est elle qu'on inspecte.
+ */
+function artifactPrefixes(root) {
+  const standalone = join(root, '.next', 'standalone');
+  try {
+    if (statSync(standalone).isDirectory()) return [join('.next', 'standalone')];
+  } catch {
+    // pas de build standalone ici : la racine est l'arbre déployé
+  }
+  return [''];
+}
 
 function listFilesRecursively(directory) {
   let entries;
@@ -62,7 +79,7 @@ export function findRuntimeDataLeaks(artifactRoot) {
   const root = resolve(artifactRoot);
   const leaks = [];
 
-  for (const prefix of ARTIFACT_PREFIXES) {
+  for (const prefix of artifactPrefixes(root)) {
     for (const runtimeDirectory of RUNTIME_DATA_DIRECTORIES) {
       const candidate = join(root, prefix, runtimeDirectory);
       let stats;
