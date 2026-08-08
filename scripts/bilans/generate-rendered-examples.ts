@@ -16,7 +16,7 @@ const SLUG = 'entree-premiere-maths-v1';
 const AUDIENCES = ['ELEVE', 'PARENTS', 'NEXUS'] as const satisfies readonly ReportAudience[];
 
 const IDENTITY: RenderIdentity = Object.freeze({
-  displayName: 'Élève de démonstration',
+  displayName: 'ELEVE_DEMONSTRATION',
   level: 'PREMIERE',
   subject: 'MATHS',
   date: '2026-08-03',

@@ -90,7 +90,7 @@ export function generateWorkerRecipeEvidence() {
     student: { alias: 'ELEVE_RECETTE', level: pack.level },
   });
   const reports = buildDeterministicReports(factSheet, Object.freeze({
-    displayName: 'Élève de recette',
+    displayName: 'ELEVE_RECETTE',
     level: pack.level,
     subject: pack.subject,
     date: '1970-01-01',

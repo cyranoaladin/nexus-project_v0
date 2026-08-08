@@ -9,7 +9,7 @@ import {
   renderProfileNarrativeEntry,
   type ReportAudience,
 } from './profile-copy';
-import { assertRenderIdentity, type RenderIdentity } from './render-identity';
+import { assertPseudonymousRenderIdentity, type RenderIdentity } from './render-identity';
 
 export const BILAN_REPORT_TEMPLATE_VERSION = 'nexus-bilan-profile-v2' as const;
 
@@ -107,7 +107,7 @@ export function buildDeterministicReport(
   audience: ReportAudience,
   suppliedIdentity: RenderIdentity,
 ): DeterministicBilanReport {
-  const identity = assertRenderIdentity(suppliedIdentity);
+  const identity = assertPseudonymousRenderIdentity(suppliedIdentity);
   const narrative = buildProfiledNarrative(factSheet, identity, audience);
   const learningPath = buildLearningPath(factSheet, identity);
   const frame = audienceFrame(audience);
