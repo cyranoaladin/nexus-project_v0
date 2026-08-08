@@ -9,7 +9,7 @@ import { DIAGNOSTIC_KEY, DIAGNOSTIC_VERSION } from '@/lib/diagnostics/candidat-l
 import { getStudentForActor, requireDiagnosticActor } from '@/lib/diagnostics/candidat-libre/access.server';
 import { serializeCandidateDiagnostic } from '@/lib/diagnostics/candidat-libre/serialize.server';
 import { requireVerifiedParentalConsent } from '@/lib/diagnostics/candidat-libre/consent-gate.server';
-import { guardCandidateDiagnosticFeature } from '@/lib/diagnostics/candidat-libre/feature-flag';
+import { guardCandidateDiagnosticFeature, guardCandidateDiagnosticForStudent } from '@/lib/diagnostics/candidat-libre/feature-flag';
 
 export async function GET(request: Request) {
   const disabled = guardCandidateDiagnosticFeature();
@@ -62,6 +62,10 @@ export async function POST(request: Request) {
   const studentOrError = await getStudentForActor(sessionOrError, parsed.data.studentId);
   if (studentOrError instanceof NextResponse) return studentOrError;
   if (!studentOrError) return NextResponse.json({ error: 'Student not found' }, { status: 404 });
+
+  // Hors allowlist, le dossier doit paraitre absent : 404 avant tout autre verdict.
+  const notAllowed = guardCandidateDiagnosticForStudent(studentOrError.id);
+  if (notAllowed) return notAllowed;
 
   // Dossier portant sur un mineur : aucune collecte avant consentement parental vérifié.
   const consentBlocked = await requireVerifiedParentalConsent(studentOrError.id);
