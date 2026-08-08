@@ -95,7 +95,7 @@ test.describe('GATE A — posture prod (worker ON, sans clé OpenRouter)', () =>
     await page.locator('label').filter({ hasText: 'Mathématiques' }).getByRole('checkbox').click();
     await page.locator('#objectives').fill('Prouver la posture worker-ON sans clé OpenRouter.');
     await page.locator('label').filter({ hasText: /J.accepte d.être contacté/ }).getByRole('checkbox').click();
-    await page.getByRole('button', { name: /demander mon bilan stratégique gratuit/i }).click();
+    await page.getByRole('button', { name: /lancer le bilan diagnostic/i }).click();
     await expect(page).toHaveURL(/\/bilan-gratuit\/confirmation/);
 
     const parent = await prisma.user.findUniqueOrThrow({

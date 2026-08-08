@@ -111,7 +111,7 @@ describe('BilanGratuitPage', () => {
     fireEvent.change(screen.getByLabelText('Classe'), { target: { value: 'terminale' } });
     await user.click(screen.getByLabelText('Mathématiques'));
     await user.click(screen.getByRole('checkbox', { name: /j.*accepte/i }));
-    await user.click(screen.getByRole('button', { name: /demander mon bilan stratégique gratuit/i }));
+    await user.click(screen.getByRole('button', { name: /lancer le bilan diagnostic/i }));
 
     await waitFor(() => {
       const request = mockFetch.mock.calls[0]?.[1];
@@ -150,7 +150,7 @@ describe('BilanGratuitPage', () => {
 
     await user.click(screen.getByLabelText('Mathématiques'));
     await user.click(screen.getByRole('checkbox', { name: /j.*accepte/i }));
-    await user.click(screen.getByRole('button', { name: /demander mon bilan stratégique gratuit/i }));
+    await user.click(screen.getByRole('button', { name: /lancer le bilan diagnostic/i }));
 
     await waitFor(() => {
       expect(mockFetch).toHaveBeenCalledWith(
