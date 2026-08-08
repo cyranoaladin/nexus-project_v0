@@ -1,7 +1,8 @@
 import {
   CANDIDATE_DIAGNOSTIC_NOTICE_VERSION,
   CANDIDATE_DIAGNOSTIC_PRIVACY_NOTICE,
-  NOTICE_PENDING_PLACEHOLDERS,
+  NOTICE_PENDING_LEGAL_CONSTANTS,
+  NOTICE_PER_DOSSIER_VARIABLES,
 } from '@/lib/diagnostics/candidat-libre/privacy-notice';
 
 /**
@@ -49,15 +50,26 @@ describe('notice de confidentialité candidat libre', () => {
   });
 
   /**
-   * Trois emplacements attendent une validation juridique : contact vie privée,
-   * durée de conservation, et le nom de l'élève injecté au rendu. Ils sont
-   * laissés explicites plutôt que comblés par une valeur inventée. Ce test
-   * échouera dès qu'ils seront renseignés — ce qui est le signal attendu pour
-   * incrémenter la version de la notice, puisque le texte consenti aura changé.
+   * Deux constantes légales attendent le juriste : contact vie privée et durée
+   * de conservation. Elles font partie du texte consenti, donc les renseigner
+   * doit incrémenter la version — ce test échouera alors, et c'est le signal
+   * attendu.
    */
-  it('signale les emplacements encore en attente de validation juridique', () => {
+  it('signale les constantes légales encore en attente du juriste', () => {
     const text = noticeText();
-    const remaining = NOTICE_PENDING_PLACEHOLDERS.filter((placeholder) => text.includes(placeholder));
-    expect(remaining.sort()).toEqual([...NOTICE_PENDING_PLACEHOLDERS].sort());
+    const remaining = NOTICE_PENDING_LEGAL_CONSTANTS.filter((placeholder) => text.includes(placeholder));
+    expect(remaining.sort()).toEqual([...NOTICE_PENDING_LEGAL_CONSTANTS].sort());
+  });
+
+  /**
+   * Le nom de l'élève est une variable par dossier, interpolée au moment du
+   * consentement de chaque famille. Elle ne fait pas partie du texte légal
+   * versionné : la renseigner ne doit jamais incrémenter la version.
+   */
+  it('garde le nom de l’élève hors des constantes versionnées', () => {
+    for (const variable of NOTICE_PER_DOSSIER_VARIABLES) {
+      expect(NOTICE_PENDING_LEGAL_CONSTANTS).not.toContain(variable);
+    }
+    expect(CANDIDATE_DIAGNOSTIC_PRIVACY_NOTICE.parentConsentStatement).toContain('{{ELEVE_NOM}}');
   });
 });
