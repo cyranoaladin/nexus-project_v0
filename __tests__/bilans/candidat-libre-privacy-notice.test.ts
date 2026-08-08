@@ -23,7 +23,7 @@ function noticeText(): string {
 describe('notice de confidentialité — version adulte', () => {
   it('déclare la version que le consentement enregistrera', () => {
     expect(CANDIDATE_DIAGNOSTIC_PRIVACY_NOTICE.version).toBe(CANDIDATE_DIAGNOSTIC_NOTICE_VERSION);
-    expect(CANDIDATE_DIAGNOSTIC_NOTICE_VERSION).toBe('candidat-libre-notice.v2');
+    expect(CANDIDATE_DIAGNOSTIC_NOTICE_VERSION).toBe('candidat-libre-notice.v3');
   });
 
   it.each([
@@ -36,7 +36,7 @@ describe('notice de confidentialité — version adulte', () => {
     ['l’enregistrement audio', /enregistrement audio/],
     ['la base du consentement', /Sur la base de votre consentement/],
     ['le retrait possible', /retirer à tout moment/],
-    ['la conservation d’un an', /une année avant suppression ou anonymisation/],
+    ['la conservation datée', /douze mois à compter de votre dernière activité/],
     ['le chiffrement des documents', /chiffré/],
     ['les droits', /Accès, rectification, effacement/],
   ])('couvre %s', (_label, pattern) => {
@@ -70,7 +70,7 @@ describe('notice de confidentialité — version adulte', () => {
 });
 
 describe('fidélité au texte fourni', () => {
-  const SOURCE = path.join(os.homedir(), 'Téléchargements/NOTICE-confidentialite-candidat-libre-majeur.md');
+  const SOURCE = path.join(os.homedir(), 'Téléchargements/NOTICE-confidentialite-candidat-libre-majeur-v3.md');
 
   /**
    * Le texte est un objet juridique : il vient du responsable et du juriste.
@@ -97,7 +97,8 @@ describe('fidélité au texte fourni', () => {
       "Aucune décision n'est rendue par une machine",
       'sans intelligence artificielle générative',
       'Sur la base de votre consentement',
-      'une année avant suppression ou anonymisation',
+      'douze mois à compter de votre dernière activité sur votre dossier',
+      'Par défaut, vous êtes seul à accéder à vos résultats',
       'contact@nexusreussite.academy',
       "y compris le dépôt de mes documents officiels et l'enregistrement audio",
     ].map(normalize)) {
@@ -113,16 +114,27 @@ describe('points encore ouverts', () => {
    * modalité de partage à un tiers. Ce test échouera dès qu'elle sera comblée —
    * c'est le signal attendu pour incrémenter la version.
    */
-  it('signale la modalité de partage à un tiers, encore à préciser', () => {
-    const remaining = NOTICE_PENDING_LEGAL_CONSTANTS.filter((c) => noticeText().includes(c));
-    expect(remaining).toEqual([...NOTICE_PENDING_LEGAL_CONSTANTS]);
+  it('ne laisse plus aucun crochet dans le texte', () => {
+    expect(NOTICE_PENDING_LEGAL_CONSTANTS).toEqual([]);
+    expect(noticeText()).not.toMatch(/\{\{[A-Z_]+\}\}/);
+  });
+
+  /** Le partage décrit dans le texte doit correspondre au mécanisme réellement codé. */
+  it('décrit le partage tel qu’il est implémenté : décoché, facultatif, révocable', () => {
+    const text = noticeText();
+    expect(text).toMatch(/facultative, révocable à tout moment/);
+    expect(text).toMatch(/n’a aucun effet tant que vous ne l’avez pas donnée explicitement/);
   });
 
   /**
    * La durée est fixée à un an, mais son point de départ ne l'est pas de façon
    * opérationnelle : impossible d'automatiser une purge sans le trancher.
    */
-  it('consigne le point de départ de la conservation comme question ouverte', () => {
-    expect(NOTICE_OPEN_QUESTIONS.join(' ')).toMatch(/point de départ/i);
+  /**
+   * Le document source mentionne encore un dernier aval du juriste sur le
+   * régime applicable. Tant qu'il y figure, la question reste consignée.
+   */
+  it('conserve la question du régime applicable, telle qu’elle figure au document', () => {
+    expect(NOTICE_OPEN_QUESTIONS.join(' ')).toMatch(/régime applicable/i);
   });
 });
