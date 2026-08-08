@@ -5,6 +5,8 @@ import { mkdir, writeFile } from 'fs/promises';
 import path from 'path';
 import { getDocumentStorageRoot } from '@/lib/documents/storage-root';
 
+import { decryptDocument, encryptDocument, isEncryptedDocument } from '@/lib/documents/encryption';
+
 export const MAX_DOCUMENT_BYTES = 12 * 1024 * 1024;
 export const MAX_AUDIO_BYTES = 30 * 1024 * 1024;
 export const ALLOWED_MIME_TYPES = new Set([
@@ -56,13 +58,42 @@ export async function persistDiagnosticFile(input: {
   const validator = MAGIC[input.file.type];
   if (validator && !validator(buffer)) throw new Error('MIME_SIGNATURE_MISMATCH');
 
+  // Empreinte du contenu **en clair** : elle sert l'intégrité et la déduplication,
+  // et doit rester stable indépendamment du chiffrement (IV aléatoire).
   const sha256 = createHash('sha256').update(buffer).digest('hex');
   const safeName = sanitizeOriginalName(input.file.name);
-  const storageKey = path.join('candidate-diagnostics', input.diagnosticId, input.category, `${randomUUID()}-${safeName}`);
+
+  // Le nom d'origine n'entre pas dans le chemin : un « bulletin_Dupont.pdf »
+  // inscrirait le nom de l'enfant sur le disque, là où aucun chiffrement de
+  // contenu ne le protège. Il n'est conservé qu'en base, pour l'affichage.
+  const storageKey = path.join(
+    'candidate-diagnostics',
+    input.diagnosticId,
+    input.category,
+    `${randomUUID()}.enc`,
+  );
   const absolute = resolveDiagnosticStoragePath(storageKey);
   await mkdir(path.dirname(absolute), { recursive: true });
-  await writeFile(absolute, buffer, { flag: 'wx', mode: 0o600 });
+  await writeFile(absolute, encryptDocument(buffer, { documentId: storageKey }), {
+    flag: 'wx',
+    mode: 0o600,
+  });
   return { storageKey, sha256, safeName, sizeBytes: buffer.byteLength, mimeType: input.file.type };
+}
+
+/**
+ * Relit un document déposé.
+ *
+ * Les fichiers écrits avant l'introduction du chiffrement sont encore en clair ;
+ * ils restent lisibles tels quels plutôt que de devenir inaccessibles. Tout
+ * nouveau dépôt est chiffré.
+ */
+export async function readPersistedDiagnosticFile(storageKey: string): Promise<Buffer> {
+  const { readFile } = await import('fs/promises');
+  const absolute = resolveDiagnosticStoragePath(storageKey);
+  const stored = await readFile(absolute);
+  if (!isEncryptedDocument(stored)) return stored;
+  return decryptDocument(stored, { documentId: storageKey });
 }
 
 export async function removePersistedDiagnosticFile(storageKey: string) {
