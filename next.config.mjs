@@ -25,6 +25,16 @@ const nextConfig = {
       '.env.*',
       'node_modules/@img/sharp-wasm32/**/*',
       'node_modules/@emnapi/runtime/**/*',
+      // Données runtime, jamais du code. Le tracer les suit parce que le
+      // stockage est résolu via un repli sur `process.cwd()`
+      // (lib/documents/storage-root.ts, lib/invoice/storage.ts, lib/npc/config.ts).
+      // Sur une machine qui en contient, le build embarquait de vraies factures
+      // nominatives et les déployait — quatre fois. Le garde de la gate reste
+      // le filet ; ces exclusions sont le correctif.
+      // `data/bilans/**` reste inclus plus haut : c'est du contenu, pas des données.
+      'storage/**/*',
+      'data/invoices/**/*',
+      'uploads/**/*',
     ],
   },
 
