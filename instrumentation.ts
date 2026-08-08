@@ -22,6 +22,23 @@ export async function register() {
     const { loadConfigSnapshot } = await import('./lib/config');
     await loadConfigSnapshot();
 
+    // Cohérence du stockage des documents. Une racine inutilisable doit se
+    // manifester ici, au démarrage, et non au premier téléversement d'une
+    // famille. Les données hors racine ne bloquent pas : elles sont
+    // journalisées pour qu'un humain traite l'héritage.
+    const { checkDocumentStorageHealth } = await import('./lib/documents/storage-health');
+    const storageHealth = checkDocumentStorageHealth();
+    if (!storageHealth.healthy) {
+      throw new Error(
+        `DOCUMENT_STORAGE_UNAVAILABLE:${storageHealth.problems.join(',')}:${storageHealth.root}`,
+      );
+    }
+    for (const stray of storageHealth.dataOutsideRoot) {
+      console.warn(
+        `[storage] ${stray.fileCount} fichier(s) hors de la racine canonique : ${stray.path}`,
+      );
+    }
+
     const { startEmailOutboxScheduler } = await import('./lib/email/outbox-scheduler');
     startEmailOutboxScheduler();
 
