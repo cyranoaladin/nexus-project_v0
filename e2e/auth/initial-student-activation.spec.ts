@@ -64,7 +64,7 @@ test.describe('P0 initial student identity', () => {
       await page.locator('label').filter({ hasText: 'Mathématiques' }).getByRole('checkbox').click();
       await page.locator('#objectives').fill('Vérifier le parcours utilisateur réel sans donnée personnelle.');
       await page.locator('label').filter({ hasText: /J.accepte d.être contacté/ }).getByRole('checkbox').click();
-      await page.getByRole('button', { name: /demander mon bilan stratégique gratuit/i }).click();
+      await page.getByRole('button', { name: /lancer le bilan diagnostic/i }).click();
       await expect(page).toHaveURL(/\/bilan-gratuit\/confirmation/);
 
       const parent = await prisma.user.findUniqueOrThrow({
