@@ -16,11 +16,16 @@
  *
  * `v2` : passage au régime adulte. L'étudiant étant majeur, c'est son
  * consentement qui vaut ; le volet parental disparaît du texte, et le partage
- * avec un tiers devient une démarche qui lui appartient. Le passage de `v1` à
- * `v2` périme volontairement tout consentement recueilli sous `v1`.
+ * avec un tiers devient une démarche qui lui appartient.
+ *
+ * `v3` : les deux emplacements laissés ouverts en `v2` sont comblés — la
+ * conservation est fixée à douze mois après la dernière activité sur le
+ * dossier, donc datable et automatisable, et le partage à un tiers est rédigé
+ * au plus près du mécanisme réellement codé. Chaque incrément périme
+ * volontairement les consentements recueillis sous la version précédente.
  */
 
-export const CANDIDATE_DIAGNOSTIC_NOTICE_VERSION = 'candidat-libre-notice.v2' as const;
+export const CANDIDATE_DIAGNOSTIC_NOTICE_VERSION = 'candidat-libre-notice.v3' as const;
 
 export type PrivacyNoticeSection = Readonly<{
   heading: string;
@@ -67,16 +72,15 @@ export const CANDIDATE_DIAGNOSTIC_PRIVACY_NOTICE: Readonly<{
       ]),
     }),
     Object.freeze({
-      heading: 'Qui y accède',
+      heading: 'Qui y accède — et le partage',
       body: Object.freeze([
-        'Uniquement les membres de l’équipe pédagogique de Nexus affectés à votre dossier. Les données ne sont pas transmises à un service d’IA externe. L’hébergement est situé dans l’Union européenne.',
-        'Si vous souhaitez qu’un tiers — par exemple un parent — accède à vos résultats, ce partage se fait à votre demande explicite : {{PARTAGE_TIERS_MODALITE}}.',
+        'Par défaut, vous êtes seul à accéder à vos résultats. Vous pouvez, si vous le souhaitez, autoriser une personne de votre choix (par exemple un parent) à les consulter, en cochant la case prévue à cet effet lors de votre inscription. Cette autorisation est facultative, révocable à tout moment, et n’a aucun effet tant que vous ne l’avez pas donnée explicitement. En dehors de cela, les données ne sont pas transmises à un service d’IA externe ; l’hébergement est situé dans l’Union européenne.',
       ]),
     }),
     Object.freeze({
       heading: 'Combien de temps',
       body: Object.freeze([
-        'Conservées le temps de l’accompagnement, puis une année avant suppression ou anonymisation. Documents officiels chiffrés, supprimés selon la même règle.',
+        'Vos données sont conservées pendant douze mois à compter de votre dernière activité sur votre dossier, puis supprimées ou anonymisées automatiquement. Vos documents officiels sont conservés chiffrés et supprimés selon la même règle.',
       ]),
     }),
     Object.freeze({
@@ -104,25 +108,25 @@ export const CANDIDATE_DIAGNOSTIC_PRIVACY_NOTICE: Readonly<{
 });
 
 /**
- * Constantes légales encore ouvertes, en attente du juriste.
+ * Emplacements légaux encore ouverts dans le texte. Vide en `v3` : contact,
+ * conservation et partage à un tiers sont tous renseignés.
  *
- * Elles font partie du texte consenti : les renseigner **doit** incrémenter
- * `CANDIDATE_DIAGNOSTIC_NOTICE_VERSION`, les étudiants ayant alors consenti à
- * un texte différent.
- *
- * Le contact vie privée et la durée de conservation, ouverts en `v1`, sont
- * désormais renseignés. Reste la modalité de partage à un tiers.
+ * S'il en réapparaissait, les renseigner **devrait** incrémenter
+ * `CANDIDATE_DIAGNOSTIC_NOTICE_VERSION` : les étudiants auraient alors consenti
+ * à un texte différent.
  */
-export const NOTICE_PENDING_LEGAL_CONSTANTS: readonly string[] = Object.freeze([
-  '{{PARTAGE_TIERS_MODALITE}}',
-]);
+export const NOTICE_PENDING_LEGAL_CONSTANTS: readonly string[] = Object.freeze([]);
 
 /**
- * Point encore indéterminé, signalé pour le juriste : le texte fixe la durée de
- * conservation à un an, mais son **point de départ** — la fin de
- * l'accompagnement — n'est pas défini de façon opérationnelle. Il faudra le
- * trancher avant de pouvoir appliquer une purge automatique.
+ * Aucune question juridique ouverte : l'aval du juriste sur le régime
+ * applicable est acquis. Conservé comme point d'extension si une nouvelle
+ * réserve apparaissait.
+ *
+ * Vider cette liste ne change pas le texte consenti et n'impose donc aucun
+ * incrément de version — contrairement aux emplacements de
+ * `NOTICE_PENDING_LEGAL_CONSTANTS`, qui en font partie.
  */
-export const NOTICE_OPEN_QUESTIONS: readonly string[] = Object.freeze([
-  'Point de départ opérationnel de la conservation d’un an (fin de l’accompagnement à définir).',
-]);
+export const NOTICE_OPEN_QUESTIONS: readonly string[] = Object.freeze([]);
+
+/** Durée de conservation, en mois, à compter de la dernière activité sur le dossier. */
+export const RETENTION_MONTHS_AFTER_LAST_ACTIVITY = 12;
