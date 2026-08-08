@@ -31,9 +31,10 @@ export default function ConfirmationPage() {
               <div className="mx-auto inline-flex h-12 w-12 items-center justify-center rounded-full bg-lux-gold/12">
                 <Clock className="h-6 w-6 text-lux-gold" aria-hidden="true" />
               </div>
-              <h2 className="mt-4 text-xl font-fraunces text-lux-ink">Sous 24h</h2>
+              <h2 className="mt-4 text-xl font-fraunces text-lux-ink">Dès maintenant</h2>
               <p className="mt-2 text-sm text-lux-slate">
-                Notre équipe analyse votre profil et prépare votre bilan personnalisé.
+                Votre espace est déjà créé. Activez-le depuis l’email reçu : votre enfant pourra
+                passer son bilan diagnostic sans attendre.
               </p>
             </CardContent>
           </Card>
@@ -73,8 +74,13 @@ export default function ConfirmationPage() {
                 <h2 className="text-2xl font-fraunces text-lux-ink">Vérifiez votre boîte email</h2>
               </div>
               <p className="mt-4 text-sm leading-6 text-lux-slate">
-                Un email de confirmation a été envoyé avec les prochaines étapes de prise en charge.
-                Si vous ne le trouvez pas, pensez à vérifier vos spams.
+                Vous venez de recevoir un <strong>lien d’activation</strong>. Il vous permet de choisir
+                votre mot de passe, puis d’ajouter votre enfant depuis votre espace : un lien
+                personnel lui sera alors remis pour passer son bilan diagnostic en ligne.
+                Si vous ne trouvez pas cet email, pensez à vérifier vos spams.
+              </p>
+              <p className="mt-3 text-sm leading-6 text-lux-slate">
+                Un conseiller vous recontacte par ailleurs pour échanger sur les résultats.
               </p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <Link href="/offres" className="lux-cta-reserve rounded-lg px-6 py-3.5 text-sm font-semibold">

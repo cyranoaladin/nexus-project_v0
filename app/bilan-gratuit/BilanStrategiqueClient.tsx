@@ -402,7 +402,7 @@ export function BilanStrategiqueClient({
                     aria-describedby="bilan-submit-status"
                     className="lux-cta-reserve rounded-lg px-6 py-3.5 text-sm font-semibold disabled:opacity-60"
                   >
-                    {isSubmitting ? 'Envoi...' : 'Demander mon bilan stratégique gratuit'}
+                    {isSubmitting ? 'Création de votre espace…' : 'Créer mon espace et lancer le bilan diagnostic'}
                   </button>
                   <span id="bilan-submit-status" className="sr-only" role="status" aria-live="polite">
                     {isSubmitting ? 'Envoi de la demande en cours' : ''}
