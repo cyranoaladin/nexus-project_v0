@@ -7,6 +7,9 @@ type ChildDraft = Readonly<{ firstName: string; grade: string }>;
 
 const GRADES = ['Quatrième', 'Troisième', 'Seconde', 'Première', 'Terminale'] as const;
 
+/** Doit rester aligné sur `PAPER_ENTRY_MAX_CHILDREN` côté route. */
+const MAX_CHILDREN = 6;
+
 const EMPTY_CHILD: ChildDraft = { firstName: '', grade: 'Seconde' };
 
 function newIdempotencyKey(): string {
@@ -148,8 +151,11 @@ export function PaperEntryFamilyForm() {
       <div className="flex flex-wrap gap-3">
         <button
           type="button"
-          onClick={() => setChildren((current) => [...current, EMPTY_CHILD])}
-          className="rounded-xl border border-white/20 px-4 py-2.5 text-sm text-slate-200"
+          disabled={children.length >= MAX_CHILDREN}
+          onClick={() => setChildren((current) => (
+            current.length >= MAX_CHILDREN ? current : [...current, EMPTY_CHILD]
+          ))}
+          className="rounded-xl border border-white/20 px-4 py-2.5 text-sm text-slate-200 disabled:cursor-not-allowed disabled:opacity-40"
         >
           Ajouter un enfant
         </button>
@@ -162,6 +168,12 @@ export function PaperEntryFamilyForm() {
           {submitting ? 'Création…' : 'Créer le foyer et continuer'}
         </button>
       </div>
+
+      {children.length >= MAX_CHILDREN && (
+        <p className="text-sm text-slate-400">
+          Six enfants au maximum par création. Créez le foyer, puis ajoutez les suivants.
+        </p>
+      )}
 
       {error !== null && (
         <p role="alert" className="rounded-xl bg-red-500/15 p-3 text-sm text-red-100">{error}</p>
