@@ -2890,6 +2890,11 @@ model CandidateDiagnostic {
   student           Student                       @relation(fields: [studentId], references: [id], onDelete: Cascade)
   createdById       String
   createdBy         User                          @relation("CandidateDiagnosticCreatedBy", fields: [createdById], references: [id], onDelete: Restrict)
+  /// Dernière interaction **réelle** de l'étudiant avec son dossier :
+  /// connexion, soumission de module, consultation des résultats. Jamais
+  /// alimenté par une écriture technique ni par une migration — la conservation
+  /// se compte dessus, et une purge doit suivre l'usage, pas la maintenance.
+  lastActivityAt    DateTime?
   studentConsentAt  DateTime?
   parentConsentAt   DateTime?
   parentSubmittedAt DateTime?
