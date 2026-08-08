@@ -29,6 +29,22 @@ describe('findRuntimeDataLeaks — blocking release gate', () => {
     expect(findRuntimeDataLeaks(root)).toEqual([]);
   });
 
+  it('ignores runtime data at the repo root when a standalone build exists', () => {
+    // Les fichiers à la racine sont la source du développeur : le build les
+    // exclut désormais du tracing, et ils ne sont jamais transférés.
+    const root = makeArtifact();
+    fs.mkdirSync(path.join(root, 'data', 'invoices'), { recursive: true });
+    fs.writeFileSync(path.join(root, 'data', 'invoices', 'facture.pdf'), 'x');
+    expect(findRuntimeDataLeaks(root)).toEqual([]);
+  });
+
+  it('still scans the root when there is no standalone build (deployed tree)', () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'leak-gate-deployed-'));
+    fs.mkdirSync(path.join(root, 'data', 'invoices'), { recursive: true });
+    fs.writeFileSync(path.join(root, 'data', 'invoices', 'facture.pdf'), 'x');
+    expect(findRuntimeDataLeaks(root).length).toBe(1);
+  });
+
   it.each([
     ['invoice PDFs', path.join('.next', 'standalone', 'data', 'invoices'), 'facture-202602-0001.pdf'],
     ['stored documents', path.join('.next', 'standalone', 'storage', 'documents'), 'aa0d6t5jd423g30u117qbmsd.pdf'],

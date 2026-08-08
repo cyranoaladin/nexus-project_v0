@@ -1,75 +1,128 @@
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+
 import {
   CANDIDATE_DIAGNOSTIC_NOTICE_VERSION,
   CANDIDATE_DIAGNOSTIC_PRIVACY_NOTICE,
+  NOTICE_OPEN_QUESTIONS,
   NOTICE_PENDING_LEGAL_CONSTANTS,
-  NOTICE_PER_DOSSIER_VARIABLES,
 } from '@/lib/diagnostics/candidat-libre/privacy-notice';
 
 /**
- * La notice est le fondement du consentement : le consentement enregistré porte
- * sur une version précise de ce texte. Ces tests protègent trois choses que le
- * code seul ne garantit pas.
+ * La notice est le fondement du consentement : ce qui est enregistré porte sur
+ * une version précise de ce texte. Ces tests protègent sa fidélité et sa
+ * couverture, pas sa mise en forme.
  */
 
 function noticeText(): string {
-  const { sections, parentConsentStatement, studentAssentStatement } = CANDIDATE_DIAGNOSTIC_PRIVACY_NOTICE;
-  return [
-    ...sections.flatMap((section) => [section.heading, ...section.body]),
-    parentConsentStatement,
-    studentAssentStatement,
-  ].join('\n');
+  const { sections, consentStatement } = CANDIDATE_DIAGNOSTIC_PRIVACY_NOTICE;
+  return [...sections.flatMap((s) => [s.heading, ...s.body]), consentStatement].join('\n');
 }
 
-describe('notice de confidentialité candidat libre', () => {
+describe('notice de confidentialité — version adulte', () => {
   it('déclare la version que le consentement enregistrera', () => {
     expect(CANDIDATE_DIAGNOSTIC_PRIVACY_NOTICE.version).toBe(CANDIDATE_DIAGNOSTIC_NOTICE_VERSION);
-    expect(CANDIDATE_DIAGNOSTIC_NOTICE_VERSION).toMatch(/^candidat-libre-notice\.v\d+$/);
+    expect(CANDIDATE_DIAGNOSTIC_NOTICE_VERSION).toBe('candidat-libre-notice.v2');
   });
 
   it.each([
     ['le responsable de traitement', /Nexus Réussite/],
+    ['le contact vie privée', /contact@nexusreussite\.academy/],
     ['la finalité', /faisabilité/i],
-    ['l’absence de décision automatisée', /pas .*décision automatisée/i],
-    ['l’absence d’IA générative', /sans intelligence artificielle générative/i],
-    ['les documents officiels', /pièce d’identité|Cyclades/i],
-    ['l’enregistrement audio', /enregistrement audio/i],
-    ['la base légale du consentement', /consentement/i],
-    ['l’autorité parentale', /autorité parentale/i],
-    ['le retrait possible', /retirer ce consentement à tout moment/i],
-    ['la conservation', /conserv/i],
-    ['le chiffrement des documents', /chiffré/i],
-    ['les droits', /accès.*rectification.*effacement/i],
+    ['l’absence de décision automatisée', /Aucune décision n’est rendue par une machine/],
+    ['l’absence d’IA générative', /sans intelligence artificielle générative/],
+    ['les documents officiels', /pièce d’identité|Cyclades/],
+    ['l’enregistrement audio', /enregistrement audio/],
+    ['la base du consentement', /Sur la base de votre consentement/],
+    ['le retrait possible', /retirer à tout moment/],
+    ['la conservation d’un an', /une année avant suppression ou anonymisation/],
+    ['le chiffrement des documents', /chiffré/],
+    ['les droits', /Accès, rectification, effacement/],
   ])('couvre %s', (_label, pattern) => {
     expect(noticeText()).toMatch(pattern);
   });
 
-  it('recueille un assentiment de l’élève distinct du consentement parental', () => {
-    const { parentConsentStatement, studentAssentStatement } = CANDIDATE_DIAGNOSTIC_PRIVACY_NOTICE;
-    expect(studentAssentStatement).not.toBe(parentConsentStatement);
-    expect(studentAssentStatement.length).toBeLessThan(parentConsentStatement.length);
+  /**
+   * Régime adulte : le texte ne doit plus parler d'autorité parentale ni
+   * d'enfant — c'est l'étudiant qui consent pour lui-même.
+   */
+  it.each([/autorité parentale/i, /votre enfant/i, /mon enfant/i, /mineur/i])(
+    'ne comporte plus la formulation %p',
+    (pattern) => {
+      expect(noticeText()).not.toMatch(pattern);
+    },
+  );
+
+  it('n’interpole aucun nom : le texte versionné ne dépend pas du dossier', () => {
+    expect(noticeText()).not.toContain('{{ELEVE_NOM}}');
+    expect(CANDIDATE_DIAGNOSTIC_PRIVACY_NOTICE.consentStatement).not.toMatch(/\{\{[A-Z_]*NOM[A-Z_]*\}\}/);
   });
 
-  /**
-   * Deux constantes légales attendent le juriste : contact vie privée et durée
-   * de conservation. Elles font partie du texte consenti, donc les renseigner
-   * doit incrémenter la version — ce test échouera alors, et c'est le signal
-   * attendu.
-   */
-  it('signale les constantes légales encore en attente du juriste', () => {
-    const text = noticeText();
-    const remaining = NOTICE_PENDING_LEGAL_CONSTANTS.filter((placeholder) => text.includes(placeholder));
-    expect(remaining.sort()).toEqual([...NOTICE_PENDING_LEGAL_CONSTANTS].sort());
+  it('garde le consentement à l’IA séparé du consentement principal', () => {
+    const { consentStatement, llmConsentStatement } = CANDIDATE_DIAGNOSTIC_PRIVACY_NOTICE;
+    expect(llmConsentStatement).not.toBe(consentStatement);
+    expect(llmConsentStatement).toMatch(/pseudonymisées/);
+    expect(llmConsentStatement).toMatch(/relu par un enseignant/);
+    // Il ne fait pas partie du texte principal : il n'est pas recueilli aujourd'hui.
+    expect(noticeText()).not.toContain(llmConsentStatement);
   });
+});
+
+describe('fidélité au texte fourni', () => {
+  const SOURCE = path.join(os.homedir(), 'Téléchargements/NOTICE-confidentialite-candidat-libre-majeur.md');
 
   /**
-   * Le nom de l'élève est une variable par dossier, interpolée au moment du
-   * consentement de chaque famille. Elle ne fait pas partie du texte légal
-   * versionné : la renseigner ne doit jamais incrémenter la version.
+   * Le texte est un objet juridique : il vient du responsable et du juriste.
+   * Ce test compare les phrases porteuses au fichier source, pour qu'une
+   * réécriture silencieuse côté code soit détectée.
    */
-  it('garde le nom de l’élève hors des constantes versionnées', () => {
-    for (const variable of NOTICE_PER_DOSSIER_VARIABLES) {
-      expect(NOTICE_PENDING_LEGAL_CONSTANTS).not.toContain(variable);
+  /**
+   * Seule normalisation admise : l'apostrophe. Le fichier fourni utilise
+   * l'apostrophe droite, le dépôt applique l'apostrophe typographique
+   * française. C'est un choix de composition, pas une réécriture — les mots
+   * sont identiques.
+   */
+  const normalize = (value: string) => value.replace(/[’']/g, "'").replace(/\*\*/g, '');
+
+  it('reprend verbatim les phrases porteuses du fichier fourni', () => {
+    if (!fs.existsSync(SOURCE)) {
+      // Le fichier source n'est pas versionné ; hors du poste du responsable,
+      // ce contrôle ne peut pas s'exécuter et n'a pas à faire échouer la suite.
+      return;
     }
-    expect(CANDIDATE_DIAGNOSTIC_PRIVACY_NOTICE.parentConsentStatement).toContain('{{ELEVE_NOM}}');
+    const source = normalize(fs.readFileSync(SOURCE, 'utf8'));
+    const rendered = normalize(noticeText());
+    for (const phrase of [
+      "Aucune décision n'est rendue par une machine",
+      'sans intelligence artificielle générative',
+      'Sur la base de votre consentement',
+      'une année avant suppression ou anonymisation',
+      'contact@nexusreussite.academy',
+      "y compris le dépôt de mes documents officiels et l'enregistrement audio",
+    ].map(normalize)) {
+      expect(source).toContain(phrase);
+      expect(rendered).toContain(phrase);
+    }
+  });
+});
+
+describe('points encore ouverts', () => {
+  /**
+   * Le contact et la durée, ouverts en v1, sont désormais renseignés. Reste la
+   * modalité de partage à un tiers. Ce test échouera dès qu'elle sera comblée —
+   * c'est le signal attendu pour incrémenter la version.
+   */
+  it('signale la modalité de partage à un tiers, encore à préciser', () => {
+    const remaining = NOTICE_PENDING_LEGAL_CONSTANTS.filter((c) => noticeText().includes(c));
+    expect(remaining).toEqual([...NOTICE_PENDING_LEGAL_CONSTANTS]);
+  });
+
+  /**
+   * La durée est fixée à un an, mais son point de départ ne l'est pas de façon
+   * opérationnelle : impossible d'automatiser une purge sans le trancher.
+   */
+  it('consigne le point de départ de la conservation comme question ouverte', () => {
+    expect(NOTICE_OPEN_QUESTIONS.join(' ')).toMatch(/point de départ/i);
   });
 });
