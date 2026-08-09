@@ -1,6 +1,6 @@
 import '@testing-library/jest-dom';
 
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 
 const mockNotFound = jest.fn(() => {
   throw new Error('NEXT_NOT_FOUND');
@@ -21,6 +21,7 @@ describe('Écran assistante de saisie papier', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     (prisma.student.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.student.findFirst as jest.Mock).mockResolvedValue(null);
   });
 
   it.each(['PARENT', 'ELEVE'])('reste invisible au rôle %s', async (role) => {
@@ -35,5 +36,57 @@ describe('Écran assistante de saisie papier', () => {
 
     expect(screen.getByRole('heading', { name: 'Saisir un bilan passé sur copie' })).toBeInTheDocument();
     expect(screen.getByRole('list', { name: 'Progression de la saisie papier' })).toBeInTheDocument();
+    const progress = screen.getByRole('list', { name: 'Progression de la saisie papier' });
+    expect(within(progress).getByText('Créer ou sélectionner le foyer').closest('li')).toHaveAttribute('aria-current', 'step');
+  });
+
+  it('rend l’étape 2 atteignable après une recherche', async () => {
+    (auth as jest.Mock).mockResolvedValue({ user: { id: 'staff-1', role: 'ASSISTANTE' } });
+    render(await SaisiePapierPage({ searchParams: Promise.resolve({ q: 'Ben Salah' }) }));
+
+    const progress = screen.getByRole('list', { name: 'Progression de la saisie papier' });
+    expect(within(progress).getByText('Ajouter ou sélectionner l’enfant').closest('li')).toHaveAttribute('aria-current', 'step');
+    expect(screen.getByRole('link', { name: '← Revenir au choix du foyer' })).toHaveAttribute(
+      'href',
+      '/dashboard/assistante/bilans/saisie-papier',
+    );
+  });
+
+  it('retire des résultats un foyer synthétique même si la base le renvoie', async () => {
+    (auth as jest.Mock).mockResolvedValue({ user: { id: 'staff-1', role: 'ASSISTANTE' } });
+    (prisma.student.findMany as jest.Mock).mockResolvedValue([
+      {
+        id: 'student-real', gradeLevel: 'SECONDE',
+        user: { firstName: 'Élise', lastName: 'Ben Salah', email: 'elise@nexus-student.local' },
+        parent: { user: { email: 'famille@gmail.com' } },
+      },
+      {
+        id: 'student-test', gradeLevel: 'SECONDE',
+        user: { firstName: 'Smoke', lastName: 'Test', email: 'student-smoke@nexus-student.local' },
+        parent: { user: { email: 'famille@gmail.com' } },
+      },
+    ]);
+
+    render(await SaisiePapierPage({ searchParams: Promise.resolve({ q: 'famille' }) }));
+
+    expect(screen.getByText('Élise Ben Salah')).toBeInTheDocument();
+    expect(screen.queryByText('Smoke Test')).not.toBeInTheDocument();
+    expect(prisma.student.findMany).toHaveBeenCalledWith(expect.objectContaining({
+      where: expect.objectContaining({ AND: expect.any(Array) }),
+    }));
+  });
+
+  it('refuse aussi une sélection directe synthétique malgré un résultat DB inattendu', async () => {
+    (auth as jest.Mock).mockResolvedValue({ user: { id: 'staff-1', role: 'ASSISTANTE' } });
+    (prisma.student.findFirst as jest.Mock).mockResolvedValue({
+      id: 'student-test', gradeLevel: 'SECONDE',
+      user: { firstName: 'DO NOT USE', lastName: 'Test', email: 'student@nexus-student.local' },
+      parent: { user: { email: 'parent-technique@nexusreussite.academy' } },
+    });
+
+    render(await SaisiePapierPage({ searchParams: Promise.resolve({ studentId: 'student-test' }) }));
+
+    expect(screen.queryByText('DO NOT USE Test')).not.toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Créer ou sélectionner le foyer' })).toBeInTheDocument();
   });
 });
