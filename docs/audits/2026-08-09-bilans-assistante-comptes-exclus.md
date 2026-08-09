@@ -22,6 +22,8 @@ Les contrôles de production liés aux comptes ont été effectués en lecture s
 - La liste de revue affichait le JSON brut et seulement les éléments actionnables. Elle ne donnait pas une lecture immédiate des états diffusé/rejeté.
 - Les étapes 2 et 5 du fil de saisie papier n’étaient pas réellement atteignables.
 - La recherche de foyer ne filtrait pas les identités synthétiques et une sélection directe par `studentId` pouvait contourner un filtrage purement visuel.
+- Une identité élève sans prénom ni nom pouvait échouer pendant le rendu, après la transition de validation.
+- Une publication interrompue après validation ne pouvait être reprise que par l’assistante ayant créé la revue approuvée.
 
 ## Décisions prises
 
@@ -30,6 +32,8 @@ Les contrôles de production liés aux comptes ont été effectués en lecture s
 - Les PDF de revue sont générés à la demande pour `ELEVE`, `PARENTS` et `NEXUS`, sans persistance, avec `Cache-Control: private, no-store`.
 - Les trois matérialisations historiques recensées ne sont pas réécrites.
 - Les comptes synthétiques sont seulement exclus de la recherche de saisie papier. Toute suppression exige une décision humaine séparée.
+- L’identité humaine est vérifiée avant validation ; une fiche incomplète apparaît comme blocage lisible et ne change aucun état canonique.
+- Une matérialisation interrompue peut être relancée par une autre assistante : l’autorisation reste `ASSISTANTE`, tandis que la revue approuvée existante demeure la trace humaine de validation.
 
 ## Comptes proposés pour décision humaine séparée
 
@@ -63,11 +67,29 @@ Motifs appliqués, sans distinction de casse, à l’e-mail de l’élève et à
 
 ## Tests exécutés
 
-- Tests ciblés de pseudonymité, matérialisation et PDF Chromium.
-- Test d’extraction PDF contenant exactement `é à è ê ç`.
-- Tests de route staff pour les trois audiences, inline et téléchargement.
-- Tests du filtrage des deux identités du foyer et des cinq étapes.
-- La suite complète, le lint, le typecheck et le build sont consignés dans la PR après exécution finale.
+- Tests ciblés de pseudonymité, matérialisation et PDF Chromium, dont l’extraction contenant exactement `é à è ê ç`.
+- Tests de route staff pour les trois audiences, inline et téléchargement, ainsi que le refus parent/élève.
+- Tests du filtrage des deux identités du foyer, de la recherche par nom complet et des cinq étapes.
+- Suite complète sans filtre : 756 suites, 8 461 tests et 7 snapshots, tous verts.
+- `npm run typecheck` : vert.
+- `npm run lint` : vert, avec les avertissements préexistants limités au candidat libre non modifié.
+- Le contrôle du build de l’artefact final est consigné dans la PR.
+
+## Captures de contrôle
+
+Les captures utilisent exclusivement le seed E2E local (`Ahmed Dupont`) sur une base PostgreSQL éphémère ; elles ne contiennent aucune donnée de production :
+
+- `docs/audits/captures/2026-08-09-bilans-assistante/02-saisie-etape-1.png` ;
+- `docs/audits/captures/2026-08-09-bilans-assistante/03-saisie-etape-2-recherche.png` ;
+- `docs/audits/captures/2026-08-09-bilans-assistante/04-saisie-etape-3-matiere.png` ;
+- `docs/audits/captures/2026-08-09-bilans-assistante/05-saisie-etape-4-reponses.png` ;
+- `docs/audits/captures/2026-08-09-bilans-assistante/06-saisie-etape-5-validation.png` ;
+- `docs/audits/captures/2026-08-09-bilans-assistante/07-revue-en-attente-pdf.png` ;
+- `docs/audits/captures/2026-08-09-bilans-assistante/08-previsualisation-trois-audiences.png`.
+
+Le parcours réel local a vérifié 18 réponses, la création d’un rapport en attente, trois routes PDF `200 application/pdf` avec signature `%PDF`, et une redirection middleware `302` du parent vers son dashboard. La route elle-même renvoie `404` aux rôles parent/élève dans son test d’accès isolé.
+
+Après la saisie locale, la lecture SQL de contrôle a confirmé : provenance `SAISIE_PAPIER`, état `REPORT_PENDING_REVIEW`, même alias `ELEVE_…` dans snapshot et révision, absence du vrai nom dans ces deux JSON, et aucune matérialisation avant validation.
 
 ## Résultats
 
@@ -75,11 +97,13 @@ Motifs appliqués, sans distinction de casse, à l’e-mail de l’élève et à
 - Aucune migration créée.
 - Aucune écriture ou reprise des matérialisations historiques.
 - Le contrôle d’accès staff existant est conservé ; le middleware `ADMIN` n’est pas modifié.
+- La contre-revue finale ne relève aucun constat bloquant ou important.
 
 ## Risques restants
 
 - Les documents déjà matérialisés avant cette correction gardent leur en-tête historique pseudonyme, conformément à la décision de ne pas réécrire les lignes append-only.
 - Les comptes listés restent présents en base et peuvent servir à un audit ultérieur tant qu’une décision humaine de suppression n’est pas prise.
+- Le paramètre interne `reviewerId` du service de publication pourrait être renommé `publisherId` lors d’une évolution future ; il n’affecte ni l’autorisation ni la traçabilité de la revue approuvée dans cette PR.
 
 ## Rollback
 
