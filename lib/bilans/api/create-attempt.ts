@@ -140,6 +140,11 @@ export function createCreateAttemptHandler(
             data: {
               studentId: student.id,
               status: 'DRAFT',
+              // Posée à la création, jamais par un UPDATE : cette route sert
+              // la session d'un élève, donc une passation en ligne. La valeur
+              // est écrite explicitement plutôt que laissée au DEFAULT — la
+              // provenance d'une donnée se déclare, elle ne se déduit pas.
+              provenance: 'EN_LIGNE',
               seed: dependencies.generateSeed(),
               startedAt,
               expiresAt,
