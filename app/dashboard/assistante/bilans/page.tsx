@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
 import { auth } from '@/auth';
@@ -72,12 +73,12 @@ export default async function CanonicalBilansReviewPage({
           <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-300">
             Chaque diffusion aux familles exige une lecture humaine des trois audiences. La validation et la publication sont déclenchées uniquement par l’action explicite de l’assistante.
           </p>
-          <a
+          <Link
             href="/dashboard/assistante/bilans/saisie-papier"
             className="mt-5 inline-block rounded-xl border border-amber-300 px-4 py-2.5 text-sm font-semibold text-amber-100"
           >
             Saisir un bilan passé sur copie papier
-          </a>
+          </Link>
         </header>
 
         <section className="mt-8 grid gap-3 sm:grid-cols-3" aria-label="Synthèse des états de diffusion">
