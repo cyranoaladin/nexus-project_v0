@@ -10,6 +10,10 @@ import {
   PAPER_ENTRY_DURATION_NOTICE,
 } from './passation-presentation';
 import type { RenderIdentity } from './render-identity';
+import {
+  assertHumanRenderIdentity,
+  type HumanRenderIdentity,
+} from './human-identity';
 import type { ReportAudience } from './profile-copy';
 import { bilanPackLevelLabel } from './stage-label';
 import { groupDomainsForDisplay, subjectDisplayPolicy } from './subject-display';
@@ -68,14 +72,21 @@ function list(items: readonly string[], className = ''): string {
   return `<ol class="${className}">${items.map((item) => `<li>${escapeHtml(item)}</li>`).join('')}</ol>`;
 }
 
-function header(identity: RenderIdentity, audience: ReportAudience): string {
+function header(
+  identity: RenderIdentity,
+  audience: ReportAudience,
+  humanIdentity?: HumanRenderIdentity,
+): string {
+  const displayName = humanIdentity === undefined
+    ? identity.displayName
+    : assertHumanRenderIdentity(humanIdentity).displayName;
   const durationNotice = identity.durationMeasurement === PAPER_ENTRY_DURATION_MEASUREMENT
     ? `<p class="passation-note" style="margin:1.5mm 0 0;color:var(--color-lux-slate);font-size:9pt">${escapeHtml(PAPER_ENTRY_DURATION_NOTICE)}</p>`
     : '';
   return `<header class="report-header">
     <img class="brand-logo" src="${BILAN_PRINT_BRAND.logos.header}" alt="Nexus Réussite">
     <div class="identity"><p class="eyebrow">Bilan ${escapeHtml(audience)}</p><h1>${escapeHtml(identity.stageLabel)}</h1>
-    <p><strong>${escapeHtml(identity.displayName)}</strong> · ${escapeHtml(bilanPackLevelLabel(identity.level))} · ${escapeHtml(bilanPackSubjectLabel(identity.subject))} · ${escapeHtml(identity.date)}</p>${durationNotice}</div>
+    <p><strong>${escapeHtml(displayName)}</strong> · ${escapeHtml(bilanPackLevelLabel(identity.level))} · ${escapeHtml(bilanPackSubjectLabel(identity.subject))} · ${escapeHtml(identity.date)}</p>${durationNotice}</div>
   </header>`;
 }
 
@@ -132,11 +143,15 @@ export function renderDeterministicBilanHtml(
   factSheet: FactSheet,
   audience: ReportAudience,
   identity: RenderIdentity,
+  humanIdentity?: HumanRenderIdentity,
 ): string {
+  // The canonical identity is deliberately sent to the deterministic engine.
+  // The human identity is projected only after that content exists, in the
+  // document header below.
   const report = buildDeterministicReport(factSheet, audience, identity);
   const content = report.content as unknown as RenderContent;
   const body = audience === 'NEXUS'
     ? nexusBody(content, identity.subject)
     : publicBody(content, audience);
-  return `<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escapeHtml(identity.stageLabel)} · ${escapeHtml(audience)}</title><style>${styleSheet()}</style></head><body><article class="page" data-audience="${audience}" data-template="${BILAN_HTML_TEMPLATE_VERSION}">${header(identity, audience)}${body}<footer class="footer"><img src="${BILAN_PRINT_BRAND.logos.compact}" alt=""><span>Nexus Réussite · Document pédagogique confidentiel</span></footer></article></body></html>`;
+  return `<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escapeHtml(identity.stageLabel)} · ${escapeHtml(audience)}</title><style>${styleSheet()}</style></head><body><article class="page" data-audience="${audience}" data-template="${BILAN_HTML_TEMPLATE_VERSION}">${header(identity, audience, humanIdentity)}${body}<footer class="footer"><img src="${BILAN_PRINT_BRAND.logos.compact}" alt=""><span>Nexus Réussite · Document pédagogique confidentiel</span></footer></article></body></html>`;
 }

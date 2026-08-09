@@ -82,4 +82,20 @@ describe('A90.2.3 deterministic HTML-to-PDF export', () => {
     expect(result.html).toContain(identity.stageLabel);
     expect(result).not.toHaveProperty('pdf');
   });
+
+  it('embeds and extracts the exact French accents “é à è ê ç”', async () => {
+    const result = await renderDeterministicBilanPdf(
+      ENTRY_RECIPE_FACT_SHEETS[0],
+      'NEXUS',
+      { ...identity, stageLabel: 'Contrôle des accents : é à è ê ç' },
+      {
+        renderHtmlToPdf: session.renderHtmlToPdf,
+        humanIdentity: { displayName: 'Élise Ben Salah' },
+      },
+    );
+
+    expect(result.status).toBe('AVAILABLE');
+    if (result.status !== 'AVAILABLE') throw new Error(result.errorCode);
+    expect(await extractPdfText(result.pdf)).toContain('é à è ê ç');
+  });
 });
