@@ -84,7 +84,14 @@ describe('A86 deterministic worker and internal review service', () => {
     const parentUser = await prisma.user.create({ data: { email: `${PREFIX}parent@example.test`, role: 'PARENT' } });
     parentUserId = parentUser.id;
     const parent = await prisma.parentProfile.create({ data: { userId: parentUser.id } });
-    const studentUser = await prisma.user.create({ data: { email: `${PREFIX}student@example.test`, role: 'ELEVE' } });
+    const studentUser = await prisma.user.create({
+      data: {
+        email: `${PREFIX}student@example.test`,
+        role: 'ELEVE',
+        firstName: 'Élise',
+        lastName: 'Worker',
+      },
+    });
     studentUserId = studentUser.id;
     const student = await prisma.student.create({ data: { userId: studentUser.id, parentId: parent.id, gradeLevel: 'TERMINALE' } });
     studentId = student.id;

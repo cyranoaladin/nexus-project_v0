@@ -55,7 +55,14 @@ describe('August Canonical bilan chain', () => {
   beforeAll(async () => {
     const parentUser = await prisma.user.create({ data: { email: `${PREFIX}parent@example.test`, role: 'PARENT' } });
     const parent = await prisma.parentProfile.create({ data: { userId: parentUser.id } });
-    const studentUser = await prisma.user.create({ data: { email: `${PREFIX}student@example.test`, role: 'ELEVE' } });
+    const studentUser = await prisma.user.create({
+      data: {
+        email: `${PREFIX}student@example.test`,
+        role: 'ELEVE',
+        firstName: 'Élise',
+        lastName: 'Chaîne',
+      },
+    });
     const student = await prisma.student.create({
       data: { userId: studentUser.id, parentId: parent.id, gradeLevel: 'TERMINALE' },
     });

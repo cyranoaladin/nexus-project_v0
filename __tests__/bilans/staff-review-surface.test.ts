@@ -88,6 +88,39 @@ describe('staff Canonical report review service', () => {
     ]);
   });
 
+  test('blocks a review before validation when the student human identity is missing', async () => {
+    const missingIdentity = {
+      ...revision,
+      reportArtifact: {
+        ...revision.reportArtifact,
+        student: { user: { firstName: null, lastName: null } },
+      },
+    };
+    const deps = dependencies({
+      findPending: jest.fn().mockResolvedValue(missingIdentity),
+      listRecent: jest.fn().mockResolvedValue([missingIdentity]),
+    });
+
+    await expect(validateAndPublishPendingReport({
+      userId: 'user-assistante', role: 'ASSISTANTE', revisionId: revision.id, motif: 'Rapport relu intégralement.',
+    }, serviceDependencies(deps))).rejects.toMatchObject({
+      code: 'REPORT_STUDENT_IDENTITY_REQUIRED',
+    });
+    expect(deps.validate).not.toHaveBeenCalled();
+    expect(deps.publish).not.toHaveBeenCalled();
+
+    await expect(listRecentReportReviews(
+      { userId: 'user-assistante', role: 'ASSISTANTE' },
+      serviceDependencies(deps),
+    )).resolves.toEqual([
+      expect.objectContaining({
+        studentName: 'Identité élève à compléter',
+        actionable: false,
+        validationFailures: expect.arrayContaining(['Identité élève incomplète : prénom ou nom requis avant rendu.']),
+      }),
+    ]);
+  });
+
   test('validates then publishes through the report service with reviewer identity and time', async () => {
     const deps = dependencies();
 
@@ -188,6 +221,21 @@ describe('staff Canonical report review service', () => {
     expect(deps.publish).toHaveBeenCalledWith(expect.objectContaining({ revisionId: revision.id, reviewerId: 'user-assistante' }));
   });
 
+  test('lets another assistante request the retry of a stranded validated revision', async () => {
+    const stranded = { ...revision, status: 'COACH_VALIDATED' };
+    const deps = dependencies({ findPending: jest.fn().mockResolvedValue(stranded) });
+
+    await expect(validateAndPublishPendingReport({
+      userId: 'second-assistante', role: 'ASSISTANTE', revisionId: revision.id, motif: 'Reprise après incident PDF.',
+    }, serviceDependencies(deps))).resolves.toMatchObject({ status: 'PUBLISHED' });
+
+    expect(deps.validate).not.toHaveBeenCalled();
+    expect(deps.publish).toHaveBeenCalledWith(expect.objectContaining({
+      revisionId: revision.id,
+      reviewerId: 'second-assistante',
+    }));
+  });
+
   test('lists stranded COACH_VALIDATED revisions alongside genuinely pending ones', async () => {
     const stranded = { ...revision, id: 'revision-stranded', status: 'COACH_VALIDATED' };
     const deps = dependencies({ listPending: jest.fn().mockResolvedValue([revision, stranded]) });
@@ -224,6 +272,7 @@ describe('staff Canonical report review service', () => {
     expect(source).toContain('En attente de diffusion');
     expect(source).toContain('Diffusé');
     expect(source).toContain('Rejeté');
+    expect(source).toContain('Corrigez les blocages signalés avant de reprendre la diffusion.');
     expect(source).toContain('revision.studentName');
     expect(source).not.toContain('JSON.stringify');
     expect(source).not.toContain('<pre');

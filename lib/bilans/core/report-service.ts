@@ -8,7 +8,11 @@ import {
   prepareReportMaterialization,
   type PublicationRenderer,
 } from './report-materialization';
-import { buildHumanRenderIdentity } from '../render/human-identity';
+import {
+  buildHumanRenderIdentity,
+  type HumanRenderIdentity,
+  type StudentUserName,
+} from '../render/human-identity';
 import {
   renderDeterministicBilanPdf,
   type BilanPdfDependencies,
@@ -21,6 +25,17 @@ export class BilanReportServiceError extends Error {
   constructor(readonly code: string) {
     super(code);
     this.name = 'BilanReportServiceError';
+  }
+}
+
+function requiredHumanRenderIdentity(user: StudentUserName): HumanRenderIdentity {
+  try {
+    return buildHumanRenderIdentity(user);
+  } catch (error) {
+    if (error instanceof Error && error.message === 'HUMAN_RENDER_IDENTITY_MISSING') {
+      throw new BilanReportServiceError('REPORT_STUDENT_IDENTITY_REQUIRED');
+    }
+    throw error;
   }
 }
 
@@ -191,7 +206,7 @@ export async function publishReportRevision(input: Readonly<{
       materialization: { select: { id: true } },
       scoreSnapshot: { select: { result: true } },
       reviews: {
-        where: { reviewerId: input.reviewerId, decision: 'APPROVED' },
+        where: { decision: 'APPROVED' },
         select: { id: true },
         take: 1,
       },
@@ -226,7 +241,7 @@ export async function publishReportRevision(input: Readonly<{
     parseReportRenderContext(
       candidate.scoreSnapshot.result,
       candidate.content,
-      buildHumanRenderIdentity(candidate.reportArtifact.student.user),
+      requiredHumanRenderIdentity(candidate.reportArtifact.student.user),
     ),
     input.renderAudience,
   );
@@ -261,7 +276,7 @@ export async function publishReportRevision(input: Readonly<{
       || revision.reportArtifact.assessmentAttempt.status !== 'COACH_VALIDATED'
     ) throw new BilanReportServiceError('REPORT_CONCURRENT_PUBLICATION');
     const approvedReview = await transaction.reportReview.findFirst({
-      where: { reportRevisionId: revision.id, reviewerId: input.reviewerId, decision: 'APPROVED' },
+      where: { reportRevisionId: revision.id, decision: 'APPROVED' },
       select: { id: true },
     });
     if (approvedReview === null) throw new BilanReportServiceError('REPORT_APPROVED_REVIEW_REQUIRED');
@@ -338,7 +353,7 @@ export async function previewReportRevision(input: Readonly<{
   return prepareCoachPreview(parseReportRenderContext(
     revision.scoreSnapshot.result,
     revision.content,
-    buildHumanRenderIdentity(revision.reportArtifact.student.user),
+    requiredHumanRenderIdentity(revision.reportArtifact.student.user),
   ));
 }
 
@@ -378,7 +393,7 @@ export async function renderReportRevisionAudiencePdf(input: Readonly<{
   const context = parseReportRenderContext(
     revision.scoreSnapshot.result,
     revision.content,
-    buildHumanRenderIdentity(revision.reportArtifact.student.user),
+    requiredHumanRenderIdentity(revision.reportArtifact.student.user),
   );
   const rendered = await (input.renderAudience ?? renderDeterministicBilanPdf)(
     context.factSheet,
