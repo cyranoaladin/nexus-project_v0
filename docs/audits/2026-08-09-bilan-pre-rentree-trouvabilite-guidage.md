@@ -59,6 +59,7 @@ Audit demandé avant correction, sans déploiement, depuis `origin/main` après 
 - `npm run lint`, `npm run typecheck` et `npm run check:e2e-syntax` sont verts. Le lint ne remonte que les avertissements candidat libre préexistants, hors périmètre et non modifiés.
 - `npm run build` est vert avec environnement local synthétique, LLM désactivé et candidat libre désactivé : 91 pages générées, traces valides, artefact standalone valide et aucun fichier runtime résiduel.
 - Playwright local réel sur PostgreSQL E2E jetable : public desktop/mobile, parent sans enfant, ajout enfant, activation élève, sélection de matière, accès refusé parent/élève et workflow assistante. Aucune erreur navigateur.
+- Le workflow documentaire a reproduit l'OOM V8 déjà observé sur `main` après #111 et #112 pendant `tsc --noEmit`, après 160 tests Python et 404 tests pré-rentrée verts. Son heap Node passe de la limite par défaut de 2 Go à 4 Go; aucun contrôle n'est désactivé ou allégé.
 
 ## Résultats
 
