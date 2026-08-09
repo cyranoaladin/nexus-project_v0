@@ -10,6 +10,7 @@ import {
   type RenderIdentity,
 } from '../render/render-identity';
 import { renderDeterministicBilanHtml } from '../render/html';
+import { applyReportPassationPresentation } from '../render/passation-presentation';
 import {
   assertPublicRenderedArtifact,
   audienceArtifactChecksum,
@@ -83,9 +84,10 @@ function parseIdentity(content: unknown): RenderIdentity {
 }
 
 export function parseReportRenderContext(scoreResult: unknown, reportContent: unknown): ReportRenderContext {
+  const identity = parseIdentity(reportContent);
   return Object.freeze({
-    factSheet: parseFactSheet(scoreResult),
-    identity: parseIdentity(reportContent),
+    factSheet: applyReportPassationPresentation(parseFactSheet(scoreResult), identity.durationMeasurement),
+    identity,
   });
 }
 

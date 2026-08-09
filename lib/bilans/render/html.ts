@@ -5,6 +5,10 @@ import {
 } from '../catalog/subjects';
 import { BILAN_PRINT_BRAND, bilanPrintTokenCss } from './brand';
 import { buildDeterministicReport } from './report';
+import {
+  PAPER_ENTRY_DURATION_MEASUREMENT,
+  PAPER_ENTRY_DURATION_NOTICE,
+} from './passation-presentation';
 import type { RenderIdentity } from './render-identity';
 import type { ReportAudience } from './profile-copy';
 import { bilanPackLevelLabel } from './stage-label';
@@ -65,10 +69,13 @@ function list(items: readonly string[], className = ''): string {
 }
 
 function header(identity: RenderIdentity, audience: ReportAudience): string {
+  const durationNotice = identity.durationMeasurement === PAPER_ENTRY_DURATION_MEASUREMENT
+    ? `<p class="passation-note" style="margin:1.5mm 0 0;color:var(--color-lux-slate);font-size:9pt">${escapeHtml(PAPER_ENTRY_DURATION_NOTICE)}</p>`
+    : '';
   return `<header class="report-header">
     <img class="brand-logo" src="${BILAN_PRINT_BRAND.logos.header}" alt="Nexus Réussite">
     <div class="identity"><p class="eyebrow">Bilan ${escapeHtml(audience)}</p><h1>${escapeHtml(identity.stageLabel)}</h1>
-    <p><strong>${escapeHtml(identity.displayName)}</strong> · ${escapeHtml(bilanPackLevelLabel(identity.level))} · ${escapeHtml(bilanPackSubjectLabel(identity.subject))} · ${escapeHtml(identity.date)}</p></div>
+    <p><strong>${escapeHtml(identity.displayName)}</strong> · ${escapeHtml(bilanPackLevelLabel(identity.level))} · ${escapeHtml(bilanPackSubjectLabel(identity.subject))} · ${escapeHtml(identity.date)}</p>${durationNotice}</div>
   </header>`;
 }
 
