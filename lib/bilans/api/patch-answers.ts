@@ -1,4 +1,4 @@
-import type { Prisma, PrismaClient } from '@prisma/client';
+import type { PrismaClient } from '@prisma/client';
 import type { Session } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
@@ -7,6 +7,7 @@ import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 
 import { resolveSessionStudent } from './access';
+import { assertAnswersBelongToPack, mergeAttemptAnswers } from './answer-merge';
 import { CanonicalApiError } from './errors';
 import { canonicalErrorResponse } from './http';
 import {
@@ -18,7 +19,6 @@ import {
 import {
   assertAttemptPackEnabled,
   resolveEnabledPack,
-  type EnabledBilanPack,
   type PackResolver,
 } from './pack-access';
 
@@ -84,25 +84,6 @@ function attemptDelegate(transaction: CanonicalTransaction): AttemptDelegate {
   return delegate as AttemptDelegate;
 }
 
-function answerRecord(value: unknown): Record<string, Prisma.JsonValue> {
-  if (value === null || typeof value !== 'object' || Array.isArray(value)) return {};
-  return { ...value as Record<string, Prisma.JsonValue> };
-}
-
-function assertAnswersBelongToPack(
-  input: z.infer<typeof requestSchema>,
-  enabled: EnabledBilanPack,
-): void {
-  const items = new Map(enabled.pack.questionnaire.items.map((item) => [item.id, item]));
-  for (const answer of input.answers) {
-    const item = items.get(answer.itemId);
-    if (item === undefined) throw CanonicalApiError.badRequest('ANSWER_ITEM_INVALID');
-    if (answer.optionId !== null && !item.options.some((option) => option.id === answer.optionId)) {
-      throw CanonicalApiError.badRequest('ANSWER_OPTION_INVALID');
-    }
-  }
-}
-
 async function requestBody(request: NextRequest): Promise<z.infer<typeof requestSchema>> {
   try {
     return requestSchema.parse(await request.json());
@@ -159,12 +140,9 @@ export function createPatchAnswersHandler(
           }
 
           const enabled = assertAttemptPackEnabled(attempt, dependencies.resolvePack);
-          assertAnswersBelongToPack(input, enabled);
+          assertAnswersBelongToPack(input.answers, enabled);
 
-          const merged = answerRecord(attempt.answers);
-          for (const answer of input.answers) {
-            merged[answer.itemId] = { optionId: answer.optionId, confidence: answer.confidence };
-          }
+          const merged = mergeAttemptAnswers(attempt.answers, input.answers);
           const updated = await attempts.updateMany({
             where: {
               id,

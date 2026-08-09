@@ -1,10 +1,15 @@
 import {
   audienceArtifactChecksum,
+  parseReportRenderContext,
   prepareCoachPreview,
   prepareReportMaterialization,
   storedAudienceArtifactIsIntact,
 } from '@/lib/bilans/core/report-materialization';
 import { renderDeterministicBilanHtml } from '@/lib/bilans/render/html';
+import {
+  PAPER_ENTRY_DURATION_MEASUREMENT,
+  PAPER_ENTRY_DURATION_NOTICE,
+} from '@/lib/bilans/render/passation-presentation';
 import { BILAN_PDF_ENGINE_VERSION } from '@/lib/bilans/render/pdf';
 import type { RenderIdentity } from '@/lib/bilans/render/render-identity';
 import { ENTRY_RECIPE_FACT_SHEETS } from '@/__tests__/bilans/fixtures/recipe-fact-sheets';
@@ -66,5 +71,31 @@ describe('A90.3 report materialization preparation', () => {
     expect(preview.official).toBe(false);
     expect(preview.label).toContain('NON OFFICIELLE');
     expect(preview.audiences).toHaveLength(3);
+  });
+
+  test('reprojects the raw snapshot before materializing a paper-entry report', () => {
+    const rawExpressFactSheet = {
+      ...factSheet,
+      flags: [...factSheet.flags, 'PASSATION_EXPRESS' as const],
+    };
+    const context = parseReportRenderContext(rawExpressFactSheet, {
+      NEXUS: {
+        identity: { ...identity, durationMeasurement: PAPER_ENTRY_DURATION_MEASUREMENT },
+      },
+    });
+
+    expect(rawExpressFactSheet.flags).toContain('PASSATION_EXPRESS');
+    expect(context.factSheet.flags).not.toContain('PASSATION_EXPRESS');
+  });
+
+  test('materializes the neutral paper-entry notice for all audiences', async () => {
+    const paperIdentity = { ...identity, durationMeasurement: PAPER_ENTRY_DURATION_MEASUREMENT };
+    const prepared = await prepareReportMaterialization(
+      { factSheet, identity: paperIdentity },
+      readyRenderer,
+    );
+
+    expect(prepared.audiences).toHaveLength(3);
+    expect(prepared.audiences.every(({ html }) => html.includes(PAPER_ENTRY_DURATION_NOTICE))).toBe(true);
   });
 });

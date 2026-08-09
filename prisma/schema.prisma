@@ -225,6 +225,9 @@ model User {
   // Canonical bilan reviews performed by this user (ASSISTANTE)
   bilanReportReviews ReportReview[]
 
+  // Paper bilan copies transcribed by this user (ASSISTANTE or ADMIN)
+  bilanPaperEntries CanonicalAssessmentAttempt[] @relation("CanonicalAttemptPaperEntry")
+
   // Diagnostic candidat libre 2027 (feature isolée)
   createdCandidateDiagnostics          CandidateDiagnostic[]         @relation("CandidateDiagnosticCreatedBy")
   candidateDiagnosticConsents          CandidateDiagnosticConsent[]  @relation("CandidateDiagnosticConsentParent")
@@ -1375,6 +1378,14 @@ enum ParentStudentLinkState {
   EXPIRED
 }
 
+/// Origine des réponses d'un attempt canonique. EN_LIGNE : l'élève a répondu
+/// depuis sa session. SAISIE_PAPIER : un membre du staff a recopié une copie
+/// papier déjà passée. Le scoring est le même ; les faits, non.
+enum CanonicalAttemptProvenance {
+  EN_LIGNE
+  SAISIE_PAPIER
+}
+
 enum CanonicalAssessmentAttemptStatus {
   IN_PROGRESS
   DRAFT
@@ -1510,6 +1521,17 @@ model CanonicalAssessmentAttempt {
   scoringPolicyId        String
   scoringPolicyVersion   String
 
+  // How these answers reached the platform: the student's own online
+  // passation, or a staff member transcribing a paper copy. Set by the INSERT
+  // that creates the attempt and never updatable — a database trigger rejects
+  // any UPDATE touching these three columns, in DRAFT as well as after
+  // submission. `enteredById` keeps the audit pseudonymous: an opaque user id,
+  // never a name, and it never reaches the rendered report.
+  provenance  CanonicalAttemptProvenance @default(EN_LIGNE)
+  enteredById String?
+  enteredBy   User?                      @relation("CanonicalAttemptPaperEntry", fields: [enteredById], references: [id], onDelete: Restrict)
+  enteredAt   DateTime?
+
   scoreSnapshots  ScoreSnapshot[]
   reportArtifacts ReportArtifact[]
 
@@ -1519,6 +1541,7 @@ model CanonicalAssessmentAttempt {
   @@unique([id, studentId])
   @@index([studentId, status, createdAt])
   @@index([assessmentPackId, assessmentPackVersion], map: "canonical_assessment_attempts_assessmentPackId_assessmentPackVe")
+  @@index([provenance, createdAt])
   @@map("canonical_assessment_attempts")
 }
 
