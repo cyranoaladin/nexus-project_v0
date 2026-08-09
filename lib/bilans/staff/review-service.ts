@@ -1,8 +1,9 @@
-import { ReportRevisionStatus, type Prisma, type UserRole } from '@prisma/client';
+import { ReportRevisionStatus, type UserRole } from '@prisma/client';
 
 import { prisma } from '@/lib/prisma';
 
 import { resolveEnabledPack, type PackResolver } from '../api/pack-access';
+import { bilanPackSubjectLabel } from '../catalog/subjects';
 import {
   BilanReportServiceError,
   previewReportRevision,
@@ -12,6 +13,7 @@ import {
   validateReportRevision,
 } from '../core/report-service';
 import type { ReportAudience } from '../render/profile-copy';
+import { bilanPackLevelLabel } from '../render/stage-label';
 
 export type PendingReportReview = Readonly<{
   id: string;
@@ -19,13 +21,24 @@ export type PendingReportReview = Readonly<{
   validationFailures: readonly string[];
   reportPackId: string;
   reportPackVersion: string;
-  content: Prisma.JsonValue;
   createdAt: Date;
   reportArtifact: Readonly<{
     id: string;
     assessmentAttemptId: string;
     studentId: string;
+    status: string;
+    assessmentAttempt: Readonly<{ provenance: string }>;
+    student: Readonly<{
+      user: Readonly<{ firstName: string | null; lastName: string | null }>;
+    }>;
   }>;
+}>;
+
+export type RecentReportReview = PendingReportReview & Readonly<{
+  studentName: string;
+  packLabel: string;
+  displayStatus: 'En attente de diffusion' | 'Diffusé' | 'Rejeté';
+  actionable: boolean;
 }>;
 
 type ReviewActor = Readonly<{ userId: string; role: UserRole | string }>;
@@ -37,15 +50,24 @@ const revisionSelection = {
   validationFailures: true,
   reportPackId: true,
   reportPackVersion: true,
-  content: true,
   createdAt: true,
   reportArtifact: {
-    select: { id: true, assessmentAttemptId: true, studentId: true },
+    select: {
+      id: true,
+      assessmentAttemptId: true,
+      studentId: true,
+      status: true,
+      assessmentAttempt: { select: { provenance: true } },
+      student: {
+        select: { user: { select: { firstName: true, lastName: true } } },
+      },
+    },
   },
 } as const;
 
 type ReviewServiceDependencies = Readonly<{
   listPending(): Promise<readonly PendingReportReview[]>;
+  listRecent(): Promise<readonly PendingReportReview[]>;
   findPending(revisionId: string): Promise<PendingReportReview | null>;
   resolvePack: PackResolver;
   validate(input: Readonly<{ revisionId: string; reviewerId: string; motif: string; reviewedAt: Date }>): Promise<unknown>;
@@ -82,6 +104,21 @@ const defaultDependencies: ReviewServiceDependencies = {
     where: { status: actionableStatus, materialization: null },
     select: revisionSelection,
     orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
+  }),
+  listRecent: () => prisma.reportRevision.findMany({
+    where: {
+      OR: [
+        { status: { in: [
+          ReportRevisionStatus.PENDING_REVIEW,
+          ReportRevisionStatus.COACH_VALIDATED,
+          ReportRevisionStatus.REJECTED,
+        ] } },
+        { reportArtifact: { status: 'PUBLISHED' } },
+      ],
+    },
+    select: revisionSelection,
+    orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+    take: 60,
   }),
   findPending: (revisionId) => prisma.reportRevision.findFirst({
     where: { id: revisionId, status: actionableStatus, materialization: null },
@@ -128,6 +165,43 @@ function packIsEnabled(revision: PendingReportReview, dependencies: ReviewServic
   return dependencies.resolvePack(revision.reportPackId, versionOf(revision)) !== null;
 }
 
+function studentName(revision: PendingReportReview): string {
+  const { firstName, lastName } = revision.reportArtifact.student.user;
+  const name = [firstName, lastName]
+    .filter((part): part is string => typeof part === 'string' && part.trim().length > 0)
+    .map((part) => part.trim())
+    .join(' ');
+  return name || 'Élève';
+}
+
+function displayStatus(revision: PendingReportReview): RecentReportReview['displayStatus'] {
+  if (revision.status === ReportRevisionStatus.REJECTED) return 'Rejeté';
+  if (revision.reportArtifact.status === 'PUBLISHED') return 'Diffusé';
+  return 'En attente de diffusion';
+}
+
+function recentReview(
+  revision: PendingReportReview,
+  dependencies: ReviewServiceDependencies,
+): RecentReportReview {
+  const resolved = dependencies.resolvePack(revision.reportPackId, versionOf(revision));
+  const actionable = resolved !== null
+    && (
+      revision.status === ReportRevisionStatus.PENDING_REVIEW
+      || revision.status === ReportRevisionStatus.COACH_VALIDATED
+    )
+    && revision.reportArtifact.status === 'PENDING_REVIEW';
+  return Object.freeze({
+    ...revision,
+    studentName: studentName(revision),
+    packLabel: resolved === null
+      ? `${revision.reportPackId} · v${revision.reportPackVersion}`
+      : `${bilanPackLevelLabel(resolved.pack.level)} · ${bilanPackSubjectLabel(resolved.pack.subject)}`,
+    displayStatus: displayStatus(revision),
+    actionable,
+  });
+}
+
 async function pendingReview(
   action: ReviewAction,
   dependencies: ReviewServiceDependencies,
@@ -148,6 +222,15 @@ export async function listPendingReportReviews(
   assertAssistante(actor);
   const revisions = await dependencies.listPending();
   return Object.freeze(revisions.filter((revision) => packIsEnabled(revision, dependencies)));
+}
+
+export async function listRecentReportReviews(
+  actor: ReviewActor,
+  overrides: Partial<ReviewServiceDependencies> = {},
+): Promise<readonly RecentReportReview[]> {
+  const dependencies = { ...defaultDependencies, ...overrides };
+  assertAssistante(actor);
+  return Object.freeze((await dependencies.listRecent()).map((revision) => recentReview(revision, dependencies)));
 }
 
 export async function validateAndPublishPendingReport(
