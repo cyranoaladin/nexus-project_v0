@@ -28,7 +28,7 @@ describe('BilanGratuitBanner', () => {
     const onGoToChildren = jest.fn();
     render(<BilanGratuitBanner onGoToChildren={onGoToChildren} />);
 
-    const cta = await screen.findByRole('button', { name: /faire le bilan/i });
+    const cta = await screen.findByRole('button', { name: /ajouter votre enfant/i });
     // The whole point of this fix: an already-authenticated parent must be
     // routed to their own "Ajouter un Enfant" flow, never back to the
     // anonymous public /bilan-gratuit registration form (dead end for an
@@ -37,5 +37,13 @@ describe('BilanGratuitBanner', () => {
 
     await userEvent.click(cta);
     expect(onGoToChildren).toHaveBeenCalledTimes(1);
+  });
+
+  test('guide vers le lien existant sans proposer de créer un doublon', async () => {
+    mockFetchStatus({ completed: false, dismissed: false });
+    render(<BilanGratuitBanner hasChildren onGoToChildren={jest.fn()} />);
+
+    expect(await screen.findByRole('button', { name: /voir le lien de votre enfant/i })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /ajouter votre enfant/i })).not.toBeInTheDocument();
   });
 });

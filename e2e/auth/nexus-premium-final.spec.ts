@@ -12,7 +12,8 @@ test.describe('Nexus premium final — contenu et parcours publics', () => {
       'Cellule Cyclades',
       'Repères tarifaires',
       'TND',
-      'Demander un bilan gratuit',
+      'Passer le bilan de pré-rentrée',
+      'Être rappelé par un conseiller',
     ]) {
       await expect(body).toContainText(text);
     }
