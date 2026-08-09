@@ -10,6 +10,7 @@ import { Card,CardContent,CardHeader,CardTitle } from "@/components/ui/card";
 
 import { AlertsConsolidated } from "@/components/dashboard/parent/AlertsConsolidated";
 import { ChildCard,type ParentDashboardChild } from "@/components/dashboard/parent/ChildCard";
+import { ParentChildrenEmptyState } from "@/components/dashboard/parent/ParentChildrenEmptyState";
 import { BilanGratuitBanner } from "@/components/dashboard/BilanGratuitBanner";
 import AddChildDialog from "./add-child-dialog";
 
@@ -26,10 +27,13 @@ export default function DashboardParent() {
   const [activeRubrique, setActiveRubrique] = useState<'enfants' | 'facturation' | 'alertes'>('enfants');
   const [addChildOpen, setAddChildOpen] = useState(false);
 
-  const refreshDashboardData = useCallback(async () => {
+  const refreshDashboardData = useCallback(async (options: { silent?: boolean } = {}) => {
+    const silent = options.silent === true;
     try {
-      setLoading(true)
-      setError(null)
+      if (!silent) {
+        setLoading(true)
+        setError(null)
+      }
 
       const response = await fetch('/api/parent/dashboard')
 
@@ -40,9 +44,9 @@ export default function DashboardParent() {
       const data = await response.json()
       setDashboardData(data)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred')
+      if (!silent) setError(err instanceof Error ? err.message : 'An error occurred')
     } finally {
-      setLoading(false)
+      if (!silent) setLoading(false)
     }
   }, [])
 
@@ -54,7 +58,7 @@ export default function DashboardParent() {
       return
     }
 
-    refreshDashboardData()
+    void refreshDashboardData()
   }, [session, status, router, refreshDashboardData])
 
   if (status === "loading" || loading) {
@@ -71,7 +75,7 @@ export default function DashboardParent() {
         <div className="text-center">
           <AlertCircle className="w-8 h-8 mx-auto mb-4 text-rose-300" />
           <p className="text-rose-200 mb-4">{error}</p>
-          <Button onClick={refreshDashboardData} className="btn-primary">Réessayer</Button>
+          <Button onClick={() => { void refreshDashboardData(); }} className="btn-primary">Réessayer</Button>
         </div>
       </div>
     )
@@ -110,7 +114,13 @@ export default function DashboardParent() {
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="space-y-6">
-          <BilanGratuitBanner onGoToChildren={() => { setActiveRubrique('enfants'); setAddChildOpen(true); }} />
+          <BilanGratuitBanner
+            hasChildren={(dashboardData?.children.length ?? 0) > 0}
+            onGoToChildren={() => {
+              setActiveRubrique('enfants');
+              if ((dashboardData?.children.length ?? 0) === 0) setAddChildOpen(true);
+            }}
+          />
 
           {/* Rubriques Switcher */}
           <div className="flex flex-wrap gap-2 p-1 bg-white/5 border border-white/10 rounded-xl">
@@ -144,14 +154,22 @@ export default function DashboardParent() {
                     {dashboardData?.children.length || 0}
                   </Badge>
                 </h2>
-                <AddChildDialog onChildAdded={refreshDashboardData} open={addChildOpen} onOpenChange={setAddChildOpen} />
+                <AddChildDialog
+                  onChildAdded={() => { void refreshDashboardData({ silent: true }); }}
+                  open={addChildOpen}
+                  onOpenChange={setAddChildOpen}
+                />
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {dashboardData?.children.map((child) => (
-                  <ChildCard key={child.id} child={child} />
-                ))}
-              </div>
+              {(dashboardData?.children.length ?? 0) === 0 ? (
+                <ParentChildrenEmptyState onAddChild={() => setAddChildOpen(true)} />
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {dashboardData?.children.map((child) => (
+                    <ChildCard key={child.id} child={child} />
+                  ))}
+                </div>
+              )}
             </div>
           )}
 

@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 
 import { auth } from '@/auth';
 import { PaperEntryGrid } from '@/components/bilans/PaperEntryGrid';
+import { PaperEntryWorkflowSteps } from '@/components/bilans/PaperEntryWorkflowSteps';
 import { listEnabledPacks } from '@/lib/bilans/api/pack-access';
 import { bilanPackSubjectLabel } from '@/lib/bilans/catalog/subjects';
 import { bilanPackLevelLabel } from '@/lib/bilans/render/stage-label';
@@ -110,6 +111,8 @@ export default async function SaisiePapierPage({
           </Link>
         </header>
 
+        <PaperEntryWorkflowSteps currentStep={chosenPack !== null ? 4 : selected !== null ? 3 : 1} />
+
         {chosenPack !== null && selected !== null ? (
           <>
             <Link
@@ -128,9 +131,9 @@ export default async function SaisiePapierPage({
           </>
         ) : selected !== null ? (
           <section className="mt-8 rounded-3xl border border-white/10 bg-white/[0.06] p-6">
-            <h2 className="text-lg font-semibold text-white">
-              {studentName} · {bilanPackLevelLabel(selected.gradeLevel)}
-            </h2>
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-amber-300">Étape 3</p>
+            <h2 className="mt-2 text-lg font-semibold text-white">Choisir la matière</h2>
+            <p className="mt-1 text-sm text-slate-300">{studentName} · {bilanPackLevelLabel(selected.gradeLevel)}</p>
             <p className="mt-1 text-sm text-slate-400">Choisissez la matière de la copie.</p>
             {packsForStudent.length === 0 ? (
               <p className="mt-5 rounded-2xl border border-amber-300/30 bg-amber-300/5 p-5 text-sm text-amber-100">
@@ -143,9 +146,10 @@ export default async function SaisiePapierPage({
                   <Link
                     key={pack.slug}
                     href={`/dashboard/assistante/bilans/saisie-papier?studentId=${encodeURIComponent(selected.id)}&packSlug=${encodeURIComponent(pack.slug)}`}
-                    className="block rounded-2xl bg-slate-900 px-5 py-4 font-semibold text-white ring-1 ring-white/10"
+                    className="flex items-center justify-between gap-4 rounded-2xl bg-slate-900 px-5 py-4 font-semibold text-white ring-1 ring-white/10"
                   >
-                    {packLabel(pack.level, pack.subject)}
+                    <span>{packLabel(pack.level, pack.subject)}</span>
+                    <span className="text-sm text-amber-200">Choisir cette matière →</span>
                   </Link>
                 ))}
               </div>
@@ -157,7 +161,8 @@ export default async function SaisiePapierPage({
         ) : (
           <>
             <section className="mt-8 rounded-3xl border border-white/10 bg-white/[0.06] p-6">
-              <h2 className="text-lg font-semibold text-white">1. Choisir l’élève</h2>
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-amber-300">Étapes 1 et 2</p>
+              <h2 className="mt-2 text-lg font-semibold text-white">Sélectionner le foyer et l’enfant</h2>
               <form method="GET" className="mt-4 flex flex-wrap gap-3">
                 <input
                   type="search"
@@ -177,17 +182,22 @@ export default async function SaisiePapierPage({
                 <ul className="mt-5 divide-y divide-white/10">
                   {students.map((student) => (
                     <li key={student.id}>
-                      <Link
-                        href={`/dashboard/assistante/bilans/saisie-papier?studentId=${encodeURIComponent(student.id)}`}
-                        className="flex flex-wrap items-baseline justify-between gap-2 py-3 text-sm"
-                      >
-                        <span className="font-semibold text-white">
-                          {`${student.user.firstName ?? ''} ${student.user.lastName ?? ''}`.trim() || 'Élève'}
-                        </span>
-                        <span className="text-slate-400">
-                          {bilanPackLevelLabel(student.gradeLevel)} · {student.parent?.user.email ?? '—'}
-                        </span>
-                      </Link>
+                      <div className="flex flex-wrap items-center justify-between gap-3 py-3 text-sm">
+                        <div>
+                          <span className="font-semibold text-white">
+                            {`${student.user.firstName ?? ''} ${student.user.lastName ?? ''}`.trim() || 'Élève'}
+                          </span>
+                          <span className="ml-3 text-slate-400">
+                            {bilanPackLevelLabel(student.gradeLevel)} · {student.parent?.user.email ?? '—'}
+                          </span>
+                        </div>
+                        <Link
+                          href={`/dashboard/assistante/bilans/saisie-papier?studentId=${encodeURIComponent(student.id)}`}
+                          className="rounded-xl border border-amber-300 px-4 py-2 font-semibold text-amber-100"
+                        >
+                          Choisir cet enfant
+                        </Link>
+                      </div>
                     </li>
                   ))}
                 </ul>
@@ -195,7 +205,8 @@ export default async function SaisiePapierPage({
             </section>
 
             <section className="mt-6 rounded-3xl border border-white/10 bg-white/[0.06] p-6">
-              <h2 className="text-lg font-semibold text-white">2. Ou créer le foyer</h2>
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-amber-300">Étapes 1 et 2</p>
+              <h2 className="mt-2 text-lg font-semibold text-white">Créer le foyer et ajouter l’enfant</h2>
               <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-400">
                 Le parent reçoit un lien d’activation et choisit lui-même son mot de passe. Personne ne le fixe à sa
                 place.

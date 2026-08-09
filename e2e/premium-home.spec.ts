@@ -59,13 +59,15 @@ test.describe('Premium Home Journey', () => {
         await expect(pricingCard).toBeVisible({ timeout: 10000 });
     });
 
-    test('CTA bilan gratuit is accessible', async ({ page }) => {
-        const ctaSection = page.locator('section[aria-label="Demander un bilan gratuit"]');
+    test('CTA bilan de pré-rentrée et rappel conseiller sont distincts', async ({ page }) => {
+        const ctaSection = page.locator('section[aria-label="Choisir entre bilan en ligne et rappel conseiller"]');
         await ctaSection.scrollIntoViewIfNeeded();
         await expect(ctaSection).toBeInViewport({ timeout: 5000 });
 
-        const ctaLink = ctaSection.getByRole('link', { name: /bilan gratuit/i });
-        await expect(ctaLink).toBeVisible({ timeout: 10000 });
-        await expect(ctaLink).toHaveAttribute('href', '/bilan-gratuit');
+        const assessmentLink = ctaSection.getByRole('link', { name: 'Passer le bilan de pré-rentrée' });
+        const adviserLink = ctaSection.getByRole('link', { name: 'Être rappelé par un conseiller' });
+        await expect(assessmentLink).toBeVisible({ timeout: 10000 });
+        await expect(assessmentLink).toHaveAttribute('href', '/bilan-gratuit?parcours=diagnostic#demande-bilan');
+        await expect(adviserLink).toHaveAttribute('href', '/bilan-gratuit?parcours=conseiller#rappel-conseiller');
     });
 });

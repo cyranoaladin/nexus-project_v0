@@ -35,6 +35,9 @@ describe('ChildCard initial student activation', () => {
       expect.objectContaining({ method: 'POST' }),
     ));
     expect(await screen.findByText(child.email)).toBeInTheDocument();
+    expect(screen.getByText("Remettez ce lien à votre enfant pour qu'il passe son bilan.")).toBeInTheDocument();
+    expect(screen.getByDisplayValue('http://localhost/auth/activate?token=act_raw_once')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Copier le lien' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /ouvrir l.activation/i })).toHaveAttribute(
       'href',
       'http://localhost/auth/activate?token=act_raw_once',
