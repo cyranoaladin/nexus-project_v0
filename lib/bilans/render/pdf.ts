@@ -6,6 +6,7 @@ import { spawn } from 'node:child_process';
 import type { FactSheet } from '../facts/fact-sheet';
 import { BILAN_PRINT_BRAND } from './brand';
 import { renderDeterministicBilanHtml } from './html';
+import type { HumanRenderIdentity } from './human-identity';
 import type { RenderIdentity } from './render-identity';
 import type { ReportAudience } from './profile-copy';
 
@@ -17,6 +18,7 @@ export type BilanPdfResult =
 
 export interface BilanPdfDependencies {
   renderHtmlToPdf?: (html: string) => Promise<Buffer>;
+  humanIdentity?: HumanRenderIdentity;
 }
 
 const ASSETS = [
@@ -152,7 +154,12 @@ export async function renderDeterministicBilanPdf(
   identity: RenderIdentity,
   dependencies: BilanPdfDependencies = {},
 ): Promise<BilanPdfResult> {
-  const html = renderDeterministicBilanHtml(factSheet, audience, identity);
+  const html = renderDeterministicBilanHtml(
+    factSheet,
+    audience,
+    identity,
+    dependencies.humanIdentity,
+  );
   try {
     const pdf = await (dependencies.renderHtmlToPdf ?? renderHtmlToPdf)(html);
     if (!pdf.subarray(0, 4).equals(Buffer.from('%PDF'))) throw new Error('INVALID_PDF_MAGIC');

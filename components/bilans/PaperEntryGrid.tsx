@@ -3,6 +3,8 @@
 import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
+import { PaperEntryWorkflowSteps } from './PaperEntryWorkflowSteps';
+
 export type PaperEntryGridOption = Readonly<{ id: string; label: string }>;
 
 export type PaperEntryGridItem = Readonly<{
@@ -18,6 +20,7 @@ export type PaperEntryGridProps = Readonly<{
   packSlug: string;
   packTitle: string;
   items: readonly PaperEntryGridItem[];
+  childSelectionHref?: string;
 }>;
 
 /** `undefined` : la case n'a pas encore été traitée par le saisisseur. */
@@ -38,6 +41,7 @@ export function PaperEntryGrid({
   packSlug,
   packTitle,
   items,
+  childSelectionHref = '/dashboard/assistante/bilans/saisie-papier',
 }: PaperEntryGridProps) {
   const router = useRouter();
   const [options, setOptions] = useState<Record<string, string | undefined>>({});
@@ -96,6 +100,14 @@ export function PaperEntryGrid({
 
   return (
     <section className="mt-8">
+      <PaperEntryWorkflowSteps
+        currentStep={complete ? 5 : 4}
+        stepHrefs={{
+          1: '/dashboard/assistante/bilans/saisie-papier',
+          2: childSelectionHref,
+          3: `/dashboard/assistante/bilans/saisie-papier?studentId=${encodeURIComponent(studentId)}`,
+        }}
+      />
       <div className="rounded-3xl border border-white/10 bg-white/[0.06] p-6">
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-amber-300">Copie à saisir</p>
         <h2 className="mt-2 text-xl font-semibold text-white">{studentName}</h2>
