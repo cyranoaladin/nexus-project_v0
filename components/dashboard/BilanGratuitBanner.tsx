@@ -5,10 +5,11 @@ import { Button } from "@/components/ui/button";
 import { ClipboardCheck, X } from "lucide-react";
 
 type BilanGratuitBannerProps = {
+  hasChildren?: boolean;
   /**
    * The banner only ever renders for an authenticated parent (it reads
-   * /api/bilan-gratuit/status, which requires a session) -- so "Faire le
-   * bilan" must send them to their own "Ajouter un Enfant" flow, never to
+   * /api/bilan-gratuit/status, which requires a session) -- so its CTA must
+   * send them to their own children flow, never to
    * the public /bilan-gratuit registration form, which assumes an
    * anonymous visitor and silently no-ops on an already-registered email.
    */
@@ -21,7 +22,7 @@ type BilanGratuitBannerProps = {
  *
  * Dismiss state is persisted in DB via /api/bilan-gratuit/status and /dismiss.
  */
-export function BilanGratuitBanner({ onGoToChildren }: BilanGratuitBannerProps) {
+export function BilanGratuitBanner({ hasChildren = false, onGoToChildren }: BilanGratuitBannerProps) {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -63,7 +64,7 @@ export function BilanGratuitBanner({ onGoToChildren }: BilanGratuitBannerProps) 
       </div>
       <div className="flex items-center gap-2 ml-8 sm:ml-0 flex-shrink-0">
         <Button size="sm" className="text-xs sm:text-sm" onClick={onGoToChildren}>
-          Faire le bilan
+          {hasChildren ? 'Voir le lien de votre enfant' : 'Ajouter votre enfant'}
         </Button>
         <Button
           variant="ghost"
