@@ -55,6 +55,11 @@ les comptes synthétiques de recette.
   principal des cartes.
 - Les actions de prévisualisation, PDF, validation et rejet restent limitées aux
   révisions actionnables et gardent les contrôles de diffusion existants.
+- Une fiche sans prénom ni nom est affichée comme identité à compléter, bloque
+  les actions de rendu avant toute transition et ne retombe jamais sur l'alias.
+- Après un incident de rendu sur une révision déjà validée, toute assistante
+  peut relancer la matérialisation en s'appuyant sur la revue approuvée déjà
+  enregistrée ; cette reprise ne crée pas une seconde revue.
 
 ### Recherche et parcours de saisie
 
@@ -66,7 +71,7 @@ les comptes synthétiques de recette.
   correspond. Aucun compte n'est supprimé.
 - Le filtrage est appliqué à la requête et réappliqué à la projection affichée,
   y compris lors d'un chargement direct par `studentId`.
-- La recherche par nom d'élève ou adresse du parent met à jour les résultats
+- La recherche par nom complet d'élève ou adresse du parent tokenise les mots et met à jour les résultats
   avec un court délai, tout en conservant une soumission clavier classique.
 - Les cinq étapes deviennent observables : accueil/foyer (1), résultats et
   enfant (2), matière (3), réponses incomplètes (4), validation prête (5).
