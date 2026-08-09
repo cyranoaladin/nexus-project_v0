@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 import {
+  listRecentReportReviews,
   listPendingReportReviews,
   rejectPendingReport,
   validateAndPublishPendingReport,
@@ -22,14 +23,20 @@ const revision = {
     id: 'artifact-1',
     assessmentAttemptId: 'attempt-1',
     studentId: 'student-1',
+    status: 'PENDING_REVIEW',
+    assessmentAttempt: { provenance: 'SAISIE_PAPIER' },
+    student: { user: { firstName: 'Élise', lastName: 'Ben Salah' } },
   },
 };
 
 function dependencies(overrides: Record<string, unknown> = {}) {
   return {
     listPending: jest.fn().mockResolvedValue([revision]),
+    listRecent: jest.fn().mockResolvedValue([revision]),
     findPending: jest.fn().mockResolvedValue(revision),
-    resolvePack: jest.fn().mockReturnValue({ pack: { slug: 'fixture-pack' } }),
+    resolvePack: jest.fn().mockReturnValue({
+      pack: { slug: 'fixture-pack', version: 1, level: 'SECONDE', subject: 'MATHS' },
+    }),
     validate: jest.fn().mockResolvedValue({ status: 'COACH_VALIDATED' }),
     publish: jest.fn().mockResolvedValue({ status: 'PUBLISHED' }),
     preview: jest.fn().mockResolvedValue({ official: false, audiences: [] }),
@@ -59,6 +66,26 @@ describe('staff Canonical report review service', () => {
   test.each(['ELEVE', 'PARENT', 'COACH', 'ADMIN'])('returns NOT_FOUND to role %s -- coach is out of the review circuit', async (role) => {
     await expect(listPendingReportReviews({ userId: 'user-1', role }, serviceDependencies(dependencies())))
       .rejects.toMatchObject({ code: 'NOT_FOUND' });
+  });
+
+  test('projects recent pending, published and rejected revisions as readable cards', async () => {
+    const published = {
+      ...revision,
+      id: 'revision-published',
+      status: 'COACH_VALIDATED',
+      reportArtifact: { ...revision.reportArtifact, status: 'PUBLISHED' },
+    };
+    const rejected = { ...revision, id: 'revision-rejected', status: 'REJECTED' };
+    const deps = dependencies({ listRecent: jest.fn().mockResolvedValue([revision, published, rejected]) });
+
+    await expect(listRecentReportReviews(
+      { userId: 'user-assistante', role: 'ASSISTANTE' },
+      serviceDependencies(deps),
+    )).resolves.toEqual([
+      expect.objectContaining({ studentName: 'Élise Ben Salah', displayStatus: 'En attente de diffusion', actionable: true }),
+      expect.objectContaining({ studentName: 'Élise Ben Salah', displayStatus: 'Diffusé', actionable: false }),
+      expect.objectContaining({ studentName: 'Élise Ben Salah', displayStatus: 'Rejeté', actionable: false }),
+    ]);
   });
 
   test('validates then publishes through the report service with reviewer identity and time', async () => {
@@ -194,5 +221,11 @@ describe('staff Canonical report review service', () => {
     expect(source).not.toMatch(/['"]\/api\//);
     expect(source).toContain('Prévisualiser le PDF');
     expect(source).toContain('Télécharger le PDF');
+    expect(source).toContain('En attente de diffusion');
+    expect(source).toContain('Diffusé');
+    expect(source).toContain('Rejeté');
+    expect(source).toContain('revision.studentName');
+    expect(source).not.toContain('JSON.stringify');
+    expect(source).not.toContain('<pre');
   });
 });

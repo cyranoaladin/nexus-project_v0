@@ -2,19 +2,32 @@ import { notFound } from 'next/navigation';
 
 import { auth } from '@/auth';
 import {
-  listPendingReportReviews,
+  listRecentReportReviews,
   previewPendingReport,
   StaffReviewError,
-  type PendingReportReview,
+  type RecentReportReview,
 } from '@/lib/bilans/staff/review-service';
 
 import { rejectReportAction, validateAndPublishReportAction } from './actions';
 
 const AUDIENCES = ['ELEVE', 'PARENTS', 'NEXUS'] as const;
 
-function audienceContent(revision: PendingReportReview, audience: typeof AUDIENCES[number]): unknown {
-  if (typeof revision.content !== 'object' || revision.content === null || Array.isArray(revision.content)) return null;
-  return (revision.content as Record<string, unknown>)[audience] ?? null;
+function statusClass(status: RecentReportReview['displayStatus']): string {
+  if (status === 'Diffusé') return 'bg-emerald-300/15 text-emerald-100';
+  if (status === 'Rejeté') return 'bg-red-300/15 text-red-100';
+  return 'bg-amber-300/15 text-amber-100';
+}
+
+function provenanceLabel(provenance: string): string {
+  return provenance === 'SAISIE_PAPIER' ? 'Saisie papier' : 'Passation en ligne';
+}
+
+function dateLabel(date: Date): string {
+  return new Intl.DateTimeFormat('fr-FR', {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+    timeZone: 'Africa/Tunis',
+  }).format(date);
 }
 
 export default async function CanonicalBilansReviewPage({
@@ -23,13 +36,18 @@ export default async function CanonicalBilansReviewPage({
   const session = await auth();
   if (session?.user?.id === undefined || session.user.role === undefined) notFound();
 
-  let revisions: readonly PendingReportReview[];
+  let revisions: readonly RecentReportReview[];
   try {
-    revisions = await listPendingReportReviews({ userId: session.user.id, role: session.user.role });
+    revisions = await listRecentReportReviews({ userId: session.user.id, role: session.user.role });
   } catch (error) {
     if (error instanceof StaffReviewError && error.code === 'NOT_FOUND') notFound();
     throw error;
   }
+  const statusCounts = {
+    pending: revisions.filter(({ displayStatus }) => displayStatus === 'En attente de diffusion').length,
+    published: revisions.filter(({ displayStatus }) => displayStatus === 'Diffusé').length,
+    rejected: revisions.filter(({ displayStatus }) => displayStatus === 'Rejeté').length,
+  };
   const requestedPreview = (await searchParams).preview;
   let preview: Awaited<ReturnType<typeof previewPendingReport>> | null = null;
   if (requestedPreview !== undefined) {
@@ -50,7 +68,7 @@ export default async function CanonicalBilansReviewPage({
       <div className="mx-auto max-w-7xl">
         <header className="border-b border-white/10 pb-7">
           <p className="text-xs font-semibold uppercase tracking-[0.22em] text-amber-300">Revue administrative</p>
-          <h1 className="mt-3 font-serif text-3xl font-semibold text-white sm:text-4xl">Bilans en attente de diffusion</h1>
+          <h1 className="mt-3 font-serif text-3xl font-semibold text-white sm:text-4xl">Bilans récents et diffusion</h1>
           <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-300">
             Chaque diffusion aux familles exige une lecture humaine des trois audiences. La validation et la publication sont déclenchées uniquement par l’action explicite de l’assistante.
           </p>
@@ -61,6 +79,19 @@ export default async function CanonicalBilansReviewPage({
             Saisir un bilan passé sur copie papier
           </a>
         </header>
+
+        <section className="mt-8 grid gap-3 sm:grid-cols-3" aria-label="Synthèse des états de diffusion">
+          {[
+            ['En attente de diffusion', statusCounts.pending],
+            ['Diffusé', statusCounts.published],
+            ['Rejeté', statusCounts.rejected],
+          ].map(([label, count]) => (
+            <article key={label} className="rounded-2xl border border-white/10 bg-white/[0.05] p-4">
+              <p className="text-2xl font-semibold text-white">{count}</p>
+              <p className="mt-1 text-sm text-slate-300">{label}</p>
+            </article>
+          ))}
+        </section>
 
         {preview !== null && typeof preview === 'object' && 'audiences' in preview && (
           <section className="mt-8 rounded-3xl border border-amber-300/30 bg-amber-300/5 p-5">
@@ -80,22 +111,25 @@ export default async function CanonicalBilansReviewPage({
 
         {revisions.length === 0 ? (
           <section className="mt-8 rounded-2xl border border-white/10 bg-white/5 p-8 text-slate-300">
-            Aucun bilan n’attend de diffusion sur un pack actuellement activé.
+            Aucun bilan récent à afficher.
           </section>
         ) : (
           <div className="mt-8 space-y-8">
             {revisions.map((revision) => {
               const blocked = revision.validationFailures.length > 0;
+              const canReject = revision.status === 'PENDING_REVIEW';
               return (
                 <article key={revision.id} className="overflow-hidden rounded-3xl border border-white/10 bg-white/[0.06]">
                   <header className="flex flex-wrap items-start justify-between gap-4 border-b border-white/10 p-6">
                     <div>
-                      <p className="font-mono text-xs text-slate-400">Révision {revision.id}</p>
-                      <h2 className="mt-2 text-xl font-semibold text-white">{revision.reportPackId} · v{revision.reportPackVersion}</h2>
-                      <p className="mt-1 text-sm text-slate-400">Tentative {revision.reportArtifact.assessmentAttemptId}</p>
+                      <h2 className="text-xl font-semibold text-white">{revision.studentName}</h2>
+                      <p className="mt-1 text-sm font-medium text-amber-100">{revision.packLabel}</p>
+                      <p className="mt-2 text-sm text-slate-400">
+                        {provenanceLabel(revision.reportArtifact.assessmentAttempt.provenance)} · {dateLabel(revision.createdAt)}
+                      </p>
                     </div>
-                    <span className={`rounded-full px-3 py-1 text-xs font-semibold ${blocked ? 'bg-red-400/15 text-red-200' : 'bg-amber-300/15 text-amber-200'}`}>
-                      {blocked ? 'Diffusion bloquée' : 'Revue requise'}
+                    <span className={`rounded-full px-3 py-1 text-xs font-semibold ${statusClass(revision.displayStatus)}`}>
+                      {revision.displayStatus}
                     </span>
                   </header>
 
@@ -108,55 +142,67 @@ export default async function CanonicalBilansReviewPage({
                     </section>
                   )}
 
-                  <div className="grid gap-4 p-6 xl:grid-cols-3">
-                    {AUDIENCES.map((audience) => (
-                      <section key={audience} className="rounded-2xl border border-white/10 bg-black/20 p-4">
-                        <h3 className="text-sm font-semibold text-amber-200">{audience}</h3>
-                        <pre className="mt-3 max-h-[32rem] overflow-auto whitespace-pre-wrap text-xs leading-5 text-slate-200">
-                          {JSON.stringify(audienceContent(revision, audience), null, 2)}
-                        </pre>
-                        <div className="mt-4 grid gap-2 sm:grid-cols-2">
-                          <a
-                            href={`/dashboard/assistante/bilans/${encodeURIComponent(revision.id)}/document/${audience}`}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="rounded-lg border border-amber-300/60 px-3 py-2 text-center text-xs font-semibold text-amber-100"
-                          >
-                            Prévisualiser le PDF
-                          </a>
-                          <a
-                            href={`/dashboard/assistante/bilans/${encodeURIComponent(revision.id)}/document/${audience}?download=1`}
-                            className="rounded-lg bg-amber-300 px-3 py-2 text-center text-xs font-semibold text-slate-950"
-                          >
-                            Télécharger le PDF
-                          </a>
-                        </div>
-                      </section>
-                    ))}
-                  </div>
+                  {revision.actionable ? (
+                    <>
+                      <div className="grid gap-4 p-6 xl:grid-cols-3">
+                        {AUDIENCES.map((audience) => (
+                          <section key={audience} className="rounded-2xl border border-white/10 bg-black/20 p-4">
+                            <h3 className="text-sm font-semibold text-amber-200">Document {audience}</h3>
+                            <p className="mt-2 text-xs leading-5 text-slate-400">
+                              Vérifiez le document humain avant toute diffusion.
+                            </p>
+                            <div className="mt-4 grid gap-2 sm:grid-cols-2">
+                              <a
+                                href={`/dashboard/assistante/bilans/${encodeURIComponent(revision.id)}/document/${audience}`}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="rounded-lg border border-amber-300/60 px-3 py-2 text-center text-xs font-semibold text-amber-100"
+                              >
+                                Prévisualiser le PDF
+                              </a>
+                              <a
+                                href={`/dashboard/assistante/bilans/${encodeURIComponent(revision.id)}/document/${audience}?download=1`}
+                                className="rounded-lg bg-amber-300 px-3 py-2 text-center text-xs font-semibold text-slate-950"
+                              >
+                                Télécharger le PDF
+                              </a>
+                            </div>
+                          </section>
+                        ))}
+                      </div>
 
-                  <div className="grid gap-4 border-t border-white/10 p-6 lg:grid-cols-2">
-                    <a href={`/dashboard/assistante/bilans?preview=${encodeURIComponent(revision.id)}`} className="lg:col-span-2 rounded-xl border border-amber-300 px-4 py-2.5 text-center font-semibold text-amber-100">
-                      Prévisualiser le rendu final non officiel
-                    </a>
-                    <form action={validateAndPublishReportAction} className="rounded-2xl border border-emerald-300/20 bg-emerald-300/5 p-4">
-                      <input type="hidden" name="revisionId" value={revision.id} />
-                      <label className="block text-sm font-semibold text-white" htmlFor={`approve-${revision.id}`}>Motif de validation et diffusion</label>
-                      <textarea id={`approve-${revision.id}`} name="motif" required minLength={5} className="mt-3 min-h-24 w-full rounded-xl border border-white/15 bg-slate-950 p-3 text-sm text-white" />
-                      <button type="submit" disabled={blocked} className="mt-3 rounded-xl bg-emerald-500 px-4 py-2.5 font-semibold text-slate-950 disabled:cursor-not-allowed disabled:opacity-40">
-                        Valider et diffuser aux familles
-                      </button>
-                    </form>
+                      <div className="grid gap-4 border-t border-white/10 p-6 lg:grid-cols-2">
+                        <a href={`/dashboard/assistante/bilans?preview=${encodeURIComponent(revision.id)}`} className="lg:col-span-2 rounded-xl border border-amber-300 px-4 py-2.5 text-center font-semibold text-amber-100">
+                          Prévisualiser les trois rendus HTML
+                        </a>
+                        <form action={validateAndPublishReportAction} className="rounded-2xl border border-emerald-300/20 bg-emerald-300/5 p-4">
+                          <input type="hidden" name="revisionId" value={revision.id} />
+                          <label className="block text-sm font-semibold text-white" htmlFor={`approve-${revision.id}`}>Motif de validation et diffusion</label>
+                          <textarea id={`approve-${revision.id}`} name="motif" required minLength={5} className="mt-3 min-h-24 w-full rounded-xl border border-white/15 bg-slate-950 p-3 text-sm text-white" />
+                          <button type="submit" disabled={blocked} className="mt-3 rounded-xl bg-emerald-500 px-4 py-2.5 font-semibold text-slate-950 disabled:cursor-not-allowed disabled:opacity-40">
+                            Valider et diffuser aux familles
+                          </button>
+                        </form>
 
-                    <form action={rejectReportAction} className="rounded-2xl border border-red-300/20 bg-red-300/5 p-4">
-                      <input type="hidden" name="revisionId" value={revision.id} />
-                      <label className="block text-sm font-semibold text-white" htmlFor={`reject-${revision.id}`}>Motif du rejet</label>
-                      <textarea id={`reject-${revision.id}`} name="motif" required minLength={5} className="mt-3 min-h-24 w-full rounded-xl border border-white/15 bg-slate-950 p-3 text-sm text-white" />
-                      <button type="submit" className="mt-3 rounded-xl border border-red-300 px-4 py-2.5 font-semibold text-red-100">
-                        Rejeter le bilan
-                      </button>
-                    </form>
-                  </div>
+                        {canReject && (
+                          <form action={rejectReportAction} className="rounded-2xl border border-red-300/20 bg-red-300/5 p-4">
+                            <input type="hidden" name="revisionId" value={revision.id} />
+                            <label className="block text-sm font-semibold text-white" htmlFor={`reject-${revision.id}`}>Motif du rejet</label>
+                            <textarea id={`reject-${revision.id}`} name="motif" required minLength={5} className="mt-3 min-h-24 w-full rounded-xl border border-white/15 bg-slate-950 p-3 text-sm text-white" />
+                            <button type="submit" className="mt-3 rounded-xl border border-red-300 px-4 py-2.5 font-semibold text-red-100">
+                              Rejeter le bilan
+                            </button>
+                          </form>
+                        )}
+                      </div>
+                    </>
+                  ) : (
+                    <p className="px-6 py-5 text-sm text-slate-400">
+                      {revision.displayStatus === 'Diffusé'
+                        ? 'Le bilan a été diffusé aux destinataires prévus.'
+                        : 'Le bilan a été rejeté et ne peut pas être diffusé.'}
+                    </p>
+                  )}
                 </article>
               );
             })}
