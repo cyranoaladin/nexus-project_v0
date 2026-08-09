@@ -6,7 +6,15 @@ const STEPS = [
   'Valider',
 ] as const;
 
-export function PaperEntryWorkflowSteps({ currentStep }: Readonly<{ currentStep: 1 | 2 | 3 | 4 | 5 }>) {
+type WorkflowStep = 1 | 2 | 3 | 4 | 5;
+
+export function PaperEntryWorkflowSteps({
+  currentStep,
+  stepHrefs = {},
+}: Readonly<{
+  currentStep: WorkflowStep;
+  stepHrefs?: Partial<Record<WorkflowStep, string>>;
+}>) {
   return (
     <nav className="mt-8" aria-label="Étapes de la saisie papier">
       <ol
@@ -17,6 +25,12 @@ export function PaperEntryWorkflowSteps({ currentStep }: Readonly<{ currentStep:
           const number = (index + 1) as 1 | 2 | 3 | 4 | 5;
           const current = number === currentStep;
           const complete = number < currentStep;
+          const content = (
+            <>
+              <span className="mr-2 font-mono text-xs" aria-hidden="true">{number}</span>
+              <span className="font-semibold">{label}</span>
+            </>
+          );
           return (
             <li
               key={label}
@@ -29,8 +43,11 @@ export function PaperEntryWorkflowSteps({ currentStep }: Readonly<{ currentStep:
                     : 'border-white/10 bg-white/[0.04] text-slate-400'
               }`}
             >
-              <span className="mr-2 font-mono text-xs" aria-hidden="true">{number}</span>
-              <span className="font-semibold">{label}</span>
+              {complete && stepHrefs[number] !== undefined ? (
+                <a href={stepHrefs[number]} className="block rounded focus:outline-none focus:ring-2 focus:ring-amber-300">
+                  {content}
+                </a>
+              ) : content}
             </li>
           );
         })}
