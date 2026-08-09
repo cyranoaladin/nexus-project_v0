@@ -115,6 +115,22 @@ export default async function CanonicalBilansReviewPage({
                         <pre className="mt-3 max-h-[32rem] overflow-auto whitespace-pre-wrap text-xs leading-5 text-slate-200">
                           {JSON.stringify(audienceContent(revision, audience), null, 2)}
                         </pre>
+                        <div className="mt-4 grid gap-2 sm:grid-cols-2">
+                          <a
+                            href={`/dashboard/assistante/bilans/${encodeURIComponent(revision.id)}/document/${audience}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="rounded-lg border border-amber-300/60 px-3 py-2 text-center text-xs font-semibold text-amber-100"
+                          >
+                            Prévisualiser le PDF
+                          </a>
+                          <a
+                            href={`/dashboard/assistante/bilans/${encodeURIComponent(revision.id)}/document/${audience}?download=1`}
+                            className="rounded-lg bg-amber-300 px-3 py-2 text-center text-xs font-semibold text-slate-950"
+                          >
+                            Télécharger le PDF
+                          </a>
+                        </div>
                       </section>
                     ))}
                   </div>
