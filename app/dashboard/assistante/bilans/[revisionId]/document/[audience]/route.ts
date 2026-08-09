@@ -54,7 +54,9 @@ export async function GET(request: NextRequest, context: RouteContext): Promise<
     });
   } catch (error) {
     if (error instanceof StaffReviewError) {
-      const status = error.code === 'REPORT_PDF_UNAVAILABLE' ? 409 : 404;
+      const status = ['REPORT_PDF_UNAVAILABLE', 'REPORT_STUDENT_IDENTITY_REQUIRED'].includes(error.code)
+        ? 409
+        : 404;
       return privateResponse(JSON.stringify({ error: { code: error.code } }), {
         status,
         headers: { 'content-type': 'application/json' },

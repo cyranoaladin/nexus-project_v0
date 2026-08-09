@@ -201,7 +201,11 @@ export default async function CanonicalBilansReviewPage({
                     <p className="px-6 py-5 text-sm text-slate-400">
                       {revision.displayStatus === 'Diffusé'
                         ? 'Le bilan a été diffusé aux destinataires prévus.'
-                        : 'Le bilan a été rejeté et ne peut pas être diffusé.'}
+                        : revision.displayStatus === 'Rejeté'
+                          ? 'Le bilan a été rejeté et ne peut pas être diffusé.'
+                          : blocked
+                            ? 'Corrigez les blocages signalés avant de reprendre la diffusion.'
+                            : 'Ce bilan n’est pas actionnable avec la configuration actuelle.'}
                     </p>
                   )}
                 </article>

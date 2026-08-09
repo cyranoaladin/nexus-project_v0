@@ -53,6 +53,7 @@ export default async function SaisiePapierPage({
 
   const { studentId = '', packSlug = '', q = '', flow = '' } = await searchParams;
   const search = q.trim();
+  const searchTerms = search.split(/\s+/).filter(Boolean).slice(0, 5);
   const visibilityWhere = paperEntryVisibleStudentWhere();
   const childStep = search.length > 0 || flow === 'create';
 
@@ -61,13 +62,13 @@ export default async function SaisiePapierPage({
       where: {
         AND: [
           visibilityWhere,
-          {
+          ...searchTerms.map((term) => ({
             OR: [
-              { user: { firstName: { contains: search, mode: 'insensitive' } } },
-              { user: { lastName: { contains: search, mode: 'insensitive' } } },
-              { parent: { user: { email: { contains: search, mode: 'insensitive' } } } },
+              { user: { firstName: { contains: term, mode: 'insensitive' as const } } },
+              { user: { lastName: { contains: term, mode: 'insensitive' as const } } },
+              { parent: { user: { email: { contains: term, mode: 'insensitive' as const } } } },
             ],
-          },
+          })),
         ],
       },
       select: {

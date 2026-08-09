@@ -87,4 +87,20 @@ describe('PDF de revue assistante par audience', () => {
 
     expect(response.status).toBe(404);
   });
+
+  it('reports an incomplete student identity as a review conflict', async () => {
+    (renderPendingReportPdf as jest.Mock).mockRejectedValue(
+      new StaffReviewError('REPORT_STUDENT_IDENTITY_REQUIRED'),
+    );
+
+    const response = await GET(
+      new NextRequest('http://localhost/dashboard/assistante/bilans/revision-1/document/NEXUS'),
+      routeContext('NEXUS'),
+    );
+
+    expect(response.status).toBe(409);
+    await expect(response.json()).resolves.toEqual({
+      error: { code: 'REPORT_STUDENT_IDENTITY_REQUIRED' },
+    });
+  });
 });

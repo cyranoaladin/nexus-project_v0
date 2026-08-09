@@ -12,6 +12,7 @@ import {
   renderReportRevisionAudiencePdf,
   validateReportRevision,
 } from '../core/report-service';
+import { buildHumanRenderIdentity } from '../render/human-identity';
 import type { ReportAudience } from '../render/profile-copy';
 import { bilanPackLevelLabel } from '../render/stage-label';
 
@@ -165,13 +166,21 @@ function packIsEnabled(revision: PendingReportReview, dependencies: ReviewServic
   return dependencies.resolvePack(revision.reportPackId, versionOf(revision)) !== null;
 }
 
-function studentName(revision: PendingReportReview): string {
-  const { firstName, lastName } = revision.reportArtifact.student.user;
-  const name = [firstName, lastName]
-    .filter((part): part is string => typeof part === 'string' && part.trim().length > 0)
-    .map((part) => part.trim())
-    .join(' ');
-  return name || 'Élève';
+const MISSING_STUDENT_IDENTITY_MESSAGE = 'Identité élève incomplète : prénom ou nom requis avant rendu.';
+
+function studentName(revision: PendingReportReview): string | null {
+  try {
+    return buildHumanRenderIdentity(revision.reportArtifact.student.user).displayName;
+  } catch (error) {
+    if (error instanceof Error && error.message === 'HUMAN_RENDER_IDENTITY_MISSING') return null;
+    throw error;
+  }
+}
+
+function assertStudentIdentity(revision: PendingReportReview): void {
+  if (studentName(revision) === null) {
+    throw new StaffReviewError('REPORT_STUDENT_IDENTITY_REQUIRED');
+  }
 }
 
 function displayStatus(revision: PendingReportReview): RecentReportReview['displayStatus'] {
@@ -185,7 +194,12 @@ function recentReview(
   dependencies: ReviewServiceDependencies,
 ): RecentReportReview {
   const resolved = dependencies.resolvePack(revision.reportPackId, versionOf(revision));
+  const resolvedStudentName = studentName(revision);
+  const validationFailures = resolvedStudentName === null
+    ? Object.freeze([...revision.validationFailures, MISSING_STUDENT_IDENTITY_MESSAGE])
+    : revision.validationFailures;
   const actionable = resolved !== null
+    && resolvedStudentName !== null
     && (
       revision.status === ReportRevisionStatus.PENDING_REVIEW
       || revision.status === ReportRevisionStatus.COACH_VALIDATED
@@ -193,7 +207,8 @@ function recentReview(
     && revision.reportArtifact.status === 'PENDING_REVIEW';
   return Object.freeze({
     ...revision,
-    studentName: studentName(revision),
+    validationFailures,
+    studentName: resolvedStudentName ?? 'Identité élève à compléter',
     packLabel: resolved === null
       ? `${revision.reportPackId} · v${revision.reportPackVersion}`
       : `${bilanPackLevelLabel(resolved.pack.level)} · ${bilanPackSubjectLabel(resolved.pack.subject)}`,
@@ -239,6 +254,7 @@ export async function validateAndPublishPendingReport(
 ) {
   const dependencies = { ...defaultDependencies, ...overrides };
   const { revision, reviewerId, motif } = await pendingReview(action, dependencies);
+  assertStudentIdentity(revision);
   if (revision.validationFailures.length > 0) throw new StaffReviewError('REPORT_VALIDATION_FAILURES');
   const reviewedAt = dependencies.now();
   // A stranded retry (see actionableStatus above) already has an APPROVED
@@ -260,6 +276,7 @@ export async function previewPendingReport(
   assertAssistante(action);
   const revision = await dependencies.findPending(action.revisionId);
   if (revision === null || !packIsEnabled(revision, dependencies)) throw new StaffReviewError('NOT_FOUND');
+  assertStudentIdentity(revision);
   if (revision.validationFailures.length > 0) throw new StaffReviewError('REPORT_VALIDATION_FAILURES');
   return dependencies.preview({ revisionId: revision.id });
 }
@@ -272,6 +289,7 @@ export async function renderPendingReportPdf(
   assertAssistante(action);
   const revision = await dependencies.findPending(action.revisionId);
   if (revision === null || !packIsEnabled(revision, dependencies)) throw new StaffReviewError('NOT_FOUND');
+  assertStudentIdentity(revision);
   if (revision.validationFailures.length > 0) throw new StaffReviewError('REPORT_VALIDATION_FAILURES');
   let pdf: Buffer;
   try {
@@ -279,7 +297,9 @@ export async function renderPendingReportPdf(
   } catch (error) {
     if (error instanceof BilanReportServiceError) {
       throw new StaffReviewError(
-        error.code === 'REPORT_PDF_UNAVAILABLE' ? 'REPORT_PDF_UNAVAILABLE' : 'NOT_FOUND',
+        ['REPORT_PDF_UNAVAILABLE', 'REPORT_STUDENT_IDENTITY_REQUIRED'].includes(error.code)
+          ? error.code
+          : 'NOT_FOUND',
       );
     }
     throw error;

@@ -52,6 +52,17 @@ describe('Écran assistante de saisie papier', () => {
     );
   });
 
+  it('tokenise prénom et nom pour retrouver une identité complète', async () => {
+    (auth as jest.Mock).mockResolvedValue({ user: { id: 'staff-1', role: 'ASSISTANTE' } });
+    render(await SaisiePapierPage({ searchParams: Promise.resolve({ q: 'Élise Ben Salah' }) }));
+
+    const query = (prisma.student.findMany as jest.Mock).mock.calls[0][0].where;
+    expect(query.AND).toHaveLength(4);
+    for (const token of ['Élise', 'Ben', 'Salah']) {
+      expect(JSON.stringify(query)).toContain(`\"contains\":\"${token}\"`);
+    }
+  });
+
   it('retire des résultats un foyer synthétique même si la base le renvoie', async () => {
     (auth as jest.Mock).mockResolvedValue({ user: { id: 'staff-1', role: 'ASSISTANTE' } });
     (prisma.student.findMany as jest.Mock).mockResolvedValue([

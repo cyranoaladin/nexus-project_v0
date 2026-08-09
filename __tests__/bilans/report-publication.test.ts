@@ -94,6 +94,48 @@ describe('A90.3 atomic materialized publication', () => {
     expect(value.reportMaterializationCreate).not.toHaveBeenCalled();
   });
 
+  test('refuses a missing human identity before opening the publication transaction', async () => {
+    const value = harness();
+    (value.prisma.reportRevision.findUnique as jest.Mock).mockResolvedValue({
+      ...revision(),
+      reportArtifact: {
+        ...revision().reportArtifact,
+        student: { user: { firstName: null, lastName: null } },
+      },
+    });
+
+    await expect(publishReportRevision({
+      prisma: value.prisma as never,
+      revisionId: 'revision-1',
+      reviewerId: 'reviewer-1',
+      publishedAt: new Date('2026-08-03T12:00:00.000Z'),
+      renderAudience: value.renderAudience,
+    })).rejects.toMatchObject({ code: 'REPORT_STUDENT_IDENTITY_REQUIRED' });
+
+    expect(value.renderAudience).not.toHaveBeenCalled();
+    expect(value.prisma.$transaction).not.toHaveBeenCalled();
+  });
+
+  test('accepts an existing approved review when another assistante retries publication', async () => {
+    const value = harness();
+
+    await publishReportRevision({
+      prisma: value.prisma as never,
+      revisionId: 'revision-1',
+      reviewerId: 'second-assistante',
+      publishedAt: new Date('2026-08-03T12:00:00.000Z'),
+      renderAudience: value.renderAudience,
+    });
+
+    const candidateQuery = (value.prisma.reportRevision.findUnique as jest.Mock).mock.calls[0][0];
+    expect(candidateQuery.select.reviews.where).toEqual({ decision: 'APPROVED' });
+    expect(value.transaction.reportReview.findFirst).toHaveBeenCalledWith({
+      where: { reportRevisionId: 'revision-1', decision: 'APPROVED' },
+      select: { id: true },
+    });
+    expect(value.reportMaterializationCreate).toHaveBeenCalledTimes(1);
+  });
+
   test('concurrent rejection after rendering inserts no artifact and does not publish', async () => {
     const value = harness(revision('REJECTED'));
     await expect(publishReportRevision({
