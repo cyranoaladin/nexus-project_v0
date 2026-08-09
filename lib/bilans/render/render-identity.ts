@@ -42,12 +42,11 @@ export function assertRenderIdentity(identity: RenderIdentity): RenderIdentity {
  * Same checks, plus the guarantee that `displayName` carries the `ELEVE_XXXX`
  * pseudonym rather than a real identity.
  *
- * Use this — never the plain `assertRenderIdentity` — on every path whose output
- * lands in `canonical_report_revisions.content` or in the
- * `canonical_report_audience_artifacts` html/pdf bytes. Those rows are protected
- * by append-only triggers, so a real name written there could never be deleted
- * or updated afterwards; the only remedy would be destroying the row, which the
- * database refuses by design.
+ * Use this — never the plain `assertRenderIdentity` — for the immutable snapshot,
+ * `canonical_report_revisions.content` and every deterministic report-engine
+ * input. A separate presentation identity may be projected into the HTML/PDF
+ * header after the engine has produced its content; it must never flow back into
+ * this canonical object.
  *
  * The coach group plan deliberately does NOT use this: it is rendered on demand,
  * never persisted to the canonical tables, and is an internal document whose

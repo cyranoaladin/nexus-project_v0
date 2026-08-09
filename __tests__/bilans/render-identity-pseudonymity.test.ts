@@ -3,19 +3,22 @@ import {
   assertRenderIdentity,
   type RenderIdentity,
 } from '@/lib/bilans/render/render-identity';
+import { buildHumanRenderIdentity } from '@/lib/bilans/render/human-identity';
+import { renderDeterministicBilanHtml } from '@/lib/bilans/render/html';
+import { ENTRY_RECIPE_FACT_SHEETS } from '@/__tests__/bilans/fixtures/recipe-fact-sheets';
 
 /**
  * The whole RGPD posture of the bilan chain rests on a single property: the
- * append-only rows (`canonical_report_revisions.content`,
- * `canonical_report_audience_artifacts.html`/`.pdf`) never contain a real
- * identity, only the `ELEVE_XXXX` pseudonym derived from the attempt id.
+ * append-only snapshot and revision content never contain a real identity,
+ * only the `ELEVE_XXXX` pseudonym derived from the attempt id. Human documents
+ * may project the real name in their header, but only through the separate
+ * presentation identity exercised below.
  *
  * That property currently holds by construction, but nothing enforced it:
  * `assertRenderIdentity` only checked for non-empty strings, so a future change
- * assigning `displayName: student.firstName` would have silently baked real
- * names into rows that no DELETE or UPDATE can ever repair (append-only
- * triggers). These tests lock the property at the one chokepoint every render
- * and materialization path funnels through.
+ * assigning `displayName: student.firstName` would silently bake real names
+ * into the canonical engine input. These tests lock the property at the one
+ * chokepoint every render and materialization path funnels through.
  */
 
 const VALID: RenderIdentity = Object.freeze({
@@ -65,6 +68,30 @@ describe('assertPseudonymousRenderIdentity — pseudonymity of the immutable cha
     expect(() => assertPseudonymousRenderIdentity({ ...VALID, displayName: 'ELEVE_ABC_DEF' } as RenderIdentity))
       .toThrow('RENDER_IDENTITY_NOT_PSEUDONYMOUS:displayName');
   });
+
+  it.each(['ELEVE', 'PARENTS', 'NEXUS'] as const)(
+    'keeps the immutable alias while projecting the real student name only in the %s header',
+    (audience) => {
+      const immutableSnapshot = ENTRY_RECIPE_FACT_SHEETS[0];
+      const immutableRevision = Object.freeze({
+        NEXUS: Object.freeze({ identity: Object.freeze({ ...VALID }) }),
+      });
+      const humanIdentity = buildHumanRenderIdentity({ firstName: 'Élise', lastName: 'Ben Salah' });
+
+      const html = renderDeterministicBilanHtml(
+        immutableSnapshot,
+        audience,
+        VALID,
+        humanIdentity,
+      );
+
+      expect(immutableSnapshot.student.alias).toMatch(/^ELEVE_[A-Z]+$/);
+      expect(immutableRevision.NEXUS.identity.displayName).toBe('ELEVE_LYDEIFKVRKDB');
+      expect(VALID.displayName).toBe('ELEVE_LYDEIFKVRKDB');
+      expect(html).toContain('<strong>Élise Ben Salah</strong>');
+      expect(html).not.toContain('ELEVE_LYDEIFKVRKDB');
+    },
+  );
 });
 
 describe('assertRenderIdentity — deliberately permissive for non-persisted renders', () => {

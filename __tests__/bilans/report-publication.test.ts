@@ -2,6 +2,7 @@ import { publishReportRevision } from '@/lib/bilans/core/report-service';
 import { BILAN_PDF_ENGINE_VERSION } from '@/lib/bilans/render/pdf';
 import type { RenderIdentity } from '@/lib/bilans/render/render-identity';
 import { renderDeterministicBilanHtml } from '@/lib/bilans/render/html';
+import type { PublicationRenderer } from '@/lib/bilans/core/report-materialization';
 import { ENTRY_RECIPE_FACT_SHEETS } from '@/__tests__/bilans/fixtures/recipe-fact-sheets';
 
 const factSheet = ENTRY_RECIPE_FACT_SHEETS[0];
@@ -27,6 +28,7 @@ function revision(status = 'COACH_VALIDATED') {
       status: 'PENDING_REVIEW',
       assessmentAttemptId: 'attempt-1',
       assessmentAttempt: { status: 'COACH_VALIDATED' },
+      student: { user: { firstName: 'Élise', lastName: 'Ben Salah' } },
     },
   };
 }
@@ -48,12 +50,17 @@ function harness(transactionRevision = revision()) {
       return operation(transaction);
     }),
   };
-  const renderAudience = jest.fn(async (...args: Parameters<typeof renderDeterministicBilanHtml>) => {
-    events.push(`render:${args[1]}`);
+  const renderAudience = jest.fn<ReturnType<PublicationRenderer>, Parameters<PublicationRenderer>>(async (
+    sheet,
+    audience,
+    renderIdentity,
+    options,
+  ) => {
+    events.push(`render:${audience}`);
     return {
       status: 'AVAILABLE' as const,
-      html: renderDeterministicBilanHtml(...args),
-      pdf: Buffer.from(`%PDF-1.4 ${args[1]}`),
+      html: renderDeterministicBilanHtml(sheet, audience, renderIdentity, options?.humanIdentity),
+      pdf: Buffer.from(`%PDF-1.4 ${audience}`),
       engineVersion: BILAN_PDF_ENGINE_VERSION,
     };
   });

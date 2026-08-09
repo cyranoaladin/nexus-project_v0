@@ -12,6 +12,7 @@ import {
 } from '@/lib/bilans/render/passation-presentation';
 import { BILAN_PDF_ENGINE_VERSION } from '@/lib/bilans/render/pdf';
 import type { RenderIdentity } from '@/lib/bilans/render/render-identity';
+import type { HumanRenderIdentity } from '@/lib/bilans/render/human-identity';
 import { ENTRY_RECIPE_FACT_SHEETS } from '@/__tests__/bilans/fixtures/recipe-fact-sheets';
 
 const factSheet = ENTRY_RECIPE_FACT_SHEETS[0];
@@ -27,9 +28,10 @@ const readyRenderer = async (
   sheet: typeof factSheet,
   audience: 'ELEVE' | 'PARENTS' | 'NEXUS',
   renderIdentity: RenderIdentity,
+  options?: Readonly<{ humanIdentity?: HumanRenderIdentity }>,
 ) => ({
   status: 'AVAILABLE' as const,
-  html: renderDeterministicBilanHtml(sheet, audience, renderIdentity),
+  html: renderDeterministicBilanHtml(sheet, audience, renderIdentity, options?.humanIdentity),
   pdf: Buffer.from(`%PDF-1.4 ${audience}`),
   engineVersion: BILAN_PDF_ENGINE_VERSION,
 });
@@ -97,5 +99,32 @@ describe('A90.3 report materialization preparation', () => {
 
     expect(prepared.audiences).toHaveLength(3);
     expect(prepared.audiences.every(({ html }) => html.includes(PAPER_ENTRY_DURATION_NOTICE))).toBe(true);
+  });
+
+  test('passes the real identity separately while keeping snapshot and revision aliases immutable', async () => {
+    const immutableRevisionContent = Object.freeze({
+      NEXUS: Object.freeze({ identity: Object.freeze({ ...identity }) }),
+    });
+    const context = parseReportRenderContext(
+      factSheet,
+      immutableRevisionContent,
+      { displayName: 'Élise Ben Salah' },
+    );
+    const receivedCanonicalNames: string[] = [];
+    const receivedHumanNames: string[] = [];
+
+    const prepared = await prepareReportMaterialization(context, async (sheet, audience, canonical, options) => {
+      receivedCanonicalNames.push(canonical.displayName);
+      receivedHumanNames.push(options?.humanIdentity?.displayName ?? '');
+      return readyRenderer(sheet, audience, canonical, options);
+    });
+
+    expect(factSheet.student.alias).toMatch(/^ELEVE_[A-Z]+$/);
+    expect(immutableRevisionContent.NEXUS.identity.displayName).toBe(identity.displayName);
+    expect(context.identity.displayName).toBe(identity.displayName);
+    expect(receivedCanonicalNames).toEqual([identity.displayName, identity.displayName, identity.displayName]);
+    expect(receivedHumanNames).toEqual(['Élise Ben Salah', 'Élise Ben Salah', 'Élise Ben Salah']);
+    expect(prepared.audiences.every(({ html }) => html.includes('<strong>Élise Ben Salah</strong>'))).toBe(true);
+    expect(prepared.audiences.every(({ html }) => !html.includes(identity.displayName))).toBe(true);
   });
 });

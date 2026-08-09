@@ -8,6 +8,7 @@ import {
   prepareReportMaterialization,
   type PublicationRenderer,
 } from './report-materialization';
+import { buildHumanRenderIdentity } from '../render/human-identity';
 
 type ReportDatabase = Pick<PrismaClient, '$transaction' | 'reportRevision'>;
 
@@ -195,6 +196,9 @@ export async function publishReportRevision(input: Readonly<{
           status: true,
           assessmentAttemptId: true,
           assessmentAttempt: { select: { status: true } },
+          student: {
+            select: { user: { select: { firstName: true, lastName: true } } },
+          },
         },
       },
     },
@@ -214,7 +218,11 @@ export async function publishReportRevision(input: Readonly<{
 
   // Chromium and all other rendering happen before opening the final, short transaction.
   const prepared = await prepareReportMaterialization(
-    parseReportRenderContext(candidate.scoreSnapshot.result, candidate.content),
+    parseReportRenderContext(
+      candidate.scoreSnapshot.result,
+      candidate.content,
+      buildHumanRenderIdentity(candidate.reportArtifact.student.user),
+    ),
     input.renderAudience,
   );
 
@@ -308,6 +316,13 @@ export async function previewReportRevision(input: Readonly<{
       validationFailures: true,
       content: true,
       scoreSnapshot: { select: { result: true } },
+      reportArtifact: {
+        select: {
+          student: {
+            select: { user: { select: { firstName: true, lastName: true } } },
+          },
+        },
+      },
     },
   });
   if (
@@ -315,5 +330,9 @@ export async function previewReportRevision(input: Readonly<{
     || !['PENDING_REVIEW', 'COACH_VALIDATED'].includes(revision.status)
     || revision.validationFailures.length > 0
   ) throw new BilanReportServiceError('REPORT_PREVIEW_UNAVAILABLE');
-  return prepareCoachPreview(parseReportRenderContext(revision.scoreSnapshot.result, revision.content));
+  return prepareCoachPreview(parseReportRenderContext(
+    revision.scoreSnapshot.result,
+    revision.content,
+    buildHumanRenderIdentity(revision.reportArtifact.student.user),
+  ));
 }
