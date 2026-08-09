@@ -24,6 +24,7 @@ import {
 } from '@/components/marketing/acadomia-inspired';
 import { buildWhatsAppUrl } from '@/lib/whatsapp';
 import { PreRentreeCampaignSpotlight } from '@/components/marketing/PreRentreeCampaignSpotlight';
+import { PreRentreeDiagnosticCtas } from '@/components/marketing/PreRentreeDiagnosticCtas';
 import type { PreRentreeHomepageSpotlightDTO } from '@/lib/campaigns/pre-rentree-2026/homepage-spotlight';
 
 // ── Router par niveau (near hero) ──
@@ -265,7 +266,7 @@ export function HomePageClient({ campaign }: { campaign?: PreRentreeHomepageSpot
       <FAQAccordion items={faqItems} className="bg-lux-paper" />
 
       {/* 9. CTA bilan gratuit (bg-lux-ink) */}
-      <section className="bg-lux-ink px-4 py-14 md:py-20 md:px-6" aria-label="Demander un bilan gratuit">
+      <section className="bg-lux-ink px-4 py-14 md:py-20 md:px-6" aria-label="Choisir entre bilan en ligne et rappel conseiller">
         <div className="mx-auto max-w-2xl text-center">
           <span className="lux-eyebrow text-lux-gold-wash">Commencer</span>
           <h2 className="mt-3 text-2xl md:text-3xl font-fraunces font-light text-lux-ivory">
@@ -278,14 +279,8 @@ export function HomePageClient({ campaign }: { campaign?: PreRentreeHomepageSpot
           <p className="mt-3 text-sm text-lux-on-dark-subtle">
             Sans engagement · Réponse sous 24 h ouvrées
           </p>
-          <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-            <Link
-              href="/bilan-gratuit"
-              className="lux-cta-reserve rounded-lg px-8 py-3.5 text-sm font-semibold"
-            >
-              Demander un bilan gratuit
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Link>
+          <div className="mt-8 flex flex-col items-center gap-4">
+            <PreRentreeDiagnosticCtas className="justify-center" />
             <a
               href={buildWhatsAppUrl()}
               target="_blank"
@@ -293,7 +288,7 @@ export function HomePageClient({ campaign }: { campaign?: PreRentreeHomepageSpot
               className="inline-flex items-center gap-2 text-sm font-medium text-lux-gold-wash hover:underline min-h-[44px]"
             >
               <WhatsAppLogo className="h-4 w-4" style={{ color: WHATSAPP_BRAND_GREEN }} />
-              Nous écrire sur WhatsApp
+              Une question ? Nous écrire sur WhatsApp
             </a>
           </div>
         </div>

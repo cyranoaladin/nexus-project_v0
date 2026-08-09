@@ -8,6 +8,7 @@ import { CanonicalOfferCatalogue } from '@/components/pre-rentree-2026/Canonical
 import { CampaignExperienceProvider } from '@/components/pre-rentree-2026/CampaignExperienceContext';
 import { ProgramsSection } from '@/components/pre-rentree-2026/ProgramsSection';
 import { ScheduleSection } from '@/components/pre-rentree-2026/ScheduleSection';
+import { PreRentreeDiagnosticCtas } from '@/components/marketing/PreRentreeDiagnosticCtas';
 import { buildWhatsAppUrl } from '@/lib/whatsapp';
 import { getPreRentreePublicSurfaceDTO } from '@/lib/campaigns/pre-rentree-2026/public-surface';
 import { getPreRentreeReleaseGate } from '@/lib/campaigns/pre-rentree-2026/release-gate';
@@ -111,6 +112,7 @@ export default function PreRentree2026Page() {
             <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center justify-center rounded-lg border border-lux-line/50 px-6 py-3 text-center text-sm font-semibold text-lux-on-dark">Échanger sur WhatsApp</a>
             <a href={dto.contact.phoneHref} className="inline-flex min-h-11 items-center justify-center rounded-lg border border-lux-line/50 px-6 py-3 text-sm font-semibold text-lux-on-dark">Appeler le {dto.contact.phoneDisplay}</a>
           </div>
+          <PreRentreeDiagnosticCtas className="mt-5" />
         </div>
       </section>
 

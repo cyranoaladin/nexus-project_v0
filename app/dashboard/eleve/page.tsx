@@ -23,6 +23,7 @@ import { EafStageQuestionnaireCard } from "@/components/dashboard/eleve/EafStage
 import { EAMCockpitSummary } from "@/components/dashboard/eleve/EAMCockpitSummary";
 import { MathsPremiereStageQuestionnaireCard } from "@/components/dashboard/eleve/MathsPremiereStageQuestionnaireCard";
 import { NsiCockpitCard } from "@/components/dashboard/eleve/NsiCockpitCard";
+import { PreRentreeAssessmentCard } from "@/components/dashboard/eleve/PreRentreeAssessmentCard";
 import { SurvivalDashboard } from "@/components/dashboard/eleve/survival";
 import { StageEntryCard } from "@/components/stage-eam-stmg/StageEntryCard";
 import { AriaWidget } from "@/components/ui/aria-widget";
@@ -245,6 +246,7 @@ export default function DashboardEleve() {
           <DashboardPilotage role="ELEVE" trajectoryData={dashboardData?.trajectory}>
             {dashboardData && (
               <div className="space-y-6">
+                <PreRentreeAssessmentCard />
                 {/* Rubriques Navigation */}
                 <div className="mb-6 -mx-4 sm:mx-0">
                   <div className="flex gap-1.5 sm:gap-2 p-1 bg-white/5 border-y sm:border border-white/10 sm:rounded-xl overflow-x-auto scrollbar-none px-4 sm:px-1">

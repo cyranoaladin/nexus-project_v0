@@ -15,6 +15,7 @@ const root = join(__dirname, '..', '..');
 
 describe('Landing page business invariants', () => {
   const homeClient = readFileSync(join(root, 'app/HomePageClient.tsx'), 'utf8');
+  const diagnosticCtas = readFileSync(join(root, 'components/marketing/PreRentreeDiagnosticCtas.tsx'), 'utf8');
   const heroSection = readFileSync(join(root, 'components/premium/HeroSection.tsx'), 'utf8');
   const spotlightPath = join(root, 'components/marketing/PreRentreeCampaignSpotlight.tsx');
 
@@ -46,8 +47,10 @@ describe('Landing page business invariants', () => {
     expect(faqMatches?.length ?? 0).toBeGreaterThanOrEqual(5);
   });
 
-  test('home CTA section links to /bilan-gratuit', () => {
-    expect(homeClient).toContain('href="/bilan-gratuit"');
+  test('home CTA section distinguishes online assessment and adviser callback', () => {
+    expect(homeClient).toContain('<PreRentreeDiagnosticCtas');
+    expect(diagnosticCtas).toContain('/bilan-gratuit?parcours=diagnostic#demande-bilan');
+    expect(diagnosticCtas).toContain('/bilan-gratuit?parcours=conseiller#rappel-conseiller');
   });
 
   test('home uses canonical repères (not hardcoded prices)', () => {

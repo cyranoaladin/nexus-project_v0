@@ -429,7 +429,9 @@ export async function completeStudentActivation(
 
     return {
       success: true,
-      redirectUrl: '/auth/signin?activated=true',
+      redirectUrl: purpose === 'student'
+        ? '/auth/signin?activated=true&callbackUrl=%2Fbilan-gratuit%2Fassessment'
+        : '/auth/signin?activated=true',
     };
   }
 
