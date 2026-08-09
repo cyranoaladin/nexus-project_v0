@@ -9,6 +9,11 @@ import {
   type PublicationRenderer,
 } from './report-materialization';
 import { buildHumanRenderIdentity } from '../render/human-identity';
+import {
+  renderDeterministicBilanPdf,
+  type BilanPdfDependencies,
+} from '../render/pdf';
+import type { ReportAudience } from '../render/profile-copy';
 
 type ReportDatabase = Pick<PrismaClient, '$transaction' | 'reportRevision'>;
 
@@ -335,4 +340,54 @@ export async function previewReportRevision(input: Readonly<{
     revision.content,
     buildHumanRenderIdentity(revision.reportArtifact.student.user),
   ));
+}
+
+export async function renderReportRevisionAudiencePdf(input: Readonly<{
+  prisma: Pick<PrismaClient, 'reportRevision'>;
+  revisionId: string;
+  audience: ReportAudience;
+  renderAudience?: (
+    factSheet: Parameters<typeof renderDeterministicBilanPdf>[0],
+    audience: ReportAudience,
+    identity: Parameters<typeof renderDeterministicBilanPdf>[2],
+    dependencies: BilanPdfDependencies,
+  ) => ReturnType<typeof renderDeterministicBilanPdf>;
+}>) {
+  const revision = await input.prisma.reportRevision.findUnique({
+    where: { id: input.revisionId },
+    select: {
+      status: true,
+      validationFailures: true,
+      content: true,
+      scoreSnapshot: { select: { result: true } },
+      reportArtifact: {
+        select: {
+          student: {
+            select: { user: { select: { firstName: true, lastName: true } } },
+          },
+        },
+      },
+    },
+  });
+  if (
+    revision === null
+    || !['PENDING_REVIEW', 'COACH_VALIDATED'].includes(revision.status)
+    || revision.validationFailures.length > 0
+  ) throw new BilanReportServiceError('REPORT_PREVIEW_UNAVAILABLE');
+
+  const context = parseReportRenderContext(
+    revision.scoreSnapshot.result,
+    revision.content,
+    buildHumanRenderIdentity(revision.reportArtifact.student.user),
+  );
+  const rendered = await (input.renderAudience ?? renderDeterministicBilanPdf)(
+    context.factSheet,
+    input.audience,
+    context.identity,
+    { humanIdentity: context.humanIdentity },
+  );
+  if (rendered.status !== 'AVAILABLE') {
+    throw new BilanReportServiceError('REPORT_PDF_UNAVAILABLE');
+  }
+  return Buffer.from(rendered.pdf);
 }

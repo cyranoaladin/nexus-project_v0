@@ -6,7 +6,9 @@ import {
   rejectPendingReport,
   validateAndPublishPendingReport,
   previewPendingReport,
+  renderPendingReportPdf,
 } from '@/lib/bilans/staff/review-service';
+import { BilanReportServiceError } from '@/lib/bilans/core/report-service';
 
 const revision = {
   id: 'revision-1',
@@ -31,6 +33,7 @@ function dependencies(overrides: Record<string, unknown> = {}) {
     validate: jest.fn().mockResolvedValue({ status: 'COACH_VALIDATED' }),
     publish: jest.fn().mockResolvedValue({ status: 'PUBLISHED' }),
     preview: jest.fn().mockResolvedValue({ official: false, audiences: [] }),
+    renderPdf: jest.fn().mockResolvedValue(Buffer.from('%PDF-test')),
     reject: jest.fn().mockResolvedValue({ status: 'COACH_REJECTED' }),
     now: () => new Date('2026-08-02T11:00:00.000Z'),
     ...overrides,
@@ -97,6 +100,39 @@ describe('staff Canonical report review service', () => {
     expect(deps.publish).not.toHaveBeenCalled();
   });
 
+  test.each(['ELEVE', 'PARENTS', 'NEXUS'] as const)('renders the %s PDF only for an assistante and an actionable revision', async (audience) => {
+    const deps = dependencies();
+    await expect(renderPendingReportPdf({
+      userId: 'user-assistante', role: 'ASSISTANTE', revisionId: revision.id, audience,
+    }, serviceDependencies(deps))).resolves.toEqual({
+      pdf: Buffer.from('%PDF-test'),
+      filename: `bilan-nexus-${audience.toLowerCase()}.pdf`,
+    });
+    expect(deps.renderPdf).toHaveBeenCalledWith({ revisionId: revision.id, audience });
+    expect(deps.validate).not.toHaveBeenCalled();
+    expect(deps.publish).not.toHaveBeenCalled();
+  });
+
+  test.each(['PARENT', 'ELEVE'])('does not render a review PDF for role %s', async (role) => {
+    const deps = dependencies();
+    await expect(renderPendingReportPdf({
+      userId: 'user-1', role, revisionId: revision.id, audience: 'ELEVE',
+    }, serviceDependencies(deps))).rejects.toMatchObject({ code: 'NOT_FOUND' });
+    expect(deps.renderPdf).not.toHaveBeenCalled();
+  });
+
+  test('maps a Chromium outage to a review-safe PDF unavailable error', async () => {
+    const deps = dependencies({
+      renderPdf: jest.fn().mockRejectedValue(new BilanReportServiceError('REPORT_PDF_UNAVAILABLE')),
+    });
+    await expect(renderPendingReportPdf({
+      userId: 'user-assistante', role: 'ASSISTANTE', revisionId: revision.id, audience: 'NEXUS',
+    }, serviceDependencies(deps))).rejects.toMatchObject({
+      name: 'StaffReviewError',
+      code: 'REPORT_PDF_UNAVAILABLE',
+    });
+  });
+
   test('rejects through the report service and preserves a non-empty motif', async () => {
     const deps = dependencies();
     await rejectPendingReport({
@@ -156,5 +192,7 @@ describe('staff Canonical report review service', () => {
     expect(source).not.toMatch(/reportMaterialization\.(?:update|updateMany)/);
     expect(source).not.toMatch(/reportAudienceArtifact\.(?:update|updateMany)/);
     expect(source).not.toMatch(/['"]\/api\//);
+    expect(source).toContain('Prévisualiser le PDF');
+    expect(source).toContain('Télécharger le PDF');
   });
 });

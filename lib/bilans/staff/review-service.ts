@@ -4,11 +4,14 @@ import { prisma } from '@/lib/prisma';
 
 import { resolveEnabledPack, type PackResolver } from '../api/pack-access';
 import {
+  BilanReportServiceError,
   previewReportRevision,
   publishReportRevision,
   rejectReportRevision,
+  renderReportRevisionAudiencePdf,
   validateReportRevision,
 } from '../core/report-service';
+import type { ReportAudience } from '../render/profile-copy';
 
 export type PendingReportReview = Readonly<{
   id: string;
@@ -48,6 +51,7 @@ type ReviewServiceDependencies = Readonly<{
   validate(input: Readonly<{ revisionId: string; reviewerId: string; motif: string; reviewedAt: Date }>): Promise<unknown>;
   publish(input: Readonly<{ revisionId: string; reviewerId: string; publishedAt: Date }>): Promise<unknown>;
   preview(input: Readonly<{ revisionId: string }>): Promise<unknown>;
+  renderPdf(input: Readonly<{ revisionId: string; audience: ReportAudience }>): Promise<Buffer>;
   reject(input: Readonly<{ revisionId: string; reviewerId: string; motif: string; reviewedAt: Date }>): Promise<unknown>;
   now: () => Date;
 }>;
@@ -87,6 +91,7 @@ const defaultDependencies: ReviewServiceDependencies = {
   validate: (input) => validateReportRevision({ prisma, ...input }),
   publish: (input) => publishReportRevision({ prisma, ...input }),
   preview: (input) => previewReportRevision({ prisma, ...input }),
+  renderPdf: (input) => renderReportRevisionAudiencePdf({ prisma, ...input }),
   reject: (input) => rejectReportRevision({ prisma, ...input }),
   now: () => new Date(),
 };
@@ -174,6 +179,32 @@ export async function previewPendingReport(
   if (revision === null || !packIsEnabled(revision, dependencies)) throw new StaffReviewError('NOT_FOUND');
   if (revision.validationFailures.length > 0) throw new StaffReviewError('REPORT_VALIDATION_FAILURES');
   return dependencies.preview({ revisionId: revision.id });
+}
+
+export async function renderPendingReportPdf(
+  action: ReviewActor & Readonly<{ revisionId: string; audience: ReportAudience }>,
+  overrides: Partial<ReviewServiceDependencies> = {},
+) {
+  const dependencies = { ...defaultDependencies, ...overrides };
+  assertAssistante(action);
+  const revision = await dependencies.findPending(action.revisionId);
+  if (revision === null || !packIsEnabled(revision, dependencies)) throw new StaffReviewError('NOT_FOUND');
+  if (revision.validationFailures.length > 0) throw new StaffReviewError('REPORT_VALIDATION_FAILURES');
+  let pdf: Buffer;
+  try {
+    pdf = await dependencies.renderPdf({ revisionId: revision.id, audience: action.audience });
+  } catch (error) {
+    if (error instanceof BilanReportServiceError) {
+      throw new StaffReviewError(
+        error.code === 'REPORT_PDF_UNAVAILABLE' ? 'REPORT_PDF_UNAVAILABLE' : 'NOT_FOUND',
+      );
+    }
+    throw error;
+  }
+  return Object.freeze({
+    pdf: Buffer.from(pdf),
+    filename: `bilan-nexus-${action.audience.toLowerCase()}.pdf`,
+  });
 }
 
 export async function rejectPendingReport(
