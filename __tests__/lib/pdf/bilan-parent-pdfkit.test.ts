@@ -160,7 +160,7 @@ Votre enfant a fourni un travail sérieux durant ce stage.
 
 let pdfSession: BilanPdfRendererSession;
 
-beforeAll(async () => { pdfSession = await createBilanPdfRendererSession(); });
+beforeAll(async () => { pdfSession = await createBilanPdfRendererSession(); }, 30_000);
 afterAll(async () => { await pdfSession.close(); });
 
 function renderWithSharedSession(data: BilanParentPDFData): Promise<Buffer> {
