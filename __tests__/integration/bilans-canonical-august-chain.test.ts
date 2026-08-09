@@ -18,6 +18,7 @@ import {
 import { validateAndPublishPendingReport } from '@/lib/bilans/staff/review-service';
 import { previewPendingReport } from '@/lib/bilans/staff/review-service';
 import { publishReportRevision } from '@/lib/bilans/core/report-service';
+import type { PublicationRenderer } from '@/lib/bilans/core/report-materialization';
 import { renderDeterministicBilanHtml } from '@/lib/bilans/render/html';
 import { BILAN_PDF_ENGINE_VERSION } from '@/lib/bilans/render/pdf';
 import { drainGenerateReportJobs, drainScoreAttemptJobs } from '@/lib/bilans/worker/drain-outbox';
@@ -31,10 +32,10 @@ import {
 
 const PREFIX = `a87-chain-${Date.now()}-`;
 const NOW = new Date('2026-08-17T08:00:00.000Z');
-const renderAudience = async (...args: Parameters<typeof renderDeterministicBilanHtml>) => ({
+const renderAudience: PublicationRenderer = async (factSheet, audience, identity, options) => ({
   status: 'AVAILABLE' as const,
-  html: renderDeterministicBilanHtml(...args),
-  pdf: Buffer.from(`%PDF-1.4 ${args[1]}`),
+  html: renderDeterministicBilanHtml(factSheet, audience, identity, options?.humanIdentity),
+  pdf: Buffer.from(`%PDF-1.4 ${audience}`),
   engineVersion: BILAN_PDF_ENGINE_VERSION,
 });
 

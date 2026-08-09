@@ -9,6 +9,7 @@ import {
   rejectReportRevision,
   validateReportRevision,
 } from '@/lib/bilans/core/report-service';
+import type { PublicationRenderer } from '@/lib/bilans/core/report-materialization';
 import { processScoreAttemptJob } from '@/lib/bilans/worker/score-job';
 import { processGenerateReportJob } from '@/lib/bilans/worker/generate-report-job';
 import { drainGenerateReportJobs } from '@/lib/bilans/worker/drain-outbox';
@@ -25,10 +26,10 @@ import {
 const PREFIX = `a86-${Date.now()}-`;
 const NOW = new Date('2026-08-02T15:00:00.000Z');
 const logger = { info: jest.fn(), error: jest.fn() };
-const renderAudience = async (...args: Parameters<typeof renderDeterministicBilanHtml>) => ({
+const renderAudience: PublicationRenderer = async (factSheet, audience, identity, options) => ({
   status: 'AVAILABLE' as const,
-  html: renderDeterministicBilanHtml(...args),
-  pdf: Buffer.from(`%PDF-1.4 ${args[1]}`),
+  html: renderDeterministicBilanHtml(factSheet, audience, identity, options?.humanIdentity),
+  pdf: Buffer.from(`%PDF-1.4 ${audience}`),
   engineVersion: BILAN_PDF_ENGINE_VERSION,
 });
 
