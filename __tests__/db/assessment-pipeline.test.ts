@@ -11,7 +11,7 @@
  *
  * Prerequisites:
  *   docker compose -f docker-compose.test.yml up -d
- *   DATABASE_URL=postgresql://nexus_user:test_password_change_in_real_prod@localhost:5434/nexus_test
+ *   NEXUS_DISPOSABLE_POSTGRES=1 DATABASE_URL=<URL de la base jetable locale>
  */
 
 import { CANONICAL_DOMAINS_MATHS, backfillCanonicalDomains } from '@/lib/assessments/core/config';

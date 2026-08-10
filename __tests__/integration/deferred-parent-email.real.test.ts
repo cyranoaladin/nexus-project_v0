@@ -1,9 +1,12 @@
 jest.unmock('@/lib/prisma');
 
 import { completePaperEntryParentEmail } from '@/lib/bilans/staff/parent-contact-service';
+import { validateSessionToken } from '@/lib/auth/session-revocation';
+import { createPaperEntryFamilyHandler } from '@/lib/bilans/saisie-papier/famille';
 import { hasAvailableParentContact } from '@/lib/bilans/staff/review-service';
 import { prisma } from '@/lib/prisma';
 import { assertDisposablePostgresUrl } from '@/__tests__/helpers/disposable-postgres';
+import { NextRequest } from 'next/server';
 
 const PREFIX = `deferred-parent-email-${Date.now()}-`;
 const NOW = new Date('2026-08-10T00:00:00.000Z');
@@ -294,6 +297,13 @@ describe('e-mail parent différé sur PostgreSQL réel', () => {
         },
       },
     });
+    const sourceSessionToken = {
+      id: sourceUser.id,
+      role: sourceUser.role,
+      sessionVersion: sourceUser.sessionVersion,
+    };
+
+    await expect(validateSessionToken(sourceSessionToken, prisma)).resolves.toEqual(sourceSessionToken);
 
     await expect(completePaperEntryParentEmail({
       userId: staff.id,
@@ -339,7 +349,9 @@ describe('e-mail parent différé sur PostgreSQL réel', () => {
       activatedAt: null,
       activationToken: null,
       activationExpiry: null,
+      sessionVersion: sourceUser.sessionVersion + 1,
     }));
+    await expect(validateSessionToken(sourceSessionToken, prisma)).resolves.toBeNull();
     expect(sourceAfter.parentProfile).toEqual(expect.objectContaining({ id: sourceProfile.id, children: [] }));
     expect(targetAfter.parentProfile).toEqual(expect.objectContaining({
       id: targetProfile.id,
@@ -352,5 +364,34 @@ describe('e-mail parent différé sur PostgreSQL réel', () => {
     }));
     expect(targetConsent).toEqual(expect.objectContaining({ state: 'PENDING_PARENT_CONSENT' }));
     expect(immutableAfter).toEqual(immutableBefore);
+
+    const duplicateResponse = await createPaperEntryFamilyHandler({
+      prisma,
+      authenticate: async () => ({ user: { id: staff.id, role: 'ASSISTANTE' } } as never),
+      now: () => NOW,
+    })(new NextRequest('http://localhost/api/bilans/saisie-papier/famille', {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        'idempotency-key': `${PREFIX}merged-phone-alias`,
+      },
+      body: JSON.stringify({
+        parentPhone: '+216 99 19 28 29',
+        parentFirstName: 'Parent',
+        parentLastName: 'Source',
+        children: [{ firstName: 'Nouvel', lastName: 'Enfant', grade: 'Seconde' }],
+      }),
+    }));
+
+    expect(duplicateResponse.status).toBe(409);
+    await expect(duplicateResponse.json()).resolves.toEqual(expect.objectContaining({
+      error: { code: 'POTENTIAL_DUPLICATE' },
+      candidates: expect.arrayContaining([
+        expect.objectContaining({ parentUserId: targetUser.id }),
+      ]),
+    }));
+    expect(await prisma.student.count({
+      where: { user: { firstName: 'Nouvel', lastName: 'Enfant' } },
+    })).toBe(0);
   });
 });

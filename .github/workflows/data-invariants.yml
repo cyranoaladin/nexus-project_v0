@@ -11,7 +11,7 @@ jobs:
     timeout-minutes: 15
     env:
       POSTGRES_USER: nexus_user
-      POSTGRES_DB: nexus_test
+      POSTGRES_DB: nexus_disposable_test
       DATABASE_PASSWORD: test_password_change_in_real_prod
     steps:
       - name: Checkout
@@ -65,4 +65,3 @@ jobs:
       - name: Skip note
         if: steps.schema.outputs.credit_wallets_exists != 't'
         run: echo "Schema not present; data invariants skipped."
-

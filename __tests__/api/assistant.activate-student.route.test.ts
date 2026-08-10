@@ -118,6 +118,26 @@ describe('POST /api/assistant/activate-student', () => {
     );
   });
 
+  it('normalizes student email before calling the persistence service', async () => {
+    mockAuth.mockResolvedValue({ user: { id: 'a1', role: 'ASSISTANTE' } } as any);
+    mockInitiate.mockResolvedValue({ success: true, studentName: 'Aya' } as any);
+
+    const response = await POST(makeRequest({
+      studentUserId: 'u1',
+      studentEmail: '  AYA@EXAMPLE.TEST  ',
+      ...validTrackMetadata,
+    }));
+
+    expect(response.status).toBe(200);
+    expect(mockInitiate).toHaveBeenCalledWith(
+      'u1',
+      'aya@example.test',
+      'ASSISTANTE',
+      'a1',
+      expect.anything(),
+    );
+  });
+
   it('should not return raw activation tokens in successful responses', async () => {
     mockAuth.mockResolvedValue({ user: { id: 'a1', role: 'ASSISTANTE' } } as any);
     mockInitiate.mockResolvedValue({

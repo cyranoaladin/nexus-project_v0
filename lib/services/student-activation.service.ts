@@ -29,7 +29,7 @@ import {
   type ActivationPurpose,
 } from '@/lib/auth/activation-token';
 import { buildTrustedActivationUrl } from '@/lib/auth/parent-activation';
-import { hasUserEmail } from '@/lib/contact/user-email';
+import { hasUserEmail, normalizeUserEmail } from '@/lib/contact/user-email';
 
 export interface ActivationResult {
   success: boolean;
@@ -145,6 +145,7 @@ export async function initiateStudentActivation(
   initiatorId: string,
   trackMetadata?: StudentTrackMetadata
 ): Promise<ActivationResult> {
+  const normalizedStudentEmail = normalizeUserEmail(studentEmail);
   // Validate initiator role
   const allowedRoles = ['ADMIN', 'ASSISTANTE', 'PARENT'];
   if (!allowedRoles.includes(initiatorRole)) {
@@ -181,9 +182,9 @@ export async function initiateStudentActivation(
   }
 
   // Check email uniqueness (skip if same as current)
-  if (studentEmail !== studentUser.email) {
+  if (normalizedStudentEmail !== studentUser.email) {
     const existingEmail = await prisma.user.findUnique({
-      where: { email: studentEmail },
+      where: { email: normalizedStudentEmail },
     });
     if (existingEmail) {
       return { success: false, error: 'Cet email est déjà utilisé par un autre compte' };
@@ -197,10 +198,10 @@ export async function initiateStudentActivation(
   await prisma.user.update({
     where: { id: studentUserId },
     data: {
-      email: studentEmail,
+      email: normalizedStudentEmail,
       activationToken: tokenHash,
       activationExpiry: expiresAt,
-      ...(studentEmail !== studentUser.email ? { sessionVersion: { increment: 1 } } : {}),
+      ...(normalizedStudentEmail !== studentUser.email ? { sessionVersion: { increment: 1 } } : {}),
     },
   });
 

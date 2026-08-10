@@ -26,7 +26,8 @@ toutes les écritures de test ont été exécutées sur des services jetables.
   copié dans l'arbre source ;
 - le seed et ses helpers utilisent les modèles et alias TypeScript réellement
   disponibles dans l'image ;
-- le snapshot pytest est généré par `conftest.py` avant la collecte ;
+- le snapshot pytest est régénéré par `conftest.py` avant chaque collecte ; un
+  artefact déjà présent n'est jamais considéré comme une preuve fraîche ;
 - un garde analyse tous les fichiers suivis et interdit les quarantaines
   inconditionnelles, les `todo` et les focus exclusifs.
 
@@ -49,13 +50,23 @@ toujours mais ne possède plus d'enfant, le profil cible possède l'enfant, le
 lien source est révoqué, le lien cible est en attente de consentement et le
 snapshot complet du bilan est strictement identique.
 
+Le téléphone conservé sur le compte source reste un alias de détection après
+fusion : une nouvelle saisie portant ce numéro suggère le compte cible actif et
+ne recrée pas silencieusement un foyer.
+
 ### PDF Parent canonique
 
-L'ancienne URL reste disponible. Son ancien moteur PDFKit et son template
-distinct ont été retirés. L'adaptateur transforme le bilan historique en HTML
-Parent, puis appelle `renderParentHtmlToPdf`, unique moteur de bytes Parent.
-Le test d'équivalence injecte le même renderer dans l'adaptateur et le chemin
-canonique et compare les buffers obtenus. Aucun backfill des anciens bilans
+L'ancienne URL reste disponible. Sur `origin/main`, son module de compatibilité
+transformait déjà le bilan historique en HTML avant de déléguer au moteur
+HTML→PDF. Cette branche conserve exactement cette transformation dans un
+adaptateur et formalise `renderParentHtmlToPdf` comme unique point d'entrée de
+production des octets PDF Parent ; elle ne prétend pas retirer un second moteur
+PDFKit qui n'existait plus.
+
+Le test d'équivalence fige indépendamment le SHA-256 du HTML historique et ses
+contrats d'échappement, de markdown et de marque. Un renderer espion prouve
+ensuite que cet HTML exact traverse une seule fois le moteur canonique et que
+ses octets sont retournés sans altération. Aucun backfill des anciens bilans
 n'est inclus.
 
 ### Normalisation et sources de vérité
@@ -68,6 +79,18 @@ n'est inclus.
   des conditions ;
 - le prix attendu du sélecteur provient du catalogue tarifaire canonique ;
 - le téléphone public et les mentions juridiques proviennent de `LEGAL`.
+
+Les quatre familles de hardcoding ramenées à leur source sont précisément :
+
+| Ancienne valeur dispersée | Emplacement | Source canonique |
+| --- | --- | --- |
+| prix et crédits de plans/add-ons | `e2e/helpers/db.ts` et scénarios d'abonnement | `lib/operational-catalog.ts` |
+| montant/libellé de paiement et version CGV | `e2e/auth/payments.invoice.documents.spec.ts` | catalogue de paiement et version légale |
+| prix attendu du sélecteur | `e2e/auth/price-render-check.spec.ts` | `data/pricing.canonical.json` via son contrat |
+| téléphone, identité et e-mail publics | formulaire papier et notice vie privée | `lib/legal.ts` |
+
+Le rendu de la notice candidat libre reste identique et son état dark n'est pas
+modifié ; seul le branchement à la source de vérité remplace les littéraux.
 
 ## Quarantaines
 
@@ -87,23 +110,23 @@ la suite officielle. Le gate officiel contient zéro skip.
 
 | Lane | Mesure rouge | Preuve finale |
 | --- | --- | --- |
-| Jest unitaire | 762/764 suites ; 8 508 réussites et 13 échecs sur 8 521 ; 190,415 s | 764/764 suites ; 8 521/8 521 tests ; 194,816 s |
-| Jest intégration | 31/32 suites ; 198 réussites et 3 échecs sur 201 ; 21,794 s | 32/32 suites ; 201/201 tests ; 23,663 s |
-| PostgreSQL réel et concurrence | 4/11 suites ; 124 réussites et 54 échecs sur 178 ; 32,206 s | 11/11 suites ; 178/178 tests ; 32,091 s |
-| pytest | 5 erreurs de collecte dues au snapshot absent | 160/160 tests ; 682,23 s |
-| Playwright E2E, sans filtre et sans retry | 300 réussites, 242 échecs, 14 non exécutés sur 556 ; 16,1 min. Passage intermédiaire : 477 réussites, 75 échecs, 4 non exécutés ; 20,3 min | 510/510 tests ; 0 échec ; 0 skip ; 9,3 min |
+| Jest unitaire | 762/764 suites ; 8 508 réussites et 13 échecs sur 8 521 ; 190,415 s | 769/769 suites ; 8 562/8 562 tests ; 189,066 s |
+| Jest intégration, base réelle et concurrence | 31/32 suites ; 198 réussites et 3 échecs sur 201 ; 21,794 s. Le premier audit séparé PostgreSQL/concurrence comptait 124 réussites et 54 échecs sur 178 | 32/32 suites ; 201/201 tests ; 25,377 s, dont 15 suites/65 tests PostgreSQL réel et concurrence |
+| pytest | 5 erreurs de collecte dues au snapshot absent | 160/160 tests ; 691,39 s |
+| Playwright E2E, sans filtre et sans retry | 300 réussites, 242 échecs, 14 non exécutés sur 556 ; 16,1 min. Passage intermédiaire : 477 réussites, 75 échecs, 4 non exécutés ; 20,3 min | 931/931 tests ; 0 échec ; 0 skip ; 15,9 min |
 
-Le total final des lanes officielles est de 9 570 tests réussis, zéro échec et
-zéro skip. La baisse du nombre de cas Playwright de 556 à 510 vient du retrait
-de doublons de runners et de longues attentes de maquettes remplacées par les
-contrats canoniques listés dans le registre ; aucun fichier n'est exclu par une
-nouvelle règle.
+Le total final des quatre lanes officielles est de 9 854 tests réussis, zéro
+échec et zéro skip. L'augmentation du nombre de cas Playwright de 556 à 931
+vient de la collecte de tous les fichiers hermétiques suivis sous `e2e` et
+`__tests__/e2e`, alors que l'ancien runner n'en collectait qu'une partie. Les
+anciennes attentes de maquette pré-rentrée ont été portées vers le planning et
+le tunnel publics réellement publiés ; aucun fichier fonctionnel hermétique
+n'est exclu par une nouvelle règle.
 
-Le build de production a généré 91 pages et un artefact standalone valide :
-553 fichiers statiques côté source et côté standalone, même digest, aucun
-fichier runtime résiduel. Un premier build dans le worktree a correctement été
-refusé par le garde anti-chemins locaux ; la preuve finale a été produite dans
-un clone de build jetable hors worktree, sans assouplir le garde.
+Le build utilisé par la pile E2E a généré 91 pages sous Node 22.23.1 et produit
+un artefact standalone valide. L'image Playwright vérifie également Node
+22.23.1 et npm 10.9.8 avant d'exécuter les tests. Le contexte Docker exclut les
+artefacts de preuve générés et ne transporte aucun fichier runtime local.
 
 La chaîne Prisma a appliqué 70 migrations sur PostgreSQL jetable. Un second
 `migrate deploy` n'a trouvé aucune migration en attente et le statut final est
@@ -111,11 +134,12 @@ La chaîne Prisma a appliqué 70 migrations sur PostgreSQL jetable. Un second
 
 ## Auth.js
 
-Les erreurs `CredentialsSignin` de la preuve E2E correspondent uniquement aux
-scénarios négatifs nommés : utilisateur inexistant, compte inactif et mauvais
-mot de passe. Les connexions réelles ADMIN, ASSISTANTE, COACH, PARENT et ELEVE
-réussissent et établissent une session vérifiée. Aucun échec Auth.js n'apparaît
-sur leurs flux positifs.
+Les erreurs Auth.js de la preuve E2E correspondent uniquement aux scénarios
+négatifs nommés : utilisateur inexistant, compte inactif ou pré-activation,
+mauvais mot de passe, rôle interdit et interruption réseau injectée. Les
+connexions réelles ADMIN, ASSISTANTE, COACH, PARENT et ELEVE réussissent et
+établissent une session vérifiée. Aucun échec Auth.js n'apparaît sur leurs flux
+positifs ni dans la fenêtre qui suit ces authentifications.
 
 ## Documents hors racine
 

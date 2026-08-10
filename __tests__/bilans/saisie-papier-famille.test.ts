@@ -214,6 +214,7 @@ describe('Création du foyer — suggestion anti-doublon à décision humaine', 
         role: 'PARENT',
         OR: expect.arrayContaining([
           { phoneNormalized: '99192829' },
+          { mergedSources: { some: { phoneNormalized: '99192829' } } },
           expect.objectContaining({ parentProfile: expect.any(Object) }),
         ]),
       }),

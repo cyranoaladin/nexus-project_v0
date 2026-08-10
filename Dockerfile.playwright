@@ -6,6 +6,24 @@
 
 FROM mcr.microsoft.com/playwright:v1.58.2-noble
 
+# Keep the browser layer supplied by Playwright while enforcing the same
+# Node/npm contract as the application and approved production image. The
+# upstream archive is pinned and checksum-verified before replacing the base
+# image runtime.
+ARG NODE_VERSION=22.23.1
+ARG NODE_DIST_SHA256=7a8cb04b4a1df4eaf432125324b81b29a088e73570a23259a8de1c65d07fc129
+RUN curl --fail --silent --show-error --location \
+      "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.gz" \
+      --output /tmp/node.tar.gz \
+    && echo "${NODE_DIST_SHA256}  /tmp/node.tar.gz" | sha256sum --check --strict \
+    && rm -rf /usr/local/include/node /usr/local/lib/node_modules \
+      /usr/local/bin/node /usr/local/bin/npm /usr/local/bin/npx /usr/local/bin/corepack \
+    && tar -xzf /tmp/node.tar.gz --directory /usr/local --strip-components=1 \
+    && rm /tmp/node.tar.gz \
+    && npm install --global npm@10.9.8 \
+    && test "$(node --version)" = "v22.23.1" \
+    && test "$(npm --version)" = "10.9.8"
+
 WORKDIR /app
 
 # Copy package files and install deps (for Playwright config resolution)

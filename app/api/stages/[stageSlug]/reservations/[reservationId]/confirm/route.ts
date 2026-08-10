@@ -11,6 +11,7 @@ import { normalizeStudentLevelAndTrack } from '@/lib/utils/grade-utils';
 import { AcademicTrack,GradeLevel,UserRole } from '@prisma/client';
 import { NextRequest,NextResponse } from 'next/server';
 import { z } from 'zod';
+import { normalizeUserEmail } from '@/lib/contact/user-email';
 
 const confirmReservationParamsSchema = z.object({
   stageSlug: z.string().trim().min(1).max(120).regex(/^[a-z0-9][a-z0-9-]*$/),
@@ -45,11 +46,12 @@ export async function POST(
     if (reservation.richStatus === 'CONFIRMED') {
       return NextResponse.json({ error: 'Déjà confirmée' }, { status: 409 });
     }
+    const reservationEmail = normalizeUserEmail(reservation.email);
 
     const { rawToken, tokenHash: hashedToken, expiresAt } = createActivationToken('student');
 
     let user = await prisma.user.findUnique({
-      where: { email: reservation.email },
+      where: { email: reservationEmail },
       include: { student: true }
     });
 
@@ -82,7 +84,7 @@ export async function POST(
       
       // For this flow, we'll try to find a parent with the same email.
       let parentUser = await prisma.user.findFirst({
-        where: { email: reservation.email, role: 'PARENT' },
+        where: { email: reservationEmail, role: 'PARENT' },
         include: { parentProfile: true }
       });
 
@@ -124,7 +126,7 @@ export async function POST(
 
       user = await prisma.user.create({
         data: {
-          email: reservation.email,
+          email: reservationEmail,
           firstName: reservation.studentName?.split(' ')[0] ?? reservation.parentName.split(' ')[0],
           lastName: reservation.studentName?.split(' ')[1] ?? reservation.parentName.split(' ')[1] ?? '',
           role: 'ELEVE',
@@ -193,7 +195,7 @@ export async function POST(
         aggregateId: reservation.id,
         messageType: 'STUDENT_ACTIVATION',
         dedupeKey: hashedToken,
-        to: reservation.email,
+        to: reservationEmail,
         subject: `✅ Inscription confirmée — ${stageTitle}`,
         html: `<p>Bonjour ${firstName},</p>
              <p>Votre inscription au <strong>${stageTitle}</strong> est <strong>confirmée</strong>.</p>

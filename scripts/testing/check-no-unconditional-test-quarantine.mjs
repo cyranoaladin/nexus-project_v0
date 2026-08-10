@@ -14,11 +14,33 @@ const tracked = execFileSync('git', ['ls-files', '-z'], { encoding: 'utf8' })
 const forbidden = [
   { label: 'suite ignorée', pattern: /\b(?:test|describe)\.describe\.skip\s*\(|\bdescribe\.skip\s*\(/g },
   { label: 'test ignoré sans condition', pattern: /\b(?:test|it)\.skip\s*\(\s*(?:true\b|["'`]|\))/g },
+  { label: 'test marqué fixme', pattern: /\b(?:test|it)\.fixme\s*\(/g },
+  { label: 'test marqué todo', pattern: /\b(?:test|it)\.todo\s*\(/g },
   { label: 'alias de quarantaine', pattern: /\b(?:xit|xdescribe)\s*\(/g },
   { label: 'focus interdit', pattern: /\b(?:test|it|describe)\.only\s*\(/g },
   { label: 'skip pytest impératif', pattern: /\bpytest\.skip\s*\(/g },
   { label: 'skip pytest décorateur', pattern: /\bpytest\.mark\.skip(?:if)?\b/g },
 ];
+
+const policyProbes = [
+  ['suite ignorée', "describe.skip('suite', () => {})"],
+  ['test ignoré sans condition', "test.skip(true, 'later')"],
+  ['test marqué fixme', "test.fixme('broken', () => {})"],
+  ['test marqué todo', "test.todo('missing')"],
+  ['alias de quarantaine', "xit('later', () => {})"],
+  ['focus interdit', "test.only('focused', () => {})"],
+  ['skip pytest impératif', "pytest.skip('later')"],
+  ['skip pytest décorateur', '@pytest.mark.skip'],
+];
+
+for (const [label, source] of policyProbes) {
+  const rule = forbidden.find((candidate) => candidate.label === label);
+  const probePattern = rule && new RegExp(rule.pattern.source, rule.pattern.flags.replace('g', ''));
+  if (!probePattern?.test(source)) {
+    console.error(`Le garde de quarantaine ne détecte plus sa sonde interne: ${label}`);
+    process.exit(1);
+  }
+}
 
 const violations = [];
 for (const file of tracked) {

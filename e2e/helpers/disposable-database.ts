@@ -1,5 +1,5 @@
 const ALLOWED_HOSTS = new Set(['127.0.0.1', 'localhost', 'postgres-e2e']);
-const ALLOWED_DATABASES = /^(?:nexus_e2e|nexus_(?:[a-z0-9]+_)*test)$/;
+const ALLOWED_DATABASE = 'nexus_e2e';
 
 /** Fail closed before an E2E spec can mutate a database. */
 export function assertDisposableE2eDatabase(value: string): URL {
@@ -11,9 +11,11 @@ export function assertDisposableE2eDatabase(value: string): URL {
   }
   const database = parsed.pathname.replace(/^\//, '');
   if (
+    process.env.E2E_DISPOSABLE_STACK !== '1'
+    ||
     parsed.protocol !== 'postgresql:'
     || !ALLOWED_HOSTS.has(parsed.hostname)
-    || !ALLOWED_DATABASES.test(database)
+    || database !== ALLOWED_DATABASE
     || /(?:prod|production)/i.test(parsed.hostname)
     || /(?:prod|production)/i.test(database)
   ) {

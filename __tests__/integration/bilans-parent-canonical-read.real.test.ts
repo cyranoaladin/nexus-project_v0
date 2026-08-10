@@ -22,6 +22,7 @@ import {
 } from '@/lib/bilans/core/report-artifact-integrity';
 import { BILAN_PRINT_BRAND_VERSION } from '@/lib/bilans/render/brand';
 import { prisma } from '@/lib/prisma';
+import { assertDisposablePostgresUrl } from '@/__tests__/helpers/disposable-postgres';
 
 const PREFIX = 'p0c-parent-read-';
 const NOW = new Date('2026-08-04T09:00:00.000Z');
@@ -37,9 +38,7 @@ type Family = Readonly<{
 
 function assertIsolatedDatabase(): void {
   const target = process.env.TEST_DATABASE_URL || process.env.DATABASE_URL || '';
-  expect(target).toMatch(/(?:localhost|127\.0\.0\.1)/);
-  expect(target).toMatch(/nexus_(?:p0c_parent_test|test|e2e|bilan_runtime_test)/);
-  expect(target).not.toMatch(/nexus_prod|production/i);
+  assertDisposablePostgresUrl(target);
 }
 
 function session(parentUserId: string) {

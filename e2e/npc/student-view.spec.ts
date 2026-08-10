@@ -1,70 +1,48 @@
-// ═══════════════════════════════════════════════════════════════════════════════
-// E2E Tests: NPC Student View
-// Student can view their own diagnostics
-// ═══════════════════════════════════════════════════════════════════════════════
+import { expect, test } from '@playwright/test';
 
-import { test, expect } from '@playwright/test';
+import { loginAsUser } from '../helpers/auth';
 
 test.describe('NPC Student View', () => {
   test.beforeEach(async ({ page }) => {
-    // Login as student
-    await page.goto('/auth/login');
-    await page.fill('input[name="email"]', 'student@test.com');
-    await page.fill('input[name="password"]', 'password123');
-    await page.click('button[type="submit"]');
-    await page.waitForURL('/dashboard/eleve');
+    await loginAsUser(page, 'student');
   });
 
   test('student can navigate to diagnostics page', async ({ page }) => {
-    // Click on Mes Diagnostics in navigation
-    await page.click('text=Mes Diagnostics');
-    await page.waitForURL('/dashboard/eleve/npc');
-
-    // Verify page elements
-    await expect(page.locator('h1')).toContainText('Mes Diagnostics');
-    await expect(page.locator('text=Consultez les analyses')).toBeVisible();
+    await page.getByText('Mes Diagnostics', { exact: true }).first().click();
+    await expect(page).toHaveURL(/\/dashboard\/eleve\/npc$/);
+    await expect(page.getByRole('heading', { name: 'Mes Diagnostics' })).toBeVisible();
+    await expect(page.getByText(/Consultez les analyses/)).toBeVisible();
   });
 
   test('student sees their diagnostic stats', async ({ page }) => {
     await page.goto('/dashboard/eleve/npc');
-
-    // Verify stat cards exist
-    await expect(page.locator('text=Diagnostics reçus')).toBeVisible();
-    await expect(page.locator('text=Matières couvertes')).toBeVisible();
-    await expect(page.locator('text=En cours')).toBeVisible();
+    for (const label of ['Diagnostics reçus', 'Matières couvertes', 'En cours']) {
+      await expect(page.getByText(label, { exact: true }).first()).toBeVisible();
+    }
   });
 
   test('student can switch between tabs', async ({ page }) => {
     await page.goto('/dashboard/eleve/npc');
-
-    // Switch to pending tab
-    await page.click('text=En cours');
-    await expect(page.locator('[role="tabpanel"]')).toBeVisible();
-
-    // Switch back to reports
-    await page.click('text=Mes diagnostics');
-    await expect(page.locator('[role="tabpanel"]')).toBeVisible();
+    await page.getByRole('tab', { name: /^En cours/ }).click();
+    await expect(page.getByRole('tabpanel')).toBeVisible();
+    await page.getByRole('tab', { name: /^Mes diagnostics/i }).click();
+    await expect(page.getByRole('tabpanel')).toBeVisible();
   });
 
-  test('student can view a completed diagnostic', async ({ page }) => {
+  test('student sees the pending copy without a fake completed report route', async ({ page }) => {
     await page.goto('/dashboard/eleve/npc');
-
-    // Find and click on a diagnostic
-    const viewButton = page.locator('a:has-text("Voir mon diagnostic")').first();
-    if (await viewButton.isVisible().catch(() => false)) {
-      await viewButton.click();
-      await page.waitForURL(/\/dashboard\/eleve\/npc\/reports\/.*/);
-
-      // Verify report page
-      await expect(page.locator('text=Diagnostic Pédagogique')).toBeVisible();
-    }
+    await page.getByRole('tab', { name: /^En cours/ }).click();
+    const pendingCopy = page
+      .getByText('NPC E2E — copie affectée', { exact: true })
+      .locator('xpath=ancestor::*[contains(concat(" ", normalize-space(@class), " "), " border ")][1]');
+    await expect(pendingCopy).toBeVisible();
+    await expect(pendingCopy.getByText('En attente', { exact: true })).toBeVisible();
+    await expect(pendingCopy.getByRole('link', { name: /Voir mon diagnostic/ })).toHaveCount(0);
   });
 
   test('student cannot access coach pages', async ({ page }) => {
-    // Try to access coach dashboard
     await page.goto('/dashboard/coach/npc');
-
-    // Should be redirected to login or dashboard
-    await expect(page).toHaveURL(/\/dashboard\/eleve|\/auth\/login/);
+    await expect(page).toHaveURL(/\/dashboard\/eleve$/);
+    await expect(page.getByRole('button', { name: 'Nouvelle copie' })).toHaveCount(0);
   });
 });
