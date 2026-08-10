@@ -81,4 +81,3 @@ restera bloquée derrière un second feu vert explicite.
 - Migration réseau et idempotence prouvées sur clone.
 - Canary complet vert, puis environnement jetable absent.
 - PR ouverte vers `main`, revue demandée à `abenrhouma`.
-
