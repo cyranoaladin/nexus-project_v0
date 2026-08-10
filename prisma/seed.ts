@@ -13,6 +13,7 @@ import {
 import bcrypt from 'bcryptjs';
 import { createId } from '@paralleldrive/cuid2';
 import { createDefaultSurvivalSnapshot, toPrismaSurvivalData } from '../lib/survival/progress';
+import { requireUserEmail } from '../lib/contact/user-email';
 
 const prisma = new PrismaClient();
 
@@ -353,7 +354,7 @@ async function main() {
   await seedStudentScenario({
     scenarioKey: 'eds-premiere',
     studentId: edsDashboardStudent.id,
-    email: edsDashboardUser.email,
+    email: requireUserEmail(edsDashboardUser.email),
     name: 'Nour EDS',
     subject: Subject.MATHEMATIQUES,
     title: 'Mathématiques EDS Première',
@@ -361,7 +362,7 @@ async function main() {
   await seedStudentScenario({
     scenarioKey: 'stmg-premiere',
     studentId: stmgDashboardStudent.id,
-    email: stmgDashboardUser.email,
+    email: requireUserEmail(stmgDashboardUser.email),
     name: 'Ines STMG',
     subject: Subject.MATHEMATIQUES,
     title: 'Mathématiques STMG Première',
@@ -452,7 +453,7 @@ async function main() {
   await seedStudentScenario({
     scenarioKey: 'stmg-survival',
     studentId: survivalStudent.id,
-    email: survivalStudentUser.email,
+    email: requireUserEmail(survivalStudentUser.email),
     name: 'Lina Survie',
     subject: Subject.MATHEMATIQUES,
     title: 'Mathématiques STMG Mode Survie',

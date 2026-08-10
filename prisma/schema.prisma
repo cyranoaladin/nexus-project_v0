@@ -150,15 +150,16 @@ enum ContactLeadStatus {
 
 // Modèle Utilisateur principal
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  password  String?
-  role      UserRole
-  firstName String?
-  lastName  String?
-  phone     String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id              String   @id @default(cuid())
+  email           String?  @unique
+  password        String?
+  role            UserRole
+  firstName       String?
+  lastName        String?
+  phone           String?
+  phoneNormalized String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
   // Activation (Modèle B: assistante/parent déclenche l'activation élève)
   activatedAt      DateTime? // null = compte non activé (élève en attente)
@@ -241,6 +242,7 @@ model User {
   totpLastUsedAt  DateTime? // last successful TOTP verification
 
   @@index([role])
+  @@index([phoneNormalized])
   @@map("users")
 }
 

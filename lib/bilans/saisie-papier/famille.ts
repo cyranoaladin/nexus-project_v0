@@ -15,6 +15,7 @@ import {
 import { createParentStudentConsentContext } from '@/lib/bilans/parent-student-consent';
 import { enqueueEmailIntent } from '@/lib/email/outbox';
 import { kickEmailOutboxDrain } from '@/lib/email/outbox-scheduler';
+import { normalizeParentPhone, type NormalizedParentPhone } from '@/lib/contact/parent-phone';
 import { prisma } from '@/lib/prisma';
 import { buildStudentLoginIdentifier } from '@/lib/services/student-login-identifier';
 import { normalizeStudentLevelAndTrack } from '@/lib/utils/grade-utils';
@@ -32,12 +33,10 @@ import { assertStaffActor } from './access';
 /**
  * Création du foyer, côté staff, préalable à une saisie papier.
  *
- * Le parent est créé en **activation en attente** : `password: null`, un jeton
- * d'activation lui est envoyé, et il posera lui-même son mot de passe.
- * Personne — pas même l'assistante qui saisit — ne fixe un mot de passe à sa
- * place. C'est exactement le comportement du parcours public
- * (`POST /api/bilan-gratuit`), dont ce module réutilise la machinerie ; seule
- * l'authentification change, du public au staff.
+ * Le parent est créé avec `password: null`. Si son e-mail est déjà connu, un
+ * jeton d'activation lui est envoyé immédiatement ; sinon l'activation reste
+ * différée jusqu'à la complétion de ce contact. Personne — pas même
+ * l'assistante qui saisit — ne fixe un mot de passe à sa place.
  *
  * L'enfant n'a besoin que d'un prénom et d'un niveau : son identifiant de
  * connexion est dérivé, comme ailleurs, et son compte reste inactif.
@@ -55,10 +54,15 @@ const childSchema = z.object({
 export const PAPER_ENTRY_MAX_CHILDREN = 6;
 
 const requestSchema = z.object({
-  parentEmail: z.string().trim().email().max(160),
+  parentEmail: z.union([z.string().trim().email().max(160), z.literal('')]).optional(),
+  parentPhone: z.string().trim().min(1).max(40),
   parentFirstName: z.string().trim().min(1).max(80),
   parentLastName: z.string().trim().min(1).max(80),
   children: z.array(childSchema).min(1).max(PAPER_ENTRY_MAX_CHILDREN),
+  duplicateResolution: z.discriminatedUnion('mode', [
+    z.object({ mode: z.literal('ATTACH'), parentUserId: z.string().trim().min(1).max(80) }).strict(),
+    z.object({ mode: z.literal('CREATE_NEW') }).strict(),
+  ]).optional(),
 }).strict();
 
 function isUniqueConstraintViolation(error: unknown): boolean {
@@ -95,6 +99,40 @@ type FamilyResult = Readonly<{
   children: readonly CreatedChild[];
 }>;
 
+type DuplicateCandidateRecord = Readonly<{
+  id: string;
+  firstName: string | null;
+  lastName: string | null;
+  email: string | null;
+  phone: string | null;
+  parentProfile: Readonly<{
+    id: string;
+    children: readonly Readonly<{
+      id: string;
+      gradeLevel: GradeLevel;
+      user: Readonly<{ firstName: string | null; lastName: string | null }>;
+    }>[];
+  }> | null;
+}>;
+
+export type PaperEntryDuplicateCandidate = Readonly<{
+  parentUserId: string;
+  parentName: string;
+  phone: string | null;
+  children: readonly Readonly<{
+    studentId: string;
+    studentName: string;
+    gradeLevel: GradeLevel;
+  }>[];
+}>;
+
+type PotentialDuplicateResult = Readonly<{
+  error: Readonly<{ code: 'POTENTIAL_DUPLICATE' }>;
+  candidates: readonly PaperEntryDuplicateCandidate[];
+}>;
+
+type FamilyResponse = FamilyResult | PotentialDuplicateResult;
+
 function resolveChildren(input: z.infer<typeof requestSchema>): readonly ResolvedChild[] {
   return input.children.map((child) => {
     const gTrack = normalizeStudentLevelAndTrack(child.grade);
@@ -106,6 +144,75 @@ function resolveChildren(input: z.infer<typeof requestSchema>): readonly Resolve
       level: gTrack.level,
       track: gTrack.track,
     };
+  });
+}
+
+function displayName(firstName: string | null, lastName: string | null, fallback: string): string {
+  return `${firstName ?? ''} ${lastName ?? ''}`.trim() || fallback;
+}
+
+function projectDuplicateCandidate(candidate: DuplicateCandidateRecord): PaperEntryDuplicateCandidate {
+  return Object.freeze({
+    parentUserId: candidate.id,
+    parentName: displayName(candidate.firstName, candidate.lastName, 'Parent'),
+    phone: candidate.phone,
+    children: Object.freeze((candidate.parentProfile?.children ?? []).map((child) => Object.freeze({
+      studentId: child.id,
+      studentName: displayName(child.user.firstName, child.user.lastName, 'Élève'),
+      gradeLevel: child.gradeLevel,
+    }))),
+  });
+}
+
+async function findPotentialDuplicateFamilies(
+  transaction: Prisma.TransactionClient,
+  phoneNormalized: string,
+  children: readonly ResolvedChild[],
+): Promise<readonly DuplicateCandidateRecord[]> {
+  return transaction.user.findMany({
+    where: {
+      role: 'PARENT',
+      OR: [
+        { phoneNormalized },
+        ...children.map((child) => ({
+          parentProfile: {
+            is: {
+              children: {
+                some: {
+                  gradeLevel: child.level,
+                  user: {
+                    firstName: { equals: child.firstName, mode: 'insensitive' as const },
+                    lastName: { equals: child.lastName, mode: 'insensitive' as const },
+                  },
+                },
+              },
+            },
+          },
+        })),
+      ],
+    },
+    select: {
+      id: true,
+      firstName: true,
+      lastName: true,
+      email: true,
+      phone: true,
+      parentProfile: {
+        select: {
+          id: true,
+          children: {
+            select: {
+              id: true,
+              gradeLevel: true,
+              user: { select: { firstName: true, lastName: true } },
+            },
+            orderBy: { createdAt: 'asc' },
+          },
+        },
+      },
+    },
+    orderBy: { createdAt: 'asc' },
+    take: 10,
   });
 }
 
@@ -126,14 +233,14 @@ async function createChildren(
   input: Readonly<{
     parentUserId: string;
     parentProfileId: string;
-    parentEmail: string;
+    parentEmail: string | null;
     children: readonly ResolvedChild[];
     now: Date;
   }>,
 ): Promise<readonly CreatedChild[]> {
   const created: CreatedChild[] = [];
   for (const child of input.children) {
-    const activation = createActivationToken('student');
+    const activation = input.parentEmail === null ? null : createActivationToken('student');
     const user = await transaction.user.create({
       data: {
         email: buildStudentLoginIdentifier({
@@ -146,8 +253,8 @@ async function createChildren(
         lastName: child.lastName,
         password: null,
         activatedAt: null,
-        activationToken: activation.tokenHash,
-        activationExpiry: activation.expiresAt,
+        activationToken: activation?.tokenHash ?? null,
+        activationExpiry: activation?.expiresAt ?? null,
       },
     });
     const student = await transaction.student.create({
@@ -166,20 +273,22 @@ async function createChildren(
       now: input.now,
     });
 
-    const message = buildAccountActivationEmail({
-      displayName: `${child.firstName} ${child.lastName}`,
-      rawToken: activation.rawToken,
-      accountRole: 'ELEVE',
-    });
-    await enqueueEmailIntent(transaction, {
-      aggregateId: user.id,
-      messageType: 'STUDENT_ACTIVATION',
-      dedupeKey: activation.tokenHash,
-      to: input.parentEmail,
-      subject: message.subject,
-      html: message.html,
-      text: message.text,
-    });
+    if (activation !== null && input.parentEmail !== null) {
+      const message = buildAccountActivationEmail({
+        displayName: `${child.firstName} ${child.lastName}`,
+        rawToken: activation.rawToken,
+        accountRole: 'ELEVE',
+      });
+      await enqueueEmailIntent(transaction, {
+        aggregateId: user.id,
+        messageType: 'STUDENT_ACTIVATION',
+        dedupeKey: activation.tokenHash,
+        to: input.parentEmail,
+        subject: message.subject,
+        html: message.html,
+        text: message.text,
+      });
+    }
 
     created.push({ studentId: student.id, firstName: child.firstName, gradeLevel: child.level });
   }
@@ -191,23 +300,82 @@ async function createFamily(
   context: Readonly<{
     input: z.infer<typeof requestSchema>;
     children: readonly ResolvedChild[];
-    parentEmail: string;
+    parentEmail: string | null;
+    parentPhone: NormalizedParentPhone;
+    attachTo?: DuplicateCandidateRecord;
     now: Date;
   }>,
 ): Promise<FamilyResult> {
-  const { input, children, parentEmail, now } = context;
+  const { input, children, parentEmail, parentPhone, attachTo, now } = context;
   const { preparePending } = createParentStudentConsentContext(transaction);
 
-  const existing = await transaction.user.findUnique({
-    where: { email: parentEmail },
-    select: { id: true, role: true, parentProfile: { select: { id: true } } },
-  });
+  if (attachTo !== undefined) {
+    let attachedParentEmail = attachTo.email;
+    if (attachedParentEmail === null && parentEmail !== null) {
+      const activation = createParentActivationToken(now);
+      await transaction.user.update({
+        where: { id: attachTo.id },
+        data: {
+          email: parentEmail,
+          phone: parentPhone.display,
+          phoneNormalized: parentPhone.normalized,
+          activationToken: activation.tokenHash,
+          activationExpiry: activation.expiresAt,
+          sessionVersion: { increment: 1 },
+        },
+      });
+      const message = buildParentActivationEmail({
+        parentName: displayName(attachTo.firstName, attachTo.lastName, 'Parent'),
+        childFirstName: children[0]?.firstName ?? 'votre enfant',
+        rawToken: activation.rawToken,
+      });
+      await enqueueEmailIntent(transaction, {
+        aggregateId: attachTo.id,
+        messageType: 'PARENT_ACTIVATION',
+        dedupeKey: activation.tokenHash,
+        to: parentEmail,
+        subject: message.subject,
+        html: message.html,
+        text: message.text,
+      });
+      attachedParentEmail = parentEmail;
+    } else {
+      await transaction.user.update({
+        where: { id: attachTo.id },
+        data: { phone: parentPhone.display, phoneNormalized: parentPhone.normalized },
+      });
+    }
+    const profileId = attachTo.parentProfile?.id
+      ?? (await transaction.parentProfile.create({ data: { userId: attachTo.id } })).id;
+    return {
+      parentUserId: attachTo.id,
+      parentCreated: false,
+      children: await createChildren(transaction, preparePending, {
+        parentUserId: attachTo.id,
+        parentProfileId: profileId,
+        parentEmail: attachedParentEmail,
+        children,
+        now,
+      }),
+    };
+  }
 
-  // Parent déjà connu : on lui rattache les enfants sans toucher à son compte.
-  // Ni son mot de passe, ni son état d'activation ne sont réécrits — un parent
-  // déjà activé le reste, un parent en attente le reste aussi.
+  const existing = parentEmail === null
+    ? null
+    : await transaction.user.findUnique({
+        where: { email: parentEmail },
+        select: { id: true, role: true, parentProfile: { select: { id: true } } },
+      });
+
+  // Parent déjà connu : on lui rattache les enfants et actualise seulement le
+  // téléphone fourni. Ni son mot de passe, ni son état d'activation ne sont
+  // réécrits — un parent déjà activé le reste, un parent en attente aussi.
   if (existing !== null) {
     if (existing.role !== 'PARENT') throw CanonicalApiError.conflict('PARENT_EMAIL_ROLE_CONFLICT');
+    await transaction.user.update({
+      where: { id: existing.id },
+      data: { phone: parentPhone.display, phoneNormalized: parentPhone.normalized },
+    });
     const profileId = existing.parentProfile?.id
       ?? (await transaction.parentProfile.create({ data: { userId: existing.id } })).id;
     return {
@@ -223,18 +391,20 @@ async function createFamily(
     };
   }
 
-  const activation = createParentActivationToken(now);
+  const activation = parentEmail === null ? null : createParentActivationToken(now);
   const parentUser = await transaction.user.create({
     data: {
       email: parentEmail,
+      phone: parentPhone.display,
+      phoneNormalized: parentPhone.normalized,
       role: 'PARENT',
       firstName: input.parentFirstName,
       lastName: input.parentLastName,
       // Activation en attente : le parent posera son mot de passe.
       password: null,
       activatedAt: null,
-      activationToken: activation.tokenHash,
-      activationExpiry: activation.expiresAt,
+      activationToken: activation?.tokenHash ?? null,
+      activationExpiry: activation?.expiresAt ?? null,
     },
   });
   const profile = await transaction.parentProfile.create({ data: { userId: parentUser.id } });
@@ -246,20 +416,22 @@ async function createFamily(
     now,
   });
 
-  const message = buildParentActivationEmail({
-    parentName: `${input.parentFirstName} ${input.parentLastName}`,
-    childFirstName: createdChildren[0]?.firstName ?? 'votre enfant',
-    rawToken: activation.rawToken,
-  });
-  await enqueueEmailIntent(transaction, {
-    aggregateId: parentUser.id,
-    messageType: 'PARENT_ACTIVATION',
-    dedupeKey: activation.tokenHash,
-    to: parentEmail,
-    subject: message.subject,
-    html: message.html,
-    text: message.text,
-  });
+  if (activation !== null && parentEmail !== null) {
+    const message = buildParentActivationEmail({
+      parentName: `${input.parentFirstName} ${input.parentLastName}`,
+      childFirstName: createdChildren[0]?.firstName ?? 'votre enfant',
+      rawToken: activation.rawToken,
+    });
+    await enqueueEmailIntent(transaction, {
+      aggregateId: parentUser.id,
+      messageType: 'PARENT_ACTIVATION',
+      dedupeKey: activation.tokenHash,
+      to: parentEmail,
+      subject: message.subject,
+      html: message.html,
+      text: message.text,
+    });
+  }
 
   return { parentUserId: parentUser.id, parentCreated: true, children: createdChildren };
 }
@@ -277,27 +449,63 @@ export function createPaperEntryFamilyHandler(
       // les routes canoniques, rend un retry inoffensif.
       const key = parseIdempotencyKey(request.headers.get('idempotency-key'));
       const children = resolveChildren(input);
-      const parentEmail = normalizeParentEmail(input.parentEmail);
+      let parentPhone: NormalizedParentPhone;
+      try {
+        parentPhone = normalizeParentPhone(input.parentPhone);
+      } catch {
+        throw CanonicalApiError.badRequest('PARENT_PHONE_INVALID');
+      }
+      const parentEmail = input.parentEmail === undefined || input.parentEmail === ''
+        ? null
+        : normalizeParentEmail(input.parentEmail);
       const now = dependencies.now();
 
-      const result = await executeIdempotently<FamilyResult>({
+      const result = await executeIdempotently<FamilyResponse>({
         prisma: dependencies.prisma as IdempotencyDatabase,
         userId: actor.userId,
         route: FAMILY_ROUTE,
         key,
         now,
-        action: async (transaction: CanonicalTransaction) => ({
-          status: 201,
-          body: await createFamily(transaction as unknown as Prisma.TransactionClient, {
-            input,
+        action: async (transaction: CanonicalTransaction) => {
+          const familyTransaction = transaction as unknown as Prisma.TransactionClient;
+          const candidates = await findPotentialDuplicateFamilies(
+            familyTransaction,
+            parentPhone.normalized,
             children,
-            parentEmail,
-            now,
-          }),
-        }),
+          );
+          const resolution = input.duplicateResolution;
+          if (candidates.length > 0 && resolution === undefined) {
+            return {
+              status: 409,
+              body: Object.freeze({
+                error: Object.freeze({ code: 'POTENTIAL_DUPLICATE' as const }),
+                candidates: Object.freeze(candidates.map(projectDuplicateCandidate)),
+              }),
+            };
+          }
+
+          const attachTo = resolution?.mode === 'ATTACH'
+            ? candidates.find(({ id }) => id === resolution.parentUserId)
+            : undefined;
+          if (resolution?.mode === 'ATTACH' && attachTo === undefined) {
+            throw CanonicalApiError.conflict('POTENTIAL_DUPLICATE_SELECTION_INVALID');
+          }
+
+          return {
+            status: 201,
+            body: await createFamily(familyTransaction, {
+              input,
+              children,
+              parentEmail,
+              parentPhone,
+              attachTo,
+              now,
+            }),
+          };
+        },
       });
 
-      kickEmailOutboxDrain();
+      if (result.status === 201) kickEmailOutboxDrain();
       return NextResponse.json(result.body, { status: result.status });
     } catch (error) {
       // Deux assistantes créant le même parent au même instant : l'une gagne,

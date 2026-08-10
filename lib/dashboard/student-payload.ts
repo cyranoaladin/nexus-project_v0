@@ -11,6 +11,7 @@
  */
 
 import { prisma } from '@/lib/prisma';
+import { requireUserEmail } from '@/lib/contact/user-email';
 import { AcademicTrack, GradeLevel, MathsLevel, Subject, UserRole } from '@prisma/client';
 import { getActiveTrajectory, parseMilestones } from '@/lib/trajectory';
 import { getNextStep } from '@/lib/next-step-engine';
@@ -807,6 +808,7 @@ export async function buildStudentDashboardPayload(userId: string): Promise<Elev
   if (!student) {
     throw new Error(`Student not found for userId=${userId}`);
   }
+  const studentEmail = requireUserEmail(student.user.email);
 
   const academicTrack = student.academicTrack ?? AcademicTrack.EDS_GENERALE;
   const gradeLevel = student.gradeLevel ?? GradeLevel.PREMIERE;
@@ -864,7 +866,7 @@ export async function buildStudentDashboardPayload(userId: string): Promise<Elev
       where: {
         OR: [
           { studentId: student.id },
-          { email: student.user.email },
+          { email: studentEmail },
         ],
       },
       include: {
@@ -1177,7 +1179,7 @@ export async function buildStudentDashboardPayload(userId: string): Promise<Elev
       id: student.id,
       firstName: student.user.firstName ?? '',
       lastName: student.user.lastName ?? '',
-      email: student.user.email,
+      email: studentEmail,
       grade: student.grade ?? '',
       gradeLevel,
       academicTrack,

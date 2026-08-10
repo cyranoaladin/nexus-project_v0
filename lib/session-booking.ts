@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma';
+import { hasUserEmail, requireUserEmail } from '@/lib/contact/user-email';
 import { parseSubjects } from '@/lib/utils/subjects';
 import { serializeError } from '@/lib/utils/serialize-error';
 import type {
@@ -208,12 +209,12 @@ export class SessionBookingService {
 
     // Filter coaches who teach the requested subject and format response
     return coaches
-      .filter((coach) => parseSubjects(coach.subjects).includes(subject))
+      .filter((coach) => parseSubjects(coach.subjects).includes(subject) && hasUserEmail(coach.user.email))
       .map((coach) => ({
         id: coach.user.id,
         firstName: coach.user.firstName,
         lastName: coach.user.lastName,
-        email: coach.user.email,
+        email: requireUserEmail(coach.user.email),
         coachSubjects: parseSubjects(coach.subjects),
         coachAvailabilities: []
       }));

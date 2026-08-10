@@ -63,6 +63,17 @@ describe('Écran assistante de saisie papier', () => {
     }
   });
 
+  it('recherche aussi un foyer par téléphone parent', async () => {
+    (auth as jest.Mock).mockResolvedValue({ user: { id: 'staff-1', role: 'ASSISTANTE' } });
+    render(await SaisiePapierPage({ searchParams: Promise.resolve({ q: '99192829' }) }));
+
+    const query = (prisma.student.findMany as jest.Mock).mock.calls[0][0].where;
+    expect(query.AND[1].OR).toEqual(expect.arrayContaining([
+      { parent: { user: { phone: { contains: '99192829' } } } },
+      { parent: { user: { phoneNormalized: { contains: '99192829' } } } },
+    ]));
+  });
+
   it('retire des résultats un foyer synthétique même si la base le renvoie', async () => {
     (auth as jest.Mock).mockResolvedValue({ user: { id: 'staff-1', role: 'ASSISTANTE' } });
     (prisma.student.findMany as jest.Mock).mockResolvedValue([
