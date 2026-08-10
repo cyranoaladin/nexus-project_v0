@@ -123,10 +123,14 @@ anciennes attentes de maquette pré-rentrée ont été portées vers le planning
 le tunnel publics réellement publiés ; aucun fichier fonctionnel hermétique
 n'est exclu par une nouvelle règle.
 
-Le build utilisé par la pile E2E a généré 91 pages sous Node 22.23.1 et produit
-un artefact standalone valide. L'image Playwright vérifie également Node
-22.23.1 et npm 10.9.8 avant d'exécuter les tests. Le contexte Docker exclut les
-artefacts de preuve générés et ne transporte aucun fichier runtime local.
+Le build de production du commit final a généré 91 pages sous Node 22.23.1 et
+npm 10.9.8. L'audit standalone a comparé 553 fichiers statiques côté source et
+côté artefact : même digest, `BUILD_ID` identique, `RELEASE_SHA` exact et
+`ARTIFACT VALID`. L'image finale s'exécute avec l'utilisateur non privilégié
+`nextjs`, contient `server.js` et zéro fichier d'environnement, manifeste E2E
+ou résidu de rapport de test. L'image Playwright vérifie les mêmes versions
+Node/npm avant d'exécuter les tests. Le contexte Docker exclut les artefacts de
+preuve générés.
 
 La chaîne Prisma a appliqué 70 migrations sur PostgreSQL jetable. Un second
 `migrate deploy` n'a trouvé aucune migration en attente et le statut final est
