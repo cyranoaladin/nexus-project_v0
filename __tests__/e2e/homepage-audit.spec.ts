@@ -28,23 +28,23 @@ test.describe('Audit E2E de la Page d\'Accueil (redesign 2026)', () => {
   });
 
   test('Les liens CTA du hero sont visibles', async ({ page }) => {
-    // Target hero CTAs by visible text (not menu overlay links which share the same hrefs)
-    const ctaReco = page.getByRole('link', { name: /Trouver ma formule/i });
-    const ctaOffres = page.getByRole('link', { name: /Voir les offres/i });
+    const hero = page.locator('[data-hero]');
+    const ctaReco = hero.getByRole('link', { name: /Trouver ma formule/i });
+    const ctaOffres = hero.getByRole('link', { name: /Voir les offres/i });
     await expect(ctaReco).toBeVisible();
     await expect(ctaOffres).toBeVisible();
   });
 
-  test('4 liens WhatsApp sont présents', async ({ page }) => {
-    const whatsappLinks = page.locator('main a[href*="wa.me"]');
-    await expect(whatsappLinks).toHaveCount(4);
+  test('les CTA WhatsApp du hero et de conversion sont présents', async ({ page }) => {
+    await expect(page.locator('[data-hero] a[href*="wa.me"]')).toHaveCount(1);
+    await expect(page.locator('main a[href*="wa.me"]')).toHaveCount(2);
   });
 
   test('Le LevelRouter affiche 5 niveaux', async ({ page }) => {
     const levels = ['Terminale', 'Première', 'Seconde', 'Troisième', 'Candidat libre'];
-    for (const level of levels) {
-      await expect(page.getByText(level, { exact: true }).first()).toBeVisible();
-    }
+    const cards = page.locator('[data-card="level-primary"]');
+    await expect(cards).toHaveCount(5);
+    await expect(cards).toHaveText(levels.map((level) => new RegExp(`^${level}`)));
   });
 
   test('Les anciens IDs de section n\'existent plus', async ({ page }) => {
@@ -55,7 +55,7 @@ test.describe('Audit E2E de la Page d\'Accueil (redesign 2026)', () => {
   });
 
   test('Clic sur le CTA /offres navigue correctement', async ({ page }) => {
-    const ctaOffres = page.getByRole('link', { name: /Voir les offres/i });
+    const ctaOffres = page.locator('[data-hero]').getByRole('link', { name: /Voir les offres/i });
     await expect(ctaOffres).toBeVisible();
     await ctaOffres.click();
     await expect(page).toHaveURL(/\/offres/);
@@ -63,7 +63,7 @@ test.describe('Audit E2E de la Page d\'Accueil (redesign 2026)', () => {
   });
 
   test('Clic sur le CTA /recommandation navigue correctement', async ({ page }) => {
-    const ctaReco = page.getByRole('link', { name: /Trouver ma formule/i });
+    const ctaReco = page.locator('[data-hero]').getByRole('link', { name: /Trouver ma formule/i });
     await expect(ctaReco).toBeVisible();
     await ctaReco.click();
     await expect(page).toHaveURL(/\/recommandation/);

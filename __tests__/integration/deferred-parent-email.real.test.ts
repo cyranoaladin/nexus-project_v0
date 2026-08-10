@@ -3,6 +3,7 @@ jest.unmock('@/lib/prisma');
 import { completePaperEntryParentEmail } from '@/lib/bilans/staff/parent-contact-service';
 import { hasAvailableParentContact } from '@/lib/bilans/staff/review-service';
 import { prisma } from '@/lib/prisma';
+import { assertDisposablePostgresUrl } from '@/__tests__/helpers/disposable-postgres';
 
 const PREFIX = `deferred-parent-email-${Date.now()}-`;
 const NOW = new Date('2026-08-10T00:00:00.000Z');
@@ -10,12 +11,7 @@ const createdUserIds: string[] = [];
 
 function assertDisposableDatabase(): void {
   const url = process.env.TEST_DATABASE_URL || process.env.DATABASE_URL || '';
-  const parsed = new URL(url);
-  expect(['127.0.0.1', 'localhost']).toContain(parsed.hostname);
-  // Le conteneur jetable local expose PostgreSQL sur 5434, tandis que le
-  // service éphémère GitHub Actions écoute directement sur 5432.
-  expect(['5432', '5434']).toContain(parsed.port);
-  expect(parsed.pathname).toBe('/nexus_test');
+  assertDisposablePostgresUrl(url);
 }
 
 describe('e-mail parent différé sur PostgreSQL réel', () => {
@@ -185,5 +181,176 @@ describe('e-mail parent différé sur PostgreSQL réel', () => {
       },
     });
     expect(hasAvailableParentContact(contactAfter as never)).toBe(true);
+  });
+
+  it('rattache à un parent existant et tombstone explicitement le compte source sans casser l’historique', async () => {
+    const sourceUser = await prisma.user.create({
+      data: {
+        email: null,
+        role: 'PARENT',
+        firstName: 'Parent',
+        lastName: 'Source',
+        phone: '99 19 28 29',
+        phoneNormalized: '99192829',
+        password: 'ancien-hash-inutilisable',
+        activatedAt: NOW,
+      },
+    });
+    const sourceProfile = await prisma.parentProfile.create({ data: { userId: sourceUser.id } });
+    const targetEmail = `${PREFIX}existing-parent@example.test`;
+    const targetUser = await prisma.user.create({
+      data: {
+        email: targetEmail,
+        role: 'PARENT',
+        firstName: 'Parent',
+        lastName: 'Cible',
+        activatedAt: NOW,
+      },
+    });
+    const targetProfile = await prisma.parentProfile.create({ data: { userId: targetUser.id } });
+    const studentUser = await prisma.user.create({
+      data: {
+        email: `${PREFIX}merge-student@example.test`,
+        role: 'ELEVE',
+        firstName: 'Élève',
+        lastName: 'Historique',
+      },
+    });
+    const student = await prisma.student.create({
+      data: { userId: studentUser.id, parentId: sourceProfile.id, gradeLevel: 'PREMIERE' },
+    });
+    const staff = await prisma.user.create({
+      data: { email: `${PREFIX}merge-staff@example.test`, role: 'ASSISTANTE' },
+    });
+    createdUserIds.push(sourceUser.id, targetUser.id, studentUser.id, staff.id);
+
+    const sourceConsent = await prisma.parentStudentLink.create({
+      data: {
+        parentUserId: sourceUser.id,
+        studentId: student.id,
+        state: 'VERIFIED',
+        requestedAt: NOW,
+        consentedAt: NOW,
+        verifiedAt: NOW,
+      },
+    });
+    const attempt = await prisma.canonicalAssessmentAttempt.create({
+      data: {
+        studentId: student.id,
+        status: 'REPORT_PENDING_REVIEW',
+        seed: `${PREFIX}merge-seed`,
+        expiresAt: new Date(NOW.getTime() + 3_600_000),
+        subject: 'MATHEMATIQUES',
+        gradeLevel: 'PREMIERE',
+        answers: { q1: { optionId: 'A', confidence: 3 } },
+        submittedAt: NOW,
+        curriculumId: 'test.curriculum',
+        curriculumVersion: '1',
+        assessmentPackId: 'fixture-pack',
+        assessmentPackVersion: '1',
+        assessmentPackChecksum: 'fixture-checksum',
+        scoringPolicyId: 'facts',
+        scoringPolicyVersion: '1',
+        provenance: 'SAISIE_PAPIER',
+        enteredById: staff.id,
+        enteredAt: NOW,
+      },
+    });
+    const snapshot = await prisma.scoreSnapshot.create({
+      data: {
+        assessmentAttemptId: attempt.id,
+        scoringPolicyId: 'facts',
+        scoringPolicyVersion: '1',
+        scoringPolicyChecksum: 'facts-checksum',
+        score: 75,
+        result: { score: 75 },
+      },
+    });
+    const artifact = await prisma.reportArtifact.create({
+      data: { studentId: student.id, assessmentAttemptId: attempt.id, status: 'PENDING_REVIEW' },
+    });
+    const revision = await prisma.reportRevision.create({
+      data: {
+        reportArtifactId: artifact.id,
+        scoreSnapshotId: snapshot.id,
+        status: 'PENDING_REVIEW',
+        reportPackId: 'fixture-pack',
+        reportPackVersion: '1',
+        corpusManifestId: 'fixture-corpus',
+        corpusManifestVersion: '1',
+        promptRevision: 'plancher-v1',
+        contextChecksum: 'merge-immutable-context-checksum',
+        content: { PARENTS: { title: 'Historique immuable' } },
+      },
+    });
+    const immutableBefore = await prisma.reportRevision.findUniqueOrThrow({
+      where: { id: revision.id },
+      select: {
+        content: true,
+        contextChecksum: true,
+        scoreSnapshot: { select: { score: true, result: true } },
+        reportArtifact: {
+          select: { assessmentAttempt: { select: { answers: true, provenance: true, enteredById: true } } },
+        },
+      },
+    });
+
+    await expect(completePaperEntryParentEmail({
+      userId: staff.id,
+      role: 'ASSISTANTE',
+      revisionId: revision.id,
+      email: targetEmail,
+    }, { now: () => NOW })).resolves.toEqual({
+      parentUserId: targetUser.id,
+      attachedExisting: true,
+      activationQueued: false,
+    });
+
+    const [sourceAfter, targetAfter, sourceConsentAfter, targetConsent, immutableAfter] = await Promise.all([
+      prisma.user.findUniqueOrThrow({
+        where: { id: sourceUser.id },
+        include: { parentProfile: { include: { children: true } } },
+      }),
+      prisma.user.findUniqueOrThrow({
+        where: { id: targetUser.id },
+        include: { parentProfile: { include: { children: true } } },
+      }),
+      prisma.parentStudentLink.findUniqueOrThrow({ where: { id: sourceConsent.id } }),
+      prisma.parentStudentLink.findFirstOrThrow({
+        where: { parentUserId: targetUser.id, studentId: student.id },
+      }),
+      prisma.reportRevision.findUniqueOrThrow({
+        where: { id: revision.id },
+        select: {
+          content: true,
+          contextChecksum: true,
+          scoreSnapshot: { select: { score: true, result: true } },
+          reportArtifact: {
+            select: { assessmentAttempt: { select: { answers: true, provenance: true, enteredById: true } } },
+          },
+        },
+      }),
+    ]);
+
+    expect(sourceAfter).toEqual(expect.objectContaining({
+      mergedIntoUserId: targetUser.id,
+      mergedAt: NOW,
+      password: null,
+      activatedAt: null,
+      activationToken: null,
+      activationExpiry: null,
+    }));
+    expect(sourceAfter.parentProfile).toEqual(expect.objectContaining({ id: sourceProfile.id, children: [] }));
+    expect(targetAfter.parentProfile).toEqual(expect.objectContaining({
+      id: targetProfile.id,
+      children: [expect.objectContaining({ id: student.id })],
+    }));
+    expect(sourceConsentAfter).toEqual(expect.objectContaining({
+      state: 'REVOKED',
+      revokedAt: NOW,
+      revokedReason: 'LEGACY_PARENT_CHANGED',
+    }));
+    expect(targetConsent).toEqual(expect.objectContaining({ state: 'PENDING_PARENT_CONSENT' }));
+    expect(immutableAfter).toEqual(immutableBefore);
   });
 });

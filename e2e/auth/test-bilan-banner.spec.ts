@@ -1,22 +1,14 @@
 import { test, expect } from '@playwright/test'
-
-const BASE = 'http://localhost:3000'
+import { loginAsUser } from '../helpers/auth'
 
 test('Bilan gratuit banner uses API (not localStorage)', async ({ page }) => {
-  test.skip(true, 'QUARANTINE: PRE-EXISTING: hardcoded localhost:3000, incompatible with Docker E2E');
   const apiCalled = { status: false, dismiss: false }
   page.on('request', (r) => {
     if (r.url().includes('/api/bilan-gratuit/status')) apiCalled.status = true
     if (r.url().includes('/api/bilan-gratuit/dismiss')) apiCalled.dismiss = true
   })
 
-  // Login as parent
-  await page.goto(`${BASE}/auth/signin`, { waitUntil: 'load' })
-  await page.waitForTimeout(1000)
-  await page.locator('input[type="email"], input[name="email"]').fill('parent@example.com')
-  await page.locator('input[type="password"]').fill('admin123')
-  await page.locator('button[type="submit"]').click()
-  await page.waitForURL('**/dashboard/parent**', { timeout: 20000 })
+  await loginAsUser(page, 'parent')
   await page.waitForTimeout(3000)
 
   // Verify API was called (not localStorage)

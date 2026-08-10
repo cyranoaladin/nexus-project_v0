@@ -3,7 +3,7 @@ import { createActivationToken } from '@/lib/auth/activation-token';
 import { getTrustedApplicationOrigin } from '@/lib/auth/parent-activation';
 import { enqueueEmailIntent } from '@/lib/email/outbox';
 import { kickEmailOutboxDrain } from '@/lib/email/outbox-scheduler';
-import { requireUserEmail } from '@/lib/contact/user-email';
+import { normalizeUserEmail, requireUserEmail } from '@/lib/contact/user-email';
 import { isErrorResponse,requireAnyRole } from '@/lib/guards';
 import { LEGAL } from '@/lib/legal';
 import { generateResetToken } from '@/lib/password-reset-token';
@@ -282,8 +282,8 @@ export async function POST(request: Request) {
     }
 
     const data = parsed.data;
-    const parentEmail = data.parentEmail.trim().toLowerCase();
-    const studentEmail = data.studentEmail.trim().toLowerCase();
+    const parentEmail = normalizeUserEmail(data.parentEmail);
+    const studentEmail = normalizeUserEmail(data.studentEmail);
 
     const gTrack = normalizeStudentLevelAndTrack(data.studentGrade);
     if (!gTrack) {

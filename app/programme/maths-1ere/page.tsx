@@ -60,6 +60,6 @@ export default async function MathsPremierePage() {
   const displayName = sessionUser.firstName?.trim() || sessionUser.name?.split(' ')[0] || 'Élève';
 
   return (
-    <MathsRevisionClient user={{ id: userId, name: displayName }} />
+    <MathsRevisionClient user={{ id: userId, name: displayName, role: sessionUser.role }} />
   );
 }

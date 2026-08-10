@@ -15,16 +15,17 @@ test.describe('Dashboard Admin — Audit Exhaustif', () => {
     });
 
     test('bouton déconnexion fonctionne', async ({ page }) => {
-      test.skip(true, 'QUARANTINE: FLAKY: logout redirect race condition — session/cookie timing');
       await page.goto('/dashboard/admin');
       await page.waitForLoadState('domcontentloaded');
-      const logoutBtn = page.getByRole('button', { name: /déconnexion|logout/i })
-        .or(page.getByText(/déconnexion|logout/i));
-      if (await logoutBtn.first().isVisible()) {
-        await logoutBtn.first().click();
-        await page.waitForLoadState('domcontentloaded');
-        await expect(page).toHaveURL(/auth\/signin|^\//);
-      }
+      const logoutBtn = page.getByTestId('logout-button').first();
+      await expect(logoutBtn).toBeVisible();
+      await Promise.all([
+        page.waitForURL((url) => ['/', '/auth/signin'].includes(url.pathname)),
+        logoutBtn.click(),
+      ]);
+      const session = await page.request.get('/api/auth/session');
+      const body = await session.json() as { user?: unknown } | null;
+      expect(body?.user).toBeUndefined();
     });
   });
 

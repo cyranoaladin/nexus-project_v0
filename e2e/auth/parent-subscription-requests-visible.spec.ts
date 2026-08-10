@@ -1,8 +1,18 @@
 import { expect, type Page, test } from '@playwright/test';
 import { loginAsUser } from '../helpers/auth';
 import { CREDS } from '../helpers/credentials';
+import { getAriaAddonCatalogItem, getOperationalSubscriptionPlan } from '../../lib/operational-catalog';
 
 const BASE = process.env.BASE_URL || 'http://localhost:3002';
+const platformPlan = getOperationalSubscriptionPlan('ACCES_PLATEFORME');
+const analysisAddon = getAriaAddonCatalogItem('ANALYSE_APPROFONDIE');
+if (!platformPlan || !analysisAddon) throw new Error('Canonical operational catalog is incomplete');
+
+async function selectYasmine(page: Page) {
+  await page.getByRole('combobox').click();
+  await page.getByRole('option', { name: /Yasmine Dupont/i }).click();
+  await expect(page.getByText(/Abonnement Actuel - Yasmine/i)).toBeVisible();
+}
 
 async function switchToAssistante(page: Page) {
   await page.context().clearCookies();
@@ -45,6 +55,7 @@ test('parent plan-change request appears in assistante requests queue', async ({
 
   await loginAsUser(page, 'parent', { targetPath: '/dashboard/parent/abonnements' });
   await expect(page.getByRole('heading', { name: /Gestion des Abonnements/i })).toBeVisible();
+  await selectYasmine(page);
 
   await page.getByRole('button', { name: /Changer pour ACCÈS PLATEFORME/i }).click();
   await expect(page.getByRole('dialog')).toBeVisible();
@@ -58,7 +69,7 @@ test('parent plan-change request appears in assistante requests queue', async ({
   await assertVisibleInAssistanteQueue(page, {
     requestType: 'PLAN_CHANGE',
     planName: 'ACCES_PLATEFORME',
-    monthlyPrice: 150,
+    monthlyPrice: platformPlan.price,
   });
 });
 
@@ -67,6 +78,7 @@ test('parent ARIA add-on request appears in assistante requests queue', async ({
 
   await loginAsUser(page, 'parent', { targetPath: '/dashboard/parent/abonnements' });
   await expect(page.getByRole('heading', { name: /Gestion des Abonnements/i })).toBeVisible();
+  await selectYasmine(page);
 
   const successDialog = page.waitForEvent('dialog');
   await expect(page.getByRole('heading', { name: /Analyse approfondie ARIA/i })).toBeVisible();
@@ -81,6 +93,6 @@ test('parent ARIA add-on request appears in assistante requests queue', async ({
   await assertVisibleInAssistanteQueue(page, {
     requestType: 'ARIA_ADDON',
     planName: 'ANALYSE_APPROFONDIE',
-    monthlyPrice: 75,
+    monthlyPrice: analysisAddon.price,
   });
 });

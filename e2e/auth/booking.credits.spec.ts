@@ -116,7 +116,6 @@ test.describe.serial('Booking + credits workflow', () => {
   });
 
   test('booking + idempotence + annulation avec refund', async ({ page }) => {
-    test.skip(true, 'QUARANTINE: FLAKY: credits balance race condition + rate limiting with parallel workers');
     await setEntitlementByUserEmail(CREDS.student.email, 'ABONNEMENT_HYBRIDE');
     await setStudentCreditsByEmail(CREDS.student.email, 3);
     await loginAsUser(page, 'student');
@@ -174,6 +173,7 @@ test.describe.serial('Booking + credits workflow', () => {
       failOnStatusCode: false,
     });
     expect(cancel.status()).toBe(200);
+    expect((await cancel.json()).refunded).toBe(true);
 
     const afterCancel = await page.request.get('/api/student/credits');
     const afterCancelBalance = (await afterCancel.json()).balance as number;

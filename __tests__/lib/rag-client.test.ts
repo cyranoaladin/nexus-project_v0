@@ -99,6 +99,20 @@ describe('ragSearch', () => {
 
     expect(result).toEqual([]);
   });
+
+  it('does not contact a fallback when RAG_INGESTOR_URL is explicitly empty', async () => {
+    const previous = process.env.RAG_INGESTOR_URL;
+    process.env.RAG_INGESTOR_URL = '';
+
+    try {
+      const ragSearch = await importRagSearch();
+      await expect(ragSearch({ query: 'disabled' })).resolves.toEqual([]);
+      expect(mockFetch).not.toHaveBeenCalled();
+    } finally {
+      if (previous === undefined) delete process.env.RAG_INGESTOR_URL;
+      else process.env.RAG_INGESTOR_URL = previous;
+    }
+  });
 });
 
 describe('ragHealthCheck', () => {

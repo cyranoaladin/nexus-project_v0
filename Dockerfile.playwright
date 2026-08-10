@@ -18,6 +18,7 @@ RUN npx prisma generate
 
 # Copy test files and configs
 COPY __tests__/e2e ./__tests__/e2e
+COPY __tests__/bilans/fixtures ./__tests__/bilans/fixtures
 COPY e2e ./e2e
 COPY playwright.config.e2e.ts ./playwright.config.e2e.ts
 COPY playwright.config.ts ./playwright.config.ts

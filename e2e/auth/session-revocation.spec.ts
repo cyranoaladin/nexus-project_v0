@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test'
 import { PrismaClient } from '@prisma/client'
+import { assertDisposableE2eDatabase } from '../helpers/disposable-database'
 
 test.use({ trace: 'off', screenshot: 'off', video: 'off' })
 
@@ -8,14 +9,7 @@ const mailpitBaseUrl = process.env.MAILPIT_API_URL || 'http://127.0.0.1:8025'
 const prisma = new PrismaClient({ datasources: { db: { url: databaseUrl } } })
 
 function assertIsolatedDatabase() {
-  expect(databaseUrl).toMatch(/(?:localhost|127\.0\.0\.1)/)
-  expect(databaseUrl).toContain('nexus_s1_session_e2e')
-  expect(databaseUrl).not.toMatch(/production|nexus_prod/i)
-}
-
-async function resetDatabase() {
-  await prisma.$executeRawUnsafe('TRUNCATE TABLE "users" RESTART IDENTITY CASCADE')
-  await fetch(`${mailpitBaseUrl}/api/v1/messages`, { method: 'DELETE' })
+  assertDisposableE2eDatabase(databaseUrl)
 }
 
 async function activationUrl(recipient: string) {
@@ -71,11 +65,11 @@ async function signOutAndVerifyCookieDeletion(page: import('@playwright/test').P
 test.describe('S1 versioned JWT revocation', () => {
   test.beforeAll(async () => {
     assertIsolatedDatabase()
-    await resetDatabase()
+    await fetch(`${mailpitBaseUrl}/api/v1/messages`, { method: 'DELETE' })
   })
 
   test.afterAll(async () => {
-    await resetDatabase()
+    await fetch(`${mailpitBaseUrl}/api/v1/messages`, { method: 'DELETE' })
     await prisma.$disconnect()
   })
 

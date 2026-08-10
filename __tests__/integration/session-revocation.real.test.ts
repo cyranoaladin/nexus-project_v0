@@ -4,15 +4,14 @@ import {
   revokeAllUserSessions,
   validateSessionToken,
 } from '@/lib/auth/session-revocation'
+import { assertDisposablePostgresUrl } from '@/__tests__/helpers/disposable-postgres'
 
 const databaseUrl = process.env.TEST_DATABASE_URL || process.env.DATABASE_URL || ''
 const prisma = new PrismaClient({ datasources: { db: { url: databaseUrl } } })
 const prefix = 's1-session-'
 
 function assertIsolatedDatabase() {
-  expect(databaseUrl).toMatch(/(?:127\.0\.0\.1|localhost)/)
-  expect(databaseUrl).toContain('nexus_s1_session_test')
-  expect(databaseUrl).not.toMatch(/production|nexus_prod/i)
+  assertDisposablePostgresUrl(databaseUrl)
 }
 
 async function createUser(suffix: string, role: UserRole = UserRole.PARENT) {

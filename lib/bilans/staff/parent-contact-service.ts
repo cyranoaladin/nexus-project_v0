@@ -99,6 +99,7 @@ export async function completePaperEntryParentEmail(
                         firstName: true,
                         lastName: true,
                         activatedAt: true,
+                        mergedIntoUserId: true,
                       },
                     },
                   },
@@ -113,6 +114,9 @@ export async function completePaperEntryParentEmail(
     const sourceParent = sourceProfile?.user;
     if (sourceProfile === undefined || sourceParent === undefined || sourceParent.role !== 'PARENT') {
       throw new ParentContactError('NOT_FOUND');
+    }
+    if (sourceParent.mergedIntoUserId !== null && sourceParent.mergedIntoUserId !== undefined) {
+      throw new ParentContactError('PARENT_ACCOUNT_ALREADY_MERGED');
     }
     if (sourceParent.email !== null) throw new ParentContactError('PARENT_EMAIL_ALREADY_SET');
 
@@ -165,6 +169,18 @@ export async function completePaperEntryParentEmail(
           now,
         });
       }
+      await transaction.user.update({
+        where: { id: sourceParent.id },
+        data: {
+          mergedIntoUserId: existing.id,
+          mergedAt: now,
+          password: null,
+          activatedAt: null,
+          activationToken: null,
+          activationExpiry: null,
+          sessionVersion: { increment: 1 },
+        },
+      });
       if (existing.activatedAt === null) {
         activation = createParentActivationToken(now);
         await transaction.user.update({

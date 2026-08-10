@@ -37,12 +37,13 @@ test.describe('Redirections contractuelles', () => {
     await expect(page).toHaveURL(/\/auth\/signin/);
   });
 
-  test('/auth/* connecté redirige vers dashboard role', async ({ page }) => {
+  test('signin redirige mais reset-password reste une surface à jeton', async ({ page }) => {
     await loginAsUser(page, 'parent');
     await page.goto('/auth/signin');
     await expect(page).toHaveURL(/\/dashboard\/parent/);
 
     await page.goto('/auth/reset-password');
-    await expect(page).toHaveURL(/\/dashboard\/parent/);
+    await expect(page).toHaveURL(/\/auth\/reset-password/);
+    await expect(page.getByRole('heading', { name: /lien invalide/i })).toBeVisible();
   });
 });

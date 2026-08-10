@@ -56,14 +56,14 @@ describe('POST /api/payments/validate — P0-04 entitlement bridge', () => {
       type: 'SUBSCRIPTION',
       method: 'bank_transfer',
       userId: 'parent-user-1',
-      metadata: { studentId: 'child-user-1', itemKey: 'HYBRIDE' },
+      metadata: { studentId: 'child-student-1', itemKey: 'HYBRIDE' },
       user: {
         id: 'parent-user-1',
         email: 'parent@test.com',
         firstName: 'P',
         lastName: 'A',
         parentProfile: {
-          children: [{ id: 'child-user-1' }],
+          children: [{ id: 'child-student-1', userId: 'child-user-1' }],
         },
       },
     });
@@ -123,7 +123,7 @@ describe('POST /api/payments/validate — P0-04 entitlement bridge', () => {
           update: jest.fn().mockResolvedValue({}),
         },
         student: {
-          findUnique: jest.fn().mockResolvedValue({ id: 'child-user-1' }),
+          findUnique: jest.fn().mockResolvedValue({ id: 'child-student-1', userId: 'child-user-1' }),
         },
         subscription: {
           updateMany: jest.fn().mockResolvedValue({ count: 1 }),

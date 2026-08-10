@@ -172,6 +172,7 @@ async function findPotentialDuplicateFamilies(
   return transaction.user.findMany({
     where: {
       role: 'PARENT',
+      mergedIntoUserId: null,
       OR: [
         { phoneNormalized },
         ...children.map((child) => ({

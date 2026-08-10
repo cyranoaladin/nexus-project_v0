@@ -15,6 +15,7 @@
 
 import { test, expect, Page } from '@playwright/test';
 import { CREDS } from '../helpers/credentials';
+import { loginAsUser } from '../helpers/auth';
 
 const BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
 
@@ -161,28 +162,21 @@ test.describe('Dashboard auth guards', () => {
 
 test.describe('Login flows', () => {
   test('parent login → dashboard → session valid', async ({ page }) => {
-    const success = await apiLogin(page, CREDS.parent.email, CREDS.parent.password);
-    expect(success).toBe(true);
-
-    await page.goto('/dashboard/parent', { waitUntil: 'domcontentloaded' });
-    // Should stay on parent dashboard (not redirected)
+    await loginAsUser(page, 'parent');
     await expect(page).toHaveURL(/\/dashboard\/parent/, { timeout: 15000 });
+    expect((await (await page.request.get('/api/auth/session')).json()).user.email).toBe(CREDS.parent.email);
   });
 
   test('student login → dashboard → session valid', async ({ page }) => {
-    const success = await apiLogin(page, CREDS.student.email, CREDS.student.password);
-    expect(success).toBe(true);
-
-    await page.goto('/dashboard/eleve', { waitUntil: 'domcontentloaded' });
+    await loginAsUser(page, 'student');
     await expect(page).toHaveURL(/\/dashboard\/eleve/, { timeout: 15000 });
+    expect((await (await page.request.get('/api/auth/session')).json()).user.email).toBe(CREDS.student.email);
   });
 
   test('admin login → dashboard → session valid', async ({ page }) => {
-    const success = await apiLogin(page, CREDS.admin.email, CREDS.admin.password);
-    expect(success).toBe(true);
-
-    await page.goto('/dashboard/admin', { waitUntil: 'domcontentloaded' });
+    await loginAsUser(page, 'admin');
     await expect(page).toHaveURL(/\/dashboard\/admin/, { timeout: 15000 });
+    expect((await (await page.request.get('/api/auth/session')).json()).user.email).toBe(CREDS.admin.email);
   });
 
   test('wrong password → login fails', async ({ page }) => {
@@ -207,21 +201,21 @@ test.describe('Login flows', () => {
 
 test.describe('Role-based access control', () => {
   test('parent cannot access admin dashboard', async ({ page }) => {
-    await apiLogin(page, CREDS.parent.email, CREDS.parent.password);
+    await loginAsUser(page, 'parent');
     await page.goto('/dashboard/admin', { waitUntil: 'domcontentloaded' });
     // Should be redirected to parent dashboard
     await expect(page).toHaveURL(/\/dashboard\/parent/, { timeout: 15000 });
   });
 
   test('student cannot access parent dashboard', async ({ page }) => {
-    await apiLogin(page, CREDS.student.email, CREDS.student.password);
+    await loginAsUser(page, 'student');
     await page.goto('/dashboard/parent', { waitUntil: 'domcontentloaded' });
     // Should be redirected to student dashboard
     await expect(page).toHaveURL(/\/dashboard\/eleve/, { timeout: 15000 });
   });
 
   test('admin est redirigé vers son dashboard si accès parent', async ({ page }) => {
-    await apiLogin(page, CREDS.admin.email, CREDS.admin.password);
+    await loginAsUser(page, 'admin');
     await page.goto('/dashboard/parent', { waitUntil: 'domcontentloaded' });
     // Contract: every role is pinned to its own dashboard root
     await expect(page).toHaveURL(/\/dashboard\/admin/, { timeout: 15000 });

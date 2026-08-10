@@ -276,7 +276,11 @@ describe('POST /api/sessions/book', () => {
     expect(body.success).toBe(true);
     expect(body.sessionId).toBe('session-1');
 
-    expect(tx.sessionBooking.create).toHaveBeenCalled();
+    expect(tx.sessionBooking.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ creditsUsed: 2 }),
+      }),
+    );
     // Credit debit created inside the transaction (creditsToUse: 2 from buildPayload)
     expect(tx.creditTransaction.create).toHaveBeenCalledTimes(1);
     expect(tx.creditTransaction.create).toHaveBeenCalledWith({
