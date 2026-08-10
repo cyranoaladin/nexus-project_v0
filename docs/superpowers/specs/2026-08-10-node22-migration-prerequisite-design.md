@@ -8,8 +8,9 @@
 
 La PR #116 est fusionnée mais ne doit pas être déployée avant deux preuves :
 `Dockerfile.prod` doit respecter le contrat Node 22 du dépôt, et une migration
-Prisma avec un rôle `nexus_admin` doit fonctionner par SCRAM sur un réseau
-Docker. La production reste strictement inchangée pendant cette phase.
+Prisma avec le rôle administrateur de migration doit fonctionner par SCRAM sur
+un réseau interne isolé. La production reste strictement inchangée pendant
+cette phase.
 
 ## Périmètre versionné
 
@@ -26,18 +27,17 @@ Docker. La production reste strictement inchangée pendant cette phase.
 
 ### PostgreSQL
 
-Un dump production `schema-only`, complété uniquement par les lignes du
-registre `_prisma_migrations`, est obtenu en lecture seule via le socket du
-conteneur PostgreSQL. Aucun utilisateur, bilan, score ou document n'est copié.
+Un export production limité au schéma, complété uniquement par le registre
+Prisma, est obtenu via le canal d'administration en lecture seule. Aucun
+utilisateur, bilan, score ou document n'est copié.
 
-Le clone utilise `pgvector/pgvector:pg15`, un `tmpfs`, un réseau Docker dédié et
-un secret `nexus_admin` aléatoire de 32 octets encodé en hexadécimal. Le secret
-reste dans un répertoire temporaire mode 700, dans un fichier mode 600, puis est
-supprimé avec le clone.
+Le clone PostgreSQL 15 utilise un réseau interne isolé et un credential fort et
+éphémère pour le rôle administrateur de migration. Le secret reste dans un
+stockage temporaire protégé hors dépôt, puis est supprimé avec le clone.
 
 Le migrateur Node 22 doit :
 
-1. s'authentifier par le nom réseau du conteneur, donc par la règle SCRAM ;
+1. s'authentifier par le réseau interne du clone avec SCRAM ;
 2. appliquer `20260809090000_deferred_parent_email` avec `prisma migrate deploy` ;
 3. obtenir `users.email` nullable, `users.phoneNormalized` et son index ;
 4. produire un second `migrate deploy` sans migration ;
@@ -46,7 +46,7 @@ Le migrateur Node 22 doit :
 
 ### Canary Node 22
 
-L'image `runner` est lancée sur un port loopback isolé, avec le clone
+L'image `runner` est lancée sur un endpoint local isolé, avec le clone
 PostgreSQL, un Redis jetable, un compte synthétique et des secrets exclusivement
 temporaires. SMTP, outbox, workers Bilan/NPC et tous les chemins LLM sont
 désactivés. Le canary doit prouver : santé HTTP, accès Prisma, authentification
@@ -57,10 +57,10 @@ fichiers temporaires sont détruits après collecte des résultats.
 
 ## Production
 
-Cette phase n'autorise aucune rotation de `nexus_admin`, aucune modification de
-HBA, du launcher PM2, de `/usr/bin/node`, de la release active ou du schéma de
-production. La rotation proposée sera décrite précisément dans le rapport et
-restera bloquée derrière un second feu vert explicite.
+Cette phase n'autorise aucune rotation du rôle administrateur de migration,
+aucune modification de la politique d'authentification réseau, du launcher de
+processus, de la release active ou du schéma de production. La rotation
+proposée restera bloquée derrière un second feu vert explicite.
 
 ## Risques et garde-fous
 

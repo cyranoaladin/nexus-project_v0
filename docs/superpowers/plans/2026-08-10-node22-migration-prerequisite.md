@@ -4,7 +4,7 @@
 
 **Goal:** Align the production Docker build with Node 22 and prove the #116 migration and application runtime on an isolated SCRAM-authenticated clone without changing production.
 
-**Architecture:** The committed change is deliberately limited to `Dockerfile.prod`, its deployment contract, and an evidence report. Operational verification uses a schema-only PostgreSQL 15 clone plus Prisma registry metadata, a dedicated Docker bridge, temporary credentials and an isolated Node 22 runner canary.
+**Architecture:** The committed change is deliberately limited to `Dockerfile.prod`, its deployment contract, and an evidence report. Operational verification uses a schema-only PostgreSQL 15 clone plus Prisma registry metadata, an isolated internal network, temporary secrets and a Node 22 runner canary.
 
 **Tech Stack:** Docker/BuildKit, Node 22.23.1 Alpine, npm 10.9.8, Next.js 15 standalone, Prisma 6.19.3, PostgreSQL 15/pgvector, Redis 7, Jest.
 
@@ -79,18 +79,19 @@ Expected: Node 22.23.1 and npm 10.9.8.
 
 - [ ] **Step 1: Capture production baseline read-only**
 
-Record active release, PM2 PID, health and absence of migration #116.
+Record runtime identity, health and absence of migration #116 without
+persisting infrastructure identifiers.
 
 - [ ] **Step 2: Stream a schema-only custom dump**
 
-Use production's local PostgreSQL socket with `pg_dump --schema-only
---no-owner --no-privileges`. Separately dump only `_prisma_migrations` data.
+Use the read-only administration channel to export the schema without owners or
+privileges. Export the Prisma migration registry separately.
 
 - [ ] **Step 3: Create isolated Docker resources**
 
-Create a dedicated bridge, a `pgvector/pgvector:pg15` container backed by
-`tmpfs`, and a 32-byte random hexadecimal `nexus_admin` password stored mode
-600 outside Git.
+Create an isolated internal network, an ephemeral PostgreSQL 15 clone and a
+strong random credential for the migration administrator, stored securely
+outside Git.
 
 - [ ] **Step 4: Restore schema and registry metadata**
 
@@ -108,8 +109,8 @@ rows.
 
 - [ ] **Step 1: Prove SCRAM network authentication**
 
-Run `SELECT current_user, inet_client_addr() IS NOT NULL` from the migrator
-container using the clone's Docker DNS name.
+Prove from the migrator that the expected role and database are reached through
+the clone's internal network, without recording their identifiers.
 
 - [ ] **Step 2: Run first `prisma migrate deploy`**
 
@@ -139,7 +140,7 @@ pre-migration values.
 Create only a synthetic ADMIN account in the clone with a known temporary
 password. Do not copy production users.
 
-- [ ] **Step 2: Start runner on a loopback-only port**
+- [ ] **Step 2: Start runner on an isolated local endpoint**
 
 Use clone PostgreSQL/Redis, random auth/rate-limit secrets, disabled SMTP,
 disabled workers, disabled LLM and temporary storage.
@@ -151,7 +152,7 @@ Require `/api/health` 200 and a DB-backed request without server errors.
 - [ ] **Step 4: Verify Credentials authentication**
 
 Obtain a CSRF token, submit the synthetic credentials, retain the session
-cookie and require an authenticated parent route response.
+cookie and require an authenticated staff route response.
 
 - [ ] **Step 5: Verify Sharp and PDFKit**
 
@@ -170,7 +171,7 @@ Require no Prisma engine, native module, SMTP, worker or LLM error.
 - [ ] **Step 1: Stop and remove canary, Redis and PostgreSQL containers**
 - [ ] **Step 2: Remove the dedicated network and evidence images**
 - [ ] **Step 3: Remove dump, registry and credential files**
-- [ ] **Step 4: Prove zero residual container, network, listener and file**
+- [ ] **Step 4: Prove zero residual container, network, endpoint and file**
 - [ ] **Step 5: Recheck production baseline unchanged**
 
 ## Chunk 3: Evidence and publication
