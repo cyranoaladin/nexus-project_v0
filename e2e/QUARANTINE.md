@@ -44,20 +44,92 @@ nombre de tests contenus dans un éventuel `describe.skip`.
 | `e2e/auth/test-real-login.spec.ts` | 3 | Les trois connexions réelles utilisent le helper canonique et vérifient la session Auth.js. |
 | **Total** | **51** | **Aucune quarantaine inconditionnelle restante.** |
 
-## Skips conditionnels structurels hors gate hermétique
+## Lanes externes exclues du gate hermétique
 
-Trois tests opt-in restent conditionnels et ne sont pas collectés par
-`playwright.config.e2e.ts` :
+Deux fichiers opt-in, qui portent trois marqueurs conditionnels, ne sont pas
+collectés par `playwright.config.e2e.ts` :
 
-- `e2e/candidate-diagnostic.spec.ts` exige explicitement un état navigateur
-  fourni pour un diagnostic Candidat libre réel ; ce lane reste dark et hors
-  de cette PR ;
-- `e2e/real/coach-resource-student.spec.ts` exige l'activation explicite du
-  lane réel et, pour son contrôle IDOR inter-coachs, une seconde identité coach.
+- `e2e/candidate-diagnostic.spec.ts` exige un état navigateur fourni pour un
+  élève explicitement autorisé ; le diagnostic Candidat libre reste dark ;
+- `e2e/real/coach-resource-student.spec.ts` exige un jeu d'identités de recette
+  externe et, pour son contrôle IDOR inter-coachs, une seconde identité coach.
 
-Ces conditions décrivent des lanes externes, ne masquent aucun test de la stack
-éphémère et sont inspectées par le garde. Aucun `skip` conditionnel ne subsiste
-dans `e2e/auth`, la suite go-live officielle.
+Cette exclusion n'est pas une dispense de test. Les contrats exécutables dans
+la stack jetable sont couverts ci-dessous par les suites officielles ; le
+reliquat strictement navigateur dispose d'une procédure manuelle bloquante.
+
+### Diagnostic Candidat libre
+
+| Contrat de la lane exclue | Couverture de remplacement | Statut |
+| --- | --- | --- |
+| La surface reste inaccessible tant que le produit est dark. | `__tests__/api/diagnostics/candidat-libre/feature-flag-dark.test.ts` vérifie le `404` fail-closed de toutes les routes avant auth, rate-limit ou Prisma ; `__tests__/app/dashboard/candidat-libre-pages-dark.test.tsx` vérifie les pages Élève et Parent. | Automatique, gate officiel. |
+| L'ouverture d'un module respecte l'allowlist, le consentement et les prérequis. | `__tests__/api/diagnostics/candidat-libre/allowlist.test.ts`, `consent-gate.test.ts`, `__tests__/architecture/candidat-libre-consent-wiring.test.ts` et `__tests__/lib/diagnostics/candidat-libre/progression.test.ts`. | Automatique, gate officiel. |
+| Un élève crée le dossier, confirme le premier item, déclenche l'autosauvegarde, ferme, recharge puis retrouve le brouillon. | La lane exclue est la seule preuve navigateur du diagnostic actif ; elle n'est pas remplacée par une assertion de nom voisin. La recette ci-dessous couvre ce reliquat. | Manuel structurel tant que le produit reste dark. |
+
+Procédure de remplacement, exclusivement sur une stack jetable :
+
+1. Provisionner un compte `ELEVE` majeur et isolé, relever son `Student.id`,
+   puis enregistrer son consentement spécifique au diagnostic sur la version
+   courante de la notice. Le parent ne consent pas à sa place. N'utiliser
+   aucune donnée ni base de production.
+2. Démarrer l'artefact avec `CANDIDATE_DIAGNOSTIC_ENABLED=true` et
+   `CANDIDATE_DIAGNOSTIC_STUDENT_IDS` limité exactement à ce `Student.id`.
+   Générer un `storageState` par une connexion réelle de cette identité.
+3. Exécuter `e2e/candidate-diagnostic.spec.ts` avec
+   `E2E_STUDENT_STORAGE_STATE` et la configuration Playwright générale
+   (`playwright.config.ts`), car la configuration hermétique ignore
+   volontairement ce fichier.
+4. Observer en plus des assertions du spec : l'indicateur « Enregistré à »
+   apparaît après la confirmation ; après fermeture, rechargement et
+   réouverture du premier module, la confirmation est toujours cochée et le
+   module est « En cours »/« Reprendre ». La lecture API doit retourner la même
+   réponse, le même index et un statut `IN_PROGRESS`.
+5. Éteindre le flag puis détruire la stack, le stockage et l'état navigateur.
+   Tout écart bloque l'activation future du diagnostic ; il ne peut pas être
+   accepté comme une simple limite de la quarantaine.
+
+Pour #118, l'invariant effectivement livré est le mode dark, prouvé
+automatiquement. La recette active ci-dessus devient obligatoire avant tout
+futur feu vert d'ouverture du Candidat libre.
+
+### Coach → ressource → élève
+
+| Contrat de la lane exclue | Couverture de remplacement | Statut |
+| --- | --- | --- |
+| Un coach ne liste que ses élèves actifs. | `__tests__/api/coach-students.test.ts` (assigné/non assigné et statuts non actifs), `__tests__/rbac/coach-student-access.test.ts` et `e2e/npc/rbac.spec.ts` (identités et base jetables réelles). | Automatique, gate officiel. |
+| Le dossier d'un élève assigné répond ; un élève non assigné est refusé. | `__tests__/api/coach-students.test.ts` et `__tests__/api/coach.students.dossier.route.test.ts`. | Automatique, gate officiel. |
+| Un coach assigné crée une ressource avec le bon destinataire et le bon auteur. | `__tests__/api/documents-access.test.ts` couvre rôle, rattachement, validation et création. La vérification des clés persistées sur base réelle reste dans la recette ci-dessous. | Automatique + manuel. |
+| L'élève destinataire liste/télécharge la ressource ; un autre élève ne la lit pas. | `__tests__/api/student.documents.route.test.ts`, `__tests__/api/student.dashboard.payload.test.ts` et `__tests__/api/student.documents.download.test.ts` couvrent le filtre par `userId`, le rendu dashboard et l'ownership indépendamment de `uploadedById`. | Automatique, gate officiel. |
+| Un coach non assigné ne peut ni ouvrir le dossier ni lire les documents. | `__tests__/api/coach-students.test.ts`, `__tests__/api/coach.students.dossier.route.test.ts`, `__tests__/api/documents-access.test.ts` et `__tests__/api/documents-download.test.ts`. | Automatique, gate officiel. |
+| Le parcours visuel complet ne produit ni erreur console, ni HTTP 5xx. | Les étapes 2 et 3 du spec exclu contiennent encore des TODO et ne prouvent pas aujourd'hui le dépôt ni l'affichage. La recette ci-dessous est donc la couverture honnête de ce reliquat, pas ce squelette Playwright. | Manuel structurel. |
+
+Procédure de remplacement sur recette ou stack jetable, sans données métier
+persistantes :
+
+1. Provisionner deux coachs et deux élèves isolés, avec un seul rattachement
+   actif entre le coach A et l'élève A. Le coach B et l'élève B sont les témoins
+   négatifs.
+2. Avec le coach A, vérifier que la liste et le dossier affichent l'élève A,
+   jamais l'élève B ; l'accès direct au dossier B doit répondre `403` ou
+   rediriger sans divulguer de données.
+3. Créer une ressource à marqueur unique pour l'élève A par la surface
+   supportée. Vérifier le succès, puis sur la base jetable uniquement :
+   `user_documents.userId` vaut le `User.id` de l'élève A,
+   `uploadedById` vaut le `User.id` du coach A et la visibilité attendue est
+   enregistrée.
+4. Avec l'élève A, vérifier présence, ouverture et téléchargement. Avec l'élève
+   B, vérifier l'absence dans les listes et un `403`/`404` sur l'accès direct.
+5. Avec le coach B, vérifier l'absence de l'élève A et le refus du dossier et de
+   la ressource. Sur toute la séquence : aucun HTTP 5xx, aucune erreur console
+   inattendue et aucune erreur Prisma.
+6. Détruire la stack jetable. La checklist détaillée demeure
+   `docs/qa/COACH_RESOURCE_STUDENT_E2E_CHECKLIST.md`. Tout écart est bloquant ;
+   le squelette exclu ne vaut pas preuve tant que ses TODO subsistent.
+
+Ces conditions décrivent des lanes externes, mais leurs contrats ne sont donc
+pas laissés sans contrôle : frontières métier/RBAC automatiques et preuve
+navigateur manuelle explicitement assignée. Aucun `skip` conditionnel ne
+subsiste dans `e2e/auth`, la suite go-live officielle.
 
 La configuration officielle collecte tous les fichiers `*.spec.ts` suivis sous
 `__tests__/e2e` et `e2e`, à l'exception explicite des deux lanes externes
