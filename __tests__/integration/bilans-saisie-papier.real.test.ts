@@ -59,6 +59,7 @@ describe('Saisie papier — parité et provenance sur PostgreSQL réel', () => {
   let studentId: string;
   let studentUserId: string;
   let staffUserId: string;
+  let parentUserId: string;
 
   const workerDependencies = {
     prisma,
@@ -151,8 +152,14 @@ describe('Saisie papier — parité et provenance sur PostgreSQL réel', () => {
 
   beforeAll(async () => {
     const parentUser = await prisma.user.create({
-      data: { email: `${PREFIX}parent@example.test`, role: 'PARENT' },
+      data: {
+        email: null,
+        role: 'PARENT',
+        phone: '99 19 28 29',
+        phoneNormalized: '99192829',
+      },
     });
+    parentUserId = parentUser.id;
     const parent = await prisma.parentProfile.create({ data: { userId: parentUser.id } });
     const studentUser = await prisma.user.create({
       data: { email: `${PREFIX}eleve@example.test`, role: 'ELEVE' },
@@ -177,12 +184,16 @@ describe('Saisie papier — parité et provenance sur PostgreSQL réel', () => {
         "canonical_parent_student_links" CASCADE
     `);
     await prisma.student.deleteMany({ where: { user: { email: { startsWith: PREFIX } } } });
+    await prisma.parentProfile.deleteMany({ where: { userId: parentUserId } });
     await prisma.parentProfile.deleteMany({ where: { user: { email: { startsWith: PREFIX } } } });
     await prisma.user.deleteMany({ where: { email: { startsWith: PREFIX } } });
+    await prisma.user.delete({ where: { id: parentUserId } });
     await prisma.$disconnect();
   });
 
   test('la saisie papier et la passation en ligne produisent le même score et le même profil', async () => {
+    await expect(prisma.user.findUniqueOrThrow({ where: { id: parentUserId }, select: { email: true } }))
+      .resolves.toEqual({ email: null });
     const onlineAttemptId = await submitOnlineAttempt();
 
     const response = await paperHandler(staffUserId)(paperRequest(`${PREFIX}paper-0001`, {

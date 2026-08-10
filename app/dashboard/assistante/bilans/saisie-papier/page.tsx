@@ -67,6 +67,8 @@ export default async function SaisiePapierPage({
               { user: { firstName: { contains: term, mode: 'insensitive' as const } } },
               { user: { lastName: { contains: term, mode: 'insensitive' as const } } },
               { parent: { user: { email: { contains: term, mode: 'insensitive' as const } } } },
+              { parent: { user: { phone: { contains: term } } } },
+              { parent: { user: { phoneNormalized: { contains: term } } } },
             ],
           })),
         ],
@@ -75,7 +77,7 @@ export default async function SaisiePapierPage({
         id: true,
         gradeLevel: true,
         user: { select: { firstName: true, lastName: true, email: true } },
-        parent: { select: { user: { select: { email: true } } } },
+        parent: { select: { user: { select: { email: true, phone: true } } } },
       },
       orderBy: { createdAt: 'desc' },
       take: 40,
@@ -221,7 +223,7 @@ export default async function SaisiePapierPage({
                             {`${student.user.firstName ?? ''} ${student.user.lastName ?? ''}`.trim() || 'Élève'}
                           </span>
                           <span className="ml-3 text-slate-400">
-                            {bilanPackLevelLabel(student.gradeLevel)} · {student.parent?.user.email ?? '—'}
+                            {bilanPackLevelLabel(student.gradeLevel)} · {student.parent?.user.email ?? student.parent?.user.phone ?? '—'}
                           </span>
                         </div>
                         <Link
@@ -244,8 +246,8 @@ export default async function SaisiePapierPage({
               <section className="mt-6 rounded-3xl border border-white/10 bg-white/[0.06] p-6">
                 <h2 className="text-lg font-semibold text-white">Créer le foyer et ajouter l’enfant</h2>
                 <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-400">
-                  Le parent reçoit un lien d’activation et choisit lui-même son mot de passe. Personne ne le fixe à sa
-                  place.
+                  Le téléphone parent est obligatoire. L'e-mail peut être ajouté plus tard : le parent recevra alors son
+                  lien d'activation et choisira lui-même son mot de passe.
                 </p>
                 <PaperEntryFamilyForm />
               </section>
@@ -263,7 +265,7 @@ export default async function SaisiePapierPage({
             <p className="text-xs font-semibold uppercase tracking-[0.16em] text-amber-300">Étape 1</p>
             <h2 className="mt-2 text-lg font-semibold text-white">Créer ou sélectionner le foyer</h2>
             <p className="mt-1 text-sm text-slate-400">
-              Recherchez par nom d’élève ou e-mail parent, ou créez un nouveau foyer.
+              Recherchez par nom d’élève, téléphone ou e-mail parent, ou créez un nouveau foyer.
             </p>
             <PaperEntryStudentSearch initialQuery={search} />
             <Link

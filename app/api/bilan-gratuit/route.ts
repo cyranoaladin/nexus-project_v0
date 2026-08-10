@@ -23,6 +23,7 @@ import {
 } from '@/lib/auth/parent-activation';
 import { enqueueEmailIntent } from '@/lib/email/outbox';
 import { kickEmailOutboxDrain } from '@/lib/email/outbox-scheduler';
+import { requireUserEmail } from '@/lib/contact/user-email';
 
 function publicSuccessResponse() {
   return withActivationSecurityHeaders(NextResponse.json({
@@ -199,7 +200,7 @@ export async function POST(request: NextRequest) {
           aggregateId: parentUser.id,
           messageType: 'PARENT_ACTIVATION',
           dedupeKey: hashedActivationToken,
-          to: parentUser.email,
+          to: requireUserEmail(parentUser.email),
           subject: activationMessage.subject,
           html: activationMessage.html,
           text: activationMessage.text,

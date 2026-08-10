@@ -3,6 +3,7 @@ import { createHmac, timingSafeEqual } from 'node:crypto'
 import { Prisma, PrismaClient } from '@prisma/client'
 
 import { createParentStudentConsentContext } from '@/lib/bilans/parent-student-consent'
+import { hasUserEmail } from '@/lib/contact/user-email'
 import {
   PENDING_PARENT_MAX_BATCH_SIZE,
   PENDING_PARENT_PLAN_TTL_MS,
@@ -310,6 +311,7 @@ async function loadGraphs(
       role: 'PARENT',
       password: null,
       activatedAt: null,
+      email: { not: null },
       ...(input.ids ? { id: { in: [...input.ids] } } : {}),
     },
     orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
@@ -353,6 +355,9 @@ async function loadGraphs(
 
   const graphs: PendingGraph[] = []
   for (const user of users) {
+    // Un foyer papier sans e-mail n'est pas une activation abandonnée : il
+    // attend une complétion humaine et doit rester visible dans la revue.
+    if (!hasUserEmail(user.email)) continue
     const students: GraphStudent[] = (user.parentProfile?.children ?? []).map((student) => ({
       id: student.id,
       userId: student.userId,
@@ -576,6 +581,7 @@ async function lockedCandidateIds(
     WHERE "role" = 'PARENT'::"UserRole"
       AND "password" IS NULL
       AND "activatedAt" IS NULL
+      AND "email" IS NOT NULL
     ORDER BY "createdAt" ASC, "id" ASC
     LIMIT ${batchSize}
     FOR UPDATE SKIP LOCKED

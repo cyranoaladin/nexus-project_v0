@@ -11,6 +11,7 @@ import { escapeHtml } from '@/lib/email/templates';
 import { getTrustedApplicationOrigin } from '@/lib/auth/parent-activation';
 import { enqueueEmailIntent } from '@/lib/email/outbox';
 import { kickEmailOutboxDrain } from '@/lib/email/outbox-scheduler';
+import { requireUserEmail } from '@/lib/contact/user-email';
 
 /** Common weak passwords to reject */
 const COMMON_PASSWORDS = new Set([
@@ -134,7 +135,8 @@ async function handleRequestReset(body: unknown, request: NextRequest) {
         select: { id: true, email: true, password: true, firstName: true },
       });
       if (!user) return false;
-      const token = generateResetToken(user.id, user.email, user.password);
+      const userEmail = requireUserEmail(user.email);
+      const token = generateResetToken(user.id, userEmail, user.password);
       const resetUrl = new URL('/auth/reset-password', getTrustedApplicationOrigin());
       resetUrl.searchParams.set('token', token);
       const name = escapeHtml(user.firstName || 'Utilisateur');
@@ -143,7 +145,7 @@ async function handleRequestReset(body: unknown, request: NextRequest) {
         aggregateId: user.id,
         messageType: 'PASSWORD_RESET',
         dedupeKey: token,
-        to: user.email,
+        to: userEmail,
         subject: 'Réinitialisation de votre mot de passe — Nexus Réussite',
         html: `<p>Bonjour ${name},</p><p>Utilisez ce lien personnel et temporaire pour réinitialiser votre mot de passe :</p><p><a href="${safeUrl}">Réinitialiser mon mot de passe</a></p>`,
         text: `Bonjour ${user.firstName || 'Utilisateur'},\n\nRéinitialisez votre mot de passe :\n${resetUrl.toString()}\n\nCe lien est personnel et temporaire.`,
