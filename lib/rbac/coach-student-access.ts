@@ -35,6 +35,23 @@ export async function getCoachProfileForUser(userId: string) {
   });
 }
 
+/** Resolve a route reference that may be either Student.id or User.id. */
+export async function resolveStudentProfileId(studentReference: string): Promise<string | null> {
+  if (!studentReference) return null;
+
+  const student = await prisma.student.findFirst({
+    where: {
+      OR: [
+        { id: studentReference },
+        { userId: studentReference },
+      ],
+    },
+    select: { id: true },
+  });
+
+  return student?.id ?? null;
+}
+
 /**
  * Check if a coach is assigned to a student via CoachStudentAssignment
  * (New source of truth for coach-student relationships)

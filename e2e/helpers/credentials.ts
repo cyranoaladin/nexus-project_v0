@@ -26,7 +26,9 @@ export interface Credential {
 export type CredentialsMap = Record<CredRole, Credential>;
 
 function loadCredentials(): CredentialsMap {
-  const credentialsPath = path.resolve(process.cwd(), 'e2e/.credentials.json');
+  const credentialsPath = path.resolve(
+    process.env.E2E_CREDENTIALS_PATH ?? path.join(process.cwd(), 'e2e/.credentials.json')
+  );
 
   if (!fs.existsSync(credentialsPath)) {
     throw new Error(

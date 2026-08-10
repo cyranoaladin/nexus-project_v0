@@ -242,8 +242,7 @@ _GENERATED_LEVEL_PDFS = [
 @pytest.mark.parametrize("filename", _GENERATED_LEVEL_PDFS)
 def test_dossier_pdf_is_structurally_valid(filename):
     path = DOCUMENTS_FINAL / filename
-    if not path.exists():
-        pytest.skip(f"{filename} not generated yet in this checkout")
+    assert path.is_file(), f"required generated dossier is missing: {filename}"
     result = subprocess.run(["qpdf", "--check", str(path)], capture_output=True, text=True)
     assert result.returncode == 0, result.stdout + result.stderr
     with fitz.open(path) as document:

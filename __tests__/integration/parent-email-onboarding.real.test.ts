@@ -23,6 +23,7 @@ import { POST as activateAccount } from '@/app/api/auth/activate/route'
 import { resetTransporter } from '@/lib/email/mailer'
 import { drainEmailOutbox } from '@/lib/email/outbox-worker'
 import { prisma } from '@/lib/prisma'
+import { assertDisposablePostgresUrl } from '@/__tests__/helpers/disposable-postgres'
 
 const PREFIX = 'p0d-real-parent-'
 const mailpitBaseUrl = process.env.MAILPIT_API_URL || 'http://127.0.0.1:8025'
@@ -43,9 +44,7 @@ type MailpitMessage = {
 
 function assertIsolatedDatabase(): void {
   const target = process.env.TEST_DATABASE_URL || process.env.DATABASE_URL || ''
-  expect(target).toMatch(/(?:localhost|127\.0\.0\.1)/)
-  expect(target).toMatch(/nexus_p0d_parent_test/)
-  expect(target).not.toMatch(/nexus_prod|production/i)
+  assertDisposablePostgresUrl(target)
 }
 
 function secureHeaders(response: Response): void {

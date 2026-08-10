@@ -8,6 +8,7 @@ import {
   processPendingParentPlan,
   type PendingLifecycleAction,
 } from '../../lib/auth/pending-account-lifecycle'
+import { assertDisposableE2eDatabase } from '../helpers/disposable-database'
 
 test.use({ trace: 'off', screenshot: 'off', video: 'off' })
 
@@ -18,9 +19,7 @@ const planSecret = 's2-e2e-plan-secret-at-least-32-bytes-long'
 const environmentId = 's2-e2e'
 
 function assertIsolatedDatabase() {
-  expect(databaseUrl).toMatch(/(?:localhost|127\.0\.0\.1)/)
-  expect(databaseUrl).toContain('nexus_s2_pending_e2e')
-  expect(databaseUrl).not.toMatch(/prod|production/i)
+  assertDisposableE2eDatabase(databaseUrl)
 }
 
 async function clearMailbox() {

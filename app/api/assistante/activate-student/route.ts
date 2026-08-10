@@ -16,10 +16,11 @@ import { auth } from '@/auth';
 import { initiateStudentActivation } from '@/lib/services/student-activation.service';
 import { z } from 'zod';
 import { AcademicTrack, GradeLevel, StmgPathway, Subject } from '@/types/enums';
+import { normalizeUserEmail } from '@/lib/contact/user-email';
 
 const activateStudentSchema = z.object({
   studentUserId: z.string().min(1, 'ID élève requis'),
-  studentEmail: z.string().email('Email invalide'),
+  studentEmail: z.string().transform(normalizeUserEmail).pipe(z.string().email('Email invalide')),
   gradeLevel: z.nativeEnum(GradeLevel),
   academicTrack: z.nativeEnum(AcademicTrack),
   specialties: z.array(z.nativeEnum(Subject)).default([]),

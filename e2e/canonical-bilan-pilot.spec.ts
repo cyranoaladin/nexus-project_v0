@@ -12,9 +12,17 @@ test.describe('Canonical bilan pilot surfaces with flags off', () => {
 
   test('parent receives a restrained denial for an unknown report', async ({ page }) => {
     await loginAsUser(page, 'parent');
-    await page.goto('/bilan-gratuit/assessment/attempt-inexistant/report');
-    await expect(
-      page.getByRole('alert').filter({ hasText: 'Ce bilan n’est pas accessible avec ce compte.' }),
-    ).toBeVisible();
+    const childrenResponse = await page.request.get('/api/parent/children');
+    expect(childrenResponse.status()).toBe(200);
+    const children = await childrenResponse.json() as Array<{ id: string }>;
+    expect(children.length).toBeGreaterThan(0);
+
+    const reportResponse = await page.request.get(
+      `/api/parent/children/${children[0].id}/bilans/attempt-inexistant/report?format=html`,
+      { failOnStatusCode: false },
+    );
+    expect(reportResponse.status()).toBe(404);
+    expect(reportResponse.headers()['cache-control']).toContain('no-store');
+    expect(await reportResponse.json()).toEqual({ error: { code: 'NOT_FOUND' } });
   });
 });

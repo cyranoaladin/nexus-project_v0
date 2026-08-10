@@ -5,6 +5,7 @@
  */
 
 import { z } from 'zod';
+import { normalizeUserEmail } from '@/lib/contact/user-email';
 
 /**
  * Common ID validation (CUID format from Prisma)
@@ -14,7 +15,9 @@ export const idSchema = z.string().cuid('Invalid ID format');
 /**
  * Email validation
  */
-export const emailSchema = z.string().email('Invalid email format').toLowerCase();
+export const emailSchema = z.string()
+  .transform(normalizeUserEmail)
+  .pipe(z.string().email('Invalid email format'));
 
 /**
  * Pagination schema (query parameters)

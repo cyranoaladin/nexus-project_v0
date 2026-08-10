@@ -7,7 +7,6 @@ async function loginAsStudent(page: any) {
 
 test.describe('Module Automatismes - Élève', () => {
     test('Accès et navigation dans les automatismes', async ({ page }) => {
-        test.skip(true, 'QUARANTINE: PRE-EXISTING: automatismes Question Suivante button not found — feature loading issue');
         await loginAsStudent(page);
         
         // Aller sur la page des automatismes
@@ -27,12 +26,16 @@ test.describe('Module Automatismes - Élève', () => {
         await expect(page.getByText(/Question 1 \/ 12/i)).toBeVisible();
         
         // Répondre à la première question (choisir A par exemple)
-        const choiceA = page.locator('button:has-text("A")').first();
+        const choiceA = page.getByRole('button', { name: /^A\b/ }).first();
         await expect(choiceA).toBeVisible();
         await choiceA.click();
+
+        const validateButton = page.getByRole('button', { name: /^Valider$/i });
+        await expect(validateButton).toBeEnabled();
+        await validateButton.click();
         
-        // Le bouton "Question Suivante" devrait être activé
-        const nextButton = page.getByRole('button', { name: /Question Suivante/i });
+        // Feedback server-side obtained; only then is navigation enabled.
+        const nextButton = page.getByRole('button', { name: /Question suivante/i });
         await expect(nextButton).toBeEnabled();
         
         // Cliquer sur suivant

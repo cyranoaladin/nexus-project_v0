@@ -37,17 +37,16 @@ test.describe('Accessibility basics', () => {
 
     test(`${path} — no empty links`, async ({ page }) => {
       await page.goto(path, { waitUntil: 'domcontentloaded' });
-      const links = page.locator('a:visible');
-      const count = await links.count();
-      for (let i = 0; i < Math.min(count, 50); i++) {
-        const text = await links.nth(i).innerText();
-        const ariaLabel = await links.nth(i).getAttribute('aria-label');
-        const title = await links.nth(i).getAttribute('title');
-        const hasChild = await links.nth(i).locator('img, svg, span').count();
-        // Link must have text, aria-label, title, or child element
-        const hasContent = text.trim().length > 0 || ariaLabel || title || hasChild > 0;
-        expect(hasContent).toBeTruthy();
-      }
+      const emptyLinks = await page.locator('a:visible').evaluateAll((links) => links
+        .slice(0, 50)
+        .filter((link) => {
+          const hasText = (link.textContent ?? '').trim().length > 0;
+          const hasLabel = Boolean(link.getAttribute('aria-label') || link.getAttribute('title'));
+          const hasSemanticChild = link.querySelector('img, svg, span') !== null;
+          return !hasText && !hasLabel && !hasSemanticChild;
+        })
+        .map((link) => link.getAttribute('href') ?? '<sans href>'));
+      expect(emptyLinks).toEqual([]);
     });
   }
 

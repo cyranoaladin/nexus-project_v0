@@ -1,15 +1,15 @@
 import { expect, test } from '@playwright/test';
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
+import { assertDisposableE2eDatabase } from '../helpers/disposable-database';
+import { waitForAuthenticatedSession } from '../helpers/auth';
 
 const databaseUrl = process.env.TEST_DATABASE_URL || process.env.DATABASE_URL || '';
 const prisma = new PrismaClient({ datasources: { db: { url: databaseUrl } } });
 const prefix = 'p0-browser-initial-';
 
 function assertIsolatedDatabase(): void {
-  expect(databaseUrl).toMatch(/(?:localhost|127\.0\.0\.1)/);
-  expect(databaseUrl).toMatch(/nexus_(?:p0_identity_test|test|e2e|bilan_runtime_test)/);
-  expect(databaseUrl).not.toMatch(/nexus_prod|production/i);
+  assertDisposableE2eDatabase(databaseUrl);
 }
 
 async function cleanupFamily(parentEmail: string): Promise<void> {
@@ -141,6 +141,8 @@ test.describe('P0 initial student identity', () => {
       await page.getByRole('textbox', { name: 'Adresse Email' }).fill(loginIdentifier);
       await page.getByLabel(/^mot de passe$/i).fill(childPassword);
       await page.getByRole('button', { name: /accéder à mon espace/i }).click();
+      await waitForAuthenticatedSession(page, loginIdentifier);
+      await page.goto('/dashboard/eleve', { waitUntil: 'domcontentloaded' });
       await expect(page).toHaveURL(/\/dashboard\/eleve/);
 
       const protectedResponse = await page.request.get('/api/student/dashboard');

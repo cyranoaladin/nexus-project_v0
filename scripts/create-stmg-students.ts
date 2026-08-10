@@ -6,6 +6,7 @@ import * as dotenv from "dotenv";
 import { AcademicTrack, GradeLevel, PrismaClient, StmgPathway, UserRole } from "@prisma/client";
 import { SYSTEM_PARENT_EMAIL } from "../lib/constants";
 import { serializeError } from '@/lib/utils/serialize-error';
+import { normalizeUserEmail } from '../lib/contact/user-email';
 
 export interface StmgStudentInput {
   firstName: string;
@@ -40,7 +41,7 @@ type ReadFile = (filePath: string, encoding: BufferEncoding) => string;
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export function normalizeStudentEmail(email: string): string {
-  return email.trim().toLowerCase();
+  return normalizeUserEmail(email);
 }
 
 function requireText(value: unknown, field: string, index: number): string {

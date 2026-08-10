@@ -13,13 +13,15 @@ test.describe('Security - Advanced', () => {
     expect(res.status()).toBe(401);
   });
 
-  test('IDOR: parent cannot download student document -> 403', async ({ page }) => {
+  test('IDOR: parent cannot enumerate or download a student document -> 404', async ({ page }) => {
     const docId = await createTestDocument(CREDS.student.email, `student-private-${Date.now()}.pdf`);
 
     await loginAsUser(page, 'parent');
     const res = await page.request.get(`/api/documents/${docId}`);
 
-    expect(res.status()).toBe(403);
+    // Deliberate no-leak policy: an out-of-scope object is indistinguishable
+    // from an unknown identifier.
+    expect(res.status()).toBe(404);
   });
 
   test('IDOR: student cannot cancel another student session -> 403', async ({ page }) => {
@@ -63,7 +65,6 @@ test.describe('Security - Advanced', () => {
   });
 
   test('Document download response sets nosniff header', async ({ page }) => {
-    test.skip(true, 'PRE-EXISTING: document ID from seed does not exist');
     const docId = await createTestDocument(CREDS.parent.email, `owner-doc-${Date.now()}.pdf`);
 
     await loginAsUser(page, 'parent');

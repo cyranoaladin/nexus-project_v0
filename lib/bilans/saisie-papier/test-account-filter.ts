@@ -1,4 +1,5 @@
 import type { Prisma } from '@prisma/client';
+import { normalizeUserEmail } from '@/lib/contact/user-email';
 
 const EXACT_EXCLUDED_EMAILS = new Set([
   'parent-technique@nexusreussite.academy',
@@ -14,7 +15,7 @@ const EXCLUDED_EMAIL_FRAGMENTS = [
 
 export function isExcludedPaperEntryAccountEmail(email: string | null): boolean {
   if (email === null) return false;
-  const normalized = email.trim().toLowerCase();
+  const normalized = normalizeUserEmail(email);
   return EXACT_EXCLUDED_EMAILS.has(normalized)
     || EXCLUDED_EMAIL_FRAGMENTS.some((fragment) => normalized.includes(fragment));
 }

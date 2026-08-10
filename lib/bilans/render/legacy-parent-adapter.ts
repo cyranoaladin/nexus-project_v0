@@ -1,17 +1,22 @@
 /**
- * Compatibility bridge for the legacy parent-bilan API.
+ * Data adapter for historical Bilan rows.
  *
- * The historical PDFKit renderer was removed by A90.2.3. This module keeps its
- * public function name but delegates to the single Nexus HTML-to-PDF engine.
+ * It only maps legacy Markdown to canonical Parent HTML. PDF bytes always go
+ * through renderParentHtmlToPdf, the same engine used by canonical reports.
  */
 
-import { BILAN_PRINT_BRAND, bilanPrintTokenCss } from '@/lib/bilans/render/brand';
-import { renderHtmlToPdf } from '@/lib/bilans/render/pdf';
-import type { BilanParentPDFData } from './bilan-parent-template';
+import { BILAN_PRINT_BRAND, bilanPrintTokenCss } from './brand';
+import { renderParentHtmlToPdf, type BilanPdfDependencies } from './pdf';
 
-export type BilanParentPdfDependencies = Readonly<{
-  renderHtmlToPdf?: (html: string) => Promise<Buffer>;
-}>;
+export interface LegacyParentBilanData {
+  studentName: string;
+  stageTitle: string;
+  subjectLabel: string;
+  coachName: string | null;
+  publishedAt: string;
+  globalScore: number | null;
+  parentsMarkdown: string;
+}
 
 function escapeHtml(value: unknown): string {
   return String(value)
@@ -62,10 +67,14 @@ function legacyMarkdownToHtml(markdown: string): string {
     } else if (unordered !== null || ordered !== null) {
       if (paragraph.length > 0) flush();
       const isOrdered = ordered !== null;
-      if (list === undefined || list.ordered !== isOrdered) { flush(); list = { ordered: isOrdered, items: [] }; }
-      list!.items.push((ordered ?? unordered)![1]);
+      if (list === undefined || list.ordered !== isOrdered) {
+        flush();
+        list = { ordered: isOrdered, items: [] };
+      }
+      list.items.push((ordered ?? unordered)![1]);
     } else if (line === '---' || line === '***') {
-      flush(); blocks.push('<hr>');
+      flush();
+      blocks.push('<hr>');
     } else {
       if (list !== undefined) flush();
       paragraph.push(line);
@@ -75,7 +84,7 @@ function legacyMarkdownToHtml(markdown: string): string {
   return blocks.join('');
 }
 
-export function renderLegacyParentBilanHtml(data: BilanParentPDFData): string {
+export function adaptLegacyParentBilanToHtml(data: LegacyParentBilanData): string {
   const published = new Date(data.publishedAt).toLocaleDateString('fr-FR', {
     timeZone: 'UTC', day: '2-digit', month: 'long', year: 'numeric',
   });
@@ -85,9 +94,9 @@ export function renderLegacyParentBilanHtml(data: BilanParentPDFData): string {
   </style></head><body><article class="page" data-audience="PARENTS"><header><img src="${BILAN_PRINT_BRAND.logos.header}" alt="Nexus Réussite"><div><p>Bilan pédagogique</p><h1>${escapeHtml(data.stageTitle)}</h1><p>${escapeHtml(data.subjectLabel)}</p></div></header><section class="meta"><p><strong>Élève :</strong> ${escapeHtml(data.studentName)}</p><p><strong>Coach :</strong> ${escapeHtml(data.coachName ?? '—')}</p><p><strong>Publié le :</strong> ${escapeHtml(published)}</p></section><main class="content">${legacyMarkdownToHtml(data.parentsMarkdown)}</main><footer><img src="${BILAN_PRINT_BRAND.logos.compact}" alt=""><span>Nexus Réussite · Document confidentiel destiné à la famille</span></footer></article></body></html>`;
 }
 
-export async function renderBilanParentPDF(
-  data: BilanParentPDFData,
-  dependencies: BilanParentPdfDependencies = {},
+export async function renderLegacyParentBilanPdf(
+  data: LegacyParentBilanData,
+  dependencies: BilanPdfDependencies = {},
 ): Promise<Buffer> {
-  return (dependencies.renderHtmlToPdf ?? renderHtmlToPdf)(renderLegacyParentBilanHtml(data));
+  return renderParentHtmlToPdf(adaptLegacyParentBilanToHtml(data), dependencies);
 }

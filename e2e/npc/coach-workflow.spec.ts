@@ -1,115 +1,64 @@
-// ═══════════════════════════════════════════════════════════════════════════════
-// E2E Tests: NPC Coach Workflow
-// Complete flow: login → create submission → upload → view diagnostic
-// ═══════════════════════════════════════════════════════════════════════════════
+import { expect, test } from '@playwright/test';
 
-import { test, expect } from '@playwright/test';
+import { loginAsUser } from '../helpers/auth';
 
-test.describe('NPC Coach Workflow', () => {
+test.describe.serial('NPC Coach Workflow', () => {
   test.beforeEach(async ({ page }) => {
-    // Login as coach
-    await page.goto('/auth/login');
-    await page.fill('input[name="email"]', 'coach@test.com');
-    await page.fill('input[name="password"]', 'password123');
-    await page.click('button[type="submit"]');
-    await page.waitForURL('/dashboard/coach');
+    await loginAsUser(page, 'coach');
   });
 
   test('coach can navigate to NPC dashboard', async ({ page }) => {
-    // Click on Pédagogie in navigation
-    await page.click('text=Pédagogie');
-    await page.waitForURL('/dashboard/coach/npc');
-
-    // Verify dashboard elements
-    await expect(page.locator('h1')).toContainText('Nexus Pédagogie');
-    await expect(page.locator('text=Gérez les copies')).toBeVisible();
-    await expect(page.locator('button:has-text("Nouvelle copie")')).toBeVisible();
+    await page.getByText('Pédagogie', { exact: true }).first().click();
+    await expect(page).toHaveURL(/\/dashboard\/coach\/npc$/);
+    await expect(page.getByRole('heading', { name: 'Nexus Pédagogie' })).toBeVisible();
+    await expect(page.getByText(/Gérez les copies/)).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Nouvelle copie' })).toBeVisible();
   });
 
-  test('coach can create a new submission', async ({ page }) => {
+  test('coach can create a new submission and reaches its upload page', async ({ page }) => {
     await page.goto('/dashboard/coach/npc');
+    await page.getByRole('button', { name: 'Nouvelle copie' }).click();
 
-    // Click create button
-    await page.click('button:has-text("Nouvelle copie")');
+    const dialog = page.getByRole('dialog');
+    await expect(dialog).toBeVisible();
+    await expect(dialog.locator('button[role="combobox"]').first()).toContainText('Yasmine Dupont');
+    await dialog.getByPlaceholder('Ex: DS Maths - Fonctions dérivées').fill('NPC E2E — création UI');
+    await dialog.locator('button[role="combobox"]').nth(1).click();
+    await page.getByRole('option', { name: 'MATHEMATIQUES', exact: true }).click();
 
-    // Fill form
-    await page.click('[placeholder="Sélectionnez un élève"]');
-    await page.click('text=Jean Dupont'); // Select first student
-
-    await page.fill('input[placeholder="Ex: DS Maths - Fonctions dérivées"]', 'Test DS Maths');
-
-    await page.click('[placeholder="Matière"]');
-    await page.click('text=MATHS');
-
-    await page.click('[placeholder="Niveau"]');
-    await page.click('text=PREMIERE');
-
-    await page.fill('textarea[placeholder="Contexte, objectifs, remarques..."]', 'Test description');
-
-    // Submit
-    await page.click('button:has-text("Créer et uploader")');
-
-    // Should redirect to upload page
-    await page.waitForURL(/\/dashboard\/coach\/npc\/submissions\/.*\/upload/);
-    await expect(page.locator('h1')).toContainText('Upload de copie');
+    const [response] = await Promise.all([
+      page.waitForResponse((candidate) =>
+        candidate.url().endsWith('/api/npc/submissions') && candidate.request().method() === 'POST'),
+      dialog.getByRole('button', { name: 'Créer et uploader' }).click(),
+    ]);
+    expect(response.status(), await response.text()).toBe(201);
+    await expect(page).toHaveURL(/\/dashboard\/coach\/npc\/submissions\/[^/]+\/upload$/);
+    await expect(page.getByRole('heading', { name: 'Upload de copie' })).toBeVisible();
   });
 
-  test('upload page shows instructions', async ({ page }) => {
-    // Create a submission first (using API or pre-existing)
+  test('upload page shows instructions for the deterministic pending copy', async ({ page }) => {
     await page.goto('/dashboard/coach/npc');
+    const copy = page.getByText('NPC E2E — copie affectée', { exact: true })
+      .locator('xpath=ancestor::div[contains(@class,"hover:shadow-md")]');
+    await copy.getByRole('link', { name: 'Gérer les documents' }).click();
 
-    // Find first pending submission and click upload
-    const uploadButton = page.locator('a:has-text("Uploader la copie")').first();
-    if (await uploadButton.isVisible().catch(() => false)) {
-      await uploadButton.click();
-      await page.waitForURL(/\/dashboard\/coach\/npc\/submissions\/.*\/upload/);
+    await expect(page).toHaveURL(/\/dashboard\/coach\/npc\/submissions\/[^/]+\/upload$/);
+    await expect(page.getByRole('heading', { name: 'Instructions' })).toBeVisible();
+    await expect(page.getByText('Formats acceptés', { exact: true })).toBeVisible();
+    await expect(page.getByText('PDF (recommandé)', { exact: true })).toBeVisible();
+  });
 
-      // Verify instructions
-      await expect(page.locator('text=Instructions')).toBeVisible();
-      await expect(page.locator('text=Formats acceptés')).toBeVisible();
-      await expect(page.locator('text=PDF (recommandé)')).toBeVisible();
+  test('unknown diagnostic report fails closed to the coach dashboard', async ({ page }) => {
+    await page.goto('/dashboard/coach/npc/reports/report-inexistant');
+    await expect(page).toHaveURL(/\/dashboard\/coach\/npc$/);
+    await expect(page.getByRole('heading', { name: 'Nexus Pédagogie' })).toBeVisible();
+  });
+
+  test('submission list filters by every current status tab', async ({ page }) => {
+    await page.goto('/dashboard/coach/npc');
+    for (const tab of ['En attente', 'En cours', 'Terminées']) {
+      await page.getByRole('tab', { name: new RegExp(`^${tab}`) }).click();
+      await expect(page.getByRole('tabpanel')).toBeVisible();
     }
-  });
-
-  test('diagnostic report page displays all tabs', async ({ page }) => {
-    // Navigate to a completed report
-    await page.goto('/dashboard/coach/npc');
-
-    // Find a completed submission
-    const viewButton = page.locator('a:has-text("Voir le diagnostic")').first();
-    if (await viewButton.isVisible().catch(() => false)) {
-      await viewButton.click();
-      await page.waitForURL(/\/dashboard\/coach\/npc\/reports\/.*/);
-
-      // Verify all tabs exist
-      await expect(page.locator('text=Vue d\'ensemble')).toBeVisible();
-      await expect(page.locator('text=Compétences')).toBeVisible();
-      await expect(page.locator('text=Remédiation')).toBeVisible();
-      await expect(page.locator('text=Conseils')).toBeVisible();
-
-      // Click through tabs
-      await page.click('text=Compétences');
-      await expect(page.locator('text=Score global')).toBeVisible();
-
-      await page.click('text=Remédiation');
-      await expect(page.locator('text=Plan de remédiation')).toBeVisible();
-
-      await page.click('text=Conseils');
-      await expect(page.locator('text=Conseil personnalisé')).toBeVisible();
-    }
-  });
-
-  test('submission list filters by status', async ({ page }) => {
-    await page.goto('/dashboard/coach/npc');
-
-    // Click on different tabs
-    await page.click('text=En attente');
-    await expect(page.locator('[role="tabpanel"]')).toBeVisible();
-
-    await page.click('text=En cours');
-    await expect(page.locator('[role="tabpanel"]')).toBeVisible();
-
-    await page.click('text=Terminées');
-    await expect(page.locator('[role="tabpanel"]')).toBeVisible();
   });
 });

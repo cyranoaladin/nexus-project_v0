@@ -1,29 +1,19 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
+import { loginAsUser } from '../helpers/auth';
 
-test.describe('Cockpit Enseignant - Génération Bilan', () => {
-  test('devrait afficher le bilan avec le logo et la mise en forme correcte', async ({ page }) => {
-    test.skip(true, 'QUARANTINE: PRE-EXISTING: Enseignant button not found — maths-1ere teacher view loading');
-    // 1. Accès à la page (Mock auth si nécessaire, ici on assume l'accès)
-    await page.goto('/programme/maths-1ere');
-    
-    // 2. Aller sur l'onglet Enseignant
-    await page.click('button:has-text("Enseignant")');
-    
-    // 3. Aller sur l'onglet Bilan
-    await page.click('button:has-text("Bilan")');
-    
-    // 4. Vérifier la présence du logo dans le preview du bilan
-    const logo = page.locator('#printable-bilan img[alt="Nexus Réussite"]');
-    await expect(logo).toBeVisible();
-    await expect(logo).toHaveAttribute('src', '/images/logo_slogan_nexus.png');
-    
-    // 5. Vérifier la présence des sections clés du bilan
-    await expect(page.locator('#printable-bilan')).toContainText('Fiche de Bilan Individuelle');
-    await expect(page.locator('#printable-bilan')).toContainText('Synthèse Pédagogique');
-    
-    // 6. Vérifier la mise en forme (background blanc pour impression)
-    const printableBilan = page.locator('#printable-bilan');
-    const backgroundColor = await printableBilan.evaluate((el) => window.getComputedStyle(el).backgroundColor);
-    expect(backgroundColor).toBe('rgb(255, 255, 255)');
-  });
+test('coach opens the canonical Maths bilan preview and PDF action', async ({ page }) => {
+  await loginAsUser(page, 'coach', { navigate: false, targetPath: '/programme/maths-1ere' });
+  await page.goto('/programme/maths-1ere');
+  await page.getByRole('button', { name: 'Pilotage Enseignant' }).click();
+  await page.getByRole('tab', { name: 'Export Bilan' }).click();
+
+  await expect(page.getByRole('heading', { name: 'Générateur de Bilan Final' })).toBeVisible();
+  await expect(page.getByText('Fiche de Bilan Individuelle')).toBeVisible();
+  await expect(page.getByText('Progression et Engagement')).toBeVisible();
+  await expect(page.getByText('Analyse des Compétences')).toBeVisible();
+  await expect(page.getByRole('button', { name: /Télécharger PDF/i })).toBeVisible();
+  await expect(page.locator('#printable-bilan img[alt="Nexus Réussite"]')).toHaveAttribute(
+    'src',
+    '/images/logo_slogan_nexus.png',
+  );
 });

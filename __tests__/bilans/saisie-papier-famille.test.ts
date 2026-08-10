@@ -16,7 +16,10 @@ import { enqueueEmailIntent } from '@/lib/email/outbox';
 
 const enqueued = enqueueEmailIntent as jest.MockedFunction<typeof enqueueEmailIntent>;
 
-beforeEach(() => { enqueued.mockClear(); });
+beforeEach(() => {
+  enqueued.mockClear();
+  process.env.NEXTAUTH_URL = 'http://localhost:3000';
+});
 
 type EnqueuedIntent = Readonly<{ messageType: string; to: string; aggregateId: string }>;
 
@@ -211,6 +214,7 @@ describe('Création du foyer — suggestion anti-doublon à décision humaine', 
         role: 'PARENT',
         OR: expect.arrayContaining([
           { phoneNormalized: '99192829' },
+          { mergedSources: { some: { phoneNormalized: '99192829' } } },
           expect.objectContaining({ parentProfile: expect.any(Object) }),
         ]),
       }),

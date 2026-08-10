@@ -5,6 +5,7 @@ import {
   type ActivationPurpose,
   type ActivationToken,
 } from '@/lib/auth/activation-token'
+import { normalizeUserEmail } from '@/lib/contact/user-email'
 
 export const PARENT_ACTIVATION_PUBLIC_MESSAGE =
   "Si la demande peut etre traitee, un courriel d'activation sera envoye."
@@ -18,7 +19,7 @@ export type ParentActivationEmail = {
 }
 
 export function normalizeParentEmail(email: string): string {
-  return email.trim().normalize('NFC').toLowerCase()
+  return normalizeUserEmail(email)
 }
 
 export function createParentActivationToken(now = new Date()): ParentActivationToken {

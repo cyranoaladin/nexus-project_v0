@@ -3,6 +3,7 @@ import { requireRole, isErrorResponse } from '@/lib/guards';
 import {
   assertCoachCanAccessStudent,
   getCoachProfileForUser,
+  resolveStudentProfileId,
   CoachNotAssignedError,
 } from '@/lib/rbac/coach-student-access';
 import { prisma } from '@/lib/prisma';
@@ -31,7 +32,11 @@ export async function POST(_request: Request, { params }: RouteParams) {
 
     const parsedParams = routeParamsSchema.safeParse(await params);
     if (!parsedParams.success) return validationFailed();
-    const { studentId } = parsedParams.data;
+    const { studentId: studentReference } = parsedParams.data;
+    const studentId = await resolveStudentProfileId(studentReference);
+    if (!studentId) {
+      return NextResponse.json({ error: 'Student not found' }, { status: 404 });
+    }
 
     // Verify coach assignment
     try {

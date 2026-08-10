@@ -47,24 +47,23 @@ test.describe('Homepage Mobile (390x844) - Landing redesign luxe', () => {
     ).toBeVisible();
   });
 
-  test('CTA WhatsApp hero visible dans le premier ecran mobile 390px', async ({ page }) => {
-    const heroSection = page.locator('main > section').first();
-    const heroCTA = heroSection.locator('a[href*="wa.me"]').first();
+  test('la campagne active expose un CTA dans le premier écran mobile 390px', async ({ page }) => {
+    const heroCTA = page.getByRole('link', { name: /Découvrir la Pré-rentrée 2026/i });
 
-    await expect(heroCTA, 'CTA WhatsApp absent du hero mobile').toBeVisible();
+    await expect(heroCTA, 'CTA de campagne absent du premier écran mobile').toBeVisible();
     const box = await heroCTA.boundingBox();
 
     expect(box).not.toBeNull();
-    expect(box!.y + box!.height, 'CTA hero sous le premier ecran').toBeLessThanOrEqual(844);
+    expect(box!.y + box!.height, 'CTA de campagne sous le premier écran').toBeLessThanOrEqual(844);
     expect(box!.height, 'CTA trop petit pour le touch').toBeGreaterThanOrEqual(44);
   });
 
   test('reassurance items visibles dans le hero mobile', async ({ page }) => {
-    const heroSection = page.locator('main > section').first();
+    const heroSection = page.locator('[data-hero]');
 
     await expect(heroSection.getByText('Cellule Cyclades')).toBeVisible();
-    await expect(heroSection.getByText('Bacs blancs sur grilles officielles')).toBeVisible();
-    await expect(heroSection.getByText('Groupes de 5 max')).toBeVisible();
+    await expect(heroSection.getByText(/bacs blancs sur grilles officielles/i)).toBeVisible();
+    await expect(heroSection.getByText(/Groupes de 5 max/i)).toBeVisible();
   });
 
   test('sections principales de conversion sont presentes', async ({ page }) => {
@@ -75,17 +74,11 @@ test.describe('Homepage Mobile (390x844) - Landing redesign luxe', () => {
     expect(count, 'Homepage doit avoir au moins 8 sections').toBeGreaterThanOrEqual(8);
   });
 
-  test('sticky WhatsApp apparait apres scroll et pointe vers wa.me', async ({ page }) => {
-    const stickyBar = page.locator('nav[aria-label="Actions rapides"]');
-    const sticky = stickyBar.locator('a[href*="wa.me"]');
-
-    // MobileStickyBar starts hidden (translate-y-full) and appears after hero exits viewport
-    await expect(stickyBar).toHaveClass(/translate-y-full/);
-    await page.evaluate(() => window.scrollTo(0, 1200));
-    await page.waitForTimeout(500);
-
-    await expect(stickyBar).not.toHaveClass(/translate-y-full/);
-    await expect(sticky).toHaveAttribute('href', /wa\.me\/21699192829/);
+  test('CTA WhatsApp secondaire pointe vers le numéro canonique', async ({ page }) => {
+    await expect(page.locator('[data-hero] a[href*="wa.me"]')).toHaveAttribute(
+      'href',
+      /wa\.me\/21699192829/
+    );
   });
 
   test('menu mobile ouvre et se referme apres clic', async ({ page }) => {
@@ -106,13 +99,13 @@ test.describe('Homepage Mobile (390x844) - Landing redesign luxe', () => {
   });
 
   test('tous les liens WhatsApp pointent vers le numero Nexus', async ({ page }) => {
-    const links = page.locator('a[href*="wa.me"]');
-    const count = await links.count();
+    const hrefs = await page.locator('a[href*="wa.me"]').evaluateAll((links) =>
+      links.map((link) => (link as HTMLAnchorElement).href)
+    );
 
-    expect(count, 'Aucun lien WhatsApp trouve').toBeGreaterThan(0);
+    expect(hrefs.length, 'Aucun lien WhatsApp trouve').toBeGreaterThan(0);
 
-    for (let index = 0; index < count; index += 1) {
-      const href = await links.nth(index).getAttribute('href');
+    for (const href of hrefs) {
       expect(href).toContain('wa.me/21699192829');
     }
   });
@@ -158,7 +151,7 @@ test.describe('Homepage responsive - multi-viewport', () => {
       await page.goto('/');
       await page.waitForLoadState('domcontentloaded');
 
-      const heroCTA = page.locator('main > section').first().locator('a[href*="wa.me"]').first();
+      const heroCTA = page.locator('[data-hero] a[href*="wa.me"]').first();
       await expect(heroCTA).toBeVisible();
       await context.close();
     });

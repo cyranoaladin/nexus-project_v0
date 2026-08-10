@@ -1,98 +1,63 @@
-// ═══════════════════════════════════════════════════════════════════════════════
-// E2E Tests: NPC RBAC Security
-// Verify role-based access control
-// ═══════════════════════════════════════════════════════════════════════════════
+import { expect, test } from '@playwright/test';
 
-import { test, expect } from '@playwright/test';
+import { loginAsUser } from '../helpers/auth';
+import { CREDS } from '../helpers/credentials';
+import { disconnectPrisma, getStudentId } from '../helpers/db';
 
 test.describe('NPC RBAC Security', () => {
-  test('unauthenticated user cannot access NPC pages', async ({ page }) => {
-    const urls = [
-      '/dashboard/coach/npc',
-      '/dashboard/eleve/npc',
-      '/dashboard/parent/npc',
-    ];
+  test.afterAll(async () => {
+    await disconnectPrisma();
+  });
 
-    for (const url of urls) {
+  test('unauthenticated user cannot access NPC pages', async ({ page }) => {
+    for (const url of ['/dashboard/coach/npc', '/dashboard/eleve/npc', '/dashboard/parent/npc']) {
       await page.goto(url);
-      await expect(page).toHaveURL(/\/auth\/login/);
+      await expect(page).toHaveURL(/\/auth\/signin/);
     }
   });
 
-  test('student cannot access other students diagnostics', async ({ page, context }) => {
-    // Login as first student
-    await page.goto('/auth/login');
-    await page.fill('input[name="email"]', 'student1@test.com');
-    await page.fill('input[name="password"]', 'password123');
-    await page.click('button[type="submit"]');
-    await page.waitForURL('/dashboard/eleve');
+  test('student cannot enumerate another student submissions', async ({ page }) => {
+    const ownStudentId = await getStudentId(CREDS.student.email);
+    const otherStudentId = await getStudentId(CREDS.student2.email);
+    await loginAsUser(page, 'student');
 
-    // Try to access another student's report directly
-    await page.goto('/dashboard/eleve/npc/reports/OTHER_STUDENT_REPORT_ID');
-
-    // Should be redirected or show error
-    await expect(page.locator('text=non autorisé|forbidden|404')).toBeVisible().catch(() => {
-      // Or check URL redirect
-      expect(page.url()).not.toContain('OTHER_STUDENT_REPORT_ID');
-    });
+    const response = await page.request.get(`/api/npc/submissions?studentId=${otherStudentId}`);
+    expect(response.status()).toBe(200);
+    const body = await response.json() as { submissions: Array<{ studentId: string }> };
+    expect(body.submissions.length).toBeGreaterThan(0);
+    expect(body.submissions.every((submission) => submission.studentId === ownStudentId)).toBe(true);
+    expect(body.submissions.some((submission) => submission.studentId === otherStudentId)).toBe(false);
   });
 
-  test('coach can only see assigned students', async ({ page }) => {
-    // Login as coach
-    await page.goto('/auth/login');
-    await page.fill('input[name="email"]', 'coach@test.com');
-    await page.fill('input[name="password"]', 'password123');
-    await page.click('button[type="submit"]');
-    await page.waitForURL('/dashboard/coach');
+  test('coach sees assigned students and not another coach student', async ({ page }) => {
+    const assignedStudentId = await getStudentId(CREDS.student.email);
+    const otherStudentId = await getStudentId(CREDS.student2.email);
+    await loginAsUser(page, 'coach');
 
-    // Go to NPC dashboard
+    const response = await page.request.get('/api/npc/submissions');
+    expect(response.status()).toBe(200);
+    const body = await response.json() as { submissions: Array<{ studentId: string }> };
+    expect(body.submissions.some((submission) => submission.studentId === assignedStudentId)).toBe(true);
+    expect(body.submissions.some((submission) => submission.studentId === otherStudentId)).toBe(false);
+
     await page.goto('/dashboard/coach/npc');
-
-    // Verify only assigned students are visible in create dialog
-    await page.click('button:has-text("Nouvelle copie")');
-
-    // Should see students dropdown with only assigned students
-    await page.click('[placeholder="Sélectionnez un élève"]');
-
-    // The dropdown should contain only assigned students
-    // This is verified by the fact that the dropdown opens successfully
-    await expect(page.locator('text=Élève')).toBeVisible();
+    await page.getByRole('button', { name: 'Nouvelle copie' }).click();
+    const dialog = page.getByRole('dialog');
+    await expect(dialog.locator('button[role="combobox"]').first()).toContainText('Yasmine Dupont');
+    await expect(dialog.getByText('Karim Dupont', { exact: true })).toHaveCount(0);
   });
 
-  test('parent can only see their own children', async ({ page }) => {
-    // Login as parent
-    await page.goto('/auth/login');
-    await page.fill('input[name="email"]', 'parent@test.com');
-    await page.fill('input[name="password"]', 'password123');
-    await page.click('button[type="submit"]');
-    await page.waitForURL('/dashboard/parent');
-
-    // Go to NPC dashboard
+  test('parent can only see their own children dashboard', async ({ page }) => {
+    await loginAsUser(page, 'parent');
     await page.goto('/dashboard/parent/npc');
-
-    // Verify dashboard loads with their children
-    await expect(page.locator('h1')).toContainText('Diagnostics de mes enfants');
-
-    // Should see child tabs
-    await expect(page.locator('text=Tous les enfants')).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Diagnostics de mes enfants' })).toBeVisible();
+    await expect(page.getByRole('tab', { name: /^Tous les enfants/ })).toBeVisible();
   });
 
-  test('assistante has read-only access', async ({ page }) => {
-    // Login as assistante
-    await page.goto('/auth/login');
-    await page.fill('input[name="email"]', 'assistante@test.com');
-    await page.fill('input[name="password"]', 'password123');
-    await page.click('button[type="submit"]');
-    await page.waitForURL('/dashboard/assistante');
-
-    // Try to access NPC (should not see create button if accessible)
+  test('assistante cannot enter the coach write surface', async ({ page }) => {
+    await loginAsUser(page, 'assistante');
     await page.goto('/dashboard/coach/npc');
-
-    // Should be redirected or not see create functionality
-    const createButton = page.locator('button:has-text("Nouvelle copie")');
-    await expect(createButton).not.toBeVisible().catch(() => {
-      // Or page redirected
-      expect(page.url()).not.toBe('/dashboard/coach/npc');
-    });
+    await expect(page).toHaveURL(/\/dashboard\/assistante$/);
+    await expect(page.getByRole('button', { name: 'Nouvelle copie' })).toHaveCount(0);
   });
 });

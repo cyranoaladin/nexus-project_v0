@@ -25,6 +25,8 @@
  * volontairement les consentements recueillis sous la version précédente.
  */
 
+import { LEGAL } from '@/lib/legal';
+
 export const CANDIDATE_DIAGNOSTIC_NOTICE_VERSION = 'candidat-libre-notice.v3' as const;
 
 export type PrivacyNoticeSection = Readonly<{
@@ -46,7 +48,7 @@ export const CANDIDATE_DIAGNOSTIC_PRIVACY_NOTICE: Readonly<{
     Object.freeze({
       heading: 'Qui traite les données',
       body: Object.freeze([
-        'Nexus Réussite (STE M&M ACADEMY SUARL), Tunis. Contact vie privée : contact@nexusreussite.academy.',
+        `${LEGAL.entity.tradeName} (${LEGAL.entity.name}), Tunis. Contact vie privée : ${LEGAL.contact.email}.`,
       ]),
     }),
     Object.freeze({
@@ -92,7 +94,7 @@ export const CANDIDATE_DIAGNOSTIC_PRIVACY_NOTICE: Readonly<{
     Object.freeze({
       heading: 'Vos droits',
       body: Object.freeze([
-        'Accès, rectification, effacement, opposition, limitation, portabilité, et retrait du consentement. Pour les exercer : contact@nexusreussite.academy. Réponse dans les meilleurs délais après vérification de votre identité.',
+        `Accès, rectification, effacement, opposition, limitation, portabilité, et retrait du consentement. Pour les exercer : ${LEGAL.contact.email}. Réponse dans les meilleurs délais après vérification de votre identité.`,
       ]),
     }),
   ]),

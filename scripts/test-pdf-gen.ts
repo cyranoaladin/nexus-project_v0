@@ -1,4 +1,4 @@
-import { renderBilanParentPDF } from '../lib/pdf/bilan-parent-pdfkit';
+import { renderLegacyParentBilanPdf } from '../lib/bilans/render/legacy-parent-adapter';
 import { serializeError } from '@/lib/utils/serialize-error';
 
 async function main() {
@@ -14,7 +14,7 @@ async function main() {
     };
 
     console.log('Rendering to buffer...');
-    const buffer = await renderBilanParentPDF(pdfData);
+    const buffer = await renderLegacyParentBilanPdf(pdfData);
     console.log('Success! Buffer length:', buffer.length);
   } catch (err) {
     console.error('Caught error during PDF render:', serializeError(err));

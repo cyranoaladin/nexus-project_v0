@@ -2,7 +2,7 @@ import type { Prisma } from '@prisma/client';
 import { serializeError } from '@/lib/utils/serialize-error';
 import { queueCommittedEmail } from '@/lib/email/queue';
 import { verifySmtp } from '@/lib/email/mailer';
-import { hasUserEmail } from '@/lib/contact/user-email';
+import { hasUserEmail, normalizeUserEmail } from '@/lib/contact/user-email';
 
 type EmailUser = {
   firstName?: string | null;
@@ -37,11 +37,12 @@ async function queueServiceMail(input: Readonly<{
   html: string;
   dedupeKey: string;
 }>) {
+  const to = normalizeUserEmail(input.to);
   return queueCommittedEmail({
     aggregateType: 'SESSION_EMAIL',
-    aggregateKey: input.to,
+    aggregateKey: to,
     dedupeKey: input.dedupeKey,
-    to: input.to,
+    to,
     subject: input.subject,
     html: input.html,
   });
@@ -173,7 +174,7 @@ export async function sendWelcomeEmail(user: EmailUser) {
       to: user.email,
       subject: template.subject,
       html: template.html(user),
-      dedupeKey: `welcome:${user.email.normalize('NFC').toLowerCase()}`,
+      dedupeKey: `welcome:${normalizeUserEmail(user.email)}`,
     });
 
   } catch (error) {

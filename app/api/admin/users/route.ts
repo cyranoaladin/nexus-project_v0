@@ -87,6 +87,8 @@ export async function GET(request: NextRequest) {
           role: true,
           phone: true,
           activatedAt: true,
+          mergedIntoUserId: true,
+          mergedAt: true,
           createdAt: true,
           student: true,
           coachProfile: true,
@@ -104,6 +106,8 @@ export async function GET(request: NextRequest) {
       role: user.role,
       phone: user.phone,
       isActive: !!user.activatedAt,
+      mergedIntoUserId: user.mergedIntoUserId,
+      mergedAt: user.mergedAt,
       createdAt: user.createdAt,
       profile: user.student || user.coachProfile || user.parentProfile || null
     }));
@@ -270,6 +274,10 @@ export async function PATCH(request: NextRequest) {
 
     assertExists(existingUser, 'User');
 
+    if (typeof existingUser.mergedIntoUserId === 'string') {
+      throw ApiError.conflict('Merged source accounts are immutable');
+    }
+
     // If email is being updated, check for conflicts
     if (validatedData.email && validatedData.email !== existingUser.email) {
       const emailConflict = await prisma.user.findUnique({
@@ -398,6 +406,10 @@ export async function DELETE(request: NextRequest) {
     });
 
     assertExists(user, 'User');
+
+    if (typeof user.mergedIntoUserId === 'string') {
+      throw ApiError.conflict('Merged source accounts cannot be deleted');
+    }
 
     // Prevent self-deletion
     if (user.id === session.user.id) {

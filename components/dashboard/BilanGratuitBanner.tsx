@@ -54,9 +54,9 @@ export function BilanGratuitBanner({ hasChildren = false, onGoToChildren }: Bila
       <div className="flex items-start gap-3">
         <ClipboardCheck className="w-5 h-5 text-amber-400 mt-0.5 flex-shrink-0" aria-hidden="true" />
         <div>
-          <h3 className="font-semibold text-amber-200 text-sm sm:text-base">
+          <h2 className="font-semibold text-amber-200 text-sm sm:text-base">
             Complétez le Bilan Diagnostic Gratuit
-          </h3>
+          </h2>
           <p className="text-xs sm:text-sm text-amber-300/80 mt-1">
             Obtenez une analyse personnalisée des besoins de votre enfant et nos recommandations pédagogiques.
           </p>
@@ -70,7 +70,7 @@ export function BilanGratuitBanner({ hasChildren = false, onGoToChildren }: Bila
           variant="ghost"
           size="sm"
           onClick={handleDismiss}
-          className="text-amber-400/60 hover:text-amber-300 hover:bg-amber-500/10 text-xs"
+          className="text-amber-200 hover:text-amber-100 hover:bg-amber-500/10 text-xs"
           aria-label="Fermer la bannière"
         >
           <X className="w-4 h-4" />

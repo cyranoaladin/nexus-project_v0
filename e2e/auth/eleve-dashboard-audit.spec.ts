@@ -8,18 +8,19 @@ test.describe('Dashboard Élève — Audit Exhaustif', () => {
 
   test.describe('Dashboard Principal', () => {
     test('charge avec les éléments principaux', async ({ page }) => {
-      test.skip(true, 'QUARANTINE: PRE-EXISTING: dashboard does not display credits/solde text');
       await page.goto('/dashboard/eleve');
       await page.waitForLoadState('domcontentloaded');
       expect(page.url()).toContain('/dashboard/eleve');
-      await expect(page.getByText(/crédits|solde/i).first()).toBeVisible({ timeout: 15000 });
+      await expect(page.getByText(/Cockpit du jour/i)).toBeVisible({ timeout: 15000 });
+      await expect(page.getByRole('tab', { name: 'Réserver Session', exact: true })).toBeVisible();
+      await expect(page.getByRole('link', { name: 'Réserver', exact: true })).toBeVisible();
     });
 
-    test('widget crédits est visible', async ({ page }) => {
-      test.skip(true, 'QUARANTINE: PRE-EXISTING: dashboard does not display credits/solde text');
+    test('navigation cockpit et parcours est visible', async ({ page }) => {
       await page.goto('/dashboard/eleve');
       await page.waitForLoadState('domcontentloaded');
-      await expect(page.getByText(/crédits|solde/i).first()).toBeVisible({ timeout: 15000 });
+      await expect(page.getByRole('button', { name: 'Cockpit', exact: true })).toBeVisible({ timeout: 15000 });
+      await expect(page.getByRole('button', { name: 'Parcours', exact: true })).toBeVisible();
     });
   });
 

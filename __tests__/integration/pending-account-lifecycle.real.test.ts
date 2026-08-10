@@ -6,6 +6,7 @@ import {
   processPendingParentPlan,
   type PendingLifecycleAction,
 } from '@/lib/auth/pending-account-lifecycle'
+import { assertDisposablePostgresUrl } from '@/__tests__/helpers/disposable-postgres'
 
 const databaseUrl = process.env.TEST_DATABASE_URL ?? ''
 const prisma = new PrismaClient({ datasources: { db: { url: databaseUrl } } })
@@ -14,9 +15,7 @@ const planSecret = 's2-test-plan-secret-32-bytes-minimum-value'
 const environmentId = 's2-integration'
 
 function assertIsolatedDatabase() {
-  expect(databaseUrl).toMatch(/(?:localhost|127\.0\.0\.1)/)
-  expect(databaseUrl).toContain('nexus_s2_pending_test')
-  expect(databaseUrl).not.toMatch(/prod|production/i)
+  assertDisposablePostgresUrl(databaseUrl)
 }
 
 async function createGraph(input: {
@@ -99,9 +98,20 @@ async function cleanup() {
 
 const context = (now = new Date()) => ({ now, batchSize: 100, planSecret, environmentId })
 
-async function plan(action: PendingLifecycleAction, now = new Date()) {
+async function plan(
+  action: PendingLifecycleAction,
+  now = new Date(),
+  excludedGraphKeys: ReadonlySet<string> = new Set(),
+) {
   const audit = await inventoryPendingParentAccounts(prisma, context(now))
-  return audit.plans.find((candidate) => candidate.action === action)
+  return audit.plans.find((candidate) => (
+    candidate.action === action && !excludedGraphKeys.has(candidate.graphKey)
+  ))
+}
+
+async function existingGraphKeys(now: Date): Promise<ReadonlySet<string>> {
+  const audit = await inventoryPendingParentAccounts(prisma, context(now))
+  return new Set(audit.plans.map(({ graphKey }) => graphKey))
 }
 
 describe('pending Parent lifecycle on real PostgreSQL', () => {
@@ -110,25 +120,27 @@ describe('pending Parent lifecycle on real PostgreSQL', () => {
   afterAll(async () => prisma.$disconnect())
 
   test('dry-run produces opaque deterministic plans without writing or PII', async () => {
+    const now = new Date()
+    const baseline = await inventoryPendingParentAccounts(prisma, context(now))
     await createGraph({ suffix: 'reconcile', ageDays: 2 })
     await createGraph({ suffix: 'token', ageDays: 2, withLink: true, token: 'expired' })
     await createGraph({ suffix: 'purge', ageDays: 91, withLink: true })
     const before = await prisma.user.count({ where: { email: { startsWith: prefix } } })
-    const now = new Date()
     const first = await inventoryPendingParentAccounts(prisma, context(now))
     const second = await inventoryPendingParentAccounts(prisma, context(now))
     expect(first.plans).toEqual(second.plans)
-    expect(first.decisions.RECONCILIATION_REQUIRED).toBe(1)
-    expect(first.decisions.TOKEN_INVALIDATION_ELIGIBLE).toBe(1)
-    expect(first.decisions.PURGE_ELIGIBLE).toBe(1)
+    expect(first.decisions.RECONCILIATION_REQUIRED - baseline.decisions.RECONCILIATION_REQUIRED).toBe(1)
+    expect(first.decisions.TOKEN_INVALIDATION_ELIGIBLE - baseline.decisions.TOKEN_INVALIDATION_ELIGIBLE).toBe(1)
+    expect(first.decisions.PURGE_ELIGIBLE - baseline.decisions.PURGE_ELIGIBLE).toBe(1)
     expect(await prisma.user.count({ where: { email: { startsWith: prefix } } })).toBe(before)
     expect(JSON.stringify(first)).not.toMatch(/@example|s2-pending-|hash-token/)
   })
 
   test('reconciles only demonstrated unambiguous ownership and replay is refused', async () => {
-    const { parent, student } = await createGraph({ suffix: 'reconcile', ageDays: 3 })
     const now = new Date()
-    const reconciliation = await plan('RECONCILE_LINK', now)
+    const excluded = await existingGraphKeys(now)
+    const { parent, student } = await createGraph({ suffix: 'reconcile', ageDays: 3 })
+    const reconciliation = await plan('RECONCILE_LINK', now, excluded)
     expect(reconciliation).toBeDefined()
     const first = await processPendingParentPlan(prisma, { ...context(now), plan: reconciliation! })
     expect(first.reconciledLinks).toBe(1)
@@ -139,14 +151,15 @@ describe('pending Parent lifecycle on real PostgreSQL', () => {
   })
 
   test('invalidates an expired hash, keeps reissue possible and refuses stale plans', async () => {
-    const { parent } = await createGraph({ suffix: 'expired', ageDays: 3, withLink: true, token: 'expired' })
     const now = new Date()
-    const invalidation = await plan('INVALIDATE_EXPIRED_TOKEN', now)
+    const excluded = await existingGraphKeys(now)
+    const { parent } = await createGraph({ suffix: 'expired', ageDays: 3, withLink: true, token: 'expired' })
+    const invalidation = await plan('INVALIDATE_EXPIRED_TOKEN', now, excluded)
     expect(invalidation).toBeDefined()
     await prisma.user.update({ where: { id: parent.id }, data: { firstName: 'changed' } })
     await expect(processPendingParentPlan(prisma, { ...context(now), plan: invalidation! })).rejects.toThrow('PENDING_PLAN_STALE')
     const refreshedNow = new Date()
-    const fresh = await plan('INVALIDATE_EXPIRED_TOKEN', refreshedNow)
+    const fresh = await plan('INVALIDATE_EXPIRED_TOKEN', refreshedNow, excluded)
     expect(fresh).toBeDefined()
     await processPendingParentPlan(prisma, { ...context(refreshedNow), plan: fresh! })
     const current = await prisma.user.findUniqueOrThrow({ where: { id: parent.id } })
@@ -156,10 +169,11 @@ describe('pending Parent lifecycle on real PostgreSQL', () => {
   })
 
   test('purges one old empty graph atomically and preserves protected data', async () => {
+    const now = new Date()
+    const excluded = await existingGraphKeys(now)
     const empty = await createGraph({ suffix: 'purge', ageDays: 91, withLink: true })
     const protectedGraph = await createGraph({ suffix: 'protected', ageDays: 91, withLink: true, withAttempt: true })
-    const now = new Date()
-    const purge = await plan('PURGE_GRAPH', now)
+    const purge = await plan('PURGE_GRAPH', now, excluded)
     expect(purge).toBeDefined()
     const audit = await processPendingParentPlan(prisma, { ...context(now), plan: purge! })
     expect(audit.purgedGraphs).toBe(1)
@@ -171,18 +185,20 @@ describe('pending Parent lifecycle on real PostgreSQL', () => {
   })
 
   test('binds plans to time, policy, content and environment', async () => {
-    await createGraph({ suffix: 'bound', ageDays: 91, withLink: true })
     const issued = new Date()
-    const purge = (await plan('PURGE_GRAPH', issued))!
+    const excluded = await existingGraphKeys(issued)
+    await createGraph({ suffix: 'bound', ageDays: 91, withLink: true })
+    const purge = (await plan('PURGE_GRAPH', issued, excluded))!
     await expect(processPendingParentPlan(prisma, { ...context(issued), environmentId: 'other-environment', plan: purge })).rejects.toThrow('PENDING_PLAN_ENVIRONMENT_MISMATCH')
     await expect(processPendingParentPlan(prisma, { ...context(new Date(issued.getTime() + 16 * 60_000)), plan: purge })).rejects.toThrow('PENDING_PLAN_EXPIRED')
     await expect(processPendingParentPlan(prisma, { ...context(issued), plan: { ...purge, rowCount: purge.rowCount + 1 } })).rejects.toThrow(/PENDING_PLAN_(?:TAMPERED|STALE)/)
   })
 
   test('serializes concurrent apply so one plan has exactly one winner', async () => {
-    const { parent, student } = await createGraph({ suffix: 'concurrent', ageDays: 3 })
     const now = new Date()
-    const reconciliation = (await plan('RECONCILE_LINK', now))!
+    const excluded = await existingGraphKeys(now)
+    const { parent, student } = await createGraph({ suffix: 'concurrent', ageDays: 3 })
+    const reconciliation = (await plan('RECONCILE_LINK', now, excluded))!
     const results = await Promise.allSettled([
       processPendingParentPlan(prisma, { ...context(now), plan: reconciliation }),
       processPendingParentPlan(prisma, { ...context(now), plan: reconciliation }),
@@ -193,17 +209,21 @@ describe('pending Parent lifecycle on real PostgreSQL', () => {
   })
 
   test('an unknown external FK, including CASCADE, blocks purge automatically', async () => {
+    const now = new Date()
+    const baseline = await inventoryPendingParentAccounts(prisma, context(now))
     const { parent } = await createGraph({ suffix: 'unknown-fk', ageDays: 91, withLink: true })
     await prisma.$executeRawUnsafe('CREATE TABLE "s2_unknown_reference" ("id" text PRIMARY KEY, "ownerId" text NOT NULL REFERENCES "users"("id") ON DELETE CASCADE)')
     await prisma.$executeRawUnsafe('INSERT INTO "s2_unknown_reference" ("id", "ownerId") VALUES ($1, $2)', 'reference', parent.id)
-    const audit = await inventoryPendingParentAccounts(prisma, context())
-    expect(audit.decisions.HUMAN_REVIEW_REQUIRED).toBe(1)
-    expect(audit.purgeCandidates).toBe(0)
+    const audit = await inventoryPendingParentAccounts(prisma, context(now))
+    expect(audit.decisions.HUMAN_REVIEW_REQUIRED - baseline.decisions.HUMAN_REVIEW_REQUIRED).toBe(1)
+    expect(audit.purgeCandidates - baseline.purgeCandidates).toBe(0)
     const references = await inspectPendingForeignKeyReferences(prisma)
     expect(references).toContainEqual(expect.objectContaining({ tableName: 's2_unknown_reference', columnName: 'ownerId' }))
   })
 
   test('a non-FK outbox aggregate reference blocks purge', async () => {
+    const now = new Date()
+    const baseline = await inventoryPendingParentAccounts(prisma, context(now))
     const { student } = await createGraph({ suffix: 'outbox', ageDays: 91, withLink: true })
     await prisma.jobOutbox.create({
       data: {
@@ -211,16 +231,17 @@ describe('pending Parent lifecycle on real PostgreSQL', () => {
         sourceEventKey: 's2-source', idempotencyKey: `s2-${student.id}`, payload: {},
       },
     })
-    const audit = await inventoryPendingParentAccounts(prisma, context())
-    expect(audit.decisions.HUMAN_REVIEW_REQUIRED).toBe(1)
-    expect(audit.purgeCandidates).toBe(0)
+    const audit = await inventoryPendingParentAccounts(prisma, context(now))
+    expect(audit.decisions.HUMAN_REVIEW_REQUIRED - baseline.decisions.HUMAN_REVIEW_REQUIRED).toBe(1)
+    expect(audit.purgeCandidates - baseline.purgeCandidates).toBe(0)
     await prisma.jobOutbox.deleteMany({ where: { idempotencyKey: `s2-${student.id}` } })
   })
 
   test('rolls back the complete graph when a mid-purge database fault is injected', async () => {
-    const { parent, student } = await createGraph({ suffix: 'rollback', ageDays: 91, withLink: true })
     const now = new Date()
-    const purge = (await plan('PURGE_GRAPH', now))!
+    const excluded = await existingGraphKeys(now)
+    const { parent, student } = await createGraph({ suffix: 'rollback', ageDays: 91, withLink: true })
+    const purge = (await plan('PURGE_GRAPH', now, excluded))!
     await prisma.$executeRawUnsafe(`
       CREATE FUNCTION "s2_fail_delete"() RETURNS trigger LANGUAGE plpgsql AS $$
       BEGIN RAISE EXCEPTION 'S2_INJECTED_DELETE_FAILURE'; END $$

@@ -74,18 +74,18 @@ test.describe('Scenario 2: Admin Dashboard', () => {
     await expect(page).toHaveTitle(/Nexus|Connexion|Sign/i);
   });
 
-  test('directeur/stats returns 403 without auth', async ({ request }) => {
+  test('directeur/stats returns 401 without auth', async ({ request }) => {
     const response = await request.get('/api/admin/directeur/stats');
-    expect(response.status()).toBe(403);
+    expect(response.status()).toBe(401);
     const body = await response.json();
-    expect(body.error).toContain('ADMIN');
+    expect(body.error).toBe('Unauthorized');
   });
 
-  test('recompute-ssn returns 403 without auth', async ({ request }) => {
+  test('recompute-ssn returns 401 without auth', async ({ request }) => {
     const response = await request.post('/api/admin/recompute-ssn', {
       data: { type: 'MATHS' },
     });
-    expect(response.status()).toBe(403);
+    expect(response.status()).toBe(401);
   });
 
   test('admin login + dashboard loads KPIs', async ({ page }) => {
@@ -96,31 +96,25 @@ test.describe('Scenario 2: Admin Dashboard', () => {
     const emailInput = page.locator('input[name="email"], input[type="email"]').first();
     const passwordInput = page.locator('input[name="password"], input[type="password"]').first();
 
-    if (await emailInput.isVisible({ timeout: 5000 }).catch(() => false)) {
-      await emailInput.fill('admin@nexus-reussite.com');
-      await passwordInput.fill('admin123');
+    await expect(emailInput).toBeVisible({ timeout: 5000 });
+    await expect(passwordInput).toBeVisible({ timeout: 5000 });
+    await emailInput.fill('admin@nexus-reussite.com');
+    await passwordInput.fill('admin123');
 
       // Submit form
-      const submitBtn = page.locator('button[type="submit"]').first();
-      await submitBtn.click();
+    const submitBtn = page.locator('button[type="submit"]').first();
+    await submitBtn.click();
 
       // Wait for redirect or dashboard content
-      await page.waitForURL(/dashboard|admin/, { timeout: 15000 }).catch(() => {
-        // May not redirect — check if we're still on signin with error
-      });
+    await page.waitForURL(/dashboard|admin/, { timeout: 15000 });
 
       // Navigate to directeur dashboard
-      await page.goto('/admin/directeur');
-      await page.waitForLoadState('domcontentloaded', { timeout: 15000 }).catch(() => {});
+    await page.goto('/admin/directeur');
+    await page.waitForLoadState('domcontentloaded', { timeout: 15000 });
 
       // Check that KPI content loads (or 403 redirect if session didn't persist)
-      const bodyText = await page.textContent('body');
-      // Either we see the dashboard or an auth error — both are valid E2E outcomes
-      expect(bodyText).toBeTruthy();
-    } else {
-      // Custom auth UI — just verify the page loaded
-      test.skip(true, 'Custom auth UI — manual login required');
-    }
+    const bodyText = await page.textContent('body');
+    expect(bodyText).toBeTruthy();
   });
 });
 
@@ -147,11 +141,9 @@ test.describe('Scenario 3: LLM Resilience', () => {
       },
     });
 
-    // If DB is not seeded (no questions loaded), skip gracefully.
     if (submitResponse.status() === 400) {
       const body = await submitResponse.json();
-      test.skip(true, `Submit returned 400 — ${body.error ?? 'no questions loaded'}`);
-      return;
+      throw new Error(`Le seed E2E ne permet pas le scoring: ${body.error ?? 'aucune question chargée'}`);
     }
 
     // Core assertion: scoring pipeline MUST succeed despite LLM being off

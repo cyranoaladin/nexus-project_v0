@@ -10,6 +10,7 @@ import { publicStageInscriptionSchema } from '@/lib/stages/inscription-schema';
 import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive';
 import { z } from 'zod';
 import { canAcceptPreRentreeCampaignSubmission } from '@/lib/campaigns/pre-rentree-2026/release-gate';
+import { normalizeUserEmail } from '@/lib/contact/user-email';
 
 const stageInscriptionParamsSchema = z.object({
   stageSlug: z.string().trim().min(1).max(120).regex(/^[a-z0-9][a-z0-9-]*$/),
@@ -68,6 +69,8 @@ export async function POST(
     stageTermsAccepted,
     dataProcessingAccepted,
   } = parsed.data;
+  const normalizedEmail = normalizeUserEmail(email);
+  const normalizedParentEmail = parentEmail ? normalizeUserEmail(parentEmail) : undefined;
 
   try {
     const stage = await prisma.stage.findUnique({
@@ -81,7 +84,7 @@ export async function POST(
     }
 
     const existing = await prisma.stageReservation.findFirst({
-      where: { stageId: stage.id, email },
+      where: { stageId: stage.id, email: normalizedEmail },
     });
     if (existing) {
       return NextResponse.json(
@@ -102,7 +105,7 @@ export async function POST(
     const parentName = [parentFirstName, parentLastName].filter(Boolean).join(' ').trim() || studentName;
     const additionalNotes = [
       notes?.trim(),
-      parentEmail ? `Email parent: ${parentEmail}` : null,
+      normalizedParentEmail ? `Email parent: ${normalizedParentEmail}` : null,
       parentPhone ? `Téléphone parent: ${parentPhone}` : null,
       stageTermsAccepted ? 'Modalités stage acceptées: oui' : null,
       dataProcessingAccepted ? 'Consentement données: oui' : null,
@@ -113,7 +116,7 @@ export async function POST(
       const reservation = await tx.stageReservation.create({
         data: {
           stageId: stage.id,
-          email,
+          email: normalizedEmail,
           parentName,
           studentName,
           phone: phone?.trim() || parentPhone?.trim() || '',
@@ -130,7 +133,7 @@ export async function POST(
         aggregateId: reservation.id,
         messageType: 'TRANSACTIONAL_NOTIFICATION',
         dedupeKey: `registration:${reservation.id}`,
-        to: email,
+        to: normalizedEmail,
         subject: `Inscription reçue — ${stage.title}`,
         html: `<p>Bonjour ${firstName},</p>
              <p>Votre inscription au <strong>${stage.title}</strong> a bien été reçue.</p>
@@ -143,7 +146,7 @@ export async function POST(
 
     await telegramSendMessage(
       undefined,
-      `📚 Nouvelle inscription stage\n*${stage.title}*\n${firstName} ${lastName} (${email})\nStatut: ${richStatus}`
+      `📚 Nouvelle inscription stage\n*${stage.title}*\n${firstName} ${lastName} (${normalizedEmail})\nStatut: ${richStatus}`
     ).catch(() => {});
 
     return NextResponse.json(

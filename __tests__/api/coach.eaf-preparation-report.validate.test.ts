@@ -13,6 +13,7 @@ jest.mock('@/lib/rbac/coach-student-access', () => {
   return {
     assertCoachCanAccessStudent: jest.fn(),
     getCoachProfileForUser: jest.fn(),
+    resolveStudentProfileId: jest.fn(async (studentId: string) => studentId),
     CoachNotAssignedError,
   };
 });
@@ -36,7 +37,7 @@ jest.mock('@/lib/logger', () => ({
 
 import { POST } from '@/app/api/coach/students/[studentId]/eaf-preparation-report/validate/route';
 import { requireRole } from '@/lib/guards';
-import { assertCoachCanAccessStudent, getCoachProfileForUser } from '@/lib/rbac/coach-student-access';
+import { assertCoachCanAccessStudent, getCoachProfileForUser, resolveStudentProfileId } from '@/lib/rbac/coach-student-access';
 import { prisma } from '@/lib/prisma';
 import { maybeCreateGeneratedReportJob } from '@/lib/reports/stage/maybeCreateGeneratedReportJob';
 
@@ -62,6 +63,7 @@ describe('POST /api/coach/students/[studentId]/eaf-preparation-report/validate',
     (requireRole as jest.Mock).mockResolvedValue({ user: { id: 'coach-user-1', role: 'COACH' } });
     (assertCoachCanAccessStudent as jest.Mock).mockResolvedValue(undefined);
     (getCoachProfileForUser as jest.Mock).mockResolvedValue({ id: 'coach-1' });
+    (resolveStudentProfileId as jest.Mock).mockImplementation(async (studentId: string) => studentId);
   });
 
   it('rejects unsafe student ids before checking coach assignment', async () => {

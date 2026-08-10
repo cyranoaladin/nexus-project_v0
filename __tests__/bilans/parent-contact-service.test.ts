@@ -8,7 +8,10 @@ import { enqueueEmailIntent } from '@/lib/email/outbox';
 const enqueue = enqueueEmailIntent as jest.MockedFunction<typeof enqueueEmailIntent>;
 const NOW = new Date('2026-08-09T10:00:00.000Z');
 
-beforeEach(() => enqueue.mockClear());
+beforeEach(() => {
+  enqueue.mockClear();
+  process.env.NEXTAUTH_URL = 'http://localhost:3000';
+});
 
 function household() {
   return {
@@ -108,7 +111,7 @@ describe('complétion différée de l’e-mail parent', () => {
       activatedAt: NOW,
       parentProfile: { id: 'target-profile' },
     };
-    const { database, transaction } = memoryDatabase(existing);
+    const { database, transaction, revision, beforeSnapshot } = memoryDatabase(existing);
     const synchronizeConsent = jest.fn(async () => undefined);
 
     await expect(completePaperEntryParentEmail({
@@ -136,7 +139,20 @@ describe('complétion différée de l’e-mail parent', () => {
       studentId: 'student-1',
       now: NOW,
     });
+    expect(transaction.user.update).toHaveBeenCalledWith({
+      where: { id: 'source-parent' },
+      data: {
+        mergedIntoUserId: 'target-parent',
+        mergedAt: NOW,
+        password: null,
+        activatedAt: null,
+        activationToken: null,
+        activationExpiry: null,
+        sessionVersion: { increment: 1 },
+      },
+    });
     expect(enqueue).not.toHaveBeenCalled();
+    expect(JSON.stringify({ checksum: revision.checksum, contentJson: revision.contentJson })).toBe(beforeSnapshot);
   });
 
   it('refuse un rôle non assistante avant toute lecture', async () => {
