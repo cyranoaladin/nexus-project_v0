@@ -1,9 +1,9 @@
+import { createHash } from 'node:crypto';
 import {
   adaptLegacyParentBilanToHtml,
   renderLegacyParentBilanPdf,
   type LegacyParentBilanData,
 } from '@/lib/bilans/render/legacy-parent-adapter';
-import { renderParentHtmlToPdf } from '@/lib/bilans/render/pdf';
 
 const DATA: LegacyParentBilanData = {
   studentName: 'Élève Test',
@@ -16,16 +16,41 @@ const DATA: LegacyParentBilanData = {
 };
 
 describe('legacy Parent PDF compatibility adapter', () => {
-  it('produces exactly the canonical Parent engine result', async () => {
-    const renderer = jest.fn(async (html: string) => Buffer.from(`%PDF-${html}`));
+  const GOLDEN_HTML_SHA256 = 'c6837445ada01311833cfa889df68bc33e0bfd8a9169382b434a9030c3b00939';
 
-    const adapted = await renderLegacyParentBilanPdf(DATA, { renderHtmlToPdf: renderer });
-    const canonical = await renderParentHtmlToPdf(
-      adaptLegacyParentBilanToHtml(DATA),
-      { renderHtmlToPdf: renderer },
-    );
+  it('keeps the historical URL adapter output pinned to an independent golden', () => {
+    const html = adaptLegacyParentBilanToHtml(DATA);
 
-    expect(adapted).toEqual(canonical);
-    expect(renderer).toHaveBeenCalledTimes(2);
+    expect(createHash('sha256').update(html).digest('hex')).toBe(GOLDEN_HTML_SHA256);
+    expect(html).toContain('<h2>Synthèse</h2>');
+    expect(html).toContain('<strong>Progrès</strong> constants.');
+    expect(html).toContain('data-audience="PARENTS"');
+    expect(html).toContain('Nexus Réussite · Document confidentiel destiné à la famille');
+  });
+
+  it('passes the pinned adapter HTML once through the canonical byte engine', async () => {
+    const expectedHtml = adaptLegacyParentBilanToHtml(DATA);
+    const sentinelPdf = Buffer.from('%PDF-canonical-engine-sentinel');
+    const renderer = jest.fn(async (html: string) => {
+      expect(createHash('sha256').update(html).digest('hex')).toBe(GOLDEN_HTML_SHA256);
+      expect(html).toBe(expectedHtml);
+      return sentinelPdf;
+    });
+
+    await expect(renderLegacyParentBilanPdf(DATA, { renderHtmlToPdf: renderer }))
+      .resolves.toEqual(sentinelPdf);
+    expect(renderer).toHaveBeenCalledTimes(1);
+  });
+
+  it('escapes identity fields and never treats them as report markup', () => {
+    const html = adaptLegacyParentBilanToHtml({
+      ...DATA,
+      studentName: '<script>alert(1)</script>',
+      coachName: 'Coach & Associé',
+    });
+
+    expect(html).not.toContain('<script>alert(1)</script>');
+    expect(html).toContain('&lt;script&gt;alert(1)&lt;/script&gt;');
+    expect(html).toContain('Coach &amp; Associé');
   });
 });

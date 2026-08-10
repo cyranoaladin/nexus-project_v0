@@ -113,6 +113,7 @@ describe('CreateSubmissionButton Enhanced Tests', () => {
         title: 'Bilan Printemps',
         subject: 'MATHEMATIQUES',
       });
+      expect(body).not.toHaveProperty('gradeLevel');
     });
 
     await waitFor(() => {

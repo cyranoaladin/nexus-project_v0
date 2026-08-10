@@ -11,6 +11,7 @@ import {
   type AriaAddonKey,
   type SubscriptionPlanKey,
 } from '../../lib/operational-catalog';
+import { assertDisposableE2eDatabase } from './disposable-database';
 
 const DEFAULT_E2E_DB_URL = 'postgresql://postgres:postgres@localhost:5435/nexus_e2e?schema=public';
 
@@ -19,6 +20,8 @@ const DATABASE_URL =
   process.env.TEST_DATABASE_URL ??
   (process.env.DATABASE_URL?.includes('nexus_e2e') ? process.env.DATABASE_URL : undefined) ??
   DEFAULT_E2E_DB_URL;
+
+assertDisposableE2eDatabase(DATABASE_URL);
 
 let prisma: PrismaClient | null = null;
 
@@ -585,14 +588,16 @@ export async function getAriaAddonApprovalState(requestId: string) {
 
 export async function createPendingPayment(parentEmail: string): Promise<{ id: string }> {
   const client = getPrisma();
+  const plan = getOperationalSubscriptionPlan('HYBRIDE');
+  if (!plan) throw new Error('HYBRIDE subscription plan is missing');
   const parentUser = await client.user.findUnique({ where: { email: parentEmail } });
   if (!parentUser) throw new Error(`User not found for ${parentEmail}`);
   const payment = await client.payment.create({
     data: {
       userId: parentUser.id,
       type: 'SUBSCRIPTION',
-      amount: 450,
-      description: 'E2E pending payment',
+      amount: plan.price,
+      description: `Abonnement ${plan.name}`,
       status: 'PENDING',
       method: 'bank_transfer',
       metadata: { parentEmail },
@@ -603,6 +608,9 @@ export async function createPendingPayment(parentEmail: string): Promise<{ id: s
 
 export async function createTestInvoice(parentEmail: string): Promise<{ id: string }> {
   const client = getPrisma();
+  const plan = getOperationalSubscriptionPlan('HYBRIDE');
+  if (!plan) throw new Error('HYBRIDE subscription plan is missing');
+  const unitPriceMillimes = Math.round(plan.price * 1000);
   const parentUser = await client.user.findUnique({ where: { email: parentEmail } });
   if (!parentUser) throw new Error(`User not found for ${parentEmail}`);
 
@@ -620,24 +628,24 @@ export async function createTestInvoice(parentEmail: string): Promise<{ id: stri
       status: 'PAID',
       customerName: `${parentUser.firstName || ''} ${parentUser.lastName || ''}`.trim() || parentEmail,
       customerEmail: parentEmail,
-      subtotal: 450000,
-      total: 450000,
+      subtotal: unitPriceMillimes,
+      total: unitPriceMillimes,
       taxTotal: 0,
       discountTotal: 0,
       paymentMethod: 'BANK_TRANSFER',
       paidAt: new Date(),
-      paidAmount: 450000,
+      paidAmount: unitPriceMillimes,
       paymentReference: `E2E-${Date.now()}`,
       createdByUserId: parentUser.id,
       beneficiaryUserId: parentUser.id,
       items: {
         create: [
           {
-            label: 'Abonnement Hybride',
+            label: `Abonnement ${plan.name}`,
             qty: 1,
-            unitPrice: 450000,
-            total: 450000,
-            productCode: 'HYBRIDE',
+            unitPrice: unitPriceMillimes,
+            total: unitPriceMillimes,
+            productCode: plan.name,
           },
         ],
       },

@@ -2,6 +2,7 @@ import { PrismaClient } from '@prisma/client';
 import * as dotenv from 'dotenv';
 import * as path from 'path';
 import { randomUUID } from 'crypto';
+import { assertDisposablePostgresUrl } from '../helpers/disposable-postgres';
 
 // Preserve CI-provided env vars before loading .env.test defaults
 const ciDatabaseUrl = process.env.DATABASE_URL;
@@ -22,7 +23,9 @@ if (process.env.TEST_DATABASE_URL) {
   process.env.DATABASE_URL = process.env.TEST_DATABASE_URL;
 }
 
-const testDbUrl = process.env.TEST_DATABASE_URL || process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/nexus_test?schema=public';
+const testDbUrl = process.env.TEST_DATABASE_URL || process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/nexus_disposable_test?schema=public';
+
+assertDisposablePostgresUrl(testDbUrl);
 
 // Create a test database instance AFTER loading env vars
 export const testPrisma = new PrismaClient({

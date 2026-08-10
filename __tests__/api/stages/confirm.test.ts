@@ -210,6 +210,39 @@ describe('POST /api/stages/[slug]/reservations/[id]/confirm', () => {
     );
   });
 
+  it('normalise un email historique avant lookup, création et activation', async () => {
+    mockAuth.mockResolvedValue(session('ADMIN'));
+    prisma.stageReservation.findFirst.mockResolvedValue({
+      ...baseReservation,
+      email: '  ELEVE@EXAMPLE.COM  ',
+    });
+    prisma.user.findUnique.mockResolvedValue(null);
+    prisma.user.findFirst.mockResolvedValue({
+      id: 'admin-id',
+      parentProfile: { id: 'parent-admin-id' },
+    });
+    prisma.user.create.mockResolvedValue({
+      id: 'user-created',
+      email: 'eleve@example.com',
+      role: 'ELEVE',
+      student: { id: 'student-created' },
+    });
+    prisma.stageReservation.update.mockResolvedValue({});
+
+    const response = await POST(makeRequest(), { params });
+
+    expect(response.status).toBe(200);
+    expect(prisma.user.findUnique).toHaveBeenCalledWith(expect.objectContaining({
+      where: { email: 'eleve@example.com' },
+    }));
+    expect(prisma.user.create).toHaveBeenCalledWith(expect.objectContaining({
+      data: expect.objectContaining({ email: 'eleve@example.com' }),
+    }));
+    expect(mockSendMail).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({
+      to: 'eleve@example.com',
+    }));
+  });
+
   it('ne crée pas de doublon User si email déjà existant', async () => {
     mockAuth.mockResolvedValue(session('ADMIN'));
     prisma.stageReservation.findFirst.mockResolvedValue(baseReservation);

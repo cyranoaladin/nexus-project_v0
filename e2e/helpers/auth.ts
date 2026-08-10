@@ -191,6 +191,13 @@ export async function loginViaSigninForm(page: Page, userType: UserType) {
     await resetDisposableE2ERateLimits();
     await page.context().clearCookies();
     await page.goto('/auth/signin', { waitUntil: 'domcontentloaded' });
+    await page.waitForFunction(() => {
+        const email = document.querySelector<HTMLInputElement>('#email');
+        const password = document.querySelector<HTMLInputElement>('#password');
+        const isReactControlled = (element: HTMLInputElement | null) =>
+            element !== null && Object.keys(element).some((key) => key.startsWith('__reactProps$'));
+        return isReactControlled(email) && isReactControlled(password);
+    });
     await page.locator('#email').fill(email);
     await page.locator('#password').fill(password);
     await Promise.all([

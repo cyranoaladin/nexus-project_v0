@@ -496,6 +496,47 @@ const student = await prisma.user.create({
   console.log(`  ✓ Additional test users created for RBAC tests\n`);
 
   if (primaryStudent && coach.coachProfile) {
+    await prisma.coachStudentAssignment.create({
+      data: {
+        coachId: coach.coachProfile.id,
+        studentId: primaryStudent.id,
+        assignedById: admin.id,
+        assignmentType: 'PRIMARY',
+        status: 'ACTIVE',
+        subjects: [Subject.MATHEMATIQUES],
+        notes: 'Affectation hermétique pour les contrats NPC E2E',
+      },
+    });
+
+    await prisma.copySubmission.create({
+      data: {
+        studentId: primaryStudent.id,
+        coachId: coach.coachProfile.id,
+        title: 'NPC E2E — copie affectée',
+        description: 'Fixture déterministe pour les contrats NPC hermétiques',
+        subject: Subject.MATHEMATIQUES,
+        gradeLevel: GradeLevel.PREMIERE,
+        status: 'PENDING_UPLOAD',
+      },
+    });
+
+    const secondaryStudent = await prisma.student.findUnique({
+      where: { userId: student2.id },
+    });
+    if (secondaryStudent && coach2.coachProfile) {
+      await prisma.copySubmission.create({
+        data: {
+          studentId: secondaryStudent.id,
+          coachId: coach2.coachProfile.id,
+          title: 'NPC E2E — copie hors affectation',
+          description: 'Fixture de preuve du filtrage coach',
+          subject: Subject.NSI,
+          gradeLevel: GradeLevel.PREMIERE,
+          status: 'PENDING_UPLOAD',
+        },
+      });
+    }
+
     const stageStart = new Date('2026-08-24T08:00:00.000Z');
     const stageEnd = new Date('2026-08-28T16:00:00.000Z');
     const stage = await prisma.stage.create({

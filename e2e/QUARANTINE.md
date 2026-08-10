@@ -27,7 +27,7 @@ nombre de tests contenus dans un éventuel `describe.skip`.
 | `e2e/auth/nsi-pratique-2026.spec.ts` | 1 | Suite entière réactivée avec navigation bornée au menu NSI et attentes d'hydratation. |
 | `e2e/auth/parcours-eleve-stmg-premiere.spec.ts` | 1 | Contrat aligné sur le parcours STMG actuellement rendu et seed STMG dédié. |
 | `e2e/auth/parent-dashboard-audit.spec.ts` | 1 | Suite entière réactivée sur le dashboard courant, sans `data-testid` inexistant. |
-| `e2e/auth/parent-dashboard.spec.ts` | 4 | Anciennes attentes de maquette remplacées par quatre contrats du dashboard Famille courant. |
+| `e2e/auth/parent-dashboard.spec.ts` | 4 | Les quatre quarantaines sont levées dans une suite actuelle de 44 scénarios actifs (contre 39 scénarios effectivement actifs auparavant) : shell authentifié, trois enfants, rubriques, API/RBAC, résilience et mobile. |
 | `e2e/auth/password-reset.spec.ts` | 1 | Sélecteur de soumission et preuve e-mail réactivés via SMTP jetable. |
 | `e2e/auth/payments.invoice.documents.spec.ts` | 2 | Paiement, validation, facture et coffre-fort réactivés avec catalogue et CGV canoniques. |
 | `e2e/auth/programme/maths-1ere-access.spec.ts` | 1 | Suite entière réactivée via la base URL injectée et les contrôles d'accès courants. |
@@ -36,7 +36,7 @@ nombre de tests contenus dans un éventuel `describe.skip`.
 | `e2e/auth/public-front-go-live.spec.ts` | 1 | Contrat Stages aligné sur le contenu public courant et contrôle d'absence des dates obsolètes conservé. |
 | `e2e/auth/security.advanced.spec.ts` | 1 | Accès document réactivé avec une fixture de stockage jetable et preuve d'absence de fuite. |
 | `e2e/auth/student-automatismes.spec.ts` | 1 | Parcours réactivé après sélection d'une réponse et validation serveur avant la question suivante. |
-| `e2e/auth/student-journey.spec.ts` | 1 | Suite entière réactivée sur l'unique parcours Maths Première canonique. |
+| `e2e/auth/student-journey.spec.ts` | 1 | Sept contrats actifs couvrent le redirect historique, le shell canonique, le rendu KaTeX, le gain XP réel et sa persistance, les routes/titres internes, la réhydratation et le fonctionnement hors ligne. |
 | `e2e/auth/teacher-bilan-pdf.spec.ts` | 1 | Vue enseignant et action PDF réactivées sur le moteur Maths canonique. |
 | `e2e/auth/test-all-pages.spec.ts` | 1 | Base URL locale codée en dur remplacée par celle de la stack jetable. |
 | `e2e/auth/test-bilan-banner.spec.ts` | 1 | Réactivé avec les credentials E2E partagés. |
@@ -58,3 +58,15 @@ Trois tests opt-in restent conditionnels et ne sont pas collectés par
 Ces conditions décrivent des lanes externes, ne masquent aucun test de la stack
 éphémère et sont inspectées par le garde. Aucun `skip` conditionnel ne subsiste
 dans `e2e/auth`, la suite go-live officielle.
+
+La configuration officielle collecte tous les fichiers `*.spec.ts` suivis sous
+`__tests__/e2e` et `e2e`, à l'exception explicite des deux lanes externes
+ci-dessus. Elle n'utilise ni retry ni liste fermée de fichiers fonctionnels.
+
+Lors de cette collecte élargie, les anciennes attentes du configurateur
+Pré-rentrée ont été portées vers les contrats actuellement publiés : sélecteur
+de planning direct, cinq niveaux, dix-sept programmes, huit documents, conflits
+horaires réels et demande de disponibilité non contractuelle. Le tunnel Bilan
+reste volontairement fail-closed vis-à-vis d'un contexte campagne désactivé.
+Ces scénarios sont actifs dans le gate officiel et ne constituent pas une
+quarantaine.

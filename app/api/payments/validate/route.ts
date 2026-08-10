@@ -263,11 +263,10 @@ export async function POST(request: NextRequest) {
     const beneficiaryStudent = metadata.studentId
       ? parentChildren.find((child) => child.id === metadata.studentId)
       : undefined;
-    if (action === 'approve' && payment.type === 'SUBSCRIPTION') {
-      const studentId = metadata.studentId;
-      const isParentChild = !!studentId && !!beneficiaryStudent;
-
-      if (!isParentChild) {
+    if (action === 'approve') {
+      const missingRequiredStudent = payment.type === 'SUBSCRIPTION' && !metadata.studentId;
+      const foreignReferencedStudent = !!metadata.studentId && !beneficiaryStudent;
+      if (missingRequiredStudent || foreignReferencedStudent) {
         return NextResponse.json(
           { error: 'Paiement hors périmètre parent/élève' },
           { status: 404 }

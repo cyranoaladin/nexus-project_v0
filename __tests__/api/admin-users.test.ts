@@ -130,6 +130,41 @@ describe('GET /api/admin/users', () => {
       page: 1,
       totalPages: 1
     });
+    expect(prisma.user.findMany).toHaveBeenCalledWith(expect.objectContaining({
+      select: expect.objectContaining({
+        mergedIntoUserId: true,
+        mergedAt: true,
+      }),
+    }));
+  });
+
+  it('exposes the immutable merge tombstone to administration clients', async () => {
+    const mergedAt = new Date('2026-08-10T00:00:00.000Z');
+    (prisma.user.findMany as jest.Mock).mockResolvedValue([{
+      id: 'source-parent',
+      email: null,
+      firstName: 'Parent',
+      lastName: 'Source',
+      role: 'PARENT',
+      phone: null,
+      activatedAt: null,
+      createdAt: new Date(),
+      mergedIntoUserId: 'target-parent',
+      mergedAt,
+      student: null,
+      coachProfile: null,
+      parentProfile: { id: 'source-profile' },
+    }]);
+    (prisma.user.count as jest.Mock).mockResolvedValue(1);
+
+    const response = await GET(createMockRequest('http://localhost:3000/api/admin/users'));
+    const data = await response.json();
+
+    expect(data.users[0]).toEqual(expect.objectContaining({
+      id: 'source-parent',
+      mergedIntoUserId: 'target-parent',
+      mergedAt: mergedAt.toISOString(),
+    }));
   });
 
   it('should filter users by role', async () => {
@@ -389,6 +424,30 @@ describe('PATCH /api/admin/users', () => {
       data: expect.objectContaining({ sessionVersion: { increment: 1 } }),
     }));
   });
+
+  it('refuses every update to an immutable merged source account', async () => {
+    (prisma.user.findUnique as jest.Mock).mockResolvedValue({
+      id: 'source-parent',
+      email: null,
+      role: 'PARENT',
+      mergedIntoUserId: 'target-parent',
+      mergedAt: new Date(),
+    });
+
+    const response = await PATCH(createMockRequest('http://localhost:3000/api/admin/users', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        id: 'source-parent',
+        email: 'reused@example.test',
+        role: 'ADMIN',
+        password: 'NewPassword123!',
+      }),
+    }));
+
+    expect(response.status).toBe(409);
+    expect(prisma.user.update).not.toHaveBeenCalled();
+  });
 });
 
 describe('DELETE /api/admin/users', () => {
@@ -450,5 +509,21 @@ describe('DELETE /api/admin/users', () => {
     expect(prisma.user.delete).toHaveBeenCalledWith({
       where: { id: 'user-123' }
     });
+  });
+
+  it('refuses physical deletion of an immutable merged source account', async () => {
+    (prisma.user.findUnique as jest.Mock).mockResolvedValue({
+      id: 'source-parent',
+      email: null,
+      mergedIntoUserId: 'target-parent',
+      mergedAt: new Date(),
+    });
+
+    const response = await DELETE(createMockRequest(
+      'http://localhost:3000/api/admin/users?id=source-parent',
+    ));
+
+    expect(response.status).toBe(409);
+    expect(prisma.user.delete).not.toHaveBeenCalled();
   });
 });

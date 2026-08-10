@@ -159,4 +159,19 @@ describe('PUT /api/assistante/coaches/manage/[id] — atomic email-change sessio
     const updateOrder = prisma.user.update.mock.invocationCallOrder[0];
     expect(lockOrder).toBeLessThan(updateOrder);
   });
+
+  it('normalizes email before conflict checks, locking comparison and update', async () => {
+    setupCoach('old@example.com', 'old@example.com');
+
+    const response = await PUT(
+      request(validBody({ email: '  NEW@EXAMPLE.COM  ' })),
+      params(),
+    );
+
+    expect(response.status).toBe(200);
+    expect(prisma.user.findUnique).toHaveBeenCalledWith({ where: { email: 'new@example.com' } });
+    expect(prisma.user.update).toHaveBeenCalledWith(expect.objectContaining({
+      data: expect.objectContaining({ email: 'new@example.com' }),
+    }));
+  });
 });

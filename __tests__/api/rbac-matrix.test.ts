@@ -19,12 +19,8 @@ import { auth } from '@/auth';
  * - Payments API
  */
 
-import { UserRole, Subject } from '@prisma/client';
-import bcrypt from 'bcryptjs';
-import { describe, it, expect, beforeAll, afterAll, beforeEach } from '@jest/globals';
-import { testPrisma, canConnectToTestDb } from '../setup/test-database';
-
-const prisma = testPrisma;
+import { UserRole } from '@prisma/client';
+import { describe, it, expect, beforeEach } from '@jest/globals';
 
 // Mock auth for role-based testing
 jest.mock('@/auth', () => ({
@@ -34,113 +30,14 @@ jest.mock('@/auth', () => ({
 const mockedGetServerSession = auth as unknown as jest.Mock;
 
 describe('RBAC Matrix', () => {
-  let testUsers: Record<string, any> = {};
-  let testSession: any;
-  let dbAvailable = false;
-
-  // =============================================================================
-  // SETUP & TEARDOWN
-  // =============================================================================
-
-  beforeAll(async () => {
-    dbAvailable = await canConnectToTestDb();
-    if (!dbAvailable) {
-      console.warn('⚠️  Skipping RBAC tests: test database not available');
-      return;
-    }
-    console.log('🔧 Setting up RBAC test fixtures...');
-
-    // Create test users for each role
-    const hashedPassword = await bcrypt.hash('password123', 10);
-
-    testUsers.admin = await prisma.user.create({
-      data: {
-        email: 'admin-rbac@test.com',
-        password: hashedPassword,
-        role: UserRole.ADMIN,
-        firstName: 'Admin',
-        lastName: 'RBAC',
-      },
-    });
-
-    testUsers.parent = await prisma.user.create({
-      data: {
-        email: 'parent-rbac@test.com',
-        password: hashedPassword,
-        role: UserRole.PARENT,
-        firstName: 'Parent',
-        lastName: 'RBAC',
-      },
-    });
-
-    // Use 'eleve' key to match role.toLowerCase() calls
-    testUsers.eleve = await prisma.user.create({
-      data: {
-        email: 'student-rbac@test.com',
-        password: hashedPassword,
-        role: UserRole.ELEVE,
-        firstName: 'Student',
-        lastName: 'RBAC',
-      },
-    });
-    // Keep student alias for backward compatibility
-    testUsers.student = testUsers.eleve;
-
-    testUsers.coach = await prisma.user.create({
-      data: {
-        email: 'coach-rbac@test.com',
-        password: hashedPassword,
-        role: UserRole.COACH,
-        firstName: 'Coach',
-        lastName: 'RBAC',
-      },
-    });
-
-    // Create test session booking for tests
-    testSession = await prisma.sessionBooking.create({
-      data: {
-        title: 'RBAC Test Session',
-        description: 'Session for RBAC tests',
-        studentId: testUsers.student.id,
-        coachId: testUsers.coach.id,
-        parentId: testUsers.parent.id,
-        subject: 'MATHEMATIQUES',
-        scheduledDate: new Date('2026-04-01T10:00:00Z'),
-        startTime: '10:00',
-        endTime: '11:00',
-        duration: 60,
-        status: 'SCHEDULED',
-        creditsUsed: 1,
-      },
-    });
-
-    console.log('✅ RBAC test fixtures created');
-  });
-
-  afterAll(async () => {
-    if (!dbAvailable) {
-      return;
-    }
-
-    console.log('🧹 Cleaning up RBAC test fixtures...');
-
-    try {
-      // Clean up in order (foreign keys)
-      if (testUsers.coach?.id) {
-        await prisma.sessionBooking.deleteMany({
-          where: { coachId: testUsers.coach.id },
-        });
-      }
-      await prisma.user.deleteMany({
-        where: { email: { contains: '-rbac@test.com' } },
-      });
-      console.log('✅ RBAC test cleanup complete');
-    } catch (e) {
-      console.warn('⚠️  RBAC cleanup error (DB may be unavailable):', (e as Error).message);
-    } finally {
-      await prisma.$disconnect();
-    }
-  });
+  const testUsers: Record<string, { id: string; email: string; role: UserRole }> = {
+    admin: { id: 'rbac-admin', email: 'admin-rbac@example.test', role: UserRole.ADMIN },
+    parent: { id: 'rbac-parent', email: 'parent-rbac@example.test', role: UserRole.PARENT },
+    eleve: { id: 'rbac-student', email: 'student-rbac@example.test', role: UserRole.ELEVE },
+    coach: { id: 'rbac-coach', email: 'coach-rbac@example.test', role: UserRole.COACH },
+  };
+  testUsers.student = testUsers.eleve;
+  const testSession = { id: 'rbac-session', coachId: testUsers.coach.id };
 
   beforeEach(() => {
     // Reset mock before each test
@@ -174,7 +71,6 @@ describe('RBAC Matrix', () => {
   describe('Sessions API', () => {
     describe('POST /api/sessions/book', () => {
       it('rejects ANONYMOUS users with 401', async () => {
-        if (!testUsers.admin) return; // Skip if DB not available
         mockSession(null);
 
         // Try to book - should fail
@@ -184,25 +80,21 @@ describe('RBAC Matrix', () => {
       });
 
       it('allows PARENT users to book sessions', async () => {
-        if (!dbAvailable) return;
         mockSession(UserRole.PARENT);
         expect(testUsers.parent.role).toBe(UserRole.PARENT);
       });
 
       it('allows STUDENT users to book sessions', async () => {
-        if (!dbAvailable) return;
         mockSession(UserRole.ELEVE);
         expect(testUsers.student.role).toBe(UserRole.ELEVE);
       });
 
       it('rejects COACH users with 403', async () => {
-        if (!dbAvailable) return;
         mockSession(UserRole.COACH);
         expect(testUsers.coach.role).toBe(UserRole.COACH);
       });
 
       it('allows ADMIN users to book sessions', async () => {
-        if (!dbAvailable) return;
         mockSession(UserRole.ADMIN);
         expect(testUsers.admin.role).toBe(UserRole.ADMIN);
       });
@@ -210,47 +102,32 @@ describe('RBAC Matrix', () => {
 
     describe('DELETE /api/sessions/:id', () => {
       it('rejects ANONYMOUS users with 401', async () => {
-        if (!dbAvailable) return;
         mockSession(null);
         expect(testSession.id).toBeDefined();
       });
 
       it('rejects STUDENT users with 403', async () => {
-        if (!dbAvailable) return;
         mockSession(UserRole.ELEVE);
         expect(testUsers.student.role).toBe(UserRole.ELEVE);
       });
 
       it('rejects PARENT users with 403', async () => {
-        if (!dbAvailable) return;
         mockSession(UserRole.PARENT);
         expect(testUsers.parent.role).toBe(UserRole.PARENT);
       });
 
       it('allows COACH users to delete their own sessions', async () => {
-        if (!dbAvailable) return;
         mockSession(UserRole.COACH, testUsers.coach.id);
         expect(testSession.coachId).toBe(testUsers.coach.id);
       });
 
       it('rejects COACH users from deleting other coach sessions', async () => {
-        if (!dbAvailable) return;
-        const otherCoach = await prisma.user.create({
-          data: {
-            email: 'other-coach-rbac@test.com',
-            password: await bcrypt.hash('password123', 10),
-            role: UserRole.COACH,
-            firstName: 'Other Coach',
-            lastName: 'RBAC',
-          },
-        });
+        const otherCoach = { id: 'rbac-other-coach' };
         mockSession(UserRole.COACH, otherCoach.id);
         expect(testSession.coachId).not.toBe(otherCoach.id);
-        await prisma.user.delete({ where: { id: otherCoach.id } });
       });
 
       it('allows ADMIN users to delete any session', async () => {
-        if (!dbAvailable) return;
         mockSession(UserRole.ADMIN);
         expect(testUsers.admin.role).toBe(UserRole.ADMIN);
       });
@@ -270,25 +147,21 @@ describe('RBAC Matrix', () => {
       });
 
       it('rejects STUDENT users with 403', async () => {
-        if (!dbAvailable) return;
         mockSession(UserRole.ELEVE);
         expect(testUsers.student.role).toBe(UserRole.ELEVE);
       });
 
       it('rejects PARENT users with 403', async () => {
-        if (!dbAvailable) return;
         mockSession(UserRole.PARENT);
         expect(testUsers.parent.role).toBe(UserRole.PARENT);
       });
 
       it('rejects COACH users with 403', async () => {
-        if (!dbAvailable) return;
         mockSession(UserRole.COACH);
         expect(testUsers.coach.role).toBe(UserRole.COACH);
       });
 
       it('allows ADMIN users to list all users', async () => {
-        if (!dbAvailable) return;
         mockSession(UserRole.ADMIN);
         expect(testUsers.admin.role).toBe(UserRole.ADMIN);
       });
@@ -296,7 +169,6 @@ describe('RBAC Matrix', () => {
 
     describe('POST /api/users', () => {
       it('rejects all non-ADMIN users', async () => {
-        if (!dbAvailable) return;
         const roles = [null, UserRole.ELEVE, UserRole.PARENT, UserRole.COACH];
         for (const role of roles) {
           mockSession(role as UserRole | null);
@@ -305,7 +177,6 @@ describe('RBAC Matrix', () => {
       });
 
       it('allows ADMIN users to create users', async () => {
-        if (!dbAvailable) return;
         mockSession(UserRole.ADMIN);
         expect(testUsers.admin.role).toBe(UserRole.ADMIN);
       });
@@ -313,7 +184,6 @@ describe('RBAC Matrix', () => {
 
     describe('PATCH /api/users/:id', () => {
       it('allows users to update their own profile', async () => {
-        if (!dbAvailable) return;
         const roles = [UserRole.ELEVE, UserRole.PARENT, UserRole.COACH, UserRole.ADMIN];
         for (const role of roles) {
           const userId = testUsers[role.toLowerCase()].id;
@@ -323,13 +193,11 @@ describe('RBAC Matrix', () => {
       });
 
       it('rejects users from updating other user profiles', async () => {
-        if (!dbAvailable) return;
         mockSession(UserRole.ELEVE, testUsers.student.id);
         expect(testUsers.student.id).not.toBe(testUsers.parent.id);
       });
 
       it('allows ADMIN to update any user profile', async () => {
-        if (!dbAvailable) return;
         mockSession(UserRole.ADMIN);
         expect(testUsers.admin.role).toBe(UserRole.ADMIN);
       });
@@ -337,7 +205,6 @@ describe('RBAC Matrix', () => {
 
     describe('DELETE /api/users/:id', () => {
       it('rejects all non-ADMIN users', async () => {
-        if (!dbAvailable) return;
         const roles = [null, UserRole.ELEVE, UserRole.PARENT, UserRole.COACH];
         for (const role of roles) {
           mockSession(role as UserRole | null);
@@ -346,7 +213,6 @@ describe('RBAC Matrix', () => {
       });
 
       it('allows ADMIN users to delete users', async () => {
-        if (!dbAvailable) return;
         mockSession(UserRole.ADMIN);
         expect(testUsers.admin.role).toBe(UserRole.ADMIN);
       });
@@ -366,25 +232,21 @@ describe('RBAC Matrix', () => {
       });
 
       it('rejects STUDENT users with 403', async () => {
-        if (!dbAvailable) return;
         mockSession(UserRole.ELEVE);
         expect(testUsers.student.role).toBe(UserRole.ELEVE);
       });
 
       it('rejects PARENT users with 403', async () => {
-        if (!dbAvailable) return;
         mockSession(UserRole.PARENT);
         expect(testUsers.parent.role).toBe(UserRole.PARENT);
       });
 
       it('rejects COACH users with 403', async () => {
-        if (!dbAvailable) return;
         mockSession(UserRole.COACH);
         expect(testUsers.coach.role).toBe(UserRole.COACH);
       });
 
       it('allows ADMIN users full access', async () => {
-        if (!dbAvailable) return;
         mockSession(UserRole.ADMIN);
         expect(testUsers.admin.role).toBe(UserRole.ADMIN);
       });
@@ -404,25 +266,21 @@ describe('RBAC Matrix', () => {
       });
 
       it('rejects STUDENT users with 403', async () => {
-        if (!dbAvailable) return;
         mockSession(UserRole.ELEVE);
         expect(testUsers.student.role).toBe(UserRole.ELEVE);
       });
 
       it('allows PARENT users to make payments', async () => {
-        if (!dbAvailable) return;
         mockSession(UserRole.PARENT);
         expect(testUsers.parent.role).toBe(UserRole.PARENT);
       });
 
       it('rejects COACH users with 403', async () => {
-        if (!dbAvailable) return;
         mockSession(UserRole.COACH);
         expect(testUsers.coach.role).toBe(UserRole.COACH);
       });
 
       it('allows ADMIN users to make payments', async () => {
-        if (!dbAvailable) return;
         mockSession(UserRole.ADMIN);
         expect(testUsers.admin.role).toBe(UserRole.ADMIN);
       });

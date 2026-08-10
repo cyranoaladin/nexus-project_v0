@@ -15,6 +15,7 @@ jest.mock('@/lib/email/mailer', () => ({ sendMail: jest.fn().mockResolvedValue(u
 import { POST as registerBilan } from '@/app/api/bilan-gratuit/route';
 import { POST as createChild } from '@/app/api/parent/children/route';
 import { POST as issueActivation } from '@/app/api/parent/children/[studentId]/activation/route';
+import { assertDisposablePostgresUrl } from '@/__tests__/helpers/disposable-postgres';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { completeStudentActivation } from '@/lib/services/student-activation.service';
@@ -27,9 +28,7 @@ const parentEmail = `${PREFIX}parent@example.test`;
 
 function safeTestDatabase(): void {
   const target = process.env.TEST_DATABASE_URL || process.env.DATABASE_URL || '';
-  expect(target).toMatch(/(?:localhost|127\.0\.0\.1)/);
-  expect(target).toMatch(/nexus_(?:p0_identity_test|test|e2e|bilan_runtime_test)/);
-  expect(target).not.toMatch(/nexus_prod|production/i);
+  assertDisposablePostgresUrl(target);
 }
 
 function registrationRequest(): NextRequest {

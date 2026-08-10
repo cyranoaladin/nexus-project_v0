@@ -10,9 +10,6 @@ SNAPSHOT_PATH = REPO_ROOT / ".artifacts/pre-rentree-2026/publication.snapshot.js
 
 def pytest_sessionstart(session):  # noqa: ARG001
     """Build the canonical snapshot before test modules import it."""
-    if SNAPSHOT_PATH.is_file():
-        return
-
     subprocess.run(
         ["npm", "run", "pre-rentree:snapshot", "--silent"],
         cwd=REPO_ROOT,
