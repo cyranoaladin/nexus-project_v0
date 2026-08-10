@@ -71,6 +71,8 @@ describe('production deployment contract', () => {
       `FROM ${pinnedBase} AS builder`,
       `FROM ${pinnedBase} AS runner`,
     ]);
+    expect(dockerfile.match(/ARG NPM_VERSION=10\.9\.8/g)).toHaveLength(3);
+    expect(dockerfile.match(/RUN test "\$\(npm --version\)" = "\$NPM_VERSION"/g)).toHaveLength(3);
     expect(dockerfile).toContain('COPY package.json package-lock.json .npmrc ./');
     expect(dockerfile).not.toMatch(/^FROM node:20(?:-|:)/m);
   });
