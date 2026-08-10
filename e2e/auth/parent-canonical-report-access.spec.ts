@@ -310,6 +310,7 @@ test.describe('P0-C — consultation Parent sécurisée', () => {
     expectPrivateNoStore(pdfResponse.headers());
     expect((await pdfResponse.body()).subarray(0, 4).toString('ascii')).toBe('%PDF');
 
+    if (child!.user.email === null) throw new Error('E2E_STUDENT_EMAIL_REQUIRED');
     const legacyBilan = await createLegacyPublishedBilan(child!.id, child!.user.email, nonce);
     const legacyPdf = await page.request.get(`/api/parent/bilans/${legacyBilan.id}/pdf`);
     expect(legacyPdf.status()).toBe(200);

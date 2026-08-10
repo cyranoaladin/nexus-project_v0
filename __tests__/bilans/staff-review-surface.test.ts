@@ -25,7 +25,10 @@ const revision = {
     studentId: 'student-1',
     status: 'PENDING_REVIEW',
     assessmentAttempt: { provenance: 'SAISIE_PAPIER' },
-    student: { user: { firstName: 'Élise', lastName: 'Ben Salah' } },
+    student: {
+      user: { firstName: 'Élise', lastName: 'Ben Salah' },
+      parent: { user: { email: 'parent@example.test' } },
+    },
   },
 };
 
@@ -136,6 +139,60 @@ describe('staff Canonical report review service', () => {
     }));
     expect(deps.publish).toHaveBeenCalledWith(expect.objectContaining({ revisionId: revision.id, reviewerId: 'user-assistante' }));
     expect(deps.validate.mock.invocationCallOrder[0]).toBeLessThan(deps.publish.mock.invocationCallOrder[0]);
+  });
+
+  test('distingue un bilan prêt dont l’e-mail parent manque et garde sa prévisualisation disponible', async () => {
+    const missingEmail = {
+      ...revision,
+      reportArtifact: {
+        ...revision.reportArtifact,
+        student: {
+          ...revision.reportArtifact.student,
+          parent: { user: { email: null } },
+        },
+      },
+    };
+    const deps = dependencies({
+      listRecent: jest.fn().mockResolvedValue([missingEmail]),
+      findPending: jest.fn().mockResolvedValue(missingEmail),
+    });
+
+    await expect(listRecentReportReviews(
+      { userId: 'user-assistante', role: 'ASSISTANTE' },
+      serviceDependencies(deps),
+    )).resolves.toEqual([
+      expect.objectContaining({
+        displayStatus: 'Prêt — e-mail parent manquant',
+        parentEmailMissing: true,
+        diffusable: false,
+        actionable: true,
+      }),
+    ]);
+
+    await expect(previewPendingReport({
+      userId: 'user-assistante', role: 'ASSISTANTE', revisionId: revision.id,
+    }, serviceDependencies(deps))).resolves.toMatchObject({ official: false });
+    expect(deps.preview).toHaveBeenCalled();
+  });
+
+  test('refuse la diffusion sans e-mail avant toute validation ou publication', async () => {
+    const missingEmail = {
+      ...revision,
+      reportArtifact: {
+        ...revision.reportArtifact,
+        student: {
+          ...revision.reportArtifact.student,
+          parent: { user: { email: null } },
+        },
+      },
+    };
+    const deps = dependencies({ findPending: jest.fn().mockResolvedValue(missingEmail) });
+
+    await expect(validateAndPublishPendingReport({
+      userId: 'user-assistante', role: 'ASSISTANTE', revisionId: revision.id, motif: 'Rapport relu intégralement.',
+    }, serviceDependencies(deps))).rejects.toMatchObject({ code: 'REPORT_PARENT_EMAIL_REQUIRED' });
+    expect(deps.validate).not.toHaveBeenCalled();
+    expect(deps.publish).not.toHaveBeenCalled();
   });
 
   test('blocks validationFailures before either validation or publication', async () => {
@@ -270,6 +327,9 @@ describe('staff Canonical report review service', () => {
     expect(source).toContain('Prévisualiser le PDF');
     expect(source).toContain('Télécharger le PDF');
     expect(source).toContain('En attente de diffusion');
+    expect(source).toContain('Prêt — e-mail parent manquant');
+    expect(source).toContain('bilans prêts en attente d’e-mail parent');
+    expect(source).toContain('Ajouter l’e-mail du parent');
     expect(source).toContain('Diffusé');
     expect(source).toContain('Rejeté');
     expect(source).toContain('Corrigez les blocages signalés avant de reprendre la diffusion.');

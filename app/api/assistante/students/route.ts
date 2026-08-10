@@ -3,6 +3,7 @@ import { createActivationToken } from '@/lib/auth/activation-token';
 import { getTrustedApplicationOrigin } from '@/lib/auth/parent-activation';
 import { enqueueEmailIntent } from '@/lib/email/outbox';
 import { kickEmailOutboxDrain } from '@/lib/email/outbox-scheduler';
+import { requireUserEmail } from '@/lib/contact/user-email';
 import { isErrorResponse,requireAnyRole } from '@/lib/guards';
 import { LEGAL } from '@/lib/legal';
 import { generateResetToken } from '@/lib/password-reset-token';
@@ -399,13 +400,14 @@ export async function POST(request: Request) {
         html: `<p>Bonjour ${parentFirstName || 'Parent'},</p><p><a href="${resetUrl.toString()}">Définir mon mot de passe</a></p>`,
         text: `Définissez votre mot de passe : ${resetUrl.toString()}`,
       });
+      const createdStudentEmail = requireUserEmail(studentUser.email);
       const activationUrl = new URL('/auth/activate', origin);
       activationUrl.searchParams.set('token', studentActivation.rawToken);
       await enqueueEmailIntent(tx, {
         aggregateId: studentUser.id,
         messageType: 'STUDENT_ACTIVATION',
         dedupeKey: studentActivation.tokenHash,
-        to: studentUser.email,
+        to: createdStudentEmail,
         subject: 'Activation de votre compte — Nexus Réussite',
         html: buildActivationEmailHtml(studentUser.firstName || 'Utilisateur', activationUrl.toString()),
         text: `Bonjour ${studentUser.firstName || 'Utilisateur'}, activez votre compte : ${activationUrl.toString()}`,
@@ -414,7 +416,7 @@ export async function POST(request: Request) {
       return {
         ok: true as const,
         parent: { userId: parentUserId, email: parentEmail, firstName: parentFirstName, passwordHash: parentPasswordHash },
-        student: { id: student.id, userId: studentUser.id, email: studentUser.email, firstName: studentUser.firstName },
+        student: { id: student.id, userId: studentUser.id, email: createdStudentEmail, firstName: studentUser.firstName },
       };
     });
 

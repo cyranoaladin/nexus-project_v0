@@ -9,7 +9,7 @@ import {
   type RecentReportReview,
 } from '@/lib/bilans/staff/review-service';
 
-import { rejectReportAction, validateAndPublishReportAction } from './actions';
+import { addParentEmailAction, rejectReportAction, validateAndPublishReportAction } from './actions';
 
 const AUDIENCES = ['ELEVE', 'PARENTS', 'NEXUS'] as const;
 
@@ -45,6 +45,7 @@ export default async function CanonicalBilansReviewPage({
     throw error;
   }
   const statusCounts = {
+    missingEmail: revisions.filter(({ displayStatus }) => displayStatus === 'Prêt — e-mail parent manquant').length,
     pending: revisions.filter(({ displayStatus }) => displayStatus === 'En attente de diffusion').length,
     published: revisions.filter(({ displayStatus }) => displayStatus === 'Diffusé').length,
     rejected: revisions.filter(({ displayStatus }) => displayStatus === 'Rejeté').length,
@@ -81,13 +82,14 @@ export default async function CanonicalBilansReviewPage({
           </Link>
         </header>
 
-        <section className="mt-8 grid gap-3 sm:grid-cols-3" aria-label="Synthèse des états de diffusion">
+        <section className="mt-8 grid gap-3 sm:grid-cols-2 xl:grid-cols-4" aria-label="Synthèse des états de diffusion">
           {[
+            ['bilans prêts en attente d’e-mail parent', statusCounts.missingEmail],
             ['En attente de diffusion', statusCounts.pending],
             ['Diffusé', statusCounts.published],
             ['Rejeté', statusCounts.rejected],
           ].map(([label, count]) => (
-            <article key={label} className="rounded-2xl border border-white/10 bg-white/[0.05] p-4">
+            <article key={label} className={`rounded-2xl border p-4 ${label === 'bilans prêts en attente d’e-mail parent' ? 'border-amber-300/50 bg-amber-300/10' : 'border-white/10 bg-white/[0.05]'}`}>
               <p className="text-2xl font-semibold text-white">{count}</p>
               <p className="mt-1 text-sm text-slate-300">{label}</p>
             </article>
@@ -143,6 +145,30 @@ export default async function CanonicalBilansReviewPage({
                     </section>
                   )}
 
+                  {revision.parentEmailMissing && revision.actionable && (
+                    <section className="border-b border-amber-300/20 bg-amber-300/10 px-6 py-5">
+                      <h3 className="font-semibold text-amber-100">Ajouter l’e-mail du parent</h3>
+                      <p className="mt-1 text-sm text-slate-300">
+                        Le bilan est prêt. L'activation parent et la diffusion restent bloquées jusqu'à cette complétion.
+                      </p>
+                      <form action={addParentEmailAction} className="mt-3 flex flex-col gap-3 sm:flex-row">
+                        <input type="hidden" name="revisionId" value={revision.id} />
+                        <label className="sr-only" htmlFor={`parent-email-${revision.id}`}>E-mail du parent</label>
+                        <input
+                          id={`parent-email-${revision.id}`}
+                          name="email"
+                          type="email"
+                          required
+                          placeholder="parent@exemple.tn"
+                          className="min-w-0 flex-1 rounded-xl border border-white/15 bg-slate-950 px-3 py-2.5 text-white"
+                        />
+                        <button type="submit" className="rounded-xl bg-amber-300 px-4 py-2.5 font-semibold text-slate-950">
+                          Ajouter l’e-mail et envoyer l’activation
+                        </button>
+                      </form>
+                    </section>
+                  )}
+
                   {revision.actionable ? (
                     <>
                       <div className="grid gap-4 p-6 xl:grid-cols-3">
@@ -180,7 +206,7 @@ export default async function CanonicalBilansReviewPage({
                           <input type="hidden" name="revisionId" value={revision.id} />
                           <label className="block text-sm font-semibold text-white" htmlFor={`approve-${revision.id}`}>Motif de validation et diffusion</label>
                           <textarea id={`approve-${revision.id}`} name="motif" required minLength={5} className="mt-3 min-h-24 w-full rounded-xl border border-white/15 bg-slate-950 p-3 text-sm text-white" />
-                          <button type="submit" disabled={blocked} className="mt-3 rounded-xl bg-emerald-500 px-4 py-2.5 font-semibold text-slate-950 disabled:cursor-not-allowed disabled:opacity-40">
+                          <button type="submit" disabled={blocked || !revision.diffusable} className="mt-3 rounded-xl bg-emerald-500 px-4 py-2.5 font-semibold text-slate-950 disabled:cursor-not-allowed disabled:opacity-40">
                             Valider et diffuser aux familles
                           </button>
                         </form>
