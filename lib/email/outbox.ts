@@ -8,6 +8,7 @@ import {
 
 import { Prisma } from '@prisma/client';
 import { z } from 'zod';
+import { normalizeUserEmail } from '@/lib/contact/user-email';
 
 export const EMAIL_OUTBOX_SCHEMA_VERSION = 'email-intent/v1' as const;
 export const EMAIL_OUTBOX_KEY_VERSION = 'v1' as const;
@@ -142,7 +143,7 @@ export async function enqueueEmailIntent(
   const intentId = randomUUID();
   const messageId = `<${intentId}@${messageIdDomain()}>`;
   const encrypted = encryptContent({
-    to: input.to.trim().normalize('NFC').toLowerCase(),
+    to: normalizeUserEmail(input.to),
     subject: input.subject,
     html: input.html,
     text: input.text,

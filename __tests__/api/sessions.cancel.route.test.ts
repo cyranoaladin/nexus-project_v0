@@ -69,6 +69,8 @@ function mockLogger() {
   };
 }
 
+let activeLogger: ReturnType<typeof mockLogger>;
+
 function buildSession(overrides: Partial<Record<string, any>> = {}) {
   return {
     id: VALID_SESSION_ID,
@@ -93,7 +95,8 @@ describe('POST /api/sessions/cancel', () => {
     (isErrorResponse as unknown as jest.Mock).mockReturnValue(false);
     (parseBody as jest.Mock).mockResolvedValue({ sessionId: VALID_SESSION_ID, reason: 'Change' });
     (safeJsonParse as jest.Mock).mockResolvedValue({ sessionId: VALID_SESSION_ID, reason: 'Change' });
-    (createLogger as jest.Mock).mockReturnValue(mockLogger());
+    activeLogger = mockLogger();
+    (createLogger as jest.Mock).mockReturnValue(activeLogger);
     (prisma.sessionBooking.findUnique as jest.Mock).mockResolvedValue(buildSession());
     (prisma.sessionBooking.update as jest.Mock).mockResolvedValue({});
     (canCancelBooking as jest.Mock).mockReturnValue(true);
@@ -143,6 +146,8 @@ describe('POST /api/sessions/cancel', () => {
 
     expect(response.status).toBe(403);
     expect(body.error).toBe('FORBIDDEN');
+    expect(activeLogger.error).not.toHaveBeenCalled();
+    expect(activeLogger.logRequest).toHaveBeenCalledWith(403);
   });
 
   it('returns 400 when session already cancelled', async () => {

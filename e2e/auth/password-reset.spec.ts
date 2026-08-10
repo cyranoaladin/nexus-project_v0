@@ -18,16 +18,12 @@ test.describe('Password reset flow', () => {
   });
 
   test('forgot password form rejects empty email', async ({ page }) => {
-    test.skip(true, 'QUARANTINE: REFONTE: forgot password submit button selector changed — main button[type="submit"] not found');
     await page.goto('/auth/mot-de-passe-oublie', { waitUntil: 'domcontentloaded' });
 
-    // Try to submit without filling email
-    const submitBtn = page.locator('main button[type="submit"]');
-    if (await submitBtn.isVisible()) {
-      await submitBtn.click();
-      // Should show validation error or stay on same page
-      await expect(page).toHaveURL(/mot-de-passe-oublie/);
-    }
+    const submitBtn = page.getByRole('button', { name: /envoyer|réinitialisation/i });
+    await expect(submitBtn).toBeVisible();
+    await expect(submitBtn).toBeDisabled();
+    await expect(page).toHaveURL(/mot-de-passe-oublie/);
   });
 
   test('reset password page with invalid token shows error', async ({ page }) => {

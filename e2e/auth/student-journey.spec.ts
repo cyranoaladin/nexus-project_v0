@@ -1,18 +1,38 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, type Page } from '@playwright/test';
 import { loginAsUser } from '../helpers/auth';
 
-const BASE_URL = '/programme/maths-1ere';
+const LEGACY_URL = '/programme/maths-1ere';
+const CANONICAL_URL = '/dashboard/eleve/programme/maths';
 const STORE_KEY = 'nexus-maths-lab-v2';
 
-function derivationButton(page: import('@playwright/test').Page) {
-  return page.getByRole('button', { name: /^1\s*Dérivation/i }).first();
+function progressPayload(totalXP = 0, completedChapters: string[] = []) {
+  return {
+    completed_chapters: completedChapters,
+    mastered_chapters: [],
+    total_xp: totalXP,
+    quiz_score: 0,
+    combo_count: 0,
+    best_combo: 0,
+    streak: 0,
+    streak_freezes: 0,
+    last_activity_date: null,
+    daily_challenge: { lastCompletedDate: null, todayChallengeId: null, completedToday: false },
+    exercise_results: {},
+    hint_usage: {},
+    badges: [],
+    srs_queue: {},
+    diagnostic_results: {},
+    time_per_chapter: {},
+    formulaire_viewed: false,
+    grand_oral_seen: 0,
+    lab_archimede_opened: false,
+    euler_max_steps: 0,
+    newton_best_iterations: null,
+    printed_fiche: false,
+  };
 }
 
-function secondDegreButton(page: import('@playwright/test').Page) {
-  return page.getByRole('button', { name: /^1\s*Second Degré/i }).first();
-}
-
-function buildPersistedState(totalXP: number, completedChapters: string[] = []) {
+function persistedState(totalXP: number, completedChapters: string[] = []) {
   return {
     state: {
       completedChapters,
@@ -32,170 +52,163 @@ function buildPersistedState(totalXP: number, completedChapters: string[] = []) 
       hintUsage: {},
       badges: [],
       srsQueue: {},
+      diagnosticResults: {},
+      timePerChapter: {},
+      formulaireViewed: false,
+      grandOralSeen: 0,
+      labArchimedeOpened: false,
+      eulerMaxSteps: 0,
+      newtonBestIterations: null,
+      printedFiche: false,
     },
-    version: 4,
+    version: 5,
   };
 }
 
-test.describe.skip('Student journey - Maths 1ere — QUARANTINE: PRE-EXISTING: maths-1ere lab elements timeout — loading issue', () => {
+async function setRemoteProgress(page: Page, totalXP = 0, completedChapters: string[] = []) {
+  const response = await page.request.post('/api/programme/maths-1ere/progress', {
+    data: progressPayload(totalXP, completedChapters),
+    failOnStatusCode: false,
+  });
+  expect(response.status()).toBe(200);
+}
+
+async function openCanonicalProgramme(page: Page) {
+  await page.goto(CANONICAL_URL);
+  await expect(page.getByRole('heading', { name: 'Nexus Maths' }).first()).toBeVisible();
+}
+
+async function openDerivation(page: Page) {
+  await openCanonicalProgramme(page);
+  await page.getByRole('button', { name: 'Programme & Cours' }).click();
+  await page.getByRole('button', { name: 'Dérivation', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Dérivation', exact: true })).toBeVisible();
+}
+
+test.describe.serial('Student journey — canonical Maths Première', () => {
   test.beforeEach(async ({ page }) => {
-    await loginAsUser(page, 'parent', { navigate: false, targetPath: BASE_URL });
+    await loginAsUser(page, 'student');
+    await setRemoteProgress(page);
+    await page.evaluate((key) => localStorage.removeItem(key), STORE_KEY);
   });
 
-  test('MathJax critique: pas de LaTeX brut visible + rendu MathJax présent', async ({ page }) => {
-    // FIXME: Maths Lab SPA hydration (MathJax) unreliable in CI headless Chrome.
-    test.setTimeout(30_000);
-    await page.goto(BASE_URL);
-    await page.getByRole('button', { name: /Fiches de Cours/i }).click();
-    await derivationButton(page).click();
-    await page.waitForSelector('mjx-container, mjx-math, .mjx-chtml', { timeout: 5000 }).catch(() => {});
+  test('legacy URL redirects the student to the dashboard-owned programme', async ({ page }) => {
+    await page.goto(LEGACY_URL);
+    await expect(page).toHaveURL(new RegExp(`${CANONICAL_URL}$`));
+  });
+
+  test('canonical programme renders the student navigation without staff controls', async ({ page }) => {
+    await openCanonicalProgramme(page);
+    for (const tab of ['Cockpit Pédagogique', 'Programme & Cours', 'Objectif Épreuve', 'Mon Plan Final']) {
+      await expect(page.getByRole('button', { name: tab })).toBeVisible();
+    }
+    await expect(page.getByRole('button', { name: 'Pilotage Enseignant' })).toHaveCount(0);
+  });
+
+  test('renders formulas through KaTeX without leaking raw LaTeX', async ({ page }) => {
+    await openDerivation(page);
+    await expect.poll(async () => page.locator('.katex').count()).toBeGreaterThan(0);
 
     const renderedText = await page.locator('body').innerText();
-    const rawLatexPatterns = [
+    for (const rawLatex of [
       /\\frac\{[^}]+\}\{[^}]+\}/,
       /\$\$[^$]+\$\$/,
       /\\sqrt\{[^}]+\}/,
       /\\text\{[^}]+\}/,
       /\\begin\{(?:align|equation)\}/,
-    ];
-
-    for (const pattern of rawLatexPatterns) {
-      expect(renderedText).not.toMatch(pattern);
+    ]) {
+      expect(renderedText).not.toMatch(rawLatex);
     }
-
-    await expect
-      .poll(async () => page.locator('mjx-container, mjx-math, .mjx-chtml').count())
-      .toBeGreaterThan(0);
   });
 
-  test('Workflow élève: lab fonctions + question correcte + persistance XP/chapitres', async ({ page }) => {
-    // FIXME: Maths Lab SPA hydration + interactive elements unreliable in CI.
-    test.setTimeout(45_000);
-    await page.goto(BASE_URL);
-    await page.getByRole('button', { name: /Fiches de Cours/i }).click();
-    await derivationButton(page).click();
+  test('manipulates the lab, solves an exercise, earns real XP and persists it', async ({ page }) => {
+    test.setTimeout(90_000);
+    await openDerivation(page);
 
-    // Workflow Lab "Fonctions": ouvrir et manipuler le slider
-    await page.getByRole('button', { name: /Tangente Glissante/i }).click();
-    const derivativeChip = page.locator('span').filter({ hasText: /f'\(/ }).first();
-    const before = await derivativeChip.innerText();
+    await page.getByRole('button', { name: /La Tangente Glissante/ }).click();
     const slider = page.locator('input[type="range"]').first();
+    await expect(slider).toBeVisible();
+    const sliderBefore = await slider.inputValue();
     await slider.focus();
-    for (let i = 0; i < 20; i += 1) {
-      await slider.press('ArrowRight');
-    }
-    await expect.poll(async () => derivativeChip.innerText()).not.toBe(before);
+    await slider.press('ArrowRight');
+    await expect.poll(async () => slider.inputValue()).not.toBe(sliderBefore);
 
-    // Répondre juste à une question
-    const exerciseHeading = page.getByRole('heading', { name: /Exercices interactifs/i });
-    await expect(exerciseHeading).toBeVisible();
-    const panel = page.locator('section, div').filter({ has: exerciseHeading }).first();
-    await panel.getByRole('button', { name: '2' }).click();
-    await panel.getByPlaceholder('Votre réponse...').fill('1');
-    await panel.getByRole('button', { name: /^Valider$/ }).click();
-    await expect(panel.getByText(/✓ Correct/i)).toBeVisible();
+    const exerciseHeading = page.getByRole('heading', { name: 'Exercices interactifs' });
+    const exercisePanel = page.locator('div.bg-slate-900').filter({ has: exerciseHeading }).first();
+    await exercisePanel.getByRole('button', { name: '2', exact: true }).click();
+    await exercisePanel.getByPlaceholder('Votre réponse...').fill('1');
+    await exercisePanel.getByRole('button', { name: 'Valider', exact: true }).click();
+    await expect(exercisePanel.getByText('Correct', { exact: true })).toBeVisible();
 
-    // Gagner 50 XP (2 chapitres marqués)
-    await page.getByRole('button', { name: /Marquer comme lu/i }).first().click();
-    await secondDegreButton(page).click();
-    await page.getByRole('button', { name: /Marquer comme lu/i }).first().click();
+    await page.getByRole('button', { name: 'Terminer', exact: true }).click();
+    await page.getByRole('button', { name: 'Algèbre & Suites', exact: true }).click();
+    await page.getByRole('button', { name: 'Second Degré', exact: true }).click();
+    await expect(page.getByRole('heading', { name: 'Second Degré', exact: true })).toBeVisible();
+    await page.getByRole('button', { name: 'Terminer', exact: true }).click();
+
     await expect.poll(async () => {
-      const raw = await page.evaluate((key) => localStorage.getItem(key), STORE_KEY);
-      if (!raw) return 0;
-      return JSON.parse(raw).state?.totalXP ?? 0;
+      const response = await page.request.get('/api/programme/maths-1ere/progress');
+      const body = await response.json() as { data?: { total_xp?: number } };
+      return body.data?.total_xp ?? 0;
     }).toBeGreaterThanOrEqual(50);
 
     await page.reload();
-
-    const persisted = await page.evaluate((key) => {
-      const raw = localStorage.getItem(key);
-      if (!raw) return null;
-      const parsed = JSON.parse(raw);
-      return {
-        totalXP: parsed?.state?.totalXP,
-        completedChapters: parsed?.state?.completedChapters ?? [],
-      };
-    }, STORE_KEY);
-
-    expect(persisted?.totalXP).toBeGreaterThanOrEqual(50);
-    expect(persisted?.completedChapters).toContain('second-degre');
+    const xpLabel = page.getByText(/\d+ XP cumulés/).first();
+    await expect(xpLabel).toBeVisible();
+    expect(Number((await xpLabel.innerText()).match(/\d+/)?.[0] ?? 0)).toBeGreaterThanOrEqual(50);
   });
 
-  test('Navigation interne sans 404 + titres de chapitres valides', async ({ page }) => {
-    // FIXME: Depends on full Maths Lab hydration — flaky in CI.
-    test.setTimeout(30_000);
-    await page.goto(BASE_URL);
-    await page.getByRole('button', { name: /Fiches de Cours/i }).click();
+  test('navigates between valid chapter titles and keeps internal routes healthy', async ({ page }) => {
+    await openDerivation(page);
+    await page.getByRole('button', { name: 'Variations et Courbes', exact: true }).click();
+    await expect(page.getByRole('heading', { name: 'Variations et Courbes', exact: true })).toBeVisible();
+    expect((await page.locator('body').innerText()).toLowerCase()).not.toContain('undefined');
 
-    const invalidTitleCount = await page.evaluate(() => {
-      const chapterButtons = Array.from(document.querySelectorAll('button')).filter((btn) => {
-        const txt = (btn.textContent ?? '').trim();
-        return txt.length > 0 && /XP/.test(txt) && /★|☆/.test(txt);
-      });
-      return chapterButtons.filter((btn) => {
-        const txt = (btn.textContent ?? '').toLowerCase();
-        return txt.includes('undefined') || txt.trim().length === 0;
-      }).length;
-    });
-    expect(invalidTitleCount).toBe(0);
-
-    const hrefs = await page.$$eval('a[href^="/"]', (links) => {
-      const values = links
-        .map((a) => a.getAttribute('href') || '')
-        .filter((href) => href.startsWith('/'))
-        .map((href) => href.split('#')[0]);
-      return Array.from(new Set(values));
-    });
-
-    for (const href of hrefs.slice(0, 10)) {
-      const res = await page.request.get(href);
-      expect(res.status(), `Lien en erreur: ${href}`).toBeLessThan(400);
+    for (const route of [CANONICAL_URL, '/dashboard/eleve']) {
+      const response = await page.request.get(route);
+      expect(response.status(), `Route interne en erreur: ${route}`).toBeLessThan(400);
     }
   });
 
-  test('Réhydratation store: XP et chapitres persistent après reload', async ({ page }) => {
+  test('rehydrates XP and completed chapters after a reload', async ({ page }) => {
+    await setRemoteProgress(page, 50, ['second-degre']);
     await page.addInitScript(
       ([key, state]: [string, unknown]) => localStorage.setItem(key, JSON.stringify(state)),
-      [STORE_KEY, buildPersistedState(50, ['second-degre'])] as [string, unknown]
+      [STORE_KEY, persistedState(50, ['second-degre'])] as [string, unknown],
     );
 
-    await page.goto(BASE_URL);
-    await expect.poll(async () => {
-      const raw = await page.evaluate((key) => localStorage.getItem(key), STORE_KEY);
-      if (!raw) return 0;
-      return JSON.parse(raw).state?.totalXP ?? 0;
-    }).toBeGreaterThanOrEqual(50);
+    await openCanonicalProgramme(page);
+    await expect(page.getByText('50 XP cumulés', { exact: true })).toBeVisible();
     await page.reload();
-    await expect.poll(async () => {
-      const raw = await page.evaluate((key) => localStorage.getItem(key), STORE_KEY);
-      if (!raw) return 0;
-      return JSON.parse(raw).state?.totalXP ?? 0;
-    }).toBeGreaterThanOrEqual(50);
+    await expect(page.getByText('50 XP cumulés', { exact: true })).toBeVisible();
 
-    const completed = await page.evaluate((key) => {
-      const raw = localStorage.getItem(key);
-      if (!raw) return { chapters: [] as string[], xp: 0 };
-      return {
-        chapters: (JSON.parse(raw).state?.completedChapters ?? []) as string[],
-        xp: (JSON.parse(raw).state?.totalXP ?? 0) as number,
-      };
-    }, STORE_KEY);
-
-    expect(completed.chapters).toContain('second-degre');
-    expect(completed.xp).toBeGreaterThanOrEqual(50);
+    const persisted = await page.evaluate((key) => JSON.parse(localStorage.getItem(key) ?? '{}'), STORE_KEY);
+    expect(persisted.state.totalXP).toBe(50);
+    expect(persisted.state.completedChapters).toContain('second-degre');
   });
 
-  test('Résilience offline: pas de crash en hors-ligne puis retour online', async ({ page }) => {
-    // FIXME: Maths Lab SPA hydration unreliable in CI headless Chrome.
-    await page.goto(BASE_URL);
-    await expect(page.getByText(/NEXUS MATHS LAB/i)).toBeVisible();
+  test('stays usable offline and recovers after reconnecting', async ({ page, context }) => {
+    await openCanonicalProgramme(page);
+    await page.getByRole('button', { name: 'Programme & Cours' }).click();
+    await expect(page.getByRole('heading', { name: 'Second Degré', exact: true })).toBeVisible();
+    await page.getByRole('button', { name: /Le Contrôleur de Parabole/ }).click();
+    const offlineSlider = page.locator('input[type="range"]').first();
+    await expect(offlineSlider).toBeVisible();
+    const sliderBefore = await offlineSlider.inputValue();
 
-    await page.context().setOffline(true);
-    await page.getByRole('button', { name: /Fiches de Cours/i }).click();
-    await expect(page.getByText(/NEXUS MATHS LAB/i)).toBeVisible();
+    // Load the course surface before losing the network: the offline contract
+    // covers already visited pedagogical content, not first-time chunk download.
+    await context.setOffline(true);
+    await offlineSlider.focus();
+    await offlineSlider.press('ArrowRight');
+    await expect.poll(async () => offlineSlider.inputValue()).not.toBe(sliderBefore);
 
-    await page.context().setOffline(false);
+    await context.setOffline(false);
+    await expect.poll(async () => {
+      const response = await page.request.get('/api/auth/session', { failOnStatusCode: false });
+      return response.status();
+    }).toBe(200);
     await page.reload();
-    await expect(page.getByText(/NEXUS MATHS LAB/i)).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Nexus Maths' }).first()).toBeVisible();
   });
 });

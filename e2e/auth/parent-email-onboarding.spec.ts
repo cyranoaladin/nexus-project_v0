@@ -13,6 +13,7 @@ import {
 } from '../../lib/bilans/catalog/review-registry'
 import { loadWaveManifest, repositoryPath } from '../../lib/bilans/catalog/wave-manifest'
 import { packFeatureFlagName } from '../../lib/bilans/api/pack-access'
+import { assertDisposableE2eDatabase } from '../helpers/disposable-database'
 
 test.use({ trace: 'off', screenshot: 'off', video: 'off' })
 
@@ -31,9 +32,7 @@ type MailpitMessage = {
 }
 
 function assertIsolatedDatabase(): void {
-  expect(databaseUrl).toMatch(/(?:localhost|127\.0\.0\.1)/)
-  expect(databaseUrl).toMatch(/nexus_p0d_parent_test/)
-  expect(databaseUrl).not.toMatch(/nexus_prod|production/i)
+  assertDisposableE2eDatabase(databaseUrl)
 }
 
 async function clearMailbox(): Promise<void> {
@@ -62,10 +61,6 @@ async function waitForActivationUrl(recipient: string): Promise<string> {
     await new Promise((resolve) => setTimeout(resolve, 100))
   }
   throw new Error('ACTIVATION_EMAIL_NOT_RECEIVED')
-}
-
-async function resetDatabase(): Promise<void> {
-  await prisma.$executeRawUnsafe('TRUNCATE TABLE "users" RESTART IDENTITY CASCADE')
 }
 
 async function prepareCanonicalSignedPackReviewer(): Promise<void> {
@@ -146,13 +141,11 @@ async function signOutAndVerifyCookieDeletion(page: import('@playwright/test').P
 test.describe('P0-D Parent onboarding without direct database bootstrap', () => {
   test.beforeAll(async () => {
     assertIsolatedDatabase()
-    await resetDatabase()
     await prepareCanonicalSignedPackReviewer()
     await clearMailbox()
   })
 
   test.afterAll(async () => {
-    await resetDatabase()
     await clearMailbox()
     await prisma.$disconnect()
   })

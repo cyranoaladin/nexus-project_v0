@@ -15,7 +15,7 @@ test.describe('Bilan Gratuit — Formulaire stratégique', () => {
   });
 
   test('(a) validation affiche erreurs sur soumission vide — clic réel', async ({ page }) => {
-    await page.getByRole('button', { name: /bilan stratégique/i }).click();
+    await page.locator('#demande-bilan form').getByRole('button', { name: /lancer le bilan diagnostic/i }).click();
     await expect(page.locator('text=Prénom requis')).toBeVisible();
     await expect(page.locator('text=Email invalide')).toBeVisible();
     await expect(page.locator('text=Classe requise')).toBeVisible();
@@ -32,14 +32,14 @@ test.describe('Bilan Gratuit — Formulaire stratégique', () => {
     await page.locator('#objectives').fill('Préparer le bac de français avec sérieux et méthode');
     await expect(page.locator('#parentEmail')).toHaveValue('pas-un-email');
     // Real click — noValidate on <form> prevents HTML5 constraint blocking
-    await page.getByRole('button', { name: /bilan stratégique/i }).click();
+    await page.locator('#demande-bilan form').getByRole('button', { name: /lancer le bilan diagnostic/i }).click();
     await expect(page.locator('text=Email invalide')).toBeVisible();
     await expect(page.locator('text=Prénom requis')).not.toBeVisible();
     await expect(page.locator('text=Classe requise')).not.toBeVisible();
   });
 
   test('erreur disparaît quand email valide est saisi', async ({ page }) => {
-    await page.getByRole('button', { name: /bilan stratégique/i }).click();
+    await page.locator('#demande-bilan form').getByRole('button', { name: /lancer le bilan diagnostic/i }).click();
     await expect(page.locator('text=Email invalide')).toBeVisible();
     await page.locator('#parentEmail').fill('marie@example.com');
     await expect(page.locator('text=Email invalide')).not.toBeVisible();
@@ -53,7 +53,9 @@ test.describe('Bilan Gratuit — Formulaire stratégique', () => {
 
   test('page confirmation existe', async ({ page }) => {
     await page.goto('/bilan-gratuit/confirmation');
-    await expect(page.getByText(/félicitations|confirmé|créé|enregistré|merci/i)).toBeVisible();
+    await expect(page.getByRole('heading', {
+      name: 'Votre demande de bilan a bien été enregistrée',
+    })).toBeVisible();
   });
 
   test('CTA WhatsApp est visible', async ({ page }) => {

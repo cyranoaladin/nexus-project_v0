@@ -3,6 +3,7 @@ import 'server-only';
 import type { GradeLevel } from '@prisma/client';
 
 import { createActivationToken } from '@/lib/auth/activation-token';
+import { normalizeUserEmail } from '@/lib/contact/user-email';
 import { prisma } from '@/lib/prisma';
 
 /**
@@ -38,7 +39,7 @@ const SYNTHETIC_STUDENT_DOMAIN = '@nexus-student.local';
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function normalizeRealEmail(value: string): string {
-  const email = (value ?? '').trim().toLowerCase();
+  const email = normalizeUserEmail(value ?? '');
   if (!EMAIL_PATTERN.test(email)) throw new StudentProvisioningError('INVALID_EMAIL');
   if (email.endsWith(SYNTHETIC_STUDENT_DOMAIN)) {
     throw new StudentProvisioningError('SYNTHETIC_EMAIL_REJECTED');

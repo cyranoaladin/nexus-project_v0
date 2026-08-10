@@ -113,4 +113,34 @@ describe('initiateStudentActivation', () => {
       })
     });
   });
+
+  it('normalizes the email before uniqueness lookup and persistence', async () => {
+    (prisma.user.findUnique as jest.Mock)
+      .mockResolvedValueOnce({
+        id: 'student-user-3',
+        email: 'old3@example.com',
+        role: 'ELEVE',
+        activatedAt: null,
+        firstName: 'Aya',
+        lastName: 'Test',
+        student: { id: 'student-entity-3', parentId: 'parent-id-3' },
+      })
+      .mockResolvedValueOnce(null);
+    (prisma.user.update as jest.Mock).mockResolvedValue({});
+
+    const result = await initiateStudentActivation(
+      'student-user-3',
+      '  AYA@EXAMPLE.TEST  ',
+      'ASSISTANTE',
+      'assistant-1',
+    );
+
+    expect(result.success).toBe(true);
+    expect(prisma.user.findUnique).toHaveBeenNthCalledWith(2, {
+      where: { email: 'aya@example.test' },
+    });
+    expect(prisma.user.update).toHaveBeenCalledWith(expect.objectContaining({
+      data: expect.objectContaining({ email: 'aya@example.test' }),
+    }));
+  });
 });

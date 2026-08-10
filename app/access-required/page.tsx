@@ -57,7 +57,7 @@ async function AccessRequiredContent({ searchParams }: AccessRequiredContentProp
   const dashboardHref = role ? (roleDashboardMap[role] ?? '/dashboard') : '/dashboard';
 
   return (
-    <div className="min-h-screen bg-lux-ink flex items-center justify-center px-4">
+    <main className="min-h-screen bg-lux-ink flex items-center justify-center px-4">
       <div className="max-w-md w-full">
         <div className="bg-white/5 border border-lux-line/40 rounded-2xl p-8 text-center">
           {/* Icon */}
@@ -129,7 +129,7 @@ async function AccessRequiredContent({ searchParams }: AccessRequiredContentProp
           </div>
         </div>
       </div>
-    </div>
+    </main>
   );
 }
 

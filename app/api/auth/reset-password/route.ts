@@ -11,7 +11,7 @@ import { escapeHtml } from '@/lib/email/templates';
 import { getTrustedApplicationOrigin } from '@/lib/auth/parent-activation';
 import { enqueueEmailIntent } from '@/lib/email/outbox';
 import { kickEmailOutboxDrain } from '@/lib/email/outbox-scheduler';
-import { requireUserEmail } from '@/lib/contact/user-email';
+import { normalizeUserEmail, requireUserEmail } from '@/lib/contact/user-email';
 
 /** Common weak passwords to reject */
 const COMMON_PASSWORDS = new Set([
@@ -22,7 +22,7 @@ const COMMON_PASSWORDS = new Set([
 
 /** Schema for requesting a password reset email */
 const requestSchema = z.object({
-  email: z.string().email('Email invalide'),
+  email: z.string().transform(normalizeUserEmail).pipe(z.string().email('Email invalide')),
 });
 
 /** Schema for confirming a password reset */
@@ -83,9 +83,9 @@ export async function POST(request: NextRequest) {
     const blocked = await guardSensitiveRateLimit(request, {
       scope: isConfirmation ? 'password-reset-confirm' : 'password-reset-request',
       identity: isConfirmation
-        ? (bodyRecord!.token as string)
-        : typeof bodyRecord?.email === 'string'
-          ? bodyRecord.email
+          ? (bodyRecord!.token as string)
+          : typeof bodyRecord?.email === 'string'
+          ? normalizeUserEmail(bodyRecord.email)
           : null,
       dimensions: isConfirmation ? undefined : ['identity'],
     });

@@ -172,8 +172,13 @@ async function findPotentialDuplicateFamilies(
   return transaction.user.findMany({
     where: {
       role: 'PARENT',
+      mergedIntoUserId: null,
       OR: [
         { phoneNormalized },
+        // Le téléphone du compte source reste un alias de contact après une
+        // fusion additive. La suggestion doit présenter le compte actif
+        // cible, pas ignorer ce numéro parce que sa source est tombstonée.
+        { mergedSources: { some: { phoneNormalized } } },
         ...children.map((child) => ({
           parentProfile: {
             is: {

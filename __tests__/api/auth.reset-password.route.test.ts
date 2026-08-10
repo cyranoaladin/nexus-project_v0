@@ -77,6 +77,25 @@ describe('POST /api/auth/reset-password — request reset', () => {
     expect(enqueueEmailIntent).toHaveBeenCalledTimes(1);
   });
 
+  it('normalizes the email before lookup and delivery', async () => {
+    prisma.user.findUnique.mockResolvedValue({
+      id: 'user-1',
+      email: 'eleve@example.test',
+      password: '$2a$12$existing',
+      firstName: 'Élève',
+    });
+
+    const res = await POST(makeRequest({ email: '  ELEVE@EXAMPLE.TEST  ' }));
+
+    expect(res.status).toBe(200);
+    expect(prisma.user.findUnique).toHaveBeenCalledWith(expect.objectContaining({
+      where: { email: 'eleve@example.test' },
+    }));
+    expect(enqueueEmailIntent).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({
+      to: 'eleve@example.test',
+    }));
+  });
+
   it('should return success for non-existing user (prevent enumeration)', async () => {
     prisma.user.findUnique.mockResolvedValue(null);
 

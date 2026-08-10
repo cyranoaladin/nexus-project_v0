@@ -11,15 +11,14 @@ import { NextRequest } from 'next/server'
 
 import { POST as register } from '@/app/api/bilan-gratuit/route'
 import { prisma } from '@/lib/prisma'
+import { assertDisposablePostgresUrl } from '@/__tests__/helpers/disposable-postgres'
 
 const PREFIX = 'P0DAtomic'
 const FAILURE_STEPS = ['parent-user', 'parent-profile', 'student-user', 'student', 'link'] as const
 
 function assertIsolatedDatabase() {
   const target = process.env.TEST_DATABASE_URL || process.env.DATABASE_URL || ''
-  expect(target).toMatch(/(?:localhost|127\.0\.0\.1)/)
-  expect(target).toContain('nexus_p0d_parent_test')
-  expect(target).not.toMatch(/nexus_prod|production/i)
+  assertDisposablePostgresUrl(target)
 }
 
 function registrationRequest(email: string, child = 'Child') {

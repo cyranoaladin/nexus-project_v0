@@ -133,8 +133,8 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    logger.error('Failed to cancel session', error);
-    logger.logRequest(500);
-    return await handleApiError(error, 'POST /api/sessions/cancel');
+    const response = await handleApiError(error, 'POST /api/sessions/cancel');
+    logger.logRequest(response.status);
+    return response;
   }
 }

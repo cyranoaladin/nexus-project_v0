@@ -586,15 +586,14 @@ async function main() {
       const vectorString = `[${vector.join(',')}]`;
 
       await prisma.$executeRaw`
-        INSERT INTO "pedagogical_contents" (id, title, content, subject, "embedding_vector", "updatedAt", "embedding", "tags")
+        INSERT INTO "pedagogical_contents" (id, title, content, subject, "embedding_vector", "updatedAt", "tags")
         VALUES (
             ${id}, 
             ${title}, 
             ${baseContent.content}, 
             ${baseContent.subject}::"Subject", 
             ${vectorString}::vector, 
-            NOW(), 
-            '[]'::jsonb, 
+            NOW(),
             '[]'::jsonb
         );
       `;

@@ -9,6 +9,7 @@ test-results
 .pytest_cache
 .venv
 .test-temp
+.artifacts
 
 # Environment files
 .env

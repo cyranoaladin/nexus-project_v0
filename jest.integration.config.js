@@ -5,6 +5,7 @@ const createJestConfig = nextJest({
 });
 
 const customJestConfig = {
+  setupFiles: ['<rootDir>/__tests__/setup/integration-env.js'],
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   testEnvironment: '<rootDir>/jest-environment-jsdom-with-fetch.js',
   transformIgnorePatterns: [

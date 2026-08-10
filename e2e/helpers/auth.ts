@@ -1,7 +1,8 @@
 import { Page } from '@playwright/test';
 import { CREDS, type CredRole } from './credentials';
+import { resetDisposableE2ERateLimits } from './rate-limit';
 
-type UserType = 'parent' | 'student' | 'student2' | 'studentSurvival' | 'coach' | 'coach2' | 'admin' | 'assistante';
+export type UserType = 'parent' | 'student' | 'student2' | 'studentSurvival' | 'coach' | 'coach2' | 'admin' | 'assistante';
 
 interface LoginOptions {
     navigate?: boolean;
@@ -138,7 +139,7 @@ async function setAuthCookies(page: Page, email: string, password: string, targe
 /**
  * Poll /api/auth/session until the expected user appears.
  */
-async function waitForAuthenticatedSession(page: Page, expectedEmail: string, attempts = 20) {
+export async function waitForAuthenticatedSession(page: Page, expectedEmail: string, attempts = 20) {
     for (let i = 0; i < attempts; i += 1) {
         const res = await page.request.get(`${BASE_URL}/api/auth/session`, {
             timeout: 10_000,
@@ -172,6 +173,7 @@ export async function loginAsUser(
     const { navigate = true, targetPath = ROLE_PATHS[userType] } = options;
     const { email, password } = CREDENTIALS[userType];
 
+    await resetDisposableE2ERateLimits();
     await setAuthCookies(page, email, password, targetPath);
     await waitForAuthenticatedSession(page, email);
 
@@ -179,6 +181,30 @@ export async function loginAsUser(
         await page.goto(targetPath, { waitUntil: 'domcontentloaded' });
         await page.waitForLoadState('domcontentloaded');
     }
+}
+
+/** Exercise the browser-visible credentials form using the same seed manifest. */
+export async function loginViaSigninForm(page: Page, userType: UserType) {
+    const { email, password } = CREDENTIALS[userType];
+    const targetPath = ROLE_PATHS[userType];
+
+    await resetDisposableE2ERateLimits();
+    await page.context().clearCookies();
+    await page.goto('/auth/signin', { waitUntil: 'domcontentloaded' });
+    await page.waitForFunction(() => {
+        const email = document.querySelector<HTMLInputElement>('#email');
+        const password = document.querySelector<HTMLInputElement>('#password');
+        const isReactControlled = (element: HTMLInputElement | null) =>
+            element !== null && Object.keys(element).some((key) => key.startsWith('__reactProps$'));
+        return isReactControlled(email) && isReactControlled(password);
+    });
+    await page.locator('#email').fill(email);
+    await page.locator('#password').fill(password);
+    await Promise.all([
+        page.waitForURL(`**${targetPath}**`, { timeout: 30_000 }),
+        page.getByTestId('btn-signin').click(),
+    ]);
+    await waitForAuthenticatedSession(page, email);
 }
 
 /**

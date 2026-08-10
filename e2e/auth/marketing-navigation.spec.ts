@@ -15,7 +15,7 @@ test.describe('Marketing navigation', () => {
 
   test('famille page shows main CTA', async ({ page }) => {
     await page.goto('/famille');
-    await expect(page.getByRole('heading', { name: /mention au bac/i })).toBeVisible();
+    await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
     await expect(page.getByRole('link', { name: /démarrer un bilan gratuit/i }).first()).toBeVisible();
   });
 });

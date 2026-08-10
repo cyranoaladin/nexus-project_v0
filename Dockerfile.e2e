@@ -35,8 +35,10 @@ RUN npm run build:base
 # === Stage 4: Runner ===
 FROM base AS runner
 WORKDIR /app
+RUN apk add --no-cache chromium
 ENV NODE_ENV=production
 ENV HOSTNAME=0.0.0.0
+ENV PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium-browser
 
 # Production deps
 COPY --from=builder /app/package.json /app/package-lock.json* ./
@@ -60,6 +62,7 @@ COPY --from=builder /app/prisma ./prisma
 # Seed script needs these
 COPY --from=builder /app/scripts ./scripts
 COPY --from=builder /app/lib ./lib
+COPY --from=builder /app/tsconfig.json ./tsconfig.json
 
 # Entrypoint: migrate → seed → start
 COPY scripts/e2e-entrypoint.sh /app/e2e-entrypoint.sh
