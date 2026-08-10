@@ -136,7 +136,7 @@ pre-migration values.
 
 - [ ] **Step 1: Start isolated Redis and seed synthetic auth data**
 
-Create only a synthetic parent account in the clone with a known temporary
+Create only a synthetic ADMIN account in the clone with a known temporary
 password. Do not copy production users.
 
 - [ ] **Step 2: Start runner on a loopback-only port**
@@ -178,7 +178,7 @@ Require no Prisma engine, native module, SMTP, worker or LLM error.
 ### Task 7: Record the audit evidence
 
 **Files:**
-- Create: `docs/audits/2026-08-10-node22-migration-prerequisite.md`
+- Create: `docs/audits/2026-08-10-node22-network-migration-prerequisite-phase-b.md`
 
 - [ ] **Step 1: Document root causes and versioned changes**
 - [ ] **Step 2: Document clone/canary commands in redacted form and results**
