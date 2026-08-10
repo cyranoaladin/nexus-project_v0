@@ -12,7 +12,9 @@ function assertDisposableDatabase(): void {
   const url = process.env.TEST_DATABASE_URL || process.env.DATABASE_URL || '';
   const parsed = new URL(url);
   expect(['127.0.0.1', 'localhost']).toContain(parsed.hostname);
-  expect(parsed.port).toBe('5434');
+  // Le conteneur jetable local expose PostgreSQL sur 5434, tandis que le
+  // service éphémère GitHub Actions écoute directement sur 5432.
+  expect(['5432', '5434']).toContain(parsed.port);
   expect(parsed.pathname).toBe('/nexus_test');
 }
 
