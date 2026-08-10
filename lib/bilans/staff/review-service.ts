@@ -31,6 +31,7 @@ export type PendingReportReview = Readonly<{
     assessmentAttempt: Readonly<{ provenance: string }>;
     student: Readonly<{
       user: Readonly<{ firstName: string | null; lastName: string | null }>;
+      parent: Readonly<{ user: Readonly<{ email: string | null }> }>;
     }>;
   }>;
 }>;
@@ -38,8 +39,10 @@ export type PendingReportReview = Readonly<{
 export type RecentReportReview = PendingReportReview & Readonly<{
   studentName: string;
   packLabel: string;
-  displayStatus: 'En attente de diffusion' | 'Diffusé' | 'Rejeté';
+  displayStatus: 'Prêt — e-mail parent manquant' | 'En attente de diffusion' | 'Diffusé' | 'Rejeté';
   actionable: boolean;
+  parentEmailMissing: boolean;
+  diffusable: boolean;
 }>;
 
 type ReviewActor = Readonly<{ userId: string; role: UserRole | string }>;
@@ -60,7 +63,10 @@ const revisionSelection = {
       status: true,
       assessmentAttempt: { select: { provenance: true } },
       student: {
-        select: { user: { select: { firstName: true, lastName: true } } },
+        select: {
+          user: { select: { firstName: true, lastName: true } },
+          parent: { select: { user: { select: { email: true } } } },
+        },
       },
     },
   },
@@ -183,9 +189,16 @@ function assertStudentIdentity(revision: PendingReportReview): void {
   }
 }
 
+/** Point d'extension : un autre canal d'activation pourra satisfaire ce
+ * prédicat sans modifier le state machine du bilan. Seul l'e-mail existe ici. */
+export function hasAvailableParentContact(revision: PendingReportReview): boolean {
+  return Boolean(revision.reportArtifact.student.parent?.user.email?.trim());
+}
+
 function displayStatus(revision: PendingReportReview): RecentReportReview['displayStatus'] {
   if (revision.status === ReportRevisionStatus.REJECTED) return 'Rejeté';
   if (revision.reportArtifact.status === 'PUBLISHED') return 'Diffusé';
+  if (!hasAvailableParentContact(revision)) return 'Prêt — e-mail parent manquant';
   return 'En attente de diffusion';
 }
 
@@ -205,6 +218,7 @@ function recentReview(
       || revision.status === ReportRevisionStatus.COACH_VALIDATED
     )
     && revision.reportArtifact.status === 'PENDING_REVIEW';
+  const parentEmailMissing = !hasAvailableParentContact(revision);
   return Object.freeze({
     ...revision,
     validationFailures,
@@ -214,6 +228,8 @@ function recentReview(
       : `${bilanPackLevelLabel(resolved.pack.level)} · ${bilanPackSubjectLabel(resolved.pack.subject)}`,
     displayStatus: displayStatus(revision),
     actionable,
+    parentEmailMissing,
+    diffusable: actionable && !parentEmailMissing,
   });
 }
 
@@ -255,6 +271,7 @@ export async function validateAndPublishPendingReport(
   const dependencies = { ...defaultDependencies, ...overrides };
   const { revision, reviewerId, motif } = await pendingReview(action, dependencies);
   assertStudentIdentity(revision);
+  if (!hasAvailableParentContact(revision)) throw new StaffReviewError('REPORT_PARENT_EMAIL_REQUIRED');
   if (revision.validationFailures.length > 0) throw new StaffReviewError('REPORT_VALIDATION_FAILURES');
   const reviewedAt = dependencies.now();
   // A stranded retry (see actionableStatus above) already has an APPROVED

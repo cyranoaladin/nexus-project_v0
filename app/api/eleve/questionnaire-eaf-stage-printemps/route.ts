@@ -2,6 +2,7 @@ import { isErrorResponse,requireRole } from '@/lib/guards';
 import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
 import { maybeCreateGeneratedReportJob } from '@/lib/reports/stage/maybeCreateGeneratedReportJob';
+import { requireUserEmail } from '@/lib/contact/user-email';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 
@@ -222,7 +223,8 @@ export async function POST(request: Request) {
       submittedAt: isSubmission ? new Date().toISOString() : undefined,
     };
 
-    const studentName = [student.user.firstName, student.user.lastName].filter(Boolean).join(' ') || student.user.email;
+    const studentName = [student.user.firstName, student.user.lastName].filter(Boolean).join(' ')
+      || requireUserEmail(student.user.email);
 
     // Verrouillage : Si déjà soumis, on ne peut plus modifier (sauf si action=draft pour sauvegarde de secours?)
     // Regle métier : Une fois COMPLETED, on ne touche plus.
@@ -260,7 +262,7 @@ export async function POST(request: Request) {
           type: BILAN_TYPE,
           subject: BILAN_SUBJECT,
           studentId: student.id,
-          studentEmail: student.user.email,
+          studentEmail: requireUserEmail(student.user.email),
           studentName,
           sourceData: sourceData as import('@prisma/client').Prisma.InputJsonValue,
           sourceVersion: SOURCE_VERSION,

@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
 import { requireRole } from '@/lib/guards';
 import { prisma } from '@/lib/prisma';
+import { hasUserEmail } from '@/lib/contact/user-email';
 import {
   currentParentLinkIsVerified,
   currentParentLinkOrderBy,
@@ -30,7 +31,7 @@ export async function GET() {
       return NextResponse.json({ reservations: [], bilans: [], coachBilans: [] });
     }
 
-    const childEmails = parent.children.map((c) => c.user.email);
+    const childEmails = parent.children.map((c) => c.user.email).filter(hasUserEmail);
     const childIds = parent.children.map((c) => c.id);
 
     // The unified Bilan model (coachBilans below) is served through

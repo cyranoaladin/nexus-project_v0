@@ -2,6 +2,7 @@ import type { Prisma } from '@prisma/client';
 import { serializeError } from '@/lib/utils/serialize-error';
 import { queueCommittedEmail } from '@/lib/email/queue';
 import { verifySmtp } from '@/lib/email/mailer';
+import { hasUserEmail } from '@/lib/contact/user-email';
 
 type EmailUser = {
   firstName?: string | null;
@@ -376,7 +377,8 @@ export async function sendScheduledReminders() {
         creditCost: session.creditsUsed
       };
 
-      await sendSessionReminderEmail(emailSession, session.student, videoLink);
+      if (!hasUserEmail(session.student.email)) continue;
+      await sendSessionReminderEmail(emailSession, { ...session.student, email: session.student.email }, videoLink);
 
       // Marquer le rappel comme envoyé
       // Uncomment after adding reminderSent field to Prisma schema

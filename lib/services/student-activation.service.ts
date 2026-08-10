@@ -29,6 +29,7 @@ import {
   type ActivationPurpose,
 } from '@/lib/auth/activation-token';
 import { buildTrustedActivationUrl } from '@/lib/auth/parent-activation';
+import { hasUserEmail } from '@/lib/contact/user-email';
 
 export interface ActivationResult {
   success: boolean;
@@ -96,7 +97,7 @@ async function findPendingUserActivation(
   hashedToken: string,
   purpose: ActivationPurpose,
 ): Promise<ActivationUserRecord | null> {
-  return prisma.user.findFirst({
+  const user = await prisma.user.findFirst({
     where: {
       activationToken: hashedToken,
       activationExpiry: { gt: new Date() },
@@ -107,6 +108,8 @@ async function findPendingUserActivation(
       student: { select: { id: true } },
     },
   });
+  if (user === null || !hasUserEmail(user.email)) return null;
+  return { ...user, email: user.email };
 }
 
 async function findPendingStageReservation(
@@ -335,8 +338,9 @@ export async function initiateParentOwnedStudentActivation(input: Readonly<{
     }
 
     const { rawToken, tokenHash, expiresAt } = createActivationToken('student');
-    const loginIdentifier = isStudentLoginIdentifierCompatible(student.user.email)
-      ? student.user.email
+    const currentEmail = student.user.email;
+    const loginIdentifier = hasUserEmail(currentEmail) && isStudentLoginIdentifierCompatible(currentEmail)
+      ? currentEmail
       : buildStudentLoginIdentifier({
           firstName: student.user.firstName ?? 'eleve',
           lastName: student.user.lastName ?? 'nexus',
@@ -349,10 +353,10 @@ export async function initiateParentOwnedStudentActivation(input: Readonly<{
         activatedAt: null,
       },
       data: {
-        ...(loginIdentifier !== student.user.email ? { email: loginIdentifier } : {}),
+        ...(loginIdentifier !== currentEmail ? { email: loginIdentifier } : {}),
         activationToken: tokenHash,
         activationExpiry: expiresAt,
-        ...(loginIdentifier !== student.user.email ? { sessionVersion: { increment: 1 } } : {}),
+        ...(loginIdentifier !== currentEmail ? { sessionVersion: { increment: 1 } } : {}),
       },
     });
     if (transition.count !== 1) {
