@@ -311,6 +311,7 @@ async function loadGraphs(
       role: 'PARENT',
       password: null,
       activatedAt: null,
+      mergedIntoUserId: null,
       email: { not: null },
       ...(input.ids ? { id: { in: [...input.ids] } } : {}),
     },

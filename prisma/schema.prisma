@@ -167,6 +167,13 @@ model User {
   activationExpiry DateTime? // expiration du token d'activation
   sessionVersion   Int       @default(0)
 
+  // Tombstone append-only lorsqu'un foyer sans e-mail est rattaché à un
+  // compte parent déjà existant. Les deux comptes restent auditables.
+  mergedIntoUserId String?
+  mergedAt         DateTime?
+  mergedInto       User?     @relation("UserAccountMerges", fields: [mergedIntoUserId], references: [id], onDelete: Restrict)
+  mergedSources    User[]    @relation("UserAccountMerges")
+
   // Relations spécifiques selon le rôle
   parentProfile ParentProfile?
   student       Student?
@@ -243,6 +250,7 @@ model User {
 
   @@index([role])
   @@index([phoneNormalized])
+  @@index([mergedIntoUserId])
   @@map("users")
 }
 
@@ -338,7 +346,7 @@ model Student {
   reportArtifacts             ReportArtifact[]
 
   // Diagnostic candidat libre 2027 (feature isolée, non liée aux bilans/assessments historiques)
-  candidateDiagnostics CandidateDiagnostic[]
+  candidateDiagnostics        CandidateDiagnostic[]
   candidateDiagnosticConsents CandidateDiagnosticConsent[]
 
   createdAt DateTime @default(now())
@@ -2120,7 +2128,7 @@ model UserDocument {
 
   // Chemin physique sécurisé (Hors dossier public)
   // Ex: /app/storage/documents/cl9...xyz.pdf
-  localPath String @unique
+  localPath         String  @unique
   /// Renseigné quand le fichier référencé n'existe plus et ne peut pas être
   /// restauré (perte lors de la migration Docker → répertoires de release).
   /// La ligne est conservée pour la traçabilité ; le téléchargement répond 410.
@@ -2985,7 +2993,7 @@ model CandidateDiagnosticItemValidation {
 /// Vit hors de `CandidateDiagnostic` parce que le consentement doit précéder la
 /// création du dossier : la notice est présentée avant tout traitement.
 model CandidateDiagnosticConsent {
-  id        String @id @default(cuid())
+  id        String  @id @default(cuid())
   studentId String
   student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
 

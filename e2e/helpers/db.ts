@@ -5,6 +5,12 @@ import { loginAsUser } from './auth';
 import fs from 'fs';
 import path from 'path';
 import jwt from 'jsonwebtoken';
+import {
+  getAriaAddonCatalogItem,
+  getOperationalSubscriptionPlan,
+  type AriaAddonKey,
+  type SubscriptionPlanKey,
+} from '../../lib/operational-catalog';
 
 const DEFAULT_E2E_DB_URL = 'postgresql://postgres:postgres@localhost:5435/nexus_e2e?schema=public';
 
@@ -44,18 +50,21 @@ export async function setStudentCreditsByEmail(email: string, credits: number) {
     data: { credits },
   });
 
-  // Reset credit transactions to match requested credits
-  await client.creditTransaction.deleteMany({
+  const current = await client.creditTransaction.aggregate({
     where: { studentId: user.student.id },
+    _sum: { amount: true },
   });
+  const adjustment = credits - (current._sum.amount ?? 0);
 
-  if (credits > 0) {
+  // The test fixture follows the production ledger contract: balance changes
+  // are compensating entries, never deletions of prior credit history.
+  if (adjustment !== 0) {
     await client.creditTransaction.create({
       data: {
         studentId: user.student.id,
         type: 'MANUAL_ADJUST',
-        amount: credits,
-        description: 'E2E credits reset',
+        amount: adjustment,
+        description: 'E2E balance adjustment',
       },
     });
   }
@@ -76,17 +85,19 @@ export async function setStudentCreditsByUserId(userId: string, credits: number)
     data: { credits },
   });
 
-  await client.creditTransaction.deleteMany({
+  const current = await client.creditTransaction.aggregate({
     where: { studentId: student.id },
+    _sum: { amount: true },
   });
+  const adjustment = credits - (current._sum.amount ?? 0);
 
-  if (credits > 0) {
+  if (adjustment !== 0) {
     await client.creditTransaction.create({
       data: {
         studentId: student.id,
         type: 'MANUAL_ADJUST',
-        amount: credits,
-        description: 'E2E credits reset by userId',
+        amount: adjustment,
+        description: 'E2E balance adjustment by userId',
       },
     });
   }
@@ -271,8 +282,8 @@ export async function getLatestSessionBooking(studentUserId: string) {
 
 export async function ensureInactiveSubscriptionForStudentEmail(
   studentEmail: string,
-  planName = 'HYBRIDE',
-  creditsPerMonth = 8
+  planName: SubscriptionPlanKey = 'HYBRIDE',
+  creditsPerMonth?: number
 ) {
   const client = getPrisma();
   const studentUser = await client.user.findUnique({
@@ -283,12 +294,15 @@ export async function ensureInactiveSubscriptionForStudentEmail(
     throw new Error(`Student not found for email ${studentEmail}`);
   }
 
+  const plan = getOperationalSubscriptionPlan(planName);
+  if (!plan) throw new Error(`Unknown subscription plan ${planName}`);
+
   await client.subscription.create({
     data: {
       studentId: studentUser.student.id,
       planName,
-      monthlyPrice: 450,
-      creditsPerMonth,
+      monthlyPrice: plan.price,
+      creditsPerMonth: creditsPerMonth ?? plan.credits,
       status: 'INACTIVE',
       startDate: new Date(),
       endDate: null,
@@ -303,6 +317,8 @@ export async function ensureActiveAriaSubscriptionForStudentEmail(
   ariaSubjects: string[] = ['MATHEMATIQUES']
 ) {
   const client = getPrisma();
+  const plan = getOperationalSubscriptionPlan('HYBRIDE');
+  if (!plan) throw new Error('HYBRIDE subscription plan is missing');
   const studentUser = await client.user.findUnique({
     where: { email: studentEmail },
     include: { student: true },
@@ -320,8 +336,8 @@ export async function ensureActiveAriaSubscriptionForStudentEmail(
     data: {
       studentId: studentUser.student.id,
       planName: 'HYBRIDE',
-      monthlyPrice: 450,
-      creditsPerMonth: 8,
+      monthlyPrice: plan.price,
+      creditsPerMonth: plan.credits,
       status: 'ACTIVE',
       startDate: new Date(),
       endDate: null,
@@ -337,6 +353,8 @@ export async function setParentSubscription(
   plan: string
 ): Promise<void> {
   const client = getPrisma();
+  const catalogPlan = getOperationalSubscriptionPlan(plan);
+  if (!catalogPlan) throw new Error(`Unknown subscription plan ${plan}`);
   const parentUser = await client.user.findUnique({
     where: { email },
     include: {
@@ -356,8 +374,8 @@ export async function setParentSubscription(
       data: {
         studentId: child.id,
         planName: plan,
-        monthlyPrice: plan === 'IMMERSION' ? 750 : plan === 'HYBRIDE' ? 450 : 150,
-        creditsPerMonth: plan === 'IMMERSION' ? 12 : plan === 'HYBRIDE' ? 8 : 0,
+        monthlyPrice: catalogPlan.price,
+        creditsPerMonth: catalogPlan.credits,
         status,
         startDate: new Date(),
         endDate: status === 'EXPIRED' ? new Date(Date.now() - 24 * 60 * 60 * 1000) : null,
@@ -379,24 +397,10 @@ export async function clearParentSubscription(email: string): Promise<void> {
   });
 }
 
-type E2ESubscriptionPlanName = 'ACCES_PLATEFORME' | 'HYBRIDE' | 'IMMERSION';
-type E2EAriaAddonName = 'MATIERE_SUPPLEMENTAIRE' | 'ANALYSE_APPROFONDIE';
-
-const E2E_SUBSCRIPTION_CATALOG: Record<E2ESubscriptionPlanName, { price: number; credits: number }> = {
-  ACCES_PLATEFORME: { price: 150, credits: 0 },
-  HYBRIDE: { price: 450, credits: 4 },
-  IMMERSION: { price: 750, credits: 8 },
-};
-
-const E2E_ARIA_ADDON_CATALOG: Record<E2EAriaAddonName, { price: number }> = {
-  MATIERE_SUPPLEMENTAIRE: { price: 50 },
-  ANALYSE_APPROFONDIE: { price: 75 },
-};
-
 export async function createPendingSubscriptionRequest(
   parentEmail: string,
   options: {
-    planName?: E2ESubscriptionPlanName;
+    planName?: SubscriptionPlanKey;
     reason?: string;
   } = {}
 ): Promise<{ id: string; studentId: string; initialCreditTotal: number }> {
@@ -410,7 +414,8 @@ export async function createPendingSubscriptionRequest(
   }
   const child = parentUser.parentProfile.children[0];
   const planName = options.planName ?? 'HYBRIDE';
-  const plan = E2E_SUBSCRIPTION_CATALOG[planName];
+  const plan = getOperationalSubscriptionPlan(planName);
+  if (!plan) throw new Error(`Unknown subscription plan ${planName}`);
 
   if (options.reason) {
     await client.subscriptionRequest.deleteMany({
@@ -491,7 +496,7 @@ export async function getPlanChangeApprovalState(requestId: string) {
 export async function createPendingAriaAddonRequest(
   parentEmail: string,
   options: {
-    addonName?: E2EAriaAddonName;
+    addonName?: AriaAddonKey;
     reason?: string;
   } = {}
 ): Promise<{ id: string; studentId: string }> {
@@ -506,7 +511,8 @@ export async function createPendingAriaAddonRequest(
 
   const child = parentUser.parentProfile.children[0];
   const addonName = options.addonName ?? 'ANALYSE_APPROFONDIE';
-  const addon = E2E_ARIA_ADDON_CATALOG[addonName];
+  const addon = getAriaAddonCatalogItem(addonName);
+  if (!addon) throw new Error(`Unknown ARIA add-on ${addonName}`);
 
   if (options.reason) {
     await client.subscriptionRequest.deleteMany({

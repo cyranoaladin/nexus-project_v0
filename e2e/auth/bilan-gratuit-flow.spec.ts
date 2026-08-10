@@ -1,41 +1,38 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('Bilan gratuit multi-step', () => {
-  test('validates step 1 and advances to step 2', async ({ page }) => {
-    test.skip(true, 'REFONTE: bilan-gratuit form redesigned as single-page — old multi-step selectors invalid');
+test.describe('Bilan gratuit mono-page', () => {
+  test('valide les champs requis puis accepte une demande complète', async ({ page }) => {
     await page.goto('/bilan-gratuit', { waitUntil: 'domcontentloaded' });
 
-    await expect(page.getByRole('heading', { name: /Créez Votre Compte Parent et Élève/i })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /bilan/i }).first()).toBeVisible();
+    await page.getByRole('button', { name: /lancer le bilan diagnostic/i }).click();
+    await expect(page.locator('[role="alert"]').first()).toBeVisible();
 
     // Fill step 1
     const firstName = page.locator('#parentFirstName:visible');
     const lastName = page.locator('#parentLastName:visible');
     const email = page.locator('#parentEmail:visible');
     const phone = page.locator('#parentPhone:visible');
-    const password = page.locator('#parentPassword:visible');
-
     const uniqueEmail = `e2e-bilan-${Date.now()}@test.com`;
     await firstName.fill('Parent');
     await lastName.fill('Test');
     await email.fill(uniqueEmail);
     await phone.fill('+21699112233');
-    await password.fill('Test1234!');
+    await page.locator('#studentFirstName').fill('Élève');
+    await page.locator('#studentGrade').selectOption('premiere');
+    await page.locator('#studentSchool').fill('Établissement E2E');
+    await page.locator('label').filter({ hasText: 'Mathématiques' }).getByRole('checkbox').click();
+    await page.locator('#objectives').fill('Établir les priorités pédagogiques pour la rentrée.');
+    await page.locator('label').filter({ hasText: /J.accepte d.être contacté/ }).getByRole('checkbox').click();
 
     // Guard against hydration re-render clearing uncontrolled input state.
     await expect(firstName).toHaveValue('Parent');
     await expect(lastName).toHaveValue('Test');
     await expect(email).toHaveValue(uniqueEmail);
     await expect(phone).toHaveValue('+21699112233');
-    await expect(password).toHaveValue('Test1234!');
-
-    const nextButton = page.getByRole('button', { name: /Suivant/i });
-    await expect(nextButton).toBeEnabled();
-    await nextButton.click();
-
-    // Step transition can be slightly delayed depending on hydration/network.
-    await expect(page.getByText(/Étape 2 sur 2/i)).toBeVisible({ timeout: 15000 });
-    await expect(
-      page.getByRole('heading', { name: /Étape 2 : Informations Élève/i })
-    ).toBeVisible({ timeout: 15000 });
+    const submit = page.getByRole('button', { name: /lancer le bilan diagnostic/i });
+    await expect(submit).toBeEnabled();
+    await submit.click();
+    await expect(page).toHaveURL(/\/bilan-gratuit\/confirmation/, { timeout: 15000 });
   });
 });

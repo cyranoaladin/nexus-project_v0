@@ -1,5 +1,5 @@
 /**
- * Unit tests — renderBilanParentPDF (bilan-parent-pdfkit.ts)
+ * Unit tests — canonical Parent PDF engine with the legacy data adapter.
  *
  * Validates:
  *  - PDF bytes are generated
@@ -8,8 +8,10 @@
  *  - Short content → 1-2 pages, long content → proportionally more
  */
 
-import { renderBilanParentPDF } from '@/lib/pdf/bilan-parent-pdfkit';
-import type { BilanParentPDFData } from '@/lib/pdf/bilan-parent-template';
+import {
+  renderLegacyParentBilanPdf,
+  type LegacyParentBilanData,
+} from '@/lib/bilans/render/legacy-parent-adapter';
 import {
   createBilanPdfRendererSession,
   type BilanPdfRendererSession,
@@ -25,7 +27,7 @@ function countPdfPages(buf: Buffer): number {
 
 // ─── Fixtures ─────────────────────────────────────────────────────────────────
 
-const BASE: BilanParentPDFData = {
+const BASE: LegacyParentBilanData = {
   studentName:  'Ahmed Ben Ali',
   stageTitle:   'Stage Printemps 2026',
   subjectLabel: 'Mathématiques',
@@ -163,13 +165,13 @@ let pdfSession: BilanPdfRendererSession;
 beforeAll(async () => { pdfSession = await createBilanPdfRendererSession(); }, 30_000);
 afterAll(async () => { await pdfSession.close(); });
 
-function renderWithSharedSession(data: BilanParentPDFData): Promise<Buffer> {
-  return renderBilanParentPDF(data, { renderHtmlToPdf: pdfSession.renderHtmlToPdf });
+function renderWithSharedSession(data: LegacyParentBilanData): Promise<Buffer> {
+  return renderLegacyParentBilanPdf(data, { renderHtmlToPdf: pdfSession.renderHtmlToPdf });
 }
 
 // ─── Tests ────────────────────────────────────────────────────────────────────
 
-describe('renderBilanParentPDF', () => {
+describe('renderLegacyParentBilanPdf', () => {
   it('génère un Buffer non-vide', async () => {
     const buf = await renderWithSharedSession({ ...BASE, parentsMarkdown: SHORT_MARKDOWN });
     expect(buf).toBeInstanceOf(Buffer);

@@ -16,7 +16,10 @@ import { enqueueEmailIntent } from '@/lib/email/outbox';
 
 const enqueued = enqueueEmailIntent as jest.MockedFunction<typeof enqueueEmailIntent>;
 
-beforeEach(() => { enqueued.mockClear(); });
+beforeEach(() => {
+  enqueued.mockClear();
+  process.env.NEXTAUTH_URL = 'http://localhost:3000';
+});
 
 type EnqueuedIntent = Readonly<{ messageType: string; to: string; aggregateId: string }>;
 

@@ -171,6 +171,7 @@ export const createTestStudent = async (parentId: string, overrides: any = {}) =
       parentId,
       userId: studentUser.id,
       grade: 'Terminale',
+      gradeLevel: 'TERMINALE',
       school: 'Lycée Test',
       ...overrides.student
     }

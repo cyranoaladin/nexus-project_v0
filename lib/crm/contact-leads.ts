@@ -4,6 +4,7 @@ import { enqueueEmailIntent } from '@/lib/email/outbox';
 import { kickEmailOutboxDrain } from '@/lib/email/outbox-scheduler';
 import { contactLeadNotification } from '@/lib/email/templates';
 import { LEGAL } from '@/lib/legal';
+import { normalizeUserEmail } from '@/lib/contact/user-email';
 
 const optionalText = z
   .preprocess(
@@ -18,7 +19,7 @@ const optionalText = z
 
 const contactLeadPayloadSchema = z.object({
   name: z.string().trim().min(1).max(200),
-  email: z.string().trim().toLowerCase().email().max(320),
+  email: z.string().trim().email().max(320).transform(normalizeUserEmail),
   phone: optionalText,
   profile: optionalText,
   interest: optionalText,

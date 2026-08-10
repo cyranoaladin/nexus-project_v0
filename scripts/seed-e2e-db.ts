@@ -1,4 +1,6 @@
-import { serializeError } from '@/lib/utils/serialize-error';
+import { mkdirSync, writeFileSync } from 'node:fs';
+import { dirname, resolve } from 'node:path';
+import { serializeError } from '../lib/utils/serialize-error';
 /**
  * E2E Database Seeding Script
  *
@@ -204,6 +206,7 @@ const admin = await prisma.user.create({
       role: UserRole.ADMIN,
       firstName: 'Admin',
       lastName: 'Nexus',
+      activatedAt: new Date(),
     },
   });
   console.log(`  ✓ Admin: ${admin.email}`);
@@ -382,7 +385,8 @@ const student = await prisma.user.create({
       userId: student2.id,
       grade: 'PREMIERE',
       gradeLevel: GradeLevel.PREMIERE,
-      academicTrack: AcademicTrack.EDS_GENERALE,
+      academicTrack: AcademicTrack.STMG,
+      stmgPathway: StmgPathway.INDETERMINE,
       school: 'Lycée Pilote Ariana',
       parentId: parent.parentProfile!.id,
       credits: 5,
@@ -706,14 +710,6 @@ const student = await prisma.user.create({
   console.log(`  Stage Bilans: ${await prisma.stageBilan.count()}`);
   console.log(`  Session Bookings: ${await prisma.sessionBooking.count()}\n`);
 
-  console.log('🔑 Test Credentials:');
-  console.log(`  Admin:   admin.${timestamp}@test.com / password123`);
-  console.log(`  Student: yasmine.dupont@test.com / password123`);
-  console.log(`  Student2: student2.${timestamp}@test.com / password123`);
-  console.log(`  Coach:   helios@test.com / password123`);
-  console.log(`  Coach2:  coach2.${timestamp}@test.com / password123\n`);
-  console.log(`  Assistante: assistante.${timestamp}@test.com / password123\n`);
-
   // Write credentials to file for E2E tests
   const credentials = {
     admin: { email: `admin.${timestamp}@test.com`, password: 'password123' },
@@ -726,9 +722,10 @@ const student = await prisma.user.create({
     assistante: { email: `assistante.${timestamp}@test.com`, password: 'password123' },
     zenon: { email: 'zenon@test.com', password: 'password123' }, // For E2E booking flow
   };
-  const fs = require('fs');
-  fs.writeFileSync('e2e/.credentials.json', JSON.stringify(credentials, null, 2));
-  console.log('✅ Credentials written to e2e/.credentials.json');
+  const credentialsPath = resolve(process.env.E2E_CREDENTIALS_PATH ?? 'e2e/.credentials.json');
+  mkdirSync(dirname(credentialsPath), { recursive: true });
+  writeFileSync(credentialsPath, JSON.stringify(credentials, null, 2), { encoding: 'utf8', mode: 0o600 });
+  console.log('✅ Credentials manifest written');
 
   console.log('🧪 Ready for E2E tests!');
 }

@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test'
 import * as fs from 'fs'
 
-const BASE = 'http://localhost:3000'
+const BASE = process.env.BASE_URL ?? 'http://127.0.0.1:3002'
 const report: any[] = []
 
 async function checkPage(page: any, url: string) {
@@ -39,7 +39,6 @@ async function checkPage(page: any, url: string) {
 }
 
 test('Toutes les pages publiques', async ({ page }) => {
-  test.skip(true, 'QUARANTINE: PRE-EXISTING: hardcoded localhost:3000, incompatible with Docker E2E');
   const PAGES = [
     '/', '/offres', '/bilan-gratuit', '/contact',
     '/stages',

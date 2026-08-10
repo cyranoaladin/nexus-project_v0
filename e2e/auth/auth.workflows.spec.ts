@@ -27,14 +27,16 @@ test.describe('Auth workflows', () => {
     await expect(page.getByText(/email ou mot de passe incorrect/i)).toBeVisible();
   });
 
-  test('deja connecte -> auth/* redirigé', async ({ page }) => {
+  test('les surfaces auth gardent leur contrat quand une session existe', async ({ page }) => {
     await loginAsUser(page, 'student');
     await page.goto('/auth/signin', { waitUntil: 'domcontentloaded' });
     await expect(page).toHaveURL(/\/dashboard\/eleve/);
     await page.goto('/auth/activate', { waitUntil: 'domcontentloaded' });
-    await expect(page).toHaveURL(/\/dashboard\/eleve/);
+    await expect(page).toHaveURL(/\/auth\/activate/);
+    await expect(page.getByRole('heading', { name: /lien invalide/i })).toBeVisible();
     await page.goto('/auth/reset-password', { waitUntil: 'domcontentloaded' });
-    await expect(page).toHaveURL(/\/dashboard\/eleve/);
+    await expect(page).toHaveURL(/\/auth\/reset-password/);
+    await expect(page.getByRole('heading', { name: /lien invalide/i })).toBeVisible();
   });
 
   test('mot de passe oublié anti-enumeration', async ({ page }) => {

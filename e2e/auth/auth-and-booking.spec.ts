@@ -243,202 +243,73 @@ test.describe('Authentication & Booking Flow', () => {
     });
 
     test('Parent can view available sessions', async ({ page }) => {
-      test.skip(true, 'REFONTE: booking tab removed in dashboard redesign — parent dashboard no longer has session booking tab');
       await login(page, 'parent');
 
-      // Switch to booking tab
-      const bookingTab = page.getByRole('tab', { name: /réserver session/i });
-      await bookingTab.click();
+      const dashboardResponse = await page.request.get('/api/parent/dashboard');
+      expect(dashboardResponse.ok()).toBe(true);
+      const dashboard = await dashboardResponse.json();
+      const child = dashboard.children?.[0];
+      expect(child?.id).toBeTruthy();
 
-      // Booking card should render
-      await expect(page.getByText(/Réserver une Session/i)).toBeVisible({ timeout: 10000 });
+      await page.goto(`/dashboard/parent/enfant/${child.id}`, { waitUntil: 'domcontentloaded' });
+      await expect(page.getByText(/prochaines sessions/i)).toBeVisible({ timeout: 10_000 });
+      await expect(page.getByRole('button', { name: /réserver une séance/i })).toBeVisible();
+
+      const fixture = await getAvailableBookingFixture(page, 0);
+      expect(fixture.slot.date).toMatch(/^\d{4}-\d{2}-\d{2}$/);
     });
 
-    async function selectSubjectAndCoach(page: Page) {
-      // Step 1: select subject
-      await page.getByTestId('booking-subject-trigger').click();
-      await page.getByRole('option', { name: /Français/i }).click();
+    async function getAvailableBookingFixture(page: Page, slotIndex: number) {
+      const dashboardResponse = await page.request.get('/api/parent/dashboard');
+      expect(dashboardResponse.ok()).toBe(true);
+      const dashboard = await dashboardResponse.json();
+      const studentId = dashboard.children?.find((child: { userId?: string }) => child.userId)?.userId;
+      expect(studentId).toBeTruthy();
 
-      // Step 1: select coach (wait for list to load)
-      await page.getByTestId('booking-coach-trigger').click();
-      const coachOption = page.getByRole('option', { name: /Sophie|Zénon|Bernard/i });
-      await expect(coachOption).toBeVisible({ timeout: 8000 });
-      await coachOption.first().click();
+      const coachesResponse = await page.request.get('/api/coaches/available?subject=MATHEMATIQUES');
+      expect(coachesResponse.ok()).toBe(true);
+      const coachesData = await coachesResponse.json();
+      const coachId = coachesData.coaches?.[0]?.id;
+      expect(coachId).toBeTruthy();
 
-      // Ensure step1 button is enabled
-      await expect(page.getByTestId('booking-step1-next')).toBeEnabled({ timeout: 8000 });
-      await page.getByTestId('booking-step1-next').click();
+      const start = new Date();
+      start.setDate(start.getDate() + 1);
+      const end = new Date(start);
+      end.setDate(end.getDate() + 21);
+      const availabilityResponse = await page.request.get(
+        `/api/coaches/availability?coachId=${coachId}&startDate=${start.toISOString()}&endDate=${end.toISOString()}`
+      );
+      expect(availabilityResponse.ok()).toBe(true);
+      const availability = await availabilityResponse.json();
+      const slot = availability.availableSlots?.[slotIndex] ?? availability.availableSlots?.[0];
+      expect(slot).toBeTruthy();
+
+      return { studentId: studentId as string, coachId: coachId as string, slot };
     }
 
     test('Parent can book a session for student', async ({ page }) => {
-      test.skip(true, 'REFONTE: booking tab removed in dashboard redesign');
       await login(page, 'parent');
-
-      // Switch to booking tab
-      const bookingTab = page.getByRole('tab', { name: /réserver session/i });
-      await bookingTab.click();
-
-      await selectSubjectAndCoach(page);
-
-      // Step 2: select first available slot
-      let slotFound = false;
-      for (let attempt = 0; attempt < 3; attempt += 1) {
-        const slot = page.getByTestId('booking-slot-0');
-        const emptyState = page.getByText(/Aucun créneau disponible/i);
-
-        const hasSlot = await slot.isVisible({ timeout: 4000 }).catch(() => false);
-        if (hasSlot) {
-          await slot.click();
-          slotFound = true;
-          break;
-        }
-
-        const hasEmpty = await emptyState.isVisible({ timeout: 2000 }).catch(() => false);
-        if (hasEmpty) {
-          // Try next week
-          const nextWeek = page.getByRole('button', { name: /Semaine suivante/i });
-          if (await nextWeek.isVisible({ timeout: 2000 }).catch(() => false)) {
-            await nextWeek.click();
-            await page.waitForTimeout(800);
-          }
-        }
-      }
-
-      if (!slotFound) {
-        // As a last resort, try to refresh availability by reloading the tab
-        await page.reload({ waitUntil: 'domcontentloaded' });
-        const bookingTabRetry = page.getByRole('tab', { name: /réserver session/i });
-        await bookingTabRetry.click();
-        await selectSubjectAndCoach(page);
-
-        const slot = page.getByTestId('booking-slot-0');
-        if (await slot.isVisible({ timeout: 8000 }).catch(() => false)) {
-          await slot.click();
-          slotFound = true;
-        }
-      }
-
-      if (!slotFound) {
-        // Fallback: book directly via API to avoid flakiness in availability UI
-        const dashboardResponse = await page.request.get('/api/parent/dashboard');
-        const dashboard = await dashboardResponse.json();
-        let studentId: string | undefined;
-        const studentWithCredits = dashboard.children?.find((c: { credits?: number }) => (c.credits ?? 0) > 0);
-        if (studentWithCredits?.userId) {
-          studentId = studentWithCredits.userId;
-        } else {
-          await setStudentCreditsByEmail(CREDS.student.email, 8);
-          studentId =
-            dashboard.children?.find((c: { firstName?: string }) => c.firstName?.toLowerCase() === 'yasmine')?.userId ??
-            dashboard.children?.[0]?.userId;
-        }
-
-        if (!studentId) {
-          throw new Error('No student available for booking fallback');
-        }
-
-        const subjectsToTry = ['FRANCAIS', 'MATHEMATIQUES'];
-        let lastError = 'No booking attempt made';
-        let bookingAttempts = 0;
-        const MAX_BOOKING_ATTEMPTS = 5;
-
-        for (const subject of subjectsToTry) {
-          if (bookingAttempts >= MAX_BOOKING_ATTEMPTS) break;
-
-          const coachesResponse = await page.request.get(`/api/coaches/available?subject=${subject}`);
-          const coachesData = await coachesResponse.json();
-          const coaches = coachesData.coaches ?? [];
-
-          for (const coach of coaches) {
-            if (bookingAttempts >= MAX_BOOKING_ATTEMPTS) break;
-
-            const coachId = coach.id;
-            const start = new Date();
-            const end = new Date();
-            end.setDate(end.getDate() + 14);
-            const availabilityResponse = await page.request.get(
-              `/api/coaches/availability?coachId=${coachId}&startDate=${start.toISOString()}&endDate=${end.toISOString()}`
-            );
-            const availabilityData = await availabilityResponse.json();
-            const slots = availabilityData.availableSlots ?? [];
-
-            // Only try the first available slot per coach to avoid rate limit exhaustion
-            const slot = slots[0];
-            if (!slot) continue;
-
-            bookingAttempts++;
-
-            const bookingResponse = await page.request.post('/api/sessions/book', {
-              data: {
-                coachId,
-                studentId,
-                subject,
-                scheduledDate: slot.date,
-                startTime: slot.startTime,
-                endTime: slot.endTime,
-                duration: slot.duration,
-                type: 'INDIVIDUAL',
-                modality: 'ONLINE',
-                title: 'Session test E2E',
-                description: 'Objectif: validation e2e',
-                creditsToUse: 1,
-              },
-            });
-
-            if (bookingResponse.ok()) {
-              return;
-            }
-
-            // If rate limited, wait and retry once
-            if (bookingResponse.status() === 429) {
-              const body = await bookingResponse.json().catch(() => ({}));
-              const retryAfter = (body.details?.retryAfter ?? 5) * 1000;
-              await page.waitForTimeout(Math.min(retryAfter, 10000));
-
-              const retryResponse = await page.request.post('/api/sessions/book', {
-                data: {
-                  coachId,
-                  studentId,
-                  subject,
-                  scheduledDate: slot.date,
-                  startTime: slot.startTime,
-                  endTime: slot.endTime,
-                  duration: slot.duration,
-                  type: 'INDIVIDUAL',
-                  modality: 'ONLINE',
-                  title: 'Session test E2E',
-                  description: 'Objectif: validation e2e',
-                  creditsToUse: 1,
-                },
-              });
-
-              if (retryResponse.ok()) {
-                return;
-              }
-              lastError = `Booking API failed after retry: ${retryResponse.status()} ${await retryResponse.text()}`;
-            } else {
-              lastError = `Booking API failed: ${bookingResponse.status()} ${await bookingResponse.text()}`;
-            }
-          }
-        }
-
-        throw new Error(lastError);
-      }
-      await page.getByTestId('booking-step2-next').click();
-
-      // Step 3: fill details and book
-      await page.getByTestId('booking-title').fill('Session test E2E');
-      await page.getByTestId('booking-description').fill('Objectif: validation e2e');
-      await page.getByTestId('booking-confirm').click();
-
-      // Step 4: success
-      await expect(
-        page.getByText(/Session réservée avec succès/i)
-      ).toBeVisible({ timeout: 10000 });
+      const { studentId, coachId, slot } = await getAvailableBookingFixture(page, 0);
+      const bookingResponse = await page.request.post('/api/sessions/book', {
+        data: {
+          coachId,
+          studentId,
+          subject: 'MATHEMATIQUES',
+          scheduledDate: slot.date,
+          startTime: slot.startTime,
+          endTime: slot.endTime,
+          duration: slot.duration,
+          type: 'INDIVIDUAL',
+          modality: 'ONLINE',
+          title: 'Session test E2E',
+          description: 'Objectif: validation e2e',
+          creditsToUse: 1,
+        },
+      });
+      expect(bookingResponse.status(), await bookingResponse.text()).toBe(201);
     });
 
     test('Booking fails when parent has insufficient credits', async ({ page }) => {
-      test.skip(true, 'REFONTE: booking tab removed in dashboard redesign');
       // Zero credits for ALL children to ensure the test is deterministic
       await setStudentCreditsByEmail(CREDS.student.email, 0);
       if (CREDS.student2?.email) {
@@ -448,36 +319,13 @@ test.describe('Authentication & Booking Flow', () => {
       await login(page, 'parent');
 
       // Use API to attempt booking and assert rejection
-      const dashboardResponse = await page.request.get('/api/parent/dashboard');
-      const dashboard = await dashboardResponse.json();
-      const studentId = dashboard.children?.[0]?.userId;
-
-      const coachesResponse = await page.request.get('/api/coaches/available?subject=FRANCAIS');
-      const coachesData = await coachesResponse.json();
-      const coachId = coachesData.coaches?.[0]?.id;
-
-      if (!studentId || !coachId) {
-        throw new Error('Missing booking prerequisites for insufficient credits test');
-      }
-
-      const start = new Date();
-      const end = new Date();
-      end.setDate(end.getDate() + 14);
-      const availabilityResponse = await page.request.get(
-        `/api/coaches/availability?coachId=${coachId}&startDate=${start.toISOString()}&endDate=${end.toISOString()}`
-      );
-      const availabilityData = await availabilityResponse.json();
-      const slot = availabilityData.availableSlots?.[0];
-
-      if (!slot) {
-        throw new Error('No available booking slot found from API availability (insufficient credits test)');
-      }
+      const { studentId, coachId, slot } = await getAvailableBookingFixture(page, 1);
 
       const bookingResponse = await page.request.post('/api/sessions/book', {
         data: {
           coachId,
           studentId,
-          subject: 'FRANCAIS',
+          subject: 'MATHEMATIQUES',
           scheduledDate: slot.date,
           startTime: slot.startTime,
           endTime: slot.endTime,
@@ -490,24 +338,21 @@ test.describe('Authentication & Booking Flow', () => {
         },
       });
 
-      expect(bookingResponse.ok()).toBeFalsy();
+      expect(bookingResponse.status()).toBe(400);
+      expect(await bookingResponse.text()).toMatch(/insufficient credits/i);
     });
 
     test('Coach cannot book their own sessions', async ({ page }) => {
-      test.skip(true, 'REFONTE: booking tab removed in dashboard redesign');
       await login(page, 'coach');
 
       // Navigate to coach dashboard — use domcontentloaded (networkidle hangs due to SPA polling)
       await page.goto('/dashboard/coach', { waitUntil: 'domcontentloaded' });
 
-      // Wait for the coach dashboard to fully render (data loaded, not loading/error state)
-      await expect(
-        page.getByTestId('coach-dashboard-ready')
-      ).toBeVisible({ timeout: 60_000 });
+      await expect(page.getByRole('heading', { name: /Coach — Hélios/i })).toBeVisible({ timeout: 15_000 });
 
       // Coach dashboard should NOT have a "Réserver" / "Book" button
       const bookButton = page.getByRole('button', { name: /réserver une session|book a session/i });
-      await expect(bookButton).not.toBeVisible({ timeout: 3000 });
+      await expect(bookButton).toHaveCount(0);
     });
   });
 
@@ -602,29 +447,21 @@ test.describe('Authentication & Booking Flow', () => {
     test('User can navigate between dashboard sections', async ({ page }) => {
       await login(page, 'parent');
 
-      // Navigate to different sections
-      const profileLink = page.getByRole('link', { name: /profil|profile|paramètres|settings/i });
-      if (await profileLink.isVisible().catch(() => false)) {
-        await profileLink.click();
-        await page.waitForLoadState('domcontentloaded');
-        await expect(page).toHaveURL(/profile|profil|settings|paramètres/);
-      }
+      const subscriptionsLink = page.getByRole('link', { name: /abonnements/i });
+      await expect(subscriptionsLink).toBeVisible();
+      await subscriptionsLink.click();
+      await expect(page).toHaveURL(/\/dashboard\/parent\/abonnements(?:[?#]|$)/);
     });
 
     test('User can logout successfully', async ({ page }) => {
       await login(page, 'parent');
 
-      // Find and click logout button
-      const logoutButton = page.getByRole('button', { name: /déconnexion|logout|sign out/i });
-
-      if (await logoutButton.isVisible({ timeout: 5000 }).catch(() => false)) {
-        await logoutButton.click();
-
-        // Should redirect to home or signin
-        await expect(page).toHaveURL(/\/$|\/auth\/signin/, { timeout: 5000 });
-      } else {
-        console.log('⚠️  Logout button not found - may be in dropdown menu');
-      }
+      const logoutButton = page.getByRole('button', { name: /se déconnecter de votre compte/i });
+      await expect(logoutButton).toBeVisible();
+      await Promise.all([
+        page.waitForURL((url) => ['/', '/auth/signin'].includes(url.pathname)),
+        logoutButton.click(),
+      ]);
     });
   });
 });

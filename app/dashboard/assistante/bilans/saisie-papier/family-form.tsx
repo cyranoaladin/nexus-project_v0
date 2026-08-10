@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { LEGAL } from '@/lib/legal';
 import { useRouter } from 'next/navigation';
 
 import { normalizeParentPhone } from '@/lib/contact/parent-phone';
@@ -141,7 +142,7 @@ export function PaperEntryFamilyForm() {
             required
             value={parentPhone}
             onChange={(event) => setParentPhone(event.target.value)}
-            placeholder="99 19 28 29"
+            placeholder={LEGAL.contact.phone}
             className="mt-1 w-full rounded-xl border border-white/15 bg-slate-950 px-3 py-2 text-white"
           />
         </label>

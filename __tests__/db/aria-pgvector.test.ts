@@ -44,15 +44,14 @@ describe('ARIA Stress Test (Real DB + PGVector)', () => {
         await testPrisma.$executeRaw`DELETE FROM "pedagogical_contents" WHERE id = 'stress-test-1'`;
 
         await testPrisma.$executeRaw`
-            INSERT INTO "pedagogical_contents" (id, title, content, subject, "embedding_vector", "updatedAt", "embedding")
+            INSERT INTO "pedagogical_contents" (id, title, content, subject, "embedding_vector", "updatedAt")
             VALUES (
                 'stress-test-1', 
                 'Contenu Cible Vectoriel', 
                 'Ce contenu doit être retrouvé par la recherche vectorielle grâce au vecteur [0.1...]', 
                 'MATHEMATIQUES'::"Subject", 
-                ${vectorString}::vector, 
-                NOW(),
-                '[]'::jsonb
+                ${vectorString}::vector,
+                NOW()
             );
         `;
     }, 10000);

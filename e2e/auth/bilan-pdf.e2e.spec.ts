@@ -35,16 +35,15 @@ test('GET /api/parent/bilans/xxx/pdf Content-Type est json pour 401', async ({ r
 
 // ─── Public pages reachable ───────────────────────────────────────────────────
 
-test('Page /connexion se charge (redirection auth attendue)', async ({ page }) => {
-  test.skip(true, 'PRE-EXISTING: /connexion route does not exist, test checks production domain');
-  await page.goto('/connexion');
+test('Page canonique de connexion se charge', async ({ page }) => {
+  const response = await page.goto('/auth/signin');
   await page.waitForLoadState('domcontentloaded');
-  // Must land on login page or be redirected — never 500
-  const status = page.url();
-  expect(status).toContain('nexusreussite');
+  expect(response?.status()).toBe(200);
+  await expect(page.getByTestId('input-email')).toBeVisible();
+  await expect(page.getByTestId('input-password')).toBeVisible();
 });
 
-test('Page /dashboard/parent/ sans session redirige vers /connexion', async ({ page }) => {
+test('Page /dashboard/parent/ sans session redirige vers la connexion canonique', async ({ page }) => {
   await page.goto('/dashboard/parent/bilans');
   await page.waitForLoadState('domcontentloaded');
   // Should redirect to login, not show a 500 or blank page
@@ -52,25 +51,5 @@ test('Page /dashboard/parent/ sans session redirige vers /connexion', async ({ p
   expect(url).toMatch(/connexion|login|auth/i);
 });
 
-// ─── PDF endpoint returns application/pdf when authenticated ─────────────────
-// (This test is skipped in CI since it needs real session credentials.
-//  Run manually with PARENT_SESSION_COOKIE and a valid BILAN_ID.)
-
-test.skip('GET /api/parent/bilans/:id/pdf retourne un PDF (authentifié)', async ({ request }) => {
-  const bilanId   = process.env.E2E_BILAN_ID   ?? '';
-  const sessionCookie = process.env.E2E_SESSION_COOKIE ?? '';
-  if (!bilanId || !sessionCookie) test.skip();
-
-  const res = await request.get(`/api/parent/bilans/${bilanId}/pdf`, {
-    headers: { Cookie: sessionCookie },
-  });
-
-  expect(res.status()).toBe(200);
-  const ct = res.headers()['content-type'];
-  expect(ct).toContain('application/pdf');
-
-  const body = await res.body();
-  // PDF magic bytes: %PDF-
-  expect(body.slice(0, 4).toString()).toBe('%PDF');
-  expect(body.length).toBeGreaterThan(10_000); // non-empty, at least 10 KB
-});
+// Le PDF authentifié (canonique et URL legacy) est exercé avec une vraie
+// session et une vraie fixture dans parent-canonical-report-access.spec.ts.

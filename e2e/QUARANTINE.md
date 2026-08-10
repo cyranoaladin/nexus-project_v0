@@ -1,99 +1,60 @@
-# E2E Quarantine Registry
+# Registre des quarantaines E2E
 
-Tests skipped with documented justification. Must be fixed or removed.
+## État au 10 août 2026
 
-**Updated:** 2026-06-20 | **Run:** 449 passed / 0 failed / 100 skipped
+Les 51 quarantaines JavaScript inconditionnelles présentes sur `origin/main`
+ont été supprimées. Aucune n'a été remplacée par un autre `skip`, un `fixme` ou
+un focus. Le garde `npm run check:test-quarantines` analyse tous les fichiers
+suivis et bloque désormais toute réintroduction.
 
-## describe.skip (entire spec quarantined)
+Le nombre ci-dessous compte les marqueurs inconditionnels retirés, pas le
+nombre de tests contenus dans un éventuel `describe.skip`.
 
-| Spec | Tests | Reason |
-|------|-------|--------|
-| `e2e/auth/student-journey.spec.ts` | 6 | PRE-EXISTING: maths-1ere lab elements timeout — loading issue |
-| `e2e/auth/nsi-pratique-2026.spec.ts` | 7 | PRE-EXISTING: getByText(\ |
-| `e2e/auth/programme/maths-1ere.spec.ts` | 4 | PRE-EXISTING: maths-1ere tab/header elements not rendering |
-| `e2e/auth/programme/maths-1ere-premium.spec.ts` | 5 | PRE-EXISTING: maths-1ere page elements not visible — feature incomplete |
-| `e2e/auth/programme/maths-1ere-access.spec.ts` | 6 | PRE-EXISTING: hardcoded 127.0.0.1:3000, incompatible with Docker E2E |
-| `e2e/auth/parent-dashboard-audit.spec.ts` | 8 | PRE-EXISTING: expects data-testid=\ |
+| Fichier | Marqueurs | Sort appliqué |
+| --- | ---: | --- |
+| `__tests__/e2e/bilan-pdf.e2e.spec.ts` | 1 | Doublon Jest/Playwright supprimé ; le contrat PDF authentifié reste couvert dans la suite Playwright canonique. |
+| `__tests__/e2e/nexus-2-0-smoke.spec.ts` | 2 | Authentification et soumission réactivées avec les identités partagées et le formulaire courant. |
+| `e2e/auth/admin-dashboard-audit.spec.ts` | 1 | Course de déconnexion stabilisée par attente de navigation puis contrôle de session. |
+| `e2e/auth/auth-and-booking.spec.ts` | 4 | Ancien parcours de réservation Parent remplacé par les frontières de rôles et le parcours Élève actuellement supportés. |
+| `e2e/auth/bilan-gratuit-flow.spec.ts` | 1 | Contrat réécrit sur le tunnel mono-page courant. |
+| `e2e/auth/bilan-pdf.e2e.spec.ts` | 2 | URL de connexion et accès PDF alignés sur les routes canoniques ; données synthétiques provisionnées. |
+| `e2e/auth/booking.credits.spec.ts` | 1 | Réactivé sur base et rate-limit jetables ; débit puis remboursement vérifiés dans le ledger additif. |
+| `e2e/auth/eaf-report-raja-smoke.spec.ts` | 1 | Dépendance à une personne nommée supprimée au profit d'une fixture coach jetable. |
+| `e2e/auth/eleve-dashboard-audit.spec.ts` | 2 | Assertions obsolètes de solde remplacées par les rubriques et actions actuelles du cockpit. |
+| `e2e/auth/entitlements.gating.spec.ts` | 1 | Réactivé grâce au seed Élève et aux helpers DB hermétiques. |
+| `e2e/auth/forms-validation.contract.spec.ts` | 3 | Sélecteurs et retours d'erreur alignés sur les formulaires actuels, y compris la requête unique. |
+| `e2e/auth/navigation-public.contract.spec.ts` | 1 | Contrat Contact réactivé sur le formulaire actuel. |
+| `e2e/auth/nsi-pratique-2026.spec.ts` | 1 | Suite entière réactivée avec navigation bornée au menu NSI et attentes d'hydratation. |
+| `e2e/auth/parcours-eleve-stmg-premiere.spec.ts` | 1 | Contrat aligné sur le parcours STMG actuellement rendu et seed STMG dédié. |
+| `e2e/auth/parent-dashboard-audit.spec.ts` | 1 | Suite entière réactivée sur le dashboard courant, sans `data-testid` inexistant. |
+| `e2e/auth/parent-dashboard.spec.ts` | 4 | Anciennes attentes de maquette remplacées par quatre contrats du dashboard Famille courant. |
+| `e2e/auth/password-reset.spec.ts` | 1 | Sélecteur de soumission et preuve e-mail réactivés via SMTP jetable. |
+| `e2e/auth/payments.invoice.documents.spec.ts` | 2 | Paiement, validation, facture et coffre-fort réactivés avec catalogue et CGV canoniques. |
+| `e2e/auth/programme/maths-1ere-access.spec.ts` | 1 | Suite entière réactivée via la base URL injectée et les contrôles d'accès courants. |
+| `e2e/auth/programme/maths-1ere-premium.spec.ts` | 1 | Suite entière réactivée sur le moteur Maths canonique. |
+| `e2e/auth/programme/maths-1ere.spec.ts` | 1 | Suite entière réactivée sur la navigation Maths courante. |
+| `e2e/auth/public-front-go-live.spec.ts` | 1 | Contrat Stages aligné sur le contenu public courant et contrôle d'absence des dates obsolètes conservé. |
+| `e2e/auth/security.advanced.spec.ts` | 1 | Accès document réactivé avec une fixture de stockage jetable et preuve d'absence de fuite. |
+| `e2e/auth/student-automatismes.spec.ts` | 1 | Parcours réactivé après sélection d'une réponse et validation serveur avant la question suivante. |
+| `e2e/auth/student-journey.spec.ts` | 1 | Suite entière réactivée sur l'unique parcours Maths Première canonique. |
+| `e2e/auth/teacher-bilan-pdf.spec.ts` | 1 | Vue enseignant et action PDF réactivées sur le moteur Maths canonique. |
+| `e2e/auth/test-all-pages.spec.ts` | 1 | Base URL locale codée en dur remplacée par celle de la stack jetable. |
+| `e2e/auth/test-bilan-banner.spec.ts` | 1 | Réactivé avec les credentials E2E partagés. |
+| `e2e/auth/test-dashboard-interactions.spec.ts` | 8 | Les huit rôles/interactions utilisent désormais la base URL et les identités partagées du seed. |
+| `e2e/auth/test-real-login.spec.ts` | 3 | Les trois connexions réelles utilisent le helper canonique et vérifient la session Auth.js. |
+| **Total** | **51** | **Aucune quarantaine inconditionnelle restante.** |
 
-## Individual test.skip
+## Skips conditionnels structurels hors gate hermétique
 
-| Spec:Line | Reason |
-|-----------|--------|
-| `test-bilan-banner.spec.ts:6` | PRE-EXISTING: hardcoded localhost:3000, incompatible with Docker E2E |
-| `payments.invoice.documents.spec.ts:21` | PRE-EXISTING: payment confirmation API returns 400 — seed data mismatch |
-| `password-reset.spec.ts:21` | REFONTE: forgot password submit button selector changed — main button[type= |
-| `teacher-bilan-pdf.spec.ts:5` | PRE-EXISTING: Enseignant button not found — maths-1ere teacher view loading |
-| `forms-validation.contract.spec.ts:56` | REFONTE: bilan-gratuit form selectors changed |
-| `forms-validation.contract.spec.ts:74` | REFONTE: bilan-gratuit form selectors changed |
-| `forms-validation.contract.spec.ts:120` | REFONTE: contact form error feedback changed |
-| `nexus-refactor-validation.spec.ts:85` | PRE-EXISTING: catalogue/selecteur HTML not in E2E container, or content strings changed |
-| `nexus-refactor-validation.spec.ts:94` | PRE-EXISTING: catalogue/selecteur HTML not in E2E container, or content strings changed |
-| `nexus-refactor-validation.spec.ts:239` | PRE-EXISTING: catalogue/selecteur HTML not in E2E container, or content strings changed |
-| `admin-dashboard-audit.spec.ts:18` | FLAKY: logout redirect race condition — session/cookie timing |
-| `navigation-public.contract.spec.ts:45` | REFONTE: contact form selectors changed |
-| `eleve-dashboard-audit.spec.ts:11` | PRE-EXISTING: dashboard does not display credits/solde text |
-| `eleve-dashboard-audit.spec.ts:19` | PRE-EXISTING: dashboard does not display credits/solde text |
-| `stages.workflow.spec.ts:23` | REFONTE: /stages heading text changed — needs inspection of actual current heading |
-| `student-automatismes.spec.ts:10` | PRE-EXISTING: automatismes Question Suivante button not found — feature loading issue |
-| `parcours-eleve-stmg-premiere.spec.ts:50` | PRE-EXISTING: Stage Commando EAM text not in current page |
-| `entitlements.gating.spec.ts:16` | PRE-EXISTING: requires seeded student user and DB helpers in E2E container |
-| `test-all-dashboard-pages.spec.ts:58` | PRE-EXISTING: hardcoded localhost:3000, incompatible with Docker E2E |
-| `test-all-dashboard-pages.spec.ts:71` | PRE-EXISTING: hardcoded localhost:3000, incompatible with Docker E2E |
-| `test-all-dashboard-pages.spec.ts:84` | PRE-EXISTING: hardcoded localhost:3000, incompatible with Docker E2E |
-| `test-all-dashboard-pages.spec.ts:95` | PRE-EXISTING: hardcoded localhost:3000, incompatible with Docker E2E |
-| `test-all-dashboard-pages.spec.ts:106` | PRE-EXISTING: hardcoded localhost:3000, incompatible with Docker E2E |
-| `test-all-dashboard-pages.spec.ts:118` | PRE-EXISTING: hardcoded localhost:3000, incompatible with Docker E2E |
-| `test-real-login.spec.ts:14` | PRE-EXISTING: hardcoded localhost:3000, incompatible with Docker E2E |
-| `test-real-login.spec.ts:48` | PRE-EXISTING: hardcoded localhost:3000, incompatible with Docker E2E |
-| `test-real-login.spec.ts:59` | PRE-EXISTING: hardcoded localhost:3000, incompatible with Docker E2E |
-| `booking.credits.spec.ts:119` | FLAKY: credits balance race condition + rate limiting with parallel workers |
-| `public-front-go-live.spec.ts:232` | REFONTE: /stages heading changed |
-| `test-dashboard-interactions.spec.ts:18` | PRE-EXISTING: hardcoded localhost:3000, incompatible with Docker E2E |
-| `test-dashboard-interactions.spec.ts:71` | PRE-EXISTING: hardcoded localhost:3000, incompatible with Docker E2E |
-| `test-dashboard-interactions.spec.ts:99` | PRE-EXISTING: hardcoded localhost:3000, incompatible with Docker E2E |
-| `test-dashboard-interactions.spec.ts:118` | PRE-EXISTING: hardcoded localhost:3000, incompatible with Docker E2E |
-| `test-dashboard-interactions.spec.ts:136` | PRE-EXISTING: hardcoded localhost:3000, incompatible with Docker E2E |
-| `test-dashboard-interactions.spec.ts:153` | PRE-EXISTING: hardcoded localhost:3000, incompatible with Docker E2E |
-| `test-dashboard-interactions.spec.ts:176` | PRE-EXISTING: hardcoded localhost:3000, incompatible with Docker E2E |
-| `test-dashboard-interactions.spec.ts:204` | PRE-EXISTING: hardcoded localhost:3000, incompatible with Docker E2E |
-| `nexus-premium-final.spec.ts:31` | PRE-EXISTING: /catalogue-nexus-reussite-2026-2027.html and /nexus_selecteur.html are static files no |
-| `nexus-premium-final.spec.ts:74` | PRE-EXISTING: /catalogue-nexus-reussite-2026-2027.html and /nexus_selecteur.html are static files no |
-| `nexus-premium-final.spec.ts:105` | PRE-EXISTING: /catalogue-nexus-reussite-2026-2027.html and /nexus_selecteur.html are static files no |
-| `test-all-pages.spec.ts:42` | PRE-EXISTING: hardcoded localhost:3000, incompatible with Docker E2E |
+Trois tests opt-in restent conditionnels et ne sont pas collectés par
+`playwright.config.e2e.ts` :
 
-## Conditional skips (env-dependent, not quarantine)
+- `e2e/candidate-diagnostic.spec.ts` exige explicitement un état navigateur
+  fourni pour un diagnostic Candidat libre réel ; ce lane reste dark et hors
+  de cette PR ;
+- `e2e/real/coach-resource-student.spec.ts` exige l'activation explicite du
+  lane réel et, pour son contrôle IDOR inter-coachs, une seconde identité coach.
 
-| Spec | Condition |
-|------|-----------|
-| `eam-premiere-responsive-readonly.spec.ts:29` | !email || !password, 'E2E_STUDENT_EMAIL et E2E_STUDENT_PASSWORD sont requis.' |
-| `payments.invoice.documents.spec.ts:49` | true, 'PRE-EXISTING: payment route returns 404 — subscription not seeded' |
-| `security.advanced.spec.ts:66` | true, 'PRE-EXISTING: document ID from seed does not exist' |
-| `nexus-refactor-validation.spec.ts:110` | true, 'PRE-EXISTING: nexus_selecteur.html recommendation wizard helper fails in  |
-| `nexus-refactor-validation.spec.ts:202` | true, 'PRE-EXISTING: nexus_selecteur.html recommendation wizard helper fails in  |
-| `nexus-refactor-validation.spec.ts:248` | true, 'PRE-EXISTING: nexus_selecteur.html recommendation wizard helper fails in  |
-| `bilan-pdf.e2e.spec.ts:39` | true, 'PRE-EXISTING: /connexion route does not exist, test checks production dom |
-| `bilan-pdf.e2e.spec.ts:62` |  |
-| `eaf-report-raja-smoke.spec.ts:4` | true, 'PRE-EXISTING: requires Raja coach seed data not in ephemeral DB' |
-| `bilan-gratuit-flow.spec.ts:5` | true, 'REFONTE: bilan-gratuit form redesigned as single-page — old multi-step  |
-| `auth-and-booking.spec.ts:246` | true, 'REFONTE: booking tab removed in dashboard redesign — parent dashboard n |
-| `auth-and-booking.spec.ts:274` | true, 'REFONTE: booking tab removed in dashboard redesign' |
-| `auth-and-booking.spec.ts:441` | true, 'REFONTE: booking tab removed in dashboard redesign' |
-| `auth-and-booking.spec.ts:497` | true, 'REFONTE: booking tab removed in dashboard redesign' |
-| `eam-premiere-student.spec.ts:18` | !email || !password, 'E2E_STUDENT_EMAIL et E2E_STUDENT_PASSWORD sont requis.' |
-| `eam-premiere-student.spec.ts:19` | !allowMutation, 'Test mutationnel désactivé par défaut. Définir ALLOW_EAM_MU |
-| `parent-dashboard.spec.ts:93` | true, 'PRE-EXISTING: expects parent-dashboard-ready testId not in seed' |
-| `parent-dashboard.spec.ts:130` | true, 'PRE-EXISTING: expects fixture names Yasmine/Karim not in seed' |
-| `parent-dashboard.spec.ts:146` | true, 'PRE-EXISTING: expects crédit text not present in current dashboard' |
-| `parent-dashboard.spec.ts:156` | true, 'PRE-EXISTING: expects progression/agenda sections not in current dashboar |
-| `coach-resource-student.spec.ts:42` |  |
-| `coach-resource-student.spec.ts:133` | !process.env.TEST_OTHER_COACH_EMAIL, 'pas de second coach fourni' |
-| `bilan-pdf.e2e.spec.ts:61` |  |
-| `nexus-2-0-smoke.spec.ts:122` | true, 'Custom auth UI — manual login required' |
-| `nexus-2-0-smoke.spec.ts:153` | true, `Submit returned 400 — ${body.error ?? 'no questions loaded'}` |
-
-## Jest Flaky (unit/integration)
-
-| Test | Reason | Status |
-|------|--------|--------|
-| `__tests__/api/coach.eaf-stage-printemps.report.test.ts:304` | Was flaky: `generateLLMParentEafReport` unmocked → sporadic 5s timeout on `action=complete`. Root-fixed: added mock. 5/5 deterministic green. | **FIXED** |
-| `__tests__/performance/api-response-time.test.ts` | Non-deterministic: Date.now() timing varies under CPU load. Moved to opt-in lane: `PERF_TESTS=1 npx jest __tests__/performance/`. Skipped by default in gate. | **PERF LANE** |
+Ces conditions décrivent des lanes externes, ne masquent aucun test de la stack
+éphémère et sont inspectées par le garde. Aucun `skip` conditionnel ne subsiste
+dans `e2e/auth`, la suite go-live officielle.
