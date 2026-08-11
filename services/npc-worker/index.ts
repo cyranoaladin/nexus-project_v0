@@ -12,15 +12,18 @@ import {
 } from '../../lib/npc';
 import {
   assertNpcStorageReady,
-  resolveNpcStoragePath,
+  readNpcStorageFile,
 } from '../../lib/npc/storage-root';
-import {
-  processVisionOcr,
-  processPedagogicalDiagnosis,
-  processCompetenceMatrix,
-  processRemediationRoadmap,
-  processMentorAdvice,
-} from './processors/ai-service';
+try {
+  assertNpcStorageReady({ capability: 'read-only' });
+} catch {
+  console.error('NPC_STORAGE_PREFLIGHT_FAILED');
+  process.exit(1);
+}
+
+// The processor module owns a Prisma client too, so it must not be evaluated
+// until the storage preflight has succeeded.
+const aiService = import('./processors/ai-service');
 
 // Initialize Prisma
 const prisma = new PrismaClient();
@@ -47,22 +50,28 @@ const processors: Record<AiJobType, JobProcessor> = {
     const parsed = typeof input === 'string' ? JSON.parse(input) : input;
     const { filePath, mimeType } = parsed as { pageId: string; submissionId: string; filePath: string; mimeType: string };
     // Read file from disk and convert to base64
-    const fs = await import('fs/promises');
-    const absolutePath = await resolveNpcStoragePath(filePath);
-    const fileBuffer = await fs.readFile(absolutePath);
+    const fileBuffer = await readNpcStorageFile(filePath);
     const imageBase64 = fileBuffer.toString('base64');
-    return processVisionOcr(jobId, imageBase64, mimeType || 'image/jpeg');
+    return (await aiService).processVisionOcr(
+      jobId,
+      imageBase64,
+      mimeType || 'image/jpeg',
+    );
   },
   [AiJobType.PEDAGOGICAL_DIAGNOSIS]: async (jobId, input) => {
     console.log(`[${jobId}] Processing PEDAGOGICAL_DIAGNOSIS...`);
     const parsed = typeof input === 'string' ? JSON.parse(input) : input;
     const { submissionId } = parsed as { submissionId: string };
-    return processPedagogicalDiagnosis(jobId, submissionId);
+    return (await aiService).processPedagogicalDiagnosis(jobId, submissionId);
   },
   [AiJobType.COMPETENCE_MATRIX]: async (jobId, input) => {
     console.log(`[${jobId}] Processing COMPETENCE_MATRIX...`);
     const { submissionId, diagnostic } = input as { submissionId: string; diagnostic: unknown };
-    return processCompetenceMatrix(jobId, submissionId, diagnostic as any);
+    return (await aiService).processCompetenceMatrix(
+      jobId,
+      submissionId,
+      diagnostic as any,
+    );
   },
   [AiJobType.REMEDIATION_ROADMAP]: async (jobId, input) => {
     console.log(`[${jobId}] Processing REMEDIATION_ROADMAP...`);
@@ -71,7 +80,12 @@ const processors: Record<AiJobType, JobProcessor> = {
       diagnostic: unknown;
       matrix: unknown;
     };
-    return processRemediationRoadmap(jobId, submissionId, diagnostic as any, matrix as any);
+    return (await aiService).processRemediationRoadmap(
+      jobId,
+      submissionId,
+      diagnostic as any,
+      matrix as any,
+    );
   },
   [AiJobType.MENTOR_ADVICE]: async (jobId, input) => {
     console.log(`[${jobId}] Processing MENTOR_ADVICE...`);
@@ -80,7 +94,12 @@ const processors: Record<AiJobType, JobProcessor> = {
       diagnostic: unknown;
       matrix: unknown;
     };
-    return processMentorAdvice(jobId, submissionId, diagnostic as any, matrix as any);
+    return (await aiService).processMentorAdvice(
+      jobId,
+      submissionId,
+      diagnostic as any,
+      matrix as any,
+    );
   },
 };
 
@@ -417,7 +436,6 @@ process.on('uncaughtException', (error) => {
 });
 
 // Start
-assertNpcStorageReady({ capability: 'read-only' });
 workerLoop().catch((error) => {
   console.error('[Worker] Fatal error:', error);
   process.exit(1);

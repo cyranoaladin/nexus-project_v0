@@ -130,15 +130,18 @@ function discoverContainerSurfaces(
   return discovered.sort();
 }
 
-function discoverTypeScriptFiles(
+function discoverRuntimeFiles(
   directory: string,
   discovered: string[] = [],
 ): string[] {
   for (const entry of readdirSync(directory, { withFileTypes: true })) {
     const absolutePath = join(directory, entry.name);
     if (entry.isDirectory()) {
-      discoverTypeScriptFiles(absolutePath, discovered);
-    } else if (entry.isFile() && /\.tsx?$/.test(entry.name)) {
+      discoverRuntimeFiles(absolutePath, discovered);
+    } else if (
+      entry.isFile() &&
+      /\.(?:[cm]?[jt]s|[jt]sx)$/.test(entry.name)
+    ) {
       discovered.push(relative(ROOT, absolutePath));
     }
   }
@@ -158,7 +161,8 @@ function discoverActiveNpcRuntimeModules(): string[] {
   ];
   return [
     'instrumentation.ts',
-    ...roots.flatMap((root) => discoverTypeScriptFiles(join(ROOT, root))),
+    'next.config.mjs',
+    ...roots.flatMap((root) => discoverRuntimeFiles(join(ROOT, root))),
   ].sort();
 }
 
@@ -274,12 +278,32 @@ describe('NPC storage and unavailable-state architecture contract', () => {
     expect(e2eLiteralUsers).toEqual(['docker-compose.e2e.yml']);
   });
 
+  test('runs the NPC worker with the same unprivileged uid as the app', () => {
+    const workerDockerfile = readRequired('services/npc-worker/Dockerfile');
+    const userDeclaration = workerDockerfile.indexOf('USER nextjs');
+    const command = workerDockerfile.indexOf(
+      'CMD ["./node_modules/.bin/tsx", "services/npc-worker/index.ts"]',
+    );
+
+    expect(workerDockerfile).toMatch(
+      /addgroup\s+--system\s+--gid\s+1001\s+nodejs/,
+    );
+    expect(workerDockerfile).toMatch(
+      /adduser\s+--system\s+--uid\s+1001\s+--ingroup\s+nodejs\s+nextjs/,
+    );
+    expect(workerDockerfile).toContain('COPY tsconfig.json ./');
+    expect(userDeclaration).toBeGreaterThan(-1);
+    expect(command).toBeGreaterThan(userDeclaration);
+    expect(workerDockerfile).not.toMatch(/chown\s+-R\s+(?:\/|\/app)\b/);
+  });
+
   test('scans every active NPC runtime module for legacy storage contracts', () => {
     const runtimeModules = discoverActiveNpcRuntimeModules();
 
     expect(runtimeModules).toEqual(
       expect.arrayContaining([
         'instrumentation.ts',
+        'next.config.mjs',
         'lib/npc/config.ts',
         'lib/npc/pdf-converter.ts',
         'lib/npc/storage.ts',
@@ -289,12 +313,16 @@ describe('NPC storage and unavailable-state architecture contract', () => {
 
     for (const file of runtimeModules) {
       const source = readRequired(file);
-      expect(source).not.toMatch(/\b(?:NPC_UPLOAD_DIR|UPLOAD_DIR)\b/);
-      expect(source).not.toMatch(/process\.cwd\(\)/);
-      expect(source).not.toMatch(
+      const storageSource =
+        file === 'next.config.mjs'
+          ? source.replace(/outputFileTracingRoot:\s*process\.cwd\(\),?/, '')
+          : source;
+      expect(storageSource).not.toMatch(/\b(?:NPC_UPLOAD_DIR|UPLOAD_DIR)\b/);
+      expect(storageSource).not.toMatch(/process\.cwd\(\)/);
+      expect(storageSource).not.toMatch(
         /(?:^|[\s"'=:])\/(?:var|mnt|srv|data|opt|home|tmp)\/(?:[\w.-]+\/)*(?:npc(?:-storage(?:-[\w.-]+)?)?|uploads(?:\/copies)?|copies)(?:\/[\w.-]+)*(?=$|[\s"',:)])/im,
       );
-      expect(source).not.toMatch(/(?:^|[\s"'])uploads\/copies(?:\/|$)/im);
+      expect(storageSource).not.toMatch(/(?:^|[\s"'])uploads\/copies(?:\/|$)/im);
     }
   });
 

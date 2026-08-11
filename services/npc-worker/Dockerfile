@@ -29,8 +29,15 @@ RUN npx prisma generate
 COPY services/npc-worker ./services/npc-worker/
 COPY lib ./lib/
 COPY types ./types/
+COPY tsconfig.json ./
 COPY auth.ts ./
 COPY auth.config.ts ./
+
+# Match the application runtime identity so both services trust the same
+# owner-only persistent storage tree without granting group/world write access.
+RUN addgroup --system --gid 1001 nodejs \
+    && adduser --system --uid 1001 --ingroup nodejs nextjs \
+    && test -x ./node_modules/.bin/tsx
 
 # Set environment
 ENV NODE_ENV=production
@@ -40,4 +47,5 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD node -e "console.log('healthy')" || exit 1
 
 # Run worker (use tsx to execute TypeScript)
-CMD ["npx", "tsx", "services/npc-worker/index.ts"]
+USER nextjs
+CMD ["./node_modules/.bin/tsx", "services/npc-worker/index.ts"]
