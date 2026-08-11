@@ -129,6 +129,23 @@ describe('NPC copy submission source integrity', () => {
     });
   });
 
+  it.each([
+    ['null', null],
+    ['empty', ''],
+  ])('rejects a %s CopySubmission mirror when a student copy exists', async (
+    _label,
+    storedFilePath,
+  ) => {
+    const result = await validateCopySubmissionIntegrity(submission({
+      storedFilePath,
+    }));
+
+    expect(result).toEqual({
+      ok: false,
+      issues: [{ code: 'STORED_FILE_MIRROR_MISMATCH' }],
+    });
+  });
+
   it('rejects finalization when no student-copy source remains', async () => {
     const result = await validateCopySubmissionIntegrity(submission({
       storedFilePath: null,
