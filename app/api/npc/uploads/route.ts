@@ -6,16 +6,25 @@ import { prisma } from '@/lib/prisma';
 import { serializeError } from '@/lib/utils/serialize-error';
 import {
   validateUploadedFile,
+  deleteSecureFile,
   generateSecureFileId,
   saveUploadedFile,
   FILE_VALIDATION_ERRORS,
 } from '@/lib/npc';
 import type { FileMetadata } from '@/lib/npc';
+import { withLockedCopySubmission } from '@/lib/npc/submission-lock';
 import { z } from 'zod';
 
 // ─── Constants ───
 
 const MAX_REQUEST_SIZE = 11 * 1024 * 1024; // 11MB (slightly above file limit for overhead)
+
+class InitialUploadStorageError extends Error {
+  constructor(readonly publicCode: string) {
+    super('NPC initial upload storage failed');
+    this.name = 'InitialUploadStorageError';
+  }
+}
 
 const uploadMetadataSchema = z.object({
   studentId: z.string().trim().regex(/^[A-Za-z0-9_-]{1,191}$/),
@@ -187,74 +196,88 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       );
     }
 
-    // Create CopySubmission record
-    const submission = await prisma.copySubmission.create({
-      data: {
-        studentId,
-        coachId:
-          authorization.role === UserRole.COACH
-            ? (
-                await prisma.coachProfile.findFirst({
-                  where: { userId: authorization.userId },
-                  select: { id: true },
-                })
-              )?.id
-            : null,
-        subject: subject as Subject,
-        title,
-        description,
-        status: CopySubmissionStatus.UPLOADED,
-        storedFilePath: 'pending', // Will be updated after save
-        fileSizeBytes: file.size,
-        mimeType: file.type,
-      },
-    });
-
-    // Read file buffer
     const fileBuffer = Buffer.from(await new Response(file).arrayBuffer());
+    const coachId =
+      authorization.role === UserRole.COACH
+        ? (
+            await prisma.coachProfile.findFirst({
+              where: { userId: authorization.userId },
+              select: { id: true },
+            })
+          )?.id ?? null
+        : null;
+    let savedRelativePath: string | undefined;
+    let submission;
+    try {
+      submission = await prisma.$transaction(async (tx) => {
+        const created = await tx.copySubmission.create({
+          data: {
+            studentId,
+            coachId,
+            subject: subject as Subject,
+            title,
+            description,
+            status: CopySubmissionStatus.UPLOADED,
+            storedFilePath: null,
+            fileSizeBytes: null,
+            mimeType: null,
+          },
+        });
 
-    // Prepare metadata for storage
-    const metadata: FileMetadata = {
-      secureId,
-      originalName: file.name,
-      sanitizedName: validation.sanitizedName!,
-      mimeType: file.type,
-      sizeBytes: file.size,
-      createdAt: new Date(),
-      studentId,
-      submissionId: submission.id,
-      pageNumber: 1, // For multi-page PDFs, this will be updated after processing
-    };
+        return withLockedCopySubmission(tx, created.id, async () => {
+          const metadata: FileMetadata = {
+            secureId,
+            originalName: file.name,
+            sanitizedName: validation.sanitizedName!,
+            mimeType: file.type,
+            sizeBytes: file.size,
+            createdAt: new Date(),
+            studentId,
+            submissionId: created.id,
+            pageNumber: 1,
+          };
+          const storageResult = await saveUploadedFile(fileBuffer, metadata);
+          if (
+            !storageResult.success ||
+            !storageResult.relativePath ||
+            !storageResult.sha256
+          ) {
+            throw new InitialUploadStorageError(
+              storageResult.error || 'SAVE_FAILED',
+            );
+          }
+          savedRelativePath = storageResult.relativePath;
 
-    // Save to secure storage
-    const storageResult = await saveUploadedFile(fileBuffer, metadata);
-
-    if (!storageResult.success) {
-      // Rollback: delete the submission record
-      await prisma.copySubmission.delete({ where: { id: submission.id } });
-      return NextResponse.json(
-        { error: storageResult.error || 'Failed to save file' },
-        { status: 500 }
-      );
+          await tx.copySubmission.update({
+            where: { id: created.id },
+            data: {
+              storedFilePath: storageResult.relativePath,
+              fileSizeBytes: file.size,
+              mimeType: file.type,
+            },
+          });
+          await tx.copyPage.create({
+            data: {
+              submissionId: created.id,
+              pageNumber: 1,
+              originalFilePath: storageResult.relativePath,
+              originalFilename: file.name,
+              mimeType: file.type,
+              sizeBytes: file.size,
+              sha256: storageResult.sha256,
+              documentType: 'STUDENT_COPY',
+              uploadedById: authorization.userId,
+              convertedFilePaths: [],
+              status: 'UPLOADED',
+            },
+          });
+          return created;
+        });
+      });
+    } catch (error) {
+      if (savedRelativePath) await deleteSecureFile(savedRelativePath);
+      throw error;
     }
-
-    // Update submission with file path
-    await prisma.copySubmission.update({
-      where: { id: submission.id },
-      data: {
-        storedFilePath: storageResult.relativePath,
-      },
-    });
-
-    // Create CopyPage record
-    await prisma.copyPage.create({
-      data: {
-        submissionId: submission.id,
-        pageNumber: 1,
-        originalFilePath: storageResult.relativePath!,
-        status: 'UPLOADED',
-      },
-    });
 
     return NextResponse.json(
       {
@@ -265,6 +288,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       { status: 201 }
     );
   } catch (error) {
+    if (error instanceof InitialUploadStorageError) {
+      return NextResponse.json({ error: error.publicCode }, { status: 500 });
+    }
     console.error('[NPC Upload] Error:', serializeError(error));
     return NextResponse.json(
       { error: 'Internal server error' },

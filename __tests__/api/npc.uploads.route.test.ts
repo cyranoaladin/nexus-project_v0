@@ -10,11 +10,14 @@ jest.mock('@/auth', () => ({
 
 jest.mock('@/lib/prisma', () => ({
   prisma: {
+    $transaction: jest.fn(),
+    $queryRaw: jest.fn(),
     student: { findFirst: jest.fn() },
     parentProfile: { findFirst: jest.fn() },
     coachProfile: { findFirst: jest.fn() },
     copySubmission: {
       create: jest.fn(),
+      findUnique: jest.fn(),
       update: jest.fn(),
       delete: jest.fn(),
     },
@@ -49,11 +52,27 @@ describe('POST /api/npc/uploads', () => {
     (prisma.copySubmission.create as jest.Mock).mockResolvedValue({
       id: 'submission-1',
     });
+    (prisma.copySubmission.findUnique as jest.Mock).mockResolvedValue({
+      id: 'submission-1',
+      studentId: 'student-1',
+      coachId: 'coach-1',
+      status: 'UPLOADED',
+      unavailableReason: null,
+      unavailableAt: null,
+      storedFilePath: null,
+      fileSizeBytes: null,
+      mimeType: null,
+    });
+    (prisma.$transaction as jest.Mock).mockImplementation(
+      async (callback: (tx: typeof prisma) => unknown) => callback(prisma),
+    );
+    (prisma.$queryRaw as jest.Mock).mockResolvedValue([{ id: 'submission-1' }]);
     (prisma.copySubmission.update as jest.Mock).mockResolvedValue({});
     (prisma.copyPage.create as jest.Mock).mockResolvedValue({});
     (npcStorage.saveUploadedFile as jest.Mock).mockResolvedValue({
       success: true,
       relativePath: 'student/sub/page_1/copie.pdf',
+      sha256: 'b'.repeat(64),
     });
   });
 
@@ -85,6 +104,13 @@ describe('POST /api/npc/uploads', () => {
       message: 'File uploaded successfully',
     });
     expect(body).not.toHaveProperty('filePath');
+    expect(prisma.copyPage.create).toHaveBeenCalledWith({
+      data: expect.objectContaining({
+        documentType: 'STUDENT_COPY',
+        sizeBytes: expect.any(Number),
+        sha256: 'b'.repeat(64),
+      }),
+    });
   });
 
   it('rejects invalid metadata before ownership and file handling', async () => {

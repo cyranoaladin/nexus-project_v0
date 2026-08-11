@@ -11,6 +11,8 @@ jest.mock('@/auth', () => ({
 
 jest.mock('@/lib/prisma', () => ({
   prisma: {
+    $transaction: jest.fn(),
+    $queryRaw: jest.fn(),
     copySubmission: {
       findUnique: jest.fn(),
       update: jest.fn(),
@@ -25,6 +27,8 @@ jest.mock('@/lib/prisma', () => ({
       aggregate: jest.fn(),
       create: jest.fn(),
       findFirst: jest.fn(),
+      findMany: jest.fn(),
+      update: jest.fn(),
       delete: jest.fn(),
     },
     aiProcessingJob: {
@@ -73,9 +77,18 @@ describe('NPC correction documents API', () => {
       id: 'submission-1',
       studentId: 'student-1',
       coachId: 'coach-1',
+      status: 'UPLOADED',
       pages: [],
     });
+    (prisma.$transaction as jest.Mock).mockImplementation(
+      async (callback: (tx: typeof prisma) => unknown) => callback(prisma),
+    );
+    (prisma.$queryRaw as jest.Mock).mockResolvedValue([{ id: 'submission-1' }]);
     (prisma.copyPage.aggregate as jest.Mock).mockResolvedValue({ _max: { pageNumber: 0 } });
+    (prisma.copyPage.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.copyPage.update as jest.Mock).mockImplementation(
+      async ({ where, data }) => ({ id: where.id, documentType: data.documentType }),
+    );
     (prisma.copyPage.create as jest.Mock).mockResolvedValue({
       id: 'doc-1',
       documentType: 'STUDENT_COPY',
@@ -86,6 +99,7 @@ describe('NPC correction documents API', () => {
     (npcStorage.saveUploadedFile as jest.Mock).mockResolvedValue({
       success: true,
       relativePath: 'student/sub/page_1/copie.pdf',
+      sha256: 'a'.repeat(64),
     });
   });
 
@@ -163,10 +177,36 @@ describe('NPC correction documents API', () => {
           originalFilename: 'bareme.pdf',
           mimeType: 'application/pdf',
           sizeBytes: expect.any(Number),
+          sha256: 'a'.repeat(64),
           uploadedById: 'coach-user-1',
         }),
       })
     );
+  });
+
+  it('returns 409 without file or Prisma mutation when document upload races with UNAVAILABLE', async () => {
+    (prisma.copySubmission.findUnique as jest.Mock).mockResolvedValue({
+      id: 'submission-1',
+      studentId: 'student-1',
+      coachId: 'coach-1',
+      status: 'UNAVAILABLE',
+      unavailableReason: 'Source irrécupérable',
+      pages: [],
+    });
+    const response = await POST(
+      makeUploadRequest({
+        documentType: 'STUDENT_COPY',
+        file: new File(['%PDF-1.4'], 'copie.pdf', { type: 'application/pdf' }),
+      }),
+      params(),
+    );
+
+    expect(response.status).toBe(409);
+    expect(npcStorage.saveUploadedFile).not.toHaveBeenCalled();
+    expect(prisma.copyPage.create).not.toHaveBeenCalled();
+    expect(prisma.copySubmission.update).not.toHaveBeenCalled();
+    expect(prisma.aiProcessingJob.create).not.toHaveBeenCalled();
+    expect(prisma.npcAuditLog.create).not.toHaveBeenCalled();
   });
 
   it('does not expose storage paths or OCR text when listing documents', async () => {
@@ -230,6 +270,16 @@ describe('NPC correction documents API', () => {
       mimeType: 'application/pdf',
       sizeBytes: 8,
     });
+    (prisma.copyPage.findMany as jest.Mock).mockResolvedValue([
+      {
+        id: 'existing-copy',
+        pageNumber: 1,
+        documentType: 'STUDENT_COPY',
+        originalFilePath: 'student/sub/page_1/copie.pdf',
+        sizeBytes: 8,
+        mimeType: 'application/pdf',
+      },
+    ]);
 
     const response = await POST(
       makeUploadRequest({
@@ -283,6 +333,16 @@ describe('NPC correction documents API', () => {
       mimeType: 'application/pdf',
       sizeBytes: 8,
     });
+    (prisma.copyPage.findMany as jest.Mock).mockResolvedValue([
+      {
+        id: 'existing-copy',
+        pageNumber: 1,
+        documentType: 'STUDENT_COPY',
+        originalFilePath: 'student/sub/page_1/copie.pdf',
+        sizeBytes: 8,
+        mimeType: 'application/pdf',
+      },
+    ]);
 
     const response = await POST(
       makeUploadRequest({
@@ -344,6 +404,54 @@ describe('NPC correction documents API', () => {
     expect(response.status).toBe(200);
     expect(prisma.copyPage.delete).toHaveBeenCalledWith({ where: { id: 'doc-1' } });
     expect(npcStorage.deleteSecureFile).toHaveBeenCalledWith('student/sub/page_1/copie.pdf');
+  });
+
+  it('returns 409 without mutation when reclassification targets UNAVAILABLE', async () => {
+    (prisma.copySubmission.findUnique as jest.Mock).mockResolvedValue({
+      id: 'submission-1',
+      studentId: 'student-1',
+      coachId: 'coach-1',
+      status: 'UNAVAILABLE',
+      unavailableReason: 'Source irrécupérable',
+      pages: [],
+    });
+
+    const response = await PATCH(
+      new NextRequest('http://localhost/api/npc/submissions/submission-1/documents/doc-1', {
+        method: 'PATCH',
+        body: JSON.stringify({ documentType: 'SUBJECT' }),
+      }),
+      documentParams(),
+    );
+
+    expect(response.status).toBe(409);
+    expect(prisma.copyPage.findFirst).not.toHaveBeenCalled();
+    expect(prisma.copyPage.create).not.toHaveBeenCalled();
+    expect(prisma.copySubmission.update).not.toHaveBeenCalled();
+    expect(prisma.npcAuditLog.create).not.toHaveBeenCalled();
+  });
+
+  it('returns 409 without database or disk mutation when delete targets UNAVAILABLE', async () => {
+    (prisma.copySubmission.findUnique as jest.Mock).mockResolvedValue({
+      id: 'submission-1',
+      studentId: 'student-1',
+      coachId: 'coach-1',
+      status: 'UNAVAILABLE',
+      unavailableReason: 'Source irrécupérable',
+      pages: [],
+    });
+
+    const response = await DELETE(
+      new NextRequest('http://localhost/api/npc/submissions/submission-1/documents/doc-1'),
+      documentParams(),
+    );
+
+    expect(response.status).toBe(409);
+    expect(prisma.copyPage.findFirst).not.toHaveBeenCalled();
+    expect(prisma.copyPage.delete).not.toHaveBeenCalled();
+    expect(prisma.copySubmission.update).not.toHaveBeenCalled();
+    expect(prisma.npcAuditLog.create).not.toHaveBeenCalled();
+    expect(npcStorage.deleteSecureFile).not.toHaveBeenCalled();
   });
 
   it('denies deleting a document from a submission owned by another coach', async () => {

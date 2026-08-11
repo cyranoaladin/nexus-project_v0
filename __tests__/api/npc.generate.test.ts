@@ -17,6 +17,13 @@ jest.mock('@/lib/npc/access', () => ({
 describe('POST /api/npc/submissions/[submissionId]/generate', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    (prisma.$transaction as jest.Mock).mockImplementation(
+      async (callback: (tx: typeof prisma) => unknown) => callback(prisma),
+    );
+    (prisma.$queryRaw as jest.Mock).mockResolvedValue([{ id: 'sub-1' }]);
+    (prisma.copySubmission.findUniqueOrThrow as jest.Mock).mockImplementation(
+      async () => (prisma.copySubmission.findUnique as jest.Mock).mock.results.at(-1)?.value,
+    );
   });
 
   it('returns 401 without session', async () => {
@@ -237,5 +244,37 @@ describe('POST /api/npc/submissions/[submissionId]/generate', () => {
 
     const data = await response.json();
     expect(data.error).toBe('Submission is already being processed or completed');
+  });
+
+  it('returns 409 and queues nothing when the locked submission is UNAVAILABLE', async () => {
+    const { auth } = require('@/auth');
+    auth.mockResolvedValue({
+      user: { id: 'user-1', role: UserRole.COACH },
+    });
+
+    (prisma.copySubmission.findUnique as jest.Mock).mockResolvedValue({
+      id: 'sub-1',
+      studentId: 'student-1',
+      coachId: 'coach-1',
+      status: CopySubmissionStatus.UNAVAILABLE,
+      unavailableReason: 'Source irrécupérable',
+      pages: [
+        { id: 'doc-1', documentType: 'STUDENT_COPY', status: 'UNAVAILABLE' },
+      ],
+    });
+    const { canManageSubmissionDocuments } = require('@/lib/npc/access');
+    canManageSubmissionDocuments.mockResolvedValue(true);
+
+    const response = await POST(
+      new NextRequest('http://localhost/api/npc/submissions/sub-1/generate', {
+        method: 'POST',
+      }),
+      { params: Promise.resolve({ submissionId: 'sub-1' }) },
+    );
+
+    expect(response.status).toBe(409);
+    expect(prisma.aiProcessingJob.create).not.toHaveBeenCalled();
+    expect(prisma.copySubmission.update).not.toHaveBeenCalled();
+    expect(prisma.npcAuditLog.create).not.toHaveBeenCalled();
   });
 });

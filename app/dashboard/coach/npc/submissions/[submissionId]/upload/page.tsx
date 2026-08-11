@@ -68,6 +68,36 @@ export default async function UploadPage({ params }: UploadPageProps) {
     redirect('/dashboard/coach/npc');
   }
 
+  if (submission.status === CopySubmissionStatus.UNAVAILABLE) {
+    return (
+      <div className="container mx-auto max-w-4xl px-4 py-8">
+        <div className="mb-6">
+          <Link href="/dashboard/coach/npc">
+            <Button variant="ghost" size="sm">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Retour aux copies
+            </Button>
+          </Link>
+        </div>
+        <h1 className="text-3xl font-bold text-gray-900">{submission.title}</h1>
+        <Card className="mt-6 border-red-200 bg-red-50">
+          <CardContent className="flex items-start gap-3 py-5">
+            <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-red-700" />
+            <div>
+              <p className="font-semibold text-red-900">Indisponible</p>
+              <p className="mt-1 text-sm text-red-800">
+                {submission.unavailableReason || 'Les fichiers sources de cette copie ne sont plus disponibles.'}
+              </p>
+              <p className="mt-2 text-xs text-red-700">
+                Cette copie est dans un état terminal. Aucun rapport ni nouvelle analyse ne peut être lancé.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="container mx-auto py-8 px-4 max-w-4xl">
       <div className="mb-6">
