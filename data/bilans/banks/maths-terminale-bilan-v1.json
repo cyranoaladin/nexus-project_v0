@@ -51,7 +51,7 @@
             "isCorrect": false
           }
         ],
-        "explanation": "$f\\prime(x) = 3x^2 - 3 = 0 \\Rightarrow x = \\pm 1$. $f(-1) = 3 > 0$, $f(1) = -1 < 0$. Par le TVI, $f$ admet 3 racines réelles.",
+        "explanation": "$f^\\prime(x) = 3x^2 - 3 = 0 \\Rightarrow x = \\pm 1$. $f(-1) = 3 > 0$, $f(1) = -1 < 0$. Par le TVI, $f$ admet 3 racines réelles.",
         "hint": "Étudiez le signe de la dérivée et les valeurs aux extrema locaux.",
         "domainId": "analyse"
       },
@@ -86,7 +86,7 @@
             "isCorrect": false
           }
         ],
-        "explanation": "Par définition, $(\\ln x)\\prime = \\frac{1}{x}$ pour $x > 0$.",
+        "explanation": "Par définition, $(\\ln x)^\\prime = \\frac{1}{x}$ pour $x > 0$.",
         "domainId": "analyse"
       },
       {
@@ -122,7 +122,7 @@
           }
         ],
         "explanation": "Posons $u = x^2$, $du = 2x\\,dx$. $\\int_0^1 e^u \\, du = [e^u]_0^1 = e - 1$.",
-        "hint": "Reconnaître la forme $u\\prime \\cdot e^u$.",
+        "hint": "Reconnaître la forme $u^\\prime \\cdot e^u$.",
         "domainId": "analyse"
       },
       {
@@ -156,7 +156,7 @@
             "isCorrect": false
           }
         ],
-        "explanation": "$f\\prime(x) = \\ln(x) + 1 - 1 = \\ln(x)$. $f\\prime(x) = 0 \\Leftrightarrow x = 1$. $f(1) = 0 - 1 = -1$. $f\\prime\\prime(x) = 1/x > 0$ : c'est un minimum.",
+        "explanation": "$f^\\prime(x) = \\ln(x) + 1 - 1 = \\ln(x)$. $f^\\prime(x) = 0 \\Leftrightarrow x = 1$. $f(1) = 0 - 1 = -1$. $f^{\\prime\\prime}(x) = 1/x > 0$ : c'est un minimum.",
         "domainId": "analyse"
       },
       {
@@ -190,8 +190,8 @@
             "isCorrect": false
           }
         ],
-        "explanation": "$f\\prime\\prime(x) = 12x^2 - 12 = 12(x^2 - 1)$. $f\\prime\\prime(x) \\geq 0 \\Leftrightarrow |x| \\geq 1$.",
-        "hint": "Convexe signifie $f\\prime\\prime(x) \\geq 0$.",
+        "explanation": "$f^{\\prime\\prime}(x) = 12x^2 - 12 = 12(x^2 - 1)$. $f^{\\prime\\prime}(x) \\geq 0 \\Leftrightarrow |x| \\geq 1$. Le domaine de convexité rigoureux est donc $]-\\infty, -1] \\cup [1, +\\infty[$ (bornes incluses : $f^{\\prime\\prime}$ s'annule en $\\pm 1$ sans y changer de signe).",
+        "hint": "Convexe signifie $f^{\\prime\\prime}(x) \\geq 0$.",
         "domainId": "analyse"
       },
       {
@@ -327,7 +327,7 @@
             "isCorrect": true
           }
         ],
-        "explanation": "Chaîne : $(\\ln u)\\prime = u\\prime / u$ avec $u = x^2 + 1$, $u\\prime = 2x$.",
+        "explanation": "Chaîne : $(\\ln u)^\\prime = u^\\prime / u$ avec $u = x^2 + 1$, $u^\\prime = 2x$.",
         "domainId": "analyse"
       },
       {
@@ -361,7 +361,7 @@
             "isCorrect": false
           }
         ],
-        "explanation": "Règle de la chaîne : $(\\sin u)\\prime = u\\prime \\cos u$, avec $u = 3x$.",
+        "explanation": "Règle de la chaîne : $(\\sin u)^\\prime = u^\\prime \\cos u$, avec $u = 3x$.",
         "domainId": "analyse"
       },
       {
@@ -1150,7 +1150,7 @@
             "isCorrect": true
           }
         ],
-        "explanation": "$(e^x)\\prime = e^x > 0$ pour tout $x \\in \\mathbb{R}$.",
+        "explanation": "$(e^x)^\\prime = e^x > 0$ pour tout $x \\in \\mathbb{R}$.",
         "domainId": "logExp"
       },
       {
@@ -1253,7 +1253,7 @@
             "isCorrect": false
           }
         ],
-        "explanation": "$f\\prime(x) = e^{-x} - xe^{-x} = e^{-x}(1-x)$. $f\\prime(x) = 0 \\Leftrightarrow x = 1$. $f\\prime\\prime(1) < 0$ : maximum.",
+        "explanation": "$f^\\prime(x) = e^{-x} - xe^{-x} = e^{-x}(1-x)$. $f^\\prime(x) = 0 \\Leftrightarrow x = 1$. $f^{\\prime\\prime}(1) < 0$ : maximum.",
         "domainId": "logExp"
       },
       {
