@@ -57,8 +57,11 @@ export async function validateCopySubmissionIntegrity(
   submission: CopySubmissionIntegrityInput,
 ): Promise<CopySubmissionIntegrityResult> {
   const issues: CopySubmissionIntegrityIssue[] = [];
+  const studentCopyPages = submission.pages.filter(
+    (page) => page.documentType === 'STUDENT_COPY',
+  );
 
-  if (!submission.pages.some((page) => page.documentType === 'STUDENT_COPY')) {
+  if (studentCopyPages.length === 0) {
     issues.push({ code: 'STUDENT_COPY_MISSING' });
   }
 
@@ -101,10 +104,9 @@ export async function validateCopySubmissionIntegrity(
     }
   }
 
-  if (submission.storedFilePath) {
-    const mirroredPage = submission.pages.find(
+  if (studentCopyPages.length > 0 || submission.storedFilePath) {
+    const mirroredPage = studentCopyPages.find(
       (page) =>
-        page.documentType === 'STUDENT_COPY' &&
         page.originalFilePath === submission.storedFilePath,
     );
     if (

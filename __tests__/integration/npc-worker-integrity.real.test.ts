@@ -110,6 +110,39 @@ describe('NPC worker integrity gate on PostgreSQL 15', () => {
     expect(submission.report).toBeNull();
   });
 
+  it.each([
+    ['null', null],
+    ['empty', ''],
+  ])('never completes a submission whose student-copy mirror is %s', async (
+    _label,
+    storedFilePath,
+  ) => {
+    const fixture = await createIntactSubmission();
+    await firstClient.copySubmission.update({
+      where: { id: fixture.submissionId },
+      data: { storedFilePath },
+    });
+
+    const result = await finalizePedagogicalDiagnosis({
+      prisma: firstClient,
+      submissionId: fixture.submissionId,
+      jobId: `${prefix}-missing-mirror-job`,
+      diagnosticOutput: { strengths: ['Raisonnement'], weaknesses: [] },
+    });
+
+    expect(result).toEqual({
+      ok: false,
+      issues: [{ code: 'STORED_FILE_MIRROR_MISMATCH' }],
+    });
+    await expect(firstClient.copySubmission.findUniqueOrThrow({
+      where: { id: fixture.submissionId },
+      include: { report: true },
+    })).resolves.toMatchObject({
+      status: 'UNAVAILABLE',
+      report: null,
+    });
+  });
+
   it('serializes final integrity and completion against deletion, never producing a report from deleted sources', async () => {
     const fixture = await createIntactSubmission();
     const deletionHasLock = deferred();

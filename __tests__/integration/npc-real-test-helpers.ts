@@ -50,6 +50,14 @@ export async function cleanupNpcRealFixture(
   prisma: PrismaClient,
   prefix: string,
 ) {
+  await prisma.npcAuditLog.deleteMany({
+    where: {
+      OR: [
+        { entityId: { startsWith: prefix } },
+        { actorId: { startsWith: prefix } },
+      ],
+    },
+  });
   await prisma.user.deleteMany({
     where: { id: { startsWith: prefix } },
   });
