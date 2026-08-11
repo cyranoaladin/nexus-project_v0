@@ -26,6 +26,7 @@ case "$1" in
     if [[ "\${NPC_FAKE_DOCKER_RUN_EXIT:-}" != "" ]]; then
       exit "$NPC_FAKE_DOCKER_RUN_EXIT"
     fi
+    if [[ "$*" == *"npx jest"* ]]; then exit 23; fi
     printf 'fake-container-id\\n'
     ;;
   port) printf '127.0.0.1:49123\\n' ;;
