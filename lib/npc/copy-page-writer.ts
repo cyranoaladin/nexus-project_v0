@@ -16,6 +16,15 @@ export type ExplicitCopyPageCreateManyArgs = Omit<Prisma.CopyPageCreateManyArgs,
     | Array<WithExplicitDocumentType<Prisma.CopyPageCreateManyInput>>;
 };
 
+export type ExplicitCopyPageCreateManyAndReturnArgs = Omit<
+  Prisma.CopyPageCreateManyAndReturnArgs,
+  'data'
+> & {
+  data:
+    | WithExplicitDocumentType<Prisma.CopyPageCreateManyInput>
+    | Array<WithExplicitDocumentType<Prisma.CopyPageCreateManyInput>>;
+};
+
 export type ExplicitCopyPageUpsertArgs = Omit<Prisma.CopyPageUpsertArgs, 'create'> & {
   create: WithExplicitDocumentType<Prisma.CopyPageUpsertArgs['create']>;
 };
@@ -32,6 +41,13 @@ export function createManyCopyPages(
   args: ExplicitCopyPageCreateManyArgs,
 ) {
   return client.copyPage.createMany(args);
+}
+
+export function createManyAndReturnCopyPages(
+  client: CopyPageWriteClient,
+  args: ExplicitCopyPageCreateManyAndReturnArgs,
+) {
+  return client.copyPage.createManyAndReturn(args);
 }
 
 export function upsertCopyPage(
