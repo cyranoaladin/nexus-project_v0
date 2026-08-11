@@ -3,7 +3,7 @@
 // Asynchronous AI job processor for Nexus Pedagogy Cockpit
 // ═══════════════════════════════════════════════════════════════════════════════
 
-import { PrismaClient, AiJobStatus, AiJobType, CopySubmissionStatus, CopyPageStatus, PedagogicalReportStatus } from '@prisma/client';
+import { PrismaClient, AiJobStatus, AiJobType } from '@prisma/client';
 import {
   NPC_WORKER_POLL_INTERVAL_MS,
   NPC_WORKER_LOCK_DURATION_MS,
@@ -14,6 +14,12 @@ import {
   assertNpcStorageReady,
   readNpcStorageFile,
 } from '../../lib/npc/storage-root';
+import {
+  finalizePedagogicalDiagnosis,
+  markPedagogicalDiagnosisFailed,
+  persistVisionOcrResult,
+  validateSubmissionBeforeDiagnosis,
+} from './submission-finalization';
 try {
   assertNpcStorageReady({ capability: 'read-only' });
 } catch {
@@ -163,18 +169,21 @@ async function handleVisionOcrSuccess(
 ): Promise<void> {
   try {
     const parsed = typeof inputData === 'string' ? JSON.parse(inputData) : inputData;
-    const { pageId } = parsed as { pageId: string };
-    if (!pageId) {
-      throw new Error('Missing pageId in VISION_OCR inputData');
+    const { pageId, submissionId } = parsed as {
+      pageId: string;
+      submissionId: string;
+    };
+    if (!pageId || !submissionId) {
+      throw new Error('Missing pageId or submissionId in VISION_OCR inputData');
     }
 
-    await prisma.copyPage.update({
-      where: { id: pageId },
-      data: {
-        ocrText: ocrOutput.text,
-        status: CopyPageStatus.READY,
-      },
+    const persisted = await persistVisionOcrResult({
+      prisma,
+      submissionId,
+      pageId,
+      text: ocrOutput.text,
     });
+    if (persisted === 'unavailable') return;
     console.log(`[${jobId}] Saved OCR text for page ${pageId} (${ocrOutput.text?.length ?? 0} chars)`);
   } catch (error) {
     console.error(`[${jobId}] Error in handleVisionOcrSuccess:`, error);
@@ -187,58 +196,22 @@ async function handlePedagogicalDiagnosisSuccess(
   inputData: unknown,
   diagnosticOutput: unknown
 ): Promise<void> {
-  try {
-    // Extract submissionId from inputData (may be a JSON string)
-    const parsedInput = typeof inputData === 'string' ? JSON.parse(inputData) : inputData;
-    const { submissionId } = parsedInput as { submissionId: string };
-    if (!submissionId) {
-      throw new Error('Missing submissionId in inputData');
-    }
-
-    // Fetch submission with student and coach
-    const submission = await prisma.copySubmission.findUnique({
-      where: { id: submissionId },
-      include: { student: true },
-    });
-
-    if (!submission) {
-      throw new Error(`Submission not found: ${submissionId}`);
-    }
-
-    // Create PedagogicalReport in a transaction
-    await prisma.$transaction(async (tx) => {
-      // Create the report
-      const report = await tx.pedagogicalReport.create({
-        data: {
-          studentId: submission.studentId,
-          coachId: submission.coachId,
-          copySubmissionId: submission.id,
-          status: PedagogicalReportStatus.DRAFT,
-          visibility: 'COACH_ONLY',
-          diagnostic: diagnosticOutput as any,
-          strengths: ((diagnosticOutput as any)?.strengths || []).map((s: any) =>
-            typeof s === 'string' ? s : s?.skill || s?.description || JSON.stringify(s)
-          ),
-          weaknesses: ((diagnosticOutput as any)?.weaknesses || []).map((w: any) =>
-            typeof w === 'string' ? w : w?.skill || w?.description || JSON.stringify(w)
-          ),
-        },
-      });
-
-      // Update submission status to COMPLETED
-      await tx.copySubmission.update({
-        where: { id: submissionId },
-        data: {
-          status: CopySubmissionStatus.COMPLETED,
-        },
-      });
-
-      console.log(`[${jobId}] Created PedagogicalReport ${report.id} for submission ${submissionId}`);
-    });
-  } catch (error) {
-    console.error(`[${jobId}] Error in handlePedagogicalDiagnosisSuccess:`, error);
-    throw error; // Re-throw to trigger job failure handling
+  const parsedInput = typeof inputData === 'string' ? JSON.parse(inputData) : inputData;
+  const { submissionId } = parsedInput as { submissionId: string };
+  if (!submissionId) {
+    throw new Error('Missing submissionId in inputData');
   }
+
+  const finalized = await finalizePedagogicalDiagnosis({
+    prisma,
+    submissionId,
+    jobId,
+    diagnosticOutput,
+  });
+  if (!finalized.ok) {
+    throw new Error('NPC_SOURCE_INTEGRITY_FAILED');
+  }
+  console.log(`[${jobId}] Created PedagogicalReport ${finalized.reportId} for submission ${submissionId}`);
 }
 
 async function processJob(jobId: string): Promise<void> {
@@ -274,6 +247,28 @@ async function processJob(jobId: string): Promise<void> {
     const processor = processors[job.type];
     if (!processor) {
       throw new Error(`Unknown job type: ${job.type}`);
+    }
+
+    if (job.type === AiJobType.PEDAGOGICAL_DIAGNOSIS) {
+      const parsedInput =
+        typeof job.inputData === 'string'
+          ? JSON.parse(job.inputData)
+          : job.inputData;
+      const { submissionId } = parsedInput as { submissionId?: string };
+      if (!submissionId) throw new Error('Missing submissionId in inputData');
+      const integrity = await validateSubmissionBeforeDiagnosis(prisma, submissionId);
+      if (!integrity.ok) {
+        await prisma.aiProcessingJob.update({
+          where: { id: jobId },
+          data: {
+            status: AiJobStatus.FAILED,
+            errorMessage: 'NPC_SOURCE_INTEGRITY_FAILED',
+            completedAt: new Date(),
+            processingDurationMs: Date.now() - startTime,
+          },
+        });
+        return;
+      }
     }
 
     const result = await processor(jobId, job.inputData);
@@ -343,14 +338,13 @@ async function handleJobFailure(jobId: string, errorMessage: string): Promise<vo
 
       // If this was a PEDAGOGICAL_DIAGNOSIS job, also update submission status
       if (job.type === AiJobType.PEDAGOGICAL_DIAGNOSIS) {
-        const { submissionId } = job.inputData as { submissionId: string };
+        const parsedInput =
+          typeof job.inputData === 'string'
+            ? JSON.parse(job.inputData)
+            : job.inputData;
+        const { submissionId } = parsedInput as { submissionId?: string };
         if (submissionId) {
-          await prisma.copySubmission.update({
-            where: { id: submissionId },
-            data: {
-              status: CopySubmissionStatus.ANALYSIS_FAILED,
-            },
-          });
+          await markPedagogicalDiagnosisFailed(prisma, submissionId);
           console.log(`[${jobId}] Updated submission ${submissionId} to ANALYSIS_FAILED`);
         }
       }

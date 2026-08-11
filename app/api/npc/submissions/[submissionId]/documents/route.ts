@@ -8,16 +8,37 @@ import {
   validateUploadedFile,
 } from '@/lib/npc/file-validator';
 import {
+  deleteSecureFile,
   generateSecureFileId,
   saveUploadedFile,
 } from '@/lib/npc/storage';
 import type { FileMetadata } from '@/lib/npc/storage';
 import { isCorrectionDocumentType } from '@/lib/npc/document-types';
 import { canManageSubmissionDocuments, canReadSubmission } from '@/lib/npc/access';
+import { withLockedCopySubmission } from '@/lib/npc/submission-lock';
+import {
+  assertSubmissionAvailable,
+  NPC_UNAVAILABLE_CONFLICT,
+  SubmissionUnavailableError,
+} from '@/lib/npc/unavailable';
 import { z } from 'zod';
 
 interface RouteParams {
   params: Promise<{ submissionId: string }>;
+}
+
+class NpcDocumentStorageError extends Error {
+  constructor(readonly publicCode: string) {
+    super('NPC document storage failed');
+    this.name = 'NpcDocumentStorageError';
+  }
+}
+
+interface PreparedDocumentUpload {
+  file: File;
+  fileBuffer: Buffer;
+  secureId: string;
+  sanitizedName: string;
 }
 
 const MAX_FILES_PER_SUBMISSION = 20;
@@ -154,6 +175,10 @@ export async function POST(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
+    if (submission.status === CopySubmissionStatus.UNAVAILABLE) {
+      return NextResponse.json(NPC_UNAVAILABLE_CONFLICT, { status: 409 });
+    }
+
     const formData = await request.formData();
     const parsedDocumentType = documentTypeSchema.safeParse(formData.get('documentType') || 'STUDENT_COPY');
     if (!parsedDocumentType.success) {
@@ -169,21 +194,8 @@ export async function POST(
       return NextResponse.json({ error: 'No file provided' }, { status: 400 });
     }
 
-    if (submission.pages.length + files.length > MAX_FILES_PER_SUBMISSION) {
-      return NextResponse.json(
-        { error: `Maximum ${MAX_FILES_PER_SUBMISSION} documents autorisés` },
-        { status: 400 }
-      );
-    }
-
-    const currentMax = await prisma.copyPage.aggregate({
-      where: { submissionId },
-      _max: { pageNumber: true },
-    });
-
-    const documents = [];
-
-    for (const [index, file] of files.entries()) {
+    const preparedFiles: PreparedDocumentUpload[] = [];
+    for (const file of files) {
       const secureId = generateSecureFileId();
       const validation = validateUploadedFile({
         filename: file.name,
@@ -199,101 +211,149 @@ export async function POST(
         );
       }
 
-      const pageNumber = (currentMax._max.pageNumber || 0) + index + 1;
       const fileBuffer = Buffer.from(await new Response(file).arrayBuffer());
-      const metadata: FileMetadata = {
+      preparedFiles.push({
+        file,
+        fileBuffer,
         secureId,
-        originalName: file.name,
         sanitizedName: validation.sanitizedName!,
-        mimeType: file.type,
-        sizeBytes: file.size,
-        createdAt: new Date(),
-        studentId: submission.studentId,
-        submissionId,
-        pageNumber,
-      };
-
-      const storageResult = await saveUploadedFile(fileBuffer, metadata);
-      if (!storageResult.success || !storageResult.relativePath) {
-        return NextResponse.json(
-          { error: storageResult.error || 'Failed to save file' },
-          { status: 500 }
-        );
-      }
-
-      const document = await prisma.copyPage.create({
-        data: {
-          submissionId,
-          pageNumber,
-          status: 'UPLOADED',
-          documentType,
-          originalFilePath: storageResult.relativePath,
-          originalFilename: file.name,
-          mimeType: file.type,
-          sizeBytes: file.size,
-          uploadedById: actor.userId,
-          convertedFilePaths: [],
-        },
       });
-
-      documents.push(document);
-
-      // Create VISION_OCR job for each STUDENT_COPY page
-      if (documentType === 'STUDENT_COPY') {
-        const filePath = storageResult.relativePath!;
-        await prisma.aiProcessingJob.create({
-          data: {
-            type: AiJobType.VISION_OCR,
-            status: AiJobStatus.PENDING,
-            priority: AiJobPriority.HIGH,
-            maxRetries: 3,
-            inputData: JSON.stringify({
-              pageId: document.id,
-              submissionId,
-              filePath,
-              mimeType: file.type,
-            }),
-          },
-        });
-      }
     }
 
-    const documentTypes = [
-      ...submission.pages.map((page) => page.documentType),
-      ...documents.map((document) => document.documentType),
-    ];
+    const savedPaths: string[] = [];
+    let documents;
+    try {
+      documents = await prisma.$transaction(async (tx) =>
+        withLockedCopySubmission(tx, submissionId, async (locked) => {
+          assertSubmissionAvailable(locked);
+          const existingPages = await tx.copyPage.findMany({
+            where: { submissionId },
+            orderBy: { pageNumber: 'asc' },
+            select: {
+              id: true,
+              pageNumber: true,
+              documentType: true,
+              originalFilePath: true,
+              sizeBytes: true,
+              mimeType: true,
+            },
+          });
+          if (existingPages.length + preparedFiles.length > MAX_FILES_PER_SUBMISSION) {
+            throw new NpcDocumentStorageError('MAX_FILES_EXCEEDED');
+          }
 
-    await prisma.copySubmission.update({
-      where: { id: submissionId },
-      data: {
-        status: nextSubmissionStatus(documentTypes),
-        storedFilePath: documentTypes.includes('STUDENT_COPY')
-          ? documents.find((document) => document.documentType === 'STUDENT_COPY')?.originalFilePath
-          : undefined,
-        fileSizeBytes:
-          documents.length === 1 && documents[0].documentType === 'STUDENT_COPY'
-            ? documents[0].sizeBytes
-            : undefined,
-        mimeType:
-          documents.length === 1 && documents[0].documentType === 'STUDENT_COPY'
-            ? documents[0].mimeType
-            : undefined,
-      },
-    });
+          const currentMax = await tx.copyPage.aggregate({
+            where: { submissionId },
+            _max: { pageNumber: true },
+          });
+          const createdDocuments = [];
+          let newStudentMirror:
+            | { originalFilePath: string; sizeBytes: number; mimeType: string }
+            | undefined;
 
-    await prisma.npcAuditLog.create({
-      data: {
-        actorId: actor.userId,
-        actorRole: actor.role,
-        action: 'UPLOAD_CORRECTION_DOCUMENT',
-        entityType: 'CopySubmission',
-        entityId: submissionId,
-        details: JSON.stringify({
-          documentType,
-          documentIds: documents.map((document) => document.id),
+          for (const [index, prepared] of preparedFiles.entries()) {
+            const pageNumber = (currentMax._max.pageNumber || 0) + index + 1;
+            const metadata: FileMetadata = {
+              secureId: prepared.secureId,
+              originalName: prepared.file.name,
+              sanitizedName: prepared.sanitizedName,
+              mimeType: prepared.file.type,
+              sizeBytes: prepared.file.size,
+              createdAt: new Date(),
+              studentId: locked.studentId,
+              submissionId,
+              pageNumber,
+            };
+            const storageResult = await saveUploadedFile(prepared.fileBuffer, metadata);
+            if (
+              !storageResult.success ||
+              !storageResult.relativePath ||
+              !storageResult.sha256
+            ) {
+              throw new NpcDocumentStorageError(
+                storageResult.error || 'SAVE_FAILED',
+              );
+            }
+            savedPaths.push(storageResult.relativePath);
+
+            const document = await tx.copyPage.create({
+              data: {
+                submissionId,
+                pageNumber,
+                status: 'UPLOADED',
+                documentType,
+                originalFilePath: storageResult.relativePath,
+                originalFilename: prepared.file.name,
+                mimeType: prepared.file.type,
+                sizeBytes: prepared.file.size,
+                sha256: storageResult.sha256,
+                uploadedById: actor.userId,
+                convertedFilePaths: [],
+              },
+            });
+            createdDocuments.push(document);
+
+            if (documentType === 'STUDENT_COPY') {
+              newStudentMirror ??= {
+                originalFilePath: storageResult.relativePath,
+                sizeBytes: prepared.file.size,
+                mimeType: prepared.file.type,
+              };
+              await tx.aiProcessingJob.create({
+                data: {
+                  type: AiJobType.VISION_OCR,
+                  status: AiJobStatus.PENDING,
+                  priority: AiJobPriority.HIGH,
+                  maxRetries: 3,
+                  inputData: JSON.stringify({
+                    pageId: document.id,
+                    submissionId,
+                    filePath: storageResult.relativePath,
+                    mimeType: prepared.file.type,
+                  }),
+                },
+              });
+            }
+          }
+
+          const documentTypes = [
+            ...existingPages.map((page) => page.documentType),
+            ...preparedFiles.map(() => documentType),
+          ];
+          const shouldSetMirror = !locked.storedFilePath && Boolean(newStudentMirror);
+          await tx.copySubmission.update({
+            where: { id: submissionId },
+            data: {
+              status: nextSubmissionStatus(documentTypes),
+              storedFilePath: shouldSetMirror
+                ? newStudentMirror?.originalFilePath
+                : undefined,
+              fileSizeBytes: shouldSetMirror
+                ? newStudentMirror?.sizeBytes
+                : undefined,
+              mimeType: shouldSetMirror ? newStudentMirror?.mimeType : undefined,
+            },
+          });
+          await tx.npcAuditLog.create({
+            data: {
+              actorId: actor.userId,
+              actorRole: actor.role,
+              action: 'UPLOAD_CORRECTION_DOCUMENT',
+              entityType: 'CopySubmission',
+              entityId: submissionId,
+              details: {
+                documentType,
+                documentIds: createdDocuments.map((document) => document.id),
+              },
+            },
+          });
+          return createdDocuments;
         }),
-      },
-    });
+      );
+    } catch (error) {
+      await Promise.all(savedPaths.map((relativePath) => deleteSecureFile(relativePath)));
+      throw error;
+    }
 
     return NextResponse.json(
       {
@@ -306,6 +366,18 @@ export async function POST(
       { status: 201 }
     );
   } catch (error) {
+    if (error instanceof SubmissionUnavailableError) {
+      return NextResponse.json(NPC_UNAVAILABLE_CONFLICT, { status: 409 });
+    }
+    if (error instanceof NpcDocumentStorageError) {
+      if (error.publicCode === 'MAX_FILES_EXCEEDED') {
+        return NextResponse.json(
+          { error: `Maximum ${MAX_FILES_PER_SUBMISSION} documents autorisés` },
+          { status: 400 },
+        );
+      }
+      return NextResponse.json({ error: error.publicCode }, { status: 500 });
+    }
     console.error('[NPC Documents] Upload error:', serializeError(error));
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
