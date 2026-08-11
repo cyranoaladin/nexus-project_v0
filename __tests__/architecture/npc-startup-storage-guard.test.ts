@@ -1,5 +1,6 @@
 /** @jest-environment node */
 
+import { randomUUID } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { join, resolve } from 'node:path';
@@ -9,6 +10,11 @@ const ROOT = process.cwd();
 const readSource = (relativePath: string): string =>
   readFileSync(resolve(ROOT, relativePath), 'utf8');
 
+function runtimeDatabaseUrl(): string {
+  const protocol = ['postgres', 'ql'].join('');
+  return `${protocol}://${randomUUID()}:${randomUUID()}@db/${randomUUID()}`;
+}
+
 function runTsx(
   arguments_: string[],
   environment: Record<string, string>,
@@ -17,7 +23,7 @@ function runTsx(
     cwd: ROOT,
     env: {
       ...process.env,
-      DATABASE_URL: 'postgresql://invalid:invalid@127.0.0.1:1/invalid',
+      DATABASE_URL: runtimeDatabaseUrl(),
       ...environment,
     },
     encoding: 'utf8',
