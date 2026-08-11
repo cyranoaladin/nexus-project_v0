@@ -4,6 +4,20 @@ import { lstat, open, realpath, type FileHandle } from 'node:fs/promises';
 import { isAbsolute, join } from 'node:path';
 
 import {
+  AiJobPriority,
+  AiJobStatus,
+  AiJobType,
+  AssessmentSourceType,
+  CopyPageStatus,
+  CopySubmissionStatus,
+  CorrectionDocumentType,
+  GradeLevel,
+  PedagogicalReportStatus,
+  ReportVisibility,
+  Subject,
+} from '@prisma/client';
+
+import {
   NPC_TOMBSTONE_PROTOCOL_VERSION,
   TOMBSTONE_ACTOR_ROLES,
   TOMBSTONE_INITIAL_STATUSES,
@@ -13,6 +27,7 @@ import {
   type TombstoneArguments,
   type TombstoneOperationKeyFields,
   tombstoneError,
+  validateTombstoneReason,
 } from './types';
 
 type CanonicalValue =
@@ -129,6 +144,42 @@ function requiredString(source: Record<string, unknown>, key: string): string {
   return source[key] as string;
 }
 
+function requiredId(source: Record<string, unknown>, key: string): string {
+  const value = requiredString(source, key);
+  if (!/^[A-Za-z0-9][A-Za-z0-9_-]{0,190}$/.test(value)) {
+    invalidExport(`${key} must be a typed identifier.`);
+  }
+  return value;
+}
+
+function nullableId(source: Record<string, unknown>, key: string): string | null {
+  const value = nullableString(source, key);
+  if (value !== null && !/^[A-Za-z0-9][A-Za-z0-9_-]{0,190}$/.test(value)) {
+    invalidExport(`${key} must be a nullable typed identifier.`);
+  }
+  return value;
+}
+
+function requiredEnum(
+  source: Record<string, unknown>,
+  key: string,
+  values: readonly string[],
+): string {
+  const value = requiredString(source, key);
+  if (!values.includes(value)) invalidExport(`${key} must be a typed enum.`);
+  return value;
+}
+
+function nullableEnum(
+  source: Record<string, unknown>,
+  key: string,
+  values: readonly string[],
+): string | null {
+  const value = nullableString(source, key);
+  if (value !== null && !values.includes(value)) invalidExport(`${key} must be a nullable typed enum.`);
+  return value;
+}
+
 function nullableString(source: Record<string, unknown>, key: string): string | null {
   const value = source[key];
   if (value !== null && typeof value !== 'string') invalidExport(`${key} must be nullable text.`);
@@ -166,6 +217,20 @@ function stringArray(source: Record<string, unknown>, key: string): string[] {
   return value as string[];
 }
 
+function requiredTextCommitment(
+  source: Record<string, unknown>,
+  key: string,
+): OpaqueCommitment {
+  return opaqueCommitment(requiredString(source, key)) as OpaqueCommitment;
+}
+
+function nullableTextCommitment(
+  source: Record<string, unknown>,
+  key: string,
+): OpaqueCommitment | null {
+  return opaqueCommitment(nullableString(source, key));
+}
+
 function opaqueCommitment(value: unknown): OpaqueCommitment | null {
   if (value === null) return null;
   if (value === undefined) invalidExport('Opaque export value is missing.');
@@ -176,49 +241,49 @@ function opaqueCommitment(value: unknown): OpaqueCommitment | null {
 function submissionProjection(value: unknown): Record<string, CanonicalValue> {
   const source = record(value, 'submission');
   return {
-    id: requiredString(source, 'id'),
+    id: requiredId(source, 'id'),
     createdAt: dateString(source, 'createdAt'),
     updatedAt: dateString(source, 'updatedAt'),
-    studentId: requiredString(source, 'studentId'),
-    coachId: nullableString(source, 'coachId'),
-    subject: requiredString(source, 'subject'),
-    gradeLevel: nullableString(source, 'gradeLevel'),
-    title: requiredString(source, 'title'),
-    description: nullableString(source, 'description'),
-    sourceType: requiredString(source, 'sourceType'),
-    sourceId: nullableString(source, 'sourceId'),
-    status: requiredString(source, 'status'),
-    unavailableReason: nullableString(source, 'unavailableReason'),
+    studentId: requiredId(source, 'studentId'),
+    coachId: nullableId(source, 'coachId'),
+    subject: requiredEnum(source, 'subject', Object.values(Subject)),
+    gradeLevel: nullableEnum(source, 'gradeLevel', Object.values(GradeLevel)),
+    title: requiredTextCommitment(source, 'title'),
+    description: nullableTextCommitment(source, 'description'),
+    sourceType: requiredEnum(source, 'sourceType', Object.values(AssessmentSourceType)),
+    sourceId: nullableId(source, 'sourceId'),
+    status: requiredEnum(source, 'status', Object.values(CopySubmissionStatus)),
+    unavailableReason: nullableTextCommitment(source, 'unavailableReason'),
     unavailableAt: nullableDateString(source, 'unavailableAt'),
-    ocrText: nullableString(source, 'ocrText'),
-    ocrError: nullableString(source, 'ocrError'),
-    aiJobId: nullableString(source, 'aiJobId'),
+    ocrText: nullableTextCommitment(source, 'ocrText'),
+    ocrError: nullableTextCommitment(source, 'ocrError'),
+    aiJobId: nullableId(source, 'aiJobId'),
     storedFilePath: opaqueCommitment(source.storedFilePath),
     fileSizeBytes: nullableNumber(source, 'fileSizeBytes'),
-    mimeType: nullableString(source, 'mimeType'),
+    mimeType: nullableTextCommitment(source, 'mimeType'),
   };
 }
 
 function pageProjection(value: unknown): Record<string, CanonicalValue> {
   const source = record(value, 'page');
   return {
-    id: requiredString(source, 'id'),
+    id: requiredId(source, 'id'),
     createdAt: dateString(source, 'createdAt'),
     updatedAt: dateString(source, 'updatedAt'),
-    submissionId: requiredString(source, 'submissionId'),
+    submissionId: requiredId(source, 'submissionId'),
     pageNumber: finiteNumber(source, 'pageNumber'),
-    status: requiredString(source, 'status'),
-    documentType: requiredString(source, 'documentType'),
-    unavailableReason: nullableString(source, 'unavailableReason'),
+    status: requiredEnum(source, 'status', Object.values(CopyPageStatus)),
+    documentType: requiredEnum(source, 'documentType', Object.values(CorrectionDocumentType)),
+    unavailableReason: nullableTextCommitment(source, 'unavailableReason'),
     unavailableAt: nullableDateString(source, 'unavailableAt'),
     originalFilePath: opaqueCommitment(source.originalFilePath),
-    originalFilename: nullableString(source, 'originalFilename'),
-    mimeType: nullableString(source, 'mimeType'),
+    originalFilename: nullableTextCommitment(source, 'originalFilename'),
+    mimeType: nullableTextCommitment(source, 'mimeType'),
     sizeBytes: nullableNumber(source, 'sizeBytes'),
     sha256: nullableString(source, 'sha256'),
-    uploadedById: nullableString(source, 'uploadedById'),
+    uploadedById: nullableId(source, 'uploadedById'),
     convertedFilePaths: opaqueCommitment(source.convertedFilePaths),
-    ocrText: nullableString(source, 'ocrText'),
+    ocrText: nullableTextCommitment(source, 'ocrText'),
     ocrConfidence: nullableNumber(source, 'ocrConfidence'),
     width: nullableNumber(source, 'width'),
     height: nullableNumber(source, 'height'),
@@ -229,23 +294,23 @@ function reportProjection(value: unknown): Record<string, CanonicalValue> | null
   if (value === null) return null;
   const source = record(value, 'report');
   return {
-    id: requiredString(source, 'id'),
+    id: requiredId(source, 'id'),
     createdAt: dateString(source, 'createdAt'),
     updatedAt: dateString(source, 'updatedAt'),
-    copySubmissionId: nullableString(source, 'copySubmissionId'),
-    studentId: requiredString(source, 'studentId'),
-    coachId: nullableString(source, 'coachId'),
-    status: requiredString(source, 'status'),
-    visibility: requiredString(source, 'visibility'),
+    copySubmissionId: nullableId(source, 'copySubmissionId'),
+    studentId: requiredId(source, 'studentId'),
+    coachId: nullableId(source, 'coachId'),
+    status: requiredEnum(source, 'status', Object.values(PedagogicalReportStatus)),
+    visibility: requiredEnum(source, 'visibility', Object.values(ReportVisibility)),
     diagnostic: opaqueCommitment(source.diagnostic),
-    strengths: stringArray(source, 'strengths'),
-    weaknesses: stringArray(source, 'weaknesses'),
+    strengths: opaqueCommitment(stringArray(source, 'strengths')) as OpaqueCommitment,
+    weaknesses: opaqueCommitment(stringArray(source, 'weaknesses')) as OpaqueCommitment,
     rawAiOutput: opaqueCommitment(source.rawAiOutput),
     validatedAiOutput: opaqueCommitment(source.validatedAiOutput),
     sentToStudentAt: nullableDateString(source, 'sentToStudentAt'),
     readByStudentAt: nullableDateString(source, 'readByStudentAt'),
-    coachNotes: nullableString(source, 'coachNotes'),
-    studentSummary: nullableString(source, 'studentSummary'),
+    coachNotes: nullableTextCommitment(source, 'coachNotes'),
+    studentSummary: nullableTextCommitment(source, 'studentSummary'),
   };
 }
 
@@ -253,41 +318,41 @@ function jobProjection(value: unknown): Record<string, CanonicalValue> | null {
   if (value === null) return null;
   const source = record(value, 'job');
   return {
-    id: requiredString(source, 'id'),
+    id: requiredId(source, 'id'),
     createdAt: dateString(source, 'createdAt'),
     updatedAt: dateString(source, 'updatedAt'),
-    type: requiredString(source, 'type'),
-    status: requiredString(source, 'status'),
-    priority: requiredString(source, 'priority'),
-    copySubmissionId: nullableString(source, 'copySubmissionId'),
+    type: requiredEnum(source, 'type', Object.values(AiJobType)),
+    status: requiredEnum(source, 'status', Object.values(AiJobStatus)),
+    priority: requiredEnum(source, 'priority', Object.values(AiJobPriority)),
+    copySubmissionId: nullableId(source, 'copySubmissionId'),
     inputData: opaqueCommitment(source.inputData),
     outputData: opaqueCommitment(source.outputData),
     errorMessage: opaqueCommitment(source.errorMessage),
     retryCount: finiteNumber(source, 'retryCount'),
     maxRetries: finiteNumber(source, 'maxRetries'),
     claimedAt: nullableDateString(source, 'claimedAt'),
-    claimedBy: nullableString(source, 'claimedBy'),
+    claimedBy: nullableTextCommitment(source, 'claimedBy'),
     startedAt: nullableDateString(source, 'startedAt'),
     completedAt: nullableDateString(source, 'completedAt'),
     nextRetryAt: nullableDateString(source, 'nextRetryAt'),
     processingDurationMs: nullableNumber(source, 'processingDurationMs'),
-    chutesRequestId: nullableString(source, 'chutesRequestId'),
+    chutesRequestId: nullableTextCommitment(source, 'chutesRequestId'),
     tokensUsed: nullableNumber(source, 'tokensUsed'),
-    modelVersion: nullableString(source, 'modelVersion'),
+    modelVersion: nullableTextCommitment(source, 'modelVersion'),
   };
 }
 
 function auditProjection(value: unknown): Record<string, CanonicalValue> {
   const source = record(value, 'audit');
   return {
-    id: requiredString(source, 'id'),
+    id: requiredId(source, 'id'),
     createdAt: dateString(source, 'createdAt'),
-    reportId: nullableString(source, 'reportId'),
-    action: requiredString(source, 'action'),
-    actorId: requiredString(source, 'actorId'),
-    actorRole: requiredString(source, 'actorRole'),
-    entityType: requiredString(source, 'entityType'),
-    entityId: requiredString(source, 'entityId'),
+    reportId: nullableId(source, 'reportId'),
+    action: requiredTextCommitment(source, 'action'),
+    actorId: requiredId(source, 'actorId'),
+    actorRole: requiredTextCommitment(source, 'actorRole'),
+    entityType: requiredTextCommitment(source, 'entityType'),
+    entityId: requiredId(source, 'entityId'),
     details: opaqueCommitment(source.details),
   };
 }
@@ -581,12 +646,20 @@ function hasExactKeys(
   return canonicalJson(Object.keys(value).sort()) === canonicalJson([...keys].sort());
 }
 
-function validString(value: unknown): value is string {
-  return typeof value === 'string';
+function validId(value: unknown): value is string {
+  return typeof value === 'string' && /^[A-Za-z0-9][A-Za-z0-9_-]{0,190}$/.test(value);
 }
 
-function validNullableString(value: unknown): boolean {
-  return value === null || validString(value);
+function validNullableId(value: unknown): boolean {
+  return value === null || validId(value);
+}
+
+function validEnum(value: unknown, values: readonly string[]): value is string {
+  return typeof value === 'string' && values.includes(value);
+}
+
+function validNullableEnum(value: unknown, values: readonly string[]): boolean {
+  return value === null || validEnum(value, values);
 }
 
 function validNumber(value: unknown): boolean {
@@ -629,44 +702,60 @@ function validCommonRecord(
 
 function validSubmission(value: unknown): value is Record<string, CanonicalValue> {
   if (!validCommonRecord(value, SUBMISSION_KEYS)) return false;
-  return ['id', 'studentId', 'subject', 'title', 'sourceType', 'status'].every((key) => validString(value[key])) &&
+  return validId(value.id) && validId(value.studentId) &&
+    validEnum(value.subject, Object.values(Subject)) &&
+    validEnum(value.sourceType, Object.values(AssessmentSourceType)) &&
+    validEnum(value.status, Object.values(CopySubmissionStatus)) &&
     validDate(value.createdAt) && validDate(value.updatedAt) &&
-    ['coachId', 'gradeLevel', 'description', 'sourceId', 'unavailableReason', 'ocrText', 'ocrError', 'aiJobId', 'mimeType']
-      .every((key) => validNullableString(value[key])) &&
+    validNullableId(value.coachId) && validNullableId(value.sourceId) && validNullableId(value.aiJobId) &&
+    validNullableEnum(value.gradeLevel, Object.values(GradeLevel)) &&
+    validCommitment(value.title, false) &&
+    ['description', 'unavailableReason', 'ocrText', 'ocrError', 'mimeType']
+      .every((key) => validCommitment(value[key])) &&
     validNullableDate(value.unavailableAt) && validCommitment(value.storedFilePath) &&
     validNullableNumber(value.fileSizeBytes);
 }
 
 function validPage(value: unknown): value is Record<string, CanonicalValue> {
   if (!validCommonRecord(value, PAGE_KEYS)) return false;
-  return ['id', 'submissionId', 'status', 'documentType'].every((key) => validString(value[key])) &&
+  return validId(value.id) && validId(value.submissionId) &&
+    validEnum(value.status, Object.values(CopyPageStatus)) &&
+    validEnum(value.documentType, Object.values(CorrectionDocumentType)) &&
     validDate(value.createdAt) && validDate(value.updatedAt) &&
     Number.isSafeInteger(value.pageNumber) && (value.pageNumber as number) > 0 &&
-    ['unavailableReason', 'originalFilename', 'mimeType', 'sha256', 'uploadedById', 'ocrText']
-      .every((key) => validNullableString(value[key])) &&
+    (value.sha256 === null || (typeof value.sha256 === 'string' && /^[a-f0-9]{64}$/.test(value.sha256))) &&
+    validNullableId(value.uploadedById) &&
     validNullableDate(value.unavailableAt) && validCommitment(value.originalFilePath, false) &&
     validCommitment(value.convertedFilePaths, false) &&
+    ['unavailableReason', 'originalFilename', 'mimeType', 'ocrText']
+      .every((key) => validCommitment(value[key])) &&
     ['sizeBytes', 'ocrConfidence', 'width', 'height'].every((key) => validNullableNumber(value[key]));
 }
 
 function validReport(value: unknown): value is Record<string, CanonicalValue> {
   if (!validCommonRecord(value, REPORT_KEYS)) return false;
-  return ['id', 'studentId', 'status', 'visibility'].every((key) => validString(value[key])) &&
+  return validId(value.id) && validId(value.studentId) &&
+    validEnum(value.status, Object.values(PedagogicalReportStatus)) &&
+    validEnum(value.visibility, Object.values(ReportVisibility)) &&
     validDate(value.createdAt) && validDate(value.updatedAt) &&
-    ['copySubmissionId', 'coachId', 'coachNotes', 'studentSummary'].every((key) => validNullableString(value[key])) &&
+    validNullableId(value.copySubmissionId) && validNullableId(value.coachId) &&
     validCommitment(value.diagnostic, false) && validCommitment(value.rawAiOutput) &&
     validCommitment(value.validatedAiOutput) &&
-    Array.isArray(value.strengths) && value.strengths.every(validString) &&
-    Array.isArray(value.weaknesses) && value.weaknesses.every(validString) &&
+    validCommitment(value.strengths, false) && validCommitment(value.weaknesses, false) &&
+    validCommitment(value.coachNotes) && validCommitment(value.studentSummary) &&
     validNullableDate(value.sentToStudentAt) && validNullableDate(value.readByStudentAt);
 }
 
 function validJob(value: unknown): value is Record<string, CanonicalValue> {
   if (!validCommonRecord(value, JOB_KEYS)) return false;
-  return ['id', 'type', 'status', 'priority'].every((key) => validString(value[key])) &&
+  return validId(value.id) &&
+    validEnum(value.type, Object.values(AiJobType)) &&
+    validEnum(value.status, Object.values(AiJobStatus)) &&
+    validEnum(value.priority, Object.values(AiJobPriority)) &&
     validDate(value.createdAt) && validDate(value.updatedAt) &&
-    ['copySubmissionId', 'claimedBy', 'chutesRequestId', 'modelVersion'].every((key) => validNullableString(value[key])) &&
+    validNullableId(value.copySubmissionId) &&
     validCommitment(value.inputData) && validCommitment(value.outputData) && validCommitment(value.errorMessage) &&
+    validCommitment(value.claimedBy) && validCommitment(value.chutesRequestId) && validCommitment(value.modelVersion) &&
     Number.isSafeInteger(value.retryCount) && Number.isSafeInteger(value.maxRetries) &&
     ['claimedAt', 'startedAt', 'completedAt', 'nextRetryAt'].every((key) => validNullableDate(value[key])) &&
     ['processingDurationMs', 'tokensUsed'].every((key) => validNullableNumber(value[key]));
@@ -674,8 +763,10 @@ function validJob(value: unknown): value is Record<string, CanonicalValue> {
 
 function validAudit(value: unknown): value is Record<string, CanonicalValue> {
   if (!validCommonRecord(value, AUDIT_KEYS)) return false;
-  return ['id', 'action', 'actorId', 'actorRole', 'entityType', 'entityId'].every((key) => validString(value[key])) &&
-    validDate(value.createdAt) && validNullableString(value.reportId) && validCommitment(value.details);
+  return validId(value.id) && validId(value.actorId) && validId(value.entityId) &&
+    validDate(value.createdAt) && validNullableId(value.reportId) &&
+    validCommitment(value.action, false) && validCommitment(value.actorRole, false) &&
+    validCommitment(value.entityType, false) && validCommitment(value.details);
 }
 
 function validateOperation(value: unknown): TombstoneExportEnvelope['payload']['operation'] {
@@ -689,19 +780,20 @@ function validateOperation(value: unknown): TombstoneExportEnvelope['payload']['
   const fields = operation.arguments as unknown as TombstoneOperationKeyFields;
   if (
     fields.protocolVersion !== NPC_TOMBSTONE_PROTOCOL_VERSION ||
-    typeof fields.submissionId !== 'string' ||
+    !validId(fields.submissionId) ||
     !TOMBSTONE_INITIAL_STATUSES.includes(fields.expectedInitialStatus) ||
     fields.expectedPageCount !== 4 ||
-    typeof fields.expectedReportId !== 'string' ||
+    !validId(fields.expectedReportId) ||
     !TOMBSTONE_REPORT_STATUSES.includes(fields.expectedReportStatus) ||
     !TOMBSTONE_REPORT_VISIBILITIES.includes(fields.expectedReportVisibility) ||
     typeof fields.reason !== 'string' ||
-    typeof fields.actorId !== 'string' ||
+    !validId(fields.actorId) ||
     !TOMBSTONE_ACTOR_ROLES.includes(fields.actorRole) ||
     !validDate(operation.generatedAt)
   ) {
     invalidExport('Export operation values are invalid.');
   }
+  validateTombstoneReason(fields.reason);
   const identity = buildTombstoneOperationIdentity({
     ...fields,
     exportFile: '/validated/export.json',

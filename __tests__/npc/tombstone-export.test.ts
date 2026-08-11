@@ -44,14 +44,14 @@ function rawSnapshot() {
       subject: 'MATHEMATIQUES',
       gradeLevel: 'TERMINALE',
       title: 'Dossier synthétique',
-      description: null,
+      description: 'Description libre confidentielle',
       sourceType: 'AUTRE',
       sourceId: null,
       status: 'COMPLETED',
       unavailableReason: null,
       unavailableAt: null,
       ocrText: 'metadata only',
-      ocrError: null,
+      ocrError: 'Erreur OCR détaillée confidentielle',
       aiJobId: 'job_synthetic_export',
       storedFilePath: '/srv/npc/private/source.pdf',
       fileSizeBytes: 24,
@@ -96,7 +96,7 @@ function rawSnapshot() {
       sentToStudentAt: null,
       readByStudentAt: null,
       coachNotes: 'Rapport intact',
-      studentSummary: null,
+      studentSummary: 'Résumé élève confidentiel',
     },
     job: {
       id: 'job_synthetic_export',
@@ -116,14 +116,14 @@ function rawSnapshot() {
       retryCount: 0,
       maxRetries: 3,
       claimedAt: null,
-      claimedBy: 'worker-synthetic',
+      claimedBy: 'worker-free-text-sensitive',
       startedAt: null,
       completedAt: null,
       nextRetryAt: null,
       processingDurationMs: 12,
-      chutesRequestId: null,
+      chutesRequestId: 'provider-request-sensitive',
       tokensUsed: 17,
-      modelVersion: null,
+      modelVersion: 'model-version-sensitive',
     },
     audits: [
       {
@@ -173,17 +173,29 @@ describe('NPC tombstone export', () => {
     );
     expect(first.payload.snapshot.submission).toMatchObject({
       id: args.submissionId,
-      title: 'Dossier synthétique',
       status: 'COMPLETED',
       fileSizeBytes: 24,
+      title: { redacted: true, sha256: expect.stringMatching(/^[a-f0-9]{64}$/), byteLength: expect.any(Number) },
+      description: { redacted: true, sha256: expect.stringMatching(/^[a-f0-9]{64}$/), byteLength: expect.any(Number) },
+      ocrText: { redacted: true, sha256: expect.stringMatching(/^[a-f0-9]{64}$/), byteLength: expect.any(Number) },
+      ocrError: { redacted: true, sha256: expect.stringMatching(/^[a-f0-9]{64}$/), byteLength: expect.any(Number) },
+      mimeType: { redacted: true, sha256: expect.stringMatching(/^[a-f0-9]{64}$/), byteLength: expect.any(Number) },
     });
     expect(first.payload.snapshot.pages).toHaveLength(4);
     expect(first.payload.snapshot.pages.map((page) => page.pageNumber)).toEqual([1, 2, 3, 4]);
+    expect(first.payload.snapshot.pages[0]).toMatchObject({
+      originalFilename: { redacted: true, sha256: expect.stringMatching(/^[a-f0-9]{64}$/), byteLength: expect.any(Number) },
+      mimeType: { redacted: true, sha256: expect.stringMatching(/^[a-f0-9]{64}$/), byteLength: expect.any(Number) },
+      ocrText: { redacted: true, sha256: expect.stringMatching(/^[a-f0-9]{64}$/), byteLength: expect.any(Number) },
+    });
     expect(first.payload.snapshot.report).toMatchObject({
       id: args.expectedReportId,
       status: 'DRAFT',
       visibility: 'COACH_ONLY',
-      coachNotes: 'Rapport intact',
+      strengths: { redacted: true, sha256: expect.stringMatching(/^[a-f0-9]{64}$/), byteLength: expect.any(Number) },
+      weaknesses: { redacted: true, sha256: expect.stringMatching(/^[a-f0-9]{64}$/), byteLength: expect.any(Number) },
+      coachNotes: { redacted: true, sha256: expect.stringMatching(/^[a-f0-9]{64}$/), byteLength: expect.any(Number) },
+      studentSummary: { redacted: true, sha256: expect.stringMatching(/^[a-f0-9]{64}$/), byteLength: expect.any(Number) },
     });
     expect(first.payload.snapshot.job).toMatchObject({
       id: 'job_synthetic_export',
@@ -191,12 +203,20 @@ describe('NPC tombstone export', () => {
       inputData: { redacted: true, sha256: expect.stringMatching(/^[a-f0-9]{64}$/), byteLength: expect.any(Number) },
       outputData: { redacted: true, sha256: expect.stringMatching(/^[a-f0-9]{64}$/), byteLength: expect.any(Number) },
       errorMessage: { redacted: true, sha256: expect.stringMatching(/^[a-f0-9]{64}$/), byteLength: expect.any(Number) },
+      claimedBy: { redacted: true, sha256: expect.stringMatching(/^[a-f0-9]{64}$/), byteLength: expect.any(Number) },
+      chutesRequestId: { redacted: true, sha256: expect.stringMatching(/^[a-f0-9]{64}$/), byteLength: expect.any(Number) },
+      modelVersion: { redacted: true, sha256: expect.stringMatching(/^[a-f0-9]{64}$/), byteLength: expect.any(Number) },
     });
     expect(first.payload.snapshot.audits).toHaveLength(1);
     expect(first.payload.snapshot.audits[0].details).toEqual({
       redacted: true,
       sha256: expect.stringMatching(/^[a-f0-9]{64}$/),
       byteLength: expect.any(Number),
+    });
+    expect(first.payload.snapshot.audits[0]).toMatchObject({
+      action: { redacted: true, sha256: expect.stringMatching(/^[a-f0-9]{64}$/), byteLength: expect.any(Number) },
+      actorRole: { redacted: true, sha256: expect.stringMatching(/^[a-f0-9]{64}$/), byteLength: expect.any(Number) },
+      entityType: { redacted: true, sha256: expect.stringMatching(/^[a-f0-9]{64}$/), byteLength: expect.any(Number) },
     });
     expect(first.payload.snapshot.report).toMatchObject({
       diagnostic: { redacted: true, sha256: expect.stringMatching(/^[a-f0-9]{64}$/), byteLength: expect.any(Number) },
@@ -214,6 +234,26 @@ describe('NPC tombstone export', () => {
     expect(serialized).not.toContain('second-unlabelled-secret-value');
     expect(serialized).not.toContain('third-unlabelled-secret-value');
     expect(serialized).not.toContain('synthetic-pass');
+    for (const freeText of [
+      'Dossier synthétique',
+      'Description libre confidentielle',
+      'metadata only',
+      'Erreur OCR détaillée confidentielle',
+      'page-1.pdf',
+      'page 1',
+      'application/pdf',
+      'Calcul',
+      'Rédaction',
+      'Rapport intact',
+      'Résumé élève confidentiel',
+      'worker-free-text-sensitive',
+      'provider-request-sensitive',
+      'model-version-sensitive',
+      'SYNTHETIC_EXISTING_AUDIT',
+      'PedagogicalReport',
+    ]) {
+      expect(serialized).not.toContain(freeText);
+    }
     expect(serialized).not.toMatch(/"(?:user|auth|password|token|secret|cookie)"\s*:/i);
   });
 
@@ -299,7 +339,7 @@ describe('NPC tombstone export', () => {
     });
     await writeVerifiedTombstoneExport(exportFile, envelope, TEST_EXPORT_SECURITY);
     const parsed = JSON.parse(readFileSync(exportFile, 'utf8'));
-    parsed.payload.snapshot.submission.title = 'tampered';
+    parsed.payload.snapshot.submission.title.sha256 = 'a'.repeat(64);
     writeFileSync(exportFile, JSON.stringify(parsed), { mode: 0o600 });
 
     await expect(readVerifiedTombstoneExport(exportFile, TEST_EXPORT_SECURITY)).rejects.toMatchObject({
