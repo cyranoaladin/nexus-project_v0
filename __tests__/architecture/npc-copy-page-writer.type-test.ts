@@ -1,6 +1,7 @@
 import type { Prisma } from '@prisma/client';
 import {
   createCopyPage,
+  createManyAndReturnCopyPages,
   createManyCopyPages,
   upsertCopyPage,
   type CopyPageWriteClient,
@@ -21,6 +22,9 @@ if (false) {
   createManyCopyPages(client, {
     data: [{ ...dataWithoutDocumentType, documentType: 'SUBJECT' }],
   });
+  createManyAndReturnCopyPages(client, {
+    data: [{ ...dataWithoutDocumentType, documentType: 'GRADING_RUBRIC' }],
+  });
   upsertCopyPage(client, {
     where: { id: 'page-1' },
     create: { ...dataWithoutDocumentType, documentType: 'GRADING_RUBRIC' },
@@ -31,6 +35,8 @@ if (false) {
   createCopyPage(client, { data: dataWithoutDocumentType });
   // @ts-expect-error every createMany row requires documentType.
   createManyCopyPages(client, { data: [dataWithoutDocumentType] });
+  // @ts-expect-error every createManyAndReturn row requires documentType.
+  createManyAndReturnCopyPages(client, { data: [dataWithoutDocumentType] });
   upsertCopyPage(client, {
     where: { id: 'page-1' },
     // @ts-expect-error the upsert create branch requires documentType.

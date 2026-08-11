@@ -1,5 +1,6 @@
 import {
   createCopyPage,
+  createManyAndReturnCopyPages,
   createManyCopyPages,
   upsertCopyPage,
 } from '@/lib/npc/copy-page-writer';
@@ -7,6 +8,7 @@ import {
 describe('typed CopyPage write boundary', () => {
   const copyPage = {
     create: jest.fn(),
+    createManyAndReturn: jest.fn(),
     createMany: jest.fn(),
     upsert: jest.fn(),
   };
@@ -37,6 +39,15 @@ describe('typed CopyPage write boundary', () => {
     await createManyCopyPages(client, { data: [data, second] });
 
     expect(copyPage.createMany).toHaveBeenCalledWith({ data: [data, second] });
+  });
+
+  it('forwards every explicitly typed createManyAndReturn row', async () => {
+    copyPage.createManyAndReturn.mockResolvedValue([{ id: 'page-1' }, { id: 'page-2' }]);
+    const second = { ...data, pageNumber: 2, documentType: 'SUBJECT' as const };
+
+    await createManyAndReturnCopyPages(client, { data: [data, second] });
+
+    expect(copyPage.createManyAndReturn).toHaveBeenCalledWith({ data: [data, second] });
   });
 
   it('forwards upsert create payloads with their explicit document type', async () => {

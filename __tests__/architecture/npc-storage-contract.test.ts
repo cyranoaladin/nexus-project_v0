@@ -201,7 +201,12 @@ function discoverActiveApplicationRuntimeModules(): string[] {
   return discovered.sort();
 }
 
-const COPY_PAGE_WRITE_OPERATIONS = new Set(['create', 'upsert', 'createMany']);
+const COPY_PAGE_WRITE_OPERATIONS = new Set([
+  'create',
+  'upsert',
+  'createMany',
+  'createManyAndReturn',
+]);
 const COPY_PAGE_NESTED_WRITE_OPERATIONS = new Set([
   'create',
   'createMany',
@@ -455,6 +460,7 @@ const FIXTURE_PRISMA_DECLARATIONS = `
   interface CopyPageDelegate {
     create(args: { data: CopyPageCreateData }): unknown;
     createMany(args: { data: CopyPageCreateData | CopyPageCreateData[] }): unknown;
+    createManyAndReturn(args: { data: CopyPageCreateData | CopyPageCreateData[] }): unknown;
     upsert(args: { create: CopyPageCreateData; update: unknown; where: unknown }): unknown;
   }
   interface CopyPageNestedWrites {
@@ -590,7 +596,7 @@ describe('NPC storage and unavailable-state architecture contract', () => {
     );
   });
 
-  test('allows exactly the three raw CopyPage writes in the canonical typed boundary', () => {
+  test('allows exactly the four raw CopyPage writes in the canonical typed boundary', () => {
     const findings = inspectRuntimePrismaWrites();
 
     expect(findings.map(({ kind, path, operation }) => ({ kind, path, operation })))
@@ -604,6 +610,11 @@ describe('NPC storage and unavailable-state architecture contract', () => {
           kind: 'delegate',
           path: CANONICAL_COPY_PAGE_WRITER,
           operation: 'CopyPage.createMany',
+        },
+        {
+          kind: 'delegate',
+          path: CANONICAL_COPY_PAGE_WRITER,
+          operation: 'CopyPage.createManyAndReturn',
         },
         {
           kind: 'delegate',
@@ -625,6 +636,26 @@ describe('NPC storage and unavailable-state architecture contract', () => {
     const { findings } = inspectFixture(source);
 
     expect(findings).toHaveLength(1);
+  });
+
+  test.each([
+    [
+      'direct createManyAndReturn delegate',
+      `tx.copyPage.createManyAndReturn({ data: [{}] });`,
+    ],
+    [
+      'aliased createManyAndReturn delegate',
+      `const delegate = tx.copyPage; delegate.createManyAndReturn({ data: [{}] });`,
+    ],
+    [
+      'indexed createManyAndReturn delegate',
+      `tx['copyPage']['createManyAndReturn']({ data: [{}] });`,
+    ],
+  ])('semantic CopyPage guard detects %s', (_label, source) => {
+    const { findings } = inspectFixture(source);
+
+    expect(findings).toHaveLength(1);
+    expect(findings[0]?.operation).toBe('CopyPage.createManyAndReturn');
   });
 
   test('semantic CopyPage guard accepts a payload variable through the typed boundary', () => {
