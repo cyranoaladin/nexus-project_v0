@@ -406,6 +406,70 @@ describe('NPC worker integrity gate on PostgreSQL 15', () => {
     });
   });
 
+  it('rolls back terminal job failure when the submission failure state cannot be stored', async () => {
+    const fixture = await createIntactSubmission();
+    const jobId = `${prefix}-job`;
+    await firstClient.aiProcessingJob.update({
+      where: { id: jobId },
+      data: { retryCount: 3, maxRetries: 3 },
+    });
+    await firstClient.$executeRawUnsafe(
+      'DROP TRIGGER IF EXISTS "npc_worker_reject_analysis_failed" ON "copy_submissions"',
+    );
+    await firstClient.$executeRawUnsafe(
+      'DROP FUNCTION IF EXISTS "npc_worker_reject_analysis_failed"()',
+    );
+    await firstClient.$executeRawUnsafe(`
+      CREATE FUNCTION "npc_worker_reject_analysis_failed"() RETURNS trigger
+      LANGUAGE plpgsql AS $$
+      BEGIN
+        IF NEW."status" = 'ANALYSIS_FAILED' THEN
+          RAISE EXCEPTION 'NPC_TEST_REJECT_ANALYSIS_FAILED';
+        END IF;
+        RETURN NEW;
+      END $$
+    `);
+    await firstClient.$executeRawUnsafe(`
+      CREATE TRIGGER "npc_worker_reject_analysis_failed"
+      BEFORE UPDATE ON "copy_submissions"
+      FOR EACH ROW EXECUTE FUNCTION "npc_worker_reject_analysis_failed"()
+    `);
+
+    try {
+      await expect(recordNpcJobFailure({
+        prisma: firstClient,
+        jobId,
+        errorMessage: 'terminal diagnosis failure',
+      })).rejects.toThrow('NPC_TEST_REJECT_ANALYSIS_FAILED');
+
+      await expect(firstClient.aiProcessingJob.findUniqueOrThrow({
+        where: { id: jobId },
+        select: {
+          status: true,
+          retryCount: true,
+          errorMessage: true,
+          completedAt: true,
+        },
+      })).resolves.toEqual({
+        status: 'PROCESSING',
+        retryCount: 3,
+        errorMessage: null,
+        completedAt: null,
+      });
+      await expect(firstClient.copySubmission.findUniqueOrThrow({
+        where: { id: fixture.submissionId },
+        select: { status: true },
+      })).resolves.toEqual({ status: 'ANALYZING' });
+    } finally {
+      await firstClient.$executeRawUnsafe(
+        'DROP TRIGGER IF EXISTS "npc_worker_reject_analysis_failed" ON "copy_submissions"',
+      );
+      await firstClient.$executeRawUnsafe(
+        'DROP FUNCTION IF EXISTS "npc_worker_reject_analysis_failed"()',
+      );
+    }
+  });
+
   it('fails contradictory completed-without-report state without changing the submission', async () => {
     const fixture = await createIntactSubmission();
     await firstClient.copySubmission.update({
