@@ -5,7 +5,6 @@
 
 // Configuration
 export {
-  NPC_UPLOAD_DIR,
   NPC_MAX_FILE_SIZE_MB,
   NPC_MAX_FILE_SIZE_BYTES,
   NPC_MAX_PAGES_PER_SUBMISSION,
@@ -24,6 +23,14 @@ export {
   SECURE_FILE_ID_LENGTH,
 } from './config';
 
+export {
+  assertNpcStorageReady,
+  resolveNpcStoragePath,
+  resolveNpcStorageRoot,
+  type NpcStorageReadyOptions,
+  type StorageCapability,
+} from './storage-root';
+
 // File Validation
 export {
   validateFilename,
@@ -41,6 +48,7 @@ export {
 // Storage
 export {
   generateSecureFileId,
+  generateSecureRelativePath,
   generateSecurePath,
   ensureDirectory,
   saveUploadedFile,

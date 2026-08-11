@@ -9,6 +9,13 @@ import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { CopySubmissionStatus, UserRole, AiJobType, AiJobStatus } from '@prisma/client';
 import { canManageSubmissionDocuments } from '@/lib/npc/access';
+import { withLockedCopySubmission } from '@/lib/npc/submission-lock';
+import { NPC_INTERACTIVE_TRANSACTION_OPTIONS } from '@/lib/npc/transaction';
+import {
+  assertSubmissionAvailable,
+  NPC_UNAVAILABLE_CONFLICT,
+  SubmissionUnavailableError,
+} from '@/lib/npc/unavailable';
 import { z } from 'zod';
 
 interface RouteParams {
@@ -70,74 +77,100 @@ export async function POST(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    // Check if submission is already processing or completed
-    if (
-      submission.status === CopySubmissionStatus.QUEUED_FOR_ANALYSIS ||
-      submission.status === CopySubmissionStatus.ANALYZING ||
-      submission.status === CopySubmissionStatus.COMPLETED
-    ) {
+    if (submission.status === CopySubmissionStatus.UNAVAILABLE) {
+      return NextResponse.json(NPC_UNAVAILABLE_CONFLICT, { status: 409 });
+    }
+
+    const queued = await prisma.$transaction(async (tx) =>
+      withLockedCopySubmission(tx, submissionId, async (locked) => {
+        assertSubmissionAvailable(locked);
+        const current = await tx.copySubmission.findUniqueOrThrow({
+          where: { id: submissionId },
+          select: {
+            status: true,
+            pages: {
+              select: {
+                id: true,
+                documentType: true,
+                status: true,
+              },
+            },
+          },
+        });
+        if (
+          current.status === CopySubmissionStatus.QUEUED_FOR_ANALYSIS ||
+          current.status === CopySubmissionStatus.ANALYZING ||
+          current.status === CopySubmissionStatus.COMPLETED
+        ) {
+          return { kind: 'already-processing' as const };
+        }
+        if (!current.pages.some((page) => page.documentType === 'STUDENT_COPY')) {
+          return { kind: 'missing-copy' as const };
+        }
+
+        const aiJob = await tx.aiProcessingJob.create({
+          data: {
+            type: AiJobType.PEDAGOGICAL_DIAGNOSIS,
+            status: AiJobStatus.PENDING,
+            priority: 'NORMAL',
+            copySubmissionId: submissionId,
+            inputData: JSON.stringify({
+              submissionId,
+              documentCount: current.pages.length,
+              documentTypes: current.pages.map((page) => page.documentType),
+            }),
+          },
+        });
+        await tx.copySubmission.update({
+          where: { id: submissionId },
+          data: {
+            status: CopySubmissionStatus.QUEUED_FOR_ANALYSIS,
+            aiJobId: aiJob.id,
+          },
+        });
+        await tx.npcAuditLog.create({
+          data: {
+            actorId: actor.userId,
+            actorRole: actor.role,
+            action: 'LAUNCH_AI_CORRECTION',
+            entityType: 'CopySubmission',
+            entityId: submissionId,
+            details: {
+              jobId: aiJob.id,
+              documentCount: current.pages.length,
+            },
+          },
+        });
+        return { kind: 'queued' as const, jobId: aiJob.id };
+      }),
+      NPC_INTERACTIVE_TRANSACTION_OPTIONS,
+    );
+
+    if (queued.kind === 'already-processing') {
       return NextResponse.json(
         { error: 'Submission is already being processed or completed' },
-        { status: 400 }
+        { status: 400 },
       );
     }
-
-    // Check if there's at least one student copy
-    const studentCopies = submission.pages.filter((page) => page.documentType === 'STUDENT_COPY');
-    if (studentCopies.length === 0) {
+    if (queued.kind === 'missing-copy') {
       return NextResponse.json(
         { error: 'At least one student copy is required' },
-        { status: 400 }
+        { status: 400 },
       );
     }
-
-    // Create AI processing job
-    const aiJob = await prisma.aiProcessingJob.create({
-      data: {
-        type: AiJobType.PEDAGOGICAL_DIAGNOSIS,
-        status: AiJobStatus.PENDING,
-        priority: 'NORMAL',
-        inputData: JSON.stringify({
-          submissionId: submission.id,
-          documentCount: submission.pages.length,
-          documentTypes: submission.pages.map((p) => p.documentType),
-        }),
-      },
-    });
-
-    // Update submission status
-    await prisma.copySubmission.update({
-      where: { id: submissionId },
-      data: {
-        status: CopySubmissionStatus.QUEUED_FOR_ANALYSIS,
-        aiJobId: aiJob.id,
-      },
-    });
-
-    // Create audit log
-    await prisma.npcAuditLog.create({
-      data: {
-        actorId: actor.userId,
-        actorRole: actor.role,
-        action: 'LAUNCH_AI_CORRECTION',
-        entityType: 'CopySubmission',
-        entityId: submissionId,
-        details: JSON.stringify({
-          jobId: aiJob.id,
-          documentCount: submission.pages.length,
-        }),
-      },
-    });
 
     return NextResponse.json(
       {
         success: true,
-        jobId: aiJob.id,
+        jobId: queued.jobId,
         status: 'QUEUED_FOR_ANALYSIS',
       },
       { status: 201 }
     );
   } catch (error) {
+    if (error instanceof SubmissionUnavailableError) {
+      return NextResponse.json(NPC_UNAVAILABLE_CONFLICT, { status: 409 });
+    }
     console.error('[NPC Generate] Error:', serializeError(error));
     return NextResponse.json(
       { error: 'Internal server error' },

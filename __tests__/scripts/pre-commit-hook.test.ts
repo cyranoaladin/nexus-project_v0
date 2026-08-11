@@ -4,7 +4,8 @@
  * Sources the hook functions and exercises is_value_allowlisted
  * against real and injected content. Fixtures in .sample files.
  */
-import { execSync } from 'node:child_process';
+import { execSync, spawnSync } from 'node:child_process';
+import { randomUUID } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
@@ -53,6 +54,19 @@ function readFunctionFromHook(): string {
   return hook.slice(start, end);
 }
 
+function configuredSecretPatterns(): string[] {
+  const hook = readFileSync(hookPath, 'utf8');
+  const start = hook.indexOf('SECRET_PATTERNS=(');
+  const end = hook.indexOf('\n)', start);
+  return [...hook.slice(start, end).matchAll(/^\s*"(.+)"\s*$/gm)].map((match) => match[1]);
+}
+
+function matchesConfiguredSecretPattern(content: string): boolean {
+  return configuredSecretPatterns().some(
+    (pattern) => spawnSync('grep', ['-qE', pattern], { input: content }).status === 0,
+  );
+}
+
 function runSafeExamplePathCheck(file: string): number {
   const hook = readFileSync(hookPath, 'utf8');
   const start = hook.indexOf('is_safe_env_example_path()');
@@ -70,6 +84,13 @@ function runSafeExamplePathCheck(file: string): number {
 }
 
 describe('pre-commit-hook allowlist', () => {
+  it('blocks inline PostgreSQL credentials outside DATABASE_URL assignments', () => {
+    const protocol = ['postgres', 'ql'].join('');
+    const runtimeCredential = `${protocol}://${randomUUID()}:${randomUUID()}@db/${randomUUID()}`;
+
+    expect(matchesConfiguredSecretPattern(`const sensitive = '${runtimeCredential}';`)).toBe(true);
+  });
+
   it('allows only explicit environment example filenames through the path gate', () => {
     expect(runSafeExamplePathCheck('.env.example')).toBe(0);
     expect(runSafeExamplePathCheck('.env.production.example')).toBe(0);

@@ -411,6 +411,20 @@ jobs:
           --testPathIgnorePatterns='activation-domain-separation\.real\.test\.ts'
           --testPathIgnorePatterns='parent-registration-atomicity\.real\.test\.ts'
           --testPathIgnorePatterns='parent-email-onboarding\.real\.test\.ts'
+          --testPathIgnorePatterns='npc-.*\.real\.test\.ts'
+
+      # NPC real-database suites deliberately require UID 0 and their own
+      # PostgreSQL 15 runtime. Keep them in the required Integration job, but
+      # execute them through the fail-closed disposable harness that supplies
+      # those constraints and tears down every resource.
+      - name: Run NPC real database integration tests
+        env:
+          NPC_LLM_MODE: 'off'
+        run: |
+          bash scripts/testing/run-npc-real-db-tests.sh \
+            __tests__/integration/npc-submission-lock.real.test.ts \
+            __tests__/integration/npc-tombstone-command.real.test.ts \
+            __tests__/integration/npc-worker-integrity.real.test.ts
 
       - name: Run integration tests (session-revocation -- isolated database)
         env:
@@ -585,6 +599,22 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Prepare isolated NPC storage
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          npc_storage_root="$RUNNER_TEMP/npc-storage"
+          install -d -m 0700 -- "$npc_storage_root"
+          canonical_storage_root="$(realpath -- "$npc_storage_root")"
+          canonical_workspace="$(realpath -- "$GITHUB_WORKSPACE")"
+          case "$canonical_storage_root/" in
+            "$canonical_workspace/"*)
+              echo 'NPC storage must remain outside the checked-out release.' >&2
+              exit 1
+              ;;
+          esac
+          printf 'NPC_STORAGE_ROOT=%s\n' "$canonical_storage_root" >> "$GITHUB_ENV"
 
       - name: Wait for Postgres (E2E) to be ready
         run: |
@@ -925,6 +955,22 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Prepare isolated NPC storage
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          npc_storage_root="$RUNNER_TEMP/npc-storage"
+          install -d -m 0700 -- "$npc_storage_root"
+          canonical_storage_root="$(realpath -- "$npc_storage_root")"
+          canonical_workspace="$(realpath -- "$GITHUB_WORKSPACE")"
+          case "$canonical_storage_root/" in
+            "$canonical_workspace/"*)
+              echo 'NPC storage must remain outside the checked-out release.' >&2
+              exit 1
+              ;;
+          esac
+          printf 'NPC_STORAGE_ROOT=%s\n' "$canonical_storage_root" >> "$GITHUB_ENV"
 
       - name: Generate Prisma Client
         run: npx prisma generate
