@@ -338,7 +338,7 @@ items:
         label: "Ces / on"
         correct: false
         distractorRationale: "Se trompe sur les deux homophones."
-    shortCorrection: "« Ses » marque la possession (ses amis) ; « ont » est le verbe avoir (on peut dire « avaient »)."
+    shortCorrection: "« Ses » marque la possession (leurs amis). « Ont » est le verbe avoir (test : « ils avaient »). Attention : « arriver » se conjugue avec être, jamais avoir — la forme correcte est « Ses amis sont déjà arrivés ». L'exercice teste ses/ces et on/ont, pas l'auxiliaire, mais retiens « sont », pas « ont »."
     tags: [homophones, ses-ces]
 
   # ===========================================================================

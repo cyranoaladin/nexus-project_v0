@@ -100,7 +100,7 @@ items:
       - key: B
         label: "100 mol/L"
         correct: false
-        distractorRationale: "Divise par le volume en millilitres après une conversion erronée."
+        distractorRationale: "Multiplie la quantité de matière par le volume exprimé en millilitres (0,2 × 500) au lieu de diviser par le volume en litres."
       - key: C
         label: "0,0004 mol/L"
         correct: false

@@ -3,10 +3,10 @@
   "level": "PREMIERE",
   "subject": "PHYSIQUE_CHIMIE",
   "version": 1,
-  "status": "VALIDATED",
+  "status": "DRAFT",
   "review": {
-    "validatedBy": "cmsf8ncn10002mguhrmimhhcm",
-    "validatedAt": "2026-08-05T07:02:21.148Z"
+    "validatedBy": null,
+    "validatedAt": null
   },
   "questionnaire": {
     "targetDurationMin": 25,
@@ -127,7 +127,7 @@
             "id": "B",
             "text": "100 mol/L",
             "isCorrect": false,
-            "distractorRationale": "Divise par le volume en millilitres après une conversion erronée."
+            "distractorRationale": "Multiplie la quantité de matière par le volume exprimé en millilitres (0,2 × 500) au lieu de diviser par le volume en litres."
           },
           {
             "id": "C",

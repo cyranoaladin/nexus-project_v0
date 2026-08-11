@@ -105,4 +105,57 @@ describe('Telegram secret scanner', () => {
     expect(output).toContain('.next/static/chunks/client.js');
     expect(output).not.toContain(syntheticToken);
   });
+
+  describe('--staged-files mode', () => {
+    function runStagedFilesScan(root: string, files: string[]) {
+      return spawnSync(process.execPath, [scanner, '--staged-files', ...files], {
+        cwd: root,
+        encoding: 'utf8',
+      });
+    }
+
+    it('ignores a flagged pattern that exists on disk but was not passed as a staged file', () => {
+      const strayWorktreeBuild = join(root, '.worktrees', 'other-branch', '.next', 'server', 'route.js');
+      mkdirSync(join(strayWorktreeBuild, '..'), { recursive: true });
+      const bundledServerCall = [
+        'https://api.telegram.org/',
+        'bot${process.env.TELEGRAM_BOT_TOKEN}',
+        '/sendMessage',
+      ].join('');
+      writeFileSync(strayWorktreeBuild, `const url = \`${bundledServerCall}\`;\n`);
+
+      writeFileSync(join(root, 'clean.ts'), 'export const value = 1;\n');
+
+      const result = runStagedFilesScan(root, ['clean.ts']);
+
+      expect(result.status).toBe(0);
+    });
+
+    it('still detects the same pattern when the file is explicitly passed', () => {
+      const bundledServerCall = [
+        'https://api.telegram.org/',
+        'bot${process.env.TELEGRAM_BOT_TOKEN}',
+        '/sendMessage',
+      ].join('');
+      writeFileSync(join(root, 'client.ts'), `const url = \`${bundledServerCall}\`;\n`);
+
+      const result = runStagedFilesScan(root, ['client.ts']);
+      const output = `${result.stdout}${result.stderr}`;
+
+      expect(result.status).toBe(1);
+      expect(output).toContain('client.ts');
+      expect(output).toContain('direct-telegram-bot-api-call');
+    });
+
+    it('never lists a file that was not passed, even when malformed patterns exist elsewhere', () => {
+      const syntheticToken = `${'12345678'}:${'A'.repeat(35)}`;
+      writeFileSync(join(root, 'untouched.ts'), `export const value = '${syntheticToken}';\n`);
+      writeFileSync(join(root, 'staged.ts'), 'export const value = 1;\n');
+
+      const result = runStagedFilesScan(root, ['staged.ts']);
+
+      expect(result.status).toBe(0);
+      expect(`${result.stdout}${result.stderr}`).not.toContain('untouched.ts');
+    });
+  });
 });

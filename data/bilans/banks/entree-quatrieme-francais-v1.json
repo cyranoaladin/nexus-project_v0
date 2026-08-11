@@ -3,10 +3,10 @@
   "level": "QUATRIEME",
   "subject": "FRANCAIS",
   "version": 1,
-  "status": "VALIDATED",
+  "status": "DRAFT",
   "review": {
-    "validatedBy": "cmsf8ncom0008mguh4z5acmu5",
-    "validatedAt": "2026-08-05T07:03:45.322Z"
+    "validatedBy": null,
+    "validatedAt": null
   },
   "questionnaire": {
     "targetDurationMin": 25,
@@ -479,7 +479,7 @@
         "nodeCpsId": "5e.francais.orthographe.homophones",
         "difficulty": 2,
         "targetTimeSec": 55,
-        "shortCorrection": "« Ses » marque la possession (ses amis) ; « ont » est le verbe avoir (on peut dire « avaient »).",
+        "shortCorrection": "« Ses » marque la possession (leurs amis). « Ont » est le verbe avoir (test : « ils avaient »). Attention : « arriver » se conjugue avec être, jamais avoir — la forme correcte est « Ses amis sont déjà arrivés ». L'exercice teste ses/ces et on/ont, pas l'auxiliaire, mais retiens « sont », pas « ont ».",
         "weight": 2,
         "competencies": [
           "5e.francais.orthographe.homophones"
@@ -510,7 +510,7 @@
             "distractorRationale": "Se trompe sur les deux homophones."
           }
         ],
-        "explanation": "« Ses » marque la possession (ses amis) ; « ont » est le verbe avoir (on peut dire « avaient »)."
+        "explanation": "« Ses » marque la possession (leurs amis). « Ont » est le verbe avoir (test : « ils avaient »). Attention : « arriver » se conjugue avec être, jamais avoir — la forme correcte est « Ses amis sont déjà arrivés ». L'exercice teste ses/ces et on/ont, pas l'auxiliaire, mais retiens « sont », pas « ont »."
       },
       {
         "id": "4E-FRA-LEX-01",
