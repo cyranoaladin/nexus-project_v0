@@ -37,6 +37,7 @@ const uploadMetadataSchema = z.object({
   description: z.string().trim().max(2000).optional(),
   subject: z.nativeEnum(Subject),
 }).strict();
+const historicalDocumentTypeSchema = z.literal('STUDENT_COPY');
 
 // ─── Auth Helper ───
 
@@ -140,6 +141,16 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     // Parse multipart form data
     const formData = await request.formData();
+
+    const parsedDocumentType = historicalDocumentTypeSchema.safeParse(
+      formData.get('documentType'),
+    );
+    if (!parsedDocumentType.success) {
+      return NextResponse.json(
+        { error: 'Invalid document type' },
+        { status: 400 },
+      );
+    }
 
     const parsedMetadata = uploadMetadataSchema.safeParse({
       studentId: formData.get('studentId'),
@@ -280,7 +291,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
               mimeType: file.type,
               sizeBytes: file.size,
               sha256,
-              documentType: 'STUDENT_COPY',
+              documentType: parsedDocumentType.data,
               uploadedById: authorization.userId,
               convertedFilePaths: [],
               status: 'UPLOADED',

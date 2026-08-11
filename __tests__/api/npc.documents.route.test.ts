@@ -121,6 +121,21 @@ describe('NPC correction documents API', () => {
     expect(body.error).toBe('No file provided');
   });
 
+  it('requires an explicitly selected document type', async () => {
+    const response = await POST(
+      makeUploadRequest({
+        file: new File(['%PDF-1.4'], 'copie.pdf', { type: 'application/pdf' }),
+      }),
+      params(),
+    );
+    const body = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(body.error).toBe('Invalid document type');
+    expect(npcStorage.saveUploadedFile).not.toHaveBeenCalled();
+    expect(prisma.copyPage.create).not.toHaveBeenCalled();
+  });
+
   it('rejects invalid submission ids before reading the submission', async () => {
     const response = await GET(
       new NextRequest('http://localhost/api/npc/submissions/../secret/documents'),

@@ -98,11 +98,48 @@ describe('POST /api/npc/uploads', () => {
     expect(request.formData).not.toHaveBeenCalled();
   });
 
+  it('requires an explicit document type', async () => {
+    const response = await POST(makeUploadRequest({
+      studentId: 'student-1',
+      title: 'Copie bac blanc',
+      subject: 'MATHEMATIQUES',
+      file: new File(['%PDF-1.4'], 'copie.pdf', { type: 'application/pdf' }),
+    }));
+    const body = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(body.error).toBe('Invalid document type');
+    expect(prisma.coachProfile.findFirst).not.toHaveBeenCalled();
+    expect(npcStorage.saveUploadedFile).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    'SUBJECT',
+    'OFFICIAL_CORRECTION',
+    'GRADING_RUBRIC',
+    'GRADING_INSTRUCTIONS',
+    'SUPPORTING_DOCUMENT',
+  ])('rejects %s on the historical single-copy endpoint', async (documentType) => {
+    const response = await POST(makeUploadRequest({
+      studentId: 'student-1',
+      title: 'Copie bac blanc',
+      subject: 'MATHEMATIQUES',
+      documentType,
+      file: new File(['%PDF-1.4'], 'copie.pdf', { type: 'application/pdf' }),
+    }));
+
+    expect(response.status).toBe(400);
+    await expect(response.json()).resolves.toEqual({ error: 'Invalid document type' });
+    expect(prisma.coachProfile.findFirst).not.toHaveBeenCalled();
+    expect(npcStorage.saveUploadedFile).not.toHaveBeenCalled();
+  });
+
   it('does not expose storage paths after upload', async () => {
     const response = await POST(makeUploadRequest({
       studentId: 'student-1',
       title: 'Copie bac blanc',
       subject: 'MATHEMATIQUES',
+      documentType: 'STUDENT_COPY',
       file: new File(['%PDF-1.4'], 'copie.pdf', { type: 'application/pdf' }),
     }));
     const body = await response.json();
@@ -135,6 +172,7 @@ describe('POST /api/npc/uploads', () => {
       studentId: 'student-1',
       title: 'Copie bac blanc',
       subject: 'MATHEMATIQUES',
+      documentType: 'STUDENT_COPY',
       file: new File(['%PDF-1.4'], 'copie.pdf', { type: 'application/pdf' }),
     }));
 
@@ -152,6 +190,7 @@ describe('POST /api/npc/uploads', () => {
       studentId: 'student-1',
       title: 'Copie bac blanc',
       subject: 'MATHEMATIQUES',
+      documentType: 'STUDENT_COPY',
       file: new File(['%PDF-1.4'], 'copie.pdf', { type: 'application/pdf' }),
     }));
 
@@ -178,6 +217,7 @@ describe('POST /api/npc/uploads', () => {
       studentId: 'student-1',
       title: 'Copie bac blanc',
       subject: 'MATHEMATIQUES',
+      documentType: 'STUDENT_COPY',
       file: new File(['%PDF-1.4'], 'copie.pdf', { type: 'application/pdf' }),
     }));
 
@@ -202,6 +242,7 @@ describe('POST /api/npc/uploads', () => {
         studentId: 'student-1',
         title: 'Copie bac blanc',
         subject: 'MATHEMATIQUES',
+        documentType: 'STUDENT_COPY',
         file: new File(['%PDF-1.4'], 'copie.pdf', { type: 'application/pdf' }),
       }));
 
@@ -218,6 +259,7 @@ describe('POST /api/npc/uploads', () => {
       studentId: '../student',
       title: 'Copie bac blanc',
       subject: 'MATHEMATIQUES',
+      documentType: 'STUDENT_COPY',
       file: new File(['%PDF-1.4'], 'copie.pdf', { type: 'application/pdf' }),
     }));
     const body = await response.json();

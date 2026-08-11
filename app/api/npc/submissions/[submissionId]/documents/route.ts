@@ -196,7 +196,7 @@ export async function POST(
     }
 
     const formData = await request.formData();
-    const parsedDocumentType = documentTypeSchema.safeParse(formData.get('documentType') || 'STUDENT_COPY');
+    const parsedDocumentType = documentTypeSchema.safeParse(formData.get('documentType'));
     if (!parsedDocumentType.success) {
       return NextResponse.json(
         { error: 'Invalid document type' },

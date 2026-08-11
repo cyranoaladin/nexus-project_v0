@@ -2,6 +2,7 @@
 
 import { readdirSync, readFileSync } from 'node:fs';
 import { basename, join, relative } from 'node:path';
+import ts from 'typescript';
 import { parse as parseYaml } from 'yaml';
 import {
   CopyPageStatus as ClientCopyPageStatus,
@@ -166,6 +167,140 @@ function discoverActiveNpcRuntimeModules(): string[] {
   ].sort();
 }
 
+function discoverActiveApplicationRuntimeModules(): string[] {
+  const excludedDirectories = new Set([
+    ...SCAN_EXCLUDED_DIRECTORIES,
+    '__mocks__',
+    '__tests__',
+    'archive',
+    'audit',
+    'e2e',
+    'prisma',
+    'public',
+  ]);
+  const discovered: string[] = [];
+
+  const visit = (directory: string): void => {
+    for (const entry of readdirSync(directory, { withFileTypes: true })) {
+      const absolutePath = join(directory, entry.name);
+      if (entry.isDirectory()) {
+        if (!entry.name.startsWith('.') && !excludedDirectories.has(entry.name)) {
+          visit(absolutePath);
+        }
+      } else if (
+        entry.isFile() &&
+        /\.(?:[cm]?[jt]s|[jt]sx)$/.test(entry.name)
+      ) {
+        discovered.push(relative(ROOT, absolutePath));
+      }
+    }
+  };
+  visit(ROOT);
+
+  return discovered.sort();
+}
+
+const COPY_PAGE_WRITE_OPERATIONS = new Set(['create', 'upsert', 'createMany']);
+
+function unwrapExpression(expression: ts.Expression): ts.Expression {
+  if (
+    ts.isAsExpression(expression) ||
+    ts.isSatisfiesExpression(expression) ||
+    ts.isTypeAssertionExpression(expression) ||
+    ts.isNonNullExpression(expression) ||
+    ts.isParenthesizedExpression(expression)
+  ) {
+    return unwrapExpression(expression.expression);
+  }
+
+  return expression;
+}
+
+function propertyNameText(name: ts.PropertyName): string | undefined {
+  if (ts.isIdentifier(name) || ts.isStringLiteral(name) || ts.isNumericLiteral(name)) {
+    return name.text;
+  }
+
+  return undefined;
+}
+
+function propertyExpression(
+  object: ts.ObjectLiteralExpression,
+  propertyName: string,
+): ts.Expression | undefined {
+  for (const property of object.properties) {
+    if (ts.isPropertyAssignment(property) && propertyNameText(property.name) === propertyName) {
+      return property.initializer;
+    }
+    if (ts.isShorthandPropertyAssignment(property) && property.name.text === propertyName) {
+      return property.name;
+    }
+  }
+
+  return undefined;
+}
+
+function hasExplicitDocumentType(payload: ts.Expression): boolean {
+  const expression = unwrapExpression(payload);
+  if (ts.isArrayLiteralExpression(expression)) {
+    return (
+      expression.elements.length > 0 &&
+      expression.elements.every((element) =>
+        ts.isSpreadElement(element) ? false : hasExplicitDocumentType(element)
+      )
+    );
+  }
+
+  if (!ts.isObjectLiteralExpression(expression)) return false;
+
+  const documentType = propertyExpression(expression, 'documentType');
+  if (!documentType) return false;
+
+  const documentTypeValue = unwrapExpression(documentType);
+  return !(
+    documentTypeValue.kind === ts.SyntaxKind.NullKeyword ||
+    (ts.isIdentifier(documentTypeValue) && documentTypeValue.text === 'undefined')
+  );
+}
+
+function inspectCopyPageWrites(
+  path: string,
+  source: string,
+): { count: number; violations: string[] } {
+  const sourceFile = ts.createSourceFile(path, source, ts.ScriptTarget.Latest, true);
+  const violations: string[] = [];
+  let count = 0;
+
+  const visit = (node: ts.Node): void => {
+    if (
+      ts.isCallExpression(node) &&
+      ts.isPropertyAccessExpression(node.expression) &&
+      COPY_PAGE_WRITE_OPERATIONS.has(node.expression.name.text) &&
+      ts.isPropertyAccessExpression(node.expression.expression) &&
+      node.expression.expression.name.text === 'copyPage'
+    ) {
+      count += 1;
+      const operation = node.expression.name.text;
+      const argument = node.arguments[0] && unwrapExpression(node.arguments[0]);
+      const payloadProperty = operation === 'upsert' ? 'create' : 'data';
+      const payload =
+        argument && ts.isObjectLiteralExpression(argument)
+          ? propertyExpression(argument, payloadProperty)
+          : undefined;
+
+      if (!payload || !hasExplicitDocumentType(payload)) {
+        const line = sourceFile.getLineAndCharacterOfPosition(node.getStart()).line + 1;
+        violations.push(`${path}:${line}:copyPage.${operation}`);
+      }
+    }
+
+    ts.forEachChild(node, visit);
+  };
+  visit(sourceFile);
+
+  return { count, violations };
+}
+
 function parseCompose(relativePath: string): ComposeFile {
   return parseYaml(readRequired(relativePath)) as ComposeFile;
 }
@@ -234,6 +369,59 @@ describe('NPC storage and unavailable-state architecture contract', () => {
     expect(page).toMatch(
       /^\s*documentType\s+CorrectionDocumentType\s+@default\(STUDENT_COPY\)\s*$/m,
     );
+  });
+
+  test('requires every active CopyPage write path to set documentType explicitly', () => {
+    const runtimeModules = discoverActiveApplicationRuntimeModules();
+    const inspections = runtimeModules.map((file) =>
+      inspectCopyPageWrites(file, readRequired(file)),
+    );
+    const writeCount = inspections.reduce(
+      (total, inspection) => total + inspection.count,
+      0,
+    );
+    const violations = inspections.flatMap((inspection) => inspection.violations);
+
+    expect(writeCount).toBeGreaterThan(0);
+    expect(violations).toEqual([]);
+  });
+
+  test('the CopyPage write guard rejects omitted or comment-only document types', () => {
+    expect(inspectCopyPageWrites(
+      'fixture.ts',
+      `
+        await tx.copyPage.create({
+          data: {
+            submissionId: 'submission-1',
+            // documentType intentionally omitted
+          },
+        });
+      `,
+    ).violations).toEqual(['fixture.ts:2:copyPage.create']);
+  });
+
+  test('the CopyPage write guard covers undefined, upsert, and every createMany row', () => {
+    const inspection = inspectCopyPageWrites(
+      'fixture.ts',
+      `
+        await tx.copyPage.create({ data: { documentType: undefined } });
+        await tx.copyPage.upsert({
+          where: { id: 'page-1' },
+          create: { submissionId: 'submission-1' },
+          update: {},
+        });
+        await tx.copyPage.createMany({
+          data: [
+            { submissionId: 'submission-1', documentType: 'STUDENT_COPY' },
+            { submissionId: 'submission-1' },
+          ],
+        });
+      `,
+    );
+
+    expect(inspection.count).toBe(3);
+    expect(inspection.violations.map((violation) => violation.split(':').at(-1)))
+      .toEqual(['copyPage.create', 'copyPage.upsert', 'copyPage.createMany']);
   });
 
   test('allows only the reviewed additive migration statements', () => {
