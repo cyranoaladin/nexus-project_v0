@@ -9,6 +9,10 @@ import { Badge } from '@/components/ui/badge';
 import { Card,CardContent,CardHeader,CardTitle } from '@/components/ui/card';
 import { Tabs,TabsContent,TabsList,TabsTrigger } from '@/components/ui/tabs';
 import { prisma } from '@/lib/prisma';
+import {
+  FAMILY_VISIBLE_REPORT_VISIBILITIES,
+  projectFamilySubmissions,
+} from '@/lib/npc/report-visibility';
 import { BookOpen,CheckCircle,Clock,GraduationCap,Users } from 'lucide-react';
 import { redirect } from 'next/navigation';
 
@@ -49,18 +53,38 @@ export default async function ParentNpcPage() {
   const submissions = await prisma.copySubmission.findMany({
     where: {
       studentId: { in: childrenIds },
-    },
-    include: {
-      student: {
-        include: {
-          user: {
-            select: { firstName: true, lastName: true },
+      status: { not: 'UNAVAILABLE' },
+      OR: [
+        { report: { is: null } },
+        {
+          report: {
+            is: {
+              visibility: {
+                in: [...FAMILY_VISIBLE_REPORT_VISIBILITIES],
+              },
+            },
           },
         },
+      ],
+    },
+    select: {
+      id: true,
+      createdAt: true,
+      studentId: true,
+      subject: true,
+      gradeLevel: true,
+      title: true,
+      status: true,
+      report: {
+        select: {
+          id: true,
+          visibility: true,
+          diagnostic: true,
+          studentSummary: true,
+        },
       },
-      report: true,
       coach: {
-        include: {
+        select: {
           user: {
             select: { firstName: true, lastName: true },
           },
@@ -71,19 +95,23 @@ export default async function ParentNpcPage() {
     take: 100,
   });
 
+  // Prisma cannot select report fields conditionally by enum value. Project
+  // immediately so summary-only diagnostics cannot cross the server boundary.
+  const familySubmissions = projectFamilySubmissions(submissions, 'parent');
+
   // Group by child
   const submissionsByChild = parent.children.map((child: typeof parent.children[0]) => {
-    const childSubmissions = submissions.filter(
-      (s: typeof submissions[0]) => s.studentId === child.id
+    const childSubmissions = familySubmissions.filter(
+      (s: typeof familySubmissions[0]) => s.studentId === child.id
     );
     return {
       child,
       submissions: childSubmissions,
       completedCount: childSubmissions.filter(
-        (s: typeof submissions[0]) => s.report && s.status === 'COMPLETED'
+        (s: typeof familySubmissions[0]) => s.report && s.status === 'COMPLETED'
       ).length,
       pendingCount: childSubmissions.filter(
-        (s: typeof submissions[0]) => !s.report || s.status !== 'COMPLETED'
+        (s: typeof familySubmissions[0]) => !s.report || s.status !== 'COMPLETED'
       ).length,
     };
   });
@@ -98,7 +126,7 @@ export default async function ParentNpcPage() {
     0
   );
   const allSubjects = [
-    ...new Set(submissions.map((s: typeof submissions[0]) => s.subject)),
+    ...new Set(familySubmissions.map((s: typeof familySubmissions[0]) => s.subject)),
   ];
 
   return (
@@ -181,7 +209,7 @@ export default async function ParentNpcPage() {
           <TabsTrigger value="all">
             Tous les enfants
             <Badge variant="outline" className="ml-2">
-              {submissions.length}
+              {familySubmissions.length}
             </Badge>
           </TabsTrigger>
           {submissionsByChild.map((childData: typeof submissionsByChild[0]) => (

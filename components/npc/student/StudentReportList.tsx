@@ -8,17 +8,15 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card,CardContent,CardHeader } from '@/components/ui/card';
-import { CoachProfile,CopySubmission,PedagogicalReport,User } from '@prisma/client';
 import { AlertCircle,CheckCircle,Clock,Eye,FileText,Loader2 } from 'lucide-react';
 import Link from 'next/link';
-
-interface SubmissionWithRelations extends CopySubmission {
-  report: PedagogicalReport | null;
-  coach: (CoachProfile & { user: Pick<User, 'firstName' | 'lastName'> }) | null;
-}
+import {
+  projectFamilySubmissions,
+  type FamilySubmissionProjectionInput,
+} from '@/lib/npc/report-visibility';
 
 interface StudentReportListProps {
-  submissions: SubmissionWithRelations[];
+  submissions: readonly FamilySubmissionProjectionInput[];
   showStatus?: boolean;
 }
 
@@ -54,7 +52,11 @@ function diagnosticPreview(value: unknown): DiagnosticPreview {
 }
 
 export function StudentReportList({ submissions, showStatus = false }: StudentReportListProps) {
-  if (submissions.length === 0) {
+  // Server pages already project this payload. Re-applying the policy here is
+  // intentional defense in depth for any future caller of this component.
+  const familySubmissions = projectFamilySubmissions(submissions, 'student');
+
+  if (familySubmissions.length === 0) {
     return (
       <Card className="p-8 text-center">
         <FileText className="mx-auto h-12 w-12 text-gray-300 mb-4" />
@@ -65,10 +67,20 @@ export function StudentReportList({ submissions, showStatus = false }: StudentRe
 
   return (
     <div className="space-y-4">
-      {submissions.map((submission) => {
-        const status = statusConfig[submission.status];
+      {familySubmissions.map((submission) => {
+        const status = statusConfig[submission.status] ?? statusConfig.PENDING_UPLOAD;
         const StatusIcon = status.icon;
-        const hasReport = submission.report && submission.status === 'COMPLETED';
+        const fullReport =
+          submission.status === 'COMPLETED' &&
+          submission.report?.visibility === 'COACH_AND_STUDENT'
+            ? submission.report
+            : null;
+        const summaryReport =
+          submission.status === 'COMPLETED' &&
+          submission.report?.visibility === 'STUDENT_SUMMARY_ONLY'
+            ? submission.report
+            : null;
+        const hasReport = Boolean(fullReport || summaryReport);
 
         return (
           <Card key={submission.id} className="hover:shadow-md transition-shadow">
@@ -109,8 +121,8 @@ export function StudentReportList({ submissions, showStatus = false }: StudentRe
                     <Badge className={status.color}>{status.label}</Badge>
                   )}
 
-                  {hasReport && (
-                    <Link href={`/dashboard/eleve/npc/reports/${submission.report!.id}`}>
+                  {fullReport && (
+                    <Link href={`/dashboard/eleve/npc/reports/${fullReport.id}`}>
                       <Button size="sm">
                         <Eye className="h-4 w-4 mr-2" />
                         Voir mon diagnostic
@@ -121,12 +133,18 @@ export function StudentReportList({ submissions, showStatus = false }: StudentRe
               </div>
             </CardHeader>
 
-            {hasReport && submission.report && (
+            {hasReport && (
               <CardContent className="pt-0">
                 <div className="bg-gray-50 rounded-lg p-4">
                   {/* Extract summary preview from diagnostic data */}
-                  {(() => {
-                    const diagnostic = diagnosticPreview(submission.report);
+                  {summaryReport ? (
+                    summaryReport.studentSummary ? (
+                      <p className="text-sm text-gray-600">
+                        {summaryReport.studentSummary}
+                      </p>
+                    ) : null
+                  ) : fullReport ? (() => {
+                    const diagnostic = diagnosticPreview(fullReport);
 
                     if (!diagnostic) return null;
 
@@ -157,7 +175,7 @@ export function StudentReportList({ submissions, showStatus = false }: StudentRe
                         )}
                       </div>
                     );
-                  })()}
+                  })() : null}
                 </div>
               </CardContent>
             )}

@@ -6,6 +6,10 @@
 import { redirect } from 'next/navigation';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
+import {
+  FAMILY_VISIBLE_REPORT_VISIBILITIES,
+  projectFamilySubmissions,
+} from '@/lib/npc/report-visibility';
 import { StudentReportList } from '@/components/npc/student/StudentReportList';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -35,11 +39,40 @@ export default async function StudentNpcPage() {
 
   // Fetch student's submissions with reports
   const submissions = await prisma.copySubmission.findMany({
-    where: { studentId: student.id },
-    include: {
-      report: true,
+    where: {
+      studentId: student.id,
+      status: { not: 'UNAVAILABLE' },
+      OR: [
+        { report: { is: null } },
+        {
+          report: {
+            is: {
+              visibility: {
+                in: [...FAMILY_VISIBLE_REPORT_VISIBILITIES],
+              },
+            },
+          },
+        },
+      ],
+    },
+    select: {
+      id: true,
+      createdAt: true,
+      studentId: true,
+      subject: true,
+      gradeLevel: true,
+      title: true,
+      status: true,
+      report: {
+        select: {
+          id: true,
+          visibility: true,
+          diagnostic: true,
+          studentSummary: true,
+        },
+      },
       coach: {
-        include: {
+        select: {
           user: {
             select: { firstName: true, lastName: true },
           },
@@ -50,15 +83,23 @@ export default async function StudentNpcPage() {
     take: 50,
   });
 
+  // Keep this projection on the server: summary-only reports must never carry
+  // diagnostic fields into the client component payload.
+  const familySubmissions = projectFamilySubmissions(submissions, 'student');
+
   // Filter submissions with completed reports
-  const submissionsWithReports = submissions.filter((s: typeof submissions[0]) => s.report && s.status === 'COMPLETED');
-  const pendingSubmissions = submissions.filter(
-    (s: typeof submissions[0]) => !s.report || s.status !== 'COMPLETED'
+  const submissionsWithReports = familySubmissions.filter(
+    (s: typeof familySubmissions[0]) => s.report && s.status === 'COMPLETED'
+  );
+  const pendingSubmissions = familySubmissions.filter(
+    (s: typeof familySubmissions[0]) => !s.report || s.status !== 'COMPLETED'
   );
 
   // Calculate stats
   const totalReports = submissionsWithReports.length;
-  const subjects = [...new Set(submissionsWithReports.map((s: typeof submissions[0]) => s.subject))];
+  const subjects = [
+    ...new Set(submissionsWithReports.map((s: typeof familySubmissions[0]) => s.subject)),
+  ];
 
   return (
     <div className="container mx-auto py-8 px-4 max-w-5xl">
