@@ -77,6 +77,34 @@ describe('production deployment contract', () => {
     expect(dockerfile).not.toMatch(/^FROM node:20(?:-|:)/m);
   });
 
+  it('documents the canonical pointer guard before and after process reload', () => {
+    const runbook = read('DEPLOY_RUNBOOK.md');
+
+    expect(runbook).toContain('scripts/release/verify-release-pointers.sh');
+    expect(runbook).toContain('--canonical <CANONICAL_POINTER>');
+    expect(runbook).toContain('--alias <COMPAT_ALIAS>');
+    expect(runbook).toContain('--release-root <RELEASE_ROOT>');
+    expect(runbook).toContain('--expected-release <NEW_RELEASE>');
+    expect(runbook).toContain('avant le reload');
+    expect(runbook).toContain('après le reload');
+  });
+
+  it('keeps release retention fail-closed around runtime data and distinct SHAs', () => {
+    const policyPath = path.join(rootDir, 'docs', 'runbooks', 'release-retention-policy.md');
+    expect(fs.existsSync(policyPath)).toBe(true);
+    const policy = fs.readFileSync(policyPath, 'utf8');
+
+    expect(policy).toContain('deux derniers SHA distincts');
+    expect(policy).toContain('ne compte pas comme rollback');
+    expect(policy).toContain('donnée runtime non répliquée');
+    expect(policy).toContain('feu vert humain explicite');
+    expect(policy).toContain('blocage permanent');
+    expect(policy).toContain('ne lève jamais');
+    expect(policy).toContain('<CANONICAL_POINTER>');
+    expect(policy).toContain('<COMPAT_ALIAS>');
+    expect(policy).toContain('<RELEASE_ROOT>');
+  });
+
   it('keeps public deployment helpers fail-closed and free of topology', () => {
     for (const scriptPath of [
       'scripts/deploy-git-pull.sh',
