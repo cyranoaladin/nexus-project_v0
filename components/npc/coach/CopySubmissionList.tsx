@@ -34,6 +34,7 @@ const statusConfig: Record<CopySubmissionStatus, { label: string; color: string;
   ANALYSIS_FAILED: { label: 'Analyse échouée', color: 'bg-red-100 text-red-800', icon: AlertCircle },
   COMPLETED: { label: 'Terminé', color: 'bg-green-100 text-green-800', icon: CheckCircle },
   ARCHIVED: { label: 'Archivé', color: 'bg-gray-100 text-gray-800', icon: FileText },
+  UNAVAILABLE: { label: 'Indisponible', color: 'bg-red-100 text-red-800', icon: AlertCircle },
 };
 
 export function CopySubmissionList({ submissions }: CopySubmissionListProps) {

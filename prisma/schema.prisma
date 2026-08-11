@@ -2402,6 +2402,7 @@ enum CopySubmissionStatus {
   ANALYSIS_FAILED
   COMPLETED
   ARCHIVED
+  UNAVAILABLE
 }
 
 enum AssessmentSourceType {
@@ -2423,6 +2424,7 @@ enum CopyPageStatus {
   READY
   PROCESSING
   ERROR
+  UNAVAILABLE
 }
 
 enum CorrectionDocumentType {
@@ -2511,6 +2513,9 @@ model CopySubmission {
 
   status CopySubmissionStatus @default(PENDING_UPLOAD)
 
+  unavailableReason String?
+  unavailableAt     DateTime?
+
   pages CopyPage[]
 
   ocrText  String? @db.Text
@@ -2570,10 +2575,14 @@ model CopyPage {
   status       CopyPageStatus         @default(UPLOADED)
   documentType CorrectionDocumentType @default(STUDENT_COPY)
 
+  unavailableReason String?
+  unavailableAt     DateTime?
+
   originalFilePath   String
   originalFilename   String?
   mimeType           String?
   sizeBytes          Int?
+  sha256             String?
   uploadedById       String?
   convertedFilePaths String[] @default([])
   ocrText            String?  @db.Text
