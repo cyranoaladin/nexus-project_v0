@@ -25,7 +25,12 @@
 
 - [ ] **Step 1: Écrire les tests rouges du schéma et des configurations actives**
 
-Vérifier que les deux enums contiennent `UNAVAILABLE`, que les deux modèles portent `unavailableReason/unavailableAt`, que `CopyPage.sha256` est nullable, que la migration ne contient ni `UPDATE` ni identifiant CUID, et que le code/config actifs ne contiennent plus `NPC_UPLOAD_DIR`, `UPLOAD_DIR`, `process.cwd()` comme stockage NPC ou chemin NPC concret.
+Vérifier que les deux enums contiennent `UNAVAILABLE`, que les deux modèles
+portent `unavailableReason/unavailableAt`, que `CopyPage.sha256` est nullable, que
+la migration ne contient ni `UPDATE` ni identifiant CUID, et que les
+configurations de déploiement modifiées ne contiennent plus `NPC_UPLOAD_DIR`,
+`UPLOAD_DIR` ou chemin NPC concret. Le scan des modules runtime reste rouge
+jusqu'à Task 2, qui le fait ensuite passer au vert sans exclusion.
 
 - [ ] **Step 2: Prouver le rouge**
 
@@ -76,6 +81,10 @@ git commit -m "feat(npc): add unavailable integrity schema"
 - [ ] **Step 1: Écrire les tests rouges de résolution, démarrage et persistance**
 
 Couvrir variable absente/relative, racine inexistante, racine symlink, racine dans la release, droits insuffisants selon capacité `read-write`/`read-only`, traversée et parent symlink. Scanner les points d'entrée pour imposer le garde avant le service Next ou la boucle worker.
+
+Étendre le test d'architecture de Task 1 à tous les modules runtime NPC actifs
+afin d'interdire définitivement `NPC_UPLOAD_DIR`, `UPLOAD_DIR`, `process.cwd()`
+comme repli de stockage et tout chemin NPC concret.
 
 Créer aussi le test inter-release avec `shared/`, `release-a/` et `release-b/` :
 écriture depuis A, changement de `cwd`, relecture depuis B, puis comparaison
