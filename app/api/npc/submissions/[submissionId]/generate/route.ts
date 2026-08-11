@@ -113,6 +113,7 @@ export async function POST(
             type: AiJobType.PEDAGOGICAL_DIAGNOSIS,
             status: AiJobStatus.PENDING,
             priority: 'NORMAL',
+            copySubmissionId: submissionId,
             inputData: JSON.stringify({
               submissionId,
               documentCount: current.pages.length,

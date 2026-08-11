@@ -1,280 +1,133 @@
 /** @jest-environment node */
 
-import { chmodSync, lstatSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
+import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 import {
   formatTombstoneCliError,
   formatTombstoneCliSuccess,
   parseTombstoneCliArgs,
-  validateTombstoneCliInvocation,
+  parseTombstoneRequestManifest,
 } from '@/lib/npc/tombstone/cli';
-import { NpcTombstoneError } from '@/lib/npc/tombstone/types';
+import { executeNpcTombstone } from '@/lib/npc/tombstone/service';
+import {
+  NPC_TOMBSTONE_REASON,
+  NPC_TOMBSTONE_REASON_CODE,
+  NpcTombstoneError,
+} from '@/lib/npc/tombstone/types';
 
-const VALID_ARGV = [
-  '--submission-id', 'sub_synthetic_001',
-  '--expected-initial-status', 'COMPLETED',
-  '--expected-page-count', '4',
-  '--expected-report-id', 'report_synthetic_001',
-  '--expected-report-status', 'DRAFT',
-  '--expected-report-visibility', 'COACH_ONLY',
-  '--reason', 'SOURCE_BYTES_UNAVAILABLE',
-  '--actor-id', 'maintenance_synthetic_001',
-  '--actor-role', 'SYSTEM',
-] as const;
+const submissionId = 'sub_synthetic_cli';
+const manifest = {
+  version: 1,
+  submissionId,
+  expectedInitialStatus: 'COMPLETED',
+  expectedPageCount: 4,
+  expectedReportId: 'report_synthetic_cli',
+  expectedReportStatus: 'DRAFT',
+  expectedReportVisibility: 'COACH_ONLY',
+  reasonCode: NPC_TOMBSTONE_REASON_CODE,
+  actorId: 'admin_synthetic_cli',
+  actorRole: 'ADMIN',
+};
 
-function expectCode(callback: () => unknown, code: string) {
+function expectCode(callback: () => unknown, code: string): void {
   expect(callback).toThrow(expect.objectContaining({ code }));
 }
 
-describe('NPC tombstone CLI contract', () => {
-  let temporaryRoot: string;
-  let repositoryRoot: string;
-  let releaseRoot: string;
-  let exportParent: string;
-  let exportFile: string;
-
-  beforeEach(() => {
-    temporaryRoot = mkdtempSync(join(tmpdir(), 'npc-tombstone-cli-'));
-    repositoryRoot = join(temporaryRoot, 'repository');
-    releaseRoot = join(temporaryRoot, 'release');
-    exportParent = join(temporaryRoot, 'export');
-    mkdirSync(repositoryRoot, { mode: 0o700 });
-    mkdirSync(releaseRoot, { mode: 0o700 });
-    mkdirSync(exportParent, { mode: 0o700 });
-    chmodSync(exportParent, 0o700);
-    exportFile = join(exportParent, 'snapshot.json');
+describe('NPC tombstone public input contract', () => {
+  it('accepts exactly one opaque submission id in argv', () => {
+    expect(parseTombstoneCliArgs(['--submission-id', submissionId])).toEqual({ submissionId });
   });
 
-  afterEach(() => {
-    rmSync(temporaryRoot, { recursive: true, force: true });
+  it.each([
+    { argv: [] },
+    { argv: ['--submission-id'] },
+    { argv: ['--submission-id', submissionId, '--actor-id', 'hidden'] },
+    { argv: ['--submission-id', submissionId, '--submission-id', submissionId] },
+    { argv: ['--expected-report-id', 'hidden'] },
+  ])('rejects missing, duplicate, or non-public argv fields: $argv', ({ argv }) => {
+    expectCode(() => parseTombstoneCliArgs(argv), 'NPC_TOMBSTONE_ARG_INVALID');
   });
 
-  function runtime(overrides: Record<string, unknown> = {}) {
-    return {
-      getuid: () => 0,
-      repositoryRoot,
-      releaseRoot,
-      lstatSync: (path: string) => {
-        const stats = lstatSync(path);
-        return Object.assign(Object.create(Object.getPrototypeOf(stats)), stats, {
-          uid: 0,
-        });
-      },
-      realpathSync,
-      ...overrides,
-    };
-  }
+  it.each(['../escape', 'space invalid', '', 'a'.repeat(192)])(
+    'rejects invalid submission id %j',
+    (value) => {
+      expectCode(
+        () => parseTombstoneCliArgs(['--submission-id', value]),
+        'NPC_TOMBSTONE_INVALID_ID',
+      );
+    },
+  );
 
-  it('parses the exact public argument contract', () => {
-    const parsed = parseTombstoneCliArgs([
-      ...VALID_ARGV,
-      '--export-file', exportFile,
-    ]);
-
-    expect(parsed).toEqual({
-      submissionId: 'sub_synthetic_001',
-      expectedInitialStatus: 'COMPLETED',
-      expectedPageCount: 4,
-      expectedReportId: 'report_synthetic_001',
-      expectedReportStatus: 'DRAFT',
-      expectedReportVisibility: 'COACH_ONLY',
-      reason: 'SOURCE_BYTES_UNAVAILABLE',
-      actorId: 'maintenance_synthetic_001',
-      actorRole: 'SYSTEM',
-      exportFile,
+  it('parses the exact root-only manifest shape and maps its reason code internally', () => {
+    expect(parseTombstoneRequestManifest(manifest, submissionId, '/secure/artifacts')).toEqual({
+      ...manifest,
+      reason: NPC_TOMBSTONE_REASON,
+      exportRoot: '/secure/artifacts',
     });
   });
 
-  it.each([
-    '--submission-id',
-    '--expected-initial-status',
-    '--expected-page-count',
-    '--expected-report-id',
-    '--expected-report-status',
-    '--expected-report-visibility',
-    '--reason',
-    '--actor-id',
-    '--actor-role',
-    '--export-file',
-  ])('requires %s', (missingFlag) => {
-    const argv = [...VALID_ARGV, '--export-file', exportFile];
-    const index = argv.indexOf(missingFlag);
-    argv.splice(index, 2);
-    expectCode(() => parseTombstoneCliArgs(argv), 'NPC_TOMBSTONE_ARG_REQUIRED');
-  });
+  it('requires exact manifest keys, exact target, four pages and approved enums', () => {
+    const invalidCases: Array<[Record<string, unknown>, string]> = [
+      [{ ...manifest, submissionId: 'another_submission' }, 'NPC_TOMBSTONE_REQUEST_ID_MISMATCH'],
+      [{ ...manifest, expectedPageCount: 3 }, 'NPC_TOMBSTONE_INVALID_PAGE_COUNT'],
+      [{ ...manifest, expectedInitialStatus: 'INVALID' }, 'NPC_TOMBSTONE_INVALID_ENUM'],
+      [{ ...manifest, expectedReportStatus: 'INVALID' }, 'NPC_TOMBSTONE_INVALID_ENUM'],
+      [{ ...manifest, expectedReportVisibility: 'PUBLIC' }, 'NPC_TOMBSTONE_INVALID_ENUM'],
+      [{ ...manifest, reasonCode: 'FREE_TEXT' }, 'NPC_TOMBSTONE_REASON_CODE_INVALID'],
+      [{ ...manifest, actorRole: 'COACH' }, 'NPC_TOMBSTONE_INVALID_ACTOR_ROLE'],
+      [{ ...manifest, unexpected: true }, 'NPC_TOMBSTONE_REQUEST_INVALID'],
+    ];
 
-  it('rejects unknown and duplicate flags', () => {
-    expectCode(
-      () => parseTombstoneCliArgs([...VALID_ARGV, '--export-file', exportFile, '--dry-run', 'true']),
-      'NPC_TOMBSTONE_ARG_UNKNOWN',
-    );
-    expectCode(
-      () => parseTombstoneCliArgs([...VALID_ARGV, '--export-file', exportFile, '--reason', 'SECOND']),
-      'NPC_TOMBSTONE_ARG_DUPLICATE',
-    );
-  });
-
-  it.each([
-    ['submission id', '--submission-id', '../escape', 'NPC_TOMBSTONE_INVALID_ID'],
-    ['submission status', '--expected-initial-status', 'NOT_A_STATUS', 'NPC_TOMBSTONE_INVALID_ENUM'],
-    ['page count below exact scope', '--expected-page-count', '3', 'NPC_TOMBSTONE_INVALID_PAGE_COUNT'],
-    ['page count above exact scope', '--expected-page-count', '5', 'NPC_TOMBSTONE_INVALID_PAGE_COUNT'],
-    ['report id', '--expected-report-id', 'space is invalid', 'NPC_TOMBSTONE_INVALID_ID'],
-    ['report status', '--expected-report-status', 'UNKNOWN', 'NPC_TOMBSTONE_INVALID_ENUM'],
-    ['report visibility', '--expected-report-visibility', 'PUBLIC', 'NPC_TOMBSTONE_INVALID_ENUM'],
-    ['empty reason', '--reason', '   ', 'NPC_TOMBSTONE_INVALID_REASON'],
-    ['multiline reason', '--reason', 'line one\nline two', 'NPC_TOMBSTONE_INVALID_REASON'],
-    ['path reason', '--reason', '/srv/private/source.pdf', 'NPC_TOMBSTONE_INVALID_REASON'],
-    ['backslash reason', '--reason', 'C:\\private\\source.pdf', 'NPC_TOMBSTONE_INVALID_REASON'],
-    ['URL reason', '--reason', 'https://internal.invalid/item', 'NPC_TOMBSTONE_INVALID_REASON'],
-    ['scheme-less URL reason', '--reason', 'internal.example', 'NPC_TOMBSTONE_INVALID_REASON'],
-    ['key-value reason', '--reason', 'password=credential-value', 'NPC_TOMBSTONE_INVALID_REASON'],
-    ['sensitive marker reason', '--reason', 'Bearer credential-value', 'NPC_TOMBSTONE_INVALID_REASON'],
-    ['token marker reason', '--reason', 'Retrait du secret token', 'NPC_TOMBSTONE_INVALID_REASON'],
-    ['camel token marker reason', '--reason', 'apiToken marker', 'NPC_TOMBSTONE_INVALID_REASON'],
-    ['actor id', '--actor-id', 'actor/escape', 'NPC_TOMBSTONE_INVALID_ID'],
-    ['actor role', '--actor-role', 'ELEVE', 'NPC_TOMBSTONE_INVALID_ENUM'],
-  ])('rejects invalid %s', (_label, flag, invalid, code) => {
-    const argv = [...VALID_ARGV, '--export-file', exportFile];
-    argv[argv.indexOf(flag) + 1] = invalid;
-    expectCode(() => parseTombstoneCliArgs(argv), code);
-  });
-
-  it('requires UID 0 and accepts no injected identity on the production path', () => {
-    const args = parseTombstoneCliArgs([...VALID_ARGV, '--export-file', exportFile]);
-    expectCode(
-      () => validateTombstoneCliInvocation(args, runtime({ getuid: () => 1000 })),
-      'NPC_TOMBSTONE_ROOT_REQUIRED',
-    );
-    expect(validateTombstoneCliInvocation(args, runtime())).toBe(exportFile);
-  });
-
-  it('requires an absolute JSON destination outside repository and release', () => {
-    const relative = parseTombstoneCliArgs([...VALID_ARGV, '--export-file', 'snapshot.json']);
-    expectCode(
-      () => validateTombstoneCliInvocation(relative, runtime()),
-      'NPC_TOMBSTONE_EXPORT_PATH_INVALID',
-    );
-
-    const notJson = parseTombstoneCliArgs([...VALID_ARGV, '--export-file', join(exportParent, 'snapshot.txt')]);
-    expectCode(
-      () => validateTombstoneCliInvocation(notJson, runtime()),
-      'NPC_TOMBSTONE_EXPORT_PATH_INVALID',
-    );
-
-    for (const unsafePath of [
-      join(repositoryRoot, 'snapshot.json'),
-      join(releaseRoot, 'snapshot.json'),
-    ]) {
-      const args = parseTombstoneCliArgs([...VALID_ARGV, '--export-file', unsafePath]);
+    for (const [value, code] of invalidCases) {
       expectCode(
-        () => validateTombstoneCliInvocation(args, runtime()),
-        'NPC_TOMBSTONE_EXPORT_SCOPE_INVALID',
+        () => parseTombstoneRequestManifest(value, submissionId, '/secure/artifacts'),
+        code,
       );
     }
   });
 
-  it.each([
-    ['dot', 'safe/./snapshot.json'],
-    ['dot-dot', 'safe/link/../snapshot.json'],
-    ['empty', 'safe//snapshot.json'],
-  ])('rejects raw %s path segments before normalization', (_label, suffix) => {
-    mkdirSync(join(exportParent, 'safe', 'link'), { recursive: true, mode: 0o700 });
-    const rawPath = `${exportParent}/${suffix}`;
-    const args = parseTombstoneCliArgs([
-      ...VALID_ARGV,
-      '--export-file', rawPath,
-    ]);
-
-    expectCode(
-      () => validateTombstoneCliInvocation(args, runtime()),
-      'NPC_TOMBSTONE_EXPORT_PATH_INVALID',
-    );
-  });
-
-  it('requires an existing root-owned 0700 parent directory', () => {
-    const args = parseTombstoneCliArgs([...VALID_ARGV, '--export-file', exportFile]);
-    rmSync(exportParent, { recursive: true });
-    expectCode(
-      () => validateTombstoneCliInvocation(args, runtime()),
-      'NPC_TOMBSTONE_EXPORT_PARENT_INVALID',
-    );
-
-    mkdirSync(exportParent, { mode: 0o700 });
-    chmodSync(exportParent, 0o750);
-    expectCode(
-      () => validateTombstoneCliInvocation(args, runtime()),
-      'NPC_TOMBSTONE_EXPORT_PARENT_PERMISSIONS',
-    );
-
-    chmodSync(exportParent, 0o700);
-    expectCode(
-      () => validateTombstoneCliInvocation(args, runtime({
-        lstatSync: (path: string) => {
-          const stats = lstatSync(path);
-          return Object.assign(Object.create(Object.getPrototypeOf(stats)), stats, { uid: 1000 });
-        },
-      })),
-      'NPC_TOMBSTONE_EXPORT_PARENT_OWNER',
-    );
-  });
-
-  it('refuses symlinks and only permits a locked-down regular destination for verified resume', () => {
-    const linkedParent = join(temporaryRoot, 'linked-export');
-    symlinkSync(exportParent, linkedParent, 'dir');
-    const linkedParentArgs = parseTombstoneCliArgs([
-      ...VALID_ARGV,
-      '--export-file', join(linkedParent, 'snapshot.json'),
-    ]);
-    expectCode(
-      () => validateTombstoneCliInvocation(linkedParentArgs, runtime()),
-      'NPC_TOMBSTONE_EXPORT_SYMLINK',
-    );
-
-    writeFileSync(join(exportParent, 'target.json'), '{}', { mode: 0o600 });
-    symlinkSync(join(exportParent, 'target.json'), exportFile);
-    const symlinkArgs = parseTombstoneCliArgs([...VALID_ARGV, '--export-file', exportFile]);
-    expectCode(
-      () => validateTombstoneCliInvocation(symlinkArgs, runtime()),
-      'NPC_TOMBSTONE_EXPORT_SYMLINK',
-    );
-
-    rmSync(exportFile);
-    writeFileSync(exportFile, '{"already":"present"}', { mode: 0o600 });
-    expect(() => validateTombstoneCliInvocation(symlinkArgs, runtime())).not.toThrow();
-
-    chmodSync(exportFile, 0o640);
-    expectCode(
-      () => validateTombstoneCliInvocation(symlinkArgs, runtime()),
-      'NPC_TOMBSTONE_EXPORT_PERMISSIONS',
-    );
-  });
-
-  it('declares the exact npm entrypoint and keeps CLI output free of database URLs, secrets, paths, and PII', () => {
+  it('declares the silent-compatible npm entrypoint and sanitizes all output', () => {
     const packageJson = JSON.parse(readFileSync(join(process.cwd(), 'package.json'), 'utf8'));
-    expect(packageJson.scripts['npc:tombstone']).toBe(
-      'tsx scripts/npc/tombstone-submission.ts',
-    );
+    expect(packageJson.scripts['npc:tombstone']).toBe('tsx scripts/npc/tombstone-submission.ts');
 
     expect(formatTombstoneCliSuccess({
       status: 'applied',
       operationKey: `npc-tombstone-v1:${'a'.repeat(64)}`,
-      exportPayloadSha256: 'b'.repeat(64),
+      artifactChecksumSha256: 'b'.repeat(64),
     })).toBe(`NPC_TOMBSTONE_APPLIED operation=${'a'.repeat(64)}\n`);
 
-    const unsafe = new Error(
-      'postgresql://db-user:db-password@private-db/internal?token=secret /private/export.json person@example.test',
-    );
-    expect(formatTombstoneCliError(unsafe)).toBe(
+    const sensitive = 'postgresql://user:pass@host/db /secure/manifest admin@example.test';
+    const formatted = formatTombstoneCliError(new NpcTombstoneError('UNSAFE', sensitive));
+    expect(formatted).toBe(
       'NPC tombstone failed [NPC_TOMBSTONE_UNEXPECTED_FAILURE]. Review secure logs and database state.\n',
     );
-    expect(formatTombstoneCliError(new NpcTombstoneError(
-      'NPC_TOMBSTONE_PAGE_COUNT_MISMATCH',
-      'Submission does not contain exactly four pages.',
-    ))).toBe(
-      'NPC tombstone failed [NPC_TOMBSTONE_PAGE_COUNT_MISMATCH]. Submission does not contain exactly four pages.\n',
+    expect(formatted).not.toContain('postgresql:');
+    expect(formatted).not.toContain('/secure/manifest');
+    expect(formatted).not.toContain('admin@example.test');
+  });
+
+  it('keeps UID enforcement inside the destructive service with no exported test bypass', async () => {
+    const serviceSource = readFileSync(
+      join(process.cwd(), 'lib/npc/tombstone/service.ts'),
+      'utf8',
     );
+    expect(serviceSource).not.toContain('testOnlyTrustedUid');
+    expect(serviceSource).not.toContain('trustedUid');
+    if (process.getuid?.() === 0) return;
+
+    const previousKey = process.env.DOCUMENT_ENCRYPTION_KEY;
+    process.env.DOCUMENT_ENCRYPTION_KEY =
+      'synthetic-unit-document-encryption-key-with-thirty-two-characters';
+    const transaction = jest.fn();
+    try {
+      const args = parseTombstoneRequestManifest(manifest, submissionId, '/tmp');
+      await expect(executeNpcTombstone({ $transaction: transaction } as never, args))
+        .rejects.toMatchObject({ code: 'NPC_TOMBSTONE_ROOT_REQUIRED' });
+      expect(transaction).not.toHaveBeenCalled();
+    } finally {
+      if (previousKey === undefined) delete process.env.DOCUMENT_ENCRYPTION_KEY;
+      else process.env.DOCUMENT_ENCRYPTION_KEY = previousKey;
+    }
   });
 });

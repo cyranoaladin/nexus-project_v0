@@ -1,313 +1,147 @@
+import { readSecureRootOwnedJson } from './export';
+import type { ExecuteNpcTombstoneResult } from './service';
 import {
-  lstatSync as nodeLstatSync,
-  realpathSync as nodeRealpathSync,
-  type Stats,
-} from 'node:fs';
-import {
-  basename,
-  dirname,
-  extname,
-  isAbsolute,
-  join,
-  relative,
-  resolve,
-  sep,
-} from 'node:path';
-
-import {
+  NPC_TOMBSTONE_REASON_CODE,
   NpcTombstoneError,
   TOMBSTONE_ACTOR_ROLES,
   TOMBSTONE_INITIAL_STATUSES,
   TOMBSTONE_REPORT_STATUSES,
   TOMBSTONE_REPORT_VISIBILITIES,
+  canonicalTombstoneReason,
+  requireTombstoneId,
   type TombstoneActorRole,
   type TombstoneArguments,
   type TombstoneInitialStatus,
   type TombstoneReportStatus,
   type TombstoneReportVisibility,
   tombstoneError,
-  validateTombstoneReason,
 } from './types';
-import { canonicalizeTombstoneExportPath } from './export';
-import type { ExecuteNpcTombstoneResult } from './service';
 
-const FLAG_TO_FIELD = {
-  '--submission-id': 'submissionId',
-  '--expected-initial-status': 'expectedInitialStatus',
-  '--expected-page-count': 'expectedPageCount',
-  '--expected-report-id': 'expectedReportId',
-  '--expected-report-status': 'expectedReportStatus',
-  '--expected-report-visibility': 'expectedReportVisibility',
-  '--reason': 'reason',
-  '--actor-id': 'actorId',
-  '--actor-role': 'actorRole',
-  '--export-file': 'exportFile',
-} as const;
+const MANIFEST_KEYS = [
+  'version',
+  'submissionId',
+  'expectedInitialStatus',
+  'expectedPageCount',
+  'expectedReportId',
+  'expectedReportStatus',
+  'expectedReportVisibility',
+  'reasonCode',
+  'actorId',
+  'actorRole',
+] as const;
 
-type CliFlag = keyof typeof FLAG_TO_FIELD;
-type ParsedValues = Partial<Record<typeof FLAG_TO_FIELD[CliFlag], string>>;
-
-export interface TombstoneCliRuntime {
-  getuid: () => number;
-  repositoryRoot: string;
-  releaseRoot: string;
-  lstatSync: (path: string) => Stats;
-  realpathSync: (path: string) => string;
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return !!value && typeof value === 'object' && !Array.isArray(value);
 }
 
-function productionRuntime(): TombstoneCliRuntime {
-  return {
-    getuid: () => {
-      if (typeof process.getuid !== 'function') {
-        tombstoneError(
-          'NPC_TOMBSTONE_ROOT_REQUIRED',
-          'This command requires a UID-capable root runtime.',
-        );
-      }
-      return process.getuid();
-    },
-    repositoryRoot: resolve(),
-    releaseRoot: resolve(process.env.NEXUS_RELEASE_ROOT ?? resolve()),
-    lstatSync: nodeLstatSync,
-    realpathSync: nodeRealpathSync,
-  };
+function exactKeys(value: Record<string, unknown>): boolean {
+  return JSON.stringify(Object.keys(value).sort()) === JSON.stringify([...MANIFEST_KEYS].sort());
 }
 
-function isOneOf<T extends string>(
-  value: string,
-  choices: readonly T[],
-): value is T {
-  return choices.includes(value as T);
-}
-
-function requireId(value: string, label: string): string {
-  if (!/^[A-Za-z0-9][A-Za-z0-9_-]{0,190}$/.test(value)) {
-    tombstoneError(
-      'NPC_TOMBSTONE_INVALID_ID',
-      `${label} must be a bounded opaque identifier.`,
-    );
-  }
-  return value;
-}
-
-function requireEnum<T extends string>(
-  value: string,
-  choices: readonly T[],
+function enumValue<T extends string>(
+  value: unknown,
+  allowed: readonly T[],
   label: string,
 ): T {
-  if (!isOneOf(value, choices)) {
-    tombstoneError(
-      'NPC_TOMBSTONE_INVALID_ENUM',
-      `${label} is not an allowed value.`,
-    );
+  if (typeof value !== 'string' || !allowed.includes(value as T)) {
+    tombstoneError('NPC_TOMBSTONE_INVALID_ENUM', `${label} is not allowed.`);
   }
-  return value;
+  return value as T;
 }
 
-export function parseTombstoneCliArgs(argv: readonly string[]): TombstoneArguments {
-  const parsed: ParsedValues = {};
-
-  for (let index = 0; index < argv.length; index += 2) {
-    const flag = argv[index];
-    const value = argv[index + 1];
-    if (!(flag in FLAG_TO_FIELD)) {
-      tombstoneError('NPC_TOMBSTONE_ARG_UNKNOWN', 'An unknown argument was supplied.');
-    }
-    if (value === undefined || value.startsWith('--')) {
-      tombstoneError('NPC_TOMBSTONE_ARG_REQUIRED', 'Every argument requires a value.');
-    }
-    const field = FLAG_TO_FIELD[flag as CliFlag];
-    if (field in parsed) {
-      tombstoneError('NPC_TOMBSTONE_ARG_DUPLICATE', 'An argument was supplied more than once.');
-    }
-    parsed[field] = value;
+export function parseTombstoneCliArgs(argv: readonly string[]): { submissionId: string } {
+  if (argv.length !== 2 || argv[0] !== '--submission-id') {
+    tombstoneError(
+      'NPC_TOMBSTONE_ARG_INVALID',
+      'Exactly --submission-id and its value are required.',
+    );
   }
+  return { submissionId: requireTombstoneId(argv[1], 'Submission id') };
+}
 
-  for (const field of Object.values(FLAG_TO_FIELD)) {
-    if (parsed[field] === undefined) {
-      tombstoneError('NPC_TOMBSTONE_ARG_REQUIRED', 'A required argument is missing.');
-    }
+export function parseTombstoneRequestManifest(
+  value: unknown,
+  commandSubmissionId: string,
+  exportRoot: string,
+): TombstoneArguments {
+  if (!isRecord(value) || !exactKeys(value) || value.version !== 1) {
+    tombstoneError('NPC_TOMBSTONE_REQUEST_INVALID', 'Request manifest shape is invalid.');
   }
-
-  if (parsed.expectedPageCount !== '4') {
+  const submissionId = requireTombstoneId(value.submissionId, 'Submission id');
+  if (submissionId !== commandSubmissionId) {
+    tombstoneError(
+      'NPC_TOMBSTONE_REQUEST_ID_MISMATCH',
+      'Command and request manifest target different submissions.',
+    );
+  }
+  if (value.expectedPageCount !== 4) {
     tombstoneError(
       'NPC_TOMBSTONE_INVALID_PAGE_COUNT',
       'The command is restricted to exactly four pages.',
     );
   }
-
+  if (value.reasonCode !== NPC_TOMBSTONE_REASON_CODE) {
+    canonicalTombstoneReason(value.reasonCode);
+  }
+  if (
+    typeof value.actorRole !== 'string' ||
+    !TOMBSTONE_ACTOR_ROLES.includes(value.actorRole as TombstoneActorRole)
+  ) {
+    tombstoneError('NPC_TOMBSTONE_INVALID_ACTOR_ROLE', 'Actor role is not authorized.');
+  }
+  const actorRole = value.actorRole as TombstoneActorRole;
   return {
-    submissionId: requireId(parsed.submissionId!, 'Submission id'),
-    expectedInitialStatus: requireEnum(
-      parsed.expectedInitialStatus!,
+    version: 1,
+    submissionId,
+    expectedInitialStatus: enumValue(
+      value.expectedInitialStatus,
       TOMBSTONE_INITIAL_STATUSES,
       'Expected initial status',
     ) as TombstoneInitialStatus,
     expectedPageCount: 4,
-    expectedReportId: requireId(parsed.expectedReportId!, 'Report id'),
-    expectedReportStatus: requireEnum(
-      parsed.expectedReportStatus!,
+    expectedReportId: requireTombstoneId(value.expectedReportId, 'Report id'),
+    expectedReportStatus: enumValue(
+      value.expectedReportStatus,
       TOMBSTONE_REPORT_STATUSES,
       'Expected report status',
     ) as TombstoneReportStatus,
-    expectedReportVisibility: requireEnum(
-      parsed.expectedReportVisibility!,
+    expectedReportVisibility: enumValue(
+      value.expectedReportVisibility,
       TOMBSTONE_REPORT_VISIBILITIES,
       'Expected report visibility',
     ) as TombstoneReportVisibility,
-    reason: validateTombstoneReason(parsed.reason!),
-    actorId: requireId(parsed.actorId!, 'Actor id'),
-    actorRole: requireEnum(
-      parsed.actorRole!,
-      TOMBSTONE_ACTOR_ROLES,
-      'Actor role',
-    ) as TombstoneActorRole,
-    exportFile: parsed.exportFile!,
+    reasonCode: NPC_TOMBSTONE_REASON_CODE,
+    reason: canonicalTombstoneReason(value.reasonCode),
+    actorId: requireTombstoneId(value.actorId, 'Actor id'),
+    actorRole: actorRole as TombstoneActorRole,
+    exportRoot,
   };
 }
 
-function isAtOrBelow(parent: string, candidate: string): boolean {
-  const child = relative(parent, candidate);
-  if (child === '') return true;
-  const [first] = child.split(sep);
-  return !isAbsolute(child) && first !== '..';
-}
-
-function safeLstat(runtime: TombstoneCliRuntime, path: string): Stats | null {
-  try {
-    return runtime.lstatSync(path);
-  } catch (error) {
-    if (
-      typeof error === 'object' &&
-      error !== null &&
-      'code' in error &&
-      error.code === 'ENOENT'
-    ) {
-      return null;
-    }
-    throw error;
-  }
-}
-
-export function validateTombstoneCliInvocation(
-  args: TombstoneArguments,
-  runtime: TombstoneCliRuntime = productionRuntime(),
-): string {
-  if (runtime.getuid() !== 0) {
-    tombstoneError(
-      'NPC_TOMBSTONE_ROOT_REQUIRED',
-      'This command must be executed as UID 0.',
-    );
-  }
-
-  const canonicalExportFile = canonicalizeTombstoneExportPath(args.exportFile);
-  if (extname(canonicalExportFile).toLowerCase() !== '.json') {
-    tombstoneError(
-      'NPC_TOMBSTONE_EXPORT_PATH_INVALID',
-      'Export destination must be an absolute JSON path.',
-    );
-  }
-
-  const requestedParent = dirname(canonicalExportFile);
-  const parentStats = safeLstat(runtime, requestedParent);
-  if (parentStats?.isSymbolicLink()) {
-    tombstoneError(
-      'NPC_TOMBSTONE_EXPORT_SYMLINK',
-      'Symbolic links are forbidden for the export destination.',
-    );
-  }
-  if (!parentStats || !parentStats.isDirectory()) {
-    tombstoneError(
-      'NPC_TOMBSTONE_EXPORT_PARENT_INVALID',
-      'Export parent must be an existing directory.',
-    );
-  }
-  if (parentStats.uid !== 0) {
-    tombstoneError(
-      'NPC_TOMBSTONE_EXPORT_PARENT_OWNER',
-      'Export parent must be owned by root.',
-    );
-  }
-  if ((parentStats.mode & 0o077) !== 0) {
-    tombstoneError(
-      'NPC_TOMBSTONE_EXPORT_PARENT_PERMISSIONS',
-      'Export parent must grant no group or world permissions.',
-    );
-  }
-
-  const canonicalParent = runtime.realpathSync(requestedParent);
-  if (canonicalParent !== requestedParent) {
-    tombstoneError(
-      'NPC_TOMBSTONE_EXPORT_SYMLINK',
-      'Symbolic path components are forbidden for the export destination.',
-    );
-  }
-  const candidate = join(canonicalParent, basename(canonicalExportFile));
-  const repositoryRoot = runtime.realpathSync(resolve(runtime.repositoryRoot));
-  const releaseRoot = runtime.realpathSync(resolve(runtime.releaseRoot));
-  if (
-    isAtOrBelow(repositoryRoot, candidate) ||
-    isAtOrBelow(releaseRoot, candidate)
-  ) {
-    tombstoneError(
-      'NPC_TOMBSTONE_EXPORT_SCOPE_INVALID',
-      'Export destination must be outside repository and active release.',
-    );
-  }
-
-  const destinationStats = safeLstat(runtime, candidate);
-  if (destinationStats?.isSymbolicLink()) {
-    tombstoneError(
-      'NPC_TOMBSTONE_EXPORT_SYMLINK',
-      'Symbolic links are forbidden for the export destination.',
-    );
-  }
-  if (destinationStats) {
-    if (!destinationStats.isFile()) {
-      tombstoneError(
-        'NPC_TOMBSTONE_EXPORT_PATH_INVALID',
-        'Existing export destination must be a regular file.',
-      );
-    }
-    if (destinationStats.uid !== 0) {
-      tombstoneError(
-        'NPC_TOMBSTONE_EXPORT_PARENT_OWNER',
-        'Existing export must be owned by root.',
-      );
-    }
-    if ((destinationStats.mode & 0o777) !== 0o600) {
-      tombstoneError(
-        'NPC_TOMBSTONE_EXPORT_PERMISSIONS',
-        'Existing export must have mode 0600.',
-      );
-    }
-  }
-  return candidate;
-}
-
-export function parseAndValidateTombstoneCliArgs(
+export async function loadTombstoneCliInvocation(
   argv: readonly string[],
-): TombstoneArguments {
-  const args = parseTombstoneCliArgs(argv);
-  return {
-    ...args,
-    exportFile: validateTombstoneCliInvocation(args),
-  };
+  environment: NodeJS.ProcessEnv = process.env,
+): Promise<TombstoneArguments> {
+  const { submissionId } = parseTombstoneCliArgs(argv);
+  const requestFile = environment.NPC_TOMBSTONE_REQUEST_FILE;
+  const exportRoot = environment.NPC_TOMBSTONE_EXPORT_ROOT;
+  if (!requestFile || !exportRoot) {
+    tombstoneError(
+      'NPC_TOMBSTONE_ENV_REQUIRED',
+      'The secure request file and artifact root environment are required.',
+    );
+  }
+  const manifest = await readSecureRootOwnedJson(requestFile);
+  return parseTombstoneRequestManifest(manifest, submissionId, exportRoot);
 }
 
-export function formatTombstoneCliSuccess(
-  result: ExecuteNpcTombstoneResult,
-): string {
-  const operationDigest = result.operationKey.match(
-    /^npc-tombstone-v1:([a-f0-9]{64})$/,
-  )?.[1];
-  if (!operationDigest) {
-    return 'NPC_TOMBSTONE_SUCCESS operation=redacted\n';
-  }
+export function formatTombstoneCliSuccess(result: ExecuteNpcTombstoneResult): string {
+  const digest = result.operationKey.match(/^npc-tombstone-v1:([a-f0-9]{64})$/)?.[1];
+  if (!digest) return 'NPC_TOMBSTONE_SUCCESS operation=redacted\n';
   const status = result.status === 'applied'
     ? 'NPC_TOMBSTONE_APPLIED'
     : 'NPC_TOMBSTONE_ALREADY_APPLIED';
-  return `${status} operation=${operationDigest}\n`;
+  return `${status} operation=${digest}\n`;
 }
 
 export function formatTombstoneCliError(error: unknown): string {

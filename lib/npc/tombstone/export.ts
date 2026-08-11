@@ -1,23 +1,18 @@
-import { createHash } from 'node:crypto';
+import {
+  createCipheriv,
+  createDecipheriv,
+  createHash,
+  createHmac,
+  randomBytes,
+  timingSafeEqual,
+} from 'node:crypto';
 import { constants } from 'node:fs';
 import { lstat, open, realpath, type FileHandle } from 'node:fs/promises';
 import { isAbsolute, join } from 'node:path';
 
 import {
-  AiJobPriority,
-  AiJobStatus,
-  AiJobType,
-  AssessmentSourceType,
-  CopyPageStatus,
-  CopySubmissionStatus,
-  CorrectionDocumentType,
-  GradeLevel,
-  PedagogicalReportStatus,
-  ReportVisibility,
-  Subject,
-} from '@prisma/client';
-
-import {
+  NPC_TOMBSTONE_REASON,
+  NPC_TOMBSTONE_REASON_CODE,
   NPC_TOMBSTONE_PROTOCOL_VERSION,
   TOMBSTONE_ACTOR_ROLES,
   TOMBSTONE_INITIAL_STATUSES,
@@ -27,7 +22,6 @@ import {
   type TombstoneArguments,
   type TombstoneOperationKeyFields,
   tombstoneError,
-  validateTombstoneReason,
 } from './types';
 
 type CanonicalValue =
@@ -46,43 +40,60 @@ export interface RawTombstoneSnapshot {
   audits: Array<Record<string, unknown>>;
 }
 
+export interface KeyedCommitment extends Record<string, CanonicalValue> {
+  redacted: true;
+  hmacSha256: string;
+  byteLength: number;
+}
+
 export interface TombstoneSnapshot {
   submission: Record<string, CanonicalValue>;
   pages: Array<Record<string, CanonicalValue>>;
   report: Record<string, CanonicalValue> | null;
   job: Record<string, CanonicalValue> | null;
   audits: Array<Record<string, CanonicalValue>>;
-  snapshotSha256: string;
+  snapshotHmacSha256: string;
+}
+
+export interface TombstoneExportPayload {
+  protocolVersion: typeof NPC_TOMBSTONE_PROTOCOL_VERSION;
+  operation: {
+    operationKey: string;
+    auditId: string;
+    arguments: TombstoneOperationKeyFields;
+    generatedAt: string;
+  };
+  snapshot: TombstoneSnapshot;
 }
 
 export interface TombstoneExportEnvelope {
   format: 'nexus-npc-tombstone-export';
-  version: 1;
-  payload: {
-    protocolVersion: typeof NPC_TOMBSTONE_PROTOCOL_VERSION;
-    operation: {
-      operationKey: string;
-      auditId: string;
-      arguments: TombstoneOperationKeyFields;
-      generatedAt: string;
-    };
-    snapshot: TombstoneSnapshot;
+  version: 2;
+  metadata: {
+    algorithm: 'aes-256-gcm';
+    keyVersion: 'v1';
+    operationDigest: string;
+    encoding: 'base64';
   };
-  payloadSha256: string;
+  iv: string;
+  authTag: string;
+  ciphertext: string;
+  ciphertextChecksumSha256: string;
+}
+
+export interface TombstoneCryptoContext {
+  readonly keyVersion: 'v1';
+  readonly encryptionKey: Buffer;
+  readonly commitmentKey: Buffer;
+  readonly proofKey: Buffer;
 }
 
 export interface VerifiedTombstoneExport {
   envelope: TombstoneExportEnvelope;
+  payload: TombstoneExportPayload;
   bytes: Buffer;
-  payloadSha256: string;
+  artifactChecksumSha256: string;
   canonicalFilePath: string;
-}
-
-export interface TombstoneExportSecurityOptions {
-  trustedUid?: number;
-  onParentVerified?: () => void | Promise<void>;
-  onFileOpened?: (flags: number) => void;
-  onFileSynced?: () => void;
 }
 
 function canonicalize(value: unknown): CanonicalValue {
@@ -95,22 +106,20 @@ function canonicalize(value: unknown): CanonicalValue {
     case 'string':
       return value;
     case 'number':
-      if (!Number.isFinite(value)) {
-        tombstoneError('NPC_TOMBSTONE_EXPORT_INVALID', 'Export contains a non-finite number.');
-      }
+      if (!Number.isFinite(value)) invalidExport('A non-finite number is forbidden.');
       return value;
     case 'bigint':
       return value.toString();
     case 'object': {
-      const output: Record<string, CanonicalValue> = {};
+      const result: Record<string, CanonicalValue> = {};
       for (const key of Object.keys(value as Record<string, unknown>).sort()) {
         const child = (value as Record<string, unknown>)[key];
-        if (child !== undefined) output[key] = canonicalize(child);
+        if (child !== undefined) result[key] = canonicalize(child);
       }
-      return output;
+      return result;
     }
     default:
-      tombstoneError('NPC_TOMBSTONE_EXPORT_INVALID', 'Export contains an unsupported value.');
+      invalidExport('An unsupported export value is forbidden.');
   }
 }
 
@@ -122,10 +131,40 @@ function sha256(value: string | Buffer): string {
   return createHash('sha256').update(value).digest('hex');
 }
 
-interface OpaqueCommitment extends Record<string, CanonicalValue> {
-  redacted: true;
-  sha256: string;
-  byteLength: number;
+function hmac(key: Buffer, context: string, value: string | Buffer): string {
+  return createHmac('sha256', key).update(context).update('\0').update(value).digest('hex');
+}
+
+function deriveKey(master: Buffer, context: string): Buffer {
+  return createHmac('sha256', master).update(`nexus/npc/tombstone/${context}/v1`).digest();
+}
+
+export function createTombstoneCryptoContext(
+  secret: string | undefined,
+): TombstoneCryptoContext {
+  const value = secret?.trim();
+  if (!value || value.length < 32) {
+    tombstoneError(
+      'NPC_TOMBSTONE_ENCRYPTION_KEY_INVALID',
+      'DOCUMENT_ENCRYPTION_KEY must contain at least 32 characters.',
+    );
+  }
+  const master = createHmac('sha256', Buffer.from(value, 'utf8'))
+    .update('nexus/npc/tombstone/master/v1')
+    .digest();
+  return {
+    keyVersion: 'v1',
+    encryptionKey: deriveKey(master, 'export-encryption'),
+    commitmentKey: deriveKey(master, 'snapshot-commitment'),
+    proofKey: deriveKey(master, 'audit-proof'),
+  };
+}
+
+export function tombstoneProofHmac(
+  crypto: TombstoneCryptoContext,
+  value: unknown,
+): string {
+  return hmac(crypto.proofKey, 'idempotence-proof', canonicalJson(value));
 }
 
 function invalidExport(message: string): never {
@@ -140,50 +179,28 @@ function record(value: unknown, label: string): Record<string, unknown> {
 }
 
 function requiredString(source: Record<string, unknown>, key: string): string {
-  if (typeof source[key] !== 'string') invalidExport(`${key} must be a string.`);
+  if (typeof source[key] !== 'string') invalidExport(`${key} must be text.`);
   return source[key] as string;
-}
-
-function requiredId(source: Record<string, unknown>, key: string): string {
-  const value = requiredString(source, key);
-  if (!/^[A-Za-z0-9][A-Za-z0-9_-]{0,190}$/.test(value)) {
-    invalidExport(`${key} must be a typed identifier.`);
-  }
-  return value;
-}
-
-function nullableId(source: Record<string, unknown>, key: string): string | null {
-  const value = nullableString(source, key);
-  if (value !== null && !/^[A-Za-z0-9][A-Za-z0-9_-]{0,190}$/.test(value)) {
-    invalidExport(`${key} must be a nullable typed identifier.`);
-  }
-  return value;
-}
-
-function requiredEnum(
-  source: Record<string, unknown>,
-  key: string,
-  values: readonly string[],
-): string {
-  const value = requiredString(source, key);
-  if (!values.includes(value)) invalidExport(`${key} must be a typed enum.`);
-  return value;
-}
-
-function nullableEnum(
-  source: Record<string, unknown>,
-  key: string,
-  values: readonly string[],
-): string | null {
-  const value = nullableString(source, key);
-  if (value !== null && !values.includes(value)) invalidExport(`${key} must be a nullable typed enum.`);
-  return value;
 }
 
 function nullableString(source: Record<string, unknown>, key: string): string | null {
   const value = source[key];
   if (value !== null && typeof value !== 'string') invalidExport(`${key} must be nullable text.`);
   return value as string | null;
+}
+
+function requiredId(source: Record<string, unknown>, key: string): string {
+  const value = requiredString(source, key);
+  if (!/^[A-Za-z0-9][A-Za-z0-9_-]{0,190}$/.test(value)) invalidExport(`${key} is invalid.`);
+  return value;
+}
+
+function nullableId(source: Record<string, unknown>, key: string): string | null {
+  const value = nullableString(source, key);
+  if (value !== null && !/^[A-Za-z0-9][A-Za-z0-9_-]{0,190}$/.test(value)) {
+    invalidExport(`${key} is invalid.`);
+  }
+  return value;
 }
 
 function finiteNumber(source: Record<string, unknown>, key: string): number {
@@ -193,8 +210,7 @@ function finiteNumber(source: Record<string, unknown>, key: string): number {
 }
 
 function nullableNumber(source: Record<string, unknown>, key: string): number | null {
-  if (source[key] === null) return null;
-  return finiteNumber(source, key);
+  return source[key] === null ? null : finiteNumber(source, key);
 }
 
 function dateString(source: Record<string, unknown>, key: string): string {
@@ -205,8 +221,7 @@ function dateString(source: Record<string, unknown>, key: string): string {
 }
 
 function nullableDateString(source: Record<string, unknown>, key: string): string | null {
-  if (source[key] === null) return null;
-  return dateString(source, key);
+  return source[key] === null ? null : dateString(source, key);
 }
 
 function stringArray(source: Record<string, unknown>, key: string): string[] {
@@ -217,25 +232,43 @@ function stringArray(source: Record<string, unknown>, key: string): string[] {
   return value as string[];
 }
 
-function requiredTextCommitment(
-  source: Record<string, unknown>,
-  key: string,
-): OpaqueCommitment {
-  return opaqueCommitment(requiredString(source, key)) as OpaqueCommitment;
+function enumString(source: Record<string, unknown>, key: string): string {
+  return requiredString(source, key);
 }
 
-function nullableTextCommitment(
-  source: Record<string, unknown>,
-  key: string,
-): OpaqueCommitment | null {
-  return opaqueCommitment(nullableString(source, key));
+function nullableEnumString(source: Record<string, unknown>, key: string): string | null {
+  return nullableString(source, key);
 }
 
-function opaqueCommitment(value: unknown): OpaqueCommitment | null {
+function relativeStoragePath(value: unknown, label: string): string {
+  if (
+    typeof value !== 'string' ||
+    value.length === 0 ||
+    value.includes('\0') ||
+    value.startsWith('/') ||
+    value.split('/').some((part) => part === '' || part === '.' || part === '..')
+  ) {
+    invalidExport(`${label} must be canonical relative storage metadata.`);
+  }
+  return value;
+}
+
+function nullableRelativeStoragePath(value: unknown, label: string): string | null {
+  return value === null ? null : relativeStoragePath(value, label);
+}
+
+function keyedCommitment(
+  crypto: TombstoneCryptoContext,
+  context: string,
+  value: unknown,
+): KeyedCommitment | null {
   if (value === null) return null;
-  if (value === undefined) invalidExport('Opaque export value is missing.');
   const bytes = Buffer.from(canonicalJson(value), 'utf8');
-  return { redacted: true, sha256: sha256(bytes), byteLength: bytes.length };
+  return {
+    redacted: true,
+    hmacSha256: hmac(crypto.commitmentKey, context, bytes),
+    byteLength: bytes.length,
+  };
 }
 
 function submissionProjection(value: unknown): Record<string, CanonicalValue> {
@@ -246,51 +279,56 @@ function submissionProjection(value: unknown): Record<string, CanonicalValue> {
     updatedAt: dateString(source, 'updatedAt'),
     studentId: requiredId(source, 'studentId'),
     coachId: nullableId(source, 'coachId'),
-    subject: requiredEnum(source, 'subject', Object.values(Subject)),
-    gradeLevel: nullableEnum(source, 'gradeLevel', Object.values(GradeLevel)),
-    title: requiredTextCommitment(source, 'title'),
-    description: nullableTextCommitment(source, 'description'),
-    sourceType: requiredEnum(source, 'sourceType', Object.values(AssessmentSourceType)),
+    subject: enumString(source, 'subject'),
+    gradeLevel: nullableEnumString(source, 'gradeLevel'),
+    title: requiredString(source, 'title'),
+    description: nullableString(source, 'description'),
+    sourceType: enumString(source, 'sourceType'),
     sourceId: nullableId(source, 'sourceId'),
-    status: requiredEnum(source, 'status', Object.values(CopySubmissionStatus)),
-    unavailableReason: nullableTextCommitment(source, 'unavailableReason'),
+    status: enumString(source, 'status'),
+    unavailableReason: nullableString(source, 'unavailableReason'),
     unavailableAt: nullableDateString(source, 'unavailableAt'),
-    ocrText: nullableTextCommitment(source, 'ocrText'),
-    ocrError: nullableTextCommitment(source, 'ocrError'),
+    ocrText: nullableString(source, 'ocrText'),
+    ocrError: nullableString(source, 'ocrError'),
     aiJobId: nullableId(source, 'aiJobId'),
-    storedFilePath: opaqueCommitment(source.storedFilePath),
+    storedFilePath: nullableRelativeStoragePath(source.storedFilePath, 'storedFilePath'),
     fileSizeBytes: nullableNumber(source, 'fileSizeBytes'),
-    mimeType: nullableTextCommitment(source, 'mimeType'),
+    mimeType: nullableString(source, 'mimeType'),
   };
 }
 
 function pageProjection(value: unknown): Record<string, CanonicalValue> {
   const source = record(value, 'page');
+  const converted = stringArray(source, 'convertedFilePaths').map((path) =>
+    relativeStoragePath(path, 'convertedFilePaths'));
   return {
     id: requiredId(source, 'id'),
     createdAt: dateString(source, 'createdAt'),
     updatedAt: dateString(source, 'updatedAt'),
     submissionId: requiredId(source, 'submissionId'),
     pageNumber: finiteNumber(source, 'pageNumber'),
-    status: requiredEnum(source, 'status', Object.values(CopyPageStatus)),
-    documentType: requiredEnum(source, 'documentType', Object.values(CorrectionDocumentType)),
-    unavailableReason: nullableTextCommitment(source, 'unavailableReason'),
+    status: enumString(source, 'status'),
+    documentType: enumString(source, 'documentType'),
+    unavailableReason: nullableString(source, 'unavailableReason'),
     unavailableAt: nullableDateString(source, 'unavailableAt'),
-    originalFilePath: opaqueCommitment(source.originalFilePath),
-    originalFilename: nullableTextCommitment(source, 'originalFilename'),
-    mimeType: nullableTextCommitment(source, 'mimeType'),
+    originalFilePath: relativeStoragePath(source.originalFilePath, 'originalFilePath'),
+    originalFilename: nullableString(source, 'originalFilename'),
+    mimeType: nullableString(source, 'mimeType'),
     sizeBytes: nullableNumber(source, 'sizeBytes'),
     sha256: nullableString(source, 'sha256'),
     uploadedById: nullableId(source, 'uploadedById'),
-    convertedFilePaths: opaqueCommitment(source.convertedFilePaths),
-    ocrText: nullableTextCommitment(source, 'ocrText'),
+    convertedFilePaths: converted,
+    ocrText: nullableString(source, 'ocrText'),
     ocrConfidence: nullableNumber(source, 'ocrConfidence'),
     width: nullableNumber(source, 'width'),
     height: nullableNumber(source, 'height'),
   };
 }
 
-function reportProjection(value: unknown): Record<string, CanonicalValue> | null {
+function reportProjection(
+  value: unknown,
+  crypto: TombstoneCryptoContext,
+): Record<string, CanonicalValue> | null {
   if (value === null) return null;
   const source = record(value, 'report');
   return {
@@ -300,91 +338,116 @@ function reportProjection(value: unknown): Record<string, CanonicalValue> | null
     copySubmissionId: nullableId(source, 'copySubmissionId'),
     studentId: requiredId(source, 'studentId'),
     coachId: nullableId(source, 'coachId'),
-    status: requiredEnum(source, 'status', Object.values(PedagogicalReportStatus)),
-    visibility: requiredEnum(source, 'visibility', Object.values(ReportVisibility)),
-    diagnostic: opaqueCommitment(source.diagnostic),
-    strengths: opaqueCommitment(stringArray(source, 'strengths')) as OpaqueCommitment,
-    weaknesses: opaqueCommitment(stringArray(source, 'weaknesses')) as OpaqueCommitment,
-    rawAiOutput: opaqueCommitment(source.rawAiOutput),
-    validatedAiOutput: opaqueCommitment(source.validatedAiOutput),
+    status: enumString(source, 'status'),
+    visibility: enumString(source, 'visibility'),
+    diagnostic: keyedCommitment(crypto, 'report-diagnostic', source.diagnostic),
+    strengths: stringArray(source, 'strengths'),
+    weaknesses: stringArray(source, 'weaknesses'),
+    rawAiOutput: keyedCommitment(crypto, 'report-raw-ai-output', source.rawAiOutput),
+    validatedAiOutput: keyedCommitment(
+      crypto,
+      'report-validated-ai-output',
+      source.validatedAiOutput,
+    ),
     sentToStudentAt: nullableDateString(source, 'sentToStudentAt'),
     readByStudentAt: nullableDateString(source, 'readByStudentAt'),
-    coachNotes: nullableTextCommitment(source, 'coachNotes'),
-    studentSummary: nullableTextCommitment(source, 'studentSummary'),
+    coachNotes: nullableString(source, 'coachNotes'),
+    studentSummary: nullableString(source, 'studentSummary'),
   };
 }
 
-function jobProjection(value: unknown): Record<string, CanonicalValue> | null {
+function jobProjection(
+  value: unknown,
+  crypto: TombstoneCryptoContext,
+): Record<string, CanonicalValue> | null {
   if (value === null) return null;
   const source = record(value, 'job');
   return {
     id: requiredId(source, 'id'),
     createdAt: dateString(source, 'createdAt'),
     updatedAt: dateString(source, 'updatedAt'),
-    type: requiredEnum(source, 'type', Object.values(AiJobType)),
-    status: requiredEnum(source, 'status', Object.values(AiJobStatus)),
-    priority: requiredEnum(source, 'priority', Object.values(AiJobPriority)),
+    type: enumString(source, 'type'),
+    status: enumString(source, 'status'),
+    priority: enumString(source, 'priority'),
     copySubmissionId: nullableId(source, 'copySubmissionId'),
-    inputData: opaqueCommitment(source.inputData),
-    outputData: opaqueCommitment(source.outputData),
-    errorMessage: opaqueCommitment(source.errorMessage),
+    inputData: keyedCommitment(crypto, 'job-input', source.inputData),
+    outputData: keyedCommitment(crypto, 'job-output', source.outputData),
+    errorMessage: keyedCommitment(crypto, 'job-error', source.errorMessage),
     retryCount: finiteNumber(source, 'retryCount'),
     maxRetries: finiteNumber(source, 'maxRetries'),
     claimedAt: nullableDateString(source, 'claimedAt'),
-    claimedBy: nullableTextCommitment(source, 'claimedBy'),
+    claimedBy: nullableString(source, 'claimedBy'),
     startedAt: nullableDateString(source, 'startedAt'),
     completedAt: nullableDateString(source, 'completedAt'),
     nextRetryAt: nullableDateString(source, 'nextRetryAt'),
     processingDurationMs: nullableNumber(source, 'processingDurationMs'),
-    chutesRequestId: nullableTextCommitment(source, 'chutesRequestId'),
+    chutesRequestId: nullableString(source, 'chutesRequestId'),
     tokensUsed: nullableNumber(source, 'tokensUsed'),
-    modelVersion: nullableTextCommitment(source, 'modelVersion'),
+    modelVersion: nullableString(source, 'modelVersion'),
   };
 }
 
-function auditProjection(value: unknown): Record<string, CanonicalValue> {
+function auditProjection(
+  value: unknown,
+  crypto: TombstoneCryptoContext,
+): Record<string, CanonicalValue> {
   const source = record(value, 'audit');
   return {
     id: requiredId(source, 'id'),
     createdAt: dateString(source, 'createdAt'),
     reportId: nullableId(source, 'reportId'),
-    action: requiredTextCommitment(source, 'action'),
+    action: requiredString(source, 'action'),
     actorId: requiredId(source, 'actorId'),
-    actorRole: requiredTextCommitment(source, 'actorRole'),
-    entityType: requiredTextCommitment(source, 'entityType'),
+    actorRole: requiredString(source, 'actorRole'),
+    entityType: requiredString(source, 'entityType'),
     entityId: requiredId(source, 'entityId'),
-    details: opaqueCommitment(source.details),
+    details: keyedCommitment(crypto, `audit-details:${requiredId(source, 'id')}`, source.details),
   };
-}
-
-function snapshotContent(snapshot: Omit<TombstoneSnapshot, 'snapshotSha256'>): CanonicalValue {
-  return canonicalize(snapshot);
 }
 
 export function buildTombstoneSnapshot(
   rawSnapshot: RawTombstoneSnapshot,
+  crypto: TombstoneCryptoContext,
 ): TombstoneSnapshot {
   const content = {
     submission: submissionProjection(rawSnapshot.submission),
     pages: rawSnapshot.pages.map(pageProjection),
-    report: reportProjection(rawSnapshot.report),
-    job: jobProjection(rawSnapshot.job),
-    audits: rawSnapshot.audits.map(auditProjection),
+    report: reportProjection(rawSnapshot.report, crypto),
+    job: jobProjection(rawSnapshot.job, crypto),
+    audits: rawSnapshot.audits.map((audit) => auditProjection(audit, crypto)),
   };
-  return { ...content, snapshotSha256: sha256(canonicalJson(snapshotContent(content))) };
+  return {
+    ...content,
+    snapshotHmacSha256: hmac(
+      crypto.commitmentKey,
+      'snapshot',
+      canonicalJson(content),
+    ),
+  };
+}
+
+function envelopeMetadata(operationDigest: string): TombstoneExportEnvelope['metadata'] {
+  return {
+    algorithm: 'aes-256-gcm',
+    keyVersion: 'v1',
+    operationDigest,
+    encoding: 'base64',
+  };
 }
 
 export function createTombstoneExportEnvelope({
   args,
   rawSnapshot,
   generatedAt,
+  crypto,
 }: {
   args: TombstoneArguments;
   rawSnapshot: RawTombstoneSnapshot;
   generatedAt: Date;
+  crypto: TombstoneCryptoContext;
 }): TombstoneExportEnvelope {
   const identity = buildTombstoneOperationIdentity(args);
-  const payload = {
+  const payload: TombstoneExportPayload = {
     protocolVersion: NPC_TOMBSTONE_PROTOCOL_VERSION,
     operation: {
       operationKey: identity.operationKey,
@@ -392,224 +455,31 @@ export function createTombstoneExportEnvelope({
       arguments: identity.fields,
       generatedAt: generatedAt.toISOString(),
     },
-    snapshot: buildTombstoneSnapshot(rawSnapshot),
+    snapshot: buildTombstoneSnapshot(rawSnapshot, crypto),
   };
+  const metadata = envelopeMetadata(identity.sha256);
+  const iv = randomBytes(12);
+  const cipher = createCipheriv('aes-256-gcm', crypto.encryptionKey, iv);
+  cipher.setAAD(Buffer.from(canonicalJson(metadata), 'utf8'));
+  const ciphertext = Buffer.concat([
+    cipher.update(canonicalJson(payload), 'utf8'),
+    cipher.final(),
+  ]);
   return {
     format: 'nexus-npc-tombstone-export',
-    version: 1,
-    payload,
-    payloadSha256: sha256(canonicalJson(payload)),
+    version: 2,
+    metadata,
+    iv: iv.toString('base64'),
+    authTag: cipher.getAuthTag().toString('base64'),
+    ciphertext: ciphertext.toString('base64'),
+    ciphertextChecksumSha256: sha256(ciphertext),
   };
 }
 
-function isNodeError(error: unknown, code: string): boolean {
-  return typeof error === 'object' && error !== null && 'code' in error && error.code === code;
+function hasExactKeys(value: Record<string, unknown>, keys: readonly string[]): boolean {
+  return canonicalJson(Object.keys(value).sort()) === canonicalJson([...keys].sort());
 }
 
-export function canonicalizeTombstoneExportPath(filePath: string): string {
-  if (!isAbsolute(filePath) || filePath.includes('\0')) {
-    tombstoneError(
-      'NPC_TOMBSTONE_EXPORT_PATH_INVALID',
-      'Export destination must be an absolute normalized path.',
-    );
-  }
-  const segments = filePath.split('/');
-  if (
-    segments[0] !== '' ||
-    segments.length < 2 ||
-    segments.slice(1).some((segment) => segment === '' || segment === '.' || segment === '..')
-  ) {
-    tombstoneError(
-      'NPC_TOMBSTONE_EXPORT_PATH_INVALID',
-      'Export destination contains an unsafe raw path segment.',
-    );
-  }
-  return `/${segments.slice(1).join('/')}`;
-}
-
-interface TrustedExportParent {
-  canonicalFilePath: string;
-  canonicalParentPath: string;
-  entryPath: string;
-  parent: FileHandle;
-  handles: FileHandle[];
-  trustedUid: number;
-}
-
-function descriptorPath(handle: FileHandle): string {
-  return `/proc/${process.pid}/fd/${handle.fd}`;
-}
-
-function sameInode(
-  left: Awaited<ReturnType<FileHandle['stat']>>,
-  right: Awaited<ReturnType<typeof lstat>>,
-): boolean {
-  return left.dev === right.dev && left.ino === right.ino;
-}
-
-function assertDirectoryTrust(
-  stats: Awaited<ReturnType<FileHandle['stat']>>,
-  trustedUid: number,
-  finalParent: boolean,
-): void {
-  if (!stats.isDirectory()) {
-    tombstoneError(
-      'NPC_TOMBSTONE_EXPORT_PARENT_INVALID',
-      'Export path contains a non-directory parent.',
-    );
-  }
-  if (stats.uid !== 0 && stats.uid !== trustedUid) {
-    tombstoneError(
-      'NPC_TOMBSTONE_EXPORT_PARENT_OWNER',
-      'Export parent chain has an untrusted owner.',
-    );
-  }
-  const forbiddenMode = finalParent ? 0o077 : 0o022;
-  if ((Number(stats.mode) & forbiddenMode) !== 0) {
-    tombstoneError(
-      'NPC_TOMBSTONE_EXPORT_PARENT_PERMISSIONS',
-      finalParent
-        ? 'Export parent must grant no group or world permissions.'
-        : 'Export parent chain must not be group or world writable.',
-    );
-  }
-}
-
-async function verifyDirectoryHandle(
-  handle: FileHandle,
-  expectedPath: string,
-  trustedUid: number,
-  finalParent: boolean,
-): Promise<void> {
-  const descriptorStats = await handle.stat();
-  assertDirectoryTrust(descriptorStats, trustedUid, finalParent);
-
-  let resolvedDescriptor: string;
-  let namedStats: Awaited<ReturnType<typeof lstat>>;
-  try {
-    [resolvedDescriptor, namedStats] = await Promise.all([
-      realpath(descriptorPath(handle)),
-      lstat(expectedPath),
-    ]);
-  } catch {
-    tombstoneError(
-      'NPC_TOMBSTONE_EXPORT_PARENT_CHANGED',
-      'Export parent changed after secure open.',
-    );
-  }
-  if (
-    resolvedDescriptor !== expectedPath ||
-    namedStats.isSymbolicLink() ||
-    !sameInode(descriptorStats, namedStats)
-  ) {
-    tombstoneError(
-      'NPC_TOMBSTONE_EXPORT_PARENT_CHANGED',
-      'Export parent changed after secure open.',
-    );
-  }
-}
-
-async function closeHandles(handles: FileHandle[]): Promise<void> {
-  for (const handle of [...handles].reverse()) {
-    await handle.close().catch(() => undefined);
-  }
-}
-
-async function openTrustedExportParent(
-  filePath: string,
-  options: TombstoneExportSecurityOptions,
-): Promise<TrustedExportParent> {
-  const canonicalFilePath = canonicalizeTombstoneExportPath(filePath);
-  const segments = canonicalFilePath.slice(1).split('/');
-  const filename = segments.pop();
-  if (!filename) {
-    tombstoneError('NPC_TOMBSTONE_EXPORT_PATH_INVALID', 'Export filename is missing.');
-  }
-  const trustedUid = options.trustedUid ?? 0;
-  const handles: FileHandle[] = [];
-  let expectedPath = '/';
-
-  try {
-    let parent = await open(
-      '/',
-      constants.O_RDONLY | constants.O_DIRECTORY | constants.O_NOFOLLOW,
-    );
-    handles.push(parent);
-    await verifyDirectoryHandle(parent, expectedPath, trustedUid, segments.length === 0);
-
-    for (let index = 0; index < segments.length; index += 1) {
-      const segment = segments[index];
-      expectedPath = join(expectedPath, segment);
-      try {
-        parent = await open(
-          join(descriptorPath(parent), segment),
-          constants.O_RDONLY | constants.O_DIRECTORY | constants.O_NOFOLLOW,
-        );
-      } catch (error) {
-        if (isNodeError(error, 'ELOOP') || isNodeError(error, 'ENOTDIR')) {
-          tombstoneError(
-            'NPC_TOMBSTONE_EXPORT_SYMLINK',
-            'Export parent chain contains a symbolic link.',
-          );
-        }
-        if (isNodeError(error, 'ENOENT')) {
-          tombstoneError(
-            'NPC_TOMBSTONE_EXPORT_PARENT_INVALID',
-            'Export parent does not exist.',
-          );
-        }
-        throw error;
-      }
-      handles.push(parent);
-      await verifyDirectoryHandle(
-        parent,
-        expectedPath,
-        trustedUid,
-        index === segments.length - 1,
-      );
-    }
-
-    await options.onParentVerified?.();
-    await verifyDirectoryHandle(parent, expectedPath, trustedUid, true);
-    return {
-      canonicalFilePath,
-      canonicalParentPath: expectedPath,
-      entryPath: join(descriptorPath(parent), filename),
-      parent,
-      handles,
-      trustedUid,
-    };
-  } catch (error) {
-    await closeHandles(handles);
-    throw error;
-  }
-}
-
-async function withTrustedExportParent<T>(
-  filePath: string,
-  options: TombstoneExportSecurityOptions,
-  callback: (context: TrustedExportParent) => Promise<T>,
-): Promise<T> {
-  const context = await openTrustedExportParent(filePath, options);
-  try {
-    return await callback(context);
-  } finally {
-    await closeHandles(context.handles);
-  }
-}
-
-const OPERATION_ARGUMENT_KEYS = [
-  'protocolVersion',
-  'submissionId',
-  'expectedInitialStatus',
-  'expectedPageCount',
-  'expectedReportId',
-  'expectedReportStatus',
-  'expectedReportVisibility',
-  'reason',
-  'actorId',
-  'actorRole',
-] as const;
 const SUBMISSION_KEYS = [
   'id', 'createdAt', 'updatedAt', 'studentId', 'coachId', 'subject', 'gradeLevel',
   'title', 'description', 'sourceType', 'sourceId', 'status', 'unavailableReason',
@@ -638,36 +508,14 @@ const AUDIT_KEYS = [
   'id', 'createdAt', 'reportId', 'action', 'actorId', 'actorRole', 'entityType',
   'entityId', 'details',
 ] as const;
-
-function hasExactKeys(
-  value: Record<string, unknown>,
-  keys: readonly string[],
-): boolean {
-  return canonicalJson(Object.keys(value).sort()) === canonicalJson([...keys].sort());
-}
+const OPERATION_FIELD_KEYS = [
+  'protocolVersion', 'submissionId', 'expectedInitialStatus', 'expectedPageCount',
+  'expectedReportId', 'expectedReportStatus', 'expectedReportVisibility',
+  'reasonCode', 'reason', 'actorId', 'actorRole',
+] as const;
 
 function validId(value: unknown): value is string {
   return typeof value === 'string' && /^[A-Za-z0-9][A-Za-z0-9_-]{0,190}$/.test(value);
-}
-
-function validNullableId(value: unknown): boolean {
-  return value === null || validId(value);
-}
-
-function validEnum(value: unknown, values: readonly string[]): value is string {
-  return typeof value === 'string' && values.includes(value);
-}
-
-function validNullableEnum(value: unknown, values: readonly string[]): boolean {
-  return value === null || validEnum(value, values);
-}
-
-function validNumber(value: unknown): boolean {
-  return typeof value === 'number' && Number.isFinite(value);
-}
-
-function validNullableNumber(value: unknown): boolean {
-  return value === null || validNumber(value);
 }
 
 function validDate(value: unknown): value is string {
@@ -676,109 +524,135 @@ function validDate(value: unknown): value is string {
     new Date(value).toISOString() === value;
 }
 
+function validNullableString(value: unknown): boolean {
+  return value === null || typeof value === 'string';
+}
+
+function validNullableId(value: unknown): boolean {
+  return value === null || validId(value);
+}
+
+function validNullableNumber(value: unknown): boolean {
+  return value === null || (typeof value === 'number' && Number.isFinite(value));
+}
+
 function validNullableDate(value: unknown): boolean {
   return value === null || validDate(value);
 }
 
-function validCommitment(value: unknown, nullable = true): boolean {
-  if (nullable && value === null) return true;
+function validKeyedCommitment(value: unknown): boolean {
+  if (value === null) return true;
   if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
   const commitment = value as Record<string, unknown>;
-  return hasExactKeys(commitment, ['redacted', 'sha256', 'byteLength']) &&
+  return hasExactKeys(commitment, ['redacted', 'hmacSha256', 'byteLength']) &&
     commitment.redacted === true &&
-    typeof commitment.sha256 === 'string' &&
-    /^[a-f0-9]{64}$/.test(commitment.sha256) &&
+    typeof commitment.hmacSha256 === 'string' &&
+    /^[a-f0-9]{64}$/.test(commitment.hmacSha256) &&
     Number.isSafeInteger(commitment.byteLength) &&
-    (commitment.byteLength as number) >= 0;
+    Number(commitment.byteLength) >= 0;
 }
 
-function validCommonRecord(
-  value: unknown,
-  keys: readonly string[],
-): value is Record<string, unknown> {
+function exactRecord(value: unknown, keys: readonly string[]): value is Record<string, unknown> {
   return !!value && typeof value === 'object' && !Array.isArray(value) &&
     hasExactKeys(value as Record<string, unknown>, keys);
 }
 
-function validSubmission(value: unknown): value is Record<string, CanonicalValue> {
-  if (!validCommonRecord(value, SUBMISSION_KEYS)) return false;
+function validSubmissionRecord(value: unknown): boolean {
+  if (!exactRecord(value, SUBMISSION_KEYS)) return false;
   return validId(value.id) && validId(value.studentId) &&
-    validEnum(value.subject, Object.values(Subject)) &&
-    validEnum(value.sourceType, Object.values(AssessmentSourceType)) &&
-    validEnum(value.status, Object.values(CopySubmissionStatus)) &&
     validDate(value.createdAt) && validDate(value.updatedAt) &&
-    validNullableId(value.coachId) && validNullableId(value.sourceId) && validNullableId(value.aiJobId) &&
-    validNullableEnum(value.gradeLevel, Object.values(GradeLevel)) &&
-    validCommitment(value.title, false) &&
-    ['description', 'unavailableReason', 'ocrText', 'ocrError', 'mimeType']
-      .every((key) => validCommitment(value[key])) &&
-    validNullableDate(value.unavailableAt) && validCommitment(value.storedFilePath) &&
-    validNullableNumber(value.fileSizeBytes);
+    validNullableId(value.coachId) && validNullableId(value.sourceId) &&
+    validNullableId(value.aiJobId) && typeof value.subject === 'string' &&
+    validNullableString(value.gradeLevel) && typeof value.title === 'string' &&
+    validNullableString(value.description) && typeof value.sourceType === 'string' &&
+    typeof value.status === 'string' && validNullableString(value.unavailableReason) &&
+    validNullableDate(value.unavailableAt) && validNullableString(value.ocrText) &&
+    validNullableString(value.ocrError) && validNullableString(value.storedFilePath) &&
+    validNullableNumber(value.fileSizeBytes) && validNullableString(value.mimeType);
 }
 
-function validPage(value: unknown): value is Record<string, CanonicalValue> {
-  if (!validCommonRecord(value, PAGE_KEYS)) return false;
+function validPageRecord(value: unknown): boolean {
+  if (!exactRecord(value, PAGE_KEYS)) return false;
   return validId(value.id) && validId(value.submissionId) &&
-    validEnum(value.status, Object.values(CopyPageStatus)) &&
-    validEnum(value.documentType, Object.values(CorrectionDocumentType)) &&
     validDate(value.createdAt) && validDate(value.updatedAt) &&
-    Number.isSafeInteger(value.pageNumber) && (value.pageNumber as number) > 0 &&
-    (value.sha256 === null || (typeof value.sha256 === 'string' && /^[a-f0-9]{64}$/.test(value.sha256))) &&
-    validNullableId(value.uploadedById) &&
-    validNullableDate(value.unavailableAt) && validCommitment(value.originalFilePath, false) &&
-    validCommitment(value.convertedFilePaths, false) &&
-    ['unavailableReason', 'originalFilename', 'mimeType', 'ocrText']
-      .every((key) => validCommitment(value[key])) &&
-    ['sizeBytes', 'ocrConfidence', 'width', 'height'].every((key) => validNullableNumber(value[key]));
+    Number.isSafeInteger(value.pageNumber) && Number(value.pageNumber) > 0 &&
+    typeof value.status === 'string' && typeof value.documentType === 'string' &&
+    validNullableString(value.unavailableReason) && validNullableDate(value.unavailableAt) &&
+    typeof value.originalFilePath === 'string' && validNullableString(value.originalFilename) &&
+    validNullableString(value.mimeType) && validNullableNumber(value.sizeBytes) &&
+    validNullableString(value.sha256) && validNullableId(value.uploadedById) &&
+    Array.isArray(value.convertedFilePaths) &&
+    value.convertedFilePaths.every((item) => typeof item === 'string') &&
+    validNullableString(value.ocrText) && validNullableNumber(value.ocrConfidence) &&
+    validNullableNumber(value.width) && validNullableNumber(value.height);
 }
 
-function validReport(value: unknown): value is Record<string, CanonicalValue> {
-  if (!validCommonRecord(value, REPORT_KEYS)) return false;
+function validReportRecord(value: unknown): boolean {
+  if (value === null) return true;
+  if (!exactRecord(value, REPORT_KEYS)) return false;
   return validId(value.id) && validId(value.studentId) &&
-    validEnum(value.status, Object.values(PedagogicalReportStatus)) &&
-    validEnum(value.visibility, Object.values(ReportVisibility)) &&
     validDate(value.createdAt) && validDate(value.updatedAt) &&
     validNullableId(value.copySubmissionId) && validNullableId(value.coachId) &&
-    validCommitment(value.diagnostic, false) && validCommitment(value.rawAiOutput) &&
-    validCommitment(value.validatedAiOutput) &&
-    validCommitment(value.strengths, false) && validCommitment(value.weaknesses, false) &&
-    validCommitment(value.coachNotes) && validCommitment(value.studentSummary) &&
-    validNullableDate(value.sentToStudentAt) && validNullableDate(value.readByStudentAt);
+    typeof value.status === 'string' && typeof value.visibility === 'string' &&
+    validKeyedCommitment(value.diagnostic) &&
+    Array.isArray(value.strengths) && value.strengths.every((item) => typeof item === 'string') &&
+    Array.isArray(value.weaknesses) && value.weaknesses.every((item) => typeof item === 'string') &&
+    validKeyedCommitment(value.rawAiOutput) && validKeyedCommitment(value.validatedAiOutput) &&
+    validNullableDate(value.sentToStudentAt) && validNullableDate(value.readByStudentAt) &&
+    validNullableString(value.coachNotes) && validNullableString(value.studentSummary);
 }
 
-function validJob(value: unknown): value is Record<string, CanonicalValue> {
-  if (!validCommonRecord(value, JOB_KEYS)) return false;
-  return validId(value.id) &&
-    validEnum(value.type, Object.values(AiJobType)) &&
-    validEnum(value.status, Object.values(AiJobStatus)) &&
-    validEnum(value.priority, Object.values(AiJobPriority)) &&
-    validDate(value.createdAt) && validDate(value.updatedAt) &&
-    validNullableId(value.copySubmissionId) &&
-    validCommitment(value.inputData) && validCommitment(value.outputData) && validCommitment(value.errorMessage) &&
-    validCommitment(value.claimedBy) && validCommitment(value.chutesRequestId) && validCommitment(value.modelVersion) &&
-    Number.isSafeInteger(value.retryCount) && Number.isSafeInteger(value.maxRetries) &&
-    ['claimedAt', 'startedAt', 'completedAt', 'nextRetryAt'].every((key) => validNullableDate(value[key])) &&
-    ['processingDurationMs', 'tokensUsed'].every((key) => validNullableNumber(value[key]));
+function validJobRecord(value: unknown): boolean {
+  if (value === null) return true;
+  if (!exactRecord(value, JOB_KEYS)) return false;
+  return validId(value.id) && validDate(value.createdAt) && validDate(value.updatedAt) &&
+    typeof value.type === 'string' && typeof value.status === 'string' &&
+    typeof value.priority === 'string' && validNullableId(value.copySubmissionId) &&
+    validKeyedCommitment(value.inputData) && validKeyedCommitment(value.outputData) &&
+    validKeyedCommitment(value.errorMessage) && Number.isSafeInteger(value.retryCount) &&
+    Number.isSafeInteger(value.maxRetries) && validNullableDate(value.claimedAt) &&
+    validNullableString(value.claimedBy) && validNullableDate(value.startedAt) &&
+    validNullableDate(value.completedAt) && validNullableDate(value.nextRetryAt) &&
+    validNullableNumber(value.processingDurationMs) &&
+    validNullableString(value.chutesRequestId) && validNullableNumber(value.tokensUsed) &&
+    validNullableString(value.modelVersion);
 }
 
-function validAudit(value: unknown): value is Record<string, CanonicalValue> {
-  if (!validCommonRecord(value, AUDIT_KEYS)) return false;
-  return validId(value.id) && validId(value.actorId) && validId(value.entityId) &&
-    validDate(value.createdAt) && validNullableId(value.reportId) &&
-    validCommitment(value.action, false) && validCommitment(value.actorRole, false) &&
-    validCommitment(value.entityType, false) && validCommitment(value.details);
+function validAuditRecord(value: unknown): boolean {
+  if (!exactRecord(value, AUDIT_KEYS)) return false;
+  return validId(value.id) && validDate(value.createdAt) && validNullableId(value.reportId) &&
+    typeof value.action === 'string' && validId(value.actorId) &&
+    typeof value.actorRole === 'string' && typeof value.entityType === 'string' &&
+    validId(value.entityId) && validKeyedCommitment(value.details);
 }
 
-function validateOperation(value: unknown): TombstoneExportEnvelope['payload']['operation'] {
-  if (!validCommonRecord(value, ['operationKey', 'auditId', 'arguments', 'generatedAt'])) {
-    invalidExport('Export operation shape is invalid.');
+function canonicalBase64(value: unknown, expectedBytes?: number): Buffer {
+  if (typeof value !== 'string' || value.length === 0) invalidExport('Encrypted value is invalid.');
+  const bytes = Buffer.from(value, 'base64');
+  if (bytes.toString('base64') !== value || (expectedBytes !== undefined && bytes.length !== expectedBytes)) {
+    invalidExport('Encrypted value encoding is invalid.');
   }
-  const operation = value as Record<string, unknown>;
-  if (!validCommonRecord(operation.arguments, OPERATION_ARGUMENT_KEYS)) {
-    invalidExport('Export operation arguments are invalid.');
+  return bytes;
+}
+
+function validateDecryptedPayload(
+  value: unknown,
+  crypto: TombstoneCryptoContext,
+): TombstoneExportPayload {
+  const payload = record(value, 'payload');
+  if (!hasExactKeys(payload, ['protocolVersion', 'operation', 'snapshot'])) {
+    invalidExport('Payload shape is invalid.');
   }
-  const fields = operation.arguments as unknown as TombstoneOperationKeyFields;
+  if (payload.protocolVersion !== NPC_TOMBSTONE_PROTOCOL_VERSION) {
+    invalidExport('Payload protocol is invalid.');
+  }
+  const operation = record(payload.operation, 'operation');
+  if (!hasExactKeys(operation, ['operationKey', 'auditId', 'arguments', 'generatedAt'])) {
+    invalidExport('Operation shape is invalid.');
+  }
+  const fields = record(operation.arguments, 'operation arguments') as unknown as TombstoneOperationKeyFields;
   if (
+    !hasExactKeys(fields as unknown as Record<string, unknown>, OPERATION_FIELD_KEYS) ||
     fields.protocolVersion !== NPC_TOMBSTONE_PROTOCOL_VERSION ||
     !validId(fields.submissionId) ||
     !TOMBSTONE_INITIAL_STATUSES.includes(fields.expectedInitialStatus) ||
@@ -786,157 +660,327 @@ function validateOperation(value: unknown): TombstoneExportEnvelope['payload']['
     !validId(fields.expectedReportId) ||
     !TOMBSTONE_REPORT_STATUSES.includes(fields.expectedReportStatus) ||
     !TOMBSTONE_REPORT_VISIBILITIES.includes(fields.expectedReportVisibility) ||
-    typeof fields.reason !== 'string' ||
+    fields.reasonCode !== NPC_TOMBSTONE_REASON_CODE ||
+    fields.reason !== NPC_TOMBSTONE_REASON ||
     !validId(fields.actorId) ||
-    !TOMBSTONE_ACTOR_ROLES.includes(fields.actorRole) ||
-    !validDate(operation.generatedAt)
+    !TOMBSTONE_ACTOR_ROLES.includes(fields.actorRole)
   ) {
-    invalidExport('Export operation values are invalid.');
+    invalidExport('Operation arguments are invalid.');
   }
-  validateTombstoneReason(fields.reason);
-  const identity = buildTombstoneOperationIdentity({
+  const args = {
     ...fields,
-    exportFile: '/validated/export.json',
-  });
-  if (operation.operationKey !== identity.operationKey || operation.auditId !== identity.auditId) {
-    invalidExport('Export operation identity is invalid.');
-  }
-  return operation as unknown as TombstoneExportEnvelope['payload']['operation'];
-}
-
-function validateSnapshot(value: unknown): TombstoneSnapshot {
-  if (!validCommonRecord(value, ['submission', 'pages', 'report', 'job', 'audits', 'snapshotSha256'])) {
-    invalidExport('Export snapshot shape is invalid.');
-  }
-  const snapshot = value as unknown as TombstoneSnapshot;
+    version: 1 as const,
+    exportRoot: '/validated',
+  } as TombstoneArguments;
+  const identity = buildTombstoneOperationIdentity(args);
   if (
-    !validSubmission(snapshot.submission) ||
+    operation.operationKey !== identity.operationKey ||
+    operation.auditId !== identity.auditId ||
+    canonicalJson(fields) !== canonicalJson(identity.fields) ||
+    typeof operation.generatedAt !== 'string' ||
+    new Date(operation.generatedAt).toISOString() !== operation.generatedAt
+  ) {
+    invalidExport('Operation identity is invalid.');
+  }
+  const snapshot = record(payload.snapshot, 'snapshot');
+  if (!hasExactKeys(snapshot, [
+    'submission', 'pages', 'report', 'job', 'audits', 'snapshotHmacSha256',
+  ])) {
+    invalidExport('Snapshot shape is invalid.');
+  }
+  if (
     !Array.isArray(snapshot.pages) ||
-    snapshot.pages.length === 0 ||
-    !snapshot.pages.every(validPage) ||
-    !validReport(snapshot.report) ||
-    !validJob(snapshot.job) ||
     !Array.isArray(snapshot.audits) ||
-    !snapshot.audits.every(validAudit) ||
-    !/^[a-f0-9]{64}$/.test(snapshot.snapshotSha256)
+    typeof snapshot.snapshotHmacSha256 !== 'string' ||
+    !validSubmissionRecord(snapshot.submission) ||
+    !snapshot.pages.every(validPageRecord) ||
+    !validReportRecord(snapshot.report) ||
+    !validJobRecord(snapshot.job) ||
+    !snapshot.audits.every(validAuditRecord)
   ) {
-    invalidExport('Export snapshot records are incomplete.');
+    invalidExport('Snapshot collections are invalid.');
   }
-  const submissionId = snapshot.submission.id;
-  const reportId = snapshot.report.id;
-  const pageIds = new Set(snapshot.pages.map((page) => page.id));
-  if (
-    new Set(snapshot.pages.map((page) => page.pageNumber)).size !== snapshot.pages.length ||
-    snapshot.pages.some((page) => page.submissionId !== submissionId) ||
-    snapshot.report.copySubmissionId !== submissionId ||
-    snapshot.job.copySubmissionId !== submissionId ||
-    snapshot.submission.aiJobId !== snapshot.job.id ||
-    snapshot.audits.some((audit) =>
-      audit.entityId !== submissionId &&
-      audit.entityId !== reportId &&
-      !pageIds.has(audit.entityId) &&
-      audit.reportId !== reportId)
-  ) {
-    invalidExport('Export snapshot links are inconsistent.');
+  const { snapshotHmacSha256, ...snapshotContent } = snapshot;
+  const expected = hmac(crypto.commitmentKey, 'snapshot', canonicalJson(snapshotContent));
+  if (!safeHexEqual(snapshotHmacSha256, expected)) {
+    tombstoneError('NPC_TOMBSTONE_EXPORT_AUTH_FAILED', 'Snapshot authentication failed.');
   }
-  const { snapshotSha256, ...content } = snapshot;
-  if (sha256(canonicalJson(snapshotContent(content))) !== snapshotSha256) {
-    tombstoneError('NPC_TOMBSTONE_EXPORT_HASH_MISMATCH', 'Snapshot hash does not match.');
-  }
-  return snapshot;
+  return value as TombstoneExportPayload;
 }
 
-function validateEnvelope(value: unknown): TombstoneExportEnvelope {
-  if (!validCommonRecord(value, ['format', 'version', 'payload', 'payloadSha256'])) {
-    invalidExport('Export envelope shape is invalid.');
-  }
-  const source = value as Record<string, unknown>;
-  if (
-    source.format !== 'nexus-npc-tombstone-export' ||
-    source.version !== 1 ||
-    !validCommonRecord(source.payload, ['protocolVersion', 'operation', 'snapshot']) ||
-    typeof source.payloadSha256 !== 'string' ||
-    !/^[a-f0-9]{64}$/.test(source.payloadSha256)
-  ) {
-    invalidExport('Export envelope is not supported.');
-  }
-  const payload = source.payload as Record<string, unknown>;
-  if (payload.protocolVersion !== NPC_TOMBSTONE_PROTOCOL_VERSION) {
-    invalidExport('Export protocol is not supported.');
-  }
-  validateOperation(payload.operation);
-  validateSnapshot(payload.snapshot);
-  if (sha256(canonicalJson(payload)) !== source.payloadSha256) {
-    tombstoneError('NPC_TOMBSTONE_EXPORT_HASH_MISMATCH', 'Export payload hash does not match.');
-  }
-  return value as unknown as TombstoneExportEnvelope;
+function safeHexEqual(left: unknown, right: string): boolean {
+  if (typeof left !== 'string' || !/^[a-f0-9]{64}$/.test(left)) return false;
+  return timingSafeEqual(Buffer.from(left, 'hex'), Buffer.from(right, 'hex'));
 }
 
-async function assertOpenedFile(
-  context: TrustedExportParent,
-  handle: Awaited<ReturnType<typeof open>>,
+export function decryptAndVerifyTombstoneEnvelope(
+  value: unknown,
+  crypto: TombstoneCryptoContext,
+): TombstoneExportPayload {
+  const envelope = record(value, 'envelope');
+  if (!hasExactKeys(envelope, [
+    'format', 'version', 'metadata', 'iv', 'authTag', 'ciphertext',
+    'ciphertextChecksumSha256',
+  ])) {
+    invalidExport('Envelope shape is invalid.');
+  }
+  const metadata = record(envelope.metadata, 'metadata');
+  if (
+    envelope.format !== 'nexus-npc-tombstone-export' ||
+    envelope.version !== 2 ||
+    !hasExactKeys(metadata, ['algorithm', 'keyVersion', 'operationDigest', 'encoding']) ||
+    metadata.algorithm !== 'aes-256-gcm' ||
+    metadata.keyVersion !== crypto.keyVersion ||
+    metadata.encoding !== 'base64' ||
+    typeof metadata.operationDigest !== 'string' ||
+    !/^[a-f0-9]{64}$/.test(metadata.operationDigest)
+  ) {
+    invalidExport('Envelope metadata is invalid.');
+  }
+  const ciphertext = canonicalBase64(envelope.ciphertext);
+  if (!safeHexEqual(envelope.ciphertextChecksumSha256, sha256(ciphertext))) {
+    tombstoneError('NPC_TOMBSTONE_EXPORT_CHECKSUM_MISMATCH', 'Ciphertext checksum does not match.');
+  }
+  try {
+    const decipher = createDecipheriv(
+      'aes-256-gcm',
+      crypto.encryptionKey,
+      canonicalBase64(envelope.iv, 12),
+    );
+    decipher.setAAD(Buffer.from(canonicalJson(metadata), 'utf8'));
+    decipher.setAuthTag(canonicalBase64(envelope.authTag, 16));
+    const plaintext = Buffer.concat([decipher.update(ciphertext), decipher.final()]);
+    const parsed = JSON.parse(plaintext.toString('utf8')) as unknown;
+    if (Buffer.from(canonicalJson(parsed), 'utf8').compare(plaintext) !== 0) {
+      invalidExport('Decrypted payload is not canonically serialized.');
+    }
+    const payload = validateDecryptedPayload(parsed, crypto);
+    if (payload.operation.operationKey !== `npc-tombstone-v1:${metadata.operationDigest}`) {
+      tombstoneError('NPC_TOMBSTONE_EXPORT_OPERATION_MISMATCH', 'Artifact identity does not match.');
+    }
+    return payload;
+  } catch (error) {
+    if (error && typeof error === 'object' && 'code' in error &&
+      String(error.code).startsWith('NPC_TOMBSTONE_')) throw error;
+    tombstoneError('NPC_TOMBSTONE_EXPORT_AUTH_FAILED', 'Artifact authentication failed.');
+  }
+}
+
+export function canonicalizeTombstonePath(filePath: string): string {
+  if (!isAbsolute(filePath) || filePath.includes('\0')) {
+    tombstoneError('NPC_TOMBSTONE_EXPORT_PATH_INVALID', 'Path must be absolute and canonical.');
+  }
+  const segments = filePath.split('/');
+  if (
+    segments[0] !== '' ||
+    segments.length < 2 ||
+    segments.slice(1).some((segment) => segment === '' || segment === '.' || segment === '..')
+  ) {
+    tombstoneError('NPC_TOMBSTONE_EXPORT_PATH_INVALID', 'Path contains an unsafe raw segment.');
+  }
+  return `/${segments.slice(1).join('/')}`;
+}
+
+export function tombstoneArtifactPath(args: TombstoneArguments): string {
+  const root = canonicalizeTombstonePath(args.exportRoot);
+  return join(root, `${buildTombstoneOperationIdentity(args).sha256}.json`);
+}
+
+interface TrustedParent {
+  canonicalFilePath: string;
+  canonicalParentPath: string;
+  entryPath: string;
+  parent: FileHandle;
+  handles: FileHandle[];
+}
+
+function descriptorPath(handle: FileHandle): string {
+  return `/proc/${process.pid}/fd/${handle.fd}`;
+}
+
+function nodeError(error: unknown, code: string): boolean {
+  return !!error && typeof error === 'object' && 'code' in error && error.code === code;
+}
+
+async function verifyDirectory(
+  handle: FileHandle,
+  expectedPath: string,
+  finalParent: boolean,
 ): Promise<void> {
-  await verifyDirectoryHandle(
-    context.parent,
-    context.canonicalParentPath,
-    context.trustedUid,
-    true,
-  );
-  const [descriptorStats, namedStats] = await Promise.all([
-    handle.stat(),
-    lstat(context.entryPath),
-  ]);
-  if (
-    !descriptorStats.isFile() ||
-    !namedStats.isFile() ||
-    namedStats.isSymbolicLink() ||
-    descriptorStats.dev !== namedStats.dev ||
-    descriptorStats.ino !== namedStats.ino
-  ) {
-    tombstoneError('NPC_TOMBSTONE_EXPORT_SYMLINK', 'Export path is not a stable regular file.');
+  const descriptorStats = await handle.stat();
+  if (!descriptorStats.isDirectory()) {
+    tombstoneError('NPC_TOMBSTONE_EXPORT_PARENT_INVALID', 'A parent is not a directory.');
   }
-  if ((descriptorStats.mode & 0o777) !== 0o600) {
-    tombstoneError('NPC_TOMBSTONE_EXPORT_PERMISSIONS', 'Export file must have mode 0600.');
+  if (descriptorStats.uid !== 0) {
+    tombstoneError('NPC_TOMBSTONE_EXPORT_PARENT_OWNER', 'Every parent must be root-owned.');
   }
-  if (descriptorStats.uid !== context.trustedUid) {
-    tombstoneError('NPC_TOMBSTONE_EXPORT_OWNER', 'Export file has an untrusted owner.');
+  if ((Number(descriptorStats.mode) & (finalParent ? 0o077 : 0o022)) !== 0) {
+    tombstoneError(
+      'NPC_TOMBSTONE_EXPORT_PARENT_PERMISSIONS',
+      'The artifact parent permissions are not restricted enough.',
+    );
+  }
+  try {
+    const [resolved, named] = await Promise.all([
+      realpath(descriptorPath(handle)),
+      lstat(expectedPath),
+    ]);
+    if (
+      resolved !== expectedPath ||
+      named.isSymbolicLink() ||
+      named.dev !== descriptorStats.dev ||
+      named.ino !== descriptorStats.ino
+    ) {
+      tombstoneError('NPC_TOMBSTONE_EXPORT_PARENT_CHANGED', 'A parent changed during verification.');
+    }
+  } catch (error) {
+    if (error && typeof error === 'object' && 'code' in error &&
+      String(error.code).startsWith('NPC_TOMBSTONE_')) throw error;
+    tombstoneError('NPC_TOMBSTONE_EXPORT_PARENT_CHANGED', 'A parent changed during verification.');
   }
 }
 
-async function readEntireHandle(
-  handle: Awaited<ReturnType<typeof open>>,
-): Promise<Buffer> {
+async function closeAll(handles: FileHandle[]): Promise<void> {
+  for (const handle of [...handles].reverse()) await handle.close().catch(() => undefined);
+}
+
+async function openTrustedParent(filePath: string): Promise<TrustedParent> {
+  const canonicalFilePath = canonicalizeTombstonePath(filePath);
+  const segments = canonicalFilePath.slice(1).split('/');
+  const filename = segments.pop();
+  if (!filename) invalidExport('Filename is missing.');
+  const handles: FileHandle[] = [];
+  let expectedPath = '/';
+  try {
+    let parent = await open('/', constants.O_RDONLY | constants.O_DIRECTORY | constants.O_NOFOLLOW);
+    handles.push(parent);
+    await verifyDirectory(parent, '/', segments.length === 0);
+    for (let index = 0; index < segments.length; index += 1) {
+      const segment = segments[index];
+      expectedPath = join(expectedPath, segment);
+      try {
+        parent = await open(
+          join(descriptorPath(parent), segment),
+          constants.O_RDONLY | constants.O_DIRECTORY | constants.O_NOFOLLOW,
+        );
+      } catch (error) {
+        if (nodeError(error, 'ELOOP') || nodeError(error, 'ENOTDIR')) {
+          tombstoneError('NPC_TOMBSTONE_EXPORT_SYMLINK', 'Symbolic links are forbidden.');
+        }
+        if (nodeError(error, 'ENOENT')) {
+          tombstoneError('NPC_TOMBSTONE_EXPORT_PARENT_INVALID', 'Parent does not exist.');
+        }
+        throw error;
+      }
+      handles.push(parent);
+      await verifyDirectory(parent, expectedPath, index === segments.length - 1);
+    }
+    await verifyDirectory(parent, expectedPath, true);
+    return {
+      canonicalFilePath,
+      canonicalParentPath: expectedPath,
+      entryPath: join(descriptorPath(parent), filename),
+      parent,
+      handles,
+    };
+  } catch (error) {
+    await closeAll(handles);
+    throw error;
+  }
+}
+
+async function withTrustedParent<T>(
+  filePath: string,
+  callback: (context: TrustedParent) => Promise<T>,
+): Promise<T> {
+  const context = await openTrustedParent(filePath);
+  try {
+    return await callback(context);
+  } finally {
+    await closeAll(context.handles);
+  }
+}
+
+async function assertOpenedFile(context: TrustedParent, handle: FileHandle): Promise<void> {
+  await verifyDirectory(context.parent, context.canonicalParentPath, true);
+  const [descriptor, named] = await Promise.all([handle.stat(), lstat(context.entryPath)]);
+  if (
+    !descriptor.isFile() ||
+    !named.isFile() ||
+    named.isSymbolicLink() ||
+    descriptor.dev !== named.dev ||
+    descriptor.ino !== named.ino
+  ) {
+    tombstoneError('NPC_TOMBSTONE_EXPORT_SYMLINK', 'Artifact is not a stable regular file.');
+  }
+  if (descriptor.uid !== 0) {
+    tombstoneError('NPC_TOMBSTONE_EXPORT_OWNER', 'Artifact must be root-owned.');
+  }
+  if ((Number(descriptor.mode) & 0o777) !== 0o600) {
+    tombstoneError('NPC_TOMBSTONE_EXPORT_PERMISSIONS', 'Artifact must have mode 0600.');
+  }
+}
+
+async function readHandle(handle: FileHandle, maximumBytes = 32 * 1024 * 1024): Promise<Buffer> {
   const stats = await handle.stat();
-  if (!Number.isSafeInteger(stats.size) || stats.size <= 0 || stats.size > 32 * 1024 * 1024) {
-    tombstoneError('NPC_TOMBSTONE_EXPORT_INVALID', 'Export file size is invalid.');
+  if (!Number.isSafeInteger(stats.size) || stats.size <= 0 || stats.size > maximumBytes) {
+    invalidExport('File size is invalid.');
   }
   const bytes = Buffer.alloc(stats.size);
   let offset = 0;
   while (offset < bytes.length) {
-    const { bytesRead } = await handle.read(bytes, offset, bytes.length - offset, offset);
-    if (bytesRead === 0) {
-      tombstoneError('NPC_TOMBSTONE_EXPORT_INVALID', 'Export ended during verified readback.');
-    }
-    offset += bytesRead;
+    const result = await handle.read(bytes, offset, bytes.length - offset, offset);
+    if (result.bytesRead === 0) invalidExport('File ended during readback.');
+    offset += result.bytesRead;
   }
   return bytes;
 }
 
-function parseVerifiedBytes(
+export async function readSecureRootOwnedJson(filePath: string): Promise<unknown> {
+  return withTrustedParent(filePath, async (context) => {
+    let handle: FileHandle;
+    try {
+      handle = await open(context.entryPath, constants.O_RDONLY | constants.O_NOFOLLOW);
+    } catch (error) {
+      if (nodeError(error, 'ELOOP')) {
+        tombstoneError('NPC_TOMBSTONE_EXPORT_SYMLINK', 'Symbolic links are forbidden.');
+      }
+      throw error;
+    }
+    try {
+      await assertOpenedFile(context, handle);
+      const bytes = await readHandle(handle, 64 * 1024);
+      try {
+        return JSON.parse(bytes.toString('utf8')) as unknown;
+      } catch {
+        tombstoneError('NPC_TOMBSTONE_REQUEST_INVALID', 'Request manifest is not valid JSON.');
+      }
+    } finally {
+      await handle.close();
+    }
+  });
+}
+
+function parseArtifactBytes(
   bytes: Buffer,
   canonicalFilePath: string,
+  crypto: TombstoneCryptoContext,
 ): VerifiedTombstoneExport {
   let parsed: unknown;
   try {
-    parsed = JSON.parse(bytes.toString('utf8'));
+    parsed = JSON.parse(bytes.toString('utf8')) as unknown;
   } catch {
-    tombstoneError('NPC_TOMBSTONE_EXPORT_INVALID', 'Export is not valid JSON.');
+    invalidExport('Artifact is not JSON.');
   }
-  const envelope = validateEnvelope(parsed);
+  if (!bytes.equals(Buffer.from(`${canonicalJson(parsed)}\n`, 'utf8'))) {
+    invalidExport('Artifact bytes are not the exact canonical serialization.');
+  }
+  const payload = decryptAndVerifyTombstoneEnvelope(parsed, crypto);
   return {
-    envelope,
+    envelope: parsed as TombstoneExportEnvelope,
+    payload,
     bytes,
-    payloadSha256: envelope.payloadSha256,
+    artifactChecksumSha256: sha256(bytes),
     canonicalFilePath,
   };
 }
@@ -944,56 +988,35 @@ function parseVerifiedBytes(
 export async function writeVerifiedTombstoneExport(
   filePath: string,
   envelope: TombstoneExportEnvelope,
-  options: TombstoneExportSecurityOptions = {},
+  crypto: TombstoneCryptoContext,
 ): Promise<VerifiedTombstoneExport> {
-  return withTrustedExportParent(filePath, options, async (context) => {
+  return withTrustedParent(filePath, async (context) => {
+    let handle: FileHandle;
     try {
-      const existing = await lstat(context.entryPath);
-      if (existing.isSymbolicLink()) {
-        tombstoneError('NPC_TOMBSTONE_EXPORT_SYMLINK', 'Export destination is a symbolic link.');
-      }
-      tombstoneError('NPC_TOMBSTONE_EXPORT_EXISTS', 'Export destination already exists.');
+      handle = await open(
+        context.entryPath,
+        constants.O_RDWR | constants.O_CREAT | constants.O_EXCL | constants.O_NOFOLLOW,
+        0o600,
+      );
     } catch (error) {
-      if (!isNodeError(error, 'ENOENT')) throw error;
-    }
-
-    const flags = constants.O_RDWR | constants.O_CREAT | constants.O_EXCL | constants.O_NOFOLLOW;
-    let handle: Awaited<ReturnType<typeof open>>;
-    try {
-      handle = await open(context.entryPath, flags, 0o600);
-    } catch (error) {
-      if (isNodeError(error, 'ELOOP')) {
-        tombstoneError('NPC_TOMBSTONE_EXPORT_SYMLINK', 'Export destination is a symbolic link.');
+      if (nodeError(error, 'EEXIST')) {
+        tombstoneError('NPC_TOMBSTONE_EXPORT_EXISTS', 'Artifact already exists.');
       }
-      if (isNodeError(error, 'EEXIST')) {
-        tombstoneError('NPC_TOMBSTONE_EXPORT_EXISTS', 'Export destination already exists.');
+      if (nodeError(error, 'ELOOP')) {
+        tombstoneError('NPC_TOMBSTONE_EXPORT_SYMLINK', 'Symbolic links are forbidden.');
       }
       throw error;
     }
-    options.onFileOpened?.(flags);
-
     try {
       await handle.chmod(0o600);
-      const bytes = Buffer.from(`${canonicalJson(envelope)}\n`, 'utf8');
-      await handle.writeFile(bytes);
+      const expected = Buffer.from(`${canonicalJson(envelope)}\n`, 'utf8');
+      await handle.writeFile(expected);
       await handle.sync();
-      options.onFileSynced?.();
       await assertOpenedFile(context, handle);
-      const persistedBytes = await readEntireHandle(handle);
-      const verified = parseVerifiedBytes(
-        persistedBytes,
-        context.canonicalFilePath,
-      );
-      if (!persistedBytes.equals(bytes)) {
-        tombstoneError('NPC_TOMBSTONE_EXPORT_INVALID', 'Export changed during physical verification.');
-      }
-
-      await verifyDirectoryHandle(
-        context.parent,
-        context.canonicalParentPath,
-        context.trustedUid,
-        true,
-      );
+      const bytes = await readHandle(handle);
+      if (!bytes.equals(expected)) invalidExport('Artifact changed during verification.');
+      const verified = parseArtifactBytes(bytes, context.canonicalFilePath, crypto);
+      await verifyDirectory(context.parent, context.canonicalParentPath, true);
       await context.parent.sync();
       return verified;
     } finally {
@@ -1004,27 +1027,24 @@ export async function writeVerifiedTombstoneExport(
 
 export async function readVerifiedTombstoneExport(
   filePath: string,
-  options: TombstoneExportSecurityOptions = {},
+  crypto: TombstoneCryptoContext,
 ): Promise<VerifiedTombstoneExport> {
-  return withTrustedExportParent(filePath, options, async (context) => {
-    let handle: Awaited<ReturnType<typeof open>>;
+  return withTrustedParent(filePath, async (context) => {
+    let handle: FileHandle;
     try {
-      handle = await open(
-        context.entryPath,
-        constants.O_RDONLY | constants.O_NOFOLLOW,
-      );
+      handle = await open(context.entryPath, constants.O_RDONLY | constants.O_NOFOLLOW);
     } catch (error) {
-      if (isNodeError(error, 'ELOOP')) {
-        tombstoneError('NPC_TOMBSTONE_EXPORT_SYMLINK', 'Export destination is a symbolic link.');
+      if (nodeError(error, 'ENOENT')) {
+        tombstoneError('NPC_TOMBSTONE_ARTIFACT_REQUIRED', 'Canonical artifact is missing.');
+      }
+      if (nodeError(error, 'ELOOP')) {
+        tombstoneError('NPC_TOMBSTONE_EXPORT_SYMLINK', 'Symbolic links are forbidden.');
       }
       throw error;
     }
     try {
       await assertOpenedFile(context, handle);
-      return parseVerifiedBytes(
-        await readEntireHandle(handle),
-        context.canonicalFilePath,
-      );
+      return parseArtifactBytes(await readHandle(handle), context.canonicalFilePath, crypto);
     } finally {
       await handle.close();
     }

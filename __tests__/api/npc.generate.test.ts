@@ -4,6 +4,8 @@
 // ═══════════════════════════════════════════════════════════════════════════════
 
 import { POST } from '@/app/api/npc/submissions/[submissionId]/generate/route';
+import { auth } from '@/auth';
+import { canManageSubmissionDocuments } from '@/lib/npc/access';
 import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { CopySubmissionStatus, UserRole } from '@prisma/client';
@@ -13,6 +15,9 @@ jest.mock('@/auth');
 jest.mock('@/lib/npc/access', () => ({
   canManageSubmissionDocuments: jest.fn(),
 }));
+
+const mockedAuth = auth as jest.Mock;
+const mockedCanManageSubmissionDocuments = canManageSubmissionDocuments as jest.Mock;
 
 describe('POST /api/npc/submissions/[submissionId]/generate', () => {
   beforeEach(() => {
@@ -27,8 +32,7 @@ describe('POST /api/npc/submissions/[submissionId]/generate', () => {
   });
 
   it('returns 401 without session', async () => {
-    const { auth } = require('@/auth');
-    auth.mockResolvedValue(null);
+    mockedAuth.mockResolvedValue(null);
 
     const request = new NextRequest('http://localhost/api/npc/submissions/sub-1/generate', {
       method: 'POST',
@@ -40,8 +44,7 @@ describe('POST /api/npc/submissions/[submissionId]/generate', () => {
   });
 
   it('returns 403 for unauthorized role', async () => {
-    const { auth } = require('@/auth');
-    auth.mockResolvedValue({
+    mockedAuth.mockResolvedValue({
       user: { id: 'user-1', role: UserRole.ELEVE },
     });
 
@@ -52,8 +55,7 @@ describe('POST /api/npc/submissions/[submissionId]/generate', () => {
       pages: [],
     });
 
-    const { canManageSubmissionDocuments } = require('@/lib/npc/access');
-    canManageSubmissionDocuments.mockResolvedValue(false);
+    mockedCanManageSubmissionDocuments.mockResolvedValue(false);
 
     const request = new NextRequest('http://localhost/api/npc/submissions/sub-1/generate', {
       method: 'POST',
@@ -65,15 +67,13 @@ describe('POST /api/npc/submissions/[submissionId]/generate', () => {
   });
 
   it('returns 404 for non-existent submission', async () => {
-    const { auth } = require('@/auth');
-    auth.mockResolvedValue({
+    mockedAuth.mockResolvedValue({
       user: { id: 'user-1', role: UserRole.COACH },
     });
 
     (prisma.copySubmission.findUnique as jest.Mock).mockResolvedValue(null);
 
-    const { canManageSubmissionDocuments } = require('@/lib/npc/access');
-    canManageSubmissionDocuments.mockResolvedValue(true);
+    mockedCanManageSubmissionDocuments.mockResolvedValue(true);
 
     const request = new NextRequest('http://localhost/api/npc/submissions/sub-1/generate', {
       method: 'POST',
@@ -85,8 +85,7 @@ describe('POST /api/npc/submissions/[submissionId]/generate', () => {
   });
 
   it('rejects unsafe submission ids before reading the submission', async () => {
-    const { auth } = require('@/auth');
-    auth.mockResolvedValue({
+    mockedAuth.mockResolvedValue({
       user: { id: 'user-1', role: UserRole.COACH },
     });
 
@@ -104,8 +103,7 @@ describe('POST /api/npc/submissions/[submissionId]/generate', () => {
   });
 
   it('returns 403 if coach not assigned to student', async () => {
-    const { auth } = require('@/auth');
-    auth.mockResolvedValue({
+    mockedAuth.mockResolvedValue({
       user: { id: 'user-1', role: UserRole.COACH },
     });
 
@@ -116,8 +114,7 @@ describe('POST /api/npc/submissions/[submissionId]/generate', () => {
       pages: [],
     });
 
-    const { canManageSubmissionDocuments } = require('@/lib/npc/access');
-    canManageSubmissionDocuments.mockResolvedValue(false);
+    mockedCanManageSubmissionDocuments.mockResolvedValue(false);
 
     const request = new NextRequest('http://localhost/api/npc/submissions/sub-1/generate', {
       method: 'POST',
@@ -129,8 +126,7 @@ describe('POST /api/npc/submissions/[submissionId]/generate', () => {
   });
 
   it('returns 400 if no student copy', async () => {
-    const { auth } = require('@/auth');
-    auth.mockResolvedValue({
+    mockedAuth.mockResolvedValue({
       user: { id: 'user-1', role: UserRole.COACH },
     });
 
@@ -143,8 +139,7 @@ describe('POST /api/npc/submissions/[submissionId]/generate', () => {
       ],
     });
 
-    const { canManageSubmissionDocuments } = require('@/lib/npc/access');
-    canManageSubmissionDocuments.mockResolvedValue(true);
+    mockedCanManageSubmissionDocuments.mockResolvedValue(true);
 
     const request = new NextRequest('http://localhost/api/npc/submissions/sub-1/generate', {
       method: 'POST',
@@ -159,8 +154,7 @@ describe('POST /api/npc/submissions/[submissionId]/generate', () => {
   });
 
   it('returns 201 and creates AI job with valid documents', async () => {
-    const { auth } = require('@/auth');
-    auth.mockResolvedValue({
+    mockedAuth.mockResolvedValue({
       user: { id: 'user-1', role: UserRole.COACH },
     });
 
@@ -174,8 +168,7 @@ describe('POST /api/npc/submissions/[submissionId]/generate', () => {
       ],
     });
 
-    const { canManageSubmissionDocuments } = require('@/lib/npc/access');
-    canManageSubmissionDocuments.mockResolvedValue(true);
+    mockedCanManageSubmissionDocuments.mockResolvedValue(true);
 
     (prisma.aiProcessingJob.create as jest.Mock).mockResolvedValue({
       id: 'job-1',
@@ -203,6 +196,7 @@ describe('POST /api/npc/submissions/[submissionId]/generate', () => {
       data: expect.objectContaining({
         status: 'PENDING',
         priority: 'NORMAL',
+        copySubmissionId: 'sub-1',
       }),
     });
 
@@ -216,8 +210,7 @@ describe('POST /api/npc/submissions/[submissionId]/generate', () => {
   });
 
   it('returns 400 if submission already processing or completed', async () => {
-    const { auth } = require('@/auth');
-    auth.mockResolvedValue({
+    mockedAuth.mockResolvedValue({
       user: { id: 'user-1', role: UserRole.COACH },
     });
 
@@ -231,8 +224,7 @@ describe('POST /api/npc/submissions/[submissionId]/generate', () => {
       ],
     });
 
-    const { canManageSubmissionDocuments } = require('@/lib/npc/access');
-    canManageSubmissionDocuments.mockResolvedValue(true);
+    mockedCanManageSubmissionDocuments.mockResolvedValue(true);
 
     const request = new NextRequest('http://localhost/api/npc/submissions/sub-1/generate', {
       method: 'POST',
@@ -247,8 +239,7 @@ describe('POST /api/npc/submissions/[submissionId]/generate', () => {
   });
 
   it('returns 409 and queues nothing when the locked submission is UNAVAILABLE', async () => {
-    const { auth } = require('@/auth');
-    auth.mockResolvedValue({
+    mockedAuth.mockResolvedValue({
       user: { id: 'user-1', role: UserRole.COACH },
     });
 
@@ -262,8 +253,7 @@ describe('POST /api/npc/submissions/[submissionId]/generate', () => {
         { id: 'doc-1', documentType: 'STUDENT_COPY', status: 'UNAVAILABLE' },
       ],
     });
-    const { canManageSubmissionDocuments } = require('@/lib/npc/access');
-    canManageSubmissionDocuments.mockResolvedValue(true);
+    mockedCanManageSubmissionDocuments.mockResolvedValue(true);
 
     const response = await POST(
       new NextRequest('http://localhost/api/npc/submissions/sub-1/generate', {

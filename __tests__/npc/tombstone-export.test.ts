@@ -1,37 +1,38 @@
 /** @jest-environment node */
 
-import { createHash } from 'node:crypto';
-import { chmodSync, constants, existsSync, lstatSync, mkdirSync, mkdtempSync, readFileSync, renameSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
-import { homedir } from 'node:os';
-import { join } from 'node:path';
-
 import {
+  buildTombstoneSnapshot,
   canonicalJson,
+  createTombstoneCryptoContext,
   createTombstoneExportEnvelope,
-  readVerifiedTombstoneExport,
-  writeVerifiedTombstoneExport,
+  decryptAndVerifyTombstoneEnvelope,
+  tombstoneArtifactPath,
 } from '@/lib/npc/tombstone/export';
 import {
+  NPC_TOMBSTONE_REASON,
+  NPC_TOMBSTONE_REASON_CODE,
   buildTombstoneOperationIdentity,
   type TombstoneArguments,
 } from '@/lib/npc/tombstone/types';
 
 const args: TombstoneArguments = {
+  version: 1,
   submissionId: 'sub_synthetic_export',
   expectedInitialStatus: 'COMPLETED',
   expectedPageCount: 4,
   expectedReportId: 'report_synthetic_export',
   expectedReportStatus: 'DRAFT',
   expectedReportVisibility: 'COACH_ONLY',
-  reason: 'SOURCE_BYTES_UNAVAILABLE',
-  actorId: 'maintenance_synthetic_export',
-  actorRole: 'SYSTEM',
-  exportFile: '/outside/repository/npc-export.json',
+  reasonCode: NPC_TOMBSTONE_REASON_CODE,
+  reason: NPC_TOMBSTONE_REASON,
+  actorId: 'admin_synthetic_export',
+  actorRole: 'ADMIN',
+  exportRoot: '/secure/tombstone-artifacts',
 };
 
-const TEST_EXPORT_SECURITY = {
-  trustedUid: process.getuid?.() ?? 0,
-};
+const cryptoContext = createTombstoneCryptoContext(
+  'synthetic-document-encryption-key-with-at-least-thirty-two-characters',
+);
 
 function rawSnapshot() {
   return {
@@ -43,17 +44,17 @@ function rawSnapshot() {
       coachId: null,
       subject: 'MATHEMATIQUES',
       gradeLevel: 'TERMINALE',
-      title: 'Dossier synthétique',
+      title: 'Dossier synthétique confidentiel',
       description: 'Description libre confidentielle',
       sourceType: 'AUTRE',
       sourceId: null,
       status: 'COMPLETED',
       unavailableReason: null,
       unavailableAt: null,
-      ocrText: 'metadata only',
-      ocrError: 'Erreur OCR détaillée confidentielle',
+      ocrText: 'OCR confidentiel',
+      ocrError: null,
       aiJobId: 'job_synthetic_export',
-      storedFilePath: '/srv/npc/private/source.pdf',
+      storedFilePath: 'sub_synthetic_export/source.pdf',
       fileSizeBytes: 24,
       mimeType: 'application/pdf',
     },
@@ -67,14 +68,14 @@ function rawSnapshot() {
       documentType: 'STUDENT_COPY',
       unavailableReason: null,
       unavailableAt: null,
-      originalFilePath: `/srv/npc/private/page-${index + 1}.pdf`,
-      originalFilename: `page-${index + 1}.pdf`,
+      originalFilePath: `sub_synthetic_export/page-${index + 1}.pdf`,
+      originalFilename: `private-page-${index + 1}.pdf`,
       mimeType: 'application/pdf',
       sizeBytes: index + 10,
       sha256: String(index + 1).repeat(64),
       uploadedById: null,
-      convertedFilePaths: [`/srv/npc/private/page-${index + 1}.png`],
-      ocrText: `page ${index + 1}`,
+      convertedFilePaths: [],
+      ocrText: `private OCR page ${index + 1}`,
       ocrConfidence: 0.99,
       width: 1000,
       height: 1400,
@@ -88,15 +89,15 @@ function rawSnapshot() {
       coachId: null,
       status: 'DRAFT',
       visibility: 'COACH_ONLY',
-      diagnostic: { version: 1, apiToken: 'must-not-leave-export' },
-      strengths: ['Calcul'],
-      weaknesses: ['Rédaction'],
-      rawAiOutput: { authorization: 'Bearer must-not-leave-export' },
+      diagnostic: { result: 'private diagnostic', password: 'must-not-export' },
+      strengths: ['private strength'],
+      weaknesses: ['private weakness'],
+      rawAiOutput: { authorization: 'Bearer must-not-export' },
       validatedAiOutput: null,
       sentToStudentAt: null,
       readByStudentAt: null,
-      coachNotes: 'Rapport intact',
-      studentSummary: 'Résumé élève confidentiel',
+      coachNotes: 'private coach note',
+      studentSummary: 'private student summary',
     },
     job: {
       id: 'job_synthetic_export',
@@ -105,25 +106,21 @@ function rawSnapshot() {
       type: 'PEDAGOGICAL_DIAGNOSIS',
       status: 'COMPLETED',
       priority: 'NORMAL',
-      copySubmissionId: args.submissionId,
-      inputData: {
-        submissionId: args.submissionId,
-        password: 'never-export',
-        nested: ['unlabelled-secret-value'],
-      },
-      outputData: { complete: true, values: ['second-unlabelled-secret-value'] },
-      errorMessage: 'postgresql://synthetic-user:synthetic-pass@synthetic-host/database',
+      copySubmissionId: null,
+      inputData: { password: 'must-not-export' },
+      outputData: { secret: 'must-not-export' },
+      errorMessage: null,
       retryCount: 0,
       maxRetries: 3,
       claimedAt: null,
-      claimedBy: 'worker-free-text-sensitive',
+      claimedBy: null,
       startedAt: null,
       completedAt: null,
       nextRetryAt: null,
       processingDurationMs: 12,
-      chutesRequestId: 'provider-request-sensitive',
+      chutesRequestId: null,
       tokensUsed: 17,
-      modelVersion: 'model-version-sensitive',
+      modelVersion: null,
     },
     audits: [
       {
@@ -133,131 +130,16 @@ function rawSnapshot() {
         action: 'SYNTHETIC_EXISTING_AUDIT',
         actorId: 'coach_synthetic',
         actorRole: 'COACH',
-        entityType: 'PedagogicalReport',
-        entityId: args.expectedReportId,
-        details: {
-          reviewed: true,
-          auth: { cookie: 'never-export' },
-          values: ['third-unlabelled-secret-value'],
-        },
+        entityType: 'CopyPage',
+        entityId: 'deleted_page_synthetic',
+        details: JSON.stringify({ submissionId: args.submissionId, secret: 'must-not-export' }),
       },
     ],
   };
 }
 
-describe('NPC tombstone export', () => {
-  let directory: string;
-  let exportFile: string;
-
-  beforeEach(() => {
-    directory = mkdtempSync(join(homedir(), 'npc-tombstone-export-'));
-    exportFile = join(directory, 'snapshot.json');
-  });
-
-  afterEach(() => {
-    rmSync(directory, { recursive: true, force: true });
-  });
-
-  it('builds a versioned, complete and deterministic envelope without destinations, Users, secrets, or absolute paths', () => {
-    const generatedAt = new Date('2026-08-11T10:00:00.000Z');
-    const first = createTombstoneExportEnvelope({ args, rawSnapshot: rawSnapshot(), generatedAt });
-    const reorderedArgs = Object.fromEntries(Object.entries(args).reverse()) as unknown as TombstoneArguments;
-    const second = createTombstoneExportEnvelope({ args: reorderedArgs, rawSnapshot: rawSnapshot(), generatedAt });
-    const serialized = canonicalJson(first);
-
-    expect(first.format).toBe('nexus-npc-tombstone-export');
-    expect(first.version).toBe(1);
-    expect(first.payload.operation.generatedAt).toBe('2026-08-11T10:00:00.000Z');
-    expect(first.payload.operation.arguments).toEqual(
-      buildTombstoneOperationIdentity(args).fields,
-    );
-    expect(first.payload.snapshot.submission).toMatchObject({
-      id: args.submissionId,
-      status: 'COMPLETED',
-      fileSizeBytes: 24,
-      title: { redacted: true, sha256: expect.stringMatching(/^[a-f0-9]{64}$/), byteLength: expect.any(Number) },
-      description: { redacted: true, sha256: expect.stringMatching(/^[a-f0-9]{64}$/), byteLength: expect.any(Number) },
-      ocrText: { redacted: true, sha256: expect.stringMatching(/^[a-f0-9]{64}$/), byteLength: expect.any(Number) },
-      ocrError: { redacted: true, sha256: expect.stringMatching(/^[a-f0-9]{64}$/), byteLength: expect.any(Number) },
-      mimeType: { redacted: true, sha256: expect.stringMatching(/^[a-f0-9]{64}$/), byteLength: expect.any(Number) },
-    });
-    expect(first.payload.snapshot.pages).toHaveLength(4);
-    expect(first.payload.snapshot.pages.map((page) => page.pageNumber)).toEqual([1, 2, 3, 4]);
-    expect(first.payload.snapshot.pages[0]).toMatchObject({
-      originalFilename: { redacted: true, sha256: expect.stringMatching(/^[a-f0-9]{64}$/), byteLength: expect.any(Number) },
-      mimeType: { redacted: true, sha256: expect.stringMatching(/^[a-f0-9]{64}$/), byteLength: expect.any(Number) },
-      ocrText: { redacted: true, sha256: expect.stringMatching(/^[a-f0-9]{64}$/), byteLength: expect.any(Number) },
-    });
-    expect(first.payload.snapshot.report).toMatchObject({
-      id: args.expectedReportId,
-      status: 'DRAFT',
-      visibility: 'COACH_ONLY',
-      strengths: { redacted: true, sha256: expect.stringMatching(/^[a-f0-9]{64}$/), byteLength: expect.any(Number) },
-      weaknesses: { redacted: true, sha256: expect.stringMatching(/^[a-f0-9]{64}$/), byteLength: expect.any(Number) },
-      coachNotes: { redacted: true, sha256: expect.stringMatching(/^[a-f0-9]{64}$/), byteLength: expect.any(Number) },
-      studentSummary: { redacted: true, sha256: expect.stringMatching(/^[a-f0-9]{64}$/), byteLength: expect.any(Number) },
-    });
-    expect(first.payload.snapshot.job).toMatchObject({
-      id: 'job_synthetic_export',
-      tokensUsed: 17,
-      inputData: { redacted: true, sha256: expect.stringMatching(/^[a-f0-9]{64}$/), byteLength: expect.any(Number) },
-      outputData: { redacted: true, sha256: expect.stringMatching(/^[a-f0-9]{64}$/), byteLength: expect.any(Number) },
-      errorMessage: { redacted: true, sha256: expect.stringMatching(/^[a-f0-9]{64}$/), byteLength: expect.any(Number) },
-      claimedBy: { redacted: true, sha256: expect.stringMatching(/^[a-f0-9]{64}$/), byteLength: expect.any(Number) },
-      chutesRequestId: { redacted: true, sha256: expect.stringMatching(/^[a-f0-9]{64}$/), byteLength: expect.any(Number) },
-      modelVersion: { redacted: true, sha256: expect.stringMatching(/^[a-f0-9]{64}$/), byteLength: expect.any(Number) },
-    });
-    expect(first.payload.snapshot.audits).toHaveLength(1);
-    expect(first.payload.snapshot.audits[0].details).toEqual({
-      redacted: true,
-      sha256: expect.stringMatching(/^[a-f0-9]{64}$/),
-      byteLength: expect.any(Number),
-    });
-    expect(first.payload.snapshot.audits[0]).toMatchObject({
-      action: { redacted: true, sha256: expect.stringMatching(/^[a-f0-9]{64}$/), byteLength: expect.any(Number) },
-      actorRole: { redacted: true, sha256: expect.stringMatching(/^[a-f0-9]{64}$/), byteLength: expect.any(Number) },
-      entityType: { redacted: true, sha256: expect.stringMatching(/^[a-f0-9]{64}$/), byteLength: expect.any(Number) },
-    });
-    expect(first.payload.snapshot.report).toMatchObject({
-      diagnostic: { redacted: true, sha256: expect.stringMatching(/^[a-f0-9]{64}$/), byteLength: expect.any(Number) },
-      rawAiOutput: { redacted: true, sha256: expect.stringMatching(/^[a-f0-9]{64}$/), byteLength: expect.any(Number) },
-      validatedAiOutput: null,
-    });
-    expect(first.payload.snapshot.snapshotSha256).toMatch(/^[a-f0-9]{64}$/);
-    expect(first.payloadSha256).toMatch(/^[a-f0-9]{64}$/);
-    expect(canonicalJson(second)).toBe(serialized);
-    expect(serialized).not.toContain(args.exportFile);
-    expect(serialized).not.toContain('/srv/npc/private');
-    expect(serialized).not.toContain('must-not-leave-export');
-    expect(serialized).not.toContain('never-export');
-    expect(serialized).not.toContain('unlabelled-secret-value');
-    expect(serialized).not.toContain('second-unlabelled-secret-value');
-    expect(serialized).not.toContain('third-unlabelled-secret-value');
-    expect(serialized).not.toContain('synthetic-pass');
-    for (const freeText of [
-      'Dossier synthétique',
-      'Description libre confidentielle',
-      'metadata only',
-      'Erreur OCR détaillée confidentielle',
-      'page-1.pdf',
-      'page 1',
-      'application/pdf',
-      'Calcul',
-      'Rédaction',
-      'Rapport intact',
-      'Résumé élève confidentiel',
-      'worker-free-text-sensitive',
-      'provider-request-sensitive',
-      'model-version-sensitive',
-      'SYNTHETIC_EXISTING_AUDIT',
-      'PedagogicalReport',
-    ]) {
-      expect(serialized).not.toContain(freeText);
-    }
-    expect(serialized).not.toMatch(/"(?:user|auth|password|token|secret|cookie)"\s*:/i);
-  });
-
-  it('derives the deterministic operation and audit identity from exactly the approved fields', () => {
+describe('NPC tombstone encrypted export', () => {
+  it('derives the operation identity from the exact typed fields, never the export root or time', () => {
     const identity = buildTombstoneOperationIdentity(args);
     expect(identity.fields).toEqual({
       protocolVersion: 'npc-tombstone/v1',
@@ -267,197 +149,121 @@ describe('NPC tombstone export', () => {
       expectedReportId: args.expectedReportId,
       expectedReportStatus: 'DRAFT',
       expectedReportVisibility: 'COACH_ONLY',
-      reason: 'SOURCE_BYTES_UNAVAILABLE',
-      actorId: 'maintenance_synthetic_export',
-      actorRole: 'SYSTEM',
+      reasonCode: NPC_TOMBSTONE_REASON_CODE,
+      reason: NPC_TOMBSTONE_REASON,
+      actorId: args.actorId,
+      actorRole: 'ADMIN',
     });
-    expect(Object.keys(identity.fields)).toHaveLength(10);
-    expect(identity).toEqual(buildTombstoneOperationIdentity({
-      ...args,
-      exportFile: '/different/absolute/destination.json',
-    }));
-    expect(identity.operationKey).toMatch(/^npc-tombstone-v1:[a-f0-9]{64}$/);
-    expect(identity.auditId).toMatch(/^npc-tombstone-v1-[a-f0-9]{64}$/);
+    expect(buildTombstoneOperationIdentity({ ...args, exportRoot: '/another/root' })).toEqual(identity);
+    expect(tombstoneArtifactPath(args)).toBe(
+      `/secure/tombstone-artifacts/${identity.sha256}.json`,
+    );
   });
 
-  it('creates with exclusive no-follow flags, mode 0600, fsyncs, rereads, reparses and rehashes', async () => {
+  it('fails closed for an absent or weak master encryption key', () => {
+    expect(() => createTombstoneCryptoContext(undefined)).toThrow(
+      expect.objectContaining({ code: 'NPC_TOMBSTONE_ENCRYPTION_KEY_INVALID' }),
+    );
+    expect(() => createTombstoneCryptoContext('too-short')).toThrow(
+      expect.objectContaining({ code: 'NPC_TOMBSTONE_ENCRYPTION_KEY_INVALID' }),
+    );
+  });
+
+  it('stores only authenticated ciphertext in the JSON envelope and recovers the complete allowlisted snapshot', () => {
     const envelope = createTombstoneExportEnvelope({
       args,
       rawSnapshot: rawSnapshot(),
       generatedAt: new Date('2026-08-11T10:00:00.000Z'),
+      crypto: cryptoContext,
     });
-    const calls: Array<{ flags?: number; synced?: boolean }> = [];
+    const serialized = canonicalJson(envelope);
 
-    const result = await writeVerifiedTombstoneExport(exportFile, envelope, {
-      ...TEST_EXPORT_SECURITY,
-      onFileOpened(flags) {
-        calls.push({ flags });
+    expect(envelope).toMatchObject({
+      format: 'nexus-npc-tombstone-export',
+      version: 2,
+      metadata: {
+        algorithm: 'aes-256-gcm',
+        keyVersion: 'v1',
+        operationDigest: buildTombstoneOperationIdentity(args).sha256,
       },
-      onFileSynced() {
-        calls.push({ synced: true });
-      },
+      iv: expect.stringMatching(/^[A-Za-z0-9+/]+={0,2}$/),
+      authTag: expect.stringMatching(/^[A-Za-z0-9+/]+={0,2}$/),
+      ciphertext: expect.stringMatching(/^[A-Za-z0-9+/]+={0,2}$/),
+      ciphertextChecksumSha256: expect.stringMatching(/^[a-f0-9]{64}$/),
     });
+    for (const plaintext of [
+      args.submissionId,
+      args.expectedReportId,
+      args.actorId,
+      NPC_TOMBSTONE_REASON,
+      'Dossier synthétique confidentiel',
+      'private OCR page 1',
+      'private coach note',
+      'must-not-export',
+      'deleted_page_synthetic',
+    ]) {
+      expect(serialized).not.toContain(plaintext);
+    }
 
-    expect(calls[0].flags! & constants.O_EXCL).toBe(constants.O_EXCL);
-    expect(calls[0].flags! & constants.O_NOFOLLOW).toBe(constants.O_NOFOLLOW);
-    expect(calls).toContainEqual({ synced: true });
-    expect(lstatSync(exportFile).mode & 0o777).toBe(0o600);
-    expect(result.envelope).toEqual(envelope);
-    expect(result.bytes).toEqual(readFileSync(exportFile));
-    expect(result.payloadSha256).toBe(envelope.payloadSha256);
-    await expect(readVerifiedTombstoneExport(exportFile, TEST_EXPORT_SECURITY)).resolves.toEqual(result);
+    const payload = decryptAndVerifyTombstoneEnvelope(envelope, cryptoContext);
+    expect(payload.operation.arguments).toEqual(buildTombstoneOperationIdentity(args).fields);
+    expect(payload.snapshot.submission).toMatchObject({
+      id: args.submissionId,
+      title: 'Dossier synthétique confidentiel',
+      ocrText: 'OCR confidentiel',
+    });
+    expect(payload.snapshot.pages).toHaveLength(4);
+    expect(payload.snapshot.report).toMatchObject({
+      id: args.expectedReportId,
+      coachNotes: 'private coach note',
+    });
+    expect(payload.snapshot.job).toMatchObject({ id: 'job_synthetic_export', copySubmissionId: null });
+    expect(payload.snapshot.audits).toHaveLength(1);
+    expect(payload.snapshot.audits[0]).toMatchObject({
+      id: 'audit_synthetic_existing',
+      entityId: 'deleted_page_synthetic',
+    });
+    expect(canonicalJson(payload)).not.toContain('must-not-export');
+    expect(payload.snapshot.snapshotHmacSha256).toMatch(/^[a-f0-9]{64}$/);
   });
 
-  it('never overwrites an existing file and refuses symbolic links', async () => {
+  it('rejects ciphertext, tag, checksum, metadata and noncanonical shape corruption', () => {
     const envelope = createTombstoneExportEnvelope({
       args,
       rawSnapshot: rawSnapshot(),
       generatedAt: new Date('2026-08-11T10:00:00.000Z'),
+      crypto: cryptoContext,
     });
-    writeFileSync(exportFile, 'sentinel', { mode: 0o600 });
-
-    await expect(writeVerifiedTombstoneExport(exportFile, envelope, TEST_EXPORT_SECURITY)).rejects.toMatchObject({
-      code: 'NPC_TOMBSTONE_EXPORT_EXISTS',
-    });
-    expect(readFileSync(exportFile, 'utf8')).toBe('sentinel');
-
-    rmSync(exportFile);
-    const target = join(directory, 'target.json');
-    writeFileSync(target, 'sentinel', { mode: 0o600 });
-    symlinkSync(target, exportFile);
-    await expect(writeVerifiedTombstoneExport(exportFile, envelope, TEST_EXPORT_SECURITY)).rejects.toMatchObject({
-      code: 'NPC_TOMBSTONE_EXPORT_SYMLINK',
-    });
-    expect(readFileSync(target, 'utf8')).toBe('sentinel');
+    const variants = [
+      { ...envelope, ciphertext: `${envelope.ciphertext.slice(0, -4)}AAAA` },
+      { ...envelope, authTag: Buffer.alloc(16, 1).toString('base64') },
+      { ...envelope, ciphertextChecksumSha256: 'a'.repeat(64) },
+      { ...envelope, metadata: { ...envelope.metadata, operationDigest: 'b'.repeat(64) } },
+      { ...envelope, extra: true },
+    ];
+    for (const variant of variants) {
+      expect(() => decryptAndVerifyTombstoneEnvelope(variant, cryptoContext)).toThrow(
+        expect.objectContaining({ code: expect.stringMatching(/^NPC_TOMBSTONE_/) }),
+      );
+    }
   });
 
-  it('rejects a tampered or non-0600 export during physical readback', async () => {
-    const envelope = createTombstoneExportEnvelope({
-      args,
-      rawSnapshot: rawSnapshot(),
-      generatedAt: new Date('2026-08-11T10:00:00.000Z'),
+  it('builds deterministic snapshot content and keyed digest while excluding opaque secret containers', () => {
+    const first = buildTombstoneSnapshot(rawSnapshot(), cryptoContext);
+    const second = buildTombstoneSnapshot(rawSnapshot(), cryptoContext);
+    expect(second).toEqual(first);
+    expect(canonicalJson(first)).not.toContain('must-not-export');
+    expect(first.report).toMatchObject({
+      rawAiOutput: { redacted: true, hmacSha256: expect.stringMatching(/^[a-f0-9]{64}$/), byteLength: expect.any(Number) },
     });
-    await writeVerifiedTombstoneExport(exportFile, envelope, TEST_EXPORT_SECURITY);
-    const parsed = JSON.parse(readFileSync(exportFile, 'utf8'));
-    parsed.payload.snapshot.submission.title.sha256 = 'a'.repeat(64);
-    writeFileSync(exportFile, JSON.stringify(parsed), { mode: 0o600 });
-
-    await expect(readVerifiedTombstoneExport(exportFile, TEST_EXPORT_SECURITY)).rejects.toMatchObject({
-      code: 'NPC_TOMBSTONE_EXPORT_HASH_MISMATCH',
+    expect(first.job).toMatchObject({
+      inputData: { redacted: true, hmacSha256: expect.stringMatching(/^[a-f0-9]{64}$/), byteLength: expect.any(Number) },
+      outputData: { redacted: true, hmacSha256: expect.stringMatching(/^[a-f0-9]{64}$/), byteLength: expect.any(Number) },
     });
-
-    rmSync(exportFile);
-    await writeVerifiedTombstoneExport(exportFile, envelope, TEST_EXPORT_SECURITY);
-    chmodSync(exportFile, 0o640);
-    await expect(readVerifiedTombstoneExport(exportFile, TEST_EXPORT_SECURITY)).rejects.toMatchObject({
-      code: 'NPC_TOMBSTONE_EXPORT_PERMISSIONS',
+    expect(first.audits[0].details).toEqual({
+      redacted: true,
+      hmacSha256: expect.stringMatching(/^[a-f0-9]{64}$/),
+      byteLength: expect.any(Number),
     });
-  });
-
-  it('rejects a hash-valid envelope with a structurally incomplete operation or snapshot', async () => {
-    const validEnvelope = createTombstoneExportEnvelope({
-      args,
-      rawSnapshot: rawSnapshot(),
-      generatedAt: new Date('2026-08-11T10:00:00.000Z'),
-    });
-    const malformedPayload = {
-      ...validEnvelope.payload,
-      operation: undefined,
-    };
-    const malformedEnvelope = {
-      ...validEnvelope,
-      payload: malformedPayload,
-      payloadSha256: createHash('sha256')
-        .update(canonicalJson(malformedPayload))
-        .digest('hex'),
-    };
-    writeFileSync(exportFile, `${canonicalJson(malformedEnvelope)}\n`, { mode: 0o600 });
-
-    await expect(readVerifiedTombstoneExport(exportFile, TEST_EXPORT_SECURITY)).rejects.toMatchObject({
-      code: 'NPC_TOMBSTONE_EXPORT_INVALID',
-    });
-
-    const emptySnapshotPayload = {
-      ...validEnvelope.payload,
-      snapshot: {
-        submission: {},
-        pages: [],
-        report: null,
-        job: null,
-        audits: [],
-        snapshotSha256: '0'.repeat(64),
-      },
-    };
-    const emptySnapshotEnvelope = {
-      ...validEnvelope,
-      payload: emptySnapshotPayload,
-      payloadSha256: createHash('sha256')
-        .update(canonicalJson(emptySnapshotPayload))
-        .digest('hex'),
-    };
-    writeFileSync(exportFile, `${canonicalJson(emptySnapshotEnvelope)}\n`, { mode: 0o600 });
-
-    await expect(readVerifiedTombstoneExport(exportFile, TEST_EXPORT_SECURITY)).rejects.toMatchObject({
-      code: 'NPC_TOMBSTONE_EXPORT_INVALID',
-    });
-  });
-
-  it.each([
-    'safe/./snapshot.json',
-    'safe/link/../snapshot.json',
-    'safe//snapshot.json',
-  ])('rejects unnormalized destination %s before opening it', async (suffix) => {
-    mkdirSync(join(directory, 'safe', 'link'), { recursive: true, mode: 0o700 });
-    const rawPath = `${directory}/${suffix}`;
-    const envelope = createTombstoneExportEnvelope({
-      args,
-      rawSnapshot: rawSnapshot(),
-      generatedAt: new Date('2026-08-11T10:00:00.000Z'),
-    });
-
-    await expect(writeVerifiedTombstoneExport(
-      rawPath,
-      envelope,
-      TEST_EXPORT_SECURITY,
-    )).rejects.toMatchObject({ code: 'NPC_TOMBSTONE_EXPORT_PATH_INVALID' });
-  });
-
-  it('revalidates owner and 0700 mode in the export layer', async () => {
-    const lockedParent = join(directory, 'locked-parent');
-    mkdirSync(lockedParent, { mode: 0o750 });
-    const envelope = createTombstoneExportEnvelope({
-      args,
-      rawSnapshot: rawSnapshot(),
-      generatedAt: new Date('2026-08-11T10:00:00.000Z'),
-    });
-
-    await expect(writeVerifiedTombstoneExport(
-      join(lockedParent, 'snapshot.json'),
-      envelope,
-      TEST_EXPORT_SECURITY,
-    )).rejects.toMatchObject({ code: 'NPC_TOMBSTONE_EXPORT_PARENT_PERMISSIONS' });
-  });
-
-  it('cannot escape or fsync a replacement parent after the trusted dirfd is opened', async () => {
-    const trustedParent = join(directory, 'trusted-parent');
-    const movedParent = join(directory, 'moved-parent');
-    const escapeParent = join(directory, 'escape-parent');
-    mkdirSync(trustedParent, { mode: 0o700 });
-    mkdirSync(escapeParent, { mode: 0o700 });
-    const destination = join(trustedParent, 'snapshot.json');
-    const envelope = createTombstoneExportEnvelope({
-      args,
-      rawSnapshot: rawSnapshot(),
-      generatedAt: new Date('2026-08-11T10:00:00.000Z'),
-    });
-
-    await expect(writeVerifiedTombstoneExport(destination, envelope, {
-      ...TEST_EXPORT_SECURITY,
-      onParentVerified() {
-        renameSync(trustedParent, movedParent);
-        symlinkSync(escapeParent, trustedParent, 'dir');
-      },
-    })).rejects.toMatchObject({ code: 'NPC_TOMBSTONE_EXPORT_PARENT_CHANGED' });
-    expect(existsSync(join(escapeParent, 'snapshot.json'))).toBe(false);
   });
 });

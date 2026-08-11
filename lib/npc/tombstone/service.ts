@@ -1,5 +1,5 @@
-import { createHash } from 'node:crypto';
-import { lstat } from 'node:fs/promises';
+import { lstat, realpath } from 'node:fs/promises';
+import { isAbsolute, relative, resolve, sep } from 'node:path';
 
 import {
   CopyPageStatus,
@@ -13,59 +13,66 @@ import { NPC_INTERACTIVE_TRANSACTION_OPTIONS } from '../transaction';
 import {
   buildTombstoneSnapshot,
   canonicalJson,
+  canonicalizeTombstonePath,
+  createTombstoneCryptoContext,
   createTombstoneExportEnvelope,
   readVerifiedTombstoneExport,
+  tombstoneArtifactPath,
+  tombstoneProofHmac,
   writeVerifiedTombstoneExport,
   type RawTombstoneSnapshot,
-  type TombstoneExportEnvelope,
-  type TombstoneExportSecurityOptions,
+  type TombstoneCryptoContext,
+  type TombstoneExportPayload,
   type VerifiedTombstoneExport,
 } from './export';
 import {
   NPC_TOMBSTONE_AUDIT_ACTION,
+  NPC_TOMBSTONE_REASON,
+  NPC_TOMBSTONE_REASON_CODE,
   NpcTombstoneError,
   buildTombstoneOperationIdentity,
   type TombstoneArguments,
   type TombstoneOperationIdentity,
   tombstoneError,
-  validateTombstoneReason,
 } from './types';
 
 export interface ExecuteNpcTombstoneOptions {
   now?: () => Date;
-  testOnlyTrustedUid?: number;
 }
 
 export interface ExecuteNpcTombstoneResult {
   status: 'applied' | 'already-applied';
   operationKey: string;
-  exportPayloadSha256: string;
+  artifactChecksumSha256: string;
 }
 
 type TombstoneTransaction = Prisma.TransactionClient;
+type SubmissionRow = NonNullable<Awaited<ReturnType<TombstoneTransaction['copySubmission']['findUnique']>>>;
+type PageRows = Awaited<ReturnType<TombstoneTransaction['copyPage']['findMany']>>;
+type ReportRow = Awaited<ReturnType<TombstoneTransaction['pedagogicalReport']['findUnique']>>;
+type JobRows = Awaited<ReturnType<TombstoneTransaction['aiProcessingJob']['findMany']>>;
+type AuditRows = Awaited<ReturnType<TombstoneTransaction['npcAuditLog']['findMany']>>;
 
 interface LockedSnapshot extends RawTombstoneSnapshot {
-  submission: NonNullable<Awaited<ReturnType<TombstoneTransaction['copySubmission']['findUnique']>>>;
-  pages: Awaited<ReturnType<TombstoneTransaction['copyPage']['findMany']>>;
-  report: Awaited<ReturnType<TombstoneTransaction['pedagogicalReport']['findUnique']>>;
-  job: Awaited<ReturnType<TombstoneTransaction['aiProcessingJob']['findUnique']>>;
-  audits: Awaited<ReturnType<TombstoneTransaction['npcAuditLog']['findMany']>>;
+  submission: SubmissionRow;
+  pages: PageRows;
+  report: ReportRow;
+  job: JobRows[number] | null;
+  jobs: JobRows;
+  audits: AuditRows;
 }
 
 interface TombstoneAuditDetails {
   operationKey: string;
   operation: TombstoneOperationIdentity['fields'];
-  exportPayloadSha256: string;
-  snapshotSha256: string;
-  reason: string;
+  artifactChecksumSha256: string;
+  snapshotHmacSha256: string;
+  reasonCode: typeof NPC_TOMBSTONE_REASON_CODE;
+  reason: typeof NPC_TOMBSTONE_REASON;
   affectedPageIds: string[];
   unavailableAt: string;
-  rowCounts: {
-    submissions: 1;
-    pages: 4;
-    audits: 1;
-  };
-  idempotenceProofSha256: string;
+  rowCounts: typeof TOMBSTONE_ROW_COUNTS;
+  idempotenceProofHmacSha256: string;
 }
 
 const TOMBSTONE_ROW_COUNTS = {
@@ -74,18 +81,43 @@ const TOMBSTONE_ROW_COUNTS = {
   audits: 1,
 } as const;
 
-function asRawRecord(value: object): Record<string, unknown> {
+function asRecord(value: object): Record<string, unknown> {
   return value as unknown as Record<string, unknown>;
 }
 
 function asRawSnapshot(snapshot: LockedSnapshot): RawTombstoneSnapshot {
   return {
-    submission: asRawRecord(snapshot.submission),
-    pages: snapshot.pages.map(asRawRecord),
-    report: snapshot.report ? asRawRecord(snapshot.report) : null,
-    job: snapshot.job ? asRawRecord(snapshot.job) : null,
-    audits: snapshot.audits.map(asRawRecord),
+    submission: asRecord(snapshot.submission),
+    pages: snapshot.pages.map(asRecord),
+    report: snapshot.report ? asRecord(snapshot.report) : null,
+    job: snapshot.job ? asRecord(snapshot.job) : null,
+    audits: snapshot.audits.map(asRecord),
   };
+}
+
+function detailsSubmissionId(value: Prisma.JsonValue | null): string | null {
+  let parsed: unknown = value;
+  if (typeof value === 'string') {
+    try {
+      parsed = JSON.parse(value) as unknown;
+    } catch {
+      return null;
+    }
+  }
+  if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return null;
+  const candidate = (parsed as Record<string, unknown>).submissionId;
+  return typeof candidate === 'string' ? candidate : null;
+}
+
+function isDirectlyLinkedAudit(
+  audit: AuditRows[number],
+  submissionId: string,
+  pageIds: Set<string>,
+  reportId: string | null,
+): boolean {
+  return audit.entityId === submissionId ||
+    pageIds.has(audit.entityId) ||
+    (reportId !== null && (audit.entityId === reportId || audit.reportId === reportId));
 }
 
 async function lockAndReadSnapshot(
@@ -94,60 +126,48 @@ async function lockAndReadSnapshot(
 ): Promise<LockedSnapshot> {
   try {
     return await withLockedCopySubmission(tx, submissionId, async () => {
-      // Every target-linked row is locked before any status, count, report, or
-      // operation argument is interpreted by the command.
       await tx.$queryRaw(Prisma.sql`
-        SELECT "id"
-        FROM "copy_pages"
+        SELECT "id" FROM "copy_pages"
         WHERE "submissionId" = ${submissionId}
-        ORDER BY "id"
-        FOR UPDATE
+        ORDER BY "id" FOR UPDATE
       `);
       await tx.$queryRaw(Prisma.sql`
-        SELECT "id"
-        FROM "pedagogical_reports"
+        SELECT "id" FROM "pedagogical_reports"
         WHERE "copySubmissionId" = ${submissionId}
-        ORDER BY "id"
-        FOR UPDATE
+        ORDER BY "id" FOR UPDATE
       `);
       await tx.$queryRaw(Prisma.sql`
-        SELECT "id"
-        FROM "ai_processing_jobs"
+        SELECT "id" FROM "ai_processing_jobs"
         WHERE "copySubmissionId" = ${submissionId}
-           OR "id" = (
-             SELECT "aiJobId"
-             FROM "copy_submissions"
-             WHERE "id" = ${submissionId}
-           )
-        ORDER BY "id"
-        FOR UPDATE
-      `);
-      await tx.$queryRaw(Prisma.sql`
-        SELECT "id"
-        FROM "npc_audit_logs"
-        WHERE "entityId" = ${submissionId}
-           OR "reportId" IN (
-             SELECT "id"
-             FROM "pedagogical_reports"
-             WHERE "copySubmissionId" = ${submissionId}
-           )
-           OR "entityId" IN (
-             SELECT "id"
-             FROM "pedagogical_reports"
-             WHERE "copySubmissionId" = ${submissionId}
-           )
-           OR "entityId" IN (
-             SELECT "id"
-             FROM "copy_pages"
-             WHERE "submissionId" = ${submissionId}
-           )
-        ORDER BY "id"
-        FOR UPDATE
+           OR "id" = (SELECT "aiJobId" FROM "copy_submissions" WHERE "id" = ${submissionId})
+        ORDER BY "id" FOR UPDATE
       `);
 
-      const submission = await tx.copySubmission.findUnique({
-        where: { id: submissionId },
-      });
+      const legacyPattern = `"submissionId"[[:space:]]*:[[:space:]]*"${submissionId}"`;
+      const auditIds = await tx.$queryRaw<Array<{ id: string }>>(Prisma.sql`
+        SELECT "id" FROM "npc_audit_logs"
+        WHERE "entityId" = ${submissionId}
+           OR "reportId" IN (
+             SELECT "id" FROM "pedagogical_reports" WHERE "copySubmissionId" = ${submissionId}
+           )
+           OR "entityId" IN (
+             SELECT "id" FROM "pedagogical_reports" WHERE "copySubmissionId" = ${submissionId}
+           )
+           OR "entityId" IN (
+             SELECT "id" FROM "copy_pages" WHERE "submissionId" = ${submissionId}
+           )
+           OR (
+             jsonb_typeof("details") = 'object'
+             AND "details" @> ${JSON.stringify({ submissionId })}::jsonb
+           )
+           OR (
+             jsonb_typeof("details") = 'string'
+             AND ("details" #>> '{}') ~ ${legacyPattern}
+           )
+        ORDER BY "id" FOR UPDATE
+      `);
+
+      const submission = await tx.copySubmission.findUnique({ where: { id: submissionId } });
       if (!submission) {
         tombstoneError('NPC_TOMBSTONE_TARGET_NOT_FOUND', 'Target submission was not found.');
       }
@@ -158,31 +178,31 @@ async function lockAndReadSnapshot(
       const report = await tx.pedagogicalReport.findUnique({
         where: { copySubmissionId: submissionId },
       });
-
-      let job = submission.aiJobId
-        ? await tx.aiProcessingJob.findUnique({ where: { id: submission.aiJobId } })
-        : null;
-      if (!job) {
-        job = await tx.aiProcessingJob.findUnique({
-          where: { copySubmissionId: submissionId },
-        });
-      }
-      const auditEntityIds = [
-        submissionId,
-        ...pages.map((page) => page.id),
-        ...(report ? [report.id] : []),
-      ];
-      const audits = await tx.npcAuditLog.findMany({
+      const jobs = await tx.aiProcessingJob.findMany({
         where: {
           OR: [
-            { entityId: { in: auditEntityIds } },
-            ...(report ? [{ reportId: report.id }] : []),
+            ...(submission.aiJobId ? [{ id: submission.aiJobId }] : []),
+            { copySubmissionId: submissionId },
           ],
         },
-        orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
+        orderBy: { id: 'asc' },
       });
+      const job = submission.aiJobId
+        ? jobs.find((candidate) => candidate.id === submission.aiJobId) ?? jobs[0] ?? null
+        : jobs[0] ?? null;
+      const candidates = auditIds.length === 0
+        ? []
+        : await tx.npcAuditLog.findMany({
+          where: { id: { in: auditIds.map(({ id }) => id) } },
+          orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
+        });
+      const pageIds = new Set(pages.map((page) => page.id));
+      const reportId = report?.id ?? null;
+      const audits = candidates.filter((audit) =>
+        isDirectlyLinkedAudit(audit, submissionId, pageIds, reportId) ||
+        detailsSubmissionId(audit.details) === submissionId);
 
-      return { submission, pages, report, job, audits } as LockedSnapshot;
+      return { submission, pages, report, job, jobs, audits } as LockedSnapshot;
     });
   } catch (error) {
     if (error instanceof CopySubmissionNotFoundError) {
@@ -192,260 +212,293 @@ async function lockAndReadSnapshot(
   }
 }
 
-function isNodeError(error: unknown, code: string): boolean {
-  return typeof error === 'object' && error !== null && 'code' in error && error.code === code;
+function atOrBelow(parent: string, candidate: string): boolean {
+  const child = relative(parent, candidate);
+  if (child === '') return true;
+  const [first] = child.split(sep);
+  return !isAbsolute(child) && first !== '..';
 }
 
-async function destinationExists(filePath: string): Promise<boolean> {
+async function assertProductionRuntime(args: TombstoneArguments): Promise<void> {
+  if (typeof process.getuid !== 'function' || process.getuid() !== 0) {
+    tombstoneError('NPC_TOMBSTONE_ROOT_REQUIRED', 'This command must execute as UID 0.');
+  }
+  const exportRoot = canonicalizeTombstonePath(args.exportRoot);
+  let exportStats: Awaited<ReturnType<typeof lstat>>;
+  let resolvedExport: string;
   try {
-    await lstat(filePath);
-    return true;
-  } catch (error) {
-    if (isNodeError(error, 'ENOENT')) return false;
-    throw error;
+    [exportStats, resolvedExport] = await Promise.all([lstat(exportRoot), realpath(exportRoot)]);
+  } catch {
+    tombstoneError('NPC_TOMBSTONE_EXPORT_PARENT_INVALID', 'Artifact root must exist.');
+  }
+  if (
+    !exportStats.isDirectory() ||
+    exportStats.isSymbolicLink() ||
+    resolvedExport !== exportRoot
+  ) {
+    tombstoneError('NPC_TOMBSTONE_EXPORT_SYMLINK', 'Artifact root must be a stable directory.');
+  }
+  if (exportStats.uid !== 0) {
+    tombstoneError('NPC_TOMBSTONE_EXPORT_PARENT_OWNER', 'Artifact root must be root-owned.');
+  }
+  if ((Number(exportStats.mode) & 0o077) !== 0) {
+    tombstoneError(
+      'NPC_TOMBSTONE_EXPORT_PARENT_PERMISSIONS',
+      'Artifact root must grant no group or world permissions.',
+    );
+  }
+  const repositoryRoot = await realpath(resolve());
+  const releaseRoot = await realpath(resolve(process.env.NEXUS_RELEASE_ROOT ?? repositoryRoot));
+  if (atOrBelow(repositoryRoot, resolvedExport) || atOrBelow(releaseRoot, resolvedExport)) {
+    tombstoneError(
+      'NPC_TOMBSTONE_EXPORT_SCOPE_INVALID',
+      'Artifact root must be outside the repository and active release.',
+    );
   }
 }
 
 function assertEnvelopeMatchesOperation(
-  envelope: TombstoneExportEnvelope,
+  payload: TombstoneExportPayload,
   identity: TombstoneOperationIdentity,
 ): void {
   if (
-    envelope.payload.operation.operationKey !== identity.operationKey ||
-    envelope.payload.operation.auditId !== identity.auditId ||
-    canonicalJson(envelope.payload.operation.arguments) !== canonicalJson(identity.fields)
+    payload.operation.operationKey !== identity.operationKey ||
+    payload.operation.auditId !== identity.auditId ||
+    canonicalJson(payload.operation.arguments) !== canonicalJson(identity.fields)
   ) {
     tombstoneError(
       'NPC_TOMBSTONE_EXPORT_OPERATION_MISMATCH',
-      'Existing export belongs to a different tombstone operation.',
+      'Canonical artifact belongs to another operation.',
     );
   }
 }
 
 function assertEnvelopeMatchesLockedSnapshot(
-  envelope: TombstoneExportEnvelope,
+  payload: TombstoneExportPayload,
   locked: LockedSnapshot,
+  crypto: TombstoneCryptoContext,
 ): void {
-  const current = buildTombstoneSnapshot(asRawSnapshot(locked));
-  if (
-    envelope.payload.snapshot.snapshotSha256 !== current.snapshotSha256 ||
-    canonicalJson(envelope.payload.snapshot) !== canonicalJson(current)
-  ) {
+  const current = buildTombstoneSnapshot(asRawSnapshot(locked), crypto);
+  if (canonicalJson(payload.snapshot) !== canonicalJson(current)) {
     tombstoneError(
       'NPC_TOMBSTONE_SNAPSHOT_MISMATCH',
-      'Locked rows no longer match the verified export snapshot.',
+      'Locked rows no longer match the authenticated artifact.',
     );
   }
 }
 
 async function createOrResumeExport(
   args: TombstoneArguments,
-  identity: TombstoneOperationIdentity,
   locked: LockedSnapshot,
   now: () => Date,
-  exportSecurity: TombstoneExportSecurityOptions,
+  crypto: TombstoneCryptoContext,
 ): Promise<VerifiedTombstoneExport> {
-  let verified: VerifiedTombstoneExport;
-  if (await destinationExists(args.exportFile)) {
-    verified = await readVerifiedTombstoneExport(args.exportFile, exportSecurity);
-  } else {
-    const envelope = createTombstoneExportEnvelope({
-      args,
-      rawSnapshot: asRawSnapshot(locked),
-      generatedAt: now(),
-    });
-    verified = await writeVerifiedTombstoneExport(args.exportFile, envelope, exportSecurity);
+  const artifactPath = tombstoneArtifactPath(args);
+  try {
+    return await readVerifiedTombstoneExport(artifactPath, crypto);
+  } catch (error) {
+    if (!(error instanceof NpcTombstoneError) || error.code !== 'NPC_TOMBSTONE_ARTIFACT_REQUIRED') {
+      throw error;
+    }
   }
-
-  assertEnvelopeMatchesOperation(verified.envelope, identity);
-  assertEnvelopeMatchesLockedSnapshot(verified.envelope, locked);
-  return verified;
+  const envelope = createTombstoneExportEnvelope({
+    args,
+    rawSnapshot: asRawSnapshot(locked),
+    generatedAt: now(),
+    crypto,
+  });
+  return writeVerifiedTombstoneExport(artifactPath, envelope, crypto);
 }
 
-function assertBusinessScope(
-  locked: LockedSnapshot,
-  args: TombstoneArguments,
-): void {
+function assertBusinessScope(locked: LockedSnapshot, args: TombstoneArguments): void {
   if (locked.submission.status !== args.expectedInitialStatus) {
     tombstoneError(
       'NPC_TOMBSTONE_SUBMISSION_STATUS_MISMATCH',
-      'Submission status does not match the expected initial status.',
+      'Submission status does not match the request.',
     );
   }
-  if (locked.pages.length !== args.expectedPageCount) {
+  if (locked.pages.length !== args.expectedPageCount ||
+    new Set(locked.pages.map((page) => page.id)).size !== args.expectedPageCount) {
     tombstoneError(
       'NPC_TOMBSTONE_PAGE_COUNT_MISMATCH',
-      'Submission does not contain exactly four pages.',
+      'Submission does not contain exactly four distinct pages.',
     );
   }
   if (!locked.report || locked.report.id !== args.expectedReportId) {
-    tombstoneError(
-      'NPC_TOMBSTONE_REPORT_ID_MISMATCH',
-      'Linked report does not match the expected report identifier.',
-    );
+    tombstoneError('NPC_TOMBSTONE_REPORT_ID_MISMATCH', 'Linked report id does not match.');
   }
   if (locked.report.status !== args.expectedReportStatus) {
-    tombstoneError(
-      'NPC_TOMBSTONE_REPORT_STATUS_MISMATCH',
-      'Linked report status does not match the expected status.',
-    );
+    tombstoneError('NPC_TOMBSTONE_REPORT_STATUS_MISMATCH', 'Linked report status does not match.');
   }
   if (locked.report.visibility !== args.expectedReportVisibility) {
     tombstoneError(
       'NPC_TOMBSTONE_REPORT_VISIBILITY_MISMATCH',
-      'Linked report visibility does not match the expected visibility.',
+      'Linked report visibility does not match.',
     );
   }
-  if (new Set(locked.pages.map((page) => page.id)).size !== args.expectedPageCount) {
-    tombstoneError(
-      'NPC_TOMBSTONE_PAGE_COUNT_MISMATCH',
-      'Submission page identity is not exact.',
-    );
+  if (
+    locked.jobs.length !== 1 ||
+    !locked.job ||
+    (locked.submission.aiJobId !== null && locked.submission.aiJobId !== locked.job.id) ||
+    (locked.submission.aiJobId === null && locked.job.copySubmissionId !== args.submissionId) ||
+    (locked.job.copySubmissionId !== null && locked.job.copySubmissionId !== args.submissionId)
+  ) {
+    tombstoneError('NPC_TOMBSTONE_JOB_LINK_MISMATCH', 'Linked processing job is contradictory.');
   }
 }
 
-function idempotenceProofSha256({
+async function assertAuthorizedActor(
+  tx: TombstoneTransaction,
+  args: TombstoneArguments,
+): Promise<void> {
+  await tx.$queryRaw(Prisma.sql`
+    SELECT "id" FROM "users" WHERE "id" = ${args.actorId} FOR UPDATE
+  `);
+  const actor = await tx.user.findUnique({ where: { id: args.actorId } });
+  if (!actor) {
+    tombstoneError('NPC_TOMBSTONE_ACTOR_NOT_FOUND', 'Responsible actor was not found.');
+  }
+  if (
+    actor.role !== args.actorRole ||
+    !['ADMIN', 'ASSISTANTE'].includes(actor.role)
+  ) {
+    tombstoneError('NPC_TOMBSTONE_ACTOR_ROLE_MISMATCH', 'Responsible actor role is not authorized.');
+  }
+  if (!actor.activatedAt || actor.mergedAt !== null || actor.mergedIntoUserId !== null) {
+    tombstoneError('NPC_TOMBSTONE_ACTOR_INACTIVE', 'Responsible actor is not active.');
+  }
+}
+
+function targetUnavailableAudits(
+  audits: AuditRows,
+  submissionId: string,
+): AuditRows {
+  return audits.filter((audit) =>
+    audit.entityId === submissionId &&
+    (audit.action === NPC_TOMBSTONE_AUDIT_ACTION || /(?:TOMBSTONE|UNAVAILABLE)/i.test(audit.action)));
+}
+
+function auditProofInput({
   identity,
-  exportPayloadSha256,
-  snapshotSha256,
-  reason,
+  artifactChecksumSha256,
+  snapshotHmacSha256,
   unavailableAt,
 }: {
   identity: TombstoneOperationIdentity;
-  exportPayloadSha256: string;
-  snapshotSha256: string;
-  reason: string;
+  artifactChecksumSha256: string;
+  snapshotHmacSha256: string;
   unavailableAt: string;
-}): string {
-  return createHash('sha256').update(canonicalJson({
+}): Record<string, unknown> {
+  return {
     protocolVersion: identity.fields.protocolVersion,
     operationKey: identity.operationKey,
-    exportPayloadSha256,
-    snapshotSha256,
-    reason,
+    artifactChecksumSha256,
+    snapshotHmacSha256,
+    reasonCode: identity.fields.reasonCode,
+    reason: identity.fields.reason,
     unavailableAt,
     rowCounts: TOMBSTONE_ROW_COUNTS,
     auditId: identity.auditId,
-  })).digest('hex');
+  };
 }
 
 function buildAuditDetails(
   identity: TombstoneOperationIdentity,
   verified: VerifiedTombstoneExport,
-  affectedPageIds: string[],
+  pageIds: string[],
   unavailableAt: Date,
+  crypto: TombstoneCryptoContext,
 ): TombstoneAuditDetails {
   const unavailableAtIso = unavailableAt.toISOString();
-  const snapshotSha256 = verified.envelope.payload.snapshot.snapshotSha256;
-  const details = {
+  const base = {
     operationKey: identity.operationKey,
     operation: identity.fields,
-    exportPayloadSha256: verified.payloadSha256,
-    snapshotSha256,
+    artifactChecksumSha256: verified.artifactChecksumSha256,
+    snapshotHmacSha256: verified.payload.snapshot.snapshotHmacSha256,
+    reasonCode: identity.fields.reasonCode,
     reason: identity.fields.reason,
-    affectedPageIds,
+    affectedPageIds: pageIds,
     unavailableAt: unavailableAtIso,
     rowCounts: TOMBSTONE_ROW_COUNTS,
-    idempotenceProofSha256: idempotenceProofSha256({
-      identity,
-      exportPayloadSha256: verified.payloadSha256,
-      snapshotSha256,
-      reason: identity.fields.reason,
-      unavailableAt: unavailableAtIso,
-    }),
   };
-  return details;
+  return {
+    ...base,
+    idempotenceProofHmacSha256: tombstoneProofHmac(crypto, auditProofInput({
+      identity,
+      artifactChecksumSha256: base.artifactChecksumSha256,
+      snapshotHmacSha256: base.snapshotHmacSha256,
+      unavailableAt: unavailableAtIso,
+    })),
+  };
 }
 
-function auditDetails(value: Prisma.JsonValue | null): TombstoneAuditDetails | null {
+function parsedAuditDetails(value: Prisma.JsonValue | null): TombstoneAuditDetails | null {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
   return value as unknown as TombstoneAuditDetails;
 }
 
-function hasExactAuditDetails(
+function exactAuditDetails(
   details: TombstoneAuditDetails | null,
   identity: TombstoneOperationIdentity,
+  verified: VerifiedTombstoneExport,
   pageIds: string[],
   unavailableAt: Date,
-): details is TombstoneAuditDetails {
+  crypto: TombstoneCryptoContext,
+): boolean {
   if (!details) return false;
-  if (
-    canonicalJson(Object.keys(details).sort()) !== canonicalJson([
-      'affectedPageIds',
-      'exportPayloadSha256',
-      'idempotenceProofSha256',
-      'operation',
-      'operationKey',
-      'reason',
-      'rowCounts',
-      'snapshotSha256',
-      'unavailableAt',
-    ]) ||
-    !details.operation ||
-    typeof details.operation !== 'object' ||
-    !Array.isArray(details.affectedPageIds) ||
-    !details.affectedPageIds.every((pageId) => typeof pageId === 'string') ||
-    !/^[a-f0-9]{64}$/.test(details.exportPayloadSha256) ||
-    !/^[a-f0-9]{64}$/.test(details.snapshotSha256) ||
-    !/^[a-f0-9]{64}$/.test(details.idempotenceProofSha256) ||
-    !details.rowCounts ||
-    canonicalJson(details.rowCounts) !== canonicalJson(TOMBSTONE_ROW_COUNTS)
-  ) {
-    return false;
-  }
-  return (
-    details.operationKey === identity.operationKey &&
+  if (canonicalJson(Object.keys(details).sort()) !== canonicalJson([
+    'affectedPageIds',
+    'artifactChecksumSha256',
+    'idempotenceProofHmacSha256',
+    'operation',
+    'operationKey',
+    'reason',
+    'reasonCode',
+    'rowCounts',
+    'snapshotHmacSha256',
+    'unavailableAt',
+  ].sort())) return false;
+  const expectedProof = tombstoneProofHmac(crypto, auditProofInput({
+    identity,
+    artifactChecksumSha256: verified.artifactChecksumSha256,
+    snapshotHmacSha256: verified.payload.snapshot.snapshotHmacSha256,
+    unavailableAt: unavailableAt.toISOString(),
+  }));
+  return details.operationKey === identity.operationKey &&
     canonicalJson(details.operation) === canonicalJson(identity.fields) &&
+    details.artifactChecksumSha256 === verified.artifactChecksumSha256 &&
+    details.snapshotHmacSha256 === verified.payload.snapshot.snapshotHmacSha256 &&
+    details.reasonCode === identity.fields.reasonCode &&
     details.reason === identity.fields.reason &&
-    details.unavailableAt === unavailableAt.toISOString() &&
     canonicalJson(details.affectedPageIds) === canonicalJson(pageIds) &&
-    details.idempotenceProofSha256 === idempotenceProofSha256({
-      identity,
-      exportPayloadSha256: details.exportPayloadSha256,
-      snapshotSha256: details.snapshotSha256,
-      reason: details.reason,
-      unavailableAt: details.unavailableAt,
-    })
-  );
+    details.unavailableAt === unavailableAt.toISOString() &&
+    canonicalJson(details.rowCounts) === canonicalJson(TOMBSTONE_ROW_COUNTS) &&
+    details.idempotenceProofHmacSha256 === expectedProof;
 }
 
-async function validateAlreadyApplied(
+function validateAlreadyApplied(
   locked: LockedSnapshot,
   args: TombstoneArguments,
   identity: TombstoneOperationIdentity,
-  exportSecurity: TombstoneExportSecurityOptions,
-): Promise<ExecuteNpcTombstoneResult> {
+  verified: VerifiedTombstoneExport,
+  crypto: TombstoneCryptoContext,
+): ExecuteNpcTombstoneResult {
   const unavailableAt = locked.submission.unavailableAt;
-  const exactReport =
-    locked.report?.id === args.expectedReportId &&
-    locked.report.status === args.expectedReportStatus &&
-    locked.report.visibility === args.expectedReportVisibility;
-  const exactPages =
-    locked.pages.length === args.expectedPageCount &&
-    unavailableAt !== null &&
-    locked.pages.every(
-      (page) =>
-        page.status === CopyPageStatus.UNAVAILABLE &&
-        page.unavailableReason === args.reason &&
-        page.unavailableAt?.getTime() === unavailableAt.getTime(),
-    );
-  const tombstoneAudits = locked.audits.filter(
-    (audit) =>
-      audit.entityId === args.submissionId &&
-      (audit.action === NPC_TOMBSTONE_AUDIT_ACTION ||
-        /(?:TOMBSTONE|UNAVAILABLE)/i.test(audit.action)),
-  );
-  const exactAudit = tombstoneAudits.length === 1
-    ? tombstoneAudits[0]
-    : null;
-  const details = exactAudit ? auditDetails(exactAudit.details) : null;
-
+  const pageIds = locked.pages.map((page) => page.id);
+  const tombstoneAudits = targetUnavailableAudits(locked.audits, args.submissionId);
+  const exactAudit = tombstoneAudits.length === 1 ? tombstoneAudits[0] : null;
   if (
     locked.submission.status !== CopySubmissionStatus.UNAVAILABLE ||
     locked.submission.unavailableReason !== args.reason ||
     !unavailableAt ||
-    !exactReport ||
-    !exactPages ||
+    locked.pages.length !== 4 ||
+    locked.pages.some((page) =>
+      page.status !== CopyPageStatus.UNAVAILABLE ||
+      page.unavailableReason !== args.reason ||
+      page.unavailableAt?.getTime() !== unavailableAt.getTime()) ||
+    locked.report?.id !== args.expectedReportId ||
+    locked.report.status !== args.expectedReportStatus ||
+    locked.report.visibility !== args.expectedReportVisibility ||
     !exactAudit ||
     exactAudit.id !== identity.auditId ||
     exactAudit.action !== NPC_TOMBSTONE_AUDIT_ACTION ||
@@ -454,37 +507,24 @@ async function validateAlreadyApplied(
     exactAudit.actorRole !== args.actorRole ||
     exactAudit.reportId !== args.expectedReportId ||
     exactAudit.createdAt.getTime() !== unavailableAt.getTime() ||
-    !hasExactAuditDetails(
-      details,
+    !exactAuditDetails(
+      parsedAuditDetails(exactAudit.details),
       identity,
-      locked.pages.map((page) => page.id),
+      verified,
+      pageIds,
       unavailableAt,
+      crypto,
     )
   ) {
     tombstoneError(
       'NPC_TOMBSTONE_IDEMPOTENCE_INVALID',
-      'Existing unavailable state is not the exact result of this operation.',
+      'Unavailable state is not the exact result of this operation.',
     );
   }
-
-  if (await destinationExists(args.exportFile)) {
-    const verified = await readVerifiedTombstoneExport(args.exportFile, exportSecurity);
-    assertEnvelopeMatchesOperation(verified.envelope, identity);
-    if (
-      verified.payloadSha256 !== details.exportPayloadSha256 ||
-      verified.envelope.payload.snapshot.snapshotSha256 !== details.snapshotSha256
-    ) {
-      tombstoneError(
-        'NPC_TOMBSTONE_IDEMPOTENCE_INVALID',
-        'Existing export does not match the committed audit.',
-      );
-    }
-  }
-
   return {
     status: 'already-applied',
     operationKey: identity.operationKey,
-    exportPayloadSha256: details.exportPayloadSha256,
+    artifactChecksumSha256: verified.artifactChecksumSha256,
   };
 }
 
@@ -494,13 +534,10 @@ async function applyTombstone(
   args: TombstoneArguments,
   identity: TombstoneOperationIdentity,
   verified: VerifiedTombstoneExport,
+  crypto: TombstoneCryptoContext,
 ): Promise<ExecuteNpcTombstoneResult> {
-  const unavailableAt = new Date(verified.envelope.payload.operation.generatedAt);
-  if (Number.isNaN(unavailableAt.getTime())) {
-    tombstoneError('NPC_TOMBSTONE_EXPORT_INVALID', 'Export timestamp is invalid.');
-  }
+  const unavailableAt = new Date(verified.payload.operation.generatedAt);
   const pageIds = locked.pages.map((page) => page.id);
-
   const submissionUpdate = await tx.copySubmission.updateMany({
     where: {
       id: args.submissionId,
@@ -520,8 +557,7 @@ async function applyTombstone(
       'Submission update did not affect exactly one row.',
     );
   }
-
-  const pagesUpdate = await tx.copyPage.updateMany({
+  const pageUpdate = await tx.copyPage.updateMany({
     where: {
       submissionId: args.submissionId,
       id: { in: pageIds },
@@ -534,14 +570,13 @@ async function applyTombstone(
       unavailableAt,
     },
   });
-  if (pagesUpdate.count !== args.expectedPageCount) {
+  if (pageUpdate.count !== 4) {
     tombstoneError(
       'NPC_TOMBSTONE_DATABASE_ROW_COUNT_MISMATCH',
       'Page update did not affect exactly four rows.',
     );
   }
-
-  const details = buildAuditDetails(identity, verified, pageIds, unavailableAt);
+  const details = buildAuditDetails(identity, verified, pageIds, unavailableAt, crypto);
   await tx.npcAuditLog.create({
     data: {
       id: identity.auditId,
@@ -555,8 +590,7 @@ async function applyTombstone(
       details: details as unknown as Prisma.InputJsonValue,
     },
   });
-
-  const [submissionCount, pageCount, auditCount] = await Promise.all([
+  const [submissionCount, pageCount, allTargetAudits] = await Promise.all([
     tx.copySubmission.count({
       where: {
         id: args.submissionId,
@@ -574,26 +608,22 @@ async function applyTombstone(
         unavailableAt,
       },
     }),
-    tx.npcAuditLog.count({
-      where: {
-        id: identity.auditId,
-        action: NPC_TOMBSTONE_AUDIT_ACTION,
-        entityType: 'CopySubmission',
-        entityId: args.submissionId,
-      },
-    }),
+    tx.npcAuditLog.findMany({ where: { entityId: args.submissionId } }),
   ]);
-  if (submissionCount !== 1 || pageCount !== 4 || auditCount !== 1) {
+  if (
+    submissionCount !== 1 ||
+    pageCount !== 4 ||
+    targetUnavailableAudits(allTargetAudits, args.submissionId).length !== 1
+  ) {
     tombstoneError(
       'NPC_TOMBSTONE_DATABASE_ROW_COUNT_MISMATCH',
-      'Post-write row counts do not match the tombstone protocol.',
+      'Post-write row counts do not match the protocol.',
     );
   }
-
   return {
     status: 'applied',
     operationKey: identity.operationKey,
-    exportPayloadSha256: verified.payloadSha256,
+    artifactChecksumSha256: verified.artifactChecksumSha256,
   };
 }
 
@@ -602,57 +632,59 @@ export async function executeNpcTombstone(
   args: TombstoneArguments,
   options: ExecuteNpcTombstoneOptions = {},
 ): Promise<ExecuteNpcTombstoneResult> {
-  validateTombstoneReason(args.reason);
+  if (
+    args.reasonCode !== NPC_TOMBSTONE_REASON_CODE ||
+    args.reason !== NPC_TOMBSTONE_REASON
+  ) {
+    tombstoneError('NPC_TOMBSTONE_REASON_CODE_INVALID', 'Reason contract is invalid.');
+  }
+  const crypto = createTombstoneCryptoContext(process.env.DOCUMENT_ENCRYPTION_KEY);
+  await assertProductionRuntime(args);
   const identity = buildTombstoneOperationIdentity(args);
   const now = options.now ?? (() => new Date());
-  const exportSecurity: TombstoneExportSecurityOptions = {};
-  if (options.testOnlyTrustedUid !== undefined) {
-    if (
-      process.env.NODE_ENV !== 'test' ||
-      typeof process.getuid !== 'function' ||
-      options.testOnlyTrustedUid !== process.getuid()
-    ) {
-      tombstoneError(
-        'NPC_TOMBSTONE_TEST_IDENTITY_FORBIDDEN',
-        'Injected export identity is restricted to the test runtime.',
-      );
-    }
-    exportSecurity.trustedUid = options.testOnlyTrustedUid;
-  }
 
   try {
     return await prisma.$transaction(async (tx) => {
       const locked = await lockAndReadSnapshot(tx, args.submissionId);
-
-      if (locked.submission.status === CopySubmissionStatus.UNAVAILABLE) {
-        return validateAlreadyApplied(locked, args, identity, exportSecurity);
-      }
-
       let verified: VerifiedTombstoneExport;
+      if (locked.submission.status === CopySubmissionStatus.UNAVAILABLE) {
+        verified = await readVerifiedTombstoneExport(tombstoneArtifactPath(args), crypto);
+        assertEnvelopeMatchesOperation(verified.payload, identity);
+        return validateAlreadyApplied(locked, args, identity, verified, crypto);
+      }
       try {
-        verified = await createOrResumeExport(args, identity, locked, now, exportSecurity);
+        verified = await createOrResumeExport(args, locked, now, crypto);
       } catch (error) {
         if (error instanceof NpcTombstoneError) throw error;
-        throw new NpcTombstoneError(
-          'NPC_TOMBSTONE_EXPORT_FAILURE',
-          'Export could not be created and verified.',
+        tombstoneError('NPC_TOMBSTONE_EXPORT_FAILURE', 'Artifact could not be verified.');
+      }
+      assertEnvelopeMatchesOperation(verified.payload, identity);
+      assertEnvelopeMatchesLockedSnapshot(verified.payload, locked, crypto);
+      assertBusinessScope(locked, args);
+      if (targetUnavailableAudits(locked.audits, args.submissionId).length !== 0) {
+        tombstoneError(
+          'NPC_TOMBSTONE_PREEXISTING_AUDIT',
+          'Target already has a tombstone or unavailable audit.',
         );
       }
+      await assertAuthorizedActor(tx, args);
 
-      assertBusinessScope(locked, args);
-
-      // Re-read every still-locked row after physical export verification.
       const stillLocked = await lockAndReadSnapshot(tx, args.submissionId);
-      assertEnvelopeMatchesLockedSnapshot(verified.envelope, stillLocked);
+      assertEnvelopeMatchesLockedSnapshot(verified.payload, stillLocked, crypto);
       assertBusinessScope(stillLocked, args);
-
-      return applyTombstone(tx, stillLocked, args, identity, verified);
+      if (targetUnavailableAudits(stillLocked.audits, args.submissionId).length !== 0) {
+        tombstoneError(
+          'NPC_TOMBSTONE_PREEXISTING_AUDIT',
+          'Target already has a tombstone or unavailable audit.',
+        );
+      }
+      return applyTombstone(tx, stillLocked, args, identity, verified, crypto);
     }, NPC_INTERACTIVE_TRANSACTION_OPTIONS);
   } catch (error) {
     if (error instanceof NpcTombstoneError) throw error;
     throw new NpcTombstoneError(
       'NPC_TOMBSTONE_DATABASE_FAILURE',
-      'Database transaction failed and was rolled back; a verified export may remain.',
+      'Database transaction failed and was rolled back; the artifact may remain.',
     );
   }
 }
