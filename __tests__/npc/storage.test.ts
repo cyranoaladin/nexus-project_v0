@@ -2,12 +2,15 @@
 
 import {
   chmodSync,
+  existsSync,
   lstatSync,
   mkdtempSync,
   mkdirSync,
   readFileSync,
+  readdirSync,
   rmSync,
 } from 'node:fs';
+import { open } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { createHash } from 'node:crypto';
@@ -124,6 +127,65 @@ describe('NPC storage operations', () => {
     await expect(
       fileExists(join('student1', 'submission78', 'page_1', 'copie.pdf')),
     ).resolves.toBe(false);
+  });
+
+  test('removes the temporary file when same-handle readback fails', async () => {
+    const probePath = join(storageRoot, 'probe');
+    const probe = await open(probePath, 'w+');
+    const fileHandlePrototype = Object.getPrototypeOf(probe) as {
+      read: (...arguments_: unknown[]) => Promise<unknown>;
+    };
+    await probe.close();
+    rmSync(probePath);
+    const readSpy = jest
+      .spyOn(fileHandlePrototype, 'read')
+      .mockRejectedValueOnce(new Error('INJECTED_READBACK_FAILURE'));
+    const errorSpy = jest.spyOn(console, 'error').mockImplementation();
+
+    try {
+      const result = await saveUploadedFile(
+        Buffer.from('copie-nexus!'),
+        metadata(),
+      );
+
+      expect(result).toEqual({ success: false, error: 'SAVE_FAILED' });
+      const destination = join(
+        storageRoot,
+        'student1',
+        'submission78',
+        'page_1',
+      );
+      expect(existsSync(join(destination, 'copie.pdf'))).toBe(false);
+      expect(existsSync(destination) ? readdirSync(destination) : []).toEqual([]);
+    } finally {
+      readSpy.mockRestore();
+      errorSpy.mockRestore();
+    }
+  });
+
+  test('publishes without overwrite and returns the digest of the winning inode', async () => {
+    const firstBytes = Buffer.from('first-payload');
+    const secondBytes = Buffer.from('other-payload');
+    expect(firstBytes).toHaveLength(secondBytes.length);
+
+    const [first, second] = await Promise.all([
+      saveUploadedFile(firstBytes, metadata({ sizeBytes: firstBytes.length })),
+      saveUploadedFile(secondBytes, metadata({ sizeBytes: secondBytes.length })),
+    ]);
+    const successes = [first, second].filter((result) => result.success);
+    const failures = [first, second].filter((result) => !result.success);
+
+    expect(successes).toHaveLength(1);
+    expect(failures).toHaveLength(1);
+    const winner = successes[0];
+    const storedBytes = readFileSync(winner.filePath!);
+    expect(winner.sha256).toBe(
+      createHash('sha256').update(storedBytes).digest('hex'),
+    );
+    expect([firstBytes, secondBytes]).toContainEqual(storedBytes);
+    expect(
+      readdirSync(dirname(winner.filePath!)).filter((name) => name.endsWith('.tmp')),
+    ).toEqual([]);
   });
 
   test('rejects unsafe reads and deletes', async () => {

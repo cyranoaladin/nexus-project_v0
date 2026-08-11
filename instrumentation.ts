@@ -10,7 +10,14 @@ export async function register() {
     process.env.NEXT_PHASE !== 'phase-production-build'
   ) {
     const { assertNpcStorageReady } = await import('./lib/npc/storage-root');
-    assertNpcStorageReady({ capability: 'read-write' });
+    try {
+      assertNpcStorageReady({ capability: 'read-write' });
+    } catch {
+      // Next logs and swallows rejected instrumentation hooks. Terminating here
+      // is the process-level fail-closed boundary before any listener is ready.
+      console.error('NPC_STORAGE_PREFLIGHT_FAILED');
+      process.exit(1);
+    }
 
     const { validateEnv } = await import('./lib/env-validation');
     validateEnv();

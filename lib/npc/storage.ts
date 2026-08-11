@@ -1,9 +1,16 @@
-import { createHash, randomBytes } from 'node:crypto';
-import fs from 'node:fs/promises';
+import { randomBytes } from 'node:crypto';
 import path from 'node:path';
 import { serializeError } from '@/lib/utils/serialize-error';
 import { SECURE_FILE_ID_LENGTH } from './config';
-import { resolveNpcStoragePath } from './storage-root';
+import {
+  deleteNpcStorageFile,
+  ensureNpcStorageDirectory,
+  npcStorageFileExists,
+  readNpcStorageFile,
+  removeNpcStorageDirectory,
+  resolveNpcStoragePath,
+  writeNpcStorageFileAtomic,
+} from './storage-root';
 
 export interface StorageResult {
   success: boolean;
@@ -90,11 +97,16 @@ export async function generateSecurePath(
 export async function ensureDirectory(
   relativeDirectory: string,
 ): Promise<string> {
-  const directoryPath = await resolveNpcStoragePath(relativeDirectory);
-  await fs.mkdir(directoryPath, { recursive: true, mode: 0o750 });
+  return ensureNpcStorageDirectory(relativeDirectory);
+}
 
-  // Re-resolve after creation so a symbolic-link component is never accepted.
-  return resolveNpcStoragePath(relativeDirectory);
+function hasErrorCode(error: unknown, code: string): boolean {
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    'code' in error &&
+    error.code === code
+  );
 }
 
 export async function saveUploadedFile(
@@ -112,29 +124,23 @@ export async function saveUploadedFile(
       metadata.pageNumber ?? 1,
       metadata.sanitizedName,
     );
-    await ensureDirectory(path.dirname(relativePath));
-    const filePath = await resolveNpcStoragePath(relativePath);
-
-    await fs.writeFile(filePath, fileBuffer, { mode: 0o640 });
-
-    const persistedBytes = await fs.readFile(filePath);
-    const stats = await fs.stat(filePath);
-    if (
-      stats.size !== metadata.sizeBytes ||
-      persistedBytes.length !== metadata.sizeBytes
-    ) {
-      await fs.unlink(filePath).catch(() => undefined);
-      return { success: false, error: 'SIZE_MISMATCH_AFTER_WRITE' };
-    }
+    const persisted = await writeNpcStorageFileAtomic(
+      relativePath,
+      fileBuffer,
+      metadata.sizeBytes,
+    );
 
     return {
       success: true,
       secureId: metadata.secureId,
-      filePath,
+      filePath: persisted.filePath,
       relativePath,
-      sha256: createHash('sha256').update(persistedBytes).digest('hex'),
+      sha256: persisted.sha256,
     };
   } catch (error) {
+    if (hasErrorCode(error, 'NPC_STORAGE_SIZE_MISMATCH')) {
+      return { success: false, error: 'SIZE_MISMATCH_AFTER_WRITE' };
+    }
     console.error('[NPC Storage] Save failed:', serializeError(error));
     return { success: false, error: 'SAVE_FAILED' };
   }
@@ -144,7 +150,7 @@ export async function readSecureFile(
   relativePath: string,
 ): Promise<Buffer | null> {
   try {
-    return await fs.readFile(await resolveNpcStoragePath(relativePath));
+    return await readNpcStorageFile(relativePath);
   } catch (error) {
     console.error('[NPC Storage] Read failed:', serializeError(error));
     return null;
@@ -155,7 +161,7 @@ export async function deleteSecureFile(
   relativePath: string,
 ): Promise<boolean> {
   try {
-    await fs.unlink(await resolveNpcStoragePath(relativePath));
+    await deleteNpcStorageFile(relativePath);
     return true;
   } catch (error) {
     console.error('[NPC Storage] Delete failed:', serializeError(error));
@@ -165,8 +171,7 @@ export async function deleteSecureFile(
 
 export async function fileExists(relativePath: string): Promise<boolean> {
   try {
-    await fs.access(await resolveNpcStoragePath(relativePath));
-    return true;
+    return await npcStorageFileExists(relativePath);
   } catch {
     return false;
   }
@@ -181,11 +186,7 @@ export async function deleteSubmissionFiles(
       entityPrefix(studentId, 8, 'student'),
       entityPrefix(submissionId, 12, 'submission'),
     );
-    const submissionDirectory = await resolveNpcStoragePath(
-      relativeSubmissionDirectory,
-    );
-
-    await fs.rm(submissionDirectory, { recursive: true, force: true });
+    await removeNpcStorageDirectory(relativeSubmissionDirectory);
     return true;
   } catch (error) {
     console.error('[NPC Storage] Cleanup failed:', serializeError(error));

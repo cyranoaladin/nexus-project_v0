@@ -4,7 +4,8 @@ import { serializeError } from '@/lib/utils/serialize-error';
 // Server-side PDF processing for AI analysis
 // ═══════════════════════════════════════════════════════════════════════════════
 
-import { exec } from 'child_process';
+import { randomBytes } from 'node:crypto';
+import { execFile } from 'node:child_process';
 import { promisify } from 'util';
 import fs from 'fs/promises';
 import path from 'path';
@@ -13,10 +14,30 @@ import {
   NPC_IMAGE_QUALITY,
   NPC_CONVERTED_FORMAT,
 } from './config';
-import { ensureDirectory, generateSecureRelativePath } from './storage';
-import { resolveNpcStoragePath } from './storage-root';
+import { generateSecureRelativePath } from './storage';
+import {
+  deleteNpcStorageFile,
+  readNpcStorageFile,
+  removeNpcStorageDirectory,
+  withNpcStorageDirectoryPath,
+  withNpcStorageFilePath,
+  writeNpcStorageFileAtomic,
+} from './storage-root';
 
-const execAsync = promisify(exec);
+const execFileAsync = promisify(execFile);
+
+async function execStorageWriter(
+  command: string,
+  arguments_: string[],
+): Promise<void> {
+  // A private child umask keeps tool-created staging files non-writable by the
+  // group/world. Positional arguments avoid interpolating paths into a shell.
+  await execFileAsync(
+    '/bin/sh',
+    ['-c', 'umask 027; exec "$@"', 'npc-storage-tool', command, ...arguments_],
+    { encoding: 'utf8' },
+  );
+}
 
 // ─── Types ───
 
@@ -43,8 +64,12 @@ export async function getPdfPageCount(
   pdfRelativePath: string,
 ): Promise<number | null> {
   try {
-    const pdfPath = await resolveNpcStoragePath(pdfRelativePath);
-    const { stdout } = await execAsync(`pdfinfo "${pdfPath}"`);
+    const stdout = await withNpcStorageFilePath(
+      pdfRelativePath,
+      async (pdfPath) => (
+        await execFileAsync('pdfinfo', [pdfPath], { encoding: 'utf8' })
+      ).stdout,
+    );
     const match = stdout.match(/Pages:\s*(\d+)/);
     return match ? parseInt(match[1], 10) : null;
   } catch (error) {
@@ -68,12 +93,14 @@ export async function convertPdfToImages(
     format?: 'webp' | 'jpeg' | 'png';
   } = {}
 ): Promise<PdfConversionResult> {
-  const { dpi = NPC_PDF_DPI, quality = NPC_IMAGE_QUALITY, format = NPC_CONVERTED_FORMAT } = options;
+  const { dpi = NPC_PDF_DPI, quality = NPC_IMAGE_QUALITY } = options;
+  const requestedFormat = options.format ?? NPC_CONVERTED_FORMAT;
+  if (!['webp', 'jpeg', 'png'].includes(requestedFormat)) {
+    return { success: false, error: 'UNSUPPORTED_OUTPUT_FORMAT' };
+  }
+  const format = requestedFormat as 'webp' | 'jpeg' | 'png';
 
   try {
-    const pdfPath = await resolveNpcStoragePath(pdfRelativePath);
-    const outputDirectory = await ensureDirectory(outputRelativeDirectory);
-
     // Get page count first
     const pageCount = await getPdfPageCount(pdfRelativePath);
     if (!pageCount || pageCount === 0) {
@@ -84,27 +111,52 @@ export async function convertPdfToImages(
     // Format: pdftoppm -jpeg -r 150 -jpegopt quality=85 input.pdf output_prefix
     const formatFlag = format === 'webp' ? '-png' : `-${format}`; // WebP not directly supported, convert via png then cwebp
     const qualityOpt = format === 'jpeg' ? `-jpegopt quality=${quality}` : '';
-    const outputPrefix = path.join(outputDirectory, 'page');
+    const stagingRelativeDirectory = path.join(
+      outputRelativeDirectory,
+      `.npc-convert-${randomBytes(16).toString('hex')}`,
+    );
+    const convertedPaths: string[] = [];
 
-    const cmd = `pdftoppm ${formatFlag} -r ${dpi} ${qualityOpt} "${pdfPath}" "${outputPrefix}"`;
+    try {
+      await withNpcStorageFilePath(pdfRelativePath, async (pdfPath) => {
+        await withNpcStorageDirectoryPath(
+          stagingRelativeDirectory,
+          { create: true },
+          async (stagingDirectory) => {
+            const arguments_ = [formatFlag, '-r', String(dpi)];
+            if (qualityOpt) {
+              arguments_.push('-jpegopt', `quality=${quality}`);
+            }
+            arguments_.push(
+              pdfPath,
+              path.join(stagingDirectory, 'page'),
+            );
+            await execStorageWriter('pdftoppm', arguments_);
+          },
+        );
+      });
 
-    await execAsync(cmd);
+      const stagedPaths = format === 'webp'
+        ? await convertPngsToWebp(stagingRelativeDirectory, quality)
+        : await listConvertedPaths(stagingRelativeDirectory, format);
 
-    // If WebP requested, convert PNG outputs
-    let convertedPaths: string[] = [];
-    if (format === 'webp') {
-      convertedPaths = await convertPngsToWebp(
-        outputRelativeDirectory,
-        quality,
+      for (const stagedPath of stagedPaths) {
+        const persistedBytes = await readNpcStorageFile(stagedPath);
+        const finalRelativePath = path.join(
+          outputRelativeDirectory,
+          path.basename(stagedPath),
+        );
+        await writeNpcStorageFileAtomic(
+          finalRelativePath,
+          persistedBytes,
+          persistedBytes.length,
+        );
+        convertedPaths.push(finalRelativePath);
+      }
+    } finally {
+      await removeNpcStorageDirectory(stagingRelativeDirectory).catch(
+        () => undefined,
       );
-    } else {
-      // List generated files
-      const files = await fs.readdir(outputDirectory);
-      const ext = format === 'jpeg' ? 'jpg' : format;
-      convertedPaths = files
-        .filter((f) => f.endsWith(`.${ext}`))
-        .sort()
-        .map((f) => path.join(outputRelativeDirectory, f));
     }
 
     if (convertedPaths.length === 0) {
@@ -128,6 +180,24 @@ export async function convertPdfToImages(
   }
 }
 
+async function listConvertedPaths(
+  relativeDirectory: string,
+  format: 'jpeg' | 'png',
+): Promise<string[]> {
+  return withNpcStorageDirectoryPath(
+    relativeDirectory,
+    { create: false },
+    async (directory) => {
+      const files = await fs.readdir(directory);
+      const extension = format === 'jpeg' ? 'jpg' : format;
+      return files
+        .filter((file) => file.endsWith(`.${extension}`))
+        .sort()
+        .map((file) => path.join(relativeDirectory, file));
+    },
+  );
+}
+
 /**
  * Convert PNG files to WebP using cwebp
  */
@@ -136,30 +206,38 @@ async function convertPngsToWebp(
   quality: number
 ): Promise<string[]> {
   try {
-    const directory = await resolveNpcStoragePath(relativeDirectory);
-    const files = await fs.readdir(directory);
-    const pngFiles = files.filter((f) => f.endsWith('.png')).sort();
+    return withNpcStorageDirectoryPath(
+      relativeDirectory,
+      { create: false },
+      async (directory) => {
+        const files = await fs.readdir(directory);
+        const pngFiles = files.filter((file) => file.endsWith('.png')).sort();
+        const webpPaths: string[] = [];
 
-    const webpPaths: string[] = [];
+        for (const pngFile of pngFiles) {
+          const pngRelativePath = path.join(relativeDirectory, pngFile);
+          const webpRelativePath = pngRelativePath.replace(/\.png$/, '.webp');
+          const webpPath = path.join(directory, path.basename(webpRelativePath));
 
-    for (const pngFile of pngFiles) {
-      const pngRelativePath = path.join(relativeDirectory, pngFile);
-      const webpRelativePath = pngRelativePath.replace(/\.png$/, '.webp');
-      const pngPath = await resolveNpcStoragePath(pngRelativePath);
-      const webpPath = await resolveNpcStoragePath(webpRelativePath);
+          try {
+            await withNpcStorageFilePath(pngRelativePath, async (pngPath) => {
+              await execStorageWriter(
+                'cwebp',
+                ['-q', String(quality), pngPath, '-o', webpPath],
+              );
+            });
+            await deleteNpcStorageFile(pngRelativePath);
+            webpPaths.push(webpRelativePath);
+          } catch (error) {
+            console.error(`[PDF Converter] WebP conversion failed for ${pngFile}:`, serializeError(error));
+            // Keep PNG as fallback
+            webpPaths.push(pngRelativePath);
+          }
+        }
 
-      try {
-        await execAsync(`cwebp -q ${quality} "${pngPath}" -o "${webpPath}"`);
-        await fs.unlink(pngPath); // Clean up PNG
-        webpPaths.push(webpRelativePath);
-      } catch (error) {
-        console.error(`[PDF Converter] WebP conversion failed for ${pngFile}:`, serializeError(error));
-        // Keep PNG as fallback
-        webpPaths.push(pngRelativePath);
+        return webpPaths;
       }
-    }
-
-    return webpPaths;
+    );
   } catch (error) {
     console.error('[PDF Converter] WebP batch conversion failed:', serializeError(error));
     return [];
@@ -175,18 +253,28 @@ export async function getImageDimensions(
   imageRelativePath: string
 ): Promise<{ width: number; height: number } | null> {
   try {
-    const imagePath = await resolveNpcStoragePath(imageRelativePath);
     // Try identify command (ImageMagick)
-    const { stdout } = await execAsync(
-      `identify -format "%w %h" "${imagePath}"`
+    const stdout = await withNpcStorageFilePath(
+      imageRelativePath,
+      async (imagePath) => (
+        await execFileAsync(
+          'identify',
+          ['-format', '%w %h', imagePath],
+          { encoding: 'utf8' },
+        )
+      ).stdout,
     );
     const [width, height] = stdout.trim().split(' ').map(Number);
     return { width, height };
   } catch {
     // Fallback: try file command
     try {
-      const imagePath = await resolveNpcStoragePath(imageRelativePath);
-      const { stdout } = await execAsync(`file "${imagePath}"`);
+      const stdout = await withNpcStorageFilePath(
+        imageRelativePath,
+        async (imagePath) => (
+          await execFileAsync('file', [imagePath], { encoding: 'utf8' })
+        ).stdout,
+      );
       const match = stdout.match(/(\d+)\s*x\s*(\d+)/);
       if (match) {
         return { width: parseInt(match[1], 10), height: parseInt(match[2], 10) };
@@ -210,7 +298,7 @@ export async function processPdfSubmission(
   submissionId: string
 ): Promise<PdfConversionResult & { pageInfos?: PageInfo[] }> {
   try {
-    await resolveNpcStoragePath(pdfRelativePath);
+    await withNpcStorageFilePath(pdfRelativePath, async () => undefined);
 
     // Generate output directory
     const outputRelativeDirectory = path.dirname(
@@ -263,6 +351,7 @@ export async function processPdfSubmission(
 
 export const PDF_CONVERSION_ERRORS: Record<string, string> = {
   EMPTY_PDF_OR_READ_ERROR: 'PDF vide ou erreur de lecture',
+  UNSUPPORTED_OUTPUT_FORMAT: 'Format de sortie non pris en charge',
   NO_IMAGES_GENERATED: 'Aucune image générée',
   CONVERSION_FAILED: 'Échec de la conversion PDF',
   PATH_TRAVERSAL_DETECTED: 'Chemin invalide détecté',

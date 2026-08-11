@@ -4,6 +4,8 @@ import {
   chmodSync,
   mkdirSync,
   mkdtempSync,
+  readFileSync,
+  renameSync,
   rmSync,
   symlinkSync,
   writeFileSync,
@@ -12,8 +14,10 @@ import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import {
   assertNpcStorageReady,
+  readNpcStorageFile,
   resolveNpcStoragePath,
   resolveNpcStorageRoot,
+  writeNpcStorageFileAtomic,
 } from '@/lib/npc/storage-root';
 
 describe('NPC canonical storage root', () => {
@@ -100,6 +104,39 @@ describe('NPC canonical storage root', () => {
     ).toThrow(/release/i);
   });
 
+  test('rejects a storage root that contains the active release', () => {
+    expect(() =>
+      assertNpcStorageReady({
+        capability: 'read-write',
+        releaseRoot,
+        env: envWithRoot(temporaryDirectory),
+      }),
+    ).toThrow(/overlap|release/i);
+  });
+
+  test('rejects the filesystem root as storage', () => {
+    expect(() =>
+      assertNpcStorageReady({
+        capability: 'read-only',
+        releaseRoot,
+        env: envWithRoot('/'),
+      }),
+    ).toThrow(/overlap|release/i);
+  });
+
+  test('uses path segments rather than string prefixes for release overlap', () => {
+    const similarlyNamedRoot = join(temporaryDirectory, 'release-shared');
+    mkdirSync(similarlyNamedRoot, { mode: 0o750 });
+
+    expect(
+      assertNpcStorageReady({
+        capability: 'read-write',
+        releaseRoot,
+        env: envWithRoot(similarlyNamedRoot),
+      }),
+    ).toBe(similarlyNamedRoot);
+  });
+
   test('allows read-only capability on a non-writable root but denies read-write', () => {
     chmodSync(storageRoot, 0o550);
 
@@ -125,6 +162,30 @@ describe('NPC canonical storage root', () => {
       ).toThrow(/permission|read|writ|travers/i);
     },
   );
+
+  test.each([
+    ['group-writable', 0o770],
+    ['world-writable', 0o757],
+    ['sticky world-writable', 0o1777],
+  ] as const)('rejects a %s storage root', (_label, mode) => {
+    chmodSync(storageRoot, mode);
+
+    expect(() =>
+      assertNpcStorageReady({ capability: 'read-write', releaseRoot }),
+    ).toThrow(/trusted|writable|permission/i);
+  });
+
+  test('rejects a storage root not owned by root or the current uid', () => {
+    const uidSpy = jest.spyOn(process, 'getuid').mockReturnValue(1001);
+
+    try {
+      expect(() =>
+        assertNpcStorageReady({ capability: 'read-only', releaseRoot }),
+      ).toThrow(/owner|trusted/i);
+    } finally {
+      uidSpy.mockRestore();
+    }
+  });
 
   test('returns the canonical real path when the root is ready', () => {
     expect(
@@ -161,11 +222,74 @@ describe('NPC canonical storage root', () => {
     );
   });
 
+  test('never follows a symbolic-link final entry during secure read', async () => {
+    const outsideFile = join(temporaryDirectory, 'outside-secure.pdf');
+    writeFileSync(outsideFile, 'outside', { mode: 0o640 });
+    symlinkSync(outsideFile, join(storageRoot, 'linked-secure.pdf'));
+
+    await expect(readNpcStorageFile('linked-secure.pdf')).rejects.toThrow(
+      /loop|symbolic|nofollow|storage/i,
+    );
+  });
+
   test('resolves a safe path whose final components do not exist yet', async () => {
     await expect(
       resolveNpcStoragePath('student/submission/page_1/copie.pdf'),
     ).resolves.toBe(
       join(storageRoot, 'student', 'submission', 'page_1', 'copie.pdf'),
     );
+  });
+
+  test('rejects an existing group-writable directory below the root', async () => {
+    const unsafeDirectory = join(storageRoot, 'unsafe');
+    mkdirSync(unsafeDirectory, { mode: 0o770 });
+    chmodSync(unsafeDirectory, 0o770);
+
+    await expect(
+      resolveNpcStoragePath('unsafe/copie.pdf'),
+    ).rejects.toThrow(/trusted|writable|permission/i);
+  });
+
+  test('refuses a read after a checked parent is swapped for a symlink', async () => {
+    const parent = join(storageRoot, 'parent');
+    const originalParent = join(storageRoot, 'parent-original');
+    const outside = join(temporaryDirectory, 'outside');
+    mkdirSync(parent, { mode: 0o750 });
+    mkdirSync(outside);
+    writeFileSync(join(parent, 'copie.pdf'), 'inside', { mode: 0o640 });
+    writeFileSync(join(outside, 'copie.pdf'), 'outside');
+
+    await expect(resolveNpcStoragePath('parent/copie.pdf')).resolves.toBe(
+      join(parent, 'copie.pdf'),
+    );
+    renameSync(parent, originalParent);
+    symlinkSync(outside, parent, 'dir');
+
+    await expect(readNpcStorageFile('parent/copie.pdf')).rejects.toThrow(
+      /symbolic|trusted|nofollow|storage/i,
+    );
+  });
+
+  test('refuses a write after a checked parent is swapped for a symlink', async () => {
+    const parent = join(storageRoot, 'parent');
+    const originalParent = join(storageRoot, 'parent-original');
+    const outside = join(temporaryDirectory, 'outside');
+    mkdirSync(parent, { mode: 0o750 });
+    mkdirSync(outside);
+
+    await expect(resolveNpcStoragePath('parent/copie.pdf')).resolves.toBe(
+      join(parent, 'copie.pdf'),
+    );
+    renameSync(parent, originalParent);
+    symlinkSync(outside, parent, 'dir');
+
+    await expect(
+      writeNpcStorageFileAtomic(
+        'parent/copie.pdf',
+        Buffer.from('blocked'),
+        Buffer.byteLength('blocked'),
+      ),
+    ).rejects.toThrow(/symbolic|trusted|nofollow|storage/i);
+    expect(() => readFileSync(join(outside, 'copie.pdf'))).toThrow();
   });
 });
