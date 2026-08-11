@@ -5,6 +5,17 @@ import { CopySubmissionStatus, UserRole } from '@prisma/client';
 import { deleteSecureFile } from '@/lib/npc/storage';
 import { canManageSubmissionDocuments } from '@/lib/npc/access';
 import { isCorrectionDocumentType } from '@/lib/npc/document-types';
+import { withLockedCopySubmission } from '@/lib/npc/submission-lock';
+import { NPC_INTERACTIVE_TRANSACTION_OPTIONS } from '@/lib/npc/transaction';
+import {
+  NPC_UNAVAILABLE_CONFLICT,
+  SubmissionUnavailableError,
+} from '@/lib/npc/unavailable';
+import {
+  assertSubmissionInventoryMutable,
+  NPC_INVENTORY_FROZEN_CONFLICT,
+  SubmissionInventoryFrozenError,
+} from '@/lib/npc/submission-inventory';
 import { serializeError } from '@/lib/utils/serialize-error';
 import { z } from 'zod';
 
@@ -63,7 +74,7 @@ export async function PATCH(
     const { submissionId, documentId } = parsedParams.data;
     const submission = await prisma.copySubmission.findUnique({
       where: { id: submissionId },
-      select: { id: true, studentId: true, coachId: true, pages: true },
+      select: { id: true, studentId: true, coachId: true, status: true, pages: true },
     });
 
     if (!submission) {
@@ -74,12 +85,8 @@ export async function PATCH(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    const document = await prisma.copyPage.findFirst({
-      where: { id: documentId, submissionId },
-    });
-
-    if (!document) {
-      return NextResponse.json({ error: 'Document not found' }, { status: 404 });
+    if (submission.status === CopySubmissionStatus.UNAVAILABLE) {
+      return NextResponse.json(NPC_UNAVAILABLE_CONFLICT, { status: 409 });
     }
 
     const parsedBody = patchBodySchema.safeParse(await request.json());
@@ -91,51 +98,82 @@ export async function PATCH(
     }
     const { documentType } = parsedBody.data;
 
-    const updatedDocument = await prisma.copyPage.update({
-      where: { id: document.id },
-      data: { documentType },
-    });
+    const updatedDocument = await prisma.$transaction(async (tx) =>
+      withLockedCopySubmission(tx, submissionId, async (locked) => {
+        assertSubmissionInventoryMutable(locked);
+        const document = await tx.copyPage.findFirst({
+          where: { id: documentId, submissionId },
+        });
+        if (!document) return null;
 
-    // Update submission status if needed
-    // Calculate status with the NEW document type included
-    const allDocumentTypes = [
-      ...submission.pages.filter((p) => p.id !== document.id).map((p) => p.documentType),
-      documentType,
-    ];
-    const hasStudentCopy = allDocumentTypes.includes('STUDENT_COPY');
-    const hasMinimalContext =
-      allDocumentTypes.includes('SUBJECT') ||
-      allDocumentTypes.includes('GRADING_RUBRIC') ||
-      allDocumentTypes.includes('GRADING_INSTRUCTIONS');
+        const updated = await tx.copyPage.update({
+          where: { id: document.id },
+          data: { documentType },
+        });
+        const pages = await tx.copyPage.findMany({
+          where: { submissionId },
+          orderBy: { pageNumber: 'asc' },
+          select: {
+            documentType: true,
+            originalFilePath: true,
+            sizeBytes: true,
+            mimeType: true,
+          },
+        });
+        const allDocumentTypes = pages.map((page) => page.documentType);
+        const hasStudentCopy = allDocumentTypes.includes('STUDENT_COPY');
+        const hasMinimalContext =
+          allDocumentTypes.includes('SUBJECT') ||
+          allDocumentTypes.includes('GRADING_RUBRIC') ||
+          allDocumentTypes.includes('GRADING_INSTRUCTIONS');
+        const mirroredPage = pages.find(
+          (page) => page.documentType === 'STUDENT_COPY',
+        );
 
-    await prisma.copySubmission.update({
-      where: { id: submissionId },
-      data: {
-        status:
-          hasStudentCopy && hasMinimalContext
-            ? CopySubmissionStatus.READY_FOR_AI
-            : CopySubmissionStatus.UPLOADED,
-      },
-    });
+        await tx.copySubmission.update({
+          where: { id: submissionId },
+          data: {
+            status:
+              hasStudentCopy && hasMinimalContext
+                ? CopySubmissionStatus.READY_FOR_AI
+                : CopySubmissionStatus.UPLOADED,
+            storedFilePath: mirroredPage?.originalFilePath ?? null,
+            fileSizeBytes: mirroredPage?.sizeBytes ?? null,
+            mimeType: mirroredPage?.mimeType ?? null,
+          },
+        });
+        await tx.npcAuditLog.create({
+          data: {
+            actorId: actor.userId,
+            actorRole: actor.role,
+            action: 'UPDATE_DOCUMENT_TYPE',
+            entityType: 'CopyPage',
+            entityId: document.id,
+            details: {
+              oldType: document.documentType,
+              newType: documentType,
+            },
+          },
+        });
+        return updated;
+      }),
+      NPC_INTERACTIVE_TRANSACTION_OPTIONS,
+    );
 
-    await prisma.npcAuditLog.create({
-      data: {
-        actorId: actor.userId,
-        actorRole: actor.role,
-        action: 'UPDATE_DOCUMENT_TYPE',
-        entityType: 'CopyPage',
-        entityId: document.id,
-        details: JSON.stringify({
-          oldType: document.documentType,
-          newType: documentType,
-        }),
-      },
-    });
+    if (!updatedDocument) {
+      return NextResponse.json({ error: 'Document not found' }, { status: 404 });
+    }
 
     return NextResponse.json({
       document: sanitizeCopyPage(updatedDocument as unknown as Record<string, unknown>),
     });
   } catch (error) {
+    if (error instanceof SubmissionUnavailableError) {
+      return NextResponse.json(NPC_UNAVAILABLE_CONFLICT, { status: 409 });
+    }
+    if (error instanceof SubmissionInventoryFrozenError) {
+      return NextResponse.json(NPC_INVENTORY_FROZEN_CONFLICT, { status: 409 });
+    }
     console.error('[NPC Documents] PATCH error:', serializeError(error));
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
@@ -156,7 +194,7 @@ export async function DELETE(
     const { submissionId, documentId } = parsedParams.data;
     const submission = await prisma.copySubmission.findUnique({
       where: { id: submissionId },
-      select: { id: true, studentId: true, coachId: true },
+      select: { id: true, studentId: true, coachId: true, status: true },
     });
 
     if (!submission) {
@@ -167,48 +205,91 @@ export async function DELETE(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    const document = await prisma.copyPage.findFirst({
-      where: { id: documentId, submissionId },
-      select: { id: true, originalFilePath: true },
-    });
+    if (submission.status === CopySubmissionStatus.UNAVAILABLE) {
+      return NextResponse.json(NPC_UNAVAILABLE_CONFLICT, { status: 409 });
+    }
+
+    const document = await prisma.$transaction(async (tx) =>
+      withLockedCopySubmission(tx, submissionId, async (locked) => {
+        assertSubmissionInventoryMutable(locked);
+        const target = await tx.copyPage.findFirst({
+          where: { id: documentId, submissionId },
+          select: { id: true, originalFilePath: true },
+        });
+        if (!target) return null;
+
+        await tx.copyPage.delete({ where: { id: target.id } });
+        const remainingPages = await tx.copyPage.findMany({
+          where: { submissionId },
+          orderBy: { pageNumber: 'asc' },
+          select: {
+            documentType: true,
+            originalFilePath: true,
+            sizeBytes: true,
+            mimeType: true,
+          },
+        });
+        const remainingStudentCopy = remainingPages.find(
+          (page) => page.documentType === 'STUDENT_COPY',
+        );
+        const documentTypes = remainingPages.map((page) => page.documentType);
+        const hasMinimalContext = documentTypes.some((type) =>
+          ['SUBJECT', 'GRADING_RUBRIC', 'GRADING_INSTRUCTIONS'].includes(type),
+        );
+        await tx.copySubmission.update({
+          where: { id: submissionId },
+          data: {
+            status: remainingStudentCopy
+              ? hasMinimalContext
+                ? CopySubmissionStatus.READY_FOR_AI
+                : CopySubmissionStatus.UPLOADED
+              : CopySubmissionStatus.PENDING_UPLOAD,
+            storedFilePath: remainingStudentCopy?.originalFilePath ?? null,
+            fileSizeBytes: remainingStudentCopy?.sizeBytes ?? null,
+            mimeType: remainingStudentCopy?.mimeType ?? null,
+          },
+        });
+        await tx.npcAuditLog.create({
+          data: {
+            actorId: actor.userId,
+            actorRole: actor.role,
+            action: 'DELETE_CORRECTION_DOCUMENT',
+            entityType: 'CopyPage',
+            entityId: target.id,
+            details: { submissionId },
+          },
+        });
+        return target;
+      }),
+      NPC_INTERACTIVE_TRANSACTION_OPTIONS,
+    );
 
     if (!document) {
       return NextResponse.json({ error: 'Document not found' }, { status: 404 });
     }
 
-    await prisma.copyPage.delete({ where: { id: document.id } });
-    await deleteSecureFile(document.originalFilePath);
-
-    const remainingStudentCopies = await prisma.copyPage.findFirst({
-      where: { submissionId, documentType: 'STUDENT_COPY' },
-      select: { id: true },
-    });
-
-    if (!remainingStudentCopies) {
-      await prisma.copySubmission.update({
-        where: { id: submissionId },
+    const diskDeleted = await deleteSecureFile(document.originalFilePath);
+    if (!diskDeleted) {
+      await prisma.npcAuditLog.create({
         data: {
-          status: CopySubmissionStatus.PENDING_UPLOAD,
-          storedFilePath: null,
-          fileSizeBytes: null,
-          mimeType: null,
+          actorId: actor.userId,
+          actorRole: actor.role,
+          action: 'DELETE_CORRECTION_DOCUMENT_STORAGE_FAILED',
+          entityType: 'CopyPage',
+          entityId: document.id,
+          details: { submissionId },
         },
       });
     }
 
-    await prisma.npcAuditLog.create({
-      data: {
-        actorId: actor.userId,
-        actorRole: actor.role,
-        action: 'DELETE_CORRECTION_DOCUMENT',
-        entityType: 'CopyPage',
-        entityId: document.id,
-        details: JSON.stringify({ submissionId }),
-      },
-    });
-
     return NextResponse.json({ success: true });
   } catch (error) {
+    if (error instanceof SubmissionUnavailableError) {
+      return NextResponse.json(NPC_UNAVAILABLE_CONFLICT, { status: 409 });
+    }
+    if (error instanceof SubmissionInventoryFrozenError) {
+      return NextResponse.json(NPC_INVENTORY_FROZEN_CONFLICT, { status: 409 });
+    }
     console.error('[NPC Documents] Delete error:', serializeError(error));
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

@@ -1,15 +1,16 @@
+import { randomBytes } from 'node:crypto';
+import path from 'node:path';
 import { serializeError } from '@/lib/utils/serialize-error';
-// ═══════════════════════════════════════════════════════════════════════════════
-// NPC - NEXUS PEDAGOGY COCKPIT — Secure File Storage
-// Server-side only - handles secure path generation and file operations
-// ═══════════════════════════════════════════════════════════════════════════════
-
-import fs from 'fs/promises';
-import path from 'path';
-import { randomBytes } from 'crypto';
-import { NPC_UPLOAD_DIR, SECURE_FILE_ID_LENGTH } from './config';
-
-// ─── Types ───
+import { SECURE_FILE_ID_LENGTH } from './config';
+import {
+  deleteNpcStorageFile,
+  ensureNpcStorageDirectory,
+  npcStorageFileExists,
+  readNpcStorageFile,
+  removeNpcStorageDirectory,
+  resolveNpcStoragePath,
+  writeNpcStorageFileAtomic,
+} from './storage-root';
 
 export interface StorageResult {
   success: boolean;
@@ -17,6 +18,7 @@ export interface StorageResult {
   secureId?: string;
   filePath?: string;
   relativePath?: string;
+  sha256?: string;
 }
 
 export interface FileMetadata {
@@ -31,147 +33,135 @@ export interface FileMetadata {
   pageNumber?: number;
 }
 
-// ─── Secure Path Generation ───
-
-/**
- * Generate cryptographically secure random ID
- */
 export function generateSecureFileId(): string {
   return randomBytes(SECURE_FILE_ID_LENGTH).toString('hex');
 }
 
-/**
- * Generate secure directory structure
- * Format: uploads/copies/{studentId}/{submissionId}/{pageNumber}/
- * This prevents enumeration attacks and organizes by entity
- */
-export function generateSecurePath(
+function entityPrefix(value: string, length: number, label: string): string {
+  if (value.length < length || !/^[A-Za-z0-9_-]+$/.test(value)) {
+    throw new Error(`Invalid NPC storage ${label} segment`);
+  }
+
+  return value.slice(0, length);
+}
+
+function fileSegment(filename: string): string {
+  if (
+    !filename ||
+    filename === '.' ||
+    filename === '..' ||
+    filename.includes('/') ||
+    filename.includes('\\') ||
+    filename.includes('\0')
+  ) {
+    throw new Error('Invalid NPC storage filename segment');
+  }
+
+  return filename;
+}
+
+export function generateSecureRelativePath(
   studentId: string,
   submissionId: string,
   pageNumber: number,
-  filename: string
+  filename: string,
 ): string {
-  // Create hierarchical structure
-  const baseDir = NPC_UPLOAD_DIR;
-  const studentDir = path.join(baseDir, studentId.slice(0, 8)); // First 8 chars for partitioning
-  const submissionDir = path.join(studentDir, submissionId.slice(0, 12));
-  const pageDir = path.join(submissionDir, `page_${pageNumber}`);
-
-  return path.join(pageDir, filename);
-}
-
-/**
- * Ensure directory exists (recursive)
- */
-export async function ensureDirectory(dirPath: string): Promise<void> {
-  try {
-    await fs.access(dirPath);
-  } catch {
-    await fs.mkdir(dirPath, { recursive: true, mode: 0o750 }); // rwxr-x---
+  if (!Number.isSafeInteger(pageNumber) || pageNumber < 0) {
+    throw new Error('Invalid NPC storage page segment');
   }
+
+  return path.join(
+    entityPrefix(studentId, 8, 'student'),
+    entityPrefix(submissionId, 12, 'submission'),
+    `page_${pageNumber}`,
+    fileSegment(filename),
+  );
 }
 
-// ─── File Operations ───
+export async function generateSecurePath(
+  studentId: string,
+  submissionId: string,
+  pageNumber: number,
+  filename: string,
+): Promise<string> {
+  return resolveNpcStoragePath(
+    generateSecureRelativePath(
+      studentId,
+      submissionId,
+      pageNumber,
+      filename,
+    ),
+  );
+}
 
-/**
- * Save uploaded file to secure location
- * SERVER-SIDE ONLY - never expose this to client
- */
+export async function ensureDirectory(
+  relativeDirectory: string,
+): Promise<string> {
+  return ensureNpcStorageDirectory(relativeDirectory);
+}
+
+function hasErrorCode(error: unknown, code: string): boolean {
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    'code' in error &&
+    error.code === code
+  );
+}
+
 export async function saveUploadedFile(
   fileBuffer: Buffer,
-  metadata: FileMetadata
+  metadata: FileMetadata,
 ): Promise<StorageResult> {
   try {
-    // Validate inputs
     if (!metadata.studentId || !metadata.submissionId) {
       return { success: false, error: 'MISSING_ENTITY_IDS' };
     }
 
-    // Generate secure path
-    const filePath = generateSecurePath(
+    const relativePath = generateSecureRelativePath(
       metadata.studentId,
       metadata.submissionId,
-      metadata.pageNumber || 1,
-      metadata.sanitizedName
+      metadata.pageNumber ?? 1,
+      metadata.sanitizedName,
     );
-
-    // Ensure directory exists
-    const dir = path.dirname(filePath);
-    await ensureDirectory(dir);
-
-    // Write file with restricted permissions
-    await fs.writeFile(filePath, fileBuffer, { mode: 0o640 }); // rw-r-----
-
-    // Verify file was written
-    const stats = await fs.stat(filePath);
-    if (stats.size !== metadata.sizeBytes) {
-      // Rollback on size mismatch
-      await fs.unlink(filePath).catch(() => {});
-      return { success: false, error: 'SIZE_MISMATCH_AFTER_WRITE' };
-    }
-
-    // Return relative path for database storage (never return absolute path)
-    const relativePath = path.relative(NPC_UPLOAD_DIR, filePath);
+    const persisted = await writeNpcStorageFileAtomic(
+      relativePath,
+      fileBuffer,
+      metadata.sizeBytes,
+    );
 
     return {
       success: true,
       secureId: metadata.secureId,
-      filePath,
+      filePath: persisted.filePath,
       relativePath,
+      sha256: persisted.sha256,
     };
   } catch (error) {
+    if (hasErrorCode(error, 'NPC_STORAGE_SIZE_MISMATCH')) {
+      return { success: false, error: 'SIZE_MISMATCH_AFTER_WRITE' };
+    }
     console.error('[NPC Storage] Save failed:', serializeError(error));
     return { success: false, error: 'SAVE_FAILED' };
   }
 }
 
-/**
- * Read file from secure storage
- * SERVER-SIDE ONLY
- */
 export async function readSecureFile(
-  relativePath: string
+  relativePath: string,
 ): Promise<Buffer | null> {
   try {
-    // Prevent path traversal: ensure path is within upload dir
-    const absolutePath = path.resolve(NPC_UPLOAD_DIR, relativePath);
-    const resolvedUploadDir = path.resolve(NPC_UPLOAD_DIR);
-    const allowedPrefix = resolvedUploadDir.endsWith(path.sep)
-      ? resolvedUploadDir
-      : `${resolvedUploadDir}${path.sep}`;
-
-    if (absolutePath !== resolvedUploadDir && !absolutePath.startsWith(allowedPrefix)) {
-      console.error('[NPC Storage] Path traversal attempt');
-      return null;
-    }
-
-    return await fs.readFile(absolutePath);
+    return await readNpcStorageFile(relativePath);
   } catch (error) {
     console.error('[NPC Storage] Read failed:', serializeError(error));
     return null;
   }
 }
 
-/**
- * Delete file from secure storage
- */
 export async function deleteSecureFile(
-  relativePath: string
+  relativePath: string,
 ): Promise<boolean> {
   try {
-    // Prevent path traversal
-    const absolutePath = path.resolve(NPC_UPLOAD_DIR, relativePath);
-    const resolvedUploadDir = path.resolve(NPC_UPLOAD_DIR);
-    const allowedPrefix = resolvedUploadDir.endsWith(path.sep)
-      ? resolvedUploadDir
-      : `${resolvedUploadDir}${path.sep}`;
-
-    if (absolutePath !== resolvedUploadDir && !absolutePath.startsWith(allowedPrefix)) {
-      console.error('[NPC Storage] Path traversal attempt');
-      return false;
-    }
-
-    await fs.unlink(absolutePath);
+    await deleteNpcStorageFile(relativePath);
     return true;
   } catch (error) {
     console.error('[NPC Storage] Delete failed:', serializeError(error));
@@ -179,67 +169,30 @@ export async function deleteSecureFile(
   }
 }
 
-/**
- * Check if file exists
- */
 export async function fileExists(relativePath: string): Promise<boolean> {
   try {
-    // Prevent path traversal
-    const absolutePath = path.resolve(NPC_UPLOAD_DIR, relativePath);
-    const resolvedUploadDir = path.resolve(NPC_UPLOAD_DIR);
-    const allowedPrefix = resolvedUploadDir.endsWith(path.sep)
-      ? resolvedUploadDir
-      : `${resolvedUploadDir}${path.sep}`;
-
-    if (absolutePath !== resolvedUploadDir && !absolutePath.startsWith(allowedPrefix)) {
-      return false;
-    }
-
-    await fs.access(absolutePath);
-    return true;
+    return await npcStorageFileExists(relativePath);
   } catch {
     return false;
   }
 }
 
-// ─── Directory Cleanup ───
-
-/**
- * Delete all files associated with a submission
- */
 export async function deleteSubmissionFiles(
   studentId: string,
-  submissionId: string
+  submissionId: string,
 ): Promise<boolean> {
   try {
-    // Validate inputs
-    if (!studentId || !submissionId || studentId.length < 8 || submissionId.length < 12) {
-      return false;
-    }
-
-    const baseDir = NPC_UPLOAD_DIR;
-    const studentDir = path.join(baseDir, studentId.slice(0, 8));
-    const submissionDir = path.join(studentDir, submissionId.slice(0, 12));
-
-    // Verify path is within upload directory
-    const resolvedUploadDir = path.resolve(NPC_UPLOAD_DIR);
-    const resolvedSubmissionDir = path.resolve(submissionDir);
-
-    if (!resolvedSubmissionDir.startsWith(resolvedUploadDir)) {
-      console.error('[NPC Storage] Path traversal attempt in cleanup');
-      return false;
-    }
-
-    // Remove submission directory recursively
-    await fs.rm(submissionDir, { recursive: true, force: true });
+    const relativeSubmissionDirectory = path.join(
+      entityPrefix(studentId, 8, 'student'),
+      entityPrefix(submissionId, 12, 'submission'),
+    );
+    await removeNpcStorageDirectory(relativeSubmissionDirectory);
     return true;
   } catch (error) {
     console.error('[NPC Storage] Cleanup failed:', serializeError(error));
     return false;
   }
 }
-
-// ─── Error Messages ───
 
 export const STORAGE_ERRORS: Record<string, string> = {
   MISSING_ENTITY_IDS: 'IDs étudiant/soumission manquants',

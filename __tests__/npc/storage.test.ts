@@ -1,131 +1,217 @@
-// ═══════════════════════════════════════════════════════════════════════════════
-// NPC Storage - Unit Tests
-// Tests for secure path generation and file operations
-// ═══════════════════════════════════════════════════════════════════════════════
+/** @jest-environment node */
 
 import {
+  chmodSync,
+  existsSync,
+  lstatSync,
+  mkdtempSync,
+  mkdirSync,
+  readFileSync,
+  readdirSync,
+  rmSync,
+} from 'node:fs';
+import { open } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { dirname, join } from 'node:path';
+import { createHash } from 'node:crypto';
+import {
+  deleteSecureFile,
+  deleteSubmissionFiles,
+  fileExists,
   generateSecureFileId,
   generateSecurePath,
-  fileExists,
-  deleteSubmissionFiles,
-  SECURE_FILE_ID_LENGTH,
-  NPC_UPLOAD_DIR,
-} from '@/lib/npc';
+  readSecureFile,
+  saveUploadedFile,
+  type FileMetadata,
+} from '@/lib/npc/storage';
+import { SECURE_FILE_ID_LENGTH } from '@/lib/npc/config';
 
-describe('NPC Storage', () => {
-  const mockStudentId = 'student123456';
-  const mockSubmissionId = 'submission789012';
+describe('NPC storage operations', () => {
+  const originalStorageRoot = process.env.NPC_STORAGE_ROOT;
+  let temporaryDirectory: string;
+  let storageRoot: string;
 
-  // ─────────────────────────────────────────────────────────────────────────────
-  // Secure ID Generation
-  // ─────────────────────────────────────────────────────────────────────────────
-
-  describe('generateSecureFileId', () => {
-    it('generates hex string', () => {
-      const id = generateSecureFileId();
-      expect(id).toMatch(/^[a-f0-9]+$/);
-    });
-
-    it('has correct length', () => {
-      const id = generateSecureFileId();
-      expect(id.length).toBe(SECURE_FILE_ID_LENGTH * 2); // hex = 2 chars per byte
-    });
-
-    it('generates unique IDs', () => {
-      const id1 = generateSecureFileId();
-      const id2 = generateSecureFileId();
-      expect(id1).not.toBe(id2);
-    });
+  beforeEach(() => {
+    temporaryDirectory = mkdtempSync(join(tmpdir(), 'npc-storage-operations-'));
+    storageRoot = join(temporaryDirectory, 'shared');
+    mkdirSync(storageRoot, { mode: 0o750 });
+    process.env.NPC_STORAGE_ROOT = storageRoot;
   });
 
-  // ─────────────────────────────────────────────────────────────────────────────
-  // Secure Path Generation
-  // ─────────────────────────────────────────────────────────────────────────────
+  afterEach(() => {
+    chmodSync(storageRoot, 0o750);
+    rmSync(temporaryDirectory, { recursive: true, force: true });
+    if (originalStorageRoot === undefined) {
+      delete process.env.NPC_STORAGE_ROOT;
+    } else {
+      process.env.NPC_STORAGE_ROOT = originalStorageRoot;
+    }
+  });
 
-  describe('generateSecurePath', () => {
-    it('includes student ID prefix', () => {
-      const path = generateSecurePath(mockStudentId, mockSubmissionId, 1, 'file.pdf');
-      expect(path).toContain(mockStudentId.slice(0, 8));
+  const metadata = (overrides: Partial<FileMetadata> = {}): FileMetadata => ({
+    secureId: 'secure-file-id',
+    originalName: 'copie.pdf',
+    sanitizedName: 'copie.pdf',
+    mimeType: 'application/pdf',
+    sizeBytes: Buffer.byteLength('copie-nexus!'),
+    createdAt: new Date('2026-08-11T00:00:00.000Z'),
+    studentId: 'student123456',
+    submissionId: 'submission789012',
+    pageNumber: 1,
+    ...overrides,
+  });
+
+  test('generates unique hexadecimal file identifiers', () => {
+    const first = generateSecureFileId();
+    const second = generateSecureFileId();
+
+    expect(first).toMatch(/^[a-f0-9]+$/);
+    expect(first).toHaveLength(SECURE_FILE_ID_LENGTH * 2);
+    expect(second).not.toBe(first);
+  });
+
+  test('generates a path below the canonical root', async () => {
+    const filePath = await generateSecurePath(
+      'student123456',
+      'submission789012',
+      5,
+      'copie.pdf',
+    );
+
+    expect(filePath).toBe(
+      join(storageRoot, 'student1', 'submission78', 'page_5', 'copie.pdf'),
+    );
+  });
+
+  test.each([
+    ['student identifier', '../escape', 'submission789012', 'copie.pdf'],
+    ['submission identifier', 'student123456', '../escape-value', 'copie.pdf'],
+    ['filename traversal', 'student123456', 'submission789012', '../copie.pdf'],
+    ['filename separator', 'student123456', 'submission789012', 'nested/copie.pdf'],
+  ])(
+    'rejects traversal through the %s',
+    async (_label, studentId, submissionId, filename) => {
+      await expect(
+        generateSecurePath(studentId, submissionId, 1, filename),
+      ).rejects.toThrow(/path|segment|traversal/i);
+    },
+  );
+
+  test('writes bytes, reports their SHA-256, and reads them back', async () => {
+    const bytes = Buffer.from('copie-nexus!');
+    const result = await saveUploadedFile(bytes, metadata());
+
+    expect(result).toMatchObject({
+      success: true,
+      secureId: 'secure-file-id',
+      relativePath: join('student1', 'submission78', 'page_1', 'copie.pdf'),
+      sha256: createHash('sha256').update(bytes).digest('hex'),
     });
+    expect(result.filePath).toBe(join(storageRoot, result.relativePath!));
+    expect(readFileSync(result.filePath!)).toEqual(bytes);
+    expect(lstatSync(dirname(result.filePath!)).isDirectory()).toBe(true);
+    await expect(readSecureFile(result.relativePath!)).resolves.toEqual(bytes);
+    await expect(fileExists(result.relativePath!)).resolves.toBe(true);
+  });
 
-    it('includes submission ID prefix', () => {
-      const path = generateSecurePath(mockStudentId, mockSubmissionId, 1, 'file.pdf');
-      expect(path).toContain(mockSubmissionId.slice(0, 12));
+  test('removes a write whose persisted size differs from metadata', async () => {
+    const result = await saveUploadedFile(
+      Buffer.from('short'),
+      metadata({ sizeBytes: 999 }),
+    );
+
+    expect(result).toEqual({
+      success: false,
+      error: 'SIZE_MISMATCH_AFTER_WRITE',
     });
+    await expect(
+      fileExists(join('student1', 'submission78', 'page_1', 'copie.pdf')),
+    ).resolves.toBe(false);
+  });
 
-    it('includes page number', () => {
-      const path = generateSecurePath(mockStudentId, mockSubmissionId, 5, 'file.pdf');
-      expect(path).toContain('page_5');
-    });
+  test('removes the temporary file when same-handle readback fails', async () => {
+    const probePath = join(storageRoot, 'probe');
+    const probe = await open(probePath, 'w+');
+    const fileHandlePrototype = Object.getPrototypeOf(probe) as {
+      read: (...arguments_: unknown[]) => Promise<unknown>;
+    };
+    await probe.close();
+    rmSync(probePath);
+    const readSpy = jest
+      .spyOn(fileHandlePrototype, 'read')
+      .mockRejectedValueOnce(new Error('INJECTED_READBACK_FAILURE'));
+    const errorSpy = jest.spyOn(console, 'error').mockImplementation();
 
-    it('includes filename', () => {
-      const path = generateSecurePath(mockStudentId, mockSubmissionId, 1, 'document.pdf');
-      expect(path).toContain('document.pdf');
-    });
-
-    it('uses absolute path from NPC_UPLOAD_DIR', () => {
-      const path = generateSecurePath(mockStudentId, mockSubmissionId, 1, 'file.pdf');
-      expect(path.startsWith(NPC_UPLOAD_DIR)).toBe(true);
-    });
-
-    it('prevents directory traversal in filename', () => {
-      const path = generateSecurePath(
-        mockStudentId,
-        mockSubmissionId,
-        1,
-        '../../../etc/passwd.pdf'
+    try {
+      const result = await saveUploadedFile(
+        Buffer.from('copie-nexus!'),
+        metadata(),
       );
-      // Should still create a path, but the malicious filename is handled by sanitizeFilename
-      expect(path).toContain(NPC_UPLOAD_DIR);
-    });
+
+      expect(result).toEqual({ success: false, error: 'SAVE_FAILED' });
+      const destination = join(
+        storageRoot,
+        'student1',
+        'submission78',
+        'page_1',
+      );
+      expect(existsSync(join(destination, 'copie.pdf'))).toBe(false);
+      expect(existsSync(destination) ? readdirSync(destination) : []).toEqual([]);
+    } finally {
+      readSpy.mockRestore();
+      errorSpy.mockRestore();
+    }
   });
 
-  // ─────────────────────────────────────────────────────────────────────────────
-  // Path Traversal Prevention
-  // ─────────────────────────────────────────────────────────────────────────────
+  test('publishes without overwrite and returns the digest of the winning inode', async () => {
+    const firstBytes = Buffer.from('first-payload');
+    const secondBytes = Buffer.from('other-payload');
+    expect(firstBytes).toHaveLength(secondBytes.length);
 
-  describe('path traversal prevention', () => {
-    it('prevents relative path components in IDs', () => {
-      // IDs should not contain path traversal characters
-      // generateSecurePath uses slice(0,8) for studentId and slice(0,12) for submissionId
-      const path1 = generateSecurePath('student123456', 'sub45678901234', 1, 'test.pdf');
-      expect(path1.startsWith(NPC_UPLOAD_DIR)).toBe(true);
-      // Path should contain the sliced IDs: student12 (8 chars) and sub456789012 (12 chars)
-      expect(path1).toContain('student1');
-      expect(path1).toContain('sub456789012');
-    });
+    const [first, second] = await Promise.all([
+      saveUploadedFile(firstBytes, metadata({ sizeBytes: firstBytes.length })),
+      saveUploadedFile(secondBytes, metadata({ sizeBytes: secondBytes.length })),
+    ]);
+    const successes = [first, second].filter((result) => result.success);
+    const failures = [first, second].filter((result) => !result.success);
 
-    it('handles edge case IDs', () => {
-      const path = generateSecurePath('', '', 0, 'test.pdf');
-      expect(path.startsWith(NPC_UPLOAD_DIR)).toBe(true);
-    });
+    expect(successes).toHaveLength(1);
+    expect(failures).toHaveLength(1);
+    const winner = successes[0];
+    const storedBytes = readFileSync(winner.filePath!);
+    expect(winner.sha256).toBe(
+      createHash('sha256').update(storedBytes).digest('hex'),
+    );
+    expect([firstBytes, secondBytes]).toContainEqual(storedBytes);
+    expect(
+      readdirSync(dirname(winner.filePath!)).filter((name) => name.endsWith('.tmp')),
+    ).toEqual([]);
   });
 
-  // ─────────────────────────────────────────────────────────────────────────────
-  // File Operations (Mocked)
-  // ─────────────────────────────────────────────────────────────────────────────
-
-  describe('fileExists', () => {
-    it('returns false for non-existent file', async () => {
-      const exists = await fileExists('nonexistent/test.pdf');
-      expect(exists).toBe(false);
-    });
-
-    it('prevents path traversal checks', async () => {
-      const exists = await fileExists('../../../etc/passwd');
-      expect(exists).toBe(false);
-    });
+  test('rejects unsafe reads and deletes', async () => {
+    await expect(readSecureFile('../outside.pdf')).resolves.toBeNull();
+    await expect(fileExists('../outside.pdf')).resolves.toBe(false);
+    await expect(deleteSecureFile('../outside.pdf')).resolves.toBe(false);
   });
 
-  describe('deleteSubmissionFiles', () => {
-    it('returns false for invalid paths', async () => {
-      const result = await deleteSubmissionFiles('', '');
-      expect(result).toBe(false);
-    });
+  test('deletes a stored file and all files for a valid submission', async () => {
+    const first = await saveUploadedFile(Buffer.from('copie-nexus!'), metadata());
+    expect(first.success).toBe(true);
+    await expect(deleteSecureFile(first.relativePath!)).resolves.toBe(true);
+    await expect(fileExists(first.relativePath!)).resolves.toBe(false);
 
-    it('prevents deletion outside upload directory', async () => {
-      const result = await deleteSubmissionFiles('../../../etc', 'passwd');
-      expect(result).toBe(false);
-    });
+    const second = await saveUploadedFile(Buffer.from('copie-nexus!'), metadata());
+    expect(second.success).toBe(true);
+    await expect(
+      deleteSubmissionFiles('student123456', 'submission789012'),
+    ).resolves.toBe(true);
+    await expect(fileExists(second.relativePath!)).resolves.toBe(false);
+  });
+
+  test('does not accept invalid identifiers for submission cleanup', async () => {
+    await expect(deleteSubmissionFiles('', '')).resolves.toBe(false);
+    await expect(
+      deleteSubmissionFiles('../escape', 'submission789012'),
+    ).resolves.toBe(false);
   });
 });
