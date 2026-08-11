@@ -449,6 +449,7 @@ async function validateAlreadyApplied(
     !exactAudit ||
     exactAudit.id !== identity.auditId ||
     exactAudit.action !== NPC_TOMBSTONE_AUDIT_ACTION ||
+    exactAudit.entityType !== 'CopySubmission' ||
     exactAudit.actorId !== args.actorId ||
     exactAudit.actorRole !== args.actorRole ||
     exactAudit.reportId !== args.expectedReportId ||
