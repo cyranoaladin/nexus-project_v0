@@ -28,6 +28,7 @@
     "pre-rentree:verify": "python scripts/pre-rentree/verify_repository_hygiene.py --repo-root . && python scripts/pre-rentree/verify_release.py --artifact-root .artifacts/pre-rentree-2026/build --repo-root .",
     "pre-rentree:ci": "npm run pre-rentree:clean && npm run pre-rentree:validate-planning && npm run pre-rentree:snapshot && npm run pre-rentree:test:ts && npm run pre-rentree:test:py && npm run typecheck && npm run security:repo && npm run pre-rentree:build && npm run pre-rentree:audit && npm run pre-rentree:package && npm run pre-rentree:verify",
     "dev": "next dev",
+    "npc:tombstone": "tsx scripts/npc/tombstone-submission.ts",
     "benchmark:api": "tsx scripts/benchmarks/api-response-time.ts",
     "build": "node scripts/check-production-build-env.js && next build && node scripts/copy-public-assets.js && node scripts/validate-next-traces.js .next && node scripts/audit-production-artifact.js .next/standalone && node scripts/release/verify-standalone-artifact.mjs",
     "build:base": "next build",
