@@ -11,6 +11,11 @@ import {
 } from '../render/render-identity';
 import { renderDeterministicBilanHtml } from '../render/html';
 import {
+  assertHumanRenderIdentity,
+  type HumanRenderIdentity,
+} from '../render/human-identity';
+import { applyReportPassationPresentation } from '../render/passation-presentation';
+import {
   assertPublicRenderedArtifact,
   audienceArtifactChecksum,
   materializationGlobalChecksum,
@@ -41,13 +46,28 @@ export type PreparedReportMaterialization = Readonly<{
 export type ReportRenderContext = Readonly<{
   factSheet: FactSheet;
   identity: RenderIdentity;
+  humanIdentity?: HumanRenderIdentity;
+}>;
+
+export type PublicationRenderOptions = Readonly<{
+  humanIdentity?: HumanRenderIdentity;
 }>;
 
 export type PublicationRenderer = (
   factSheet: FactSheet,
   audience: ReportAudience,
   identity: RenderIdentity,
+  options?: PublicationRenderOptions,
 ) => Promise<BilanPdfResult>;
+
+const defaultPublicationRenderer: PublicationRenderer = (
+  factSheet,
+  audience,
+  identity,
+  options,
+) => renderDeterministicBilanPdf(factSheet, audience, identity, {
+  humanIdentity: options?.humanIdentity,
+});
 
 export class ReportMaterializationError extends Error {
   constructor(readonly code: string) {
@@ -82,21 +102,31 @@ function parseIdentity(content: unknown): RenderIdentity {
   return assertPseudonymousRenderIdentity(content.NEXUS.identity as unknown as RenderIdentity);
 }
 
-export function parseReportRenderContext(scoreResult: unknown, reportContent: unknown): ReportRenderContext {
+export function parseReportRenderContext(
+  scoreResult: unknown,
+  reportContent: unknown,
+  humanIdentity?: HumanRenderIdentity,
+): ReportRenderContext {
+  const identity = parseIdentity(reportContent);
   return Object.freeze({
-    factSheet: parseFactSheet(scoreResult),
-    identity: parseIdentity(reportContent),
+    factSheet: applyReportPassationPresentation(parseFactSheet(scoreResult), identity.durationMeasurement),
+    identity,
+    ...(humanIdentity === undefined
+      ? {}
+      : { humanIdentity: assertHumanRenderIdentity(humanIdentity) }),
   });
 }
 
 export async function prepareReportMaterialization(
   context: ReportRenderContext,
-  renderAudience: PublicationRenderer = renderDeterministicBilanPdf,
+  renderAudience: PublicationRenderer = defaultPublicationRenderer,
 ): Promise<PreparedReportMaterialization> {
   let rendered: readonly BilanPdfResult[];
   try {
     rendered = await Promise.all(REPORT_MATERIALIZATION_AUDIENCES.map((audience) => (
-      renderAudience(context.factSheet, audience, context.identity)
+      renderAudience(context.factSheet, audience, context.identity, {
+        humanIdentity: context.humanIdentity,
+      })
     )));
   } catch {
     throw new ReportMaterializationError('REPORT_HTML_RENDER_FAILED');
@@ -129,7 +159,12 @@ export function prepareCoachPreview(context: ReportRenderContext) {
     label: 'PRÉVISUALISATION NON OFFICIELLE' as const,
     audiences: Object.freeze(REPORT_MATERIALIZATION_AUDIENCES.map((audience) => Object.freeze({
       audience,
-      html: renderDeterministicBilanHtml(context.factSheet, audience, context.identity),
+      html: renderDeterministicBilanHtml(
+        context.factSheet,
+        audience,
+        context.identity,
+        context.humanIdentity,
+      ),
     }))),
   });
 }

@@ -125,6 +125,8 @@ test.describe('Price render check — DOM vs canonical', () => {
   // ── /recommandation wizard → prix affiché ──
 
   test('/recommandation wizard shows canonical prices after 3 steps', async ({ page }) => {
+    const terminaleSimple = data.offers.find((offer: { id: string }) => offer.id === 'term-spe-simple');
+    expect(terminaleSimple?.price_annual).toBeTruthy();
     await page.goto('/recommandation', { waitUntil: 'load' });
     await page.waitForTimeout(2000);
     await page.locator('button', { hasText: 'Terminale' }).first().click();
@@ -137,9 +139,10 @@ test.describe('Price render check — DOM vs canonical', () => {
       await page.evaluate(() => window.scrollBy(0, window.innerHeight));
       await page.waitForTimeout(300);
     }
-    const text = await page.locator('body').innerText();
-    // Terminale annual offers: monthly 390 (simple), 718 (duo), 959 (excellence)
-    expect(text).toContain('390');
+    const text = (await page.locator('body').innerText()).replace(/[\s\u00a0\u202f]+/g, ' ');
+    const canonicalAnnual = Number(terminaleSimple.price_annual).toLocaleString('fr-FR')
+      .replace(/[\s\u00a0\u202f]+/g, ' ');
+    expect(text).toContain(canonicalAnnual);
     expect(text).toContain('TND');
   });
 

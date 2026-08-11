@@ -6,6 +6,8 @@ import { validateAndPublishPendingReport } from '../../lib/bilans/staff/review-s
 import { publishReportRevision } from '../../lib/bilans/core/report-service';
 import { createBilanPdfRendererSession, BILAN_PDF_ENGINE_VERSION } from '../../lib/bilans/render/pdf';
 import seconde from '../../data/bilans/banks/entree-seconde-maths-v1.json';
+import { assertDisposableE2eDatabase } from '../helpers/disposable-database';
+import { waitForAuthenticatedSession } from '../helpers/auth';
 
 /**
  * GATE A — proves the PRODUCTION posture: BILAN_WORKER_ENABLED=true,
@@ -21,12 +23,7 @@ import seconde from '../../data/bilans/banks/entree-seconde-maths-v1.json';
 
 const databaseUrl = process.env.DATABASE_URL ?? '';
 function assertIsolatedDatabase(): void {
-  // postgres-e2e is the docker-compose-internal hostname (see
-  // docker-compose.e2e.yml, lib/e2e/seed-guard.ts's own ALLOWED_HOSTS) --
-  // as legitimate a target as localhost when this spec runs inside that stack.
-  expect(databaseUrl).toMatch(/(?:localhost|127\.0\.0\.1|postgres-e2e)/);
-  expect(databaseUrl).toMatch(/nexus_(?:test|e2e|bilan_runtime_test)/);
-  expect(databaseUrl).not.toMatch(/nexus_prod|production/i);
+  assertDisposableE2eDatabase(databaseUrl);
 }
 
 const prisma = new PrismaClient({ datasources: { db: { url: databaseUrl } } });
@@ -133,6 +130,8 @@ test.describe('GATE A — posture prod (worker ON, sans clé OpenRouter)', () =>
     await page.getByRole('textbox', { name: 'Adresse Email' }).fill(loginIdentifier);
     await page.getByLabel(/^mot de passe$/i).fill(childPassword);
     await page.getByRole('button', { name: /accéder à mon espace/i }).click();
+    await waitForAuthenticatedSession(page, loginIdentifier);
+    await page.goto('/dashboard/eleve', { waitUntil: 'domcontentloaded' });
     await expect(page).toHaveURL(/\/dashboard\/eleve/);
 
     // Passation réelle, 18 réponses toutes correctes (cas doré, score = 100).

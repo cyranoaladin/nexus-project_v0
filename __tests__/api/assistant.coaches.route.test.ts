@@ -170,4 +170,39 @@ describe('assistant coaches', () => {
     expect(body.success).toBe(true);
     expect(body.coach.id).toBe('coach-1');
   });
+
+  it('POST normalizes the coach email before uniqueness lookup and create', async () => {
+    (auth as jest.Mock).mockResolvedValue({
+      user: { id: 'assistant-1', role: 'ASSISTANTE' },
+    });
+    (prisma.user.findUnique as jest.Mock).mockResolvedValue(null);
+    (prisma.coachProfile.findUnique as jest.Mock).mockResolvedValue(null);
+    (bcrypt.hash as jest.Mock).mockResolvedValue('hashed');
+    const createUser = jest.fn().mockResolvedValue({
+      id: 'user-1', firstName: 'A', lastName: 'B', email: 'coach@example.test',
+    });
+    (prisma.$transaction as jest.Mock).mockImplementation(async (cb: any) => cb({
+      user: { create: createUser },
+      coachProfile: {
+        create: jest.fn().mockResolvedValue({
+          id: 'coach-1', pseudonym: 'CoachX', tag: null,
+          user: { firstName: 'A', lastName: 'B', email: 'coach@example.test' },
+        }),
+      },
+    }));
+
+    const response = await POST(makeRequest({
+      firstName: 'A',
+      lastName: 'B',
+      email: '  COACH@EXAMPLE.TEST  ',
+      password: 'password123',
+      pseudonym: 'CoachX',
+    }));
+
+    expect(response.status).toBe(200);
+    expect(prisma.user.findUnique).toHaveBeenCalledWith({ where: { email: 'coach@example.test' } });
+    expect(createUser).toHaveBeenCalledWith(expect.objectContaining({
+      data: expect.objectContaining({ email: 'coach@example.test' }),
+    }));
+  });
 });

@@ -8,6 +8,16 @@ import {
   prepareReportMaterialization,
   type PublicationRenderer,
 } from './report-materialization';
+import {
+  buildHumanRenderIdentity,
+  type HumanRenderIdentity,
+  type StudentUserName,
+} from '../render/human-identity';
+import {
+  renderDeterministicBilanPdf,
+  type BilanPdfDependencies,
+} from '../render/pdf';
+import type { ReportAudience } from '../render/profile-copy';
 
 type ReportDatabase = Pick<PrismaClient, '$transaction' | 'reportRevision'>;
 
@@ -15,6 +25,17 @@ export class BilanReportServiceError extends Error {
   constructor(readonly code: string) {
     super(code);
     this.name = 'BilanReportServiceError';
+  }
+}
+
+function requiredHumanRenderIdentity(user: StudentUserName): HumanRenderIdentity {
+  try {
+    return buildHumanRenderIdentity(user);
+  } catch (error) {
+    if (error instanceof Error && error.message === 'HUMAN_RENDER_IDENTITY_MISSING') {
+      throw new BilanReportServiceError('REPORT_STUDENT_IDENTITY_REQUIRED');
+    }
+    throw error;
   }
 }
 
@@ -185,7 +206,7 @@ export async function publishReportRevision(input: Readonly<{
       materialization: { select: { id: true } },
       scoreSnapshot: { select: { result: true } },
       reviews: {
-        where: { reviewerId: input.reviewerId, decision: 'APPROVED' },
+        where: { decision: 'APPROVED' },
         select: { id: true },
         take: 1,
       },
@@ -195,6 +216,9 @@ export async function publishReportRevision(input: Readonly<{
           status: true,
           assessmentAttemptId: true,
           assessmentAttempt: { select: { status: true } },
+          student: {
+            select: { user: { select: { firstName: true, lastName: true } } },
+          },
         },
       },
     },
@@ -214,7 +238,11 @@ export async function publishReportRevision(input: Readonly<{
 
   // Chromium and all other rendering happen before opening the final, short transaction.
   const prepared = await prepareReportMaterialization(
-    parseReportRenderContext(candidate.scoreSnapshot.result, candidate.content),
+    parseReportRenderContext(
+      candidate.scoreSnapshot.result,
+      candidate.content,
+      requiredHumanRenderIdentity(candidate.reportArtifact.student.user),
+    ),
     input.renderAudience,
   );
 
@@ -248,7 +276,7 @@ export async function publishReportRevision(input: Readonly<{
       || revision.reportArtifact.assessmentAttempt.status !== 'COACH_VALIDATED'
     ) throw new BilanReportServiceError('REPORT_CONCURRENT_PUBLICATION');
     const approvedReview = await transaction.reportReview.findFirst({
-      where: { reportRevisionId: revision.id, reviewerId: input.reviewerId, decision: 'APPROVED' },
+      where: { reportRevisionId: revision.id, decision: 'APPROVED' },
       select: { id: true },
     });
     if (approvedReview === null) throw new BilanReportServiceError('REPORT_APPROVED_REVIEW_REQUIRED');
@@ -308,6 +336,13 @@ export async function previewReportRevision(input: Readonly<{
       validationFailures: true,
       content: true,
       scoreSnapshot: { select: { result: true } },
+      reportArtifact: {
+        select: {
+          student: {
+            select: { user: { select: { firstName: true, lastName: true } } },
+          },
+        },
+      },
     },
   });
   if (
@@ -315,5 +350,59 @@ export async function previewReportRevision(input: Readonly<{
     || !['PENDING_REVIEW', 'COACH_VALIDATED'].includes(revision.status)
     || revision.validationFailures.length > 0
   ) throw new BilanReportServiceError('REPORT_PREVIEW_UNAVAILABLE');
-  return prepareCoachPreview(parseReportRenderContext(revision.scoreSnapshot.result, revision.content));
+  return prepareCoachPreview(parseReportRenderContext(
+    revision.scoreSnapshot.result,
+    revision.content,
+    requiredHumanRenderIdentity(revision.reportArtifact.student.user),
+  ));
+}
+
+export async function renderReportRevisionAudiencePdf(input: Readonly<{
+  prisma: Pick<PrismaClient, 'reportRevision'>;
+  revisionId: string;
+  audience: ReportAudience;
+  renderAudience?: (
+    factSheet: Parameters<typeof renderDeterministicBilanPdf>[0],
+    audience: ReportAudience,
+    identity: Parameters<typeof renderDeterministicBilanPdf>[2],
+    dependencies: BilanPdfDependencies,
+  ) => ReturnType<typeof renderDeterministicBilanPdf>;
+}>) {
+  const revision = await input.prisma.reportRevision.findUnique({
+    where: { id: input.revisionId },
+    select: {
+      status: true,
+      validationFailures: true,
+      content: true,
+      scoreSnapshot: { select: { result: true } },
+      reportArtifact: {
+        select: {
+          student: {
+            select: { user: { select: { firstName: true, lastName: true } } },
+          },
+        },
+      },
+    },
+  });
+  if (
+    revision === null
+    || !['PENDING_REVIEW', 'COACH_VALIDATED'].includes(revision.status)
+    || revision.validationFailures.length > 0
+  ) throw new BilanReportServiceError('REPORT_PREVIEW_UNAVAILABLE');
+
+  const context = parseReportRenderContext(
+    revision.scoreSnapshot.result,
+    revision.content,
+    requiredHumanRenderIdentity(revision.reportArtifact.student.user),
+  );
+  const rendered = await (input.renderAudience ?? renderDeterministicBilanPdf)(
+    context.factSheet,
+    input.audience,
+    context.identity,
+    { humanIdentity: context.humanIdentity },
+  );
+  if (rendered.status !== 'AVAILABLE') {
+    throw new BilanReportServiceError('REPORT_PDF_UNAVAILABLE');
+  }
+  return Buffer.from(rendered.pdf);
 }

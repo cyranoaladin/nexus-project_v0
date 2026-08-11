@@ -64,9 +64,9 @@ export type RAGAcademicTrack = 'EDS_GENERALE' | 'STMG' | 'STI2D' | 'ST2S' | 'STL
  * Get the RAG Ingestor base URL.
  * Priority: env var > Docker service name > localhost fallback
  */
-function getIngestorUrl(): string {
-  if (process.env.RAG_INGESTOR_URL) {
-    return process.env.RAG_INGESTOR_URL;
+function getIngestorUrl(): string | null {
+  if (process.env.RAG_INGESTOR_URL !== undefined) {
+    return process.env.RAG_INGESTOR_URL.trim() || null;
   }
   // Inside Docker on infra_rag_net, the ingestor is reachable via service name
   if (process.env.NODE_ENV === 'production') {
@@ -81,6 +81,7 @@ function getIngestorUrl(): string {
  */
 export async function ragSearch(options: RAGSearchOptions): Promise<RAGSearchHit[]> {
   const baseUrl = getIngestorUrl();
+  if (!baseUrl) return [];
   const token = process.env.RAG_API_TOKEN;
   const timeout = parseInt(process.env.RAG_SEARCH_TIMEOUT_MS || process.env.RAG_SEARCH_TIMEOUT || '12000', 10);
   const controller = new AbortController();
@@ -188,6 +189,7 @@ export async function ragHealthCheckDetailed(): Promise<{
   error?: string;
 }> {
   const baseUrl = getIngestorUrl();
+  if (!baseUrl) return { healthy: false, error: 'RAG_INGESTOR_URL is disabled' };
   const HEALTH_TIMEOUT_MS = 5000;
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), HEALTH_TIMEOUT_MS);
@@ -217,6 +219,7 @@ export async function ragCollectionStats(
   collectionName = 'ressources_pedagogiques_terminale',
 ): Promise<RAGCollectionStats | null> {
   const baseUrl = getIngestorUrl();
+  if (!baseUrl) return null;
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 5000);
 

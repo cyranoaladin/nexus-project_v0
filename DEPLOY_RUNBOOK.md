@@ -32,3 +32,34 @@ PRE_DEPLOY_HEALTH_GREEN=true
 Les preuves restent hors Git. Leur intake schema-validé ne fournit que des
 booléens, références redacted et empreintes. Toute dérive du SHA ou du runbook
 invalide le GO.
+
+## Contrat générique du pointeur de release
+
+Le runbook privé désigne un unique `<CANONICAL_POINTER>` mutable. Le pointeur
+historique `<COMPAT_ALIAS>` doit être un lien symbolique vers ce pointeur
+canonique, jamais un second lien direct vers une release. Une bascule atomique
+ne modifie donc que `<CANONICAL_POINTER>`.
+
+Après la bascule et **avant le reload**, exécuter le garde public en lui
+fournissant les valeurs du runbook privé :
+
+```bash
+scripts/release/verify-release-pointers.sh \
+  --canonical <CANONICAL_POINTER> \
+  --alias <COMPAT_ALIAS> \
+  --release-root <RELEASE_ROOT> \
+  --expected-release <NEW_RELEASE>
+```
+
+Un échec arrête la procédure avant toute action sur le processus. Exécuter
+**après le reload** exactement le même garde, puis vérifier que le pointeur
+canonique, les métadonnées du gestionnaire de processus et `/proc` désignent
+tous `<NEW_RELEASE>`.
+
+Le garde ne modifie rien. Il refuse notamment un alias direct même si les deux
+pointeurs résolvent temporairement vers la même release : deux liens directs
+resteraient indépendamment mutables et pourraient diverger plus tard.
+
+La politique de conservation associée est documentée dans
+`docs/runbooks/release-retention-policy.md`. Toute liste exacte de releases et
+tout chemin concret restent dans le runbook privé root-only.

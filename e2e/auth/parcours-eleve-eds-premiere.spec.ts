@@ -36,8 +36,10 @@ test.describe('Parcours élève EDS Première', () => {
   test('les anciennes sous-routes redirigent ou rendent dans /dashboard/eleve', async ({ page }) => {
     // mes-sessions / sessions / ressources / stages doivent rester sous /dashboard/eleve
     for (const path of ['/dashboard/eleve/sessions', '/dashboard/eleve/ressources', '/dashboard/eleve/stages']) {
-      await page.goto(path);
-      await page.waitForLoadState('domcontentloaded');
+      const response = await page.request.get(path, { failOnStatusCode: false });
+      expect(response.status()).toBeLessThan(500);
+      await page.goto(path, { waitUntil: 'commit' }).catch(() => null);
+      await page.waitForURL(/\/dashboard\/eleve/);
       expect(page.url()).toContain('/dashboard/eleve');
     }
   });

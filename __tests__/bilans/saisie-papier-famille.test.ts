@@ -16,7 +16,10 @@ import { enqueueEmailIntent } from '@/lib/email/outbox';
 
 const enqueued = enqueueEmailIntent as jest.MockedFunction<typeof enqueueEmailIntent>;
 
-beforeEach(() => { enqueued.mockClear(); });
+beforeEach(() => {
+  enqueued.mockClear();
+  process.env.NEXTAUTH_URL = 'http://localhost:3000';
+});
 
 type EnqueuedIntent = Readonly<{ messageType: string; to: string; aggregateId: string }>;
 
@@ -29,6 +32,7 @@ const STAFF_ID = 'assistante-1';
 
 const BODY = {
   parentEmail: 'Parent.Test@example.test',
+  parentPhone: '+216 99 19 28 29',
   parentFirstName: 'Claire',
   parentLastName: 'Bernard',
   children: [{ firstName: 'Inès', grade: 'Terminale' }],
@@ -50,6 +54,8 @@ function memoryDatabase() {
   const transaction = {
     user: {
       findUnique: jest.fn(async () => null),
+      findMany: jest.fn(async () => []),
+      update: jest.fn(async ({ where, data }: { where: object; data: object }) => ({ ...where, ...data })),
       create: jest.fn(async ({ data }: { data: Record<string, unknown> }) => {
         users.push(data);
         return { ...data, id: `user-${users.length}` };
@@ -160,7 +166,187 @@ describe('Création du foyer — rôle staff strict', () => {
   });
 });
 
+describe('Création du foyer — suggestion anti-doublon à décision humaine', () => {
+  const candidate = {
+    id: 'parent-existant',
+    firstName: 'Claire',
+    lastName: 'Bernard',
+    email: null,
+    phone: '99 19 28 29',
+    parentProfile: {
+      id: 'profile-existant',
+      children: [{
+        id: 'student-existant',
+        gradeLevel: 'TERMINALE',
+        user: { firstName: 'Inès', lastName: 'Bernard' },
+      }],
+    },
+  };
+
+  it('suggère le foyer portant le même téléphone normalisé sans rien créer', async () => {
+    const { database, transaction, users, students } = memoryDatabase();
+    transaction.user.findMany.mockResolvedValue([candidate] as never);
+
+    const response = await handlerWith('ASSISTANTE', database)(familyRequest());
+
+    expect(response.status).toBe(409);
+    expect(await response.json()).toEqual({
+      error: { code: 'POTENTIAL_DUPLICATE' },
+      candidates: [{
+        parentUserId: 'parent-existant',
+        parentName: 'Claire Bernard',
+        phone: '99 19 28 29',
+        children: [{ studentId: 'student-existant', studentName: 'Inès Bernard', gradeLevel: 'TERMINALE' }],
+      }],
+    });
+    expect(users).toHaveLength(0);
+    expect(students).toHaveLength(0);
+  });
+
+  it('recherche aussi le couple nom, prénom et niveau de l’élève', async () => {
+    const { database, transaction } = memoryDatabase();
+    transaction.user.findMany.mockResolvedValue([candidate] as never);
+
+    await handlerWith('ASSISTANTE', database)(familyRequest());
+
+    expect(transaction.user.findMany).toHaveBeenCalledWith(expect.objectContaining({
+      where: expect.objectContaining({
+        role: 'PARENT',
+        OR: expect.arrayContaining([
+          { phoneNormalized: '99192829' },
+          { mergedSources: { some: { phoneNormalized: '99192829' } } },
+          expect.objectContaining({ parentProfile: expect.any(Object) }),
+        ]),
+      }),
+    }));
+  });
+
+  it('rattache au foyer choisi explicitement sans créer un parent', async () => {
+    const { database, transaction, profiles, users, students } = memoryDatabase();
+    profiles.push({ id: 'profile-existant', userId: 'parent-existant' });
+    transaction.user.findMany.mockResolvedValue([candidate] as never);
+
+    const response = await handlerWith('ASSISTANTE', database)(familyRequest({
+      ...BODY,
+      duplicateResolution: { mode: 'ATTACH', parentUserId: 'parent-existant' },
+    }, 'foyer-papier-attach-0001'));
+
+    expect(response.status).toBe(201);
+    expect(await response.json()).toMatchObject({ parentUserId: 'parent-existant', parentCreated: false });
+    expect(users.filter((user) => user.role === 'PARENT')).toHaveLength(0);
+    expect(students).toHaveLength(1);
+    expect(students[0].parentId).toBe('profile-existant');
+  });
+
+  it('complète le contact du foyer choisi quand son e-mail était différé', async () => {
+    const { database, transaction, profiles } = memoryDatabase();
+    profiles.push({ id: 'profile-existant', userId: 'parent-existant' });
+    transaction.user.findMany.mockResolvedValue([candidate] as never);
+
+    const response = await handlerWith('ASSISTANTE', database)(familyRequest({
+      ...BODY,
+      duplicateResolution: { mode: 'ATTACH', parentUserId: 'parent-existant' },
+    }, 'foyer-papier-attach-contact-0001'));
+
+    expect(response.status).toBe(201);
+    expect(transaction.user.update).toHaveBeenCalledWith({
+      where: { id: 'parent-existant' },
+      data: expect.objectContaining({
+        email: 'parent.test@example.test',
+        phone: '99 19 28 29',
+        phoneNormalized: '99192829',
+        activationToken: expect.any(String),
+        activationExpiry: expect.any(Date),
+      }),
+    });
+    expect(intents().filter(({ messageType }) => messageType === 'PARENT_ACTIVATION')).toHaveLength(1);
+    expect(intents().filter(({ messageType }) => messageType === 'STUDENT_ACTIVATION')).toHaveLength(1);
+  });
+
+  it('complète le profil d’un parent sélectionné qui n’en avait pas encore', async () => {
+    const { database, transaction, profiles, users, students } = memoryDatabase();
+    transaction.user.findMany.mockResolvedValue([{ ...candidate, parentProfile: null }] as never);
+
+    const response = await handlerWith('ASSISTANTE', database)(familyRequest({
+      ...BODY,
+      duplicateResolution: { mode: 'ATTACH', parentUserId: 'parent-existant' },
+    }, 'foyer-papier-attach-profile-0001'));
+
+    expect(response.status).toBe(201);
+    expect(users.filter((user) => user.role === 'PARENT')).toHaveLength(0);
+    expect(profiles).toEqual([expect.objectContaining({ userId: 'parent-existant' })]);
+    expect(students[0].parentId).toBe(profiles[0].id);
+  });
+
+  it('crée un nouveau foyer uniquement après la décision explicite', async () => {
+    const { database, transaction, users } = memoryDatabase();
+    transaction.user.findMany.mockResolvedValue([candidate] as never);
+
+    const response = await handlerWith('ASSISTANTE', database)(familyRequest({
+      ...BODY,
+      duplicateResolution: { mode: 'CREATE_NEW' },
+    }, 'foyer-papier-create-new-0001'));
+
+    expect(response.status).toBe(201);
+    expect(users.filter((user) => user.role === 'PARENT')).toHaveLength(1);
+  });
+
+  it('refuse un rattachement vers un foyer absent des candidats', async () => {
+    const { database, transaction, users } = memoryDatabase();
+    transaction.user.findMany.mockResolvedValue([candidate] as never);
+
+    const response = await handlerWith('ASSISTANTE', database)(familyRequest({
+      ...BODY,
+      duplicateResolution: { mode: 'ATTACH', parentUserId: 'parent-injecte' },
+    }, 'foyer-papier-invalid-attach-0001'));
+
+    expect(response.status).toBe(409);
+    expect(users).toHaveLength(0);
+  });
+});
+
 describe('Création du foyer — activation en attente', () => {
+  it('crée le foyer sans e-mail avec le téléphone parent normalisé', async () => {
+    const { parentEmail: _parentEmail, ...withoutEmail } = BODY;
+    const { database, users, students } = memoryDatabase();
+
+    const response = await handlerWith('ASSISTANTE', database)(familyRequest(withoutEmail));
+
+    expect(response.status).toBe(201);
+    expect(students).toHaveLength(1);
+    expect(users.find((user) => user.role === 'PARENT')).toMatchObject({
+      email: null,
+      phone: '99 19 28 29',
+      phoneNormalized: '99192829',
+      password: null,
+      activatedAt: null,
+      activationToken: null,
+      activationExpiry: null,
+    });
+    expect(intents()).toHaveLength(0);
+  });
+
+  it('refuse la création sans téléphone parent', async () => {
+    const { parentPhone: _parentPhone, ...withoutPhone } = BODY;
+    const { database, users } = memoryDatabase();
+
+    const response = await handlerWith('ASSISTANTE', database)(familyRequest(withoutPhone));
+
+    expect(response.status).toBe(400);
+    expect(users).toHaveLength(0);
+  });
+
+  it('refuse un téléphone parent invalide', async () => {
+    const { database, users } = memoryDatabase();
+    const response = await handlerWith('ASSISTANTE', database)(familyRequest({
+      ...BODY,
+      parentPhone: '+33 6 12 34 56 78',
+    }));
+
+    expect(response.status).toBe(400);
+    expect(users).toHaveLength(0);
+  });
+
   it('crée le parent sans mot de passe et en attente d’activation', async () => {
     const { database, users } = memoryDatabase();
     const response = await handlerWith('ASSISTANTE', database)(familyRequest());
@@ -181,6 +367,16 @@ describe('Création du foyer — activation en attente', () => {
 
     expect(users.find((user) => user.role === 'PARENT')).toMatchObject({
       email: 'parent.test@example.test',
+    });
+  });
+
+  it('normalise et conserve le téléphone d’affichage du parent', async () => {
+    const { database, users } = memoryDatabase();
+    await handlerWith('ADMIN', database)(familyRequest());
+
+    expect(users.find((user) => user.role === 'PARENT')).toMatchObject({
+      phone: '99 19 28 29',
+      phoneNormalized: '99192829',
     });
   });
 
@@ -221,7 +417,7 @@ describe('Création du foyer — activation en attente', () => {
     expect(students).toHaveLength(0);
   });
 
-  it('rattache les enfants à un parent existant sans toucher à son compte', async () => {
+  it('rattache les enfants à un parent existant sans dupliquer ni réactiver son compte', async () => {
     const { database, transaction, users, profiles } = memoryDatabase();
     profiles.push({ id: 'profile-existant', userId: 'parent-existant' });
     transaction.user.findUnique = jest.fn(async () => ({
@@ -234,8 +430,13 @@ describe('Création du foyer — activation en attente', () => {
 
     expect(response.status).toBe(201);
     expect(await response.json()).toMatchObject({ parentUserId: 'parent-existant', parentCreated: false });
-    // Aucun compte parent recréé, aucun mot de passe ni état d'activation réécrit.
+    // Aucun compte parent recréé, aucun mot de passe ni état d'activation réécrit ;
+    // seul le téléphone obligatoire est actualisé.
     expect(users.filter((user) => user.role === 'PARENT')).toHaveLength(0);
+    expect(transaction.user.update).toHaveBeenCalledWith({
+      where: { id: 'parent-existant' },
+      data: { phone: '99 19 28 29', phoneNormalized: '99192829' },
+    });
   });
 
   /**

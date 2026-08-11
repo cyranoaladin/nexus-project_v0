@@ -5,10 +5,11 @@ import { Button } from "@/components/ui/button";
 import { ClipboardCheck, X } from "lucide-react";
 
 type BilanGratuitBannerProps = {
+  hasChildren?: boolean;
   /**
    * The banner only ever renders for an authenticated parent (it reads
-   * /api/bilan-gratuit/status, which requires a session) -- so "Faire le
-   * bilan" must send them to their own "Ajouter un Enfant" flow, never to
+   * /api/bilan-gratuit/status, which requires a session) -- so its CTA must
+   * send them to their own children flow, never to
    * the public /bilan-gratuit registration form, which assumes an
    * anonymous visitor and silently no-ops on an already-registered email.
    */
@@ -21,7 +22,7 @@ type BilanGratuitBannerProps = {
  *
  * Dismiss state is persisted in DB via /api/bilan-gratuit/status and /dismiss.
  */
-export function BilanGratuitBanner({ onGoToChildren }: BilanGratuitBannerProps) {
+export function BilanGratuitBanner({ hasChildren = false, onGoToChildren }: BilanGratuitBannerProps) {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -53,9 +54,9 @@ export function BilanGratuitBanner({ onGoToChildren }: BilanGratuitBannerProps) 
       <div className="flex items-start gap-3">
         <ClipboardCheck className="w-5 h-5 text-amber-400 mt-0.5 flex-shrink-0" aria-hidden="true" />
         <div>
-          <h3 className="font-semibold text-amber-200 text-sm sm:text-base">
+          <h2 className="font-semibold text-amber-200 text-sm sm:text-base">
             Complétez le Bilan Diagnostic Gratuit
-          </h3>
+          </h2>
           <p className="text-xs sm:text-sm text-amber-300/80 mt-1">
             Obtenez une analyse personnalisée des besoins de votre enfant et nos recommandations pédagogiques.
           </p>
@@ -63,13 +64,13 @@ export function BilanGratuitBanner({ onGoToChildren }: BilanGratuitBannerProps) 
       </div>
       <div className="flex items-center gap-2 ml-8 sm:ml-0 flex-shrink-0">
         <Button size="sm" className="text-xs sm:text-sm" onClick={onGoToChildren}>
-          Faire le bilan
+          {hasChildren ? 'Voir le lien de votre enfant' : 'Ajouter votre enfant'}
         </Button>
         <Button
           variant="ghost"
           size="sm"
           onClick={handleDismiss}
-          className="text-amber-400/60 hover:text-amber-300 hover:bg-amber-500/10 text-xs"
+          className="text-amber-200 hover:text-amber-100 hover:bg-amber-500/10 text-xs"
           aria-label="Fermer la bannière"
         >
           <X className="w-4 h-4" />

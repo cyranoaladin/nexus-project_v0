@@ -3,6 +3,8 @@
 import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
+import { PaperEntryWorkflowSteps } from './PaperEntryWorkflowSteps';
+
 export type PaperEntryGridOption = Readonly<{ id: string; label: string }>;
 
 export type PaperEntryGridItem = Readonly<{
@@ -18,6 +20,7 @@ export type PaperEntryGridProps = Readonly<{
   packSlug: string;
   packTitle: string;
   items: readonly PaperEntryGridItem[];
+  childSelectionHref?: string;
 }>;
 
 /** `undefined` : la case n'a pas encore été traitée par le saisisseur. */
@@ -38,6 +41,7 @@ export function PaperEntryGrid({
   packSlug,
   packTitle,
   items,
+  childSelectionHref = '/dashboard/assistante/bilans/saisie-papier',
 }: PaperEntryGridProps) {
   const router = useRouter();
   const [options, setOptions] = useState<Record<string, string | undefined>>({});
@@ -62,6 +66,9 @@ export function PaperEntryGrid({
     [items, confidences],
   );
   const complete = missingOption.length === 0 && untouchedConfidence.length === 0;
+  const completedItems = items.filter((item) => (
+    options[item.id] !== undefined && confidences[item.id] !== undefined
+  )).length;
 
   async function submit() {
     if (!complete || submitting) return;
@@ -93,10 +100,22 @@ export function PaperEntryGrid({
 
   return (
     <section className="mt-8">
+      <PaperEntryWorkflowSteps
+        currentStep={complete ? 5 : 4}
+        stepHrefs={{
+          1: '/dashboard/assistante/bilans/saisie-papier',
+          2: childSelectionHref,
+          3: `/dashboard/assistante/bilans/saisie-papier?studentId=${encodeURIComponent(studentId)}`,
+        }}
+      />
       <div className="rounded-3xl border border-white/10 bg-white/[0.06] p-6">
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-amber-300">Copie à saisir</p>
         <h2 className="mt-2 text-xl font-semibold text-white">{studentName}</h2>
         <p className="mt-1 text-sm text-slate-400">{packTitle}</p>
+        <p role="status" className="mt-3 text-sm font-semibold text-amber-200">
+          {completedItems} {items.length === 1 ? 'réponse' : 'réponses'} sur {items.length}{' '}
+          {items.length === 1 ? 'saisie' : 'saisies'}
+        </p>
         <p className="mt-4 max-w-3xl text-sm leading-6 text-slate-300">
           Reportez, pour chaque question, la réponse entourée sur la copie et la certitude cochée par l’élève.
           Si une case de certitude manque sur la copie, choisissez «&nbsp;Absente de la copie&nbsp;» :
@@ -217,7 +236,7 @@ export function PaperEntryGrid({
           onClick={() => void submit()}
           className="mt-3 w-full rounded-xl bg-amber-400 px-4 py-3 font-semibold text-slate-950 disabled:cursor-not-allowed disabled:opacity-40"
         >
-          {submitting ? 'Enregistrement…' : 'Enregistrer la copie et lancer le bilan'}
+          {submitting ? 'Validation…' : 'Valider la saisie papier'}
         </button>
         <p className="mt-3 text-xs text-slate-400">
           La saisie est enregistrée comme telle&nbsp;: provenance «&nbsp;saisie papier&nbsp;», avec votre identifiant et

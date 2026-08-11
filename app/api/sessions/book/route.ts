@@ -294,7 +294,7 @@ export async function POST(req: NextRequest) {
           duration: validatedData.duration,
           type: validatedData.type,
           modality: validatedData.modality,
-          creditsUsed: 0,
+          creditsUsed: requiredCredits,
           status: 'SCHEDULED'
         },
         include: {

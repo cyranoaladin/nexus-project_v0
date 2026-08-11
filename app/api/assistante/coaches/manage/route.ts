@@ -7,11 +7,12 @@ import { auth } from '@/auth';
 import bcrypt from 'bcryptjs';
 import { z } from 'zod';
 import { Subject } from '@/types/enums';
+import { normalizeUserEmail } from '@/lib/contact/user-email';
 
 const coachCreateSchema = z.object({
   firstName: z.string().min(1),
   lastName: z.string().min(1),
-  email: z.string().email(),
+  email: z.string().transform(normalizeUserEmail).pipe(z.string().email()),
   password: z.string().min(8),
   pseudonym: z.string().min(1),
   tag: z.string().optional(),

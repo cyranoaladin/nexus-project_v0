@@ -3,6 +3,7 @@ import path from 'path';
 import bcrypt from 'bcryptjs';
 import { PrismaClient, UserRole, GradeLevel, AcademicTrack, Subject } from '@prisma/client';
 import { serializeError } from '@/lib/utils/serialize-error';
+import { normalizeUserEmail } from '@/lib/contact/user-email';
 
 const prisma = new PrismaClient();
 
@@ -61,7 +62,7 @@ function parseCsv(filePath: string): CsvStudent[] {
       fullName: cols[0],
       birthDate: parseFrenchDate(cols[1] ?? ''),
       sex: cols[2] ?? '',
-      email: cols[emailIndex].toLowerCase(),
+          email: normalizeUserEmail(cols[emailIndex]),
       className: cols[emailIndex + 1] || null,
     };
   });

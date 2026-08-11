@@ -8,12 +8,13 @@ import { Prisma } from '@prisma/client';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { Subject } from '@/types/enums';
+import { normalizeUserEmail } from '@/lib/contact/user-email';
 
 // Validation schema for coach update
 const coachUpdateSchema = z.object({
   firstName: z.string().min(1, 'Prénom requis'),
   lastName: z.string().min(1, 'Nom requis'),
-  email: z.string().email('Email invalide'),
+  email: z.string().transform(normalizeUserEmail).pipe(z.string().email('Email invalide')),
   password: z.string().optional(),
   pseudonym: z.string().min(1, 'Pseudonyme requis'),
   tag: z.string().min(1, 'Tag requis'),

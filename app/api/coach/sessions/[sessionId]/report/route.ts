@@ -6,6 +6,7 @@ import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { reportSubmissionSchema } from '@/lib/validation/session-report';
 import { NotificationType, SessionStatus } from '@prisma/client';
+import { hasUserEmail } from '@/lib/contact/user-email';
 
 function sanitizeSessionReport(report: Record<string, unknown>) {
   const {
@@ -169,7 +170,7 @@ export async function POST(
     setImmediate(async () => {
       try {
         const { sendSessionReportNotification } = await import('@/lib/email-service');
-        if (sessionBooking.parent) {
+        if (sessionBooking.parent && hasUserEmail(sessionBooking.parent.email)) {
           await sendSessionReportNotification(
             sessionBooking,
             sessionBooking.student,

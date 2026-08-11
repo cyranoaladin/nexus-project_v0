@@ -1,8 +1,9 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Card,CardContent,CardHeader,CardTitle } from "@/components/ui/card";
-import { AlertTriangle,ArrowRight,Calendar,KeyRound,Loader2,User } from "lucide-react";
+import { AlertTriangle,ArrowRight,Calendar,Check,Copy,KeyRound,Loader2,User } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -46,6 +47,7 @@ export function ChildCard({ child }: ChildCardProps) {
     expiresAt: string;
     loginIdentifier: string;
   }>(null);
+  const [copied, setCopied] = useState(false);
 
   const issueActivation = async () => {
     setActivationLoading(true);
@@ -59,6 +61,7 @@ export function ChildCard({ child }: ChildCardProps) {
       const body = await response.json() as { activation?: typeof activation };
       if (!body.activation) throw new Error('ACTIVATION_UNAVAILABLE');
       setActivation(body.activation);
+      setCopied(false);
     } catch {
       setActivation(null);
       setActivationError(true);
@@ -142,6 +145,23 @@ export function ChildCard({ child }: ChildCardProps) {
             {activation ? (
               <div className="space-y-2 rounded-md bg-black/20 p-3 text-xs text-neutral-200">
                 <p>Identifiant de connexion : <span className="font-semibold text-white">{activation.loginIdentifier}</span></p>
+                <p>Remettez ce lien à votre enfant pour qu'il passe son bilan.</p>
+                <div className="flex flex-col gap-2 sm:flex-row">
+                  <Input readOnly value={activation.activationUrl} className="h-9 min-w-0 font-mono text-xs" />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    aria-label="Copier le lien"
+                    onClick={() => {
+                      void navigator.clipboard?.writeText(activation.activationUrl);
+                      setCopied(true);
+                    }}
+                  >
+                    {copied ? <Check className="mr-2 h-4 w-4" aria-hidden="true" /> : <Copy className="mr-2 h-4 w-4" aria-hidden="true" />}
+                    {copied ? 'Copié' : 'Copier'}
+                  </Button>
+                </div>
                 <a
                   href={activation.activationUrl}
                   className="inline-flex font-semibold text-brand-accent underline underline-offset-4"

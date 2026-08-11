@@ -105,9 +105,9 @@ L'adaptateur a été élargi pour laisser passer `null`. La passation en ligne n
 peut pas produire ce cas — sa validation d'entrée impose la certitude — donc
 rien n'y change.
 
-### Deux limites connues, à arbitrer
+### Accès ADMIN : question ouverte de périmètre
 
-**ADMIN n'ouvre pas l'écran.** Le garde et la route d'API acceptent
+Le garde et la route d'API acceptent
 `ASSISTANTE` et `ADMIN`. Mais `middleware.ts` renvoie tout ADMIN de
 `/dashboard/assistante/*` vers `/dashboard/admin` : en pratique l'écran n'est
 ouvrable que par une assistante, un ADMIN ne passant que par l'API. C'est une
@@ -115,16 +115,18 @@ convention de plateforme partagée par toutes les pages assistante ; la lever se
 déciderait pour l'ensemble du tableau de bord, pas au détour de cette
 fonctionnalité.
 
-**PASSATION_EXPRESS.**
+### Durée de passation des copies papier
 
 La durée de composition ne figure pas sur une copie. `startedAt` et
 `submittedAt` d'un attempt saisi valent donc l'instant de la saisie, le moteur
-en déduit une durée nulle, et **le drapeau `PASSATION_EXPRESS` est levé sur
-tout bilan saisi**. Le score, les profils et la calibration n'en dépendent pas ;
-seul ce drapeau est trompeur. Le corriger supposerait soit d'inventer une
-durée, soit de faire entrer la provenance dans le moteur de faits — les deux
-étaient exclus. Le comportement est épinglé par un test (`bilans-saisie-papier.real.test.ts`)
-pour qu'un arbitrage futur échoue à l'endroit exact où il faut reconsidérer.
+en déduit une durée nulle et le snapshot brut porte `PASSATION_EXPRESS`. Ce
+snapshot reste inchangé afin de conserver un moteur unique et la parité avec le
+chemin en ligne. À la frontière de présentation/validation du rapport,
+`lib/bilans/render/passation-presentation.ts` retire ce faux signal pour la
+seule provenance `SAISIE_PAPIER` et affiche la mention neutre : « Durée non
+mesurée — saisie papier. » Une passation en ligne réellement express conserve
+son drapeau. La projection et la parité sont verrouillées par les tests unitaires
+et PostgreSQL réel.
 
 ## Ce qui a été livré avant ce handoff
 

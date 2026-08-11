@@ -1,9 +1,21 @@
 'use client';
 
 import { useState } from 'react';
+import { LEGAL } from '@/lib/legal';
 import { useRouter } from 'next/navigation';
 
+import { normalizeParentPhone } from '@/lib/contact/parent-phone';
+
 type ChildDraft = Readonly<{ firstName: string; grade: string }>;
+type DuplicateResolution =
+  | Readonly<{ mode: 'ATTACH'; parentUserId: string }>
+  | Readonly<{ mode: 'CREATE_NEW' }>;
+type DuplicateCandidate = Readonly<{
+  parentUserId: string;
+  parentName: string;
+  phone: string | null;
+  children: readonly Readonly<{ studentId: string; studentName: string; gradeLevel: string }>[];
+}>;
 
 const GRADES = ['Quatrième', 'Troisième', 'Seconde', 'Première', 'Terminale'] as const;
 
@@ -22,23 +34,32 @@ function newIdempotencyKey(): string {
 /**
  * Création du foyer préalable à une saisie.
  *
- * L'adresse du parent est réelle — c'est par elle qu'il recevra son lien
- * d'activation, puis le bilan. Aucun mot de passe n'est saisi ici : le compte
- * reste en activation en attente jusqu'à ce que le parent pose le sien.
+ * Le téléphone est obligatoire et permet de créer le foyer avant de connaître
+ * l'e-mail. Aucun mot de passe n'est saisi ici : l'activation et la diffusion
+ * restent en attente jusqu'à la complétion du contact parent.
  */
 export function PaperEntryFamilyForm() {
   const router = useRouter();
   const [parentEmail, setParentEmail] = useState('');
+  const [parentPhone, setParentPhone] = useState('');
   const [parentFirstName, setParentFirstName] = useState('');
   const [parentLastName, setParentLastName] = useState('');
   const [children, setChildren] = useState<readonly ChildDraft[]>([EMPTY_CHILD]);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [candidates, setCandidates] = useState<readonly DuplicateCandidate[]>([]);
   // Une seule clé pour ce foyer : un renvoi après un échec ambigu rejoue la
   // même création au lieu d'en ajouter une seconde.
-  const [idempotencyKey] = useState(newIdempotencyKey);
+  const [idempotencyKey, setIdempotencyKey] = useState(newIdempotencyKey);
 
-  const complete = parentEmail.trim().length > 0
+  let phoneIsValid = false;
+  try {
+    normalizeParentPhone(parentPhone);
+    phoneIsValid = true;
+  } catch {
+    phoneIsValid = false;
+  }
+  const complete = phoneIsValid
     && parentFirstName.trim().length > 0
     && parentLastName.trim().length > 0
     && children.every((child) => child.firstName.trim().length > 0);
@@ -49,7 +70,7 @@ export function PaperEntryFamilyForm() {
     )));
   }
 
-  async function submit() {
+  async function submit(duplicateResolution?: DuplicateResolution) {
     if (!complete || submitting) return;
     setSubmitting(true);
     setError(null);
@@ -58,15 +79,28 @@ export function PaperEntryFamilyForm() {
         method: 'POST',
         headers: { 'content-type': 'application/json', 'idempotency-key': idempotencyKey },
         body: JSON.stringify({
-          parentEmail: parentEmail.trim(),
+          ...(parentEmail.trim() === '' ? {} : { parentEmail: parentEmail.trim() }),
+          parentPhone: parentPhone.trim(),
           parentFirstName: parentFirstName.trim(),
           parentLastName: parentLastName.trim(),
+          ...(duplicateResolution === undefined ? {} : { duplicateResolution }),
           children: children.map((child) => ({
             firstName: child.firstName.trim(),
             grade: child.grade,
           })),
         }),
       });
+      if (response.status === 409) {
+        const conflict = await response.json() as {
+          error?: Readonly<{ code?: string }>;
+          candidates?: readonly DuplicateCandidate[];
+        };
+        if (conflict.error?.code === 'POTENTIAL_DUPLICATE' && conflict.candidates !== undefined) {
+          setCandidates(conflict.candidates);
+          setIdempotencyKey(newIdempotencyKey());
+          return;
+        }
+      }
       if (!response.ok) throw new Error('FAMILY_CREATE_FAILED');
       const created = await response.json() as { children?: ReadonlyArray<{ studentId: string }> };
       const first = created.children?.[0]?.studentId;
@@ -75,7 +109,7 @@ export function PaperEntryFamilyForm() {
         : `/dashboard/assistante/bilans/saisie-papier?studentId=${encodeURIComponent(first)}`);
       router.refresh();
     } catch {
-      setError("Le foyer n’a pas pu être créé. Vérifiez l’adresse du parent, puis réessayez.");
+      setError('Le foyer n’a pas pu être créé. Vérifiez le téléphone et les coordonnées, puis réessayez.');
     } finally {
       setSubmitting(false);
     }
@@ -83,7 +117,7 @@ export function PaperEntryFamilyForm() {
 
   return (
     <div className="mt-5 space-y-4">
-      <div className="grid gap-3 sm:grid-cols-3">
+      <div className="grid gap-3 sm:grid-cols-2">
         <label className="text-sm">
           <span className="text-slate-300">Prénom du parent</span>
           <input
@@ -101,7 +135,19 @@ export function PaperEntryFamilyForm() {
           />
         </label>
         <label className="text-sm">
-          <span className="text-slate-300">Adresse du parent</span>
+          <span className="text-slate-300">Téléphone du parent</span>
+          <input
+            type="tel"
+            inputMode="tel"
+            required
+            value={parentPhone}
+            onChange={(event) => setParentPhone(event.target.value)}
+            placeholder={LEGAL.contact.phone}
+            className="mt-1 w-full rounded-xl border border-white/15 bg-slate-950 px-3 py-2 text-white"
+          />
+        </label>
+        <label className="text-sm">
+          <span className="text-slate-300">E-mail du parent (facultatif)</span>
           <input
             type="email"
             value={parentEmail}
@@ -110,6 +156,10 @@ export function PaperEntryFamilyForm() {
           />
         </label>
       </div>
+
+      <p className="text-sm text-slate-400">
+        Sans e-mail, le bilan peut être saisi et généré. L'accès parent et la diffusion seront débloqués après sa complétion.
+      </p>
 
       <ul className="space-y-3">
         {children.map((child, index) => (
@@ -168,6 +218,40 @@ export function PaperEntryFamilyForm() {
           {submitting ? 'Création…' : 'Créer le foyer et continuer'}
         </button>
       </div>
+
+      {candidates.length > 0 && (
+        <section className="rounded-2xl border border-amber-300/30 bg-amber-300/10 p-4" aria-label="Foyers similaires">
+          <h3 className="font-semibold text-amber-100">Ce foyer existe peut-être déjà — rattacher ?</h3>
+          <p className="mt-1 text-sm text-slate-300">Vérifiez les informations puis choisissez explicitement.</p>
+          <ul className="mt-3 space-y-3">
+            {candidates.map((candidate) => (
+              <li key={candidate.parentUserId} className="rounded-xl border border-white/10 bg-slate-950/50 p-3">
+                <p className="font-semibold text-white">{candidate.parentName}</p>
+                <p className="text-sm text-slate-300">
+                  {candidate.phone ?? 'Téléphone non affiché'}
+                  {candidate.children.map((child) => ` · ${child.studentName} (${child.gradeLevel})`).join('')}
+                </p>
+                <button
+                  type="button"
+                  disabled={submitting}
+                  onClick={() => void submit({ mode: 'ATTACH', parentUserId: candidate.parentUserId })}
+                  className="mt-3 rounded-xl border border-amber-300 px-3 py-2 text-sm font-semibold text-amber-100 disabled:opacity-40"
+                >
+                  Rattacher à {candidate.parentName}
+                </button>
+              </li>
+            ))}
+          </ul>
+          <button
+            type="button"
+            disabled={submitting}
+            onClick={() => void submit({ mode: 'CREATE_NEW' })}
+            className="mt-3 rounded-xl border border-white/20 px-3 py-2 text-sm font-semibold text-slate-200 disabled:opacity-40"
+          >
+            Créer un nouveau foyer
+          </button>
+        </section>
+      )}
 
       {children.length >= MAX_CHILDREN && (
         <p className="text-sm text-slate-400">

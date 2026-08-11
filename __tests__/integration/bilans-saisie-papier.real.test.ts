@@ -21,8 +21,15 @@ import { createGetAttemptHandler } from '@/lib/bilans/api/get-attempt';
 import { createPaperEntryHandler } from '@/lib/bilans/api/paper-entry';
 import { createPatchAnswersHandler } from '@/lib/bilans/api/patch-answers';
 import { createSubmitAttemptHandler } from '@/lib/bilans/api/submit-attempt';
+import type { FactSheet } from '@/lib/bilans/facts/fact-sheet';
+import { BilanLlmConfigError } from '@/lib/bilans/llm/config';
 import { prisma } from '@/lib/prisma';
 import { processScoreAttemptJob } from '@/lib/bilans/worker/score-job';
+import { processGenerateReportJob } from '@/lib/bilans/worker/generate-report-job';
+import {
+  PAPER_ENTRY_DURATION_MEASUREMENT,
+  prepareReportPassationPresentation,
+} from '@/lib/bilans/render/passation-presentation';
 
 import {
   CANONICAL_WORKER_ENABLED_PACK,
@@ -52,6 +59,7 @@ describe('Saisie papier — parité et provenance sur PostgreSQL réel', () => {
   let studentId: string;
   let studentUserId: string;
   let staffUserId: string;
+  let parentUserId: string;
 
   const workerDependencies = {
     prisma,
@@ -132,10 +140,26 @@ describe('Saisie papier — parité et provenance sur PostgreSQL réel', () => {
     return prisma.scoreSnapshot.findUniqueOrThrow({ where: { assessmentAttemptId: attemptId } });
   }
 
+  async function generateReport(attemptId: string) {
+    const job = await prisma.jobOutbox.findUniqueOrThrow({
+      where: { idempotencyKey: `${attemptId}.generate-report` },
+    });
+    return processGenerateReportJob(job.id, {
+      ...workerDependencies,
+      buildTransport: () => { throw new BilanLlmConfigError('OPENROUTER_API_KEY_MISSING'); },
+    });
+  }
+
   beforeAll(async () => {
     const parentUser = await prisma.user.create({
-      data: { email: `${PREFIX}parent@example.test`, role: 'PARENT' },
+      data: {
+        email: null,
+        role: 'PARENT',
+        phone: '99 19 28 29',
+        phoneNormalized: '99192829',
+      },
     });
+    parentUserId = parentUser.id;
     const parent = await prisma.parentProfile.create({ data: { userId: parentUser.id } });
     const studentUser = await prisma.user.create({
       data: { email: `${PREFIX}eleve@example.test`, role: 'ELEVE' },
@@ -160,12 +184,16 @@ describe('Saisie papier — parité et provenance sur PostgreSQL réel', () => {
         "canonical_parent_student_links" CASCADE
     `);
     await prisma.student.deleteMany({ where: { user: { email: { startsWith: PREFIX } } } });
+    await prisma.parentProfile.deleteMany({ where: { userId: parentUserId } });
     await prisma.parentProfile.deleteMany({ where: { user: { email: { startsWith: PREFIX } } } });
     await prisma.user.deleteMany({ where: { email: { startsWith: PREFIX } } });
+    await prisma.user.delete({ where: { id: parentUserId } });
     await prisma.$disconnect();
   });
 
   test('la saisie papier et la passation en ligne produisent le même score et le même profil', async () => {
+    await expect(prisma.user.findUniqueOrThrow({ where: { id: parentUserId }, select: { email: true } }))
+      .resolves.toEqual({ email: null });
     const onlineAttemptId = await submitOnlineAttempt();
 
     const response = await paperHandler(staffUserId)(paperRequest(`${PREFIX}paper-0001`, {
@@ -193,22 +221,39 @@ describe('Saisie papier — parité et provenance sur PostgreSQL réel', () => {
     ));
     expect(comparable(paper.result)).toBe(comparable(online.result));
 
-    const facts = paper.result as unknown as {
-      globalScore: number;
-      calibrationIndex: number | null;
-      flags: readonly string[];
-    };
-    expect(facts.globalScore).toBeGreaterThan(0);
-    expect(facts.globalScore).toBeLessThan(100);
+    const paperFacts = paper.result as unknown as FactSheet;
+    const onlineFacts = online.result as unknown as FactSheet;
+    expect(paperFacts.globalScore).toBeGreaterThan(0);
+    expect(paperFacts.globalScore).toBeLessThan(100);
     // Le volet métacognition est bien porté par la copie papier.
-    expect(facts.calibrationIndex).not.toBeNull();
+    expect(paperFacts.calibrationIndex).not.toBeNull();
 
-    // LIMITE CONNUE, documentée dans paper-entry.ts : la durée de composition
-    // n'est pas sur la copie, donc le moteur en déduit une durée nulle et
-    // lève PASSATION_EXPRESS sur tout bilan saisi. Le test l'énonce plutôt
-    // que de le taire — si un jour ce drapeau est arbitré, il échouera ici, à
-    // l'endroit exact où il faut le reconsidérer.
-    expect(facts.flags).toContain('PASSATION_EXPRESS');
+    // Le snapshot brut reste strictement identique entre les deux chemins :
+    // le moteur n'apprend rien de la provenance. La vue de rapport, elle,
+    // neutralise le faux signal papier tout en conservant le vrai signal en
+    // ligne et en portant un marqueur de durée non mesurée.
+    expect(paperFacts.flags).toContain('PASSATION_EXPRESS');
+    expect(onlineFacts.flags).toContain('PASSATION_EXPRESS');
+    const paperPresentation = prepareReportPassationPresentation(paperFacts, 'SAISIE_PAPIER');
+    const onlinePresentation = prepareReportPassationPresentation(onlineFacts, 'EN_LIGNE');
+    expect(paperPresentation.factSheet.flags).not.toContain('PASSATION_EXPRESS');
+    expect(paperPresentation.durationMeasurement).toBe(PAPER_ENTRY_DURATION_MEASUREMENT);
+    expect(onlinePresentation.factSheet.flags).toContain('PASSATION_EXPRESS');
+    expect(onlinePresentation.durationMeasurement).toBeUndefined();
+
+    await Promise.all([generateReport(paperAttemptId), generateReport(onlineAttemptId)]);
+    const [paperRevision, onlineRevision] = await Promise.all([
+      prisma.reportRevision.findUniqueOrThrow({ where: { scoreSnapshotId: paper.id } }),
+      prisma.reportRevision.findUniqueOrThrow({ where: { scoreSnapshotId: online.id } }),
+    ]);
+    const paperIdentity = (paperRevision.content as {
+      NEXUS: { identity: { durationMeasurement?: string } };
+    }).NEXUS.identity;
+    const onlineIdentity = (onlineRevision.content as {
+      NEXUS: { identity: { durationMeasurement?: string } };
+    }).NEXUS.identity;
+    expect(paperIdentity.durationMeasurement).toBe(PAPER_ENTRY_DURATION_MEASUREMENT);
+    expect(onlineIdentity.durationMeasurement).toBeUndefined();
 
     const attempts = await prisma.canonicalAssessmentAttempt.findMany({
       where: { id: { in: [onlineAttemptId, paperAttemptId] } },

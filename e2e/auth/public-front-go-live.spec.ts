@@ -13,7 +13,7 @@ const PUBLIC_PAGES: PublicPageCase[] = [
   { url: '/bilan-gratuit', h1: /bilan stratégique gratuit/i, cta: /lancer le bilan diagnostic|whatsapp|voir les offres/i },
   { url: '/stages', h1: /viser\.\s*atteindre\.\s*dépasser/i, cta: /pré-inscription|demander un bilan|whatsapp/i },
   { url: '/plateforme-aria', h1: /aria/i, cta: /demander un bilan|voir les offres/i },
-  { url: '/accompagnement-scolaire', h1: /accompagnement scolaire|progresser avec méthode/i, cta: /demander un bilan gratuit|whatsapp|voir les offres/i },
+  { url: '/accompagnement-scolaire', h1: /accompagnement scolaire|progresser avec méthode|trouver un cadre adapté au besoin réel/i, cta: /demander un bilan gratuit|whatsapp|voir les offres/i },
   { url: '/contact', h1: /une question claire|contact/i, cta: /envoyer ma demande|demander un bilan|whatsapp/i },
   { url: '/notre-centre', h1: /mutuelleville|centre d\'accompagnement/i, cta: /contacter l\'équipe|whatsapp/i },
 ];
@@ -229,7 +229,6 @@ test.describe('Public front go-live smoke', () => {
     for (const viewport of VIEWPORTS) {
       test(`${pageCase.url} (${viewport.label})`, async ({ page }, testInfo) => {
         if (pageCase.url === '/stages') {
-          test.skip(true, 'QUARANTINE: REFONTE: /stages heading changed');
         }
         const stats = await auditPublicPage(page, testInfo, pageCase.url, pageCase.h1, pageCase.cta, viewport.label);
         console.log(
@@ -389,7 +388,7 @@ test.describe('Public front go-live smoke', () => {
     await page.goto('/offres', { waitUntil: 'domcontentloaded' });
     await expect(page.getByRole('heading', { name: /offres/i }).first()).toBeVisible();
     await expect(page.getByText('Catalogue 2026/2027', { exact: true })).toBeVisible();
-    await expect(page.getByText(/groupes de 5 maximum/i)).toBeVisible();
+    await expect(page.getByText(/5 élèves max/i).first()).toBeVisible();
 
     await page.goto('/stages', { waitUntil: 'domcontentloaded' });
     // Stages page shows calendar-based info, not specific dates

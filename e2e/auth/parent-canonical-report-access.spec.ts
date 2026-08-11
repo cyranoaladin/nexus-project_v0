@@ -1,6 +1,8 @@
 import { expect, test } from '@playwright/test';
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
+import { assertDisposableE2eDatabase } from '../helpers/disposable-database';
+import { waitForAuthenticatedSession } from '../helpers/auth';
 
 import { SECONDE_ENTRY_RECIPE_FACT_SHEETS } from '../../__tests__/bilans/fixtures/recipe-fact-sheets';
 import { publishReportRevision } from '../../lib/bilans/core/report-service';
@@ -10,9 +12,7 @@ import {
 } from '../../lib/bilans/render/pdf';
 
 const databaseUrl = process.env.DATABASE_URL ?? '';
-if (!/localhost|127\.0\.0\.1/.test(databaseUrl) || !/nexus_p0c_parent_test/.test(databaseUrl)) {
-  throw new Error('P0C_E2E_REQUIRES_ISOLATED_DATABASE');
-}
+assertDisposableE2eDatabase(databaseUrl);
 
 const prisma = new PrismaClient({ datasources: { db: { url: databaseUrl } } });
 const packSlug = 'entree-seconde-maths-v1';
@@ -23,28 +23,6 @@ const forbiddenMarkers = [
   '__VERIFIER_CHANNEL__',
   '__INTERNAL_CHANNEL__',
 ] as const;
-
-async function resetIsolatedDatabase(): Promise<void> {
-  await prisma.$executeRawUnsafe(`
-    TRUNCATE TABLE
-      "bilans",
-      "canonical_report_audience_artifacts",
-      "canonical_report_materializations",
-      "canonical_report_reviews",
-      "canonical_report_revisions",
-      "canonical_report_artifacts",
-      "canonical_score_snapshots",
-      "canonical_job_outbox",
-      "canonical_api_idempotency_keys",
-      "canonical_assessment_attempts",
-      "canonical_parent_student_links",
-      "students",
-      "coach_profiles",
-      "parent_profiles",
-      "users"
-    RESTART IDENTITY CASCADE
-  `);
-}
 
 async function signIn(page: import('@playwright/test').Page, email: string, password: string): Promise<void> {
   await page.goto('/auth/signin');
@@ -91,7 +69,7 @@ async function prepareReviewFixture(attemptId: string, studentId: string, nonce:
       content: {
         NEXUS: {
           identity: {
-            displayName: 'Élève synthétique',
+            displayName: 'ELEVE_SYNTHETIQUE',
             level: 'SECONDE',
             subject: 'MATHS',
             date: '4 août 2026',
@@ -192,12 +170,7 @@ function expectPrivateNoStore(headers: Record<string, string>): void {
 }
 
 test.describe('P0-C — consultation Parent sécurisée', () => {
-  test.beforeAll(async () => {
-    await resetIsolatedDatabase();
-  });
-
   test.afterAll(async () => {
-    await resetIsolatedDatabase();
     await prisma.$disconnect();
   });
 
@@ -263,6 +236,8 @@ test.describe('P0-C — consultation Parent sécurisée', () => {
     await page.getByRole('textbox', { name: 'Adresse Email' }).fill(loginIdentifier);
     await page.getByLabel(/^mot de passe$/i).fill(childPassword);
     await page.getByRole('button', { name: /accéder à mon espace/i }).click();
+    await waitForAuthenticatedSession(page, child!.user.email!);
+    await page.goto('/dashboard/eleve', { waitUntil: 'domcontentloaded' });
     await expect(page).toHaveURL(/\/dashboard\/eleve/);
 
     const attemptResponse = await page.request.post('/api/bilans/attempts', {
@@ -310,6 +285,7 @@ test.describe('P0-C — consultation Parent sécurisée', () => {
     expectPrivateNoStore(pdfResponse.headers());
     expect((await pdfResponse.body()).subarray(0, 4).toString('ascii')).toBe('%PDF');
 
+    if (child!.user.email === null) throw new Error('E2E_STUDENT_EMAIL_REQUIRED');
     const legacyBilan = await createLegacyPublishedBilan(child!.id, child!.user.email, nonce);
     const legacyPdf = await page.request.get(`/api/parent/bilans/${legacyBilan.id}/pdf`);
     expect(legacyPdf.status()).toBe(200);

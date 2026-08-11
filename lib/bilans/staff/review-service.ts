@@ -1,14 +1,20 @@
-import { ReportRevisionStatus, type Prisma, type UserRole } from '@prisma/client';
+import { ReportRevisionStatus, type UserRole } from '@prisma/client';
 
 import { prisma } from '@/lib/prisma';
 
 import { resolveEnabledPack, type PackResolver } from '../api/pack-access';
+import { bilanPackSubjectLabel } from '../catalog/subjects';
 import {
+  BilanReportServiceError,
   previewReportRevision,
   publishReportRevision,
   rejectReportRevision,
+  renderReportRevisionAudiencePdf,
   validateReportRevision,
 } from '../core/report-service';
+import { buildHumanRenderIdentity } from '../render/human-identity';
+import type { ReportAudience } from '../render/profile-copy';
+import { bilanPackLevelLabel } from '../render/stage-label';
 
 export type PendingReportReview = Readonly<{
   id: string;
@@ -16,13 +22,27 @@ export type PendingReportReview = Readonly<{
   validationFailures: readonly string[];
   reportPackId: string;
   reportPackVersion: string;
-  content: Prisma.JsonValue;
   createdAt: Date;
   reportArtifact: Readonly<{
     id: string;
     assessmentAttemptId: string;
     studentId: string;
+    status: string;
+    assessmentAttempt: Readonly<{ provenance: string }>;
+    student: Readonly<{
+      user: Readonly<{ firstName: string | null; lastName: string | null }>;
+      parent: Readonly<{ user: Readonly<{ email: string | null }> }>;
+    }>;
   }>;
+}>;
+
+export type RecentReportReview = PendingReportReview & Readonly<{
+  studentName: string;
+  packLabel: string;
+  displayStatus: 'Prêt — e-mail parent manquant' | 'En attente de diffusion' | 'Diffusé' | 'Rejeté';
+  actionable: boolean;
+  parentEmailMissing: boolean;
+  diffusable: boolean;
 }>;
 
 type ReviewActor = Readonly<{ userId: string; role: UserRole | string }>;
@@ -34,20 +54,33 @@ const revisionSelection = {
   validationFailures: true,
   reportPackId: true,
   reportPackVersion: true,
-  content: true,
   createdAt: true,
   reportArtifact: {
-    select: { id: true, assessmentAttemptId: true, studentId: true },
+    select: {
+      id: true,
+      assessmentAttemptId: true,
+      studentId: true,
+      status: true,
+      assessmentAttempt: { select: { provenance: true } },
+      student: {
+        select: {
+          user: { select: { firstName: true, lastName: true } },
+          parent: { select: { user: { select: { email: true } } } },
+        },
+      },
+    },
   },
 } as const;
 
 type ReviewServiceDependencies = Readonly<{
   listPending(): Promise<readonly PendingReportReview[]>;
+  listRecent(): Promise<readonly PendingReportReview[]>;
   findPending(revisionId: string): Promise<PendingReportReview | null>;
   resolvePack: PackResolver;
   validate(input: Readonly<{ revisionId: string; reviewerId: string; motif: string; reviewedAt: Date }>): Promise<unknown>;
   publish(input: Readonly<{ revisionId: string; reviewerId: string; publishedAt: Date }>): Promise<unknown>;
   preview(input: Readonly<{ revisionId: string }>): Promise<unknown>;
+  renderPdf(input: Readonly<{ revisionId: string; audience: ReportAudience }>): Promise<Buffer>;
   reject(input: Readonly<{ revisionId: string; reviewerId: string; motif: string; reviewedAt: Date }>): Promise<unknown>;
   now: () => Date;
 }>;
@@ -79,6 +112,21 @@ const defaultDependencies: ReviewServiceDependencies = {
     select: revisionSelection,
     orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
   }),
+  listRecent: () => prisma.reportRevision.findMany({
+    where: {
+      OR: [
+        { status: { in: [
+          ReportRevisionStatus.PENDING_REVIEW,
+          ReportRevisionStatus.COACH_VALIDATED,
+          ReportRevisionStatus.REJECTED,
+        ] } },
+        { reportArtifact: { status: 'PUBLISHED' } },
+      ],
+    },
+    select: revisionSelection,
+    orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+    take: 60,
+  }),
   findPending: (revisionId) => prisma.reportRevision.findFirst({
     where: { id: revisionId, status: actionableStatus, materialization: null },
     select: revisionSelection,
@@ -87,6 +135,7 @@ const defaultDependencies: ReviewServiceDependencies = {
   validate: (input) => validateReportRevision({ prisma, ...input }),
   publish: (input) => publishReportRevision({ prisma, ...input }),
   preview: (input) => previewReportRevision({ prisma, ...input }),
+  renderPdf: (input) => renderReportRevisionAudiencePdf({ prisma, ...input }),
   reject: (input) => rejectReportRevision({ prisma, ...input }),
   now: () => new Date(),
 };
@@ -123,6 +172,67 @@ function packIsEnabled(revision: PendingReportReview, dependencies: ReviewServic
   return dependencies.resolvePack(revision.reportPackId, versionOf(revision)) !== null;
 }
 
+const MISSING_STUDENT_IDENTITY_MESSAGE = 'Identité élève incomplète : prénom ou nom requis avant rendu.';
+
+function studentName(revision: PendingReportReview): string | null {
+  try {
+    return buildHumanRenderIdentity(revision.reportArtifact.student.user).displayName;
+  } catch (error) {
+    if (error instanceof Error && error.message === 'HUMAN_RENDER_IDENTITY_MISSING') return null;
+    throw error;
+  }
+}
+
+function assertStudentIdentity(revision: PendingReportReview): void {
+  if (studentName(revision) === null) {
+    throw new StaffReviewError('REPORT_STUDENT_IDENTITY_REQUIRED');
+  }
+}
+
+/** Point d'extension : un autre canal d'activation pourra satisfaire ce
+ * prédicat sans modifier le state machine du bilan. Seul l'e-mail existe ici. */
+export function hasAvailableParentContact(revision: PendingReportReview): boolean {
+  return Boolean(revision.reportArtifact.student.parent?.user.email?.trim());
+}
+
+function displayStatus(revision: PendingReportReview): RecentReportReview['displayStatus'] {
+  if (revision.status === ReportRevisionStatus.REJECTED) return 'Rejeté';
+  if (revision.reportArtifact.status === 'PUBLISHED') return 'Diffusé';
+  if (!hasAvailableParentContact(revision)) return 'Prêt — e-mail parent manquant';
+  return 'En attente de diffusion';
+}
+
+function recentReview(
+  revision: PendingReportReview,
+  dependencies: ReviewServiceDependencies,
+): RecentReportReview {
+  const resolved = dependencies.resolvePack(revision.reportPackId, versionOf(revision));
+  const resolvedStudentName = studentName(revision);
+  const validationFailures = resolvedStudentName === null
+    ? Object.freeze([...revision.validationFailures, MISSING_STUDENT_IDENTITY_MESSAGE])
+    : revision.validationFailures;
+  const actionable = resolved !== null
+    && resolvedStudentName !== null
+    && (
+      revision.status === ReportRevisionStatus.PENDING_REVIEW
+      || revision.status === ReportRevisionStatus.COACH_VALIDATED
+    )
+    && revision.reportArtifact.status === 'PENDING_REVIEW';
+  const parentEmailMissing = !hasAvailableParentContact(revision);
+  return Object.freeze({
+    ...revision,
+    validationFailures,
+    studentName: resolvedStudentName ?? 'Identité élève à compléter',
+    packLabel: resolved === null
+      ? `${revision.reportPackId} · v${revision.reportPackVersion}`
+      : `${bilanPackLevelLabel(resolved.pack.level)} · ${bilanPackSubjectLabel(resolved.pack.subject)}`,
+    displayStatus: displayStatus(revision),
+    actionable,
+    parentEmailMissing,
+    diffusable: actionable && !parentEmailMissing,
+  });
+}
+
 async function pendingReview(
   action: ReviewAction,
   dependencies: ReviewServiceDependencies,
@@ -145,12 +255,23 @@ export async function listPendingReportReviews(
   return Object.freeze(revisions.filter((revision) => packIsEnabled(revision, dependencies)));
 }
 
+export async function listRecentReportReviews(
+  actor: ReviewActor,
+  overrides: Partial<ReviewServiceDependencies> = {},
+): Promise<readonly RecentReportReview[]> {
+  const dependencies = { ...defaultDependencies, ...overrides };
+  assertAssistante(actor);
+  return Object.freeze((await dependencies.listRecent()).map((revision) => recentReview(revision, dependencies)));
+}
+
 export async function validateAndPublishPendingReport(
   action: ReviewAction,
   overrides: Partial<ReviewServiceDependencies> = {},
 ) {
   const dependencies = { ...defaultDependencies, ...overrides };
   const { revision, reviewerId, motif } = await pendingReview(action, dependencies);
+  assertStudentIdentity(revision);
+  if (!hasAvailableParentContact(revision)) throw new StaffReviewError('REPORT_PARENT_EMAIL_REQUIRED');
   if (revision.validationFailures.length > 0) throw new StaffReviewError('REPORT_VALIDATION_FAILURES');
   const reviewedAt = dependencies.now();
   // A stranded retry (see actionableStatus above) already has an APPROVED
@@ -172,8 +293,38 @@ export async function previewPendingReport(
   assertAssistante(action);
   const revision = await dependencies.findPending(action.revisionId);
   if (revision === null || !packIsEnabled(revision, dependencies)) throw new StaffReviewError('NOT_FOUND');
+  assertStudentIdentity(revision);
   if (revision.validationFailures.length > 0) throw new StaffReviewError('REPORT_VALIDATION_FAILURES');
   return dependencies.preview({ revisionId: revision.id });
+}
+
+export async function renderPendingReportPdf(
+  action: ReviewActor & Readonly<{ revisionId: string; audience: ReportAudience }>,
+  overrides: Partial<ReviewServiceDependencies> = {},
+) {
+  const dependencies = { ...defaultDependencies, ...overrides };
+  assertAssistante(action);
+  const revision = await dependencies.findPending(action.revisionId);
+  if (revision === null || !packIsEnabled(revision, dependencies)) throw new StaffReviewError('NOT_FOUND');
+  assertStudentIdentity(revision);
+  if (revision.validationFailures.length > 0) throw new StaffReviewError('REPORT_VALIDATION_FAILURES');
+  let pdf: Buffer;
+  try {
+    pdf = await dependencies.renderPdf({ revisionId: revision.id, audience: action.audience });
+  } catch (error) {
+    if (error instanceof BilanReportServiceError) {
+      throw new StaffReviewError(
+        ['REPORT_PDF_UNAVAILABLE', 'REPORT_STUDENT_IDENTITY_REQUIRED'].includes(error.code)
+          ? error.code
+          : 'NOT_FOUND',
+      );
+    }
+    throw error;
+  }
+  return Object.freeze({
+    pdf: Buffer.from(pdf),
+    filename: `bilan-nexus-${action.audience.toLowerCase()}.pdf`,
+  });
 }
 
 export async function rejectPendingReport(

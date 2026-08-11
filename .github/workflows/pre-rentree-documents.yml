@@ -40,6 +40,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 45
     env:
+      NODE_OPTIONS: "--max-old-space-size=4096"
       SOURCE_DATE_EPOCH: "1784505600"
       PYTHONDONTWRITEBYTECODE: "1"
       PRE_RENTREE_REPOSITORY_COMMIT_SHA: ${{ github.event.pull_request.head.sha || github.sha }}

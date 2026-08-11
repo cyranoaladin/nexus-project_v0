@@ -152,6 +152,9 @@ test('parent: abonnements invoice-details dialog', async ({ page }) => {
   await page.goto(`${BASE}/dashboard/parent/abonnements`, { waitUntil: 'domcontentloaded' });
   await page.waitForTimeout(2000);
 
+  await page.getByRole('combobox').click();
+  await page.getByRole('option', { name: /Yasmine Dupont/i }).click();
+
   const trigger = page.getByRole('button', { name: /voir les détails/i }).first();
   await expect(trigger).toBeVisible({ timeout: 5000 });
   await trigger.click();

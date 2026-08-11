@@ -7,10 +7,13 @@ import {
   getLatestInvoiceAndUserDocumentByEmail,
   disconnectPrisma,
 } from '../helpers/db';
+import { CGV_VERSION } from '../../lib/cgv-policy';
+import { resolvePaymentCatalogItem } from '../../lib/security/payment-catalog';
 
 test.describe.serial('Paiements -> validation -> facture PDF -> coffre-fort', () => {
-  const description = 'Abonnement Hybride E2E';
-  const amount = 450;
+  const catalogItem = resolvePaymentCatalogItem('subscription', 'HYBRIDE');
+  if (!catalogItem) throw new Error('HYBRIDE is absent from the canonical payment catalog');
+  const { description, amount } = catalogItem;
   let paymentId = '';
 
   test.afterAll(async () => {
@@ -18,7 +21,6 @@ test.describe.serial('Paiements -> validation -> facture PDF -> coffre-fort', ()
   });
 
   test('parent déclare un virement + pending détecté', async ({ page }) => {
-    test.skip(true, 'QUARANTINE: PRE-EXISTING: payment confirmation API returns 400 — seed data mismatch');
     const studentId = await ensureInactiveSubscriptionForStudentEmail(CREDS.student.email, 'HYBRIDE', 8);
     await loginAsUser(page, 'parent');
 
@@ -29,6 +31,8 @@ test.describe.serial('Paiements -> validation -> facture PDF -> coffre-fort', ()
         studentId,
         amount,
         description,
+        termsAccepted: true,
+        termsVersion: CGV_VERSION,
       },
       failOnStatusCode: false,
     });
@@ -46,7 +50,6 @@ test.describe.serial('Paiements -> validation -> facture PDF -> coffre-fort', ()
   });
 
   test('staff valide le paiement puis génération facture/doc', async ({ page }) => {
-    test.skip(true, 'PRE-EXISTING: payment route returns 404 — subscription not seeded');
     await loginAsUser(page, 'admin');
 
     const validate = await page.request.post('/api/payments/validate', {

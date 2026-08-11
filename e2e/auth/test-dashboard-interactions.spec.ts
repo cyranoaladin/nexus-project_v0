@@ -1,23 +1,19 @@
 import { test, expect, Page } from '@playwright/test'
+import { loginViaSigninForm, type UserType } from '../helpers/auth'
+import { CREDS } from '../helpers/credentials'
 
-const BASE = 'http://localhost:3000'
+const BASE = process.env.BASE_URL ?? 'http://127.0.0.1:3002'
 
-async function loginAs(page: Page, email: string, pwd: string, path: string) {
-  await page.goto(`${BASE}/auth/signin`, { waitUntil: 'load' })
-  await page.waitForTimeout(1000)
-  await page.locator('input[type="email"]').fill(email)
-  await page.locator('input[type="password"]').fill(pwd)
-  await page.locator('button[type="submit"]').click()
-  await page.waitForURL(`**${path}**`, { timeout: 30000 })
+async function loginAs(page: Page, role: UserType) {
+  await loginViaSigninForm(page, role)
 }
 
 // ======================================================
 // ADMIN — CRÉER UN UTILISATEUR (vérification en vraie DB)
 // ======================================================
 test('ADMIN — créer user via dialog → existe en DB', async ({ page }) => {
-  test.skip(true, 'QUARANTINE: PRE-EXISTING: hardcoded localhost:3000, incompatible with Docker E2E');
   test.setTimeout(60000)
-  await loginAs(page, 'admin@nexus-reussite.com', 'admin123', '/dashboard/admin')
+  await loginAs(page, 'admin')
   await page.goto(`${BASE}/dashboard/admin/users`, { waitUntil: 'load' })
   await page.waitForTimeout(5000)
 
@@ -38,12 +34,21 @@ test('ADMIN — créer user via dialog → existe en DB', async ({ page }) => {
   await dialog.locator('#lastName').fill('Playwright')
   await dialog.locator('#password').fill('Test1234!')
 
+  await dialog.getByRole('combobox').click()
+  await page.getByRole('option', { name: 'Assistante' }).click()
+
   await page.screenshot({ path: '/tmp/admin-create-user-form.png' })
 
   // Submit the form
   const submitBtn = dialog.getByRole('button', { name: /créer|ajouter|enregistrer|save/i })
-  await submitBtn.click()
-  await page.waitForTimeout(3000)
+  const [createResponse] = await Promise.all([
+    page.waitForResponse((response) =>
+      response.url().includes('/api/admin/users')
+      && response.request().method() === 'POST'
+    ),
+    submitBtn.click(),
+  ])
+  expect(createResponse.status(), await createResponse.text()).toBe(201)
 
   // Verify in DB
   const { PrismaClient } = require('@prisma/client')
@@ -53,6 +58,7 @@ test('ADMIN — créer user via dialog → existe en DB', async ({ page }) => {
     if (!created) {
       throw new Error(`❌ ${testEmail} créé via UI mais ABSENT en DB → Vérifier POST /api/admin/users`)
     }
+    expect(created.role).toBe('ASSISTANTE')
     console.log(`✅ User créé en DB: ${created.email} (${created.role})`)
     // Cleanup
     await prisma.student.deleteMany({ where: { userId: created.id } })
@@ -68,9 +74,8 @@ test('ADMIN — créer user via dialog → existe en DB', async ({ page }) => {
 // PARENT — DIALOG AJOUTER ENFANT
 // ======================================================
 test('PARENT — dialog ajouter enfant fonctionne', async ({ page }) => {
-  test.skip(true, 'QUARANTINE: PRE-EXISTING: hardcoded localhost:3000, incompatible with Docker E2E');
   test.setTimeout(60000)
-  await loginAs(page, 'parent@example.com', 'admin123', '/dashboard/parent')
+  await loginAs(page, 'parent')
   await page.waitForTimeout(2000)
 
   // Find "Ajouter un Enfant" button specifically
@@ -96,7 +101,6 @@ test('PARENT — dialog ajouter enfant fonctionne', async ({ page }) => {
 // PARENT — BANNER BILAN UTILISE L'API (pas localStorage)
 // ======================================================
 test('PARENT — banner bilan gratuit appelle /api/bilan-gratuit/status', async ({ page }) => {
-  test.skip(true, 'QUARANTINE: PRE-EXISTING: hardcoded localhost:3000, incompatible with Docker E2E');
   test.setTimeout(60000)
   const apiCalled = { status: false, dismiss: false }
   page.on('request', r => {
@@ -104,7 +108,7 @@ test('PARENT — banner bilan gratuit appelle /api/bilan-gratuit/status', async 
     if (r.url().includes('/api/bilan-gratuit/dismiss')) apiCalled.dismiss = true
   })
 
-  await loginAs(page, 'parent@example.com', 'admin123', '/dashboard/parent')
+  await loginAs(page, 'parent')
   await page.waitForTimeout(2000)
 
   expect(apiCalled.status, '❌ Banner N\'APPELLE PAS /api/bilan-gratuit/status').toBe(true)
@@ -115,9 +119,8 @@ test('PARENT — banner bilan gratuit appelle /api/bilan-gratuit/status', async 
 // COACH — DISPONIBILITÉS AFFICHÉES
 // ======================================================
 test('COACH — page disponibilités charge avec contenu', async ({ page }) => {
-  test.skip(true, 'QUARANTINE: PRE-EXISTING: hardcoded localhost:3000, incompatible with Docker E2E');
   test.setTimeout(60000)
-  await loginAs(page, 'helios@nexus-reussite.com', 'admin123', '/dashboard/coach')
+  await loginAs(page, 'coach')
   await page.goto(`${BASE}/dashboard/coach/availability`, { waitUntil: 'load' })
   await page.waitForTimeout(2000)
   await page.screenshot({ path: '/tmp/coach-availability.png' })
@@ -133,9 +136,8 @@ test('COACH — page disponibilités charge avec contenu', async ({ page }) => {
 // ÉLÈVE — PAGE SESSIONS AFFICHE QUELQUE CHOSE
 // ======================================================
 test('ÉLÈVE — page sessions charge', async ({ page }) => {
-  test.skip(true, 'QUARANTINE: PRE-EXISTING: hardcoded localhost:3000, incompatible with Docker E2E');
   test.setTimeout(60000)
-  await loginAs(page, 'student@example.com', 'admin123', '/dashboard/eleve')
+  await loginAs(page, 'student')
   await page.goto(`${BASE}/dashboard/eleve/sessions`, { waitUntil: 'load' })
   await page.waitForTimeout(2000)
   await page.screenshot({ path: '/tmp/eleve-sessions.png' })
@@ -150,71 +152,41 @@ test('ÉLÈVE — page sessions charge', async ({ page }) => {
 // ADMIN — SEARCH USERS FONCTIONNE
 // ======================================================
 test('ADMIN — recherche utilisateurs fonctionne', async ({ page }) => {
-  test.skip(true, 'QUARANTINE: PRE-EXISTING: hardcoded localhost:3000, incompatible with Docker E2E');
   test.setTimeout(60000)
-  await loginAs(page, 'admin@nexus-reussite.com', 'admin123', '/dashboard/admin')
+  await loginAs(page, 'admin')
   await page.goto(`${BASE}/dashboard/admin/users`, { waitUntil: 'load' })
   await page.waitForTimeout(2000)
 
   // Find search input
   const search = page.locator('input[placeholder*="cherche" i], input[placeholder*="search" i], input[type="search"]').first()
-  if (await search.isVisible()) {
-    await search.fill('parent')
-    await page.waitForTimeout(1500)
-    const body = await page.textContent('body') || ''
-    const hasParent = body.toLowerCase().includes('parent@example.com') || body.toLowerCase().includes('parent')
-    console.log(`✅ Recherche "parent" → résultats: ${hasParent ? 'trouvé' : 'filtré'}`)
-  } else {
-    console.log('ℹ️ Pas de champ recherche visible — skip')
-  }
+  await expect(search).toBeVisible()
+  await search.fill('parent')
+  await expect(page.getByText(CREDS.parent.email, { exact: false }).first()).toBeVisible()
 })
 
 // ======================================================
 // DÉCONNEXION FONCTIONNE
 // ======================================================
 test('DÉCONNEXION — admin redirigé après logout', async ({ page }) => {
-  test.skip(true, 'QUARANTINE: PRE-EXISTING: hardcoded localhost:3000, incompatible with Docker E2E');
   test.setTimeout(60000)
-  await loginAs(page, 'admin@nexus-reussite.com', 'admin123', '/dashboard/admin')
+  await loginAs(page, 'admin')
 
-  // Find logout button — could be "Déconnexion" text or LogOut icon
-  const logoutBtn = page.getByRole('button', { name: /déconnexion|logout/i }).first()
-  if (await logoutBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
-    await logoutBtn.click()
-    await page.waitForTimeout(3000)
-    const url = page.url()
-    const redirected = url.includes('/auth/signin') || url.endsWith('/') || url === BASE + '/'
-    expect(redirected, `❌ Après déconnexion admin: ${url}`).toBe(true)
-    console.log(`✅ Déconnexion admin → ${url}`)
-  } else {
-    // Try sidebar or menu logout
-    const sideLogout = page.locator('a[href*="signout"], button:has-text("Déconnexion")').first()
-    if (await sideLogout.isVisible({ timeout: 2000 }).catch(() => false)) {
-      await sideLogout.click()
-      await page.waitForTimeout(3000)
-      console.log(`✅ Déconnexion admin via sidebar → ${page.url()}`)
-    } else {
-      await page.screenshot({ path: '/tmp/admin-no-logout-btn.png' })
-      console.log('⚠️ Bouton déconnexion non trouvé — screenshot saved')
-    }
-  }
+  const logoutBtn = page.getByRole('button', { name: /se déconnecter de votre compte/i })
+  await expect(logoutBtn).toBeVisible()
+  await Promise.all([
+    page.waitForURL((url) => ['/', '/auth/signin'].includes(url.pathname)),
+    logoutBtn.click(),
+  ])
 })
 
 test('DÉCONNEXION — parent redirigé après logout', async ({ page }) => {
-  test.skip(true, 'QUARANTINE: PRE-EXISTING: hardcoded localhost:3000, incompatible with Docker E2E');
   test.setTimeout(60000)
-  await loginAs(page, 'parent@example.com', 'admin123', '/dashboard/parent')
+  await loginAs(page, 'parent')
 
-  const logoutBtn = page.getByRole('button', { name: /déconnexion|logout/i }).first()
-  if (await logoutBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
-    await logoutBtn.click()
-    await page.waitForTimeout(3000)
-    const url = page.url()
-    const redirected = url.includes('/auth/signin') || url.endsWith('/') || url === BASE + '/'
-    expect(redirected, `❌ Après déconnexion parent: ${url}`).toBe(true)
-    console.log(`✅ Déconnexion parent → ${url}`)
-  } else {
-    await page.screenshot({ path: '/tmp/parent-no-logout-btn.png' })
-    console.log('⚠️ Bouton déconnexion parent non trouvé — screenshot saved')
-  }
+  const logoutBtn = page.getByRole('button', { name: /se déconnecter de votre compte/i })
+  await expect(logoutBtn).toBeVisible()
+  await Promise.all([
+    page.waitForURL((url) => ['/', '/auth/signin'].includes(url.pathname)),
+    logoutBtn.click(),
+  ])
 })

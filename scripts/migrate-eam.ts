@@ -1,5 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-import { serializeError } from '@/lib/utils/serialize-error';
+import { serializeError } from '../lib/utils/serialize-error';
 
 /**
  * Ensure the eam_progress table exists.

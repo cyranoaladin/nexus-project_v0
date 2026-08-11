@@ -12,7 +12,8 @@ test.describe('Nexus premium final — contenu et parcours publics', () => {
       'Cellule Cyclades',
       'Repères tarifaires',
       'TND',
-      'Demander un bilan gratuit',
+      'Passer le bilan de pré-rentrée',
+      'Être rappelé par un conseiller',
     ]) {
       await expect(body).toContainText(text);
     }
@@ -31,7 +32,7 @@ test.describe('Nexus premium final — contenu et parcours publics', () => {
     await expect(page).toHaveURL(/\/recommandation/);
 
     await page.goto('/', { waitUntil: 'domcontentloaded' });
-    await page.getByRole('link', { name: /offres/i }).first().click();
+    await page.locator('[data-hero]').getByRole('link', { name: /Voir les offres & tarifs/i }).click();
     await expect(page).toHaveURL(/\/offres/);
   });
 });

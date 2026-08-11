@@ -38,16 +38,18 @@ export default function AddChildDialog({ onChildAdded, open: controlledOpen, onO
    */
   const [justAdded, setJustAdded] = useState<{ firstName: string; activationUrl: string | null } | null>(null);
   const [copied, setCopied] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!formData.firstName || !formData.lastName || !formData.grade) {
-      alert("Veuillez remplir tous les champs obligatoires");
+      setError("Veuillez remplir tous les champs obligatoires.");
       return;
     }
 
     setLoading(true);
+    setError(null);
     try {
       const response = await fetch('/api/parent/children', {
         method: 'POST',
@@ -75,10 +77,10 @@ export default function AddChildDialog({ onChildAdded, open: controlledOpen, onO
         });
         onChildAdded();
       } else {
-        alert(`Erreur: ${responseData?.error ?? "Impossible d'ajouter l'enfant"}`);
+        setError(responseData?.error ?? "Impossible d'ajouter l'enfant.");
       }
     } catch {
-      alert('Une erreur est survenue lors de l\'ajout de l\'enfant');
+      setError("Une erreur est survenue lors de l'ajout de l'enfant. Réessayez.");
     } finally {
       setLoading(false);
     }
@@ -113,8 +115,11 @@ export default function AddChildDialog({ onChildAdded, open: controlledOpen, onO
                 {`${justAdded.firstName} peut maintenant passer son bilan.`}
               </p>
               <p className="mt-1 text-sm text-neutral-300">
-                Transmettez-lui ce lien : il choisira son mot de passe, puis accédera à son bilan
-                diagnostic. Ce lien est personnel et ne doit être communiqué qu'à lui.
+                Remettez ce lien à votre enfant pour qu'il passe son bilan.
+              </p>
+              <p className="mt-1 text-sm text-neutral-300">
+                Il choisira son mot de passe avant d’accéder au diagnostic. Ce lien est personnel et ne doit être
+                communiqué qu’à lui.
               </p>
             </div>
 
@@ -234,6 +239,11 @@ export default function AddChildDialog({ onChildAdded, open: controlledOpen, onO
               Annuler
             </Button>
           </div>
+          {error !== null && (
+            <p role="alert" className="rounded-lg border border-rose-500/30 bg-rose-500/10 p-3 text-sm text-rose-200">
+              {error}
+            </p>
+          )}
         </form>
         )}
       </DialogContent>
