@@ -26,6 +26,7 @@ import {
   type TombstoneReportStatus,
   type TombstoneReportVisibility,
   tombstoneError,
+  validateTombstoneReason,
 } from './types';
 import { canonicalizeTombstoneExportPath } from './export';
 import type { ExecuteNpcTombstoneResult } from './service';
@@ -103,17 +104,6 @@ function requireEnum<T extends string>(
   return value;
 }
 
-function requireReason(value: string): string {
-  const reason = value.trim();
-  if (reason.length < 3 || reason.length > 512 || /[\u0000-\u001f\u007f]/.test(reason)) {
-    tombstoneError(
-      'NPC_TOMBSTONE_INVALID_REASON',
-      'Reason must be a single printable line between 3 and 512 characters.',
-    );
-  }
-  return reason;
-}
-
 export function parseTombstoneCliArgs(argv: readonly string[]): TombstoneArguments {
   const parsed: ParsedValues = {};
 
@@ -165,7 +155,7 @@ export function parseTombstoneCliArgs(argv: readonly string[]): TombstoneArgumen
       TOMBSTONE_REPORT_VISIBILITIES,
       'Expected report visibility',
     ) as TombstoneReportVisibility,
-    reason: requireReason(parsed.reason!),
+    reason: validateTombstoneReason(parsed.reason!),
     actorId: requireId(parsed.actorId!, 'Actor id'),
     actorRole: requireEnum(
       parsed.actorRole!,

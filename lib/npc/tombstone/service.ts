@@ -28,6 +28,7 @@ import {
   type TombstoneArguments,
   type TombstoneOperationIdentity,
   tombstoneError,
+  validateTombstoneReason,
 } from './types';
 
 export interface ExecuteNpcTombstoneOptions {
@@ -430,10 +431,9 @@ async function validateAlreadyApplied(
     );
   const tombstoneAudits = locked.audits.filter(
     (audit) =>
-      audit.entityType === 'CopySubmission' &&
       audit.entityId === args.submissionId &&
       (audit.action === NPC_TOMBSTONE_AUDIT_ACTION ||
-        audit.action === 'MARK_SUBMISSION_UNAVAILABLE'),
+        /(?:TOMBSTONE|UNAVAILABLE)/i.test(audit.action)),
   );
   const exactAudit = tombstoneAudits.length === 1
     ? tombstoneAudits[0]
@@ -601,6 +601,7 @@ export async function executeNpcTombstone(
   args: TombstoneArguments,
   options: ExecuteNpcTombstoneOptions = {},
 ): Promise<ExecuteNpcTombstoneResult> {
+  validateTombstoneReason(args.reason);
   const identity = buildTombstoneOperationIdentity(args);
   const now = options.now ?? (() => new Date());
   const exportSecurity: TombstoneExportSecurityOptions = {};

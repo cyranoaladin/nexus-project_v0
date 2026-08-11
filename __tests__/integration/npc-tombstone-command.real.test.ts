@@ -304,7 +304,11 @@ describe('NPC audited tombstone command on PostgreSQL 15', () => {
       id: reportId,
       status: 'DRAFT',
       visibility: 'COACH_ONLY',
-      coachNotes: 'Rapport synthétique à préserver',
+      coachNotes: {
+        redacted: true,
+        sha256: expect.stringMatching(/^[a-f0-9]{64}$/),
+        byteLength: expect.any(Number),
+      },
     });
     expect(verified.envelope.payload.snapshot.job).toMatchObject({ id: jobId });
     expect(verified.envelope.payload.snapshot.audits.map((audit) => audit.id)).toEqual([
@@ -313,6 +317,9 @@ describe('NPC audited tombstone command on PostgreSQL 15', () => {
       `${prefix}-audit-submission-existing`,
     ]);
     expect(canonicalJson(verified.envelope)).not.toContain('page-audit-secret-value');
+    expect(canonicalJson(verified.envelope)).not.toContain('Rapport synthétique à préserver');
+    expect(canonicalJson(verified.envelope)).not.toContain('Calcul');
+    expect(canonicalJson(verified.envelope)).not.toContain('Rédaction');
     expect(canonicalJson(verified.envelope)).not.toContain(`${prefix}-audit-unrelated`);
 
     const target = await targetTombstoneState();
@@ -432,6 +439,20 @@ describe('NPC audited tombstone command on PostgreSQL 15', () => {
     expect(await preservedState()).toEqual(before);
   });
 
+  it('rejects a hostile reason before export or database mutation', async () => {
+    const args = commandArgs('hostile-reason', {
+      reason: 'password=/srv/private/secret-token',
+    });
+    const before = await preservedState();
+
+    await expect(executeNpcTombstone(firstClient, args, testOptions(() => appliedAt)))
+      .rejects.toMatchObject({ code: 'NPC_TOMBSTONE_INVALID_REASON' });
+
+    expect(existsSync(args.exportFile)).toBe(false);
+    await expectTargetUntouched();
+    expect(await preservedState()).toEqual(before);
+  });
+
   it('rolls the database back after a post-export DB failure, leaves the export, then resumes only against the exact snapshot', async () => {
     const args = commandArgs('resume');
     const before = await preservedState();
@@ -493,7 +514,7 @@ describe('NPC audited tombstone command on PostgreSQL 15', () => {
     ))).rejects.toMatchObject({ code: 'NPC_TOMBSTONE_REPORT_STATUS_MISMATCH' });
 
     const envelope = JSON.parse(readFileSync(args.exportFile, 'utf8'));
-    envelope.payload.snapshot.submission.title = 'Forged but self-hashed';
+    envelope.payload.snapshot.submission.title.sha256 = 'b'.repeat(64);
     const snapshotContent = { ...envelope.payload.snapshot };
     delete snapshotContent.snapshotSha256;
     envelope.payload.snapshot.snapshotSha256 = createHash('sha256')
@@ -538,6 +559,8 @@ describe('NPC audited tombstone command on PostgreSQL 15', () => {
     'different-reason',
     'audit-missing',
     'audit-surplus',
+    'audit-surplus-malformed-entity-type',
+    'audit-surplus-alternate-unavailable-action',
     'audit-details-corrupt',
     'audit-export-hash-corrupt',
     'audit-snapshot-hash-corrupt',
@@ -555,14 +578,24 @@ describe('NPC audited tombstone command on PostgreSQL 15', () => {
       });
     } else if (variant === 'audit-missing') {
       await firstClient.npcAuditLog.delete({ where: { id: identity.auditId } });
-    } else if (variant === 'audit-surplus') {
+    } else if (
+      variant === 'audit-surplus' ||
+      variant === 'audit-surplus-malformed-entity-type' ||
+      variant === 'audit-surplus-alternate-unavailable-action'
+    ) {
       const audit = await firstClient.npcAuditLog.findUniqueOrThrow({
         where: { id: identity.auditId },
       });
       await firstClient.npcAuditLog.create({
         data: {
           ...audit,
-          id: `${prefix}-surplus-command-audit`,
+          id: `${prefix}-${variant}`,
+          action: variant === 'audit-surplus-alternate-unavailable-action'
+            ? 'MARK_SUBMISSION_UNAVAILABLE'
+            : audit.action,
+          entityType: variant === 'audit-surplus'
+            ? audit.entityType
+            : 'MalformedEntityType',
           details: audit.details as Prisma.InputJsonValue,
         },
       });

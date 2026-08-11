@@ -86,6 +86,27 @@ export class NpcTombstoneError extends Error {
   }
 }
 
+const TOMBSTONE_REASON_SENSITIVE_MARKER = /(?:api[-_ ]?key|auth(?:entication|orization)?|bearer|connection[-_ ]?string|cookie|credential|database[-_ ]?url|passphrase|password|secret|token)/i;
+const TOMBSTONE_REASON_URL_MARKER = /(?:\b(?:file|ftp|https?):|\bwww\.|\b(?:[a-z0-9](?:[a-z0-9-]{0,62})\.)+[a-z]{2,63}\b)/i;
+
+export function validateTombstoneReason(value: string): string {
+  if (
+    value !== value.trim() ||
+    value.length < 3 ||
+    value.length > 160 ||
+    /[\u0000-\u001f\u007f]/.test(value) ||
+    /[\\/=]/.test(value) ||
+    TOMBSTONE_REASON_URL_MARKER.test(value) ||
+    TOMBSTONE_REASON_SENSITIVE_MARKER.test(value)
+  ) {
+    tombstoneError(
+      'NPC_TOMBSTONE_INVALID_REASON',
+      'Reason must be bounded plain text without paths, URLs, key-value data, or sensitive markers.',
+    );
+  }
+  return value;
+}
+
 function canonicalOperationFields(fields: TombstoneOperationKeyFields): string {
   return JSON.stringify({
     actorId: fields.actorId,
