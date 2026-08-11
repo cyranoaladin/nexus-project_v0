@@ -6,11 +6,16 @@ import { deleteSecureFile } from '@/lib/npc/storage';
 import { canManageSubmissionDocuments } from '@/lib/npc/access';
 import { isCorrectionDocumentType } from '@/lib/npc/document-types';
 import { withLockedCopySubmission } from '@/lib/npc/submission-lock';
+import { NPC_INTERACTIVE_TRANSACTION_OPTIONS } from '@/lib/npc/transaction';
 import {
-  assertSubmissionAvailable,
   NPC_UNAVAILABLE_CONFLICT,
   SubmissionUnavailableError,
 } from '@/lib/npc/unavailable';
+import {
+  assertSubmissionInventoryMutable,
+  NPC_INVENTORY_FROZEN_CONFLICT,
+  SubmissionInventoryFrozenError,
+} from '@/lib/npc/submission-inventory';
 import { serializeError } from '@/lib/utils/serialize-error';
 import { z } from 'zod';
 
@@ -95,7 +100,7 @@ export async function PATCH(
 
     const updatedDocument = await prisma.$transaction(async (tx) =>
       withLockedCopySubmission(tx, submissionId, async (locked) => {
-        assertSubmissionAvailable(locked);
+        assertSubmissionInventoryMutable(locked);
         const document = await tx.copyPage.findFirst({
           where: { id: documentId, submissionId },
         });
@@ -152,6 +157,7 @@ export async function PATCH(
         });
         return updated;
       }),
+      NPC_INTERACTIVE_TRANSACTION_OPTIONS,
     );
 
     if (!updatedDocument) {
@@ -164,6 +170,9 @@ export async function PATCH(
   } catch (error) {
     if (error instanceof SubmissionUnavailableError) {
       return NextResponse.json(NPC_UNAVAILABLE_CONFLICT, { status: 409 });
+    }
+    if (error instanceof SubmissionInventoryFrozenError) {
+      return NextResponse.json(NPC_INVENTORY_FROZEN_CONFLICT, { status: 409 });
     }
     console.error('[NPC Documents] PATCH error:', serializeError(error));
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
@@ -202,10 +211,7 @@ export async function DELETE(
 
     const document = await prisma.$transaction(async (tx) =>
       withLockedCopySubmission(tx, submissionId, async (locked) => {
-        assertSubmissionAvailable(locked);
-        if (locked.status === CopySubmissionStatus.COMPLETED) {
-          throw new Error('NPC_COMPLETED_SUBMISSION_IMMUTABLE');
-        }
+        assertSubmissionInventoryMutable(locked);
         const target = await tx.copyPage.findFirst({
           where: { id: documentId, submissionId },
           select: { id: true, originalFilePath: true },
@@ -255,6 +261,7 @@ export async function DELETE(
         });
         return target;
       }),
+      NPC_INTERACTIVE_TRANSACTION_OPTIONS,
     );
 
     if (!document) {
@@ -280,11 +287,8 @@ export async function DELETE(
     if (error instanceof SubmissionUnavailableError) {
       return NextResponse.json(NPC_UNAVAILABLE_CONFLICT, { status: 409 });
     }
-    if (error instanceof Error && error.message === 'NPC_COMPLETED_SUBMISSION_IMMUTABLE') {
-      return NextResponse.json(
-        { error: 'Submission is immutable', code: 'NPC_SUBMISSION_IMMUTABLE' },
-        { status: 409 },
-      );
+    if (error instanceof SubmissionInventoryFrozenError) {
+      return NextResponse.json(NPC_INVENTORY_FROZEN_CONFLICT, { status: 409 });
     }
     console.error('[NPC Documents] Delete error:', serializeError(error));
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

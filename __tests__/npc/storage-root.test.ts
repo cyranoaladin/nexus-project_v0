@@ -14,11 +14,13 @@ import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import {
   assertNpcStorageReady,
+  inspectNpcStorageFile,
   readNpcStorageFile,
   resolveNpcStoragePath,
   resolveNpcStorageRoot,
   writeNpcStorageFileAtomic,
 } from '@/lib/npc/storage-root';
+import { createHash } from 'node:crypto';
 
 describe('NPC canonical storage root', () => {
   const originalStorageRoot = process.env.NPC_STORAGE_ROOT;
@@ -230,6 +232,18 @@ describe('NPC canonical storage root', () => {
     await expect(readNpcStorageFile('linked-secure.pdf')).rejects.toThrow(
       /loop|symbolic|nofollow|storage/i,
     );
+  });
+
+  test('streams a descriptor-backed file into size and SHA-256 metadata', async () => {
+    const bytes = Buffer.alloc(200_000, 0x5a);
+    await writeNpcStorageFileAtomic('student/submission/page_1/large.pdf', bytes, bytes.length);
+
+    await expect(inspectNpcStorageFile(
+      'student/submission/page_1/large.pdf',
+    )).resolves.toEqual({
+      sizeBytes: bytes.length,
+      sha256: createHash('sha256').update(bytes).digest('hex'),
+    });
   });
 
   test('resolves a safe path whose final components do not exist yet', async () => {

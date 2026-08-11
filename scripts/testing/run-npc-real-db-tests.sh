@@ -22,14 +22,11 @@ CONTAINER_NAME="nexus-npc-real-${random_suffix}"
 DATABASE_NAME="nexus_disposable_npc_${random_suffix}_test"
 DATABASE_USER='nexus_npc_test'
 DATABASE_PASSWORD="npc_test_password_${random_suffix}"
-CONTAINER_CREATED=0
 ENV_FILE=''
 
 cleanup() {
   local exit_status=$?
-  if [[ "$CONTAINER_CREATED" -eq 1 ]]; then
-    docker rm -f -v "$CONTAINER_NAME" >/dev/null 2>&1 || true
-  fi
+  docker rm -f -v "$CONTAINER_NAME" >/dev/null 2>&1 || true
   if [[ -n "$ENV_FILE" && -f "$ENV_FILE" ]]; then
     rm -f -- "$ENV_FILE"
   fi
@@ -54,7 +51,6 @@ docker run --detach \
   --health-timeout 3s \
   --health-retries 30 \
   pgvector/pgvector:pg15 >/dev/null
-CONTAINER_CREATED=1
 rm -f -- "$ENV_FILE"
 ENV_FILE=''
 

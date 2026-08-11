@@ -8,7 +8,6 @@ import {
   validateUploadedFile,
 } from '@/lib/npc/file-validator';
 import {
-  deleteSecureFile,
   generateSecureFileId,
   saveUploadedFile,
 } from '@/lib/npc/storage';
@@ -16,11 +15,21 @@ import type { FileMetadata } from '@/lib/npc/storage';
 import { isCorrectionDocumentType } from '@/lib/npc/document-types';
 import { canManageSubmissionDocuments, canReadSubmission } from '@/lib/npc/access';
 import { withLockedCopySubmission } from '@/lib/npc/submission-lock';
+import { inspectNpcStorageFile } from '@/lib/npc/storage-root';
+import { NPC_INTERACTIVE_TRANSACTION_OPTIONS } from '@/lib/npc/transaction';
 import {
-  assertSubmissionAvailable,
+  NpcFileCleanupDurabilityError,
+  reconcileStagedNpcFiles,
+} from '@/lib/npc/upload-reconciliation';
+import {
   NPC_UNAVAILABLE_CONFLICT,
   SubmissionUnavailableError,
 } from '@/lib/npc/unavailable';
+import {
+  assertSubmissionInventoryMutable,
+  NPC_INVENTORY_FROZEN_CONFLICT,
+  SubmissionInventoryFrozenError,
+} from '@/lib/npc/submission-inventory';
 import { z } from 'zod';
 
 interface RouteParams {
@@ -39,6 +48,12 @@ interface PreparedDocumentUpload {
   fileBuffer: Buffer;
   secureId: string;
   sanitizedName: string;
+}
+
+interface StagedDocumentUpload extends PreparedDocumentUpload {
+  pageNumber: number;
+  relativePath: string;
+  sha256: string;
 }
 
 const MAX_FILES_PER_SUBMISSION = 20;
@@ -86,6 +101,7 @@ async function getSubmission(submissionId: string) {
       pages: {
         select: {
           id: true,
+          pageNumber: true,
           documentType: true,
           status: true,
         },
@@ -220,12 +236,45 @@ export async function POST(
       });
     }
 
-    const savedPaths: string[] = [];
+    const baselinePages = submission.pages
+      .map((page) => ({ id: page.id, pageNumber: page.pageNumber }))
+      .sort((left, right) => left.pageNumber - right.pageNumber);
+    const baselineMaximum = baselinePages.at(-1)?.pageNumber ?? 0;
+    const stagedUploads: StagedDocumentUpload[] = [];
     let documents;
     try {
+      for (const [index, prepared] of preparedFiles.entries()) {
+        const pageNumber = baselineMaximum + index + 1;
+        const metadata: FileMetadata = {
+          secureId: prepared.secureId,
+          originalName: prepared.file.name,
+          sanitizedName: prepared.sanitizedName,
+          mimeType: prepared.file.type,
+          sizeBytes: prepared.file.size,
+          createdAt: new Date(),
+          studentId: submission.studentId,
+          submissionId,
+          pageNumber,
+        };
+        const storageResult = await saveUploadedFile(prepared.fileBuffer, metadata);
+        if (
+          !storageResult.success ||
+          !storageResult.relativePath ||
+          !storageResult.sha256
+        ) {
+          throw new NpcDocumentStorageError(storageResult.error || 'SAVE_FAILED');
+        }
+        stagedUploads.push({
+          ...prepared,
+          pageNumber,
+          relativePath: storageResult.relativePath,
+          sha256: storageResult.sha256,
+        });
+      }
+
       documents = await prisma.$transaction(async (tx) =>
         withLockedCopySubmission(tx, submissionId, async (locked) => {
-          assertSubmissionAvailable(locked);
+          assertSubmissionInventoryMutable(locked);
           const existingPages = await tx.copyPage.findMany({
             where: { submissionId },
             orderBy: { pageNumber: 'asc' },
@@ -241,52 +290,37 @@ export async function POST(
           if (existingPages.length + preparedFiles.length > MAX_FILES_PER_SUBMISSION) {
             throw new NpcDocumentStorageError('MAX_FILES_EXCEEDED');
           }
-
-          const currentMax = await tx.copyPage.aggregate({
-            where: { submissionId },
-            _max: { pageNumber: true },
-          });
+          const lockedInventory = existingPages
+            .map((page) => ({ id: page.id, pageNumber: page.pageNumber }))
+            .sort((left, right) => left.pageNumber - right.pageNumber);
+          if (JSON.stringify(lockedInventory) !== JSON.stringify(baselinePages)) {
+            throw new NpcDocumentStorageError('INVENTORY_CHANGED');
+          }
           const createdDocuments = [];
           let newStudentMirror:
             | { originalFilePath: string; sizeBytes: number; mimeType: string }
             | undefined;
 
-          for (const [index, prepared] of preparedFiles.entries()) {
-            const pageNumber = (currentMax._max.pageNumber || 0) + index + 1;
-            const metadata: FileMetadata = {
-              secureId: prepared.secureId,
-              originalName: prepared.file.name,
-              sanitizedName: prepared.sanitizedName,
-              mimeType: prepared.file.type,
-              sizeBytes: prepared.file.size,
-              createdAt: new Date(),
-              studentId: locked.studentId,
-              submissionId,
-              pageNumber,
-            };
-            const storageResult = await saveUploadedFile(prepared.fileBuffer, metadata);
+          for (const staged of stagedUploads) {
+            const inspection = await inspectNpcStorageFile(staged.relativePath);
             if (
-              !storageResult.success ||
-              !storageResult.relativePath ||
-              !storageResult.sha256
+              inspection.sizeBytes !== staged.file.size ||
+              inspection.sha256 !== staged.sha256.toLowerCase()
             ) {
-              throw new NpcDocumentStorageError(
-                storageResult.error || 'SAVE_FAILED',
-              );
+              throw new NpcDocumentStorageError('STAGED_FILE_VERIFICATION_FAILED');
             }
-            savedPaths.push(storageResult.relativePath);
 
             const document = await tx.copyPage.create({
               data: {
                 submissionId,
-                pageNumber,
+                pageNumber: staged.pageNumber,
                 status: 'UPLOADED',
                 documentType,
-                originalFilePath: storageResult.relativePath,
-                originalFilename: prepared.file.name,
-                mimeType: prepared.file.type,
-                sizeBytes: prepared.file.size,
-                sha256: storageResult.sha256,
+                originalFilePath: staged.relativePath,
+                originalFilename: staged.file.name,
+                mimeType: staged.file.type,
+                sizeBytes: staged.file.size,
+                sha256: staged.sha256,
                 uploadedById: actor.userId,
                 convertedFilePaths: [],
               },
@@ -295,9 +329,9 @@ export async function POST(
 
             if (documentType === 'STUDENT_COPY') {
               newStudentMirror ??= {
-                originalFilePath: storageResult.relativePath,
-                sizeBytes: prepared.file.size,
-                mimeType: prepared.file.type,
+                originalFilePath: staged.relativePath,
+                sizeBytes: staged.file.size,
+                mimeType: staged.file.type,
               };
               await tx.aiProcessingJob.create({
                 data: {
@@ -308,8 +342,8 @@ export async function POST(
                   inputData: JSON.stringify({
                     pageId: document.id,
                     submissionId,
-                    filePath: storageResult.relativePath,
-                    mimeType: prepared.file.type,
+                    filePath: staged.relativePath,
+                    mimeType: staged.file.type,
                   }),
                 },
               });
@@ -349,9 +383,16 @@ export async function POST(
           });
           return createdDocuments;
         }),
+        NPC_INTERACTIVE_TRANSACTION_OPTIONS,
       );
     } catch (error) {
-      await Promise.all(savedPaths.map((relativePath) => deleteSecureFile(relativePath)));
+      await reconcileStagedNpcFiles({
+        prisma,
+        submissionId,
+        actorId: actor.userId,
+        actorRole: actor.role,
+        relativePaths: stagedUploads.map((staged) => staged.relativePath),
+      });
       throw error;
     }
 
@@ -366,8 +407,14 @@ export async function POST(
       { status: 201 }
     );
   } catch (error) {
+    if (error instanceof NpcFileCleanupDurabilityError) {
+      return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    }
     if (error instanceof SubmissionUnavailableError) {
       return NextResponse.json(NPC_UNAVAILABLE_CONFLICT, { status: 409 });
+    }
+    if (error instanceof SubmissionInventoryFrozenError) {
+      return NextResponse.json(NPC_INVENTORY_FROZEN_CONFLICT, { status: 409 });
     }
     if (error instanceof NpcDocumentStorageError) {
       if (error.publicCode === 'MAX_FILES_EXCEEDED') {
@@ -375,6 +422,9 @@ export async function POST(
           { error: `Maximum ${MAX_FILES_PER_SUBMISSION} documents autorisés` },
           { status: 400 },
         );
+      }
+      if (error.publicCode === 'INVENTORY_CHANGED') {
+        return NextResponse.json(NPC_INVENTORY_FROZEN_CONFLICT, { status: 409 });
       }
       return NextResponse.json({ error: error.publicCode }, { status: 500 });
     }

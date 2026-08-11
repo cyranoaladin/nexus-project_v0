@@ -6,13 +6,18 @@ import { prisma } from '@/lib/prisma';
 import { serializeError } from '@/lib/utils/serialize-error';
 import {
   validateUploadedFile,
-  deleteSecureFile,
   generateSecureFileId,
   saveUploadedFile,
   FILE_VALIDATION_ERRORS,
 } from '@/lib/npc';
 import type { FileMetadata } from '@/lib/npc';
 import { withLockedCopySubmission } from '@/lib/npc/submission-lock';
+import { inspectNpcStorageFile } from '@/lib/npc/storage-root';
+import { NPC_INTERACTIVE_TRANSACTION_OPTIONS } from '@/lib/npc/transaction';
+import {
+  NpcFileCleanupDurabilityError,
+  reconcileStagedNpcFiles,
+} from '@/lib/npc/upload-reconciliation';
 import { z } from 'zod';
 
 // ─── Constants ───
@@ -206,12 +211,37 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
             })
           )?.id ?? null
         : null;
+    const submissionId = generateSecureFileId();
     let savedRelativePath: string | undefined;
     let submission;
     try {
+      const metadata: FileMetadata = {
+        secureId,
+        originalName: file.name,
+        sanitizedName: validation.sanitizedName!,
+        mimeType: file.type,
+        sizeBytes: file.size,
+        createdAt: new Date(),
+        studentId,
+        submissionId,
+        pageNumber: 1,
+      };
+      const storageResult = await saveUploadedFile(fileBuffer, metadata);
+      if (
+        !storageResult.success ||
+        !storageResult.relativePath ||
+        !storageResult.sha256
+      ) {
+        throw new InitialUploadStorageError(storageResult.error || 'SAVE_FAILED');
+      }
+      const relativePath = storageResult.relativePath;
+      const sha256 = storageResult.sha256;
+      savedRelativePath = relativePath;
+
       submission = await prisma.$transaction(async (tx) => {
         const created = await tx.copySubmission.create({
           data: {
+            id: submissionId,
             studentId,
             coachId,
             subject: subject as Subject,
@@ -225,33 +255,18 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         });
 
         return withLockedCopySubmission(tx, created.id, async () => {
-          const metadata: FileMetadata = {
-            secureId,
-            originalName: file.name,
-            sanitizedName: validation.sanitizedName!,
-            mimeType: file.type,
-            sizeBytes: file.size,
-            createdAt: new Date(),
-            studentId,
-            submissionId: created.id,
-            pageNumber: 1,
-          };
-          const storageResult = await saveUploadedFile(fileBuffer, metadata);
+          const inspection = await inspectNpcStorageFile(relativePath);
           if (
-            !storageResult.success ||
-            !storageResult.relativePath ||
-            !storageResult.sha256
+            inspection.sizeBytes !== file.size ||
+            inspection.sha256 !== sha256.toLowerCase()
           ) {
-            throw new InitialUploadStorageError(
-              storageResult.error || 'SAVE_FAILED',
-            );
+            throw new InitialUploadStorageError('STAGED_FILE_VERIFICATION_FAILED');
           }
-          savedRelativePath = storageResult.relativePath;
 
           await tx.copySubmission.update({
             where: { id: created.id },
             data: {
-              storedFilePath: storageResult.relativePath,
+              storedFilePath: relativePath,
               fileSizeBytes: file.size,
               mimeType: file.type,
             },
@@ -260,11 +275,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
             data: {
               submissionId: created.id,
               pageNumber: 1,
-              originalFilePath: storageResult.relativePath,
+              originalFilePath: relativePath,
               originalFilename: file.name,
               mimeType: file.type,
               sizeBytes: file.size,
-              sha256: storageResult.sha256,
+              sha256,
               documentType: 'STUDENT_COPY',
               uploadedById: authorization.userId,
               convertedFilePaths: [],
@@ -273,9 +288,17 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           });
           return created;
         });
-      });
+      }, NPC_INTERACTIVE_TRANSACTION_OPTIONS);
     } catch (error) {
-      if (savedRelativePath) await deleteSecureFile(savedRelativePath);
+      if (savedRelativePath) {
+        await reconcileStagedNpcFiles({
+          prisma,
+          submissionId,
+          actorId: authorization.userId,
+          actorRole: authorization.role,
+          relativePaths: [savedRelativePath],
+        });
+      }
       throw error;
     }
 
@@ -288,6 +311,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       { status: 201 }
     );
   } catch (error) {
+    if (error instanceof NpcFileCleanupDurabilityError) {
+      return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    }
     if (error instanceof InitialUploadStorageError) {
       return NextResponse.json({ error: error.publicCode }, { status: 500 });
     }

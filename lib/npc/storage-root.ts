@@ -39,6 +39,11 @@ export interface NpcAtomicWriteResult {
   sha256: string;
 }
 
+export interface NpcStorageFileInspection {
+  sizeBytes: number;
+  sha256: string;
+}
+
 const DIRECTORY_OPEN_FLAGS =
   constants.O_RDONLY | constants.O_DIRECTORY | constants.O_NOFOLLOW;
 
@@ -454,6 +459,52 @@ export async function readNpcStorageFile(
       const handle = await openTrustedEntry(context, constants.O_RDONLY);
       try {
         return await handle.readFile();
+      } finally {
+        await handle.close();
+      }
+    },
+  );
+}
+
+export async function inspectNpcStorageFile(
+  relativePath: string,
+): Promise<NpcStorageFileInspection> {
+  return withTrustedParent(
+    relativePath,
+    { capability: 'read-only', createParents: false },
+    async (context) => {
+      const handle = await openTrustedEntry(context, constants.O_RDONLY);
+      try {
+        const initialStats = await verifyOpenedEntry(context, handle);
+        if (!Number.isSafeInteger(initialStats.size) || initialStats.size < 0) {
+          throw new Error('NPC storage file size is invalid');
+        }
+
+        const hash = createHash('sha256');
+        const chunk = Buffer.allocUnsafe(64 * 1024);
+        let offset = 0;
+        while (offset < initialStats.size) {
+          const length = Math.min(chunk.length, initialStats.size - offset);
+          const { bytesRead } = await handle.read(chunk, 0, length, offset);
+          if (bytesRead === 0) {
+            throw new Error('NPC storage file ended during verified inspection');
+          }
+          hash.update(chunk.subarray(0, bytesRead));
+          offset += bytesRead;
+        }
+
+        const finalStats = await verifyOpenedEntry(context, handle);
+        if (
+          finalStats.size !== initialStats.size ||
+          !sameInode(initialStats, finalStats)
+        ) {
+          throw new Error('NPC storage file changed during verified inspection');
+        }
+
+        return {
+          sizeBytes: initialStats.size,
+          sha256: hash.digest('hex'),
+        };
       } finally {
         await handle.close();
       }
