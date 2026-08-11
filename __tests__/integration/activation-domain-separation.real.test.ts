@@ -10,15 +10,14 @@ import { POST as canonicalActivation } from '@/app/api/auth/activate/route'
 import { POST as legacyStudentActivation } from '@/app/api/student/activate/route'
 import { createActivationToken } from '@/lib/auth/activation-token'
 import { prisma } from '@/lib/prisma'
+import { assertDisposablePostgresUrl } from '@/__tests__/helpers/disposable-postgres'
 
 const PREFIX = 'p0d-domain-'
 const password = 'Synthetic-password-2026'
 
 function assertIsolatedDatabase() {
   const target = process.env.TEST_DATABASE_URL || process.env.DATABASE_URL || ''
-  expect(target).toMatch(/(?:localhost|127\.0\.0\.1)/)
-  expect(target).toContain('nexus_p0d_parent_test')
-  expect(target).not.toMatch(/nexus_prod|production/i)
+  assertDisposablePostgresUrl(target)
 }
 
 function request(path: string, purpose: 'parent' | 'student', token: string) {

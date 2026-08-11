@@ -159,6 +159,9 @@ jobs:
       - name: Security repo scan
         run: npm run security:repo
 
+      - name: Reject unconditional test quarantines and focused tests
+        run: npm run check:test-quarantines
+
       - name: Run ESLint
         run: npm run lint
 
@@ -277,6 +280,8 @@ jobs:
     name: Integration Tests
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    env:
+      NEXUS_DISPOSABLE_POSTGRES: '1'
 
     services:
       postgres:
@@ -284,7 +289,7 @@ jobs:
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: nexus_test
+          POSTGRES_DB: nexus_disposable_test
         ports:
           - 5432:5432
         options: >-
@@ -292,12 +297,9 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 10
-      # Some *.real.test.ts files assert their own DATABASE_URL contains a
-      # specific, unique database name (their own assertIsolatedDatabase()
-      # guard against ever running against the wrong database) rather than
-      # accepting the shared nexus_test -- each such file gets its own
-      # database on this same Postgres server, created and migrated below,
-      # and its own "Run integration tests (...)" step further down.
+      # State-sensitive lifecycle suites keep separate disposable databases so
+      # their cleanup and concurrency fixtures cannot affect another lane.
+      # Every URL is still checked by the shared fail-closed database guard.
       mailpit:
         image: axllent/mailpit:v1.30.6
         ports:
@@ -340,20 +342,20 @@ jobs:
 
       - name: Create .env.test for test database
         run: |
-          echo 'DATABASE_URL="postgresql://postgres:postgres@localhost:5432/nexus_test?schema=public"' > .env.test
-          echo 'TEST_DATABASE_URL="postgresql://postgres:postgres@localhost:5432/nexus_test?schema=public"' >> .env.test
+          echo 'DATABASE_URL="postgresql://postgres:postgres@localhost:5432/nexus_disposable_test?schema=public"' > .env.test
+          echo 'TEST_DATABASE_URL="postgresql://postgres:postgres@localhost:5432/nexus_disposable_test?schema=public"' >> .env.test
           echo 'NODE_ENV="test"' >> .env.test
           printf '%s=%s\n' 'NEXTAUTH_SECRET' 'test-secret-min-32-chars-long-for-ci-environment' >> .env.test
           echo 'NEXTAUTH_URL="http://localhost:3000"' >> .env.test
 
       - name: Generate Prisma Client
         env:
-          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_test
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_disposable_test
         run: npx prisma generate
 
       - name: Reset database before migrations
         env:
-          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_test
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_disposable_test
         run: |
           npx prisma db execute --schema=prisma/schema.prisma --stdin <<SQL
           DROP SCHEMA IF EXISTS public CASCADE;
@@ -362,12 +364,12 @@ jobs:
 
       - name: Run database migrations
         env:
-          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_test
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_disposable_test
         run: npx prisma migrate deploy
 
       - name: Verify database tables
         env:
-          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_test
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_disposable_test
         run: |
           npx prisma db execute --schema=prisma/schema.prisma --stdin <<SQL
           SELECT table_name FROM information_schema.tables
@@ -383,10 +385,10 @@ jobs:
           # cannot already exist, so a plain CREATE DATABASE is enough (no
           # IF NOT EXISTS dance needed, and prisma db execute doesn't
           # support psql meta-commands like \gexec anyway).
-          for db in nexus_s1_session_test nexus_s2_pending_test nexus_p0d_parent_test; do
+          for db in nexus_disposable_s1_session_test nexus_disposable_s2_pending_test nexus_disposable_p0d_parent_test; do
             psql -h localhost -U postgres -d postgres -c "CREATE DATABASE $db;"
           done
-          for db in nexus_s1_session_test nexus_s2_pending_test nexus_p0d_parent_test; do
+          for db in nexus_disposable_s1_session_test nexus_disposable_s2_pending_test nexus_disposable_p0d_parent_test; do
             DATABASE_URL="postgresql://postgres:postgres@localhost:5432/$db" npx prisma db execute --schema=prisma/schema.prisma --stdin <<SQL
           DROP SCHEMA IF EXISTS public CASCADE;
           CREATE SCHEMA public;
@@ -396,8 +398,8 @@ jobs:
 
       - name: Run integration tests
         env:
-          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_test
-          TEST_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_test?schema=public
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_disposable_test
+          TEST_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_disposable_test?schema=public
           NEXTAUTH_URL: http://localhost:3000
           NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET || 'test-secret-min-32-chars-long-for-ci-environment' }}
           NODE_ENV: test
@@ -409,11 +411,25 @@ jobs:
           --testPathIgnorePatterns='activation-domain-separation\.real\.test\.ts'
           --testPathIgnorePatterns='parent-registration-atomicity\.real\.test\.ts'
           --testPathIgnorePatterns='parent-email-onboarding\.real\.test\.ts'
+          --testPathIgnorePatterns='npc-.*\.real\.test\.ts'
+
+      # NPC real-database suites deliberately require UID 0 and their own
+      # PostgreSQL 15 runtime. Keep them in the required Integration job, but
+      # execute them through the fail-closed disposable harness that supplies
+      # those constraints and tears down every resource.
+      - name: Run NPC real database integration tests
+        env:
+          NPC_LLM_MODE: 'off'
+        run: |
+          bash scripts/testing/run-npc-real-db-tests.sh \
+            __tests__/integration/npc-submission-lock.real.test.ts \
+            __tests__/integration/npc-tombstone-command.real.test.ts \
+            __tests__/integration/npc-worker-integrity.real.test.ts
 
       - name: Run integration tests (session-revocation -- isolated database)
         env:
-          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_s1_session_test
-          TEST_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_s1_session_test?schema=public
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_disposable_s1_session_test
+          TEST_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_disposable_s1_session_test?schema=public
           NEXTAUTH_URL: http://localhost:3000
           NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET || 'test-secret-min-32-chars-long-for-ci-environment' }}
           NODE_ENV: test
@@ -423,8 +439,8 @@ jobs:
 
       - name: Run integration tests (pending-account-lifecycle -- isolated database)
         env:
-          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_s2_pending_test
-          TEST_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_s2_pending_test?schema=public
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_disposable_s2_pending_test
+          TEST_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_disposable_s2_pending_test?schema=public
           NEXTAUTH_URL: http://localhost:3000
           NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET || 'test-secret-min-32-chars-long-for-ci-environment' }}
           NODE_ENV: test
@@ -434,8 +450,8 @@ jobs:
 
       - name: Run integration tests (P0-D parent onboarding -- isolated database + Mailpit)
         env:
-          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_p0d_parent_test
-          TEST_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_p0d_parent_test?schema=public
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_disposable_p0d_parent_test
+          TEST_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_disposable_p0d_parent_test?schema=public
           NEXTAUTH_URL: http://localhost:3000
           NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET || 'test-secret-min-32-chars-long-for-ci-environment' }}
           NODE_ENV: test
@@ -541,6 +557,8 @@ jobs:
     name: E2E Tests
     runs-on: ubuntu-latest
     timeout-minutes: 25
+    env:
+      E2E_DISPOSABLE_STACK: '1'
 
     services:
       postgres-e2e:
@@ -581,6 +599,22 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Prepare isolated NPC storage
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          npc_storage_root="$RUNNER_TEMP/npc-storage"
+          install -d -m 0700 -- "$npc_storage_root"
+          canonical_storage_root="$(realpath -- "$npc_storage_root")"
+          canonical_workspace="$(realpath -- "$GITHUB_WORKSPACE")"
+          case "$canonical_storage_root/" in
+            "$canonical_workspace/"*)
+              echo 'NPC storage must remain outside the checked-out release.' >&2
+              exit 1
+              ;;
+          esac
+          printf 'NPC_STORAGE_ROOT=%s\n' "$canonical_storage_root" >> "$GITHUB_ENV"
 
       - name: Wait for Postgres (E2E) to be ready
         run: |
@@ -921,6 +955,22 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Prepare isolated NPC storage
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          npc_storage_root="$RUNNER_TEMP/npc-storage"
+          install -d -m 0700 -- "$npc_storage_root"
+          canonical_storage_root="$(realpath -- "$npc_storage_root")"
+          canonical_workspace="$(realpath -- "$GITHUB_WORKSPACE")"
+          case "$canonical_storage_root/" in
+            "$canonical_workspace/"*)
+              echo 'NPC storage must remain outside the checked-out release.' >&2
+              exit 1
+              ;;
+          esac
+          printf 'NPC_STORAGE_ROOT=%s\n' "$canonical_storage_root" >> "$GITHUB_ENV"
 
       - name: Generate Prisma Client
         run: npx prisma generate

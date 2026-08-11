@@ -12,6 +12,7 @@ jest.mock('@/lib/guards', () => ({
 jest.mock('@/lib/rbac/coach-student-access', () => ({
   assertCoachCanAccessStudent: jest.fn(),
   getCoachProfileForUser: jest.fn(),
+  resolveStudentProfileId: jest.fn(async (studentId: string) => studentId),
   CoachNotAssignedError: class extends Error {
     constructor(message = "Vous n'êtes pas assigné à cet élève") {
       super(message);
@@ -54,6 +55,8 @@ describe('API /api/coach/students/[studentId]/eaf-preparation-report', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    const { resolveStudentProfileId } = require('@/lib/rbac/coach-student-access');
+    resolveStudentProfileId.mockImplementation(async (studentId: string) => studentId);
   });
 
   describe('GET', () => {
@@ -121,6 +124,38 @@ describe('API /api/coach/students/[studentId]/eaf-preparation-report', () => {
   });
 
   describe('PUT', () => {
+    it('canonicalizes a User id to Student.id before persisting the report', async () => {
+      const { requireRole } = require('@/lib/guards');
+      const {
+        assertCoachCanAccessStudent,
+        getCoachProfileForUser,
+        resolveStudentProfileId,
+      } = require('@/lib/rbac/coach-student-access');
+
+      requireRole.mockResolvedValue(mockSession);
+      resolveStudentProfileId.mockResolvedValue('student-profile-123');
+      assertCoachCanAccessStudent.mockResolvedValue(undefined);
+      getCoachProfileForUser.mockResolvedValue({ id: mockCoachId });
+      (prisma.eafPreparationReport.upsert as jest.Mock).mockResolvedValue({ id: 'report123' });
+
+      const request = new NextRequest('http://localhost:3000/api/coach/students/student-user-123/eaf-preparation-report', {
+        method: 'PUT',
+        body: JSON.stringify({ linearReading: 'Good' }),
+      });
+      const response = await PUT(request, { params: Promise.resolve({ studentId: 'student-user-123' }) });
+
+      expect(response.status).toBe(200);
+      expect(assertCoachCanAccessStudent).toHaveBeenCalledWith({
+        coachUserId: mockSession.user.id,
+        studentId: 'student-profile-123',
+      });
+      expect(prisma.eafPreparationReport.upsert).toHaveBeenCalledWith(
+        expect.objectContaining({
+          create: expect.objectContaining({ studentId: 'student-profile-123' }),
+        }),
+      );
+    });
+
     it('should return 403 if coach is not assigned to student', async () => {
       const { requireRole } = require('@/lib/guards');
       const { assertCoachCanAccessStudent, CoachNotAssignedError } = require('@/lib/rbac/coach-student-access');

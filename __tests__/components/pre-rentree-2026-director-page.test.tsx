@@ -32,10 +32,17 @@ describe('Pré-rentrée 2026 director landing contract', () => {
     expect(container.textContent).not.toMatch(/quatre documents personnalisés/i);
   });
 
-  it('keeps the public funnel at information request until a validated proposal', () => {
+  it('keeps reservation informational while distinguishing assessment and adviser callback', () => {
     const { container } = render(<PreRentree2026Page />);
     expect(screen.getAllByText(/WhatsApp|Écrire sur WhatsApp/i).length).toBeGreaterThan(0);
-    expect(container.querySelector('a[href*="/bilan-gratuit"]')).toBeNull();
+    expect(screen.getByRole('link', { name: 'Passer le bilan de pré-rentrée' })).toHaveAttribute(
+      'href',
+      '/bilan-gratuit?parcours=diagnostic#demande-bilan',
+    );
+    expect(screen.getByRole('link', { name: 'Être rappelé par un conseiller' })).toHaveAttribute(
+      'href',
+      '/bilan-gratuit?parcours=conseiller#rappel-conseiller',
+    );
     expect(container.textContent).toMatch(/demander une information|demande d'information/i);
     expect(container.textContent).toMatch(/sans paiement|aucun paiement/i);
   });

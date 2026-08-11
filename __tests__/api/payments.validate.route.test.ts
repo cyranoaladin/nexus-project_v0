@@ -76,6 +76,28 @@ describe('POST /api/payments/validate', () => {
     expect(body.error).toContain('Paiement');
   });
 
+  it('rejects any student-scoped payment when the referenced student is outside the parent household', async () => {
+    (auth as jest.Mock).mockResolvedValue({
+      user: { id: 'assistant-1', role: 'ASSISTANTE' },
+    });
+    (prisma.payment.findUnique as jest.Mock).mockResolvedValue({
+      id: 'pay-foreign-addon',
+      status: 'PENDING',
+      type: 'SPECIAL_PACK',
+      metadata: { studentId: 'foreign-student', itemKey: 'ARIA_MATHS' },
+      userId: 'parent-1',
+      user: {
+        id: 'parent-1',
+        parentProfile: { children: [{ id: 'owned-student', userId: 'owned-user' }] },
+      },
+    });
+
+    const response = await POST(makeRequest({ paymentId: 'pay-foreign-addon', action: 'approve' }));
+
+    expect(response.status).toBe(404);
+    expect(prisma.$transaction).not.toHaveBeenCalled();
+  });
+
   it('returns 400 on invalid payload', async () => {
     (auth as jest.Mock).mockResolvedValue({
       user: { id: 'assistant-1', role: 'ASSISTANTE' },
@@ -106,7 +128,7 @@ describe('POST /api/payments/validate', () => {
         email: 'parent@example.com',
         firstName: 'Parent',
         lastName: 'Nexus',
-        parentProfile: { children: [{ id: 'student-1' }] },
+        parentProfile: { children: [{ id: 'student-1', userId: 'student-user-1' }] },
       },
     });
     (prisma.$transaction as jest.Mock).mockImplementation(async (cb: any) => {
@@ -130,7 +152,7 @@ describe('POST /api/payments/validate', () => {
             taxRegime: 'TVA_NON_APPLICABLE',
             customerName: 'Parent Nexus',
             customerEmail: 'parent@example.com',
-            beneficiaryUserId: 'student-1',
+            beneficiaryUserId: 'student-user-1',
             events: [],
           }),
         },
@@ -188,7 +210,7 @@ describe('POST /api/payments/validate', () => {
         email: 'parent@example.com',
         firstName: 'Parent',
         lastName: 'Nexus',
-        parentProfile: { children: [{ id: 'student-1' }] },
+        parentProfile: { children: [{ id: 'student-1', userId: 'student-user-1' }] },
       },
     });
     let capturedTx: any = null;
@@ -271,7 +293,7 @@ describe('POST /api/payments/validate', () => {
       status: 'PENDING',
       type: 'SUBSCRIPTION',
       metadata: { studentId: 'student-1', itemKey: 'PLAN' },
-      user: { parentProfile: { children: [{ id: 'student-1' }] } },
+      user: { parentProfile: { children: [{ id: 'student-1', userId: 'student-user-1' }] } },
     });
     let txSubscriptionUpdate: jest.Mock | undefined;
     let txCreditCreate: jest.Mock | undefined;
@@ -304,7 +326,7 @@ describe('POST /api/payments/validate', () => {
       status: 'PENDING',
       type: 'SUBSCRIPTION',
       metadata: { studentId: 'student-1' },
-      user: { parentProfile: { children: [{ id: 'student-1' }] } },
+      user: { parentProfile: { children: [{ id: 'student-1', userId: 'student-user-1' }] } },
     });
 
     const response = await POST(makeRequest({ paymentId: 'pay-3', action: 'reject', note: 'Nope' }));
@@ -331,7 +353,7 @@ describe('POST /api/payments/validate', () => {
       status: 'PENDING',
       type: 'SUBSCRIPTION',
       metadata: { studentId: 'student-1', itemKey: 'PLAN' },
-      user: { parentProfile: { children: [{ id: 'student-1' }] } },
+      user: { parentProfile: { children: [{ id: 'student-1', userId: 'student-user-1' }] } },
     });
     const prismaError = new Error('Transaction conflict');
     (prismaError as any).code = 'P2034';
@@ -353,7 +375,7 @@ describe('POST /api/payments/validate', () => {
       status: 'PENDING',
       type: 'SUBSCRIPTION',
       metadata: { studentId: 'student-1', itemKey: 'PLAN' },
-      user: { parentProfile: { children: [{ id: 'student-1' }] } },
+      user: { parentProfile: { children: [{ id: 'student-1', userId: 'student-user-1' }] } },
     });
     const prismaError = new Error('Record not found');
     (prismaError as any).code = 'P2025';

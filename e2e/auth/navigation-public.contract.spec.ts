@@ -33,12 +33,11 @@ test.describe('Navigation publique - contrat', () => {
       'href',
       /\/bilan-gratuit/
     );
-    await expect(page.getByRole('link', { name: /offres/i }).first()).toHaveAttribute('href', /\/offres/);
+    await expect(page.getByRole('link', { name: /^offres$/i }).first()).toHaveAttribute('href', /\/offres/);
     await expect(page.getByRole('link', { name: /contact/i }).first()).toHaveAttribute('href', /\/contact|mailto:/);
   });
 
   test('formulaire contact home appelle /api/contact', async ({ page }) => {
-    test.skip(true, 'QUARANTINE: REFONTE: contact form selectors changed');
     await page.goto('/');
 
     let nameInput = page
@@ -63,7 +62,8 @@ test.describe('Navigation publique - contrat', () => {
 
     await nameInput.fill('E2E Navigation');
     await emailInput.fill('e2e.navigation@test.com');
-    await messageInput.fill('Test contact contractuel');
+    await page.locator('#phone').fill('99192829');
+    await messageInput.fill('Test contact contractuel suffisamment détaillé.');
 
     const contactRequest = page.waitForRequest((req) => req.url().includes('/api/contact') && req.method() === 'POST');
     // Contact form needs consent checkbox checked before submit
@@ -71,10 +71,7 @@ test.describe('Navigation publique - contrat', () => {
     if (await consent.isVisible().catch(() => false)) {
       await consent.click();
     }
-    await page
-      .locator('button[type="submit"]')
-      .last()
-      .click();
+    await page.getByRole('button', { name: /envoyer ma demande/i }).click();
     await contactRequest;
   });
 

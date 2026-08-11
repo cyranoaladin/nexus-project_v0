@@ -109,6 +109,36 @@ describe('POST /api/stages/[slug]/inscrire', () => {
     );
   });
 
+  it('normalise les emails avant recherche, persistance et livraison', async () => {
+    prisma.stage.findUnique.mockResolvedValue({
+      id: 'stage-1', slug: 'printemps-2026', title: 'Printemps 2026',
+      priceAmount: 650, capacity: 12, isVisible: true, isOpen: true,
+    });
+    prisma.stageReservation.findFirst.mockResolvedValue(null);
+    prisma.stageReservation.count.mockResolvedValue(0);
+    prisma.stageReservation.create.mockResolvedValue({ id: 'res-normalized' });
+
+    const response = await POST(makeRequest({
+      ...validBody,
+      email: '  AYA@EXAMPLE.COM  ',
+      parentEmail: '  PARENT@EXAMPLE.COM  ',
+    }), { params });
+
+    expect(response.status).toBe(201);
+    expect(prisma.stageReservation.findFirst).toHaveBeenCalledWith({
+      where: { stageId: 'stage-1', email: 'aya@example.com' },
+    });
+    expect(prisma.stageReservation.create).toHaveBeenCalledWith(expect.objectContaining({
+      data: expect.objectContaining({
+        email: 'aya@example.com',
+        notes: expect.stringContaining('Email parent: parent@example.com'),
+      }),
+    }));
+    expect(mockSendMail).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({
+      to: 'aya@example.com',
+    }));
+  });
+
   it('crée une réservation WAITLISTED si capacité atteinte', async () => {
     prisma.stage.findUnique.mockResolvedValue({
       id: 'stage-1',

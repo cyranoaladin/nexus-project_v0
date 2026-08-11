@@ -13,6 +13,7 @@ set -euo pipefail
 
 PORT=${AUTH_E2E_PORT:-3002}
 DB_URL="postgresql://postgres:postgres@127.0.0.1:5435/nexus_e2e?schema=public"
+export E2E_DISPOSABLE_STACK=1
 HOST="localhost"
 
 echo "═══ Auth E2E Gate ═══"

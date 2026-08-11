@@ -189,7 +189,7 @@ export function BilanStrategiqueClient({
 
       <section className="bg-lux-paper px-4 py-14 md:px-6">
         <div className="mx-auto grid max-w-6xl gap-6 lg:grid-cols-[1.15fr_0.85fr]">
-          <Card className="border-lux-line bg-lux-white text-lux-ink lux-shadow">
+          <Card id="demande-bilan" className="scroll-mt-24 border-lux-line bg-lux-white text-lux-ink lux-shadow">
             <CardContent className="p-6 sm:p-8">
               <form onSubmit={onSubmit} noValidate className="space-y-8" aria-busy={isSubmitting}>
                 {prefill && (
@@ -419,7 +419,9 @@ export function BilanStrategiqueClient({
           </Card>
 
           <div className="space-y-6">
-            <ConseillerCard />
+            <div id="rappel-conseiller" className="scroll-mt-24">
+              <ConseillerCard />
+            </div>
 
             <Card className="border-lux-line bg-lux-white text-lux-ink lux-shadow">
               <CardContent className="p-6">

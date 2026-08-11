@@ -82,9 +82,13 @@ export function CreateSubmissionButton({ students }: CreateSubmissionButtonProps
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          ...formData,
+          studentId: formData.studentId,
+          title: formData.title,
+          description: formData.description || undefined,
           subject: formData.subject as Subject,
-          gradeLevel: formData.gradeLevel as GradeLevel,
+          ...(formData.gradeLevel
+            ? { gradeLevel: formData.gradeLevel as GradeLevel }
+            : {}),
         }),
       });
 

@@ -3,7 +3,7 @@
 // Asynchronous AI job processor for Nexus Pedagogy Cockpit
 // ═══════════════════════════════════════════════════════════════════════════════
 
-import { PrismaClient, AiJobStatus, AiJobType, CopySubmissionStatus, CopyPageStatus, PedagogicalReportStatus } from '@prisma/client';
+import { PrismaClient, AiJobStatus, AiJobType } from '@prisma/client';
 import {
   NPC_WORKER_POLL_INTERVAL_MS,
   NPC_WORKER_LOCK_DURATION_MS,
@@ -11,12 +11,27 @@ import {
   NPC_LLM_MODE,
 } from '../../lib/npc';
 import {
-  processVisionOcr,
-  processPedagogicalDiagnosis,
-  processCompetenceMatrix,
-  processRemediationRoadmap,
-  processMentorAdvice,
-} from './processors/ai-service';
+  assertNpcStorageReady,
+  readNpcStorageFile,
+} from '../../lib/npc/storage-root';
+import {
+  finalizePedagogicalDiagnosis,
+  type NpcJobHandlerOutcome,
+  persistVisionOcrResult,
+  validateSubmissionBeforeDiagnosis,
+} from './submission-finalization';
+import { recordNpcJobFailure } from './job-outcomes';
+import { NPC_INTERACTIVE_TRANSACTION_OPTIONS } from '../../lib/npc/transaction';
+try {
+  assertNpcStorageReady({ capability: 'read-only' });
+} catch {
+  console.error('NPC_STORAGE_PREFLIGHT_FAILED');
+  process.exit(1);
+}
+
+// The processor module owns a Prisma client too, so it must not be evaluated
+// until the storage preflight has succeeded.
+const aiService = import('./processors/ai-service');
 
 // Initialize Prisma
 const prisma = new PrismaClient();
@@ -43,24 +58,28 @@ const processors: Record<AiJobType, JobProcessor> = {
     const parsed = typeof input === 'string' ? JSON.parse(input) : input;
     const { filePath, mimeType } = parsed as { pageId: string; submissionId: string; filePath: string; mimeType: string };
     // Read file from disk and convert to base64
-    const fs = await import('fs/promises');
-    const path = await import('path');
-    const UPLOAD_DIR = process.env.UPLOAD_DIR || '/var/lib/nexus/uploads';
-    const absolutePath = path.join(UPLOAD_DIR, filePath);
-    const fileBuffer = await fs.readFile(absolutePath);
+    const fileBuffer = await readNpcStorageFile(filePath);
     const imageBase64 = fileBuffer.toString('base64');
-    return processVisionOcr(jobId, imageBase64, mimeType || 'image/jpeg');
+    return (await aiService).processVisionOcr(
+      jobId,
+      imageBase64,
+      mimeType || 'image/jpeg',
+    );
   },
   [AiJobType.PEDAGOGICAL_DIAGNOSIS]: async (jobId, input) => {
     console.log(`[${jobId}] Processing PEDAGOGICAL_DIAGNOSIS...`);
     const parsed = typeof input === 'string' ? JSON.parse(input) : input;
     const { submissionId } = parsed as { submissionId: string };
-    return processPedagogicalDiagnosis(jobId, submissionId);
+    return (await aiService).processPedagogicalDiagnosis(jobId, submissionId);
   },
   [AiJobType.COMPETENCE_MATRIX]: async (jobId, input) => {
     console.log(`[${jobId}] Processing COMPETENCE_MATRIX...`);
     const { submissionId, diagnostic } = input as { submissionId: string; diagnostic: unknown };
-    return processCompetenceMatrix(jobId, submissionId, diagnostic as any);
+    return (await aiService).processCompetenceMatrix(
+      jobId,
+      submissionId,
+      diagnostic as any,
+    );
   },
   [AiJobType.REMEDIATION_ROADMAP]: async (jobId, input) => {
     console.log(`[${jobId}] Processing REMEDIATION_ROADMAP...`);
@@ -69,7 +88,12 @@ const processors: Record<AiJobType, JobProcessor> = {
       diagnostic: unknown;
       matrix: unknown;
     };
-    return processRemediationRoadmap(jobId, submissionId, diagnostic as any, matrix as any);
+    return (await aiService).processRemediationRoadmap(
+      jobId,
+      submissionId,
+      diagnostic as any,
+      matrix as any,
+    );
   },
   [AiJobType.MENTOR_ADVICE]: async (jobId, input) => {
     console.log(`[${jobId}] Processing MENTOR_ADVICE...`);
@@ -78,7 +102,12 @@ const processors: Record<AiJobType, JobProcessor> = {
       diagnostic: unknown;
       matrix: unknown;
     };
-    return processMentorAdvice(jobId, submissionId, diagnostic as any, matrix as any);
+    return (await aiService).processMentorAdvice(
+      jobId,
+      submissionId,
+      diagnostic as any,
+      matrix as any,
+    );
   },
 };
 
@@ -122,7 +151,7 @@ async function claimNextJob(): Promise<string | null> {
       });
 
       return claimed;
-    });
+    }, NPC_INTERACTIVE_TRANSACTION_OPTIONS);
 
     return job?.id || null;
   } catch (error) {
@@ -139,22 +168,28 @@ async function handleVisionOcrSuccess(
   jobId: string,
   inputData: unknown,
   ocrOutput: { text: string; confidence?: number }
-): Promise<void> {
+): Promise<NpcJobHandlerOutcome> {
   try {
     const parsed = typeof inputData === 'string' ? JSON.parse(inputData) : inputData;
-    const { pageId } = parsed as { pageId: string };
-    if (!pageId) {
-      throw new Error('Missing pageId in VISION_OCR inputData');
+    const { pageId, submissionId } = parsed as {
+      pageId: string;
+      submissionId: string;
+    };
+    if (!pageId || !submissionId) {
+      throw new Error('Missing pageId or submissionId in VISION_OCR inputData');
     }
 
-    await prisma.copyPage.update({
-      where: { id: pageId },
-      data: {
-        ocrText: ocrOutput.text,
-        status: CopyPageStatus.READY,
-      },
+    const persisted = await persistVisionOcrResult({
+      prisma,
+      submissionId,
+      pageId,
+      jobId,
+      text: ocrOutput.text,
     });
-    console.log(`[${jobId}] Saved OCR text for page ${pageId} (${ocrOutput.text?.length ?? 0} chars)`);
+    if (persisted.kind === 'updated') {
+      console.log(`[${jobId}] Saved OCR text for page ${pageId} (${ocrOutput.text?.length ?? 0} chars)`);
+    }
+    return persisted;
   } catch (error) {
     console.error(`[${jobId}] Error in handleVisionOcrSuccess:`, error);
     throw error;
@@ -164,60 +199,28 @@ async function handleVisionOcrSuccess(
 async function handlePedagogicalDiagnosisSuccess(
   jobId: string,
   inputData: unknown,
-  diagnosticOutput: unknown
-): Promise<void> {
-  try {
-    // Extract submissionId from inputData (may be a JSON string)
-    const parsedInput = typeof inputData === 'string' ? JSON.parse(inputData) : inputData;
-    const { submissionId } = parsedInput as { submissionId: string };
-    if (!submissionId) {
-      throw new Error('Missing submissionId in inputData');
-    }
-
-    // Fetch submission with student and coach
-    const submission = await prisma.copySubmission.findUnique({
-      where: { id: submissionId },
-      include: { student: true },
-    });
-
-    if (!submission) {
-      throw new Error(`Submission not found: ${submissionId}`);
-    }
-
-    // Create PedagogicalReport in a transaction
-    await prisma.$transaction(async (tx) => {
-      // Create the report
-      const report = await tx.pedagogicalReport.create({
-        data: {
-          studentId: submission.studentId,
-          coachId: submission.coachId,
-          copySubmissionId: submission.id,
-          status: PedagogicalReportStatus.DRAFT,
-          visibility: 'COACH_ONLY',
-          diagnostic: diagnosticOutput as any,
-          strengths: ((diagnosticOutput as any)?.strengths || []).map((s: any) =>
-            typeof s === 'string' ? s : s?.skill || s?.description || JSON.stringify(s)
-          ),
-          weaknesses: ((diagnosticOutput as any)?.weaknesses || []).map((w: any) =>
-            typeof w === 'string' ? w : w?.skill || w?.description || JSON.stringify(w)
-          ),
-        },
-      });
-
-      // Update submission status to COMPLETED
-      await tx.copySubmission.update({
-        where: { id: submissionId },
-        data: {
-          status: CopySubmissionStatus.COMPLETED,
-        },
-      });
-
-      console.log(`[${jobId}] Created PedagogicalReport ${report.id} for submission ${submissionId}`);
-    });
-  } catch (error) {
-    console.error(`[${jobId}] Error in handlePedagogicalDiagnosisSuccess:`, error);
-    throw error; // Re-throw to trigger job failure handling
+  diagnosticOutput: unknown,
+  tokensUsed: number | undefined,
+  processingDurationMs: number,
+): Promise<NpcJobHandlerOutcome> {
+  const parsedInput = typeof inputData === 'string' ? JSON.parse(inputData) : inputData;
+  const { submissionId } = parsedInput as { submissionId: string };
+  if (!submissionId) {
+    throw new Error('Missing submissionId in inputData');
   }
+
+  const finalized = await finalizePedagogicalDiagnosis({
+    prisma,
+    submissionId,
+    jobId,
+    diagnosticOutput,
+    tokensUsed,
+    processingDurationMs,
+  });
+  if (finalized.kind === 'completed') {
+    console.log(`[${jobId}] Created PedagogicalReport ${finalized.reportId} for submission ${submissionId}`);
+  }
+  return finalized;
 }
 
 async function processJob(jobId: string): Promise<void> {
@@ -255,15 +258,44 @@ async function processJob(jobId: string): Promise<void> {
       throw new Error(`Unknown job type: ${job.type}`);
     }
 
+    if (job.type === AiJobType.PEDAGOGICAL_DIAGNOSIS) {
+      const parsedInput =
+        typeof job.inputData === 'string'
+          ? JSON.parse(job.inputData)
+          : job.inputData;
+      const { submissionId } = parsedInput as { submissionId?: string };
+      if (!submissionId) throw new Error('Missing submissionId in inputData');
+      const preflight = await validateSubmissionBeforeDiagnosis({
+        prisma,
+        submissionId,
+        jobId,
+      });
+      if (preflight.kind !== 'proceed') {
+        return;
+      }
+    }
+
     const result = await processor(jobId, job.inputData);
 
     // Update job status
     if (result.success) {
       // Special post-processing
       if (job.type === AiJobType.VISION_OCR) {
-        await handleVisionOcrSuccess(jobId, job.inputData, result.output as any);
+        const outcome = await handleVisionOcrSuccess(
+          jobId,
+          job.inputData,
+          result.output as any,
+        );
+        if (outcome.kind === 'terminal' || outcome.kind === 'updated') return;
       } else if (job.type === AiJobType.PEDAGOGICAL_DIAGNOSIS) {
-        await handlePedagogicalDiagnosisSuccess(jobId, job.inputData, result.output as any);
+        await handlePedagogicalDiagnosisSuccess(
+          jobId,
+          job.inputData,
+          result.output as any,
+          result.tokensUsed,
+          Date.now() - startTime,
+        );
+        return;
       }
 
       await prisma.aiProcessingJob.update({
@@ -282,62 +314,11 @@ async function processJob(jobId: string): Promise<void> {
     }
   } catch (error) {
     console.error(`[${jobId}] Processing error:`, error);
-    await handleJobFailure(jobId, error instanceof Error ? error.message : 'Unknown error');
-  }
-}
-
-async function handleJobFailure(jobId: string, errorMessage: string): Promise<void> {
-  try {
-    const job = await prisma.aiProcessingJob.findUnique({
-      where: { id: jobId },
-      select: { retryCount: true, maxRetries: true, type: true, inputData: true },
+    await recordNpcJobFailure({
+      prisma,
+      jobId,
+      errorMessage: error instanceof Error ? error.message : 'Unknown error',
     });
-
-    if (!job) return;
-
-    const shouldRetry = job.retryCount < job.maxRetries;
-
-    if (shouldRetry) {
-      const nextRetryAt = new Date(Date.now() + Math.pow(2, job.retryCount) * 60000); // Exponential backoff
-
-      await prisma.aiProcessingJob.update({
-        where: { id: jobId },
-        data: {
-          status: AiJobStatus.RETRYING,
-          retryCount: { increment: 1 },
-          nextRetryAt,
-          errorMessage: errorMessage.slice(0, 1000), // Limit error message length
-        },
-      });
-      console.log(`[${jobId}] Scheduled for retry ${job.retryCount + 1}/${job.maxRetries} at ${nextRetryAt.toISOString()}`);
-    } else {
-      await prisma.aiProcessingJob.update({
-        where: { id: jobId },
-        data: {
-          status: AiJobStatus.FAILED,
-          errorMessage: errorMessage.slice(0, 1000),
-          completedAt: new Date(),
-        },
-      });
-
-      // If this was a PEDAGOGICAL_DIAGNOSIS job, also update submission status
-      if (job.type === AiJobType.PEDAGOGICAL_DIAGNOSIS) {
-        const { submissionId } = job.inputData as { submissionId: string };
-        if (submissionId) {
-          await prisma.copySubmission.update({
-            where: { id: submissionId },
-            data: {
-              status: CopySubmissionStatus.ANALYSIS_FAILED,
-            },
-          });
-          console.log(`[${jobId}] Updated submission ${submissionId} to ANALYSIS_FAILED`);
-        }
-      }
-
-      console.log(`[${jobId}] Failed after ${job.maxRetries} retries`);
-    }
-  } catch (error) {
-    console.error(`[${jobId}] Error handling failure:`, error);
   }
 }
 

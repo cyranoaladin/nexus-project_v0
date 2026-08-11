@@ -9,6 +9,7 @@ import { NextRequest } from 'next/server';
 import { createGetLegacyParentBilanPdfHandler } from '@/lib/bilans/api/legacy-parent-pdf';
 import { createGetParentChildReportsHandler } from '@/lib/bilans/api/parent-reports';
 import { prisma } from '@/lib/prisma';
+import { assertDisposablePostgresUrl } from '@/__tests__/helpers/disposable-postgres';
 
 const PREFIX = 'p0c-closure-';
 const NOW = new Date('2026-08-04T10:00:00.000Z');
@@ -24,9 +25,7 @@ type Family = Readonly<{
 
 function assertIsolatedDatabase(): void {
   const target = process.env.TEST_DATABASE_URL || process.env.DATABASE_URL || '';
-  expect(target).toMatch(/(?:localhost|127\.0\.0\.1)/);
-  expect(target).toMatch(/nexus_(?:p0c_parent_test|test|e2e|bilan_runtime_test)/);
-  expect(target).not.toMatch(/nexus_prod|production/i);
+  assertDisposablePostgresUrl(target);
 }
 
 function parentSession(parentUserId: string) {

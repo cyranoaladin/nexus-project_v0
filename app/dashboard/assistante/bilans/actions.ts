@@ -5,6 +5,10 @@ import { notFound } from 'next/navigation';
 
 import { auth } from '@/auth';
 import {
+  completePaperEntryParentEmail,
+  ParentContactError,
+} from '@/lib/bilans/staff/parent-contact-service';
+import {
   rejectPendingReport,
   StaffReviewError,
   validateAndPublishPendingReport,
@@ -23,7 +27,21 @@ async function actor() {
 
 function handleAccessError(error: unknown): never {
   if (error instanceof StaffReviewError && error.code === 'NOT_FOUND') notFound();
+  if (error instanceof ParentContactError && error.code === 'NOT_FOUND') notFound();
   throw error;
+}
+
+export async function addParentEmailAction(formData: FormData): Promise<void> {
+  try {
+    await completePaperEntryParentEmail({
+      ...await actor(),
+      revisionId: field(formData, 'revisionId'),
+      email: field(formData, 'email'),
+    });
+    revalidatePath('/dashboard/assistante/bilans');
+  } catch (error) {
+    handleAccessError(error);
+  }
 }
 
 export async function validateAndPublishReportAction(formData: FormData): Promise<void> {

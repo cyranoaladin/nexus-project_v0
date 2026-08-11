@@ -1,67 +1,35 @@
 import { test, expect } from '@playwright/test'
+import { loginViaSigninForm, type UserType } from '../helpers/auth'
+import { CREDS } from '../helpers/credentials'
+import { resetDisposableE2ERateLimits } from '../helpers/rate-limit'
 
-const BASE = 'http://localhost:3000'
+const BASE = process.env.BASE_URL ?? 'http://127.0.0.1:3002'
 
 const LOGINS = [
-  { email: 'admin@nexus-reussite.com', pwd: 'admin123', expectedPath: '/dashboard/admin' },
-  { email: 'helios@nexus-reussite.com', pwd: 'admin123', expectedPath: '/dashboard/coach' },
-  { email: 'parent@example.com',        pwd: 'admin123', expectedPath: '/dashboard/parent' },
-  { email: 'student@example.com',       pwd: 'admin123', expectedPath: '/dashboard/eleve' },
-]
+  { role: 'admin', expectedPath: '/dashboard/admin' },
+  { role: 'coach', expectedPath: '/dashboard/coach' },
+  { role: 'parent', expectedPath: '/dashboard/parent' },
+  { role: 'student', expectedPath: '/dashboard/eleve' },
+] satisfies Array<{ role: UserType; expectedPath: string }>
 
-for (const { email, pwd, expectedPath } of LOGINS) {
-  test(`Login réel: ${email}`, async ({ page }) => {
-    test.skip(true, 'QUARANTINE: PRE-EXISTING: hardcoded localhost:3000, incompatible with Docker E2E');
-    await page.goto(`${BASE}/auth/signin`, { waitUntil: 'domcontentloaded' })
-    
-    const emailInput = page.locator('input[type="email"], input[name="email"]')
-    const pwdInput = page.locator('input[type="password"]')
-    const btn = page.locator('button[type="submit"]')
-    
-    expect(await emailInput.isVisible(), 'Champ email absent').toBe(true)
-    expect(await pwdInput.isVisible(), 'Champ password absent').toBe(true)
-    
-    await emailInput.fill(email)
-    await pwdInput.fill(pwd)
-    
-    await page.screenshot({ path: `/tmp/login-${email.split('@')[0]}-before.png` })
-    await btn.click()
-    
-    try {
-      await page.waitForURL(`**${expectedPath}**`, { timeout: 8000 })
-      console.log(`✅ ${email} → ${page.url()}`)
-      await page.screenshot({ path: `/tmp/login-${email.split('@')[0]}-success.png` })
-    } catch {
-      const url = page.url()
-      const body = (await page.textContent('body') || '').substring(0, 300)
-      await page.screenshot({ path: `/tmp/login-${email.split('@')[0]}-FAILED.png` })
-      throw new Error(
-        `❌ ${email} ne peut pas se connecter\n` +
-        `URL: ${url}\n` +
-        `Corps: ${body}` 
-      )
-    }
+for (const { role, expectedPath } of LOGINS) {
+  test(`Login réel: ${role}`, async ({ page }) => {
+    await loginViaSigninForm(page, role)
+    await expect(page).toHaveURL(new RegExp(expectedPath))
   })
 }
 
 test('Sécurité: mauvais password → reste sur signin', async ({ page }) => {
-  test.skip(true, 'QUARANTINE: PRE-EXISTING: hardcoded localhost:3000, incompatible with Docker E2E');
+  await resetDisposableE2ERateLimits()
   await page.goto(`${BASE}/auth/signin`)
-  await page.locator('input[type="email"]').fill('admin@nexus-reussite.com')
-  await page.locator('input[type="password"]').fill('MAUVAIS_XYZ_999')
-  await page.locator('button[type="submit"]').click()
-  await page.waitForTimeout(3000)
-  expect(page.url()).not.toContain('/dashboard')
-  console.log(`✅ Mauvais password → reste sur ${page.url()}`)
+  await page.locator('#email').fill(CREDS.admin.email)
+  await page.locator('#password').fill('MAUVAIS_XYZ_999')
+  await page.getByTestId('btn-signin').click()
+  await expect(page).toHaveURL(/\/auth\/signin(?:[?#]|$)/)
 })
 
 test('Sécurité: parent ne peut pas accéder dashboard élève', async ({ page }) => {
-  test.skip(true, 'QUARANTINE: PRE-EXISTING: hardcoded localhost:3000, incompatible with Docker E2E');
-  await page.goto(`${BASE}/auth/signin`)
-  await page.locator('input[type="email"]').fill('parent@example.com')
-  await page.locator('input[type="password"]').fill('admin123')
-  await page.locator('button[type="submit"]').click()
-  await page.waitForURL('**/dashboard/parent**', { timeout: 8000 })
+  await loginViaSigninForm(page, 'parent')
   
   await page.goto(`${BASE}/dashboard/eleve`)
   await page.waitForTimeout(2000)

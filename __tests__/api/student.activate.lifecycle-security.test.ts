@@ -60,7 +60,10 @@ describe('student activation token lifecycle security', () => {
 
     const result = await completeStudentActivation('act_valid_token', 'securePass123');
 
-    expect(result.success).toBe(true);
+    expect(result).toEqual({
+      success: true,
+      redirectUrl: '/auth/signin?activated=true&callbackUrl=%2Fbilan-gratuit%2Fassessment',
+    });
     expect(prisma.user.updateMany).toHaveBeenCalledWith({
       where: expect.objectContaining({
         id: 'user-1',

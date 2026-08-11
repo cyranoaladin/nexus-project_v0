@@ -21,6 +21,16 @@ const integrityMigrationPath = path.resolve(
   'prisma/migrations/20260714_harden_canonical_bilans_integrity/migration.sql',
 );
 
+let attemptSequence = 0;
+
+function attemptRuntimeFields() {
+  attemptSequence += 1;
+  return {
+    seed: `canonical-schema-test-${attemptSequence}`,
+    expiresAt: new Date(Date.now() + 60_000),
+  };
+}
+
 describe('canonical bilans persistence schema', () => {
   beforeAll(async () => {
     if (!(await canConnectToTestDb())) {
@@ -62,7 +72,9 @@ describe('canonical bilans persistence schema', () => {
     expect(schema).toContain('corpusManifestVersion');
     expect(schema).toContain('contextChecksum');
     expect(schema).toContain('currentPublishedRevisionId');
-    expect(schema).toContain('@@unique([eventType, sourceEventKey, recipientUserId])');
+    expect(schema).toMatch(
+      /@@unique\(\[eventType, sourceEventKey, recipientUserId\](?:,\s*map:\s*"[^"]+")?\)/,
+    );
     expect(migration).toContain('canonical_parent_student_links_one_active_idx');
     expect(migration).toContain("WHERE \"state\" IN ('PENDING_PARENT_CONSENT', 'VERIFIED')");
     expect(integrityMigration).toContain('canonical_bilans_reject_append_only_mutation');
@@ -83,6 +95,7 @@ describe('canonical bilans persistence schema', () => {
     });
     const attempt = await prisma.canonicalAssessmentAttempt.create({
       data: {
+        ...attemptRuntimeFields(),
         studentId: student.id,
         status: 'SUBMITTED',
         subject: 'MATHEMATIQUES',
@@ -212,6 +225,7 @@ describe('canonical bilans persistence schema', () => {
       student: { gradeLevel: 'TERMINALE' },
     });
     const attemptData = {
+      ...attemptRuntimeFields(),
       studentId: student.id,
       status: 'SUBMITTED',
       subject: 'MATHEMATIQUES',
@@ -291,6 +305,7 @@ describe('canonical bilans persistence schema', () => {
     });
     const attempt = await prisma.canonicalAssessmentAttempt.create({
       data: {
+        ...attemptRuntimeFields(),
         studentId: student.id,
         status: 'SUBMITTED',
         subject: 'MATHEMATIQUES',
@@ -358,6 +373,7 @@ describe('canonical bilans persistence schema', () => {
     const { coachProfile } = await createTestCoach();
     const attempt = await prisma.canonicalAssessmentAttempt.create({
       data: {
+        ...attemptRuntimeFields(),
         studentId: student.id,
         status: 'SUBMITTED',
         subject: 'MATHEMATIQUES',
@@ -386,8 +402,26 @@ describe('canonical bilans persistence schema', () => {
     const firstArtifact = await prisma.reportArtifact.create({
       data: { studentId: student.id, assessmentAttemptId: attempt.id },
     });
+    const secondAttempt = await prisma.canonicalAssessmentAttempt.create({
+      data: {
+        ...attemptRuntimeFields(),
+        studentId: student.id,
+        status: 'SUBMITTED',
+        subject: 'MATHEMATIQUES',
+        gradeLevel: 'TERMINALE',
+        curriculumId: 'lycee-general',
+        curriculumVersion: '2026.1',
+        assessmentPackId: 'maths-terminale-diagnostic',
+        assessmentPackVersion: '3.2.0',
+        assessmentPackChecksum: 'sha256:assessment-pack',
+        scoringPolicyId: 'mastery-v1',
+        scoringPolicyVersion: '1.0.0',
+        submittedAt: new Date(),
+        answers: { q1: 'B' },
+      },
+    });
     const secondArtifact = await prisma.reportArtifact.create({
-      data: { studentId: student.id, assessmentAttemptId: attempt.id },
+      data: { studentId: student.id, assessmentAttemptId: secondAttempt.id },
     });
     const firstRevision = await prisma.reportRevision.create({
       data: {
@@ -426,12 +460,13 @@ describe('canonical bilans persistence schema', () => {
     const { parentProfile } = await createTestParent();
     const { student } = await createTestStudent(parentProfile.id, { student: { gradeLevel: 'TERMINALE' } });
     const { coachProfile } = await createTestCoach();
-    const attempt = await prisma.canonicalAssessmentAttempt.create({ data: {
-      studentId: student.id, status: 'SUBMITTED', subject: 'MATHEMATIQUES', gradeLevel: 'TERMINALE',
-      curriculumId: 'lycee-general', curriculumVersion: '2026.1', assessmentPackId: 'maths-terminal', assessmentPackVersion: '1', assessmentPackChecksum: 'checksum', scoringPolicyId: 'policy', scoringPolicyVersion: '1', submittedAt: new Date(), answers: {},
-    } });
-    const score = await prisma.scoreSnapshot.create({ data: { assessmentAttemptId: attempt.id, scoringPolicyId: 'policy', scoringPolicyVersion: '1', scoringPolicyChecksum: 'checksum', score: 50, result: {} } });
     const createRevision = async (status: 'DRAFT' | 'PENDING_REVIEW' | 'REJECTED') => {
+      const attempt = await prisma.canonicalAssessmentAttempt.create({ data: {
+        ...attemptRuntimeFields(),
+        studentId: student.id, status: 'SUBMITTED', subject: 'MATHEMATIQUES', gradeLevel: 'TERMINALE',
+        curriculumId: 'lycee-general', curriculumVersion: '2026.1', assessmentPackId: 'maths-terminal', assessmentPackVersion: '1', assessmentPackChecksum: 'checksum', scoringPolicyId: 'policy', scoringPolicyVersion: '1', submittedAt: new Date(), answers: {},
+      } });
+      const score = await prisma.scoreSnapshot.create({ data: { assessmentAttemptId: attempt.id, scoringPolicyId: 'policy', scoringPolicyVersion: '1', scoringPolicyChecksum: 'checksum', score: 50, result: {} } });
       const artifact = await prisma.reportArtifact.create({ data: { studentId: student.id, assessmentAttemptId: attempt.id } });
       const revision = await prisma.reportRevision.create({ data: { reportArtifactId: artifact.id, scoreSnapshotId: score.id, status, reportPackId: 'report', reportPackVersion: '1', corpusManifestId: 'corpus', corpusManifestVersion: '1', promptRevision: 'prompt', contextChecksum: `${status}-checksum`, content: {} } });
       return { artifact, revision };
@@ -454,6 +489,7 @@ describe('canonical bilans persistence schema', () => {
     const { student: firstStudent } = await createTestStudent(parentProfile.id, { student: { gradeLevel: 'PREMIERE' } });
     const { student: secondStudent } = await createTestStudent(parentProfile.id, { student: { gradeLevel: 'PREMIERE' } });
     const createAttempt = (studentId: string) => prisma.canonicalAssessmentAttempt.create({ data: {
+      ...attemptRuntimeFields(),
       studentId, status: 'SUBMITTED', subject: 'MATHEMATIQUES', gradeLevel: 'PREMIERE', curriculumId: 'lycee-general', curriculumVersion: '2026.1', assessmentPackId: 'maths-premiere', assessmentPackVersion: '1', assessmentPackChecksum: 'checksum', scoringPolicyId: 'policy', scoringPolicyVersion: '1', submittedAt: new Date(), answers: {},
     } });
     const firstAttempt = await createAttempt(firstStudent.id);
@@ -469,6 +505,7 @@ describe('canonical bilans persistence schema', () => {
     const { student } = await createTestStudent(parentProfile.id, { student: { gradeLevel: 'SECONDE' } });
     const { coachProfile } = await createTestCoach();
     const attempt = await prisma.canonicalAssessmentAttempt.create({ data: {
+      ...attemptRuntimeFields(),
       studentId: student.id, status: 'SUBMITTED', subject: 'MATHEMATIQUES', gradeLevel: 'SECONDE', curriculumId: 'lycee-general', curriculumVersion: '2026.1', assessmentPackId: 'maths-seconde', assessmentPackVersion: '1', assessmentPackChecksum: 'checksum', scoringPolicyId: 'policy', scoringPolicyVersion: '1', submittedAt: new Date(), answers: {},
     } });
     const score = await prisma.scoreSnapshot.create({ data: { assessmentAttemptId: attempt.id, scoringPolicyId: 'policy', scoringPolicyVersion: '1', scoringPolicyChecksum: 'checksum', score: 50, result: {} } });
@@ -483,6 +520,7 @@ describe('canonical bilans persistence schema', () => {
     const { parentProfile } = await createTestParent();
     const { student } = await createTestStudent(parentProfile.id, { student: { gradeLevel: 'PREMIERE' } });
     const createAttempt = () => prisma.canonicalAssessmentAttempt.create({ data: {
+      ...attemptRuntimeFields(),
       studentId: student.id, status: 'SUBMITTED', subject: 'MATHEMATIQUES', gradeLevel: 'PREMIERE', curriculumId: 'lycee-general', curriculumVersion: '2026.1', assessmentPackId: 'maths-premiere', assessmentPackVersion: '1', assessmentPackChecksum: 'checksum', scoringPolicyId: 'policy', scoringPolicyVersion: '1', submittedAt: new Date(), answers: {},
     } });
     const firstAttempt = await createAttempt();
@@ -500,6 +538,7 @@ describe('canonical bilans persistence schema', () => {
     const { parentProfile } = await createTestParent();
     const { student } = await createTestStudent(parentProfile.id, { student: { gradeLevel: 'TERMINALE' } });
     const attempt = await prisma.canonicalAssessmentAttempt.create({ data: {
+      ...attemptRuntimeFields(),
       studentId: student.id, status: 'SUBMITTED', subject: 'MATHEMATIQUES', gradeLevel: 'TERMINALE', curriculumId: 'lycee-general', curriculumVersion: '2026.1', assessmentPackId: 'maths-terminale', assessmentPackVersion: '1', assessmentPackChecksum: 'checksum', scoringPolicyId: 'policy', scoringPolicyVersion: '1', submittedAt: new Date(), answers: {},
     } });
     const transition = (status: string) => prisma.$executeRaw`UPDATE "canonical_assessment_attempts" SET "status" = ${status}::"CanonicalAssessmentAttemptStatus" WHERE "id" = ${attempt.id}`;

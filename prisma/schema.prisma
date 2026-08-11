@@ -150,21 +150,29 @@ enum ContactLeadStatus {
 
 // Modèle Utilisateur principal
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  password  String?
-  role      UserRole
-  firstName String?
-  lastName  String?
-  phone     String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id              String   @id @default(cuid())
+  email           String?  @unique
+  password        String?
+  role            UserRole
+  firstName       String?
+  lastName        String?
+  phone           String?
+  phoneNormalized String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
   // Activation (Modèle B: assistante/parent déclenche l'activation élève)
   activatedAt      DateTime? // null = compte non activé (élève en attente)
   activationToken  String? // token hashé pour activation par email
   activationExpiry DateTime? // expiration du token d'activation
   sessionVersion   Int       @default(0)
+
+  // Tombstone append-only lorsqu'un foyer sans e-mail est rattaché à un
+  // compte parent déjà existant. Les deux comptes restent auditables.
+  mergedIntoUserId String?
+  mergedAt         DateTime?
+  mergedInto       User?     @relation("UserAccountMerges", fields: [mergedIntoUserId], references: [id], onDelete: Restrict)
+  mergedSources    User[]    @relation("UserAccountMerges")
 
   // Relations spécifiques selon le rôle
   parentProfile ParentProfile?
@@ -241,6 +249,8 @@ model User {
   totpLastUsedAt  DateTime? // last successful TOTP verification
 
   @@index([role])
+  @@index([phoneNormalized])
+  @@index([mergedIntoUserId])
   @@map("users")
 }
 
@@ -336,7 +346,7 @@ model Student {
   reportArtifacts             ReportArtifact[]
 
   // Diagnostic candidat libre 2027 (feature isolée, non liée aux bilans/assessments historiques)
-  candidateDiagnostics CandidateDiagnostic[]
+  candidateDiagnostics        CandidateDiagnostic[]
   candidateDiagnosticConsents CandidateDiagnosticConsent[]
 
   createdAt DateTime @default(now())
@@ -2118,7 +2128,7 @@ model UserDocument {
 
   // Chemin physique sécurisé (Hors dossier public)
   // Ex: /app/storage/documents/cl9...xyz.pdf
-  localPath String @unique
+  localPath         String  @unique
   /// Renseigné quand le fichier référencé n'existe plus et ne peut pas être
   /// restauré (perte lors de la migration Docker → répertoires de release).
   /// La ligne est conservée pour la traçabilité ; le téléchargement répond 410.
@@ -2392,6 +2402,7 @@ enum CopySubmissionStatus {
   ANALYSIS_FAILED
   COMPLETED
   ARCHIVED
+  UNAVAILABLE
 }
 
 enum AssessmentSourceType {
@@ -2413,6 +2424,7 @@ enum CopyPageStatus {
   READY
   PROCESSING
   ERROR
+  UNAVAILABLE
 }
 
 enum CorrectionDocumentType {
@@ -2501,6 +2513,9 @@ model CopySubmission {
 
   status CopySubmissionStatus @default(PENDING_UPLOAD)
 
+  unavailableReason String?
+  unavailableAt     DateTime?
+
   pages CopyPage[]
 
   ocrText  String? @db.Text
@@ -2560,10 +2575,14 @@ model CopyPage {
   status       CopyPageStatus         @default(UPLOADED)
   documentType CorrectionDocumentType @default(STUDENT_COPY)
 
+  unavailableReason String?
+  unavailableAt     DateTime?
+
   originalFilePath   String
   originalFilename   String?
   mimeType           String?
   sizeBytes          Int?
+  sha256             String?
   uploadedById       String?
   convertedFilePaths String[] @default([])
   ocrText            String?  @db.Text
@@ -2983,7 +3002,7 @@ model CandidateDiagnosticItemValidation {
 /// Vit hors de `CandidateDiagnostic` parce que le consentement doit précéder la
 /// création du dossier : la notice est présentée avant tout traitement.
 model CandidateDiagnosticConsent {
-  id        String @id @default(cuid())
+  id        String  @id @default(cuid())
   studentId String
   student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
 

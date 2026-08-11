@@ -16,12 +16,14 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 interface User {
   id: string;
-  email: string;
+  email: string | null;
   firstName: string;
   lastName: string;
   role: string;
   createdAt: string;
   isActive: boolean;
+  mergedIntoUserId: string | null;
+  mergedAt: string | null;
   profile: Record<string, unknown> | null;
 }
 
@@ -184,6 +186,8 @@ export default function UsersManagementPage() {
   };
 
   const handleDeleteUser = async (userId: string) => {
+    const selectedUser = users.find((user) => user.id === userId);
+    if (selectedUser?.mergedIntoUserId) return;
     if (!confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?')) {
       return;
     }
@@ -207,9 +211,10 @@ export default function UsersManagementPage() {
   };
 
   const openEditDialog = (user: User) => {
+    if (user.mergedIntoUserId) return;
     setEditingUser(user);
     setFormData({
-      email: user.email,
+      email: user.email ?? "",
       firstName: user.firstName,
       lastName: user.lastName,
       role: user.role,
@@ -513,7 +518,7 @@ export default function UsersManagementPage() {
                       <td className="py-3 px-4">
                         <div>
                           <p className="font-medium text-white">{user.firstName} {user.lastName}</p>
-                          <p className="text-sm text-neutral-400">{user.email}</p>
+                          <p className="text-sm text-neutral-400">{user.email ?? "E-mail manquant"}</p>
                         </div>
                       </td>
                       <td className="py-3 px-4">
@@ -522,8 +527,8 @@ export default function UsersManagementPage() {
                         </Badge>
                       </td>
                       <td className="py-3 px-4">
-                        <Badge variant={user.isActive ? "default" : "destructive"}>
-                          {user.isActive ? "Actif" : "Inactif"}
+                        <Badge variant={user.mergedIntoUserId ? "outline" : user.isActive ? "default" : "destructive"}>
+                          {user.mergedIntoUserId ? "Compte fusionné" : user.isActive ? "Actif" : "Inactif"}
                         </Badge>
                       </td>
                       <td className="py-3 px-4 text-sm text-neutral-400">
@@ -538,6 +543,8 @@ export default function UsersManagementPage() {
                               userDialogTriggerRef.current = event.currentTarget;
                               openEditDialog(user);
                             }}
+                            disabled={Boolean(user.mergedIntoUserId)}
+                            title={user.mergedIntoUserId ? "Compte fusionné immuable" : "Modifier"}
                           >
                             <Edit className="w-4 h-4" />
                           </Button>
@@ -545,6 +552,8 @@ export default function UsersManagementPage() {
                             variant="outline"
                             size="sm"
                             onClick={() => handleDeleteUser(user.id)}
+                            disabled={Boolean(user.mergedIntoUserId)}
+                            title={user.mergedIntoUserId ? "Compte fusionné conservé pour audit" : "Supprimer"}
                           >
                             <Trash2 className="w-4 h-4" />
                           </Button>

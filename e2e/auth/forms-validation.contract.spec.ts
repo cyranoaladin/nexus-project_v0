@@ -10,10 +10,10 @@ async function fillBilanForm(page: import('@playwright/test').Page, uniqueEmail?
   const email = uniqueEmail || `e2e.bilan.${Date.now()}@test.local`;
 
   // Design-conversion: bilan-gratuit form is now a single-page form with label-based selectors
-  await page.getByLabel('Prénom du parent').fill('Parent');
-  await page.getByLabel('Nom du parent').fill('Test');
-  await page.getByLabel('Email').fill(email);
-  await page.getByLabel('Téléphone').fill('+21699112233');
+  await page.locator('#parentFirstName').fill('Parent');
+  await page.locator('#parentLastName').fill('Test');
+  await page.locator('#parentEmail').fill(email);
+  await page.locator('#parentPhone').fill('+21699112233');
 
   await page.getByLabel(/Prénom de l.élève/i).fill('Eleve');
   await page.locator('#studentGrade').selectOption('premiere');
@@ -53,7 +53,6 @@ test.describe('Bilan Gratuit - Validation formulaire multi-etapes', () => {
   });
 
   test('Double-click submit -> une seule requete API', async ({ page }) => {
-    test.skip(true, 'QUARANTINE: REFONTE: bilan-gratuit form selectors changed');
     let callCount = 0;
     await page.route('**/api/bilan-gratuit', async (route) => {
       callCount += 1;
@@ -71,7 +70,6 @@ test.describe('Bilan Gratuit - Validation formulaire multi-etapes', () => {
   });
 
   test('Soumission valide -> redirect assessment', async ({ page }) => {
-    test.skip(true, 'QUARANTINE: REFONTE: bilan-gratuit form selectors changed');
     await page.route('**/api/bilan-gratuit', async (route) => {
       await route.fulfill({ status: 200, body: JSON.stringify({ ok: true }) });
     });
@@ -117,7 +115,6 @@ test.describe('Contact - Validation formulaire', () => {
   });
 
   test('API 500 -> erreur visible', async ({ page }) => {
-    test.skip(true, 'QUARANTINE: REFONTE: contact form error feedback changed');
     await page.route('**/api/contact', async (route) => {
       await route.fulfill({ status: 500, body: JSON.stringify({ error: 'boom' }) });
     });
@@ -132,7 +129,7 @@ test.describe('Contact - Validation formulaire', () => {
     await page.getByRole('button', { name: /envoyer ma demande/i }).click();
 
     // Design-conversion: contact form uses toast for error feedback
-    await expect(page.getByText(/impossible d'envoyer|erreur/i).first()).toBeVisible();
+    await expect(page.getByText(/impossible d[’']envoyer|erreur/i).first()).toBeVisible();
   });
 });
 

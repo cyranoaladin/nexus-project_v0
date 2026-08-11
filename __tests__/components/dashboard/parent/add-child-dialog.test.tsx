@@ -54,6 +54,7 @@ describe('AddChildDialog', () => {
     await userEvent.click(screen.getByRole('button', { name: /Ajouter l'Enfant/i }));
 
     expect(await screen.findByText(/Ahmed peut maintenant passer son bilan/i)).toBeInTheDocument();
+    expect(screen.getByText("Remettez ce lien à votre enfant pour qu'il passe son bilan.")).toBeInTheDocument();
     expect(screen.getByDisplayValue('https://exemple.test/activer/abc')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Copier/i })).toBeInTheDocument();
   });

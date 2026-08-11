@@ -71,6 +71,9 @@ export default async function CoachNpcPage() {
   const completedSubmissions = submissions.filter(
     (s: typeof submissions[0]) => s.status === 'COMPLETED'
   );
+  const unavailableSubmissions = submissions.filter(
+    (s: typeof submissions[0]) => s.status === 'UNAVAILABLE'
+  );
 
   return (
     <div className="container mx-auto py-8 px-4">
@@ -88,7 +91,7 @@ export default async function CoachNpcPage() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-gray-500">
@@ -97,6 +100,16 @@ export default async function CoachNpcPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{pendingSubmissions.length}</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-gray-500">
+              Indisponibles
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{unavailableSubmissions.length}</div>
           </CardContent>
         </Card>
         <Card>
@@ -150,6 +163,10 @@ export default async function CoachNpcPage() {
             Terminées
             <Badge variant="outline" className="ml-2">{completedSubmissions.length}</Badge>
           </TabsTrigger>
+          <TabsTrigger value="unavailable">
+            Indisponibles
+            <Badge variant="outline" className="ml-2">{unavailableSubmissions.length}</Badge>
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="all">
@@ -163,6 +180,9 @@ export default async function CoachNpcPage() {
         </TabsContent>
         <TabsContent value="completed">
           <CopySubmissionList submissions={completedSubmissions} />
+        </TabsContent>
+        <TabsContent value="unavailable">
+          <CopySubmissionList submissions={unavailableSubmissions} />
         </TabsContent>
       </Tabs>
     </div>

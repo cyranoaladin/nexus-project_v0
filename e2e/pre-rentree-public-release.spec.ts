@@ -18,16 +18,17 @@ test.describe('Candidat public Pré-rentrée 2026', () => {
     expect(response.headers().location).toBe('/stages/pre-rentree-2026');
   });
 
-  test('rend les quatre niveaux et leurs seules matières canoniques', async ({ page }) => {
+  test('rend les cinq niveaux et leurs seules matières canoniques', async ({ page }) => {
     const response = await page.goto(CAMPAIGN_PATH);
     expect(response?.status()).toBe(200);
 
     const subjectsSection = page.locator('section[aria-labelledby="subjects-heading"]');
     const expected = new Map([
+      ['Entrée en 4e', ['Mathématiques', 'Français']],
       ['Entrée en 3e', ['Mathématiques', 'Français']],
       ['Entrée en Seconde', ['Mathématiques', 'Français']],
       ['Entrée en Première', ['Mathématiques', 'Français — préparation à l’EAF', 'NSI', 'Physique-Chimie', 'SVT']],
-      ['Entrée en Terminale', ['Mathématiques', 'Mathématiques expertes', 'NSI', 'Physique-Chimie', 'SVT']],
+      ['Entrée en Terminale', ['Mathématiques', 'Mathématiques expertes', 'NSI', 'Physique-Chimie', 'SVT', 'Philosophie']],
     ]);
 
     for (const [level, subjects] of expected) {
@@ -61,7 +62,7 @@ test.describe('Candidat public Pré-rentrée 2026', () => {
       await expect(row).not.toContainText('10 séances · 20 h');
     }
 
-    await expect(planning).toContainText('Deux salles permanentes et une troisième salle temporaire');
+    await expect(planning).toContainText('La disponibilité du groupe est confirmée par notre équipe');
     await expect(planning).not.toContainText(/Salle [123]/);
   });
 
@@ -71,8 +72,8 @@ test.describe('Candidat public Pré-rentrée 2026', () => {
     await selector.getByLabel('Classe de rentrée').selectOption('TERMINALE');
 
     const checkboxes = selector.getByRole('checkbox');
-    await expect(checkboxes).toHaveCount(5);
-    for (let index = 0; index < 5; index += 1) await checkboxes.nth(index).click();
+    await expect(checkboxes).toHaveCount(6);
+    for (let index = 0; index < 6; index += 1) await checkboxes.nth(index).click();
 
     await expect(selector.getByRole('alert')).toHaveText(
       '4 matières maximum — retirez une matière pour en ajouter une autre.',
@@ -103,7 +104,7 @@ test.describe('Candidat public Pré-rentrée 2026', () => {
     expect(message).toContain('sous réserve de places disponibles');
   });
 
-  test('expose sept PDF et reste lisible, accessible et sans erreur console', async ({ page }) => {
+  test('expose huit PDF et reste lisible, accessible et sans erreur console', async ({ page }) => {
     const consoleErrors: string[] = [];
     page.on('console', (message) => {
       if (message.type() === 'error') consoleErrors.push(message.text());
@@ -120,8 +121,12 @@ test.describe('Candidat public Pré-rentrée 2026', () => {
     }
 
     const pdfLinks = page.locator('a[href^="/documents/pre-rentree-2026/"][href$=".pdf"]');
-    await expect(pdfLinks).toHaveCount(7);
-    await expect(page.getByText(/demande d.information sans paiement/i)).toBeVisible();
+    await expect(pdfLinks).toHaveCount(8);
+    const reservation = page.getByRole('heading', {
+      name: 'Construisons le bon parcours pour votre enfant',
+    }).locator('..');
+    await expect(reservation).toContainText(/transmise sans paiement/i);
+    await expect(reservation).toContainText(/ne réserve pas une place/i);
     await expect(page.getByRole('link', { name: /pré-inscrire|réserver|payer/i })).toHaveCount(0);
 
     const axe = await new AxeBuilder({ page }).analyze();

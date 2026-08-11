@@ -259,12 +259,14 @@ export async function POST(request: NextRequest) {
     }
 
     const metadata = parsePaymentMetadata(payment.metadata) as Partial<PaymentMetadata>;
-    if (action === 'approve' && payment.type === 'SUBSCRIPTION') {
-      const studentId = metadata.studentId;
-      const parentChildren = payment.user?.parentProfile?.children ?? [];
-      const isParentChild = !!studentId && parentChildren.some((child) => child.id === studentId);
-
-      if (!isParentChild) {
+    const parentChildren = payment.user?.parentProfile?.children ?? [];
+    const beneficiaryStudent = metadata.studentId
+      ? parentChildren.find((child) => child.id === metadata.studentId)
+      : undefined;
+    if (action === 'approve') {
+      const missingRequiredStudent = payment.type === 'SUBSCRIPTION' && !metadata.studentId;
+      const foreignReferencedStudent = !!metadata.studentId && !beneficiaryStudent;
+      if (missingRequiredStudent || foreignReferencedStudent) {
         return NextResponse.json(
           { error: 'Paiement hors périmètre parent/élève' },
           { status: 404 }
@@ -275,7 +277,9 @@ export async function POST(request: NextRequest) {
     if (action === 'approve') {
       // Resolve canonical product code before the transaction
       const productCode = resolveProductCode(metadata.itemKey, metadata.itemType);
-      const beneficiaryUserId = metadata.studentId ?? payment.userId;
+      // Payment metadata stores the Student entity id; entitlement and invoice
+      // ownership are User foreign keys. Never conflate the two identities.
+      const beneficiaryUserId = beneficiaryStudent?.userId ?? payment.userId;
 
       // CRITICAL: Wrap payment validation in atomic transaction to ensure all-or-nothing behavior
       // Without this transaction, payment could be marked COMPLETED but credits never allocated

@@ -3,6 +3,7 @@ import { requireRole, isErrorResponse } from '@/lib/guards';
 import {
   assertCoachCanAccessStudent,
   getCoachProfileForUser,
+  resolveStudentProfileId,
   CoachNotAssignedError,
 } from '@/lib/rbac/coach-student-access';
 import { prisma } from '@/lib/prisma';
@@ -38,11 +39,15 @@ interface RouteParams {
  */
 export async function GET(_request: Request, { params }: RouteParams) {
   try {
-    const { studentId } = await params;
+    const { studentId: studentReference } = await params;
 
     const sessionOrError = await requireRole('COACH');
     if (isErrorResponse(sessionOrError)) return sessionOrError;
     const authSession = sessionOrError;
+    const studentId = await resolveStudentProfileId(studentReference);
+    if (!studentId) {
+      return NextResponse.json({ error: 'Student not found' }, { status: 404 });
+    }
 
     // Verify coach assignment
     try {
@@ -88,11 +93,15 @@ export async function GET(_request: Request, { params }: RouteParams) {
  */
 export async function PUT(request: Request, { params }: RouteParams) {
   try {
-    const { studentId } = await params;
+    const { studentId: studentReference } = await params;
 
     const sessionOrError = await requireRole('COACH');
     if (isErrorResponse(sessionOrError)) return sessionOrError;
     const authSession = sessionOrError;
+    const studentId = await resolveStudentProfileId(studentReference);
+    if (!studentId) {
+      return NextResponse.json({ error: 'Student not found' }, { status: 404 });
+    }
 
     // Verify coach assignment
     try {

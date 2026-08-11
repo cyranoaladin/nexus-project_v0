@@ -8,8 +8,10 @@ import type { Session } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 
 import { auth } from '@/auth';
-import { renderBilanParentPDF } from '@/lib/pdf/bilan-parent-pdfkit';
-import type { BilanParentPDFData } from '@/lib/pdf/bilan-parent-template';
+import {
+  renderLegacyParentBilanPdf,
+  type LegacyParentBilanData,
+} from '@/lib/bilans/render/legacy-parent-adapter';
 import { prisma } from '@/lib/prisma';
 
 import { CanonicalApiError } from './errors';
@@ -30,7 +32,7 @@ type LegacyParentPdfDatabase = Pick<PrismaClient, 'bilan' | 'student' | 'parentS
 type LegacyParentPdfDependencies = Readonly<{
   prisma: LegacyParentPdfDatabase;
   authenticate: () => Promise<Session | null>;
-  renderPdf: (data: BilanParentPDFData) => Promise<Buffer>;
+  renderPdf: (data: LegacyParentBilanData) => Promise<Buffer>;
   now: () => Date;
   logger?: Readonly<{ error(event: Readonly<Record<string, unknown>>): void }>;
 }>;
@@ -40,7 +42,7 @@ type RouteContext = Readonly<{ params: Promise<Readonly<{ id: string }>> }>;
 const defaultDependencies: LegacyParentPdfDependencies = {
   prisma,
   authenticate: auth,
-  renderPdf: renderBilanParentPDF,
+  renderPdf: renderLegacyParentBilanPdf,
   now: () => new Date(),
   logger: { error: (event) => console.error(JSON.stringify(event)) },
 };
@@ -99,7 +101,7 @@ export function createGetLegacyParentBilanPdfHandler(
       const childName = bilan.student?.user
         ? `${bilan.student.user.firstName ?? ''} ${bilan.student.user.lastName ?? ''}`.trim()
         : bilan.studentName;
-      const pdfData: BilanParentPDFData = {
+      const pdfData: LegacyParentBilanData = {
         studentName: childName || bilan.studentName || 'Élève',
         stageTitle: bilan.stage?.title ?? 'Stage',
         subjectLabel: SUBJECT_LABEL[bilan.subject] ?? bilan.subject,

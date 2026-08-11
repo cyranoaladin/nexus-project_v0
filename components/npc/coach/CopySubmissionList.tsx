@@ -34,6 +34,7 @@ const statusConfig: Record<CopySubmissionStatus, { label: string; color: string;
   ANALYSIS_FAILED: { label: 'Analyse échouée', color: 'bg-red-100 text-red-800', icon: AlertCircle },
   COMPLETED: { label: 'Terminé', color: 'bg-green-100 text-green-800', icon: CheckCircle },
   ARCHIVED: { label: 'Archivé', color: 'bg-gray-100 text-gray-800', icon: FileText },
+  UNAVAILABLE: { label: 'Indisponible', color: 'bg-red-100 text-red-800', icon: AlertCircle },
 };
 
 export function CopySubmissionList({ submissions }: CopySubmissionListProps) {
@@ -73,6 +74,11 @@ export function CopySubmissionList({ submissions }: CopySubmissionListProps) {
                     <p className="text-xs text-gray-400 mt-1">
                       Créé le {new Date(submission.createdAt).toLocaleDateString('fr-FR')}
                     </p>
+                    {submission.status === 'UNAVAILABLE' && submission.unavailableReason && (
+                      <p className="mt-2 max-w-2xl text-sm text-red-700" role="status">
+                        {submission.unavailableReason}
+                      </p>
+                    )}
                   </div>
                 </div>
                 <Badge className={status.color}>{status.label}</Badge>
@@ -100,7 +106,7 @@ export function CopySubmissionList({ submissions }: CopySubmissionListProps) {
                   </Link>
                 )}
 
-                {submission.aiJob && (
+                {submission.status !== 'UNAVAILABLE' && submission.aiJob && (
                   <Badge variant="outline" className="text-xs">
                     {submission.aiJob.status === 'COMPLETED'
                       ? `${submission.aiJob.tokensUsed || 0} tokens`

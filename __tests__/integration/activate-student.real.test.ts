@@ -16,6 +16,8 @@ import { POST } from '@/app/api/assistante/activate-student/route';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/auth';
 import { NextRequest } from 'next/server';
+import bcrypt from 'bcryptjs';
+import { authorizeCredentials } from '@/lib/auth/credentials-authorize';
 
 const mockAuth = auth as jest.Mock;
 
@@ -91,18 +93,41 @@ describe('IDOR BDD Réelle — Activate Student', () => {
     await prisma.$disconnect();
   });
 
-  it('✅ PARENT avec lien parental valide → 200', async () => {
+  it('✅ PARENT avec lien parental valide → e-mail canonique et login réel', async () => {
     mockAuth.mockResolvedValue({
       user: { id: parent1.userId, role: 'PARENT', email: 'activate-real-p1@test.com' },
     });
 
     const res = await POST(makePostRequest({
       studentUserId: student1.userId,
-      studentEmail: 'activate-real-new-email@test.com',
+      studentEmail: '  ACTIVATE-REAL-NEW-EMAIL@TEST.COM  ',
       ...validTrackMetadata,
     }));
 
     expect(res.status).toBe(200);
+
+    const activatedUser = await prisma.user.findUniqueOrThrow({
+      where: { id: student1.userId },
+    });
+    expect(activatedUser.email).toBe('activate-real-new-email@test.com');
+
+    const password = 'ActivationLogin123!';
+    await prisma.user.update({
+      where: { id: activatedUser.id },
+      data: {
+        password: await bcrypt.hash(password, 12),
+        activatedAt: new Date(),
+      },
+    });
+    await expect(authorizeCredentials({
+      email: 'ACTIVATE-REAL-NEW-EMAIL@TEST.COM',
+      password,
+    })).resolves.toEqual(expect.objectContaining({ id: activatedUser.id }));
+
+    await prisma.user.update({
+      where: { id: activatedUser.id },
+      data: { password: null, activatedAt: null },
+    });
   });
 
   it('🔴 PARENT sans lien parental → 403', async () => {

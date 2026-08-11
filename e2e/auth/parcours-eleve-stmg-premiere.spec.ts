@@ -47,7 +47,6 @@ test.describe('Parcours élève STMG Première', () => {
   });
 
   test('ouvre le cockpit commando STMG depuis le dashboard', async ({ page }) => {
-    test.skip(true, 'QUARANTINE: PRE-EXISTING: Stage Commando EAM text not in current page');
     await page.goto('/dashboard/eleve');
     await page.waitForLoadState('domcontentloaded');
 

@@ -29,6 +29,7 @@ import {
   type ActivationPurpose,
 } from '@/lib/auth/activation-token';
 import { buildTrustedActivationUrl } from '@/lib/auth/parent-activation';
+import { hasUserEmail, normalizeUserEmail } from '@/lib/contact/user-email';
 
 export interface ActivationResult {
   success: boolean;
@@ -96,7 +97,7 @@ async function findPendingUserActivation(
   hashedToken: string,
   purpose: ActivationPurpose,
 ): Promise<ActivationUserRecord | null> {
-  return prisma.user.findFirst({
+  const user = await prisma.user.findFirst({
     where: {
       activationToken: hashedToken,
       activationExpiry: { gt: new Date() },
@@ -107,6 +108,8 @@ async function findPendingUserActivation(
       student: { select: { id: true } },
     },
   });
+  if (user === null || !hasUserEmail(user.email)) return null;
+  return { ...user, email: user.email };
 }
 
 async function findPendingStageReservation(
@@ -142,6 +145,7 @@ export async function initiateStudentActivation(
   initiatorId: string,
   trackMetadata?: StudentTrackMetadata
 ): Promise<ActivationResult> {
+  const normalizedStudentEmail = normalizeUserEmail(studentEmail);
   // Validate initiator role
   const allowedRoles = ['ADMIN', 'ASSISTANTE', 'PARENT'];
   if (!allowedRoles.includes(initiatorRole)) {
@@ -178,9 +182,9 @@ export async function initiateStudentActivation(
   }
 
   // Check email uniqueness (skip if same as current)
-  if (studentEmail !== studentUser.email) {
+  if (normalizedStudentEmail !== studentUser.email) {
     const existingEmail = await prisma.user.findUnique({
-      where: { email: studentEmail },
+      where: { email: normalizedStudentEmail },
     });
     if (existingEmail) {
       return { success: false, error: 'Cet email est déjà utilisé par un autre compte' };
@@ -194,10 +198,10 @@ export async function initiateStudentActivation(
   await prisma.user.update({
     where: { id: studentUserId },
     data: {
-      email: studentEmail,
+      email: normalizedStudentEmail,
       activationToken: tokenHash,
       activationExpiry: expiresAt,
-      ...(studentEmail !== studentUser.email ? { sessionVersion: { increment: 1 } } : {}),
+      ...(normalizedStudentEmail !== studentUser.email ? { sessionVersion: { increment: 1 } } : {}),
     },
   });
 
@@ -335,8 +339,9 @@ export async function initiateParentOwnedStudentActivation(input: Readonly<{
     }
 
     const { rawToken, tokenHash, expiresAt } = createActivationToken('student');
-    const loginIdentifier = isStudentLoginIdentifierCompatible(student.user.email)
-      ? student.user.email
+    const currentEmail = student.user.email;
+    const loginIdentifier = hasUserEmail(currentEmail) && isStudentLoginIdentifierCompatible(currentEmail)
+      ? currentEmail
       : buildStudentLoginIdentifier({
           firstName: student.user.firstName ?? 'eleve',
           lastName: student.user.lastName ?? 'nexus',
@@ -349,10 +354,10 @@ export async function initiateParentOwnedStudentActivation(input: Readonly<{
         activatedAt: null,
       },
       data: {
-        ...(loginIdentifier !== student.user.email ? { email: loginIdentifier } : {}),
+        ...(loginIdentifier !== currentEmail ? { email: loginIdentifier } : {}),
         activationToken: tokenHash,
         activationExpiry: expiresAt,
-        ...(loginIdentifier !== student.user.email ? { sessionVersion: { increment: 1 } } : {}),
+        ...(loginIdentifier !== currentEmail ? { sessionVersion: { increment: 1 } } : {}),
       },
     });
     if (transition.count !== 1) {
@@ -429,7 +434,9 @@ export async function completeStudentActivation(
 
     return {
       success: true,
-      redirectUrl: '/auth/signin?activated=true',
+      redirectUrl: purpose === 'student'
+        ? '/auth/signin?activated=true&callbackUrl=%2Fbilan-gratuit%2Fassessment'
+        : '/auth/signin?activated=true',
     };
   }
 

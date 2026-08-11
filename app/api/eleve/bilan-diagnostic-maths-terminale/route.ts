@@ -4,6 +4,7 @@ import type { ChapterProgress,DiagnosticSourceData,OpenAnswer } from '@/lib/diag
 import { isErrorResponse,requireRole } from '@/lib/guards';
 import { prisma } from '@/lib/prisma';
 import { serializeError } from '@/lib/utils/serialize-error';
+import { requireUserEmail } from '@/lib/contact/user-email';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 
@@ -158,7 +159,8 @@ export async function POST(request: Request) {
       step,
     };
 
-    const studentName = [student.user.firstName, student.user.lastName].filter(Boolean).join(' ') || student.user.email;
+    const studentName = [student.user.firstName, student.user.lastName].filter(Boolean).join(' ')
+      || requireUserEmail(student.user.email);
 
     // Upsert: find existing bilan or create new one
     const existingBilan = await prisma.bilan.findFirst({
@@ -190,7 +192,7 @@ export async function POST(request: Request) {
           type: 'DIAGNOSTIC_PRE_STAGE',
           subject: 'MATHEMATIQUES',
           studentId: student.id,
-          studentEmail: student.user.email,
+          studentEmail: requireUserEmail(student.user.email),
           studentName,
           sourceData: sourceData as unknown as import('@prisma/client').Prisma.InputJsonValue,
           globalScore: evaluatedData.qcmPercentage,

@@ -13,6 +13,7 @@ import { NextRequest } from 'next/server';
 import { createCreateAttemptHandler } from '@/lib/bilans/api/create-attempt';
 import { loadBilanPack } from '@/lib/bilans/catalog/load-pack';
 import { prisma } from '@/lib/prisma';
+import { assertDisposablePostgresUrl } from '@/__tests__/helpers/disposable-postgres';
 
 const PREFIX = 'p0b-level-guard-';
 const PACK_PATH = 'data/bilans/banks/entree-seconde-maths-v1.json';
@@ -21,9 +22,7 @@ const checksum = createHash('sha256').update(readFileSync(PACK_PATH)).digest('he
 
 function safeTestDatabase(): void {
   const target = process.env.TEST_DATABASE_URL || process.env.DATABASE_URL || '';
-  expect(target).toMatch(/(?:localhost|127\.0\.0\.1)/);
-  expect(target).toMatch(/nexus_(?:p0b_level_test|test|e2e|bilan_runtime_test)/);
-  expect(target).not.toMatch(/nexus_prod|production/i);
+  assertDisposablePostgresUrl(target);
 }
 
 function request(key: string): NextRequest {

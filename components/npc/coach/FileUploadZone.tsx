@@ -53,7 +53,7 @@ interface UploadFile {
   type: string;
   progress: number;
   status: 'pending' | 'uploading' | 'success' | 'error';
-  documentType: CorrectionDocumentTypeValue;
+  documentType: CorrectionDocumentTypeValue | null;
   error?: string;
 }
 
@@ -115,7 +115,7 @@ export function FileUploadZone({
         type: file.type,
         progress: 0,
         status: error ? 'error' : 'pending',
-        documentType: 'STUDENT_COPY',
+        documentType: null,
         error: error || undefined,
       };
     });
@@ -156,7 +156,8 @@ export function FileUploadZone({
   };
 
   const uploadFile = async (uploadFile: UploadFile): Promise<boolean> => {
-    if (uploadFile.status === 'error') return false;
+    const documentType = uploadFile.documentType;
+    if (uploadFile.status === 'error' || !documentType) return false;
 
     setFiles((prev) =>
       prev.map((f) =>
@@ -167,7 +168,7 @@ export function FileUploadZone({
     try {
       const formData = new FormData();
       formData.append('file', uploadFile.file);
-      formData.append('documentType', uploadFile.documentType);
+      formData.append('documentType', documentType);
 
       const response = await fetch(`/api/npc/submissions/${submissionId}/documents`, {
         method: 'POST',
@@ -209,7 +210,9 @@ export function FileUploadZone({
   };
 
   const handleUpload = async () => {
-    const validFiles = files.filter((f) => f.status !== 'error');
+    const validFiles = files.filter(
+      (file) => file.status === 'pending' && file.documentType !== null,
+    );
 
     if (validFiles.length === 0) {
       setGlobalError('Aucun fichier valide à uploader');
@@ -283,9 +286,17 @@ export function FileUploadZone({
     return <File className="h-5 w-5 text-gray-500" />;
   };
 
-  const pendingCount = files.filter((f) => f.status === 'pending').length;
+  const pendingFiles = files.filter((file) => file.status === 'pending');
+  const pendingCount = pendingFiles.length;
+  const classifiedPendingCount = pendingFiles.filter(
+    (file) => file.documentType !== null,
+  ).length;
+  const unclassifiedPendingCount = pendingCount - classifiedPendingCount;
   const errorCount = files.filter((f) => f.status === 'error').length;
-  const canUpload = pendingCount > 0 && !isUploading;
+  const canUpload =
+    pendingCount > 0 &&
+    pendingFiles.every((file) => file.documentType !== null) &&
+    !isUploading;
   const hasStudentCopy =
     uploadedDocuments.some((doc) => doc.documentType === 'STUDENT_COPY') ||
     files.some((file) => file.documentType === 'STUDENT_COPY' && file.status !== 'error');
@@ -393,11 +404,11 @@ export function FileUploadZone({
                     </p>
                     <div className="mt-2 max-w-xs">
                       <Label htmlFor={`existing-document-type-${document.id}`} className="sr-only">
-                        Type documentaire
+                        Type documentaire pour {document.originalFilename || 'document existant'}
                       </Label>
                       <select
                         id={`existing-document-type-${document.id}`}
-                        aria-label="Type documentaire"
+                        aria-label={`Type documentaire pour ${document.originalFilename || 'document existant'}`}
                         className="select-light h-9 w-full rounded-md border border-gray-300 bg-white px-3 text-sm"
                         value={document.documentType}
                         disabled={isUploading}
@@ -461,16 +472,20 @@ export function FileUploadZone({
                     <p className="text-sm font-medium truncate">{file.name}</p>
                     <p className="text-xs text-gray-500">
                       {formatFileSize(file.size)}
+                      {file.status === 'pending' && file.documentType === null && (
+                        <span className="block">En attente de classification</span>
+                      )}
                     </p>
                     <div className="mt-2 max-w-xs">
                       <Label htmlFor={`document-type-${file.id}`} className="sr-only">
-                        Type documentaire
+                        Type documentaire pour {file.name}
                       </Label>
                       <select
                         id={`document-type-${file.id}`}
-                        aria-label="Type documentaire"
+                        aria-label={`Type documentaire pour ${file.name}`}
                         className="select-light h-9 w-full rounded-md border border-gray-300 bg-white px-3 text-sm"
-                        value={file.documentType}
+                        value={file.documentType ?? ''}
+                        required
                         disabled={isUploading || file.status === 'uploading' || file.status === 'success'}
                         onChange={(event) =>
                           updateDocumentType(
@@ -479,6 +494,9 @@ export function FileUploadZone({
                           )
                         }
                       >
+                        <option value="" disabled>
+                          Choisir le type de document
+                        </option>
                         {CORRECTION_DOCUMENT_TYPES.map((type) => (
                           <option key={type} value={type}>
                             {CORRECTION_DOCUMENT_TYPE_LABELS[type]}
@@ -562,8 +580,13 @@ export function FileUploadZone({
       {files.length > 0 && (
         <div className="flex items-center justify-between pt-4">
           <div className="text-sm text-gray-600">
-            {pendingCount > 0 && (
-              <span>{pendingCount} fichier(s) prêt(s)</span>
+            {classifiedPendingCount > 0 && (
+              <span>{classifiedPendingCount} fichier(s) prêt(s)</span>
+            )}
+            {unclassifiedPendingCount > 0 && (
+              <span className={classifiedPendingCount > 0 ? 'ml-2' : undefined}>
+                {unclassifiedPendingCount} fichier(s) en attente de classification
+              </span>
             )}
             {errorCount > 0 && (
               <span className="text-red-600 ml-2">
@@ -584,7 +607,7 @@ export function FileUploadZone({
             ) : (
               <>
                 <Upload className="h-4 w-4 mr-2" />
-                Uploader {pendingCount > 0 && `(${pendingCount})`}
+                Uploader {classifiedPendingCount > 0 && `(${classifiedPendingCount})`}
               </>
             )}
           </Button>
