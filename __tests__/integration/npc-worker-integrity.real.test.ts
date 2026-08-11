@@ -470,6 +470,111 @@ describe('NPC worker integrity gate on PostgreSQL 15', () => {
     }
   });
 
+  it('terminalizes an unbound legacy job without failing a submission bound to another job', async () => {
+    const fixture = await createIntactSubmission();
+    const activeJobId = `${prefix}-job`;
+    const legacyJobId = `${prefix}-legacy-job`;
+    await firstClient.aiProcessingJob.create({
+      data: {
+        id: legacyJobId,
+        type: 'PEDAGOGICAL_DIAGNOSIS',
+        status: 'PROCESSING',
+        inputData: { submissionId: fixture.submissionId },
+        retryCount: 3,
+        maxRetries: 3,
+      },
+    });
+
+    await expect(recordNpcJobFailure({
+      prisma: firstClient,
+      jobId: legacyJobId,
+      errorMessage: 'stale legacy failure',
+    })).resolves.toBe('failed');
+
+    await expect(firstClient.aiProcessingJob.findUniqueOrThrow({
+      where: { id: legacyJobId },
+      select: { status: true, errorMessage: true },
+    })).resolves.toEqual({
+      status: 'FAILED',
+      errorMessage: 'stale legacy failure',
+    });
+    await expect(firstClient.copySubmission.findUniqueOrThrow({
+      where: { id: fixture.submissionId },
+      select: { status: true, aiJobId: true },
+    })).resolves.toEqual({
+      status: 'ANALYZING',
+      aiJobId: activeJobId,
+    });
+    await expect(firstClient.aiProcessingJob.findUniqueOrThrow({
+      where: { id: activeJobId },
+      select: { status: true, errorMessage: true },
+    })).resolves.toEqual({ status: 'PROCESSING', errorMessage: null });
+  });
+
+  it.each([
+    {
+      label: 'retryable',
+      retryCount: 0,
+      expectedResult: 'retrying',
+      expectedStatus: 'RETRYING',
+      expectedRetryCount: 1,
+    },
+    {
+      label: 'exhausted',
+      retryCount: 1,
+      expectedResult: 'failed',
+      expectedStatus: 'FAILED',
+      expectedRetryCount: 1,
+    },
+  ] as const)(
+    'handles malformed legacy input as a job-only $label failure',
+    async ({
+      label,
+      retryCount,
+      expectedResult,
+      expectedStatus,
+      expectedRetryCount,
+    }) => {
+      const jobId = `${prefix}-malformed-${label}-job`;
+      await firstClient.aiProcessingJob.create({
+        data: {
+          id: jobId,
+          type: 'PEDAGOGICAL_DIAGNOSIS',
+          status: 'PROCESSING',
+          inputData: '{malformed-json',
+          retryCount,
+          maxRetries: 1,
+        },
+      });
+
+      await expect(recordNpcJobFailure({
+        prisma: firstClient,
+        jobId,
+        errorMessage: `malformed ${label} failure`,
+      })).resolves.toBe(expectedResult);
+
+      const job = await firstClient.aiProcessingJob.findUniqueOrThrow({
+        where: { id: jobId },
+        select: {
+          status: true,
+          retryCount: true,
+          errorMessage: true,
+          completedAt: true,
+        },
+      });
+      expect(job).toMatchObject({
+        status: expectedStatus,
+        retryCount: expectedRetryCount,
+        errorMessage: `malformed ${label} failure`,
+      });
+      if (expectedStatus === 'FAILED') {
+        expect(job.completedAt).toBeInstanceOf(Date);
+      } else {
+        expect(job.completedAt).toBeNull();
+      }
+    },
+  );
+
   it('fails contradictory completed-without-report state without changing the submission', async () => {
     const fixture = await createIntactSubmission();
     await firstClient.copySubmission.update({

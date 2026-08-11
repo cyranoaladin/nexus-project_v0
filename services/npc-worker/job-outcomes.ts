@@ -20,20 +20,36 @@ const TERMINAL_JOB_STATUSES = new Set<AiJobStatus>([
 ]);
 
 type FailureResult = 'terminal-preserved' | 'retrying' | 'failed';
+type DiagnosisSubmissionTarget = {
+  id: string;
+  source: 'relation' | 'legacy-input';
+};
 
-function diagnosisSubmissionId(job: {
+function diagnosisSubmissionTarget(job: {
   type: AiJobType;
   copySubmissionId: string | null;
   inputData: Prisma.JsonValue | null;
-}): string | null {
+}): DiagnosisSubmissionTarget | null {
   if (job.type !== AiJobType.PEDAGOGICAL_DIAGNOSIS) return null;
-  if (job.copySubmissionId) return job.copySubmissionId;
-  const parsedInput =
-    typeof job.inputData === 'string'
-      ? JSON.parse(job.inputData)
-      : job.inputData;
-  const { submissionId } = (parsedInput ?? {}) as { submissionId?: unknown };
-  return typeof submissionId === 'string' && submissionId ? submissionId : null;
+  if (job.copySubmissionId) {
+    return { id: job.copySubmissionId, source: 'relation' };
+  }
+
+  let parsedInput = job.inputData;
+  if (typeof parsedInput === 'string') {
+    try {
+      parsedInput = JSON.parse(parsedInput) as Prisma.JsonValue;
+    } catch {
+      return null;
+    }
+  }
+  if (!parsedInput || typeof parsedInput !== 'object' || Array.isArray(parsedInput)) {
+    return null;
+  }
+  const { submissionId } = parsedInput as { submissionId?: unknown };
+  return typeof submissionId === 'string' && submissionId
+    ? { id: submissionId, source: 'legacy-input' }
+    : null;
 }
 
 async function recordFailureUnderJobLock({
@@ -95,12 +111,14 @@ async function recordFailureUnderJobLock({
   });
 
   if (job.type === AiJobType.PEDAGOGICAL_DIAGNOSIS && lockedSubmission) {
-    if (diagnosisSubmissionId(job) !== lockedSubmission.id) {
+    const target = diagnosisSubmissionTarget(job);
+    if (target?.id !== lockedSubmission.id) {
       throw new Error(
         'NPC diagnosis job submission changed while recording failure',
       );
     }
     if (
+      (target.source === 'relation' || lockedSubmission.aiJobId === jobId) &&
       lockedSubmission.status !== CopySubmissionStatus.UNAVAILABLE &&
       lockedSubmission.status !== CopySubmissionStatus.COMPLETED
     ) {
@@ -132,11 +150,11 @@ export async function recordNpcJobFailure({
       },
     });
     if (!candidate) return null;
-    const submissionId = diagnosisSubmissionId(candidate);
-    if (!submissionId) {
+    const target = diagnosisSubmissionTarget(candidate);
+    if (!target) {
       return recordFailureUnderJobLock({ tx, jobId, errorMessage });
     }
-    return withLockedCopySubmission(tx, submissionId, (lockedSubmission) =>
+    return withLockedCopySubmission(tx, target.id, (lockedSubmission) =>
       recordFailureUnderJobLock({
         tx,
         jobId,
