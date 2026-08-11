@@ -27,6 +27,7 @@ import {
   type TombstoneReportVisibility,
   tombstoneError,
 } from './types';
+import { canonicalizeTombstoneExportPath } from './export';
 import type { ExecuteNpcTombstoneResult } from './service';
 
 const FLAG_TO_FIELD = {
@@ -201,7 +202,7 @@ function safeLstat(runtime: TombstoneCliRuntime, path: string): Stats | null {
 export function validateTombstoneCliInvocation(
   args: TombstoneArguments,
   runtime: TombstoneCliRuntime = productionRuntime(),
-): void {
+): string {
   if (runtime.getuid() !== 0) {
     tombstoneError(
       'NPC_TOMBSTONE_ROOT_REQUIRED',
@@ -209,14 +210,15 @@ export function validateTombstoneCliInvocation(
     );
   }
 
-  if (!isAbsolute(args.exportFile) || extname(args.exportFile).toLowerCase() !== '.json') {
+  const canonicalExportFile = canonicalizeTombstoneExportPath(args.exportFile);
+  if (extname(canonicalExportFile).toLowerCase() !== '.json') {
     tombstoneError(
       'NPC_TOMBSTONE_EXPORT_PATH_INVALID',
       'Export destination must be an absolute JSON path.',
     );
   }
 
-  const requestedParent = resolve(dirname(args.exportFile));
+  const requestedParent = dirname(canonicalExportFile);
   const parentStats = safeLstat(runtime, requestedParent);
   if (parentStats?.isSymbolicLink()) {
     tombstoneError(
@@ -250,7 +252,7 @@ export function validateTombstoneCliInvocation(
       'Symbolic path components are forbidden for the export destination.',
     );
   }
-  const candidate = join(canonicalParent, basename(args.exportFile));
+  const candidate = join(canonicalParent, basename(canonicalExportFile));
   const repositoryRoot = runtime.realpathSync(resolve(runtime.repositoryRoot));
   const releaseRoot = runtime.realpathSync(resolve(runtime.releaseRoot));
   if (
@@ -290,14 +292,17 @@ export function validateTombstoneCliInvocation(
       );
     }
   }
+  return candidate;
 }
 
 export function parseAndValidateTombstoneCliArgs(
   argv: readonly string[],
 ): TombstoneArguments {
   const args = parseTombstoneCliArgs(argv);
-  validateTombstoneCliInvocation(args);
-  return args;
+  return {
+    ...args,
+    exportFile: validateTombstoneCliInvocation(args),
+  };
 }
 
 export function formatTombstoneCliSuccess(

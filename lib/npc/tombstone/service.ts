@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { lstat } from 'node:fs/promises';
 
 import {
@@ -17,6 +18,7 @@ import {
   writeVerifiedTombstoneExport,
   type RawTombstoneSnapshot,
   type TombstoneExportEnvelope,
+  type TombstoneExportSecurityOptions,
   type VerifiedTombstoneExport,
 } from './export';
 import {
@@ -30,6 +32,7 @@ import {
 
 export interface ExecuteNpcTombstoneOptions {
   now?: () => Date;
+  testOnlyTrustedUid?: number;
 }
 
 export interface ExecuteNpcTombstoneResult {
@@ -52,10 +55,23 @@ interface TombstoneAuditDetails {
   operationKey: string;
   operation: TombstoneOperationIdentity['fields'];
   exportPayloadSha256: string;
-  snapshotSourceIntegritySha256: string;
+  snapshotSha256: string;
+  reason: string;
   affectedPageIds: string[];
   unavailableAt: string;
+  rowCounts: {
+    submissions: 1;
+    pages: 4;
+    audits: 1;
+  };
+  idempotenceProofSha256: string;
 }
+
+const TOMBSTONE_ROW_COUNTS = {
+  submissions: 1,
+  pages: 4,
+  audits: 1,
+} as const;
 
 function asRawRecord(value: object): Record<string, unknown> {
   return value as unknown as Record<string, unknown>;
@@ -119,6 +135,11 @@ async function lockAndReadSnapshot(
              FROM "pedagogical_reports"
              WHERE "copySubmissionId" = ${submissionId}
            )
+           OR "entityId" IN (
+             SELECT "id"
+             FROM "copy_pages"
+             WHERE "submissionId" = ${submissionId}
+           )
         ORDER BY "id"
         FOR UPDATE
       `);
@@ -145,9 +166,11 @@ async function lockAndReadSnapshot(
           where: { copySubmissionId: submissionId },
         });
       }
-      const auditEntityIds = report
-        ? [submissionId, report.id]
-        : [submissionId];
+      const auditEntityIds = [
+        submissionId,
+        ...pages.map((page) => page.id),
+        ...(report ? [report.id] : []),
+      ];
       const audits = await tx.npcAuditLog.findMany({
         where: {
           OR: [
@@ -204,8 +227,8 @@ function assertEnvelopeMatchesLockedSnapshot(
 ): void {
   const current = buildTombstoneSnapshot(asRawSnapshot(locked));
   if (
-    envelope.payload.snapshot.sourceIntegritySha256 !==
-    current.sourceIntegritySha256
+    envelope.payload.snapshot.snapshotSha256 !== current.snapshotSha256 ||
+    canonicalJson(envelope.payload.snapshot) !== canonicalJson(current)
   ) {
     tombstoneError(
       'NPC_TOMBSTONE_SNAPSHOT_MISMATCH',
@@ -219,17 +242,18 @@ async function createOrResumeExport(
   identity: TombstoneOperationIdentity,
   locked: LockedSnapshot,
   now: () => Date,
+  exportSecurity: TombstoneExportSecurityOptions,
 ): Promise<VerifiedTombstoneExport> {
   let verified: VerifiedTombstoneExport;
   if (await destinationExists(args.exportFile)) {
-    verified = await readVerifiedTombstoneExport(args.exportFile);
+    verified = await readVerifiedTombstoneExport(args.exportFile, exportSecurity);
   } else {
     const envelope = createTombstoneExportEnvelope({
       args,
       rawSnapshot: asRawSnapshot(locked),
       generatedAt: now(),
     });
-    verified = await writeVerifiedTombstoneExport(args.exportFile, envelope);
+    verified = await writeVerifiedTombstoneExport(args.exportFile, envelope, exportSecurity);
   }
 
   assertEnvelopeMatchesOperation(verified.envelope, identity);
@@ -279,21 +303,57 @@ function assertBusinessScope(
   }
 }
 
+function idempotenceProofSha256({
+  identity,
+  exportPayloadSha256,
+  snapshotSha256,
+  reason,
+  unavailableAt,
+}: {
+  identity: TombstoneOperationIdentity;
+  exportPayloadSha256: string;
+  snapshotSha256: string;
+  reason: string;
+  unavailableAt: string;
+}): string {
+  return createHash('sha256').update(canonicalJson({
+    protocolVersion: identity.fields.protocolVersion,
+    operationKey: identity.operationKey,
+    exportPayloadSha256,
+    snapshotSha256,
+    reason,
+    unavailableAt,
+    rowCounts: TOMBSTONE_ROW_COUNTS,
+    auditId: identity.auditId,
+  })).digest('hex');
+}
+
 function buildAuditDetails(
   identity: TombstoneOperationIdentity,
   verified: VerifiedTombstoneExport,
   affectedPageIds: string[],
   unavailableAt: Date,
 ): TombstoneAuditDetails {
-  return {
+  const unavailableAtIso = unavailableAt.toISOString();
+  const snapshotSha256 = verified.envelope.payload.snapshot.snapshotSha256;
+  const details = {
     operationKey: identity.operationKey,
     operation: identity.fields,
     exportPayloadSha256: verified.payloadSha256,
-    snapshotSourceIntegritySha256:
-      verified.envelope.payload.snapshot.sourceIntegritySha256,
+    snapshotSha256,
+    reason: identity.fields.reason,
     affectedPageIds,
-    unavailableAt: unavailableAt.toISOString(),
+    unavailableAt: unavailableAtIso,
+    rowCounts: TOMBSTONE_ROW_COUNTS,
+    idempotenceProofSha256: idempotenceProofSha256({
+      identity,
+      exportPayloadSha256: verified.payloadSha256,
+      snapshotSha256,
+      reason: identity.fields.reason,
+      unavailableAt: unavailableAtIso,
+    }),
   };
+  return details;
 }
 
 function auditDetails(value: Prisma.JsonValue | null): TombstoneAuditDetails | null {
@@ -312,9 +372,12 @@ function hasExactAuditDetails(
     canonicalJson(Object.keys(details).sort()) !== canonicalJson([
       'affectedPageIds',
       'exportPayloadSha256',
+      'idempotenceProofSha256',
       'operation',
       'operationKey',
-      'snapshotSourceIntegritySha256',
+      'reason',
+      'rowCounts',
+      'snapshotSha256',
       'unavailableAt',
     ]) ||
     !details.operation ||
@@ -322,15 +385,26 @@ function hasExactAuditDetails(
     !Array.isArray(details.affectedPageIds) ||
     !details.affectedPageIds.every((pageId) => typeof pageId === 'string') ||
     !/^[a-f0-9]{64}$/.test(details.exportPayloadSha256) ||
-    !/^[a-f0-9]{64}$/.test(details.snapshotSourceIntegritySha256)
+    !/^[a-f0-9]{64}$/.test(details.snapshotSha256) ||
+    !/^[a-f0-9]{64}$/.test(details.idempotenceProofSha256) ||
+    !details.rowCounts ||
+    canonicalJson(details.rowCounts) !== canonicalJson(TOMBSTONE_ROW_COUNTS)
   ) {
     return false;
   }
   return (
     details.operationKey === identity.operationKey &&
     canonicalJson(details.operation) === canonicalJson(identity.fields) &&
+    details.reason === identity.fields.reason &&
     details.unavailableAt === unavailableAt.toISOString() &&
-    canonicalJson(details.affectedPageIds) === canonicalJson(pageIds)
+    canonicalJson(details.affectedPageIds) === canonicalJson(pageIds) &&
+    details.idempotenceProofSha256 === idempotenceProofSha256({
+      identity,
+      exportPayloadSha256: details.exportPayloadSha256,
+      snapshotSha256: details.snapshotSha256,
+      reason: details.reason,
+      unavailableAt: details.unavailableAt,
+    })
   );
 }
 
@@ -338,6 +412,7 @@ async function validateAlreadyApplied(
   locked: LockedSnapshot,
   args: TombstoneArguments,
   identity: TombstoneOperationIdentity,
+  exportSecurity: TombstoneExportSecurityOptions,
 ): Promise<ExecuteNpcTombstoneResult> {
   const unavailableAt = locked.submission.unavailableAt;
   const exactReport =
@@ -392,9 +467,12 @@ async function validateAlreadyApplied(
   }
 
   if (await destinationExists(args.exportFile)) {
-    const verified = await readVerifiedTombstoneExport(args.exportFile);
+    const verified = await readVerifiedTombstoneExport(args.exportFile, exportSecurity);
     assertEnvelopeMatchesOperation(verified.envelope, identity);
-    if (verified.payloadSha256 !== details.exportPayloadSha256) {
+    if (
+      verified.payloadSha256 !== details.exportPayloadSha256 ||
+      verified.envelope.payload.snapshot.snapshotSha256 !== details.snapshotSha256
+    ) {
       tombstoneError(
         'NPC_TOMBSTONE_IDEMPOTENCE_INVALID',
         'Existing export does not match the committed audit.',
@@ -525,18 +603,32 @@ export async function executeNpcTombstone(
 ): Promise<ExecuteNpcTombstoneResult> {
   const identity = buildTombstoneOperationIdentity(args);
   const now = options.now ?? (() => new Date());
+  const exportSecurity: TombstoneExportSecurityOptions = {};
+  if (options.testOnlyTrustedUid !== undefined) {
+    if (
+      process.env.NODE_ENV !== 'test' ||
+      typeof process.getuid !== 'function' ||
+      options.testOnlyTrustedUid !== process.getuid()
+    ) {
+      tombstoneError(
+        'NPC_TOMBSTONE_TEST_IDENTITY_FORBIDDEN',
+        'Injected export identity is restricted to the test runtime.',
+      );
+    }
+    exportSecurity.trustedUid = options.testOnlyTrustedUid;
+  }
 
   try {
     return await prisma.$transaction(async (tx) => {
       const locked = await lockAndReadSnapshot(tx, args.submissionId);
 
       if (locked.submission.status === CopySubmissionStatus.UNAVAILABLE) {
-        return validateAlreadyApplied(locked, args, identity);
+        return validateAlreadyApplied(locked, args, identity, exportSecurity);
       }
 
       let verified: VerifiedTombstoneExport;
       try {
-        verified = await createOrResumeExport(args, identity, locked, now);
+        verified = await createOrResumeExport(args, identity, locked, now, exportSecurity);
       } catch (error) {
         if (error instanceof NpcTombstoneError) throw error;
         throw new NpcTombstoneError(

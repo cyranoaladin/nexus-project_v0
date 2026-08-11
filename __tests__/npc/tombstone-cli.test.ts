@@ -1,6 +1,6 @@
 /** @jest-environment node */
 
-import { chmodSync, lstatSync, mkdtempSync, readFileSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { chmodSync, lstatSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -40,9 +40,9 @@ describe('NPC tombstone CLI contract', () => {
     repositoryRoot = join(temporaryRoot, 'repository');
     releaseRoot = join(temporaryRoot, 'release');
     exportParent = join(temporaryRoot, 'export');
-    require('node:fs').mkdirSync(repositoryRoot, { mode: 0o700 });
-    require('node:fs').mkdirSync(releaseRoot, { mode: 0o700 });
-    require('node:fs').mkdirSync(exportParent, { mode: 0o700 });
+    mkdirSync(repositoryRoot, { mode: 0o700 });
+    mkdirSync(releaseRoot, { mode: 0o700 });
+    mkdirSync(exportParent, { mode: 0o700 });
     chmodSync(exportParent, 0o700);
     exportFile = join(exportParent, 'snapshot.json');
   });
@@ -140,7 +140,7 @@ describe('NPC tombstone CLI contract', () => {
       () => validateTombstoneCliInvocation(args, runtime({ getuid: () => 1000 })),
       'NPC_TOMBSTONE_ROOT_REQUIRED',
     );
-    expect(() => validateTombstoneCliInvocation(args, runtime())).not.toThrow();
+    expect(validateTombstoneCliInvocation(args, runtime())).toBe(exportFile);
   });
 
   it('requires an absolute JSON destination outside repository and release', () => {
@@ -168,6 +168,24 @@ describe('NPC tombstone CLI contract', () => {
     }
   });
 
+  it.each([
+    ['dot', 'safe/./snapshot.json'],
+    ['dot-dot', 'safe/link/../snapshot.json'],
+    ['empty', 'safe//snapshot.json'],
+  ])('rejects raw %s path segments before normalization', (_label, suffix) => {
+    mkdirSync(join(exportParent, 'safe', 'link'), { recursive: true, mode: 0o700 });
+    const rawPath = `${exportParent}/${suffix}`;
+    const args = parseTombstoneCliArgs([
+      ...VALID_ARGV,
+      '--export-file', rawPath,
+    ]);
+
+    expectCode(
+      () => validateTombstoneCliInvocation(args, runtime()),
+      'NPC_TOMBSTONE_EXPORT_PATH_INVALID',
+    );
+  });
+
   it('requires an existing root-owned 0700 parent directory', () => {
     const args = parseTombstoneCliArgs([...VALID_ARGV, '--export-file', exportFile]);
     rmSync(exportParent, { recursive: true });
@@ -176,7 +194,7 @@ describe('NPC tombstone CLI contract', () => {
       'NPC_TOMBSTONE_EXPORT_PARENT_INVALID',
     );
 
-    require('node:fs').mkdirSync(exportParent, { mode: 0o700 });
+    mkdirSync(exportParent, { mode: 0o700 });
     chmodSync(exportParent, 0o750);
     expectCode(
       () => validateTombstoneCliInvocation(args, runtime()),
