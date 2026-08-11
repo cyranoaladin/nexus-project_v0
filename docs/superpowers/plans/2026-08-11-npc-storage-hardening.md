@@ -319,22 +319,19 @@ git commit -m "fix(npc): hide coach-only reports from families"
 
 - [ ] **Step 1: Écrire les tests rouges de CLI et d'export**
 
-Exiger tous les arguments (`submission-id`, statut initial, 4 pièces, report id/statut/visibilité, motif, acteur, export absolu), UID root, parent root-only existant, absence de symlink et fichier inexistant. Prouver `O_EXCL|O_NOFOLLOW`, mode 0600, fsync, relecture, JSON canonique et empreinte.
+Exiger l'identifiant opaque en argument et toutes les autres attentes dans un
+manifeste root-only `0600` fourni par `NPC_TOMBSTONE_REQUEST_FILE`. La racine
+d'artefacts vient de `NPC_TOMBSTONE_EXPORT_ROOT`; le fichier canonique est dérivé
+de l'identité d'opération. Exiger UID root, racines hors dépôt/release, absence de
+symlink et artefact absent ou strictement vérifiable. Prouver
+`O_EXCL|O_NOFOLLOW`, mode 0600, fsync, relecture, déchiffrement et authentification.
 
 L'interface publique exacte est :
 
 ```bash
-npm run npc:tombstone -- \
-  --submission-id <id> \
-  --expected-initial-status <status> \
-  --expected-page-count 4 \
-  --expected-report-id <id> \
-  --expected-report-status <status> \
-  --expected-report-visibility <visibility> \
-  --reason <reason> \
-  --actor-id <id> \
-  --actor-role <role> \
-  --export-file <absolute-json-path>
+NPC_TOMBSTONE_REQUEST_FILE=<root-only-manifest> \
+NPC_TOMBSTONE_EXPORT_ROOT=<root-only-artifact-root> \
+npm --silent run npc:tombstone -- --submission-id <id>
 ```
 
 `package.json` déclare `"npc:tombstone": "tsx scripts/npc/tombstone-submission.ts"`.
@@ -347,13 +344,17 @@ Expected: FAIL car la commande n'existe pas.
 
 - [ ] **Step 3: Implémenter parsing et export sans identifiant métier**
 
-Le CLI n'affiche ni URL DB ni PII. Le service reçoit un objet typé; le snapshot exclut les relations `User` et les secrets. L'opération et l'audit utilisent une clé déterministe dérivée des paramètres, jamais du nom d'un dossier pilote.
+Le CLI n'affiche ni URL DB ni PII et la commande npm est silencieuse. Le manifeste
+contient un code de motif allowlisté, jamais du texte libre. Le service reçoit un
+objet typé, vérifie lui-même UID et périmètres; le snapshot exclut les relations
+`User` et secrets d'authentification. Le payload complet est chiffré en AES-GCM et
+la preuve d'audit authentifiée avec des clés de contexte dérivées de
+`DOCUMENT_ENCRYPTION_KEY`, absente de DB et de l'artefact.
 
 La clé couvre : version de protocole, identifiant de soumission, statut initial
 attendu, nombre de pièces, identifiant/statut/visibilité du rapport, motif,
-identifiant et rôle de l'acteur. Elle exclut la destination d'export et tout
-horodatage généré afin que deux exécutions concurrentes avec des destinations
-différentes convergent vers le même audit.
+identifiant et rôle de l'acteur. Elle exclut la racine d'export et tout
+horodatage généré; toutes les exécutions convergent vers le même artefact canonique.
 
 - [ ] **Step 4: Écrire le test PostgreSQL rouge du protocole complet**
 
@@ -401,8 +402,10 @@ toute création, utiliser PostgreSQL 15, appliquer toutes les migrations deux
 fois, semer uniquement des données synthétiques et exécuter la vraie commande
 dans un conteneur Node jetable avec UID 0. Le dépôt est monté en lecture seule;
 seuls un répertoire d'export temporaire root-only et le stockage synthétique sont
-inscriptibles. Il invoque exactement `npm run npc:tombstone --` avec les flags de
-Task 6. Toute URL reste masquée dans les sorties.
+inscriptibles. Il invoque exactement `npm --silent run npc:tombstone --` avec
+l'identifiant synthétique et les deux variables pointant vers le manifeste et la
+racine d'artefacts root-only jetables de Task 6. Toute URL reste masquée dans les
+sorties.
 
 - [ ] **Step 2: Prouver le rouge puis implémenter**
 

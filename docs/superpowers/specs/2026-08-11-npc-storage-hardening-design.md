@@ -131,23 +131,32 @@ La migration ajoute uniquement :
 - `sha256` sur la pièce, nullable pour compatibilité avec l'historique, avec une
   contrainte de format lorsqu'il est présent.
 
-La commande reçoit obligatoirement : identifiant de soumission, nombre exact de
-pièces attendu, identifiant/statut/visibilité attendus du rapport, statut initial
-attendu de la soumission, motif, acteur responsable et destination d'export. Pour
-le pilote, l'opérateur devra donc fournir explicitement le rapport
-`DRAFT/COACH_ONLY` et la soumission `COMPLETED`; aucune de ces valeurs métier ni
-aucun identifiant n'est codé dans le programme. Elle refuse les chemins d'export
-non absolus et les périmètres ambigus. Elle exige d'être exécutée comme root et
-une destination hors dépôt et hors release, dans un répertoire existant
-appartenant à root sans droits groupe/monde. Elle refuse les liens symboliques et
-n'écrase jamais un fichier existant.
+La commande publique reçoit uniquement l'identifiant opaque de soumission en
+argument. Les autres attentes (nombre exact de pièces, identifiant/statut/
+visibilité du rapport, statut initial, code de motif allowlisté et acteur
+responsable) proviennent d'un manifeste root-only `0600` dont le chemin est fourni
+par l'environnement, jamais par `argv`. L'identifiant argumenté doit correspondre
+exactement au manifeste. Pour le pilote, l'opérateur fournit explicitement le
+rapport `DRAFT/COACH_ONLY` et la soumission `COMPLETED`; aucun identifiant n'est
+codé dans le programme. Le code de motif produit la formulation métier canonique,
+sans texte libre.
 
-Le JSON est une enveloppe versionnée contenant : paramètres de l'opération,
-horodatage, soumission complète, quatre pièces avec métadonnées, rapport intact,
-job lié et audits NPC existants. Les utilisateurs et secrets d'authentification
-ne sont pas exportés. L'enveloppe porte le SHA-256 d'un payload sérialisé de
-façon déterministe. Le fichier est créé avec `O_EXCL|O_NOFOLLOW`, mode `0600`,
-vidé sur disque, relu, reparsé et ré-haché avant toute validation métier.
+La racine d'export root-only est fournie séparément par l'environnement. Le nom
+du fichier est dérivé de l'identité d'opération : l'artefact canonique peut donc
+toujours être retrouvé et vérifié avant une réponse idempotente. La commande
+refuse une racine dans le dépôt/release, les liens symboliques et tout contexte
+non root; ces contrôles sont appliqués dans le service destructif, pas seulement
+dans son wrapper CLI.
+
+Le JSON est une enveloppe versionnée chiffrée et authentifiée. Son payload
+contient : paramètres de l'opération, horodatage, soumission complète, quatre
+pièces avec métadonnées, rapport intact, job lié et tous les audits NPC du dossier,
+y compris ceux de pièces supprimées encore rattachables par leur métadonnée
+d'audit. Les utilisateurs et secrets d'authentification ne sont pas exportés.
+Le chiffrement authentifié et la preuve d'audit utilisent une clé dérivée de
+`DOCUMENT_ENCRYPTION_KEY`, absente de la DB et de l'artefact. Le fichier canonique
+est créé avec `O_EXCL|O_NOFOLLOW`, mode `0600`, vidé sur disque, relu,
+déchiffré et authentifié avant toute validation métier.
 
 Ordre d'exécution :
 
@@ -166,7 +175,7 @@ octets sur disque. Si elle échoue après création de l'export, aucune ligne n'
 modifiée et l'export reste comme preuve de tentative. Si l'export échoue, aucune
 mutation DB n'est tentée.
 
-Une seconde exécution avec les mêmes arguments et le même export vérifié retourne
+Une seconde exécution avec les mêmes arguments et l'export canonique vérifié retourne
 `already-applied` uniquement si : la soumission et exactement quatre pièces sont
 `UNAVAILABLE`, le motif est identique, les cinq horodatages concordent, et il
 existe exactement un audit déterministe correspondant. Un état partiel, un motif
@@ -177,8 +186,9 @@ Un export valide laissé par une tentative dont la transaction DB a échoué peu
 être repris : la commande le relit, vérifie son empreinte et exige que les lignes
 verrouillées correspondent encore exactement au snapshot avant de poursuivre.
 Deux commandes concurrentes sont sérialisées par le verrou de soumission. Après
-le commit de la première, la seconde valide l'état idempotent et retourne sans
-créer son éventuelle autre destination d'export; toute divergence échoue.
+le commit de la première, la seconde retrouve le même artefact canonique, le
+valide avec la clé hors DB puis valide l'état idempotent; artefact absent ou toute
+divergence échoue.
 
 ## Persistance entre releases
 
