@@ -17,6 +17,7 @@ import { canManageSubmissionDocuments, canReadSubmission } from '@/lib/npc/acces
 import { withLockedCopySubmission } from '@/lib/npc/submission-lock';
 import { inspectNpcStorageFile } from '@/lib/npc/storage-root';
 import { NPC_INTERACTIVE_TRANSACTION_OPTIONS } from '@/lib/npc/transaction';
+import { createCopyPage } from '@/lib/npc/copy-page-writer';
 import {
   NpcFileCleanupDurabilityError,
   reconcileStagedNpcFiles,
@@ -310,7 +311,7 @@ export async function POST(
               throw new NpcDocumentStorageError('STAGED_FILE_VERIFICATION_FAILED');
             }
 
-            const document = await tx.copyPage.create({
+            const document = await createCopyPage(tx, {
               data: {
                 submissionId,
                 pageNumber: staged.pageNumber,
