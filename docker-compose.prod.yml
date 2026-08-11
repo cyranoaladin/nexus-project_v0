@@ -153,7 +153,12 @@ services:
       - uploads_data:/app/uploads
       - logs_data:/app/logs
       - ./storage:/app/storage
-      - "${NPC_STORAGE_ROOT:?NPC_STORAGE_ROOT is required}:${NPC_STORAGE_ROOT:?NPC_STORAGE_ROOT is required}"
+      - type: bind
+        source: ${NPC_STORAGE_ROOT:?NPC_STORAGE_ROOT is required}
+        target: ${NPC_STORAGE_ROOT:?NPC_STORAGE_ROOT is required}
+        read_only: false
+        bind:
+          create_host_path: false
 
     # Healthcheck verifies app responds
     healthcheck:
@@ -196,7 +201,12 @@ services:
 
     volumes:
       - uploads_data:/app/uploads
-      - "${NPC_STORAGE_ROOT:?NPC_STORAGE_ROOT is required}:${NPC_STORAGE_ROOT:?NPC_STORAGE_ROOT is required}:ro"
+      - type: bind
+        source: ${NPC_STORAGE_ROOT:?NPC_STORAGE_ROOT is required}
+        target: ${NPC_STORAGE_ROOT:?NPC_STORAGE_ROOT is required}
+        read_only: true
+        bind:
+          create_host_path: false
 
     depends_on:
       postgres:

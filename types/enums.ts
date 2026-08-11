@@ -101,7 +101,8 @@ export enum CopySubmissionStatus {
   ANALYZING = 'ANALYZING',
   ANALYSIS_FAILED = 'ANALYSIS_FAILED',
   COMPLETED = 'COMPLETED',
-  ARCHIVED = 'ARCHIVED'
+  ARCHIVED = 'ARCHIVED',
+  UNAVAILABLE = 'UNAVAILABLE'
 }
 
 export enum AssessmentSourceType {
@@ -122,7 +123,8 @@ export enum CopyPageStatus {
   CONVERSION_FAILED = 'CONVERSION_FAILED',
   READY = 'READY',
   PROCESSING = 'PROCESSING',
-  ERROR = 'ERROR'
+  ERROR = 'ERROR',
+  UNAVAILABLE = 'UNAVAILABLE'
 }
 
 export enum AiJobType {
