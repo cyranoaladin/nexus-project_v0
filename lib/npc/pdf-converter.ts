@@ -9,12 +9,12 @@ import { promisify } from 'util';
 import fs from 'fs/promises';
 import path from 'path';
 import {
-  NPC_UPLOAD_DIR,
   NPC_PDF_DPI,
   NPC_IMAGE_QUALITY,
   NPC_CONVERTED_FORMAT,
 } from './config';
-import { ensureDirectory, generateSecurePath } from './storage';
+import { ensureDirectory, generateSecureRelativePath } from './storage';
+import { resolveNpcStoragePath } from './storage-root';
 
 const execAsync = promisify(exec);
 
@@ -39,8 +39,11 @@ export interface PageInfo {
 /**
  * Get PDF page count using pdfinfo (poppler-utils)
  */
-export async function getPdfPageCount(pdfPath: string): Promise<number | null> {
+export async function getPdfPageCount(
+  pdfRelativePath: string,
+): Promise<number | null> {
   try {
+    const pdfPath = await resolveNpcStoragePath(pdfRelativePath);
     const { stdout } = await execAsync(`pdfinfo "${pdfPath}"`);
     const match = stdout.match(/Pages:\s*(\d+)/);
     return match ? parseInt(match[1], 10) : null;
@@ -57,8 +60,8 @@ export async function getPdfPageCount(pdfPath: string): Promise<number | null> {
  * Outputs WebP format for optimal AI processing
  */
 export async function convertPdfToImages(
-  pdfPath: string,
-  outputDir: string,
+  pdfRelativePath: string,
+  outputRelativeDirectory: string,
   options: {
     dpi?: number;
     quality?: number;
@@ -68,11 +71,11 @@ export async function convertPdfToImages(
   const { dpi = NPC_PDF_DPI, quality = NPC_IMAGE_QUALITY, format = NPC_CONVERTED_FORMAT } = options;
 
   try {
-    // Ensure output directory exists
-    await ensureDirectory(outputDir);
+    const pdfPath = await resolveNpcStoragePath(pdfRelativePath);
+    const outputDirectory = await ensureDirectory(outputRelativeDirectory);
 
     // Get page count first
-    const pageCount = await getPdfPageCount(pdfPath);
+    const pageCount = await getPdfPageCount(pdfRelativePath);
     if (!pageCount || pageCount === 0) {
       return { success: false, error: 'EMPTY_PDF_OR_READ_ERROR' };
     }
@@ -81,7 +84,7 @@ export async function convertPdfToImages(
     // Format: pdftoppm -jpeg -r 150 -jpegopt quality=85 input.pdf output_prefix
     const formatFlag = format === 'webp' ? '-png' : `-${format}`; // WebP not directly supported, convert via png then cwebp
     const qualityOpt = format === 'jpeg' ? `-jpegopt quality=${quality}` : '';
-    const outputPrefix = path.join(outputDir, 'page');
+    const outputPrefix = path.join(outputDirectory, 'page');
 
     const cmd = `pdftoppm ${formatFlag} -r ${dpi} ${qualityOpt} "${pdfPath}" "${outputPrefix}"`;
 
@@ -90,15 +93,18 @@ export async function convertPdfToImages(
     // If WebP requested, convert PNG outputs
     let convertedPaths: string[] = [];
     if (format === 'webp') {
-      convertedPaths = await convertPngsToWebp(outputDir, quality);
+      convertedPaths = await convertPngsToWebp(
+        outputRelativeDirectory,
+        quality,
+      );
     } else {
       // List generated files
-      const files = await fs.readdir(outputDir);
+      const files = await fs.readdir(outputDirectory);
       const ext = format === 'jpeg' ? 'jpg' : format;
       convertedPaths = files
         .filter((f) => f.endsWith(`.${ext}`))
         .sort()
-        .map((f) => path.join(outputDir, f));
+        .map((f) => path.join(outputRelativeDirectory, f));
     }
 
     if (convertedPaths.length === 0) {
@@ -126,27 +132,30 @@ export async function convertPdfToImages(
  * Convert PNG files to WebP using cwebp
  */
 async function convertPngsToWebp(
-  dir: string,
+  relativeDirectory: string,
   quality: number
 ): Promise<string[]> {
   try {
-    const files = await fs.readdir(dir);
+    const directory = await resolveNpcStoragePath(relativeDirectory);
+    const files = await fs.readdir(directory);
     const pngFiles = files.filter((f) => f.endsWith('.png')).sort();
 
     const webpPaths: string[] = [];
 
     for (const pngFile of pngFiles) {
-      const pngPath = path.join(dir, pngFile);
-      const webpPath = pngPath.replace('.png', '.webp');
+      const pngRelativePath = path.join(relativeDirectory, pngFile);
+      const webpRelativePath = pngRelativePath.replace(/\.png$/, '.webp');
+      const pngPath = await resolveNpcStoragePath(pngRelativePath);
+      const webpPath = await resolveNpcStoragePath(webpRelativePath);
 
       try {
         await execAsync(`cwebp -q ${quality} "${pngPath}" -o "${webpPath}"`);
         await fs.unlink(pngPath); // Clean up PNG
-        webpPaths.push(webpPath);
+        webpPaths.push(webpRelativePath);
       } catch (error) {
         console.error(`[PDF Converter] WebP conversion failed for ${pngFile}:`, serializeError(error));
         // Keep PNG as fallback
-        webpPaths.push(pngPath);
+        webpPaths.push(pngRelativePath);
       }
     }
 
@@ -163,9 +172,10 @@ async function convertPngsToWebp(
  * Get image dimensions using file command or identify (ImageMagick)
  */
 export async function getImageDimensions(
-  imagePath: string
+  imageRelativePath: string
 ): Promise<{ width: number; height: number } | null> {
   try {
+    const imagePath = await resolveNpcStoragePath(imageRelativePath);
     // Try identify command (ImageMagick)
     const { stdout } = await execAsync(
       `identify -format "%w %h" "${imagePath}"`
@@ -175,6 +185,7 @@ export async function getImageDimensions(
   } catch {
     // Fallback: try file command
     try {
+      const imagePath = await resolveNpcStoragePath(imageRelativePath);
       const { stdout } = await execAsync(`file "${imagePath}"`);
       const match = stdout.match(/(\d+)\s*x\s*(\d+)/);
       if (match) {
@@ -199,24 +210,23 @@ export async function processPdfSubmission(
   submissionId: string
 ): Promise<PdfConversionResult & { pageInfos?: PageInfo[] }> {
   try {
-    // Resolve absolute path securely
-    const pdfPath = path.resolve(NPC_UPLOAD_DIR, pdfRelativePath);
-    const resolvedUploadDir = path.resolve(NPC_UPLOAD_DIR);
-
-    if (!pdfPath.startsWith(resolvedUploadDir)) {
-      return { success: false, error: 'PATH_TRAVERSAL_DETECTED' };
-    }
+    await resolveNpcStoragePath(pdfRelativePath);
 
     // Generate output directory
-    const outputDir = generateSecurePath(
-      studentId,
-      submissionId,
-      0, // Special marker for converted images
-      'converted'
+    const outputRelativeDirectory = path.dirname(
+      generateSecureRelativePath(
+        studentId,
+        submissionId,
+        0, // Special marker for converted images
+        'converted',
+      ),
     );
 
     // Convert PDF
-    const result = await convertPdfToImages(pdfPath, path.dirname(outputDir));
+    const result = await convertPdfToImages(
+      pdfRelativePath,
+      outputRelativeDirectory,
+    );
 
     if (!result.success || !result.convertedPaths) {
       return result;
@@ -225,14 +235,14 @@ export async function processPdfSubmission(
     // Get dimensions for each page
     const pageInfos: PageInfo[] = [];
     for (let i = 0; i < result.convertedPaths.length; i++) {
-      const imgPath = result.convertedPaths[i];
-      const dims = await getImageDimensions(imgPath);
+      const imageRelativePath = result.convertedPaths[i];
+      const dims = await getImageDimensions(imageRelativePath);
 
       pageInfos.push({
         pageNumber: i + 1,
         width: dims?.width || 0,
         height: dims?.height || 0,
-        filePath: path.relative(NPC_UPLOAD_DIR, imgPath),
+        filePath: imageRelativePath,
       });
     }
 
