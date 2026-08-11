@@ -32,12 +32,8 @@ COPY types ./types/
 COPY auth.ts ./
 COPY auth.config.ts ./
 
-# Create uploads directory
-RUN mkdir -p /var/lib/nexus/uploads/copies
-
 # Set environment
 ENV NODE_ENV=production
-ENV NPC_UPLOAD_DIR=/var/lib/nexus/uploads/copies
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
