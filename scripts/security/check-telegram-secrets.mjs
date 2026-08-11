@@ -3,7 +3,9 @@
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { relative, resolve } from 'node:path';
 
-const scanRoot = resolve(process.argv[2] ?? process.cwd());
+const cliArguments = process.argv.slice(2);
+const stagedFilesMode = cliArguments[0] === '--staged-files';
+const scanRoot = resolve(stagedFilesMode ? process.cwd() : (cliArguments[0] ?? process.cwd()));
 const ignoredDirectories = new Set([
   '.artifacts',
   '.git',
@@ -84,7 +86,27 @@ function walk(target) {
   }
 }
 
-walk(scanRoot);
+/**
+ * `--staged-files <path...>` inspects exactly the given files — no directory
+ * traversal at all. This is what the pre-commit hook uses: it must validate
+ * what is about to be committed, not the state of the working tree, which can
+ * contain unrelated build artifacts (other git worktrees, local `.next/`
+ * output) that were never staged. The detection rules themselves (`rules`,
+ * `inspectFile`) are unchanged from directory-walk mode.
+ */
+function runStagedFilesMode(relativePaths) {
+  for (const relativePath of relativePaths) {
+    const absolute = resolve(scanRoot, relativePath);
+    const stat = statSync(absolute, { throwIfNoEntry: false });
+    if (stat && stat.isFile()) inspectFile(absolute);
+  }
+}
+
+if (stagedFilesMode) {
+  runStagedFilesMode(cliArguments.slice(1));
+} else {
+  walk(scanRoot);
+}
 
 if (findings.length > 0) {
   const unique = [...new Map(
