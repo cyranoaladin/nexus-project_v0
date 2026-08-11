@@ -561,6 +561,7 @@ describe('NPC audited tombstone command on PostgreSQL 15', () => {
     'audit-surplus',
     'audit-surplus-malformed-entity-type',
     'audit-surplus-alternate-unavailable-action',
+    'audit-entity-type-corrupt',
     'audit-details-corrupt',
     'audit-export-hash-corrupt',
     'audit-snapshot-hash-corrupt',
@@ -578,6 +579,11 @@ describe('NPC audited tombstone command on PostgreSQL 15', () => {
       });
     } else if (variant === 'audit-missing') {
       await firstClient.npcAuditLog.delete({ where: { id: identity.auditId } });
+    } else if (variant === 'audit-entity-type-corrupt') {
+      await firstClient.npcAuditLog.update({
+        where: { id: identity.auditId },
+        data: { entityType: 'MalformedEntityType' },
+      });
     } else if (
       variant === 'audit-surplus' ||
       variant === 'audit-surplus-malformed-entity-type' ||
