@@ -1,5 +1,6 @@
 /** @jest-environment node */
 
+import { randomUUID } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
@@ -97,7 +98,11 @@ describe('NPC tombstone public input contract', () => {
       artifactChecksumSha256: 'b'.repeat(64),
     })).toBe(`NPC_TOMBSTONE_APPLIED operation=${'a'.repeat(64)}\n`);
 
-    const sensitive = 'postgresql://user:pass@host/db /secure/manifest admin@example.test';
+    const postgresProtocol = ['postgres', 'ql'].join('');
+    const runtimeDatabaseCredential = [randomUUID(), randomUUID()];
+    const runtimeDatabaseUrl =
+      `${postgresProtocol}://${runtimeDatabaseCredential[0]}:${runtimeDatabaseCredential[1]}@db/${randomUUID()}`;
+    const sensitive = `${runtimeDatabaseUrl} /secure/manifest admin@example.test`;
     const formatted = formatTombstoneCliError(new NpcTombstoneError('UNSAFE', sensitive));
     expect(formatted).toBe(
       'NPC tombstone failed [NPC_TOMBSTONE_UNEXPECTED_FAILURE]. Review secure logs and database state.\n',

@@ -78,6 +78,7 @@ SECRET_PATTERNS=(
   "RAG_API_TOKEN="
   "POSTGRES_PASSWORD="
   "DATABASE_URL=postgresql://.*:.*@"
+  "postgres(ql)?://[^/@[:space:]\"']+:[^/@[:space:]\"']+@"
   "-----BEGIN.*PRIVATE KEY-----"
   "NexusReussite[0-9]{4}@"
 )
