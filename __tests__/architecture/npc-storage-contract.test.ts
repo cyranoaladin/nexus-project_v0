@@ -74,6 +74,20 @@ type ComposeFile = {
   volumes?: Record<string, unknown>;
 };
 
+type WorkflowStep = {
+  name?: string;
+  run?: string;
+  env?: Record<string, unknown>;
+};
+
+type WorkflowJob = {
+  steps?: WorkflowStep[];
+};
+
+type GithubWorkflow = {
+  jobs?: Record<string, WorkflowJob>;
+};
+
 function readRequired(relativePath: string): string {
   return readFileSync(join(ROOT, relativePath), 'utf8');
 }
@@ -538,6 +552,19 @@ function requireService(compose: ComposeFile, serviceName: string): ComposeServi
   return service;
 }
 
+function requireWorkflowStep(
+  workflow: GithubWorkflow,
+  jobName: string,
+  stepName: string,
+): { step: WorkflowStep; index: number } {
+  const steps = workflow.jobs?.[jobName]?.steps ?? [];
+  const index = steps.findIndex((step) => step.name === stepName);
+  if (index === -1) {
+    throw new Error(`Missing workflow step ${jobName}/${stepName}`);
+  }
+  return { step: steps[index], index };
+}
+
 function environmentValue(service: ComposeService, variable: string): unknown {
   if (Array.isArray(service.environment)) {
     const matches = service.environment.filter((entry) =>
@@ -832,6 +859,86 @@ describe('NPC storage and unavailable-state architecture contract', () => {
       Object.keys(e2e.volumes ?? {}).filter((volume) => volume.includes('npc')),
     ).toEqual([E2E_STORAGE_VOLUME]);
     expect(e2e.volumes?.[E2E_STORAGE_VOLUME]).toBeNull();
+  });
+
+  test('prepares a fail-closed ephemeral NPC root before each CI application startup', () => {
+    const workflow = parseYaml(readRequired('.github/workflows/ci.yml')) as GithubWorkflow;
+
+    for (const [jobName, startupStepName] of [
+      ['e2e', 'Start Next.js server in background'],
+      ['build', 'Smoke test standalone server'],
+    ] as const) {
+      const preparation = requireWorkflowStep(
+        workflow,
+        jobName,
+        'Prepare isolated NPC storage',
+      );
+      const startup = requireWorkflowStep(workflow, jobName, startupStepName);
+      const command = preparation.step.run ?? '';
+
+      expect(preparation.index).toBeLessThan(startup.index);
+      expect(command).toContain('$RUNNER_TEMP');
+      expect(command).toContain('$GITHUB_WORKSPACE');
+      expect(command).toContain('$GITHUB_ENV');
+      expect(command).toContain('NPC_STORAGE_ROOT=');
+      expect(command).toMatch(/install -d -m 0700/);
+      expect(command).toContain('realpath');
+    }
+  });
+
+  test('moves every root-only NPC real test to its explicit CI harness without dropping coverage', () => {
+    const workflow = parseYaml(readRequired('.github/workflows/ci.yml')) as GithubWorkflow;
+    const generic = requireWorkflowStep(workflow, 'integration', 'Run integration tests').step.run ?? '';
+    const dedicated = requireWorkflowStep(
+      workflow,
+      'integration',
+      'Run NPC real database integration tests',
+    ).step;
+    const dedicatedCommand = dedicated.run ?? '';
+    const expectedNpcRealTests = readdirSync(join(ROOT, '__tests__/integration'))
+      .filter((file) => /^npc-.*\.real\.test\.ts$/.test(file))
+      .map((file) => `__tests__/integration/${file}`)
+      .sort();
+
+    expect(generic).toContain("--testPathIgnorePatterns='npc-.*\\.real\\.test\\.ts'");
+    expect(dedicatedCommand).toContain('scripts/testing/run-npc-real-db-tests.sh');
+    expect(dedicated.env?.NPC_LLM_MODE).toBe('off');
+    expect(
+      expectedNpcRealTests.filter((testPath) => dedicatedCommand.includes(testPath)),
+    ).toEqual(expectedNpcRealTests);
+  });
+
+  test('pins a 16-byte AES-GCM authentication tag for tombstone encryption and decryption', () => {
+    const source = readRequired('lib/npc/tombstone/export.ts');
+    const sourceFile = ts.createSourceFile(
+      'lib/npc/tombstone/export.ts',
+      source,
+      ts.ScriptTarget.Latest,
+      true,
+      ts.ScriptKind.TS,
+    );
+    const optionArguments: string[] = [];
+
+    const visit = (node: ts.Node): void => {
+      if (
+        ts.isCallExpression(node) &&
+        ts.isIdentifier(node.expression) &&
+        ['createCipheriv', 'createDecipheriv'].includes(node.expression.text)
+      ) {
+        optionArguments.push(node.arguments[3]?.getText(sourceFile) ?? '');
+      }
+      ts.forEachChild(node, visit);
+    };
+    visit(sourceFile);
+
+    expect(source).toContain('const GCM_AUTH_TAG_LENGTH_BYTES = 16;');
+    expect(optionArguments).toEqual([
+      '{ authTagLength: GCM_AUTH_TAG_LENGTH_BYTES }',
+      '{ authTagLength: GCM_AUTH_TAG_LENGTH_BYTES }',
+    ]);
+    expect(source).toContain(
+      'canonicalBase64(envelope.authTag, GCM_AUTH_TAG_LENGTH_BYTES)',
+    );
   });
 
   test('leaves NPC storage provisioning to deployment, not the worker image', () => {

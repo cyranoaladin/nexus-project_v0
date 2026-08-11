@@ -939,6 +939,7 @@ ps -eo pid,args | grep 'standalone/server.js'            # cmdline réel du proc
 - **Nginx** : reverse proxy TLS → 127.0.0.1:3001 (ne pose aucun en-tête sécurité, tout vient du middleware Next.js)
 - **Migrations Prisma** : `npx prisma migrate deploy` seulement si `prisma/migrations/` a changé depuis la dernière release déployée (`git diff --stat <ancien-sha> <nouveau-sha> -- prisma/`) — aucune migration n'est nécessaire à chaque déploiement
 - **Anciennes releases** : ne jamais supprimer un répertoire de release sans confirmation explicite du responsable (permet un rollback instantané en re-basculant le symlink)
+- **Stockage NPC** : préparer avant redémarrage une racine persistante hors release et injecter `NPC_STORAGE_ROOT`; le contrat complet et les permissions app/worker sont définis dans `docs/runbooks/npc-storage.md`
 
 **Discipline single-writer (obligatoire)** : avant tout déploiement, confirmer
 explicitement avec le responsable qu'aucun autre agent, session ou pipeline
@@ -982,6 +983,7 @@ docker compose -f docker-compose.v2.yml -f docker-compose.prod.v2.yml up -d [ser
 | `DATABASE_URL` | PostgreSQL connection string | `postgresql://user:pass@host:5432/db` |
 | `NEXTAUTH_SECRET` | Secret JWT (32+ chars en prod) | `your-secret-here` |
 | `NEXTAUTH_URL` | URL canonique de l'app | `https://nexusreussite.academy` |
+| `NPC_STORAGE_ROOT` | Racine NPC persistante, absolue et hors release | `<NPC_PERSISTENT_ROOT>` |
 
 ### Optionnelles
 

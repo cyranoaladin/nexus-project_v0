@@ -1,6 +1,7 @@
 /** @jest-environment node */
 
 import {
+  chownSync,
   chmodSync,
   mkdirSync,
   mkdtempSync,
@@ -178,14 +179,28 @@ describe('NPC canonical storage root', () => {
   });
 
   test('rejects a storage root not owned by root or the current uid', () => {
-    const uidSpy = jest.spyOn(process, 'getuid').mockReturnValue(1001);
+    const actualUid = process.getuid?.();
+    if (actualUid === undefined) {
+      throw new Error('This ownership test requires a UID-capable Linux process');
+    }
+    const untrustedUid = actualUid === 1001 ? 1002 : 1001;
+    const uidSpy = actualUid === 0
+      ? undefined
+      : jest.spyOn(process, 'getuid').mockReturnValue(untrustedUid);
+
+    if (actualUid === 0) {
+      chownSync(storageRoot, untrustedUid, untrustedUid);
+    }
 
     try {
       expect(() =>
         assertNpcStorageReady({ capability: 'read-only', releaseRoot }),
       ).toThrow(/owner|trusted/i);
     } finally {
-      uidSpy.mockRestore();
+      uidSpy?.mockRestore();
+      if (actualUid === 0) {
+        chownSync(storageRoot, 0, 0);
+      }
     }
   });
 

@@ -24,6 +24,8 @@ import {
   tombstoneError,
 } from './types';
 
+const GCM_AUTH_TAG_LENGTH_BYTES = 16;
+
 type CanonicalValue =
   | null
   | boolean
@@ -459,7 +461,12 @@ export function createTombstoneExportEnvelope({
   };
   const metadata = envelopeMetadata(identity.sha256);
   const iv = randomBytes(12);
-  const cipher = createCipheriv('aes-256-gcm', crypto.encryptionKey, iv);
+  const cipher = createCipheriv(
+    'aes-256-gcm',
+    crypto.encryptionKey,
+    iv,
+    { authTagLength: GCM_AUTH_TAG_LENGTH_BYTES },
+  );
   cipher.setAAD(Buffer.from(canonicalJson(metadata), 'utf8'));
   const ciphertext = Buffer.concat([
     cipher.update(canonicalJson(payload), 'utf8'),
@@ -746,9 +753,12 @@ export function decryptAndVerifyTombstoneEnvelope(
       'aes-256-gcm',
       crypto.encryptionKey,
       canonicalBase64(envelope.iv, 12),
+      { authTagLength: GCM_AUTH_TAG_LENGTH_BYTES },
     );
     decipher.setAAD(Buffer.from(canonicalJson(metadata), 'utf8'));
-    decipher.setAuthTag(canonicalBase64(envelope.authTag, 16));
+    decipher.setAuthTag(
+      canonicalBase64(envelope.authTag, GCM_AUTH_TAG_LENGTH_BYTES),
+    );
     const plaintext = Buffer.concat([decipher.update(ciphertext), decipher.final()]);
     const parsed = JSON.parse(plaintext.toString('utf8')) as unknown;
     if (Buffer.from(canonicalJson(parsed), 'utf8').compare(plaintext) !== 0) {

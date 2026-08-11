@@ -79,6 +79,7 @@ exit 0
     expect(commands).toContain(`docker rm -f -v ${containerName}`);
     expect(commands).toContain('npx prisma migrate deploy');
     expect(commands).toContain(`npx jest --config jest.integration.config.js --runInBand ${requestedTest}`);
+    expect(commands).toContain('--env NPC_LLM_MODE=off');
     expect(commands).not.toContain('__tests__/integration/session-revocation.real.test.ts');
     expect(`${result.stdout}${result.stderr}`).not.toMatch(/postgresql:\/\/|npc_test_password/);
   });
