@@ -10,6 +10,7 @@ import { prisma } from '@/lib/prisma';
 import { CopySubmissionStatus, UserRole, AiJobType, AiJobStatus } from '@prisma/client';
 import { canManageSubmissionDocuments } from '@/lib/npc/access';
 import { withLockedCopySubmission } from '@/lib/npc/submission-lock';
+import { NPC_INTERACTIVE_TRANSACTION_OPTIONS } from '@/lib/npc/transaction';
 import {
   assertSubmissionAvailable,
   NPC_UNAVAILABLE_CONFLICT,
@@ -141,6 +142,7 @@ export async function POST(
         });
         return { kind: 'queued' as const, jobId: aiJob.id };
       }),
+      NPC_INTERACTIVE_TRANSACTION_OPTIONS,
     );
 
     if (queued.kind === 'already-processing') {

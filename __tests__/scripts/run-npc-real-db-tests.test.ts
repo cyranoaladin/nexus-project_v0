@@ -22,7 +22,12 @@ describe('run-npc-real-db-tests harness contract', () => {
 set -eu
 printf 'docker %s\\n' "$*" >> "$NPC_HARNESS_COMMAND_LOG"
 case "$1" in
-  run) printf 'fake-container-id\\n' ;;
+  run)
+    if [[ "\${NPC_FAKE_DOCKER_RUN_EXIT:-}" != "" ]]; then
+      exit "$NPC_FAKE_DOCKER_RUN_EXIT"
+    fi
+    printf 'fake-container-id\\n'
+    ;;
   port) printf '127.0.0.1:49123\\n' ;;
   inspect) printf 'healthy\\n' ;;
   logs) printf 'fake postgres log\\n' ;;
@@ -75,5 +80,25 @@ exit 0
     expect(commands).toContain(`npx jest --config jest.integration.config.js --runInBand ${requestedTest}`);
     expect(commands).not.toContain('__tests__/integration/session-revocation.real.test.ts');
     expect(`${result.stdout}${result.stderr}`).not.toMatch(/postgresql:\/\/|npc_test_password/);
+  });
+
+  it('unconditionally removes the randomized name when docker run records it then fails', () => {
+    const requestedTest = '__tests__/integration/npc-submission-lock.real.test.ts';
+    const result = spawnSync('bash', [harnessPath, requestedTest], {
+      cwd: repositoryRoot,
+      encoding: 'utf8',
+      env: {
+        ...process.env,
+        PATH: `${fakeBin}:${process.env.PATH}`,
+        NPC_HARNESS_COMMAND_LOG: commandLog,
+        NPC_FAKE_DOCKER_RUN_EXIT: '29',
+      },
+    });
+
+    expect(result.status).toBe(29);
+    const commands = readFileSync(commandLog, 'utf8');
+    const run = commands.match(/docker run .*--name ([^ ]+)/);
+    expect(run).not.toBeNull();
+    expect(commands).toContain(`docker rm -f -v ${run![1]}`);
   });
 });

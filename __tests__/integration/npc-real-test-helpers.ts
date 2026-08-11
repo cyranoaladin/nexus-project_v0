@@ -1,4 +1,32 @@
-import type { PrismaClient } from '@prisma/client';
+import { Prisma, type PrismaClient } from '@prisma/client';
+
+export function databaseUrlWithApplicationName(
+  databaseUrl: string,
+  applicationName: string,
+): string {
+  const parsed = new URL(databaseUrl);
+  parsed.searchParams.set('application_name', applicationName);
+  return parsed.toString();
+}
+
+export async function waitForBlockedPostgresClient(
+  observer: PrismaClient,
+  applicationName: string,
+): Promise<void> {
+  for (let attempt = 0; attempt < 300; attempt += 1) {
+    const [row] = await observer.$queryRaw<Array<{ blocked: boolean }>>(Prisma.sql`
+      SELECT EXISTS (
+        SELECT 1
+        FROM pg_stat_activity
+        WHERE application_name = ${applicationName}
+          AND cardinality(pg_blocking_pids(pid)) > 0
+      ) AS blocked
+    `);
+    if (row?.blocked) return;
+    await new Promise((resolve) => setTimeout(resolve, 10));
+  }
+  throw new Error(`PostgreSQL client ${applicationName} never became blocked`);
+}
 
 export async function createNpcRealFixture(
   prisma: PrismaClient,
@@ -50,6 +78,9 @@ export async function cleanupNpcRealFixture(
   prisma: PrismaClient,
   prefix: string,
 ) {
+  await prisma.aiProcessingJob.deleteMany({
+    where: { id: { startsWith: prefix } },
+  });
   await prisma.npcAuditLog.deleteMany({
     where: {
       OR: [

@@ -10,6 +10,8 @@ export interface LockedCopySubmission {
   storedFilePath: string | null;
   fileSizeBytes: number | null;
   mimeType: string | null;
+  aiJobId: string | null;
+  report: { id: string } | null;
 }
 
 export class CopySubmissionNotFoundError extends Error {
@@ -47,6 +49,8 @@ export async function withLockedCopySubmission<T>(
       storedFilePath: true,
       fileSizeBytes: true,
       mimeType: true,
+      aiJobId: true,
+      report: { select: { id: true } },
     },
   });
 

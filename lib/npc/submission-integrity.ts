@@ -1,5 +1,4 @@
-import { createHash } from 'node:crypto';
-import { readNpcStorageFile } from './storage-root';
+import { inspectNpcStorageFile } from './storage-root';
 
 export type CopySubmissionIntegrityIssueCode =
   | 'ORIGINAL_FILE_UNAVAILABLE'
@@ -41,9 +40,12 @@ export type CopySubmissionIntegrityResult = {
   issues: CopySubmissionIntegrityIssue[];
 };
 
-async function readSource(relativePath: string): Promise<Buffer | null> {
+async function inspectSource(relativePath: string): Promise<{
+  sizeBytes: number;
+  sha256: string;
+} | null> {
   try {
-    return await readNpcStorageFile(relativePath);
+    return await inspectNpcStorageFile(relativePath);
   } catch {
     return null;
   }
@@ -51,6 +53,27 @@ async function readSource(relativePath: string): Promise<Buffer | null> {
 
 function submissionStoragePrefix(relativePath: string): string {
   return relativePath.split(/[\\/]/).slice(0, 2).join('/');
+}
+
+function isCanonicalConvertedPath(
+  sourcePath: string,
+  convertedPath: string,
+  convertedIndex: number,
+): boolean {
+  const expectedPrefix = submissionStoragePrefix(sourcePath);
+  const expectedFilename = `page-${convertedIndex + 1}`;
+  const segments = convertedPath.split('/');
+  if (segments.length !== 4 || segments[2] !== 'page_0') return false;
+  const filename = segments[3];
+  const separator = filename.lastIndexOf('.');
+  if (separator < 1) return false;
+  const base = filename.slice(0, separator);
+  const extension = filename.slice(separator + 1);
+  return (
+    segments.slice(0, 2).join('/') === expectedPrefix &&
+    base === expectedFilename &&
+    ['webp', 'jpg', 'png'].includes(extension)
+  );
 }
 
 export async function validateCopySubmissionIntegrity(
@@ -73,32 +96,33 @@ export async function validateCopySubmissionIntegrity(
       issues.push({ code: 'ORIGINAL_SHA256_MISSING', pageId: page.id });
     }
 
-    const bytes = await readSource(page.originalFilePath);
-    if (!bytes) {
+    const source = await inspectSource(page.originalFilePath);
+    if (!source) {
       issues.push({ code: 'ORIGINAL_FILE_UNAVAILABLE', pageId: page.id });
     } else {
-      if (page.sizeBytes !== null && bytes.length !== page.sizeBytes) {
+      if (page.sizeBytes !== null && source.sizeBytes !== page.sizeBytes) {
         issues.push({ code: 'ORIGINAL_SIZE_MISMATCH', pageId: page.id });
       }
       if (
         page.sha256 &&
-        createHash('sha256').update(bytes).digest('hex') !== page.sha256.toLowerCase()
+        source.sha256 !== page.sha256.toLowerCase()
       ) {
         issues.push({ code: 'ORIGINAL_SHA256_MISMATCH', pageId: page.id });
       }
     }
 
-    for (const convertedPath of page.convertedFilePaths) {
-      if (
-        submissionStoragePrefix(convertedPath) !==
-        submissionStoragePrefix(page.originalFilePath)
-      ) {
+    for (const [convertedIndex, convertedPath] of page.convertedFilePaths.entries()) {
+      if (!isCanonicalConvertedPath(
+        page.originalFilePath,
+        convertedPath,
+        convertedIndex,
+      )) {
         issues.push({ code: 'CONVERTED_FILE_NOT_DERIVED', pageId: page.id });
         continue;
       }
 
-      const convertedBytes = await readSource(convertedPath);
-      if (!convertedBytes) {
+      const converted = await inspectSource(convertedPath);
+      if (!converted) {
         issues.push({ code: 'CONVERTED_FILE_UNAVAILABLE', pageId: page.id });
       }
     }

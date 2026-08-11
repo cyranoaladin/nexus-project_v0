@@ -163,7 +163,7 @@ describe('NPC copy submission source integrity', () => {
   it.each([
     [
       'missing',
-      'student1/submission1/page_1/converted/missing.png',
+      'student1/submission1/page_0/page-1.png',
       'CONVERTED_FILE_UNAVAILABLE',
     ],
     ['outside the root', '../../private.png', 'CONVERTED_FILE_NOT_DERIVED'],
@@ -208,5 +208,36 @@ describe('NPC copy submission source integrity', () => {
       issues: [{ code: 'CONVERTED_FILE_NOT_DERIVED', pageId: 'page-1' }],
     });
     expect(JSON.stringify(result)).not.toContain(unrelatedPath);
+  });
+
+  it('accepts canonical converted artifacts for the exact source submission', async () => {
+    const convertedPath = 'student1/submission1/page_0/page-1.webp';
+    await writeNpcStorageFileAtomic(convertedPath, Buffer.from('image'), 5);
+
+    await expect(validateCopySubmissionIntegrity(submission({
+      pages: [{
+        ...submission().pages[0],
+        convertedFilePaths: [convertedPath],
+      }],
+    }))).resolves.toEqual({ ok: true, issues: [] });
+  });
+
+  it.each([
+    'student1/submission1/page_1/page-1.webp',
+    'student1/submission1/page_0/copy.webp',
+    'student1/submission1/page_0/page-2.webp',
+    'student1/submission1/page_0/page-1.exe',
+  ])('rejects a non-canonical derived artifact shape: %s', async (convertedPath) => {
+    await writeNpcStorageFileAtomic(convertedPath, Buffer.from('image'), 5);
+
+    await expect(validateCopySubmissionIntegrity(submission({
+      pages: [{
+        ...submission().pages[0],
+        convertedFilePaths: [convertedPath],
+      }],
+    }))).resolves.toMatchObject({
+      ok: false,
+      issues: [{ code: 'CONVERTED_FILE_NOT_DERIVED', pageId: 'page-1' }],
+    });
   });
 });

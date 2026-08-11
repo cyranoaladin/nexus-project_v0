@@ -16,10 +16,12 @@ import {
 } from '../../lib/npc/storage-root';
 import {
   finalizePedagogicalDiagnosis,
-  markPedagogicalDiagnosisFailed,
+  type NpcJobHandlerOutcome,
   persistVisionOcrResult,
   validateSubmissionBeforeDiagnosis,
 } from './submission-finalization';
+import { recordNpcJobFailure } from './job-outcomes';
+import { NPC_INTERACTIVE_TRANSACTION_OPTIONS } from '../../lib/npc/transaction';
 try {
   assertNpcStorageReady({ capability: 'read-only' });
 } catch {
@@ -149,7 +151,7 @@ async function claimNextJob(): Promise<string | null> {
       });
 
       return claimed;
-    });
+    }, NPC_INTERACTIVE_TRANSACTION_OPTIONS);
 
     return job?.id || null;
   } catch (error) {
@@ -166,7 +168,7 @@ async function handleVisionOcrSuccess(
   jobId: string,
   inputData: unknown,
   ocrOutput: { text: string; confidence?: number }
-): Promise<void> {
+): Promise<NpcJobHandlerOutcome> {
   try {
     const parsed = typeof inputData === 'string' ? JSON.parse(inputData) : inputData;
     const { pageId, submissionId } = parsed as {
@@ -181,10 +183,13 @@ async function handleVisionOcrSuccess(
       prisma,
       submissionId,
       pageId,
+      jobId,
       text: ocrOutput.text,
     });
-    if (persisted === 'unavailable') return;
-    console.log(`[${jobId}] Saved OCR text for page ${pageId} (${ocrOutput.text?.length ?? 0} chars)`);
+    if (persisted.kind === 'updated') {
+      console.log(`[${jobId}] Saved OCR text for page ${pageId} (${ocrOutput.text?.length ?? 0} chars)`);
+    }
+    return persisted;
   } catch (error) {
     console.error(`[${jobId}] Error in handleVisionOcrSuccess:`, error);
     throw error;
@@ -194,8 +199,10 @@ async function handleVisionOcrSuccess(
 async function handlePedagogicalDiagnosisSuccess(
   jobId: string,
   inputData: unknown,
-  diagnosticOutput: unknown
-): Promise<void> {
+  diagnosticOutput: unknown,
+  tokensUsed: number | undefined,
+  processingDurationMs: number,
+): Promise<NpcJobHandlerOutcome> {
   const parsedInput = typeof inputData === 'string' ? JSON.parse(inputData) : inputData;
   const { submissionId } = parsedInput as { submissionId: string };
   if (!submissionId) {
@@ -207,11 +214,13 @@ async function handlePedagogicalDiagnosisSuccess(
     submissionId,
     jobId,
     diagnosticOutput,
+    tokensUsed,
+    processingDurationMs,
   });
-  if (!finalized.ok) {
-    throw new Error('NPC_SOURCE_INTEGRITY_FAILED');
+  if (finalized.kind === 'completed') {
+    console.log(`[${jobId}] Created PedagogicalReport ${finalized.reportId} for submission ${submissionId}`);
   }
-  console.log(`[${jobId}] Created PedagogicalReport ${finalized.reportId} for submission ${submissionId}`);
+  return finalized;
 }
 
 async function processJob(jobId: string): Promise<void> {
@@ -256,17 +265,12 @@ async function processJob(jobId: string): Promise<void> {
           : job.inputData;
       const { submissionId } = parsedInput as { submissionId?: string };
       if (!submissionId) throw new Error('Missing submissionId in inputData');
-      const integrity = await validateSubmissionBeforeDiagnosis(prisma, submissionId);
-      if (!integrity.ok) {
-        await prisma.aiProcessingJob.update({
-          where: { id: jobId },
-          data: {
-            status: AiJobStatus.FAILED,
-            errorMessage: 'NPC_SOURCE_INTEGRITY_FAILED',
-            completedAt: new Date(),
-            processingDurationMs: Date.now() - startTime,
-          },
-        });
+      const preflight = await validateSubmissionBeforeDiagnosis({
+        prisma,
+        submissionId,
+        jobId,
+      });
+      if (preflight.kind !== 'proceed') {
         return;
       }
     }
@@ -277,9 +281,21 @@ async function processJob(jobId: string): Promise<void> {
     if (result.success) {
       // Special post-processing
       if (job.type === AiJobType.VISION_OCR) {
-        await handleVisionOcrSuccess(jobId, job.inputData, result.output as any);
+        const outcome = await handleVisionOcrSuccess(
+          jobId,
+          job.inputData,
+          result.output as any,
+        );
+        if (outcome.kind === 'terminal' || outcome.kind === 'updated') return;
       } else if (job.type === AiJobType.PEDAGOGICAL_DIAGNOSIS) {
-        await handlePedagogicalDiagnosisSuccess(jobId, job.inputData, result.output as any);
+        await handlePedagogicalDiagnosisSuccess(
+          jobId,
+          job.inputData,
+          result.output as any,
+          result.tokensUsed,
+          Date.now() - startTime,
+        );
+        return;
       }
 
       await prisma.aiProcessingJob.update({
@@ -298,61 +314,11 @@ async function processJob(jobId: string): Promise<void> {
     }
   } catch (error) {
     console.error(`[${jobId}] Processing error:`, error);
-    await handleJobFailure(jobId, error instanceof Error ? error.message : 'Unknown error');
-  }
-}
-
-async function handleJobFailure(jobId: string, errorMessage: string): Promise<void> {
-  try {
-    const job = await prisma.aiProcessingJob.findUnique({
-      where: { id: jobId },
-      select: { retryCount: true, maxRetries: true, type: true, inputData: true },
+    await recordNpcJobFailure({
+      prisma,
+      jobId,
+      errorMessage: error instanceof Error ? error.message : 'Unknown error',
     });
-
-    if (!job) return;
-
-    const shouldRetry = job.retryCount < job.maxRetries;
-
-    if (shouldRetry) {
-      const nextRetryAt = new Date(Date.now() + Math.pow(2, job.retryCount) * 60000); // Exponential backoff
-
-      await prisma.aiProcessingJob.update({
-        where: { id: jobId },
-        data: {
-          status: AiJobStatus.RETRYING,
-          retryCount: { increment: 1 },
-          nextRetryAt,
-          errorMessage: errorMessage.slice(0, 1000), // Limit error message length
-        },
-      });
-      console.log(`[${jobId}] Scheduled for retry ${job.retryCount + 1}/${job.maxRetries} at ${nextRetryAt.toISOString()}`);
-    } else {
-      await prisma.aiProcessingJob.update({
-        where: { id: jobId },
-        data: {
-          status: AiJobStatus.FAILED,
-          errorMessage: errorMessage.slice(0, 1000),
-          completedAt: new Date(),
-        },
-      });
-
-      // If this was a PEDAGOGICAL_DIAGNOSIS job, also update submission status
-      if (job.type === AiJobType.PEDAGOGICAL_DIAGNOSIS) {
-        const parsedInput =
-          typeof job.inputData === 'string'
-            ? JSON.parse(job.inputData)
-            : job.inputData;
-        const { submissionId } = parsedInput as { submissionId?: string };
-        if (submissionId) {
-          await markPedagogicalDiagnosisFailed(prisma, submissionId);
-          console.log(`[${jobId}] Updated submission ${submissionId} to ANALYSIS_FAILED`);
-        }
-      }
-
-      console.log(`[${jobId}] Failed after ${job.maxRetries} retries`);
-    }
-  } catch (error) {
-    console.error(`[${jobId}] Error handling failure:`, error);
   }
 }
 

@@ -9,14 +9,20 @@ import {
 } from '@/lib/npc/unavailable';
 import { withLockedCopySubmission } from '@/lib/npc/submission-lock';
 import {
+  assertSubmissionInventoryMutable,
+  SubmissionInventoryFrozenError,
+} from '@/lib/npc/submission-inventory';
+import {
   cleanupNpcRealFixture,
   createNpcRealFixture,
+  databaseUrlWithApplicationName,
   deferred,
+  waitForBlockedPostgresClient,
 } from './npc-real-test-helpers';
 
 const databaseUrl = process.env.TEST_DATABASE_URL || process.env.DATABASE_URL || '';
-const firstClient = new PrismaClient({ datasources: { db: { url: databaseUrl } } });
-const secondClient = new PrismaClient({ datasources: { db: { url: databaseUrl } } });
+const firstClient = new PrismaClient({ datasources: { db: { url: databaseUrlWithApplicationName(databaseUrl, 'npc-lock-first') } } });
+const secondClient = new PrismaClient({ datasources: { db: { url: databaseUrlWithApplicationName(databaseUrl, 'npc-lock-second') } } });
 const prefix = 'npc-lock-real';
 
 type CompetingMutation = (
@@ -106,7 +112,7 @@ describe('NPC common submission lock on PostgreSQL 15', () => {
         }),
       );
 
-      await new Promise((resolve) => setTimeout(resolve, 75));
+      await waitForBlockedPostgresClient(firstClient, 'npc-lock-second');
       expect(competingCallbackEntered).toBe(false);
       releaseTombstone.resolve();
 
@@ -126,6 +132,101 @@ describe('NPC common submission lock on PostgreSQL 15', () => {
         status: 'UNAVAILABLE',
         unavailableReason: 'SOURCE_FILE_UNAVAILABLE',
       });
+    },
+  );
+
+  it.each([
+    ['add document', async (tx: Prisma.TransactionClient, submissionId: string) => {
+      await tx.copyPage.create({
+        data: {
+          id: `${prefix}-frozen-added`,
+          submissionId,
+          pageNumber: 4,
+          documentType: 'SUBJECT',
+          originalFilePath: 'synthetic/frozen-added.pdf',
+          sizeBytes: 1,
+          sha256: 'f'.repeat(64),
+        },
+      });
+    }],
+    ['delete nonessential rubric', async (tx: Prisma.TransactionClient) => {
+      await tx.copyPage.delete({ where: { id: `${prefix}-rubric` } });
+    }],
+    ['delete one of multiple copies', async (tx: Prisma.TransactionClient) => {
+      await tx.copyPage.delete({ where: { id: `${prefix}-copy-2` } });
+    }],
+    ['reclassify document', async (tx: Prisma.TransactionClient) => {
+      await tx.copyPage.update({
+        where: { id: `${prefix}-rubric` },
+        data: { documentType: 'SUBJECT' },
+      });
+    }],
+  ] as Array<[string, CompetingMutation]>) (
+    'freezes inventory when queueing wins against %s',
+    async (_label, mutate) => {
+      const submissionId = `${prefix}-submission`;
+      await firstClient.copyPage.createMany({
+        data: [
+          {
+            id: `${prefix}-rubric`,
+            submissionId,
+            pageNumber: 2,
+            documentType: 'GRADING_RUBRIC',
+            originalFilePath: 'synthetic/rubric.pdf',
+            sizeBytes: 1,
+            sha256: 'c'.repeat(64),
+          },
+          {
+            id: `${prefix}-copy-2`,
+            submissionId,
+            pageNumber: 3,
+            documentType: 'STUDENT_COPY',
+            originalFilePath: 'synthetic/copy-2.pdf',
+            sizeBytes: 1,
+            sha256: 'd'.repeat(64),
+          },
+        ],
+      });
+      const pagesBefore = await firstClient.copyPage.findMany({
+        where: { submissionId },
+        orderBy: { pageNumber: 'asc' },
+      });
+      const queueHasLock = deferred();
+      const releaseQueue = deferred();
+
+      const queue = firstClient.$transaction(async (tx) =>
+        withLockedCopySubmission(tx, submissionId, async () => {
+          await tx.copySubmission.update({
+            where: { id: submissionId },
+            data: { status: 'QUEUED_FOR_ANALYSIS' },
+          });
+          queueHasLock.resolve();
+          await releaseQueue.promise;
+        }),
+      );
+
+      await queueHasLock.promise;
+      const mutation = secondClient.$transaction(async (tx) =>
+        withLockedCopySubmission(tx, submissionId, async (locked) => {
+          assertSubmissionInventoryMutable(locked);
+          await mutate(tx, submissionId);
+        }),
+      );
+      await waitForBlockedPostgresClient(firstClient, 'npc-lock-second');
+      releaseQueue.resolve();
+
+      await queue;
+      await expect(mutation).rejects.toBeInstanceOf(
+        SubmissionInventoryFrozenError,
+      );
+      await expect(firstClient.copySubmission.findUniqueOrThrow({
+        where: { id: submissionId },
+        select: { status: true },
+      })).resolves.toEqual({ status: 'QUEUED_FOR_ANALYSIS' });
+      await expect(firstClient.copyPage.findMany({
+        where: { submissionId },
+        orderBy: { pageNumber: 'asc' },
+      })).resolves.toEqual(pagesBefore);
     },
   );
 

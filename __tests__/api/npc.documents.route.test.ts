@@ -47,6 +47,13 @@ jest.mock('@/lib/npc/storage', () => ({
   deleteSecureFile: jest.fn(),
 }));
 
+jest.mock('@/lib/npc/storage-root', () => ({
+  inspectNpcStorageFile: jest.fn().mockResolvedValue({
+    sizeBytes: 8,
+    sha256: 'a'.repeat(64),
+  }),
+}));
+
 function params(submissionId = 'submission-1') {
   return { params: Promise.resolve({ submissionId }) };
 }
@@ -260,6 +267,18 @@ describe('NPC correction documents API', () => {
   });
 
   it('does not expose storage paths after uploading documents', async () => {
+    (prisma.copySubmission.findUnique as jest.Mock).mockResolvedValue({
+      id: 'submission-1',
+      studentId: 'student-1',
+      coachId: 'coach-1',
+      status: 'UPLOADED',
+      pages: [{
+        id: 'existing-copy',
+        pageNumber: 1,
+        documentType: 'STUDENT_COPY',
+        status: 'UPLOADED',
+      }],
+    });
     (prisma.copyPage.create as jest.Mock).mockResolvedValue({
       id: 'doc-1',
       documentType: 'STUDENT_COPY',
@@ -320,6 +339,7 @@ describe('NPC correction documents API', () => {
       pages: [
         {
           id: 'existing-copy',
+          pageNumber: 1,
           documentType: 'STUDENT_COPY',
           status: 'UPLOADED',
         },
@@ -429,6 +449,225 @@ describe('NPC correction documents API', () => {
     expect(prisma.copyPage.create).not.toHaveBeenCalled();
     expect(prisma.copySubmission.update).not.toHaveBeenCalled();
     expect(prisma.npcAuditLog.create).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    'QUEUED_FOR_ANALYSIS',
+    'ANALYZING',
+    'COMPLETED',
+    'ARCHIVED',
+  ])('returns 409 when reclassification observes locked %s state', async (status) => {
+    const unlocked = {
+      id: 'submission-1',
+      studentId: 'student-1',
+      coachId: 'coach-1',
+      status: 'UPLOADED',
+      pages: [],
+    };
+    (prisma.copySubmission.findUnique as jest.Mock)
+      .mockResolvedValueOnce(unlocked)
+      .mockResolvedValueOnce({ ...unlocked, status });
+
+    const response = await PATCH(
+      new NextRequest('http://localhost/api/npc/submissions/submission-1/documents/doc-1', {
+        method: 'PATCH',
+        body: JSON.stringify({ documentType: 'SUBJECT' }),
+      }),
+      documentParams(),
+    );
+
+    expect(response.status).toBe(409);
+    await expect(response.json()).resolves.toMatchObject({
+      code: 'NPC_SUBMISSION_INVENTORY_FROZEN',
+    });
+    expect(prisma.copyPage.findFirst).not.toHaveBeenCalled();
+    expect(prisma.copySubmission.update).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    'QUEUED_FOR_ANALYSIS',
+    'ANALYZING',
+    'COMPLETED',
+    'ARCHIVED',
+  ])('returns 409 when deletion observes locked %s state', async (status) => {
+    const unlocked = {
+      id: 'submission-1',
+      studentId: 'student-1',
+      coachId: 'coach-1',
+      status: 'UPLOADED',
+    };
+    (prisma.copySubmission.findUnique as jest.Mock)
+      .mockResolvedValueOnce(unlocked)
+      .mockResolvedValueOnce({ ...unlocked, status });
+
+    const response = await DELETE(
+      new NextRequest('http://localhost/api/npc/submissions/submission-1/documents/doc-1'),
+      documentParams(),
+    );
+
+    expect(response.status).toBe(409);
+    await expect(response.json()).resolves.toMatchObject({
+      code: 'NPC_SUBMISSION_INVENTORY_FROZEN',
+    });
+    expect(prisma.copyPage.delete).not.toHaveBeenCalled();
+    expect(npcStorage.deleteSecureFile).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    'QUEUED_FOR_ANALYSIS',
+    'ANALYZING',
+    'COMPLETED',
+    'ARCHIVED',
+  ])('returns 409 when upload observes locked %s state', async (status) => {
+    const unlocked = {
+      id: 'submission-1',
+      studentId: 'student-1',
+      coachId: 'coach-1',
+      status: 'UPLOADED',
+      pages: [],
+    };
+    (prisma.copySubmission.findUnique as jest.Mock)
+      .mockResolvedValueOnce(unlocked)
+      .mockResolvedValueOnce({ ...unlocked, status });
+
+    const response = await POST(
+      makeUploadRequest({
+        documentType: 'GRADING_RUBRIC',
+        file: new File(['%PDF-1.4'], 'bareme.pdf', { type: 'application/pdf' }),
+      }),
+      params(),
+    );
+
+    expect(response.status).toBe(409);
+    await expect(response.json()).resolves.toMatchObject({
+      code: 'NPC_SUBMISSION_INVENTORY_FROZEN',
+    });
+    expect(prisma.copyPage.create).not.toHaveBeenCalled();
+    expect(prisma.copySubmission.update).not.toHaveBeenCalled();
+  });
+
+  it('stages the file before opening the row-lock transaction and uses bounded options', async () => {
+    let releaseSave!: (value: unknown) => void;
+    const savePending = new Promise((resolve) => {
+      releaseSave = resolve;
+    });
+    (npcStorage.saveUploadedFile as jest.Mock).mockReturnValue(savePending);
+
+    const pendingResponse = POST(
+      makeUploadRequest({
+        documentType: 'GRADING_RUBRIC',
+        file: new File(['%PDF-1.4'], 'bareme.pdf', { type: 'application/pdf' }),
+      }),
+      params(),
+    );
+    while (!(npcStorage.saveUploadedFile as jest.Mock).mock.calls.length) {
+      await Promise.resolve();
+    }
+    expect(prisma.$transaction).not.toHaveBeenCalled();
+
+    releaseSave({
+      success: true,
+      relativePath: 'student/sub/page_1/bareme.pdf',
+      sha256: 'a'.repeat(64),
+    });
+    await expect(pendingResponse).resolves.toMatchObject({ status: 201 });
+    expect(prisma.$transaction).toHaveBeenCalledWith(
+      expect.any(Function),
+      { maxWait: 10_000, timeout: 120_000 },
+    );
+  });
+
+  it('does not delete a staged file when the transaction committed but its acknowledgement was lost', async () => {
+    (prisma.$transaction as jest.Mock).mockImplementation(async (callback) => {
+      await callback(prisma);
+      throw new Error('lost transaction acknowledgement');
+    });
+    (prisma.copyPage.findFirst as jest.Mock).mockResolvedValue({ id: 'doc-1' });
+
+    const response = await POST(
+      makeUploadRequest({
+        documentType: 'GRADING_RUBRIC',
+        file: new File(['%PDF-1.4'], 'bareme.pdf', { type: 'application/pdf' }),
+      }),
+      params(),
+    );
+
+    expect(response.status).toBe(500);
+    expect(prisma.copyPage.create).toHaveBeenCalled();
+    expect(npcStorage.deleteSecureFile).not.toHaveBeenCalled();
+  });
+
+  it('deletes an unreferenced staged file after transaction rollback', async () => {
+    (prisma.$transaction as jest.Mock).mockRejectedValue(new Error('rollback'));
+    (prisma.copyPage.findFirst as jest.Mock).mockResolvedValue(null);
+    (npcStorage.deleteSecureFile as jest.Mock).mockResolvedValue(true);
+
+    const response = await POST(
+      makeUploadRequest({
+        documentType: 'GRADING_RUBRIC',
+        file: new File(['%PDF-1.4'], 'bareme.pdf', { type: 'application/pdf' }),
+      }),
+      params(),
+    );
+
+    expect(response.status).toBe(500);
+    expect(npcStorage.deleteSecureFile).toHaveBeenCalledWith(
+      'student/sub/page_1/copie.pdf',
+    );
+  });
+
+  it('persists a relative-only cleanup audit when staged file deletion fails', async () => {
+    (prisma.$transaction as jest.Mock).mockRejectedValue(new Error('rollback'));
+    (prisma.copyPage.findFirst as jest.Mock).mockResolvedValue(null);
+    (npcStorage.deleteSecureFile as jest.Mock).mockResolvedValue(false);
+
+    const response = await POST(
+      makeUploadRequest({
+        documentType: 'GRADING_RUBRIC',
+        file: new File(['%PDF-1.4'], 'bareme.pdf', { type: 'application/pdf' }),
+      }),
+      params(),
+    );
+
+    expect(response.status).toBe(500);
+    expect(prisma.npcAuditLog.create).toHaveBeenCalledWith({
+      data: expect.objectContaining({
+        actorId: 'coach-user-1',
+        actorRole: 'COACH',
+        action: 'NPC_FILE_CLEANUP_REQUIRED',
+        entityType: 'CopySubmission',
+        entityId: 'submission-1',
+        details: { relativePath: 'student/sub/page_1/copie.pdf' },
+      }),
+    });
+    expect(JSON.stringify((prisma.npcAuditLog.create as jest.Mock).mock.calls))
+      .not.toContain('/home/');
+  });
+
+  it('fails loudly with a generic log when cleanup cannot be durably audited', async () => {
+    const consoleError = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+    (prisma.$transaction as jest.Mock).mockRejectedValue(new Error('rollback'));
+    (prisma.copyPage.findFirst as jest.Mock).mockResolvedValue(null);
+    (npcStorage.deleteSecureFile as jest.Mock).mockResolvedValue(false);
+    (prisma.npcAuditLog.create as jest.Mock).mockRejectedValue(
+      new Error('audit database unavailable'),
+    );
+
+    try {
+      const response = await POST(
+        makeUploadRequest({
+          documentType: 'GRADING_RUBRIC',
+          file: new File(['%PDF-1.4'], 'bareme.pdf', { type: 'application/pdf' }),
+        }),
+        params(),
+      );
+
+      expect(response.status).toBe(500);
+      expect(consoleError).toHaveBeenCalledWith('NPC_FILE_CLEANUP_AUDIT_FAILED');
+      expect(JSON.stringify(consoleError.mock.calls)).not.toContain('/home/');
+    } finally {
+      consoleError.mockRestore();
+    }
   });
 
   it('returns 409 without database or disk mutation when delete targets UNAVAILABLE', async () => {
