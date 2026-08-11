@@ -14,6 +14,7 @@ import type { FileMetadata } from '@/lib/npc';
 import { withLockedCopySubmission } from '@/lib/npc/submission-lock';
 import { inspectNpcStorageFile } from '@/lib/npc/storage-root';
 import { NPC_INTERACTIVE_TRANSACTION_OPTIONS } from '@/lib/npc/transaction';
+import { createCopyPage } from '@/lib/npc/copy-page-writer';
 import {
   NpcFileCleanupDurabilityError,
   reconcileStagedNpcFiles,
@@ -282,7 +283,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
               mimeType: file.type,
             },
           });
-          await tx.copyPage.create({
+          await createCopyPage(tx, {
             data: {
               submissionId: created.id,
               pageNumber: 1,

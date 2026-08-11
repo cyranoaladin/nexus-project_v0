@@ -16,6 +16,7 @@ const REQUIRED_STORAGE_ROOT =
   '${NPC_STORAGE_ROOT:?NPC_STORAGE_ROOT is required}';
 const E2E_STORAGE_ROOT = '/mnt/npc-storage-e2e';
 const E2E_STORAGE_VOLUME = 'e2e-npc-storage';
+const CANONICAL_COPY_PAGE_WRITER = 'lib/npc/copy-page-writer.ts';
 
 const EXPECTED_CONTAINER_SURFACES = [
   'Dockerfile',
@@ -201,6 +202,12 @@ function discoverActiveApplicationRuntimeModules(): string[] {
 }
 
 const COPY_PAGE_WRITE_OPERATIONS = new Set(['create', 'upsert', 'createMany']);
+const COPY_PAGE_NESTED_WRITE_OPERATIONS = new Set([
+  'create',
+  'createMany',
+  'upsert',
+  'connectOrCreate',
+]);
 
 function unwrapExpression(expression: ts.Expression): ts.Expression {
   if (
@@ -240,65 +247,277 @@ function propertyExpression(
   return undefined;
 }
 
-function hasExplicitDocumentType(payload: ts.Expression): boolean {
-  const expression = unwrapExpression(payload);
-  if (ts.isArrayLiteralExpression(expression)) {
-    return (
-      expression.elements.length > 0 &&
-      expression.elements.every((element) =>
-        ts.isSpreadElement(element) ? false : hasExplicitDocumentType(element)
-      )
-    );
-  }
+type PrismaWriteFinding = {
+  kind: 'delegate' | 'nested';
+  path: string;
+  line: number;
+  operation: string;
+};
 
-  if (!ts.isObjectLiteralExpression(expression)) return false;
-
-  const documentType = propertyExpression(expression, 'documentType');
-  if (!documentType) return false;
-
-  const documentTypeValue = unwrapExpression(documentType);
-  return !(
-    documentTypeValue.kind === ts.SyntaxKind.NullKeyword ||
-    (ts.isIdentifier(documentTypeValue) && documentTypeValue.text === 'undefined')
+function isGeneratedPrismaDeclaration(node: ts.Node): boolean {
+  return node.getSourceFile().fileName.replaceAll('\\', '/').includes(
+    '/node_modules/.prisma/client/',
   );
 }
 
-function inspectCopyPageWrites(
-  path: string,
-  source: string,
-): { count: number; violations: string[] } {
-  const sourceFile = ts.createSourceFile(path, source, ts.ScriptTarget.Latest, true);
-  const violations: string[] = [];
-  let count = 0;
+function prismaDelegateCall(
+  call: ts.CallExpression,
+  checker: ts.TypeChecker,
+): { model: string; operation: string } | null {
+  const declaration = checker.getResolvedSignature(call)?.declaration;
+  if (!declaration || !isGeneratedPrismaDeclaration(declaration)) return null;
 
-  const visit = (node: ts.Node): void => {
-    if (
-      ts.isCallExpression(node) &&
-      ts.isPropertyAccessExpression(node.expression) &&
-      COPY_PAGE_WRITE_OPERATIONS.has(node.expression.name.text) &&
-      ts.isPropertyAccessExpression(node.expression.expression) &&
-      node.expression.expression.name.text === 'copyPage'
-    ) {
-      count += 1;
-      const operation = node.expression.name.text;
-      const argument = node.arguments[0] && unwrapExpression(node.arguments[0]);
-      const payloadProperty = operation === 'upsert' ? 'create' : 'data';
-      const payload =
-        argument && ts.isObjectLiteralExpression(argument)
-          ? propertyExpression(argument, payloadProperty)
-          : undefined;
+  let owner: ts.Node | undefined = declaration;
+  while (owner && !ts.isInterfaceDeclaration(owner)) owner = owner.parent;
+  if (!owner || !ts.isInterfaceDeclaration(owner)) return null;
 
-      if (!payload || !hasExplicitDocumentType(payload)) {
-        const line = sourceFile.getLineAndCharacterOfPosition(node.getStart()).line + 1;
-        violations.push(`${path}:${line}:copyPage.${operation}`);
+  const match = owner.name.text.match(/^([A-Za-z0-9_$]+)Delegate$/);
+  if (!match) return null;
+  if (!ts.isMethodSignature(declaration) && !ts.isMethodDeclaration(declaration)) {
+    return null;
+  }
+  const operation = propertyNameText(declaration.name);
+
+  return operation ? { model: match[1], operation } : null;
+}
+
+function identifierInitializer(
+  expression: ts.Expression,
+  checker: ts.TypeChecker,
+  seenSymbols: Set<ts.Symbol>,
+): ts.Expression | null {
+  const unwrapped = unwrapExpression(expression);
+  if (!ts.isIdentifier(unwrapped)) return unwrapped;
+
+  let symbol = checker.getSymbolAtLocation(unwrapped);
+  if (!symbol) return unwrapped;
+  if (symbol.flags & ts.SymbolFlags.Alias) symbol = checker.getAliasedSymbol(symbol);
+  if (seenSymbols.has(symbol)) return null;
+  seenSymbols.add(symbol);
+
+  for (const declaration of symbol.declarations ?? []) {
+    if (ts.isVariableDeclaration(declaration) && declaration.initializer) {
+      return identifierInitializer(declaration.initializer, checker, seenSymbols);
+    }
+    if (ts.isShorthandPropertyAssignment(declaration)) {
+      const valueSymbol = checker.getShorthandAssignmentValueSymbol(declaration);
+      const valueDeclaration = valueSymbol?.valueDeclaration;
+      if (valueDeclaration && ts.isVariableDeclaration(valueDeclaration) && valueDeclaration.initializer) {
+        return identifierInitializer(valueDeclaration.initializer, checker, seenSymbols);
       }
     }
+  }
 
-    ts.forEachChild(node, visit);
+  return unwrapped;
+}
+
+function inspectNestedPageWrites(
+  expression: ts.Expression,
+  checker: ts.TypeChecker,
+  sourceFile: ts.SourceFile,
+  findings: PrismaWriteFinding[],
+  seenSymbols = new Set<ts.Symbol>(),
+  insidePages = false,
+): void {
+  const resolved = identifierInitializer(expression, checker, seenSymbols);
+  if (!resolved) return;
+
+  if (ts.isArrayLiteralExpression(resolved)) {
+    for (const element of resolved.elements) {
+      if (ts.isSpreadElement(element)) {
+        inspectNestedPageWrites(
+          element.expression,
+          checker,
+          sourceFile,
+          findings,
+          new Set(seenSymbols),
+          insidePages,
+        );
+      } else {
+        inspectNestedPageWrites(
+          element,
+          checker,
+          sourceFile,
+          findings,
+          new Set(seenSymbols),
+          insidePages,
+        );
+      }
+    }
+    return;
+  }
+
+  if (!ts.isObjectLiteralExpression(resolved)) return;
+  for (const property of resolved.properties) {
+    if (ts.isSpreadAssignment(property)) {
+      inspectNestedPageWrites(
+        property.expression,
+        checker,
+        sourceFile,
+        findings,
+        new Set(seenSymbols),
+        insidePages,
+      );
+      continue;
+    }
+
+    const name = property.name && propertyNameText(property.name);
+    const initializer = ts.isPropertyAssignment(property)
+      ? property.initializer
+      : ts.isShorthandPropertyAssignment(property)
+        ? property.name
+        : undefined;
+    if (!name || !initializer) continue;
+
+    if (insidePages && COPY_PAGE_NESTED_WRITE_OPERATIONS.has(name)) {
+      findings.push({
+        kind: 'nested',
+        path: relative(ROOT, sourceFile.fileName),
+        line: sourceFile.getLineAndCharacterOfPosition(property.getStart()).line + 1,
+        operation: `CopySubmission.pages.${name}`,
+      });
+    }
+
+    inspectNestedPageWrites(
+      initializer,
+      checker,
+      sourceFile,
+      findings,
+      new Set(seenSymbols),
+      name === 'pages',
+    );
+  }
+}
+
+function inspectPrismaCopyPageWrites(
+  program: ts.Program,
+  sourceFiles: ts.SourceFile[],
+): PrismaWriteFinding[] {
+  const checker = program.getTypeChecker();
+  const findings: PrismaWriteFinding[] = [];
+
+  for (const sourceFile of sourceFiles) {
+    const visit = (node: ts.Node): void => {
+      if (ts.isCallExpression(node)) {
+        const delegate = prismaDelegateCall(node, checker);
+        if (
+          delegate?.model === 'CopyPage' &&
+          COPY_PAGE_WRITE_OPERATIONS.has(delegate.operation)
+        ) {
+          findings.push({
+            kind: 'delegate',
+            path: relative(ROOT, sourceFile.fileName),
+            line: sourceFile.getLineAndCharacterOfPosition(node.getStart()).line + 1,
+            operation: `CopyPage.${delegate.operation}`,
+          });
+        }
+        if (delegate?.model === 'CopySubmission' && node.arguments[0]) {
+          inspectNestedPageWrites(
+            node.arguments[0],
+            checker,
+            sourceFile,
+            findings,
+          );
+        }
+      }
+      ts.forEachChild(node, visit);
+    };
+    visit(sourceFile);
+  }
+
+  return findings;
+}
+
+function compilerOptions(): ts.CompilerOptions {
+  const config = ts.readConfigFile(join(ROOT, 'tsconfig.json'), ts.sys.readFile);
+  if (config.error) throw new Error(ts.flattenDiagnosticMessageText(config.error.messageText, '\n'));
+  return ts.parseJsonConfigFileContent(config.config, ts.sys, ROOT).options;
+}
+
+function inspectRuntimePrismaWrites(): PrismaWriteFinding[] {
+  const fileNames = discoverActiveApplicationRuntimeModules();
+  const program = ts.createProgram({
+    rootNames: fileNames.map((file) => join(ROOT, file)),
+    options: compilerOptions(),
+  });
+  const sourceFiles = fileNames.map((file) => {
+    const sourceFile = program.getSourceFile(join(ROOT, file));
+    if (!sourceFile) throw new Error(`TypeScript did not load ${file}`);
+    return sourceFile;
+  });
+
+  return inspectPrismaCopyPageWrites(program, sourceFiles);
+}
+
+const FIXTURE_PRISMA_DECLARATIONS = `
+  interface CopyPageCreateData { documentType?: string }
+  interface ExplicitCopyPageCreateData extends CopyPageCreateData { documentType: string }
+  interface CopyPageDelegate {
+    create(args: { data: CopyPageCreateData }): unknown;
+    createMany(args: { data: CopyPageCreateData | CopyPageCreateData[] }): unknown;
+    upsert(args: { create: CopyPageCreateData; update: unknown; where: unknown }): unknown;
+  }
+  interface CopyPageNestedWrites {
+    create?: unknown;
+    createMany?: unknown;
+    upsert?: unknown;
+    connectOrCreate?: unknown;
+  }
+  interface CopySubmissionDelegate {
+    create(args: { data: { pages?: CopyPageNestedWrites } }): unknown;
+  }
+  declare const tx: {
+    copyPage: CopyPageDelegate;
+    copySubmission: CopySubmissionDelegate;
   };
-  visit(sourceFile);
+`;
 
-  return { count, violations };
+const FIXTURE_CANONICAL_DECLARATIONS = `
+  declare function createCopyPage(
+    client: { copyPage: CopyPageDelegate },
+    args: { data: ExplicitCopyPageCreateData },
+  ): unknown;
+`;
+
+function inspectFixture(source: string): {
+  findings: PrismaWriteFinding[];
+  diagnostics: readonly ts.Diagnostic[];
+} {
+  const fixturePath = join(ROOT, 'fixture.ts');
+  const prismaPath = join(ROOT, 'node_modules/.prisma/client/fixture.d.ts');
+  const canonicalPath = join(ROOT, 'canonical.d.ts');
+  const sources = new Map([
+    [fixturePath, source],
+    [prismaPath, FIXTURE_PRISMA_DECLARATIONS],
+    [canonicalPath, FIXTURE_CANONICAL_DECLARATIONS],
+  ]);
+  const options: ts.CompilerOptions = {
+    noLib: true,
+    strict: true,
+    target: ts.ScriptTarget.ESNext,
+  };
+  const host = ts.createCompilerHost(options);
+  const defaultGetSourceFile = host.getSourceFile.bind(host);
+  host.fileExists = (fileName) => sources.has(fileName) || ts.sys.fileExists(fileName);
+  host.readFile = (fileName) => sources.get(fileName) ?? ts.sys.readFile(fileName);
+  host.getSourceFile = (fileName, languageVersion, onError, shouldCreateNewSourceFile) => {
+    const fixtureSource = sources.get(fileName);
+    return fixtureSource === undefined
+      ? defaultGetSourceFile(fileName, languageVersion, onError, shouldCreateNewSourceFile)
+      : ts.createSourceFile(fileName, fixtureSource, languageVersion, true);
+  };
+  const program = ts.createProgram({
+    rootNames: [...sources.keys()],
+    options,
+    host,
+  });
+  const fixture = program.getSourceFile(fixturePath);
+  if (!fixture) throw new Error('Missing semantic fixture');
+
+  return {
+    findings: inspectPrismaCopyPageWrites(program, [fixture]),
+    diagnostics: program.getSemanticDiagnostics(fixture),
+  };
 }
 
 function parseCompose(relativePath: string): ComposeFile {
@@ -371,57 +590,75 @@ describe('NPC storage and unavailable-state architecture contract', () => {
     );
   });
 
-  test('requires every active CopyPage write path to set documentType explicitly', () => {
-    const runtimeModules = discoverActiveApplicationRuntimeModules();
-    const inspections = runtimeModules.map((file) =>
-      inspectCopyPageWrites(file, readRequired(file)),
-    );
-    const writeCount = inspections.reduce(
-      (total, inspection) => total + inspection.count,
-      0,
-    );
-    const violations = inspections.flatMap((inspection) => inspection.violations);
+  test('allows exactly the three raw CopyPage writes in the canonical typed boundary', () => {
+    const findings = inspectRuntimePrismaWrites();
 
-    expect(writeCount).toBeGreaterThan(0);
-    expect(violations).toEqual([]);
+    expect(findings.map(({ kind, path, operation }) => ({ kind, path, operation })))
+      .toEqual([
+        {
+          kind: 'delegate',
+          path: CANONICAL_COPY_PAGE_WRITER,
+          operation: 'CopyPage.create',
+        },
+        {
+          kind: 'delegate',
+          path: CANONICAL_COPY_PAGE_WRITER,
+          operation: 'CopyPage.createMany',
+        },
+        {
+          kind: 'delegate',
+          path: CANONICAL_COPY_PAGE_WRITER,
+          operation: 'CopyPage.upsert',
+        },
+      ]);
   });
 
-  test('the CopyPage write guard rejects omitted or comment-only document types', () => {
-    expect(inspectCopyPageWrites(
-      'fixture.ts',
-      `
-        await tx.copyPage.create({
-          data: {
-            submissionId: 'submission-1',
-            // documentType intentionally omitted
-          },
-        });
-      `,
-    ).violations).toEqual(['fixture.ts:2:copyPage.create']);
+  test.each([
+    ['direct delegate', `tx.copyPage.create({ data: {} });`],
+    ['delegate alias', `const delegate = tx.copyPage; delegate.create({ data: {} });`],
+    ['indexed delegate access', `tx['copyPage']['create']({ data: {} });`],
+    [
+      'nested relational create',
+      `tx.copySubmission.create({ data: { pages: { create: {} } } });`,
+    ],
+  ])('semantic CopyPage guard detects %s', (_label, source) => {
+    const { findings } = inspectFixture(source);
+
+    expect(findings).toHaveLength(1);
   });
 
-  test('the CopyPage write guard covers undefined, upsert, and every createMany row', () => {
-    const inspection = inspectCopyPageWrites(
-      'fixture.ts',
-      `
-        await tx.copyPage.create({ data: { documentType: undefined } });
-        await tx.copyPage.upsert({
-          where: { id: 'page-1' },
-          create: { submissionId: 'submission-1' },
-          update: {},
-        });
-        await tx.copyPage.createMany({
-          data: [
-            { submissionId: 'submission-1', documentType: 'STUDENT_COPY' },
-            { submissionId: 'submission-1' },
-          ],
-        });
-      `,
-    );
+  test('semantic CopyPage guard accepts a payload variable through the typed boundary', () => {
+    const { findings, diagnostics } = inspectFixture(`
+      const payload = { data: { documentType: 'SUBJECT' } };
+      createCopyPage(tx, payload);
+    `);
 
-    expect(inspection.count).toBe(3);
-    expect(inspection.violations.map((violation) => violation.split(':').at(-1)))
-      .toEqual(['copyPage.create', 'copyPage.upsert', 'copyPage.createMany']);
+    expect(diagnostics).toEqual([]);
+    expect(findings).toEqual([]);
+  });
+
+  test('typed CopyPage boundary rejects a payload variable without documentType', () => {
+    const { diagnostics } = inspectFixture(`
+      const payload = { data: {} };
+      createCopyPage(tx, payload);
+    `);
+
+    expect(diagnostics.map((diagnostic) =>
+      ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n')
+    ).join('\n')).toContain('documentType');
+  });
+
+  test('semantic CopyPage guard ignores homonymous non-Prisma objects', () => {
+    const { findings } = inspectFixture(`
+      const homonymous = {
+        copyPage: { create(_args: unknown) { return null; } },
+        copySubmission: { create(_args: unknown) { return null; } },
+      };
+      homonymous.copyPage.create({ data: {} });
+      homonymous.copySubmission.create({ data: { pages: { create: {} } } });
+    `);
+
+    expect(findings).toEqual([]);
   });
 
   test('allows only the reviewed additive migration statements', () => {

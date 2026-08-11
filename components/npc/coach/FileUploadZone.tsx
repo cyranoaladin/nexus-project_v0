@@ -288,6 +288,10 @@ export function FileUploadZone({
 
   const pendingFiles = files.filter((file) => file.status === 'pending');
   const pendingCount = pendingFiles.length;
+  const classifiedPendingCount = pendingFiles.filter(
+    (file) => file.documentType !== null,
+  ).length;
+  const unclassifiedPendingCount = pendingCount - classifiedPendingCount;
   const errorCount = files.filter((f) => f.status === 'error').length;
   const canUpload =
     pendingCount > 0 &&
@@ -400,11 +404,11 @@ export function FileUploadZone({
                     </p>
                     <div className="mt-2 max-w-xs">
                       <Label htmlFor={`existing-document-type-${document.id}`} className="sr-only">
-                        Type documentaire
+                        Type documentaire pour {document.originalFilename || 'document existant'}
                       </Label>
                       <select
                         id={`existing-document-type-${document.id}`}
-                        aria-label="Type documentaire"
+                        aria-label={`Type documentaire pour ${document.originalFilename || 'document existant'}`}
                         className="select-light h-9 w-full rounded-md border border-gray-300 bg-white px-3 text-sm"
                         value={document.documentType}
                         disabled={isUploading}
@@ -468,14 +472,17 @@ export function FileUploadZone({
                     <p className="text-sm font-medium truncate">{file.name}</p>
                     <p className="text-xs text-gray-500">
                       {formatFileSize(file.size)}
+                      {file.status === 'pending' && file.documentType === null && (
+                        <span className="block">En attente de classification</span>
+                      )}
                     </p>
                     <div className="mt-2 max-w-xs">
                       <Label htmlFor={`document-type-${file.id}`} className="sr-only">
-                        Type documentaire
+                        Type documentaire pour {file.name}
                       </Label>
                       <select
                         id={`document-type-${file.id}`}
-                        aria-label="Type documentaire"
+                        aria-label={`Type documentaire pour ${file.name}`}
                         className="select-light h-9 w-full rounded-md border border-gray-300 bg-white px-3 text-sm"
                         value={file.documentType ?? ''}
                         required
@@ -573,8 +580,13 @@ export function FileUploadZone({
       {files.length > 0 && (
         <div className="flex items-center justify-between pt-4">
           <div className="text-sm text-gray-600">
-            {pendingCount > 0 && (
-              <span>{pendingCount} fichier(s) prêt(s)</span>
+            {classifiedPendingCount > 0 && (
+              <span>{classifiedPendingCount} fichier(s) prêt(s)</span>
+            )}
+            {unclassifiedPendingCount > 0 && (
+              <span className={classifiedPendingCount > 0 ? 'ml-2' : undefined}>
+                {unclassifiedPendingCount} fichier(s) en attente de classification
+              </span>
             )}
             {errorCount > 0 && (
               <span className="text-red-600 ml-2">
@@ -595,7 +607,7 @@ export function FileUploadZone({
             ) : (
               <>
                 <Upload className="h-4 w-4 mr-2" />
-                Uploader {pendingCount > 0 && `(${pendingCount})`}
+                Uploader {classifiedPendingCount > 0 && `(${classifiedPendingCount})`}
               </>
             )}
           </Button>
