@@ -6,19 +6,17 @@
 'use client';
 
 import Link from 'next/link';
-import { CopySubmission, PedagogicalReport, CoachProfile, User } from '@prisma/client';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { FileText, Eye, TrendingUp, AlertCircle, CheckCircle } from 'lucide-react';
-
-interface SubmissionWithRelations extends CopySubmission {
-  report: PedagogicalReport | null;
-  coach: (CoachProfile & { user: Pick<User, 'firstName' | 'lastName'> }) | null;
-}
+import {
+  projectFamilySubmissions,
+  type FamilySubmissionProjectionInput,
+} from '@/lib/npc/report-visibility';
 
 interface ParentReportListProps {
-  submissions: SubmissionWithRelations[];
+  submissions: readonly FamilySubmissionProjectionInput[];
 }
 
 const levelLabels: Record<string, string> = {
@@ -38,7 +36,11 @@ const levelColors: Record<string, string> = {
 };
 
 export function ParentReportList({ submissions }: ParentReportListProps) {
-  if (submissions.length === 0) {
+  // Server pages already project this payload. Re-applying the policy here is
+  // intentional defense in depth for any future caller of this component.
+  const familySubmissions = projectFamilySubmissions(submissions, 'parent');
+
+  if (familySubmissions.length === 0) {
     return (
       <Card className="p-8 text-center">
         <FileText className="mx-auto h-12 w-12 text-gray-300 mb-4" />
@@ -52,8 +54,18 @@ export function ParentReportList({ submissions }: ParentReportListProps) {
 
   return (
     <div className="space-y-4">
-      {submissions.map((submission) => {
-        const hasReport = submission.report && submission.status === 'COMPLETED';
+      {familySubmissions.map((submission) => {
+        const fullReport =
+          submission.status === 'COMPLETED' &&
+          submission.report?.visibility === 'COACH_AND_STUDENT'
+            ? submission.report
+            : null;
+        const summaryReport =
+          submission.status === 'COMPLETED' &&
+          submission.report?.visibility === 'STUDENT_SUMMARY_ONLY'
+            ? submission.report
+            : null;
+        const hasReport = Boolean(fullReport || summaryReport);
 
         return (
           <Card key={submission.id} className="hover:shadow-md transition-shadow">
@@ -93,11 +105,11 @@ export function ParentReportList({ submissions }: ParentReportListProps) {
                 </div>
 
                 <div className="flex items-center gap-2">
-                  {hasReport ? (
+                  {fullReport ? (
                     <>
                       {/* Level Badge */}
                       {(() => {
-                        const diagnostic = submission.report!.diagnostic as {
+                        const diagnostic = fullReport.diagnostic as {
                           overallLevel?: string;
                         } | null;
                         const level = diagnostic?.overallLevel || 'developing';
@@ -109,13 +121,17 @@ export function ParentReportList({ submissions }: ParentReportListProps) {
                         );
                       })()}
 
-                      <Link href={`/dashboard/parent/npc/reports/${submission.report!.id}`}>
+                      <Link href={`/dashboard/parent/npc/reports/${fullReport.id}`}>
                         <Button size="sm">
                           <Eye className="h-4 w-4 mr-2" />
                           Voir le diagnostic
                         </Button>
                       </Link>
                     </>
+                  ) : summaryReport ? (
+                    <Badge variant="outline" className="text-green-700">
+                      Synthèse disponible
+                    </Badge>
                   ) : (
                     <Badge variant="outline" className="text-yellow-600">
                       En cours d&apos;analyse
@@ -125,11 +141,17 @@ export function ParentReportList({ submissions }: ParentReportListProps) {
               </div>
             </CardHeader>
 
-            {hasReport && submission.report && (
+            {hasReport && (
               <CardContent className="pt-0">
                 <div className="bg-gray-50 rounded-lg p-4">
-                  {(() => {
-                    const diagnostic = submission.report.diagnostic as {
+                  {summaryReport ? (
+                    summaryReport.studentSummary ? (
+                      <p className="text-sm text-gray-600">
+                        {summaryReport.studentSummary}
+                      </p>
+                    ) : null
+                  ) : fullReport ? (() => {
+                    const diagnostic = fullReport.diagnostic as {
                       summary?: string;
                       strengths?: Array<{ title: string }>;
                       weaknesses?: Array<{ title: string }>;
@@ -174,7 +196,7 @@ export function ParentReportList({ submissions }: ParentReportListProps) {
                         )}
                       </div>
                     );
-                  })()}
+                  })() : null}
                 </div>
               </CardContent>
             )}
