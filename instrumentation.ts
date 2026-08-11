@@ -9,6 +9,9 @@ export async function register() {
     process.env.NEXT_RUNTIME === 'nodejs' &&
     process.env.NEXT_PHASE !== 'phase-production-build'
   ) {
+    const { assertNpcStorageReady } = await import('./lib/npc/storage-root');
+    assertNpcStorageReady({ capability: 'read-write' });
+
     const { validateEnv } = await import('./lib/env-validation');
     validateEnv();
 

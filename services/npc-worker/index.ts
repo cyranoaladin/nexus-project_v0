@@ -11,6 +11,10 @@ import {
   NPC_LLM_MODE,
 } from '../../lib/npc';
 import {
+  assertNpcStorageReady,
+  resolveNpcStoragePath,
+} from '../../lib/npc/storage-root';
+import {
   processVisionOcr,
   processPedagogicalDiagnosis,
   processCompetenceMatrix,
@@ -44,9 +48,7 @@ const processors: Record<AiJobType, JobProcessor> = {
     const { filePath, mimeType } = parsed as { pageId: string; submissionId: string; filePath: string; mimeType: string };
     // Read file from disk and convert to base64
     const fs = await import('fs/promises');
-    const path = await import('path');
-    const UPLOAD_DIR = process.env.UPLOAD_DIR || '/var/lib/nexus/uploads';
-    const absolutePath = path.join(UPLOAD_DIR, filePath);
+    const absolutePath = await resolveNpcStoragePath(filePath);
     const fileBuffer = await fs.readFile(absolutePath);
     const imageBase64 = fileBuffer.toString('base64');
     return processVisionOcr(jobId, imageBase64, mimeType || 'image/jpeg');
@@ -415,6 +417,7 @@ process.on('uncaughtException', (error) => {
 });
 
 // Start
+assertNpcStorageReady({ capability: 'read-only' });
 workerLoop().catch((error) => {
   console.error('[Worker] Fatal error:', error);
   process.exit(1);

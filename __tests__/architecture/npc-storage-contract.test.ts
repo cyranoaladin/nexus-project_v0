@@ -130,6 +130,38 @@ function discoverContainerSurfaces(
   return discovered.sort();
 }
 
+function discoverTypeScriptFiles(
+  directory: string,
+  discovered: string[] = [],
+): string[] {
+  for (const entry of readdirSync(directory, { withFileTypes: true })) {
+    const absolutePath = join(directory, entry.name);
+    if (entry.isDirectory()) {
+      discoverTypeScriptFiles(absolutePath, discovered);
+    } else if (entry.isFile() && /\.tsx?$/.test(entry.name)) {
+      discovered.push(relative(ROOT, absolutePath));
+    }
+  }
+
+  return discovered;
+}
+
+function discoverActiveNpcRuntimeModules(): string[] {
+  const roots = [
+    'app/api/npc',
+    'app/dashboard/coach/npc',
+    'app/dashboard/eleve/npc',
+    'app/dashboard/parent/npc',
+    'components/npc',
+    'lib/npc',
+    'services/npc-worker',
+  ];
+  return [
+    'instrumentation.ts',
+    ...roots.flatMap((root) => discoverTypeScriptFiles(join(ROOT, root))),
+  ].sort();
+}
+
 function parseCompose(relativePath: string): ComposeFile {
   return parseYaml(readRequired(relativePath)) as ComposeFile;
 }
@@ -240,6 +272,30 @@ describe('NPC storage and unavailable-state architecture contract', () => {
     }
 
     expect(e2eLiteralUsers).toEqual(['docker-compose.e2e.yml']);
+  });
+
+  test('scans every active NPC runtime module for legacy storage contracts', () => {
+    const runtimeModules = discoverActiveNpcRuntimeModules();
+
+    expect(runtimeModules).toEqual(
+      expect.arrayContaining([
+        'instrumentation.ts',
+        'lib/npc/config.ts',
+        'lib/npc/pdf-converter.ts',
+        'lib/npc/storage.ts',
+        'services/npc-worker/index.ts',
+      ]),
+    );
+
+    for (const file of runtimeModules) {
+      const source = readRequired(file);
+      expect(source).not.toMatch(/\b(?:NPC_UPLOAD_DIR|UPLOAD_DIR)\b/);
+      expect(source).not.toMatch(/process\.cwd\(\)/);
+      expect(source).not.toMatch(
+        /(?:^|[\s"'=:])\/(?:var|mnt|srv|data|opt|home|tmp)\/(?:[\w.-]+\/)*(?:npc(?:-storage(?:-[\w.-]+)?)?|uploads(?:\/copies)?|copies)(?:\/[\w.-]+)*(?=$|[\s"',:)])/im,
+      );
+      expect(source).not.toMatch(/(?:^|[\s"'])uploads\/copies(?:\/|$)/im);
+    }
   });
 
   test('requires a non-creating persistent bind for NPC and production services', () => {

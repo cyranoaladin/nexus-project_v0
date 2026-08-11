@@ -3,14 +3,7 @@
 // Centralized configuration for file storage, validation, and AI processing
 // ═══════════════════════════════════════════════════════════════════════════════
 
-import path from 'path';
-
 // ─── Environment-based Configuration ───
-
-/** Base directory for uploaded copy files (ABSOLUTE path required) */
-export const NPC_UPLOAD_DIR = process.env.NPC_UPLOAD_DIR
-  ? path.resolve(process.env.NPC_UPLOAD_DIR)
-  : path.resolve(process.cwd(), 'uploads', 'copies');
 
 /** Maximum file size per upload (MB) */
 export const NPC_MAX_FILE_SIZE_MB = parseInt(
