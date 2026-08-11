@@ -5,18 +5,19 @@ import {
   chmodSync,
   existsSync,
   lstatSync,
+  mkdirSync,
   mkdtempSync,
   readFileSync,
   rmSync,
   writeFileSync,
 } from 'node:fs';
-import { tmpdir } from 'node:os';
+import { homedir } from 'node:os';
 import { join } from 'node:path';
 
 import { PrismaClient, type Prisma } from '@prisma/client';
 
 import { assertDisposablePostgresUrl } from '@/__tests__/helpers/disposable-postgres';
-import { readVerifiedTombstoneExport } from '@/lib/npc/tombstone/export';
+import { canonicalJson, readVerifiedTombstoneExport } from '@/lib/npc/tombstone/export';
 import { executeNpcTombstone } from '@/lib/npc/tombstone/service';
 import {
   NPC_TOMBSTONE_AUDIT_ACTION,
@@ -39,6 +40,12 @@ const secondClient = new PrismaClient({
 const prefix = 'npc-tombstone-real-synthetic';
 const reason = 'SOURCE_BYTES_UNAVAILABLE_SYNTHETIC';
 const appliedAt = new Date('2026-08-11T12:00:00.000Z');
+const testTrustedUid = process.getuid?.() ?? 0;
+const testExportSecurity = { trustedUid: testTrustedUid };
+
+function testOptions(now: () => Date) {
+  return { now, testOnlyTrustedUid: testTrustedUid };
+}
 
 let temporaryRoot: string;
 let exportDirectory: string;
@@ -159,6 +166,24 @@ async function seedFixture(): Promise<void> {
         entityId: reportId,
         details: { retained: 2 },
       },
+      {
+        id: `${prefix}-audit-page-existing`,
+        action: 'SYNTHETIC_PAGE_REVIEW',
+        actorId: `${prefix}-coach`,
+        actorRole: 'COACH',
+        entityType: 'CopyPage',
+        entityId: `${prefix}-page-1`,
+        details: { retained: 3, values: ['page-audit-secret-value'] },
+      },
+      {
+        id: `${prefix}-audit-unrelated`,
+        action: 'SYNTHETIC_UNRELATED_REVIEW',
+        actorId: `${prefix}-coach`,
+        actorRole: 'COACH',
+        entityType: 'CopyPage',
+        entityId: `${prefix}-unrelated-page`,
+        details: { retained: 4 },
+      },
     ],
   });
 
@@ -196,7 +221,14 @@ async function preservedState() {
     }),
     firstClient.npcAuditLog.findMany({
       where: {
-        OR: [{ entityId: submissionId }, { reportId }],
+        OR: [
+          { entityId: { in: [
+            submissionId,
+            reportId,
+            ...Array.from({ length: 4 }, (_, index) => `${prefix}-page-${index + 1}`),
+          ] } },
+          { reportId },
+        ],
       },
       orderBy: { id: 'asc' },
     }),
@@ -238,11 +270,11 @@ describe('NPC audited tombstone command on PostgreSQL 15', () => {
   });
 
   beforeEach(async () => {
-    temporaryRoot = mkdtempSync(join(tmpdir(), 'npc-tombstone-real-'));
+    temporaryRoot = mkdtempSync(join(homedir(), 'npc-tombstone-real-'));
     exportDirectory = join(temporaryRoot, 'exports');
     sourceDirectory = join(temporaryRoot, 'sources');
-    require('node:fs').mkdirSync(exportDirectory, { mode: 0o700 });
-    require('node:fs').mkdirSync(sourceDirectory, { mode: 0o700 });
+    mkdirSync(exportDirectory, { mode: 0o700 });
+    mkdirSync(sourceDirectory, { mode: 0o700 });
     chmodSync(exportDirectory, 0o700);
     await cleanupNpcRealFixture(firstClient, prefix);
     await seedFixture();
@@ -261,14 +293,12 @@ describe('NPC audited tombstone command on PostgreSQL 15', () => {
     const args = commandArgs('apply');
     const before = await preservedState();
 
-    const result = await executeNpcTombstone(firstClient, args, {
-      now: () => appliedAt,
-    });
+    const result = await executeNpcTombstone(firstClient, args, testOptions(() => appliedAt));
 
     expect(result.status).toBe('applied');
     expect(result.operationKey).toBe(buildTombstoneOperationIdentity(args).operationKey);
     expect(lstatSync(args.exportFile).mode & 0o777).toBe(0o600);
-    const verified = await readVerifiedTombstoneExport(args.exportFile);
+    const verified = await readVerifiedTombstoneExport(args.exportFile, testExportSecurity);
     expect(verified.envelope.payload.snapshot.pages).toHaveLength(4);
     expect(verified.envelope.payload.snapshot.report).toMatchObject({
       id: reportId,
@@ -277,7 +307,13 @@ describe('NPC audited tombstone command on PostgreSQL 15', () => {
       coachNotes: 'Rapport synthétique à préserver',
     });
     expect(verified.envelope.payload.snapshot.job).toMatchObject({ id: jobId });
-    expect(verified.envelope.payload.snapshot.audits).toHaveLength(2);
+    expect(verified.envelope.payload.snapshot.audits.map((audit) => audit.id)).toEqual([
+      `${prefix}-audit-page-existing`,
+      `${prefix}-audit-report-existing`,
+      `${prefix}-audit-submission-existing`,
+    ]);
+    expect(canonicalJson(verified.envelope)).not.toContain('page-audit-secret-value');
+    expect(canonicalJson(verified.envelope)).not.toContain(`${prefix}-audit-unrelated`);
 
     const target = await targetTombstoneState();
     expect(target).toMatchObject({
@@ -300,7 +336,7 @@ describe('NPC audited tombstone command on PostgreSQL 15', () => {
     expect(after.job).toEqual(before.job);
     expect(after.witnesses).toEqual(before.witnesses);
     expect(after.sourceFiles).toEqual(before.sourceFiles);
-    expect(after.audits.slice(0, 2)).toEqual(before.audits);
+    expect(after.audits.filter((audit) => audit.action !== NPC_TOMBSTONE_AUDIT_ACTION)).toEqual(before.audits);
     const commandAudits = after.audits.filter((audit) => audit.action === NPC_TOMBSTONE_AUDIT_ACTION);
     expect(commandAudits).toHaveLength(1);
     expect(commandAudits[0]).toMatchObject({
@@ -311,6 +347,11 @@ describe('NPC audited tombstone command on PostgreSQL 15', () => {
       entityId: submissionId,
       reportId,
       createdAt: appliedAt,
+    });
+    expect(commandAudits[0].details).toMatchObject({
+      exportPayloadSha256: verified.payloadSha256,
+      snapshotSha256: verified.envelope.payload.snapshot.snapshotSha256,
+      idempotenceProofSha256: expect.stringMatching(/^[a-f0-9]{64}$/),
     });
   });
 
@@ -356,12 +397,12 @@ describe('NPC audited tombstone command on PostgreSQL 15', () => {
                 : {};
       const args = commandArgs(label.replaceAll(' ', '-'), overrides);
 
-      await expect(executeNpcTombstone(firstClient, args, { now: () => appliedAt }))
+      await expect(executeNpcTombstone(firstClient, args, testOptions(() => appliedAt)))
         .rejects.toMatchObject({ code: expectedCode });
 
       expect(existsSync(args.exportFile)).toBe(true);
       expect(lstatSync(args.exportFile).mode & 0o777).toBe(0o600);
-      await expect(readVerifiedTombstoneExport(args.exportFile)).resolves.toBeDefined();
+      await expect(readVerifiedTombstoneExport(args.exportFile, testExportSecurity)).resolves.toBeDefined();
       const target = await firstClient.copySubmission.findUniqueOrThrow({
         where: { id: submissionId },
       });
@@ -384,7 +425,7 @@ describe('NPC audited tombstone command on PostgreSQL 15', () => {
     writeFileSync(args.exportFile, '{"not":"a verified envelope"}', { mode: 0o600 });
     const before = await preservedState();
 
-    await expect(executeNpcTombstone(firstClient, args, { now: () => appliedAt }))
+    await expect(executeNpcTombstone(firstClient, args, testOptions(() => appliedAt)))
       .rejects.toMatchObject({ code: 'NPC_TOMBSTONE_EXPORT_INVALID' });
 
     await expectTargetUntouched();
@@ -401,7 +442,7 @@ describe('NPC audited tombstone command on PostgreSQL 15', () => {
     `);
 
     try {
-      await expect(executeNpcTombstone(firstClient, args, { now: () => appliedAt }))
+      await expect(executeNpcTombstone(firstClient, args, testOptions(() => appliedAt)))
         .rejects.toMatchObject({ code: 'NPC_TOMBSTONE_DATABASE_FAILURE' });
     } finally {
       await firstClient.$executeRawUnsafe(`
@@ -411,13 +452,13 @@ describe('NPC audited tombstone command on PostgreSQL 15', () => {
     }
 
     expect(existsSync(args.exportFile)).toBe(true);
-    await expect(readVerifiedTombstoneExport(args.exportFile)).resolves.toBeDefined();
+    await expect(readVerifiedTombstoneExport(args.exportFile, testExportSecurity)).resolves.toBeDefined();
     await expectTargetUntouched();
     expect(await preservedState()).toEqual(before);
 
-    const resumed = await executeNpcTombstone(firstClient, args, {
-      now: () => new Date('2026-08-11T13:00:00.000Z'),
-    });
+    const resumed = await executeNpcTombstone(firstClient, args, testOptions(
+      () => new Date('2026-08-11T13:00:00.000Z'),
+    ));
     expect(resumed.status).toBe('applied');
     const target = await targetTombstoneState();
     expect(target.unavailableAt).toEqual(appliedAt);
@@ -429,9 +470,9 @@ describe('NPC audited tombstone command on PostgreSQL 15', () => {
       ...args,
       expectedReportStatus: 'VALIDATED',
     } as const;
-    await expect(executeNpcTombstone(firstClient, mismatchingArgs, {
-      now: () => appliedAt,
-    })).rejects.toMatchObject({
+    await expect(executeNpcTombstone(firstClient, mismatchingArgs, testOptions(
+      () => appliedAt,
+    ))).rejects.toMatchObject({
       code: 'NPC_TOMBSTONE_REPORT_STATUS_MISMATCH',
     });
     await firstClient.copySubmission.update({
@@ -439,32 +480,56 @@ describe('NPC audited tombstone command on PostgreSQL 15', () => {
       data: { title: 'Changed after failed attempt' },
     });
 
-    await expect(executeNpcTombstone(firstClient, mismatchingArgs, {
-      now: () => appliedAt,
-    })).rejects.toMatchObject({ code: 'NPC_TOMBSTONE_SNAPSHOT_MISMATCH' });
+    await expect(executeNpcTombstone(firstClient, mismatchingArgs, testOptions(
+      () => appliedAt,
+    ))).rejects.toMatchObject({ code: 'NPC_TOMBSTONE_SNAPSHOT_MISMATCH' });
+    await expectTargetUntouched();
+  });
+
+  it('refuses a complete self-hashed export whose sanitized content was forged', async () => {
+    const args = commandArgs('forged-resume', { expectedReportStatus: 'VALIDATED' });
+    await expect(executeNpcTombstone(firstClient, args, testOptions(
+      () => appliedAt,
+    ))).rejects.toMatchObject({ code: 'NPC_TOMBSTONE_REPORT_STATUS_MISMATCH' });
+
+    const envelope = JSON.parse(readFileSync(args.exportFile, 'utf8'));
+    envelope.payload.snapshot.submission.title = 'Forged but self-hashed';
+    const snapshotContent = { ...envelope.payload.snapshot };
+    delete snapshotContent.snapshotSha256;
+    envelope.payload.snapshot.snapshotSha256 = createHash('sha256')
+      .update(canonicalJson(snapshotContent))
+      .digest('hex');
+    envelope.payloadSha256 = createHash('sha256')
+      .update(canonicalJson(envelope.payload))
+      .digest('hex');
+    writeFileSync(args.exportFile, `${canonicalJson(envelope)}\n`, { mode: 0o600 });
+
+    await expect(executeNpcTombstone(firstClient, args, testOptions(
+      () => new Date('2026-08-11T16:00:00.000Z'),
+    ))).rejects.toMatchObject({ code: 'NPC_TOMBSTONE_SNAPSHOT_MISMATCH' });
     await expectTargetUntouched();
   });
 
   it('is idempotent for the same arguments and export and creates no alternate export', async () => {
     const args = commandArgs('idempotent');
-    await executeNpcTombstone(firstClient, args, { now: () => appliedAt });
+    await executeNpcTombstone(firstClient, args, testOptions(() => appliedAt));
     const targetAfterFirst = await targetTombstoneState();
     const auditAfterFirst = await firstClient.npcAuditLog.findMany({
       where: { action: NPC_TOMBSTONE_AUDIT_ACTION, entityId: submissionId },
     });
 
-    await expect(executeNpcTombstone(firstClient, args, {
-      now: () => new Date('2026-08-11T13:00:00.000Z'),
-    })).resolves.toMatchObject({ status: 'already-applied' });
+    await expect(executeNpcTombstone(firstClient, args, testOptions(
+      () => new Date('2026-08-11T13:00:00.000Z'),
+    ))).resolves.toMatchObject({ status: 'already-applied' });
     await expect(targetTombstoneState()).resolves.toEqual(targetAfterFirst);
     await expect(firstClient.npcAuditLog.findMany({
       where: { action: NPC_TOMBSTONE_AUDIT_ACTION, entityId: submissionId },
     })).resolves.toEqual(auditAfterFirst);
 
     const alternateArgs = { ...args, exportFile: exportPath('alternate') };
-    await expect(executeNpcTombstone(secondClient, alternateArgs, {
-      now: () => new Date('2026-08-11T14:00:00.000Z'),
-    })).resolves.toMatchObject({ status: 'already-applied' });
+    await expect(executeNpcTombstone(secondClient, alternateArgs, testOptions(
+      () => new Date('2026-08-11T14:00:00.000Z'),
+    ))).resolves.toMatchObject({ status: 'already-applied' });
     expect(existsSync(alternateArgs.exportFile)).toBe(false);
   });
 
@@ -474,10 +539,13 @@ describe('NPC audited tombstone command on PostgreSQL 15', () => {
     'audit-missing',
     'audit-surplus',
     'audit-details-corrupt',
+    'audit-export-hash-corrupt',
+    'audit-snapshot-hash-corrupt',
+    'audit-proof-corrupt',
     'other-flow',
   ])('refuses non-exact idempotence for %s without writing', async (variant) => {
     const args = commandArgs(`invalid-idempotence-${variant}`);
-    await executeNpcTombstone(firstClient, args, { now: () => appliedAt });
+    await executeNpcTombstone(firstClient, args, testOptions(() => appliedAt));
     const identity = buildTombstoneOperationIdentity(args);
 
     if (variant === 'partial-page-state') {
@@ -498,16 +566,26 @@ describe('NPC audited tombstone command on PostgreSQL 15', () => {
           details: audit.details as Prisma.InputJsonValue,
         },
       });
-    } else if (variant === 'audit-details-corrupt') {
+    } else if (
+      variant === 'audit-details-corrupt' ||
+      variant === 'audit-export-hash-corrupt' ||
+      variant === 'audit-snapshot-hash-corrupt' ||
+      variant === 'audit-proof-corrupt'
+    ) {
       const audit = await firstClient.npcAuditLog.findUniqueOrThrow({
         where: { id: identity.auditId },
       });
+      const field = variant === 'audit-snapshot-hash-corrupt'
+        ? 'snapshotSha256'
+        : variant === 'audit-proof-corrupt'
+          ? 'idempotenceProofSha256'
+          : 'exportPayloadSha256';
       await firstClient.npcAuditLog.update({
         where: { id: identity.auditId },
         data: {
           details: {
             ...(audit.details as Prisma.JsonObject),
-            exportPayloadSha256: 'invalid',
+            [field]: variant === 'audit-details-corrupt' ? 'invalid' : 'a'.repeat(64),
           },
         },
       });
@@ -529,15 +607,15 @@ describe('NPC audited tombstone command on PostgreSQL 15', () => {
 
     const attemptedArgs = variant === 'different-reason'
       ? { ...args, reason: 'DIFFERENT_SYNTHETIC_REASON', exportFile: exportPath('different-reason') }
-      : variant === 'audit-details-corrupt'
+      : variant.startsWith('audit-')
         ? { ...args, exportFile: exportPath('corrupt-audit-alternate') }
         : args;
     const before = await targetTombstoneState();
-    await expect(executeNpcTombstone(firstClient, attemptedArgs, {
-      now: () => new Date('2026-08-11T15:00:00.000Z'),
-    })).rejects.toMatchObject({ code: 'NPC_TOMBSTONE_IDEMPOTENCE_INVALID' });
+    await expect(executeNpcTombstone(firstClient, attemptedArgs, testOptions(
+      () => new Date('2026-08-11T15:00:00.000Z'),
+    ))).rejects.toMatchObject({ code: 'NPC_TOMBSTONE_IDEMPOTENCE_INVALID' });
     await expect(targetTombstoneState()).resolves.toEqual(before);
-    if (variant === 'different-reason' || variant === 'audit-details-corrupt') {
+    if (variant === 'different-reason' || variant.startsWith('audit-')) {
       expect(existsSync(attemptedArgs.exportFile)).toBe(false);
     }
   });
@@ -547,8 +625,8 @@ describe('NPC audited tombstone command on PostgreSQL 15', () => {
     const secondArgs = { ...firstArgs, exportFile: exportPath('concurrent-second') };
 
     const results = await Promise.all([
-      executeNpcTombstone(firstClient, firstArgs, { now: () => appliedAt }),
-      executeNpcTombstone(secondClient, secondArgs, { now: () => appliedAt }),
+      executeNpcTombstone(firstClient, firstArgs, testOptions(() => appliedAt)),
+      executeNpcTombstone(secondClient, secondArgs, testOptions(() => appliedAt)),
     ]);
 
     expect(results.map((result) => result.status).sort()).toEqual(['already-applied', 'applied']);
