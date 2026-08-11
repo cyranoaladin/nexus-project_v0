@@ -94,6 +94,7 @@ docker run --rm \
   --env "TEST_DATABASE_URL=${container_database_url}" \
   --env 'NEXUS_DISPOSABLE_POSTGRES=1' \
   --env 'NPC_TEST_RUNTIME_ROOT=/npc-test-runtime' \
+  --env 'NPC_LLM_MODE=off' \
   --env 'DOCUMENT_ENCRYPTION_KEY=synthetic-npc-real-test-document-encryption-key-2026-08-11' \
   node:20-bookworm \
   npx jest --config jest.integration.config.js --runInBand "$@"

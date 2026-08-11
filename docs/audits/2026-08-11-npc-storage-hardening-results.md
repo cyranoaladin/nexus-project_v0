@@ -14,7 +14,8 @@ La validation a été menée sans accès ni mutation de production, avec `NPC_LL
 
 - L'issue d'échec générique du worker validait initialement le job `FAILED` avant de tenter, dans une seconde transaction, la transition de la soumission vers `ANALYSIS_FAILED`. Une panne intermédiaire pouvait laisser les deux entités incohérentes.
 - Le fallback de compatibilité vers `inputData.submissionId` devait refuser de muter une soumission déjà rattachée à un autre job, et tolérer un ancien `inputData` malformé en terminalisant uniquement le job.
-- Le build lancé depuis un chemin contenant `.worktrees` est, à juste titre, refusé par l'audit des traces de release. Le même build complet depuis un clone jetable sous `/tmp` est valide.
+- Le build lancé depuis un worktree est, à juste titre, refusé par l'audit des traces de release. Le même build complet depuis un clone temporaire isolé est valide.
+- Le premier passage CI sur runner propre a révélé cinq écarts de câblage ou de portabilité : racine NPC non préparée pour les deux démarrages standalone, suite tombstone root-only lancée dans la lane générique, UID de test supposé fixe et longueur de tag AES-GCM non explicite. `CI Success` ne faisait qu'agréger ces échecs.
 
 ## Décisions prises
 
@@ -22,6 +23,9 @@ La validation a été menée sans accès ni mutation de production, avec `NPC_LL
 - Considérer `copySubmissionId` comme liaison autoritative. Le fallback historique ne peut muter la soumission que si `CopySubmission.aiJobId` désigne encore exactement le job traité ; une valeur historique malformée devient un cas job-only sans exception.
 - Conserver la migration strictement additive : ajout de valeurs d'enum, colonnes et contrainte seulement. Aucun `UPDATE`, aucune suppression et aucun identifiant métier en dur.
 - Publier la commande de tombstone sans l'exécuter en production. Son utilisation réelle requiert un feu vert distinct après merge et déploiement.
+- Préparer une racine NPC privée hors checkout dans chaque job CI qui démarre l'application, sans repli applicatif.
+- Maintenir les trois suites NPC réelles dans le check Integration, via leur harness root-only jetable et avec le LLM désactivé.
+- Fixer explicitement le tag AES-GCM à 16 octets pour le chiffrement comme pour le déchiffrement.
 
 ## Conformité vérifiée
 
@@ -34,11 +38,11 @@ La validation a été menée sans accès ni mutation de production, avec `NPC_LL
 - **Démarrage fail-closed** : application et worker refusent de démarrer sans `NPC_STORAGE_ROOT` explicite, persistant et valide. Les traversées et symlinks sont refusés.
 - **Intégrité de finalisation** : une soumission ne peut devenir `COMPLETED` si une source manque, si sa taille ou son SHA-256 diverge, ou si le miroir de copie élève n'est pas intact.
 - **Type documentaire explicite** : les API et l'interface n'inventent aucun type par défaut; toutes les créations runtime de pages passent par le writer typé.
-- **Invariants hors périmètre** : aucun fichier candidat-libre, scoring canonique, append-only, PDF ou compte protégé n'est modifié par la branche. Aucun chemin hôte ou de production n'est introduit; `/mnt/npc-storage-e2e` est interne au conteneur E2E.
+- **Invariants hors périmètre** : aucun fichier candidat-libre, scoring canonique, append-only, PDF ou compte protégé n'est modifié par la branche. Aucun chemin hôte ou de production n'est introduit ; l'E2E utilise seulement une racine interne jetable.
 
 ## Preuve sur clone éphémère
 
-Un clone Git neuf de la branche a été créé sous `/tmp`, exécuté comme UID 0 dans un conteneur Node contre PostgreSQL 15 + pgvector jetable, puis détruit avec son conteneur et son volume.
+Un clone Git neuf de la branche a été créé dans un espace temporaire isolé, exécuté dans le harness root-only contre PostgreSQL jetable, puis détruit avec toutes ses ressources de test.
 
 La suite réelle a exécuté le CLI `npm --silent run npc:tombstone` et vérifié :
 
@@ -52,7 +56,7 @@ Résultat : **3 suites, 47 tests passés, 0 échec, 0 skip**. Le clone et toutes
 
 ## Tests exécutés
 
-- Unitaires complets : **783 suites, 8 728 tests passés**, 7 snapshots, 0 échec, 0 skip.
+- Unitaires complets : **783 suites, 8 731 tests passés**, 7 snapshots, 0 échec, 0 skip.
 - Intégration complète : **35 suites, 248 tests passés**, 0 échec, 0 skip.
 - Base réelle `test:db` : **11 suites, 179 tests passés**, 0 échec, 0 skip.
 - NPC PostgreSQL réel sur clone : **3 suites, 47 tests passés**, 0 échec, 0 skip (relance ciblée incluse dans la lane d'intégration, comptée séparément comme preuve opérationnelle).
@@ -65,13 +69,20 @@ Résultat : **3 suites, 47 tests passés, 0 échec, 0 skip**. Le clone et toutes
 - Scan quarantaines : 2 371 fichiers suivis, aucune quarantaine inconditionnelle ni focus.
 - `git diff --check` : succès.
 
-Décompte des lanes complètes non filtrées : **10 086 exécutions de tests réussies** (unitaires + intégration + `test:db` + E2E). Les 47 tests NPC réels ont ensuite été rejoués séparément sur le clone de preuve.
+Décompte des lanes complètes non filtrées : **10 089 exécutions de tests réussies** (unitaires + intégration + `test:db` + E2E). Les 47 tests NPC réels ont ensuite été rejoués séparément sur le clone de preuve.
 
 ## Fichiers modifiés pendant la finalisation
 
 - `services/npc-worker/job-outcomes.ts`
 - `__tests__/integration/npc-worker-integrity.real.test.ts`
 - `__tests__/scripts/run-npc-real-db-tests.test.ts`
+- `.github/workflows/ci.yml`
+- `lib/npc/tombstone/export.ts`
+- `__tests__/architecture/npc-storage-contract.test.ts`
+- `__tests__/npc/storage-root.test.ts`
+- `scripts/testing/run-npc-real-db-tests.sh`
+- `README.md`
+- `docs/runbooks/npc-storage.md`
 - ce rapport de validation
 
 ## Risques restants
