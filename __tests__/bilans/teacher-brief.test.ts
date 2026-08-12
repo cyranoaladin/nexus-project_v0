@@ -300,6 +300,52 @@ describe('teacher-brief — appel modèle, un appel par domaine', () => {
       .rejects.toThrow('TEACHER_BRIEF_EMPTY');
   });
 
+  it('GARDE : un domaine prioritaire SANS item raté produit un brief valide, jamais un repli', async () => {
+    // Profil de la maîtrise fragile : l'élève répond juste mais sans
+    // assurance. Le domaine est prioritaire et n'a pourtant rien à citer.
+    // Exiger une citation ici faisait perdre le brief ENTIER.
+    const sansItems = FACTS.domainesPrioritaires.find((d) => d.itemsRates.length === 0)
+      ?? { ...FACTS.domainesPrioritaires[0], itemsRates: [] };
+    const facts = { ...FACTS, domainesPrioritaires: [sansItems, FACTS.domainesPrioritaires[1]] } as typeof FACTS;
+
+    const impl: typeof fetch = (async (_url: unknown, init?: RequestInit) => {
+      const asked = (JSON.parse(JSON.parse(String(init?.body)).messages[1].content) as typeof FACTS)
+        .domainesPrioritaires[0];
+      const modele = validBriefContent().domaines.find((d) => d.domainId === asked.domainId)!;
+      const domaine = {
+        ...modele,
+        // Aucun item raté => aucune citation possible.
+        erreursTypiques: modele.erreursTypiques.map((erreur) => ({
+          ...erreur,
+          itemIds: asked.itemsRates.length === 0 ? [] : erreur.itemIds,
+        })),
+      };
+      return new Response(JSON.stringify({
+        choices: [{ message: { content: JSON.stringify({ version: TEACHER_BRIEF_PROMPT_VERSION, domaines: [domaine] }) } }],
+        usage: { prompt_tokens: 2_300, completion_tokens: 1_400 },
+      }), { status: 200 });
+    }) as typeof fetch;
+
+    const generation = await callTeacherBriefModel(config, facts, impl);
+    expect(generation.content.domaines).toHaveLength(2);
+    expect(generation.content.domaines[0].erreursTypiques[0].itemIds).toEqual([]);
+    expect(generation.content.domaines[0].activite.deroule.length).toBeGreaterThanOrEqual(3);
+  });
+
+  it('GARDE : dès qu’un domaine A des items ratés, l’absence de citation reste refusée', () => {
+    const avecItems = FACTS.domainesPrioritaires.find((d) => d.itemsRates.length > 0)!;
+    const content = validBriefContent();
+    const nonAncre = {
+      ...content,
+      domaines: content.domaines.map((domaine) => (
+        domaine.domainId === avecItems.domainId
+          ? { ...domaine, erreursTypiques: [{ ...domaine.erreursTypiques[0], itemIds: [] }] }
+          : domaine
+      )),
+    };
+    expect(() => assertBriefRespectsFacts(nonAncre, FACTS)).toThrow('TEACHER_BRIEF_UNGROUNDED_ERROR');
+  });
+
   it('fail-closed : un seul domaine en échec et AUCUN brief partiel n’est produit', async () => {
     let call = 0;
     const flaky: typeof fetch = (async (_url: unknown, init?: RequestInit) => {
