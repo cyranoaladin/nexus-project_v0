@@ -44,9 +44,10 @@ describe('4E-FRA-HOM-02 — homophones ses/ces et on/ont', () => {
     expect(item.explanation).toBe(item.shortCorrection);
   });
 
-  it('redevient DRAFT tant qu’elle n’est pas re-signée par la relectrice matière', () => {
-    expect(quatriemeFrancais.status).toBe('DRAFT');
-    expect(quatriemeFrancais.review).toStrictEqual({ validatedBy: null, validatedAt: null });
+  it('reste validé après la re-signature de la relectrice matière', () => {
+    expect(quatriemeFrancais.status).toBe('VALIDATED');
+    expect(quatriemeFrancais.review.validatedBy).not.toBeNull();
+    expect(quatriemeFrancais.review.validatedAt).not.toBeNull();
   });
 });
 
@@ -70,9 +71,10 @@ describe('EPR-PHC-SOL-01 — concentration en quantité de matière', () => {
     expect(optionB.distractorRationale).not.toContain('Divise par le volume en millilitres après une conversion erronée');
   });
 
-  it('redevient DRAFT tant qu’elle n’est pas re-signée par le relecteur matière', () => {
-    expect(premierePhysiqueChimie.status).toBe('DRAFT');
-    expect(premierePhysiqueChimie.review).toStrictEqual({ validatedBy: null, validatedAt: null });
+  it('reste validé après la re-signature du relecteur matière', () => {
+    expect(premierePhysiqueChimie.status).toBe('VALIDATED');
+    expect(premierePhysiqueChimie.review.validatedBy).not.toBeNull();
+    expect(premierePhysiqueChimie.review.validatedAt).not.toBeNull();
   });
 });
 

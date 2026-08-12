@@ -43,9 +43,10 @@ test.describe.serial('ARIA / RAG / LLM deterministic', () => {
     });
 
     await loginAsUser(page, 'student');
-    await page.goto('/dashboard/eleve');
 
-    await page.getByTestId('aria-chat-trigger').click();
+    const ariaTrigger = page.getByTestId('aria-chat-trigger');
+    await expect(ariaTrigger).toBeVisible();
+    await ariaTrigger.click();
     await page.getByTestId('aria-subject-mathematiques').click();
     await page.getByTestId('aria-input').fill('Explique les limites');
     await page.getByTestId('aria-send').click();

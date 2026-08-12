@@ -276,8 +276,10 @@ test.describe('Authentication & Booking Flow', () => {
       start.setDate(start.getDate() + 1);
       const end = new Date(start);
       end.setDate(end.getDate() + 21);
+      const startDate = start.toISOString().slice(0, 10);
+      const endDate = end.toISOString().slice(0, 10);
       const availabilityResponse = await page.request.get(
-        `/api/coaches/availability?coachId=${coachId}&startDate=${start.toISOString()}&endDate=${end.toISOString()}`
+        `/api/coaches/availability?coachId=${coachId}&startDate=${startDate}&endDate=${endDate}`
       );
       expect(availabilityResponse.ok()).toBe(true);
       const availability = await availabilityResponse.json();
