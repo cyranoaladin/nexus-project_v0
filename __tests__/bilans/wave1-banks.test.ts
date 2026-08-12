@@ -10,7 +10,7 @@ const { parse: parseYaml } = require(path.join(
 
 import { validateBankCollection, type SourceBank } from '@/lib/bilans/catalog/bank-validation';
 import { loadBilanPack } from '@/lib/bilans/catalog/load-pack';
-import { isPackEnabled } from '@/lib/bilans/api/pack-access';
+import { isPackEnabled, packFeatureFlagName } from '@/lib/bilans/api/pack-access';
 import { loadWaveManifest, repositoryPath } from '@/lib/bilans/catalog/wave-manifest';
 import { convertBankBatch } from '@/scripts/bilans/convert-bank-batch';
 import { buildDashboard } from '@/scripts/bilans/check-pack-completeness';
@@ -21,18 +21,6 @@ import { buildRecipeFactSheets } from './fixtures/recipe-fact-sheets';
 import { fixtureFrom } from './fixtures/validated-pack';
 
 const MANIFEST_PATH = 'data/bilans/banks/wave1.manifest.json';
-/**
- * Vérification pédagogique du 2026-08-11 : le contenu de ces deux packs a été
- * corrigé (shortCorrection/explanation/distractorRationale). Leur sourceChecksum
- * ne correspond donc plus à la signature enregistrée dans data/bilans/reviews/,
- * et le compilateur les redescend légitimement en DRAFT jusqu'à re-signature par
- * la relectrice/le relecteur matière. Retirer un slug de cet ensemble une fois
- * son review.yaml re-signé.
- */
-const PENDING_RESIGNATURE = new Set([
-  'entree-quatrieme-francais-v1',
-  'entree-premiere-physique-chimie-v1',
-]);
 const MANIFEST = loadWaveManifest(MANIFEST_PATH);
 const ACTIVE = MANIFEST.banks.map((entry) => {
   const bank = parseYaml(fs.readFileSync(repositoryPath(entry.source), 'utf8')) as SourceBank;
@@ -56,6 +44,21 @@ describe('wave 1 active banks', () => {
     expect(validateBankCollection(ACTIVE)).toEqual([]);
   });
 
+  it('keeps every expected active bank reviewer-validated and activatable', () => {
+    expect(MANIFEST.expectedActiveBanks).toBe(17);
+    expect(MANIFEST.banks).toHaveLength(MANIFEST.expectedActiveBanks);
+
+    for (const { entry } of ACTIVE) {
+      const pack = loadBilanPack(entry.output);
+      expect(pack.status).toBe('VALIDATED');
+      expect(pack.review.validatedBy).not.toBeNull();
+      expect(pack.review.validatedAt).not.toBeNull();
+      expect(isPackEnabled(pack, {
+        [packFeatureFlagName(pack.slug)]: 'true',
+      })).toBe(true);
+    }
+  });
+
   it('contains the seven declared disciplines and keeps the two mathematics subjects distinct', () => {
     expect([...new Set(ACTIVE.map(({ bank }) => bank.subject))].sort()).toEqual([
       'FRANCAIS', 'MATHS', 'MATHS_EXPERTES', 'NSI', 'PHILOSOPHIE', 'PHYSIQUE_CHIMIE', 'SVT',
@@ -72,7 +75,7 @@ describe('wave 1 active banks', () => {
     expect([...experts].filter((nodeId) => mathematics.has(nodeId))).toEqual([]);
   });
 
-  it.each(ACTIVE)('$entry.slug satisfies V1-V14 and preserves its review state', ({ entry, bank, catalog }) => {
+  it.each(ACTIVE)('$entry.slug satisfies V1-V14 and preserves its validated review state', ({ entry, bank, catalog }) => {
     expect(bank.items).toHaveLength(18);
     expect(new Set(bank.items.map(({ nodeCpsId }) => nodeCpsId)).size).toBe(9);
     expect(Object.hasOwn(bank, 'review')).toBe(false);
@@ -83,15 +86,9 @@ describe('wave 1 active banks', () => {
     expect([...catalog.nodes].sort((left, right) => left.sequenceOrder - right.sequenceOrder).map(({ id }) => id)).toEqual([...new Set(bank.items.map(({ nodeCpsId }) => nodeCpsId))]);
 
     const pack = loadBilanPack(entry.output);
-    if (PENDING_RESIGNATURE.has(entry.slug)) {
-      expect(pack.status).toBe('DRAFT');
-      expect(pack.review.validatedBy).toBeNull();
-      expect(pack.review.validatedAt).toBeNull();
-    } else {
-      expect(pack.status).toBe('VALIDATED');
-      expect(pack.review.validatedBy).not.toBeNull();
-      expect(pack.review.validatedAt).not.toBeNull();
-    }
+    expect(pack.status).toBe('VALIDATED');
+    expect(pack.review.validatedBy).not.toBeNull();
+    expect(pack.review.validatedAt).not.toBeNull();
     expect(pack.reporting.rag.enabled).toBe(false);
     expect(isPackEnabled(pack, {})).toBe(false);
     for (const reference of Object.values(pack.reporting.promptFiles)) {
@@ -181,11 +178,9 @@ describe('wave 1 active banks', () => {
     const rows = buildDashboard(MANIFEST_PATH);
     expect(rows.filter(({ kind }) => kind === 'ACTIVE')).toHaveLength(17);
     expect(rows.filter(({ kind }) => kind === 'HISTORIQUE')).toHaveLength(2);
-    expect(rows.filter(({ kind }) => kind === 'ACTIVE').every(({ slug, complete, total, nodes, status, signature, anomalies }) =>
+    expect(rows.filter(({ kind }) => kind === 'ACTIVE').every(({ complete, total, nodes, status, signature, anomalies }) =>
       complete === 18 && total === 18 && nodes === 9
-        && (PENDING_RESIGNATURE.has(slug)
-          ? status === 'DRAFT' && signature === 'NON_SIGNE'
-          : status === 'VALIDATED' && signature === 'SIGNE')
+        && status === 'VALIDATED' && signature === 'SIGNE'
         && anomalies.length === 0,
     )).toBe(true);
     const command = spawnSync(path.join(process.cwd(), 'node_modules/.bin/tsx'), [
