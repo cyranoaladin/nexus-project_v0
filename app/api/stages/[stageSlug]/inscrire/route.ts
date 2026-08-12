@@ -4,13 +4,23 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { enqueueEmailIntent } from '@/lib/email/outbox';
 import { kickEmailOutboxDrain } from '@/lib/email/outbox-scheduler';
-import { telegramSendMessage } from '@/lib/telegram/client';
+import { internalNotification } from '@/lib/email/templates';
+import { LEGAL } from '@/lib/legal';
 import { computeReservationStatus } from '@/lib/stages/capacity';
 import { publicStageInscriptionSchema } from '@/lib/stages/inscription-schema';
 import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive';
 import { z } from 'zod';
 import { canAcceptPreRentreeCampaignSubmission } from '@/lib/campaigns/pre-rentree-2026/release-gate';
 import { normalizeUserEmail } from '@/lib/contact/user-email';
+
+function getInternalNotificationRecipient(): string {
+  return (
+    process.env.INTERNAL_NOTIFICATION_EMAIL ||
+    process.env.MAIL_REPLY_TO ||
+    process.env.EMAIL_REPLY_TO ||
+    LEGAL.contact.email
+  );
+}
 
 const stageInscriptionParamsSchema = z.object({
   stageSlug: z.string().trim().min(1).max(120).regex(/^[a-z0-9][a-z0-9-]*$/),
@@ -141,13 +151,28 @@ export async function POST(
              <p>Notre équipe vous contactera dans les 24h pour les détails de paiement.</p>
              <p>L'équipe Nexus Réussite</p>`,
       });
+
+      const internalTemplate = internalNotification({
+        eventType: 'Nouvelle inscription stage',
+        fields: {
+          Stage: stage.title,
+          Élève: `${firstName} ${lastName}`,
+          Email: normalizedEmail,
+          Statut: richStatus,
+        },
+      });
+      await enqueueEmailIntent(tx, {
+        aggregateType: 'STAGE_RESERVATION',
+        aggregateId: reservation.id,
+        messageType: 'TRANSACTIONAL_NOTIFICATION',
+        dedupeKey: `registration-internal:${reservation.id}`,
+        to: getInternalNotificationRecipient(),
+        subject: internalTemplate.subject,
+        html: internalTemplate.html,
+        text: internalTemplate.text,
+      });
     });
     kickEmailOutboxDrain();
-
-    await telegramSendMessage(
-      undefined,
-      `📚 Nouvelle inscription stage\n*${stage.title}*\n${firstName} ${lastName} (${normalizedEmail})\nStatut: ${richStatus}`
-    ).catch(() => {});
 
     return NextResponse.json(
       { reservation: { status: richStatus }, message: 'Inscription enregistrée.' },
