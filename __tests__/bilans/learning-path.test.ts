@@ -70,7 +70,7 @@ describe('A90.1ter deterministic LearningPath', () => {
 
     expect(report.content.learningPath.steps).toHaveLength(0);
     expect(serialized).toContain('cinq séances de deux heures');
-    expect(serialized).toContain("Aucun module n'est fixé");
+    expect(serialized).toContain('Aucun module n’est fixé');
     expect(serialized).not.toContain('Être conseillé');
     expect(serialized).not.toContain('Un échange');
     expect(serialized).not.toMatch(/ERREUR_CONFIANTE|LACUNE_CONSCIENTE|MAITRISE_FRAGILE|NON_TRAITE/);

@@ -1,5 +1,7 @@
 import type { Prisma, PrismaClient } from '@prisma/client';
 
+import { resolveEnabledPack, type PackResolver } from '../api/pack-access';
+import { buildQuestionEvidence, type QuestionEvidence } from '../render/question-evidence';
 import { getLegalTransition } from './state-machine';
 import type { LifecycleActor, LifecycleStatus, TransitionAction } from './types';
 import {
@@ -26,6 +28,37 @@ export class BilanReportServiceError extends Error {
     super(code);
     this.name = 'BilanReportServiceError';
   }
+}
+
+type EvidenceAttemptRow = Readonly<{
+  answers: unknown;
+  assessmentPackId: string;
+  assessmentPackVersion: string | number | bigint;
+  assessmentPackChecksum: string | null;
+}> | null | undefined;
+
+/**
+ * Détail des réponses pour la restitution : pack résolu en lecture seule,
+ * rapproché des réponses de la tentative. Indisponible (pack non résolu,
+ * champs absents) => restitution sans section détail, jamais un échec.
+ * En revanche un pack résolu dont le checksum ne correspond plus à celui de
+ * la passation est une incohérence grave : on refuse de rendre un détail
+ * potentiellement différent de ce que l'élève a réellement composé.
+ */
+function buildAttemptEvidence(
+  attempt: EvidenceAttemptRow,
+  resolvePack: PackResolver,
+): QuestionEvidence | undefined {
+  if (attempt === null || attempt === undefined) return undefined;
+  if (typeof attempt.assessmentPackId !== 'string' || attempt.assessmentPackId.length === 0) return undefined;
+  const resolved = resolvePack(attempt.assessmentPackId, Number(attempt.assessmentPackVersion));
+  if (resolved === null) return undefined;
+  if (typeof attempt.assessmentPackChecksum === 'string'
+    && attempt.assessmentPackChecksum.length > 0
+    && attempt.assessmentPackChecksum !== resolved.checksum) {
+    throw new BilanReportServiceError('REPORT_EVIDENCE_PACK_MISMATCH');
+  }
+  return buildQuestionEvidence(resolved.pack, attempt.answers);
 }
 
 function requiredHumanRenderIdentity(user: StudentUserName): HumanRenderIdentity {
@@ -195,6 +228,7 @@ export async function publishReportRevision(input: Readonly<{
   reviewerId: string;
   publishedAt: Date;
   renderAudience?: PublicationRenderer;
+  resolvePack?: PackResolver;
 }>) {
   const candidate = await input.prisma.reportRevision.findUnique({
     where: { id: input.revisionId },
@@ -215,7 +249,15 @@ export async function publishReportRevision(input: Readonly<{
           id: true,
           status: true,
           assessmentAttemptId: true,
-          assessmentAttempt: { select: { status: true } },
+          assessmentAttempt: {
+            select: {
+              status: true,
+              answers: true,
+              assessmentPackId: true,
+              assessmentPackVersion: true,
+              assessmentPackChecksum: true,
+            },
+          },
           student: {
             select: { user: { select: { firstName: true, lastName: true } } },
           },
@@ -242,6 +284,7 @@ export async function publishReportRevision(input: Readonly<{
       candidate.scoreSnapshot.result,
       candidate.content,
       requiredHumanRenderIdentity(candidate.reportArtifact.student.user),
+      buildAttemptEvidence(candidate.reportArtifact.assessmentAttempt, input.resolvePack ?? resolveEnabledPack),
     ),
     input.renderAudience,
   );
@@ -328,6 +371,7 @@ export async function publishReportRevision(input: Readonly<{
 export async function previewReportRevision(input: Readonly<{
   prisma: Pick<PrismaClient, 'reportRevision'>;
   revisionId: string;
+  resolvePack?: PackResolver;
 }>) {
   const revision = await input.prisma.reportRevision.findUnique({
     where: { id: input.revisionId },
@@ -338,6 +382,14 @@ export async function previewReportRevision(input: Readonly<{
       scoreSnapshot: { select: { result: true } },
       reportArtifact: {
         select: {
+          assessmentAttempt: {
+            select: {
+              answers: true,
+              assessmentPackId: true,
+              assessmentPackVersion: true,
+              assessmentPackChecksum: true,
+            },
+          },
           student: {
             select: { user: { select: { firstName: true, lastName: true } } },
           },
@@ -354,6 +406,7 @@ export async function previewReportRevision(input: Readonly<{
     revision.scoreSnapshot.result,
     revision.content,
     requiredHumanRenderIdentity(revision.reportArtifact.student.user),
+    buildAttemptEvidence(revision.reportArtifact.assessmentAttempt, input.resolvePack ?? resolveEnabledPack),
   ));
 }
 
@@ -361,6 +414,7 @@ export async function renderReportRevisionAudiencePdf(input: Readonly<{
   prisma: Pick<PrismaClient, 'reportRevision'>;
   revisionId: string;
   audience: ReportAudience;
+  resolvePack?: PackResolver;
   renderAudience?: (
     factSheet: Parameters<typeof renderDeterministicBilanPdf>[0],
     audience: ReportAudience,
@@ -377,6 +431,14 @@ export async function renderReportRevisionAudiencePdf(input: Readonly<{
       scoreSnapshot: { select: { result: true } },
       reportArtifact: {
         select: {
+          assessmentAttempt: {
+            select: {
+              answers: true,
+              assessmentPackId: true,
+              assessmentPackVersion: true,
+              assessmentPackChecksum: true,
+            },
+          },
           student: {
             select: { user: { select: { firstName: true, lastName: true } } },
           },
@@ -394,12 +456,13 @@ export async function renderReportRevisionAudiencePdf(input: Readonly<{
     revision.scoreSnapshot.result,
     revision.content,
     requiredHumanRenderIdentity(revision.reportArtifact.student.user),
+    buildAttemptEvidence(revision.reportArtifact.assessmentAttempt, input.resolvePack ?? resolveEnabledPack),
   );
   const rendered = await (input.renderAudience ?? renderDeterministicBilanPdf)(
     context.factSheet,
     input.audience,
     context.identity,
-    { humanIdentity: context.humanIdentity },
+    { humanIdentity: context.humanIdentity, evidence: context.evidence },
   );
   if (rendered.status !== 'AVAILABLE') {
     throw new BilanReportServiceError('REPORT_PDF_UNAVAILABLE');
