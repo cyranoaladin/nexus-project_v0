@@ -51,9 +51,6 @@ const ENV_CONTRACT: EnvVar[] = [
   { name: 'SMTP_FROM', level: 'RECOMMENDED', description: 'Sender email address for transactional emails' },
   { name: 'CLICTOPAY_API_KEY', level: 'RECOMMENDED', description: 'ClicToPay payment gateway API key (Banque Zitouna)' },
   // ─── OPTIONAL (silent if missing) ──────────────────────────────────
-  { name: 'TELEGRAM_NOTIFICATIONS_ENABLED', level: 'OPTIONAL', description: 'Explicit opt-in for Telegram notifications' },
-  { name: 'TELEGRAM_BOT_TOKEN', level: 'OPTIONAL', description: 'Telegram bot token, required only when notifications are enabled' },
-  { name: 'TELEGRAM_CHAT_ID', level: 'OPTIONAL', description: 'Telegram destination, required only when notifications are enabled' },
   { name: 'LLM_MODE', level: 'OPTIONAL', description: 'LLM behavior: live (default) | stub | off' },
   { name: 'OLLAMA_MODEL', level: 'OPTIONAL', description: 'Ollama model name (default: qwen2.5:32b)' },
   { name: 'OLLAMA_TIMEOUT', level: 'OPTIONAL', description: 'Ollama request timeout in ms (default: 120000)' },
@@ -88,16 +85,6 @@ export function validateEnv(): { ok: boolean; missing: string[]; warnings: strin
         warnings.push(`${v.name} — ${v.description}`);
       }
       // OPTIONAL: silent
-    }
-  }
-
-  const telegramEnabled = process.env.TELEGRAM_NOTIFICATIONS_ENABLED === 'true';
-  if (telegramEnabled) {
-    if (!process.env.TELEGRAM_BOT_TOKEN?.trim()) {
-      missing.push('TELEGRAM_BOT_TOKEN — required when Telegram notifications are enabled');
-    }
-    if (!process.env.TELEGRAM_CHAT_ID?.trim()) {
-      missing.push('TELEGRAM_CHAT_ID — required when Telegram notifications are enabled');
     }
   }
 

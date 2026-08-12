@@ -82,7 +82,7 @@ Purge par tâche planifiée idempotente, journalisée, testée. Jamais de suppre
 
 Interdits de journal : `accessToken`, `rawAnswer`, e-mail, téléphone, nom, prénom.
 Autorisés : `attemptId`, `testSlug`, `status`, durées, codes HTTP, agrégats.
-Les rapports d'erreur (Telegram, e-mail) suivent la même règle : `attemptId` seul,
+Les rapports d'erreur (e-mail) suivent la même règle : `attemptId` seul,
 jamais de charge utile.
 
 ## §9. Points d'attention pour la revue

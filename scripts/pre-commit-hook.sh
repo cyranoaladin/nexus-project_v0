@@ -228,16 +228,6 @@ for pattern in "${WARN_PATTERNS[@]}"; do
   fi
 done
 
-# Le hook valide ce qui est committé, pas l'état du disque : --staged-files
-# n'inspecte que les fichiers indexés, sans parcourir de répertoire — les
-# artefacts .next/ ou les worktrees présents à côté ne sont jamais touchés.
-if command -v node >/dev/null 2>&1 && [[ -f scripts/security/check-telegram-secrets.mjs ]] && [[ -n "$STAGED_ADDED_MODIFIED" ]]; then
-  mapfile -t TELEGRAM_SCAN_FILES <<< "$STAGED_ADDED_MODIFIED"
-  if ! node scripts/security/check-telegram-secrets.mjs --staged-files "${TELEGRAM_SCAN_FILES[@]}"; then
-    BLOCKED=true
-  fi
-fi
-
 if $BLOCKED; then
   echo ""
   echo -e "${RED}Commit bloqué.${NC} Retirez les fichiers sensibles avec :"

@@ -23,7 +23,7 @@ describe('Required Environment Variables', () => {
       // If not set, use test dummy values for validation
       if (!value) {
         const dummyValues: Record<string, string> = {
-          DATABASE_URL: 'postgresql://test:test@localhost:5432/test',
+          DATABASE_URL: 'postgresql://localhost:5432/test',
           NEXTAUTH_SECRET: 'test-secret-minimum-32-characters-long',
           NEXTAUTH_URL: 'http://localhost:3000',
         };
@@ -143,13 +143,6 @@ describe('Feature Flags', () => {
 
   it('MAIL_DISABLED should be "true" or "false" if set', () => {
     const val = process.env.MAIL_DISABLED;
-    if (val) {
-      expect(['true', 'false']).toContain(val);
-    }
-  });
-
-  it('TELEGRAM_NOTIFICATIONS_ENABLED should be "true" or "false" if set', () => {
-    const val = process.env.TELEGRAM_NOTIFICATIONS_ENABLED;
     if (val) {
       expect(['true', 'false']).toContain(val);
     }
