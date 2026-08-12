@@ -74,7 +74,7 @@ export function resolveFrom(): string {
   );
   if (configured) return configured;
   if (process.env.NODE_ENV === 'production') throw new Error('SMTP_FROM_REQUIRED');
-  return 'Nexus Réussite <no-reply@nexusreussite.academy>';
+  return 'Nexus Réussite <contact@nexusreussite.academy>';
 }
 
 /**

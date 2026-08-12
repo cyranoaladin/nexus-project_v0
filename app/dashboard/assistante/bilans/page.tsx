@@ -10,16 +10,43 @@ import {
 } from '@/lib/bilans/staff/review-service';
 
 import { REPORT_ANNOTATION_SECTIONS } from '@/lib/bilans/core/report-service';
+import { teacherBriefMonthlyUsage } from '@/lib/bilans/llm/teacher-brief-service';
+import { prisma } from '@/lib/prisma';
+import type { TeacherBriefContent } from '@/lib/bilans/llm/teacher-brief-schema';
 
 import {
   addParentEmailAction,
+  approveTeacherBriefAction,
   confirmWhatsAppTransmissionAction,
+  generateTeacherBriefAction,
   prepareWhatsAppSendAction,
   rejectReportAction,
   requestCorrectionAction,
+  requestTeacherBriefCorrectionAction,
   resumeReviewAction,
   validateAndPublishReportAction,
 } from './actions';
+
+function briefStatusLabel(status: string): string {
+  if (status === 'PENDING_REVIEW') return 'Généré — en attente de relecture';
+  if (status === 'APPROVED') return 'Relu et validé';
+  if (status === 'CORRECTION_REQUESTED') return 'Correction demandée — à régénérer';
+  return status;
+}
+
+function renderBriefText(content: TeacherBriefContent): string {
+  return content.domaines.map((domaine) => [
+    `■ ${domaine.domainId}`,
+    'Erreurs typiques :',
+    ...domaine.erreursTypiques.map((erreur) => `  — ${erreur.constat} (origine : ${erreur.origine})`),
+    `Prérequis à vérifier : ${domaine.prerequisAVerifier.join(' · ')}`,
+    `Activité : ${domaine.activite.titre} — ${domaine.activite.objectif}`,
+    `Matériel : ${domaine.activite.materiel}`,
+    ...domaine.activite.deroule.map((phase) => `  ${phase.nom} (${phase.dureeMin} min) : ${phase.consigne}`),
+    `Différenciation : ${domaine.activite.differenciation}`,
+    `Indicateur de progrès : ${domaine.indicateurProgres}`,
+  ].join('\n')).join('\n\n');
+}
 
 const ANNOTATION_SECTION_LABELS: Readonly<Record<string, string>> = {
   introduction: 'Introduction',
@@ -86,6 +113,23 @@ export default async function CanonicalBilansReviewPage({
     transmitted: revisions.filter(({ displayStatus }) => displayStatus === 'Transmis au parent').length,
     rejected: revisions.filter(({ displayStatus }) => displayStatus === 'Rejeté').length,
   };
+  const artifactIds = revisions.map(({ reportArtifact }) => reportArtifact.id);
+  const briefs = await prisma.teacherBrief.findMany({
+    where: { reportArtifactId: { in: artifactIds }, status: { in: ['PENDING_REVIEW', 'APPROVED', 'CORRECTION_REQUESTED'] } },
+    orderBy: { version: 'desc' },
+    select: {
+      id: true, reportArtifactId: true, status: true, version: true, content: true,
+      editedContent: true, promptVersion: true, model: true, reviewedAt: true,
+      reviewedBy: { select: { firstName: true, lastName: true } },
+      annotations: { select: { section: true, remark: true, createdAt: true }, orderBy: { createdAt: 'asc' } },
+    },
+  });
+  const briefByArtifact = new Map<string, (typeof briefs)[number]>();
+  for (const brief of briefs) {
+    if (!briefByArtifact.has(brief.reportArtifactId)) briefByArtifact.set(brief.reportArtifactId, brief);
+  }
+  const briefUsage = await teacherBriefMonthlyUsage();
+
   const requestedPreview = (await searchParams).preview;
   let preview: Awaited<ReturnType<typeof previewPendingReport>> | null = null;
   if (requestedPreview !== undefined) {
@@ -145,6 +189,10 @@ export default async function CanonicalBilansReviewPage({
             </article>
           ))}
         </section>
+
+        <p className="mt-3 text-xs text-slate-400">
+          Assistant de rédaction enseignant — usage du mois : {briefUsage.briefs} brief{briefUsage.briefs > 1 ? 's' : ''}, {briefUsage.promptTokens + briefUsage.completionTokens} jetons (dont {briefUsage.cachedPromptTokens} en cache), ≈ {briefUsage.estimatedCostUsd.toFixed(2)} $ US.
+        </p>
 
         {preview !== null && typeof preview === 'object' && 'audiences' in preview && (
           <section className="mt-8 rounded-3xl border border-amber-300/30 bg-amber-300/5 p-5">
@@ -378,6 +426,79 @@ export default async function CanonicalBilansReviewPage({
                       )}
                     </section>
                   )}
+
+                  {(() => {
+                    const brief = briefByArtifact.get(revision.reportArtifact.id);
+                    const briefContent = brief?.content as TeacherBriefContent | undefined;
+                    return (
+                      <section className="border-t border-indigo-300/20 bg-indigo-300/5 px-6 py-5">
+                        <h3 className="font-semibold text-indigo-100">Brief enseignant (document interne)</h3>
+                        <p className="mt-1 text-xs text-slate-400">
+                          Préparation de séance rédigée par l’assistant de rédaction à partir du diagnostic déterministe, relue avant tout usage. Jamais transmis aux familles.
+                        </p>
+                        {brief === undefined ? (
+                          <form action={generateTeacherBriefAction} className="mt-3">
+                            <input type="hidden" name="artifactId" value={revision.reportArtifact.id} />
+                            <button type="submit" className="rounded-xl border border-indigo-300 px-4 py-2.5 text-sm font-semibold text-indigo-100">
+                              Générer le brief enseignant
+                            </button>
+                            <p className="mt-2 text-xs text-slate-500">
+                              Si l’assistant de rédaction est indisponible, le document interne Nexus déterministe reste la référence.
+                            </p>
+                          </form>
+                        ) : (
+                          <div className="mt-3 space-y-3">
+                            <p className="text-sm">
+                              <span className="rounded-full bg-indigo-300/15 px-3 py-1 text-xs font-semibold text-indigo-100">{briefStatusLabel(brief.status)}</span>
+                              <span className="ml-3 text-xs text-slate-400">v{brief.version} · {brief.promptVersion} · {brief.model}{brief.reviewedAt ? ` · relu le ${dateLabel(brief.reviewedAt)}` : ''}</span>
+                            </p>
+                            {brief.editedContent ? (
+                              <div className="whitespace-pre-wrap rounded-2xl border border-white/10 bg-black/30 p-4 text-xs leading-5 text-slate-200">{brief.editedContent}</div>
+                            ) : briefContent !== undefined && (
+                              <div className="whitespace-pre-wrap rounded-2xl border border-white/10 bg-black/30 p-4 text-xs leading-5 text-slate-200">{renderBriefText(briefContent)}</div>
+                            )}
+                            {brief.annotations.length > 0 && (
+                              <ul className="space-y-1 text-xs text-sky-200">
+                                {brief.annotations.map((annotation, index) => (
+                                  <li key={index}>Annotation ({annotation.section}) : {annotation.remark}</li>
+                                ))}
+                              </ul>
+                            )}
+                            {brief.status === 'PENDING_REVIEW' && (
+                              <div className="grid gap-3 lg:grid-cols-2">
+                                <form action={approveTeacherBriefAction} className="rounded-2xl border border-emerald-300/20 bg-emerald-300/5 p-4">
+                                  <input type="hidden" name="briefId" value={brief.id} />
+                                  <label className="block text-xs font-semibold text-white">Motif de validation</label>
+                                  <input name="motif" required minLength={5} className="mt-2 w-full rounded-xl border border-white/15 bg-slate-950 px-3 py-2 text-sm text-white" />
+                                  <label className="mt-3 block text-xs font-semibold text-white">Correction manuelle (facultative — elle prime sur le texte généré)</label>
+                                  <textarea name="editedContent" className="mt-2 min-h-16 w-full rounded-xl border border-white/15 bg-slate-950 p-3 text-xs text-white" placeholder="Laisser vide pour valider le texte généré tel quel." />
+                                  <button type="submit" className="mt-3 rounded-xl bg-emerald-500 px-4 py-2 text-sm font-semibold text-slate-950">Valider le brief</button>
+                                </form>
+                                <form action={requestTeacherBriefCorrectionAction} className="rounded-2xl border border-sky-300/20 bg-sky-300/5 p-4">
+                                  <input type="hidden" name="briefId" value={brief.id} />
+                                  <label className="block text-xs font-semibold text-white">Section concernée</label>
+                                  <input name="section" required className="mt-2 w-full rounded-xl border border-white/15 bg-slate-950 px-3 py-2 text-sm text-white" placeholder="ex. : activité du domaine trigonométrie" />
+                                  <label className="mt-3 block text-xs font-semibold text-white">Remarque</label>
+                                  <textarea name="remark" required minLength={5} className="mt-2 min-h-12 w-full rounded-xl border border-white/15 bg-slate-950 p-3 text-xs text-white" />
+                                  <label className="mt-3 block text-xs font-semibold text-white">Motif</label>
+                                  <input name="motif" required minLength={5} className="mt-2 w-full rounded-xl border border-white/15 bg-slate-950 px-3 py-2 text-sm text-white" />
+                                  <button type="submit" className="mt-3 rounded-xl border border-sky-300 px-4 py-2 text-sm font-semibold text-sky-100">Demander une régénération</button>
+                                </form>
+                              </div>
+                            )}
+                            {brief.status === 'CORRECTION_REQUESTED' && (
+                              <form action={generateTeacherBriefAction}>
+                                <input type="hidden" name="artifactId" value={revision.reportArtifact.id} />
+                                <button type="submit" className="rounded-xl border border-indigo-300 px-4 py-2.5 text-sm font-semibold text-indigo-100">
+                                  Régénérer le brief (nouvelle version, historique conservé)
+                                </button>
+                              </form>
+                            )}
+                          </div>
+                        )}
+                      </section>
+                    );
+                  })()}
 
                   {revision.reviews.some((review) => review.annotations.length > 0 || review.decision === 'CHANGES_REQUESTED') && (
                     <details className="border-t border-white/10 px-6 py-5">

@@ -35,7 +35,7 @@ export type ScoreBarRow = Readonly<{
  * Barres horizontales des scores par domaine (0 à 100). Libellé à gauche,
  * barre au centre, valeur à droite.
  */
-export function renderScoreBarsSvg(rows: readonly ScoreBarRow[]): string {
+export function renderScoreBarsSvg(rows: readonly ScoreBarRow[], ariaLabel = 'Scores par domaine'): string {
   const labelWidth = 218;
   const valueWidth = 44;
   const trackWidth = 380;
@@ -65,7 +65,7 @@ export function renderScoreBarsSvg(rows: readonly ScoreBarRow[]): string {
     return `<line x1="${x}" y1="${topPadding - 2}" x2="${x}" y2="${height - 8}" style="stroke:var(--color-lux-line);stroke-width:0.5"/>`;
   }).join('');
 
-  return `<svg viewBox="0 0 ${width} ${height}" width="100%" role="img" aria-label="Scores par domaine" xmlns="http://www.w3.org/2000/svg">${gridLines}${bars}<line x1="${midX}" y1="${topPadding - 2}" x2="${midX}" y2="${height - 8}" style="stroke:var(--color-lux-line);stroke-width:0.5"/></svg>`;
+  return `<svg viewBox="0 0 ${width} ${height}" width="100%" role="img" aria-label="${escapeXml(ariaLabel)}" xmlns="http://www.w3.org/2000/svg">${gridLines}${bars}<line x1="${midX}" y1="${topPadding - 2}" x2="${midX}" y2="${height - 8}" style="stroke:var(--color-lux-line);stroke-width:0.5"/></svg>`;
 }
 
 export type CalibrationPoint = Readonly<{

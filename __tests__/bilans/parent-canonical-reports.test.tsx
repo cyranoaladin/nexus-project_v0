@@ -57,7 +57,7 @@ describe('P0-C Parent Canonical reports surface', () => {
       'src',
       '/api/parent/children/student-a1/bilans/attempt-a1/report?format=html',
     );
-    expect(screen.getByRole('link', { name: 'Télécharger le PDF Mathématiques · Seconde' })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: 'PDF — compte rendu parents' })).toHaveAttribute(
       'href',
       '/api/parent/children/student-a1/bilans/attempt-a1/report?format=pdf',
     );
