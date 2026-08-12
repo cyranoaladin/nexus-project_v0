@@ -14,6 +14,7 @@
 import nodemailer from 'nodemailer9';
 import type Mail from 'nodemailer9/lib/mailer';
 import type SMTPTransport from 'nodemailer9/lib/smtp-transport';
+import { LEGAL } from '@/lib/legal';
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -74,7 +75,7 @@ export function resolveFrom(): string {
   );
   if (configured) return configured;
   if (process.env.NODE_ENV === 'production') throw new Error('SMTP_FROM_REQUIRED');
-  return 'Nexus Réussite <contact@nexusreussite.academy>';
+  return `${LEGAL.entity.tradeName} <${LEGAL.contact.email}>`;
 }
 
 /**
