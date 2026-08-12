@@ -19,8 +19,10 @@ import {
 import { orderPriorityDomains } from '../render/profile-copy';
 import { domainTitle } from '../render/domain-labels';
 import {
+  TEACHER_BRIEF_DOMAIN_MAX_CHARS,
   TEACHER_BRIEF_JSON_SHAPE,
   TEACHER_BRIEF_PROMPT_VERSION,
+  teacherBriefDomainResponseSchema,
   teacherBriefSchema,
   type TeacherBriefContent,
 } from './teacher-brief-schema';
@@ -41,8 +43,46 @@ import {
 
 export const TEACHER_BRIEF_SERVICE_VERSION = 'teacher-brief-service.v1' as const;
 
-const PROMPT_PATH = path.join('data', 'bilans', 'prompts', 'teacher-brief.v1.md');
+/** Le fichier de prompt SUIT la version : aucun chemin à resynchroniser à la main. */
+const PROMPT_PATH = path.join('data', 'bilans', 'prompts', `${TEACHER_BRIEF_PROMPT_VERSION}.md`);
 const FORBIDDEN_TERMS: readonly string[] = Object.values(lexicon.categories).flat();
+
+/**
+ * Plafond de sortie d'un appel unitaire (un domaine), dérivé des bornes du
+ * schéma plutôt que deviné : le pire cas d'un domaine en caractères, converti
+ * en jetons au ratio prudent du français en JSON (~2,5 car./jeton), majoré
+ * d'une marge de 40 %. Un appel = un domaine, donc ce plafond ne dépend PAS
+ * du nombre de domaines prioritaires du bilan.
+ */
+const CHARS_PER_TOKEN_FR_JSON = 2.5;
+const OUTPUT_MARGIN = 1.4;
+export const TEACHER_BRIEF_DEFAULT_MAX_TOKENS = Math.ceil(
+  (TEACHER_BRIEF_DOMAIN_MAX_CHARS / CHARS_PER_TOKEN_FR_JSON) * OUTPUT_MARGIN / 100,
+) * 100;
+const MAX_TOKENS_FLOOR = 500;
+const MAX_TOKENS_CEILING = 8_000;
+const DEFAULT_TEMPERATURE = 0.3;
+const DEFAULT_TIMEOUT_MS = 45_000;
+const TIMEOUT_FLOOR_MS = 5_000;
+const TIMEOUT_CEILING_MS = 120_000;
+const DEFAULT_MONTHLY_BUDGET_USD = 20;
+const DEFAULT_BASE_URL = 'https://openrouter.ai/api/v1';
+
+/** Lit un nombre d'environnement, borné ; toute valeur invalide → défaut. */
+function boundedNumber(
+  raw: string | undefined,
+  fallback: number,
+  min: number,
+  max: number,
+  integer: boolean,
+): number {
+  if (raw === undefined || raw.trim() === '') return fallback;
+  const value = Number(raw);
+  if (!Number.isFinite(value)) return fallback;
+  if (integer && !Number.isSafeInteger(value)) return fallback;
+  if (value < min || value > max) return fallback;
+  return value;
+}
 
 export class TeacherBriefError extends Error {
   constructor(readonly code: string) {
@@ -82,16 +122,32 @@ export function resolveTeacherBriefConfig(
   if (!apiKey) throw new TeacherBriefError('OPENROUTER_API_KEY_MISSING');
   const model = environment.NEXUS_TEACHER_BRIEF_MODEL?.trim() || BRIEF_POLICY.defaultModel;
   if (!BRIEF_POLICY.allowedModels.includes(model)) throw new TeacherBriefError('TEACHER_BRIEF_MODEL_NOT_ALLOWLISTED');
-  const maxTokens = Number(environment.NEXUS_TEACHER_BRIEF_MAX_TOKENS ?? 2_000);
-  const monthlyBudgetUsd = Number(environment.NEXUS_TEACHER_BRIEF_MONTHLY_BUDGET_USD ?? 20);
   return Object.freeze({
     apiKey,
     model,
-    maxTokens: Number.isSafeInteger(maxTokens) && maxTokens >= 500 && maxTokens <= 2_500 ? maxTokens : 2_000,
-    temperature: 0.3,
-    timeoutMs: 45_000,
-    monthlyBudgetUsd: Number.isFinite(monthlyBudgetUsd) && monthlyBudgetUsd > 0 ? monthlyBudgetUsd : 20,
-    baseUrl: environment.OPENROUTER_BASE_URL?.trim() || 'https://openrouter.ai/api/v1',
+    maxTokens: boundedNumber(
+      environment.NEXUS_TEACHER_BRIEF_MAX_TOKENS,
+      TEACHER_BRIEF_DEFAULT_MAX_TOKENS,
+      MAX_TOKENS_FLOOR,
+      MAX_TOKENS_CEILING,
+      true,
+    ),
+    temperature: boundedNumber(environment.NEXUS_TEACHER_BRIEF_TEMPERATURE, DEFAULT_TEMPERATURE, 0, 1, false),
+    timeoutMs: boundedNumber(
+      environment.NEXUS_TEACHER_BRIEF_TIMEOUT_MS,
+      DEFAULT_TIMEOUT_MS,
+      TIMEOUT_FLOOR_MS,
+      TIMEOUT_CEILING_MS,
+      true,
+    ),
+    monthlyBudgetUsd: boundedNumber(
+      environment.NEXUS_TEACHER_BRIEF_MONTHLY_BUDGET_USD,
+      DEFAULT_MONTHLY_BUDGET_USD,
+      0.01,
+      Number.MAX_SAFE_INTEGER,
+      false,
+    ),
+    baseUrl: environment.OPENROUTER_BASE_URL?.trim() || DEFAULT_BASE_URL,
     supportsPromptCaching: BRIEF_POLICY.promptCaching[model] === true,
   });
 }
@@ -227,12 +283,25 @@ export type TeacherBriefGeneration = Readonly<{
   promptVersion: typeof TEACHER_BRIEF_PROMPT_VERSION;
 }>;
 
-export async function callTeacherBriefModel(
+/** Usage brut d'un appel unitaire, avant agrégation. */
+type DomainCallOutcome = Readonly<{
+  domaine: TeacherBriefContent['domaines'][number];
+  promptTokens: number;
+  cachedPromptTokens: number;
+  completionTokens: number;
+}>;
+
+/**
+ * Appel UNITAIRE : un domaine prioritaire, une réponse. La partie stable du
+ * prompt (consignes + schéma + lexique) est identique d'un appel à l'autre :
+ * elle est mise en cache par le fournisseur, si bien que le surcoût d'un
+ * appel supplémentaire porte presque uniquement sur les jetons de sortie.
+ */
+async function callTeacherBriefDomain(
   config: TeacherBriefConfig,
   facts: TeacherBriefFactsPayload,
-  fetchImpl: typeof fetch = fetch,
-): Promise<TeacherBriefGeneration> {
-  const startedAt = Date.now();
+  fetchImpl: typeof fetch,
+): Promise<DomainCallOutcome> {
   const systemContent = config.supportsPromptCaching
     ? [{ type: 'text', text: buildStableSystemPrompt(), cache_control: { type: 'ephemeral' } }]
     : buildStableSystemPrompt();
@@ -269,7 +338,7 @@ export async function callTeacherBriefModel(
   if (!response.ok) throw new TeacherBriefError(`TEACHER_BRIEF_HTTP_${response.status}`);
 
   const payload = await response.json() as {
-    choices?: readonly { message?: { content?: unknown } }[];
+    choices?: readonly { message?: { content?: unknown }; finish_reason?: string }[];
     usage?: {
       prompt_tokens?: number;
       completion_tokens?: number;
@@ -279,6 +348,14 @@ export async function callTeacherBriefModel(
   };
   const raw = payload.choices?.[0]?.message?.content;
   if (typeof raw !== 'string' || raw.trim() === '') throw new TeacherBriefError('TEACHER_BRIEF_EMPTY');
+
+  // Une sortie coupée au plafond est signalée pour ce qu'elle est : le repli
+  // doit rester lisible comme une panne de dimensionnement, pas comme un
+  // « JSON invalide » du modèle.
+  if (payload.choices?.[0]?.finish_reason === 'length') {
+    throw new TeacherBriefError('TEACHER_BRIEF_TRUNCATED');
+  }
+
   let parsed: unknown;
   try {
     const trimmed = raw.trim();
@@ -287,19 +364,68 @@ export async function callTeacherBriefModel(
   } catch {
     throw new TeacherBriefError('TEACHER_BRIEF_INVALID_JSON');
   }
-  const validated = teacherBriefSchema.safeParse(parsed);
+  const validated = teacherBriefDomainResponseSchema.safeParse(parsed);
   if (!validated.success) throw new TeacherBriefError('TEACHER_BRIEF_SCHEMA_REJECTED');
 
   assertBriefRespectsFacts(validated.data, facts);
 
-  const promptTokens = payload.usage?.prompt_tokens ?? 0;
-  const cachedPromptTokens = payload.usage?.prompt_tokens_details?.cached_tokens
-    ?? payload.usage?.cache_read_input_tokens
-    ?? 0;
-  const completionTokens = payload.usage?.completion_tokens ?? 0;
+  return Object.freeze({
+    domaine: validated.data.domaines[0],
+    promptTokens: payload.usage?.prompt_tokens ?? 0,
+    cachedPromptTokens: payload.usage?.prompt_tokens_details?.cached_tokens
+      ?? payload.usage?.cache_read_input_tokens
+      ?? 0,
+    completionTokens: payload.usage?.completion_tokens ?? 0,
+  });
+}
+
+/**
+ * Brief complet : UN APPEL PAR DOMAINE PRIORITAIRE, puis réassemblage et
+ * validation d'un bloc.
+ *
+ * Pourquoi par lots plutôt qu'un seul appel au plafond relevé — un appel
+ * unique fait dépendre la taille de sortie du NOMBRE de domaines : à quatre
+ * domaines développés (erreurs typiques, prérequis, activité en cinq phases,
+ * indicateur), la sortie dépasse tout plafond raisonnable et la troncature
+ * fait perdre le brief ENTIER. Découpé par domaine, le pire cas d'un appel
+ * est celui d'un seul domaine — borné par le schéma, indépendant du bilan.
+ * La partie stable du prompt étant mise en cache, le surcoût des appels
+ * supplémentaires est marginal (jetons d'entrée à tarif cache).
+ *
+ * Fail-closed inchangé : si UN domaine échoue, aucun brief n'est produit —
+ * jamais de brief partiel présenté comme complet.
+ */
+export async function callTeacherBriefModel(
+  config: TeacherBriefConfig,
+  facts: TeacherBriefFactsPayload,
+  fetchImpl: typeof fetch = fetch,
+): Promise<TeacherBriefGeneration> {
+  const startedAt = Date.now();
+  const outcomes: DomainCallOutcome[] = [];
+  for (const domaine of facts.domainesPrioritaires) {
+    const singleDomainFacts: TeacherBriefFactsPayload = Object.freeze({
+      eleve: facts.eleve,
+      matiere: facts.matiere,
+      domainesPrioritaires: Object.freeze([domaine]),
+    });
+    outcomes.push(await callTeacherBriefDomain(config, singleDomainFacts, fetchImpl));
+  }
+
+  const content = teacherBriefSchema.safeParse({
+    version: TEACHER_BRIEF_PROMPT_VERSION,
+    domaines: outcomes.map((outcome) => outcome.domaine),
+  });
+  if (!content.success) throw new TeacherBriefError('TEACHER_BRIEF_SCHEMA_REJECTED');
+  // Second ancrage, sur l'ensemble réassemblé : l'ordre et la couverture des
+  // domaines doivent correspondre exactement aux faits fournis.
+  assertBriefRespectsFacts(content.data, facts);
+
+  const promptTokens = outcomes.reduce((total, o) => total + o.promptTokens, 0);
+  const cachedPromptTokens = outcomes.reduce((total, o) => total + o.cachedPromptTokens, 0);
+  const completionTokens = outcomes.reduce((total, o) => total + o.completionTokens, 0);
 
   return Object.freeze({
-    content: validated.data,
+    content: content.data,
     promptTokens,
     cachedPromptTokens,
     completionTokens,

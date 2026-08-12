@@ -9,7 +9,7 @@ import { z } from 'zod';
  * du fait mesuré, injecté par NOS soins dans le payload, jamais réinventé.
  */
 
-export const TEACHER_BRIEF_PROMPT_VERSION = 'teacher-brief.v1' as const;
+export const TEACHER_BRIEF_PROMPT_VERSION = 'teacher-brief.v2' as const;
 
 const nonEmpty = (max: number) => z.string().trim().min(1).max(max);
 
@@ -48,7 +48,39 @@ export const teacherBriefSchema = z.object({
 
 export type TeacherBriefContent = z.infer<typeof teacherBriefSchema>;
 
-/** Schéma JSON transmis au modèle (consigne de format, versionné avec le prompt). */
+/**
+ * Réponse d'un appel UNITAIRE : le brief est généré domaine par domaine, si
+ * bien que la sortie attendue d'un appel porte exactement un domaine. La
+ * borne supérieure de la sortie devient celle d'un seul domaine, quel que
+ * soit le nombre de domaines prioritaires du bilan — c'est ce qui rend la
+ * génération insensible à la troncature (cf. teacher-brief-service).
+ * Le contenu STOCKÉ reste `teacherBriefSchema` : les domaines sont
+ * réassemblés puis validés d'un bloc.
+ */
+export const teacherBriefDomainResponseSchema = z.object({
+  version: z.literal(TEACHER_BRIEF_PROMPT_VERSION),
+  domaines: z.array(domaineBriefSchema).length(1),
+}).strict();
+
+/**
+ * Plafond de sortie d'un appel unitaire, dérivé des bornes du schéma :
+ * somme des maxima d'un domaine (erreurs typiques, prérequis, activité,
+ * indicateur) + l'habillage JSON. Sert à dimensionner `max_tokens` au lieu
+ * de le deviner — toute évolution du schéma le met à jour mécaniquement.
+ */
+export const TEACHER_BRIEF_DOMAIN_MAX_CHARS =
+  3 * (400 + 400 + 4 * 64)   // erreursTypiques : constat + origine + itemIds
+  + 4 * 240                  // prerequisAVerifier
+  + (160 + 300 + 300 + 5 * (80 + 600) + 400) // activite : titre/objectif/materiel/deroule/differenciation
+  + 300                      // indicateurProgres
+  + 64                       // domainId
+  + 600;                     // clés JSON, guillemets, ponctuation
+
+/**
+ * Schéma JSON transmis au modèle (consigne de format, versionné avec le
+ * prompt). Un appel = un domaine : le tableau `domaines` en porte exactement
+ * un, celui fourni dans les données.
+ */
 export const TEACHER_BRIEF_JSON_SHAPE = Object.freeze({
   version: TEACHER_BRIEF_PROMPT_VERSION,
   domaines: [{

@@ -162,6 +162,12 @@ jobs:
       - name: Reject unconditional test quarantines and focused tests
         run: npm run check:test-quarantines
 
+      # Garde présente dans le dépôt mais qui n'était appelée nulle part : une
+      # valeur canonique (adresse, téléphone, matricule, tarif) réintroduite en
+      # dur passait donc inaperçue. Elle barre désormais la fusion.
+      - name: Reject hardcoded canonical values
+        run: npm run check:no-hardcoded
+
       - name: Run ESLint
         run: npm run lint
 

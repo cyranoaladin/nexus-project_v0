@@ -14,7 +14,7 @@ import {
   renderProfileNarrativeEntry,
   type ReportAudience,
 } from './profile-copy';
-import { buildCalibrationSentence } from './prose-catalogue';
+import { buildCalibrationSentence } from './calibration-prose';
 import { assertPseudonymousRenderIdentity, type RenderIdentity } from './render-identity';
 import { numberWordFr } from './stage-constants';
 
