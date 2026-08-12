@@ -34,6 +34,8 @@ const renderAudience: PublicationRenderer = async (factSheet, audience, identity
 });
 
 describe('A86 deterministic worker and internal review service', () => {
+  afterEach(() => { delete process.env.NEXUS_BILAN_FAMILY_NARRATION_ENABLED; });
+
   let studentId: string;
   let studentUserId: string;
   let parentUserId: string;
@@ -186,6 +188,9 @@ describe('A86 deterministic worker and internal review service', () => {
   });
 
   test('never publishes an invented report on LLM failure, then recovers on the next drain', async () => {
+    // Le chemin de narration familles est verrouillé par défaut : ces
+    // assertions fail-closed ne valent que narration explicitement activée.
+    process.env.NEXUS_BILAN_FAMILY_NARRATION_ENABLED = 'true';
     const seeded = await seedAttempt('llm-fail');
     await processScoreAttemptJob(seeded.job.id, dependencies);
     const generateJob = await prisma.jobOutbox.findUniqueOrThrow({
@@ -239,6 +244,7 @@ describe('A86 deterministic worker and internal review service', () => {
   });
 
   test('a real OpenRouter misconfiguration (not a missing key) still fails closed instead of silently falling back', async () => {
+    process.env.NEXUS_BILAN_FAMILY_NARRATION_ENABLED = 'true';
     const seeded = await seedAttempt('misconfigured-model');
     await processScoreAttemptJob(seeded.job.id, dependencies);
     const generateJob = await prisma.jobOutbox.findUniqueOrThrow({
