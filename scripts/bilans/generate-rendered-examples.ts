@@ -6,6 +6,7 @@ import { loadBilanPack } from '@/lib/bilans/catalog/load-pack';
 import type { FactSheet } from '@/lib/bilans/facts/fact-sheet';
 import {
   createBilanPdfRendererSession,
+  extractPdfText,
   normalizePdfForComparison,
   renderDeterministicBilanPdf,
 } from '@/lib/bilans/render/pdf';
@@ -83,6 +84,32 @@ export async function buildRenderedExampleArtifacts(): Promise<ReadonlyMap<strin
   return artifacts;
 }
 
+/**
+ * Vérification d'un artefact committé. Les HTML se comparent octet par
+ * octet (rendu déterministe). Les PDF se comparent sur leur texte extrait :
+ * les glyphes de banque hors couverture DM Sans (√, ≥, ≤, ∪, ∩) passent par
+ * une police de repli du système hôte, donc les octets d'un même contenu
+ * varient d'une machine à l'autre — le contenu, lui, ne varie pas.
+ */
+async function assertArtifactMatches(name: string, expected: Buffer, committedPath: string): Promise<void> {
+  if (!fs.existsSync(committedPath)) throw new Error(`A95_ARTIFACT_DIVERGED:${name}`);
+  const committed = fs.readFileSync(committedPath);
+  if (name.endsWith('.html')) {
+    if (!committed.equals(expected)) throw new Error(`A95_ARTIFACT_DIVERGED:${name}`);
+    return;
+  }
+  if (expected.subarray(0, 4).toString() !== '%PDF' || committed.subarray(0, 4).toString() !== '%PDF') {
+    throw new Error(`A95_ARTIFACT_DIVERGED:${name}`);
+  }
+  const [expectedText, committedText] = await Promise.all([
+    extractPdfText(expected),
+    extractPdfText(committed),
+  ]);
+  if (expectedText.length === 0 || expectedText !== committedText) {
+    throw new Error(`A95_ARTIFACT_DIVERGED:${name}`);
+  }
+}
+
 export async function generateRenderedExamples(write: boolean): Promise<readonly string[]> {
   const outputDirectory = path.join(process.cwd(), OUTPUT_DIRECTORY);
   const artifacts = await buildRenderedExampleArtifacts();
@@ -97,9 +124,7 @@ export async function generateRenderedExamples(write: boolean): Promise<readonly
       fs.writeFileSync(destination, expected);
       continue;
     }
-    if (!fs.existsSync(destination) || !fs.readFileSync(destination).equals(expected)) {
-      throw new Error(`A95_ARTIFACT_DIVERGED:${name}`);
-    }
+    await assertArtifactMatches(name, expected, destination);
   }
   return Object.freeze(names);
 }
