@@ -9,13 +9,47 @@ import {
   type RecentReportReview,
 } from '@/lib/bilans/staff/review-service';
 
-import { addParentEmailAction, rejectReportAction, validateAndPublishReportAction } from './actions';
+import { REPORT_ANNOTATION_SECTIONS } from '@/lib/bilans/core/report-service';
+
+import {
+  addParentEmailAction,
+  confirmWhatsAppTransmissionAction,
+  prepareWhatsAppSendAction,
+  rejectReportAction,
+  requestCorrectionAction,
+  resumeReviewAction,
+  validateAndPublishReportAction,
+} from './actions';
+
+const ANNOTATION_SECTION_LABELS: Readonly<Record<string, string>> = {
+  introduction: 'Introduction',
+  methode: 'Note de méthode',
+  forces: 'Points d’appui',
+  priorites: 'Priorités',
+  parcours: 'Parcours de séances',
+  'plan-action': 'Plan d’action',
+  'detail-reponses': 'Détail des réponses',
+  calibration: 'Auto-évaluation',
+  conclusion: 'Conclusion',
+  autre: 'Autre',
+  'reprise-de-revue': 'Reprise de revue',
+};
+
+const WORKFLOW_PHASES = [
+  'Foyer et enfants',
+  'Saisie des tests',
+  'Revue du bilan',
+  'Diffusion',
+  'Envoi WhatsApp',
+  'Suivi',
+] as const;
 
 const AUDIENCES = ['ELEVE', 'PARENTS', 'NEXUS'] as const;
 
 function statusClass(status: RecentReportReview['displayStatus']): string {
-  if (status === 'Diffusé') return 'bg-emerald-300/15 text-emerald-100';
+  if (status === 'Diffusé' || status === 'Transmis au parent') return 'bg-emerald-300/15 text-emerald-100';
   if (status === 'Rejeté') return 'bg-red-300/15 text-red-100';
+  if (status === 'Correction demandée') return 'bg-sky-300/15 text-sky-100';
   return 'bg-amber-300/15 text-amber-100';
 }
 
@@ -47,7 +81,9 @@ export default async function CanonicalBilansReviewPage({
   const statusCounts = {
     missingEmail: revisions.filter(({ displayStatus }) => displayStatus === 'Prêt — e-mail parent manquant').length,
     pending: revisions.filter(({ displayStatus }) => displayStatus === 'En attente de diffusion').length,
+    correction: revisions.filter(({ displayStatus }) => displayStatus === 'Correction demandée').length,
     published: revisions.filter(({ displayStatus }) => displayStatus === 'Diffusé').length,
+    transmitted: revisions.filter(({ displayStatus }) => displayStatus === 'Transmis au parent').length,
     rejected: revisions.filter(({ displayStatus }) => displayStatus === 'Rejeté').length,
   };
   const requestedPreview = (await searchParams).preview;
@@ -82,11 +118,25 @@ export default async function CanonicalBilansReviewPage({
           </Link>
         </header>
 
-        <section className="mt-8 grid gap-3 sm:grid-cols-2 xl:grid-cols-4" aria-label="Synthèse des états de diffusion">
+        <nav aria-label="Fil du workflow" className="mt-8 overflow-x-auto">
+          <ol className="flex min-w-max items-center gap-2 text-xs text-slate-300">
+            {WORKFLOW_PHASES.map((phase, index) => (
+              <li key={phase} className="flex items-center gap-2">
+                <span className="flex h-6 w-6 items-center justify-center rounded-full border border-amber-300/60 font-semibold text-amber-200">{index + 1}</span>
+                <span>{phase}</span>
+                {index < WORKFLOW_PHASES.length - 1 && <span aria-hidden className="text-slate-600">→</span>}
+              </li>
+            ))}
+          </ol>
+        </nav>
+
+        <section className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-6" aria-label="Synthèse des états de diffusion">
           {[
             ['bilans prêts en attente d’e-mail parent', statusCounts.missingEmail],
             ['En attente de diffusion', statusCounts.pending],
-            ['Diffusé', statusCounts.published],
+            ['Correction demandée', statusCounts.correction],
+            ['Diffusé, à transmettre', statusCounts.published],
+            ['Transmis au parent', statusCounts.transmitted],
             ['Rejeté', statusCounts.rejected],
           ].map(([label, count]) => (
             <article key={label} className={`rounded-2xl border p-4 ${label === 'bilans prêts en attente d’e-mail parent' ? 'border-amber-300/50 bg-amber-300/10' : 'border-white/10 bg-white/[0.05]'}`}>
@@ -225,14 +275,141 @@ export default async function CanonicalBilansReviewPage({
                     </>
                   ) : (
                     <p className="px-6 py-5 text-sm text-slate-400">
-                      {revision.displayStatus === 'Diffusé'
-                        ? 'Le bilan a été diffusé aux destinataires prévus.'
-                        : revision.displayStatus === 'Rejeté'
-                          ? 'Le bilan a été rejeté et ne peut pas être diffusé.'
-                          : blocked
-                            ? 'Corrigez les blocages signalés avant de reprendre la diffusion.'
-                            : 'Ce bilan n’est pas actionnable avec la configuration actuelle.'}
+                      {revision.displayStatus === 'Transmis au parent' && revision.transmittedAt !== null
+                        ? `Transmis au parent le ${dateLabel(revision.transmittedAt)} par WhatsApp.`
+                        : revision.displayStatus === 'Diffusé'
+                          ? 'Le bilan a été diffusé. Prochaine étape : l’envoyer au parent par WhatsApp.'
+                          : revision.displayStatus === 'Correction demandée'
+                            ? 'Une correction a été demandée. Le bilan reviendra en revue dès qu’elle sera apportée.'
+                            : revision.displayStatus === 'Rejeté'
+                              ? 'Le bilan a été rejeté et ne peut pas être diffusé.'
+                              : blocked
+                                ? 'Corrigez les blocages signalés avant de reprendre la diffusion.'
+                                : 'Ce bilan n’est pas actionnable avec la configuration actuelle.'}
                     </p>
+                  )}
+
+                  {revision.status === 'PENDING_REVIEW' && (
+                    <details className="border-t border-white/10 px-6 py-5">
+                      <summary className="cursor-pointer text-sm font-semibold text-sky-200">
+                        Demander une correction ciblée
+                      </summary>
+                      <form action={requestCorrectionAction} className="mt-4 grid gap-3 lg:grid-cols-2">
+                        <input type="hidden" name="revisionId" value={revision.id} />
+                        <label className="text-sm text-slate-300">
+                          Document concerné
+                          <select name="audience" required className="mt-1 w-full rounded-xl border border-white/15 bg-slate-950 px-3 py-2.5 text-white">
+                            <option value="ELEVE">Bilan élève</option>
+                            <option value="PARENTS">Bilan parents</option>
+                            <option value="NEXUS">Document interne Nexus</option>
+                          </select>
+                        </label>
+                        <label className="text-sm text-slate-300">
+                          Section concernée
+                          <select name="section" required className="mt-1 w-full rounded-xl border border-white/15 bg-slate-950 px-3 py-2.5 text-white">
+                            {REPORT_ANNOTATION_SECTIONS.filter((section) => section !== 'reprise-de-revue').map((section) => (
+                              <option key={section} value={section}>{ANNOTATION_SECTION_LABELS[section] ?? section}</option>
+                            ))}
+                          </select>
+                        </label>
+                        <label className="lg:col-span-2 text-sm text-slate-300">
+                          Remarque pour la correction
+                          <textarea name="remark" required minLength={5} className="mt-1 min-h-20 w-full rounded-xl border border-white/15 bg-slate-950 p-3 text-sm text-white" />
+                        </label>
+                        <label className="lg:col-span-2 text-sm text-slate-300">
+                          Motif structuré
+                          <input name="motif" required minLength={5} className="mt-1 w-full rounded-xl border border-white/15 bg-slate-950 px-3 py-2.5 text-sm text-white" placeholder="Exemple : reformuler la priorité no 2 du bilan élève" />
+                        </label>
+                        <button type="submit" className="rounded-xl border border-sky-300 px-4 py-2.5 font-semibold text-sky-100">
+                          Renvoyer en correction
+                        </button>
+                      </form>
+                    </details>
+                  )}
+
+                  {revision.correctionRequested && (
+                    <section className="border-t border-sky-300/20 bg-sky-300/5 px-6 py-5">
+                      <h3 className="font-semibold text-sky-100">Correction demandée — reprise de revue</h3>
+                      <p className="mt-1 text-sm text-slate-300">
+                        Une fois la correction apportée, reprenez la revue : le bilan reviendra dans la file « À revoir », historique intact.
+                      </p>
+                      <form action={resumeReviewAction} className="mt-3 flex flex-col gap-3 sm:flex-row">
+                        <input type="hidden" name="revisionId" value={revision.id} />
+                        <input name="motif" required minLength={5} placeholder="Correction apportée : préciser quoi" className="min-w-0 flex-1 rounded-xl border border-white/15 bg-slate-950 px-3 py-2.5 text-sm text-white" />
+                        <button type="submit" className="rounded-xl bg-sky-300 px-4 py-2.5 font-semibold text-slate-950">
+                          Reprendre la revue
+                        </button>
+                      </form>
+                    </section>
+                  )}
+
+                  {revision.reportArtifact.status === 'PUBLISHED' && (
+                    <section className="border-t border-emerald-300/20 bg-emerald-300/5 px-6 py-5">
+                      <h3 className="font-semibold text-emerald-100">Envoi au parent par WhatsApp</h3>
+                      {revision.transmittedAt !== null ? (
+                        <p className="mt-1 text-sm text-emerald-100">
+                          Transmis au parent le {dateLabel(revision.transmittedAt)} par WhatsApp.
+                        </p>
+                      ) : revision.parentPhoneMissing ? (
+                        <p className="mt-1 text-sm text-slate-300">
+                          Aucun téléphone enregistré pour ce parent : l’envoi WhatsApp est indisponible.
+                        </p>
+                      ) : (
+                        <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                          <form action={prepareWhatsAppSendAction} target="_blank">
+                            <input type="hidden" name="artifactId" value={revision.reportArtifact.id} />
+                            <button type="submit" className="w-full rounded-xl bg-emerald-500 px-4 py-2.5 font-semibold text-slate-950">
+                              Envoyer par WhatsApp
+                            </button>
+                            <p className="mt-2 text-xs leading-5 text-slate-400">
+                              Prépare des liens signés neufs (élève et parents, jamais le document interne) et ouvre WhatsApp avec le message prêt à envoyer.
+                            </p>
+                          </form>
+                          <form action={confirmWhatsAppTransmissionAction}>
+                            <input type="hidden" name="artifactId" value={revision.reportArtifact.id} />
+                            <button type="submit" className="w-full rounded-xl border border-emerald-300 px-4 py-2.5 font-semibold text-emerald-100">
+                              Confirmer : message envoyé
+                            </button>
+                            <p className="mt-2 text-xs leading-5 text-slate-400">
+                              À confirmer après l’envoi effectif — c’est cette trace qui alimente le suivi « qui a reçu quoi ».
+                            </p>
+                          </form>
+                        </div>
+                      )}
+                    </section>
+                  )}
+
+                  {revision.reviews.some((review) => review.annotations.length > 0 || review.decision === 'CHANGES_REQUESTED') && (
+                    <details className="border-t border-white/10 px-6 py-5">
+                      <summary className="cursor-pointer text-sm font-semibold text-slate-300">
+                        Historique des annotations de revue
+                      </summary>
+                      <ol className="mt-4 space-y-4">
+                        {revision.reviews
+                          .filter((review) => review.decision === 'CHANGES_REQUESTED' || review.annotations.length > 0)
+                          .map((review) => (
+                            <li key={review.id} className="rounded-2xl border border-white/10 bg-black/20 p-4 text-sm">
+                              <p className="font-semibold text-white">
+                                {review.reviewer ? `${review.reviewer.firstName ?? ''} ${review.reviewer.lastName ?? ''}`.trim() || 'Assistante' : 'Assistante'}
+                                <span className="ml-2 font-normal text-slate-400">{dateLabel(review.reviewedAt)}</span>
+                              </p>
+                              <p className="mt-1 text-slate-300">{review.motif}</p>
+                              {review.annotations.length > 0 && (
+                                <ul className="mt-3 space-y-2">
+                                  {review.annotations.map((annotation, index) => (
+                                    <li key={`${review.id}-${index}`} className="rounded-xl border border-sky-300/20 bg-sky-300/5 p-3">
+                                      <p className="text-xs font-semibold uppercase tracking-wide text-sky-200">
+                                        {annotation.audience === 'ELEVE' ? 'Bilan élève' : annotation.audience === 'PARENTS' ? 'Bilan parents' : 'Document interne'} · {ANNOTATION_SECTION_LABELS[annotation.section] ?? annotation.section}
+                                      </p>
+                                      <p className="mt-1 text-slate-200">{annotation.remark}</p>
+                                    </li>
+                                  ))}
+                                </ul>
+                              )}
+                            </li>
+                          ))}
+                      </ol>
+                    </details>
                   )}
                 </article>
               );

@@ -232,6 +232,10 @@ model User {
 
   // Canonical bilan reviews performed by this user (ASSISTANTE)
   bilanReportReviews ReportReview[]
+  reportShareLinksReceived ReportShareLink[] @relation("ReportShareLinkRecipient")
+  reportShareLinksCreated  ReportShareLink[] @relation("ReportShareLinkCreator")
+  reportTransmissionsReceived  ReportTransmission[] @relation("ReportTransmissionRecipient")
+  reportTransmissionsConfirmed ReportTransmission[] @relation("ReportTransmissionConfirmer")
 
   // Paper bilan copies transcribed by this user (ASSISTANTE or ADMIN)
   bilanPaperEntries CanonicalAssessmentAttempt[] @relation("CanonicalAttemptPaperEntry")
@@ -1427,6 +1431,7 @@ enum ReportArtifactStatus {
 enum ReportRevisionStatus {
   DRAFT
   PENDING_REVIEW
+  CORRECTION_REQUESTED
   COACH_VALIDATED
   APPROVED
   REJECTED
@@ -1622,6 +1627,9 @@ model ReportArtifact {
 
   revisions ReportRevision[] @relation("ReportArtifactRevisions")
 
+  shareLinks    ReportShareLink[]
+  transmissions ReportTransmission[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -1709,10 +1717,78 @@ model ReportReview {
   reviewedAt DateTime             @default(now())
   createdAt  DateTime             @default(now())
 
+  annotations ReportReviewAnnotation[]
+
   @@index([reportRevisionId, reviewedAt])
   @@index([coachId, reviewedAt])
   @@index([reviewerId, reviewedAt])
   @@map("canonical_report_reviews")
+}
+
+// Annotation de revue : remarque ciblée (audience + section) portée par une
+// revue CHANGES_REQUESTED. Métadonnée pure — jamais écrasée (trigger DB).
+model ReportReviewAnnotation {
+  id             String                        @id @default(cuid())
+  reportReviewId String
+  reportReview   ReportReview                  @relation(fields: [reportReviewId], references: [id], onDelete: Restrict)
+  audience       ReportMaterializationAudience
+  section        String
+  remark         String                        @db.Text
+  createdAt      DateTime                      @default(now())
+
+  @@index([reportReviewId, createdAt])
+  @@map("canonical_report_review_annotations")
+}
+
+// Lien de consultation signé d'un bilan diffusé. Seule l'empreinte SHA-256
+// du secret est stockée ; l'audience NEXUS est interdite par CHECK en base.
+model ReportShareLink {
+  id               String                        @id @default(cuid())
+  reportArtifactId String
+  reportArtifact   ReportArtifact                @relation(fields: [reportArtifactId], references: [id], onDelete: Restrict)
+  audience         ReportMaterializationAudience
+  recipientUserId  String
+  recipientUser    User                          @relation("ReportShareLinkRecipient", fields: [recipientUserId], references: [id], onDelete: Restrict)
+  tokenHash        String                        @unique
+  expiresAt        DateTime
+  revokedAt        DateTime?
+  createdById      String
+  createdBy        User                          @relation("ReportShareLinkCreator", fields: [createdById], references: [id], onDelete: Restrict)
+  createdAt        DateTime                      @default(now())
+
+  accesses ShareLinkAccess[]
+
+  @@index([reportArtifactId, createdAt])
+  @@map("canonical_report_share_links")
+}
+
+// Journal de consultation d'un lien signé : date seule, aucune donnée
+// identifiante superflue. Append-only (trigger DB).
+model ShareLinkAccess {
+  id          String          @id @default(cuid())
+  shareLinkId String
+  shareLink   ReportShareLink @relation(fields: [shareLinkId], references: [id], onDelete: Restrict)
+  accessedAt  DateTime        @default(now())
+
+  @@index([shareLinkId, accessedAt])
+  @@map("canonical_share_link_accesses")
+}
+
+// Confirmation de transmission d'un bilan diffusé au parent, par l'assistante.
+// Append-only (trigger DB) : la trace ne se corrige pas, elle s'ajoute.
+model ReportTransmission {
+  id               String         @id @default(cuid())
+  reportArtifactId String
+  reportArtifact   ReportArtifact @relation(fields: [reportArtifactId], references: [id], onDelete: Restrict)
+  channel          String
+  recipientUserId  String
+  recipientUser    User           @relation("ReportTransmissionRecipient", fields: [recipientUserId], references: [id], onDelete: Restrict)
+  confirmedById    String
+  confirmedBy      User           @relation("ReportTransmissionConfirmer", fields: [confirmedById], references: [id], onDelete: Restrict)
+  confirmedAt      DateTime       @default(now())
+
+  @@index([reportArtifactId, confirmedAt])
+  @@map("canonical_report_transmissions")
 }
 
 model JobOutbox {

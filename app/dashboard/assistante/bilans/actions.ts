@@ -1,7 +1,8 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
+import { headers } from 'next/headers';
 
 import { auth } from '@/auth';
 import {
@@ -10,9 +11,14 @@ import {
 } from '@/lib/bilans/staff/parent-contact-service';
 import {
   rejectPendingReport,
+  requestCorrectionForPendingReport,
+  resumeCorrectedReport,
   StaffReviewError,
   validateAndPublishPendingReport,
 } from '@/lib/bilans/staff/review-service';
+import type { ReportAnnotationSection, ReportReviewAnnotationInput } from '@/lib/bilans/core/report-service';
+import { ReportTransmissionError, confirmWhatsAppTransmission } from '@/lib/bilans/staff/transmission-service';
+import { prepareWhatsAppSend, WhatsAppSendError } from '@/lib/bilans/staff/whatsapp-send-service';
 
 function field(formData: FormData, name: string): string {
   const value = formData.get(name);
@@ -66,6 +72,77 @@ export async function rejectReportAction(formData: FormData): Promise<void> {
     });
     revalidatePath('/dashboard/assistante/bilans');
   } catch (error) {
+    handleAccessError(error);
+  }
+}
+
+export async function requestCorrectionAction(formData: FormData): Promise<void> {
+  const annotation: ReportReviewAnnotationInput = {
+    audience: field(formData, 'audience') as ReportReviewAnnotationInput['audience'],
+    section: field(formData, 'section') as ReportAnnotationSection,
+    remark: field(formData, 'remark'),
+  };
+  try {
+    await requestCorrectionForPendingReport({
+      ...await actor(),
+      revisionId: field(formData, 'revisionId'),
+      motif: field(formData, 'motif'),
+      annotations: [annotation],
+    });
+    revalidatePath('/dashboard/assistante/bilans');
+  } catch (error) {
+    handleAccessError(error);
+  }
+}
+
+export async function resumeReviewAction(formData: FormData): Promise<void> {
+  try {
+    await resumeCorrectedReport({
+      ...await actor(),
+      revisionId: field(formData, 'revisionId'),
+      motif: field(formData, 'motif'),
+    });
+    revalidatePath('/dashboard/assistante/bilans');
+  } catch (error) {
+    handleAccessError(error);
+  }
+}
+
+export async function prepareWhatsAppSendAction(formData: FormData): Promise<void> {
+  let whatsappUrl: string;
+  try {
+    const current = await actor();
+    const requestHeaders = await headers();
+    const host = requestHeaders.get('x-forwarded-host') ?? requestHeaders.get('host');
+    const protocol = requestHeaders.get('x-forwarded-proto') ?? 'https';
+    const origin = process.env.NEXTAUTH_URL?.replace(/\/$/, '')
+      ?? (host !== null ? `${protocol}://${host}` : 'https://nexusreussite.academy');
+    const prepared = await prepareWhatsAppSend({
+      actor: current,
+      reportArtifactId: field(formData, 'artifactId'),
+      origin,
+    });
+    whatsappUrl = prepared.whatsappUrl;
+    revalidatePath('/dashboard/assistante/bilans');
+  } catch (error) {
+    if (error instanceof WhatsAppSendError) notFound();
+    handleAccessError(error);
+  }
+  redirect(whatsappUrl);
+}
+
+export async function confirmWhatsAppTransmissionAction(formData: FormData): Promise<void> {
+  try {
+    const current = await actor();
+    if (current.role !== 'ASSISTANTE') notFound();
+    await confirmWhatsAppTransmission({
+      reportArtifactId: field(formData, 'artifactId'),
+      confirmedById: current.userId,
+    });
+    revalidatePath('/dashboard/assistante/bilans');
+  } catch (error) {
+    if (error instanceof ReportTransmissionError) notFound();
+    if (error instanceof WhatsAppSendError) notFound();
     handleAccessError(error);
   }
 }
