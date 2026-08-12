@@ -14,6 +14,14 @@ jest.mock('@/lib/email', () => ({
   sendStageDiagnosticInvitation: jest.fn().mockResolvedValue(undefined),
 }));
 
+jest.mock('@/lib/email/outbox', () => ({
+  enqueueEmailIntent: jest.fn().mockResolvedValue(undefined),
+}));
+
+jest.mock('@/lib/email/outbox-scheduler', () => ({
+  kickEmailOutboxDrain: jest.fn(),
+}));
+
 jest.mock('@/lib/rate-limit/sensitive', () => ({
   guardRateLimit: jest.fn().mockReturnValue(null),
   guardRateLimitAsync: jest.fn().mockResolvedValue(null),
@@ -25,17 +33,13 @@ jest.mock('@/lib/csrf', () => ({
   checkBodySize: jest.fn().mockReturnValue(null),
 }));
 
-jest.mock('@/lib/telegram/client', () => ({
-  telegramSendMessage: jest.fn(),
-}));
-
 jest.mock('@/auth', () => ({
   auth: jest.fn(),
 }));
 
 import { POST } from '@/app/api/reservation/route';
 import { prisma } from '@/lib/prisma';
-import { telegramSendMessage } from '@/lib/telegram/client';
+import { enqueueEmailIntent } from '@/lib/email/outbox';
 
 function makeRequest(body?: any) {
   return {
@@ -63,11 +67,6 @@ describe('POST /api/reservation', () => {
     // No existing reservation by default
     (prisma.stageReservation.findUnique as jest.Mock).mockResolvedValue(null);
     (prisma.stageReservation.create as jest.Mock).mockResolvedValue({ id: 'res-1' });
-    (telegramSendMessage as jest.Mock).mockResolvedValue({
-      ok: true,
-      skipped: true,
-      status: 'disabled',
-    });
   });
 
   it('returns 400 when missing fields', async () => {
@@ -78,40 +77,24 @@ describe('POST /api/reservation', () => {
     expect(body.success).toBe(false);
   });
 
-  it('returns 201 when creating new reservation (telegram not configured)', async () => {
+  it('returns 201 when creating new reservation', async () => {
     const response = await POST(makeRequest(validBody));
     const body = await response.json();
 
     expect(response.status).toBe(201);
     expect(body.success).toBe(true);
     expect(prisma.stageReservation.create).toHaveBeenCalledTimes(1);
-    expect(telegramSendMessage).toHaveBeenCalledTimes(1);
   });
 
-  it('escapes a literal backslash before a MarkdownV1 special char, not after', async () => {
-    // A pre-existing '\' immediately before a special char (e.g. '*') must
-    // itself be escaped first -- otherwise the sanitizer's own inserted
-    // '\' pairs with the ATTACKER'S backslash instead of the special char,
-    // leaving the special char unescaped and live (e.g. "\*bold*\" would
-    // still toggle Markdown bold once rendered by Telegram).
-    await POST(makeRequest({ ...validBody, parent: String.raw`Jean\*Dupont` }));
+  it('sends an internal staff alert for a new reservation', async () => {
+    await POST(makeRequest(validBody));
 
-    const [, message] = (telegramSendMessage as jest.Mock).mock.calls[0];
-    // The literal backslash must be escaped to \\, and the asterisk to \*,
-    // independently -- i.e. 3 backslashes then '*', never 2.
-    expect(message).toContain(String.raw`Jean\\\*Dupont`);
-  });
-
-  it('keeps the reservation when the secondary Telegram notification fails', async () => {
-    (telegramSendMessage as jest.Mock).mockResolvedValue({
-      ok: false,
-      status: 'failed',
-      error: 'request_failed',
-    });
-
-    const response = await POST(makeRequest(validBody));
-
-    expect(response.status).toBe(201);
-    expect(prisma.stageReservation.create).toHaveBeenCalledTimes(1);
+    expect(enqueueEmailIntent).toHaveBeenCalledWith(
+      prisma,
+      expect.objectContaining({
+        aggregateId: 'res-1',
+        subject: expect.stringContaining('Nouveau lead chaud'),
+      }),
+    );
   });
 });

@@ -378,8 +378,8 @@ Fichier : `scripts/backfill-canonical-domains.ts`
 
 ```bash
 # Exécution (sur serveur prod, après backup) :
-DATABASE_URL=postgresql://nexus_admin:***@localhost:5435/nexus_prod \
-  npx tsx scripts/backfill-canonical-domains.ts
+# DATABASE_URL doit déjà être exportée depuis le coffre-fort de secrets (jamais en clair ici).
+npx tsx scripts/backfill-canonical-domains.ts
 ```
 
 **Comportement** :
@@ -565,7 +565,7 @@ Après corrections, les seules occurrences restantes sont :
 
 - **URLs** : toutes env-first (`OLLAMA_URL`, `RAG_INGESTOR_URL`, `SMTP_HOST`), fallback dev-only (`NODE_ENV !== 'production'`)
 - **Emails business** : `contact@nexusreussite.academy` dans mentions légales et templates = requis par la loi
-- **Secrets** : tous via `process.env` (`NEXTAUTH_SECRET`, `KONNECT_API_KEY`, `TELEGRAM_BOT_TOKEN`)
+- **Secrets** : tous via `process.env` (`NEXTAUTH_SECRET`, `KONNECT_API_KEY`)
 - **Ports** : aucun port magique dans le runtime (hors compose/ops)
 
 ### 11.4 Raw SQL — Justification

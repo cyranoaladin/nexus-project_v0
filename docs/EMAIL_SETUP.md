@@ -1,4 +1,4 @@
-# Email & Telegram — Setup Guide
+# Email — Setup Guide
 
 ## 1. Email (SMTP Hostinger)
 
@@ -62,46 +62,11 @@ Pour que les emails n'atterrissent pas en spam :
 
 ---
 
-## 2. Telegram (Bot API)
-
-### Variables d'environnement
-
-| Variable | Exemple | Description |
-|---|---|---|
-| `TELEGRAM_BOT_TOKEN` | *(secret)* | Token du bot (depuis @BotFather) |
-| `TELEGRAM_CHAT_ID` | *(secret de configuration)* | Destination gérée hors Git |
-| `TELEGRAM_NOTIFICATIONS_ENABLED` | `true` / `false` | Active explicitement l'envoi (défaut sûr : `false`) |
-
-### Architecture
-
-```
-lib/telegram/client.ts          ← Client Bot API (getMe, getUpdates, getChat, sendMessage)
-scripts/verify-telegram.mjs     ← Script de vérification des identifiants
-```
-
-### Réactivation contrôlée
-
-La réactivation exige une fenêtre dédiée : rotation du credential, stockage privé,
-validation sans message réel, puis activation explicite du flag. Aucun utilitaire du
-dépôt ne découvre ou n'affiche les destinations Telegram.
-
-### Sécurité
-
-- **Aucun envoi implicite** : `TELEGRAM_NOTIFICATIONS_ENABLED` doit valoir exactement `true`. Sans ce flag, aucun appel réseau Telegram n'est effectué.
-- **Token jamais loggé** : les erreurs utilisent uniquement un code interne stable.
-- **Contenu jamais loggé** : le texte du message n'apparaît pas dans les logs.
-- **Destination jamais loggée** : aucun identifiant de conversation n'apparaît dans les logs.
-
----
-
-## 3. Tests
+## 2. Tests
 
 ```bash
 # Tests mailer (mock nodemailer, aucun réseau)
 npx jest --no-coverage __tests__/lib/email/mailer.test.ts
-
-# Tests telegram (mock fetch, aucun réseau)
-npx jest --no-coverage __tests__/lib/telegram/client.test.ts
 
 # Suite complète
 npm run test:unit
@@ -109,7 +74,7 @@ npm run test:unit
 
 ---
 
-## 4. API Route — POST /api/notify/email
+## 3. API Route — POST /api/notify/email
 
 ### Payload `bilan_ack`
 
