@@ -19,6 +19,12 @@ import {
 import type { ReportAnnotationSection, ReportReviewAnnotationInput } from '@/lib/bilans/core/report-service';
 import { ReportTransmissionError, confirmWhatsAppTransmission } from '@/lib/bilans/staff/transmission-service';
 import { prepareWhatsAppSend, WhatsAppSendError } from '@/lib/bilans/staff/whatsapp-send-service';
+import { generateTeacherBrief, TeacherBriefError } from '@/lib/bilans/llm/teacher-brief-service';
+import {
+  approveTeacherBrief,
+  requestTeacherBriefCorrection,
+  TeacherBriefReviewError,
+} from '@/lib/bilans/staff/teacher-brief-review-service';
 
 function field(formData: FormData, name: string): string {
   const value = formData.get(name);
@@ -143,6 +149,53 @@ export async function confirmWhatsAppTransmissionAction(formData: FormData): Pro
   } catch (error) {
     if (error instanceof ReportTransmissionError) notFound();
     if (error instanceof WhatsAppSendError) notFound();
+    handleAccessError(error);
+  }
+}
+
+export async function generateTeacherBriefAction(formData: FormData): Promise<void> {
+  try {
+    await generateTeacherBrief({
+      actor: await actor(),
+      reportArtifactId: field(formData, 'artifactId'),
+    });
+    revalidatePath('/dashboard/assistante/bilans');
+  } catch (error) {
+    if (error instanceof TeacherBriefError) notFound();
+    handleAccessError(error);
+  }
+}
+
+export async function approveTeacherBriefAction(formData: FormData): Promise<void> {
+  try {
+    const edited = field(formData, 'editedContent').trim();
+    await approveTeacherBrief({
+      actor: await actor(),
+      briefId: field(formData, 'briefId'),
+      motif: field(formData, 'motif'),
+      ...(edited ? { editedContent: edited } : {}),
+    });
+    revalidatePath('/dashboard/assistante/bilans');
+  } catch (error) {
+    if (error instanceof TeacherBriefReviewError) notFound();
+    handleAccessError(error);
+  }
+}
+
+export async function requestTeacherBriefCorrectionAction(formData: FormData): Promise<void> {
+  try {
+    await requestTeacherBriefCorrection({
+      actor: await actor(),
+      briefId: field(formData, 'briefId'),
+      motif: field(formData, 'motif'),
+      annotation: {
+        section: field(formData, 'section'),
+        remark: field(formData, 'remark'),
+      },
+    });
+    revalidatePath('/dashboard/assistante/bilans');
+  } catch (error) {
+    if (error instanceof TeacherBriefReviewError) notFound();
     handleAccessError(error);
   }
 }

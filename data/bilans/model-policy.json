@@ -3,5 +3,20 @@
   "allowedModels": [
     "mistralai/mistral-large-2512",
     "openai/gpt-4o-mini"
-  ]
+  ],
+  "teacherBrief": {
+    "allowedModels": [
+      "anthropic/claude-sonnet-4.5",
+      "mistralai/mistral-large-2512"
+    ],
+    "defaultModel": "anthropic/claude-sonnet-4.5",
+    "promptCaching": {
+      "anthropic/claude-sonnet-4.5": true,
+      "mistralai/mistral-large-2512": false
+    },
+    "pricingUsdPerMillionTokens": {
+      "anthropic/claude-sonnet-4.5": { "input": 3.0, "cachedInput": 0.3, "output": 15.0 },
+      "mistralai/mistral-large-2512": { "input": 2.0, "cachedInput": 2.0, "output": 6.0 }
+    }
+  }
 }
