@@ -432,6 +432,34 @@ export async function completeStudentActivation(
       return { success: false, error: 'Lien d\'activation invalide ou expiré' };
     }
 
+    // Centre de notifications assistante : un parent qui active son espace
+    // est un événement clé du suivi des bilans. Confort, jamais bloquant.
+    if (purpose === 'parent') {
+      try {
+        const assistants = await prisma.user.findMany({
+          where: { role: 'ASSISTANTE' },
+          select: { id: true },
+        });
+        if (assistants.length > 0) {
+          await prisma.notification.createMany({
+            data: assistants.map(({ id }) => ({
+              userId: id,
+              userRole: 'ASSISTANTE' as const,
+              type: 'BILAN_PARENT_ACTIVATED',
+              title: 'Un parent a activé son espace',
+              message: 'Un parent vient d’activer son espace Nexus : son accès aux bilans diffusés est désormais ouvert.',
+              data: { parentUserId: user.id },
+            })),
+          });
+        }
+      } catch (error) {
+        console.error(JSON.stringify({
+          event: 'BILAN_PARENT_ACTIVATION_NOTIFICATION_FAILED',
+          code: error instanceof Error ? error.name : 'UNKNOWN',
+        }));
+      }
+    }
+
     return {
       success: true,
       redirectUrl: purpose === 'student'

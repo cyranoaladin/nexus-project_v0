@@ -13,12 +13,22 @@ import SessionManagement from "@/components/ui/session-management";
 import { DashboardPilotage } from "@/components/dashboard/DashboardPilotage";
 
 interface AssistantDashboardData {
+  canonicalBilans?: {
+    pendingReview: number;
+    correctionRequested: number;
+    missingParentEmail: number;
+    missingParentEmailStale: number;
+    publishedNotTransmitted: number;
+    publishedNotTransmittedStale: number;
+    recentParentActivations: number;
+  };
   stats: {
     totalStudents: number;
     totalCoaches: number;
     totalSessions: number;
     totalRevenue: number;
     pendingBilans: number;
+
     pendingPayments: number;
     pendingCreditRequests: number;
     pendingSubscriptionRequests: number;
@@ -271,7 +281,7 @@ export default function DashboardAssistante() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 md:py-8">
         <DashboardPilotage role="ASSISTANTE">
         {/* Alertes et Tâches Urgentes */}
-        {(dashboardData?.stats?.pendingBilans || 0) > 0 || (dashboardData?.stats?.pendingPayments || 0) > 0 || (dashboardData?.stats?.pendingCreditRequests || 0) > 0 || (dashboardData?.stats?.pendingSubscriptionRequests || 0) > 0 ? (
+        {(dashboardData?.stats?.pendingBilans || 0) > 0 || (dashboardData?.stats?.pendingPayments || 0) > 0 || (dashboardData?.stats?.pendingCreditRequests || 0) > 0 || (dashboardData?.stats?.pendingSubscriptionRequests || 0) > 0 || ((dashboardData?.canonicalBilans?.pendingReview || 0) + (dashboardData?.canonicalBilans?.correctionRequested || 0) + (dashboardData?.canonicalBilans?.publishedNotTransmitted || 0)) > 0 ? (
           <div className="mb-6 md:mb-8">
             <Card className="border-blue-500/20 bg-blue-500/10">
               <CardHeader>
@@ -282,6 +292,19 @@ export default function DashboardAssistante() {
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
+                  {(dashboardData?.canonicalBilans?.pendingReview || 0) + (dashboardData?.canonicalBilans?.correctionRequested || 0) + (dashboardData?.canonicalBilans?.publishedNotTransmitted || 0) > 0 && (
+                    <Link href="/dashboard/assistante/bilans" className="flex items-center justify-between rounded-lg border border-amber-200 bg-amber-50 p-3 hover:bg-amber-100">
+                      <div>
+                        <p className="font-medium text-slate-900">Bilans de positionnement à traiter</p>
+                        <p className="text-sm text-slate-600">
+                          {dashboardData?.canonicalBilans?.pendingReview || 0} à revoir · {dashboardData?.canonicalBilans?.correctionRequested || 0} en correction · {dashboardData?.canonicalBilans?.publishedNotTransmitted || 0} à transmettre par WhatsApp
+                        </p>
+                      </div>
+                      <span className="rounded-full bg-amber-500 px-3 py-1 text-sm font-semibold text-white">
+                        {(dashboardData?.canonicalBilans?.pendingReview || 0) + (dashboardData?.canonicalBilans?.correctionRequested || 0) + (dashboardData?.canonicalBilans?.publishedNotTransmitted || 0)}
+                      </span>
+                    </Link>
+                  )}
                   {(dashboardData?.stats?.pendingBilans || 0) > 0 && (
                     <div className="flex items-center justify-between p-3 bg-surface-card rounded-lg border border-white/10">
                       <div>

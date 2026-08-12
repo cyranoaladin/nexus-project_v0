@@ -10,9 +10,16 @@ import {
   publishReportRevision,
   rejectReportRevision,
   renderReportRevisionAudiencePdf,
+  requestReportCorrection,
+  resumeReportReview,
   validateReportRevision,
+  type ReportReviewAnnotationInput,
 } from '../core/report-service';
+import { enqueueEmailIntent } from '@/lib/email/outbox';
+import { kickEmailOutboxDrain } from '@/lib/email/outbox-scheduler';
+
 import { buildHumanRenderIdentity } from '../render/human-identity';
+import { buildParentReportAvailableEmail } from './parent-notification';
 import type { ReportAudience } from '../render/profile-copy';
 import { bilanPackLevelLabel } from '../render/stage-label';
 
@@ -31,18 +38,43 @@ export type PendingReportReview = Readonly<{
     assessmentAttempt: Readonly<{ provenance: string }>;
     student: Readonly<{
       user: Readonly<{ firstName: string | null; lastName: string | null }>;
-      parent: Readonly<{ user: Readonly<{ email: string | null }> }>;
+      parent: Readonly<{ user: Readonly<{
+        id: string;
+        email: string | null;
+        firstName: string | null;
+        lastName: string | null;
+        phoneNormalized: string | null;
+      }> }>;
     }>;
+    transmissions: readonly Readonly<{ channel: string; confirmedAt: Date }>[];
   }>;
+  reviews: readonly Readonly<{
+    id: string;
+    decision: string;
+    motif: string;
+    reviewedAt: Date;
+    reviewer: Readonly<{ firstName: string | null; lastName: string | null }> | null;
+    annotations: readonly Readonly<{
+      audience: string;
+      section: string;
+      remark: string;
+      createdAt: Date;
+    }>[];
+  }>[];
 }>;
 
 export type RecentReportReview = PendingReportReview & Readonly<{
   studentName: string;
   packLabel: string;
-  displayStatus: 'Prêt — e-mail parent manquant' | 'En attente de diffusion' | 'Diffusé' | 'Rejeté';
+  displayStatus: 'Prêt — e-mail parent manquant' | 'En attente de diffusion' | 'Correction demandée' | 'Diffusé' | 'Transmis au parent' | 'Rejeté';
   actionable: boolean;
   parentEmailMissing: boolean;
+  parentPhoneMissing: boolean;
   diffusable: boolean;
+  /** Envoi WhatsApp possible : diffusé, téléphone présent, pas encore transmis. */
+  whatsappReady: boolean;
+  transmittedAt: Date | null;
+  correctionRequested: boolean;
 }>;
 
 type ReviewActor = Readonly<{ userId: string; role: UserRole | string }>;
@@ -65,10 +97,41 @@ const revisionSelection = {
       student: {
         select: {
           user: { select: { firstName: true, lastName: true } },
-          parent: { select: { user: { select: { email: true } } } },
+          parent: {
+            select: {
+              user: {
+                select: {
+                  id: true,
+                  email: true,
+                  firstName: true,
+                  lastName: true,
+                  phoneNormalized: true,
+                },
+              },
+            },
+          },
         },
       },
+      transmissions: {
+        select: { channel: true, confirmedAt: true },
+        orderBy: { confirmedAt: 'desc' as const },
+        take: 1,
+      },
     },
+  },
+  reviews: {
+    select: {
+      id: true,
+      decision: true,
+      motif: true,
+      reviewedAt: true,
+      reviewer: { select: { firstName: true, lastName: true } },
+      annotations: {
+        select: { audience: true, section: true, remark: true, createdAt: true },
+        orderBy: { createdAt: 'asc' as const },
+      },
+    },
+    orderBy: { reviewedAt: 'desc' as const },
   },
 } as const;
 
@@ -82,6 +145,13 @@ type ReviewServiceDependencies = Readonly<{
   preview(input: Readonly<{ revisionId: string }>): Promise<unknown>;
   renderPdf(input: Readonly<{ revisionId: string; audience: ReportAudience }>): Promise<Buffer>;
   reject(input: Readonly<{ revisionId: string; reviewerId: string; motif: string; reviewedAt: Date }>): Promise<unknown>;
+  requestCorrection(input: Readonly<{
+    revisionId: string; reviewerId: string; motif: string; reviewedAt: Date;
+    annotations: readonly ReportReviewAnnotationInput[];
+  }>): Promise<unknown>;
+  resumeReview(input: Readonly<{ revisionId: string; reviewerId: string; motif: string; reviewedAt: Date }>): Promise<unknown>;
+  findCorrectionRequested(revisionId: string): Promise<PendingReportReview | null>;
+  notifyParentPublished(revision: PendingReportReview): Promise<void>;
   now: () => Date;
 }>;
 
@@ -117,6 +187,7 @@ const defaultDependencies: ReviewServiceDependencies = {
       OR: [
         { status: { in: [
           ReportRevisionStatus.PENDING_REVIEW,
+          ReportRevisionStatus.CORRECTION_REQUESTED,
           ReportRevisionStatus.COACH_VALIDATED,
           ReportRevisionStatus.REJECTED,
         ] } },
@@ -137,6 +208,42 @@ const defaultDependencies: ReviewServiceDependencies = {
   preview: (input) => previewReportRevision({ prisma, ...input }),
   renderPdf: (input) => renderReportRevisionAudiencePdf({ prisma, ...input }),
   reject: (input) => rejectReportRevision({ prisma, ...input }),
+  requestCorrection: (input) => requestReportCorrection({ prisma, ...input }),
+  resumeReview: (input) => resumeReportReview({ prisma, ...input }),
+  findCorrectionRequested: (revisionId) => prisma.reportRevision.findFirst({
+    where: { id: revisionId, status: ReportRevisionStatus.CORRECTION_REQUESTED },
+    select: revisionSelection,
+  }),
+  notifyParentPublished: async (revision) => {
+    const parentUser = revision.reportArtifact.student.parent?.user;
+    const parentEmail = parentUser?.email?.trim();
+    const studentFirstName = revision.reportArtifact.student.user.firstName?.trim();
+    if (!parentUser || !parentEmail || !studentFirstName) return;
+    const origin = (process.env.NEXTAUTH_URL ?? 'https://nexusreussite.academy').replace(/\/$/, '');
+    const parentDisplayName = buildHumanRenderIdentity({
+      firstName: parentUser.firstName,
+      lastName: parentUser.lastName,
+    }).displayName;
+    const resolved = resolveEnabledPack(revision.reportPackId, Number(revision.reportPackVersion));
+    const message = buildParentReportAvailableEmail({
+      parentDisplayName,
+      studentFirstName: buildHumanRenderIdentity({ firstName: studentFirstName, lastName: null }).displayName,
+      subjectLabel: resolved === null ? 'la matière évaluée' : bilanPackSubjectLabel(resolved.pack.subject),
+      dashboardUrl: `${origin}/dashboard/parent`,
+    });
+    await prisma.$transaction(async (transaction) => {
+      await enqueueEmailIntent(transaction, {
+        aggregateId: parentUser.id,
+        messageType: 'TRANSACTIONAL_NOTIFICATION',
+        dedupeKey: `bilan-published:${revision.reportArtifact.id}`,
+        to: parentEmail,
+        subject: message.subject,
+        html: message.html,
+        text: message.text,
+      });
+    });
+    kickEmailOutboxDrain();
+  },
   now: () => new Date(),
 };
 
@@ -195,9 +302,18 @@ export function hasAvailableParentContact(revision: PendingReportReview): boolea
   return Boolean(revision.reportArtifact.student.parent?.user.email?.trim());
 }
 
+function latestWhatsAppTransmission(revision: PendingReportReview): Date | null {
+  const transmission = revision.reportArtifact.transmissions
+    .find(({ channel }) => channel === 'WHATSAPP');
+  return transmission?.confirmedAt ?? null;
+}
+
 function displayStatus(revision: PendingReportReview): RecentReportReview['displayStatus'] {
   if (revision.status === ReportRevisionStatus.REJECTED) return 'Rejeté';
-  if (revision.reportArtifact.status === 'PUBLISHED') return 'Diffusé';
+  if (revision.status === ReportRevisionStatus.CORRECTION_REQUESTED) return 'Correction demandée';
+  if (revision.reportArtifact.status === 'PUBLISHED') {
+    return latestWhatsAppTransmission(revision) !== null ? 'Transmis au parent' : 'Diffusé';
+  }
   if (!hasAvailableParentContact(revision)) return 'Prêt — e-mail parent manquant';
   return 'En attente de diffusion';
 }
@@ -219,6 +335,8 @@ function recentReview(
     )
     && revision.reportArtifact.status === 'PENDING_REVIEW';
   const parentEmailMissing = !hasAvailableParentContact(revision);
+  const parentPhoneMissing = !revision.reportArtifact.student.parent?.user.phoneNormalized?.trim();
+  const transmittedAt = latestWhatsAppTransmission(revision);
   return Object.freeze({
     ...revision,
     validationFailures,
@@ -229,7 +347,13 @@ function recentReview(
     displayStatus: displayStatus(revision),
     actionable,
     parentEmailMissing,
+    parentPhoneMissing,
     diffusable: actionable && !parentEmailMissing,
+    whatsappReady: revision.reportArtifact.status === 'PUBLISHED'
+      && !parentPhoneMissing
+      && transmittedAt === null,
+    transmittedAt,
+    correctionRequested: revision.status === ReportRevisionStatus.CORRECTION_REQUESTED,
   });
 }
 
@@ -282,7 +406,19 @@ export async function validateAndPublishPendingReport(
   if (revision.status === 'PENDING_REVIEW') {
     await dependencies.validate({ revisionId: revision.id, reviewerId, motif, reviewedAt });
   }
-  return dependencies.publish({ revisionId: revision.id, reviewerId, publishedAt: reviewedAt });
+  const published = await dependencies.publish({ revisionId: revision.id, reviewerId, publishedAt: reviewedAt });
+  // La notification parent est un confort, jamais une condition : une
+  // publication réussie ne se défait pas parce qu'un e-mail a échoué.
+  try {
+    await dependencies.notifyParentPublished(revision);
+  } catch (error) {
+    console.error(
+      'BILAN_PARENT_PUBLISH_NOTIFICATION_FAILED',
+      revision.id,
+      error instanceof Error ? error.name : 'UNKNOWN',
+    );
+  }
+  return published;
 }
 
 export async function previewPendingReport(
@@ -341,4 +477,48 @@ export async function rejectPendingReport(
   // as a generic REPORT_CONCURRENT_REVIEW that doesn't explain why.
   if (revision.status !== 'PENDING_REVIEW') throw new StaffReviewError('REPORT_ALREADY_VALIDATED');
   return dependencies.reject({ revisionId: revision.id, reviewerId, motif, reviewedAt: dependencies.now() });
+}
+
+/**
+ * « Demander une correction » : l'assistante cible une audience et une
+ * section, écrit sa remarque, et le bilan passe en « Correction demandée » —
+ * état distinct du rejet, visible dans la file avec son annotation. Aucune
+ * donnée de mesure n'est touchée : revue et annotations sont des métadonnées.
+ */
+export async function requestCorrectionForPendingReport(
+  action: ReviewAction & Readonly<{ annotations: readonly ReportReviewAnnotationInput[] }>,
+  overrides: Partial<ReviewServiceDependencies> = {},
+) {
+  const dependencies = { ...defaultDependencies, ...overrides };
+  const { revision, reviewerId, motif } = await pendingReview(action, dependencies);
+  if (revision.status !== 'PENDING_REVIEW') throw new StaffReviewError('REPORT_ALREADY_VALIDATED');
+  return dependencies.requestCorrection({
+    revisionId: revision.id,
+    reviewerId,
+    motif,
+    reviewedAt: dependencies.now(),
+    annotations: action.annotations,
+  });
+}
+
+/**
+ * Reprise de revue une fois la correction apportée : le bilan revient en
+ * « À revoir », l'historique d'annotations intact et visible.
+ */
+export async function resumeCorrectedReport(
+  action: ReviewAction,
+  overrides: Partial<ReviewServiceDependencies> = {},
+) {
+  const dependencies = { ...defaultDependencies, ...overrides };
+  const reviewerId = assertAssistante(action);
+  const revision = await dependencies.findCorrectionRequested(action.revisionId);
+  if (revision === null || !packIsEnabled(revision, dependencies)) throw new StaffReviewError('NOT_FOUND');
+  const motif = action.motif.trim();
+  if (!motif) throw new StaffReviewError('REPORT_REVIEW_MOTIF_REQUIRED');
+  return dependencies.resumeReview({
+    revisionId: revision.id,
+    reviewerId,
+    motif,
+    reviewedAt: dependencies.now(),
+  });
 }

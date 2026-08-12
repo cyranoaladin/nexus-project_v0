@@ -113,22 +113,26 @@ export function buildParentActivationEmail(input: {
   const safeActivationUrl = escapeHtml(activationUrl)
 
   return {
-    subject: 'Activez votre espace parent Nexus Reussite',
+    subject: 'Activez votre espace parent — Nexus Réussite',
     text: [
       `Bonjour ${parentName},`,
       '',
-      `Votre demande pour ${childFirstName} a bien ete enregistree.`,
-      "Activez votre espace parent et choisissez votre mot de passe a l'adresse suivante :",
+      `Votre demande pour ${childFirstName} a bien été enregistrée.`,
+      'Activez votre espace parent et choisissez votre mot de passe à l\u2019adresse suivante\u00A0:',
       activationUrl,
       '',
       'Ce lien est personnel, temporaire et utilisable une seule fois.',
+      '',
+      'Bien cordialement,',
+      'L\u2019équipe Nexus Réussite',
     ].join('\n'),
     html: [
       `<p>Bonjour ${safeParentName},</p>`,
-      `<p>Votre demande pour ${safeChildFirstName} a bien ete enregistree.</p>`,
-      '<p>Activez votre espace parent et choisissez votre mot de passe :</p>',
+      `<p>Votre demande pour ${safeChildFirstName} a bien été enregistrée.</p>`,
+      '<p>Activez votre espace parent et choisissez votre mot de passe\u00A0:</p>',
       `<p><a href="${safeActivationUrl}">Activer mon espace parent</a></p>`,
       '<p>Ce lien est personnel, temporaire et utilisable une seule fois.</p>',
+      '<p>Bien cordialement,<br>L\u2019équipe Nexus Réussite</p>',
     ].join(''),
   }
 }

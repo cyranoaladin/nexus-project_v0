@@ -8,6 +8,9 @@ jest.mock('@/auth', () => ({
 
 jest.mock('@/lib/prisma', () => ({
   prisma: {
+    reportRevision: { count: jest.fn().mockResolvedValue(0) },
+    reportArtifact: { count: jest.fn().mockResolvedValue(0) },
+    parentProfile: {},
     student: { count: jest.fn() },
     coachProfile: { count: jest.fn() },
     sessionBooking: { count: jest.fn(), findMany: jest.fn() },
