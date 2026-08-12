@@ -47,7 +47,7 @@ Commandes principales de la campagne : `npm run pre-rentree:build` et `npm run p
 | **DB** | PostgreSQL + pgvector | 15+ |
 | **IA / LLM** | Ollama (LLaMA 3.2, Qwen 2.5) via OpenAI SDK | — |
 | **RAG** | pgvector + FastAPI Ingestor v2 (migré depuis ChromaDB) | — |
-| **Email** | Nodemailer (SMTP Hostinger) + Telegram Bot | 7.x |
+| **Email** | Nodemailer (SMTP Hostinger) | 7.x |
 | **Validation** | Zod | 3.23 |
 | **State** | Zustand | 5.x |
 | **Charts** | Recharts | 3.7 |
@@ -194,7 +194,6 @@ nexus-project_v0/
 │   ├── badges.ts                   # Gamification
 │   ├── next-step-engine.ts         # Recommandations prochaines étapes
 │   ├── email/                      # SMTP mailer (Hostinger) + templates
-│   ├── telegram/                   # Telegram Bot client (notifications)
 │   ├── theme/                      # Design system (tokens.ts + variants.ts CVA)
 │   ├── middleware/                  # Logger, rate limit, error handling
 │   ├── validation/                 # Schémas Zod (6 fichiers)
@@ -714,7 +713,7 @@ Pipeline : PDF programme → JSON généré → YAML mapping (vérité) → JSON
 ### Stages Intensifs
 
 - **Catalogue** : `/api/stages` (filtres type, niveau, matière, isOpen)
-- **Inscription publique** : `POST /api/stages/[slug]/inscrire` (Zod → capacité → email + Telegram)
+- **Inscription publique** : `POST /api/stages/[slug]/inscrire` (Zod → capacité → email)
 - **Gestion admin** : `GET/POST/PATCH/DELETE /api/admin/stages` (CRUD complet)
 - **Réservations staff** : `GET /api/stages/[slug]/reservations` + `POST .../confirm`
 - **Bilans coach** : `GET/POST /api/stages/[slug]/bilans` (upsert + publication)
@@ -775,7 +774,6 @@ Konnect et Wise ont été **supprimés**. Le système actuel :
 ### Notifications
 
 - **Email** : SMTP Hostinger (`lib/email/mailer.ts`) — templates bilan_ack, internal
-- **Telegram** : Bot @nexusreussitebot (`lib/telegram/client.ts`) — réservations, paiements
 - **In-app** : `GET /api/notifications` — cloche notification dans sidebar
 - **Sécurité** : CSRF check, rate limit, body size 64KB max (`POST /api/notify/email`)
 
@@ -980,7 +978,7 @@ docker compose -f docker-compose.v2.yml -f docker-compose.prod.v2.yml up -d [ser
 
 | Variable | Description | Exemple |
 |----------|-------------|---------|
-| `DATABASE_URL` | PostgreSQL connection string | `postgresql://user:pass@host:5432/db` |
+| `DATABASE_URL` | PostgreSQL connection string | voir `.env.example` |
 | `NEXTAUTH_SECRET` | Secret JWT (32+ chars en prod) | `your-secret-here` |
 | `NEXTAUTH_URL` | URL canonique de l'app | `https://nexusreussite.academy` |
 | `NPC_STORAGE_ROOT` | Racine NPC persistante, absolue et hors release | `<NPC_PERSISTENT_ROOT>` |
@@ -1005,9 +1003,6 @@ docker compose -f docker-compose.v2.yml -f docker-compose.prod.v2.yml up -d [ser
 | `MAIL_REPLY_TO` | Reply-to emails | `contact@nexusreussite.academy` |
 | `INTERNAL_NOTIFICATION_EMAIL` | Email notifications internes | `contact@nexusreussite.academy` |
 | `MAIL_DISABLED` | Désactiver emails | `false` |
-| `TELEGRAM_BOT_TOKEN` | Bot Telegram (notifications) | — |
-| `TELEGRAM_CHAT_ID` | Chat ID Telegram | — |
-| `TELEGRAM_NOTIFICATIONS_ENABLED` | Activer explicitement les notifications Telegram | `false` |
 | `AUTH_TRUST_HOST` | Trust host header (CI/proxy) | `true` |
 | `LLM_MODE` | Mode LLM (live/mock) | `live` |
 | `NEXT_TELEMETRY_DISABLED` | Désactiver télémétrie Next.js | `1` |

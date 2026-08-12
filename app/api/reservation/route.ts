@@ -4,55 +4,27 @@ export const dynamic = 'force-dynamic';
 import { auth } from '@/auth';
 import { checkBodySize,checkCsrf } from '@/lib/csrf';
 import { sendStageBankTransferConfirmation } from '@/lib/email';
+import { enqueueEmailIntent } from '@/lib/email/outbox';
+import { kickEmailOutboxDrain } from '@/lib/email/outbox-scheduler';
+import { internalNotification } from '@/lib/email/templates';
+import { LEGAL } from '@/lib/legal';
 import { prisma } from '@/lib/prisma';
-import { telegramSendMessage } from '@/lib/telegram/client';
 import { stageReservationSchema } from '@/lib/validations';
 import { NextRequest,NextResponse } from 'next/server';
 
-/**
- * Sanitize user input for Telegram MarkdownV1.
- *
- * Backslash is itself in the character class so a pre-existing '\' in the
- * input is escaped too -- otherwise attacker input like `\*bold*\` pairs
- * the sanitizer's inserted '\' with the ATTACKER's backslash instead of
- * the special char, leaving the '*' unescaped and live.
- */
-function sanitizeTelegram(str: string): string {
-  return str.replace(/[_*[\]()~`>#+\-=|{}.!\\]/g, '\\$&');
-}
-
-function buildTelegramMessage(data: {
-  parent: string;
-  phone: string;
-  classe: string;
-  academyTitle: string;
-  price: number;
-  email: string;
-  isUpdate: boolean;
-  paymentMethod?: string | null;
-}): string {
-    const tag = data.isUpdate ? '🔄 MISE À JOUR RÉSERVATION' : '🚨 NOUVEAU LEAD CHAUD (Site Web)';
-    const paymentTag = data.paymentMethod === 'bank_transfer'
-      ? '\n🏦 *Paiement :* Virement bancaire (en attente de vérification)'
-      : '';
-    return `
-${tag} 🚨
-➖➖➖➖➖➖➖➖➖➖➖
-👤 *Parent :* ${sanitizeTelegram(data.parent)}
-📞 *Tél :* ${sanitizeTelegram(data.phone)}
-📧 *Email :* ${sanitizeTelegram(data.email)}
-🎓 *Classe :* ${sanitizeTelegram(data.classe)}
-🏫 *Intérêt :* ${sanitizeTelegram(data.academyTitle)}
-💰 *Montant :* ${sanitizeTelegram(String(data.price))} TND${paymentTag}
-➖➖➖➖➖➖➖➖➖➖➖
-_Ce prospect attend votre appel !_
-`;
+function getInternalNotificationRecipient(): string {
+  return (
+    process.env.INTERNAL_NOTIFICATION_EMAIL ||
+    process.env.MAIL_REPLY_TO ||
+    process.env.EMAIL_REPLY_TO ||
+    LEGAL.contact.email
+  );
 }
 
 /**
  * POST /api/reservation
  *
- * Pipeline: Rate limit → Honeypot → Zod validate → Upsert DB → Telegram → Email
+ * Pipeline: Rate limit → Honeypot → Zod validate → Upsert DB → Email
  * Returns: 201 Created | 200 Updated | 400 Bad Request | 429 Rate Limited | 500 Internal Error
  */
 export async function POST(request: NextRequest) {
@@ -120,8 +92,10 @@ export async function POST(request: NextRequest) {
       select: { id: true, status: true },
     });
 
+    let reservationId: string;
     if (existing) {
       isUpdate = true;
+      reservationId = existing.id;
       // Update existing reservation (allow re-submission to update phone/payment)
       await prisma.stageReservation.update({
         where: { id: existing.id },
@@ -138,7 +112,7 @@ export async function POST(request: NextRequest) {
       });
     } else {
       const isBankTransfer = data.paymentMethod === 'bank_transfer';
-      await prisma.stageReservation.create({
+      const created = await prisma.stageReservation.create({
         data: {
           parentName: data.parent,
           studentName: data.studentName || null,
@@ -151,43 +125,44 @@ export async function POST(request: NextRequest) {
           paymentMethod: data.paymentMethod || null,
           status: isBankTransfer ? 'PENDING_BANK_TRANSFER' : 'PENDING',
         },
+        select: { id: true },
       });
+      reservationId = created.id;
     }
 
-    // 4. Telegram notification (non-blocking side-effect)
-    let telegramSent = false;
+    // 4. Internal staff alert — non-blocking
     try {
-      const telegramResult = await telegramSendMessage(
-        undefined,
-        buildTelegramMessage({
-          parent: data.parent,
-          phone: data.phone,
-          classe: data.classe,
-          academyTitle: data.academyTitle,
-          price: data.price,
-          email: data.email,
-          isUpdate,
-          paymentMethod: data.paymentMethod,
-        }),
-      );
-      telegramSent = telegramResult.status === 'sent';
-    } catch {
-      telegramSent = false;
+      const tag = isUpdate ? 'Mise à jour réservation' : 'Nouveau lead chaud (site web)';
+      const internalTemplate = internalNotification({
+        eventType: tag,
+        fields: {
+          Parent: data.parent,
+          Téléphone: data.phone,
+          Email: data.email,
+          Classe: data.classe,
+          Intérêt: data.academyTitle,
+          Montant: `${data.price} TND`,
+          ...(data.paymentMethod === 'bank_transfer'
+            ? { Paiement: 'Virement bancaire (en attente de vérification)' }
+            : {}),
+        },
+      });
+      await enqueueEmailIntent(prisma, {
+        aggregateType: 'STAGE_RESERVATION',
+        aggregateId: reservationId,
+        messageType: 'TRANSACTIONAL_NOTIFICATION',
+        dedupeKey: `reservation-internal:${reservationId}:${Date.now()}`,
+        to: getInternalNotificationRecipient(),
+        subject: internalTemplate.subject,
+        html: internalTemplate.html,
+        text: internalTemplate.text,
+      });
+      kickEmailOutboxDrain();
+    } catch (internalAlertError) {
+      console.error('[reservation] Internal alert failed:', internalAlertError instanceof Error ? internalAlertError.message : 'unknown');
     }
 
-    // 5. Update telegram tracking
-    if (telegramSent && !isUpdate) {
-      try {
-        await prisma.stageReservation.updateMany({
-          where: { email: data.email, academyId: data.academyId },
-          data: { telegramSent: true },
-        });
-      } catch {
-        // Non-critical — don't fail the request
-      }
-    }
-
-    // 6. Email notification — non-blocking
+    // 5. Email notification — non-blocking
     if (!isUpdate) {
       try {
         if (data.paymentMethod === 'bank_transfer') {
@@ -280,7 +255,6 @@ export async function GET(request: NextRequest) {
         paymentMethod: true,
         status: true,
         scoringResult: true,
-        telegramSent: true,
         createdAt: true,
       },
     });

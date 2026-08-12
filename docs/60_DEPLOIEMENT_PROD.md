@@ -37,7 +37,6 @@ Variables opérationnelles majeures:
 - SMTP: `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM`
 - Paiement: `KONNECT_API_KEY`, `KONNECT_WALLET_ID`, `KONNECT_WEBHOOK_SECRET`
 - LLM/RAG: `OLLAMA_URL`, `RAG_INGESTOR_URL`, `LLM_MODE`
-- Notifications: `TELEGRAM_BOT_TOKEN`
 
 Preuves code:
 - `lib/env-validation.ts`

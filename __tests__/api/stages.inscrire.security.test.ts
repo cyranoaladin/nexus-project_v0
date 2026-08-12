@@ -2,10 +2,6 @@ jest.mock('@/lib/email/mailer', () => ({
   sendMail: jest.fn().mockResolvedValue({ ok: true }),
 }));
 
-jest.mock('@/lib/telegram/client', () => ({
-  telegramSendMessage: jest.fn().mockResolvedValue(undefined),
-}));
-
 jest.mock('@/lib/rate-limit/sensitive', () => ({
   guardSensitiveRateLimit: jest.fn().mockResolvedValue(null),
 }));
