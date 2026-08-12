@@ -35,6 +35,13 @@ prioritaire fourni :
    oubliant le double produit » — pas « des difficultés en calcul littéral ».
    Chaque entrée cite le constat (ce que l'élève a fait) et l'origine
    probable (la représentation erronée sous-jacente).
+
+   Cas particulier — `itemsRates` VIDE : le domaine est prioritaire alors
+   qu'aucune réponse n'y est fausse. C'est le profil de la maîtrise fragile,
+   où l'élève répond juste sans assurance. Il n'y a donc AUCUNE erreur à
+   citer : laisse `itemIds` vide, et fonde le constat sur la fragilité
+   elle-même (hésitation, lenteur, procédure encore coûteuse), jamais sur une
+   erreur inventée.
 2. **prerequisAVerifier** (1 à 4) — les acquis antérieurs précis à sonder en
    début de séance, chacun testable en une question orale ou un mini-item.
 3. **activite** — UN déroulé de séance utilisable tel quel, pour un petit

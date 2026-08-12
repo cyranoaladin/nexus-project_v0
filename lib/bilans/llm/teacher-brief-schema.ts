@@ -16,7 +16,19 @@ const nonEmpty = (max: number) => z.string().trim().min(1).max(max);
 const erreurTypiqueSchema = z.object({
   constat: nonEmpty(400),
   origine: nonEmpty(400),
-  itemIds: z.array(nonEmpty(64)).min(1).max(4),
+  /**
+   * Items cités à l'appui du constat. Peut être VIDE, et seulement dans ce
+   * cas précis : un domaine prioritaire sans aucun item raté. C'est le profil
+   * MAITRISE_FRAGILE typique — l'élève répond juste mais sans assurance, donc
+   * il y a un travail à mener et rien à citer. Exiger une citation ici faisait
+   * perdre le brief ENTIER sur un profil parfaitement légitime.
+   *
+   * Quand le domaine a des items ratés, la citation redevient obligatoire :
+   * `assertBriefRespectsFacts` rejette toute erreur typique qui n'en cite
+   * aucun (TEACHER_BRIEF_UNGROUNDED_ERROR). La contrainte n'est pas levée,
+   * elle est portée par la couche qui connaît les faits.
+   */
+  itemIds: z.array(nonEmpty(64)).max(4),
 }).strict();
 
 const phaseSchema = z.object({

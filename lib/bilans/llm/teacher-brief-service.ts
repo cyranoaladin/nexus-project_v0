@@ -365,7 +365,20 @@ async function callTeacherBriefDomain(
     throw new TeacherBriefError('TEACHER_BRIEF_INVALID_JSON');
   }
   const validated = teacherBriefDomainResponseSchema.safeParse(parsed);
-  if (!validated.success) throw new TeacherBriefError('TEACHER_BRIEF_SCHEMA_REJECTED');
+  if (!validated.success) {
+    // Seuls les CHEMINS de schéma et les codes sont journalisés — jamais le
+    // texte produit. Sans cela, un repli PLANCHER pour schéma invalide reste
+    // impossible à diagnostiquer en production.
+    console.error(JSON.stringify({
+      event: 'TEACHER_BRIEF_SCHEMA_REJECTED',
+      domainId: facts.domainesPrioritaires[0]?.domainId,
+      issues: validated.error.issues.slice(0, 8).map((issue) => ({
+        path: issue.path.join('.'),
+        code: issue.code,
+      })),
+    }));
+    throw new TeacherBriefError('TEACHER_BRIEF_SCHEMA_REJECTED');
+  }
 
   assertBriefRespectsFacts(validated.data, facts);
 
@@ -411,11 +424,14 @@ export async function callTeacherBriefModel(
     outcomes.push(await callTeacherBriefDomain(config, singleDomainFacts, fetchImpl));
   }
 
+  // Code distinct de celui d'un appel unitaire : un rejet au réassemblage ne
+  // met pas en cause la sortie du modèle mais le recollement (nombre de
+  // domaines hors bornes). Sans cette distinction, le repli est indiagnosticable.
   const content = teacherBriefSchema.safeParse({
     version: TEACHER_BRIEF_PROMPT_VERSION,
     domaines: outcomes.map((outcome) => outcome.domaine),
   });
-  if (!content.success) throw new TeacherBriefError('TEACHER_BRIEF_SCHEMA_REJECTED');
+  if (!content.success) throw new TeacherBriefError('TEACHER_BRIEF_ASSEMBLY_REJECTED');
   // Second ancrage, sur l'ensemble réassemblé : l'ordre et la couverture des
   // domaines doivent correspondre exactement aux faits fournis.
   assertBriefRespectsFacts(content.data, facts);
