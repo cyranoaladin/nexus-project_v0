@@ -1232,9 +1232,6 @@ model StageReservation {
   // Scoring (filled after QCM diagnostic)
   scoringResult Json? // { globalScore, confidenceIndex, radarData, strengths, weaknesses }
 
-  // Telegram notification tracking
-  telegramSent Boolean @default(false)
-
   // ── New fields (nullable for backward compat) ──────────────────────────────
   stageId                  String?
   stage                    Stage?                  @relation("StageReservations", fields: [stageId], references: [id], onDelete: SetNull)

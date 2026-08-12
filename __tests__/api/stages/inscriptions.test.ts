@@ -2,18 +2,12 @@ jest.mock('@/lib/email/outbox', () => ({
   enqueueEmailIntent: jest.fn().mockResolvedValue({ id: 'job-1' }),
 }));
 
-jest.mock('@/lib/telegram/client', () => ({
-  telegramSendMessage: jest.fn().mockResolvedValue({ ok: true }),
-}));
-
 import { NextRequest } from 'next/server';
 
 import { POST } from '@/app/api/stages/[stageSlug]/inscrire/route';
 import { enqueueEmailIntent } from '@/lib/email/outbox';
-import { telegramSendMessage } from '@/lib/telegram/client';
 
 const mockSendMail = enqueueEmailIntent as jest.Mock;
-const mockTelegramSendMessage = telegramSendMessage as jest.Mock;
 
 let prisma: any;
 
@@ -183,28 +177,6 @@ describe('POST /api/stages/[slug]/inscrire', () => {
         to: 'aya@example.com',
         subject: expect.stringContaining('Printemps 2026'),
       }),
-    );
-  });
-
-  it('envoie une notification Telegram', async () => {
-    prisma.stage.findUnique.mockResolvedValue({
-      id: 'stage-1',
-      slug: 'printemps-2026',
-      title: 'Printemps 2026',
-      priceAmount: 650,
-      capacity: 12,
-      isVisible: true,
-      isOpen: true,
-    });
-    prisma.stageReservation.findFirst.mockResolvedValue(null);
-    prisma.stageReservation.count.mockResolvedValue(0);
-    prisma.stageReservation.create.mockResolvedValue({ id: 'res-4' });
-
-    await POST(makeRequest(validBody), { params });
-
-    expect(mockTelegramSendMessage).toHaveBeenCalledWith(
-      undefined,
-      expect.stringContaining('Nouvelle inscription stage')
     );
   });
 

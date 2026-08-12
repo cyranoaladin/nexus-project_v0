@@ -4,7 +4,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { enqueueEmailIntent } from '@/lib/email/outbox';
 import { kickEmailOutboxDrain } from '@/lib/email/outbox-scheduler';
-import { telegramSendMessage } from '@/lib/telegram/client';
 import { computeReservationStatus } from '@/lib/stages/capacity';
 import { publicStageInscriptionSchema } from '@/lib/stages/inscription-schema';
 import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive';
@@ -143,11 +142,6 @@ export async function POST(
       });
     });
     kickEmailOutboxDrain();
-
-    await telegramSendMessage(
-      undefined,
-      `📚 Nouvelle inscription stage\n*${stage.title}*\n${firstName} ${lastName} (${normalizedEmail})\nStatut: ${richStatus}`
-    ).catch(() => {});
 
     return NextResponse.json(
       { reservation: { status: richStatus }, message: 'Inscription enregistrée.' },
