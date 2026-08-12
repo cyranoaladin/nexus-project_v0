@@ -37,7 +37,7 @@ describe('Aucune mention d’IA dans les documents familles', () => {
       'lib/bilans/render/profile-copy.ts',
       'lib/bilans/render/report.ts',
       'lib/bilans/render/learning-path.ts',
-      'lib/bilans/render/prose-catalogue.ts',
+      'lib/bilans/render/calibration-prose.ts',
       'lib/bilans/staff/whatsapp-message.ts',
       'lib/bilans/staff/parent-notification.ts',
     ]) {

@@ -62,7 +62,7 @@ export default function MentionsLegalesPage() {
               <ul className="space-y-2">
                 <li><strong className="text-lux-ivory">Responsable technique :</strong> Alaeddine BEN RHOUMA</li>
                 <li><strong className="text-lux-ivory">Email :</strong>{' '}
-                  <a href="mailto:contact@nexusreussite.academy" className="text-lux-gold underline">contact@nexusreussite.academy</a>
+                  <a href={`mailto:${LEGAL.contact.email}`} className="text-lux-gold underline">{LEGAL.contact.email}</a>
                 </li>
               </ul>
             </section>
@@ -123,7 +123,7 @@ export default function MentionsLegalesPage() {
               </p>
               <p className="mb-3">
                 <strong className="text-lux-ivory">Délégué à la protection des données (DPO) :</strong>{' '}
-                <a href="mailto:contact@nexusreussite.academy" className="text-lux-gold underline">contact@nexusreussite.academy</a>
+                <a href={`mailto:${LEGAL.contact.email}`} className="text-lux-gold underline">{LEGAL.contact.email}</a>
               </p>
               <p>
                 <strong className="text-lux-ivory">Paiement :</strong> Les transactions par carte bancaire sont traitées exclusivement par le prestataire de paiement <strong className="text-lux-ivory">{CGV_POLICY.payment.provider}</strong> ({CGV_POLICY.payment.bank}). {LEGAL.entity.name} ne collecte, ne stocke et ne journalise jamais le cryptogramme visuel (CVV/CVC) de votre carte. {CGV_POLICY.payment.cvvStorage} L&apos;ensemble des données de carte est traité par le prestataire dans un environnement sécurisé.

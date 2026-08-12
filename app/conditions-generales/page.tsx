@@ -157,7 +157,7 @@ export default function ConditionsGeneralesPage() {
               <p>
                 Le traitement des données personnelles est détaillé dans les{' '}
                 <a href="/mentions-legales#donnees" className="text-lux-gold underline">Mentions Légales (section 7)</a>.
-                Pour exercer vos droits (accès, rectification, suppression) : <a href="mailto:contact@nexusreussite.academy" className="text-lux-gold underline">contact@nexusreussite.academy</a>.
+                Pour exercer vos droits (accès, rectification, suppression) : <a href={`mailto:${LEGAL.contact.email}`} className="text-lux-gold underline">{LEGAL.contact.email}</a>.
               </p>
             </section>
 

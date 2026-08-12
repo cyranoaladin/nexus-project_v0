@@ -13,6 +13,10 @@ import {
   teacherBriefMonthlyUsage,
 } from '@/lib/bilans/llm/teacher-brief-service';
 import {
+  TEACHER_BRIEF_DEFAULT_MAX_TOKENS,
+} from '@/lib/bilans/llm/teacher-brief-service';
+import {
+  TEACHER_BRIEF_DOMAIN_MAX_CHARS,
   TEACHER_BRIEF_PROMPT_VERSION,
   teacherBriefSchema,
   type TeacherBriefContent,
@@ -153,9 +157,45 @@ describe('teacher-brief — configuration et coût', () => {
       .toThrow('TEACHER_BRIEF_MODEL_NOT_ALLOWLISTED');
   });
 
-  it('plafonne max_tokens dans la fourchette décidée (500–2 500)', () => {
-    expect(resolveTeacherBriefConfig({ OPENROUTER_API_KEY: 'k', NEXUS_TEACHER_BRIEF_MAX_TOKENS: '9000' }).maxTokens).toBe(2_000);
-    expect(resolveTeacherBriefConfig({ OPENROUTER_API_KEY: 'k', NEXUS_TEACHER_BRIEF_MAX_TOKENS: '2500' }).maxTokens).toBe(2_500);
+  it('le plafond par défaut couvre le pire cas d’UN domaine, marge comprise', () => {
+    // Dimensionné sur le schéma, pas deviné : la sortie maximale d'un domaine
+    // convertie en jetons doit tenir sous le plafond, marge incluse.
+    const config = resolveTeacherBriefConfig({ OPENROUTER_API_KEY: 'k' });
+    expect(config.maxTokens).toBe(TEACHER_BRIEF_DEFAULT_MAX_TOKENS);
+    const pireCasEnJetons = TEACHER_BRIEF_DOMAIN_MAX_CHARS / 2.5;
+    expect(config.maxTokens).toBeGreaterThan(pireCasEnJetons);
+  });
+
+  it('plafonne max_tokens dans la fourchette autorisée, toute valeur hors bornes retombe au défaut', () => {
+    const base = { OPENROUTER_API_KEY: 'k' };
+    expect(resolveTeacherBriefConfig({ ...base, NEXUS_TEACHER_BRIEF_MAX_TOKENS: '9000' }).maxTokens)
+      .toBe(TEACHER_BRIEF_DEFAULT_MAX_TOKENS);
+    expect(resolveTeacherBriefConfig({ ...base, NEXUS_TEACHER_BRIEF_MAX_TOKENS: '100' }).maxTokens)
+      .toBe(TEACHER_BRIEF_DEFAULT_MAX_TOKENS);
+    expect(resolveTeacherBriefConfig({ ...base, NEXUS_TEACHER_BRIEF_MAX_TOKENS: 'beaucoup' }).maxTokens)
+      .toBe(TEACHER_BRIEF_DEFAULT_MAX_TOKENS);
+    expect(resolveTeacherBriefConfig({ ...base, NEXUS_TEACHER_BRIEF_MAX_TOKENS: '8000' }).maxTokens).toBe(8_000);
+  });
+
+  it('modèle, plafond, température et délai sont tous configurables — aucune valeur figée dans le code', () => {
+    const config = resolveTeacherBriefConfig({
+      OPENROUTER_API_KEY: 'k',
+      NEXUS_TEACHER_BRIEF_MODEL: 'mistralai/mistral-large-2512',
+      NEXUS_TEACHER_BRIEF_MAX_TOKENS: '6000',
+      NEXUS_TEACHER_BRIEF_TEMPERATURE: '0.7',
+      NEXUS_TEACHER_BRIEF_TIMEOUT_MS: '60000',
+      NEXUS_TEACHER_BRIEF_MONTHLY_BUDGET_USD: '50',
+      OPENROUTER_BASE_URL: 'https://exemple.test/api/v1',
+    });
+    expect(config).toMatchObject({
+      model: 'mistralai/mistral-large-2512',
+      maxTokens: 6_000,
+      temperature: 0.7,
+      timeoutMs: 60_000,
+      monthlyBudgetUsd: 50,
+      baseUrl: 'https://exemple.test/api/v1',
+      supportsPromptCaching: false,
+    });
   });
 
   it('estime le coût, cache compris — un appel caché coûte nettement moins', () => {
@@ -169,31 +209,83 @@ describe('teacher-brief — configuration et coût', () => {
   });
 });
 
-describe('teacher-brief — appel modèle', () => {
+describe('teacher-brief — appel modèle, un appel par domaine', () => {
   const config = resolveTeacherBriefConfig({ OPENROUTER_API_KEY: 'test-key' });
 
   function fetchReturning(body: unknown): typeof fetch {
     return (async () => new Response(JSON.stringify(body), { status: 200 })) as typeof fetch;
   }
 
-  it('active le cache prompting (cache_control) pour un modèle qui le supporte', async () => {
-    let sentBody: unknown = null;
-    const spyFetch: typeof fetch = (async (_url: unknown, init?: RequestInit) => {
-      sentBody = JSON.parse(String(init?.body));
+  /**
+   * Modèle simulé fidèle au contrat v2 : il reçoit UN domaine et renvoie ce
+   * domaine-là, développé au maximum autorisé par le schéma. `calls` retient
+   * chaque requête pour vérifier le découpage et le dimensionnement.
+   */
+  function domainAwareFetch(calls: { body: unknown }[] = []): { fetch: typeof fetch; calls: { body: unknown }[] } {
+    const impl: typeof fetch = (async (_url: unknown, init?: RequestInit) => {
+      const body = JSON.parse(String(init?.body));
+      calls.push({ body });
+      const facts = JSON.parse(body.messages[1].content) as typeof FACTS;
+      expect(facts.domainesPrioritaires).toHaveLength(1);
+      const asked = facts.domainesPrioritaires[0];
+      const full = validBriefContent().domaines.find((d) => d.domainId === asked.domainId)!;
       return new Response(JSON.stringify({
-        choices: [{ message: { content: JSON.stringify(validBriefContent()) } }],
-        usage: { prompt_tokens: 5_000, completion_tokens: 800, prompt_tokens_details: { cached_tokens: 4_000 } },
+        choices: [{ message: { content: JSON.stringify({ version: TEACHER_BRIEF_PROMPT_VERSION, domaines: [full] }) } }],
+        usage: { prompt_tokens: 2_300, completion_tokens: 1_200, prompt_tokens_details: { cached_tokens: 1_710 } },
       }), { status: 200 });
     }) as typeof fetch;
-    const generation = await callTeacherBriefModel(config, FACTS, spyFetch);
-    const messages = (sentBody as { messages: { role: string; content: unknown }[] }).messages;
-    const system = messages[0].content as { cache_control?: { type: string } }[];
-    expect(Array.isArray(system)).toBe(true);
-    expect(system[0].cache_control).toEqual({ type: 'ephemeral' });
-    expect((sentBody as { max_tokens: number }).max_tokens).toBe(2_000);
-    expect(generation.cachedPromptTokens).toBe(4_000);
-    expect(generation.estimatedCostUsd).toBeGreaterThan(0);
-    expect(generation.promptVersion).toBe(TEACHER_BRIEF_PROMPT_VERSION);
+    return { fetch: impl, calls };
+  }
+
+  it('GARDE : un bilan à 4 domaines prioritaires produit un brief COMPLET, jamais tronqué', async () => {
+    expect(FACTS.domainesPrioritaires).toHaveLength(4);
+    const { fetch: impl, calls } = domainAwareFetch();
+    const generation = await callTeacherBriefModel(config, FACTS, impl);
+
+    // Un appel par domaine : la sortie d'un appel ne dépend pas du nombre de domaines.
+    expect(calls).toHaveLength(4);
+    // Le brief réassemblé couvre les 4 domaines, dans l'ordre des priorités.
+    expect(generation.content.domaines.map((d) => d.domainId))
+      .toEqual(FACTS.domainesPrioritaires.map((d) => d.domainId));
+    // Chaque domaine porte les 4 éléments attendus, aucun tronqué.
+    for (const domaine of generation.content.domaines) {
+      expect(domaine.erreursTypiques.length).toBeGreaterThanOrEqual(1);
+      expect(domaine.prerequisAVerifier.length).toBeGreaterThanOrEqual(1);
+      expect(domaine.activite.deroule.length).toBeGreaterThanOrEqual(3);
+      expect(domaine.indicateurProgres.trim().length).toBeGreaterThan(0);
+    }
+    // Le contenu réassemblé satisfait le schéma STOCKÉ, inchangé.
+    expect(teacherBriefSchema.safeParse(generation.content).success).toBe(true);
+    // Usage agrégé sur les 4 appels.
+    expect(generation.promptTokens).toBe(4 * 2_300);
+    expect(generation.cachedPromptTokens).toBe(4 * 1_710);
+    expect(generation.completionTokens).toBe(4 * 1_200);
+  });
+
+  it('chaque appel est dimensionné sur le pire cas d’UN domaine et garde le cache prompting', async () => {
+    const { fetch: impl, calls } = domainAwareFetch();
+    await callTeacherBriefModel(config, FACTS, impl);
+    for (const { body } of calls) {
+      const sent = body as { max_tokens: number; messages: { content: unknown }[] };
+      expect(sent.max_tokens).toBe(TEACHER_BRIEF_DEFAULT_MAX_TOKENS);
+      const system = sent.messages[0].content as { text: string; cache_control?: { type: string } }[];
+      expect(Array.isArray(system)).toBe(true);
+      expect(system[0].cache_control).toEqual({ type: 'ephemeral' });
+      // La partie mise en cache est rigoureusement identique d'un appel à l'autre.
+      expect(system[0].text).toBe(buildStableSystemPrompt());
+    }
+  });
+
+  it('une sortie coupée au plafond est nommée pour ce qu’elle est, jamais confondue avec un JSON invalide', async () => {
+    const truncated = fetchReturning({
+      choices: [{ finish_reason: 'length', message: { content: '{"version":"teacher-brief.v2","domaines":[{"domainId":"calcul' } }],
+    });
+    await expect(callTeacherBriefModel(config, FACTS, truncated)).rejects.toThrow('TEACHER_BRIEF_TRUNCATED');
+  });
+
+  it('rejette une réponse portant plusieurs domaines alors qu’un seul était demandé', async () => {
+    const multi = fetchReturning({ choices: [{ message: { content: JSON.stringify(validBriefContent()) } }] });
+    await expect(callTeacherBriefModel(config, FACTS, multi)).rejects.toThrow('TEACHER_BRIEF_SCHEMA_REJECTED');
   });
 
   it('rejette une sortie non conforme au schéma — jamais rafistolée', async () => {
@@ -206,6 +298,67 @@ describe('teacher-brief — appel modèle', () => {
       .rejects.toThrow('TEACHER_BRIEF_INVALID_JSON');
     await expect(callTeacherBriefModel(config, FACTS, fetchReturning({ choices: [{ message: { content: '' } }] })))
       .rejects.toThrow('TEACHER_BRIEF_EMPTY');
+  });
+
+  it('GARDE : un domaine prioritaire SANS item raté produit un brief valide, jamais un repli', async () => {
+    // Profil de la maîtrise fragile : l'élève répond juste mais sans
+    // assurance. Le domaine est prioritaire et n'a pourtant rien à citer.
+    // Exiger une citation ici faisait perdre le brief ENTIER.
+    const sansItems = FACTS.domainesPrioritaires.find((d) => d.itemsRates.length === 0)
+      ?? { ...FACTS.domainesPrioritaires[0], itemsRates: [] };
+    const facts = { ...FACTS, domainesPrioritaires: [sansItems, FACTS.domainesPrioritaires[1]] } as typeof FACTS;
+
+    const impl: typeof fetch = (async (_url: unknown, init?: RequestInit) => {
+      const asked = (JSON.parse(JSON.parse(String(init?.body)).messages[1].content) as typeof FACTS)
+        .domainesPrioritaires[0];
+      const modele = validBriefContent().domaines.find((d) => d.domainId === asked.domainId)!;
+      const domaine = {
+        ...modele,
+        // Aucun item raté => aucune citation possible.
+        erreursTypiques: modele.erreursTypiques.map((erreur) => ({
+          ...erreur,
+          itemIds: asked.itemsRates.length === 0 ? [] : erreur.itemIds,
+        })),
+      };
+      return new Response(JSON.stringify({
+        choices: [{ message: { content: JSON.stringify({ version: TEACHER_BRIEF_PROMPT_VERSION, domaines: [domaine] }) } }],
+        usage: { prompt_tokens: 2_300, completion_tokens: 1_400 },
+      }), { status: 200 });
+    }) as typeof fetch;
+
+    const generation = await callTeacherBriefModel(config, facts, impl);
+    expect(generation.content.domaines).toHaveLength(2);
+    expect(generation.content.domaines[0].erreursTypiques[0].itemIds).toEqual([]);
+    expect(generation.content.domaines[0].activite.deroule.length).toBeGreaterThanOrEqual(3);
+  });
+
+  it('GARDE : dès qu’un domaine A des items ratés, l’absence de citation reste refusée', () => {
+    const avecItems = FACTS.domainesPrioritaires.find((d) => d.itemsRates.length > 0)!;
+    const content = validBriefContent();
+    const nonAncre = {
+      ...content,
+      domaines: content.domaines.map((domaine) => (
+        domaine.domainId === avecItems.domainId
+          ? { ...domaine, erreursTypiques: [{ ...domaine.erreursTypiques[0], itemIds: [] }] }
+          : domaine
+      )),
+    };
+    expect(() => assertBriefRespectsFacts(nonAncre, FACTS)).toThrow('TEACHER_BRIEF_UNGROUNDED_ERROR');
+  });
+
+  it('fail-closed : un seul domaine en échec et AUCUN brief partiel n’est produit', async () => {
+    let call = 0;
+    const flaky: typeof fetch = (async (_url: unknown, init?: RequestInit) => {
+      call += 1;
+      const facts = JSON.parse(JSON.parse(String(init?.body)).messages[1].content) as typeof FACTS;
+      if (call === 3) return new Response(JSON.stringify({ choices: [{ message: { content: 'panne' } }] }), { status: 200 });
+      const full = validBriefContent().domaines.find((d) => d.domainId === facts.domainesPrioritaires[0].domainId)!;
+      return new Response(JSON.stringify({
+        choices: [{ message: { content: JSON.stringify({ version: TEACHER_BRIEF_PROMPT_VERSION, domaines: [full] }) } }],
+        usage: { prompt_tokens: 2_300, completion_tokens: 1_200 },
+      }), { status: 200 });
+    }) as typeof fetch;
+    await expect(callTeacherBriefModel(config, FACTS, flaky)).rejects.toThrow('TEACHER_BRIEF_INVALID_JSON');
   });
 });
 
@@ -286,10 +439,16 @@ describe('teacher-brief — orchestration, repli, budget, idempotence', () => {
         })),
       },
     });
-    const fetchOk: typeof fetch = (async () => new Response(JSON.stringify({
-      choices: [{ message: { content: JSON.stringify(validBriefContent()) } }],
-      usage: { prompt_tokens: 4_000, completion_tokens: 900 },
-    }), { status: 200 })) as typeof fetch;
+    // Un appel par domaine : le modèle simulé renvoie le domaine demandé.
+    const fetchOk: typeof fetch = (async (_url: unknown, init?: RequestInit) => {
+      const facts = JSON.parse(JSON.parse(String(init?.body)).messages[1].content) as typeof FACTS;
+      const domaine = validBriefContent().domaines
+        .find((d) => d.domainId === facts.domainesPrioritaires[0].domainId)!;
+      return new Response(JSON.stringify({
+        choices: [{ message: { content: JSON.stringify({ version: TEACHER_BRIEF_PROMPT_VERSION, domaines: [domaine] }) } }],
+        usage: { prompt_tokens: 2_300, completion_tokens: 1_100, prompt_tokens_details: { cached_tokens: 1_710 } },
+      }), { status: 200 });
+    }) as typeof fetch;
     const result = await generateTeacherBrief({
       prisma: db as never, actor, reportArtifactId: 'art-1',
       environment: { OPENROUTER_API_KEY: 'k' },
