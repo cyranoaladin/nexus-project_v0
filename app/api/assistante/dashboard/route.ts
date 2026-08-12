@@ -2,6 +2,7 @@ import { serializeError } from '@/lib/utils/serialize-error';
 export const dynamic = 'force-dynamic';
 
 import { auth } from '@/auth';
+import { computeAssistantWorkQueue } from '@/lib/bilans/staff/notification-service';
 import { prisma } from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -28,7 +29,8 @@ export async function GET(request: NextRequest) {
       pendingCreditRequests,
       pendingSubscriptionRequests,
       todaySessions,
-      recentActivities
+      recentActivities,
+      canonicalBilansQueue,
     ] = await Promise.all([
       // Total students
       prisma.student.count(),
@@ -127,7 +129,12 @@ export async function GET(request: NextRequest) {
           coach: { select: { firstName: true, lastName: true, coachProfile: { select: { pseudonym: true } } } }
         },
         orderBy: [{ scheduledDate: 'desc' }, { startTime: 'desc' }]
-      })
+      }),
+
+      // File canonique des bilans de positionnement (revue, correction,
+      // transmission WhatsApp) — alimente la tuile « Bilans à traiter ».
+      // Fail-soft : le tableau de bord ne tombe pas si cette file échoue.
+      computeAssistantWorkQueue().catch(() => null)
     ]);
 
     // Calculate total revenue (payments + subscriptions)
@@ -159,6 +166,7 @@ export async function GET(request: NextRequest) {
     }));
 
     const dashboardData = {
+      canonicalBilans: canonicalBilansQueue,
       stats: {
         totalStudents,
         totalCoaches,

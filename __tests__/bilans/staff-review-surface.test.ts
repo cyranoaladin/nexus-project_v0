@@ -27,9 +27,19 @@ const revision = {
     assessmentAttempt: { provenance: 'SAISIE_PAPIER' },
     student: {
       user: { firstName: 'Élise', lastName: 'Ben Salah' },
-      parent: { user: { email: 'parent@example.test' } },
+      parent: {
+        user: {
+          id: 'parent-user-1',
+          email: 'parent@example.test',
+          firstName: 'Sonia',
+          lastName: 'Ben Salah',
+          phoneNormalized: '99192829',
+        },
+      },
     },
+    transmissions: [],
   },
+  reviews: [],
 };
 
 function dependencies(overrides: Record<string, unknown> = {}) {
@@ -45,6 +55,10 @@ function dependencies(overrides: Record<string, unknown> = {}) {
     preview: jest.fn().mockResolvedValue({ official: false, audiences: [] }),
     renderPdf: jest.fn().mockResolvedValue(Buffer.from('%PDF-test')),
     reject: jest.fn().mockResolvedValue({ status: 'COACH_REJECTED' }),
+    requestCorrection: jest.fn().mockResolvedValue({ status: 'CORRECTION_REQUESTED' }),
+    resumeReview: jest.fn().mockResolvedValue({ status: 'PENDING_REVIEW' }),
+    findCorrectionRequested: jest.fn().mockResolvedValue(null),
+    notifyParentPublished: jest.fn().mockResolvedValue(undefined),
     now: () => new Date('2026-08-02T11:00:00.000Z'),
     ...overrides,
   };

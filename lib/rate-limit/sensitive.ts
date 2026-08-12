@@ -49,6 +49,7 @@ export const SENSITIVE_RATE_LIMIT_POLICIES = {
   'candidate-parent-draft': { ipPreset: 'writeIp', identityPreset: 'writeIdentity' },
   'candidate-parent-submit': { ipPreset: 'writeIp', identityPreset: 'writeIdentity' },
   'candidate-document-upload': { ipPreset: 'writeIp', identityPreset: 'writeIdentity', resourcePreset: 'resourceWrite' },
+  'bilan-share-consult': { ipPreset: 'readIp' },
 } as const satisfies Record<string, SensitivePolicy>
 
 export type SensitiveRateLimitScope = keyof typeof SENSITIVE_RATE_LIMIT_POLICIES

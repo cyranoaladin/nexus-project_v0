@@ -1,3 +1,4 @@
+import { maybeSendAssistantDigest } from '../staff/notification-service';
 import { drainGenerateReportJobs, drainScoreAttemptJobs } from './drain-outbox';
 
 type SchedulerState = {
@@ -37,6 +38,10 @@ export function kickBilanWorkerDrain(): void {
     console.info(JSON.stringify({ event: 'BILAN_WORKER_SCORE_DRAIN_METRICS', ...scored }));
     const generated = await drainGenerateReportJobs();
     console.info(JSON.stringify({ event: 'BILAN_WORKER_GENERATE_REPORT_DRAIN_METRICS', ...generated }));
+    // Synthèse assistante : vérification bon marché à chaque tick, envoi au
+    // plus une fois par intervalle et seulement s'il y a matière.
+    const digest = await maybeSendAssistantDigest();
+    if (digest.sent) console.info(JSON.stringify({ event: 'BILAN_ASSISTANT_DIGEST_SENT' }));
   })().catch((error) => {
     console.error(JSON.stringify({
       event: 'BILAN_WORKER_DRAIN_FAILED',
