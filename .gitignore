@@ -179,3 +179,4 @@ build-output.log
 
 # Secret local OpenRouter (jamais versionner)
 openrouter_cle.txt
+.claude/settings.local.json

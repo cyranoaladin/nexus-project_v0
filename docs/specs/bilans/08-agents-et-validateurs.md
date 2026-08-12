@@ -263,7 +263,7 @@ il interdit la classe entière de sorties où elle peut apparaître.
 
 1. Premier échec → nouvel appel du seul agent fautif, avec un prompt correctif listant
    les violations exactes. Une seule reprise.
-2. Second échec → statut `REPORT_PENDING_REVIEW`, alerte Telegram avec `attemptId` seul,
+2. Second échec → statut `REPORT_PENDING_REVIEW`, alerte e-mail avec `attemptId` seul,
    passage en revue humaine. **Jamais `COMPLETED`.**
 3. Toute violation est journalisée par règle et par pack, pour piloter l'ouverture
    éventuelle de l'auto-publication.
