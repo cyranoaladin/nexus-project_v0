@@ -106,6 +106,18 @@ async function resolveReportContent(
   claim: ClaimedJob,
   dependencies: GenerateReportJobDependencies,
 ): Promise<ReportContentOutcome> {
+  // ── VERROU DE NARRATION FAMILLES ────────────────────────────────────
+  // Depuis le brief enseignant LLM, OPENROUTER_API_KEY peut exister en
+  // production SANS que la narration des bilans familles soit voulue : la
+  // clé sert au document interne enseignant, relu par l'équipe. La
+  // présence de la clé ne suffit donc PLUS à basculer ce worker : la
+  // narration familles exige EN PLUS le flag explicite ci-dessous — qui ne
+  // doit pas être posé tant que la revue COACH exigée par le FLIP POINT
+  // n'a pas été recâblée. Les bilans élève et parents restent 100 %
+  // déterministes par défaut, clé présente ou non.
+  if ((process.env.NEXUS_BILAN_FAMILY_NARRATION_ENABLED ?? '').trim().toLowerCase() !== 'true') {
+    return { content: buildDeterministicReports(claim.factSheet, claim.identity), mode: 'DETERMINISTIC_FALLBACK' };
+  }
   let transport: BilanLlmTransport;
   try {
     transport = dependencies.buildTransport();
