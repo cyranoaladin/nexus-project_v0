@@ -7,7 +7,7 @@ import { renderDeterministicBilanHtml } from '@/lib/bilans/render/html';
 import type { RenderIdentity } from '@/lib/bilans/render/render-identity';
 import { buildPreRentreeStageLabel } from '@/lib/bilans/render/stage-label';
 import { domainLabel } from '@/lib/bilans/render/domain-labels';
-import { frenchTypography, NBSP } from '@/lib/bilans/render/typography';
+import { frenchTypography, mathNotation, NBSP } from '@/lib/bilans/render/typography';
 import type { BilanPackSubject } from '@/lib/bilans/catalog/subjects';
 
 /**
@@ -159,5 +159,30 @@ describe('Finition premium — typographie et libellés sur les 17 packs', () =>
     expect(once).toContain(`${NBSP};`);
     expect(once).toContain(`${NBSP}?`);
     expect(once).not.toContain("'");
+  });
+
+  describe('notation mathématique', () => {
+    it('convertit puissances et indices collés à leur base', () => {
+      expect(mathNotation('v_0 × 3^4 puis 3^5')).toBe('v₀ × 3⁴ puis 3⁵');
+      expect(mathNotation('x^12')).toBe('x¹²');
+      expect(mathNotation('(a+b)^2')).toBe('(a+b)²');
+    });
+
+    it('est idempotente et traverse la typographie française', () => {
+      const once = frenchTypography('u_1 vaut 2^3 !');
+      expect(frenchTypography(once)).toBe(once);
+      expect(once).toContain('u₁');
+      expect(once).toContain('2³');
+    });
+
+    it('GARDE : ne touche jamais à un extrait de code ni aux exposants littéraux', () => {
+      // Ou-exclusif Python (espaces autour) et multiplication : intacts.
+      expect(mathNotation('5 ^ 3')).toBe('5 ^ 3');
+      expect(mathNotation('f(5) calcule 5 * 2')).toBe('f(5) calcule 5 * 2');
+      // Exposant littéral : laissé tel quel, faute de glyphe garanti à l'impression.
+      expect(mathNotation('e^x = 0')).toBe('e^x = 0');
+      // Un identifiant technique suivi d'une lettre n'est pas un indice.
+      expect(mathNotation('snake_case')).toBe('snake_case');
+    });
   });
 });
