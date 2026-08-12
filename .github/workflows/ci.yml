@@ -872,8 +872,16 @@ jobs:
       # --- OSV SCANNER (Google) ---
       - name: Install and verify OSV Scanner
         run: |
-          curl -sSL --retry 5 --retry-delay 5 --retry-all-errors \
-            https://github.com/google/osv-scanner/releases/download/v1.9.0/osv-scanner_linux_amd64 -o osv-scanner
+          for attempt in 1 2 3 4 5; do
+            rm -f osv-scanner
+            curl -sSL --retry 5 --retry-delay 5 --retry-all-errors \
+              https://github.com/google/osv-scanner/releases/download/v1.9.0/osv-scanner_linux_amd64 -o osv-scanner
+            if echo "d9c1deedc23372a25049458e1e2f2bb9ad4098e2e2038118b9fec42f28f93ffb  osv-scanner" | sha256sum -c; then
+              break
+            fi
+            echo "Checksum mismatch on attempt $attempt (corrupted/truncated download) — retrying..."
+            sleep 5
+          done
           echo "d9c1deedc23372a25049458e1e2f2bb9ad4098e2e2038118b9fec42f28f93ffb  osv-scanner" | sha256sum -c
           chmod +x osv-scanner
 
