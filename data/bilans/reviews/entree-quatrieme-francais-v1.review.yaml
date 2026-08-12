@@ -1,7 +1,7 @@
 schemaVersion: 1
 slug: entree-quatrieme-francais-v1
 packVersion: 1
-sourceChecksum: 2cdd6cbb1b2fb9867affb9cfb395535b4e1b781457f8494b0b402780160be8ef
+sourceChecksum: 8ad33d2e71660bffe3a9a167b8356c6f3dfc178d822b9c745a500de60570778b
 promptChecksums:
   preAnalysis: 73a37cd318040093b958ad4fb34f3b605d572215792f41e6a431ff706b7e5340
   eleve: a4847a0d58b904373830e245e44b88bb52eae706d3e9dafee9b188aa45f7a686
@@ -9,5 +9,5 @@ promptChecksums:
   nexus: 9e671381c6577fe76f51a2b03b828f7c7877f72d5979c6ddc9f9af2a8920fba0
   verifier: b5801bd318eed09568198f2d8383ff765471e7555a0af2d2bc797d2407a1369a
 validatedBy: cmsf8ncom0008mguh4z5acmu5
-validatedAt: 2026-08-05T07:03:45.322Z
+validatedAt: 2026-08-11T23:21:01.428Z
 qualification: Professeur certifiee de Lettres
