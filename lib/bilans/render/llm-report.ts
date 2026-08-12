@@ -33,6 +33,10 @@ export function buildLlmReport(
       content: Object.freeze({
         ...base.content,
         narrative: Object.freeze({
+          // methodNote et calibration restent déterministes : le LLM narre,
+          // il ne touche jamais à l'explication de la méthode ni à la
+          // lecture de calibration.
+          ...base.content.narrative,
           headline: bundle.eleve.accroche,
           introduction: bundle.preAnalysis.synthese,
           strengths: Object.freeze([...bundle.eleve.forces]),
