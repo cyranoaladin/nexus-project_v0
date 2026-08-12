@@ -122,6 +122,23 @@ export function canExposePublicStageSlug(stageSlug: string): boolean {
   return stageSlug !== 'pre-rentree-2026' || getPreRentreeReleaseGate().isPublicReady;
 }
 
+/**
+ * Inscription en ligne à la campagne Pré-rentrée 2026 : DÉLIBÉRÉMENT
+ * désactivée. Ce n'est ni un oubli ni un chantier interrompu.
+ *
+ * Décision produit assumée par le responsable pédagogique (12/08/2026,
+ * documentée dans `onlineRegistrationDecision` de
+ * data/campaigns/pre-rentree-2026.json) : les inscriptions aux stages de
+ * pré-rentrée se font hors ligne, par WhatsApp ou directement au centre —
+ * jamais par soumission en ligne. La page publique
+ * (/stages/pre-rentree-2026) reste strictement informative ; toutes ses
+ * offres pointent vers WhatsApp, jamais vers un formulaire de réservation.
+ * Aucune inscription n'a été perdue par ce garde : il n'existe pas de
+ * chemin de soumission fonctionnel à protéger.
+ *
+ * Ne pas faire passer ce garde à `true` sans nouvelle décision explicite
+ * documentée ici et dans le manifeste.
+ */
 export function canAcceptPreRentreeCampaignSubmission(): boolean {
   return false;
 }
