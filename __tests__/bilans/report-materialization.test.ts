@@ -6,6 +6,7 @@ import {
   storedAudienceArtifactIsIntact,
 } from '@/lib/bilans/core/report-materialization';
 import { renderDeterministicBilanHtml } from '@/lib/bilans/render/html';
+import { frenchTypography } from '@/lib/bilans/render/typography';
 import {
   PAPER_ENTRY_DURATION_MEASUREMENT,
   PAPER_ENTRY_DURATION_NOTICE,
@@ -98,7 +99,7 @@ describe('A90.3 report materialization preparation', () => {
     );
 
     expect(prepared.audiences).toHaveLength(3);
-    expect(prepared.audiences.every(({ html }) => html.includes(PAPER_ENTRY_DURATION_NOTICE))).toBe(true);
+    expect(prepared.audiences.every(({ html }) => html.includes(frenchTypography(PAPER_ENTRY_DURATION_NOTICE)))).toBe(true);
   });
 
   test('passes the real identity separately while keeping snapshot and revision aliases immutable', async () => {

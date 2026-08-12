@@ -2,17 +2,24 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 import { PREMIERE_ENTRY_RECIPE_FACT_SHEETS } from '@/__tests__/bilans/fixtures/recipe-fact-sheets';
+import { loadBilanPack } from '@/lib/bilans/catalog/load-pack';
+import type { FactSheet } from '@/lib/bilans/facts/fact-sheet';
 import {
   createBilanPdfRendererSession,
   normalizePdfForComparison,
   renderDeterministicBilanPdf,
 } from '@/lib/bilans/render/pdf';
+import {
+  buildQuestionEvidence,
+  type QuestionEvidence,
+} from '@/lib/bilans/render/question-evidence';
 import type { RenderIdentity } from '@/lib/bilans/render/render-identity';
 import { buildPreRentreeStageLabel } from '@/lib/bilans/render/stage-label';
 import type { ReportAudience } from '@/lib/bilans/render/profile-copy';
 
 const OUTPUT_DIRECTORY = path.join('docs', 'specs', 'bilans', 'exemples');
 const SLUG = 'entree-premiere-maths-v1';
+const PACK_PATH = path.join('data', 'bilans', 'banks', `${SLUG}.json`);
 const AUDIENCES = ['ELEVE', 'PARENTS', 'NEXUS'] as const satisfies readonly ReportAudience[];
 
 const IDENTITY: RenderIdentity = Object.freeze({
@@ -23,8 +30,34 @@ const IDENTITY: RenderIdentity = Object.freeze({
   stageLabel: buildPreRentreeStageLabel('PREMIERE', 'MATHS'),
 });
 
+/**
+ * Réponses de démonstration, dérivées déterministiquement des profils du
+ * FactSheet de recette : chaque item reçoit la réponse et la certitude qui
+ * correspondent au profil de son domaine, pour que le « Détail des
+ * réponses » des exemples soit cohérent avec la carte des profils.
+ * Lecture seule sur la banque — rien n'y est modifié.
+ */
+function buildDemonstrationEvidence(factSheet: FactSheet): QuestionEvidence {
+  const pack = loadBilanPack(PACK_PATH);
+  const profiles = new Map(factSheet.domains.map(({ id, profile }) => [id, profile]));
+  const answers: Record<string, { optionId: string; confidence: 1 | 2 | 3 | 4 | null }> = {};
+  for (const item of pack.questionnaire.items) {
+    const profile = profiles.get(item.domainId) ?? 'MAITRISE';
+    if (profile === 'NON_TRAITE') continue;
+    const correct = item.options.find(({ isCorrect }) => isCorrect);
+    const wrong = item.options.find(({ isCorrect }) => !isCorrect);
+    if (correct === undefined || wrong === undefined) continue;
+    if (profile === 'MAITRISE') answers[item.id] = { optionId: correct.id, confidence: 4 };
+    else if (profile === 'MAITRISE_FRAGILE') answers[item.id] = { optionId: correct.id, confidence: 2 };
+    else if (profile === 'LACUNE_CONSCIENTE') answers[item.id] = { optionId: wrong.id, confidence: 1 };
+    else answers[item.id] = { optionId: wrong.id, confidence: 4 };
+  }
+  return buildQuestionEvidence(pack, answers);
+}
+
 export async function buildRenderedExampleArtifacts(): Promise<ReadonlyMap<string, Buffer>> {
   const factSheet = PREMIERE_ENTRY_RECIPE_FACT_SHEETS[0];
+  const evidence = buildDemonstrationEvidence(factSheet);
   const artifacts = new Map<string, Buffer>();
   const session = await createBilanPdfRendererSession();
 
@@ -34,7 +67,7 @@ export async function buildRenderedExampleArtifacts(): Promise<ReadonlyMap<strin
         factSheet,
         audience,
         IDENTITY,
-        { renderHtmlToPdf: session.renderHtmlToPdf },
+        { renderHtmlToPdf: session.renderHtmlToPdf, evidence },
       );
       if (rendered.status !== 'AVAILABLE') {
         throw new Error(`A95_PDF_UNAVAILABLE:${audience}:${rendered.errorCode}`);

@@ -9,6 +9,7 @@ import {
   type BilanPdfRendererSession,
 } from '@/lib/bilans/render/pdf';
 import type { RenderIdentity } from '@/lib/bilans/render/render-identity';
+import { frenchTypography } from '@/lib/bilans/render/typography';
 
 const identity: RenderIdentity = {
   displayName: 'ELEVE_FIXTURE',
@@ -79,7 +80,7 @@ describe('A90.2.3 deterministic HTML-to-PDF export', () => {
       status: 'UNAVAILABLE',
       errorCode: 'BILAN_PDF_RENDER_FAILED',
     }));
-    expect(result.html).toContain(identity.stageLabel);
+    expect(result.html).toContain(frenchTypography(identity.stageLabel));
     expect(result).not.toHaveProperty('pdf');
   });
 
