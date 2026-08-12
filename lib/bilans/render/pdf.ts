@@ -7,6 +7,7 @@ import type { FactSheet } from '../facts/fact-sheet';
 import { BILAN_PRINT_BRAND } from './brand';
 import { renderDeterministicBilanHtml } from './html';
 import type { HumanRenderIdentity } from './human-identity';
+import type { QuestionEvidence } from './question-evidence';
 import type { RenderIdentity } from './render-identity';
 import type { ReportAudience } from './profile-copy';
 
@@ -19,6 +20,7 @@ export type BilanPdfResult =
 export interface BilanPdfDependencies {
   renderHtmlToPdf?: (html: string) => Promise<Buffer>;
   humanIdentity?: HumanRenderIdentity;
+  evidence?: QuestionEvidence;
 }
 
 const ASSETS = [
@@ -167,6 +169,7 @@ export async function renderDeterministicBilanPdf(
     audience,
     identity,
     dependencies.humanIdentity,
+    dependencies.evidence,
   );
   try {
     const pdf = audience === 'PARENTS'

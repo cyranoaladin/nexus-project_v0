@@ -5,6 +5,7 @@ import {
   PAPER_ENTRY_DURATION_MEASUREMENT,
   PAPER_ENTRY_DURATION_NOTICE,
 } from '@/lib/bilans/render/passation-presentation';
+import { frenchTypography } from '@/lib/bilans/render/typography';
 import type { RenderIdentity } from '@/lib/bilans/render/render-identity';
 
 const identity: RenderIdentity = {
@@ -46,24 +47,28 @@ describe('A90.2 deterministic HTML reports', () => {
   it('renders the complete parent path without referral CTA or scores', () => {
     const html = renderDeterministicBilanHtml(ENTRY_RECIPE_FACT_SHEETS[0], 'PARENTS', identity);
 
-    expect(html).toContain('Comment le diagnostic construit les cinq séances');
+    expect(html).toContain('Ce que le stage fera, concrètement');
     expect(html).toContain('cinq séances de deux heures');
-    expect(html).toContain('Aucun module n&#39;est fixé');
+    expect(html).toContain('Aucun module n’est fixé');
+    expect(html).toContain('La méthode Nexus');
+    expect(html).toContain('Les repères observés');
     expect(html).not.toContain('Le parcours de votre enfant pendant le stage');
     expect(html).not.toContain('Être conseillé');
     expect(html).not.toContain('Un échange');
     expect(html).not.toMatch(/globalScore|domainScores|calibrationIndex|\bscore\b/i);
   });
 
-  it('renders Nexus internal facts, domain table, four-week plan and alerts', () => {
+  it('renders Nexus internal facts, domain table, five-session plan and alerts', () => {
     const html = renderDeterministicBilanHtml(ENTRY_RECIPE_FACT_SHEETS[0], 'NEXUS', identity);
 
     expect(html).toContain('Données internes');
     expect(html).toContain('Tableau des domaines');
-    expect(html).toContain('Plan sur 4 semaines');
+    expect(html).toContain('Plan des cinq séances');
+    expect(html).not.toContain('Plan sur 4 semaines');
     expect(html).toContain('Alertes pédagogiques');
     expect(html).toContain('Score global');
     expect(html).toContain('ERREUR_CONFIANTE');
+    expect(html).toContain('<svg');
   });
 
   it('uses aptitude terminology for philosophy through configuration', () => {
@@ -84,7 +89,7 @@ describe('A90.2 deterministic HTML reports', () => {
     });
     const onlineHtml = renderDeterministicBilanHtml(ENTRY_RECIPE_FACT_SHEETS[0], 'PARENTS', identity);
 
-    expect(paperHtml).toContain(PAPER_ENTRY_DURATION_NOTICE);
-    expect(onlineHtml).not.toContain(PAPER_ENTRY_DURATION_NOTICE);
+    expect(paperHtml).toContain(frenchTypography(PAPER_ENTRY_DURATION_NOTICE));
+    expect(onlineHtml).not.toContain(frenchTypography(PAPER_ENTRY_DURATION_NOTICE));
   });
 });

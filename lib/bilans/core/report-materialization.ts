@@ -14,6 +14,7 @@ import {
   assertHumanRenderIdentity,
   type HumanRenderIdentity,
 } from '../render/human-identity';
+import type { QuestionEvidence } from '../render/question-evidence';
 import { applyReportPassationPresentation } from '../render/passation-presentation';
 import {
   assertPublicRenderedArtifact,
@@ -47,10 +48,12 @@ export type ReportRenderContext = Readonly<{
   factSheet: FactSheet;
   identity: RenderIdentity;
   humanIdentity?: HumanRenderIdentity;
+  evidence?: QuestionEvidence;
 }>;
 
 export type PublicationRenderOptions = Readonly<{
   humanIdentity?: HumanRenderIdentity;
+  evidence?: QuestionEvidence;
 }>;
 
 export type PublicationRenderer = (
@@ -67,6 +70,7 @@ const defaultPublicationRenderer: PublicationRenderer = (
   options,
 ) => renderDeterministicBilanPdf(factSheet, audience, identity, {
   humanIdentity: options?.humanIdentity,
+  evidence: options?.evidence,
 });
 
 export class ReportMaterializationError extends Error {
@@ -106,6 +110,7 @@ export function parseReportRenderContext(
   scoreResult: unknown,
   reportContent: unknown,
   humanIdentity?: HumanRenderIdentity,
+  evidence?: QuestionEvidence,
 ): ReportRenderContext {
   const identity = parseIdentity(reportContent);
   return Object.freeze({
@@ -114,6 +119,7 @@ export function parseReportRenderContext(
     ...(humanIdentity === undefined
       ? {}
       : { humanIdentity: assertHumanRenderIdentity(humanIdentity) }),
+    ...(evidence === undefined ? {} : { evidence }),
   });
 }
 
@@ -126,6 +132,7 @@ export async function prepareReportMaterialization(
     rendered = await Promise.all(REPORT_MATERIALIZATION_AUDIENCES.map((audience) => (
       renderAudience(context.factSheet, audience, context.identity, {
         humanIdentity: context.humanIdentity,
+        evidence: context.evidence,
       })
     )));
   } catch {
@@ -164,6 +171,7 @@ export function prepareCoachPreview(context: ReportRenderContext) {
         audience,
         context.identity,
         context.humanIdentity,
+        context.evidence,
       ),
     }))),
   });

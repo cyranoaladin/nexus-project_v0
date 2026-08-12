@@ -33,15 +33,19 @@ const identitySchema = z.object({
 const narrativeSchema = z.object({
   headline: z.string().trim().min(1),
   introduction: z.string().trim().min(1),
+  methodNote: z.string().trim().min(1),
   strengths: z.array(z.string().trim().min(1)),
   priorities: z.array(z.string().trim().min(1)),
-  actionPlan: z.array(z.string().trim().min(1)),
+  actionPlan: z.array(z.string().trim().min(1)).min(1),
+  calibration: z.string().trim().min(1),
   conclusion: z.string().trim().min(1),
 }).strict();
 
 const publicDomainSchema = z.object({
   id: z.string().trim().min(1),
+  title: z.string().trim().min(1),
   profileLabel: familyProfileSchema,
+  gesture: z.string().trim().min(1),
   narrative: z.string().trim().min(1),
 }).strict();
 
@@ -52,6 +56,7 @@ const nexusDomainSchema = publicDomainSchema.extend({
 
 const publicLearningStepSchema = z.object({
   domainId: z.string().trim().min(1),
+  domainTitle: z.string().trim().min(1),
   phaseDidactique: z.enum(['Confronter', 'Installer', 'Consolider', 'Diagnostiquer']),
   objectif: z.string().trim().min(1),
   demarche: z.string().trim().min(1),
@@ -61,6 +66,7 @@ const publicLearningStepSchema = z.object({
 
 const nexusLearningStepSchema = z.object({
   domainId: z.string().trim().min(1),
+  domainTitle: z.string().trim().min(1),
   profil: z.enum(['ERREUR_CONFIANTE', 'LACUNE_CONSCIENTE', 'MAITRISE_FRAGILE', 'NON_TRAITE']),
   phaseDidactique: z.enum(['Confronter', 'Installer', 'Consolider', 'Diagnostiquer']),
   objectif: z.string().trim().min(1),
@@ -85,7 +91,7 @@ function reportSchema(audience: 'ELEVE' | 'PARENTS' | 'NEXUS') {
     narrative: narrativeSchema,
     domains: z.array(isNexus ? nexusDomainSchema : publicDomainSchema),
     learningPath: z.object({
-      version: z.literal('learning-path.v1'),
+      version: z.literal('learning-path.v2'),
       steps: z.array(isNexus ? nexusLearningStepSchema : publicLearningStepSchema),
     }).strict(),
     ...(isNexus ? { internalFacts: internalFactsSchema } : {}),
@@ -125,6 +131,11 @@ export function validateDeterministicReports(
     }
     if (audience !== 'NEXUS' && containsForbiddenPublicFact(report)) {
       throw new Error(`REPORT_PUBLIC_RAW_SCORE_FORBIDDEN:${audience}`);
+    }
+    // Une section « Forces » vide est un défaut de restitution pour une
+    // famille : le moteur doit toujours fournir au moins un point d'appui.
+    if (audience !== 'NEXUS' && report.content.narrative.strengths.length === 0) {
+      throw new Error(`REPORT_PUBLIC_STRENGTHS_EMPTY:${audience}`);
     }
   }
 }
