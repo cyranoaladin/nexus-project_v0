@@ -132,6 +132,25 @@ export async function createPendingReport(
     action: 'CREATE_REPORT',
     actor: 'WORKER',
   });
+  // Centre de notifications assistante : un bilan prêt à revue est un
+  // événement clé. Même transaction que la révision — jamais de notification
+  // pour un bilan qui n'existe pas.
+  const assistants = await transaction.user.findMany({
+    where: { role: 'ASSISTANTE' },
+    select: { id: true },
+  });
+  if (assistants.length > 0) {
+    await transaction.notification.createMany({
+      data: assistants.map(({ id }) => ({
+        userId: id,
+        userRole: 'ASSISTANTE' as const,
+        type: 'BILAN_READY_FOR_REVIEW',
+        title: 'Nouveau bilan prêt à revue',
+        message: 'Un bilan de positionnement vient d’être généré et attend votre revue avant diffusion.',
+        data: { revisionId: revision.id, artifactId: artifact.id },
+      })),
+    });
+  }
   return Object.freeze({ artifact, revision });
 }
 
@@ -192,6 +211,127 @@ export async function validateReportRevision(input: ReviewInput) {
       actor: 'ASSISTANTE',
     });
     return Object.freeze({ revisionId: revision.id, reviewId: review.id, status: 'COACH_VALIDATED' as const });
+  });
+}
+
+/** Sections annotables d'un bilan — vocabulaire stable, jamais du texte libre. */
+export const REPORT_ANNOTATION_SECTIONS = [
+  'introduction',
+  'methode',
+  'forces',
+  'priorites',
+  'parcours',
+  'plan-action',
+  'detail-reponses',
+  'calibration',
+  'conclusion',
+  'autre',
+  'reprise-de-revue',
+] as const;
+
+export type ReportAnnotationSection = (typeof REPORT_ANNOTATION_SECTIONS)[number];
+
+export type ReportReviewAnnotationInput = Readonly<{
+  audience: 'ELEVE' | 'PARENTS' | 'NEXUS';
+  section: ReportAnnotationSection;
+  remark: string;
+}>;
+
+function assertAnnotations(
+  annotations: readonly ReportReviewAnnotationInput[],
+): readonly ReportReviewAnnotationInput[] {
+  if (annotations.length === 0) throw new BilanReportServiceError('REPORT_ANNOTATION_REQUIRED');
+  for (const annotation of annotations) {
+    if (!REPORT_ANNOTATION_SECTIONS.includes(annotation.section)) {
+      throw new BilanReportServiceError('REPORT_ANNOTATION_SECTION_UNKNOWN');
+    }
+    const remark = annotation.remark.trim();
+    if (remark.length === 0 || remark.length > 4000) {
+      throw new BilanReportServiceError('REPORT_ANNOTATION_REMARK_INVALID');
+    }
+  }
+  return annotations;
+}
+
+/**
+ * « Correction demandée » : état intermédiaire explicite, distinct du rejet
+ * (qui ferme) et de l'attente de diffusion. La revue CHANGES_REQUESTED et ses
+ * annotations sont créées dans la même transaction que le changement d'état,
+ * exigé par le garde DB. L'attempt reste à REPORT_PENDING_REVIEW : la demande
+ * de correction est une affaire de revue, pas de scoring — le snapshot de
+ * score et les banques ne sont jamais touchés par ce chemin.
+ */
+export async function requestReportCorrection(input: ReviewInput & Readonly<{
+  annotations: readonly ReportReviewAnnotationInput[];
+}>) {
+  const annotations = assertAnnotations(input.annotations);
+  return input.prisma.$transaction(async (transaction) => {
+    const revision = await pendingRevision(transaction, input.revisionId);
+    const review = await transaction.reportReview.create({
+      data: {
+        reportRevisionId: revision.id,
+        reviewerId: input.reviewerId,
+        decision: 'CHANGES_REQUESTED',
+        motif: assertMotif(input.motif),
+        reviewedAt: input.reviewedAt,
+        annotations: {
+          create: annotations.map((annotation) => ({
+            audience: annotation.audience,
+            section: annotation.section,
+            remark: annotation.remark.trim(),
+          })),
+        },
+      },
+    });
+    const updated = await transaction.reportRevision.updateMany({
+      where: { id: revision.id, status: 'PENDING_REVIEW' },
+      data: { status: 'CORRECTION_REQUESTED' },
+    });
+    if (updated.count !== 1) throw new BilanReportServiceError('REPORT_CONCURRENT_REVIEW');
+    return Object.freeze({ revisionId: revision.id, reviewId: review.id, status: 'CORRECTION_REQUESTED' as const });
+  });
+}
+
+/**
+ * Reprise de revue après correction : le bilan revient dans la file avec tout
+ * son historique d'annotations. La reprise est elle-même tracée, comme
+ * annotation interne (audience NEXUS) de la revue qui avait demandé la
+ * correction — l'historique ne s'écrase jamais, il s'allonge.
+ */
+export async function resumeReportReview(input: ReviewInput) {
+  return input.prisma.$transaction(async (transaction) => {
+    const revision = await transaction.reportRevision.findUnique({
+      where: { id: input.revisionId },
+      select: {
+        id: true,
+        status: true,
+        reviews: {
+          where: { decision: 'CHANGES_REQUESTED' },
+          orderBy: { reviewedAt: 'desc' },
+          select: { id: true },
+          take: 1,
+        },
+      },
+    });
+    if (revision === null || revision.status !== 'CORRECTION_REQUESTED') {
+      throw new BilanReportServiceError('REPORT_NOT_CORRECTION_REQUESTED');
+    }
+    const triggeringReview = revision.reviews[0];
+    if (triggeringReview === undefined) throw new BilanReportServiceError('REPORT_CORRECTION_REVIEW_MISSING');
+    await transaction.reportReviewAnnotation.create({
+      data: {
+        reportReviewId: triggeringReview.id,
+        audience: 'NEXUS',
+        section: 'reprise-de-revue',
+        remark: assertMotif(input.motif),
+      },
+    });
+    const updated = await transaction.reportRevision.updateMany({
+      where: { id: revision.id, status: 'CORRECTION_REQUESTED' },
+      data: { status: 'PENDING_REVIEW' },
+    });
+    if (updated.count !== 1) throw new BilanReportServiceError('REPORT_CONCURRENT_REVIEW');
+    return Object.freeze({ revisionId: revision.id, status: 'PENDING_REVIEW' as const });
   });
 }
 

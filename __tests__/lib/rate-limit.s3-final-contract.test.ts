@@ -56,7 +56,7 @@ describe('S3 final distributed rate-limit contract', () => {
       'admin-users-read', 'admin-users-create', 'student-credits', 'student-sessions',
       'candidate-diagnostic-create', 'candidate-diagnostic-final-submit',
       'candidate-module-draft', 'candidate-module-submit',
-      'candidate-parent-draft', 'candidate-parent-submit',
+      'candidate-parent-draft', 'candidate-parent-submit', 'bilan-share-consult',
       'candidate-document-upload',
     ]
     expect(Object.keys(SENSITIVE_RATE_LIMIT_POLICIES).sort()).toEqual(expectedScopes.sort())
