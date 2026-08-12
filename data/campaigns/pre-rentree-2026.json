@@ -10,6 +10,13 @@
   "endDate": "2026-08-28",
   "noClassDates": [],
   "decisionDeadline": "2026-08-10T18:00:00+01:00",
+  "onlineRegistrationDecision": {
+    "status": "OFFLINE_ONLY",
+    "decidedAt": "2026-08-12",
+    "decidedBy": "Responsable pédagogique",
+    "enrollmentChannels": ["whatsapp", "centre"],
+    "note": "Inscription en ligne non ouverte pour la campagne Pré-rentrée 2026 : décision produit assumée, pas un oubli. Les familles s'inscrivent par WhatsApp ou directement au centre Nexus Réussite Mutuelleville ; la page publique reste informative. Voir lib/campaigns/pre-rentree-2026/release-gate.ts (canAcceptPreRentreeCampaignSubmission)."
+  },
   "venue": {
     "name": "Nexus Réussite — Mutuelleville",
     "city": "Tunis",
