@@ -180,6 +180,30 @@ describe('POST /api/stages/[slug]/inscrire', () => {
     );
   });
 
+  it('envoie une alerte interne à l\'équipe pour toute nouvelle inscription', async () => {
+    prisma.stage.findUnique.mockResolvedValue({
+      id: 'stage-1',
+      slug: 'printemps-2026',
+      title: 'Printemps 2026',
+      priceAmount: 650,
+      capacity: 12,
+      isVisible: true,
+      isOpen: true,
+    });
+    prisma.stageReservation.findFirst.mockResolvedValue(null);
+    prisma.stageReservation.count.mockResolvedValue(0);
+    prisma.stageReservation.create.mockResolvedValue({ id: 'res-4' });
+
+    await POST(makeRequest(validBody), { params });
+
+    expect(mockSendMail).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({
+        subject: expect.stringContaining('Nouvelle inscription stage'),
+      }),
+    );
+  });
+
   it('retourne 201 avec une réponse publique minimale sans id interne', async () => {
     prisma.stage.findUnique.mockResolvedValue({
       id: 'stage-1',

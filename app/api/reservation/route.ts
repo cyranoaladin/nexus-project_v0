@@ -4,9 +4,22 @@ export const dynamic = 'force-dynamic';
 import { auth } from '@/auth';
 import { checkBodySize,checkCsrf } from '@/lib/csrf';
 import { sendStageBankTransferConfirmation } from '@/lib/email';
+import { enqueueEmailIntent } from '@/lib/email/outbox';
+import { kickEmailOutboxDrain } from '@/lib/email/outbox-scheduler';
+import { internalNotification } from '@/lib/email/templates';
+import { LEGAL } from '@/lib/legal';
 import { prisma } from '@/lib/prisma';
 import { stageReservationSchema } from '@/lib/validations';
 import { NextRequest,NextResponse } from 'next/server';
+
+function getInternalNotificationRecipient(): string {
+  return (
+    process.env.INTERNAL_NOTIFICATION_EMAIL ||
+    process.env.MAIL_REPLY_TO ||
+    process.env.EMAIL_REPLY_TO ||
+    LEGAL.contact.email
+  );
+}
 
 /**
  * POST /api/reservation
@@ -79,8 +92,10 @@ export async function POST(request: NextRequest) {
       select: { id: true, status: true },
     });
 
+    let reservationId: string;
     if (existing) {
       isUpdate = true;
+      reservationId = existing.id;
       // Update existing reservation (allow re-submission to update phone/payment)
       await prisma.stageReservation.update({
         where: { id: existing.id },
@@ -97,7 +112,7 @@ export async function POST(request: NextRequest) {
       });
     } else {
       const isBankTransfer = data.paymentMethod === 'bank_transfer';
-      await prisma.stageReservation.create({
+      const created = await prisma.stageReservation.create({
         data: {
           parentName: data.parent,
           studentName: data.studentName || null,
@@ -110,10 +125,44 @@ export async function POST(request: NextRequest) {
           paymentMethod: data.paymentMethod || null,
           status: isBankTransfer ? 'PENDING_BANK_TRANSFER' : 'PENDING',
         },
+        select: { id: true },
       });
+      reservationId = created.id;
     }
 
-    // 4. Email notification — non-blocking
+    // 4. Internal staff alert — non-blocking
+    try {
+      const tag = isUpdate ? 'Mise à jour réservation' : 'Nouveau lead chaud (site web)';
+      const internalTemplate = internalNotification({
+        eventType: tag,
+        fields: {
+          Parent: data.parent,
+          Téléphone: data.phone,
+          Email: data.email,
+          Classe: data.classe,
+          Intérêt: data.academyTitle,
+          Montant: `${data.price} TND`,
+          ...(data.paymentMethod === 'bank_transfer'
+            ? { Paiement: 'Virement bancaire (en attente de vérification)' }
+            : {}),
+        },
+      });
+      await enqueueEmailIntent(prisma, {
+        aggregateType: 'STAGE_RESERVATION',
+        aggregateId: reservationId,
+        messageType: 'TRANSACTIONAL_NOTIFICATION',
+        dedupeKey: `reservation-internal:${reservationId}:${Date.now()}`,
+        to: getInternalNotificationRecipient(),
+        subject: internalTemplate.subject,
+        html: internalTemplate.html,
+        text: internalTemplate.text,
+      });
+      kickEmailOutboxDrain();
+    } catch (internalAlertError) {
+      console.error('[reservation] Internal alert failed:', internalAlertError instanceof Error ? internalAlertError.message : 'unknown');
+    }
+
+    // 5. Email notification — non-blocking
     if (!isUpdate) {
       try {
         if (data.paymentMethod === 'bank_transfer') {

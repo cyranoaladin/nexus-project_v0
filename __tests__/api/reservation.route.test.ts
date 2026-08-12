@@ -14,6 +14,14 @@ jest.mock('@/lib/email', () => ({
   sendStageDiagnosticInvitation: jest.fn().mockResolvedValue(undefined),
 }));
 
+jest.mock('@/lib/email/outbox', () => ({
+  enqueueEmailIntent: jest.fn().mockResolvedValue(undefined),
+}));
+
+jest.mock('@/lib/email/outbox-scheduler', () => ({
+  kickEmailOutboxDrain: jest.fn(),
+}));
+
 jest.mock('@/lib/rate-limit/sensitive', () => ({
   guardRateLimit: jest.fn().mockReturnValue(null),
   guardRateLimitAsync: jest.fn().mockResolvedValue(null),
@@ -31,6 +39,7 @@ jest.mock('@/auth', () => ({
 
 import { POST } from '@/app/api/reservation/route';
 import { prisma } from '@/lib/prisma';
+import { enqueueEmailIntent } from '@/lib/email/outbox';
 
 function makeRequest(body?: any) {
   return {
@@ -75,5 +84,17 @@ describe('POST /api/reservation', () => {
     expect(response.status).toBe(201);
     expect(body.success).toBe(true);
     expect(prisma.stageReservation.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('sends an internal staff alert for a new reservation', async () => {
+    await POST(makeRequest(validBody));
+
+    expect(enqueueEmailIntent).toHaveBeenCalledWith(
+      prisma,
+      expect.objectContaining({
+        aggregateId: 'res-1',
+        subject: expect.stringContaining('Nouveau lead chaud'),
+      }),
+    );
   });
 });
