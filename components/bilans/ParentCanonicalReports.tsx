@@ -115,7 +115,15 @@ export function ParentCanonicalReports({
                         rel="noreferrer"
                         className="rounded-lg border border-white/15 px-3 py-2 text-sm font-semibold text-neutral-100 hover:bg-white/5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-accent"
                       >
-                        Télécharger le PDF {report.title}
+                        PDF — compte rendu parents
+                      </a>
+                      <a
+                        href={parentCanonicalReportUrl(studentId, report.attemptId, 'pdf', 'ELEVE')}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="rounded-lg border border-white/15 px-3 py-2 text-sm font-semibold text-neutral-100 hover:bg-white/5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-accent"
+                      >
+                        PDF — bilan remis à votre enfant
                       </a>
                     </div>
                   ) : null}

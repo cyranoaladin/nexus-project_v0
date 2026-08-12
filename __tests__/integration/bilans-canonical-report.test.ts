@@ -352,9 +352,18 @@ describe('GET /api/bilans/attempts/[id]/report — PostgreSQL réel isolé', () 
     });
   }
 
-  test('derives ELEVE from the session and ignores an audience query parameter', async () => {
-    const response = await handlerFor(studentUserId, 'ELEVE')(
+  test('derives ELEVE from the session; a foreign audience parameter is refused, not silently ignored', async () => {
+    // Nouveau contrat (dashboards familles, 2026-08-12) : demander une
+    // audience hors droit — NEXUS en tête — répond introuvable. Seul le
+    // parent propriétaire peut demander explicitement ELEVE.
+    const refused = await handlerFor(studentUserId, 'ELEVE')(
       request(publishedAttemptId, 'NEXUS'),
+      context(publishedAttemptId),
+    );
+    expect(refused.status).toBe(404);
+
+    const response = await handlerFor(studentUserId, 'ELEVE')(
+      request(publishedAttemptId),
       context(publishedAttemptId),
     );
     const body = await response.text();

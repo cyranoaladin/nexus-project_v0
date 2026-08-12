@@ -248,6 +248,81 @@ function evidenceSection(
   return `<section class="section print-break qa-section"><h2>${T(heading)}</h2><p class="qa-intro">${T(intro)}</p>${groups}</section>`;
 }
 
+
+/* -------------------------------------------------------------------------- */
+/* Repères chiffrés familles — décision produit du 2026-08-12                  */
+/* Du concret chiffré, jamais une note : couverture, calibration, répartition  */
+/* par profil et réussite par domaine. Le score global ne se rend JAMAIS ici.  */
+/* -------------------------------------------------------------------------- */
+
+const FAMILY_PROFILE_BUCKETS = Object.freeze([
+  { singular: 'domaine solide', plural: 'domaines solides', profileLabel: 'solide' },
+  { singular: 'domaine à consolider', plural: 'domaines à consolider', profileLabel: 'fragile / à consolider' },
+  { singular: 'domaine à installer', plural: 'domaines à installer', profileLabel: 'à combler (déjà repéré)' },
+  { singular: 'domaine à rectifier en priorité', plural: 'domaines à rectifier en priorité', profileLabel: 'sûr mais à revoir' },
+]);
+
+function familyFiguresSection(
+  factSheet: FactSheet,
+  content: RenderContent,
+  audience: 'ELEVE' | 'PARENTS',
+  evidence?: QuestionEvidence,
+): string {
+  const student = audience === 'ELEVE';
+  const cards: string[] = [];
+
+  // Couverture : nombre de questions traitées sur le total quand le détail
+  // des réponses est disponible, proportion sinon.
+  if (evidence !== undefined && evidence.items.length > 0) {
+    const treated = evidence.items.filter((item) => evidenceItemStatus(item) !== 'NON_TRAITE').length;
+    cards.push(`<article class="figure-card"><p class="figure-value">${treated}<span class="figure-unit"> sur ${evidence.items.length}</span></p><p class="figure-label">${T('questions traitées')}</p></article>`);
+  } else if (Number.isFinite(factSheet.coverage)) {
+    cards.push(`<article class="figure-card"><p class="figure-value">${T(String(Math.round(factSheet.coverage)))}<span class="figure-unit"> %</span></p><p class="figure-label">${T('du test traité')}</p></article>`);
+  }
+
+  // Calibration — le différenciateur Nexus, mis en valeur.
+  if (factSheet.calibrationIndex !== null && Number.isFinite(factSheet.calibrationIndex)) {
+    const percent = Math.round(factSheet.calibrationIndex);
+    const label = student
+      ? 'des cas où tu sais dire si ta réponse est sûre — c’est ta boussole de révision'
+      : 'des cas où votre enfant sait où il en est — c’est ce que nous mesurons en plus de la réussite';
+    cards.push(`<article class="figure-card figure-card-gold"><p class="figure-value">${percent}<span class="figure-unit"> %</span></p><p class="figure-label">${T(label)}</p></article>`);
+  }
+
+  // Répartition par profil : compte et proportion.
+  const total = content.domains.length;
+  const distribution = FAMILY_PROFILE_BUCKETS
+    .map((bucket) => ({ bucket, count: content.domains.filter((domain) => domain.profileLabel === bucket.profileLabel).length }))
+    .filter(({ count }) => count > 0)
+    .map(({ bucket, count }) => `<li><strong>${count}</strong>&nbsp;${T(count > 1 ? bucket.plural : bucket.singular)} <span class="figure-muted">(${Math.round((count / total) * 100)}&nbsp;%)</span></li>`)
+    .join('');
+
+  // Réussite par domaine : barres avec pourcentage — jamais le mot « note ».
+  const bars = renderScoreBarsSvg(
+    factSheet.domains.map((domain) => {
+      const rendered = content.domains.find(({ id }) => id === domain.id);
+      return {
+        label: rendered?.title ?? domainTitle(domain.id),
+        score: domain.score,
+        priority: domain.profile === 'ERREUR_CONFIANTE' || domain.profile === 'LACUNE_CONSCIENTE',
+      };
+    }),
+    'Réussite par domaine, en pourcentage',
+  );
+
+  const heading = student ? 'Tes repères en chiffres' : 'Les repères en chiffres';
+  const barsTitle = student ? 'Ta réussite par domaine' : 'La réussite par domaine';
+  const note = student
+    ? 'Ces chiffres décrivent ta réussite domaine par domaine — ce bilan ne donne pas de note.'
+    : 'Ces chiffres décrivent la réussite domaine par domaine — ce bilan ne comporte aucune note.';
+  return `<section class="section figures"><h2>${T(heading)}</h2>
+    <div class="figure-grid">${cards.join('')}</div>
+    ${distribution ? `<ul class="figure-distribution">${distribution}</ul>` : ''}
+    <h3 class="figure-bars-title">${T(barsTitle)}</h3>${bars}
+    <p class="figure-note">${T(note)}</p>
+  </section>`;
+}
+
 /* -------------------------------------------------------------------------- */
 /* Corps public (élève / parents)                                              */
 /* -------------------------------------------------------------------------- */
@@ -268,6 +343,7 @@ function parentReadingTable(content: RenderContent, subject: BilanPackSubject): 
 }
 
 function publicBody(
+  factSheet: FactSheet,
   content: RenderContent,
   audience: 'ELEVE' | 'PARENTS',
   subject: BilanPackSubject,
@@ -279,6 +355,7 @@ function publicBody(
     <p class="lead">${T(content.narrative.introduction)}</p>
     ${methodSection(content, audience)}
     <section class="section"><h2>Ta carte maîtrise × confiance</h2>${masteryMap(content.domains)}</section>
+    ${familyFiguresSection(factSheet, content, 'ELEVE', evidence)}
     <section class="section"><h2>Tes points d’appui</h2>${list(content.narrative.strengths, 'strengths')}</section>
     <section class="section"><h2>Tes priorités pour le stage</h2>${list(content.narrative.priorities, 'priorities')}</section>
     ${publicLearningPath(content.learningPath.steps)}
@@ -292,6 +369,7 @@ function publicBody(
     <p class="lead">${T(content.narrative.introduction)}</p>
     ${methodSection(content, audience)}
     ${parentReadingTable(content, subject)}
+    ${familyFiguresSection(factSheet, content, 'PARENTS', evidence)}
     <section class="section"><h2>Points d’appui</h2>${list(content.narrative.strengths, 'strengths')}</section>
     <section class="section"><h2>Les priorités du stage</h2>${list(content.narrative.priorities, 'priorities')}</section>
     <section class="section print-break"><h2>Ce que le stage fera, concrètement</h2>${list(content.narrative.actionPlan, 'action-plan')}</section>
@@ -359,7 +437,7 @@ function nexusBody(
 
 function styleSheet(): string {
   return `@font-face{font-family:'${BILAN_PRINT_BRAND.fonts.display}';src:url('${BILAN_PRINT_BRAND.fonts.displayAsset}') format('woff2')}@font-face{font-family:'${BILAN_PRINT_BRAND.fonts.body}';src:url('${BILAN_PRINT_BRAND.fonts.bodyAsset}') format('woff2')}
-  :root{${bilanPrintTokenCss()}}*{box-sizing:border-box}body{margin:0;background:var(--color-lux-ivory);color:var(--color-lux-ink);font-family:var(--font-dm-sans);font-size:10.5pt;line-height:1.5}.page{width:210mm;min-height:297mm;margin:0 auto;padding:16mm 16mm 18mm;background:var(--color-lux-paper)}h1,h2,h3{font-family:var(--font-fraunces);font-weight:600}h1{font-size:22pt;margin:0 0 2mm}h2{font-size:15pt;border-bottom:1px solid var(--color-lux-gold);padding-bottom:2mm}h3{font-size:11.5pt}h4{margin:0 0 1mm;font-size:10.5pt}.report-header{display:flex;gap:7mm;align-items:center;border-bottom:2px solid var(--color-lux-gold);padding-bottom:6mm}.brand-logo{width:48mm;height:auto}.identity{flex:1}.eyebrow,.session{color:var(--color-lux-gold-deep);font-weight:700;text-transform:uppercase;letter-spacing:.08em}.lead{font-family:var(--font-fraunces);font-size:13pt}.section{margin-top:8mm;break-inside:avoid}.qa-section{break-inside:auto}.method{background:var(--color-lux-white);border:1px solid var(--color-lux-line);border-left:3px solid var(--color-lux-gold);border-radius:3mm;padding:4mm 5mm}.method h2{border-bottom:none;margin:0 0 2mm;padding-bottom:0}.mastery-map{display:grid;grid-template-columns:repeat(2,1fr);gap:4mm}.quadrant{border:1px solid var(--color-lux-line);border-radius:3mm;padding:4mm;background:var(--color-lux-white)}.quadrant.alert{border-color:var(--color-lux-gold-deep);background:var(--color-lux-gold-wash)}.quadrant.good{border-color:var(--color-lux-evergreen)}.quadrant h3{margin:0 0 1.5mm}.quadrant-domains{margin:0 0 1mm;font-weight:600}.quadrant-hint{margin:0;color:var(--color-lux-slate);font-size:9.5pt}.untested{margin-top:3mm;color:var(--color-lux-slate)}.kpis,.weeks{display:grid;grid-template-columns:repeat(2,1fr);gap:4mm}.kpis{grid-template-columns:repeat(3,1fr)}.path{display:grid;gap:4mm}.path-step,.kpis p,.weeks article{border:1px solid var(--color-lux-line);border-radius:3mm;padding:4mm;background:var(--color-lux-white)}.session-step{margin-top:2mm}.session-filler{color:var(--color-lux-slate);margin:1mm 0 0}.phase-tag{display:inline-block;margin-left:2mm;padding:0.5mm 2mm;border:1px solid var(--color-lux-gold);border-radius:2mm;color:var(--color-lux-gold-deep);font-size:8.5pt;font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-family:var(--font-dm-sans)}.priorities li{border-left:3px solid var(--color-lux-gold);padding-left:3mm;margin-bottom:2mm}.strengths li{color:var(--color-lux-evergreen);margin-bottom:2mm}.action-plan li{margin-bottom:2mm}.closing{margin-top:9mm;padding:5mm;background:var(--color-lux-ink);color:var(--color-lux-on-dark)}.closing h2{color:var(--color-lux-gold-bright);border-bottom-color:var(--color-lux-gold-deep)}table{width:100%;border-collapse:collapse;margin-bottom:5mm}th,td{text-align:left;padding:2mm;border-bottom:1px solid var(--color-lux-line);vertical-align:top}th{color:var(--color-lux-slate);font-size:9pt;text-transform:uppercase;letter-spacing:.05em}.kpis p{display:flex;justify-content:space-between;align-items:baseline}.kpis span{font-family:var(--font-fraunces);font-size:18pt}.method-note{color:var(--color-lux-ink-700);font-size:9.5pt;margin:3mm 0 0}.qa-intro{color:var(--color-lux-slate)}.qa-domain{margin-top:4mm}.qa-domain h3{border-bottom:1px solid var(--color-lux-line);padding-bottom:1mm}.qa-item{border:1px solid var(--color-lux-line);border-left:3px solid var(--color-lux-slate);border-radius:2mm;padding:3mm 4mm;margin-bottom:3mm;background:var(--color-lux-white);break-inside:avoid}.qa-item.qa-right{border-left-color:var(--color-lux-evergreen)}.qa-item.qa-wrong{border-left-color:var(--color-lux-gold-deep)}.qa-item.qa-blank{border-left-color:var(--color-lux-slate)}.qa-head{margin:0 0 1.5mm;font-size:9pt;color:var(--color-lux-slate)}.qa-status{font-weight:700;text-transform:uppercase;letter-spacing:.05em}.qa-right .qa-status{color:var(--color-lux-evergreen)}.qa-wrong .qa-status{color:var(--color-lux-gold-deep)}.qa-confidence{margin-left:3mm}.qa-id{float:right;color:var(--color-lux-slate)}.qa-question{margin:0 0 1.5mm;font-weight:600}.qa-answer,.qa-correct,.qa-rationale,.qa-explain{margin:0 0 1mm;font-size:9.5pt}.qa-correct{color:var(--color-lux-evergreen)}.qa-rationale{color:var(--color-lux-ink-700)}.qa-explain{color:var(--color-lux-slate)}.qa-pointer{color:var(--color-lux-slate);font-size:9.5pt}.footer{display:flex;align-items:center;gap:3mm;margin-top:10mm;padding-top:4mm;border-top:1px solid var(--color-lux-line);color:var(--color-lux-slate)}.footer img{width:9mm;height:9mm}.print-break{break-before:auto}@page{size: A4;margin:0}@media print{body{background:var(--color-lux-white)}.page{margin:0;box-shadow:none}.print-break{break-before:page}}`;
+  :root{${bilanPrintTokenCss()}}*{box-sizing:border-box}body{margin:0;background:var(--color-lux-ivory);color:var(--color-lux-ink);font-family:var(--font-dm-sans);font-size:10.5pt;line-height:1.5}.page{width:210mm;min-height:297mm;margin:0 auto;padding:16mm 16mm 18mm;background:var(--color-lux-paper)}h1,h2,h3{font-family:var(--font-fraunces);font-weight:600}h1{font-size:22pt;margin:0 0 2mm}h2{font-size:15pt;border-bottom:1px solid var(--color-lux-gold);padding-bottom:2mm}h3{font-size:11.5pt}h4{margin:0 0 1mm;font-size:10.5pt}.report-header{display:flex;gap:7mm;align-items:center;border-bottom:2px solid var(--color-lux-gold);padding-bottom:6mm}.brand-logo{width:48mm;height:auto}.identity{flex:1}.eyebrow,.session{color:var(--color-lux-gold-deep);font-weight:700;text-transform:uppercase;letter-spacing:.08em}.lead{font-family:var(--font-fraunces);font-size:13pt}.section{margin-top:8mm;break-inside:avoid}.qa-section{break-inside:auto}.method{background:var(--color-lux-white);border:1px solid var(--color-lux-line);border-left:3px solid var(--color-lux-gold);border-radius:3mm;padding:4mm 5mm}.method h2{border-bottom:none;margin:0 0 2mm;padding-bottom:0}.mastery-map{display:grid;grid-template-columns:repeat(2,1fr);gap:4mm}.quadrant{border:1px solid var(--color-lux-line);border-radius:3mm;padding:4mm;background:var(--color-lux-white)}.quadrant.alert{border-color:var(--color-lux-gold-deep);background:var(--color-lux-gold-wash)}.quadrant.good{border-color:var(--color-lux-evergreen)}.quadrant h3{margin:0 0 1.5mm}.quadrant-domains{margin:0 0 1mm;font-weight:600}.quadrant-hint{margin:0;color:var(--color-lux-slate);font-size:9.5pt}.untested{margin-top:3mm;color:var(--color-lux-slate)}.kpis,.weeks{display:grid;grid-template-columns:repeat(2,1fr);gap:4mm}.kpis{grid-template-columns:repeat(3,1fr)}.path{display:grid;gap:4mm}.path-step,.kpis p,.weeks article{border:1px solid var(--color-lux-line);border-radius:3mm;padding:4mm;background:var(--color-lux-white)}.session-step{margin-top:2mm}.session-filler{color:var(--color-lux-slate);margin:1mm 0 0}.phase-tag{display:inline-block;margin-left:2mm;padding:0.5mm 2mm;border:1px solid var(--color-lux-gold);border-radius:2mm;color:var(--color-lux-gold-deep);font-size:8.5pt;font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-family:var(--font-dm-sans)}.priorities li{border-left:3px solid var(--color-lux-gold);padding-left:3mm;margin-bottom:2mm}.strengths li{color:var(--color-lux-evergreen);margin-bottom:2mm}.action-plan li{margin-bottom:2mm}.closing{margin-top:9mm;padding:5mm;background:var(--color-lux-ink);color:var(--color-lux-on-dark)}.closing h2{color:var(--color-lux-gold-bright);border-bottom-color:var(--color-lux-gold-deep)}table{width:100%;border-collapse:collapse;margin-bottom:5mm}th,td{text-align:left;padding:2mm;border-bottom:1px solid var(--color-lux-line);vertical-align:top}th{color:var(--color-lux-slate);font-size:9pt;text-transform:uppercase;letter-spacing:.05em}.kpis p{display:flex;justify-content:space-between;align-items:baseline}.kpis span{font-family:var(--font-fraunces);font-size:18pt}.method-note{color:var(--color-lux-ink-700);font-size:9.5pt;margin:3mm 0 0}.qa-intro{color:var(--color-lux-slate)}.qa-domain{margin-top:4mm}.qa-domain h3{border-bottom:1px solid var(--color-lux-line);padding-bottom:1mm}.qa-item{border:1px solid var(--color-lux-line);border-left:3px solid var(--color-lux-slate);border-radius:2mm;padding:3mm 4mm;margin-bottom:3mm;background:var(--color-lux-white);break-inside:avoid}.qa-item.qa-right{border-left-color:var(--color-lux-evergreen)}.qa-item.qa-wrong{border-left-color:var(--color-lux-gold-deep)}.qa-item.qa-blank{border-left-color:var(--color-lux-slate)}.qa-head{margin:0 0 1.5mm;font-size:9pt;color:var(--color-lux-slate)}.qa-status{font-weight:700;text-transform:uppercase;letter-spacing:.05em}.qa-right .qa-status{color:var(--color-lux-evergreen)}.qa-wrong .qa-status{color:var(--color-lux-gold-deep)}.qa-confidence{margin-left:3mm}.qa-id{float:right;color:var(--color-lux-slate)}.qa-question{margin:0 0 1.5mm;font-weight:600}.qa-answer,.qa-correct,.qa-rationale,.qa-explain{margin:0 0 1mm;font-size:9.5pt}.qa-correct{color:var(--color-lux-evergreen)}.qa-rationale{color:var(--color-lux-ink-700)}.qa-explain{color:var(--color-lux-slate)}.qa-pointer{color:var(--color-lux-slate);font-size:9.5pt}.figures h2{margin-bottom:4mm}.figure-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:4mm}.figure-card{border:1px solid var(--color-lux-line);border-radius:3mm;padding:4mm;background:var(--color-lux-white)}.figure-card-gold{border-color:var(--color-lux-gold);background:var(--color-lux-gold-wash)}.figure-value{margin:0;font-family:var(--font-fraunces);font-size:22pt;color:var(--color-lux-ink)}.figure-unit{font-size:11pt;color:var(--color-lux-slate)}.figure-label{margin:1mm 0 0;font-size:9.5pt;color:var(--color-lux-slate)}.figure-distribution{margin:4mm 0 0;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:3mm 6mm}.figure-distribution li{font-size:10pt}.figure-muted{color:var(--color-lux-slate)}.figure-bars-title{margin-top:5mm}.figure-note{margin-top:2mm;font-size:9pt;color:var(--color-lux-slate)}.footer{display:flex;align-items:center;gap:3mm;margin-top:10mm;padding-top:4mm;border-top:1px solid var(--color-lux-line);color:var(--color-lux-slate)}.footer img{width:9mm;height:9mm}.print-break{break-before:auto}@page{size: A4;margin:0}@media print{body{background:var(--color-lux-white)}.page{margin:0;box-shadow:none}.print-break{break-before:page}}`;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -380,6 +458,6 @@ export function renderDeterministicBilanHtml(
   const content = report.content as unknown as RenderContent;
   const body = audience === 'NEXUS'
     ? nexusBody(content, identity.subject, evidence)
-    : publicBody(content, audience, identity.subject, audience === 'ELEVE' ? evidence : undefined);
+    : publicBody(factSheet, content, audience, identity.subject, evidence);
   return `<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${T(identity.stageLabel)} · ${escapeHtml(audience)}</title><style>${styleSheet()}</style></head><body><article class="page" data-audience="${audience}" data-template="${BILAN_HTML_TEMPLATE_VERSION}">${header(identity, audience, humanIdentity)}${body}<footer class="footer"><img src="${BILAN_PRINT_BRAND.logos.compact}" alt=""><span>Nexus Réussite · Document pédagogique confidentiel</span></footer></article></body></html>`;
 }
