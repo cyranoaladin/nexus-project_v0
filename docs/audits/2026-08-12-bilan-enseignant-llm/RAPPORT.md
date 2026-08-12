@@ -33,7 +33,7 @@ Clé absente, réseau, HTTP 4xx/5xx, JSON invalide, schéma rejeté, lexique enf
 - **Verrou de narration familles** : découverte critique — poser `OPENROUTER_API_KEY` aurait fait basculer le worker A88 en narration LLM des bilans familles (FLIP POINT documenté, revue COACH non recâblée). Ajout d'un verrou : la narration familles exige désormais **en plus** `NEXUS_BILAN_FAMILY_NARRATION_ENABLED=true` — à ne pas poser. Clé présente ou non, **élève et parents restent 100 % déterministes** (test).
 
 ### Variables d'environnement attendues (à poser par le responsable, hors dépôt)
-- `OPENROUTER_API_KEY` — clé OpenRouter (`sk-or-v1-…`), dans `/etc/nexus/nexus-prod.env` (0600 root). Jamais dans Git ni dans le chat.
+- `OPENROUTER_API_KEY` — clé OpenRouter (`sk-or-v1-…`), à poser dans le fichier d’environnement de production (0600, root uniquement — emplacement documenté dans le runbook privé du serveur). Jamais dans Git ni dans le chat.
 - Optionnelles : `NEXUS_TEACHER_BRIEF_MODEL` (défaut Sonnet), `NEXUS_TEACHER_BRIEF_MAX_TOKENS` (2000), `NEXUS_TEACHER_BRIEF_MONTHLY_BUDGET_USD` (20).
 - **Ne PAS poser** : `NEXUS_BILAN_FAMILY_NARRATION_ENABLED`.
 
