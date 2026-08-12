@@ -61,6 +61,8 @@ export function parentCanonicalReportUrl(
   studentId: string,
   attemptId: string,
   format: 'html' | 'pdf',
+  audience: 'PARENTS' | 'ELEVE' = 'PARENTS',
 ): string {
-  return `/api/parent/children/${encodeURIComponent(studentId)}/bilans/${encodeURIComponent(attemptId)}/report?format=${format}`;
+  const base = `/api/parent/children/${encodeURIComponent(studentId)}/bilans/${encodeURIComponent(attemptId)}/report?format=${format}`;
+  return audience === 'ELEVE' ? `${base}&audience=ELEVE` : base;
 }

@@ -178,7 +178,7 @@ export function CallbackRequestForm({ source = 'callback-card' }: { source?: str
 
     const payload = {
       name: String(form.get('name') ?? ''),
-      email: 'callback@nexusreussite.academy',
+      email: 'contact@nexusreussite.academy',
       phone: String(form.get('phone') ?? ''),
       profile: 'callback',
       interest: 'Être rappelé sous 24 h',

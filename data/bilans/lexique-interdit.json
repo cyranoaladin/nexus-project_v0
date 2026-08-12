@@ -55,19 +55,35 @@
       "plus de 1000 eleves",
       "nos centaines d eleves",
       "la majorite de nos eleves obtiennent"
+    ],
+    "note_globale": [
+      "score global",
+      "note globale",
+      "moyenne generale",
+      "note sur 20",
+      "note sur vingt",
+      "classement",
+      "rang de l eleve",
+      "note de l eleve"
     ]
   },
   "regex_interdits": [
     {
       "id": "score_visible_parent",
-      "pattern": "\\b\\d{1,3}\\s*(%|\\/\\s*20|\\/\\s*100)\\b",
-      "audiences": ["PARENT", "ELEVE"],
-      "motif": "Aucun score brut ni pourcentage ne doit apparaître dans une restitution élève ou parent."
+      "pattern": "\\b\\d{1,3}\\s*\\/\\s*(20|100)\\b",
+      "audiences": [
+        "PARENT",
+        "ELEVE"
+      ],
+      "motif": "Aucune note (…/20, …/100) ne doit apparaître dans une restitution élève ou parent. Les pourcentages concrets (couverture, calibration, réussite par domaine) sont autorisés par décision produit du 2026-08-12 ; le score global reste interdit sous toute forme."
     },
     {
       "id": "nom_enseignant",
       "pattern": "\\b(M\\.|Mme|Monsieur|Madame)\\s+[A-ZÉÈÀÂÎÔÛ][a-zéèàâîôûç]+",
-      "audiences": ["PARENT", "ELEVE"],
+      "audiences": [
+        "PARENT",
+        "ELEVE"
+      ],
       "motif": "Aucun nom d'enseignant n'est publié."
     }
   ],
