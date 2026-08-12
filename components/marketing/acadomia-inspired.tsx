@@ -15,6 +15,7 @@ import {
 import socialProof from '@/content/social-proof.json';
 import team from '@/content/team.json';
 import { getRules } from '@/lib/pricing-client';
+import { LEGAL } from '@/lib/legal';
 import { buildWhatsAppUrl } from '@/lib/whatsapp';
 import { WhatsAppLogo, WHATSAPP_BRAND_GREEN } from '@/components/ui/whatsapp-logo';
 
@@ -178,7 +179,7 @@ export function CallbackRequestForm({ source = 'callback-card' }: { source?: str
 
     const payload = {
       name: String(form.get('name') ?? ''),
-      email: 'contact@nexusreussite.academy',
+      email: LEGAL.contact.email,
       phone: String(form.get('phone') ?? ''),
       profile: 'callback',
       interest: 'Être rappelé sous 24 h',
