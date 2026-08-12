@@ -114,9 +114,24 @@ is_value_allowlisted() {
   local pattern="$2"
   local content="$3"
 
-  # Non-assignment patterns (no '=' — e.g., PRIVATE KEY markers) always fail closed.
-  # Substitution detection only applies to KEY=VALUE patterns.
+  # Non-assignment patterns (no '=' — e.g., PRIVATE KEY markers) always fail closed,
+  # with one narrow exception: the generic postgres URL pattern additionally tolerates
+  # the literal "postgres:postgres" credential pair — the official Docker postgres
+  # image's own documented default, used throughout this repo's ephemeral CI/test
+  # service containers (never a real credential). Any other user:pass pair on this
+  # pattern still fails closed. Substitution detection only applies to KEY=VALUE patterns.
   if [[ "$pattern" != *"="* ]]; then
+    if [[ "$pattern" == 'postgres(ql)?://'* ]]; then
+      local has_unsafe_pg=false
+      while IFS= read -r pgmatch; do
+        [[ -z "$pgmatch" ]] && continue
+        if [[ "$pgmatch" != postgres://postgres:postgres@* && "$pgmatch" != postgresql://postgres:postgres@* ]]; then
+          has_unsafe_pg=true
+        fi
+      done < <(printf '%s' "$content" | grep -oE "${pattern}[^[:space:]]*")
+      [[ "$has_unsafe_pg" == true ]] && return 1
+      return 0
+    fi
     return 1
   fi
 
