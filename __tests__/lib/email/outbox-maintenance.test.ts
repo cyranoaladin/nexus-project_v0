@@ -59,6 +59,11 @@ describe('email worker production preflight', () => {
       EMAIL_OUTBOX_POLL_INTERVAL_MS: '5000',
       EMAIL_OUTBOX_MAINTENANCE_INTERVAL_MS: '3600000',
     };
+    // L'expéditeur se résout via MAIL_FROM > EMAIL_FROM > SMTP_FROM : une
+    // valeur héritée d'une autre suite du même worker rendrait « SMTP_FROM
+    // manquant » légitimement valide. Isolation stricte des trois variantes.
+    delete process.env.MAIL_FROM;
+    delete process.env.EMAIL_FROM;
   });
 
   afterAll(() => { process.env = originalEnv; });

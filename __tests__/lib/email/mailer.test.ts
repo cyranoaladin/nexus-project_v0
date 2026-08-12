@@ -106,7 +106,7 @@ describe('lib/email/mailer', () => {
       delete process.env.MAIL_FROM;
       delete process.env.EMAIL_FROM;
       delete process.env.SMTP_FROM;
-      expect(resolveFrom()).toContain('no-reply@nexusreussite.academy');
+      expect(resolveFrom()).toContain('contact@nexusreussite.academy');
     });
 
     it('fails closed in production when no sender is configured', () => {

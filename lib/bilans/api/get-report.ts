@@ -149,7 +149,17 @@ export function createGetAttemptReportHandler(
       if (attempt === null || attempt.status !== 'PUBLISHED') throw CanonicalApiError.notFound();
 
       const now = dependencies.now();
-      const audience = await resolveAudience(session, attempt, dependencies.prisma, now);
+      const defaultAudience = await resolveAudience(session, attempt, dependencies.prisma, now);
+      // Un parent (propriété déjà vérifiée ci-dessus) peut aussi consulter le
+      // document remis à son enfant : ?audience=ELEVE. Aucune autre
+      // combinaison n'est admise — le document interne NEXUS n'est jamais
+      // servi à une famille, et une demande hors droit répond introuvable.
+      const requestedAudience = request.nextUrl.searchParams.get('audience');
+      let audience = defaultAudience;
+      if (requestedAudience !== null && requestedAudience !== defaultAudience) {
+        if (requestedAudience === 'ELEVE' && defaultAudience === 'PARENTS') audience = 'ELEVE';
+        else throw CanonicalApiError.notFound();
+      }
       assertAttemptPackEnabled(attempt, dependencies.resolvePack);
       const artifact = await dependencies.prisma.reportArtifact.findFirst({
         where: {
