@@ -61,3 +61,13 @@
 - Évidences de recette (`data/bilans/recipe/*-review-packet.json`, `*-worker-chain.json`) et golden files (`docs/specs/bilans/exemples/*`) régénérés en conséquence.
 
 Les révisions déjà en attente de revue (créées sous v2) se publieront avec le nouveau rendu : la matérialisation reconstruit le document depuis le snapshot de score au moment de la publication.
+
+## 7. Correctif CI (cause racine, 2026-08-12)
+
+Le job `unit` de la PR échouait sur `rendered-examples.test.ts` : comparaison **octet par octet** des PDF golden.
+
+**Cause racine** : la section « Détail des réponses » embarque pour la première fois des énoncés de banque contenant des glyphes hors couverture de DM Sans (`√`, `≥`, `≤`, `∪`, `∩` — vérifié sur la cmap de `DMSans-Variable.woff2`). Chromium les rend via une police de repli du **système hôte** ; le sous-ensemble de police embarqué — et donc la numérotation interne des objets PDF — varie d'une machine à l'autre pour un même build Chromium (visible au log CI : décalage `52 0 obj` → `53 0 obj`, PDF plus gros côté runner). Les octets d'un PDF golden dépendaient donc de la machine de génération ; le HTML, lui, reste strictement identique.
+
+**Correctif** (aucun test neutralisé, aucun seuil baissé) : les HTML restent comparés octet par octet ; les PDF sont désormais comparés sur leur **contenu extrait** (`extractPdfText`, page à page, non vide, magic `%PDF` exigé), indépendant de la police de repli. La famille de moteur reste verrouillée par `assertVersionedPdfChromium` (Chromium 145). Même logique appliquée au mode `--check` du script `generate-rendered-examples.ts`.
+
+Note : les deux échecs observés en local sur `main` (`whatsapp-centralized`, `bilan-validated-pack-boundary`) sont bien verts en CI — ils ne balaient que cette machine (worktrees locaux non versionnés) et ne concernent pas cette PR.
