@@ -80,17 +80,29 @@ m_MF = Σ weight_i où profil = MAITRISE_FRAGILE
 m_M  = Σ weight_i où profil = MAITRISE
 ```
 
-Détermination du profil du nœud, **règles évaluées dans l'ordre, première applicable retenue** :
+Détermination du profil du nœud, **règles évaluées dans l'ordre, première applicable retenue** (ENGINE_VERSION ≥ 1.1.0) :
 
-1. `m_NT / W > 0.5` → `NON_TRAITE`
-2. `(m_EC + m_LC + m_NT) / W >= 0.5` → nœud en difficulté :
-   - si `m_EC = 0` et `m_LC = 0` → `NON_TRAITE`
-   - sinon, `ERREUR_CONFIANTE` si `m_EC >= m_LC`
-   - sinon → `LACUNE_CONSCIENTE`
-3. sinon → nœud globalement réussi :
+1. `m_EC > 0` → `ERREUR_CONFIANTE`
+2. `m_NT / W > 0.5` → `NON_TRAITE`
+3. `m_LC > 0` → `LACUNE_CONSCIENTE`
+4. sinon → nœud réellement réussi :
    `MAITRISE` si `m_M >= m_MF`, sinon `MAITRISE_FRAGILE`
 
-Aucune égalité n'est laissée non résolue : chaque comparaison est un `>=` explicite.
+**La présence prime sur la masse.** Une erreur confiante — item faux répondu
+avec une certitude élevée — est le signal prioritaire de la méthode : elle
+qualifie le nœud quel que soit son poids relatif. De même, une lacune
+consciente présente interdit tout profil « acquis ». Le score du nœud, lui,
+continue de mesurer la réussite pondérée : un nœud peut afficher 75 avec un
+profil `ERREUR_CONFIANTE` — le profil désigne le point à traiter, le score
+situe l'ampleur.
+
+> Historique : jusqu'à ENGINE_VERSION 1.0.1, les règles exigeaient 50 % de
+> masse en difficulté avant de qualifier le nœud. Un item faux assumé,
+> minoritaire en poids, laissait le nœud `MAITRISE` : le bilan présentait
+> comme acquis une notion ratée avec aplomb, et le plan de séances l'ignorait
+> (défaut constaté sur un bilan réel, 13/08/2026).
+
+Aucune égalité n'est laissée non résolue : chaque comparaison est explicite.
 
 ## §7. Score global et couverture
 
@@ -126,7 +138,10 @@ distinct du niveau disciplinaire.
 Tri par clés successives :
 
 1. `severityRank` décroissant — `ERREUR_CONFIANTE = 4`, `LACUNE_CONSCIENTE = 3`,
-   `NON_TRAITE = 2`, `MAITRISE_FRAGILE = 1`, `MAITRISE = 0`
+   `MAITRISE_FRAGILE = 2`, `NON_TRAITE = 1`, `MAITRISE = 0` (ENGINE_VERSION ≥ 1.1.0 ;
+   position de NON_TRAITE alignée sur la méthode publiée : « confronter,
+   installer, consolider, diagnostiquer » — une fragilité prouvée prime sur
+   une absence d'information)
 2. `criticality` du nœud CPS, décroissant (issue du CPS compilé ; défaut `1` si absente)
 3. `nodeScore` croissant
 4. `nodeId` lexicographique croissant — tie-break garantissant le déterminisme

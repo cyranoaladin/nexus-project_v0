@@ -1,3 +1,4 @@
+import { SEVERITY_RANK } from '../facts/constants';
 import type { FactSheet } from '../facts/fact-sheet';
 import type { NodeProfile } from '../facts/types';
 import type { BilanPackSubject } from '../catalog/subjects';
@@ -25,13 +26,11 @@ export const PROFILE_GESTURES: Readonly<Record<NodeProfile, string>> = Object.fr
   NON_TRAITE: 'Diagnostiquer au démarrage',
 });
 
-const PROFILE_PRIORITY: Readonly<Record<NodeProfile, number>> = Object.freeze({
-  ERREUR_CONFIANTE: 0,
-  LACUNE_CONSCIENTE: 1,
-  MAITRISE_FRAGILE: 2,
-  NON_TRAITE: 3,
-  MAITRISE: 4,
-});
+// Doublon d'ordre supprimé (13/08/2026) : ce fichier portait sa propre
+// échelle qui plaçait NON_TRAITE sous MAITRISE_FRAGILE — l'inverse de
+// l'échelle canonique du moteur. L'ordre d'affichage des priorités dérive
+// désormais de l'UNIQUE source `SEVERITY_RANK` (constants.ts).
+const displayPriority = (profile: NodeProfile): number => -SEVERITY_RANK[profile];
 
 type DomainFact = FactSheet['domains'][number];
 
@@ -163,7 +162,7 @@ export function orderPriorityDomains(domains: FactSheet['domains']): readonly Do
     .filter(({ profile }) => profile !== 'MAITRISE')
     .slice()
     .sort((left, right) => (
-      PROFILE_PRIORITY[left.profile] - PROFILE_PRIORITY[right.profile]
+      displayPriority(left.profile) - displayPriority(right.profile)
       || left.score - right.score
       || (canonicalOrder.get(left.id) ?? 0) - (canonicalOrder.get(right.id) ?? 0)
     )));

@@ -108,7 +108,7 @@
     ]
   },
   "facts": {
-    "engineVersion": "1.0.1",
+    "engineVersion": "1.1.0",
     "globalScore": 40.6,
     "coverage": 83.3,
     "calibrationIndex": 42.3,
@@ -314,6 +314,17 @@
     ],
     "nodes": [
       {
+        "nodeCpsId": "2de.maths.inequations.resolution-premier-degre",
+        "criticality": 1,
+        "nodeScore": 0,
+        "profile": "ERREUR_CONFIANTE",
+        "itemIds": [
+          "EPR-MAT-INE-01",
+          "EPR-MAT-INE-02"
+        ],
+        "priorityRank": 0
+      },
+      {
         "nodeCpsId": "2de.maths.pourcentages.coefficient-multiplicateur",
         "criticality": 1,
         "nodeScore": 0,
@@ -322,7 +333,7 @@
           "EPR-MAT-PCT-01",
           "EPR-MAT-PCT-02"
         ],
-        "priorityRank": 0
+        "priorityRank": 1
       },
       {
         "nodeCpsId": "2de.maths.calcul-numerique.puissances-racines",
@@ -333,7 +344,7 @@
           "EPR-MAT-NUM-01",
           "EPR-MAT-NUM-02"
         ],
-        "priorityRank": 1
+        "priorityRank": 2
       },
       {
         "nodeCpsId": "2de.maths.fonctions-reference.variations",
@@ -344,18 +355,18 @@
           "EPR-MAT-REF-01",
           "EPR-MAT-REF-02"
         ],
-        "priorityRank": 2
+        "priorityRank": 3
       },
       {
-        "nodeCpsId": "2de.maths.inequations.resolution-premier-degre",
+        "nodeCpsId": "2de.maths.calcul-litteral.identites-remarquables",
         "criticality": 1,
-        "nodeScore": 0,
-        "profile": "LACUNE_CONSCIENTE",
+        "nodeScore": 100,
+        "profile": "MAITRISE_FRAGILE",
         "itemIds": [
-          "EPR-MAT-INE-01",
-          "EPR-MAT-INE-02"
+          "EPR-MAT-CLI-01",
+          "EPR-MAT-CLI-02"
         ],
-        "priorityRank": 3
+        "priorityRank": 4
       },
       {
         "nodeCpsId": "2de.maths.vecteurs.coordonnees",
@@ -366,7 +377,7 @@
           "EPR-MAT-VEC-01",
           "EPR-MAT-VEC-02"
         ],
-        "priorityRank": 4
+        "priorityRank": 5
       },
       {
         "nodeCpsId": "2de.maths.probabilites.operations-evenements",
@@ -377,27 +388,16 @@
           "EPR-MAT-PRB-01",
           "EPR-MAT-PRB-02"
         ],
-        "priorityRank": 5
+        "priorityRank": 6
       },
       {
         "nodeCpsId": "2de.maths.fonctions.image-antecedent",
         "criticality": 1,
         "nodeScore": 50,
-        "profile": "NON_TRAITE",
+        "profile": "MAITRISE",
         "itemIds": [
           "EPR-MAT-FON-01",
           "EPR-MAT-FON-02"
-        ],
-        "priorityRank": 6
-      },
-      {
-        "nodeCpsId": "2de.maths.calcul-litteral.identites-remarquables",
-        "criticality": 1,
-        "nodeScore": 100,
-        "profile": "MAITRISE_FRAGILE",
-        "itemIds": [
-          "EPR-MAT-CLI-01",
-          "EPR-MAT-CLI-02"
         ],
         "priorityRank": 7
       },
@@ -421,7 +421,7 @@
     "groupBand": "CONSOLIDATION_STANDARD"
   },
   "factSheet": {
-    "engineVersion": "1.0.1",
+    "engineVersion": "1.1.0",
     "bankSlug": "entree-premiere-maths-v1",
     "bankVersion": 1,
     "student": {
@@ -440,12 +440,12 @@
       {
         "id": "inequations",
         "score": 0,
-        "profile": "LACUNE_CONSCIENTE"
+        "profile": "ERREUR_CONFIANTE"
       },
       {
         "id": "fonctions",
         "score": 50,
-        "profile": "NON_TRAITE"
+        "profile": "MAITRISE"
       },
       {
         "id": "fonctions-reference",
@@ -480,6 +480,17 @@
     ],
     "nodes": [
       {
+        "nodeCpsId": "2de.maths.inequations.resolution-premier-degre",
+        "criticality": 1,
+        "nodeScore": 0,
+        "profile": "ERREUR_CONFIANTE",
+        "itemIds": [
+          "EPR-MAT-INE-01",
+          "EPR-MAT-INE-02"
+        ],
+        "priorityRank": 0
+      },
+      {
         "nodeCpsId": "2de.maths.pourcentages.coefficient-multiplicateur",
         "criticality": 1,
         "nodeScore": 0,
@@ -488,7 +499,7 @@
           "EPR-MAT-PCT-01",
           "EPR-MAT-PCT-02"
         ],
-        "priorityRank": 0
+        "priorityRank": 1
       },
       {
         "nodeCpsId": "2de.maths.calcul-numerique.puissances-racines",
@@ -499,7 +510,7 @@
           "EPR-MAT-NUM-01",
           "EPR-MAT-NUM-02"
         ],
-        "priorityRank": 1
+        "priorityRank": 2
       },
       {
         "nodeCpsId": "2de.maths.fonctions-reference.variations",
@@ -510,18 +521,18 @@
           "EPR-MAT-REF-01",
           "EPR-MAT-REF-02"
         ],
-        "priorityRank": 2
+        "priorityRank": 3
       },
       {
-        "nodeCpsId": "2de.maths.inequations.resolution-premier-degre",
+        "nodeCpsId": "2de.maths.calcul-litteral.identites-remarquables",
         "criticality": 1,
-        "nodeScore": 0,
-        "profile": "LACUNE_CONSCIENTE",
+        "nodeScore": 100,
+        "profile": "MAITRISE_FRAGILE",
         "itemIds": [
-          "EPR-MAT-INE-01",
-          "EPR-MAT-INE-02"
+          "EPR-MAT-CLI-01",
+          "EPR-MAT-CLI-02"
         ],
-        "priorityRank": 3
+        "priorityRank": 4
       },
       {
         "nodeCpsId": "2de.maths.vecteurs.coordonnees",
@@ -532,7 +543,7 @@
           "EPR-MAT-VEC-01",
           "EPR-MAT-VEC-02"
         ],
-        "priorityRank": 4
+        "priorityRank": 5
       },
       {
         "nodeCpsId": "2de.maths.probabilites.operations-evenements",
@@ -543,27 +554,16 @@
           "EPR-MAT-PRB-01",
           "EPR-MAT-PRB-02"
         ],
-        "priorityRank": 5
+        "priorityRank": 6
       },
       {
         "nodeCpsId": "2de.maths.fonctions.image-antecedent",
         "criticality": 1,
         "nodeScore": 50,
-        "profile": "NON_TRAITE",
+        "profile": "MAITRISE",
         "itemIds": [
           "EPR-MAT-FON-01",
           "EPR-MAT-FON-02"
-        ],
-        "priorityRank": 6
-      },
-      {
-        "nodeCpsId": "2de.maths.calcul-litteral.identites-remarquables",
-        "criticality": 1,
-        "nodeScore": 100,
-        "profile": "MAITRISE_FRAGILE",
-        "itemIds": [
-          "EPR-MAT-CLI-01",
-          "EPR-MAT-CLI-02"
         ],
         "priorityRank": 7
       },
@@ -598,29 +598,29 @@
         "date": "1970-01-01",
         "stageLabel": "Stage de pré-rentrée — Entrée en 1re, Mathématiques"
       },
-      "contextChecksum": "db0671e50dc76c8662f4220086687077246cd5bdd92d1e2323a4608c64dd77ea",
+      "contextChecksum": "daf63269345d63b35ce0b3556eb362480d0bcfd698ab06be4078e0a95d3c5564",
       "content": {
         "narrative": {
           "headline": "Ton bilan de positionnement",
-          "introduction": "Ce bilan fait le point, domaine par domaine : ce qui est solide, ce qui se consolide, ce qui se corrige — et l’ordre dans lequel le stage va s’y prendre. Sur les neuf domaines évalués : un acquis, un à consolider, un à installer, trois à rectifier en priorité, trois à situer.",
+          "introduction": "Ce bilan fait le point, domaine par domaine : ce qui est solide, ce qui se consolide, ce qui se corrige — et l’ordre dans lequel le stage va s’y prendre. Sur les neuf domaines évalués : deux acquis, un à consolider, quatre à rectifier en priorité, deux à situer.",
           "methodNote": "Ce bilan ne donne pas de note. Il croise deux informations : ce que tu réussis, et la confiance avec laquelle tu réponds. C’est ce croisement qui distingue un point solide, un point à consolider, une notion à installer — et une certitude à revoir. Les certitudes à revoir passent en premier : tant qu’on croit juste une idée fausse, on ne la corrige pas seul.",
           "strengths": [
-            "Droites du plan — réponses justes, données avec assurance : c’est un vrai point d’appui pour la suite."
+            "Fonctions — réponses justes, données avec assurance : c’est un vrai point d’appui pour la suite.",
+            "Tu peux t’appuyer sur les droites du plan : les réponses sont justes et assumées, rien à reprendre pour l’instant."
           ],
           "priorities": [
-            "Sur les pourcentages, tu as répondu avec certitude… et la réponse était fausse. Rien de grave : on te montrera précisément où le raisonnement bifurque.",
-            "Fonctions de référence — une réponse fausse a été donnée avec assurance. C’est la priorité : une conviction erronée ne se corrige qu’une fois qu’on l’a vue.",
-            "Calcul numérique — une certitude à revoir avant d’avancer. C’est le travail le plus rentable des premières séances.",
-            "Inéquations et signes — quelque chose manque, et tu le sais déjà : c’est une vraie lucidité. Il reste à installer les bons repères.",
+            "Inéquations et signes — une réponse fausse a été donnée avec assurance. C’est la priorité : une conviction erronée ne se corrige qu’une fois qu’on l’a vue.",
+            "Pourcentages et évolutions — une certitude à revoir avant d’avancer. C’est le travail le plus rentable des premières séances.",
+            "Sur les fonctions de référence, tu as répondu avec certitude… et la réponse était fausse. Rien de grave : on te montrera précisément où le raisonnement bifurque.",
+            "Calcul numérique — une réponse fausse a été donnée avec assurance. C’est la priorité : une conviction erronée ne se corrige qu’une fois qu’on l’a vue.",
             "Calcul littéral — les réponses sont justes, mais l’hésitation se sent encore. On va transformer ce « je crois » en « je sais ».",
-            "Pas de réponse sur les vecteurs : on ne devine pas, on vérifiera dès le début du stage.",
-            "Probabilités — non traité cette fois. Un diagnostic ciblé situera ton point de départ.",
-            "Fonctions — aucune réponse apportée ici. Une question laissée vide nous renseigne aussi : on fera le point ensemble au démarrage."
+            "Vecteurs — aucune réponse apportée ici. Une question laissée vide nous renseigne aussi : on fera le point ensemble au démarrage.",
+            "Pas de réponse en probabilités : on ne devine pas, on vérifiera dès le début du stage."
           ],
           "actionPlan": [
-            "D’ici la première séance, repère une question sur les pourcentages dont la réponse te paraît évidente : on la mettra à l’épreuve ensemble.",
-            "Note deux ou trois réflexes que tu utilises sur les fonctions de référence : les écrire permettra de voir lequel bifurque.",
-            "Ne cherche pas à « réviser plus » en calcul numérique : viens avec tes certitudes, ce sont elles qu’on va tester.",
+            "D’ici la première séance, repère une question sur les inéquations dont la réponse te paraît évidente : on la mettra à l’épreuve ensemble.",
+            "Note deux ou trois réflexes que tu utilises sur les pourcentages : les écrire permettra de voir lequel bifurque.",
+            "Ne cherche pas à « réviser plus » sur les fonctions de référence : viens avec tes certitudes, ce sont elles qu’on va tester.",
             "Et pendant tout le stage, garde le réflexe du bilan : avant de valider une réponse, demande-toi « j’en suis sûr, ou je crois l’être ? »."
           ],
           "calibration": "Un levier en plus des notions : ton ressenti et tes résultats ne coïncident pas toujours. Apprendre à repérer quand tu es sûr à raison — et quand tu ne l’es pas — vaut autant que le contenu lui-même.",
@@ -637,69 +637,78 @@
           {
             "id": "inequations",
             "title": "Inéquations et signes",
-            "profileLabel": "à combler (déjà repéré)",
-            "gesture": "Installer les repères, puis entraîner",
-            "narrative": "Inéquations et signes — quelque chose manque, et tu le sais déjà : c’est une vraie lucidité. Il reste à installer les bons repères."
+            "profileLabel": "sûr mais à revoir",
+            "gesture": "Confronter, puis reconstruire",
+            "narrative": "Inéquations et signes — une réponse fausse a été donnée avec assurance. C’est la priorité : une conviction erronée ne se corrige qu’une fois qu’on l’a vue."
           },
           {
             "id": "fonctions",
             "title": "Fonctions",
-            "profileLabel": "non évalué",
-            "gesture": "Diagnostiquer au démarrage",
-            "narrative": "Fonctions — aucune réponse apportée ici. Une question laissée vide nous renseigne aussi : on fera le point ensemble au démarrage."
+            "profileLabel": "solide",
+            "gesture": "Entretenir et prolonger",
+            "narrative": "Fonctions — réponses justes, données avec assurance : c’est un vrai point d’appui pour la suite."
           },
           {
             "id": "fonctions-reference",
             "title": "Fonctions de référence",
             "profileLabel": "sûr mais à revoir",
             "gesture": "Confronter, puis reconstruire",
-            "narrative": "Fonctions de référence — une réponse fausse a été donnée avec assurance. C’est la priorité : une conviction erronée ne se corrige qu’une fois qu’on l’a vue."
+            "narrative": "Sur les fonctions de référence, tu as répondu avec certitude… et la réponse était fausse. Rien de grave : on te montrera précisément où le raisonnement bifurque."
           },
           {
             "id": "vecteurs",
             "title": "Vecteurs",
             "profileLabel": "non évalué",
             "gesture": "Diagnostiquer au démarrage",
-            "narrative": "Pas de réponse sur les vecteurs : on ne devine pas, on vérifiera dès le début du stage."
+            "narrative": "Vecteurs — aucune réponse apportée ici. Une question laissée vide nous renseigne aussi : on fera le point ensemble au démarrage."
           },
           {
             "id": "droites",
             "title": "Droites du plan",
             "profileLabel": "solide",
             "gesture": "Entretenir et prolonger",
-            "narrative": "Droites du plan — réponses justes, données avec assurance : c’est un vrai point d’appui pour la suite."
+            "narrative": "Tu peux t’appuyer sur les droites du plan : les réponses sont justes et assumées, rien à reprendre pour l’instant."
           },
           {
             "id": "pourcentages",
             "title": "Pourcentages et évolutions",
             "profileLabel": "sûr mais à revoir",
             "gesture": "Confronter, puis reconstruire",
-            "narrative": "Sur les pourcentages, tu as répondu avec certitude… et la réponse était fausse. Rien de grave : on te montrera précisément où le raisonnement bifurque."
+            "narrative": "Pourcentages et évolutions — une certitude à revoir avant d’avancer. C’est le travail le plus rentable des premières séances."
           },
           {
             "id": "probabilites",
             "title": "Probabilités",
             "profileLabel": "non évalué",
             "gesture": "Diagnostiquer au démarrage",
-            "narrative": "Probabilités — non traité cette fois. Un diagnostic ciblé situera ton point de départ."
+            "narrative": "Pas de réponse en probabilités : on ne devine pas, on vérifiera dès le début du stage."
           },
           {
             "id": "calcul-numerique",
             "title": "Calcul numérique",
             "profileLabel": "sûr mais à revoir",
             "gesture": "Confronter, puis reconstruire",
-            "narrative": "Calcul numérique — une certitude à revoir avant d’avancer. C’est le travail le plus rentable des premières séances."
+            "narrative": "Calcul numérique — une réponse fausse a été donnée avec assurance. C’est la priorité : une conviction erronée ne se corrige qu’une fois qu’on l’a vue."
           }
         ],
         "learningPath": {
           "version": "learning-path.v2",
           "steps": [
             {
+              "domainId": "inequations",
+              "domainTitle": "Inéquations et signes",
+              "phaseDidactique": "Confronter",
+              "objectif": "Rectifier une certitude erronée sur les inéquations.",
+              "demarche": "Partir d’un cas qui met la conviction en défaut, faire verbaliser le raisonnement, puis reconstruire la notion avant tout entraînement.",
+              "seanceLabel": "Séance 1",
+              "profileLabel": "sûr mais à revoir"
+            },
+            {
               "domainId": "pourcentages",
               "domainTitle": "Pourcentages et évolutions",
               "phaseDidactique": "Confronter",
-              "objectif": "Rectifier une certitude erronée sur les pourcentages.",
-              "demarche": "Partir d’un cas qui met la conviction en défaut, faire verbaliser le raisonnement, puis reconstruire la notion avant tout entraînement.",
+              "objectif": "Faire apparaître, puis lever, l’idée fausse installée sur les pourcentages.",
+              "demarche": "Provoquer le conflit cognitif sur un exemple choisi, comparer les deux raisonnements, puis stabiliser la version juste.",
               "seanceLabel": "Séance 1",
               "profileLabel": "sûr mais à revoir"
             },
@@ -707,28 +716,19 @@
               "domainId": "fonctions-reference",
               "domainTitle": "Fonctions de référence",
               "phaseDidactique": "Confronter",
-              "objectif": "Faire apparaître, puis lever, l’idée fausse installée sur les fonctions de référence.",
-              "demarche": "Provoquer le conflit cognitif sur un exemple choisi, comparer les deux raisonnements, puis stabiliser la version juste.",
-              "seanceLabel": "Séance 1",
+              "objectif": "Reconstruire une notion tenue pour acquise sur les fonctions de référence.",
+              "demarche": "Faire verbaliser la règle utilisée, la confronter à un contre-exemple, puis reconstruire pas à pas.",
+              "seanceLabel": "Séance 2",
               "profileLabel": "sûr mais à revoir"
             },
             {
               "domainId": "calcul-numerique",
               "domainTitle": "Calcul numérique",
               "phaseDidactique": "Confronter",
-              "objectif": "Reconstruire une notion tenue pour acquise en calcul numérique.",
-              "demarche": "Faire verbaliser la règle utilisée, la confronter à un contre-exemple, puis reconstruire pas à pas.",
+              "objectif": "Rectifier une certitude erronée en calcul numérique.",
+              "demarche": "Partir d’un cas qui met la conviction en défaut, faire verbaliser le raisonnement, puis reconstruire la notion avant tout entraînement.",
               "seanceLabel": "Séance 2",
               "profileLabel": "sûr mais à revoir"
-            },
-            {
-              "domainId": "inequations",
-              "domainTitle": "Inéquations et signes",
-              "phaseDidactique": "Installer",
-              "objectif": "Installer les repères indispensables sur les inéquations.",
-              "demarche": "Poser les définitions utiles, montrer des exemples résolus, puis proposer un entraînement court et répété.",
-              "seanceLabel": "Séance 2",
-              "profileLabel": "à combler (déjà repéré)"
             },
             {
               "domainId": "calcul-litteral",
@@ -745,7 +745,7 @@
               "phaseDidactique": "Diagnostiquer",
               "objectif": "Établir le niveau réel sur les vecteurs avant de choisir une remédiation.",
               "demarche": "Commencer par un test ciblé, puis décider du travail à engager à partir des observations.",
-              "seanceLabel": "Séance 3",
+              "seanceLabel": "Séance 4",
               "profileLabel": "non évalué"
             },
             {
@@ -754,15 +754,6 @@
               "phaseDidactique": "Diagnostiquer",
               "objectif": "Situer précisément le point de départ en probabilités.",
               "demarche": "Poser quelques questions étalonnées, observer les démarches, puis trancher sur la suite.",
-              "seanceLabel": "Séance 4",
-              "profileLabel": "non évalué"
-            },
-            {
-              "domainId": "fonctions",
-              "domainTitle": "Fonctions",
-              "phaseDidactique": "Diagnostiquer",
-              "objectif": "Mesurer ce qui est disponible sur les fonctions avant d’engager le travail.",
-              "demarche": "Vérifier les prérequis un à un, et n’engager la remédiation qu’à partir de ce constat.",
               "seanceLabel": "Séance 5",
               "profileLabel": "non évalué"
             }
@@ -781,30 +772,29 @@
         "date": "1970-01-01",
         "stageLabel": "Stage de pré-rentrée — Entrée en 1re, Mathématiques"
       },
-      "contextChecksum": "43c56ea9a8c6dea125f290617fc732b3691874527f299592565190cfc0cba247",
+      "contextChecksum": "1fe2277d11a66a19ca38153884d17fc2f50647332f7c7ffb400c325190bb3477",
       "content": {
         "narrative": {
           "headline": "Bilan de positionnement de votre enfant",
-          "introduction": "Votre enfant a passé un bilan de positionnement en Mathématiques. Ce compte rendu présente ce qui est acquis, ce qui reste fragile et ce que le stage traitera en priorité. Sur les neuf domaines évalués : un acquis, un à consolider, un à installer, trois à rectifier en priorité, trois à situer.",
+          "introduction": "Votre enfant a passé un bilan de positionnement en Mathématiques. Ce compte rendu présente ce qui est acquis, ce qui reste fragile et ce que le stage traitera en priorité. Sur les neuf domaines évalués : deux acquis, un à consolider, quatre à rectifier en priorité, deux à situer.",
           "methodNote": "Nous ne mesurons pas seulement si votre enfant réussit : nous mesurons s’il sait où il en est. Chaque domaine croise la réussite observée et la confiance déclarée. Réussir avec assurance signale un acquis ; réussir en hésitant appelle une consolidation ; se tromper en le sentant appelle un apprentissage ; se tromper avec certitude — le cas le plus prioritaire — appelle une rectification guidée, car une conviction erronée ne se corrige pas seule. C’est cette lecture qui guide le stage.",
           "strengths": [
-            "Droites du plan — acquis : réponses justes, données avec assurance. Le stage s’appuiera sur ce socle."
+            "Fonctions — acquis : réponses justes, données avec assurance. Le stage s’appuiera sur ce socle.",
+            "Votre enfant maîtrise les droites du plan : ce point servira d’appui pour progresser ailleurs."
           ],
           "priorities": [
-            "Sur les pourcentages, un raisonnement tenu pour juste doit d’abord être confronté, puis reconstruit pas à pas.",
-            "Fonctions de référence — une réponse erronée a été donnée avec certitude. Ce point est traité en priorité : il ne se corrige pas seul.",
-            "Calcul numérique — une conviction à rectifier ; le travail commencera par la faire apparaître, précisément.",
-            "Inéquations et signes — la difficulté est identifiée, et votre enfant en a conscience : la reprise est directe, sans obstacle de conviction.",
+            "Inéquations et signes — une réponse erronée a été donnée avec certitude. Ce point est traité en priorité : il ne se corrige pas seul.",
+            "Pourcentages et évolutions — une conviction à rectifier ; le travail commencera par la faire apparaître, précisément.",
+            "Sur les fonctions de référence, un raisonnement tenu pour juste doit d’abord être confronté, puis reconstruit pas à pas.",
+            "Calcul numérique — une réponse erronée a été donnée avec certitude. Ce point est traité en priorité : il ne se corrige pas seul.",
             "Calcul littéral — réponses justes mais encore hésitantes : une consolidation courte suffit, pas un réapprentissage.",
-            "Aucune réponse sur les vecteurs : une vérification ciblée précédera toute décision pédagogique.",
-            "Probabilités — non évalué à ce stade ; la première séance permettra de le situer.",
-            "Fonctions — sans réponse lors du bilan ; ce point sera situé en début de stage."
+            "Vecteurs — sans réponse lors du bilan ; ce point sera situé en début de stage.",
+            "Aucune réponse en probabilités : une vérification ciblée précédera toute décision pédagogique."
           ],
           "actionPlan": [
-            "D’abord, rectifier ce qui est aujourd’hui tenu pour juste à tort : les pourcentages, les fonctions de référence et le calcul numérique.",
-            "Ensuite, installer ce qui manque : les inéquations.",
-            "Puis, consolider les presque-acquis : le calcul littéral.",
-            "Enfin, situer ce qui n’a pas encore pu être évalué : les vecteurs, les probabilités et les fonctions.",
+            "D’abord, rectifier ce qui est aujourd’hui tenu pour juste à tort : les inéquations, les pourcentages, les fonctions de référence et le calcul numérique.",
+            "Ensuite, consolider les presque-acquis : le calcul littéral.",
+            "Puis, situer ce qui n’a pas encore pu être évalué : les vecteurs et les probabilités.",
             "Ce travail se déroule sur cinq séances de deux heures, en petit groupe constitué après lecture collective des bilans : les repères observés chez votre enfant y sont croisés avec ceux du groupe pour régler l’ordre, le rythme et la profondeur de chaque séance. Aucun module n’est fixé avant cette lecture collective."
           ],
           "calibration": "Un levier en plus des notions : le ressenti et les résultats ne coïncident pas toujours. Apprendre à repérer quand la confiance est justifiée vaut autant que le contenu lui-même.",
@@ -821,58 +811,58 @@
           {
             "id": "inequations",
             "title": "Inéquations et signes",
-            "profileLabel": "à combler (déjà repéré)",
-            "gesture": "Installer les repères, puis entraîner",
-            "narrative": "Inéquations et signes — la difficulté est identifiée, et votre enfant en a conscience : la reprise est directe, sans obstacle de conviction."
+            "profileLabel": "sûr mais à revoir",
+            "gesture": "Confronter, puis reconstruire",
+            "narrative": "Inéquations et signes — une réponse erronée a été donnée avec certitude. Ce point est traité en priorité : il ne se corrige pas seul."
           },
           {
             "id": "fonctions",
             "title": "Fonctions",
-            "profileLabel": "non évalué",
-            "gesture": "Diagnostiquer au démarrage",
-            "narrative": "Fonctions — sans réponse lors du bilan ; ce point sera situé en début de stage."
+            "profileLabel": "solide",
+            "gesture": "Entretenir et prolonger",
+            "narrative": "Fonctions — acquis : réponses justes, données avec assurance. Le stage s’appuiera sur ce socle."
           },
           {
             "id": "fonctions-reference",
             "title": "Fonctions de référence",
             "profileLabel": "sûr mais à revoir",
             "gesture": "Confronter, puis reconstruire",
-            "narrative": "Fonctions de référence — une réponse erronée a été donnée avec certitude. Ce point est traité en priorité : il ne se corrige pas seul."
+            "narrative": "Sur les fonctions de référence, un raisonnement tenu pour juste doit d’abord être confronté, puis reconstruit pas à pas."
           },
           {
             "id": "vecteurs",
             "title": "Vecteurs",
             "profileLabel": "non évalué",
             "gesture": "Diagnostiquer au démarrage",
-            "narrative": "Aucune réponse sur les vecteurs : une vérification ciblée précédera toute décision pédagogique."
+            "narrative": "Vecteurs — sans réponse lors du bilan ; ce point sera situé en début de stage."
           },
           {
             "id": "droites",
             "title": "Droites du plan",
             "profileLabel": "solide",
             "gesture": "Entretenir et prolonger",
-            "narrative": "Droites du plan — acquis : réponses justes, données avec assurance. Le stage s’appuiera sur ce socle."
+            "narrative": "Votre enfant maîtrise les droites du plan : ce point servira d’appui pour progresser ailleurs."
           },
           {
             "id": "pourcentages",
             "title": "Pourcentages et évolutions",
             "profileLabel": "sûr mais à revoir",
             "gesture": "Confronter, puis reconstruire",
-            "narrative": "Sur les pourcentages, un raisonnement tenu pour juste doit d’abord être confronté, puis reconstruit pas à pas."
+            "narrative": "Pourcentages et évolutions — une conviction à rectifier ; le travail commencera par la faire apparaître, précisément."
           },
           {
             "id": "probabilites",
             "title": "Probabilités",
             "profileLabel": "non évalué",
             "gesture": "Diagnostiquer au démarrage",
-            "narrative": "Probabilités — non évalué à ce stade ; la première séance permettra de le situer."
+            "narrative": "Aucune réponse en probabilités : une vérification ciblée précédera toute décision pédagogique."
           },
           {
             "id": "calcul-numerique",
             "title": "Calcul numérique",
             "profileLabel": "sûr mais à revoir",
             "gesture": "Confronter, puis reconstruire",
-            "narrative": "Calcul numérique — une conviction à rectifier ; le travail commencera par la faire apparaître, précisément."
+            "narrative": "Calcul numérique — une réponse erronée a été donnée avec certitude. Ce point est traité en priorité : il ne se corrige pas seul."
           }
         ],
         "learningPath": {
@@ -892,31 +882,31 @@
         "date": "1970-01-01",
         "stageLabel": "Stage de pré-rentrée — Entrée en 1re, Mathématiques"
       },
-      "contextChecksum": "dee9fe9ca7f47d0b6b8753a87a2b1291d6d3519224762dcc74dba65990f58b58",
+      "contextChecksum": "8e9af8aaf8afe21897a8f9889ae51db085bf0ab58862640d520f88fcbf04c854",
       "content": {
         "narrative": {
           "headline": "Synthèse pédagogique Nexus",
-          "introduction": "Lecture technique des profils, priorités et phases didactiques. Sur les neuf domaines évalués : un acquis, un à consolider, un à installer, trois à rectifier en priorité, trois à situer.",
+          "introduction": "Lecture technique des profils, priorités et phases didactiques. Sur les neuf domaines évalués : deux acquis, un à consolider, quatre à rectifier en priorité, deux à situer.",
           "methodNote": "Le score d’un domaine mesure la réussite (0–100). Le profil qualifie la relation à la notion : croisement réussite × confiance, hérité du pire nœud du domaine. Un domaine peut donc afficher un score honorable avec un profil sévère — le profil désigne le point à traiter, le score situe l’ampleur. Priorisation : ERREUR_CONFIANTE (confronter), puis LACUNE_CONSCIENTE (installer), puis MAITRISE_FRAGILE (consolider), puis NON_TRAITE (diagnostiquer).",
           "strengths": [
-            "Droites du plan : profil MAITRISE — maintien actif, mobilisable comme appui de différenciation."
+            "Fonctions : profil MAITRISE — maintien actif, mobilisable comme appui de différenciation.",
+            "Droites du plan : profil MAITRISE — acquis stable, aucun module de reprise à programmer."
           ],
           "priorities": [
-            "Pourcentages et évolutions : profil ERREUR_CONFIANTE — représentation erronée assumée, priorité de séance.",
-            "Fonctions de référence : profil ERREUR_CONFIANTE — conflit cognitif prioritaire, à traiter en premier.",
-            "Calcul numérique : profil ERREUR_CONFIANTE — rectification à provoquer explicitement avant tout entraînement.",
-            "Inéquations et signes : profil LACUNE_CONSCIENTE — installation structurée, pas d’obstacle de conviction.",
+            "Inéquations et signes : profil ERREUR_CONFIANTE — conflit cognitif prioritaire, à traiter en premier.",
+            "Pourcentages et évolutions : profil ERREUR_CONFIANTE — rectification à provoquer explicitement avant tout entraînement.",
+            "Fonctions de référence : profil ERREUR_CONFIANTE — représentation erronée assumée, priorité de séance.",
+            "Calcul numérique : profil ERREUR_CONFIANTE — conflit cognitif prioritaire, à traiter en premier.",
             "Calcul littéral : profil MAITRISE_FRAGILE — consolidation espacée, réussite sans confiance.",
-            "Vecteurs : profil NON_TRAITE — aucune donnée exploitable, à situer dès la première séance.",
-            "Probabilités : profil NON_TRAITE — évaluation à reprendre au démarrage.",
-            "Fonctions : profil NON_TRAITE — diagnostic préalable requis."
+            "Vecteurs : profil NON_TRAITE — diagnostic préalable requis.",
+            "Probabilités : profil NON_TRAITE — aucune donnée exploitable, à situer dès la première séance."
           ],
           "actionPlan": [
-            "Séance 1 — Confronter : Pourcentages et évolutions (ERREUR_CONFIANTE) · Confronter : Fonctions de référence (ERREUR_CONFIANTE).",
-            "Séance 2 — Confronter : Calcul numérique (ERREUR_CONFIANTE) · Installer : Inéquations et signes (LACUNE_CONSCIENTE).",
-            "Séance 3 — Consolider : Calcul littéral (MAITRISE_FRAGILE) · Diagnostiquer : Vecteurs (NON_TRAITE).",
-            "Séance 4 — Diagnostiquer : Probabilités (NON_TRAITE).",
-            "Séance 5 — Diagnostiquer : Fonctions (NON_TRAITE)."
+            "Séance 1 — Confronter : Inéquations et signes (ERREUR_CONFIANTE) · Confronter : Pourcentages et évolutions (ERREUR_CONFIANTE).",
+            "Séance 2 — Confronter : Fonctions de référence (ERREUR_CONFIANTE) · Confronter : Calcul numérique (ERREUR_CONFIANTE).",
+            "Séance 3 — Consolider : Calcul littéral (MAITRISE_FRAGILE).",
+            "Séance 4 — Diagnostiquer : Vecteurs (NON_TRAITE).",
+            "Séance 5 — Diagnostiquer : Probabilités (NON_TRAITE)."
           ],
           "calibration": "calibrationIndex 42.3 < 60 — travail métacognitif à programmer.",
           "conclusion": "Document interne : faits de mesure et priorisation, sans interprétation ajoutée. La revue humaine reste obligatoire avant publication."
@@ -934,20 +924,20 @@
           {
             "id": "inequations",
             "title": "Inéquations et signes",
-            "profileLabel": "à combler (déjà repéré)",
-            "gesture": "Installer les repères, puis entraîner",
-            "profile": "LACUNE_CONSCIENTE",
+            "profileLabel": "sûr mais à revoir",
+            "gesture": "Confronter, puis reconstruire",
+            "profile": "ERREUR_CONFIANTE",
             "score": 0,
-            "narrative": "Inéquations et signes : profil LACUNE_CONSCIENTE — installation structurée, pas d’obstacle de conviction."
+            "narrative": "Inéquations et signes : profil ERREUR_CONFIANTE — conflit cognitif prioritaire, à traiter en premier."
           },
           {
             "id": "fonctions",
             "title": "Fonctions",
-            "profileLabel": "non évalué",
-            "gesture": "Diagnostiquer au démarrage",
-            "profile": "NON_TRAITE",
+            "profileLabel": "solide",
+            "gesture": "Entretenir et prolonger",
+            "profile": "MAITRISE",
             "score": 50,
-            "narrative": "Fonctions : profil NON_TRAITE — diagnostic préalable requis."
+            "narrative": "Fonctions : profil MAITRISE — maintien actif, mobilisable comme appui de différenciation."
           },
           {
             "id": "fonctions-reference",
@@ -956,7 +946,7 @@
             "gesture": "Confronter, puis reconstruire",
             "profile": "ERREUR_CONFIANTE",
             "score": 50,
-            "narrative": "Fonctions de référence : profil ERREUR_CONFIANTE — conflit cognitif prioritaire, à traiter en premier."
+            "narrative": "Fonctions de référence : profil ERREUR_CONFIANTE — représentation erronée assumée, priorité de séance."
           },
           {
             "id": "vecteurs",
@@ -965,7 +955,7 @@
             "gesture": "Diagnostiquer au démarrage",
             "profile": "NON_TRAITE",
             "score": 0,
-            "narrative": "Vecteurs : profil NON_TRAITE — aucune donnée exploitable, à situer dès la première séance."
+            "narrative": "Vecteurs : profil NON_TRAITE — diagnostic préalable requis."
           },
           {
             "id": "droites",
@@ -974,7 +964,7 @@
             "gesture": "Entretenir et prolonger",
             "profile": "MAITRISE",
             "score": 100,
-            "narrative": "Droites du plan : profil MAITRISE — maintien actif, mobilisable comme appui de différenciation."
+            "narrative": "Droites du plan : profil MAITRISE — acquis stable, aucun module de reprise à programmer."
           },
           {
             "id": "pourcentages",
@@ -983,7 +973,7 @@
             "gesture": "Confronter, puis reconstruire",
             "profile": "ERREUR_CONFIANTE",
             "score": 0,
-            "narrative": "Pourcentages et évolutions : profil ERREUR_CONFIANTE — représentation erronée assumée, priorité de séance."
+            "narrative": "Pourcentages et évolutions : profil ERREUR_CONFIANTE — rectification à provoquer explicitement avant tout entraînement."
           },
           {
             "id": "probabilites",
@@ -992,7 +982,7 @@
             "gesture": "Diagnostiquer au démarrage",
             "profile": "NON_TRAITE",
             "score": 40,
-            "narrative": "Probabilités : profil NON_TRAITE — évaluation à reprendre au démarrage."
+            "narrative": "Probabilités : profil NON_TRAITE — aucune donnée exploitable, à situer dès la première séance."
           },
           {
             "id": "calcul-numerique",
@@ -1001,19 +991,29 @@
             "gesture": "Confronter, puis reconstruire",
             "profile": "ERREUR_CONFIANTE",
             "score": 50,
-            "narrative": "Calcul numérique : profil ERREUR_CONFIANTE — rectification à provoquer explicitement avant tout entraînement."
+            "narrative": "Calcul numérique : profil ERREUR_CONFIANTE — conflit cognitif prioritaire, à traiter en premier."
           }
         ],
         "learningPath": {
           "version": "learning-path.v2",
           "steps": [
             {
+              "domainId": "inequations",
+              "domainTitle": "Inéquations et signes",
+              "profil": "ERREUR_CONFIANTE",
+              "phaseDidactique": "Confronter",
+              "objectif": "Rectifier une certitude erronée sur les inéquations.",
+              "demarche": "Partir d’un cas qui met la conviction en défaut, faire verbaliser le raisonnement, puis reconstruire la notion avant tout entraînement.",
+              "seanceLabel": "Séance 1",
+              "score": 0
+            },
+            {
               "domainId": "pourcentages",
               "domainTitle": "Pourcentages et évolutions",
               "profil": "ERREUR_CONFIANTE",
               "phaseDidactique": "Confronter",
-              "objectif": "Rectifier une certitude erronée sur les pourcentages.",
-              "demarche": "Partir d’un cas qui met la conviction en défaut, faire verbaliser le raisonnement, puis reconstruire la notion avant tout entraînement.",
+              "objectif": "Faire apparaître, puis lever, l’idée fausse installée sur les pourcentages.",
+              "demarche": "Provoquer le conflit cognitif sur un exemple choisi, comparer les deux raisonnements, puis stabiliser la version juste.",
               "seanceLabel": "Séance 1",
               "score": 0
             },
@@ -1022,9 +1022,9 @@
               "domainTitle": "Fonctions de référence",
               "profil": "ERREUR_CONFIANTE",
               "phaseDidactique": "Confronter",
-              "objectif": "Faire apparaître, puis lever, l’idée fausse installée sur les fonctions de référence.",
-              "demarche": "Provoquer le conflit cognitif sur un exemple choisi, comparer les deux raisonnements, puis stabiliser la version juste.",
-              "seanceLabel": "Séance 1",
+              "objectif": "Reconstruire une notion tenue pour acquise sur les fonctions de référence.",
+              "demarche": "Faire verbaliser la règle utilisée, la confronter à un contre-exemple, puis reconstruire pas à pas.",
+              "seanceLabel": "Séance 2",
               "score": 50
             },
             {
@@ -1032,20 +1032,10 @@
               "domainTitle": "Calcul numérique",
               "profil": "ERREUR_CONFIANTE",
               "phaseDidactique": "Confronter",
-              "objectif": "Reconstruire une notion tenue pour acquise en calcul numérique.",
-              "demarche": "Faire verbaliser la règle utilisée, la confronter à un contre-exemple, puis reconstruire pas à pas.",
+              "objectif": "Rectifier une certitude erronée en calcul numérique.",
+              "demarche": "Partir d’un cas qui met la conviction en défaut, faire verbaliser le raisonnement, puis reconstruire la notion avant tout entraînement.",
               "seanceLabel": "Séance 2",
               "score": 50
-            },
-            {
-              "domainId": "inequations",
-              "domainTitle": "Inéquations et signes",
-              "profil": "LACUNE_CONSCIENTE",
-              "phaseDidactique": "Installer",
-              "objectif": "Installer les repères indispensables sur les inéquations.",
-              "demarche": "Poser les définitions utiles, montrer des exemples résolus, puis proposer un entraînement court et répété.",
-              "seanceLabel": "Séance 2",
-              "score": 0
             },
             {
               "domainId": "calcul-litteral",
@@ -1064,7 +1054,7 @@
               "phaseDidactique": "Diagnostiquer",
               "objectif": "Établir le niveau réel sur les vecteurs avant de choisir une remédiation.",
               "demarche": "Commencer par un test ciblé, puis décider du travail à engager à partir des observations.",
-              "seanceLabel": "Séance 3",
+              "seanceLabel": "Séance 4",
               "score": 0
             },
             {
@@ -1074,18 +1064,8 @@
               "phaseDidactique": "Diagnostiquer",
               "objectif": "Situer précisément le point de départ en probabilités.",
               "demarche": "Poser quelques questions étalonnées, observer les démarches, puis trancher sur la suite.",
-              "seanceLabel": "Séance 4",
-              "score": 40
-            },
-            {
-              "domainId": "fonctions",
-              "domainTitle": "Fonctions",
-              "profil": "NON_TRAITE",
-              "phaseDidactique": "Diagnostiquer",
-              "objectif": "Mesurer ce qui est disponible sur les fonctions avant d’engager le travail.",
-              "demarche": "Vérifier les prérequis un à un, et n’engager la remédiation qu’à partir de ce constat.",
               "seanceLabel": "Séance 5",
-              "score": 50
+              "score": 40
             }
           ]
         },
