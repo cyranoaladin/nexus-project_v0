@@ -15,6 +15,37 @@ const loadReports = loadParentCanonicalReports as jest.MockedFunction<typeof loa
 describe('P0-C Parent Canonical reports surface', () => {
   beforeEach(() => jest.clearAllMocks());
 
+  test('un accès refusé pour consentement manquant s’explique — jamais un écran vide', async () => {
+    loadReports.mockRejectedValue(new Error('CANONICAL_NOT_FOUND'));
+    const fetchMock = jest.spyOn(global, 'fetch').mockResolvedValue(new Response(
+      JSON.stringify({ state: 'PENDING_PARENT_CONSENT' }),
+      { status: 200, headers: { 'Content-Type': 'application/json' } },
+    ));
+
+    render(<ParentCanonicalReports studentId="student-a1" />);
+
+    expect(await screen.findByText(/n'attendent que votre accord/i)).toBeVisible();
+    expect(screen.queryByText(/ne sont pas accessibles avec ce compte/i)).not.toBeInTheDocument();
+    expect(fetchMock).toHaveBeenCalledWith(
+      '/api/parent/children/student-a1/canonical-consent',
+      expect.objectContaining({ method: 'GET' }),
+    );
+    fetchMock.mockRestore();
+  });
+
+  test('une vraie erreur d’accès reste une erreur quand le consentement est déjà VERIFIED', async () => {
+    loadReports.mockRejectedValue(new Error('CANONICAL_NOT_FOUND'));
+    const fetchMock = jest.spyOn(global, 'fetch').mockResolvedValue(new Response(
+      JSON.stringify({ state: 'VERIFIED' }),
+      { status: 200, headers: { 'Content-Type': 'application/json' } },
+    ));
+
+    render(<ParentCanonicalReports studentId="student-a1" />);
+
+    expect(await screen.findByText(/ne sont pas accessibles avec ce compte/i)).toBeVisible();
+    fetchMock.mockRestore();
+  });
+
   test('announces loading and then renders an accessible empty state', async () => {
     loadReports.mockResolvedValue({ studentId: 'student-a1', bilans: [] });
     render(<ParentCanonicalReports studentId="student-a1" />);
