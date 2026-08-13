@@ -134,21 +134,30 @@ export function computeNodeProfile(mass: Readonly<Record<ItemProfile, number>>):
 
   if (total === 0) return 'NON_TRAITE';
 
-  // Règle 1
+  // Règle 1 — la présence d'une erreur confiante prime sur toute masse.
+  //
+  // L'ancienne règle exigeait 50 % de masse en difficulté avant de qualifier
+  // le nœud : un item faux répondu avec assurance, minoritaire en poids,
+  // laissait le nœud « MAITRISE » — le bilan affirmait alors aux familles
+  // qu'une notion ratée avec aplomb était un acquis, et le plan de séances
+  // l'ignorait. C'est l'inverse de la méthode : le profil désigne le point à
+  // traiter, le score situe l'ampleur. Une erreur confiante, quel que soit
+  // son poids, est LE signal prioritaire (ENGINE_VERSION 1.1.0).
+  if (mass.ERREUR_CONFIANTE > 0) return 'ERREUR_CONFIANTE';
+
+  // Règle 2 — majorité non traitée, sans erreur à confronter : diagnostiquer.
   if (mass.NON_TRAITE / total > 0.5) return 'NON_TRAITE';
 
-  // Règle 2
-  const difficulty = mass.ERREUR_CONFIANTE + mass.LACUNE_CONSCIENTE + mass.NON_TRAITE;
-  if (difficulty / total >= 0.5) {
-    if (mass.ERREUR_CONFIANTE === 0 && mass.LACUNE_CONSCIENTE === 0) {
-      return 'NON_TRAITE';
-    }
-    return mass.ERREUR_CONFIANTE >= mass.LACUNE_CONSCIENTE
-      ? 'ERREUR_CONFIANTE'
-      : 'LACUNE_CONSCIENTE';
-  }
+  // Règle 3 — même primauté pour la lacune consciente : jamais « acquis »
+  // quand l'élève sait déjà qu'une notion lui manque.
+  if (mass.LACUNE_CONSCIENTE > 0) return 'LACUNE_CONSCIENTE';
 
-  // Règle 3
+  // Règle 4 — un périmètre partiellement inconnu n'est jamais « acquis » :
+  // la moindre part non traitée plafonne le nœud à MAITRISE_FRAGILE (réussite
+  // avérée sur ce qui a été vu, reste à situer le reste au démarrage).
+  if (mass.NON_TRAITE > 0) return 'MAITRISE_FRAGILE';
+
+  // Règle 5 — nœud réellement réussi : départage maîtrise / maîtrise fragile.
   return mass.MAITRISE >= mass.MAITRISE_FRAGILE ? 'MAITRISE' : 'MAITRISE_FRAGILE';
 }
 

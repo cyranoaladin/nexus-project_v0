@@ -44,7 +44,9 @@ export function PaperEntryGrid({
   childSelectionHref = '/dashboard/assistante/bilans/saisie-papier',
 }: PaperEntryGridProps) {
   const router = useRouter();
-  const [options, setOptions] = useState<Record<string, string | undefined>>({});
+  // 'SANS_REPONSE' : l'élève n'a pas répondu — un état que la saisissante
+  // choisit délibérément, jamais un oubli silencieux.
+  const [options, setOptions] = useState<Record<string, string | 'SANS_REPONSE' | undefined>>({});
   const [confidences, setConfidences] = useState<Record<string, EnteredConfidence>>({});
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -58,16 +60,20 @@ export function PaperEntryGrid({
   // item. « Absente de la copie » est un choix explicite du saisisseur, jamais
   // un défaut — une case laissée vide reste une saisie inachevée.
   const untouchedConfidence = useMemo(
-    () => items.filter((item) => confidences[item.id] === undefined),
-    [items, confidences],
+    () => items.filter((item) => options[item.id] !== 'SANS_REPONSE' && confidences[item.id] === undefined),
+    [items, options, confidences],
   );
   const absentConfidence = useMemo(
-    () => items.filter((item) => confidences[item.id] === 'ABSENTE'),
-    [items, confidences],
+    () => items.filter((item) => options[item.id] !== 'SANS_REPONSE' && confidences[item.id] === 'ABSENTE'),
+    [items, options, confidences],
+  );
+  const blankItems = useMemo(
+    () => items.filter((item) => options[item.id] === 'SANS_REPONSE'),
+    [items, options],
   );
   const complete = missingOption.length === 0 && untouchedConfidence.length === 0;
   const completedItems = items.filter((item) => (
-    options[item.id] !== undefined && confidences[item.id] !== undefined
+    options[item.id] !== undefined && options[item.id] !== 'SANS_REPONSE' && confidences[item.id] !== undefined
   )).length;
 
   async function submit() {
@@ -83,8 +89,10 @@ export function PaperEntryGrid({
           packSlug,
           answers: items.map((item) => ({
             itemId: item.id,
-            optionId: options[item.id],
-            confidence: confidences[item.id] === 'ABSENTE' ? null : confidences[item.id],
+            optionId: options[item.id] === 'SANS_REPONSE' ? null : options[item.id],
+            confidence: options[item.id] === 'SANS_REPONSE' || confidences[item.id] === 'ABSENTE'
+              ? null
+              : confidences[item.id],
           })),
         }),
       });
@@ -113,8 +121,10 @@ export function PaperEntryGrid({
         <h2 className="mt-2 text-xl font-semibold text-white">{studentName}</h2>
         <p className="mt-1 text-sm text-slate-400">{packTitle}</p>
         <p role="status" className="mt-3 text-sm font-semibold text-amber-200">
-          {completedItems} {items.length === 1 ? 'réponse' : 'réponses'} sur {items.length}{' '}
-          {items.length === 1 ? 'saisie' : 'saisies'}
+          {completedItems} {completedItems === 1 ? 'réponse saisie' : 'réponses saisies'}
+          {blankItems.length > 0 && <> · {blankItems.length} sans réponse</>}
+          {' '}· {items.length - completedItems - blankItems.length} sur {items.length} restant
+          {items.length - completedItems - blankItems.length === 1 ? '' : 's'}
         </p>
         <p className="mt-4 max-w-3xl text-sm leading-6 text-slate-300">
           Reportez, pour chaque question, la réponse entourée sur la copie et la certitude cochée par l’élève.
@@ -160,12 +170,33 @@ export function PaperEntryGrid({
                       <span className="ml-2 text-slate-300">{option.label}</span>
                     </label>
                   ))}
+                  <label
+                    className={`cursor-pointer rounded-xl border px-3 py-2 text-sm ${
+                      chosen === 'SANS_REPONSE'
+                        ? 'border-slate-300 bg-white/10 text-white'
+                        : 'border-dashed border-white/20 text-slate-400'
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      className="sr-only"
+                      name={`option-${item.id}`}
+                      value="SANS_REPONSE"
+                      checked={chosen === 'SANS_REPONSE'}
+                      onChange={() => {
+                        setOptions((current) => ({ ...current, [item.id]: 'SANS_REPONSE' }));
+                        setConfidences((current) => ({ ...current, [item.id]: undefined }));
+                      }}
+                    />
+                    Sans réponse
+                  </label>
                 </div>
               </fieldset>
 
-              <fieldset className="mt-4">
+              <fieldset className="mt-4" disabled={chosen === 'SANS_REPONSE'}>
                 <legend className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">
                   Certitude cochée par l’élève
+                  {chosen === 'SANS_REPONSE' && <span className="ml-2 normal-case tracking-normal text-slate-500">— sans objet pour une question sans réponse</span>}
                 </legend>
                 <div className="mt-2 flex flex-wrap gap-2">
                   {CONFIDENCE_LEVELS.map((level) => (
@@ -221,6 +252,13 @@ export function PaperEntryGrid({
             {untouchedConfidence.length > 0 && (
               <>Certitude non traitée&nbsp;: {untouchedConfidence.map(({ position }) => `Q${position}`).join(', ')}.</>
             )}
+          </p>
+        )}
+        {complete && blankItems.length > 0 && (
+          <p className="text-sm text-slate-300">
+            {blankItems.length === 1 ? 'Question laissée sans réponse' : 'Questions laissées sans réponse'}&nbsp;:{' '}
+            {blankItems.map(({ position }) => `Q${position}`).join(', ')}. Une question vide nous renseigne
+            aussi&nbsp;: elle sera signalée «&nbsp;à situer au démarrage&nbsp;», jamais comptée comme une erreur d’assurance.
           </p>
         )}
         {complete && absentConfidence.length > 0 && (

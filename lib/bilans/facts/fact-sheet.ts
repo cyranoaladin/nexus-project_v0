@@ -1,3 +1,4 @@
+import { SEVERITY_RANK } from './constants';
 import { computeDomainScores } from './domain-scores';
 import type {
   GroupBand,
@@ -36,24 +37,28 @@ export type FactSheetPackInput = Readonly<{
   }>;
 }>;
 
-const PROFILE_SEVERITY: Readonly<Record<NodeProfile, number>> = {
-  NON_TRAITE: 5,
-  ERREUR_CONFIANTE: 4,
-  LACUNE_CONSCIENTE: 3,
-  MAITRISE_FRAGILE: 2,
-  MAITRISE: 1,
-};
-
 function assertUniqueNonEmpty(values: readonly string[], label: string): void {
   if (values.some((value) => value.trim() === '') || new Set(values).size !== values.length) {
     throw new TypeError(`${label} must contain unique, non-empty identifiers`);
   }
 }
 
+/**
+ * Profil hérité du pire nœud, selon l'UNIQUE échelle de sévérité du moteur
+ * (`SEVERITY_RANK`, constants.ts) : ERREUR_CONFIANTE > LACUNE_CONSCIENTE >
+ * NON_TRAITE > MAITRISE_FRAGILE > MAITRISE.
+ *
+ * Doublon supprimé (13/08/2026) : ce fichier portait sa propre échelle locale
+ * qui plaçait NON_TRAITE AU-DESSUS d'ERREUR_CONFIANTE. Un domaine mêlant un
+ * nœud non traité et un nœud en erreur confiante héritait « non traité »,
+ * pendant que la priorisation (SEVERITY_RANK) classait l'erreur confiante en
+ * tête — le tableau et les priorités pouvaient se contredire sur un même
+ * document. Une seule échelle fait foi désormais.
+ */
 function worstProfile(nodes: readonly NodeResult[]): NodeProfile {
   if (nodes.length === 0) return 'NON_TRAITE';
   return nodes.slice(1).reduce<NodeProfile>((worst, node) => (
-    PROFILE_SEVERITY[node.profile] > PROFILE_SEVERITY[worst] ? node.profile : worst
+    SEVERITY_RANK[node.profile] > SEVERITY_RANK[worst] ? node.profile : worst
   ), nodes[0].profile);
 }
 

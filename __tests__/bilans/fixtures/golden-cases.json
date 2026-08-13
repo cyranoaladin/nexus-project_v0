@@ -1,6 +1,6 @@
 {
   "$comment": "CAS DORES CONTRACTUELS. Genere par lib/positionnement/scoring.ts. Toute modification impose une bascule d ENGINE_VERSION et une justification en ADR.",
-  "engineVersion": "1.0.1",
+  "engineVersion": "1.1.0",
   "cases": {
     "all-correct-confident": {
       "description": "Plafond : tout juste, confiance maximale. MAITRISE partout, calibration 100.",
@@ -129,7 +129,7 @@
         "targetDurationMin": 20
       },
       "expected": {
-        "engineVersion": "1.0.1",
+        "engineVersion": "1.1.0",
         "globalScore": 100,
         "coverage": 100,
         "calibrationIndex": 100,
@@ -366,7 +366,7 @@
         "targetDurationMin": 20
       },
       "expected": {
-        "engineVersion": "1.0.1",
+        "engineVersion": "1.1.0",
         "globalScore": 0,
         "coverage": 100,
         "calibrationIndex": 0,
@@ -606,7 +606,7 @@
         "targetDurationMin": 20
       },
       "expected": {
-        "engineVersion": "1.0.1",
+        "engineVersion": "1.1.0",
         "globalScore": 0,
         "coverage": 100,
         "calibrationIndex": 100,
@@ -843,7 +843,7 @@
         "targetDurationMin": 20
       },
       "expected": {
-        "engineVersion": "1.0.1",
+        "engineVersion": "1.1.0",
         "globalScore": 62.5,
         "coverage": 100,
         "calibrationIndex": 33.3,
@@ -931,7 +931,7 @@
             "nodeCpsId": "n3",
             "criticality": 1,
             "nodeScore": 75,
-            "profile": "MAITRISE_FRAGILE",
+            "profile": "LACUNE_CONSCIENTE",
             "itemIds": [
               "I5",
               "I6"
@@ -1043,7 +1043,7 @@
         "targetDurationMin": 20
       },
       "expected": {
-        "engineVersion": "1.0.1",
+        "engineVersion": "1.1.0",
         "globalScore": 0,
         "coverage": 0,
         "calibrationIndex": null,
@@ -1263,7 +1263,7 @@
         "targetDurationMin": 20
       },
       "expected": {
-        "engineVersion": "1.0.1",
+        "engineVersion": "1.1.0",
         "globalScore": 41.7,
         "coverage": 50,
         "calibrationIndex": 60,
