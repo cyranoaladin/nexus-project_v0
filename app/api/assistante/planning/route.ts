@@ -95,7 +95,13 @@ export async function GET(req: NextRequest) {
                       reservations: {
                         some: {
                           studentId,
-                          NOT: [{ richStatus: 'CANCELLED' }, { status: 'CANCELLED' }],
+                          // `richStatus` est nullable (compat) : `NOT { richStatus: 'CANCELLED' }`
+                          // écarterait une réservation à richStatus NULL (logique SQL à
+                          // trois valeurs). NULL = non annulée, donc visible.
+                          AND: [
+                            { OR: [{ richStatus: null }, { NOT: { richStatus: 'CANCELLED' } }] },
+                            { NOT: { status: 'CANCELLED' } },
+                          ],
                         },
                       },
                     },
