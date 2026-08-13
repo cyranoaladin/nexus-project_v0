@@ -66,10 +66,11 @@ export type PendingReportReview = Readonly<{
 export type RecentReportReview = PendingReportReview & Readonly<{
   studentName: string;
   packLabel: string;
-  displayStatus: 'Prêt — e-mail parent manquant' | 'En attente de diffusion' | 'Correction demandée' | 'Diffusé' | 'Transmis au parent' | 'Rejeté';
+  displayStatus: 'Prêt — contact parent manquant' | 'En attente de diffusion' | 'Correction demandée' | 'Diffusé' | 'Transmis au parent' | 'Rejeté';
   actionable: boolean;
   parentEmailMissing: boolean;
   parentPhoneMissing: boolean;
+  parentContactMissing: boolean;
   diffusable: boolean;
   /** Envoi WhatsApp possible : diffusé, téléphone présent, pas encore transmis. */
   whatsappReady: boolean;
@@ -298,8 +299,17 @@ function assertStudentIdentity(revision: PendingReportReview): void {
 
 /** Point d'extension : un autre canal d'activation pourra satisfaire ce
  * prédicat sans modifier le state machine du bilan. Seul l'e-mail existe ici. */
+/**
+ * Un canal de contact suffit pour diffuser : téléphone (voie WhatsApp, #124)
+ * OU e-mail. Exiger l'e-mail annulait exprès deux décisions d'architecture —
+ * la saisie papier sans e-mail (#116) et l'envoi WhatsApp sans compte (#124) :
+ * un foyer au téléphone seul restait bloqué à jamais (contradiction constatée
+ * le 13/08/2026). Sans AUCUN canal, la diffusion reste bloquée — ce garde-là
+ * est légitime.
+ */
 export function hasAvailableParentContact(revision: PendingReportReview): boolean {
-  return Boolean(revision.reportArtifact.student.parent?.user.email?.trim());
+  const parentUser = revision.reportArtifact.student.parent?.user;
+  return Boolean(parentUser?.email?.trim()) || Boolean(parentUser?.phoneNormalized?.trim());
 }
 
 /**
@@ -315,8 +325,8 @@ export function diffusionBlockedReasons(review: RecentReportReview): readonly st
   if (review.validationFailures.length > 0) {
     reasons.push('Corrigez d’abord les points bloquants signalés en haut de la carte.');
   }
-  if (review.parentEmailMissing) {
-    reasons.push('Complétez l’e-mail du parent (encadré « Prêt — e-mail parent manquant » ci-dessus) : aucun bilan ne part sans contact famille.');
+  if (review.parentContactMissing) {
+    reasons.push('Renseignez un contact parent — téléphone ou e-mail (encadré « Compléter le contact parent » ci-dessus) : aucun bilan ne part sans canal vers la famille.');
   }
   if (!review.actionable && review.validationFailures.length === 0) {
     reasons.push('Ce bilan n’est plus en attente de diffusion (déjà diffusé, rejeté ou en correction).');
@@ -336,7 +346,7 @@ function displayStatus(revision: PendingReportReview): RecentReportReview['displ
   if (revision.reportArtifact.status === 'PUBLISHED') {
     return latestWhatsAppTransmission(revision) !== null ? 'Transmis au parent' : 'Diffusé';
   }
-  if (!hasAvailableParentContact(revision)) return 'Prêt — e-mail parent manquant';
+  if (!hasAvailableParentContact(revision)) return 'Prêt — contact parent manquant';
   return 'En attente de diffusion';
 }
 
@@ -356,8 +366,9 @@ function recentReview(
       || revision.status === ReportRevisionStatus.COACH_VALIDATED
     )
     && revision.reportArtifact.status === 'PENDING_REVIEW';
-  const parentEmailMissing = !hasAvailableParentContact(revision);
+  const parentEmailMissing = !revision.reportArtifact.student.parent?.user.email?.trim();
   const parentPhoneMissing = !revision.reportArtifact.student.parent?.user.phoneNormalized?.trim();
+  const parentContactMissing = !hasAvailableParentContact(revision);
   const transmittedAt = latestWhatsAppTransmission(revision);
   return Object.freeze({
     ...revision,
@@ -370,7 +381,8 @@ function recentReview(
     actionable,
     parentEmailMissing,
     parentPhoneMissing,
-    diffusable: actionable && !parentEmailMissing,
+    parentContactMissing,
+    diffusable: actionable && !parentContactMissing,
     whatsappReady: revision.reportArtifact.status === 'PUBLISHED'
       && !parentPhoneMissing
       && transmittedAt === null,

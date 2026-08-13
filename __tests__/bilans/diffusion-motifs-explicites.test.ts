@@ -11,13 +11,13 @@ import { diffusionBlockedReasons, type RecentReportReview } from '@/lib/bilans/s
 function review(overrides: Partial<{
   diffusable: boolean;
   actionable: boolean;
-  parentEmailMissing: boolean;
+  parentContactMissing: boolean;
   validationFailures: readonly string[];
 }>): RecentReportReview {
   return {
     diffusable: overrides.diffusable ?? false,
     actionable: overrides.actionable ?? true,
-    parentEmailMissing: overrides.parentEmailMissing ?? false,
+    parentContactMissing: overrides.parentContactMissing ?? false,
     validationFailures: overrides.validationFailures ?? [],
   } as unknown as RecentReportReview;
 }
@@ -27,11 +27,11 @@ describe('diffusionBlockedReasons', () => {
     expect(diffusionBlockedReasons(review({ diffusable: true }))).toEqual([]);
   });
 
-  it('e-mail parent manquant — le cas des foyers créés sans e-mail', () => {
-    const reasons = diffusionBlockedReasons(review({ parentEmailMissing: true }));
+  it('aucun canal de contact (ni téléphone ni e-mail) — le seul blocage de contact légitime', () => {
+    const reasons = diffusionBlockedReasons(review({ parentContactMissing: true }));
     expect(reasons).toHaveLength(1);
-    expect(reasons[0]).toContain('e-mail du parent');
-    expect(reasons[0]).toContain('aucun bilan ne part sans contact famille');
+    expect(reasons[0]).toContain('téléphone ou e-mail');
+    expect(reasons[0]).toContain('aucun bilan ne part sans canal vers la famille');
   });
 
   it('points bloquants de validation présents', () => {
@@ -46,7 +46,7 @@ describe('diffusionBlockedReasons', () => {
 
   it('les motifs se cumulent sans doublon', () => {
     const reasons = diffusionBlockedReasons(review({
-      parentEmailMissing: true,
+      parentContactMissing: true,
       validationFailures: ['x'],
     }));
     expect(reasons).toHaveLength(2);

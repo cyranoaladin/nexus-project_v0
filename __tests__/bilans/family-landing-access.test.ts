@@ -90,14 +90,25 @@ describe('attachParentEmailFromShareToken', () => {
     expect(intent.html).toContain('Kamel');
   });
 
-  it('idempotent : la même adresse déjà posée ne renvoie pas d’activation', async () => {
-    const { database, token } = harness({ email: 'parent@exemple.fr' });
+  it('même adresse sur un compte ACTIVÉ : aucun renvoi', async () => {
+    const { database, token } = harness({ email: 'parent@exemple.fr', activatedAt: NOW });
     const result = await attachParentEmailFromShareToken(token, 'parent@exemple.fr', {
       prisma: database as never,
       now: () => NOW,
     });
     expect(result).toEqual({ activationQueued: false });
     expect(mockedEnqueue).not.toHaveBeenCalled();
+  });
+
+  it('même adresse sur un compte NON activé : RENVOIE l’activation (fin du cul-de-sac)', async () => {
+    const { database, token } = harness({ email: 'parent@exemple.fr' });
+    const result = await attachParentEmailFromShareToken(token, 'parent@exemple.fr', {
+      prisma: database as never,
+      now: () => NOW,
+    });
+    expect(result).toEqual({ activationQueued: true });
+    expect(mockedEnqueue).toHaveBeenCalledTimes(1);
+    expect(mockedEnqueue.mock.calls[0][1].messageType).toBe('PARENT_ACTIVATION');
   });
 
   it('GARDE : refuse d’écraser une adresse différente déjà posée', async () => {

@@ -107,7 +107,7 @@ export default async function CanonicalBilansReviewPage({
     throw error;
   }
   const statusCounts = {
-    missingEmail: revisions.filter(({ displayStatus }) => displayStatus === 'Prêt — e-mail parent manquant').length,
+    missingEmail: revisions.filter(({ displayStatus }) => displayStatus === 'Prêt — contact parent manquant').length,
     pending: revisions.filter(({ displayStatus }) => displayStatus === 'En attente de diffusion').length,
     correction: revisions.filter(({ displayStatus }) => displayStatus === 'Correction demandée').length,
     published: revisions.filter(({ displayStatus }) => displayStatus === 'Diffusé').length,
@@ -177,14 +177,14 @@ export default async function CanonicalBilansReviewPage({
 
         <section className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-6" aria-label="Synthèse des états de diffusion">
           {[
-            ['bilans prêts en attente d’e-mail parent', statusCounts.missingEmail],
+            ['bilans prêts sans contact parent', statusCounts.missingEmail],
             ['En attente de diffusion', statusCounts.pending],
             ['Correction demandée', statusCounts.correction],
             ['Diffusé, à transmettre', statusCounts.published],
             ['Transmis au parent', statusCounts.transmitted],
             ['Rejeté', statusCounts.rejected],
           ].map(([label, count]) => (
-            <article key={label} className={`rounded-2xl border p-4 ${label === 'bilans prêts en attente d’e-mail parent' ? 'border-amber-300/50 bg-amber-300/10' : 'border-white/10 bg-white/[0.05]'}`}>
+            <article key={label} className={`rounded-2xl border p-4 ${label === 'bilans prêts sans contact parent' ? 'border-amber-300/50 bg-amber-300/10' : 'border-white/10 bg-white/[0.05]'}`}>
               <p className="text-2xl font-semibold text-white">{count}</p>
               <p className="mt-1 text-sm text-slate-300">{label}</p>
             </article>

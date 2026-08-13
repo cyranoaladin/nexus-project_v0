@@ -43,6 +43,8 @@ export function FamilyLandingConsent({
   const [consentChecked, setConsentChecked] = useState(false);
   const [parentEmail, setParentEmail] = useState('');
   const [parentHasEmail, setParentHasEmail] = useState(true);
+  const [parentActivated, setParentActivated] = useState(false);
+  const [resendState, setResendState] = useState<'IDLE' | 'SENDING' | 'SENT'>('IDLE');
   const [emailOutcome, setEmailOutcome] = useState<EmailOutcome | null>(null);
 
   const endpoint = `/api/bilan/consultation/${encodeURIComponent(token)}/consent`;
@@ -56,6 +58,7 @@ export function FamilyLandingConsent({
         const payload = await response.json();
         if (!active) return;
         setParentHasEmail(payload.parentHasEmail === true);
+        setParentActivated(payload.parentActivated === true);
         setStatus(payload.state === 'VERIFIED' ? 'VERIFIED' : 'IDLE');
       } catch {
         if (active) setStatus('LOAD_ERROR');
@@ -103,30 +106,112 @@ export function FamilyLandingConsent({
   }
 
   if (status === 'VERIFIED') {
+    const accessGranted = emailOutcome?.status === 'QUEUED';
+    const submitEmail = async (): Promise<void> => {
+      if (parentEmail.trim() === '') return;
+      setResendState('SENDING');
+      try {
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ consent: true, parentEmail: parentEmail.trim() }),
+        });
+        if (!response.ok) throw new Error('ATTACH_FAILED');
+        const payload = await response.json() as { email?: EmailOutcome };
+        setEmailOutcome(payload.email ?? null);
+        if (payload.email?.status === 'QUEUED') setParentHasEmail(true);
+        setResendState('IDLE');
+      } catch {
+        setResendState('IDLE');
+        setEmailOutcome({ status: 'ERROR', code: 'ATTACH_FAILED' });
+      }
+    };
+    const resend = async (): Promise<void> => {
+      setResendState('SENDING');
+      try {
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ consent: true, resendActivation: true }),
+        });
+        if (!response.ok) throw new Error('RESEND_FAILED');
+        setResendState('SENT');
+      } catch {
+        setResendState('IDLE');
+      }
+    };
+
     return (
       <div className="rounded-[28px] border border-lux-gold/40 bg-lux-gold/10 p-6" role="status">
         <p className="font-fraunces text-lg text-lux-ivory">Votre accord est enregistré.</p>
-        <p className="mt-2 text-sm leading-6 text-lux-on-dark-muted">
-          Le bilan de {studentFirstName} est désormais visible dans votre
-          espace parent, dès que votre compte est activé.
-        </p>
-        {emailOutcome?.status === 'QUEUED' ? (
-          <p className="mt-2 text-sm leading-6 text-lux-on-dark-muted">
-            Un e-mail d'activation vient de vous être envoyé : il vous permet
-            de choisir votre mot de passe et d'ouvrir votre espace.
-          </p>
-        ) : null}
+
+        {parentActivated ? (
+          <>
+            <p className="mt-2 text-sm leading-6 text-lux-on-dark-muted">
+              Le bilan de {studentFirstName} est disponible dans votre espace parent.
+            </p>
+            <a
+              href="/auth/signin"
+              className="lux-cta-primary lux-focus mt-4 inline-flex items-center rounded-full px-5 py-2.5 text-sm font-semibold"
+            >
+              Ouvrir mon espace parent
+            </a>
+          </>
+        ) : parentHasEmail || accessGranted ? (
+          <>
+            <p className="mt-2 text-sm leading-6 text-lux-on-dark-muted">
+              {accessGranted
+                ? 'Un e-mail d’activation vient de vous être envoyé : ouvrez-le pour choisir votre mot de passe — votre espace parent s’ouvrira ensuite.'
+                : 'Un lien d’activation vous attend dans votre boîte e-mail : ouvrez-le pour choisir votre mot de passe. Pensez à vérifier vos courriers indésirables.'}
+            </p>
+            <button
+              type="button"
+              onClick={() => void resend()}
+              disabled={resendState !== 'IDLE'}
+              className="lux-focus mt-4 inline-flex items-center rounded-full border border-lux-gold/50 px-5 py-2.5 text-sm font-semibold text-lux-ivory disabled:opacity-60"
+            >
+              {resendState === 'SENDING' ? 'Envoi…' : resendState === 'SENT' ? 'E-mail renvoyé ✓' : 'Renvoyer l’e-mail d’activation'}
+            </button>
+          </>
+        ) : (
+          <>
+            <p className="mt-2 text-sm leading-6 text-lux-on-dark-muted">
+              Dernière étape pour retrouver ce bilan à tout moment : indiquez
+              votre e-mail, vous recevrez un lien pour choisir votre mot de
+              passe et ouvrir votre espace parent.
+            </p>
+            <label htmlFor="family-landing-email-after" className="mt-4 block text-sm font-medium text-lux-ivory">
+              Votre e-mail
+            </label>
+            <input
+              id="family-landing-email-after"
+              type="email"
+              inputMode="email"
+              autoComplete="email"
+              value={parentEmail}
+              onChange={(event) => setParentEmail(event.target.value)}
+              placeholder="vous@exemple.fr"
+              className="lux-focus mt-2 w-full max-w-md rounded-xl border border-lux-line/40 bg-lux-ink/60 px-4 py-2.5 text-sm text-lux-ivory placeholder:text-lux-on-dark-subtle"
+            />
+            <button
+              type="button"
+              onClick={() => void submitEmail()}
+              disabled={parentEmail.trim() === '' || resendState === 'SENDING'}
+              className="lux-cta-primary lux-focus mt-4 inline-flex items-center rounded-full px-5 py-2.5 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {resendState === 'SENDING' ? 'Création…' : 'Créer mon accès parent'}
+            </button>
+            <p className="mt-3 text-xs leading-5 text-lux-on-dark-subtle">
+              Facultatif : sans adresse, vous gardez la lecture et le PDF via ce lien.
+            </p>
+          </>
+        )}
+
         {emailOutcome?.status === 'ERROR' ? (
-          <p className="mt-2 text-sm leading-6 text-amber-200" role="alert">
-            {EMAIL_ERROR_MESSAGES[emailOutcome.code] ?? 'La création de votre accès a échoué — votre accord, lui, est bien enregistré.'}
+          <p className="mt-3 text-sm leading-6 text-amber-200" role="alert">
+            {EMAIL_ERROR_MESSAGES[emailOutcome.code] ?? 'La création de votre accès a échoué — votre accord, lui, est bien enregistré. Réessayez, ou rapprochez-vous de l’équipe.'}
           </p>
         ) : null}
-        <a
-          href="/auth/signin"
-          className="lux-cta-primary lux-focus mt-4 inline-flex items-center rounded-full px-5 py-2.5 text-sm font-semibold"
-        >
-          Ouvrir mon espace parent
-        </a>
       </div>
     );
   }
