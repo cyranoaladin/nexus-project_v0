@@ -976,6 +976,10 @@ jobs:
           NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET || 'test-secret-min-32-chars-long-for-ci-environment' }}
           AUTH_TRUST_HOST: 'true'
           MAILPIT_API_URL: http://localhost:8025
+          # Le helper de remise à zéro du rate-limit (e2e/helpers/rate-limit.ts)
+          # exige cette URL dès que E2E_DISPOSABLE_STACK=1 — même Redis jetable
+          # que le serveur, base dédiée.
+          E2E_DISPOSABLE_REDIS_URL: redis://localhost:6380/0
           NEXUS_BILAN_PACK_ENTREE_SECONDE_MATHS_V1_ENABLED: 'true'
         run: npx playwright test --config=playwright.auth.config.ts --project=chromium
 
