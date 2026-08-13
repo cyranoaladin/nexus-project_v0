@@ -173,6 +173,8 @@ describe('Création du foyer — suggestion anti-doublon à décision humaine', 
     lastName: 'Bernard',
     email: null,
     phone: '99 19 28 29',
+    phoneNormalized: '99192829',
+    mergedSources: [],
     parentProfile: {
       id: 'profile-existant',
       children: [{
@@ -192,10 +194,12 @@ describe('Création du foyer — suggestion anti-doublon à décision humaine', 
     expect(response.status).toBe(409);
     expect(await response.json()).toEqual({
       error: { code: 'POTENTIAL_DUPLICATE' },
+      enteredPhone: '99 19 28 29',
       candidates: [{
         parentUserId: 'parent-existant',
         parentName: 'Claire Bernard',
         phone: '99 19 28 29',
+        matchStrength: 'PHONE',
         children: [{ studentId: 'student-existant', studentName: 'Inès Bernard', gradeLevel: 'TERMINALE' }],
       }],
     });
@@ -203,7 +207,7 @@ describe('Création du foyer — suggestion anti-doublon à décision humaine', 
     expect(students).toHaveLength(0);
   });
 
-  it('recherche aussi le couple nom, prénom et niveau de l’élève', async () => {
+  it('recherche aussi l’homonymie du parent (mêmes nom et prénom)', async () => {
     const { database, transaction } = memoryDatabase();
     transaction.user.findMany.mockResolvedValue([candidate] as never);
 
@@ -215,7 +219,12 @@ describe('Création du foyer — suggestion anti-doublon à décision humaine', 
         OR: expect.arrayContaining([
           { phoneNormalized: '99192829' },
           { mergedSources: { some: { phoneNormalized: '99192829' } } },
-          expect.objectContaining({ parentProfile: expect.any(Object) }),
+          {
+            AND: [
+              { firstName: { equals: 'Claire', mode: 'insensitive' } },
+              { lastName: { equals: 'Bernard', mode: 'insensitive' } },
+            ],
+          },
         ]),
       }),
     }));
@@ -302,6 +311,141 @@ describe('Création du foyer — suggestion anti-doublon à décision humaine', 
 
     expect(response.status).toBe(409);
     expect(users).toHaveLength(0);
+  });
+});
+
+/**
+ * Le cœur de la correction : deux familles homonymes au téléphone différent ne
+ * doivent jamais être rattachées par réflexe. Le signal faible est un
+ * avertissement, la création reste le défaut, et le rattachement exige une
+ * confirmation délibérée — faute de quoi le bilan partirait chez le mauvais
+ * parent.
+ */
+describe('Anti-doublon — homonymie et rattachement délibéré', () => {
+  // Même nom que BODY (Claire Bernard) mais téléphone différent : homonyme.
+  const homonym = {
+    id: 'parent-homonyme',
+    firstName: 'Claire',
+    lastName: 'Bernard',
+    email: null,
+    phone: '20 00 00 00',
+    phoneNormalized: '20000000',
+    mergedSources: [],
+    parentProfile: {
+      id: 'profile-homonyme',
+      children: [{
+        id: 'student-homonyme',
+        gradeLevel: 'SECONDE',
+        user: { firstName: 'Léa', lastName: 'Bernard' },
+      }],
+    },
+  };
+
+  it('un homonyme au téléphone différent est signalé comme homonymie, pas comme signal fort', async () => {
+    const { database, transaction, users, students } = memoryDatabase();
+    transaction.user.findMany.mockResolvedValue([homonym] as never);
+
+    const response = await handlerWith('ASSISTANTE', database)(familyRequest());
+
+    expect(response.status).toBe(409);
+    const body = await response.json();
+    expect(body.enteredPhone).toBe('99 19 28 29');
+    // BODY.child = Inès Terminale ; l'enfant du homonyme est en Seconde → pas de
+    // coïncidence de niveau : signal le plus faible.
+    expect(body.candidates).toEqual([expect.objectContaining({
+      parentUserId: 'parent-homonyme',
+      matchStrength: 'NAME_ONLY',
+      phone: '20 00 00 00',
+    })]);
+    expect(users).toHaveLength(0);
+    expect(students).toHaveLength(0);
+  });
+
+  it('qualifie en NAME_AND_LEVEL quand un niveau d’enfant coïncide', async () => {
+    const { database, transaction } = memoryDatabase();
+    transaction.user.findMany.mockResolvedValue([{
+      ...homonym,
+      parentProfile: {
+        ...homonym.parentProfile,
+        children: [{ id: 'c', gradeLevel: 'TERMINALE', user: { firstName: 'Léa', lastName: 'Bernard' } }],
+      },
+    }] as never);
+
+    const response = await handlerWith('ASSISTANTE', database)(familyRequest());
+
+    const body = await response.json();
+    expect(body.candidates[0].matchStrength).toBe('NAME_AND_LEVEL');
+  });
+
+  it('refuse le rattachement sur signal faible sans confirmation explicite', async () => {
+    const { database, transaction, users, students } = memoryDatabase();
+    transaction.user.findMany.mockResolvedValue([homonym] as never);
+
+    const response = await handlerWith('ASSISTANTE', database)(familyRequest({
+      ...BODY,
+      duplicateResolution: { mode: 'ATTACH', parentUserId: 'parent-homonyme' },
+    }, 'foyer-papier-weak-noconfirm-0001'));
+
+    expect(response.status).toBe(409);
+    expect(await response.json()).toEqual({ error: { code: 'ATTACH_REQUIRES_CONFIRMATION' } });
+    // Aucune écriture : ni enfant rattaché, ni foyer créé.
+    expect(users).toHaveLength(0);
+    expect(students).toHaveLength(0);
+  });
+
+  it('rattache sur signal faible seulement avec la confirmation délibérée, et à ce foyer-là uniquement', async () => {
+    const { database, transaction, profiles, users, students } = memoryDatabase();
+    profiles.push({ id: 'profile-homonyme', userId: 'parent-homonyme' });
+    transaction.user.findMany.mockResolvedValue([homonym] as never);
+
+    const response = await handlerWith('ASSISTANTE', database)(familyRequest({
+      ...BODY,
+      duplicateResolution: { mode: 'ATTACH', parentUserId: 'parent-homonyme', confirmed: true },
+    }, 'foyer-papier-weak-confirm-0001'));
+
+    expect(response.status).toBe(201);
+    expect(await response.json()).toMatchObject({ parentUserId: 'parent-homonyme', parentCreated: false });
+    // Isolation : aucun nouveau parent, l'enfant est rattaché au foyer choisi et
+    // à aucun autre.
+    expect(users.filter((user) => user.role === 'PARENT')).toHaveLength(0);
+    expect(students).toHaveLength(1);
+    expect(students[0].parentId).toBe('profile-homonyme');
+  });
+
+  it('sur signal fort (même téléphone), le rattachement reste possible d’un clic', async () => {
+    const { database, transaction, profiles, students } = memoryDatabase();
+    profiles.push({ id: 'profile-existant', userId: 'parent-existant' });
+    transaction.user.findMany.mockResolvedValue([{
+      id: 'parent-existant',
+      firstName: 'Claire',
+      lastName: 'Bernard',
+      email: null,
+      phone: '99 19 28 29',
+      phoneNormalized: '99192829',
+      mergedSources: [],
+      parentProfile: { id: 'profile-existant', children: [] },
+    }] as never);
+
+    const response = await handlerWith('ASSISTANTE', database)(familyRequest({
+      ...BODY,
+      duplicateResolution: { mode: 'ATTACH', parentUserId: 'parent-existant' },
+    }, 'foyer-papier-strong-attach-0001'));
+
+    expect(response.status).toBe(201);
+    expect(students[0].parentId).toBe('profile-existant');
+  });
+
+  it('crée un nouveau foyer malgré un homonyme, sur décision explicite', async () => {
+    const { database, transaction, users } = memoryDatabase();
+    transaction.user.findMany.mockResolvedValue([homonym] as never);
+
+    const response = await handlerWith('ASSISTANTE', database)(familyRequest({
+      ...BODY,
+      duplicateResolution: { mode: 'CREATE_NEW' },
+    }, 'foyer-papier-homonym-create-0001'));
+
+    expect(response.status).toBe(201);
+    expect(users.filter((user) => user.role === 'PARENT')).toHaveLength(1);
   });
 });
 
