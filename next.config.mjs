@@ -115,6 +115,11 @@ const nextConfig = {
   async redirects() {
     return [
       {
+        source: '/stages/printemps-2026',
+        destination: '/stages',
+        statusCode: 301,
+      },
+      {
         source: '/corrige_dnb_maths_2026',
         destination: '/ressources',
         statusCode: 301,
