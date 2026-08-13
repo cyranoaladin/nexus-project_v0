@@ -56,6 +56,10 @@ export function PaperEntryFamilyForm() {
   // Rattachements sur signal faible cochés « je confirme » : le bouton reste
   // inerte tant que la case ne l'est pas.
   const [confirmedIds, setConfirmedIds] = useState<ReadonlySet<string>>(new Set());
+  // Au-delà de quelques homonymes, on n'affiche d'abord que les plus pertinents
+  // (déjà triés signal fort d'abord) et on déplie à la demande.
+  const [showAllHomonyms, setShowAllHomonyms] = useState(false);
+  const HOMONYM_PREVIEW = 3;
   // Une seule clé pour ce foyer : un renvoi après un échec ambigu rejoue la
   // même création au lieu d'en ajouter une seconde.
   const [idempotencyKey, setIdempotencyKey] = useState(newIdempotencyKey);
@@ -67,10 +71,16 @@ export function PaperEntryFamilyForm() {
   } catch {
     phoneIsValid = false;
   }
-  const complete = phoneIsValid
-    && parentFirstName.trim().length > 0
-    && parentLastName.trim().length > 0
-    && children.every((child) => child.firstName.trim().length > 0);
+  // Ce qui manque encore, nommé explicitement : une assistante qui enchaîne
+  // ne doit pas deviner pourquoi le bouton reste inerte.
+  const missing: string[] = [];
+  if (parentFirstName.trim().length === 0) missing.push('le prénom du parent');
+  if (parentLastName.trim().length === 0) missing.push('le nom du parent');
+  if (parentPhone.trim().length === 0) missing.push('le téléphone du parent');
+  else if (!phoneIsValid) missing.push('un téléphone valide (format tunisien)');
+  const childrenMissing = children.some((child) => child.firstName.trim().length === 0);
+  if (childrenMissing) missing.push(children.length > 1 ? 'le prénom de chaque enfant' : 'le prénom de l’enfant');
+  const complete = missing.length === 0;
 
   function updateChild(index: number, patch: Partial<ChildDraft>) {
     setChildren((current) => current.map((child, position) => (
@@ -230,6 +240,12 @@ export function PaperEntryFamilyForm() {
         </button>
       </div>
 
+      {!complete && missing.length > 0 && (
+        <p className="text-sm text-amber-200" role="status" data-testid="foyer-champs-manquants">
+          Pour continuer, renseignez {missing.length === 1 ? missing[0] : `${missing.slice(0, -1).join(', ')} et ${missing[missing.length - 1]}`}.
+        </p>
+      )}
+
       {candidates.length > 0 && (() => {
         const strongCandidates = candidates.filter((candidate) => candidate.matchStrength === 'PHONE');
         const homonymCandidates = candidates.filter((candidate) => candidate.matchStrength !== 'PHONE');
@@ -282,7 +298,7 @@ export function PaperEntryFamilyForm() {
                   créez un nouveau foyer — c’est le choix par défaut.
                 </p>
                 <ul className="mt-3 space-y-3">
-                  {homonymCandidates.map((candidate) => (
+                  {(showAllHomonyms ? homonymCandidates : homonymCandidates.slice(0, HOMONYM_PREVIEW)).map((candidate) => (
                     <li key={candidate.parentUserId} className="rounded-xl border border-white/10 bg-slate-950/50 p-3">
                       <dl className="grid gap-2 text-sm sm:grid-cols-2">
                         <div className="rounded-lg border border-white/10 bg-black/20 p-2">
@@ -325,6 +341,18 @@ export function PaperEntryFamilyForm() {
                     </li>
                   ))}
                 </ul>
+                {homonymCandidates.length > HOMONYM_PREVIEW && (
+                  <button
+                    type="button"
+                    onClick={() => setShowAllHomonyms((value) => !value)}
+                    className="mt-3 text-sm font-semibold text-amber-100 underline"
+                    data-testid="homonymes-voir-plus"
+                  >
+                    {showAllHomonyms
+                      ? 'Afficher moins'
+                      : `Afficher les ${homonymCandidates.length - HOMONYM_PREVIEW} autres foyers homonymes`}
+                  </button>
+                )}
               </section>
             )}
 

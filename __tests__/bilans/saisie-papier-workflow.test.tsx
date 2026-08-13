@@ -80,6 +80,55 @@ describe('Fil guidé de saisie papier', () => {
     );
   });
 
+  it('nomme précisément les champs manquants tant que le foyer est incomplet', async () => {
+    render(<PaperEntryFamilyForm />);
+
+    // Rien de rempli : les quatre manques sont nommés.
+    const hint = screen.getByTestId('foyer-champs-manquants');
+    expect(hint).toHaveTextContent('le prénom du parent');
+    expect(hint).toHaveTextContent('le nom du parent');
+    expect(hint).toHaveTextContent('le téléphone du parent');
+    expect(hint).toHaveTextContent('le prénom de l’enfant');
+
+    // On complète tout sauf le téléphone : le message se réduit au téléphone.
+    fireEvent.change(screen.getByLabelText('Prénom du parent'), { target: { value: 'Claire' } });
+    fireEvent.change(screen.getByLabelText('Nom du parent'), { target: { value: 'Bernard' } });
+    fireEvent.change(screen.getByLabelText('Prénom de l’enfant'), { target: { value: 'Inès' } });
+    expect(screen.getByTestId('foyer-champs-manquants')).toHaveTextContent(
+      'Pour continuer, renseignez le téléphone du parent.',
+    );
+
+    // Téléphone valide → plus de message, bouton actif.
+    fireEvent.change(screen.getByLabelText('Téléphone du parent'), { target: { value: '99 19 28 29' } });
+    expect(screen.queryByTestId('foyer-champs-manquants')).toBeNull();
+    expect(screen.getByRole('button', { name: 'Créer le foyer et continuer' })).toBeEnabled();
+  });
+
+  it('n’affiche d’abord que trois homonymes puis déplie les autres, triés signal fort d’abord', async () => {
+    const many = Array.from({ length: 5 }, (_, i) => ({
+      parentUserId: `p${i}`,
+      parentName: `Claire Bernard ${i}`,
+      phone: `2000000${i}`,
+      matchStrength: 'NAME_ONLY' as const,
+      children: [],
+    }));
+    fetchMock.mockResolvedValueOnce(new Response(JSON.stringify({
+      error: { code: 'POTENTIAL_DUPLICATE' },
+      enteredPhone: '99 19 28 29',
+      candidates: many,
+    }), { status: 409, headers: { 'content-type': 'application/json' } }));
+    render(<PaperEntryFamilyForm />);
+    fillFamilyWithoutEmail();
+    fireEvent.click(screen.getByRole('button', { name: 'Créer le foyer et continuer' }));
+
+    // 3 visibles d'abord, un bouton pour déplier les 2 autres.
+    expect(await screen.findByText('Claire Bernard 0')).toBeInTheDocument();
+    expect(screen.getByText('Claire Bernard 2')).toBeInTheDocument();
+    expect(screen.queryByText('Claire Bernard 4')).toBeNull();
+    fireEvent.click(screen.getByTestId('homonymes-voir-plus'));
+    expect(screen.getByText('Claire Bernard 4')).toBeInTheDocument();
+  });
+
   it('sur un même téléphone, laisse rattacher le foyer suggéré d’un clic', async () => {
     fetchMock
       .mockResolvedValueOnce(new Response(JSON.stringify({
