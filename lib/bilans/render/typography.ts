@@ -45,11 +45,30 @@ export function mathNotation(value: string): string {
 
 export const NBSP = '\u00A0';
 
+/**
+ * Les URL sont des valeurs OPAQUES : jetons signés, identifiants, chemins.
+ * Aucune règle typographique ni notation mathématique ne doit jamais s'y
+ * appliquer — un secret base64url contenant `_5` deviendrait `₅` et le lien
+ * mourrait en « page introuvable » chez le parent (défaut réel du 13/08/2026,
+ * lien WhatsApp corrompu). La protection vit ICI, dans la passe elle-même :
+ * chaque appelant présent et futur est couvert sans devoir y penser.
+ */
+const URL_PATTERN = /https?:\/\/[^\s«»"<>]+/g;
+
+function transformProtectingUrls(value: string, transform: (text: string) => string): string {
+  const urls: string[] = [];
+  const masked = value.replace(URL_PATTERN, (url) => {
+    urls.push(url);
+    return `\u0000${urls.length - 1}\u0000`;
+  });
+  return transform(masked).replace(/\u0000(\d+)\u0000/g, (_match, index: string) => urls[Number(index)]);
+}
+
 export function frenchTypography(value: string): string {
-  return mathNotation(value)
-    .replace(/'/g, '’')
+  return transformProtectingUrls(value, (text) => mathNotation(text)
+    .replace(/'/g, '\u2019')
     .replace(/[ \u00A0]+([:;!?%])/g, `${NBSP}$1`)
     .replace(/«[ \u00A0]+/g, `«${NBSP}`)
     .replace(/[ \u00A0]+»/g, `${NBSP}»`)
-    .replace(/ — /g, `${NBSP}— `);
+    .replace(/ — /g, `${NBSP}— `));
 }
