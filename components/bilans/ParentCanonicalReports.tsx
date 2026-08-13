@@ -33,10 +33,12 @@ export function ParentCanonicalReports({
 }: Readonly<{ studentId: string; refreshSignal?: unknown }>) {
   const [reports, setReports] = useState<readonly ParentCanonicalReportSummary[] | null>(null);
   const [error, setError] = useState(false);
+  const [consentRequired, setConsentRequired] = useState(false);
   const [openAttemptId, setOpenAttemptId] = useState<string | null>(null);
 
   const refresh = useCallback(async () => {
     setError(false);
+    setConsentRequired(false);
     try {
       const result = await loadParentCanonicalReports(studentId);
       setReports(result.bilans);
@@ -44,6 +46,25 @@ export function ParentCanonicalReports({
     } catch {
       setReports(null);
       setOpenAttemptId(null);
+      // L'accès aux bilans exige un lien parent-élève VERIFIED. Avant de
+      // conclure à une vraie erreur, on distingue le cas de loin le plus
+      // fréquent : le consentement n'a simplement pas encore été donné.
+      // Jamais un écran vide sans explication.
+      try {
+        const consent = await fetch(
+          `/api/parent/children/${encodeURIComponent(studentId)}/canonical-consent`,
+          { method: 'GET' },
+        );
+        if (consent.ok) {
+          const payload = await consent.json();
+          if (payload.state === 'PENDING_PARENT_CONSENT' || payload.state === 'MISSING') {
+            setConsentRequired(true);
+            return;
+          }
+        }
+      } catch {
+        // L'état du consentement est lui-même indisponible : erreur générique.
+      }
       setError(true);
     }
   }, [studentId]);
@@ -71,6 +92,18 @@ export function ParentCanonicalReports({
 
       {reports === null && !error ? (
         <p role="status" aria-live="polite" className="mt-4 text-sm text-neutral-300">Chargement des bilans…</p>
+      ) : null}
+      {consentRequired ? (
+        <div role="status" className="mt-4 rounded-lg border border-amber-400/40 bg-amber-400/10 p-4">
+          <p className="text-sm font-semibold text-amber-100">
+            Les bilans de votre enfant n'attendent que votre accord.
+          </p>
+          <p className="mt-1 text-sm leading-6 text-amber-100/80">
+            Dès qu'un bilan est prêt, il s'affiche ici — il suffit de
+            confirmer votre consentement dans la carte « Consentement »
+            de cette page. Rien d'autre n'est demandé.
+          </p>
+        </div>
       ) : null}
       {error ? (
         <p role="alert" className="mt-4 rounded-lg border border-rose-400/30 bg-rose-400/10 p-3 text-sm text-rose-100">

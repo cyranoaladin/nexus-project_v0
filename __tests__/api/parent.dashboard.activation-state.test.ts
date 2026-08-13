@@ -2,6 +2,7 @@ jest.mock('@/auth', () => ({ auth: jest.fn() }));
 jest.mock('@/lib/prisma', () => ({
   prisma: {
     parentProfile: { findUnique: jest.fn() },
+    parentStudentLink: { findMany: jest.fn() },
     payment: { findMany: jest.fn() },
     mathsProgress: { findFirst: jest.fn() },
     progressionHistory: { findMany: jest.fn() },
@@ -41,6 +42,9 @@ describe('GET /api/parent/dashboard activation state', () => {
         badges: [],
       }],
     });
+    (prisma.parentStudentLink.findMany as jest.Mock).mockResolvedValue([
+      { studentId: 'student-1', state: 'PENDING_PARENT_CONSENT' },
+    ]);
     (prisma.payment.findMany as jest.Mock).mockResolvedValue([]);
     (prisma.mathsProgress.findFirst as jest.Mock).mockResolvedValue(null);
     (prisma.progressionHistory.findMany as jest.Mock).mockResolvedValue([]);
@@ -52,6 +56,9 @@ describe('GET /api/parent/dashboard activation state', () => {
     expect(body.children[0]).toEqual(expect.objectContaining({
       activationStatus: 'PENDING_ACTIVATION',
       activationExpiresAt: null,
+      // L'attente de consentement est exposée pour être actionnable —
+      // jamais un enfant listé avec des bilans muets sans explication.
+      consentState: 'PENDING_PARENT_CONSENT',
     }));
     expect(JSON.stringify(body)).not.toContain('activationToken');
     expect(JSON.stringify(body)).not.toContain('act_');

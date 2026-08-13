@@ -29,6 +29,7 @@ const RAW_PALETTE_TOKENS = [
 
 // Public page files that are ALREADY migrated (must stay clean)
 const MIGRATED_PUBLIC_PAGES = [
+  'app/bilan/consultation/[token]/page.tsx', // page d'arrivée famille (lien signé)
   'app/page.tsx', // home
   'app/HomePageClient.tsx',
   'app/offres/page.tsx',
