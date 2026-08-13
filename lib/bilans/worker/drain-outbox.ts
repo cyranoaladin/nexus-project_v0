@@ -1,13 +1,13 @@
 import { randomUUID } from 'node:crypto';
 
-import { Prisma, type PrismaClient } from '@prisma/client';
+import { Prisma, UserRole, type PrismaClient } from '@prisma/client';
 
 import { prisma } from '@/lib/prisma';
 
 import { processScoreAttemptJob } from './score-job';
 import { processGenerateReportJob } from './generate-report-job';
 
-type DrainDatabase = Pick<PrismaClient, '$transaction' | '$queryRaw'>;
+type DrainDatabase = Pick<PrismaClient, '$transaction' | '$queryRaw' | 'user' | 'notification'>;
 type DrainLogger = Readonly<{
   info(event: Readonly<Record<string, unknown>>): void;
   error(event: Readonly<Record<string, unknown>>): void;
@@ -110,6 +110,37 @@ async function claimJobs(
   });
 }
 
+const QUARANTINE_NOTIFICATION_TYPE = 'SCORING_JOB_QUARANTINED';
+
+/**
+ * Crée une notification pour l'équipe assistante quand des jobs sont en
+ * quarantaine — dédupliquée : au plus UNE notification non lue par type de
+ * job à la fois, pour ne pas spammer à chaque cycle de drain. Elle reste
+ * jusqu'à lecture ; sa présence dit « des passations ne se scorent pas ».
+ */
+async function ensureQuarantineAlert(
+  database: DrainDatabase,
+  jobType: string,
+  count: number,
+): Promise<void> {
+  const already = await database.notification.findFirst({
+    where: { type: QUARANTINE_NOTIFICATION_TYPE, read: false, message: { contains: jobType } },
+    select: { id: true },
+  });
+  if (already !== null) return;
+  const assistants = await database.user.findMany({ where: { role: UserRole.ASSISTANTE }, select: { id: true } });
+  if (assistants.length === 0) return;
+  const rows: Prisma.NotificationCreateManyInput[] = assistants.map(({ id }) => ({
+    userId: id,
+    userRole: UserRole.ASSISTANTE,
+    type: QUARANTINE_NOTIFICATION_TYPE,
+    title: 'Scoring impossible — élève sans bilan',
+    message: `${count} passation(s) (${jobType}) ne se scorent pas après ${MAX_JOB_ATTEMPTS} tentatives. Ouvrez « Bilans » pour les reprendre.`,
+    data: { jobType, count, maxAttempts: MAX_JOB_ATTEMPTS },
+  }));
+  await database.notification.createMany({ data: rows });
+}
+
 async function drainJobs(
   jobType: 'SCORE_ATTEMPT' | 'GENERATE_REPORT',
   ownerPrefix: string,
@@ -155,6 +186,10 @@ async function drainJobs(
   const quarantinedCount = Number(quarantined[0]?.count ?? BigInt(0));
   if (quarantinedCount > 0) {
     deps.logger.error({ event: `${eventPrefix}_JOBS_QUARANTINED`, jobType, count: quarantinedCount, maxAttempts: MAX_JOB_ATTEMPTS });
+    // Alerte l'équipe — pas seulement le journal : un job en quarantaine
+    // signifie un élève potentiellement sans bilan. Déduplication : une seule
+    // notification non lue par type de job, pour ne pas spammer à chaque cycle.
+    await ensureQuarantineAlert(deps.prisma, jobType, quarantinedCount);
   }
 
   const result = Object.freeze({ claimed: jobIds.length, completed, failed, quarantined: quarantinedCount });
