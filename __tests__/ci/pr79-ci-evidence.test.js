@@ -13,6 +13,10 @@ const independentEvidenceJobs = [
   'integration',
   'real-db-integration',
   'e2e',
+  // Gate des parcours authentifiés (playwright.auth.config.ts) : requis
+  // depuis #134 — c'est l'angle mort par lequel les défauts d'enchaînement
+  // passaient malgré des CI vertes.
+  'e2e-auth',
   'security',
   'build',
   'documents',
