@@ -265,7 +265,10 @@ export default async function CanonicalBilansReviewPage({
                     <section className="border-b border-amber-300/20 bg-amber-300/10 px-6 py-5">
                       <h3 className="font-semibold text-amber-100">Ajouter l’e-mail du parent</h3>
                       <p className="mt-1 text-sm text-slate-300">
-                        Le bilan est prêt. L'activation parent et la diffusion restent bloquées jusqu'à cette complétion.
+                        L'e-mail est nécessaire pour créer l'accès en ligne du parent (activation du compte).
+                        {revision.parentPhoneMissing
+                          ? ' La diffusion attend un contact : renseignez un e-mail ou un téléphone.'
+                          : ' La diffusion, elle, est déjà possible par WhatsApp au téléphone enregistré.'}
                       </p>
                       <form action={addParentEmailAction} className="mt-3 flex flex-col gap-3 sm:flex-row">
                         <input type="hidden" name="revisionId" value={revision.id} />
