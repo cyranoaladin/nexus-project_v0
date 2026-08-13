@@ -1,0 +1,15 @@
+# Alerte disque Nexus — unité one-shot déclenchée par nexus-disk-alert.timer.
+# NON INSTALLÉE automatiquement : à copier dans /etc/systemd/system/ lors de
+# la prochaine fenêtre d'intervention, avec le script déployé sous
+# /usr/local/libexec/ (voir scripts/ops/README-disk-prevention.md).
+[Unit]
+Description=Nexus - alerte occupation disque (seuil 85%)
+Documentation=file:/usr/local/libexec/nexus-disk-alert.sh
+
+[Service]
+Type=oneshot
+# Fichier créé par l'opérateur à l'activation ; doit définir
+# INTERNAL_NOTIFICATION_EMAIL (il peut simplement sourcer le fichier
+# d'environnement de production existant).
+EnvironmentFile=-/etc/nexus/disk-alert.env
+ExecStart=/usr/local/libexec/nexus-disk-alert.sh --mount / --threshold 85 --from contact@nexusreussite.academy

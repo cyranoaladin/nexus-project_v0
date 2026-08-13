@@ -1,0 +1,13 @@
+# Timer horaire de l'alerte disque Nexus.
+# NON INSTALLÉ automatiquement : systemctl enable --now nexus-disk-alert.timer
+# lors de la prochaine fenêtre d'intervention.
+[Unit]
+Description=Nexus - vérification horaire de l'occupation disque
+
+[Timer]
+OnCalendar=hourly
+RandomizedDelaySec=300
+Persistent=true
+
+[Install]
+WantedBy=timers.target
