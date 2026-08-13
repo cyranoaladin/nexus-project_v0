@@ -169,7 +169,8 @@ export function PaperEntryFamilyForm() {
       </div>
 
       <p className="text-sm text-slate-400">
-        Sans e-mail, le bilan peut être saisi et généré. L'accès parent et la diffusion seront débloqués après sa complétion.
+        Sans e-mail, le bilan peut être saisi, généré et diffusé au parent par WhatsApp (téléphone). L'e-mail
+        reste utile pour lui ouvrir un accès en ligne (activation du compte) — il peut être ajouté plus tard.
       </p>
 
       <ul className="space-y-3">
