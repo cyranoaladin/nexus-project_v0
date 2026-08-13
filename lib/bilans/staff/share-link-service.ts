@@ -40,6 +40,21 @@ function hashSecret(secret: string): string {
   return createHash('sha256').update(secret, 'utf8').digest('hex');
 }
 
+const BASE64URL_PATTERN = /^[A-Za-z0-9_-]+$/;
+
+/**
+ * Le secret doit être STRICTEMENT base64url : tout caractère hors alphabet
+ * rendrait le jeton fragile aux transformations de texte en aval (le lien
+ * WhatsApp corrompu du 13/08/2026 venait d'une passe typographique — la passe
+ * est corrigée, cette garde échoue fermé si la génération dérivait un jour).
+ */
+function assertBase64UrlSecret(secret: string): string {
+  if (!BASE64URL_PATTERN.test(secret)) {
+    throw new ReportShareLinkError('SHARE_LINK_SECRET_NOT_BASE64URL');
+  }
+  return secret;
+}
+
 function constantTimeMatches(expectedHash: string, secret: string): boolean {
   const expected = Buffer.from(expectedHash, 'hex');
   const actual = Buffer.from(hashSecret(secret), 'hex');
@@ -109,7 +124,7 @@ export async function createReportShareLinks(input: CreateInput): Promise<readon
 
     const created: CreatedShareLink[] = [];
     for (const audience of SHAREABLE_AUDIENCES) {
-      const secret = randomBytes(32).toString('base64url');
+      const secret = assertBase64UrlSecret(randomBytes(32).toString('base64url'));
       const link = await transaction.reportShareLink.create({
         data: {
           reportArtifactId: artifact.id,
