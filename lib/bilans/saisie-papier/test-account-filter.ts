@@ -40,15 +40,36 @@ const excludedUserWhere: Prisma.UserWhereInput = {
 };
 
 /**
+ * « Cet utilisateur n'est PAS un compte de test masquable » — formulée de façon
+ * NULL-safe.
+ *
+ * Défaut corrigé : `{ NOT: { parent: { is: { user: { is: excludedUserWhere } } } } }`
+ * excluait un foyer dont le PARENT n'a pas d'e-mail (`email = NULL`). En SQL,
+ * `NOT (email LIKE '%…%')` vaut NULL quand `email` est NULL, et une ligne dont
+ * la condition WHERE est NULL est écartée. Résultat : un foyer créé par la
+ * saisie papier SANS e-mail (flux différé légitime) devenait invisible sur
+ * l'écran assistante — l'élève tout juste saisi restait introuvable.
+ *
+ * Un e-mail absent n'est jamais un compte de test : on le rend explicitement
+ * visible. Pour un e-mail présent, on garde l'exclusion des motifs de test.
+ */
+const notExcludedUserWhere: Prisma.UserWhereInput = {
+  OR: [
+    { email: null },
+    { NOT: excludedUserWhere },
+  ],
+};
+
+/**
  * Database-side privacy guard. The projection is filtered again with
  * `isVisiblePaperEntryHousehold` because this staff screen must fail closed if
  * a future query refactor accidentally drops or weakens a relation condition.
  */
 export function paperEntryVisibleStudentWhere(): Prisma.StudentWhereInput {
   return {
-    NOT: [
-      { user: { is: excludedUserWhere } },
-      { parent: { is: { user: { is: excludedUserWhere } } } },
+    AND: [
+      { user: { is: notExcludedUserWhere } },
+      { parent: { is: { user: { is: notExcludedUserWhere } } } },
     ],
   };
 }
