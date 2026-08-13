@@ -86,6 +86,37 @@ describe('Canonical scoring outbox drainer', () => {
     expect(processed).toContain(almost.id);
   });
 
+
+  test('quarantaine : une alerte (notification assistante) est créée, puis dédupliquée', async () => {
+    // Isole du bruit d'autres suites partageant la base jetable.
+    await prisma.notification.deleteMany({ where: { type: 'SCORING_JOB_QUARANTINED' } });
+    const assistant = await prisma.user.create({
+      data: { email: `${PREFIX}assistante@example.test`, role: 'ASSISTANTE' },
+    });
+    await prisma.jobOutbox.create({
+      data: {
+        jobType: 'SCORE_ATTEMPT', aggregateType: 'CanonicalAssessmentAttempt',
+        aggregateId: `${PREFIX}alert`, sourceEventKey: `${PREFIX}src-alert`,
+        idempotencyKey: `${PREFIX}idem-alert`, status: 'FAILED',
+        attemptCount: MAX_JOB_ATTEMPTS, lastError: 'A86_ANSWER_MISSING',
+        payload: { attemptId: `${PREFIX}alert`, packSlug: 'fixture', packVersion: 1 },
+      },
+    });
+    await drainScoreAttemptJobs({ limit: 5 }, { prisma, processJob: async () => {} });
+    const first = await prisma.notification.count({
+      where: { userId: assistant.id, type: 'SCORING_JOB_QUARANTINED', read: false },
+    });
+    expect(first).toBe(1);
+    // Deuxième cycle : pas de doublon tant que non lue.
+    await drainScoreAttemptJobs({ limit: 5 }, { prisma, processJob: async () => {} });
+    const second = await prisma.notification.count({
+      where: { userId: assistant.id, type: 'SCORING_JOB_QUARANTINED', read: false },
+    });
+    expect(second).toBe(1);
+    await prisma.notification.deleteMany({ where: { userId: assistant.id } });
+    await prisma.user.delete({ where: { id: assistant.id } });
+  });
+
   test('drains a pending job once', async () => {
     const job = await seedJob('pending');
     const processed: string[] = [];
