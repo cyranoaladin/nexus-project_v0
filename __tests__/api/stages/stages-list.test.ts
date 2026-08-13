@@ -2,6 +2,9 @@ import { NextRequest } from 'next/server';
 
 import { GET as getStages } from '@/app/api/stages/route';
 import { GET as getStageDetail } from '@/app/api/stages/[stageSlug]/route';
+import { getPublicStageBySlug, listPublicStages } from '@/lib/stages/public';
+
+const NOW = new Date('2026-08-13T12:00:00.000Z');
 
 let prisma: any;
 
@@ -16,21 +19,21 @@ function listRequest(query = '') {
 }
 
 function detailRequest() {
-  return new NextRequest('http://localhost:3000/api/stages/printemps-2026');
+  return new NextRequest('http://localhost:3000/api/stages/automne-2026');
 }
 
 function stageRecord(overrides: Record<string, unknown> = {}) {
   return {
     id: 'stage-1',
-    slug: 'printemps-2026',
-    title: 'Printemps 2026',
+    slug: 'automne-2026',
+    title: 'Automne 2026',
     subtitle: 'Révisions intensives',
     description: 'Description',
     type: 'INTENSIF',
     subject: ['MATHEMATIQUES'],
     level: ['Terminale'],
-    startDate: new Date('2026-04-21T08:00:00.000Z'),
-    endDate: new Date('2026-04-25T17:00:00.000Z'),
+    startDate: new Date('2026-10-21T08:00:00.000Z'),
+    endDate: new Date('2026-10-25T17:00:00.000Z'),
     capacity: 12,
     priceAmount: 650,
     priceCurrency: 'TND',
@@ -46,8 +49,8 @@ function stageRecord(overrides: Record<string, unknown> = {}) {
         id: 'session-1',
         title: 'Bloc 1',
         subject: 'MATHEMATIQUES',
-        startAt: new Date('2026-04-21T08:00:00.000Z'),
-        endAt: new Date('2026-04-21T10:00:00.000Z'),
+        startAt: new Date('2026-10-21T08:00:00.000Z'),
+        endAt: new Date('2026-10-21T10:00:00.000Z'),
         location: 'Salle A',
         description: 'Fonctions',
         coach: {
@@ -88,7 +91,7 @@ describe('GET /api/stages', () => {
 
     expect(res.status).toBe(200);
     expect(body.stages).toHaveLength(1);
-    expect(body.stages[0].slug).toBe('printemps-2026');
+    expect(body.stages[0].slug).toBe('automne-2026');
   });
 
   it('filtre par open=true', async () => {
@@ -151,8 +154,8 @@ describe('GET /api/stages', () => {
             scoreGlobal: 17,
             isPublished: true,
             pdfUrl: '/private/bilan.pdf',
-            publishedAt: new Date('2026-04-26T10:00:00.000Z'),
-            createdAt: new Date('2026-04-25T10:00:00.000Z'),
+            publishedAt: new Date('2026-10-26T10:00:00.000Z'),
+            createdAt: new Date('2026-10-25T10:00:00.000Z'),
             student: {
               user: {
                 firstName: 'Ahmed',
@@ -200,8 +203,28 @@ describe('GET /api/stages', () => {
   });
 });
 
+describe('lectures publiques des stages actifs', () => {
+  it("propage exactement l'horloge injectée à la liste", async () => {
+    prisma.stage.findMany.mockResolvedValue([stageRecord()]);
+
+    const stages = await listPublicStages(undefined, NOW);
+
+    expect(stages).toHaveLength(1);
+    expect(prisma.stage.findMany.mock.calls[0][0].where.endDate.gte).toBe(NOW);
+  });
+
+  it("propage exactement l'horloge injectée au détail", async () => {
+    prisma.stage.findFirst.mockResolvedValue(stageRecord());
+
+    const stage = await getPublicStageBySlug('automne-2026', NOW);
+
+    expect(stage?.slug).toBe('automne-2026');
+    expect(prisma.stage.findFirst.mock.calls[0][0].where.endDate.gte).toBe(NOW);
+  });
+});
+
 describe('GET /api/stages/[slug]', () => {
-  const params = Promise.resolve({ stageSlug: 'printemps-2026' });
+  const params = Promise.resolve({ stageSlug: 'automne-2026' });
 
   it('retourne 200 avec détail complet du stage', async () => {
     prisma.stage.findFirst.mockResolvedValue(stageRecord());
@@ -210,7 +233,7 @@ describe('GET /api/stages/[slug]', () => {
     const body = await res.json();
 
     expect(res.status).toBe(200);
-    expect(body.stage.title).toBe('Printemps 2026');
+    expect(body.stage.title).toBe('Automne 2026');
   });
 
   it('retourne 404 si slug inexistant', async () => {
@@ -235,7 +258,7 @@ describe('GET /api/stages/[slug]', () => {
     const res = await getStageDetail(detailRequest(), { params });
     const body = await res.json();
 
-    expect(body.stage.sessions[0].startAt).toBe('2026-04-21T08:00:00.000Z');
+    expect(body.stage.sessions[0].startAt).toBe('2026-10-21T08:00:00.000Z');
     expect(prisma.stage.findFirst).toHaveBeenCalledWith(
       expect.objectContaining({
         include: expect.objectContaining({
@@ -264,8 +287,8 @@ describe('GET /api/stages/[slug]', () => {
           scoreGlobal: 15,
           isPublished: true,
           pdfUrl: '/private/bilan.pdf',
-          publishedAt: new Date('2026-04-26T10:00:00.000Z'),
-          createdAt: new Date('2026-04-25T10:00:00.000Z'),
+          publishedAt: new Date('2026-10-26T10:00:00.000Z'),
+          createdAt: new Date('2026-10-25T10:00:00.000Z'),
           student: {
             user: {
               firstName: 'Sara',

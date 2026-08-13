@@ -2,6 +2,8 @@ export const dynamic = 'force-dynamic';
 
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import type { Metadata } from 'next';
+import { cache } from 'react';
 
 import { CorporateFooter } from '@/components/layout/CorporateFooter';
 import { CorporateNavbar } from '@/components/layout/CorporateNavbar';
@@ -16,6 +18,37 @@ type PageProps = {
   params: Promise<{ stageSlug: string }>;
 };
 
+const notFoundMetadata: Metadata = {
+  title: 'Stage introuvable | Nexus Réussite',
+  robots: { index: false, follow: false, nocache: true },
+};
+
+const getStageForInscription = cache((stageSlug: string) => getPublicStageBySlug(stageSlug));
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { stageSlug } = await params;
+  if (
+    !canExposePublicStageSlug(stageSlug)
+    || (
+      stageSlug === 'pre-rentree-2026'
+      && !canAcceptPreRentreeCampaignSubmission()
+    )
+  ) {
+    return notFoundMetadata;
+  }
+
+  const stage = await getStageForInscription(stageSlug);
+  if (!stage) return notFoundMetadata;
+
+  return {
+    title: `Inscription — ${stage.title} | Nexus Réussite`,
+    description: `Inscrivez-vous au stage ${stage.title} de Nexus Réussite.`,
+    alternates: {
+      canonical: `/stages/${stage.slug}/inscription`,
+    },
+  };
+}
+
 export default async function StageInscriptionPage({ params }: PageProps) {
   const { stageSlug } = await params;
   if (
@@ -27,7 +60,7 @@ export default async function StageInscriptionPage({ params }: PageProps) {
   ) {
     notFound();
   }
-  const stage = await getPublicStageBySlug(stageSlug);
+  const stage = await getStageForInscription(stageSlug);
 
   if (!stage) {
     notFound();
