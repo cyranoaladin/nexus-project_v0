@@ -16,6 +16,8 @@ export interface ParentDashboardChild {
     academicTrack: string;
     activationStatus: 'PENDING_ACTIVATION' | 'ACTIVE';
     activationExpiresAt: string | null;
+    /** État du lien parent-élève canonique — VERIFIED = bilans visibles. */
+    consentState?: 'PENDING_PARENT_CONSENT' | 'VERIFIED' | 'REVOKED' | 'EXPIRED' | 'MISSING';
     nexusIndex?: number;
     nextSession?: {
       subject: string;
@@ -119,6 +121,23 @@ export function ChildCard({ child }: ChildCardProps) {
             </span>
           )}
         </div>
+
+        {child.consentState !== undefined && child.consentState !== 'VERIFIED' && (
+          // Le consentement conditionne l'accès aux bilans : il passe AVANT
+          // l'invitation à activer le compte élève, qui ne débloque rien.
+          <Link
+            href={`/dashboard/parent/enfant/${encodeURIComponent(child.id)}`}
+            className="block rounded-lg border border-lux-gold/40 bg-lux-gold/10 p-3 transition hover:bg-lux-gold/15"
+          >
+            <p className="text-xs font-semibold text-amber-100">
+              Les bilans de {child.firstName} attendent votre accord
+            </p>
+            <p className="mt-1 text-xs leading-5 text-neutral-300">
+              Une seule étape : confirmez votre consentement sur la fiche de
+              votre enfant pour voir ses bilans dès leur diffusion.
+            </p>
+          </Link>
+        )}
 
         {child.activationStatus === 'PENDING_ACTIVATION' && (
           <div className="space-y-3 rounded-lg border border-amber-400/30 bg-amber-400/10 p-3">

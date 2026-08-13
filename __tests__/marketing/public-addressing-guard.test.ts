@@ -13,6 +13,7 @@ const scanRoots = [
 ];
 
 const studentSurfaceAllowlist: Array<{ prefix: string; reason: string }> = [
+  { prefix: 'app/bilan/consultation', reason: 'page famille par lien signé — la variante élève tutoie, comme le bilan élève lui-même' },
   { prefix: 'app/dashboard/eleve', reason: 'surface eleve authentifiee' },
   { prefix: 'app/lamis', reason: 'surface eleve noindex' },
   { prefix: 'app/programme', reason: 'programme eleve authentifie' },

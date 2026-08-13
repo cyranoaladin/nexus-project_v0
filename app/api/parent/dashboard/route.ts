@@ -97,6 +97,25 @@ export async function GET() {
       take: 20
     });
 
+    // État du lien parent-élève canonique par enfant : c'est lui qui
+    // conditionne la visibilité des bilans (VERIFIED requis). Exposé au
+    // dashboard pour que l'attente de consentement soit explicite et
+    // actionnable — jamais un enfant visible avec des bilans muets.
+    const consentLinks = await prisma.parentStudentLink.findMany({
+      where: {
+        parentUserId: session.user.id,
+        studentId: { in: parentProfile.children.map((child) => child.id) },
+      },
+      orderBy: [{ updatedAt: 'desc' }, { id: 'asc' }],
+      select: { studentId: true, state: true },
+    });
+    const consentStateByStudent = new Map<string, string>();
+    for (const link of consentLinks) {
+      if (!consentStateByStudent.has(link.studentId)) {
+        consentStateByStudent.set(link.studentId, link.state);
+      }
+    }
+
     // Transform data for frontend
     const childrenData = await Promise.all(parentProfile.children.map(async (child) => {
       // Fetch MathsProgress to calculate NexusIndex (tolerant if model missing)
@@ -155,6 +174,7 @@ export async function GET() {
         email: child.user.email || '',
         activationStatus: child.user.activatedAt === null ? 'PENDING_ACTIVATION' : 'ACTIVE',
         activationExpiresAt: child.user.activationExpiry?.toISOString() ?? null,
+        consentState: consentStateByStudent.get(child.id) ?? 'MISSING',
 
         grade: child.grade,
         gradeLevel: child.gradeLevel,

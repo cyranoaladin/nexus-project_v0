@@ -3,6 +3,7 @@ import { createHash, randomBytes, timingSafeEqual } from 'node:crypto';
 import type { PrismaClient } from '@prisma/client';
 
 import { prisma } from '@/lib/prisma';
+import { storedAudienceArtifactIsIntact } from '@/lib/bilans/core/report-artifact-integrity';
 
 /**
  * Liens de consultation signés des bilans diffusés — voie B WhatsApp.
@@ -191,6 +192,157 @@ export async function verifyAndConsumeShareToken(
   return Object.freeze({
     audience: link.audience,
     html: artifact.html,
+    studentFirstName: link.reportArtifact.student.user.firstName,
+  });
+}
+
+export type ShareLinkContext = Readonly<{
+  /** Identifiant public du lien (partie avant le point du jeton). */
+  linkId: string;
+  audience: ShareableAudience;
+  reportArtifactId: string;
+  /** Destinataire du lien = toujours le compte parent (invariant de création). */
+  parentUserId: string;
+  studentId: string;
+  studentFirstName: string | null;
+  expiresAt: Date;
+}>;
+
+/**
+ * Résout un jeton signé en son contexte d'identité, SANS servir le document
+ * ni journaliser une consultation. Mêmes gardes que la consultation (jeton
+ * malformé, inconnu, altéré, révoqué, expiré, bilan non diffusé, audience
+ * Nexus) → `null` uniforme. Sert de socle d'autorisation à la page d'accueil
+ * famille : le jeton EST la preuve, il porte à lui seul le parent et l'élève
+ * nécessaires au recueil du consentement, sans session.
+ */
+export async function resolveShareLinkContext(
+  rawToken: string,
+  dependencies: Readonly<{ prisma?: ShareDatabase; now?: () => Date }> = {},
+): Promise<ShareLinkContext | null> {
+  const database = dependencies.prisma ?? prisma;
+  const now = (dependencies.now ?? (() => new Date()))();
+
+  const separator = rawToken.indexOf('.');
+  if (separator <= 0 || separator === rawToken.length - 1 || rawToken.length > 256) return null;
+  const linkId = rawToken.slice(0, separator);
+  const secret = rawToken.slice(separator + 1);
+
+  const link = await database.reportShareLink.findUnique({
+    where: { id: linkId },
+    select: {
+      id: true,
+      audience: true,
+      tokenHash: true,
+      expiresAt: true,
+      revokedAt: true,
+      recipientUserId: true,
+      reportArtifact: {
+        select: {
+          id: true,
+          status: true,
+          currentPublishedRevisionId: true,
+          studentId: true,
+          student: { select: { user: { select: { firstName: true } } } },
+        },
+      },
+    },
+  });
+  if (link === null) return null;
+  if (!constantTimeMatches(link.tokenHash, secret)) return null;
+  if (link.revokedAt !== null) return null;
+  if (link.expiresAt.getTime() <= now.getTime()) return null;
+  if (link.reportArtifact.status !== 'PUBLISHED' || link.reportArtifact.currentPublishedRevisionId === null) return null;
+  if (link.audience !== 'ELEVE' && link.audience !== 'PARENTS') return null;
+
+  return Object.freeze({
+    linkId: link.id,
+    audience: link.audience,
+    reportArtifactId: link.reportArtifact.id,
+    parentUserId: link.recipientUserId,
+    studentId: link.reportArtifact.studentId,
+    studentFirstName: link.reportArtifact.student.user.firstName,
+    expiresAt: link.expiresAt,
+  });
+}
+
+export type VerifiedShareLinkPdf = Readonly<{
+  audience: ShareableAudience;
+  pdf: Buffer;
+  studentFirstName: string | null;
+}>;
+
+/**
+ * Sert le PDF d'un bilan diffusé par lien signé. Mêmes gardes que la
+ * consultation HTML — jeton, expiration, révocation, diffusion, audience
+ * Nexus exclue — plus la vérification d'intégrité par empreinte (l'artefact
+ * doit correspondre à sa somme de contrôle stockée). Une réussite est
+ * journalisée comme une consultation.
+ */
+export async function verifyAndConsumeShareTokenPdf(
+  rawToken: string,
+  dependencies: Readonly<{ prisma?: ShareDatabase; now?: () => Date }> = {},
+): Promise<VerifiedShareLinkPdf | null> {
+  const database = dependencies.prisma ?? prisma;
+  const now = (dependencies.now ?? (() => new Date()))();
+
+  const separator = rawToken.indexOf('.');
+  if (separator <= 0 || separator === rawToken.length - 1 || rawToken.length > 256) return null;
+  const linkId = rawToken.slice(0, separator);
+  const secret = rawToken.slice(separator + 1);
+
+  const link = await database.reportShareLink.findUnique({
+    where: { id: linkId },
+    select: {
+      id: true,
+      audience: true,
+      tokenHash: true,
+      expiresAt: true,
+      revokedAt: true,
+      reportArtifact: {
+        select: {
+          status: true,
+          student: { select: { user: { select: { firstName: true } } } },
+          currentPublishedRevision: {
+            select: {
+              materialization: {
+                select: {
+                  audienceArtifacts: {
+                    select: { audience: true, html: true, pdf: true, pdfStatus: true, checksum: true },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  });
+  if (link === null) return null;
+  if (!constantTimeMatches(link.tokenHash, secret)) return null;
+  if (link.revokedAt !== null) return null;
+  if (link.expiresAt.getTime() <= now.getTime()) return null;
+  if (link.reportArtifact.status !== 'PUBLISHED') return null;
+  if (link.audience !== 'ELEVE' && link.audience !== 'PARENTS') return null;
+
+  const stored = link.reportArtifact.currentPublishedRevision?.materialization?.audienceArtifacts
+    .find(({ audience }) => audience === link.audience);
+  if (stored === undefined) return null;
+  if (stored.pdfStatus !== 'READY' || stored.pdf === null) return null;
+  const pdf = Buffer.from(stored.pdf);
+  if (!storedAudienceArtifactIsIntact({
+    audience: stored.audience,
+    html: stored.html,
+    pdfStatus: stored.pdfStatus,
+    pdf,
+    checksum: stored.checksum,
+  })) return null;
+
+  await database.shareLinkAccess.create({ data: { shareLinkId: link.id } });
+
+  return Object.freeze({
+    audience: link.audience,
+    pdf,
     studentFirstName: link.reportArtifact.student.user.firstName,
   });
 }
