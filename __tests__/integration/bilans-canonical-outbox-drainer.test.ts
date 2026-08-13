@@ -1,7 +1,7 @@
 jest.unmock('@/lib/prisma');
 
 import { prisma } from '@/lib/prisma';
-import { drainScoreAttemptJobs } from '@/lib/bilans/worker/drain-outbox';
+import { drainScoreAttemptJobs, MAX_JOB_ATTEMPTS } from '@/lib/bilans/worker/drain-outbox';
 import { processScoreAttemptJob } from '@/lib/bilans/worker/score-job';
 import {
   CANONICAL_WORKER_ANSWERS,
@@ -32,6 +32,58 @@ describe('Canonical scoring outbox drainer', () => {
 
   afterAll(async () => {
     await prisma.$disconnect();
+  });
+
+  test('quarantaine : un job ayant atteint le plafond de tentatives n’est plus réclamé', async () => {
+    // Le job poison du 13/08/2026 : échec déterministe répété. Au plafond, il
+    // sort de la file active mais reste en base (diagnostic + supervision).
+    const poison = await prisma.jobOutbox.create({
+      data: {
+        jobType: 'SCORE_ATTEMPT',
+        aggregateType: 'CanonicalAssessmentAttempt',
+        aggregateId: `${PREFIX}poison`,
+        sourceEventKey: `${PREFIX}source-poison`,
+        idempotencyKey: `${PREFIX}idem-poison`,
+        status: 'FAILED',
+        attemptCount: MAX_JOB_ATTEMPTS,
+        lastError: 'A86_SCORING_FAILED',
+        payload: { attemptId: `${PREFIX}poison`, packSlug: 'fixture', packVersion: 1 },
+      },
+    });
+    const processed: string[] = [];
+    const result = await drainScoreAttemptJobs({ limit: 10 }, {
+      prisma,
+      processJob: async (jobId) => { processed.push(jobId); },
+    });
+    // Jamais réclamé, et signalé en quarantaine.
+    expect(processed).not.toContain(poison.id);
+    expect(result.claimed).toBe(0);
+    expect(result.quarantined).toBeGreaterThanOrEqual(1);
+    // Toujours en base — non supprimé.
+    const still = await prisma.jobOutbox.findUnique({ where: { id: poison.id } });
+    expect(still).not.toBeNull();
+    expect(still?.attemptCount).toBe(MAX_JOB_ATTEMPTS);
+  });
+
+  test('un job juste sous le plafond reste réclamé', async () => {
+    const almost = await prisma.jobOutbox.create({
+      data: {
+        jobType: 'SCORE_ATTEMPT',
+        aggregateType: 'CanonicalAssessmentAttempt',
+        aggregateId: `${PREFIX}almost`,
+        sourceEventKey: `${PREFIX}source-almost`,
+        idempotencyKey: `${PREFIX}idem-almost`,
+        status: 'FAILED',
+        attemptCount: MAX_JOB_ATTEMPTS - 1,
+        payload: { attemptId: `${PREFIX}almost`, packSlug: 'fixture', packVersion: 1 },
+      },
+    });
+    const processed: string[] = [];
+    await drainScoreAttemptJobs({ limit: 10 }, {
+      prisma,
+      processJob: async (jobId) => { processed.push(jobId); },
+    });
+    expect(processed).toContain(almost.id);
   });
 
   test('drains a pending job once', async () => {
