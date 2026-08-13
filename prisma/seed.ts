@@ -14,7 +14,14 @@ import bcrypt from 'bcryptjs';
 import { createId } from '@paralleldrive/cuid2';
 import { createDefaultSurvivalSnapshot, toPrismaSurvivalData } from '../lib/survival/progress';
 import { requireUserEmail } from '../lib/contact/user-email';
+import {
+  assertSafeSeedTarget,
+  generateRuntimePassword,
+  writeRuntimeCredentialsManifest,
+} from '../lib/security/seed-runtime';
 
+assertSafeSeedTarget();
+const runtimePassword = generateRuntimePassword();
 const prisma = new PrismaClient();
 
 // Helper to generate random vector
@@ -31,7 +38,7 @@ async function main() {
   console.log('🌱 Starting Massive Seeding...');
 
   // 1. Admin & Staff
-  const hashedPassword = await bcrypt.hash('admin123', 10);
+  const hashedPassword = await bcrypt.hash(runtimePassword, 12);
 
   await prisma.user.upsert({
     where: { email: 'admin@nexus-reussite.com' },
@@ -715,6 +722,22 @@ async function main() {
   });
   console.log(`✅ Stage "${stagePrintemps.title}" seedé avec 10 séances`);
 
+  // Every credential in this disposable database is rotated to the value
+  // generated for this run, including users created by older seed revisions.
+  await prisma.user.updateMany({
+    where: { password: { not: null } },
+    data: { password: hashedPassword, sessionVersion: { increment: 1 } },
+  });
+
+  writeRuntimeCredentialsManifest(
+    process.env.SEED_CREDENTIALS_PATH ?? '.runtime/prisma-seed-credentials.json',
+    {
+    scope: 'all-password-users-in-disposable-seed',
+    password: runtimePassword,
+    },
+  );
+
+  console.log('🔐 Runtime credentials manifest written with mode 0600.');
   console.log('🚀 Massive Seeding Complete.');
 }
 

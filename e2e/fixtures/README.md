@@ -65,7 +65,7 @@ Comprehensive test data for parent dashboard E2E tests.
 
 ### Test Credentials
 
-All users use the same password: `password123`
+All users use the same password: `<runtime-generated>`
 
 | Role | Email | Name |
 |------|-------|------|
@@ -82,6 +82,7 @@ All users use the same password: `password123`
 ```bash
 # Set E2E database URL
 export DATABASE_URL="postgresql://user:password@localhost:5433/nexus_e2e"
+export NEXUS_DISPOSABLE_POSTGRES=1
 
 # Run the parent dashboard seed script
 npx tsx scripts/seed-parent-dashboard-e2e.ts

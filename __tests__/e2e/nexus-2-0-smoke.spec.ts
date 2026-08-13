@@ -9,6 +9,7 @@
  * Runs against a live Next.js server (standalone or dev).
  */
 
+import { CREDS } from '@/e2e/helpers/credentials';
 import { test, expect } from '@playwright/test';
 
 // ─── Scenario 1: Bilan Gratuit Complet ──────────────────────────────────────
@@ -92,14 +93,14 @@ test.describe('Scenario 2: Admin Dashboard', () => {
     // Navigate to signin
     await page.goto('/auth/signin');
 
-    // Fill credentials (admin@nexus-reussite.com / admin123)
+    // Fill credentials from the runtime-only E2E manifest
     const emailInput = page.locator('input[name="email"], input[type="email"]').first();
     const passwordInput = page.locator('input[name="password"], input[type="password"]').first();
 
     await expect(emailInput).toBeVisible({ timeout: 5000 });
     await expect(passwordInput).toBeVisible({ timeout: 5000 });
-    await emailInput.fill('admin@nexus-reussite.com');
-    await passwordInput.fill('admin123');
+    await emailInput.fill(CREDS.admin.email);
+    await passwordInput.fill(CREDS.admin.password);
 
       // Submit form
     const submitBtn = page.locator('button[type="submit"]').first();

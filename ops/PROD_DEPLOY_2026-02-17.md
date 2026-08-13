@@ -20,7 +20,7 @@ Commits inclus :
 ## 2. Prisma Migrate Status
 
 ```
-$ DATABASE_URL='postgresql://nexus_admin:***@127.0.0.1:5435/nexus_prod?schema=public' \
+$ DATABASE_URL='postgresql://nexus_admin:[REDACTED-ROTATED]@127.0.0.1:5435/nexus_prod?schema=public' \
   npx prisma migrate status
 
 Datasource "db": PostgreSQL database "nexus_prod", schema "public" at "127.0.0.1:5435"
@@ -251,7 +251,7 @@ $ CSRF=$(curl -s -c cookies.txt https://nexusreussite.academy/api/auth/csrf \
 $ curl -s -c cookies.txt -b cookies.txt -X POST \
   https://nexusreussite.academy/api/auth/callback/credentials \
   -H "Content-Type: application/x-www-form-urlencoded" \
-  -d "email=admin%40nexus-reussite.com&password=admin123&csrfToken=$CSRF&json=true"
+  -d "email=admin%40nexus-reussite.com&password=<runtime-generated>&csrfToken=$CSRF&json=true"
 → HTTP 200 {"url":"https://nexusreussite.academy/dashboard/admin"}
 
 # directeur/stats
@@ -464,7 +464,7 @@ FROM assessments ORDER BY "createdAt";
 | Variable | Valeur |
 |---|---|
 | `NODE_ENV` | `production` |
-| `DATABASE_URL` | `postgresql://nexus_admin:***@postgres-db:5432/nexus_prod` |
+| `DATABASE_URL` | `postgresql://nexus_admin:[REDACTED-ROTATED]@postgres-db:5432/nexus_prod` |
 | `NEXTAUTH_URL` | `https://nexusreussite.academy` |
 | `NEXTAUTH_SECRET` | `***` (présent) |
 | `OLLAMA_URL` | `http://ollama:11434` |

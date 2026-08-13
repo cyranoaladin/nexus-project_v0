@@ -18,11 +18,11 @@ import { randomBytes } from 'node:crypto';
 import { frenchTypography, mathNotation } from '@/lib/bilans/render/typography';
 import { buildBilanWhatsAppMessage } from '@/lib/bilans/staff/whatsapp-message';
 
-// Le secret du cas réel, et des secrets adversariaux couvrant chaque règle
+// Des secrets synthétiques générés au runtime couvrant chaque règle
 // de transformation : indice (_5), exposant (^2 après lettre/chiffre),
 // apostrophe absente de base64url mais présente dans un chemin.
 const ADVERSARIAL_SECRETS = [
-  '3U_5zMcvM585aeFqrVpUiHET23cAkN8AAcPRqatoNUc',
+  `${randomBytes(18).toString('base64url')}_5${randomBytes(12).toString('base64url')}`,
   'a_1b_2c_3d_4e_5f_6g_7h_8i_9j_0',
   'x2_9YZ-aa_0Qq',
   'AAAA____9999----zzzz',
@@ -75,8 +75,8 @@ describe('Message WhatsApp — le lien reçu est le lien signé', () => {
     expect(message).toContain(studentLink);
   });
 
-  it('le cas réel du 13/08 : le secret 3U_5… survit au message', () => {
-    const link = 'https://nexusreussite.academy/bilan/consultation/cmsric0ej0024mgsunrncueeh.3U_5zMcvM585aeFqrVpUiHET23cAkN8AAcPRqatoNUc';
+  it('le cas synthétique avec _5 survit au message', () => {
+    const link = `https://example.test/bilan/consultation/${randomBytes(18).toString('hex')}.${ADVERSARIAL_SECRETS[0]}`;
     const message = buildBilanWhatsAppMessage({
       parentDisplayName: 'Parent',
       studentFirstName: 'Kam',
