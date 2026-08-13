@@ -10,6 +10,7 @@ import {
   FamilyAccessError,
   attachParentEmailFromShareToken,
   readParentAccessState,
+  resendParentActivationFromShareToken,
 } from '@/lib/bilans/family-landing/access';
 import { checkCsrf } from '@/lib/csrf';
 import { kickEmailOutboxDrain } from '@/lib/email/outbox-scheduler';
@@ -39,6 +40,10 @@ function notFound(): NextResponse {
 const consentSchema = z.object({
   consent: z.literal(true),
   parentEmail: z.string().trim().max(254).optional(),
+  // Renvoi de l'e-mail d'activation SANS ressaisir l'adresse (jamais affichée
+  // sur la page publique) : le parent dont le premier e-mail s'est égaré ne
+  // reste pas en cul-de-sac.
+  resendActivation: z.literal(true).optional(),
 }).strict();
 
 export async function GET(
@@ -118,6 +123,10 @@ export async function POST(
           throw accessError;
         }
       }
+    } else if (parsed.data.resendActivation === true) {
+      const resent = await resendParentActivationFromShareToken(token);
+      email = { status: resent.activationQueued ? 'QUEUED' : 'ALREADY_SET' };
+      if (resent.activationQueued) kickEmailOutboxDrain();
     }
 
     return NextResponse.json({ state: consent.state, email }, { headers: NO_STORE });

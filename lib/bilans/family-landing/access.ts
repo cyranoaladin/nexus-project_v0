@@ -95,14 +95,20 @@ export async function attachParentEmailFromShareToken(
     return await database.$transaction(async (transaction) => {
       const parent = await transaction.user.findUnique({
         where: { id: context.parentUserId },
-        select: { id: true, email: true, firstName: true, lastName: true },
+        select: { id: true, email: true, firstName: true, lastName: true, activatedAt: true },
       });
       if (parent === null) throw new FamilyAccessError('INVALID_LINK');
       if (parent.email !== null) {
         if (normalizeUserEmail(parent.email) === email) {
-          return Object.freeze({ activationQueued: false });
+          // Compte déjà activé : rien à renvoyer. Sinon, c'est une demande de
+          // RENVOI : sans elle, un parent dont l'e-mail d'activation s'est
+          // perdu resterait en cul-de-sac sur la page d'arrivée.
+          if (parent.activatedAt !== null) {
+            return Object.freeze({ activationQueued: false });
+          }
+        } else {
+          throw new FamilyAccessError('PARENT_EMAIL_ALREADY_SET');
         }
-        throw new FamilyAccessError('PARENT_EMAIL_ALREADY_SET');
       }
 
       const activation = createParentActivationToken(now);
@@ -142,4 +148,34 @@ export async function attachParentEmailFromShareToken(
     }
     throw error;
   }
+}
+
+/**
+ * Renvoie l'e-mail d'activation du parent SANS ressaisir l'adresse — elle
+ * n'est jamais affichée sur la page publique. Depuis la page d'arrivée, un
+ * parent dont le premier e-mail s'est égaré peut relancer l'activation ;
+ * un compte déjà activé ou sans adresse ne renvoie rien.
+ */
+export async function resendParentActivationFromShareToken(
+  rawToken: string,
+  dependencies: Readonly<{ prisma?: FamilyAccessDatabase; now?: () => Date }> = {},
+): Promise<Readonly<{ activationQueued: boolean }>> {
+  const database = dependencies.prisma ?? prisma;
+  const context = await resolveShareLinkContext(rawToken, {
+    prisma: database,
+    now: dependencies.now,
+  });
+  if (context === null) throw new FamilyAccessError('INVALID_LINK');
+
+  const parent = await database.user.findUnique({
+    where: { id: context.parentUserId },
+    select: { email: true, activatedAt: true },
+  });
+  if (parent === null || parent.email === null) {
+    return Object.freeze({ activationQueued: false });
+  }
+  if (parent.activatedAt !== null) {
+    return Object.freeze({ activationQueued: false });
+  }
+  return attachParentEmailFromShareToken(rawToken, parent.email, dependencies);
 }
