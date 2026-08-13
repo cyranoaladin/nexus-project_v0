@@ -302,6 +302,28 @@ export function hasAvailableParentContact(revision: PendingReportReview): boolea
   return Boolean(revision.reportArtifact.student.parent?.user.email?.trim());
 }
 
+/**
+ * Pourquoi « Valider et diffuser aux familles » est inactif — en toutes
+ * lettres. Un bouton désactivé sans explication est un bug d'UX, pas une
+ * sécurité : l'assistante doit savoir exactement quel prérequis manque
+ * (défaut constaté le 13/08/2026 sur un bilan au parent sans e-mail).
+ * Renvoie une liste vide quand la diffusion est possible.
+ */
+export function diffusionBlockedReasons(review: RecentReportReview): readonly string[] {
+  if (review.diffusable && review.validationFailures.length === 0) return Object.freeze([]);
+  const reasons: string[] = [];
+  if (review.validationFailures.length > 0) {
+    reasons.push('Corrigez d’abord les points bloquants signalés en haut de la carte.');
+  }
+  if (review.parentEmailMissing) {
+    reasons.push('Complétez l’e-mail du parent (encadré « Prêt — e-mail parent manquant » ci-dessus) : aucun bilan ne part sans contact famille.');
+  }
+  if (!review.actionable && review.validationFailures.length === 0) {
+    reasons.push('Ce bilan n’est plus en attente de diffusion (déjà diffusé, rejeté ou en correction).');
+  }
+  return Object.freeze(reasons);
+}
+
 function latestWhatsAppTransmission(revision: PendingReportReview): Date | null {
   const transmission = revision.reportArtifact.transmissions
     .find(({ channel }) => channel === 'WHATSAPP');

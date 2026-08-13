@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 
 import { auth } from '@/auth';
 import {
+  diffusionBlockedReasons,
   listRecentReportReviews,
   previewPendingReport,
   StaffReviewError,
@@ -307,6 +308,13 @@ export default async function CanonicalBilansReviewPage({
                           <button type="submit" disabled={blocked || !revision.diffusable} className="mt-3 rounded-xl bg-emerald-500 px-4 py-2.5 font-semibold text-slate-950 disabled:cursor-not-allowed disabled:opacity-40">
                             Valider et diffuser aux familles
                           </button>
+                          {(blocked || !revision.diffusable) && (
+                            <ul className="mt-3 space-y-1 text-sm text-amber-100" data-testid="diffusion-bloquee-motifs">
+                              {diffusionBlockedReasons(revision).map((reason) => (
+                                <li key={reason}>{reason}</li>
+                              ))}
+                            </ul>
+                          )}
                         </form>
 
                         {canReject && (
