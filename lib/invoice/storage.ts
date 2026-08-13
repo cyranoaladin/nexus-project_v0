@@ -5,7 +5,7 @@
  * In production, this can be swapped for S3/R2 without changing the API layer.
  */
 
-import { writeFile, mkdir, readFile, access } from 'fs/promises';
+import { writeFile, mkdir, readFile, realpath } from 'fs/promises';
 import path from 'path';
 
 /** Base directory for invoice PDF storage */
@@ -83,13 +83,16 @@ export async function storeInvoicePDF(invoiceNumber: string, buffer: Buffer): Pr
  * @throws Error if file doesn't exist
  */
 export async function readInvoicePDF(filePath: string): Promise<Buffer> {
-  // Security: ensure the path is within the storage directory
-  const resolved = path.resolve(filePath);
-  const storageResolved = path.resolve(STORAGE_DIR);
-  if (!resolved.startsWith(storageResolved)) {
+  // Security: containment canonique. realpath des deux côtés (suit les
+  // symlinks) puis path.relative — jamais de comparaison de préfixe de
+  // chaîne, qui laissait passer un répertoire voisin (data/invoices-evil)
+  // et les liens symboliques sortants.
+  const canonicalRoot = await realpath(path.resolve(STORAGE_DIR));
+  const canonicalPath = await realpath(path.resolve(filePath));
+  const rel = path.relative(canonicalRoot, canonicalPath);
+  if (!rel || path.isAbsolute(rel) || rel === '..' || rel.startsWith(`..${path.sep}`)) {
     throw new Error('Invalid invoice path: outside storage directory');
   }
 
-  await access(resolved);
-  return readFile(resolved);
+  return readFile(canonicalPath);
 }
