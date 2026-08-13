@@ -70,10 +70,38 @@ function buildInputs(input: WorkerScoringInput): Readonly<{
   const scoringAnswers: ScoringAnswer[] = [];
   for (const item of input.pack.questionnaire.items) {
     const stored = answers[item.id];
-    if (stored === undefined || typeof stored.optionId !== 'string') throw new Error('A86_ANSWER_MISSING');
-    const selected = item.options.find(({ id }) => id === stored.optionId);
+    // L'item DOIT figurer dans la passation (jamais d'omission silencieuse).
+    if (stored === undefined) throw new Error('A86_ANSWER_MISSING');
     const correct = item.options.find(({ isCorrect }) => isCorrect);
-    if (selected === undefined || correct === undefined) throw new Error('A86_ANSWER_OPTION_INVALID');
+    if (correct === undefined) throw new Error('A86_ANSWER_OPTION_INVALID');
+
+    // « Sans réponse » DÉCLARÉE (optionId null, sans certitude) : état de saisie
+    // légitime (grille + API l'acceptent, cf. assertAttemptComplete). Le moteur
+    // la profile NON_TRAITE. Avant ce correctif, le worker la rejetait
+    // (A86_ANSWER_MISSING) alors que la saisie l'avait acceptée — une copie
+    // avec « Sans réponse » restait sans bilan (13/08/2026).
+    if (stored.optionId === null) {
+      if (stored.confidence !== null) throw new Error('A86_ANSWER_OPTION_INVALID');
+      items.push({
+        id: item.id,
+        nodeCpsId: item.nodeCpsId,
+        type: 'QCM_SIMPLE',
+        difficulty: item.difficulty,
+        answerKey: { kind: 'QCM_SIMPLE', correct: correct.id },
+        targetTimeSec: item.targetTimeSec,
+      });
+      scoringAnswers.push({
+        itemId: item.id,
+        rawAnswer: null,
+        confidence: null,
+        elapsedMs: elapsedPerItem,
+      });
+      continue;
+    }
+
+    if (typeof stored.optionId !== 'string') throw new Error('A86_ANSWER_MISSING');
+    const selected = item.options.find(({ id }) => id === stored.optionId);
+    if (selected === undefined) throw new Error('A86_ANSWER_OPTION_INVALID');
     const declaredConfidence = confidence(stored.confidence);
     items.push({
       id: item.id,

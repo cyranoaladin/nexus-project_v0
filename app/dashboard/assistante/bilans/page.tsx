@@ -5,6 +5,7 @@ import { auth } from '@/auth';
 import {
   diffusionBlockedReasons,
   listRecentReportReviews,
+  listScoringFailures,
   previewPendingReport,
   StaffReviewError,
   type RecentReportReview,
@@ -108,6 +109,7 @@ export default async function CanonicalBilansReviewPage({
     if (error instanceof StaffReviewError && error.code === 'NOT_FOUND') notFound();
     throw error;
   }
+  const scoringFailures = await listScoringFailures({ userId: session.user.id, role: session.user.role });
   const statusCounts = {
     missingEmail: revisions.filter(({ displayStatus }) => displayStatus === 'Prêt — contact parent manquant').length,
     pending: revisions.filter(({ displayStatus }) => displayStatus === 'En attente de diffusion').length,
@@ -179,6 +181,25 @@ export default async function CanonicalBilansReviewPage({
             Saisir un bilan passé sur copie papier
           </Link>
         </header>
+
+        {scoringFailures.length > 0 && (
+          <section className="mt-6 rounded-2xl border border-red-400/40 bg-red-400/10 p-5" data-testid="scoring-impossible">
+            <h2 className="font-semibold text-red-100">Scoring impossible — élève sans bilan, à reprendre</h2>
+            <p className="mt-1 text-sm text-red-100/80">
+              {scoringFailures.length === 1 ? 'Une passation n’a pas pu être scorée' : `${scoringFailures.length} passations n’ont pas pu être scorées`} : l’élève n’a pas de bilan. Vérifiez la copie et re-saisissez-la, ou signalez-la à l’équipe technique.
+            </p>
+            <ul className="mt-3 space-y-2 text-sm text-red-50">
+              {scoringFailures.map((failure) => (
+                <li key={failure.attemptId} className="flex flex-wrap items-baseline gap-x-3">
+                  <span className="font-semibold">{failure.studentName}</span>
+                  <span className="text-red-100/70">{provenanceLabel(failure.provenance)}</span>
+                  {failure.submittedAt !== null && <span className="text-red-100/70">soumis le {dateLabel(failure.submittedAt)}</span>}
+                  <span className="text-red-100/70">· {failure.attempts} tentative{failure.attempts > 1 ? 's' : ''}{failure.quarantined ? ' · en quarantaine' : ''}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
 
         <nav aria-label="Fil du workflow" className="mt-8 overflow-x-auto">
           <ol className="flex min-w-max items-center gap-2 text-xs text-slate-300">
