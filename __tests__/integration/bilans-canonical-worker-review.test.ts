@@ -181,10 +181,29 @@ describe('A86 deterministic worker and internal review service', () => {
       prisma.jobOutbox.findUniqueOrThrow({ where: { id: seeded.job.id } }),
       prisma.canonicalAssessmentAttempt.findUniqueOrThrow({ where: { id: seeded.attempt.id } }),
     ]);
-    expect(job).toMatchObject({ status: 'FAILED', lastError: code });
+    // La cause réelle (« injected ») est préservée, jamais écrasée par le code seul.
+    expect(job.status).toBe('FAILED');
+    expect(job.lastError).toBe(`${code}: injected`);
     expect(attempt.status).toBe('SUBMITTED');
     expect(await prisma.scoreSnapshot.count({ where: { assessmentAttemptId: attempt.id } })).toBe(0);
     expect(await prisma.reportArtifact.count({ where: { assessmentAttemptId: attempt.id } })).toBe(0);
+  });
+
+  test('préserve la cause réelle au lieu du code générique (fin du masquage A86_WORKER_FAILED)', async () => {
+    // buildInputs lève `A86_ANSWER_MISSING` AVANT toute étape → le code de
+    // stage est le générique A86_WORKER_FAILED. Sans préservation, la cause
+    // réelle était perdue (834 tentatives opaques du 13/08/2026). On prouve
+    // qu'elle figure désormais dans lastError et n'est pas remplacée.
+    const seeded = await seedAttempt('mask');
+    const brokenScoring = {
+      computeFacts: () => { throw new Error('A86_ANSWER_MISSING'); },
+    };
+    await expect(processScoreAttemptJob(seeded.job.id, { ...dependencies, ...brokenScoring } as never))
+      .rejects.toThrow();
+    const job = await prisma.jobOutbox.findUniqueOrThrow({ where: { id: seeded.job.id } });
+    expect(job.status).toBe('FAILED');
+    // La cause réelle est lisible, pas noyée sous un code générique seul.
+    expect(job.lastError).toContain('A86_ANSWER_MISSING');
   });
 
   test('never publishes an invented report on LLM failure, then recovers on the next drain', async () => {
