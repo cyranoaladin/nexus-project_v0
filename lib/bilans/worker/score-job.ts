@@ -199,17 +199,24 @@ export async function processScoreAttemptJob(
     return result;
   } catch (error) {
     const code = error instanceof ScoreJobError ? error.code : failureCode(stage);
+    // Préserver la CAUSE RÉELLE. Une erreur non typée (ex. `A86_ANSWER_MISSING`
+    // levée par buildInputs) était sinon remplacée par le code générique de
+    // stage (`A86_WORKER_FAILED`) : 834 tentatives opaques, cause indéchiffrable
+    // (incident du 13/08/2026). On conserve désormais le message d'origine dans
+    // lastError et dans les logs, sans jamais l'écraser.
+    const cause = error instanceof Error ? error.message : String(error);
+    const lastError = cause && cause !== code ? `${code}: ${cause}` : code;
     await dependencies.prisma.jobOutbox.updateMany({
       where: { id: jobId, status: { not: 'COMPLETED' } },
       data: {
         status: 'FAILED',
         attemptCount: { increment: 1 },
-        lastError: code,
+        lastError,
         leaseOwner: null,
         leaseExpiresAt: null,
       },
     });
-    dependencies.logger.error({ event: 'A86_SCORE_JOB_FAILED', jobId, code, durationMs: Date.now() - started });
+    dependencies.logger.error({ event: 'A86_SCORE_JOB_FAILED', jobId, code, cause, durationMs: Date.now() - started });
     throw new ScoreJobError(code);
   }
 }
