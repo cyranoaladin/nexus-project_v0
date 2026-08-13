@@ -9,7 +9,11 @@ import { serializeError } from '@/lib/utils/serialize-error';
 import { getDocumentStorageRoot, toRelativeStoragePath } from '@/lib/documents/storage-root';
 import { z } from 'zod';
 
-const STORAGE_ROOT = getDocumentStorageRoot();
+// Lazy : la racine de stockage lève en production quand DOCUMENT_STORAGE_ROOT
+// manque, et ce fail-closed doit frapper à la requête — jamais au chargement
+// du module, que `next build` exécute en collectant les pages (même piège que
+// payments/validate). Le garde reste intact, seule son évaluation est différée.
+function getStorageRoot() { return getDocumentStorageRoot(); }
 const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
 const ALLOWED_UPLOAD_MIME_TYPES = new Set([
   'application/pdf',
@@ -85,11 +89,12 @@ export async function POST(request: NextRequest) {
     const secureFilename = `${uniqueId}${fileExt}`;
     // Using path.join ensures we stick to the OS separator, 
     // and combined with uniqueId prevents directory traversal like ../../
-    const localPath = path.join(STORAGE_ROOT, secureFilename);
+    const storageRoot = getStorageRoot();
+    const localPath = path.join(storageRoot, secureFilename);
     const originalName = sanitizeOriginalName(file.name);
 
     // Ensure directory exists
-    await mkdir(STORAGE_ROOT, { recursive: true });
+    await mkdir(storageRoot, { recursive: true });
 
     // Write file to disk
     const buffer = Buffer.from(await file.arrayBuffer());
