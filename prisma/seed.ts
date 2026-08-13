@@ -603,7 +603,10 @@ async function main() {
   // ── Stage Printemps 2026 ────────────────────────────────────────────────────
   const stagePrintemps = await prisma.stage.upsert({
     where: { slug: 'printemps-2026' },
-    update: {},
+    update: {
+      isVisible: false,
+      isOpen: false,
+    },
     create: {
       slug: 'printemps-2026',
       title: 'Stage Intensif Printemps 2026',
@@ -620,8 +623,8 @@ async function main() {
       priceAmount: 350,
       priceCurrency: 'TND',
       location: 'Nexus Réussite — Tunis',
-      isVisible: true,
-      isOpen: true,
+      isVisible: false,
+      isOpen: false,
     },
   });
 

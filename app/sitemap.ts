@@ -2,6 +2,7 @@ import { MetadataRoute } from 'next';
 import { prisma } from '@/lib/prisma';
 import { getPreRentreePublicSurfaceDTO } from '@/lib/campaigns/pre-rentree-2026/public-surface';
 import { getPreRentreeReleaseGate } from '@/lib/campaigns/pre-rentree-2026/release-gate';
+import { getActiveStageEndDateFilter } from '@/lib/stages/lifecycle';
 
 export const dynamic = 'force-dynamic';
 
@@ -150,7 +151,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   let stageEntries: MetadataRoute.Sitemap = [];
   try {
     const stages = await prisma.stage.findMany({
-      where: { isVisible: true },
+      where: {
+        isVisible: true,
+        endDate: getActiveStageEndDateFilter(now),
+      },
       select: { slug: true, updatedAt: true },
     });
     stageEntries = stages.flatMap((stage) => {
