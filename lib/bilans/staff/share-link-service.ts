@@ -27,7 +27,7 @@ export type ShareableAudience = 'ELEVE' | 'PARENTS';
 
 const SHAREABLE_AUDIENCES: readonly ShareableAudience[] = ['ELEVE', 'PARENTS'];
 
-type ShareDatabase = Pick<PrismaClient, '$transaction' | 'reportShareLink' | 'reportArtifact' | 'shareLinkAccess'>;
+type ShareDatabase = Pick<PrismaClient, '$transaction' | 'reportShareLink' | 'reportArtifact' | 'reportRevision' | 'shareLinkAccess'>;
 
 export class ReportShareLinkError extends Error {
   constructor(readonly code: string) {
@@ -127,10 +127,77 @@ export async function createReportShareLinks(input: CreateInput): Promise<readon
   });
 }
 
+
+export type PublishedVersionReplacement = Readonly<{ updatedAt: Date; replacesDate: Date }>;
+
+/**
+ * Régénération publiée (cas B, option 3) : la version servie remplace une
+ * version précédemment publiée. Retrouve la date de la version antérieure —
+ * uniquement depuis des données déjà tracées (générations, matérialisations).
+ */
+async function computeUpdatedVersion(
+  database: ShareDatabase,
+  current: Readonly<{
+    generation: number;
+    scoreSnapshotId: string;
+    materialization: Readonly<{ materializedAt: Date }> | null;
+  }> | null,
+): Promise<PublishedVersionReplacement | null> {
+  // Défensif : une génération absente (anciens doubles de test) vaut 1.
+  if (current === null || !(current.generation > 1) || current.materialization === null) return null;
+  const previous = await database.reportRevision.findFirst({
+    where: {
+      scoreSnapshotId: current.scoreSnapshotId,
+      generation: { lt: current.generation },
+      materialization: { isNot: null },
+    },
+    orderBy: { generation: 'desc' },
+    select: { materialization: { select: { materializedAt: true } } },
+  });
+  if (previous?.materialization == null) return null;
+  return Object.freeze({
+    updatedAt: current.materialization.materializedAt,
+    replacesDate: previous.materialization.materializedAt,
+  });
+}
+
+/**
+ * Information de remplacement pour la PAGE D'ARRIVÉE (qui résout le contexte
+ * sans consommer le jeton) : mêmes données que le vérificateur.
+ */
+export async function readPublishedVersionReplacement(
+  reportArtifactId: string,
+  dependencies: Readonly<{ prisma?: ShareDatabase }> = {},
+): Promise<PublishedVersionReplacement | null> {
+  const database = dependencies.prisma ?? prisma;
+  const artifact = await database.reportArtifact.findUnique({
+    where: { id: reportArtifactId },
+    select: {
+      currentPublishedRevision: {
+        select: {
+          generation: true,
+          scoreSnapshotId: true,
+          materialization: { select: { materializedAt: true } },
+        },
+      },
+    },
+  });
+  if (artifact === null) return null;
+  return computeUpdatedVersion(database, artifact.currentPublishedRevision);
+}
+
 export type VerifiedShareLink = Readonly<{
   audience: ShareableAudience;
   html: string;
   studentFirstName: string | null;
+  /**
+   * Non-null quand la version servie REMPLACE une version précédemment
+   * publiée (régénération, cas B option 3) : la page d'arrivée l'affiche
+   * — « Version mise à jour le [date] — remplace la version du [date] ».
+   * S'appuie uniquement sur des données déjà tracées (générations et dates
+   * de matérialisation) ; le lien, lui, ne change jamais.
+   */
+  updatedVersion: Readonly<{ updatedAt: Date; replacesDate: Date }> | null;
 }>;
 
 /**
@@ -164,8 +231,11 @@ export async function verifyAndConsumeShareToken(
           student: { select: { user: { select: { firstName: true } } } },
           currentPublishedRevision: {
             select: {
+              generation: true,
+              scoreSnapshotId: true,
               materialization: {
                 select: {
+                  materializedAt: true,
                   audienceArtifacts: { select: { audience: true, html: true } },
                 },
               },
@@ -189,10 +259,13 @@ export async function verifyAndConsumeShareToken(
 
   await database.shareLinkAccess.create({ data: { shareLinkId: link.id } });
 
+  const updatedVersion = await computeUpdatedVersion(database, link.reportArtifact.currentPublishedRevision);
+
   return Object.freeze({
     audience: link.audience,
     html: artifact.html,
     studentFirstName: link.reportArtifact.student.user.firstName,
+    updatedVersion,
   });
 }
 

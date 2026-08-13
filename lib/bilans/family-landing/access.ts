@@ -35,7 +35,7 @@ export class FamilyAccessError extends Error {
 
 type FamilyAccessDatabase = Pick<
   PrismaClient,
-  '$transaction' | 'reportShareLink' | 'reportArtifact' | 'shareLinkAccess' | 'user' | 'jobOutbox'
+  '$transaction' | 'reportShareLink' | 'reportArtifact' | 'reportRevision' | 'shareLinkAccess' | 'user' | 'jobOutbox'
 >;
 
 const EMAIL_SHAPE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

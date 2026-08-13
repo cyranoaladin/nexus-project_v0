@@ -496,3 +496,76 @@ describe('exécution — bilan déjà publié', () => {
     expect(oldMaterialized?.html).toBe('<html>gen2-PARENTS</html>');
   });
 });
+
+describe('cas B option 3 — mention de remplacement, lien conservé, message d’information', () => {
+  let shareToken: string;
+
+  beforeAll(async () => {
+    // Un lien signé créé À L'ÉPOQUE de la génération 2 publiée + transmission
+    // confirmée : le parent a reçu et probablement lu la version précédente.
+    const { createReportShareLinks } = await import('@/lib/bilans/staff/share-link-service');
+    const parentUserId = (await prisma.reportArtifact.findUniqueOrThrow({
+      where: { id: artifactId },
+      select: { student: { select: { parent: { select: { userId: true } } } } },
+    })).student.parent!.userId;
+    const links = await createReportShareLinks({
+      reportArtifactId: artifactId,
+      recipientUserId: parentUserId,
+      createdById: assistantId,
+    });
+    shareToken = links.find(({ audience }) => audience === 'PARENTS')!.token;
+    await prisma.reportTransmission.create({
+      data: {
+        reportArtifactId: artifactId,
+        channel: 'WHATSAPP',
+        recipientUserId: parentUserId,
+        confirmedById: assistantId,
+        confirmedAt: new Date('2026-08-14T09:00:00Z'),
+      },
+    });
+  });
+
+  it('le MÊME lien reste valide et sert la génération re-publiée, avec l’information de remplacement datée', async () => {
+    const { verifyAndConsumeShareToken } = await import('@/lib/bilans/staff/share-link-service');
+    const verified = await verifyAndConsumeShareToken(shareToken);
+    expect(verified).not.toBeNull();
+    expect(verified!.updatedVersion).not.toBeNull();
+    // updatedAt = matérialisation de la génération 3 ; replacesDate = celle de la génération 2.
+    expect(verified!.updatedVersion!.updatedAt.getTime())
+      .toBeGreaterThan(verified!.updatedVersion!.replacesDate.getTime());
+  });
+
+  it('transmission confirmée → le message d’information est préparé (sans toucher aux liens)', async () => {
+    const { prepareUpdateInfoMessage } = await import('@/lib/bilans/staff/whatsapp-send-service');
+    const activeLinksBefore = await prisma.reportShareLink.count({
+      where: { reportArtifactId: artifactId, revokedAt: null },
+    });
+    const prepared = await prepareUpdateInfoMessage({
+      actor: { userId: assistantId, role: 'ASSISTANTE' },
+      reportArtifactId: artifactId,
+    });
+    expect(prepared.whatsappUrl).toContain('https://wa.me/');
+    expect(prepared.message).toContain('affiné');
+    expect(prepared.message).toContain('même accès');
+    // Rien n'est révoqué, rien n'est réémis.
+    const activeLinksAfter = await prisma.reportShareLink.count({
+      where: { reportArtifactId: artifactId, revokedAt: null },
+    });
+    expect(activeLinksAfter).toBe(activeLinksBefore);
+  });
+
+  it('sans transmission confirmée → la mention sur la page suffit, pas de message', async () => {
+    await prisma.$executeRawUnsafe('ALTER TABLE "canonical_report_transmissions" DISABLE TRIGGER USER');
+    await prisma.reportTransmission.deleteMany({ where: { reportArtifactId: artifactId } });
+    await prisma.$executeRawUnsafe('ALTER TABLE "canonical_report_transmissions" ENABLE TRIGGER USER');
+    const { prepareUpdateInfoMessage } = await import('@/lib/bilans/staff/whatsapp-send-service');
+    await expect(prepareUpdateInfoMessage({
+      actor: { userId: assistantId, role: 'ASSISTANTE' },
+      reportArtifactId: artifactId,
+    })).rejects.toThrow('WHATSAPP_UPDATE_INFO_NO_PRIOR_TRANSMISSION');
+    // La mention de la page, elle, reste disponible (données de génération).
+    const { readPublishedVersionReplacement } = await import('@/lib/bilans/staff/share-link-service');
+    const replacement = await readPublishedVersionReplacement(artifactId);
+    expect(replacement).not.toBeNull();
+  });
+});
