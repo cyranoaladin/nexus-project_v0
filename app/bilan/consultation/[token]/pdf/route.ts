@@ -1,19 +1,14 @@
 import { NextResponse } from 'next/server';
 
-import { verifyAndConsumeShareToken } from '@/lib/bilans/staff/share-link-service';
+import { verifyAndConsumeShareTokenPdf } from '@/lib/bilans/staff/share-link-service';
 import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive';
 
 export const dynamic = 'force-dynamic';
 
 /**
- * Consultation d'un bilan par lien signé — accès sans authentification,
- * impossible à deviner (secret 256 bits vérifié en temps constant),
- * expirant, révocable, journalisé côté service.
- *
- * Un jeton altéré, expiré, révoqué ou orphelin reçoit exactement la même
- * réponse qu'un jeton inconnu : 404, sans en-tête discriminant. Jamais de
- * PDF en pièce jointe ici : le document se consulte, il ne se transfère pas
- * sans contrôle.
+ * Téléchargement PDF d'un bilan par lien signé. Mêmes gardes que le
+ * document HTML, plus la vérification d'intégrité par somme de contrôle.
+ * Réponse uniforme (404) pour toute anomalie, PDF indisponible compris.
  */
 export async function GET(
   request: Request,
@@ -26,8 +21,8 @@ export async function GET(
   if (limited) return limited;
 
   const { token } = await params;
-  const verified = await verifyAndConsumeShareToken(token);
-  if (verified === null) {
+  const served = await verifyAndConsumeShareTokenPdf(token);
+  if (served === null) {
     return new NextResponse('Document introuvable ou lien expiré.', {
       status: 404,
       headers: {
@@ -38,10 +33,11 @@ export async function GET(
     });
   }
 
-  return new NextResponse(verified.html, {
+  return new NextResponse(new Uint8Array(served.pdf), {
     status: 200,
     headers: {
-      'content-type': 'text/html; charset=utf-8',
+      'content-type': 'application/pdf',
+      'content-disposition': 'inline; filename="bilan.pdf"',
       'x-robots-tag': 'noindex, nofollow, noarchive',
       'cache-control': 'private, no-store',
       'referrer-policy': 'no-referrer',
