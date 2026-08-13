@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 import {
@@ -12,6 +12,7 @@ import {
   getPreRentreePublicSurfaceDTO,
 } from '@/lib/campaigns/pre-rentree-2026/public-surface';
 import { getPublicPreRentreeDocuments } from '@/lib/campaigns/pre-rentree-2026/documents';
+import campaignManifest from '@/data/campaigns/pre-rentree-2026.json';
 
 describe('Pré-rentrée 2026 single public release gate', () => {
   it('exposes public surfaces exactly when the canonical owner gate is PUBLIC_READY', () => {
@@ -110,5 +111,38 @@ describe('Pré-rentrée 2026 single public release gate', () => {
     expect(page).toContain('canAcceptPreRentreeCampaignSubmission');
     expect(page).toMatch(/stageSlug === 'pre-rentree-2026'/);
     expect(page).toContain('notFound()');
+  });
+
+  it('documents the offline-enrollment decision as an explicit, dated product decision', () => {
+    const decision = (campaignManifest as { onlineRegistrationDecision?: Record<string, unknown> })
+      .onlineRegistrationDecision;
+    expect(decision).toBeDefined();
+    expect(decision).toMatchObject({
+      status: 'OFFLINE_ONLY',
+      decidedAt: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),
+      decidedBy: expect.any(String),
+    });
+    expect((decision!.enrollmentChannels as string[]).length).toBeGreaterThan(0);
+
+    const guard = readFileSync(
+      join(process.cwd(), 'lib/campaigns/pre-rentree-2026/release-gate.ts'),
+      'utf8',
+    );
+    expect(guard).toMatch(/canAcceptPreRentreeCampaignSubmission[\s\S]{0,400}return false/);
+  });
+
+  it('keeps every public campaign surface free of a registration form or link that would fail', () => {
+    const files = [
+      'app/pre-rentree/page.tsx',
+      'app/stages/pre-rentree-2026/page.tsx',
+      ...readdirSync(join(process.cwd(), 'components/pre-rentree-2026'))
+        .filter((name) => name.endsWith('.tsx'))
+        .map((name) => `components/pre-rentree-2026/${name}`),
+    ];
+    for (const file of files) {
+      const source = readFileSync(join(process.cwd(), file), 'utf8');
+      expect(source).not.toMatch(/\/inscription['"`)]/);
+      expect(source).not.toMatch(/<form[\s>]/i);
+    }
   });
 });

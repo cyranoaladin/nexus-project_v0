@@ -135,9 +135,11 @@
       "id": "contact_channels_forms",
       "status": "VALIDATED",
       "value": true,
-      "resolution": "Le téléphone et WhatsApp canoniques sont testés sur la page, les offres et les actifs sociaux datés ; le DTO public reste sanitizé, aucun formulaire de campagne n'est rendu et le POST d'inscription reste fermé.",
+      "resolution": "Le téléphone et WhatsApp canoniques sont testés sur la page, les offres et les actifs sociaux datés ; le DTO public reste sanitizé, aucun formulaire de campagne n'est rendu et le POST d'inscription reste fermé. Réaffirmé le 2026-08-12 par le responsable pédagogique : inscription hors ligne assumée (WhatsApp / centre) pour toute la durée de cette campagne, pas un chantier interrompu.",
       "evidence": [
         "data/campaigns/pre-rentree-2026.json#/contact",
+        "data/campaigns/pre-rentree-2026.json#/onlineRegistrationDecision",
+        "lib/campaigns/pre-rentree-2026/release-gate.ts#canAcceptPreRentreeCampaignSubmission",
         "__tests__/campaigns/pre-rentree-2026-release-gate.test.ts",
         "tests/e2e/pre-rentree-2026.spec.ts",
         "assets/campaigns/pre-rentree-2026/social/manifest-public.json",

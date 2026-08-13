@@ -245,6 +245,19 @@ export const PreRentreeCampaignManifestSchema = z.object({
   endDate: z.literal('2026-08-28'),
   noClassDates: z.array(z.string()),
   decisionDeadline: z.string(),
+  // Séparé de `decisionDeadline` (qui porte sur la communication du seuil
+  // d'ouverture des groupes) : ceci documente la décision produit sur le
+  // CANAL d'inscription lui-même — assumée hors ligne pour cette campagne.
+  // Source de vérité lue par canAcceptPreRentreeCampaignSubmission()
+  // (lib/campaigns/pre-rentree-2026/release-gate.ts), qui reste câblé en
+  // dur à `false` : ce champ documente le pourquoi, il ne pilote rien.
+  onlineRegistrationDecision: z.object({
+    status: z.literal('OFFLINE_ONLY'),
+    decidedAt: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+    decidedBy: z.string().min(1),
+    enrollmentChannels: z.array(z.string().min(1)).min(1),
+    note: z.string().min(1),
+  }).strict(),
   venue: Venue,
   levels: z.array(Level).length(5),
   entryLevelSemantics: LevelSemantics,
