@@ -86,6 +86,9 @@ services:
       LLM_MODE: "off"
       NPC_LLM_MODE: "off"
       NPC_STORAGE_ROOT: /mnt/npc-storage-e2e
+      # DOCUMENT_STORAGE_ROOT est fail-closed quand NODE_ENV=production :
+      # fourni ici comme en prod (racine hors release), volume jetable dédié.
+      DOCUMENT_STORAGE_ROOT: /mnt/document-storage-e2e
       SKIP_MIDDLEWARE: "true"
       # Disable external services
       OLLAMA_URL: ""
@@ -119,6 +122,7 @@ services:
       - e2e-shared:/app/e2e-shared
       - e2e-storage:/app/storage
       - e2e-npc-storage:/mnt/npc-storage-e2e
+      - e2e-document-storage:/mnt/document-storage-e2e
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/"]
       interval: 5s
@@ -164,6 +168,7 @@ volumes:
   e2e-shared:
   e2e-storage:
   e2e-npc-storage:
+  e2e-document-storage:
 
 networks:
   e2e-network:
