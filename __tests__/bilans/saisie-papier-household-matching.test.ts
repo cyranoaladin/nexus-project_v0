@@ -32,6 +32,13 @@ describe('normalizeNameKey', () => {
   it('renvoie une chaîne vide pour une entrée sans lettre', () => {
     expect(normalizeNameKey('   ')).toBe('');
   });
+
+  it('plie ensemble toutes les variantes exigées de « Ben Rhouma »', () => {
+    const reference = normalizeNameKey('Ben Rhouma');
+    for (const variant of ['ben-rhouma', 'Bén Rhouma', 'ben  rhouma', 'BEN RHOUMA', "Ben-Rhouma'", 'Ben Rhouma']) {
+      expect(`${variant} → ${normalizeNameKey(variant)}`).toBe(`${variant} → ${reference}`);
+    }
+  });
 });
 
 describe('parentNamesMatch — deux champs, pas une concaténation', () => {
