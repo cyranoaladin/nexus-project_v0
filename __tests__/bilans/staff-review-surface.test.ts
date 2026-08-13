@@ -155,8 +155,21 @@ describe('staff Canonical report review service', () => {
     expect(deps.validate.mock.invocationCallOrder[0]).toBeLessThan(deps.publish.mock.invocationCallOrder[0]);
   });
 
-  test('distingue un bilan prêt dont l’e-mail parent manque et garde sa prévisualisation disponible', async () => {
-    const missingEmail = {
+  test('un canal de contact suffit : téléphone seul → diffusable ; aucun contact → bloqué', async () => {
+    // La règle du parcours (#116 e-mail différé + #124 WhatsApp) : exiger
+    // l'e-mail annulait les deux. Téléphone seul = diffusion possible, voie
+    // WhatsApp. Sans AUCUN canal, le garde légitime bloque.
+    const phoneOnly = {
+      ...revision,
+      reportArtifact: {
+        ...revision.reportArtifact,
+        student: {
+          ...revision.reportArtifact.student,
+          parent: { user: { email: null, phoneNormalized: '99192829' } },
+        },
+      },
+    };
+    const noContact = {
       ...revision,
       reportArtifact: {
         ...revision.reportArtifact,
@@ -167,8 +180,8 @@ describe('staff Canonical report review service', () => {
       },
     };
     const deps = dependencies({
-      listRecent: jest.fn().mockResolvedValue([missingEmail]),
-      findPending: jest.fn().mockResolvedValue(missingEmail),
+      listRecent: jest.fn().mockResolvedValue([phoneOnly, noContact]),
+      findPending: jest.fn().mockResolvedValue(noContact),
     });
 
     await expect(listRecentReportReviews(
@@ -176,8 +189,16 @@ describe('staff Canonical report review service', () => {
       serviceDependencies(deps),
     )).resolves.toEqual([
       expect.objectContaining({
-        displayStatus: 'Prêt — e-mail parent manquant',
+        displayStatus: 'En attente de diffusion',
         parentEmailMissing: true,
+        parentContactMissing: false,
+        diffusable: true,
+        actionable: true,
+      }),
+      expect.objectContaining({
+        displayStatus: 'Prêt — contact parent manquant',
+        parentEmailMissing: true,
+        parentContactMissing: true,
         diffusable: false,
         actionable: true,
       }),
@@ -341,8 +362,8 @@ describe('staff Canonical report review service', () => {
     expect(source).toContain('Prévisualiser le PDF');
     expect(source).toContain('Télécharger le PDF');
     expect(source).toContain('En attente de diffusion');
-    expect(source).toContain('Prêt — e-mail parent manquant');
-    expect(source).toContain('bilans prêts en attente d’e-mail parent');
+    expect(source).toContain('Prêt — contact parent manquant');
+    expect(source).toContain('bilans prêts sans contact parent');
     expect(source).toContain('Ajouter l’e-mail du parent');
     expect(source).toContain('Diffusé');
     expect(source).toContain('Rejeté');
