@@ -17,11 +17,17 @@ import { serializeError } from '@/lib/utils/serialize-error';
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
+import {
+  assertSafeSeedTarget,
+  generateRuntimePassword,
+  writeRuntimeCredentialsManifest,
+} from '../lib/security/seed-runtime';
 
+assertSafeSeedTarget();
 const prisma = new PrismaClient();
 
-const QA_PASSWORD = 'admin123';
-const QA_PASSWORD_HASH = bcrypt.hashSync(QA_PASSWORD, 10);
+const QA_PASSWORD = generateRuntimePassword();
+const QA_PASSWORD_HASH = bcrypt.hashSync(QA_PASSWORD, 12);
 
 /** Hash an activation token for safe storage (mirrors student-activation.service.ts) */
 function hashToken(token: string): string {
@@ -34,7 +40,7 @@ async function main() {
   // ─── 1. Admin ────────────────────────────────────────────────────────
   const admin = await prisma.user.upsert({
     where: { email: 'admin@nexus-reussite.com' },
-    update: { activatedAt: new Date(), sessionVersion: { increment: 1 } },
+    update: { password: QA_PASSWORD_HASH, activatedAt: new Date(), sessionVersion: { increment: 1 } },
     create: {
       email: 'admin@nexus-reussite.com',
       password: QA_PASSWORD_HASH,
@@ -49,7 +55,7 @@ async function main() {
   // ─── 2. Parent (activated, with child) ───────────────────────────────
   const parentUser = await prisma.user.upsert({
     where: { email: 'parent@example.com' },
-    update: { activatedAt: new Date(), sessionVersion: { increment: 1 } },
+    update: { password: QA_PASSWORD_HASH, activatedAt: new Date(), sessionVersion: { increment: 1 } },
     create: {
       email: 'parent@example.com',
       password: QA_PASSWORD_HASH,
@@ -74,7 +80,7 @@ async function main() {
   // ─── 3. Student (activated, linked to parent, entitlements) ──────────
   const studentUser = await prisma.user.upsert({
     where: { email: 'student@example.com' },
-    update: { activatedAt: new Date(), sessionVersion: { increment: 1 } },
+    update: { password: QA_PASSWORD_HASH, activatedAt: new Date(), sessionVersion: { increment: 1 } },
     create: {
       email: 'student@example.com',
       password: QA_PASSWORD_HASH,
@@ -139,7 +145,7 @@ async function main() {
   console.log(`✅ Student: ${studentUser.email} (${studentUser.id}) — 2 entitlements + subscription`);
 
   // ─── 4. Inactive student (NOT activated — tests login block) ─────────
-  const inactiveToken = 'act_qa_test_token_inactive_12345';
+  const inactiveToken = `act_${crypto.randomBytes(32).toString('base64url')}`;
   const inactiveUser = await prisma.user.upsert({
     where: { email: 'qa-inactive@nexus-test.local' },
     update: {
@@ -172,12 +178,12 @@ async function main() {
       completedSessions: 0,
     },
   });
-  console.log(`✅ Inactive student: ${inactiveUser.email} (token: ${inactiveToken})`);
+  console.log(`✅ Inactive student: ${inactiveUser.email} (activation token generated)`);
 
   // ─── 5. Student with no entitlements (activated, but no ARIA access) ─
   const noEntUser = await prisma.user.upsert({
     where: { email: 'qa-no-entitlement@nexus-test.local' },
-    update: { activatedAt: new Date(), sessionVersion: { increment: 1 } },
+    update: { password: QA_PASSWORD_HASH, activatedAt: new Date(), sessionVersion: { increment: 1 } },
     create: {
       email: 'qa-no-entitlement@nexus-test.local',
       password: QA_PASSWORD_HASH,
@@ -204,7 +210,7 @@ async function main() {
   // ─── 6. Coach (activated) ────────────────────────────────────────────
   const coachUser = await prisma.user.upsert({
     where: { email: 'qa-coach@nexus-reussite.com' },
-    update: { activatedAt: new Date(), sessionVersion: { increment: 1 } },
+    update: { password: QA_PASSWORD_HASH, activatedAt: new Date(), sessionVersion: { increment: 1 } },
     create: {
       email: 'qa-coach@nexus-reussite.com',
       password: QA_PASSWORD_HASH,
@@ -233,7 +239,7 @@ async function main() {
   // ─── 7. Parent with no children ──────────────────────────────────────
   const loneParent = await prisma.user.upsert({
     where: { email: 'qa-parent-nochild@nexus-test.local' },
-    update: { activatedAt: new Date(), sessionVersion: { increment: 1 } },
+    update: { password: QA_PASSWORD_HASH, activatedAt: new Date(), sessionVersion: { increment: 1 } },
     create: {
       email: 'qa-parent-nochild@nexus-test.local',
       password: QA_PASSWORD_HASH,
@@ -253,7 +259,7 @@ async function main() {
   console.log(`✅ Parent (no child): ${loneParent.email}`);
 
   console.log('\n🎉 QA Seed complete. All 7 profiles ready.');
-  console.log('\n📋 Credentials (all use password: admin123):');
+  console.log('\n📋 Profiles (credential generated at runtime; value not logged):');
   console.log('  admin@nexus-reussite.com          → ADMIN');
   console.log('  parent@example.com                → PARENT (1 child)');
   console.log('  student@example.com               → ELEVE (activated, entitlements)');
@@ -261,6 +267,15 @@ async function main() {
   console.log('  qa-no-entitlement@nexus-test.local→ ELEVE (activated, NO entitlements)');
   console.log('  qa-coach@nexus-reussite.com       → COACH');
   console.log('  qa-parent-nochild@nexus-test.local→ PARENT (no children)');
+  writeRuntimeCredentialsManifest(
+    process.env.QA_CREDENTIALS_PATH ?? '.runtime/qa-seed-credentials.json',
+    {
+      scope: 'qa-seed',
+      password: QA_PASSWORD,
+      inactiveActivationToken: inactiveToken,
+    },
+  );
+  console.log('🔐 QA credentials manifest written with mode 0600.');
 }
 
 main()

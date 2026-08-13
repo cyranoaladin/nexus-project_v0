@@ -88,6 +88,7 @@ backup_*.sql.gz
 # Incident / forensic dumps with real DB data
 incident-forensics/
 e2e/.credentials.json
+.runtime/
 
 # ─── Sécurité / RGPD ───────────────────────────────────────────────────────
 # Fichiers de session Playwright + fixtures (contiennent des tokens/credentials de test)

@@ -1,37 +1,28 @@
 #!/usr/bin/env bash
-# =============================================================================
-# pre-commit-hook.sh — Blocage de commits de secrets
-# Nexus Réussite — Audit 2026-04-19
-#
-# Installation :
-#   cp scripts/pre-commit-hook.sh .git/hooks/pre-commit
-#   chmod +x .git/hooks/pre-commit
-# =============================================================================
+# pre-commit-hook.sh — staged credential and sensitive-file gate
 
 set -euo pipefail
 
 RED='\033[0;31m'
 YELLOW='\033[1;33m'
 NC='\033[0m'
-
 BLOCKED=false
 
-# ─── Patterns de fichiers bloqués ────────────────────────────────────────────
 BLOCKED_PATTERNS=(
-  "\.pem$"
-  "\.key$"
-  "\.p12$"
-  "\.pfx$"
-  "\.env$"
-  "\.env\."
-  "credentials\.json$"
-  "parent\.json$"
-  "student\.json$"
-  "admin\.json$"
-  "coach\.json$"
-  "assistante\.json$"
-  "\.bak$"
-  "get-users-temp\.mjs$"
+  '\.pem$'
+  '\.key$'
+  '\.p12$'
+  '\.pfx$'
+  '\.env$'
+  '\.env\.'
+  'credentials\.json$'
+  'parent\.json$'
+  'student\.json$'
+  'admin\.json$'
+  'coach\.json$'
+  'assistante\.json$'
+  '\.bak$'
+  'get-users-temp\.mjs$'
 )
 
 is_safe_env_example_path() {
@@ -39,216 +30,37 @@ is_safe_env_example_path() {
   [[ "$file" =~ (^|/)\.env(\.[^/]+)*\.example$ ]]
 }
 
-# ─── Vérification des fichiers stagés ────────────────────────────────────────
-STAGED_FILES=$(git diff --cached --name-only 2>/dev/null || true)
+mapfile -d '' -t staged_files < <(
+  git diff --cached --name-only --diff-filter=AM -z 2>/dev/null || true
+)
 
-if [[ -z "$STAGED_FILES" ]]; then
+if [[ ${#staged_files[@]} -eq 0 ]]; then
   exit 0
 fi
 
-# Filtrer les fichiers supprimés (ne vérifier que les fichiers ajoutés/modifiés)
-STAGED_ADDED_MODIFIED=$(git diff --cached --name-only --diff-filter=AM 2>/dev/null || true)
-
-for pattern in "${BLOCKED_PATTERNS[@]}"; do
-  MATCHES=$(echo "$STAGED_ADDED_MODIFIED" | grep -E "$pattern" || true)
-  if [[ "$pattern" == "\.env\." && -n "$MATCHES" ]]; then
-    FILTERED_MATCHES=""
-    while IFS= read -r matched_file; do
-      [[ -z "$matched_file" ]] && continue
-      if is_safe_env_example_path "$matched_file"; then
+for file in "${staged_files[@]}"; do
+  for pattern in "${BLOCKED_PATTERNS[@]}"; do
+    if [[ "$file" =~ $pattern ]]; then
+      if [[ "$pattern" == '\.env\.' ]] && is_safe_env_example_path "$file"; then
         continue
       fi
-      FILTERED_MATCHES+="${matched_file}"$'\n'
-    done <<< "$MATCHES"
-    MATCHES="${FILTERED_MATCHES%$'\n'}"
-  fi
-  if [[ -n "$MATCHES" ]]; then
-    echo -e "${RED}[BLOCKED]${NC} Fichier(s) sensible(s) détecté(s) :"
-    echo "$MATCHES" | while read -r f; do
-      echo -e "  ${RED}✗${NC} $f  (pattern: $pattern)"
-    done
-    BLOCKED=true
-  fi
-done
-
-# ─── Vérification de patterns de secrets dans le contenu ─────────────────────
-SECRET_PATTERNS=(
-  "NEXTAUTH_SECRET="
-  "SMTP_PASSWORD="
-  "RAG_API_TOKEN="
-  "POSTGRES_PASSWORD="
-  "DATABASE_URL=postgresql://.*:.*@"
-  "postgres(ql)?://[^/@[:space:]\"']+:[^/@[:space:]\"']+@"
-  "-----BEGIN.*PRIVATE KEY-----"
-  "NexusReussite[0-9]{4}@"
-)
-
-# ─── Allowlist par (fichier, pattern, valeur bénigne littérale) ───────────────
-# Format : "file_glob|secret_pattern|benign_value_regex"
-# The file is exempted from a secret_pattern ONLY if every matching line
-# also matches benign_value_regex. A different value (e.g. POSTGRES_PASSWORD=realSecret)
-# will still block even in an allowlisted file.
-#
-# For command substitutions ($( or backtick): the regex is matched against the
-# FULL value including quotes (e.g. "$(node). There is NO global substitution
-# exemption — a substitution is only safe when the (file, pattern) is allowlisted
-# and the regex matches.
-SECRET_SCAN_VALUE_ALLOWLIST=(
-  # scripts/gate-all.sh: e2e container uses the default password "postgres" (never real creds).
-  "scripts/gate-all.sh|POSTGRES_PASSWORD=|^postgres$"
-  # scripts/gate-all.sh: NEXTAUTH_SECRET extracted via $(node -p ...) — not a literal secret.
-  # Grep truncates at whitespace → value seen is "$(node or $(node. Regex matches both.
-  "scripts/gate-all.sh|NEXTAUTH_SECRET=|^\"?\\\$\(node"
-  # docs/DEPLOY_PRODUCTION.md: illustrative placeholders in a setup guide,
-  # never real values (all-X secret, French "YOUR_..." labels).
-  "docs/DEPLOY_PRODUCTION.md|NEXTAUTH_SECRET=|^X+$"
-  "docs/DEPLOY_PRODUCTION.md|SMTP_PASSWORD=|^VOTRE_MOT_DE_PASSE_SMTP$"
-  "docs/DEPLOY_PRODUCTION.md|POSTGRES_PASSWORD=|^VOTRE_MOT_DE_PASSE_FORT$"
-  "docs/DEPLOY_PRODUCTION.md|DATABASE_URL=postgresql://.*:.*@|^postgresql://nexus_user:VOTRE_MOT_DE_PASSE_FORT@postgres:5432/nexus_reussite_prod\?schema=public$"
-)
-
-# Returns 0 (exempt) only if ALL lines matching the secret pattern in the file
-# also match the declared benign value or are command substitutions. Block otherwise.
-is_value_allowlisted() {
-  local file="$1"
-  local pattern="$2"
-  local content="$3"
-
-  # Non-assignment patterns (no '=' — e.g., PRIVATE KEY markers) always fail closed,
-  # with one narrow exception: the generic postgres URL pattern additionally tolerates
-  # the literal "postgres:postgres" credential pair — the official Docker postgres
-  # image's own documented default, used throughout this repo's ephemeral CI/test
-  # service containers (never a real credential). Any other user:pass pair on this
-  # pattern still fails closed. Substitution detection only applies to KEY=VALUE patterns.
-  if [[ "$pattern" != *"="* ]]; then
-    if [[ "$pattern" == 'postgres(ql)?://'* ]]; then
-      local has_unsafe_pg=false
-      while IFS= read -r pgmatch; do
-        [[ -z "$pgmatch" ]] && continue
-        if [[ "$pgmatch" != postgres://postgres:postgres@* && "$pgmatch" != postgresql://postgres:postgres@* ]]; then
-          has_unsafe_pg=true
-        fi
-      done < <(printf '%s' "$content" | grep -oE "${pattern}[^[:space:]]*")
-      [[ "$has_unsafe_pg" == true ]] && return 1
-      return 0
-    fi
-    return 1
-  fi
-
-  # Command substitution is not a literal secret: values starting with "$(" or "'$(" are safe.
-  # Extract full values (including quotes) after the pattern.
-  # Extract values after the pattern using WIDE grep (includes quotes).
-  # Check each value: substitution → skip; literal → must pass allowlist.
-  local has_unresolved_literal=false
-  while IFS= read -r match; do
-    [[ -z "$match" ]] && continue
-    local val="${match#*=}"
-    [[ -z "$val" ]] && continue
-    local stripped="${val#\"}"
-    stripped="${stripped#\'}"
-    # Command substitution ($( or backtick): NOT a global exemption.
-    # Only exempt when (file, pattern) is in the allowlist AND the allowlist
-    # regex matches the value. Regex is checked against the FULL val (with quotes)
-    # because the narrow grep cannot extract past the opening quote.
-    if [[ -n "$stripped" ]] && { [[ "$stripped" == '$('* ]] || [[ "$stripped" == '`'* ]]; }; then
-      local is_allowed_subst=false
-      for entry in "${SECRET_SCAN_VALUE_ALLOWLIST[@]}"; do
-        [[ "$entry" == \#* ]] && continue
-        local allowed_file allowed_pattern benign_suffix
-        IFS='|' read -r allowed_file allowed_pattern benign_suffix <<< "$entry"
-        if [[ "$file" == $allowed_file && "$pattern" == "$allowed_pattern" ]]; then
-          if printf '%s' "$val" | grep -qE "$benign_suffix" 2>/dev/null; then
-            is_allowed_subst=true
-          fi
-          break
-        fi
-      done
-      if [[ "$is_allowed_subst" == true ]]; then
-        continue
-      fi
-      has_unresolved_literal=true
-      continue
-    fi
-    # Literal value — extract the unquoted value for comparison
-    # (narrow grep: stops at quotes/backslash)
-    local narrow_val
-    narrow_val=$(printf '%s' "$match" | grep -oE "${pattern}[^[:space:]\"'\\\\]*" | head -1)
-    narrow_val="${narrow_val#*=}"
-    # Empty narrow value = quoted secret (e.g. KEY="secret") → fail closed
-    if [[ -z "$narrow_val" ]]; then
-      has_unresolved_literal=true
-      continue
-    fi
-    # Check against allowlist
-    local is_benign=false
-    for entry in "${SECRET_SCAN_VALUE_ALLOWLIST[@]}"; do
-      [[ "$entry" == \#* ]] && continue
-      local allowed_file allowed_pattern benign_suffix
-      IFS='|' read -r allowed_file allowed_pattern benign_suffix <<< "$entry"
-      if [[ "$file" == $allowed_file && "$pattern" == "$allowed_pattern" ]]; then
-        if printf '%s' "$narrow_val" | grep -qE "$benign_suffix" 2>/dev/null; then
-          is_benign=true
-        fi
-        break
-      fi
-    done
-    if [[ "$is_benign" == false ]]; then
-      has_unresolved_literal=true
-    fi
-  done < <(printf '%s' "$content" | grep -oE "${pattern}[^[:space:]]*")
-
-  if [[ "$has_unresolved_literal" == true ]]; then
-    return 1
-  fi
-  return 0
-}
-
-for f in $STAGED_ADDED_MODIFIED; do
-  if [[ ! -f "$f" ]]; then
-    continue
-  fi
-  # Ne pas inspecter les fichiers binaires, les .example, ou le hook lui-même
-  # Skip: example/sample files (declared safe) and the hook itself
-  if [[ "$f" == *".example" || "$f" == *".sample" || "$f" == *"pre-commit-hook.sh" || "$f" == *"pre-commit-hook.test.ts" ]]; then
-    continue
-  fi
-  CONTENT=$(git show ":$f" 2>/dev/null || true)
-  for pattern in "${SECRET_PATTERNS[@]}"; do
-    if echo "$CONTENT" | grep -qE "$pattern" 2>/dev/null; then
-      # Check value-level allowlist: exempts only if ALL matches are benign
-      if is_value_allowlisted "$f" "$pattern" "$CONTENT"; then
-        continue
-      fi
-      echo -e "${RED}[BLOCKED]${NC} Secret potentiel dans $f (pattern: $pattern)"
+      echo -e "${RED}[BLOCKED]${NC} Fichier sensible détecté : $file"
       BLOCKED=true
     fi
   done
 done
 
-# ─── Avertissements (non-bloquants) ──────────────────────────────────────────
-WARN_PATTERNS=(
-  "prod-tree.*\.txt$"
-  "arborescence.*\.txt$"
-  "storage/"
-)
+if ! node scripts/security/check-versioned-credentials.mjs --staged; then
+  BLOCKED=true
+fi
 
-for pattern in "${WARN_PATTERNS[@]}"; do
-  MATCHES=$(echo "$STAGED_FILES" | grep -E "$pattern" || true)
-  if [[ -n "$MATCHES" ]]; then
-    echo -e "${YELLOW}[WARN]${NC} Fichier inhabituel stagé :"
-    echo "$MATCHES" | while read -r f; do
-      echo -e "  ${YELLOW}⚠${NC} $f"
-    done
-    echo -e "  Utilisez ${YELLOW}git commit --no-verify${NC} si c'est intentionnel."
+for file in "${staged_files[@]}"; do
+  if [[ "$file" =~ prod-tree.*\.txt$|arborescence.*\.txt$|(^|/)storage/ ]]; then
+    echo -e "${YELLOW}[WARN]${NC} Fichier inhabituel stagé : $file"
   fi
 done
 
-if $BLOCKED; then
-  echo ""
-  echo -e "${RED}Commit bloqué.${NC} Retirez les fichiers sensibles avec :"
-  echo "  git reset HEAD <fichier>"
-  echo ""
+if [[ "$BLOCKED" == true ]]; then
+  echo -e "${RED}Commit bloqué.${NC} Corrigez les éléments signalés avant de réessayer."
   exit 1
 fi
-
-exit 0

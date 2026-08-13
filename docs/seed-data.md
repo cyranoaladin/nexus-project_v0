@@ -32,7 +32,7 @@ Les seeds et diagnostics nominatifs ne doivent pas être versionnés. Les jeux d
 - Tout seed **doit logger ses créations** (au minimum un summary par modèle).
 - Tout seed **doit déclarer son scope** dans un commentaire d'en-tête : LOCAL | E2E | STAGING | PROD.
 - Aucun seed ne doit appliquer de migration. Migrations = `prisma migrate deploy`.
-- Aucun secret ou PII réelle dans les seeds (mots de passe = `password123` en local, hashés via bcrypt avant insertion).
+- Aucun secret ou PII réelle dans les seeds (mots de passe = `<runtime-generated>` en local, hashés via bcrypt avant insertion).
 
 ---
 
@@ -42,13 +42,13 @@ Provenance : `scripts/seed-e2e-db.ts` + `prisma/seed.ts`.
 
 | Email | Rôle | Track / Level | Mot de passe |
 |---|---|---|---|
-| `student@example.com` | ELEVE | EDS Première Maths | `password123` |
-| `eleve.eds@nexus-reussite.com` | ELEVE | EDS Première Maths (alt) | `password123` |
-| `eleve.stmg@nexus-reussite.com` | ELEVE | STMG Première | `password123` |
-| `eleve.stmg.survival@nexus-reussite.com` | ELEVE | STMG Première + survivalMode | `password123` |
-| `helios@nexus-reussite.com` | COACH | — | `password123` |
-| `parent@example.com` | PARENT | — | `password123` |
-| `admin@nexus-reussite.com` | ADMIN | — | e2e uniquement : `admin123` ; prod : `SEED_PASSWORD` obligatoire |
+| `student@example.com` | ELEVE | EDS Première Maths | `<runtime-generated>` |
+| `eleve.eds@nexus-reussite.com` | ELEVE | EDS Première Maths (alt) | `<runtime-generated>` |
+| `eleve.stmg@nexus-reussite.com` | ELEVE | STMG Première | `<runtime-generated>` |
+| `eleve.stmg.survival@nexus-reussite.com` | ELEVE | STMG Première + survivalMode | `<runtime-generated>` |
+| `helios@nexus-reussite.com` | COACH | — | `<runtime-generated>` |
+| `parent@example.com` | PARENT | — | `<runtime-generated>` |
+| `admin@nexus-reussite.com` | ADMIN | — | `<runtime-generated>` sur base locale jetable uniquement ; seed interdit en production |
 | `student46-1@nexus.local` | ELEVE | STMG Première (compte STMG de recette prod) | (cf. secrets manager) |
 
 À enrichir au Lot E (Terminale EDS) et au Lot F (STMG Première complet).

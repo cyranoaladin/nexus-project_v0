@@ -25,7 +25,7 @@ describe('User Tests', () => {
         email: 'test@example.com', // ❌ Duplicate key!
         name: 'Test User',
         role: 'STUDENT',
-        password: 'password123',
+        password: '<runtime-generated>',
       }
     });
     expect(user).toBeDefined();

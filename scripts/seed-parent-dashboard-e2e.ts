@@ -9,16 +9,23 @@ import { serializeError } from '@/lib/utils/serialize-error';
  * - 30+ financial transactions
  * - Credit transaction history
  *
- * All passwords: "password123"
+ * Passwords are generated at runtime.
  * Run: DATABASE_URL=... npx tsx scripts/seed-parent-dashboard-e2e.ts
  */
 
 import { PrismaClient, UserRole, Subject, SessionStatus, SubscriptionStatus, PaymentType, PaymentStatus } from '@prisma/client';
-// import bcrypt from 'bcryptjs';
+import bcrypt from 'bcryptjs';
 import fs from 'fs';
 import path from 'path';
+import {
+  assertSafeSeedTarget,
+  generateRuntimePassword,
+  writeRuntimeCredentialsManifest,
+} from '../lib/security/seed-runtime';
 
+assertSafeSeedTarget();
 const prisma = new PrismaClient();
+const runtimePassword = generateRuntimePassword();
 
 interface FixtureData {
   parent: any;
@@ -97,15 +104,14 @@ async function main() {
   // =============================================================================
   // PASSWORD HASH
   // =============================================================================
-  // Hash for 'password123' generated locally to avoid bcrypt dependency in container
-  const hashedPassword = '$2b$10$TAnmu8rftT19nLPATB/V4ebYdw2X1l8KPFACHusCMv6ffcKWfiaxO';
+  const hashedPassword = await bcrypt.hash(runtimePassword, 12);
 
   // =============================================================================
   // CREATE ADMIN USER
   // =============================================================================
   const adminUser = await prisma.user.upsert({
     where: { email: 'admin@test.com' },
-    update: {},
+    update: { password: hashedPassword, sessionVersion: { increment: 1 } },
     create: {
       email: 'admin@test.com',
       password: hashedPassword,
@@ -340,11 +346,11 @@ async function main() {
   console.log(`  Payments: ${await prisma.payment.count()}\n`);
 
   console.log('🔑 Test Credentials:');
-  console.log(`  Parent:  ${fixtureData.parent.email} / password123`);
-  console.log(`  Student 1: ${fixtureData.children[0].email} / password123`);
-  console.log(`  Student 2: ${fixtureData.children[1].email} / password123`);
-  console.log(`  Coach 1: ${fixtureData.coaches[0].email} / password123`);
-  console.log(`  Coach 2: ${fixtureData.coaches[1].email} / password123\n`);
+  writeRuntimeCredentialsManifest(
+    process.env.PARENT_E2E_CREDENTIALS_PATH ?? '.runtime/parent-dashboard-e2e-credentials.json',
+    { scope: 'parent-dashboard-e2e', password: runtimePassword },
+  );
+  console.log('🔐 Runtime credentials manifest written with mode 0600.');
 
   console.log('📈 Test Data Coverage:');
   console.log(`  Badge Categories: ASSIDUITE (6), PROGRESSION (6), CURIOSITE (6)`);

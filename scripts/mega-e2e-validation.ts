@@ -18,6 +18,7 @@ import { PrismaClient } from '@prisma/client';
 import * as fs from 'fs';
 import * as path from 'path';
 import { serializeError } from '@/lib/utils/serialize-error';
+import { generateRuntimePassword } from '@/lib/security/seed-runtime';
 
 const prisma = new PrismaClient();
 const BASE_URL = 'http://localhost:3001';
@@ -97,7 +98,7 @@ async function fluxA_BilanGratuit(): Promise<boolean> {
         parentLastName: 'E2E',
         parentEmail: email,
         parentPhone: '99887766',
-        parentPassword: 'SecureP@ss2026!',
+        parentPassword: generateRuntimePassword(),
         studentFirstName: 'TestEleve',
         studentLastName: 'E2E',
         studentGrade: 'Terminale',

@@ -64,15 +64,15 @@ c5458708  feat(deploy): implement production-ready Docker deployment
 
 | Variable | Valeur (tronquée) | Risque si exposée |
 |----------|-------------------|-------------------|
-| `POSTGRES_PASSWORD` | `test_password_for_smoke_test` | DB prod compromise |
-| `DATABASE_URL` | `postgresql://nexus_admin:test_password_...@postgres:5432/nexus_prod` | idem |
-| `NEXTAUTH_SECRET` | `V+2iklnFo...` (base64 32B) | Forge de session JWT |
-| `SMTP_PASSWORD` | `NexusReussite2025@NSI` | Prise de contrôle email |
-| `RAG_API_TOKEN` | `59e3c474...` (hex 64 chars) | Accès API RAG externe |
+| `POSTGRES_PASSWORD` | `[REDACTED-ROTATED]` | DB prod compromise |
+| `DATABASE_URL` | `[REDACTED-ROTATED]` | idem |
+| `NEXTAUTH_SECRET` | `[REDACTED-ROTATED]` | Forge de session JWT |
+| `SMTP_PASSWORD` | `[REDACTED-ROTATED]` | Prise de contrôle email |
+| `RAG_API_TOKEN` | `[REDACTED-ROTATED]` | Accès API RAG externe |
 
 **Variables placeholder (pas de rotation requise) :** `OPENAI_API_KEY`, `KONNECT_API_KEY`, `KONNECT_WALLET_ID`, `KONNECT_WEBHOOK_SECRET`.
 
-**Note :** `POSTGRES_PASSWORD=test_password_for_smoke_test` est visuellement une valeur de test mais est utilisée dans `DATABASE_URL` pointant vers `nexus_prod`. Si c'est bien le mot de passe de la base de production, il est trivial à deviner.
+**Note :** l'ancienne valeur ressemblait à un mot de passe de test mais était utilisée par la base de production. Elle a été retirée de l'arbre courant et ne correspond plus au runtime.
 
 **Effort :** S (rotation SMTP + NEXTAUTH_SECRET + RAG token = 20 min)
 **LOT :** LOT 0
@@ -81,7 +81,7 @@ c5458708  feat(deploy): implement production-ready Docker deployment
 1. Changer `SMTP_PASSWORD` sur Hostinger.
 2. Régénérer `NEXTAUTH_SECRET` : `openssl rand -base64 32`.
 3. Régénérer le token RAG API sur `rag-api.nexusreussite.academy`.
-4. Changer le mot de passe PostgreSQL si `test_password_for_smoke_test` est réellement utilisé en prod.
+4. Confirmer la rotation du mot de passe PostgreSQL exposé historiquement.
 5. Créer `.env.production` via un gestionnaire de secrets (Vault, Docker Secrets, ou variables d'environnement PM2/système) — ne jamais écrire ce fichier sur disque en clair.
 
 ---
@@ -176,7 +176,7 @@ c5458708  feat(deploy): implement production-ready Docker deployment
 |------------|---------------|-----------------|--------|
 | `privkey.pem` SSL | `nginx/ssl/privkey.pem` | OUI (8 commits) | Révoquer + régénérer certificat |
 | `NEXTAUTH_SECRET` | `.env.production` (local) | NON | Rotation recommandée (précaution) |
-| `SMTP_PASSWORD` (`NexusReussite2025@NSI`) | `.env.production` (local) | NON | Rotation recommandée |
+| `SMTP_PASSWORD` (`[REDACTED-ROTATED]`) | `.env.production` (local) | NON | Rotation recommandée |
 | `RAG_API_TOKEN` | `.env.production` (local) | NON | Rotation recommandée |
 | `POSTGRES_PASSWORD` | `.env.production` (local) | NON | Évaluer si mot de passe prod réel |
 | Tokens session `parent.json` | Historique git | OUI (29 commits) | Invalider via rotation NEXTAUTH_SECRET |

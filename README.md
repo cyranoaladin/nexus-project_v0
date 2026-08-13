@@ -956,19 +956,24 @@ docker compose -f docker-compose.v2.yml -f docker-compose.prod.v2.yml up -d [ser
 
 > **Note** : `Dockerfile.prod` et `docker-compose.prod.yml` dans le repo sont vestigiaux — la production utilise PM2 standalone, pas Docker pour Next.js.
 
-### Seed Production (9 users)
+### Seed jetable local (9 users)
 
-| Email | Rôle | Password |
+Ce seed refuse toute cible qui n'est pas une base PostgreSQL locale,
+explicitement marquée et nommée comme jetable. Ce contrôle reste actif lorsque
+l'application E2E est compilée en mode production. Le mot de passe est généré à
+chaque exécution et écrit dans un manifeste local ignoré par Git, mode `0600`.
+
+| Email | Rôle | Credential |
 |-------|------|----------|
-| `admin@nexus-reussite.com` | ADMIN | admin123 |
-| `helios@nexus-reussite.com` | COACH | admin123 |
-| `zenon@nexus-reussite.com` | COACH | admin123 |
-| `athena@nexus-reussite.com` | COACH | admin123 |
-| `hermes@nexus-reussite.com` | COACH | admin123 |
-| `clio@nexus-reussite.com` | COACH | admin123 |
-| `parent@example.com` | PARENT | admin123 |
-| `student@example.com` | ELEVE | admin123 |
-| `test@example.com` | ELEVE | admin123 |
+| `admin@nexus-reussite.com` | ADMIN | `<runtime-generated>` |
+| `helios@nexus-reussite.com` | COACH | `<runtime-generated>` |
+| `zenon@nexus-reussite.com` | COACH | `<runtime-generated>` |
+| `athena@nexus-reussite.com` | COACH | `<runtime-generated>` |
+| `hermes@nexus-reussite.com` | COACH | `<runtime-generated>` |
+| `clio@nexus-reussite.com` | COACH | `<runtime-generated>` |
+| `parent@example.com` | PARENT | `<runtime-generated>` |
+| `student@example.com` | ELEVE | `<runtime-generated>` |
+| `test@example.com` | ELEVE | `<runtime-generated>` |
 
 ---
 
@@ -1037,7 +1042,7 @@ cp env.local.example .env.local
 # 3. Base de données
 npx prisma generate
 npx prisma db push
-npx prisma db seed    # 9 users de démo
+NEXUS_DISPOSABLE_POSTGRES=1 npx prisma db seed  # base PostgreSQL locale nexus_disposable_*_test ou nexus_e2e uniquement
 
 # 4. Lancer
 npm run dev           # http://localhost:3000

@@ -1,4 +1,5 @@
 import { test, expect, Page } from '@playwright/test';
+import { CREDS } from '@/e2e/helpers/credentials';
 
 /**
  * REAL AUDIT — Dashboard pages (authenticated).
@@ -25,7 +26,7 @@ test.describe('DASHBOARD — Admin (/dashboard/admin)', () => {
     page.on('console', (msg) => {
       if (msg.type() === 'error') consoleErrors.push(msg.text());
     });
-    await loginAndGo(page, 'admin@nexus-reussite.com', 'admin123', '/dashboard/admin');
+    await loginAndGo(page, CREDS.admin.email, CREDS.admin.password, '/dashboard/admin');
   });
 
   test('Page charge et affiche contenu admin', async ({ page }) => {
@@ -70,7 +71,7 @@ test.describe('DASHBOARD — Parent (/dashboard/parent)', () => {
     page.on('console', (msg) => {
       if (msg.type() === 'error') consoleErrors.push(msg.text());
     });
-    await loginAndGo(page, 'parent@example.com', 'admin123', '/dashboard/parent');
+    await loginAndGo(page, CREDS.parent.email, CREDS.parent.password, '/dashboard/parent');
   });
 
   test('Page charge et affiche contenu parent', async ({ page }) => {
@@ -115,7 +116,7 @@ test.describe('DASHBOARD — Élève (/dashboard/eleve)', () => {
     page.on('console', (msg) => {
       if (msg.type() === 'error') consoleErrors.push(msg.text());
     });
-    await loginAndGo(page, 'student@example.com', 'admin123', '/dashboard/eleve');
+    await loginAndGo(page, CREDS.student.email, CREDS.student.password, '/dashboard/eleve');
   });
 
   test('Page charge et affiche contenu élève', async ({ page }) => {
@@ -151,7 +152,7 @@ test.describe('DASHBOARD — Coach (/dashboard/coach)', () => {
     page.on('console', (msg) => {
       if (msg.type() === 'error') consoleErrors.push(msg.text());
     });
-    await loginAndGo(page, 'helios@nexus-reussite.com', 'admin123', '/dashboard/coach');
+    await loginAndGo(page, CREDS.coach.email, CREDS.coach.password, '/dashboard/coach');
   });
 
   test('Page charge et affiche contenu coach', async ({ page }) => {

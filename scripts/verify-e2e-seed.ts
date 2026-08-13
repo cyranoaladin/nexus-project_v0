@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { PrismaClient, UserRole } from '@prisma/client';
+import bcrypt from 'bcryptjs';
 import { serializeError } from '../lib/utils/serialize-error';
 import { isAllowedSeedTarget } from '../lib/e2e/seed-guard';
 
@@ -42,10 +43,13 @@ async function main() {
 
       const user = await prisma.user.findUnique({
         where: { email: credential.email },
-        select: { role: true },
+        select: { role: true, password: true },
       });
       if (user?.role !== expectedRole) {
         throw new Error(`E2E seed verification failed: fixture ${fixtureName} has the wrong role`);
+      }
+      if (!user.password || !await bcrypt.compare(credential.password, user.password)) {
+        throw new Error(`E2E seed verification failed: fixture ${fixtureName} password is out of sync`);
       }
     }
 

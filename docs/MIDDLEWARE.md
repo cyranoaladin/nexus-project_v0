@@ -319,7 +319,7 @@ import { sanitizeLogData } from '@/lib/middleware/logger';
 
 const sanitized = sanitizeLogData({
   email: 'user@example.com',
-  password: 'secret123',  // Redacted
+  password: '[REDACTED]',
   token: 'abc123'         // Redacted
 });
 

@@ -270,10 +270,10 @@ describe('Input', () => {
       const passwordInput = screen.getByLabelText('Password');
 
       await user.type(emailInput, 'test@example.com');
-      await user.type(passwordInput, 'password123');
+      await user.type(passwordInput, 'SyntheticFixture!42');
 
       expect(emailInput).toHaveValue('test@example.com');
-      expect(passwordInput).toHaveValue('password123');
+      expect(passwordInput).toHaveValue('SyntheticFixture!42');
     });
 
     it('displays Zod validation errors', async () => {

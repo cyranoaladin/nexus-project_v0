@@ -63,6 +63,7 @@ DATABASE_URL="postgresql://postgres:postgres@localhost:5435/nexus_e2e?schema=pub
 
 # Seed test data
 echo "🌱 Seeding E2E test data..."
+NEXUS_DISPOSABLE_POSTGRES=1 \
 DATABASE_URL="postgresql://postgres:postgres@localhost:5435/nexus_e2e?schema=public" \
   npx tsx scripts/seed-e2e-db.ts
 
