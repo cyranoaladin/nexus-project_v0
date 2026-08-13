@@ -26,6 +26,7 @@ import { bilanPackLevelLabel } from '../render/stage-label';
 export type PendingReportReview = Readonly<{
   id: string;
   status: string;
+  generation: number;
   validationFailures: readonly string[];
   reportPackId: string;
   reportPackVersion: string;
@@ -84,6 +85,7 @@ type ReviewAction = ReviewActor & Readonly<{ revisionId: string; motif: string }
 const revisionSelection = {
   id: true,
   status: true,
+  generation: true,
   validationFailures: true,
   reportPackId: true,
   reportPackVersion: true,

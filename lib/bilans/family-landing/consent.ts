@@ -31,7 +31,7 @@ export class FamilyConsentError extends Error {
 
 type FamilyConsentDatabase = Pick<
   PrismaClient,
-  '$transaction' | 'reportShareLink' | 'reportArtifact' | 'shareLinkAccess'
+  '$transaction' | 'reportShareLink' | 'reportArtifact' | 'reportRevision' | 'shareLinkAccess'
 >;
 
 type Dependencies = Readonly<{

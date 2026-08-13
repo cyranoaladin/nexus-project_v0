@@ -199,3 +199,36 @@ export async function requestTeacherBriefCorrectionAction(formData: FormData): P
     handleAccessError(error);
   }
 }
+
+export async function executeRegenerationAction(formData: FormData): Promise<void> {
+  const { executeReportRegeneration, ReportRegenerationError } = await import('@/lib/bilans/staff/regeneration-service');
+  try {
+    await executeReportRegeneration({
+      actor: await actor(),
+      revisionId: field(formData, 'revisionId'),
+      motif: field(formData, 'motif'),
+      confirmAlreadyPublished: formData.get('confirmAlreadyPublished') === 'on',
+    });
+    revalidatePath('/dashboard/assistante/bilans');
+  } catch (error) {
+    if (error instanceof ReportRegenerationError) notFound();
+    handleAccessError(error);
+  }
+  redirect('/dashboard/assistante/bilans');
+}
+
+export async function prepareUpdateInfoMessageAction(formData: FormData): Promise<void> {
+  const { prepareUpdateInfoMessage } = await import('@/lib/bilans/staff/whatsapp-send-service');
+  let whatsappUrl: string;
+  try {
+    const prepared = await prepareUpdateInfoMessage({
+      actor: await actor(),
+      reportArtifactId: field(formData, 'artifactId'),
+    });
+    whatsappUrl = prepared.whatsappUrl;
+  } catch (error) {
+    if (error instanceof WhatsAppSendError) notFound();
+    handleAccessError(error);
+  }
+  redirect(whatsappUrl);
+}
