@@ -7,7 +7,7 @@ import { prisma } from '@/lib/prisma';
 import { processScoreAttemptJob } from './score-job';
 import { processGenerateReportJob } from './generate-report-job';
 
-type DrainDatabase = Pick<PrismaClient, '$transaction'>;
+type DrainDatabase = Pick<PrismaClient, '$transaction' | '$queryRaw'>;
 type DrainLogger = Readonly<{
   info(event: Readonly<Record<string, unknown>>): void;
   error(event: Readonly<Record<string, unknown>>): void;
@@ -53,6 +53,17 @@ function boundedLimit(value: number | undefined): number {
   return limit;
 }
 
+/**
+ * Plafond de tentatives : au-delà, un job en échec DÉTERMINISTE (pack
+ * indisponible, réponses malformées…) n'est plus réclamé — sinon il boucle à
+ * l'infini et occupe un créneau de worker à chaque cycle (incident du
+ * 13/08/2026 : un job SCORE en échec 806 fois). Le job reste en base
+ * (diagnostic possible) mais sort de la file active : c'est une quarantaine,
+ * pas une suppression. Chaque cycle journalise les jobs ainsi mis de côté
+ * pour qu'ils restent visibles.
+ */
+export const MAX_JOB_ATTEMPTS = 20;
+
 function leaseDuration(value: number | undefined): number {
   const duration = value ?? 5 * 60_000;
   if (!Number.isSafeInteger(duration) || duration < 1_000 || duration > 30 * 60_000) {
@@ -72,6 +83,7 @@ async function claimJobs(
       FROM "canonical_job_outbox"
       WHERE "jobType" = ${jobType}::"CanonicalJobType"
         AND "availableAt" <= ${input.now}
+        AND "attemptCount" < ${MAX_JOB_ATTEMPTS}
         AND (
           "status" IN ('PENDING'::"CanonicalOutboxStatus", 'FAILED'::"CanonicalOutboxStatus")
           OR (
@@ -131,7 +143,21 @@ async function drainJobs(
     }
   }
 
-  const result = Object.freeze({ claimed: jobIds.length, completed, failed });
+  // Visibilité : les jobs mis en quarantaine (plafond de tentatives atteint)
+  // ne sont plus réclamés mais restent en base. On les compte à chaque cycle
+  // pour qu'ils ne disparaissent pas silencieusement de la supervision.
+  const quarantined = await deps.prisma.$queryRaw<Array<{ count: bigint }>>(Prisma.sql`
+    SELECT count(*)::bigint AS count
+    FROM "canonical_job_outbox"
+    WHERE "jobType" = ${jobType}::"CanonicalJobType"
+      AND "attemptCount" >= ${MAX_JOB_ATTEMPTS}
+  `);
+  const quarantinedCount = Number(quarantined[0]?.count ?? BigInt(0));
+  if (quarantinedCount > 0) {
+    deps.logger.error({ event: `${eventPrefix}_JOBS_QUARANTINED`, jobType, count: quarantinedCount, maxAttempts: MAX_JOB_ATTEMPTS });
+  }
+
+  const result = Object.freeze({ claimed: jobIds.length, completed, failed, quarantined: quarantinedCount });
   deps.logger.info({ event: `${eventPrefix}_DRAIN_COMPLETED`, ...result, durationMs: Date.now() - startedAt });
   return result;
 }
