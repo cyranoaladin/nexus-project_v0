@@ -243,8 +243,8 @@ describe('Saisie papier — parité et provenance sur PostgreSQL réel', () => {
 
     await Promise.all([generateReport(paperAttemptId), generateReport(onlineAttemptId)]);
     const [paperRevision, onlineRevision] = await Promise.all([
-      prisma.reportRevision.findUniqueOrThrow({ where: { scoreSnapshotId: paper.id } }),
-      prisma.reportRevision.findUniqueOrThrow({ where: { scoreSnapshotId: online.id } }),
+      prisma.reportRevision.findFirstOrThrow({ where: { scoreSnapshotId: paper.id } }),
+      prisma.reportRevision.findFirstOrThrow({ where: { scoreSnapshotId: online.id } }),
     ]);
     const paperIdentity = (paperRevision.content as {
       NEXUS: { identity: { durationMeasurement?: string } };

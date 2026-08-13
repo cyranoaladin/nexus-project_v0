@@ -376,6 +376,7 @@ export async function publishReportRevision(input: Readonly<{
       id: true,
       status: true,
       validationFailures: true,
+      generation: true,
       content: true,
       materialization: { select: { id: true } },
       scoreSnapshot: { select: { result: true } },
@@ -412,8 +413,11 @@ export async function publishReportRevision(input: Readonly<{
     throw new BilanReportServiceError('REPORT_VALIDATION_FAILURES');
   }
   if (candidate.materialization !== null) throw new BilanReportServiceError('REPORT_ALREADY_MATERIALIZED');
+  // Re-publication d'une régénération : l'artefact est resté PUBLISHED
+  // pendant la re-revue (même règle que dans la transaction finale).
   if (
-    candidate.reportArtifact.status !== 'PENDING_REVIEW'
+    (candidate.reportArtifact.status !== 'PENDING_REVIEW'
+      && !(candidate.generation > 1 && candidate.reportArtifact.status === 'PUBLISHED'))
     || candidate.reportArtifact.assessmentAttempt.status !== 'COACH_VALIDATED'
   ) throw new BilanReportServiceError('REPORT_CONCURRENT_PUBLICATION');
   if (candidate.reviews.length !== 1) throw new BilanReportServiceError('REPORT_APPROVED_REVIEW_REQUIRED');
@@ -435,6 +439,7 @@ export async function publishReportRevision(input: Readonly<{
       select: {
         id: true,
         status: true,
+        generation: true,
         validationFailures: true,
         materialization: { select: { id: true } },
         reportArtifact: {
@@ -454,8 +459,15 @@ export async function publishReportRevision(input: Readonly<{
       throw new BilanReportServiceError('REPORT_VALIDATION_FAILURES');
     }
     if (revision.materialization !== null) throw new BilanReportServiceError('REPORT_ALREADY_MATERIALIZED');
+    // Régénération (génération > 1) : l'artefact est resté PUBLISHED pendant
+    // la re-revue — la famille conservait l'ancienne version. La
+    // re-publication bascule currentPublishedRevisionId ; tout le reste du
+    // chemin (revue APPROVED tracée, matérialisation, attempt COACH_VALIDATED)
+    // est identique à une première publication.
+    const isRepublication = revision.generation > 1
+      && revision.reportArtifact.status === 'PUBLISHED';
     if (
-      revision.reportArtifact.status !== 'PENDING_REVIEW'
+      (revision.reportArtifact.status !== 'PENDING_REVIEW' && !isRepublication)
       || revision.reportArtifact.assessmentAttempt.status !== 'COACH_VALIDATED'
     ) throw new BilanReportServiceError('REPORT_CONCURRENT_PUBLICATION');
     const approvedReview = await transaction.reportReview.findFirst({
@@ -481,11 +493,9 @@ export async function publishReportRevision(input: Readonly<{
       },
     });
     const artifact = await transaction.reportArtifact.updateMany({
-      where: {
-        id: revision.reportArtifact.id,
-        status: 'PENDING_REVIEW',
-        currentPublishedRevisionId: null,
-      },
+      where: isRepublication
+        ? { id: revision.reportArtifact.id, status: 'PUBLISHED' }
+        : { id: revision.reportArtifact.id, status: 'PENDING_REVIEW', currentPublishedRevisionId: null },
       data: {
         status: 'PUBLISHED',
         currentPublishedRevisionId: revision.id,

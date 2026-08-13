@@ -39,7 +39,7 @@ export function shareLinkValidityDays(
   return value;
 }
 
-type SendDatabase = Pick<PrismaClient, '$transaction' | 'reportArtifact' | 'reportShareLink' | 'shareLinkAccess'>;
+type SendDatabase = Pick<PrismaClient, '$transaction' | 'reportArtifact' | 'reportRevision' | 'reportShareLink' | 'shareLinkAccess'>;
 
 export type PreparedWhatsAppSend = Readonly<{
   whatsappUrl: string;
@@ -161,5 +161,75 @@ function resolvePackLabels(reportPackId: string): Readonly<{ pack: Readonly<{ su
       subjectLabel: bilanPackSubjectLabel(subject),
       levelLabel: bilanPackLevelLabel(level),
     }),
+  });
+}
+
+export type PreparedUpdateInfoMessage = Readonly<{
+  whatsappUrl: string;
+  message: string;
+}>;
+
+/**
+ * Message d'information après régénération d'un bilan déjà transmis — cas B,
+ * option 3. NE TOUCHE PAS AUX LIENS (aucune révocation, aucune réémission :
+ * un lien enregistré par le parent ne meurt jamais) ; prépare seulement le
+ * wa.me courtois que l'assistante enverra elle-même. Exigences : bilan
+ * PUBLIÉ en génération > 1, téléphone parent présent, et une transmission
+ * WhatsApp CONFIRMÉE antérieure (sinon la mention sur la page suffit —
+ * décision responsable du 14/08/2026).
+ */
+export async function prepareUpdateInfoMessage(input: Readonly<{
+  prisma?: SendDatabase;
+  actor: Readonly<{ userId: string; role: string }>;
+  reportArtifactId: string;
+}>): Promise<PreparedUpdateInfoMessage> {
+  if (input.actor.role !== 'ASSISTANTE' || !input.actor.userId.trim()) {
+    throw new WhatsAppSendError('WHATSAPP_FORBIDDEN');
+  }
+  const database = input.prisma ?? prisma;
+  const artifact = await database.reportArtifact.findUnique({
+    where: { id: input.reportArtifactId },
+    select: {
+      status: true,
+      currentPublishedRevision: { select: { generation: true, materialization: { select: { materializedAt: true } } } },
+      transmissions: {
+        where: { channel: 'WHATSAPP' },
+        orderBy: { confirmedAt: 'desc' },
+        take: 1,
+        select: { confirmedAt: true },
+      },
+      student: {
+        select: {
+          user: { select: { firstName: true } },
+          parent: { select: { user: { select: { firstName: true, lastName: true, phoneNormalized: true } } } },
+        },
+      },
+    },
+  });
+  if (artifact === null || artifact.status !== 'PUBLISHED') {
+    throw new WhatsAppSendError('WHATSAPP_REPORT_NOT_PUBLISHED');
+  }
+  const current = artifact.currentPublishedRevision;
+  if (current === null || current.generation <= 1 || current.materialization === null) {
+    throw new WhatsAppSendError('WHATSAPP_UPDATE_INFO_NOT_A_REGENERATION');
+  }
+  if (artifact.transmissions.length === 0) {
+    // Jamais transmis-confirmé : la mention sur la page d'arrivée suffit.
+    throw new WhatsAppSendError('WHATSAPP_UPDATE_INFO_NO_PRIOR_TRANSMISSION');
+  }
+  const parentUser = artifact.student.parent?.user;
+  const phoneNormalized = parentUser?.phoneNormalized?.trim();
+  if (!phoneNormalized) throw new WhatsAppSendError('WHATSAPP_PARENT_PHONE_MISSING');
+
+  const parentDisplayName = [parentUser.firstName, parentUser.lastName].filter(Boolean).join(' ') || 'Madame, Monsieur';
+  const { buildBilanUpdateWhatsAppMessage } = await import('./whatsapp-message');
+  const message = buildBilanUpdateWhatsAppMessage({
+    parentDisplayName,
+    studentFirstName: artifact.student.user.firstName?.trim() || 'votre enfant',
+    updatedAtLabel: new Intl.DateTimeFormat('fr-FR', { dateStyle: 'long' }).format(current.materialization.materializedAt),
+  });
+  return Object.freeze({
+    whatsappUrl: buildParentWhatsAppUrl(phoneNormalized, message),
+    message,
   });
 }
