@@ -1,11 +1,14 @@
 export const dynamic = 'force-dynamic';
 
 import { NextRequest, NextResponse } from 'next/server';
-import { UserRole } from '@prisma/client';
+import { Prisma, UserRole } from '@prisma/client';
 
 import { isErrorResponse, requireRole } from '@/lib/guards';
 import { prisma } from '@/lib/prisma';
 import { updateStageSchema } from '@/lib/stages/admin-schemas';
+import { EXPIRED_STAGE_ERROR, isStageExpired } from '@/lib/stages/lifecycle';
+
+const CONCURRENT_STAGE_UPDATE_ERROR = 'Le stage a été modifié entre-temps. Veuillez réessayer.';
 
 async function getStageById(stageId: string) {
   return prisma.stage.findUnique({
@@ -128,6 +131,15 @@ export async function PATCH(
       return NextResponse.json({ error: 'Stage introuvable' }, { status: 404 });
     }
 
+    const effectiveEndDate = payload.endDate
+      ? new Date(payload.endDate)
+      : existingStage.endDate;
+    const effectiveIsOpen = payload.isOpen ?? existingStage.isOpen;
+
+    if (effectiveIsOpen === true && isStageExpired(effectiveEndDate, new Date())) {
+      return NextResponse.json({ error: EXPIRED_STAGE_ERROR }, { status: 400 });
+    }
+
     if (payload.slug && payload.slug !== existingStage.slug) {
       const duplicateSlug = await prisma.stage.findUnique({ where: { slug: payload.slug } });
       if (duplicateSlug) {
@@ -136,7 +148,11 @@ export async function PATCH(
     }
 
     const stage = await prisma.stage.update({
-      where: { id: stageId },
+      where: {
+        id: stageId,
+        endDate: existingStage.endDate,
+        isOpen: existingStage.isOpen,
+      },
       data: {
         ...payload,
         startDate: payload.startDate ? new Date(payload.startDate) : undefined,
@@ -151,6 +167,10 @@ export async function PATCH(
       },
     });
   } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+      return NextResponse.json({ error: CONCURRENT_STAGE_UPDATE_ERROR }, { status: 409 });
+    }
+
     console.error('[PATCH /api/admin/stages/[stageId]]', error instanceof Error ? error.name : 'unknown');
     return NextResponse.json({ error: 'Erreur interne du serveur' }, { status: 500 });
   }

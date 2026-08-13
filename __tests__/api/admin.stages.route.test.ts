@@ -3,6 +3,7 @@ jest.mock('@/auth', () => ({
 }));
 
 import { auth } from '@/auth';
+import { Prisma } from '@prisma/client';
 import { NextRequest } from 'next/server';
 
 import { GET as listStages, POST as createStage } from '@/app/api/admin/stages/route';
@@ -11,13 +12,22 @@ import { GET as listSessions, POST as createSession } from '@/app/api/admin/stag
 import { GET as listCoaches, POST as assignCoach, DELETE as unassignCoach } from '@/app/api/admin/stages/[stageId]/coaches/route';
 
 const mockAuth = auth as jest.Mock;
+const NOW = new Date('2026-08-13T12:00:00.000Z');
+const EXPIRED_STAGE_ERROR = 'Un stage terminé ne peut pas être ouvert aux inscriptions';
+const CONCURRENT_STAGE_UPDATE_ERROR = 'Le stage a été modifié entre-temps. Veuillez réessayer.';
 
 let prisma: any;
 
 beforeEach(async () => {
+  jest.useFakeTimers();
+  jest.setSystemTime(NOW);
   const mod = await import('@/lib/prisma');
   prisma = (mod as any).prisma;
   jest.clearAllMocks();
+});
+
+afterEach(() => {
+  jest.useRealTimers();
 });
 
 function makeRequest(url: string, init?: ConstructorParameters<typeof NextRequest>[1]) {
@@ -86,8 +96,8 @@ describe('POST /api/admin/stages', () => {
     type: 'INTENSIF',
     subject: ['MATHEMATIQUES'],
     level: ['Terminale'],
-    startDate: '2026-04-20T08:00:00.000Z',
-    endDate: '2026-04-25T17:00:00.000Z',
+    startDate: '2026-10-20T08:00:00.000Z',
+    endDate: '2026-10-25T17:00:00.000Z',
     capacity: 12,
     priceAmount: 650,
     priceCurrency: 'TND',
@@ -136,6 +146,99 @@ describe('POST /api/admin/stages', () => {
     expect(res.status).toBe(201);
     expect(body.stage.slug).toBe('stage-printemps');
   });
+
+  it('refuses an explicitly open expired stage before any database access', async () => {
+    mockAuth.mockResolvedValue(adminSession());
+
+    const res = await createStage(makeRequest('http://localhost:3000/api/admin/stages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        ...validBody,
+        startDate: '2026-04-20T08:00:00.000Z',
+        endDate: '2026-04-25T17:00:00.000Z',
+        isOpen: true,
+      }),
+    }));
+    const body = await res.json();
+
+    expect(res.status).toBe(400);
+    expect(body).toEqual({ error: EXPIRED_STAGE_ERROR });
+    expect(prisma.stage.findUnique).not.toHaveBeenCalled();
+    expect(prisma.stage.create).not.toHaveBeenCalled();
+  });
+
+  it('refuses an expired stage whose omitted isOpen defaults to open', async () => {
+    mockAuth.mockResolvedValue(adminSession());
+    const expiredBody: Partial<typeof validBody> = {
+      ...validBody,
+      startDate: '2026-04-20T08:00:00.000Z',
+      endDate: '2026-04-25T17:00:00.000Z',
+    };
+    delete expiredBody.isOpen;
+
+    const res = await createStage(makeRequest('http://localhost:3000/api/admin/stages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(expiredBody),
+    }));
+    const body = await res.json();
+
+    expect(res.status).toBe(400);
+    expect(body).toEqual({ error: EXPIRED_STAGE_ERROR });
+    expect(prisma.stage.findUnique).not.toHaveBeenCalled();
+    expect(prisma.stage.create).not.toHaveBeenCalled();
+  });
+
+  it('allows creating an expired stage when it is closed', async () => {
+    mockAuth.mockResolvedValue(adminSession());
+    prisma.stage.findUnique.mockResolvedValue(null);
+    prisma.stage.create.mockResolvedValue({
+      id: 'stage-history',
+      ...validBody,
+      startDate: new Date('2026-04-20T08:00:00.000Z'),
+      endDate: new Date('2026-04-25T17:00:00.000Z'),
+      isOpen: false,
+    });
+
+    const res = await createStage(makeRequest('http://localhost:3000/api/admin/stages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        ...validBody,
+        startDate: '2026-04-20T08:00:00.000Z',
+        endDate: '2026-04-25T17:00:00.000Z',
+        isOpen: false,
+      }),
+    }));
+
+    expect(res.status).toBe(201);
+    expect(prisma.stage.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('allows an open stage whose endDate equals now', async () => {
+    mockAuth.mockResolvedValue(adminSession());
+    prisma.stage.findUnique.mockResolvedValue(null);
+    prisma.stage.create.mockResolvedValue({
+      id: 'stage-boundary',
+      ...validBody,
+      startDate: new Date('2026-08-13T08:00:00.000Z'),
+      endDate: NOW,
+    });
+
+    const res = await createStage(makeRequest('http://localhost:3000/api/admin/stages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        ...validBody,
+        startDate: '2026-08-13T08:00:00.000Z',
+        endDate: NOW.toISOString(),
+      }),
+    }));
+
+    expect(res.status).toBe(201);
+    expect(prisma.stage.create).toHaveBeenCalledTimes(1);
+  });
 });
 
 describe('GET/PATCH/DELETE /api/admin/stages/[stageId]', () => {
@@ -159,7 +262,12 @@ describe('GET/PATCH/DELETE /api/admin/stages/[stageId]', () => {
 
   it('updates a stage with partial payload', async () => {
     mockAuth.mockResolvedValue(adminSession());
-    prisma.stage.findUnique.mockResolvedValue({ id: 'stage-1', slug: 'old-slug' });
+    prisma.stage.findUnique.mockResolvedValue({
+      id: 'stage-1',
+      slug: 'old-slug',
+      endDate: new Date('2026-10-25T17:00:00.000Z'),
+      isOpen: true,
+    });
     prisma.stage.update.mockResolvedValue({ id: 'stage-1', slug: 'old-slug', title: 'Nouveau titre' });
 
     const res = await patchStage(makeRequest('http://localhost:3000/api/admin/stages/stage-1', {
@@ -169,6 +277,187 @@ describe('GET/PATCH/DELETE /api/admin/stages/[stageId]', () => {
     }), { params });
 
     expect(res.status).toBe(200);
+  });
+
+  it('refuses reopening an expired stage before update', async () => {
+    mockAuth.mockResolvedValue(adminSession());
+    prisma.stage.findUnique.mockResolvedValue({
+      id: 'stage-1',
+      slug: 'stage-history',
+      endDate: new Date('2026-04-25T17:00:00.000Z'),
+      isOpen: false,
+    });
+
+    const res = await patchStage(makeRequest('http://localhost:3000/api/admin/stages/stage-1', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ isOpen: true }),
+    }), { params });
+    const body = await res.json();
+
+    expect(res.status).toBe(400);
+    expect(body).toEqual({ error: EXPIRED_STAGE_ERROR });
+    expect(prisma.stage.update).not.toHaveBeenCalled();
+  });
+
+  it('refuses an unrelated patch while an expired stage is still open', async () => {
+    mockAuth.mockResolvedValue(adminSession());
+    prisma.stage.findUnique.mockResolvedValue({
+      id: 'stage-1',
+      slug: 'stage-expired-open',
+      endDate: new Date('2026-04-25T17:00:00.000Z'),
+      isOpen: true,
+    });
+
+    const res = await patchStage(makeRequest('http://localhost:3000/api/admin/stages/stage-1', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title: 'Titre corrigé' }),
+    }), { params });
+    const body = await res.json();
+
+    expect(res.status).toBe(400);
+    expect(body).toEqual({ error: EXPIRED_STAGE_ERROR });
+    expect(prisma.stage.update).not.toHaveBeenCalled();
+  });
+
+  it('refuses moving only endDate into the past while the stage remains open', async () => {
+    mockAuth.mockResolvedValue(adminSession());
+    prisma.stage.findUnique.mockResolvedValue({
+      id: 'stage-1',
+      slug: 'stage-future',
+      endDate: new Date('2026-10-25T17:00:00.000Z'),
+      isOpen: true,
+    });
+
+    const res = await patchStage(makeRequest('http://localhost:3000/api/admin/stages/stage-1', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ endDate: '2026-04-25T17:00:00.000Z' }),
+    }), { params });
+    const body = await res.json();
+
+    expect(res.status).toBe(400);
+    expect(body).toEqual({ error: EXPIRED_STAGE_ERROR });
+    expect(prisma.stage.update).not.toHaveBeenCalled();
+  });
+
+  it('allows closing an expired stage', async () => {
+    mockAuth.mockResolvedValue(adminSession());
+    prisma.stage.findUnique.mockResolvedValue({
+      id: 'stage-1',
+      slug: 'stage-expired-open',
+      endDate: new Date('2026-04-25T17:00:00.000Z'),
+      isOpen: true,
+    });
+    prisma.stage.update.mockResolvedValue({
+      id: 'stage-1',
+      slug: 'stage-expired-open',
+      endDate: new Date('2026-04-25T17:00:00.000Z'),
+      isOpen: false,
+    });
+
+    const res = await patchStage(makeRequest('http://localhost:3000/api/admin/stages/stage-1', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ isOpen: false }),
+    }), { params });
+
+    expect(res.status).toBe(200);
+    expect(prisma.stage.update).toHaveBeenCalledTimes(1);
+  });
+
+  it('allows changing visibility on an expired stage that remains closed', async () => {
+    mockAuth.mockResolvedValue(adminSession());
+    prisma.stage.findUnique.mockResolvedValue({
+      id: 'stage-1',
+      slug: 'stage-history',
+      endDate: new Date('2026-04-25T17:00:00.000Z'),
+      isOpen: false,
+    });
+    prisma.stage.update.mockResolvedValue({
+      id: 'stage-1',
+      slug: 'stage-history',
+      endDate: new Date('2026-04-25T17:00:00.000Z'),
+      isOpen: false,
+      isVisible: true,
+    });
+
+    const res = await patchStage(makeRequest('http://localhost:3000/api/admin/stages/stage-1', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ isVisible: true }),
+    }), { params });
+
+    expect(res.status).toBe(200);
+    expect(prisma.stage.update).toHaveBeenCalledTimes(1);
+  });
+
+  it('allows extending and reopening an expired closed stage atomically', async () => {
+    mockAuth.mockResolvedValue(adminSession());
+    const previousEndDate = new Date('2026-04-25T17:00:00.000Z');
+    prisma.stage.findUnique.mockResolvedValue({
+      id: 'stage-1',
+      slug: 'stage-history',
+      endDate: previousEndDate,
+      isOpen: false,
+    });
+    prisma.stage.update.mockResolvedValue({
+      id: 'stage-1',
+      slug: 'stage-history',
+      endDate: new Date('2026-10-25T17:00:00.000Z'),
+      isOpen: true,
+    });
+
+    const res = await patchStage(makeRequest('http://localhost:3000/api/admin/stages/stage-1', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        endDate: '2026-10-25T17:00:00.000Z',
+        isOpen: true,
+      }),
+    }), { params });
+
+    expect(res.status).toBe(200);
+    expect(prisma.stage.update).toHaveBeenCalledWith(expect.objectContaining({
+      where: {
+        id: 'stage-1',
+        endDate: previousEndDate,
+        isOpen: false,
+      },
+    }));
+  });
+
+  it('returns 409 when optimistic stage state changed before update', async () => {
+    mockAuth.mockResolvedValue(adminSession());
+    const previousEndDate = new Date('2026-10-25T17:00:00.000Z');
+    prisma.stage.findUnique.mockResolvedValue({
+      id: 'stage-1',
+      slug: 'stage-future',
+      endDate: previousEndDate,
+      isOpen: false,
+    });
+    prisma.stage.update.mockRejectedValue(new Prisma.PrismaClientKnownRequestError(
+      'Record to update not found.',
+      { code: 'P2025', clientVersion: '6.11.1' }
+    ));
+
+    const res = await patchStage(makeRequest('http://localhost:3000/api/admin/stages/stage-1', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ isOpen: true }),
+    }), { params });
+    const body = await res.json();
+
+    expect(res.status).toBe(409);
+    expect(body).toEqual({ error: CONCURRENT_STAGE_UPDATE_ERROR });
+    expect(prisma.stage.update).toHaveBeenCalledWith(expect.objectContaining({
+      where: {
+        id: 'stage-1',
+        endDate: previousEndDate,
+        isOpen: false,
+      },
+    }));
   });
 
   it('returns 409 when deleting a stage with confirmed reservations', async () => {
