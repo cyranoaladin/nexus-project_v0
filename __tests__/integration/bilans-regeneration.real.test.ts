@@ -569,3 +569,53 @@ describe('cas B option 3 — mention de remplacement, lien conservé, message d�
     expect(replacement).not.toBeNull();
   });
 });
+
+describe('une seule version visible sur toutes les surfaces', () => {
+  it('dashboard assistante : une seule ligne pour l’artefact, la génération courante', async () => {
+    const { listRecentReportReviews } = await import('@/lib/bilans/staff/review-service');
+    const rows = await listRecentReportReviews({ userId: assistantId, role: 'ASSISTANTE' });
+    const forArtifact = rows.filter((r) => r.reportArtifact.id === artifactId);
+    expect(forArtifact).toHaveLength(1);
+    // C'est la génération maximale (3 après re-publication) — jamais 1 ni 2.
+    expect(forArtifact[0].generation).toBe(3);
+    expect(forArtifact.some((r) => r.generation === 1 || r.generation === 2)).toBe(false);
+  });
+
+  it('lien signé + surfaces familles : servent la génération courante, l’ancienne matérialisation n’est plus référencée', async () => {
+    const artifact = await prisma.reportArtifact.findUniqueOrThrow({
+      where: { id: artifactId },
+      select: { currentPublishedRevisionId: true },
+    });
+    const gen3 = await prisma.reportRevision.findFirstOrThrow({
+      where: { scoreSnapshotId: snapshotId, generation: 3 }, select: { id: true },
+    });
+    // Toutes les surfaces familles (lien, parent, élève, PDF) sélectionnent
+    // currentPublishedRevisionId : il pointe la génération 3, jamais 1/2.
+    expect(artifact.currentPublishedRevisionId).toBe(gen3.id);
+
+    // L'ancienne génération 2 garde sa matérialisation en base (append-only)
+    // mais n'est plus la version courante — donc invisible partout.
+    const gen2 = await prisma.reportRevision.findFirstOrThrow({
+      where: { scoreSnapshotId: snapshotId, generation: 2 },
+      select: { id: true, materialization: { select: { id: true } } },
+    });
+    expect(gen2.materialization).not.toBeNull();
+    expect(gen2.id).not.toBe(artifact.currentPublishedRevisionId);
+
+    // Le document servi par un lien signé frais n'est PAS l'ancienne
+    // matérialisation gén.2 (HTML de test « <html>gen2-PARENTS</html> »).
+    const { createReportShareLinks, verifyAndConsumeShareToken } = await import('@/lib/bilans/staff/share-link-service');
+    const parentUserId = (await prisma.reportArtifact.findUniqueOrThrow({
+      where: { id: artifactId },
+      select: { student: { select: { parent: { select: { userId: true } } } } },
+    })).student.parent.userId;
+    const links = await createReportShareLinks({
+      reportArtifactId: artifactId, recipientUserId: parentUserId, createdById: assistantId,
+    });
+    const token = links.find(({ audience }) => audience === 'PARENTS')!.token;
+    const served = await verifyAndConsumeShareToken(token);
+    expect(served).not.toBeNull();
+    expect(served!.html).not.toBe('<html>gen2-PARENTS</html>');
+  });
+});
+

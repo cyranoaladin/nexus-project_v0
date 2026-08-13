@@ -14,6 +14,7 @@ import { BilanReportServiceError } from '@/lib/bilans/core/report-service';
 const revision = {
   id: 'revision-1',
   status: 'PENDING_REVIEW',
+  generation: 1,
   validationFailures: [] as string[],
   reportPackId: 'fixture-pack',
   reportPackVersion: '1',
@@ -371,5 +372,69 @@ describe('staff Canonical report review service', () => {
     expect(source).toContain('revision.studentName');
     expect(source).not.toContain('JSON.stringify');
     expect(source).not.toContain('<pre');
+  });
+});
+
+describe('une seule génération visible sur le dashboard — régénération sans encombrement', () => {
+  // Un même artefact avec trois générations : gén.1 rejetée à la
+  // régénération, gén.2 ancienne version publiée, gén.3 courante.
+  const artifact = (over: Record<string, unknown> = {}) => ({
+    ...revision.reportArtifact,
+    id: 'artifact-regen',
+    ...over,
+  });
+  const gen = (id: string, generation: number, status: string, artStatus = 'PUBLISHED') => ({
+    ...revision,
+    id,
+    generation,
+    status,
+    reportArtifact: artifact({ status: artStatus }),
+  });
+
+  it('ne remonte que la génération maximale par artefact', async () => {
+    const deps = dependencies({
+      listRecent: jest.fn().mockResolvedValue([
+        gen('rev-g3', 3, 'PENDING_REVIEW'),
+        gen('rev-g2', 2, 'COACH_VALIDATED'),
+        gen('rev-g1', 1, 'REJECTED'),
+      ]),
+    });
+    const rows = await listRecentReportReviews(
+      { userId: 'user-assistante', role: 'ASSISTANTE' },
+      serviceDependencies(deps),
+    );
+    const forArtifact = rows.filter((r) => r.reportArtifact.id === 'artifact-regen');
+    expect(forArtifact).toHaveLength(1);
+    expect(forArtifact[0].id).toBe('rev-g3');
+    expect(forArtifact[0].generation).toBe(3);
+  });
+
+  it('un bilan simplement rejeté (jamais régénéré) reste visible', async () => {
+    const deps = dependencies({
+      listRecent: jest.fn().mockResolvedValue([
+        { ...revision, id: 'rev-seul', generation: 1, status: 'REJECTED',
+          reportArtifact: artifact({ id: 'artifact-rejet', status: 'PENDING_REVIEW' }) },
+      ]),
+    });
+    const rows = await listRecentReportReviews(
+      { userId: 'user-assistante', role: 'ASSISTANTE' },
+      serviceDependencies(deps),
+    );
+    expect(rows.some((r) => r.id === 'rev-seul')).toBe(true);
+  });
+
+  it('deux bilans distincts restent deux lignes', async () => {
+    const deps = dependencies({
+      listRecent: jest.fn().mockResolvedValue([
+        { ...revision, id: 'a', generation: 1, reportArtifact: artifact({ id: 'art-A' }) },
+        { ...revision, id: 'b', generation: 1, reportArtifact: artifact({ id: 'art-B' }) },
+      ]),
+    });
+    const rows = await listRecentReportReviews(
+      { userId: 'user-assistante', role: 'ASSISTANTE' },
+      serviceDependencies(deps),
+    );
+    expect(new Set(rows.map((r) => r.reportArtifact.id)).size).toBe(rows.length);
+    expect(rows).toHaveLength(2);
   });
 });

@@ -415,13 +415,44 @@ export async function listPendingReportReviews(
   return Object.freeze(revisions.filter((revision) => packIsEnabled(revision, dependencies)));
 }
 
+/**
+ * Une régénération crée une nouvelle génération À CÔTÉ de l'ancienne
+ * (append-only : rien n'est supprimé). Sur le tableau de bord, l'assistante
+ * ne doit voir qu'UNE ligne par bilan — la génération courante. Les
+ * générations remplacées (rejetées à la régénération, ou anciennes versions
+ * publiées) sont masquées : ni encombrement, ni confusion, aucun sélecteur.
+ * La trace de régénération, elle, subsiste en base (audit sur requête).
+ *
+ * « Génération courante » = la génération maximale pour un même artefact.
+ * Un bilan simplement rejeté (jamais régénéré) reste visible : sa génération
+ * est la seule, donc la maximale.
+ */
+function onlyCurrentGeneration(
+  revisions: readonly PendingReportReview[],
+): readonly PendingReportReview[] {
+  const maxGenByArtifact = new Map<string, number>();
+  for (const revision of revisions) {
+    const artifactId = revision.reportArtifact.id;
+    const current = maxGenByArtifact.get(artifactId);
+    if (current === undefined || revision.generation > current) {
+      maxGenByArtifact.set(artifactId, revision.generation);
+    }
+  }
+  return revisions.filter(
+    (revision) => revision.generation === maxGenByArtifact.get(revision.reportArtifact.id),
+  );
+}
+
 export async function listRecentReportReviews(
   actor: ReviewActor,
   overrides: Partial<ReviewServiceDependencies> = {},
 ): Promise<readonly RecentReportReview[]> {
   const dependencies = { ...defaultDependencies, ...overrides };
   assertAssistante(actor);
-  return Object.freeze((await dependencies.listRecent()).map((revision) => recentReview(revision, dependencies)));
+  const recent = await dependencies.listRecent();
+  return Object.freeze(
+    onlyCurrentGeneration(recent).map((revision) => recentReview(revision, dependencies)),
+  );
 }
 
 export async function validateAndPublishPendingReport(
