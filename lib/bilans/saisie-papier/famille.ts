@@ -1,5 +1,6 @@
 import { createId } from '@paralleldrive/cuid2';
-import type { GradeLevel, Prisma, PrismaClient } from '@prisma/client';
+import { Prisma } from '@prisma/client';
+import type { GradeLevel, PrismaClient } from '@prisma/client';
 import type { Session } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
@@ -190,11 +191,11 @@ function projectDuplicateCandidate(candidate: ClassifiedCandidate): PaperEntryDu
 }
 
 /**
- * Qualifie un candidat brut en lui associant sa force de signal, ou l'écarte
- * si aucun signal ne le relie réellement au foyer saisi (le filtre SQL est
- * volontairement large ; la classification, autorité, tranche en mémoire à
- * partir des clés normalisées). Les candidats sont triés du signal fort vers
- * l'homonymie.
+ * Qualifie un candidat remonté par la recherche en lui associant sa force de
+ * signal (téléphone fort, homonymie faible), ou l'écarte si plus aucun signal
+ * ne le relie au foyer saisi. La classification en mémoire reste l'autorité :
+ * elle applique `normalizeNameKey`, cohérente avec la clé SQL indexée. Les
+ * candidats sont triés du signal fort vers l'homonymie.
  */
 function classifyCandidates(
   records: readonly DuplicateCandidateRecord[],
@@ -232,28 +233,35 @@ async function findPotentialDuplicateFamilies(
   phoneNormalized: string,
   input: z.infer<typeof requestSchema>,
 ): Promise<readonly DuplicateCandidateRecord[]> {
-  return transaction.user.findMany({
-    where: {
-      role: 'PARENT',
-      mergedIntoUserId: null,
-      OR: [
-        { phoneNormalized },
-        // Le téléphone du compte source reste un alias de contact après une
-        // fusion additive. La suggestion doit présenter le compte actif
-        // cible, pas ignorer ce numéro parce que sa source est tombstonée.
-        { mergedSources: { some: { phoneNormalized } } },
-        // Homonymie de parent : mêmes nom et prénom, même quand le téléphone
-        // diffère. Le filtre SQL est insensible à la casse ; la robustesse aux
-        // accents, espaces et traits d'union est portée par la classification
-        // en mémoire (clés normalisées), autorité de la décision.
-        {
-          AND: [
-            { firstName: { equals: input.parentFirstName, mode: 'insensitive' as const } },
-            { lastName: { equals: input.parentLastName, mode: 'insensitive' as const } },
-          ],
-        },
-      ],
-    },
+  // Résolution des identifiants candidats en SQL, pour comparer les noms sur
+  // leur clé NORMALISÉE (`nexus_household_name_key` : casse, accents, traits
+  // d'union, apostrophes, espaces multiples). Une comparaison Prisma
+  // `insensitive` ne plierait que la casse et laisserait « ben-rhouma » ou
+  // « Bén Rhouma » échapper à la recherche. La même fonction indexée sert des
+  // deux côtés de l'égalité — aucune dérive entre la valeur stockée et la
+  // valeur saisie.
+  const matches = await transaction.$queryRaw<Array<{ id: string }>>(Prisma.sql`
+    SELECT u.id
+    FROM users u
+    WHERE u.role = 'PARENT'
+      AND u."mergedIntoUserId" IS NULL
+      AND (
+        u."phoneNormalized" = ${phoneNormalized}
+        OR EXISTS (
+          SELECT 1 FROM users s
+          WHERE s."mergedIntoUserId" = u.id
+            AND s."phoneNormalized" = ${phoneNormalized}
+        )
+        OR nexus_household_name_key(u."firstName", u."lastName")
+             = nexus_household_name_key(${input.parentFirstName}, ${input.parentLastName})
+      )
+    ORDER BY u."createdAt" ASC
+    LIMIT 10`);
+  const ids = matches.map((row) => row.id);
+  if (ids.length === 0) return [];
+
+  const records = await transaction.user.findMany({
+    where: { id: { in: ids } },
     select: {
       id: true,
       firstName: true,
@@ -276,8 +284,13 @@ async function findPotentialDuplicateFamilies(
         },
       },
     },
-    orderBy: { createdAt: 'asc' },
-    take: 10,
+  });
+  // `findMany({ in })` ne garantit pas l'ordre : on rétablit l'ordre de
+  // création déjà fixé par la requête SQL.
+  const byId = new Map(records.map((record) => [record.id, record]));
+  return ids.flatMap((id) => {
+    const record = byId.get(id);
+    return record === undefined ? [] : [record];
   });
 }
 
