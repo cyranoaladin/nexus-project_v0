@@ -129,14 +129,27 @@ const PROFILE_BY_QUADRANT = Object.freeze({
   cautiousWrong: { profile: 'à combler (déjà repéré)', title: 'Difficulté repérée, sans fausse certitude', hint: 'Prêt à apprendre : on installe.' },
 });
 
+/**
+ * Un quadrant vide n'affiche jamais un tiret nu : un titre sans contenu donne
+ * l'impression d'un document cassé. Le vide EST une information pédagogique —
+ * chaque quadrant la formule dans le registre de l'audience (tutoiement
+ * élève ; la carte n'est rendue que côté élève).
+ */
+const EMPTY_QUADRANT_ELEVE: Readonly<Record<keyof typeof PROFILE_BY_QUADRANT, string>> = Object.freeze({
+  confidentRight: 'Rien ici pour l’instant : aucun domaine n’est à la fois juste et sûr. C’est exactement ce que le stage va construire.',
+  cautiousRight: 'Rien ici : quand tu réussis, tu le sais. Ta confiance est bien calée sur tes réussites.',
+  confidentWrong: 'Rien ici — c’est une excellente nouvelle : aucune notion où tu te trompes en croyant savoir. On bâtit sur du vrai.',
+  cautiousWrong: 'Rien ici : tu n’as pas de notion que tu sais déjà ne pas maîtriser. Tes points à travailler sont des réponses que tu croyais justes — c’est le cas le plus utile à traiter.',
+});
+
 function masteryMap(domains: readonly RenderDomain[]): string {
-  const titlesFor = (label: string): string => {
-    const matching = domains.filter((domain) => domain.profileLabel === label).map((domain) => T(domain.title));
-    return matching.length > 0 ? matching.join(' · ') : '—';
-  };
   const quadrant = (key: keyof typeof PROFILE_BY_QUADRANT, extraClass: string): string => {
     const zone = PROFILE_BY_QUADRANT[key];
-    return `<section class="quadrant ${extraClass}"><h3>${T(zone.title)}</h3><p class="quadrant-domains">${titlesFor(zone.profile)}</p><p class="quadrant-hint">${T(zone.hint)}</p></section>`;
+    const matching = domains.filter((domain) => domain.profileLabel === zone.profile).map((domain) => T(domain.title));
+    const body = matching.length > 0
+      ? `<p class="quadrant-domains">${matching.join(' · ')}</p><p class="quadrant-hint">${T(zone.hint)}</p>`
+      : `<p class="quadrant-hint quadrant-empty">${T(EMPTY_QUADRANT_ELEVE[key])}</p>`;
+    return `<section class="quadrant ${extraClass}"><h3>${T(zone.title)}</h3>${body}</section>`;
   };
   const untested = domains.filter((domain) => domain.profileLabel === 'non évalué').map((domain) => T(domain.title));
   const untestedRow = untested.length > 0
@@ -421,7 +434,7 @@ function nexusBody(
 
   return `<main>
     <p class="lead">${T(content.narrative.introduction)}</p>
-    <section class="section internal"><h2>Données internes</h2><div class="kpis"><p><strong>Score global</strong><span>${T(content.internalFacts.globalScore)}</span></p><p><strong>Couverture</strong><span>${T(content.internalFacts.coverage)}</span></p><p><strong>Calibration</strong><span>${T(content.internalFacts.calibrationIndex ?? '—')}</span></p></div><p class="method-note">${T(content.narrative.methodNote)}</p><p class="method-note">${T(content.narrative.calibration)}</p></section>
+    <section class="section internal"><h2>Données internes</h2><div class="kpis"><p><strong>Score global</strong><span>${T(content.internalFacts.globalScore)}</span></p><p><strong>Couverture</strong><span>${T(content.internalFacts.coverage)}</span></p><p><strong>Calibration</strong><span>${T(content.internalFacts.calibrationIndex ?? 'non mesurable')}</span></p></div><p class="method-note">${T(content.narrative.methodNote)}</p><p class="method-note">${T(content.narrative.calibration)}</p></section>
     <section class="section"><h2>Tableau des ${policy.tableNoun}</h2>${domainTables}</section>
     <section class="section"><h2>Scores par ${policy.tableNoun === 'aptitudes' ? 'aptitude' : 'domaine'}</h2>${scoreChart}</section>
     ${calibrationChart}

@@ -152,7 +152,12 @@ export function computeNodeProfile(mass: Readonly<Record<ItemProfile, number>>):
   // quand l'élève sait déjà qu'une notion lui manque.
   if (mass.LACUNE_CONSCIENTE > 0) return 'LACUNE_CONSCIENTE';
 
-  // Règle 4 — nœud réellement réussi : départage maîtrise / maîtrise fragile.
+  // Règle 4 — un périmètre partiellement inconnu n'est jamais « acquis » :
+  // la moindre part non traitée plafonne le nœud à MAITRISE_FRAGILE (réussite
+  // avérée sur ce qui a été vu, reste à situer le reste au démarrage).
+  if (mass.NON_TRAITE > 0) return 'MAITRISE_FRAGILE';
+
+  // Règle 5 — nœud réellement réussi : départage maîtrise / maîtrise fragile.
   return mass.MAITRISE >= mass.MAITRISE_FRAGILE ? 'MAITRISE' : 'MAITRISE_FRAGILE';
 }
 

@@ -36,6 +36,7 @@ function expectedNodeProfile(mass: Record<ItemProfile, number>): ItemProfile {
   if (mass.ERREUR_CONFIANTE > 0) return 'ERREUR_CONFIANTE';
   if (mass.NON_TRAITE / total > 0.5) return 'NON_TRAITE';
   if (mass.LACUNE_CONSCIENTE > 0) return 'LACUNE_CONSCIENTE';
+  if (mass.NON_TRAITE > 0) return 'MAITRISE_FRAGILE';
   return mass.MAITRISE >= mass.MAITRISE_FRAGILE ? 'MAITRISE' : 'MAITRISE_FRAGILE';
 }
 
@@ -75,6 +76,9 @@ describe('1. Combinatoire exhaustive des masses (toutes les répartitions, poids
         if (mass.ERREUR_CONFIANTE === 0 && mass.LACUNE_CONSCIENTE === 0) {
           expect(['MAITRISE', 'MAITRISE_FRAGILE', 'NON_TRAITE']).toContain(profile);
         }
+        // Invariant 4 : la moindre part non traitée interdit « MAITRISE » —
+        // un périmètre partiellement inconnu n'est jamais présenté acquis.
+        if (mass.NON_TRAITE > 0) expect(profile).not.toBe('MAITRISE');
       }
     }
     // 15 états pondérés par item, 1 à 4 items : 15 + 15² + 15³ + 15⁴.
@@ -83,7 +87,7 @@ describe('1. Combinatoire exhaustive des masses (toutes les répartitions, poids
 });
 
 describe('2. Combinatoire de bout en bout à travers score()', () => {
-  const item = (id: string, node: string, difficulty: number): ScoringItem => ({
+  const item = (id: string, node: string, difficulty: 1 | 2 | 3): ScoringItem => ({
     id, nodeCpsId: node, difficulty, targetTimeSec: 60,
     type: 'QCM_SIMPLE', answerKey: { kind: 'QCM_SIMPLE', correct: 'A' },
   });
@@ -107,7 +111,7 @@ describe('2. Combinatoire de bout en bout à travers score()', () => {
   };
 
   it('toutes les combinaisons de 2 items (poids 1 et 3) et 3 items respectent les invariants', () => {
-    const weightSets = [[1, 3], [3, 1], [1, 1, 1], [1, 2, 3]];
+    const weightSets: ReadonlyArray<ReadonlyArray<1 | 2 | 3>> = [[1, 3], [3, 1], [1, 1, 1], [1, 2, 3]];
     for (const ws of weightSets) {
       const combos = ws.reduce<AnswerState[][]>((acc) => acc.flatMap((c) => STATES.map((s) => [...c, s])), [[]]);
       for (const combo of combos) {

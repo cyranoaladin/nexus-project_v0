@@ -27,7 +27,8 @@ export const SAISIE_PAPIER_PROVENANCE = 'SAISIE_PAPIER' as const;
  */
 export type PaperEntryAnswer = Readonly<{
   itemId: string;
-  optionId: string;
+  /** `null` = « sans réponse », choisi délibérément par la saisissante. */
+  optionId: string | null;
   confidence: 1 | 2 | 3 | 4 | null;
 }>;
 
@@ -50,6 +51,13 @@ export function buildPaperEntryAnswers(
   entries: readonly PaperEntryAnswer[],
 ): Record<string, Prisma.JsonValue> {
   assertNoDuplicateItem(entries);
+  for (const entry of entries) {
+    // Une absence de réponse n'a pas de certitude : en accepter une serait
+    // inventer une donnée que la copie ne porte pas.
+    if (entry.optionId === null && entry.confidence !== null) {
+      throw CanonicalApiError.badRequest('PAPER_ENTRY_BLANK_WITH_CONFIDENCE');
+    }
+  }
   const patches: AttemptAnswerPatch[] = entries.map((entry) => ({
     itemId: entry.itemId,
     optionId: entry.optionId,
