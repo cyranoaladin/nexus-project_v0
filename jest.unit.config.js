@@ -24,6 +24,7 @@ const customJestConfig = {
   },
   modulePathIgnorePatterns: [
     '<rootDir>/.next/',
+    '<rootDir>/.worktrees/',
   ],
   testMatch: [
     '**/__tests__/**/*.test.(js|ts|tsx)',

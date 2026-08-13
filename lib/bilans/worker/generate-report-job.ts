@@ -181,7 +181,7 @@ async function claimJob(
   if (job.status === 'COMPLETED') {
     const snapshot = await transaction.scoreSnapshot.findUnique({ where: { assessmentAttemptId: job.aggregateId } });
     if (snapshot === null) throw new GenerateReportJobError('A88_COMPLETED_JOB_INCONSISTENT');
-    const revision = await transaction.reportRevision.findUnique({ where: { scoreSnapshotId: snapshot.id } });
+    const revision = await transaction.reportRevision.findFirst({ where: { scoreSnapshotId: snapshot.id, generation: 1 } });
     if (revision === null) throw new GenerateReportJobError('A88_COMPLETED_JOB_INCONSISTENT');
     return { replayed: true, revisionId: revision.id, artifactId: revision.reportArtifactId };
   }
