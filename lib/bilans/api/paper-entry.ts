@@ -68,9 +68,14 @@ const requestSchema = z.object({
   packSlug: z.string().min(1),
   answers: z.array(z.object({
     itemId: z.string().min(1),
-    optionId: z.string().min(1),
+    // `null` = « sans réponse » : un état que la saisissante choisit
+    // explicitement — jamais un oubli silencieux (chaque item du pack doit
+    // figurer dans la requête, cf. assertAttemptComplete).
+    optionId: z.string().min(1).nullable(),
     confidence: confidenceSchema,
-  }).strict()).min(1),
+  }).strict().refine((answer) => answer.optionId !== null || answer.confidence === null, {
+    message: 'PAPER_ENTRY_BLANK_WITH_CONFIDENCE',
+  })).min(1),
 }).strict();
 
 type PaperEntryDatabase = IdempotencyDatabase & Readonly<{

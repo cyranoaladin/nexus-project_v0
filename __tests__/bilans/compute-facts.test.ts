@@ -192,38 +192,51 @@ const mass = (o: Partial<Record<ItemProfile, number>>): Record<ItemProfile, numb
   ...o,
 });
 
-describe('computeNodeProfile', () => {
+describe('computeNodeProfile — §6 v1.1.0, la présence prime sur la masse', () => {
   it('nœud vide → NON_TRAITE', () => {
     expect(computeNodeProfile(mass({}))).toBe('NON_TRAITE');
   });
 
-  it('règle 1 : plus de la moitié non traitée', () => {
+  it('règle 1 : UNE erreur confiante suffit, quel que soit son poids', () => {
+    // Le défaut du 13/08/2026 : item faux à 4/4 de poids 1 face à un item
+    // juste de poids 3 — l'ancienne règle massique rendait MAITRISE et le
+    // bilan affirmait « acquis » une notion ratée avec aplomb.
+    expect(computeNodeProfile(mass({ ERREUR_CONFIANTE: 1, MAITRISE: 3 }))).toBe('ERREUR_CONFIANTE');
+  });
+
+  it('règle 1 : l’erreur confiante prime même sur une majorité non traitée', () => {
+    expect(computeNodeProfile(mass({ ERREUR_CONFIANTE: 1, NON_TRAITE: 9 }))).toBe('ERREUR_CONFIANTE');
+  });
+
+  it('règle 2 : plus de la moitié non traitée, sans erreur à confronter', () => {
     expect(computeNodeProfile(mass({ NON_TRAITE: 3, MAITRISE: 2 }))).toBe('NON_TRAITE');
+    expect(computeNodeProfile(mass({ NON_TRAITE: 3, LACUNE_CONSCIENTE: 1, MAITRISE: 1 }))).toBe('NON_TRAITE');
   });
 
-  it('règle 2 : une difficulté entièrement issue du non-traité reste NON_TRAITE', () => {
-    // NT/W == 0.5, sans erreur confiante ni lacune consciente.
-    expect(computeNodeProfile(mass({ NON_TRAITE: 2, MAITRISE: 2 }))).toBe('NON_TRAITE');
-  });
-
-  it('règle 2 : égalité m_EC == m_LC tranche en faveur de ERREUR_CONFIANTE', () => {
-    expect(computeNodeProfile(mass({ ERREUR_CONFIANTE: 2, LACUNE_CONSCIENTE: 2 }))).toBe(
-      'ERREUR_CONFIANTE',
-    );
-  });
-
-  it('règle 2 : lacune consciente majoritaire', () => {
+  it('règle 3 : symétrie — une lacune consciente présente interdit tout « acquis »', () => {
+    expect(computeNodeProfile(mass({ LACUNE_CONSCIENTE: 1, MAITRISE: 3 }))).toBe('LACUNE_CONSCIENTE');
     expect(
-      computeNodeProfile(mass({ ERREUR_CONFIANTE: 1, LACUNE_CONSCIENTE: 3, MAITRISE: 1 })),
+      computeNodeProfile(mass({ LACUNE_CONSCIENTE: 1, MAITRISE: 2, MAITRISE_FRAGILE: 2 })),
     ).toBe('LACUNE_CONSCIENTE');
   });
 
-  it('règle 3 : égalité m_M == m_MF tranche en faveur de MAITRISE', () => {
+  it('règle 4 : égalité m_M == m_MF tranche en faveur de MAITRISE', () => {
     expect(computeNodeProfile(mass({ MAITRISE: 2, MAITRISE_FRAGILE: 2 }))).toBe('MAITRISE');
   });
 
-  it('règle 3 : fragilité majoritaire', () => {
+  it('règle 4 : fragilité majoritaire', () => {
     expect(computeNodeProfile(mass({ MAITRISE: 1, MAITRISE_FRAGILE: 3 }))).toBe('MAITRISE_FRAGILE');
+  });
+
+  it('verrou : aucune masse contenant EC ou LC ne peut produire MAITRISE ni MAITRISE_FRAGILE', () => {
+    for (const ec of [0, 1, 5]) {
+      for (const lc of [0, 1, 5]) {
+        if (ec === 0 && lc === 0) continue;
+        const profile = computeNodeProfile(mass({ ERREUR_CONFIANTE: ec, LACUNE_CONSCIENTE: lc, MAITRISE: 100 }));
+        expect(['MAITRISE', 'MAITRISE_FRAGILE']).not.toContain(profile);
+        if (ec > 0) expect(profile).toBe('ERREUR_CONFIANTE');
+      }
+    }
   });
 });
 

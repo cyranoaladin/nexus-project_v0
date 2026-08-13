@@ -10,7 +10,10 @@
 
 import type { GroupBand, ItemProfile } from './types';
 
-export const ENGINE_VERSION = '1.0.1';
+// 1.1.0 — §6 : la présence d'une ERREUR_CONFIANTE (puis d'une LACUNE_CONSCIENTE)
+// prime sur la masse ; un nœud contenant un item faux assumé n'est plus jamais
+// « MAITRISE ». Voir ADR et docs/specs/bilans/02-moteur-de-faits.md.
+export const ENGINE_VERSION = '1.1.0';
 
 /** Réussite continue à partir de laquelle un item est considéré réussi pour le profilage. */
 export const SUCCESS_THRESHOLD = 0.75;
@@ -45,12 +48,26 @@ export const BILAN_LINK_TTL_HOURS = 72;
 /** Revue humaine obligatoire avant diffusion d'un bilan PARENT. */
 export const REQUIRE_HUMAN_REVIEW_PARENT = true;
 
-/** Ordre de sévérité pour la priorisation. Plus grand = plus prioritaire. */
+/**
+ * L'UNIQUE échelle de sévérité du positionnement. Plus grand = plus
+ * prioritaire. Toute priorisation, tout héritage de profil, tout ordre
+ * d'affichage en dérive — un test d'architecture interdit toute seconde
+ * échelle.
+ *
+ * Position de NON_TRAITE, explicite (13/08/2026) : sous MAITRISE_FRAGILE.
+ * C'est l'ordre de la méthode publiée aux familles et aux enseignants —
+ * « confronter (EC), installer (LC), consolider (MF), diagnostiquer (NT) » :
+ * une fragilité PROUVÉE par la passation prime sur une absence d'information.
+ * Historique : trois positions de NON_TRAITE coexistaient (au sommet dans
+ * l'héritage de domaine, au milieu ici, en dernier dans l'ordre d'affichage) —
+ * un même document pouvait se contredire entre son tableau, ses priorités et
+ * son texte de méthode.
+ */
 export const SEVERITY_RANK: Readonly<Record<ItemProfile, number>> = Object.freeze({
   ERREUR_CONFIANTE: 4,
   LACUNE_CONSCIENTE: 3,
-  NON_TRAITE: 2,
-  MAITRISE_FRAGILE: 1,
+  MAITRISE_FRAGILE: 2,
+  NON_TRAITE: 1,
   MAITRISE: 0,
 });
 

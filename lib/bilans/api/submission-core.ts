@@ -34,9 +34,14 @@ export function assertAttemptComplete(answers: unknown, enabled: EnabledBilanPac
   const stored = submissionAnswers(answers);
   for (const item of enabled.pack.questionnaire.items) {
     const answer = stored[item.id];
+    // Chaque item doit être PRÉSENT : une non-réponse est déclarée
+    // (`optionId: null`, sans certitude — le moteur la profile NON_TRAITE),
+    // jamais omise silencieusement.
+    if (answer === undefined) throw CanonicalApiError.incompatible('ATTEMPT_INCOMPLETE');
+    const blankDeclared = answer.optionId === null && answer.confidence === null;
+    if (blankDeclared) continue;
     if (
-      answer === undefined
-      || typeof answer.optionId !== 'string'
+      typeof answer.optionId !== 'string'
       || !item.options.some(({ id }) => id === answer.optionId)
       || !(answer.confidence === null || [1, 2, 3, 4].includes(answer.confidence as number))
     ) throw CanonicalApiError.incompatible('ATTEMPT_INCOMPLETE');

@@ -171,12 +171,12 @@ describe('Fil guidé de saisie papier', () => {
       />,
     );
 
-    expect(screen.getByText('0 réponse sur 1 saisie')).toBeInTheDocument();
+    expect(screen.getByText(/0 réponses saisies · 1 sur 1 restant/)).toBeInTheDocument();
     expect(screen.getByText('Saisir les réponses').closest('li')).toHaveAttribute('aria-current', 'step');
     const radios = screen.getAllByRole('radio');
     fireEvent.click(radios[0]);
     fireEvent.click(radios[4]);
-    expect(screen.getByText('1 réponse sur 1 saisie')).toBeInTheDocument();
+    expect(screen.getByText(/1 réponse saisie · 0 sur 1 restants?/)).toBeInTheDocument();
     expect(screen.getByText('Valider').closest('li')).toHaveAttribute('aria-current', 'step');
     expect(screen.getByRole('link', { name: /Choisir la matière/ })).toHaveAttribute(
       'href',
