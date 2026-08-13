@@ -17,6 +17,7 @@ import type { TeacherBriefContent } from '@/lib/bilans/llm/teacher-brief-schema'
 import {
   addParentEmailAction,
   executeRegenerationAction,
+  prepareUpdateInfoMessageAction,
   approveTeacherBriefAction,
   confirmWhatsAppTransmissionAction,
   generateTeacherBriefAction,
@@ -469,9 +470,23 @@ export default async function CanonicalBilansReviewPage({
                     <section className="border-t border-emerald-300/20 bg-emerald-300/5 px-6 py-5">
                       <h3 className="font-semibold text-emerald-100">Envoi au parent par WhatsApp</h3>
                       {revision.transmittedAt !== null ? (
-                        <p className="mt-1 text-sm text-emerald-100">
-                          Transmis au parent le {dateLabel(revision.transmittedAt)} par WhatsApp.
-                        </p>
+                        <>
+                          <p className="mt-1 text-sm text-emerald-100">
+                            Transmis au parent le {dateLabel(revision.transmittedAt)} par WhatsApp.
+                          </p>
+                          {revision.generation > 1 && !revision.parentPhoneMissing && (
+                            <form action={prepareUpdateInfoMessageAction} target="_blank" className="mt-3">
+                              <input type="hidden" name="artifactId" value={revision.reportArtifact.id} />
+                              <button type="submit" className="rounded-xl border border-emerald-300 px-4 py-2.5 font-semibold text-emerald-100" data-testid="whatsapp-info-mise-a-jour">
+                                Préparer le message d’information (bilan mis à jour)
+                              </button>
+                              <p className="mt-2 text-xs leading-5 text-slate-400">
+                                Ce bilan régénéré remplace une version que la famille a déjà reçue : un court message courtois
+                                l’informe de la mise à jour. Les liens existants restent valables — rien n’est révoqué.
+                              </p>
+                            </form>
+                          )}
+                        </>
                       ) : revision.parentPhoneMissing ? (
                         <p className="mt-1 text-sm text-slate-300">
                           Aucun téléphone enregistré pour ce parent : l’envoi WhatsApp est indisponible.

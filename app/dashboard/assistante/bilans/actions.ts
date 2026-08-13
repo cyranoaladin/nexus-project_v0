@@ -216,3 +216,19 @@ export async function executeRegenerationAction(formData: FormData): Promise<voi
   }
   redirect('/dashboard/assistante/bilans');
 }
+
+export async function prepareUpdateInfoMessageAction(formData: FormData): Promise<void> {
+  const { prepareUpdateInfoMessage } = await import('@/lib/bilans/staff/whatsapp-send-service');
+  let whatsappUrl: string;
+  try {
+    const prepared = await prepareUpdateInfoMessage({
+      actor: await actor(),
+      reportArtifactId: field(formData, 'artifactId'),
+    });
+    whatsappUrl = prepared.whatsappUrl;
+  } catch (error) {
+    if (error instanceof WhatsAppSendError) notFound();
+    handleAccessError(error);
+  }
+  redirect(whatsappUrl);
+}
