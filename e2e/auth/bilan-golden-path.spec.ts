@@ -181,7 +181,7 @@ test.describe('Golden-path — bilan de bout en bout (rapport LLM stubbé)', () 
 
     const artifact = await prisma.reportArtifact.findUniqueOrThrow({ where: { assessmentAttemptId: attemptId } });
     expect(artifact.status).toBe('PENDING_REVIEW');
-    const revisionRow = await prisma.reportRevision.findUniqueOrThrow({ where: { scoreSnapshotId: snapshot.id } });
+    const revisionRow = await prisma.reportRevision.findFirstOrThrow({ where: { scoreSnapshotId: snapshot.id } });
     // Les nombres viennent toujours du FactSheet, jamais du bundle LLM
     // (buildLlmReports ne fait que narrer -- voir sa documentation).
     const narratedContent = revisionRow.content as { NEXUS: { content: { internalFacts: { globalScore: number } } } };

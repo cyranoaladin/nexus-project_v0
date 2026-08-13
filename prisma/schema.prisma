@@ -259,6 +259,7 @@ model User {
   @@index([phoneNormalized])
   @@index([mergedIntoUserId])
   @@map("users")
+  reportRegenerationsRequested ReportRegeneration[] @relation("ReportRegenerationsRequested")
 }
 
 // Profil Parent
@@ -1661,17 +1662,51 @@ model ReportRevision {
   content               Json
   validationFailures    String[] @default([])
 
+  /// Génération du rendu pour ce snapshot : 1 à la création, incrémentée à
+  /// chaque régénération (règle/rendu mis à jour). Le snapshot de score,
+  /// lui, ne change jamais.
+  generation Int @default(1)
+
   currentForArtifact ReportArtifact?        @relation("ReportArtifactCurrentPublishedRevision")
   reviews            ReportReview[]
   materialization    ReportMaterialization?
+  regenerationsFrom  ReportRegeneration[]   @relation("RegenerationFromRevision")
+  regenerationsTo    ReportRegeneration[]   @relation("RegenerationToRevision")
 
   createdAt DateTime @default(now())
 
-  @@unique([scoreSnapshotId])
+  @@unique([scoreSnapshotId, generation])
   @@unique([id, reportArtifactId])
   @@index([reportArtifactId, createdAt])
   @@index([scoreSnapshotId])
   @@map("canonical_report_revisions")
+}
+
+/// Trace append-only d'une régénération de bilan : qui, quand, pourquoi,
+/// versions de règle avant/après, brief LLM régénéré ou non, et le diff de
+/// profils constaté. L'historique intégral des révisions est conservé —
+/// cette table dit pourquoi une nouvelle génération existe.
+model ReportRegeneration {
+  id             String         @id @default(cuid())
+  fromRevisionId String
+  fromRevision   ReportRevision @relation("RegenerationFromRevision", fields: [fromRevisionId], references: [id], onDelete: Restrict)
+  toRevisionId   String
+  toRevision     ReportRevision @relation("RegenerationToRevision", fields: [toRevisionId], references: [id], onDelete: Restrict)
+  requestedById  String
+  requestedBy    User           @relation("ReportRegenerationsRequested", fields: [requestedById], references: [id], onDelete: Restrict)
+  motif          String
+  engineVersionBefore String
+  engineVersionAfter  String
+  briefRegenerated    Boolean  @default(false)
+  briefPromptVersion  String?
+  briefModel          String?
+  profileDiff         Json
+  wasPublished        Boolean  @default(false)
+  createdAt           DateTime @default(now())
+
+  @@index([toRevisionId])
+  @@index([createdAt])
+  @@map("canonical_report_regenerations")
 }
 
 model ReportMaterialization {
