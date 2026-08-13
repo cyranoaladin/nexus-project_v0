@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
 import { resolveShareLinkContext } from '@/lib/bilans/staff/share-link-service';
+import { LEGAL } from '@/lib/legal';
 
 import { FamilyLandingConsent } from './family-landing-consent';
 
@@ -86,7 +87,7 @@ export default async function FamilyLandingPage({
         <footer className="mt-10 border-t border-lux-line/30 pt-6 text-xs leading-6 text-lux-on-dark-subtle">
           <p>
             Document confidentiel destiné à la famille. Pour toute question,
-            écrivez-nous à contact@nexusreussite.academy — l'équipe vous
+            écrivez-nous à {LEGAL.contact.email} — l'équipe vous
             répond rapidement.
           </p>
         </footer>
