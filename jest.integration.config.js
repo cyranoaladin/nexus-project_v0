@@ -24,6 +24,13 @@ const customJestConfig = {
   testPathIgnorePatterns: [
     '<rootDir>/.next/',
     '<rootDir>/node_modules/',
+    '<rootDir>/.worktrees/',
+  ],
+  // Les worktrees d'agents portent leur propre node_modules (dont un client
+  // Prisma generé sous un autre schéma) : ils ne doivent jamais entrer dans
+  // la résolution de modules de la suite.
+  modulePathIgnorePatterns: [
+    '<rootDir>/.worktrees/',
   ],
 };
 
