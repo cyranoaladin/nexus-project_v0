@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { mkdir, writeFile } from 'fs/promises';
 import path from 'path';
-import { getDocumentStorageRoot } from '@/lib/documents/storage-root';
+import { getDocumentStorageRoot, toRelativeStoragePath } from '@/lib/documents/storage-root';
 import { requireRole, isErrorResponse } from '@/lib/guards';
 import { assertCoachCanAccessStudent } from '@/lib/rbac/coach-student-access';
 import { prisma } from '@/lib/prisma';
@@ -253,14 +253,14 @@ export async function POST(request: Request, { params }: RouteParams) {
       const sanitizedTitle = sanitizeFilenamePart(validatedMeta.title);
       const extension = sanitizeFilenamePart(file.name.split('.').pop() || 'pdf');
       const filename = `${sanitizedTitle}-${timestamp}.${extension}`;
-      // Write to STORAGE_ROOT and store the absolute path in DB
+      // Write to STORAGE_ROOT and store a relative path in DB
       const storageRoot = getDocumentStorageRoot();
       const uploadDir = path.join(storageRoot, student.userId);
-      const localPath = path.join(uploadDir, filename);
+      const absolutePath = path.join(uploadDir, filename);
       await mkdir(uploadDir, { recursive: true });
 
       const buffer = Buffer.from(await file.arrayBuffer());
-      await writeFile(path.join(uploadDir, filename), buffer);
+      await writeFile(absolutePath, buffer);
 
       documentData = {
         title: validatedMeta.title,
@@ -268,7 +268,7 @@ export async function POST(request: Request, { params }: RouteParams) {
         subject: validatedMeta.subject ?? null,
         description: validatedMeta.description ?? null,
         visibilityScope: validatedMeta.visibilityScope,
-        localPath,
+        localPath: toRelativeStoragePath(absolutePath),
         originalName: file.name,
         mimeType: file.type,
         sizeBytes: file.size,

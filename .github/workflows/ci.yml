@@ -620,6 +620,27 @@ jobs:
           esac
           printf 'NPC_STORAGE_ROOT=%s\n' "$canonical_storage_root" >> "$GITHUB_ENV"
 
+      - name: Prepare isolated document storage
+        # DOCUMENT_STORAGE_ROOT est obligatoire (fail-closed) dès que
+        # NODE_ENV=production — même contrat qu'en prod : racine persistante
+        # HORS de l'arbre de release/build. Ici : répertoire éphémère du
+        # runner, même pattern que NPC_STORAGE_ROOT (#120). On complète
+        # l'environnement de CI, on n'affaiblit pas le garde.
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          document_storage_root="$RUNNER_TEMP/document-storage"
+          install -d -m 0700 -- "$document_storage_root"
+          canonical_storage_root="$(realpath -- "$document_storage_root")"
+          canonical_workspace="$(realpath -- "$GITHUB_WORKSPACE")"
+          case "$canonical_storage_root/" in
+            "$canonical_workspace/"*)
+              echo 'Document storage must remain outside the checked-out release.' >&2
+              exit 1
+              ;;
+          esac
+          printf 'DOCUMENT_STORAGE_ROOT=%s\n' "$canonical_storage_root" >> "$GITHUB_ENV"
+
       - name: Wait for Postgres (E2E) to be ready
         run: |
           for i in {1..30}; do
@@ -984,6 +1005,24 @@ jobs:
               ;;
           esac
           printf 'NPC_STORAGE_ROOT=%s\n' "$canonical_storage_root" >> "$GITHUB_ENV"
+
+      - name: Prepare isolated document storage
+        # Même contrat que le job E2E : DOCUMENT_STORAGE_ROOT fail-closed en
+        # production, fourni par l'environnement, hors arbre de build.
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          document_storage_root="$RUNNER_TEMP/document-storage"
+          install -d -m 0700 -- "$document_storage_root"
+          canonical_storage_root="$(realpath -- "$document_storage_root")"
+          canonical_workspace="$(realpath -- "$GITHUB_WORKSPACE")"
+          case "$canonical_storage_root/" in
+            "$canonical_workspace/"*)
+              echo 'Document storage must remain outside the checked-out release.' >&2
+              exit 1
+              ;;
+          esac
+          printf 'DOCUMENT_STORAGE_ROOT=%s\n' "$canonical_storage_root" >> "$GITHUB_ENV"
 
       - name: Generate Prisma Client
         run: npx prisma generate
