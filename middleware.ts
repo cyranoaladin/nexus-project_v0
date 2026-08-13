@@ -73,6 +73,23 @@ const authenticatedMiddleware = auth((req) => {
   const response = NextResponse.next();
   applySecurityHeaders(response);
 
+  // La page d'arrivée famille intègre le document du bilan dans une iframe
+  // MÊME ORIGINE (« Il se lit ci-dessous »). Le DENY global la laissait vide :
+  // le navigateur refusait l'inclusion, le texte mentait au parent (défaut du
+  // 13/08/2026). SAMEORIGIN suffit et reste fermé aux sites tiers.
+  if (pathname.startsWith('/bilan/consultation/')) {
+    response.headers.set('X-Frame-Options', 'SAMEORIGIN');
+    const csp = response.headers.get('Content-Security-Policy');
+    if (csp !== null) {
+      // On ne touche qu'à frame-ancestors : le reste de la politique
+      // (script-src, object-src…) reste strictement celle du site.
+      response.headers.set(
+        'Content-Security-Policy',
+        csp.replace("frame-ancestors 'none'", "frame-ancestors 'self'"),
+      );
+    }
+  }
+
   if (pathname.startsWith('/dashboard/assistante/devis/app')) {
     response.headers.set('X-Frame-Options', 'SAMEORIGIN');
     response.headers.set(
