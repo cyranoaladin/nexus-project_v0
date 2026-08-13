@@ -1,6 +1,7 @@
 import { Prisma, StageReservationStatus, StageType, Subject } from '@prisma/client';
 
 import { prisma } from '@/lib/prisma';
+import { getActiveStageEndDateFilter } from '@/lib/stages/lifecycle';
 
 type ReservationLike = {
   richStatus: StageReservationStatus | null;
@@ -228,9 +229,10 @@ export async function listPublicStages(filters?: {
   open?: boolean;
   level?: string;
   subject?: string;
-}) {
+}, now: Date = new Date()) {
   const where: Prisma.StageWhereInput = {
     isVisible: true,
+    endDate: getActiveStageEndDateFilter(now),
   };
 
   if (filters?.open === true) {
@@ -254,11 +256,12 @@ export async function listPublicStages(filters?: {
   return stages.map(serializePublicStage);
 }
 
-export async function getPublicStageBySlug(stageSlug: string) {
+export async function getPublicStageBySlug(stageSlug: string, now: Date = new Date()) {
   const stage = await prisma.stage.findFirst({
     where: {
       slug: stageSlug,
       isVisible: true,
+      endDate: getActiveStageEndDateFilter(now),
     },
     include: publicStageInclude,
   });

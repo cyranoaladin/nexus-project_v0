@@ -6,6 +6,7 @@ import { Prisma, UserRole } from '@prisma/client';
 import { isErrorResponse, requireAnyRole, requireRole } from '@/lib/guards';
 import { prisma } from '@/lib/prisma';
 import { createStageSchema } from '@/lib/stages/admin-schemas';
+import { EXPIRED_STAGE_ERROR, isStageExpired } from '@/lib/stages/lifecycle';
 
 type ReservationLike = {
   richStatus: string | null;
@@ -150,8 +151,15 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
   }
 
-  if (new Date(parsed.data.endDate) <= new Date(parsed.data.startDate)) {
+  const startDate = new Date(parsed.data.startDate);
+  const endDate = new Date(parsed.data.endDate);
+
+  if (endDate <= startDate) {
     return NextResponse.json({ error: 'La date de fin doit être postérieure à la date de début' }, { status: 400 });
+  }
+
+  if (parsed.data.isOpen && isStageExpired(endDate, new Date())) {
+    return NextResponse.json({ error: EXPIRED_STAGE_ERROR }, { status: 400 });
   }
 
   try {
@@ -166,8 +174,8 @@ export async function POST(request: NextRequest) {
     const stage = await prisma.stage.create({
       data: {
         ...parsed.data,
-        startDate: new Date(parsed.data.startDate),
-        endDate: new Date(parsed.data.endDate),
+        startDate,
+        endDate,
       },
     });
 

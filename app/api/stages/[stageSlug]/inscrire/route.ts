@@ -8,6 +8,7 @@ import { internalNotification } from '@/lib/email/templates';
 import { LEGAL } from '@/lib/legal';
 import { computeReservationStatus } from '@/lib/stages/capacity';
 import { publicStageInscriptionSchema } from '@/lib/stages/inscription-schema';
+import { getActiveStageEndDateFilter } from '@/lib/stages/lifecycle';
 import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive';
 import { z } from 'zod';
 import { canAcceptPreRentreeCampaignSubmission } from '@/lib/campaigns/pre-rentree-2026/release-gate';
@@ -83,8 +84,14 @@ export async function POST(
   const normalizedParentEmail = parentEmail ? normalizeUserEmail(parentEmail) : undefined;
 
   try {
+    const now = new Date();
     const stage = await prisma.stage.findUnique({
-      where: { slug: stageSlug, isVisible: true, isOpen: true },
+      where: {
+        slug: stageSlug,
+        isVisible: true,
+        isOpen: true,
+        endDate: getActiveStageEndDateFilter(now),
+      },
     });
     if (!stage) {
       return NextResponse.json(
