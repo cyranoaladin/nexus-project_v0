@@ -29,6 +29,12 @@ import {
   type IdempotencyDatabase,
 } from '../api/idempotency';
 import { assertStaffActor } from './access';
+import {
+  attachRequiresConfirmation,
+  classifyHouseholdMatch,
+  compareByStrength,
+  type HouseholdMatchStrength,
+} from './household-matching';
 
 /**
  * Création du foyer, côté staff, préalable à une saisie papier.
@@ -60,7 +66,13 @@ const requestSchema = z.object({
   parentLastName: z.string().trim().min(1).max(80),
   children: z.array(childSchema).min(1).max(PAPER_ENTRY_MAX_CHILDREN),
   duplicateResolution: z.discriminatedUnion('mode', [
-    z.object({ mode: z.literal('ATTACH'), parentUserId: z.string().trim().min(1).max(80) }).strict(),
+    z.object({
+      mode: z.literal('ATTACH'),
+      parentUserId: z.string().trim().min(1).max(80),
+      // Confirmation délibérée exigée sur un signal faible (homonymie sans
+      // téléphone commun) : le rattachement réflexe est ainsi impossible.
+      confirmed: z.literal(true).optional(),
+    }).strict(),
     z.object({ mode: z.literal('CREATE_NEW') }).strict(),
   ]).optional(),
 }).strict();
@@ -105,6 +117,8 @@ type DuplicateCandidateRecord = Readonly<{
   lastName: string | null;
   email: string | null;
   phone: string | null;
+  phoneNormalized: string | null;
+  mergedSources: readonly Readonly<{ phoneNormalized: string | null }>[];
   parentProfile: Readonly<{
     id: string;
     children: readonly Readonly<{
@@ -119,6 +133,8 @@ export type PaperEntryDuplicateCandidate = Readonly<{
   parentUserId: string;
   parentName: string;
   phone: string | null;
+  /** Force du signal : téléphone identique, homonymie, homonymie + niveau. */
+  matchStrength: HouseholdMatchStrength;
   children: readonly Readonly<{
     studentId: string;
     studentName: string;
@@ -128,7 +144,14 @@ export type PaperEntryDuplicateCandidate = Readonly<{
 
 type PotentialDuplicateResult = Readonly<{
   error: Readonly<{ code: 'POTENTIAL_DUPLICATE' }>;
+  /** Téléphone tel que saisi (affichage), pour montrer la divergence côté UI. */
+  enteredPhone: string;
   candidates: readonly PaperEntryDuplicateCandidate[];
+}>;
+
+type ClassifiedCandidate = Readonly<{
+  record: DuplicateCandidateRecord;
+  strength: HouseholdMatchStrength;
 }>;
 
 type FamilyResponse = FamilyResult | PotentialDuplicateResult;
@@ -151,12 +174,14 @@ function displayName(firstName: string | null, lastName: string | null, fallback
   return `${firstName ?? ''} ${lastName ?? ''}`.trim() || fallback;
 }
 
-function projectDuplicateCandidate(candidate: DuplicateCandidateRecord): PaperEntryDuplicateCandidate {
+function projectDuplicateCandidate(candidate: ClassifiedCandidate): PaperEntryDuplicateCandidate {
+  const { record, strength } = candidate;
   return Object.freeze({
-    parentUserId: candidate.id,
-    parentName: displayName(candidate.firstName, candidate.lastName, 'Parent'),
-    phone: candidate.phone,
-    children: Object.freeze((candidate.parentProfile?.children ?? []).map((child) => Object.freeze({
+    parentUserId: record.id,
+    parentName: displayName(record.firstName, record.lastName, 'Parent'),
+    phone: record.phone,
+    matchStrength: strength,
+    children: Object.freeze((record.parentProfile?.children ?? []).map((child) => Object.freeze({
       studentId: child.id,
       studentName: displayName(child.user.firstName, child.user.lastName, 'Élève'),
       gradeLevel: child.gradeLevel,
@@ -164,10 +189,48 @@ function projectDuplicateCandidate(candidate: DuplicateCandidateRecord): PaperEn
   });
 }
 
+/**
+ * Qualifie un candidat brut en lui associant sa force de signal, ou l'écarte
+ * si aucun signal ne le relie réellement au foyer saisi (le filtre SQL est
+ * volontairement large ; la classification, autorité, tranche en mémoire à
+ * partir des clés normalisées). Les candidats sont triés du signal fort vers
+ * l'homonymie.
+ */
+function classifyCandidates(
+  records: readonly DuplicateCandidateRecord[],
+  input: z.infer<typeof requestSchema>,
+  phoneNormalized: string,
+  children: readonly ResolvedChild[],
+): readonly ClassifiedCandidate[] {
+  const childLevels = children.map((child) => child.level);
+  return records
+    .flatMap((record) => {
+      const strength = classifyHouseholdMatch(
+        {
+          parentFirstName: input.parentFirstName,
+          parentLastName: input.parentLastName,
+          phoneNormalized,
+          childLevels,
+        },
+        {
+          parentFirstName: record.firstName,
+          parentLastName: record.lastName,
+          phoneNormalized: record.phoneNormalized,
+          mergedSourcePhonesNormalized: record.mergedSources
+            .map((source) => source.phoneNormalized)
+            .filter((value): value is string => value !== null),
+          childLevels: (record.parentProfile?.children ?? []).map((child) => child.gradeLevel),
+        },
+      );
+      return strength === null ? [] : [{ record, strength }];
+    })
+    .sort((a, b) => compareByStrength(a.strength, b.strength));
+}
+
 async function findPotentialDuplicateFamilies(
   transaction: Prisma.TransactionClient,
   phoneNormalized: string,
-  children: readonly ResolvedChild[],
+  input: z.infer<typeof requestSchema>,
 ): Promise<readonly DuplicateCandidateRecord[]> {
   return transaction.user.findMany({
     where: {
@@ -179,21 +242,16 @@ async function findPotentialDuplicateFamilies(
         // fusion additive. La suggestion doit présenter le compte actif
         // cible, pas ignorer ce numéro parce que sa source est tombstonée.
         { mergedSources: { some: { phoneNormalized } } },
-        ...children.map((child) => ({
-          parentProfile: {
-            is: {
-              children: {
-                some: {
-                  gradeLevel: child.level,
-                  user: {
-                    firstName: { equals: child.firstName, mode: 'insensitive' as const },
-                    lastName: { equals: child.lastName, mode: 'insensitive' as const },
-                  },
-                },
-              },
-            },
-          },
-        })),
+        // Homonymie de parent : mêmes nom et prénom, même quand le téléphone
+        // diffère. Le filtre SQL est insensible à la casse ; la robustesse aux
+        // accents, espaces et traits d'union est portée par la classification
+        // en mémoire (clés normalisées), autorité de la décision.
+        {
+          AND: [
+            { firstName: { equals: input.parentFirstName, mode: 'insensitive' as const } },
+            { lastName: { equals: input.parentLastName, mode: 'insensitive' as const } },
+          ],
+        },
       ],
     },
     select: {
@@ -202,6 +260,8 @@ async function findPotentialDuplicateFamilies(
       lastName: true,
       email: true,
       phone: true,
+      phoneNormalized: true,
+      mergedSources: { select: { phoneNormalized: true } },
       parentProfile: {
         select: {
           id: true,
@@ -473,27 +533,37 @@ export function createPaperEntryFamilyHandler(
         now,
         action: async (transaction: CanonicalTransaction) => {
           const familyTransaction = transaction as unknown as Prisma.TransactionClient;
-          const candidates = await findPotentialDuplicateFamilies(
+          const records = await findPotentialDuplicateFamilies(
             familyTransaction,
             parentPhone.normalized,
-            children,
+            input,
           );
+          const candidates = classifyCandidates(records, input, parentPhone.normalized, children);
           const resolution = input.duplicateResolution;
           if (candidates.length > 0 && resolution === undefined) {
             return {
               status: 409,
               body: Object.freeze({
                 error: Object.freeze({ code: 'POTENTIAL_DUPLICATE' as const }),
+                enteredPhone: parentPhone.display,
                 candidates: Object.freeze(candidates.map(projectDuplicateCandidate)),
               }),
             };
           }
 
           const attachTo = resolution?.mode === 'ATTACH'
-            ? candidates.find(({ id }) => id === resolution.parentUserId)
+            ? candidates.find(({ record }) => record.id === resolution.parentUserId)
             : undefined;
-          if (resolution?.mode === 'ATTACH' && attachTo === undefined) {
-            throw CanonicalApiError.conflict('POTENTIAL_DUPLICATE_SELECTION_INVALID');
+          if (resolution?.mode === 'ATTACH') {
+            if (attachTo === undefined) {
+              throw CanonicalApiError.conflict('POTENTIAL_DUPLICATE_SELECTION_INVALID');
+            }
+            // Le rattachement sur un signal faible (homonymie sans téléphone
+            // commun) n'est jamais implicite : sans la confirmation délibérée,
+            // on refuse plutôt que d'envoyer le bilan au mauvais foyer.
+            if (attachRequiresConfirmation(attachTo.strength) && resolution.confirmed !== true) {
+              throw CanonicalApiError.conflict('ATTACH_REQUIRES_CONFIRMATION');
+            }
           }
 
           return {
@@ -503,7 +573,7 @@ export function createPaperEntryFamilyHandler(
               children,
               parentEmail,
               parentPhone,
-              attachTo,
+              attachTo: attachTo?.record,
               now,
             }),
           };
