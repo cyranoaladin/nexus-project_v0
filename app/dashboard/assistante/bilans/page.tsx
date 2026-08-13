@@ -17,6 +17,8 @@ import type { TeacherBriefContent } from '@/lib/bilans/llm/teacher-brief-schema'
 
 import {
   addParentEmailAction,
+  executeRegenerationAction,
+  prepareUpdateInfoMessageAction,
   approveTeacherBriefAction,
   confirmWhatsAppTransmissionAction,
   generateTeacherBriefAction,
@@ -95,7 +97,7 @@ function dateLabel(date: Date): string {
 
 export default async function CanonicalBilansReviewPage({
   searchParams,
-}: Readonly<{ searchParams: Promise<Readonly<{ preview?: string }>> }>) {
+}: Readonly<{ searchParams: Promise<Readonly<{ preview?: string; regen?: string }>> }>) {
   const session = await auth();
   if (session?.user?.id === undefined || session.user.role === undefined) notFound();
 
@@ -131,7 +133,22 @@ export default async function CanonicalBilansReviewPage({
   }
   const briefUsage = await teacherBriefMonthlyUsage();
 
-  const requestedPreview = (await searchParams).preview;
+  const resolvedParams = await searchParams;
+  const requestedPreview = resolvedParams.preview;
+  const requestedRegen = resolvedParams.regen;
+  let regenPreview: Awaited<ReturnType<typeof import('@/lib/bilans/staff/regeneration-service').prepareReportRegeneration>> | null = null;
+  if (requestedRegen !== undefined) {
+    const { prepareReportRegeneration, ReportRegenerationError } = await import('@/lib/bilans/staff/regeneration-service');
+    try {
+      regenPreview = await prepareReportRegeneration({
+        actor: { userId: session.user.id, role: session.user.role },
+        revisionId: requestedRegen,
+      });
+    } catch (error) {
+      if (!(error instanceof ReportRegenerationError)) throw error;
+      regenPreview = null;
+    }
+  }
   let preview: Awaited<ReturnType<typeof previewPendingReport>> | null = null;
   if (requestedPreview !== undefined) {
     try {
@@ -301,6 +318,64 @@ export default async function CanonicalBilansReviewPage({
                         <a href={`/dashboard/assistante/bilans?preview=${encodeURIComponent(revision.id)}`} className="lg:col-span-2 rounded-xl border border-amber-300 px-4 py-2.5 text-center font-semibold text-amber-100">
                           Prévisualiser les trois rendus HTML
                         </a>
+
+                        {(revision.status === 'PENDING_REVIEW' || revision.status === 'CORRECTION_REQUESTED' || revision.reportArtifact.status === 'PUBLISHED') && (
+                          regenPreview !== null && regenPreview.revisionId === revision.id ? (
+                            <section className="lg:col-span-2 rounded-2xl border border-sky-300/30 bg-sky-300/5 p-5" data-testid="regeneration-apercu">
+                              <h3 className="font-semibold text-sky-100">Régénérer le bilan — aperçu avant validation</h3>
+                              <p className="mt-1 text-sm text-slate-300">
+                                Règle {regenPreview.engineVersionBefore} → {regenPreview.engineVersionAfter} · génération {regenPreview.generation} → {regenPreview.nextGeneration}.
+                                Le snapshot de score reste intact ; le bilan régénéré repasse en revue avant toute diffusion.
+                              </p>
+                              {regenPreview.changes.length === 0 ? (
+                                <p className="mt-3 text-sm text-emerald-100">Aucun profil ne change : seule la mise en page et la prose seraient actualisées.</p>
+                              ) : (
+                                <ul className="mt-3 space-y-1 text-sm text-slate-200" data-testid="regeneration-diff">
+                                  {regenPreview.changes.map((change) => (
+                                    <li key={`${change.kind}-${change.id}`}>
+                                      <span className="font-mono text-xs text-slate-400">{change.kind === 'DOMAIN' ? 'domaine' : 'nœud'}</span>{' '}
+                                      <span className="font-semibold">{change.id}</span> : {change.before} → <span className="font-semibold text-amber-200">{change.after}</span>
+                                    </li>
+                                  ))}
+                                </ul>
+                              )}
+                              <p className="mt-3 text-sm text-slate-300">
+                                {regenPreview.briefWillRegenerate
+                                  ? 'Le brief enseignant sera régénéré (1 appel LLM facturé) puis repassera en relecture.'
+                                  : 'Aucun appel LLM : pas de brief actif à régénérer.'}
+                              </p>
+                              {regenPreview.artifactStatus === 'PUBLISHED' && (
+                                <p className="mt-3 rounded-xl border border-amber-300/40 bg-amber-300/10 p-3 text-sm text-amber-100" role="alert">
+                                  Ce bilan a été diffusé{regenPreview.transmittedAt !== null ? ` et transmis le ${dateLabel(regenPreview.transmittedAt)}` : regenPreview.publishedAt !== null ? ` le ${dateLabel(regenPreview.publishedAt)}` : ''}.
+                                  La famille verra la nouvelle version par son lien après re-validation et re-publication.
+                                </p>
+                              )}
+                              <form action={executeRegenerationAction} className="mt-4">
+                                <input type="hidden" name="revisionId" value={revision.id} />
+                                <label className="block text-sm font-semibold text-white" htmlFor={`regen-motif-${revision.id}`}>Motif de la régénération</label>
+                                <textarea id={`regen-motif-${revision.id}`} name="motif" required minLength={5} className="mt-2 min-h-20 w-full rounded-xl border border-white/15 bg-slate-950 p-3 text-sm text-white" placeholder="Ex. : correction de la règle de profil (v1.1.0)" />
+                                {regenPreview.artifactStatus === 'PUBLISHED' && (
+                                  <label className="mt-3 flex items-start gap-2 text-sm text-amber-100">
+                                    <input type="checkbox" name="confirmAlreadyPublished" required className="mt-1" />
+                                    <span>Je confirme la régénération d’un bilan déjà diffusé à une famille.</span>
+                                  </label>
+                                )}
+                                <button type="submit" className="mt-3 rounded-xl bg-sky-400 px-4 py-2.5 font-semibold text-slate-950">
+                                  Régénérer le bilan
+                                </button>
+                                <Link href="/dashboard/assistante/bilans" className="ml-3 text-sm text-slate-300 underline">Annuler</Link>
+                              </form>
+                            </section>
+                          ) : (
+                            <a
+                              href={`/dashboard/assistante/bilans?regen=${encodeURIComponent(revision.id)}`}
+                              className="lg:col-span-2 rounded-xl border border-sky-300/50 px-4 py-2.5 text-center font-semibold text-sky-100"
+                              data-testid="regeneration-preparer"
+                            >
+                              Préparer une régénération du bilan
+                            </a>
+                          )
+                        )}
                         <form action={validateAndPublishReportAction} className="rounded-2xl border border-emerald-300/20 bg-emerald-300/5 p-4">
                           <input type="hidden" name="revisionId" value={revision.id} />
                           <label className="block text-sm font-semibold text-white" htmlFor={`approve-${revision.id}`}>Motif de validation et diffusion</label>
@@ -403,9 +478,23 @@ export default async function CanonicalBilansReviewPage({
                     <section className="border-t border-emerald-300/20 bg-emerald-300/5 px-6 py-5">
                       <h3 className="font-semibold text-emerald-100">Envoi au parent par WhatsApp</h3>
                       {revision.transmittedAt !== null ? (
-                        <p className="mt-1 text-sm text-emerald-100">
-                          Transmis au parent le {dateLabel(revision.transmittedAt)} par WhatsApp.
-                        </p>
+                        <>
+                          <p className="mt-1 text-sm text-emerald-100">
+                            Transmis au parent le {dateLabel(revision.transmittedAt)} par WhatsApp.
+                          </p>
+                          {revision.generation > 1 && !revision.parentPhoneMissing && (
+                            <form action={prepareUpdateInfoMessageAction} target="_blank" className="mt-3">
+                              <input type="hidden" name="artifactId" value={revision.reportArtifact.id} />
+                              <button type="submit" className="rounded-xl border border-emerald-300 px-4 py-2.5 font-semibold text-emerald-100" data-testid="whatsapp-info-mise-a-jour">
+                                Préparer le message d’information (bilan mis à jour)
+                              </button>
+                              <p className="mt-2 text-xs leading-5 text-slate-400">
+                                Ce bilan régénéré remplace une version que la famille a déjà reçue : un court message courtois
+                                l’informe de la mise à jour. Les liens existants restent valables — rien n’est révoqué.
+                              </p>
+                            </form>
+                          )}
+                        </>
                       ) : revision.parentPhoneMissing ? (
                         <p className="mt-1 text-sm text-slate-300">
                           Aucun téléphone enregistré pour ce parent : l’envoi WhatsApp est indisponible.

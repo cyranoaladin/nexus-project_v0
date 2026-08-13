@@ -33,6 +33,8 @@ export default async function FamilyLandingPage({
   const { token } = await params;
   const context = await resolveShareLinkContext(token);
   if (context === null) notFound();
+  const { readPublishedVersionReplacement } = await import('@/lib/bilans/staff/share-link-service');
+  const updatedVersion = await readPublishedVersionReplacement(context.reportArtifactId);
 
   const isParentAudience = context.audience === 'PARENTS';
   const firstName = context.studentFirstName?.trim() || 'votre enfant';
@@ -53,6 +55,18 @@ export default async function FamilyLandingPage({
               ? 'Vous consultez le document destiné aux parents. Il se lit ci-dessous et se télécharge en PDF. Ce lien est personnel : ne le partagez pas.'
               : 'Tu consultes ton document. Il se lit ci-dessous et se télécharge en PDF. Ce lien est personnel : ne le partage pas.'}
           </p>
+          {updatedVersion !== null && (
+            <p
+              className="mt-5 max-w-2xl rounded-2xl border border-lux-gold/40 bg-lux-gold/10 px-4 py-3 text-sm leading-6 text-lux-ivory"
+              data-testid="version-mise-a-jour"
+            >
+              Version mise à jour le {new Intl.DateTimeFormat('fr-FR', { dateStyle: 'long' }).format(updatedVersion.updatedAt)} —
+              elle remplace la version du {new Intl.DateTimeFormat('fr-FR', { dateStyle: 'long' }).format(updatedVersion.replacesDate)}.
+              {isParentAudience
+                ? ' Notre équipe a affiné la lecture pédagogique de certains points ; votre accès, lui, reste le même.'
+                : ' Notre équipe a affiné la lecture de certains points de ton bilan ; ton accès, lui, reste le même.'}
+            </p>
+          )}
           <div className="mt-6 flex flex-wrap items-center gap-4">
             <a
               href={`/bilan/consultation/${encodeURIComponent(token)}/pdf`}

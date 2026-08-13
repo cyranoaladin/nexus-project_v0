@@ -236,7 +236,7 @@ describe('A86 deterministic worker and internal review service', () => {
     expect((await prisma.canonicalAssessmentAttempt.findUniqueOrThrow({ where: { id: seeded.attempt.id } })).status)
       .toBe('REPORT_PENDING_REVIEW');
     const snapshot = await prisma.scoreSnapshot.findUniqueOrThrow({ where: { assessmentAttemptId: seeded.attempt.id } });
-    const revision = await prisma.reportRevision.findUniqueOrThrow({ where: { scoreSnapshotId: snapshot.id } });
+    const revision = await prisma.reportRevision.findFirstOrThrow({ where: { scoreSnapshotId: snapshot.id } });
     const deterministicContent = revision.content as { NEXUS: { content: { internalFacts: { globalScore: number } } } };
     expect(deterministicContent.NEXUS.content.internalFacts.globalScore).toBe(snapshot.score);
     expect((await prisma.jobOutbox.findUniqueOrThrow({ where: { id: generateJob.id } }))).toMatchObject({ status: 'COMPLETED' });
