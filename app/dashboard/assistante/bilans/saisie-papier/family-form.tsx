@@ -8,12 +8,14 @@ import { normalizeParentPhone } from '@/lib/contact/parent-phone';
 
 type ChildDraft = Readonly<{ firstName: string; grade: string }>;
 type DuplicateResolution =
-  | Readonly<{ mode: 'ATTACH'; parentUserId: string }>
+  | Readonly<{ mode: 'ATTACH'; parentUserId: string; confirmed?: true }>
   | Readonly<{ mode: 'CREATE_NEW' }>;
+type MatchStrength = 'PHONE' | 'NAME_AND_LEVEL' | 'NAME_ONLY';
 type DuplicateCandidate = Readonly<{
   parentUserId: string;
   parentName: string;
   phone: string | null;
+  matchStrength: MatchStrength;
   children: readonly Readonly<{ studentId: string; studentName: string; gradeLevel: string }>[];
 }>;
 
@@ -48,6 +50,12 @@ export function PaperEntryFamilyForm() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [candidates, setCandidates] = useState<readonly DuplicateCandidate[]>([]);
+  // Téléphone tel que saisi, renvoyé par le serveur, pour montrer la divergence
+  // avec le numéro d'un foyer homonyme.
+  const [enteredPhone, setEnteredPhone] = useState('');
+  // Rattachements sur signal faible cochés « je confirme » : le bouton reste
+  // inerte tant que la case ne l'est pas.
+  const [confirmedIds, setConfirmedIds] = useState<ReadonlySet<string>>(new Set());
   // Une seule clé pour ce foyer : un renvoi après un échec ambigu rejoue la
   // même création au lieu d'en ajouter une seconde.
   const [idempotencyKey, setIdempotencyKey] = useState(newIdempotencyKey);
@@ -93,10 +101,13 @@ export function PaperEntryFamilyForm() {
       if (response.status === 409) {
         const conflict = await response.json() as {
           error?: Readonly<{ code?: string }>;
+          enteredPhone?: string;
           candidates?: readonly DuplicateCandidate[];
         };
         if (conflict.error?.code === 'POTENTIAL_DUPLICATE' && conflict.candidates !== undefined) {
           setCandidates(conflict.candidates);
+          setEnteredPhone(conflict.enteredPhone ?? parentPhone.trim());
+          setConfirmedIds(new Set());
           setIdempotencyKey(newIdempotencyKey());
           return;
         }
@@ -219,39 +230,115 @@ export function PaperEntryFamilyForm() {
         </button>
       </div>
 
-      {candidates.length > 0 && (
-        <section className="rounded-2xl border border-amber-300/30 bg-amber-300/10 p-4" aria-label="Foyers similaires">
-          <h3 className="font-semibold text-amber-100">Ce foyer existe peut-être déjà — rattacher ?</h3>
-          <p className="mt-1 text-sm text-slate-300">Vérifiez les informations puis choisissez explicitement.</p>
-          <ul className="mt-3 space-y-3">
-            {candidates.map((candidate) => (
-              <li key={candidate.parentUserId} className="rounded-xl border border-white/10 bg-slate-950/50 p-3">
-                <p className="font-semibold text-white">{candidate.parentName}</p>
-                <p className="text-sm text-slate-300">
-                  {candidate.phone ?? 'Téléphone non affiché'}
-                  {candidate.children.map((child) => ` · ${child.studentName} (${child.gradeLevel})`).join('')}
+      {candidates.length > 0 && (() => {
+        const strongCandidates = candidates.filter((candidate) => candidate.matchStrength === 'PHONE');
+        const homonymCandidates = candidates.filter((candidate) => candidate.matchStrength !== 'PHONE');
+        const enteredName = `${parentFirstName.trim()} ${parentLastName.trim()}`.trim();
+
+        function toggleConfirmed(parentUserId: string) {
+          setConfirmedIds((current) => {
+            const next = new Set(current);
+            if (next.has(parentUserId)) next.delete(parentUserId);
+            else next.add(parentUserId);
+            return next;
+          });
+        }
+
+        return (
+          <div className="space-y-4" aria-label="Foyers similaires">
+            {strongCandidates.length > 0 && (
+              <section className="rounded-2xl border border-emerald-300/30 bg-emerald-300/10 p-4">
+                <h3 className="font-semibold text-emerald-100">Même téléphone — s’agit-il du même foyer&nbsp;?</h3>
+                <p className="mt-1 text-sm text-slate-300">
+                  Un foyer existant porte le téléphone que vous avez saisi. Le rattachement est probablement légitime.
                 </p>
-                <button
-                  type="button"
-                  disabled={submitting}
-                  onClick={() => void submit({ mode: 'ATTACH', parentUserId: candidate.parentUserId })}
-                  className="mt-3 rounded-xl border border-amber-300 px-3 py-2 text-sm font-semibold text-amber-100 disabled:opacity-40"
-                >
-                  Rattacher à {candidate.parentName}
-                </button>
-              </li>
-            ))}
-          </ul>
-          <button
-            type="button"
-            disabled={submitting}
-            onClick={() => void submit({ mode: 'CREATE_NEW' })}
-            className="mt-3 rounded-xl border border-white/20 px-3 py-2 text-sm font-semibold text-slate-200 disabled:opacity-40"
-          >
-            Créer un nouveau foyer
-          </button>
-        </section>
-      )}
+                <ul className="mt-3 space-y-3">
+                  {strongCandidates.map((candidate) => (
+                    <li key={candidate.parentUserId} className="rounded-xl border border-white/10 bg-slate-950/50 p-3">
+                      <p className="font-semibold text-white">{candidate.parentName}</p>
+                      <p className="text-sm text-slate-300">
+                        {candidate.phone ?? 'Téléphone non enregistré'}
+                        {candidate.children.map((child) => ` · ${child.studentName} (${child.gradeLevel})`).join('')}
+                      </p>
+                      <button
+                        type="button"
+                        disabled={submitting}
+                        onClick={() => void submit({ mode: 'ATTACH', parentUserId: candidate.parentUserId })}
+                        className="mt-3 rounded-xl bg-emerald-400 px-3 py-2 text-sm font-semibold text-slate-950 disabled:opacity-40"
+                      >
+                        Rattacher à {candidate.parentName}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )}
+
+            {homonymCandidates.length > 0 && (
+              <section className="rounded-2xl border border-amber-300/40 bg-amber-300/10 p-4">
+                <h3 className="font-semibold text-amber-100">Attention — un autre foyer porte ce nom</h3>
+                <p className="mt-1 text-sm text-slate-300">
+                  Le téléphone diffère&nbsp;: il s’agit très probablement d’une famille homonyme. Dans le doute,
+                  créez un nouveau foyer — c’est le choix par défaut.
+                </p>
+                <ul className="mt-3 space-y-3">
+                  {homonymCandidates.map((candidate) => (
+                    <li key={candidate.parentUserId} className="rounded-xl border border-white/10 bg-slate-950/50 p-3">
+                      <dl className="grid gap-2 text-sm sm:grid-cols-2">
+                        <div className="rounded-lg border border-white/10 bg-black/20 p-2">
+                          <dt className="text-xs uppercase tracking-wide text-slate-400">Ce que vous saisissez</dt>
+                          <dd className="mt-1 font-semibold text-white">{enteredName || 'Parent'}</dd>
+                          <dd className="text-slate-300">{enteredPhone || 'Téléphone en cours de saisie'}</dd>
+                        </div>
+                        <div className="rounded-lg border border-white/10 bg-black/20 p-2">
+                          <dt className="text-xs uppercase tracking-wide text-slate-400">Foyer déjà enregistré</dt>
+                          <dd className="mt-1 font-semibold text-white">{candidate.parentName}</dd>
+                          <dd className="text-amber-200">{candidate.phone ?? 'Téléphone non enregistré'}</dd>
+                          {candidate.children.length > 0 && (
+                            <dd className="mt-1 text-slate-300">
+                              {candidate.children.map((child) => `${child.studentName} (${child.gradeLevel})`).join(' · ')}
+                            </dd>
+                          )}
+                        </div>
+                      </dl>
+                      <p className="mt-2 text-sm text-amber-100">
+                        Le téléphone saisi ({enteredPhone || '—'}) diffère de celui de ce foyer
+                        ({candidate.phone ?? 'non enregistré'}) — s’agit-il vraiment de la même famille&nbsp;?
+                      </p>
+                      <label className="mt-3 flex items-start gap-2 text-sm text-slate-200">
+                        <input
+                          type="checkbox"
+                          checked={confirmedIds.has(candidate.parentUserId)}
+                          onChange={() => toggleConfirmed(candidate.parentUserId)}
+                          className="mt-0.5 h-4 w-4 rounded border-white/30 bg-slate-950"
+                        />
+                        <span>Je confirme qu’il s’agit bien du même foyer que {candidate.parentName}.</span>
+                      </label>
+                      <button
+                        type="button"
+                        disabled={submitting || !confirmedIds.has(candidate.parentUserId)}
+                        onClick={() => void submit({ mode: 'ATTACH', parentUserId: candidate.parentUserId, confirmed: true })}
+                        className="mt-3 rounded-xl border border-amber-300/60 px-3 py-2 text-sm font-semibold text-amber-100 disabled:cursor-not-allowed disabled:opacity-40"
+                      >
+                        Rattacher malgré le téléphone différent
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )}
+
+            <button
+              type="button"
+              disabled={submitting}
+              onClick={() => void submit({ mode: 'CREATE_NEW' })}
+              className="w-full rounded-xl bg-amber-400 px-4 py-2.5 text-sm font-semibold text-slate-950 disabled:opacity-40"
+            >
+              Créer un nouveau foyer
+            </button>
+          </div>
+        );
+      })()}
 
       {children.length >= MAX_CHILDREN && (
         <p className="text-sm text-slate-400">

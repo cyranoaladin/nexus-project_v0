@@ -80,14 +80,16 @@ describe('Fil guidé de saisie papier', () => {
     );
   });
 
-  it('laisse l’assistante décider de rattacher un foyer suggéré', async () => {
+  it('sur un même téléphone, laisse rattacher le foyer suggéré d’un clic', async () => {
     fetchMock
       .mockResolvedValueOnce(new Response(JSON.stringify({
         error: { code: 'POTENTIAL_DUPLICATE' },
+        enteredPhone: '99 19 28 29',
         candidates: [{
           parentUserId: 'parent-existant',
           parentName: 'Claire Bernard',
           phone: '99 19 28 29',
+          matchStrength: 'PHONE',
           children: [{ studentId: 'student-existant', studentName: 'Inès Bernard', gradeLevel: 'TERMINALE' }],
         }],
       }), { status: 409, headers: { 'content-type': 'application/json' } }))
@@ -99,7 +101,7 @@ describe('Fil guidé de saisie papier', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Créer le foyer et continuer' }));
 
-    expect(await screen.findByText('Ce foyer existe peut-être déjà — rattacher ?')).toBeInTheDocument();
+    expect(await screen.findByText(/Même téléphone — s’agit-il du même foyer/)).toBeInTheDocument();
     const firstHeaders = fetchMock.mock.calls[0]?.[1]?.headers as Record<string, string>;
     fireEvent.click(screen.getByRole('button', { name: 'Rattacher à Claire Bernard' }));
     await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
@@ -108,6 +110,48 @@ describe('Fil guidé de saisie papier', () => {
     expect(secondHeaders['idempotency-key']).not.toBe(firstHeaders['idempotency-key']);
     expect(JSON.parse(String(secondRequest[1].body))).toMatchObject({
       duplicateResolution: { mode: 'ATTACH', parentUserId: 'parent-existant' },
+    });
+  });
+
+  it('sur une homonymie au téléphone différent, avertit et exige la confirmation avant de rattacher', async () => {
+    fetchMock
+      .mockResolvedValueOnce(new Response(JSON.stringify({
+        error: { code: 'POTENTIAL_DUPLICATE' },
+        enteredPhone: '99 19 28 29',
+        candidates: [{
+          parentUserId: 'parent-homonyme',
+          parentName: 'Claire Bernard',
+          phone: '20 00 00 00',
+          matchStrength: 'NAME_ONLY',
+          children: [{ studentId: 'student-homonyme', studentName: 'Léa Bernard', gradeLevel: 'SECONDE' }],
+        }],
+      }), { status: 409, headers: { 'content-type': 'application/json' } }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({
+        children: [{ studentId: 'student-3' }],
+      }), { status: 201, headers: { 'content-type': 'application/json' } }));
+    render(<PaperEntryFamilyForm />);
+    fillFamilyWithoutEmail();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Créer le foyer et continuer' }));
+
+    // Avertissement d'homonymie, divergence de téléphone visible, création par défaut.
+    expect(await screen.findByText('Attention — un autre foyer porte ce nom')).toBeInTheDocument();
+    expect(screen.getByText(/téléphone saisi \(99 19 28 29\) diffère de celui de ce foyer \(20 00 00 00\)/)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Créer un nouveau foyer' })).toBeEnabled();
+
+    // Le rattachement est inerte tant que « je confirme » n'est pas coché.
+    const attach = screen.getByRole('button', { name: 'Rattacher malgré le téléphone différent' });
+    expect(attach).toBeDisabled();
+    fireEvent.click(attach);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+
+    // Après confirmation explicite, le rattachement part avec confirmed: true.
+    fireEvent.click(screen.getByRole('checkbox'));
+    expect(attach).toBeEnabled();
+    fireEvent.click(attach);
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
+    expect(JSON.parse(String((fetchMock.mock.calls[1] as [string, RequestInit])[1].body))).toMatchObject({
+      duplicateResolution: { mode: 'ATTACH', parentUserId: 'parent-homonyme', confirmed: true },
     });
   });
 
