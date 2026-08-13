@@ -50,11 +50,19 @@ function memoryDatabase() {
   const students: (Record<string, unknown> & { id: string; parentId: string })[] = [];
   const profiles: (Record<string, unknown> & { id: string; userId: string })[] = [];
   const links: Record<string, unknown>[] = [];
+  // Foyers candidats connus de la base : la recherche anti-doublon en résout
+  // les identifiants via `$queryRaw` (clé de nom normalisée) puis les hydrate
+  // via `findMany({ where: { id: { in } } })`. Le test les enregistre ici.
+  const duplicateCandidates: (Record<string, unknown> & { id: string })[] = [];
 
   const transaction = {
     user: {
       findUnique: jest.fn(async () => null),
-      findMany: jest.fn(async () => []),
+      findMany: jest.fn(async (args: { where?: { id?: { in?: readonly string[] } } }) => {
+        const ids = args?.where?.id?.in;
+        if (Array.isArray(ids)) return duplicateCandidates.filter((candidate) => ids.includes(candidate.id));
+        return [];
+      }),
       update: jest.fn(async ({ where, data }: { where: object; data: object }) => ({ ...where, ...data })),
       create: jest.fn(async ({ data }: { data: Record<string, unknown> }) => {
         users.push(data);
@@ -90,9 +98,15 @@ function memoryDatabase() {
         return { id: `link-${links.length}`, state: data.state, consentedAt: null, verifiedAt: null };
       }),
     },
-    // `lockOwnedStudent` relit l'élève FOR UPDATE ; le double rend la ligne
-    // réellement créée, sans quoi le lien de consentement échouerait.
-    $queryRaw: jest.fn(async (query: { values?: readonly unknown[] }) => {
+    // Deux usages de `$queryRaw` : la résolution des identifiants de foyers
+    // candidats (requête portant `nexus_household_name_key`) et le verrou
+    // `lockOwnedStudent` (relit l'élève FOR UPDATE). On les distingue par le
+    // texte SQL.
+    $queryRaw: jest.fn(async (query: { strings?: readonly string[]; sql?: string; values?: readonly unknown[] }) => {
+      const text = Array.isArray(query?.strings) ? query.strings.join(' ') : String(query?.sql ?? '');
+      if (text.includes('nexus_household_name_key')) {
+        return duplicateCandidates.map((candidate) => ({ id: candidate.id }));
+      }
       const studentId = query.values?.[0];
       const student = students.find((candidate) => candidate.id === studentId);
       return student === undefined ? [] : [{ id: student.id, parentId: student.parentId }];
@@ -128,7 +142,7 @@ function memoryDatabase() {
     })),
   };
 
-  return { database, transaction, users, students, profiles, links };
+  return { database, transaction, users, students, profiles, links, duplicateCandidates };
 }
 
 function handlerWith(role: string | undefined, database: ReturnType<typeof memoryDatabase>['database']) {
@@ -186,8 +200,8 @@ describe('Création du foyer — suggestion anti-doublon à décision humaine', 
   };
 
   it('suggère le foyer portant le même téléphone normalisé sans rien créer', async () => {
-    const { database, transaction, users, students } = memoryDatabase();
-    transaction.user.findMany.mockResolvedValue([candidate] as never);
+    const { database, transaction, users, students, duplicateCandidates } = memoryDatabase();
+    duplicateCandidates.push(candidate as never);
 
     const response = await handlerWith('ASSISTANTE', database)(familyRequest());
 
@@ -207,33 +221,24 @@ describe('Création du foyer — suggestion anti-doublon à décision humaine', 
     expect(students).toHaveLength(0);
   });
 
-  it('recherche aussi l’homonymie du parent (mêmes nom et prénom)', async () => {
-    const { database, transaction } = memoryDatabase();
-    transaction.user.findMany.mockResolvedValue([candidate] as never);
+  it('recherche l’homonymie via la clé de nom normalisée en SQL', async () => {
+    const { database, transaction, duplicateCandidates } = memoryDatabase();
+    duplicateCandidates.push(candidate as never);
 
     await handlerWith('ASSISTANTE', database)(familyRequest());
 
-    expect(transaction.user.findMany).toHaveBeenCalledWith(expect.objectContaining({
-      where: expect.objectContaining({
-        role: 'PARENT',
-        OR: expect.arrayContaining([
-          { phoneNormalized: '99192829' },
-          { mergedSources: { some: { phoneNormalized: '99192829' } } },
-          {
-            AND: [
-              { firstName: { equals: 'Claire', mode: 'insensitive' } },
-              { lastName: { equals: 'Bernard', mode: 'insensitive' } },
-            ],
-          },
-        ]),
-      }),
-    }));
+    const rawSql = transaction.$queryRaw.mock.calls.map(([query]) => {
+      const q = query as { strings?: readonly string[]; sql?: string };
+      return Array.isArray(q?.strings) ? q.strings.join(' ') : String(q?.sql ?? '');
+    });
+    // La recherche passe par la fonction indexée, pas par un ILIKE Prisma.
+    expect(rawSql.some((sql) => sql.includes('nexus_household_name_key'))).toBe(true);
   });
 
   it('rattache au foyer choisi explicitement sans créer un parent', async () => {
-    const { database, transaction, profiles, users, students } = memoryDatabase();
+    const { database, transaction, profiles, users, students, duplicateCandidates } = memoryDatabase();
     profiles.push({ id: 'profile-existant', userId: 'parent-existant' });
-    transaction.user.findMany.mockResolvedValue([candidate] as never);
+    duplicateCandidates.push(candidate as never);
 
     const response = await handlerWith('ASSISTANTE', database)(familyRequest({
       ...BODY,
@@ -248,9 +253,9 @@ describe('Création du foyer — suggestion anti-doublon à décision humaine', 
   });
 
   it('complète le contact du foyer choisi quand son e-mail était différé', async () => {
-    const { database, transaction, profiles } = memoryDatabase();
+    const { database, transaction, profiles, duplicateCandidates } = memoryDatabase();
     profiles.push({ id: 'profile-existant', userId: 'parent-existant' });
-    transaction.user.findMany.mockResolvedValue([candidate] as never);
+    duplicateCandidates.push(candidate as never);
 
     const response = await handlerWith('ASSISTANTE', database)(familyRequest({
       ...BODY,
@@ -273,8 +278,8 @@ describe('Création du foyer — suggestion anti-doublon à décision humaine', 
   });
 
   it('complète le profil d’un parent sélectionné qui n’en avait pas encore', async () => {
-    const { database, transaction, profiles, users, students } = memoryDatabase();
-    transaction.user.findMany.mockResolvedValue([{ ...candidate, parentProfile: null }] as never);
+    const { database, transaction, profiles, users, students, duplicateCandidates } = memoryDatabase();
+    duplicateCandidates.push({ ...candidate, parentProfile: null } as never);
 
     const response = await handlerWith('ASSISTANTE', database)(familyRequest({
       ...BODY,
@@ -288,8 +293,8 @@ describe('Création du foyer — suggestion anti-doublon à décision humaine', 
   });
 
   it('crée un nouveau foyer uniquement après la décision explicite', async () => {
-    const { database, transaction, users } = memoryDatabase();
-    transaction.user.findMany.mockResolvedValue([candidate] as never);
+    const { database, transaction, users, duplicateCandidates } = memoryDatabase();
+    duplicateCandidates.push(candidate as never);
 
     const response = await handlerWith('ASSISTANTE', database)(familyRequest({
       ...BODY,
@@ -301,8 +306,8 @@ describe('Création du foyer — suggestion anti-doublon à décision humaine', 
   });
 
   it('refuse un rattachement vers un foyer absent des candidats', async () => {
-    const { database, transaction, users } = memoryDatabase();
-    transaction.user.findMany.mockResolvedValue([candidate] as never);
+    const { database, transaction, users, duplicateCandidates } = memoryDatabase();
+    duplicateCandidates.push(candidate as never);
 
     const response = await handlerWith('ASSISTANTE', database)(familyRequest({
       ...BODY,
@@ -342,8 +347,8 @@ describe('Anti-doublon — homonymie et rattachement délibéré', () => {
   };
 
   it('un homonyme au téléphone différent est signalé comme homonymie, pas comme signal fort', async () => {
-    const { database, transaction, users, students } = memoryDatabase();
-    transaction.user.findMany.mockResolvedValue([homonym] as never);
+    const { database, transaction, users, students, duplicateCandidates } = memoryDatabase();
+    duplicateCandidates.push(homonym as never);
 
     const response = await handlerWith('ASSISTANTE', database)(familyRequest());
 
@@ -362,14 +367,14 @@ describe('Anti-doublon — homonymie et rattachement délibéré', () => {
   });
 
   it('qualifie en NAME_AND_LEVEL quand un niveau d’enfant coïncide', async () => {
-    const { database, transaction } = memoryDatabase();
-    transaction.user.findMany.mockResolvedValue([{
+    const { database, transaction, duplicateCandidates } = memoryDatabase();
+    duplicateCandidates.push({
       ...homonym,
       parentProfile: {
         ...homonym.parentProfile,
         children: [{ id: 'c', gradeLevel: 'TERMINALE', user: { firstName: 'Léa', lastName: 'Bernard' } }],
       },
-    }] as never);
+    } as never);
 
     const response = await handlerWith('ASSISTANTE', database)(familyRequest());
 
@@ -378,8 +383,8 @@ describe('Anti-doublon — homonymie et rattachement délibéré', () => {
   });
 
   it('refuse le rattachement sur signal faible sans confirmation explicite', async () => {
-    const { database, transaction, users, students } = memoryDatabase();
-    transaction.user.findMany.mockResolvedValue([homonym] as never);
+    const { database, transaction, users, students, duplicateCandidates } = memoryDatabase();
+    duplicateCandidates.push(homonym as never);
 
     const response = await handlerWith('ASSISTANTE', database)(familyRequest({
       ...BODY,
@@ -394,9 +399,9 @@ describe('Anti-doublon — homonymie et rattachement délibéré', () => {
   });
 
   it('rattache sur signal faible seulement avec la confirmation délibérée, et à ce foyer-là uniquement', async () => {
-    const { database, transaction, profiles, users, students } = memoryDatabase();
+    const { database, transaction, profiles, users, students, duplicateCandidates } = memoryDatabase();
     profiles.push({ id: 'profile-homonyme', userId: 'parent-homonyme' });
-    transaction.user.findMany.mockResolvedValue([homonym] as never);
+    duplicateCandidates.push(homonym as never);
 
     const response = await handlerWith('ASSISTANTE', database)(familyRequest({
       ...BODY,
@@ -413,9 +418,9 @@ describe('Anti-doublon — homonymie et rattachement délibéré', () => {
   });
 
   it('sur signal fort (même téléphone), le rattachement reste possible d’un clic', async () => {
-    const { database, transaction, profiles, students } = memoryDatabase();
+    const { database, transaction, profiles, students, duplicateCandidates } = memoryDatabase();
     profiles.push({ id: 'profile-existant', userId: 'parent-existant' });
-    transaction.user.findMany.mockResolvedValue([{
+    duplicateCandidates.push({
       id: 'parent-existant',
       firstName: 'Claire',
       lastName: 'Bernard',
@@ -424,7 +429,7 @@ describe('Anti-doublon — homonymie et rattachement délibéré', () => {
       phoneNormalized: '99192829',
       mergedSources: [],
       parentProfile: { id: 'profile-existant', children: [] },
-    }] as never);
+    } as never);
 
     const response = await handlerWith('ASSISTANTE', database)(familyRequest({
       ...BODY,
@@ -436,8 +441,8 @@ describe('Anti-doublon — homonymie et rattachement délibéré', () => {
   });
 
   it('crée un nouveau foyer malgré un homonyme, sur décision explicite', async () => {
-    const { database, transaction, users } = memoryDatabase();
-    transaction.user.findMany.mockResolvedValue([homonym] as never);
+    const { database, transaction, users, duplicateCandidates } = memoryDatabase();
+    duplicateCandidates.push(homonym as never);
 
     const response = await handlerWith('ASSISTANTE', database)(familyRequest({
       ...BODY,
