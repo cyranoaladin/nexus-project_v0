@@ -223,3 +223,54 @@ describe('Saisie papier — refus des réponses hors pack', () => {
     expect(() => assertAttemptComplete(stored, CANONICAL_WORKER_ENABLED_PACK)).toThrow();
   });
 });
+
+describe('Saisie papier — « Sans réponse » scorable de bout en bout', () => {
+  /**
+   * Le défaut du 13/08/2026 : la saisie acceptait « Sans réponse »
+   * (optionId null) — grille, API, assertAttemptComplete — mais le worker de
+   * scoring la rejetait (A86_ANSWER_MISSING, masqué en A86_WORKER_FAILED). Un
+   * élève avec une copie partielle restait sans bilan. Parité rétablie : ce
+   * que la saisie accepte, le moteur le score.
+   */
+  const withBlanks: readonly AttemptAnswerPatch[] = ITEMS.map((item, index) => (
+    index < 2
+      ? { itemId: item.id, optionId: null as unknown as string, confidence: null }
+      : {
+          itemId: item.id,
+          optionId: item.options.find(({ isCorrect }) => isCorrect)!.id,
+          confidence: 3 as const,
+        }
+  ));
+
+  it('la saisie accepte la copie avec « Sans réponse » (assertAttemptComplete passe)', () => {
+    const stored = buildPaperEntryAnswers(CANONICAL_WORKER_ENABLED_PACK, withBlanks.map((r) => ({
+      itemId: r.itemId, optionId: r.optionId, confidence: r.confidence,
+    })));
+    expect(() => assertAttemptComplete(stored, CANONICAL_WORKER_ENABLED_PACK)).not.toThrow();
+    expect(stored[ITEMS[0].id]).toEqual({ optionId: null, confidence: null });
+  });
+
+  it('le worker score la même copie : les items sans réponse deviennent NON_TRAITE', () => {
+    const stored = buildPaperEntryAnswers(CANONICAL_WORKER_ENABLED_PACK, withBlanks.map((r) => ({
+      itemId: r.itemId, optionId: r.optionId, confidence: r.confidence,
+    })));
+    // Ne jette plus A86_ANSWER_MISSING.
+    const scoring = scoringOf(stored);
+    const nonTraites = scoring.facts.items.filter((i) => i.profile === 'NON_TRAITE');
+    expect(nonTraites).toHaveLength(2);
+    // La couverture reflète les items réellement traités.
+    expect(scoring.factSheet.coverage).toBeCloseTo(100 * (ITEMS.length - 2) / ITEMS.length, 1);
+  });
+
+  it('une non-réponse assortie d’une certitude est refusée (donnée incohérente)', () => {
+    const incoherent = { [ITEMS[0].id]: { optionId: null, confidence: 3 } } as unknown;
+    const full: Record<string, unknown> = {};
+    ITEMS.forEach((item, index) => {
+      full[item.id] = index === 0
+        ? { optionId: null, confidence: 3 }
+        : { optionId: item.options.find(({ isCorrect }) => isCorrect)!.id, confidence: 3 };
+    });
+    expect(() => scoringOf(full)).toThrow('A86_ANSWER_OPTION_INVALID');
+    void incoherent;
+  });
+});

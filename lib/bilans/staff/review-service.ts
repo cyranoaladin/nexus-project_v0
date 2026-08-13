@@ -1,4 +1,4 @@
-import { ReportRevisionStatus, type UserRole } from '@prisma/client';
+import { ReportRevisionStatus, type PrismaClient, type UserRole } from '@prisma/client';
 
 import { prisma } from '@/lib/prisma';
 
@@ -453,6 +453,67 @@ export async function listRecentReportReviews(
   return Object.freeze(
     onlyCurrentGeneration(recent).map((revision) => recentReview(revision, dependencies)),
   );
+}
+
+export type ScoringFailure = Readonly<{
+  attemptId: string;
+  studentName: string;
+  provenance: string;
+  submittedAt: Date | null;
+  attempts: number;
+  quarantined: boolean;
+  lastError: string | null;
+}>;
+
+/**
+ * Les élèves restés SANS bilan parce que leur passation ne se score pas : une
+ * passation SOUMISE dont le job de scoring est en échec (et non un bilan déjà
+ * produit). Sans cette liste, un échec de scoring disparaît silencieusement —
+ * personne ne sait qu'un élève attend son bilan (défaut du 13/08/2026, copie
+ * « Sans réponse » rejetée par le worker). L'assistante voit l'état explicite
+ * « scoring impossible — à reprendre » et peut agir (re-saisir la copie).
+ */
+export async function listScoringFailures(
+  actor: ReviewActor,
+  overrides: Readonly<{ prisma?: Pick<PrismaClient, 'jobOutbox'>; maxAttempts?: number }> = {},
+): Promise<readonly ScoringFailure[]> {
+  assertAssistante(actor);
+  const database = overrides.prisma ?? prisma;
+  const maxAttempts = overrides.maxAttempts ?? 20;
+  const jobs = await database.jobOutbox.findMany({
+    where: { jobType: 'SCORE_ATTEMPT', status: 'FAILED', attemptCount: { gt: 0 } },
+    select: { aggregateId: true, attemptCount: true, lastError: true },
+    orderBy: { updatedAt: 'desc' },
+    take: 100,
+  });
+  if (jobs.length === 0) return Object.freeze([]);
+  const attemptIds = jobs.map((job) => job.aggregateId);
+  const attempts = await prisma.canonicalAssessmentAttempt.findMany({
+    where: { id: { in: attemptIds }, status: 'SUBMITTED' },
+    select: {
+      id: true, provenance: true, submittedAt: true,
+      student: { select: { user: { select: { firstName: true, lastName: true } } } },
+    },
+  });
+  const byId = new Map(attempts.map((attempt) => [attempt.id, attempt]));
+  const failures: ScoringFailure[] = [];
+  for (const job of jobs as ReadonlyArray<{ aggregateId: string; attemptCount: number; lastError: string | null }>) {
+    const attempt = byId.get(job.aggregateId);
+    if (attempt === undefined) continue; // job d'une passation déjà scorée ou disparue
+    failures.push(Object.freeze({
+      attemptId: attempt.id,
+      studentName: buildHumanRenderIdentity({
+        firstName: attempt.student.user.firstName,
+        lastName: attempt.student.user.lastName,
+      }).displayName,
+      provenance: attempt.provenance,
+      submittedAt: attempt.submittedAt,
+      attempts: job.attemptCount,
+      quarantined: job.attemptCount >= maxAttempts,
+      lastError: job.lastError,
+    }));
+  }
+  return Object.freeze(failures);
 }
 
 export async function validateAndPublishPendingReport(
