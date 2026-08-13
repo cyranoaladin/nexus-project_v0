@@ -6,7 +6,7 @@ import { createId } from '@paralleldrive/cuid2';
 import path from 'path';
 import { mkdir, writeFile } from 'fs/promises';
 import { serializeError } from '@/lib/utils/serialize-error';
-import { getDocumentStorageRoot } from '@/lib/documents/storage-root';
+import { getDocumentStorageRoot, toRelativeStoragePath } from '@/lib/documents/storage-root';
 import { z } from 'zod';
 
 const STORAGE_ROOT = getDocumentStorageRoot();
@@ -103,7 +103,7 @@ export async function POST(request: NextRequest) {
         originalName,
         mimeType: file.type,
         sizeBytes: file.size,
-        localPath: localPath,
+        localPath: toRelativeStoragePath(localPath),
         userId: userId,
         uploadedById: session.user.id,
       },

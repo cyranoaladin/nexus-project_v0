@@ -2,7 +2,7 @@ import { serializeError } from '@/lib/utils/serialize-error';
 export const dynamic = 'force-dynamic';
 
 import { auth } from '@/auth';
-import { getDocumentStorageRoot } from '@/lib/documents/storage-root';
+import { getDocumentStorageRoot, toRelativeStoragePath } from '@/lib/documents/storage-root';
 import { activateEntitlements } from '@/lib/entitlement/engine';
 import type { ProductCode } from '@/lib/entitlement/types';
 import type { InvoiceData,TaxRegime } from '@/lib/invoice';
@@ -96,8 +96,10 @@ function buildMinimalPdfBuffer(message: string): Buffer {
   return Buffer.from(pdf, 'utf8');
 }
 
-/** Base directory for secure document storage (coffre-fort) */
-const DOCUMENTS_DIR = getDocumentStorageRoot();
+/** Base directory for secure document storage (coffre-fort) — lazy: the
+ * storage root throws in production when unconfigured, and that check must
+ * fire at request time, never at module load during build. */
+function getDocumentsDir() { return getDocumentStorageRoot(); }
 
 const validatePaymentSchema = z.object({
   paymentId: z.string(),
@@ -183,11 +185,11 @@ async function generateInvoicePDFAndDocument(
     });
 
     // Store in coffre-fort (storage/documents/) + create UserDocument
-    await mkdir(DOCUMENTS_DIR, { recursive: true });
+    await mkdir(getDocumentsDir(), { recursive: true });
     const sanitizedNumber = invoice.number.replace(/[^a-zA-Z0-9-]/g, '_');
     const uniqueFileName = `facture-${sanitizedNumber}-${invoice.id}.pdf`;
-    const documentPath = path.join(DOCUMENTS_DIR, uniqueFileName);
-    await writeFile(documentPath, pdfBuffer);
+    const documentAbsPath = path.join(getDocumentsDir(), uniqueFileName);
+    await writeFile(documentAbsPath, pdfBuffer);
 
     const userDocument = await prisma.userDocument.create({
       data: {
@@ -195,7 +197,7 @@ async function generateInvoicePDFAndDocument(
         originalName: `facture-${invoice.number}.pdf`,
         mimeType: 'application/pdf',
         sizeBytes: pdfBuffer.length,
-        localPath: documentPath,
+        localPath: toRelativeStoragePath(documentAbsPath),
         userId: paymentUserId,
         uploadedById: validatorUserId,
       },
