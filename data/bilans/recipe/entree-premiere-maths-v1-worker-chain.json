@@ -358,6 +358,17 @@
         "priorityRank": 3
       },
       {
+        "nodeCpsId": "2de.maths.fonctions.image-antecedent",
+        "criticality": 1,
+        "nodeScore": 50,
+        "profile": "MAITRISE_FRAGILE",
+        "itemIds": [
+          "EPR-MAT-FON-01",
+          "EPR-MAT-FON-02"
+        ],
+        "priorityRank": 4
+      },
+      {
         "nodeCpsId": "2de.maths.calcul-litteral.identites-remarquables",
         "criticality": 1,
         "nodeScore": 100,
@@ -366,7 +377,7 @@
           "EPR-MAT-CLI-01",
           "EPR-MAT-CLI-02"
         ],
-        "priorityRank": 4
+        "priorityRank": 5
       },
       {
         "nodeCpsId": "2de.maths.vecteurs.coordonnees",
@@ -377,7 +388,7 @@
           "EPR-MAT-VEC-01",
           "EPR-MAT-VEC-02"
         ],
-        "priorityRank": 5
+        "priorityRank": 6
       },
       {
         "nodeCpsId": "2de.maths.probabilites.operations-evenements",
@@ -387,17 +398,6 @@
         "itemIds": [
           "EPR-MAT-PRB-01",
           "EPR-MAT-PRB-02"
-        ],
-        "priorityRank": 6
-      },
-      {
-        "nodeCpsId": "2de.maths.fonctions.image-antecedent",
-        "criticality": 1,
-        "nodeScore": 50,
-        "profile": "MAITRISE",
-        "itemIds": [
-          "EPR-MAT-FON-01",
-          "EPR-MAT-FON-02"
         ],
         "priorityRank": 7
       },
@@ -445,7 +445,7 @@
       {
         "id": "fonctions",
         "score": 50,
-        "profile": "MAITRISE"
+        "profile": "MAITRISE_FRAGILE"
       },
       {
         "id": "fonctions-reference",
@@ -524,6 +524,17 @@
         "priorityRank": 3
       },
       {
+        "nodeCpsId": "2de.maths.fonctions.image-antecedent",
+        "criticality": 1,
+        "nodeScore": 50,
+        "profile": "MAITRISE_FRAGILE",
+        "itemIds": [
+          "EPR-MAT-FON-01",
+          "EPR-MAT-FON-02"
+        ],
+        "priorityRank": 4
+      },
+      {
         "nodeCpsId": "2de.maths.calcul-litteral.identites-remarquables",
         "criticality": 1,
         "nodeScore": 100,
@@ -532,7 +543,7 @@
           "EPR-MAT-CLI-01",
           "EPR-MAT-CLI-02"
         ],
-        "priorityRank": 4
+        "priorityRank": 5
       },
       {
         "nodeCpsId": "2de.maths.vecteurs.coordonnees",
@@ -543,7 +554,7 @@
           "EPR-MAT-VEC-01",
           "EPR-MAT-VEC-02"
         ],
-        "priorityRank": 5
+        "priorityRank": 6
       },
       {
         "nodeCpsId": "2de.maths.probabilites.operations-evenements",
@@ -553,17 +564,6 @@
         "itemIds": [
           "EPR-MAT-PRB-01",
           "EPR-MAT-PRB-02"
-        ],
-        "priorityRank": 6
-      },
-      {
-        "nodeCpsId": "2de.maths.fonctions.image-antecedent",
-        "criticality": 1,
-        "nodeScore": 50,
-        "profile": "MAITRISE",
-        "itemIds": [
-          "EPR-MAT-FON-01",
-          "EPR-MAT-FON-02"
         ],
         "priorityRank": 7
       },
@@ -598,21 +598,21 @@
         "date": "1970-01-01",
         "stageLabel": "Stage de pré-rentrée — Entrée en 1re, Mathématiques"
       },
-      "contextChecksum": "daf63269345d63b35ce0b3556eb362480d0bcfd698ab06be4078e0a95d3c5564",
+      "contextChecksum": "2c6852275d0203902ad6f2f6eac3a79b29918c812cff74156efe5b0f2bb6d986",
       "content": {
         "narrative": {
           "headline": "Ton bilan de positionnement",
-          "introduction": "Ce bilan fait le point, domaine par domaine : ce qui est solide, ce qui se consolide, ce qui se corrige — et l’ordre dans lequel le stage va s’y prendre. Sur les neuf domaines évalués : deux acquis, un à consolider, quatre à rectifier en priorité, deux à situer.",
+          "introduction": "Ce bilan fait le point, domaine par domaine : ce qui est solide, ce qui se consolide, ce qui se corrige — et l’ordre dans lequel le stage va s’y prendre. Sur les neuf domaines évalués : un acquis, deux à consolider, quatre à rectifier en priorité, deux à situer.",
           "methodNote": "Ce bilan ne donne pas de note. Il croise deux informations : ce que tu réussis, et la confiance avec laquelle tu réponds. C’est ce croisement qui distingue un point solide, un point à consolider, une notion à installer — et une certitude à revoir. Les certitudes à revoir passent en premier : tant qu’on croit juste une idée fausse, on ne la corrige pas seul.",
           "strengths": [
-            "Fonctions — réponses justes, données avec assurance : c’est un vrai point d’appui pour la suite.",
-            "Tu peux t’appuyer sur les droites du plan : les réponses sont justes et assumées, rien à reprendre pour l’instant."
+            "Droites du plan — réponses justes, données avec assurance : c’est un vrai point d’appui pour la suite."
           ],
           "priorities": [
             "Inéquations et signes — une réponse fausse a été donnée avec assurance. C’est la priorité : une conviction erronée ne se corrige qu’une fois qu’on l’a vue.",
             "Pourcentages et évolutions — une certitude à revoir avant d’avancer. C’est le travail le plus rentable des premières séances.",
             "Sur les fonctions de référence, tu as répondu avec certitude… et la réponse était fausse. Rien de grave : on te montrera précisément où le raisonnement bifurque.",
             "Calcul numérique — une réponse fausse a été donnée avec assurance. C’est la priorité : une conviction erronée ne se corrige qu’une fois qu’on l’a vue.",
+            "Tu réussis sur les fonctions, mais sans certitude complète : une consolidation courte suffira à ancrer le geste.",
             "Calcul littéral — les réponses sont justes, mais l’hésitation se sent encore. On va transformer ce « je crois » en « je sais ».",
             "Vecteurs — aucune réponse apportée ici. Une question laissée vide nous renseigne aussi : on fera le point ensemble au démarrage.",
             "Pas de réponse en probabilités : on ne devine pas, on vérifiera dès le début du stage."
@@ -644,9 +644,9 @@
           {
             "id": "fonctions",
             "title": "Fonctions",
-            "profileLabel": "solide",
-            "gesture": "Entretenir et prolonger",
-            "narrative": "Fonctions — réponses justes, données avec assurance : c’est un vrai point d’appui pour la suite."
+            "profileLabel": "fragile / à consolider",
+            "gesture": "Consolider par entraînement espacé",
+            "narrative": "Tu réussis sur les fonctions, mais sans certitude complète : une consolidation courte suffira à ancrer le geste."
           },
           {
             "id": "fonctions-reference",
@@ -667,7 +667,7 @@
             "title": "Droites du plan",
             "profileLabel": "solide",
             "gesture": "Entretenir et prolonger",
-            "narrative": "Tu peux t’appuyer sur les droites du plan : les réponses sont justes et assumées, rien à reprendre pour l’instant."
+            "narrative": "Droites du plan — réponses justes, données avec assurance : c’est un vrai point d’appui pour la suite."
           },
           {
             "id": "pourcentages",
@@ -731,11 +731,20 @@
               "profileLabel": "sûr mais à revoir"
             },
             {
+              "domainId": "fonctions",
+              "domainTitle": "Fonctions",
+              "phaseDidactique": "Consolider",
+              "objectif": "Stabiliser l’acquis encore fragile sur les fonctions.",
+              "demarche": "Organiser un entraînement espacé, sans réenseigner ce qui est déjà compris.",
+              "seanceLabel": "Séance 3",
+              "profileLabel": "fragile / à consolider"
+            },
+            {
               "domainId": "calcul-litteral",
               "domainTitle": "Calcul littéral",
               "phaseDidactique": "Consolider",
-              "objectif": "Stabiliser l’acquis encore fragile en calcul littéral.",
-              "demarche": "Organiser un entraînement espacé, sans réenseigner ce qui est déjà compris.",
+              "objectif": "Transformer la réussite hésitante en calcul littéral en réflexe.",
+              "demarche": "Faire refaire en autonomie, à intervalle espacé, et faire nommer le geste qui réussit.",
               "seanceLabel": "Séance 3",
               "profileLabel": "fragile / à consolider"
             },
@@ -772,28 +781,28 @@
         "date": "1970-01-01",
         "stageLabel": "Stage de pré-rentrée — Entrée en 1re, Mathématiques"
       },
-      "contextChecksum": "1fe2277d11a66a19ca38153884d17fc2f50647332f7c7ffb400c325190bb3477",
+      "contextChecksum": "9d2fd122dc683ffe2a5f7fa130016423636a9fc6ef91e8a5e9996a62950cc739",
       "content": {
         "narrative": {
           "headline": "Bilan de positionnement de votre enfant",
-          "introduction": "Votre enfant a passé un bilan de positionnement en Mathématiques. Ce compte rendu présente ce qui est acquis, ce qui reste fragile et ce que le stage traitera en priorité. Sur les neuf domaines évalués : deux acquis, un à consolider, quatre à rectifier en priorité, deux à situer.",
+          "introduction": "Votre enfant a passé un bilan de positionnement en Mathématiques. Ce compte rendu présente ce qui est acquis, ce qui reste fragile et ce que le stage traitera en priorité. Sur les neuf domaines évalués : un acquis, deux à consolider, quatre à rectifier en priorité, deux à situer.",
           "methodNote": "Nous ne mesurons pas seulement si votre enfant réussit : nous mesurons s’il sait où il en est. Chaque domaine croise la réussite observée et la confiance déclarée. Réussir avec assurance signale un acquis ; réussir en hésitant appelle une consolidation ; se tromper en le sentant appelle un apprentissage ; se tromper avec certitude — le cas le plus prioritaire — appelle une rectification guidée, car une conviction erronée ne se corrige pas seule. C’est cette lecture qui guide le stage.",
           "strengths": [
-            "Fonctions — acquis : réponses justes, données avec assurance. Le stage s’appuiera sur ce socle.",
-            "Votre enfant maîtrise les droites du plan : ce point servira d’appui pour progresser ailleurs."
+            "Droites du plan — acquis : réponses justes, données avec assurance. Le stage s’appuiera sur ce socle."
           ],
           "priorities": [
             "Inéquations et signes — une réponse erronée a été donnée avec certitude. Ce point est traité en priorité : il ne se corrige pas seul.",
             "Pourcentages et évolutions — une conviction à rectifier ; le travail commencera par la faire apparaître, précisément.",
             "Sur les fonctions de référence, un raisonnement tenu pour juste doit d’abord être confronté, puis reconstruit pas à pas.",
             "Calcul numérique — une réponse erronée a été donnée avec certitude. Ce point est traité en priorité : il ne se corrige pas seul.",
+            "Votre enfant réussit sur les fonctions, sans assurance complète. Le stage ancrera ce presque-acquis.",
             "Calcul littéral — réponses justes mais encore hésitantes : une consolidation courte suffit, pas un réapprentissage.",
             "Vecteurs — sans réponse lors du bilan ; ce point sera situé en début de stage.",
             "Aucune réponse en probabilités : une vérification ciblée précédera toute décision pédagogique."
           ],
           "actionPlan": [
             "D’abord, rectifier ce qui est aujourd’hui tenu pour juste à tort : les inéquations, les pourcentages, les fonctions de référence et le calcul numérique.",
-            "Ensuite, consolider les presque-acquis : le calcul littéral.",
+            "Ensuite, consolider les presque-acquis : les fonctions et le calcul littéral.",
             "Puis, situer ce qui n’a pas encore pu être évalué : les vecteurs et les probabilités.",
             "Ce travail se déroule sur cinq séances de deux heures, en petit groupe constitué après lecture collective des bilans : les repères observés chez votre enfant y sont croisés avec ceux du groupe pour régler l’ordre, le rythme et la profondeur de chaque séance. Aucun module n’est fixé avant cette lecture collective."
           ],
@@ -818,9 +827,9 @@
           {
             "id": "fonctions",
             "title": "Fonctions",
-            "profileLabel": "solide",
-            "gesture": "Entretenir et prolonger",
-            "narrative": "Fonctions — acquis : réponses justes, données avec assurance. Le stage s’appuiera sur ce socle."
+            "profileLabel": "fragile / à consolider",
+            "gesture": "Consolider par entraînement espacé",
+            "narrative": "Votre enfant réussit sur les fonctions, sans assurance complète. Le stage ancrera ce presque-acquis."
           },
           {
             "id": "fonctions-reference",
@@ -841,7 +850,7 @@
             "title": "Droites du plan",
             "profileLabel": "solide",
             "gesture": "Entretenir et prolonger",
-            "narrative": "Votre enfant maîtrise les droites du plan : ce point servira d’appui pour progresser ailleurs."
+            "narrative": "Droites du plan — acquis : réponses justes, données avec assurance. Le stage s’appuiera sur ce socle."
           },
           {
             "id": "pourcentages",
@@ -882,21 +891,21 @@
         "date": "1970-01-01",
         "stageLabel": "Stage de pré-rentrée — Entrée en 1re, Mathématiques"
       },
-      "contextChecksum": "8e9af8aaf8afe21897a8f9889ae51db085bf0ab58862640d520f88fcbf04c854",
+      "contextChecksum": "24cfbb4b4598e405edb5d594bdd2bbaa61dec52d760220f31ecd81e7f0ab2d1e",
       "content": {
         "narrative": {
           "headline": "Synthèse pédagogique Nexus",
-          "introduction": "Lecture technique des profils, priorités et phases didactiques. Sur les neuf domaines évalués : deux acquis, un à consolider, quatre à rectifier en priorité, deux à situer.",
+          "introduction": "Lecture technique des profils, priorités et phases didactiques. Sur les neuf domaines évalués : un acquis, deux à consolider, quatre à rectifier en priorité, deux à situer.",
           "methodNote": "Le score d’un domaine mesure la réussite (0–100). Le profil qualifie la relation à la notion : croisement réussite × confiance, hérité du pire nœud du domaine. Un domaine peut donc afficher un score honorable avec un profil sévère — le profil désigne le point à traiter, le score situe l’ampleur. Priorisation : ERREUR_CONFIANTE (confronter), puis LACUNE_CONSCIENTE (installer), puis MAITRISE_FRAGILE (consolider), puis NON_TRAITE (diagnostiquer).",
           "strengths": [
-            "Fonctions : profil MAITRISE — maintien actif, mobilisable comme appui de différenciation.",
-            "Droites du plan : profil MAITRISE — acquis stable, aucun module de reprise à programmer."
+            "Droites du plan : profil MAITRISE — maintien actif, mobilisable comme appui de différenciation."
           ],
           "priorities": [
             "Inéquations et signes : profil ERREUR_CONFIANTE — conflit cognitif prioritaire, à traiter en premier.",
             "Pourcentages et évolutions : profil ERREUR_CONFIANTE — rectification à provoquer explicitement avant tout entraînement.",
             "Fonctions de référence : profil ERREUR_CONFIANTE — représentation erronée assumée, priorité de séance.",
             "Calcul numérique : profil ERREUR_CONFIANTE — conflit cognitif prioritaire, à traiter en premier.",
+            "Fonctions : profil MAITRISE_FRAGILE — ancrage à programmer, fond acquis.",
             "Calcul littéral : profil MAITRISE_FRAGILE — consolidation espacée, réussite sans confiance.",
             "Vecteurs : profil NON_TRAITE — diagnostic préalable requis.",
             "Probabilités : profil NON_TRAITE — aucune donnée exploitable, à situer dès la première séance."
@@ -904,7 +913,7 @@
           "actionPlan": [
             "Séance 1 — Confronter : Inéquations et signes (ERREUR_CONFIANTE) · Confronter : Pourcentages et évolutions (ERREUR_CONFIANTE).",
             "Séance 2 — Confronter : Fonctions de référence (ERREUR_CONFIANTE) · Confronter : Calcul numérique (ERREUR_CONFIANTE).",
-            "Séance 3 — Consolider : Calcul littéral (MAITRISE_FRAGILE).",
+            "Séance 3 — Consolider : Fonctions (MAITRISE_FRAGILE) · Consolider : Calcul littéral (MAITRISE_FRAGILE).",
             "Séance 4 — Diagnostiquer : Vecteurs (NON_TRAITE).",
             "Séance 5 — Diagnostiquer : Probabilités (NON_TRAITE)."
           ],
@@ -933,11 +942,11 @@
           {
             "id": "fonctions",
             "title": "Fonctions",
-            "profileLabel": "solide",
-            "gesture": "Entretenir et prolonger",
-            "profile": "MAITRISE",
+            "profileLabel": "fragile / à consolider",
+            "gesture": "Consolider par entraînement espacé",
+            "profile": "MAITRISE_FRAGILE",
             "score": 50,
-            "narrative": "Fonctions : profil MAITRISE — maintien actif, mobilisable comme appui de différenciation."
+            "narrative": "Fonctions : profil MAITRISE_FRAGILE — ancrage à programmer, fond acquis."
           },
           {
             "id": "fonctions-reference",
@@ -964,7 +973,7 @@
             "gesture": "Entretenir et prolonger",
             "profile": "MAITRISE",
             "score": 100,
-            "narrative": "Droites du plan : profil MAITRISE — acquis stable, aucun module de reprise à programmer."
+            "narrative": "Droites du plan : profil MAITRISE — maintien actif, mobilisable comme appui de différenciation."
           },
           {
             "id": "pourcentages",
@@ -1038,12 +1047,22 @@
               "score": 50
             },
             {
+              "domainId": "fonctions",
+              "domainTitle": "Fonctions",
+              "profil": "MAITRISE_FRAGILE",
+              "phaseDidactique": "Consolider",
+              "objectif": "Stabiliser l’acquis encore fragile sur les fonctions.",
+              "demarche": "Organiser un entraînement espacé, sans réenseigner ce qui est déjà compris.",
+              "seanceLabel": "Séance 3",
+              "score": 50
+            },
+            {
               "domainId": "calcul-litteral",
               "domainTitle": "Calcul littéral",
               "profil": "MAITRISE_FRAGILE",
               "phaseDidactique": "Consolider",
-              "objectif": "Stabiliser l’acquis encore fragile en calcul littéral.",
-              "demarche": "Organiser un entraînement espacé, sans réenseigner ce qui est déjà compris.",
+              "objectif": "Transformer la réussite hésitante en calcul littéral en réflexe.",
+              "demarche": "Faire refaire en autonomie, à intervalle espacé, et faire nommer le geste qui réussit.",
               "seanceLabel": "Séance 3",
               "score": 100
             },

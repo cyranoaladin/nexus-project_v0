@@ -85,7 +85,10 @@ Détermination du profil du nœud, **règles évaluées dans l'ordre, première 
 1. `m_EC > 0` → `ERREUR_CONFIANTE`
 2. `m_NT / W > 0.5` → `NON_TRAITE`
 3. `m_LC > 0` → `LACUNE_CONSCIENTE`
-4. sinon → nœud réellement réussi :
+4. `m_NT > 0` → `MAITRISE_FRAGILE` — un périmètre partiellement inconnu n'est
+   jamais « acquis » : ce qui a été vu est réussi, le reste est à situer au
+   démarrage
+5. sinon → nœud réellement réussi :
    `MAITRISE` si `m_M >= m_MF`, sinon `MAITRISE_FRAGILE`
 
 **La présence prime sur la masse.** Une erreur confiante — item faux répondu
