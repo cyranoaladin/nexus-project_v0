@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { signOut } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
 import { useState, Suspense } from "react";
 import { ArrowLeft, CheckCircle, Eye, EyeOff, Loader2, Lock } from "lucide-react";
@@ -48,6 +49,11 @@ function ResetPasswordForm() {
       const data = await response.json();
 
       if (response.ok && data.success) {
+        // Le navigateur peut porter la session d'un TOUT AUTRE compte (poste
+        // partagé, session restée ouverte). Sans cette déconnexion, la personne
+        // qui vient de changer son mot de passe retombe sur le compte déjà
+        // connecté et croit s'être trompée de compte — ou pire, y accède.
+        await signOut({ redirect: false });
         setIsSuccess(true);
       } else {
         setError(data.error || "Une erreur est survenue. Veuillez réessayer.");
