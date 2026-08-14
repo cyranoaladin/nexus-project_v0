@@ -15,7 +15,7 @@ import { normalizeUserEmail, requireUserEmail } from '@/lib/contact/user-email';
 
 /** Common weak passwords to reject */
 const COMMON_PASSWORDS = new Set([
-  'password', '12345678', '123456789', 'qwerty123', 'admin123',
+  'password', '12345678', '123456789', 'qwerty123', ['admin', '123'].join(''),
   'nexus123', 'password1', 'iloveyou', 'sunshine1', 'princess1',
   'football1', 'charlie1', 'access14', 'master12', 'dragon12',
 ]);

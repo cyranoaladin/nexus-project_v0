@@ -7,6 +7,8 @@
 
 set -euo pipefail
 
+export NEXUS_DISPOSABLE_POSTGRES=1
+
 echo "[e2e-entrypoint] Waiting for PostgreSQL to be ready..."
 # Wait for postgres to be ready (max 30s)
 postgres_ready=false

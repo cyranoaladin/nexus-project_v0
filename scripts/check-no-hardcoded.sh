@@ -8,6 +8,10 @@ FAIL=0
 
 echo "=== check:no-hardcoded ==="
 
+# Credentials and bearer links are never canonical content. This scanner reports
+# locations and classes only; it never echoes the values it detects.
+node scripts/security/check-versioned-credentials.mjs || FAIL=1
+
 # 1. Deleted pricing fields
 COUNT=$(grep -rn "price_annual_public\|price_annual_campaign\|isCampaignActive" lib/ app/ components/ --include="*.ts" --include="*.tsx" 2>/dev/null | grep -v "test\|spec\|__tests__\|node_modules" | wc -l)
 if [ "$COUNT" -gt 0 ]; then

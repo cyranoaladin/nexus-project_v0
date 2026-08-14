@@ -245,7 +245,7 @@ describe('POST /api/admin/users', () => {
         firstName: 'John',
         lastName: 'Doe',
         role: 'ELEVE',
-        password: 'password123',
+        password: 'SyntheticFixture!42',
         gradeLevel: 'PREMIERE',
         parentId: 'parent-123'
       })
@@ -281,7 +281,7 @@ describe('POST /api/admin/users', () => {
         firstName: 'John',
         lastName: 'Doe',
         role: 'ELEVE',
-        password: 'password123',
+        password: 'SyntheticFixture!42',
         gradeLevel: 'PREMIERE',
         parentId: 'parent-123'
       })
@@ -293,7 +293,7 @@ describe('POST /api/admin/users', () => {
     expect(response.status).toBe(201);
     expect(data.success).toBe(true);
     expect(data.user.email).toBe('newuser@test.com');
-    expect(bcrypt.hash).toHaveBeenCalledWith('password123', 12);
+    expect(bcrypt.hash).toHaveBeenCalledWith('SyntheticFixture!42', 12);
   });
 });
 

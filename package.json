@@ -67,7 +67,7 @@
     "test:e2e:ephemeral": "bash scripts/run-e2e-ephemeral.sh",
     "test:e2e:ephemeral:down": "docker compose -f docker-compose.e2e.yml down -v",
     "test:e2e:setup": "bash scripts/setup-e2e-db.sh",
-    "test:e2e:seed:parent": "tsx scripts/seed-parent-dashboard-e2e.ts",
+    "test:e2e:seed:parent": "NEXUS_DISPOSABLE_POSTGRES=1 tsx scripts/seed-parent-dashboard-e2e.ts",
     "test:e2e:teardown": "bash scripts/teardown-e2e-db.sh",
     "audit:contrast": "node scripts/audit-contrast.mjs",
     "audit:site-map": "node scripts/audit/site-map.mjs",

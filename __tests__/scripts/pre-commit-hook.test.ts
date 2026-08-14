@@ -1,193 +1,86 @@
-/**
- * Tests for pre-commit-hook.sh allowlist logic.
- *
- * Sources the hook functions and exercises is_value_allowlisted
- * against real and injected content. Fixtures in .sample files.
- */
-import { execSync, spawnSync } from 'node:child_process';
-import { randomUUID } from 'node:crypto';
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { copyFileSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join, resolve } from 'node:path';
+import { execFileSync, spawnSync } from 'node:child_process';
 
-const hookPath = join(process.cwd(), 'scripts/pre-commit-hook.sh');
-const gateContent = readFileSync(join(process.cwd(), 'scripts/gate-all.sh'), 'utf8');
+const hook = resolve(process.cwd(), 'scripts/pre-commit-hook.sh');
+const scanner = resolve(process.cwd(), 'scripts/security/check-versioned-credentials.mjs');
 
-const fixturesDir = join(process.cwd(), '__tests__/scripts/fixtures/secret-scan');
-const fixtureBenign = readFileSync(join(fixturesDir, 'gate-benign.sample'), 'utf8').trim();
-const fixtureMalicious = readFileSync(join(fixturesDir, 'gate-malicious.sample'), 'utf8').trim();
-const fixtureNextauth = readFileSync(join(fixturesDir, 'gate-nextauth.sample'), 'utf8').trim();
-const fixtureNextauthHardcoded = readFileSync(join(fixturesDir, 'gate-nextauth-hardcoded.sample'), 'utf8').trim();
-const fixturePostgresQuoted = readFileSync(join(fixturesDir, 'gate-postgres-quoted.sample'), 'utf8').trim();
-const fixtureNextauthSubstMalicious = readFileSync(join(fixturesDir, 'gate-nextauth-subst-malicious.sample'), 'utf8').trim();
-
-function runAllowlistCheck(file: string, pattern: string, content: string): number {
-  const script = `
-    set -euo pipefail
-    ${readAllowlistFromHook()}
-    ${readFunctionFromHook()}
-    CONTENT=$(cat <<'CONTENT_EOF'
-${content}
-CONTENT_EOF
-    )
-    is_value_allowlisted "${file}" "${pattern}" "$CONTENT"
-  `;
+function withRepository(run: (repository: string) => void): void {
+  const repository = mkdtempSync(join(tmpdir(), 'nexus-pre-commit-'));
   try {
-    execSync(`bash -c '${script.replace(/'/g, "'\\''")}'`, { stdio: 'pipe' });
-    return 0;
-  } catch (err: unknown) {
-    const e = err as { status?: number };
-    return e.status ?? 1;
+    execFileSync('git', ['init', '-q'], { cwd: repository });
+    mkdirSync(join(repository, 'scripts/security'), { recursive: true });
+    copyFileSync(hook, join(repository, 'scripts/pre-commit-hook.sh'));
+    copyFileSync(scanner, join(repository, 'scripts/security/check-versioned-credentials.mjs'));
+    run(repository);
+  } finally {
+    rmSync(repository, { recursive: true, force: true });
   }
 }
 
-function readAllowlistFromHook(): string {
-  const hook = readFileSync(hookPath, 'utf8');
-  const start = hook.indexOf('SECRET_SCAN_VALUE_ALLOWLIST=(');
-  const end = hook.indexOf('\n)', start) + 2;
-  return hook.slice(start, end);
-}
+describe('pre-commit credential gate', () => {
+  it('blocks a staged credential without echoing its value', () => {
+    withRepository((repository) => {
+      const credential = ['Staged', 'Credential', 'Must', 'Stay', 'Hidden', '42!'].join('');
+      writeFileSync(join(repository, 'rogue.ts'), `const apiKey = '${credential}';\n`);
+      execFileSync('git', ['add', '.'], { cwd: repository });
 
-function readFunctionFromHook(): string {
-  const hook = readFileSync(hookPath, 'utf8');
-  const start = hook.indexOf('is_value_allowlisted()');
-  const end = hook.indexOf('\n}', start) + 2;
-  return hook.slice(start, end);
-}
+      const result = spawnSync('bash', ['scripts/pre-commit-hook.sh'], {
+        cwd: repository,
+        encoding: 'utf8',
+      });
+      const output = `${result.stdout}${result.stderr}`;
 
-function configuredSecretPatterns(): string[] {
-  const hook = readFileSync(hookPath, 'utf8');
-  const start = hook.indexOf('SECRET_PATTERNS=(');
-  const end = hook.indexOf('\n)', start);
-  return [...hook.slice(start, end).matchAll(/^\s*"(.+)"\s*$/gm)].map((match) => match[1]);
-}
-
-function matchesConfiguredSecretPattern(content: string): boolean {
-  return configuredSecretPatterns().some(
-    (pattern) => spawnSync('grep', ['-qE', pattern], { input: content }).status === 0,
-  );
-}
-
-function runSafeExamplePathCheck(file: string): number {
-  const hook = readFileSync(hookPath, 'utf8');
-  const start = hook.indexOf('is_safe_env_example_path()');
-  const end = hook.indexOf('\n}', start) + 2;
-  const source = start >= 0 && end > start ? hook.slice(start, end) : '';
-  try {
-    execSync(`bash -c '${source.replace(/'/g, "'\\''")}\nis_safe_env_example_path "${file}"'`, {
-      stdio: 'pipe',
+      expect(result.status).toBe(1);
+      expect(output).toContain('SERVICE_SECRET_LITERAL rogue.ts:1');
+      expect(output).not.toContain(credential);
     });
-    return 0;
-  } catch (err: unknown) {
-    const error = err as { status?: number };
-    return error.status ?? 1;
-  }
-}
-
-describe('pre-commit-hook allowlist', () => {
-  it('blocks inline PostgreSQL credentials outside DATABASE_URL assignments', () => {
-    const protocol = ['postgres', 'ql'].join('');
-    const runtimeCredential = `${protocol}://${randomUUID()}:${randomUUID()}@db/${randomUUID()}`;
-
-    expect(matchesConfiguredSecretPattern(`const sensitive = '${runtimeCredential}';`)).toBe(true);
   });
 
-  it('allows only explicit environment example filenames through the path gate', () => {
-    expect(runSafeExamplePathCheck('.env.example')).toBe(0);
-    expect(runSafeExamplePathCheck('.env.production.example')).toBe(0);
-    expect(runSafeExamplePathCheck('config/.env.preview.example')).toBe(0);
-    expect(runSafeExamplePathCheck('.env')).toBe(1);
-    expect(runSafeExamplePathCheck('.env.production')).toBe(1);
+  it('scans the index rather than a safer unstaged worktree copy', () => {
+    withRepository((repository) => {
+      const credential = ['Indexed', 'Credential', 'Must', 'Stay', 'Hidden', '42!'].join('');
+      const path = join(repository, 'rogue.ts');
+      writeFileSync(path, `const token = '${credential}';\n`);
+      execFileSync('git', ['add', '.'], { cwd: repository });
+      writeFileSync(path, 'const token = process.env.RUNTIME_TOKEN;\n');
+
+      const result = spawnSync('bash', ['scripts/pre-commit-hook.sh'], {
+        cwd: repository,
+        encoding: 'utf8',
+      });
+
+      expect(result.status).toBe(1);
+      expect(`${result.stdout}${result.stderr}`).not.toContain(credential);
+    });
   });
 
-  it('exempts benign POSTGRES password in real gate-all.sh', () => {
-    const exitCode = runAllowlistCheck(
-      'scripts/gate-all.sh',
-      fixtureBenign.split('=')[0] + '=',
-      gateContent
-    );
-    expect(exitCode).toBe(0);
+  it('accepts a staged runtime-generated credential', () => {
+    withRepository((repository) => {
+      writeFileSync(
+        join(repository, 'safe.ts'),
+        "const password = generateRuntimePassword();\n",
+      );
+      execFileSync('git', ['add', '.'], { cwd: repository });
+
+      expect(spawnSync('bash', ['scripts/pre-commit-hook.sh'], {
+        cwd: repository,
+        encoding: 'utf8',
+      }).status).toBe(0);
+    });
   });
 
-  it('blocks non-benign POSTGRES password suffix', () => {
-    const injected = gateContent + '\n' + fixtureMalicious + '\n';
-    const exitCode = runAllowlistCheck(
-      'scripts/gate-all.sh',
-      fixtureMalicious.split('=')[0] + '=',
-      injected
-    );
-    expect(exitCode).toBe(1);
-  });
+  it('blocks sensitive filenames while accepting explicit env examples', () => {
+    withRepository((repository) => {
+      writeFileSync(join(repository, '.env.example'), 'RUNTIME_ONLY=example\n');
+      writeFileSync(join(repository, 'private.key'), 'not-a-real-key\n');
+      execFileSync('git', ['add', '-f', '.env.example', 'private.key'], { cwd: repository });
 
-  it('blocks quoted POSTGRES secret (empty extract = fail closed)', () => {
-    const injected = gateContent + '\n' + fixturePostgresQuoted + '\n';
-    const exitCode = runAllowlistCheck(
-      'scripts/gate-all.sh',
-      fixturePostgresQuoted.split('=')[0] + '=',
-      injected
-    );
-    expect(exitCode).toBe(1);
-  });
-
-  it('exempts NEXTAUTH command substitution in real gate-all.sh', () => {
-    // Precondition: the real gate-all.sh MUST contain NEXTAUTH_SECRET=
-    const nextauthPattern = fixtureNextauth.split('=')[0] + '=';
-    expect(gateContent).toContain(nextauthPattern);
-    const exitCode = runAllowlistCheck(
-      'scripts/gate-all.sh',
-      nextauthPattern,
-      gateContent
-    );
-    expect(exitCode).toBe(0);
-  });
-
-  it('blocks hardcoded NEXTAUTH literal secret', () => {
-    const nextauthPattern = fixtureNextauthHardcoded.split('=')[0] + '=';
-    const injected = gateContent + '\n' + fixtureNextauthHardcoded + '\n';
-    const exitCode = runAllowlistCheck(
-      'scripts/gate-all.sh',
-      nextauthPattern,
-      injected
-    );
-    expect(exitCode).toBe(1);
-  });
-
-  it('blocks NEXTAUTH_SECRET inside non-node substitution (P2 Codex)', () => {
-    // $(printf %s super-secret) is a substitution, but NOT the legitimate
-    // $(node -p ...) pattern — the secret is INSIDE the substitution.
-    const nextauthPattern = fixtureNextauthSubstMalicious.split('=')[0] + '=';
-    const injected = gateContent + '\n' + fixtureNextauthSubstMalicious + '\n';
-    const exitCode = runAllowlistCheck(
-      'scripts/gate-all.sh',
-      nextauthPattern,
-      injected
-    );
-    expect(exitCode).toBe(1);
-  });
-
-  // ── File-scoped substitution tests (regression proof) ──
-
-  it('blocks $(node -e ...) in a NON-allowlisted file (RED proof)', () => {
-    // A $(node ...) substitution in a file that is NOT in the allowlist
-    // must be blocked — there is NO global $(node exemption.
-    const content = 'NEXTAUTH_SECRET=$(node -e "real-secret")';
-    const exitCode = runAllowlistCheck(
-      'scripts/other.sh',
-      'NEXTAUTH_SECRET=',
-      content
-    );
-    expect(exitCode).toBe(1);
-  });
-
-  it('blocks SMTP_PASSWORD=$(node ...) in gate-all.sh (pattern not allowlisted)', () => {
-    // gate-all.sh allowlists NEXTAUTH_SECRET= and POSTGRES_PASSWORD=,
-    // but NOT SMTP_PASSWORD= — a $(node) substitution for an un-allowlisted
-    // pattern must be blocked even in an allowlisted file.
-    const content = 'SMTP_PASSWORD=$(node -e "something")';
-    const exitCode = runAllowlistCheck(
-      'scripts/gate-all.sh',
-      'SMTP_PASSWORD=',
-      content
-    );
-    expect(exitCode).toBe(1);
+      expect(spawnSync('bash', ['scripts/pre-commit-hook.sh'], {
+        cwd: repository,
+        encoding: 'utf8',
+      }).status).toBe(1);
+    });
   });
 });

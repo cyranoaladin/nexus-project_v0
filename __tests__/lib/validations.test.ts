@@ -118,7 +118,7 @@ describe('Validation Schemas', () => {
     it('should pass validation with a valid email and password', () => {
       const validData = {
         email: 'test@example.com',
-        password: 'password123'
+        password: 'SyntheticFixture!42'
       };
       const result = signinSchema.safeParse(validData);
       expect(result.success).toBe(true);
@@ -127,7 +127,7 @@ describe('Validation Schemas', () => {
     it('should fail validation with invalid email', () => {
       const invalidData = {
         email: 'invalid-email',
-        password: 'password123'
+        password: 'SyntheticFixture!42'
       };
       const result = signinSchema.safeParse(invalidData);
       expect(result.success).toBe(false);

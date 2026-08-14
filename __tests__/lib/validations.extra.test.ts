@@ -17,7 +17,7 @@ describe('validations extra', () => {
       parentLastName: 'B',
       parentEmail: 'parent@test.com',
       parentPhone: '12345678',
-      parentPassword: 'password123',
+      parentPassword: 'SyntheticFixture!42',
       studentFirstName: 'C',
       studentLastName: 'D',
       studentGrade: 'Premiere',
