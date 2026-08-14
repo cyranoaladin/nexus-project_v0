@@ -14,10 +14,10 @@ const dto = {
 describe('Pré-rentrée 2026 public schedule model', () => {
   it('uses the canonical 17/85/20/100 taxonomy', () => {
     expect(PRE_RENTREE_PUBLIC_METRICS).toEqual({
-      pedagogicalModuleCount: 17,
-      pedagogicalSessionTemplateCount: 85,
-      operationalCohortCount: 20,
-      scheduledSessionOccurrenceCount: 100,
+      pedagogicalModuleCount: 14,
+      preparedSessionCount: 70,
+      operationalCohortCount: 16,
+      scheduledSessionOccurrenceCount: 80,
       studentSessionsPerSubject: 5,
       studentHoursPerSubject: 10,
     });

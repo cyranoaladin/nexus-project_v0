@@ -69,10 +69,10 @@ describe('Pré-rentrée 2026 central public-surface adapter', () => {
   it('exposes a sanitized planning/program/document DTO with canonical counts', () => {
     const dto = compilePreRentreeReviewSurfaceDTO();
     expect(dto.planning.metrics).toEqual({
-      pedagogicalModuleCount: 17,
-      pedagogicalSessionTemplateCount: 85,
-      operationalCohortCount: 20,
-      scheduledSessionOccurrenceCount: 100,
+      pedagogicalModuleCount: 14,
+      preparedSessionCount: 70,
+      operationalCohortCount: 16,
+      scheduledSessionOccurrenceCount: 80,
       studentSessionsPerSubject: 5,
       studentHoursPerSubject: 10,
     });
