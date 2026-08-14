@@ -538,8 +538,8 @@
                 ],
                 "additionalProperties": false
               },
-              "minItems": 100,
-              "maxItems": 100
+              "minItems": 80,
+              "maxItems": 80
             }
           },
           "required": [
@@ -751,8 +751,8 @@
             ],
             "additionalProperties": false
           },
-          "minItems": 17,
-          "maxItems": 17
+          "minItems": 14,
+          "maxItems": 14
         },
         "pedagogy": {
           "type": "object",
@@ -924,8 +924,8 @@
                 ],
                 "additionalProperties": false
               },
-              "minItems": 17,
-              "maxItems": 17
+              "minItems": 14,
+              "maxItems": 14
             },
             "quickAssessments": {
               "type": "array",
@@ -982,8 +982,8 @@
                 ],
                 "additionalProperties": false
               },
-              "minItems": 85,
-              "maxItems": 85
+              "minItems": 70,
+              "maxItems": 70
             },
             "sessionDeliverables": {
               "type": "array",
@@ -1042,8 +1042,8 @@
                 ],
                 "additionalProperties": false
               },
-              "minItems": 85,
-              "maxItems": 85
+              "minItems": 70,
+              "maxItems": 70
             }
           },
           "required": [
