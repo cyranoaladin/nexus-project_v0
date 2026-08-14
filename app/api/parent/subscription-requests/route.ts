@@ -5,6 +5,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/auth';
 import { getAriaAddonCatalogItem, getOperationalSubscriptionPlan } from '@/lib/operational-catalog';
+import { ARIA_SUSPENSION_REASON, isSaleSuspended } from '@/lib/commerce/sale-suspension';
 import { z } from 'zod';
 
 const ALLOWED_REQUEST_TYPES = ['PLAN_CHANGE', 'ARIA_ADDON'] as const;
@@ -41,6 +42,17 @@ export async function POST(request: NextRequest) {
       );
     }
     const { studentId, requestType, planName, reason } = parsedBody.data;
+
+    // La vente des abonnements et des add-ons est fermée tant qu'ARIA ne livre
+    // rien. Fermer l'interface ne suffit pas : la porte se ferme ici aussi,
+    // sinon une requête forgée continue de créer des demandes de souscription.
+    const surface = requestType === 'PLAN_CHANGE' ? 'SUBSCRIPTION_PLAN' : 'ARIA_ADDON';
+    if (isSaleSuspended(surface)) {
+      return NextResponse.json(
+        { error: ARIA_SUSPENSION_REASON, code: 'SALE_SUSPENDED' },
+        { status: 409 }
+      );
+    }
 
     let safePlanName = planName || null;
     let safeMonthlyPrice = 0;
