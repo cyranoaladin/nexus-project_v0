@@ -20,7 +20,6 @@ test.describe('Bilan gratuit mono-page', () => {
     await phone.fill('+21699112233');
     await page.locator('#studentFirstName').fill('Élève');
     await page.locator('#studentGrade').selectOption('premiere');
-    await page.locator('label').filter({ hasText: 'Mathématiques' }).getByRole('checkbox').click();
     await page.locator('label').filter({ hasText: /J.accepte d.être contacté/ }).getByRole('checkbox').click();
 
     // Guard against hydration re-render clearing uncontrolled input state.

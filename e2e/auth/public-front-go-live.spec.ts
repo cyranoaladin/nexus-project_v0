@@ -296,7 +296,6 @@ test.describe('Public front go-live smoke', () => {
     await page.locator('#studentFirstName').fill('Amine');
     await page.locator('#studentGrade').selectOption('premiere');
     const mathCheckbox = page.getByRole('checkbox', { name: 'Mathématiques' });
-    await page.getByText('Mathématiques', { exact: true }).click();
     await expect(mathCheckbox).toBeChecked();
     const consentLabel = page.locator('label').filter({ hasText: /accepte|consent/i }).first();
     await consentLabel.click();
@@ -328,7 +327,6 @@ test.describe('Public front go-live smoke', () => {
     await page.locator('#studentFirstName').fill('Amine');
     await page.locator('#studentGrade').selectOption('premiere');
     const mathCheckboxBot = page.getByRole('checkbox', { name: 'Mathématiques' });
-    await page.getByText('Mathématiques', { exact: true }).click();
     await expect(mathCheckboxBot).toBeChecked();
     const consentLabelBot = page.locator('label').filter({ hasText: /accepte|consent/i }).first();
     await consentLabelBot.click();
@@ -367,7 +365,6 @@ test.describe('Public front go-live smoke', () => {
     await page.locator('#parentPhone').fill('+216 99 19 28 29');
     await page.locator('#studentFirstName').fill('Amine');
     await page.locator('#studentGrade').selectOption('premiere');
-    await page.getByText('Mathématiques', { exact: true }).click();
     await page.locator('label').filter({ hasText: /accepte|consent/i }).first().click();
     await page.getByRole('button', { name: /créer mon espace/i }).click();
     await expect(page.getByText(/server error|erreur/i).first()).toBeVisible();
