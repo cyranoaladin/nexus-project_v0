@@ -67,10 +67,10 @@ export function runStagePlanningValidation(): PlanningValidationResult {
     }
   }
   const sessionTemplatesCount = modules.reduce((sum, m) => sum + m.sessions.length, 0);
-  if (sessionTemplatesCount !== PRE_RENTREE_PUBLIC_METRICS.pedagogicalSessionTemplateCount) {
+  if (sessionTemplatesCount !== PRE_RENTREE_PUBLIC_METRICS.preparedSessionCount) {
     violations.push(
       `Session template count drifted: computed ${sessionTemplatesCount}, `
-      + `PRE_RENTREE_PUBLIC_METRICS declares ${PRE_RENTREE_PUBLIC_METRICS.pedagogicalSessionTemplateCount}.`,
+      + `PRE_RENTREE_PUBLIC_METRICS declares ${PRE_RENTREE_PUBLIC_METRICS.preparedSessionCount}.`,
     );
   }
   if (modules.length !== PRE_RENTREE_PUBLIC_METRICS.pedagogicalModuleCount) {

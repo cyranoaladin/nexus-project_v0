@@ -253,7 +253,9 @@ def planning_page(dossier: LevelDossierData, data: PreRentreeData) -> str:
             "aucune attente n'est générée par leur combinaison.</div>"
         )
 
-    if dossier.level == "TERMINALE":
+    # Cette précision ne vaut que si Maths expertes est effectivement ouverte au
+    # niveau : la mentionner sinon promettrait une matière que personne n'assure.
+    if "MATHS_EXPERTES" in dossier.subjects:
         body += (
             '<p style="font-size:9pt; color:#5A6B82; margin-top:6px;">'
             "Mathématiques expertes est proposée uniquement aux élèves qui suivent aussi la spécialité "
@@ -261,7 +263,13 @@ def planning_page(dossier: LevelDossierData, data: PreRentreeData) -> str:
         )
 
     if data.tier_for_level(dossier.level) == "premium":
-        max_subjects = max(o["subjects_count"] for o in data.premium_packs)
+        # Le plafond réel est le plus petit des deux : ce que le pack autorise, et
+        # ce que le niveau propose. Sans cette borne, un niveau ramené à trois
+        # matières annoncerait « jusqu'à 4 matières parmi les 3 proposées ».
+        max_subjects = min(
+            max(o["subjects_count"] for o in data.premium_packs),
+            len(dossier.subjects),
+        )
         body += (
             f'<p style="font-size:9pt; color:#5A6B82; margin-top:6px;">Le pack Premium permet de choisir '
             f"jusqu'à {max_subjects} matières parmi les {len(dossier.subjects)} proposées pour ce niveau.</p>"

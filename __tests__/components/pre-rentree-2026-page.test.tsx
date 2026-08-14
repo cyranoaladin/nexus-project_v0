@@ -47,7 +47,7 @@ describe('Pré-rentrée 2026 canonical public page', () => {
     expect(container.querySelector('#programmes')).toBeInTheDocument();
   });
 
-  it('renders all fourteen canonical offers with price, deposit and a capped list of concrete benefits', () => {
+  it('renders all thirteen canonical offers with price, deposit and a capped list of concrete benefits', () => {
     const dto = compilePreRentreeReviewSurfaceDTO();
     render(<PreRentree2026Page />);
     const catalogue = document.querySelector<HTMLElement>('#offres-pre-rentree');

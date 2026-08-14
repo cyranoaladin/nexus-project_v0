@@ -264,18 +264,20 @@ export const PublicationSnapshotSchema = z.object({
   blocks: z.array(z.object({ id: z.enum(['A', 'B', 'C', 'D']), startTime: Time, endTime: Time }).strict()).length(4),
   schedule: z.object({
     windows: z.array(ScheduleWindowSchema).length(3),
-    // 20 operational cohorts x 5 sessions = 100 (17 unique pedagogical modules,
-    // but 3 of them — Première SVT, Terminale NSI, Terminale SVT — have 2
-    // alternative cohorts each = 17 + 3 = 20 cohorts).
-    sessions: z.array(ScheduleSessionSchema).length(100),
+    // 16 operational cohorts x 5 sessions = 80 (14 unique pedagogical modules,
+    // plus the 2 Terminale Mathématiques cohorts created by the 2026-08-14
+    // split). Première SVT keeps its alternative cohort; the Terminale NSI
+    // fallback cohort existed only to resolve the NSI/SVT clash on block C and
+    // was removed with Terminale SVT.
+    sessions: z.array(ScheduleSessionSchema).length(80),
   }).strict(),
   academicProfiles: z.record(z.unknown()),
   packs: z.array(PackSchema).length(4),
-  modules: z.array(ModuleSchema).length(17),
+  modules: z.array(ModuleSchema).length(14),
   pedagogy: z.object({
-    positioningTests: z.array(PositioningTestSchema).length(17),
-    quickAssessments: z.array(QuickAssessmentSchema).length(85),
-    sessionDeliverables: z.array(SessionDeliverableSchema).length(85),
+    positioningTests: z.array(PositioningTestSchema).length(14),
+    quickAssessments: z.array(QuickAssessmentSchema).length(70),
+    sessionDeliverables: z.array(SessionDeliverableSchema).length(70),
   }).strict(),
   offers: PreRentreeOffersSchema,
   offerPricing: z.array(z.object({

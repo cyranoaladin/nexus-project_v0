@@ -25,10 +25,13 @@ describe('Pré-rentrée 2026 staffing and room contract', () => {
 
   it('maps every module and session to one provisional role', () => {
     const moduleSlots = campaignManifest.schedule.flatMap((week) => week.slots);
-    // 14 modules -> 14 distinct (level, subject) pairs, but 3 of them (Première
-    // SVT, Terminale NSI, Terminale SVT) carry 2 cohort slots each instead of 1
-    // (SCHEDULE-S5 alternative cohorts) -> 14 + 3 extra = 17 total slots, never
-    // counted as extra modules.
+    // 14 modules -> 14 distinct (level, subject) pairs, but 2 of them carry 2
+    // cohort slots each instead of 1 -> 14 + 2 extra = 16 total slots, never
+    // counted as extra modules. Ces deux-là sont Première SVT (cohorte
+    // alternative d'origine) et Terminale Mathématiques (dédoublement du
+    // 14/08/2026, effectif supérieur à 5). La cohorte de repli de Terminale NSI
+    // n'existait que pour résoudre le conflit NSI/SVT au bloc C : la SVT étant
+    // fermée, elle a été retirée.
     const slotsByModulePair = new Map<string, number>();
     for (const slot of moduleSlots) {
       const key = `${slot.level}/${slot.subject}`;
@@ -36,7 +39,7 @@ describe('Pré-rentrée 2026 staffing and room contract', () => {
     }
     expect(slotsByModulePair.size).toBe(modulesSource.modules.length);
     const pairsWithTwoCohorts = [...slotsByModulePair.values()].filter((count) => count === 2);
-    expect(pairsWithTwoCohorts).toHaveLength(3);
+    expect(pairsWithTwoCohorts).toHaveLength(2);
     expect(moduleSlots).toHaveLength(modulesSource.modules.length + pairsWithTwoCohorts.length);
 
     const counts = Object.fromEntries(Object.keys(teacherRoles).map((role) => [role, 0]));

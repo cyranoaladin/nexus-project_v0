@@ -61,9 +61,9 @@ describe('Pré-rentrée 2026 — cohérence créneaux JSON ↔ PDF Planning (D3)
     expect(text).not.toContain('20:');
   });
 
-  it('la SVT figure au planning en Première et Terminale', () => {
+  it('la SVT figure au planning en Première uniquement (fermée en Terminale le 14/08/2026)', () => {
     expect(text).toMatch(/SVT/);
     const svt = (manifest.schedule as unknown as Window[]).flatMap((w) => w.slots).filter((s) => s.subject === 'SVT');
-    expect(new Set(svt.map((s) => s.level))).toEqual(new Set(['PREMIERE', 'TERMINALE']));
+    expect(new Set(svt.map((s) => s.level))).toEqual(new Set(['PREMIERE']));
   });
 });

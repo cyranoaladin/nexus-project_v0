@@ -6,8 +6,8 @@
  * docs/campaigns/pre-rentree-2026/SCHEDULE-UX-AUDIT.md) after the schedule was
  * restructured by the UX-optimization (PR #77) and S5 three-rooms missions.
  *
- * Some subjects now have two alternative cohorts (Première SVT, Terminale NSI,
- * Terminale SVT — see cohortId in the schema). Any combination touching one of
+ * Some subjects have two alternative cohorts (Première SVT, and Terminale
+ * Mathématiques since the 2026-08-14 split). Any combination touching one of
  * those subjects MUST go through assignItinerary (which picks, per subject, the
  * single best cohort for the family) rather than computeItinerary directly on the
  * raw schedule: computeItinerary alone would incorrectly merge both cohorts'
@@ -19,9 +19,26 @@ import {
   assignItinerary,
   enumerateSelections,
   MAX_STUDENT_IDLE_MINUTES,
+  type ItinerarySession,
+  type ItineraryStatus,
 } from '@/lib/campaigns/pre-rentree-2026/itinerary';
+import ownerDecisions from '@/content/pre-rentree-2026/publication-decisions.owner.json';
 
 const schedule = getPreRentreeSchedule();
+
+/**
+ * Les combinaisons de matières réellement souscrites cette session, lues depuis
+ * le registre d'arbitrages du propriétaire — jamais recopiées ici. Le catalogue
+ * en autorise d'autres ; celles-ci sont les seules qui engagent un élève, et
+ * donc les seules que le plafond d'attente doit protéger.
+ */
+const openTerminaleCombinations: string[][] =
+  ownerDecisions.decisions.terminaleGroupsAndClosures2026.openSubjectCombinations.TERMINALE;
+
+const isOpen = (subjects: readonly string[]) =>
+  openTerminaleCombinations.some(
+    (open) => open.length === subjects.length && open.every((s) => subjects.includes(s)),
+  );
 
 describe('Pré-rentrée 2026 — block-to-block idle time', () => {
   it('computes the exact minute gap between every pair of blocks', () => {
@@ -102,84 +119,115 @@ describe('Pré-rentrée 2026 — itinerary reproduction (S5 schedule: 3 salles +
   });
 
   describe('Terminale — fenêtre 24-28 août (3 salles)', () => {
-    const cases: Array<[string[], 'COMPACT' | 'LONG_IDLE' | 'SIMULTANEOUS', number | null]> = [
-      [['MATHEMATIQUES', 'MATHS_EXPERTES'], 'COMPACT', 15],
-      [['MATHEMATIQUES', 'NSI'], 'COMPACT', 60],
-      [['MATHEMATIQUES', 'SVT'], 'COMPACT', 60],
-      [['MATHEMATIQUES', 'PHYSIQUE_CHIMIE'], 'COMPACT', 60],
-      [['MATHS_EXPERTES', 'NSI'], 'LONG_IDLE', 195],
-      [['MATHS_EXPERTES', 'SVT'], 'LONG_IDLE', 195],
-      [['MATHS_EXPERTES', 'PHYSIQUE_CHIMIE'], 'LONG_IDLE', 195],
-      [['NSI', 'SVT'], 'COMPACT', 15],
-      [['NSI', 'PHYSIQUE_CHIMIE'], 'COMPACT', 15],
-      [['SVT', 'PHYSIQUE_CHIMIE'], 'COMPACT', 15],
+    // Deux tables distinctes, pour que le garde porte sur l'offre réellement
+    // ouverte plutôt que sur le catalogue théorique.
+    //
+    // 1) Les combinaisons souscrites cette session doivent respecter le plafond
+    //    d'attente. Aucune valeur n'est figée : c'est la règle qui est vérifiée,
+    //    donc toute grille future qui la violerait échoue ici.
+    it.each(openTerminaleCombinations.map((combo) => [combo]))(
+      'combinaison ouverte %p : attente sous le plafond',
+      (subjects) => {
+        const report = assignItinerary('TERMINALE', subjects, schedule).itinerary;
+        expect(report.status).toBe('COMPACT');
+        expect(report.maxIdleMinutes).toBeLessThanOrEqual(MAX_STUDENT_IDLE_MINUTES);
+      },
+    );
+
+    // 2) Les combinaisons que le catalogue autorise mais que personne n'a
+    //    souscrites. Leur attente mesurée est enregistrée telle quelle, sans
+    //    indulgence : NSI + Physique-Chimie laisse 5 h 30 de battement, parce que
+    //    le dédoublement des mathématiques occupe les deux blocs centraux et
+    //    repousse la Physique-Chimie en fin de journée. Aucun élève n'est
+    //    concerné cette session (arbitrage du 14/08/2026 : les huit inscrits se
+    //    répartissent entre maths + NSI et maths + Physique-Chimie). Ouvrir cette
+    //    combinaison consiste à l'ajouter au registre du propriétaire, ce qui la
+    //    fait basculer dans la table 1 et échouer tant que la grille n'a pas été
+    //    revue — le risque reste donc détecté, il n'est pas neutralisé.
+    const catalogueOnly: Array<[string[], ItineraryStatus, number]> = [
+      [['NSI', 'PHYSIQUE_CHIMIE'], 'LONG_IDLE', 330],
+      [['MATHEMATIQUES', 'NSI', 'PHYSIQUE_CHIMIE'], 'LONG_IDLE', 195],
     ];
-    it.each(cases)('%p -> %s (%p min)', (subjects, expectedStatus, expectedIdle) => {
-      const report = assignItinerary('TERMINALE', subjects, schedule).itinerary;
-      expect(report.status).toBe(expectedStatus);
-      if (expectedIdle !== null) {
+    it.each(catalogueOnly)(
+      'combinaison de catalogue %p : %s (%p min), non souscrite cette session',
+      (subjects, expectedStatus, expectedIdle) => {
+        expect(isOpen(subjects)).toBe(false);
+        const report = assignItinerary('TERMINALE', subjects, schedule).itinerary;
+        expect(report.status).toBe(expectedStatus);
         expect(report.maxIdleMinutes).toBe(expectedIdle);
-      }
-    });
-
-    it('NSI + Physique-Chimie + SVT together: unavoidable SIMULTANEOUS (Physique-Chimie fixe le bloc C, NSI et SVT ne peuvent alors qu\'occuper tous les deux le bloc D)', () => {
-      // Pigeonhole: PC is single-cohort at block C. To avoid PC, both NSI and SVT
-      // would have to use block D — but then they collide with each other. Adding
-      // a 3rd standard room does not resolve a 3-way simultaneous need for only 2
-      // free blocks (C is taken by PC) — this is the documented, accepted residual
-      // limit of S5, not a bug in assignItinerary or the schedule.
-      const assignment = assignItinerary('TERMINALE', ['NSI', 'PHYSIQUE_CHIMIE', 'SVT'], schedule);
-      expect(assignment.itinerary.status).toBe('SIMULTANEOUS');
-      expect(assignment.itinerary.firstConflict?.reason).toBe('SIMULTANEOUS');
-    });
-
-    it('Mathématiques + Maths expertes + NSI: 60 min, conforme (Mathématiques comble l\'écart)', () => {
-      const assignment = assignItinerary('TERMINALE', ['MATHEMATIQUES', 'MATHS_EXPERTES', 'NSI'], schedule);
-      expect(assignment.itinerary.status).toBe('COMPACT');
-      expect(assignment.itinerary.maxIdleMinutes).toBe(60);
-    });
+      },
+    );
   });
 });
 
 describe('Pré-rentrée 2026 — cohort assignment invariants (S5)', () => {
+  // Depuis le dédoublement du 14/08/2026, la matière à deux cohortes en
+  // Terminale est Mathématiques (groupe du matin / groupe de l'après-midi).
   it('never combines both cohorts of the same subject into one itinerary (always exactly 5 sessions)', () => {
-    const assignment = assignItinerary('TERMINALE', ['NSI', 'SVT'], schedule);
+    const assignment = assignItinerary('TERMINALE', ['MATHEMATIQUES', 'NSI'], schedule);
+    expect(assignment.sessionsBySubject['MATHEMATIQUES']).toHaveLength(5);
     expect(assignment.sessionsBySubject['NSI']).toHaveLength(5);
-    expect(assignment.sessionsBySubject['SVT']).toHaveLength(5);
   });
 
   it('is deterministic across repeated calls for a multi-cohort selection', () => {
-    const first = assignItinerary('TERMINALE', ['NSI', 'SVT'], schedule);
-    const second = assignItinerary('TERMINALE', ['NSI', 'SVT'], schedule);
+    const first = assignItinerary('TERMINALE', ['MATHEMATIQUES', 'NSI'], schedule);
+    const second = assignItinerary('TERMINALE', ['MATHEMATIQUES', 'NSI'], schedule);
     expect(first.cohortBySubject).toEqual(second.cohortBySubject);
     expect(first.itinerary).toEqual(second.itinerary);
   });
 
   it('a subject with a single cohort has an undefined cohortBySubject entry (no choice to make)', () => {
-    const assignment = assignItinerary('TERMINALE', ['MATHEMATIQUES', 'PHYSIQUE_CHIMIE'], schedule);
-    expect(assignment.cohortBySubject['MATHEMATIQUES']).toBeUndefined();
+    const assignment = assignItinerary('TERMINALE', ['NSI', 'PHYSIQUE_CHIMIE'], schedule);
+    expect(assignment.cohortBySubject['NSI']).toBeUndefined();
     expect(assignment.cohortBySubject['PHYSIQUE_CHIMIE']).toBeUndefined();
   });
 
   it('throws when a subject has no schedule for the given level, rather than silently returning an empty itinerary', () => {
-    expect(() => assignItinerary('TERMINALE', ['SVT', 'GEOGRAPHIE_INEXISTANTE'], schedule)).toThrow(
+    expect(() => assignItinerary('TERMINALE', ['NSI', 'GEOGRAPHIE_INEXISTANTE'], schedule)).toThrow(
       /Missing campaign schedule/,
     );
   });
 });
 
 describe('Pré-rentrée 2026 — itinerary engine invariants', () => {
+  // Ces deux invariants portent sur le moteur, pas sur la campagne. Depuis les
+  // fermetures du 14/08/2026, la grille vivante ne produit plus aucun conflit
+  // simultané ni aucun trio comblant un trou : les exercer sur elle reviendrait
+  // à ne rien exercer du tout. On les fait donc tourner sur une grille
+  // synthétique minimale, qui isole exactement la propriété testée.
+  const BLOCKS: Record<string, [string, string]> = {
+    A: ['09:00', '11:00'],
+    B: ['11:15', '13:15'],
+    C: ['14:15', '16:15'],
+  };
+  const fixture = (placements: Array<[string, string]>): ItinerarySession[] =>
+    placements.map(([subject, block]) => ({
+      date: '2026-08-24',
+      level: 'TERMINALE' as const,
+      subject,
+      block,
+      startTime: BLOCKS[block]![0],
+      endTime: BLOCKS[block]![1],
+    }));
+
   it('an extra session filling a gap turns a LONG_IDLE pair into a COMPACT triple', () => {
-    // Terminale Maths expertes (A) + NSI cohort-c (C) alone: single 195min gap, LONG_IDLE.
-    // Adding Mathématiques (B), which sits between them, breaks the gap into 15+60min.
-    const pair = assignItinerary('TERMINALE', ['MATHS_EXPERTES', 'NSI'], schedule).itinerary;
+    // X (bloc A) + Z (bloc C) : un seul trou de 195 min, donc LONG_IDLE.
+    // Y (bloc B) s'intercale et le casse en 15 + 60 min.
+    const grid = fixture([['X', 'A'], ['Y', 'B'], ['Z', 'C']]);
+    const pair = assignItinerary('TERMINALE', ['X', 'Z'], grid).itinerary;
     expect(pair.status).toBe('LONG_IDLE');
-    const triple = assignItinerary('TERMINALE', ['MATHEMATIQUES', 'MATHS_EXPERTES', 'NSI'], schedule).itinerary;
+    expect(pair.maxIdleMinutes).toBe(195);
+    const triple = assignItinerary('TERMINALE', ['X', 'Y', 'Z'], grid).itinerary;
     expect(triple.status).toBe('COMPACT');
+    expect(triple.maxIdleMinutes).toBe(60);
   });
 
   it('never reports SIMULTANEOUS as COMPACT, and always finds the first conflict', () => {
-    const assignment = assignItinerary('TERMINALE', ['NSI', 'PHYSIQUE_CHIMIE', 'SVT'], schedule);
+    // Deux matières mono-cohorte sur le même bloc le même jour : aucun choix ne
+    // peut les séparer, le moteur doit le dire au lieu de les compter comme
+    // compatibles.
+    const grid = fixture([['X', 'A'], ['Y', 'A']]);
+    const assignment = assignItinerary('TERMINALE', ['X', 'Y'], grid);
     expect(assignment.itinerary.status).toBe('SIMULTANEOUS');
     expect(assignment.itinerary.firstConflict).not.toBeNull();
     expect(assignment.itinerary.firstConflict?.reason).toBe('SIMULTANEOUS');
@@ -207,8 +255,8 @@ describe('Pré-rentrée 2026 — itinerary engine invariants', () => {
 
 describe('Pré-rentrée 2026 — determinism and full-catalogue invariants', () => {
   it('computeItinerary is deterministic for the same inputs (single-cohort subjects)', () => {
-    const first = computeItinerary('TERMINALE', ['MATHEMATIQUES', 'MATHS_EXPERTES'], schedule);
-    const second = computeItinerary('TERMINALE', ['MATHEMATIQUES', 'MATHS_EXPERTES'], schedule);
+    const first = computeItinerary('TERMINALE', ['NSI', 'PHYSIQUE_CHIMIE'], schedule);
+    const second = computeItinerary('TERMINALE', ['NSI', 'PHYSIQUE_CHIMIE'], schedule);
     expect(first).toEqual(second);
   });
 

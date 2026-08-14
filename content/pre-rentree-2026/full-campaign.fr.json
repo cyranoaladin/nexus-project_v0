@@ -214,8 +214,7 @@
       "offerIds": [
         "pre2026-terminale-pack-1",
         "pre2026-terminale-pack-2",
-        "pre2026-terminale-pack-3",
-        "pre2026-terminale-pack-4"
+        "pre2026-terminale-pack-3"
       ],
       "pricingDisclosure": "TERMINALE",
       "whatsappPrefill": "Bonjour, mon enfant entre en Terminale et souhaite préparer [matières]. Pouvez-vous vérifier le parcours disponible ?",
@@ -931,8 +930,7 @@
       "offerIds": [
         "pre2026-terminale-pack-1",
         "pre2026-terminale-pack-2",
-        "pre2026-terminale-pack-3",
-        "pre2026-terminale-pack-4"
+        "pre2026-terminale-pack-3"
       ],
       "pricingDisclosure": "TERMINALE",
       "whatsappPrefill": "Bonjour, mon enfant entre en Terminale avec [spécialités/options]. Nous souhaitons vérifier les matières disponibles.",
@@ -1614,8 +1612,7 @@
       "offerIds": [
         "pre2026-terminale-pack-1",
         "pre2026-terminale-pack-2",
-        "pre2026-terminale-pack-3",
-        "pre2026-terminale-pack-4"
+        "pre2026-terminale-pack-3"
       ],
       "pricingDisclosure": "TERMINALE",
       "whatsappPrefill": "Bonjour, mon enfant entre en Terminale et ses priorités sont [matières].",
