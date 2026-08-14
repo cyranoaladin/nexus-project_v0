@@ -62,7 +62,6 @@ describe('parent subscriptions', () => {
         grade: 'Seconde',
         school: 'Lycée',
         user: { firstName: 'Student', lastName: 'One' },
-        creditTransactions: [{ amount: 2 }, { amount: -1 }],
         subscriptions: [
           { status: 'ACTIVE', planName: 'Plan A', endDate: new Date('2025-02-01') },
         ],
@@ -75,7 +74,8 @@ describe('parent subscriptions', () => {
     expect(response.status).toBe(200);
     expect(body.children).toHaveLength(1);
     expect(body.children[0].currentSubscription).toBe('Plan A');
-    expect(body.children[0].creditBalance).toBe(1);
+    // Le solde de crédits n'est plus exposé au parent.
+    expect(body.children[0].creditBalance).toBeUndefined();
   });
 
   it('POST returns 401 when not parent', async () => {

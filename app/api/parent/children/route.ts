@@ -4,7 +4,6 @@ export const dynamic = 'force-dynamic';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
-import type { CreditTransaction } from '@prisma/client';
 import { normalizeStudentLevelAndTrack } from '@/lib/utils/grade-utils';
 import { parseJsonBody } from '@/lib/api/helpers';
 import { z } from 'zod';
@@ -71,11 +70,6 @@ export async function GET(_request: NextRequest) {
       where: { parentId: parentProfile.id },
       include: {
         user: true,
-        creditTransactions: {
-          orderBy: {
-            createdAt: 'desc'
-          }
-        },
         sessions: {
           where: {
             scheduledAt: {
@@ -97,9 +91,6 @@ export async function GET(_request: NextRequest) {
     });
 
     const formattedChildren = children.map((child) => {
-      const creditBalance = child.creditTransactions.reduce((total: number, transaction: CreditTransaction) => {
-        return total + transaction.amount;
-      }, 0);
 
       return {
         id: child.id,
@@ -108,7 +99,6 @@ export async function GET(_request: NextRequest) {
         email: child.user.email,
         grade: child.grade,
         school: child.school,
-        creditBalance: creditBalance,
         upcomingSessions: child.sessions.length,
         createdAt: child.createdAt
       };
