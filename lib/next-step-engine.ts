@@ -148,18 +148,7 @@ async function computeParentStep(user: ParentUser): Promise<NextStep | null> {
     };
   }
 
-  // Step 3: No credits left → high
-  if (firstChild.credits <= 0) {
-    return {
-      type: 'BUY_CREDITS',
-      message: 'Vos crédits sont épuisés. Rechargez pour réserver une séance',
-      link: '/dashboard/parent',
-      priority: 'high',
-      icon: 'Coins',
-    };
-  }
-
-  // Step 4: No sessions completed yet → do first bilan
+  // Step 3: No sessions completed yet → do first bilan
   if (firstChild.completedSessions === 0) {
     // Check if a bilan exists
     const _bilanCount = await prisma.diagnostic.count({
@@ -198,7 +187,7 @@ async function computeParentStep(user: ParentUser): Promise<NextStep | null> {
     };
   }
 
-  // Step 5: Has credits + has sessions → book next
+  // Step 4: Has completed sessions → book next
   const nextSession = await prisma.sessionBooking.findFirst({
     where: {
       studentId: user.id,

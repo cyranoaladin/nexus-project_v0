@@ -11,7 +11,6 @@ import {
   type LucideIcon,
   UserPlus,
   CreditCard,
-  Coins,
   CalendarPlus,
   BookOpen,
   ClipboardCheck,
@@ -47,7 +46,6 @@ const PRIORITY_STYLES: Record<StepPriority, { border: string; accent: string; ic
 const ICON_MAP: Record<string, LucideIcon> = {
   UserPlus,
   CreditCard,
-  Coins,
   CalendarPlus,
   BookOpen,
   ClipboardCheck,
@@ -73,7 +71,6 @@ const STEP_TITLES: Record<string, string> = {
   // Parent
   ADD_CHILD: 'Ajoutez votre enfant',
   SUBSCRIBE: 'Choisissez une formule',
-  BUY_CREDITS: 'Rechargez vos crédits',
   BOOK_SESSION: 'Réservez une séance',
   UPCOMING_SESSION: 'Séance à venir',
   VIEW_PROGRESS: 'Consultez la progression',
@@ -103,7 +100,6 @@ const CTA_LABELS: Record<string, string> = {
   // Parent
   ADD_CHILD: 'Ajouter',
   SUBSCRIBE: 'Voir les offres',
-  BUY_CREDITS: 'Recharger',
   BOOK_SESSION: 'Réserver',
   UPCOMING_SESSION: 'Voir',
   VIEW_PROGRESS: 'Consulter',
