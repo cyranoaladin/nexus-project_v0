@@ -5,7 +5,7 @@ test.describe('Bilan gratuit mono-page', () => {
     await page.goto('/bilan-gratuit', { waitUntil: 'domcontentloaded' });
 
     await expect(page.getByRole('heading', { name: /bilan/i }).first()).toBeVisible();
-    await page.getByRole('button', { name: /lancer le bilan diagnostic/i }).click();
+    await page.getByRole('button', { name: /créer mon espace/i }).click();
     await expect(page.locator('[role="alert"]').first()).toBeVisible();
 
     // Fill step 1
@@ -20,9 +20,7 @@ test.describe('Bilan gratuit mono-page', () => {
     await phone.fill('+21699112233');
     await page.locator('#studentFirstName').fill('Élève');
     await page.locator('#studentGrade').selectOption('premiere');
-    await page.locator('#studentSchool').fill('Établissement E2E');
     await page.locator('label').filter({ hasText: 'Mathématiques' }).getByRole('checkbox').click();
-    await page.locator('#objectives').fill('Établir les priorités pédagogiques pour la rentrée.');
     await page.locator('label').filter({ hasText: /J.accepte d.être contacté/ }).getByRole('checkbox').click();
 
     // Guard against hydration re-render clearing uncontrolled input state.
@@ -30,7 +28,7 @@ test.describe('Bilan gratuit mono-page', () => {
     await expect(lastName).toHaveValue('Test');
     await expect(email).toHaveValue(uniqueEmail);
     await expect(phone).toHaveValue('+21699112233');
-    const submit = page.getByRole('button', { name: /lancer le bilan diagnostic/i });
+    const submit = page.getByRole('button', { name: /créer mon espace/i });
     await expect(submit).toBeEnabled();
     await submit.click();
     await expect(page).toHaveURL(/\/bilan-gratuit\/confirmation/, { timeout: 15000 });

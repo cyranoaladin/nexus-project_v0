@@ -81,7 +81,7 @@ test.describe('S1 versioned JWT revocation', () => {
 
     await page.goto('/bilan-gratuit')
     const form = page.locator('form').filter({
-      has: page.getByRole('button', { name: /lancer le bilan diagnostic/i }),
+      has: page.getByRole('button', { name: /créer mon espace/i }),
     })
     await form.getByRole('textbox', { name: 'Prénom du parent' }).fill('Parent')
     await form.getByRole('textbox', { name: 'Nom du parent', exact: true }).fill('Session')
@@ -90,10 +90,9 @@ test.describe('S1 versioned JWT revocation', () => {
     await form.getByRole('textbox', { name: /prénom de l’élève/i }).fill('Élève')
     await form.getByRole('combobox', { name: 'Classe' }).selectOption('seconde')
     await form.getByRole('textbox', { name: 'Établissement' }).fill('Établissement synthétique')
-    await form.getByRole('checkbox', { name: 'Mathématiques' }).check()
     await form.getByRole('textbox', { name: 'Besoin principal' }).fill('Test synthétique de révocation de session.')
     await form.getByRole('checkbox', { name: /j’accepte d’être contacté/i }).check()
-    await form.getByRole('button', { name: /lancer le bilan diagnostic/i }).click()
+    await form.getByRole('button', { name: /créer mon espace/i }).click()
 
     const url = await activationUrl(parentEmail)
     await page.goto(url)

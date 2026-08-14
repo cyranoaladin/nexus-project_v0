@@ -88,11 +88,9 @@ test.describe('GATE A — posture prod (worker ON, sans clé OpenRouter)', () =>
     await page.locator('#parentPhone').fill('+21699000005');
     await page.locator('#studentFirstName').fill('Élève');
     await page.locator('#studentGrade').selectOption('seconde');
-    await page.locator('#studentSchool').fill('Établissement synthétique');
     await page.locator('label').filter({ hasText: 'Mathématiques' }).getByRole('checkbox').click();
-    await page.locator('#objectives').fill('Prouver la posture worker-ON sans clé OpenRouter.');
     await page.locator('label').filter({ hasText: /J.accepte d.être contacté/ }).getByRole('checkbox').click();
-    await page.getByRole('button', { name: /lancer le bilan diagnostic/i }).click();
+    await page.getByRole('button', { name: /créer mon espace/i }).click();
     await expect(page).toHaveURL(/\/bilan-gratuit\/confirmation/);
 
     const parent = await prisma.user.findUniqueOrThrow({

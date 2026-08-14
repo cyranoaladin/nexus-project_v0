@@ -60,11 +60,9 @@ test.describe('P0 initial student identity', () => {
       await page.locator('#parentPhone').fill('+21699000002');
       await page.locator('#studentFirstName').fill('Élève');
       await page.locator('#studentGrade').selectOption('seconde');
-      await page.locator('#studentSchool').fill('Établissement synthétique');
       await page.locator('label').filter({ hasText: 'Mathématiques' }).getByRole('checkbox').click();
-      await page.locator('#objectives').fill('Vérifier le parcours utilisateur réel sans donnée personnelle.');
       await page.locator('label').filter({ hasText: /J.accepte d.être contacté/ }).getByRole('checkbox').click();
-      await page.getByRole('button', { name: /lancer le bilan diagnostic/i }).click();
+      await page.getByRole('button', { name: /créer mon espace/i }).click();
       await expect(page).toHaveURL(/\/bilan-gratuit\/confirmation/);
 
       const parent = await prisma.user.findUniqueOrThrow({

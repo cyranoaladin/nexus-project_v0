@@ -43,13 +43,11 @@ test.describe('REAL — Bilan Gratuit (/bilan-gratuit)', () => {
     await expect(page.locator('#parentPhone')).toBeVisible();
     await expect(page.locator('#studentFirstName')).toBeVisible();
     await expect(page.locator('#studentGrade')).toBeVisible();
-    await expect(page.locator('#studentSchool')).toBeVisible();
-    await expect(page.locator('#objectives')).toBeVisible();
     await expect(page.locator('input[type="password"]')).toHaveCount(0);
   });
 
   test('Validation empêche soumission vide', async ({ page }) => {
-    const submitBtn = page.getByRole('button', { name: /lancer le bilan diagnostic/i });
+    const submitBtn = page.getByRole('button', { name: /créer mon espace/i });
     await submitBtn.click();
     await expect(page.locator('text=Email invalide')).toBeVisible({ timeout: 5000 });
     await expect(page.locator('#parentFirstName')).toBeVisible();
@@ -64,12 +62,10 @@ test.describe('REAL — Bilan Gratuit (/bilan-gratuit)', () => {
     await page.locator('#parentPhone').fill('99887766');
     await page.locator('#studentFirstName').fill('TestAudit');
     await page.locator('#studentGrade').selectOption('terminale');
-    await page.locator('#studentSchool').fill('Lycée Pierre Mendès France');
     await page.locator('label').filter({ hasText: 'Mathématiques' }).click();
-    await page.locator('#objectives').fill('Préparer le baccalauréat avec un suivi personnalisé');
     await page.locator('label').filter({ hasText: /j’accepte d’être contacté/i }).click();
 
-    const submitBtn = page.getByRole('button', { name: /lancer le bilan diagnostic/i });
+    const submitBtn = page.getByRole('button', { name: /créer mon espace/i });
     await expect(submitBtn, 'Bouton submit non trouvé').toBeVisible({ timeout: 3000 });
 
     const [apiResponse] = await Promise.all([
