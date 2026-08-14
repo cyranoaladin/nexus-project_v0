@@ -22,7 +22,6 @@ const BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
 // Override Playwright config baseURL so page.goto and page.request use port 3000
 test.use({ baseURL: BASE_URL });
 
-
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
 async function apiLogin(page: Page, email: string, password: string): Promise<boolean> {
