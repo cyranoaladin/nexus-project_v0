@@ -4,18 +4,13 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import {
-  getAriaAddonCatalog,
-  getSpecialPackCatalog,
-  getOperationalSubscriptionPlans,
-  type SubscriptionPlanKey,
-} from "@/lib/operational-catalog";
-import { ArrowLeft, Brain, Check, CreditCard, Star, Users, AlertCircle, Loader2 } from "lucide-react";
+import { getSpecialPackCatalog } from "@/lib/operational-catalog";
+import { AnnualParcoursCard } from "@/components/dashboard/parent/AnnualParcoursCard";
+import { ArrowLeft, Check, CreditCard, Users, AlertCircle, Loader2 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { CorporateFooter } from "@/components/layout/CorporateFooter";
 import CreditPurchaseDialog from "../credit-purchase-dialog";
 import InvoiceDetailsDialog from "../invoice-details-dialog";
@@ -40,12 +35,7 @@ interface Child {
   ariaSubjects: string[];
 }
 
-const OPERATIONAL_SUBSCRIPTION_PLANS = getOperationalSubscriptionPlans();
-const ARIA_ADDON_CATALOG = getAriaAddonCatalog();
 const SPECIAL_PACK_CATALOG = getSpecialPackCatalog();
-
-type SubscriptionPlan = (typeof OPERATIONAL_SUBSCRIPTION_PLANS)[SubscriptionPlanKey];
-type SelectedPlan = SubscriptionPlan;
 
 export default function AbonnementsPage() {
   const { data: session, status } = useSession();
@@ -54,11 +44,6 @@ export default function AbonnementsPage() {
   const [parentData, setParentData] = useState<{ children: Child[] } | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [isRequesting, setIsRequesting] = useState(false);
-  const [showRequestDialog, setShowRequestDialog] = useState(false);
-  const [selectedPlan, setSelectedPlan] = useState<SelectedPlan | null>(null);
-  const [selectedPlanKey, setSelectedPlanKey] = useState<SubscriptionPlanKey | null>(null);
-  const requestDialogTriggerRef = useRef<HTMLButtonElement | null>(null);
 
   useEffect(() => {
     if (status === "loading") return;
@@ -96,85 +81,6 @@ export default function AbonnementsPage() {
   };
 
   const currentChild = parentData?.children.find((child) => child.id === selectedChild);
-
-  const handleSubscriptionRequest = async () => {
-    if (!selectedChild) {
-      alert('Veuillez sélectionner un enfant');
-      return;
-    }
-
-    if (!selectedPlanKey) {
-      alert('Veuillez sélectionner une formule');
-      return;
-    }
-
-    const requestData = {
-      studentId: selectedChild,
-      requestType: 'PLAN_CHANGE',
-      planName: selectedPlanKey
-    };
-
-
-    setIsRequesting(true);
-    try {
-      const response = await fetch('/api/parent/subscription-requests', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(requestData)
-      });
-
-      if (response.ok) {
-        const result = await response.json();
-        alert(result.message);
-        setShowRequestDialog(false);
-        fetchSubscriptions(); // Refresh data
-      } else {
-        const errorData = await response.json();
-        alert(`Erreur lors de la demande d'abonnement: ${errorData.error}`);
-      }
-    } catch {
-      alert('Une erreur est survenue');
-    } finally {
-      setIsRequesting(false);
-    }
-  };
-
-  const handleAriaAddon = async (addonKey: string) => {
-    if (!selectedChild) {
-      alert('Veuillez sélectionner un enfant');
-      return;
-    }
-
-    setIsRequesting(true);
-    try {
-      const response = await fetch('/api/parent/subscription-requests', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          studentId: selectedChild,
-          requestType: 'ARIA_ADDON',
-          planName: addonKey
-        })
-      });
-
-      if (response.ok) {
-        const result = await response.json();
-        alert(result.message);
-        fetchSubscriptions(); // Refresh data
-      } else {
-        const errorData = await response.json();
-        alert(errorData.error || 'Erreur lors de l\'ajout de l\'add-on');
-      }
-    } catch {
-      alert('Une erreur est survenue');
-    } finally {
-      setIsRequesting(false);
-    }
-  };
 
   const handleSpecialPack = async (packKey: string) => {
     router.push(`/dashboard/parent/paiement?pack=${packKey}&student=${selectedChild}`);
@@ -227,8 +133,8 @@ export default function AbonnementsPage() {
               </Link>
             </Button>
             <div className="w-full sm:w-auto">
-              <h1 className="font-semibold text-lg sm:text-xl">Gestion des Abonnements</h1>
-              <p className="text-sm text-neutral-400">Modifiez les formules et add-ons</p>
+              <h1 className="font-semibold text-lg sm:text-xl">Formules et accompagnements</h1>
+              <p className="text-sm text-neutral-400">Les parcours proposés pour vos enfants</p>
             </div>
           </div>
         </div>
@@ -264,7 +170,7 @@ export default function AbonnementsPage() {
               <CardHeader>
                 <CardTitle className="flex items-center">
                   <CreditCard className="w-5 h-5 mr-2 text-brand-accent" />
-                  <span>Abonnement Actuel - {currentChild.firstName}</span>
+                  <span>Formule actuelle - {currentChild.firstName}</span>
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -273,7 +179,7 @@ export default function AbonnementsPage() {
                     <h3 className="text-lg sm:text-xl font-bold text-brand-accent">
                       {currentChild.currentSubscription !== 'AUCUN'
                         ? currentChild.currentSubscription
-                        : 'Aucun abonnement actif'}
+                        : 'Aucune formule active'}
                     </h3>
                     <div className="flex items-center gap-2 mt-1 sm:mt-0">
                       <p className="text-neutral-300">
@@ -310,111 +216,14 @@ export default function AbonnementsPage() {
               </CardContent>
             </Card>
 
-            {/* Changer d'Abonnement */}
-            <Card className="mb-6 sm:mb-8 bg-white/5">
-              <CardHeader>
-                <CardTitle>Changer d'Abonnement</CardTitle>
-                <p className="text-neutral-300">Modifiez votre formule mensuelle</p>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                  {Object.entries(OPERATIONAL_SUBSCRIPTION_PLANS).map(([key, plan]) => (
-                    <Card
-                      key={key}
-                      className={`relative ${key === currentChild.currentSubscription
-                        ? 'border-brand-accent/60 bg-white/10'
-                        : 'hover:border-brand-accent/50 bg-white/5'
-                        }`}
-                    >
-                      {'popular' in plan && plan.popular && (
-                        <Badge variant="popular" className="absolute -top-2 left-1/2 transform -translate-x-1/2">
-                          <Star className="w-3 h-3 mr-1" />
-                          Populaire
-                        </Badge>
-                      )}
-
-                      <CardHeader className="text-center pb-4">
-                        <CardTitle className="text-base sm:text-lg">{plan.name}</CardTitle>
-                        <div className="text-xl sm:text-2xl font-bold text-brand-accent">
-                          {plan.price} TND
-                        </div>
-                        <p className="text-sm text-neutral-400">/mois</p>
-                      </CardHeader>
-
-                      <CardContent>
-                        <ul className="space-y-1 sm:space-y-2 mb-4">
-                          {plan.features.map((feature, index) => (
-                            <li key={index} className="flex items-start space-x-2">
-                              <Check className="w-3 h-3 sm:w-4 sm:h-4 text-emerald-300 mt-0.5 flex-shrink-0" />
-                              <span className="text-xs sm:text-sm text-neutral-300">{feature}</span>
-                            </li>
-                          ))}
-                        </ul>
-
-                        {key === currentChild.currentSubscription && currentChild.subscriptionStatus === 'ACTIVE' ? (
-                          <Button disabled className="w-full text-sm sm:text-base">
-                            Abonnement Actuel
-                          </Button>
-                        ) : (
-                          <Button
-                            onClick={(event) => {
-                              requestDialogTriggerRef.current = event.currentTarget;
-                              setSelectedPlan(OPERATIONAL_SUBSCRIPTION_PLANS[key as SubscriptionPlanKey]);
-                              setSelectedPlanKey(key as SubscriptionPlanKey);
-                              setShowRequestDialog(true);
-                            }}
-                            className="w-full text-sm sm:text-base"
-                            variant={'popular' in plan && plan.popular ? "default" : "outline"}
-                          >
-                            Changer pour {plan.name}
-                          </Button>
-                        )}
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Add-ons ARIA */}
-            <Card className="mb-6 sm:mb-8 bg-white/5">
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <Brain className="w-5 h-5 mr-2 text-blue-300" />
-                  Add-ons ARIA
-                </CardTitle>
-                <p className="text-neutral-300">Étendez les capacités de votre assistant IA</p>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-                  {Object.entries(ARIA_ADDON_CATALOG).map(([key, addon]) => (
-                    <Card key={key} className="bg-white/5">
-                      <CardContent className="p-4 sm:p-6">
-                        <div className="flex flex-col sm:flex-row justify-between items-start gap-2 sm:gap-4 mb-4">
-                          <div>
-                            <h4 className="font-semibold text-base sm:text-lg">{addon.name}</h4>
-                            <p className="text-neutral-300 text-xs sm:text-sm">{addon.description}</p>
-                          </div>
-                          <div className="text-right">
-                            <span className="text-lg sm:text-xl font-bold text-blue-300">
-                              +{addon.price} TND
-                            </span>
-                            <span className="text-neutral-400 text-xs sm:text-sm block">/mois</span>
-                          </div>
-                        </div>
-                        <Button
-                          onClick={() => handleAriaAddon(key)}
-                          className="w-full text-sm sm:text-base"
-                          variant="outline"
-                        >
-                          Ajouter cet Add-on
-                        </Button>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+            {/*
+              Parcours annuels — même catalogue que le site public.
+              Remplace la vente d'abonnements mensuels et d'add-ons ARIA, retirée
+              tant que la plateforme ne délivre aucune matière (lib/commerce/sale-suspension.ts).
+              L'inscription passe par le chemin réel : conseil, validation pédagogique,
+              puis paiement au centre ou par virement.
+            */}
+            <AnnualParcoursCard childFirstName={currentChild.firstName} />
 
             {/* Packs Spécifiques */}
             <Card className="bg-white/5">
@@ -462,80 +271,9 @@ export default function AbonnementsPage() {
             </Card>
           </>
         )}
-
-        {/* Subscription Request Dialog */}
-        <Dialog open={showRequestDialog} onOpenChange={setShowRequestDialog}>
-          <DialogContent
-            className="sm:max-w-md"
-            onCloseAutoFocus={(event) => {
-              if (!requestDialogTriggerRef.current) return;
-              event.preventDefault();
-              requestDialogTriggerRef.current.focus();
-            }}
-          >
-            <DialogHeader>
-              <DialogTitle>Demande d'Abonnement</DialogTitle>
-            </DialogHeader>
-            {selectedPlan && (
-              <div className="space-y-4">
-                <div className="bg-white/5 p-4 rounded-lg">
-                  <h3 className="font-semibold">{selectedPlan.name}</h3>
-                  <p className="text-neutral-300">{selectedPlan.price} TND/mois</p>
-                  <p className="text-sm text-neutral-400 mt-2">
-                    {selectedPlan.credits} crédits inclus par mois
-                  </p>
-                </div>
-
-                <div className="space-y-2">
-                  <h4 className="font-medium text-neutral-200">Fonctionnalités incluses :</h4>
-                  <ul className="space-y-1">
-                    {selectedPlan.features.map((feature: string, index: number) => (
-                      <li key={index} className="flex items-center space-x-2">
-                        <Check className="w-3 h-3 text-emerald-300" />
-                        <span className="text-sm">{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                <div className="bg-white/5 p-4 rounded-lg">
-                  <p className="text-sm text-neutral-300">
-                    <strong>Note :</strong> Votre demande sera envoyée à l'assistant pour approbation.
-                    Vous recevrez une notification une fois approuvée.
-                  </p>
-                </div>
-
-                <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
-                  <Button
-                    onClick={handleSubscriptionRequest}
-                    className="flex-1"
-                    disabled={isRequesting}
-                  >
-                    {isRequesting ? (
-                      <>
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Envoi...
-                      </>
-                    ) : (
-                      'Envoyer la Demande'
-                    )}
-                  </Button>
-                  <Button
-                    variant="outline"
-                    onClick={() => setShowRequestDialog(false)}
-                    className="flex-1"
-                    disabled={isRequesting}
-                  >
-                    Annuler
-                  </Button>
-                </div>
-              </div>
-            )}
-          </DialogContent>
-        </Dialog>
       </main>
     </div>
-    <CorporateFooter />  
+    <CorporateFooter />
     </>
   );
 }

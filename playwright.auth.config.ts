@@ -15,7 +15,7 @@ export default defineConfig({
     'test-all-dashboard-pages.spec.ts',
     'dialog-charte-proof.spec.ts',
     'dialog-all-roles-proof.spec.ts',
-    'parent-subscription-requests-visible.spec.ts',
+    'parent-subscription-sale-closed.spec.ts',
     'assistante-subscription-approval-invariants.spec.ts',
     'assistante-devis-catalog.spec.ts',
     'initial-student-activation.spec.ts',

@@ -50,37 +50,14 @@ describe('parent subscription-requests', () => {
     expect(body.error).toBe('Invalid subscription request payload');
   });
 
-  it('POST rejects a plan change with an unknown plan key', async () => {
+  // La vente des abonnements et des add-ons est fermée tant qu'ARIA ne délivre
+  // aucune matière. Ces trois cas vérifiaient l'ancien comportement (création
+  // d'une demande) ; ils vérifient désormais que la porte est bien close côté
+  // serveur — retirer les boutons de l'interface ne suffirait pas.
+  it('POST refuse un changement de formule tant que la vente est suspendue', async () => {
     (auth as jest.Mock).mockResolvedValue({
       user: { id: 'parent-1', role: 'PARENT', firstName: 'P', lastName: 'One', email: 'p@test.com' },
     });
-
-    const response = await POST(
-      makeRequest({
-        studentId: 'student-1',
-        requestType: 'PLAN_CHANGE',
-        planName: 'Plan A',
-      })
-    );
-    const body = await response.json();
-
-    expect(response.status).toBe(400);
-    expect(body.error).toContain('Plan');
-    expect(prisma.subscriptionRequest.create).not.toHaveBeenCalled();
-  });
-
-  it('POST creates subscription request and notifications using catalog pricing', async () => {
-    (auth as jest.Mock).mockResolvedValue({
-      user: { id: 'parent-1', role: 'PARENT', firstName: 'P', lastName: 'One', email: 'p@test.com' },
-    });
-    (prisma.parentProfile.findUnique as jest.Mock).mockResolvedValue({ id: 'parent-profile-1' });
-    (prisma.student.findFirst as jest.Mock).mockResolvedValue({
-      id: 'student-1',
-      user: { firstName: 'Student', lastName: 'One' },
-    });
-    (prisma.subscriptionRequest.create as jest.Mock).mockResolvedValue({ id: 'req-1' });
-    (prisma.user.findMany as jest.Mock).mockResolvedValue([{ id: 'assistant-1' }]);
-    (prisma.notification.create as jest.Mock).mockResolvedValue({});
 
     const response = await POST(
       makeRequest({
@@ -92,31 +69,16 @@ describe('parent subscription-requests', () => {
     );
     const body = await response.json();
 
-    expect(response.status).toBe(200);
-    expect(body.success).toBe(true);
-    expect(prisma.subscriptionRequest.create).toHaveBeenCalledWith(
-      expect.objectContaining({
-        data: expect.objectContaining({
-          planName: 'HYBRIDE',
-          monthlyPrice: 450,
-        }),
-      })
-    );
-    expect(prisma.notification.create).toHaveBeenCalled();
+    expect(response.status).toBe(409);
+    expect(body.code).toBe('SALE_SUSPENDED');
+    expect(prisma.subscriptionRequest.create).not.toHaveBeenCalled();
+    expect(prisma.notification.create).not.toHaveBeenCalled();
   });
 
-  it('POST creates ARIA add-on request using catalog pricing', async () => {
+  it('POST refuse un ajout d’add-on ARIA tant que la vente est suspendue', async () => {
     (auth as jest.Mock).mockResolvedValue({
       user: { id: 'parent-1', role: 'PARENT', firstName: 'P', lastName: 'One', email: 'p@test.com' },
     });
-    (prisma.parentProfile.findUnique as jest.Mock).mockResolvedValue({ id: 'parent-profile-1' });
-    (prisma.student.findFirst as jest.Mock).mockResolvedValue({
-      id: 'student-1',
-      user: { firstName: 'Student', lastName: 'One' },
-    });
-    (prisma.subscriptionRequest.create as jest.Mock).mockResolvedValue({ id: 'req-aria' });
-    (prisma.user.findMany as jest.Mock).mockResolvedValue([{ id: 'assistant-1' }]);
-    (prisma.notification.create as jest.Mock).mockResolvedValue({});
 
     const response = await POST(
       makeRequest({
@@ -127,18 +89,26 @@ describe('parent subscription-requests', () => {
     );
     const body = await response.json();
 
-    expect(response.status).toBe(200);
-    expect(body.success).toBe(true);
-    expect(prisma.subscriptionRequest.create).toHaveBeenCalledWith(
-      expect.objectContaining({
-        data: expect.objectContaining({
-          requestType: 'ARIA_ADDON',
-          planName: 'MATIERE_SUPPLEMENTAIRE',
-          monthlyPrice: 50,
-          status: 'PENDING',
-        }),
+    expect(response.status).toBe(409);
+    expect(body.code).toBe('SALE_SUSPENDED');
+    expect(prisma.subscriptionRequest.create).not.toHaveBeenCalled();
+  });
+
+  it('POST refuse aussi une formule inconnue, sans révéler l’état du catalogue', async () => {
+    (auth as jest.Mock).mockResolvedValue({
+      user: { id: 'parent-1', role: 'PARENT', firstName: 'P', lastName: 'One', email: 'p@test.com' },
+    });
+
+    const response = await POST(
+      makeRequest({
+        studentId: 'student-1',
+        requestType: 'PLAN_CHANGE',
+        planName: 'Plan A',
       })
     );
+
+    expect(response.status).toBe(409);
+    expect(prisma.subscriptionRequest.create).not.toHaveBeenCalled();
   });
 
   it('POST rejects invoice details as a subscription request type', async () => {
