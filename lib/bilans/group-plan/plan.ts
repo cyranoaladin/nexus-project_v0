@@ -80,8 +80,13 @@ function profileFor(member: GroupMember, nodeCpsId: string): NodeProfile {
   return member.factSheet.nodes.find((node) => node.nodeCpsId === nodeCpsId)?.profile ?? 'NON_TRAITE';
 }
 
-export function aggregateGroupProfile(profiles: readonly NodeProfile[]): GroupNodeProfile {
-  if (profiles.length < 3 || profiles.length > 5) throw new Error('GROUP_SIZE_MUST_BE_3_TO_5');
+/**
+ * Agrège un profil de groupe pour un nœud, sans contrainte de taille. Séparée
+ * d'`aggregateGroupProfile` (13/08/2026) pour être réutilisable par le dossier
+ * enseignant, dont les groupes (une matière × un niveau) n'ont pas la borne
+ * de taille du plan de groupe coach (trois à cinq élèves).
+ */
+export function aggregateProfiles(profiles: readonly NodeProfile[]): GroupNodeProfile {
   const counts = emptyProfileCounts();
   for (const profile of profiles) counts[profile] += 1;
   const acquired = counts.MAITRISE + counts.MAITRISE_FRAGILE;
@@ -92,6 +97,11 @@ export function aggregateGroupProfile(profiles: readonly NodeProfile[]): GroupNo
   }
   if (acquired > 0 && difficulty > 0 && acquired / profiles.length < 2 / 3 && difficulty / profiles.length < 2 / 3) return 'DIVISE';
   return counts.MAITRISE >= counts.MAITRISE_FRAGILE ? 'MAITRISE' : 'MAITRISE_FRAGILE';
+}
+
+export function aggregateGroupProfile(profiles: readonly NodeProfile[]): GroupNodeProfile {
+  if (profiles.length < 3 || profiles.length > 5) throw new Error('GROUP_SIZE_MUST_BE_3_TO_5');
+  return aggregateProfiles(profiles);
 }
 
 function guidanceFor(profile: NodeProfile, label: string): string {
