@@ -97,7 +97,7 @@ export const PreRentreePedagogyFrameworkSchema = z.object({
     moduleId: z.string().min(1),
     code: z.string().regex(/^POS-(?:4|3|2|1|T)-(?:MATH|FR|PC|SNT|NSI|PHILO|SVT|MATHEXP)$/),
     material: z.string().min(1),
-  }).strict()).length(17),
+  }).strict()).length(14),
   subjectPatterns: z.object({
     MATHEMATIQUES: PedagogyPatternSchema,
     PHYSIQUE_CHIMIE: PedagogyPatternSchema,

@@ -23,10 +23,13 @@ describe('Pré-rentrée 2026 public schedule model', () => {
     });
   });
 
+  // Depuis l'arbitrage du 14/08/2026, les matières à deux cohortes sont la SVT
+  // de Première (cohorte alternative d'origine) et les Mathématiques de
+  // Terminale (dédoublement matin/après-midi). La cohorte de repli de Terminale
+  // NSI a été retirée avec la SVT Terminale qu'elle servait à éviter.
   it.each([
     ['PREMIERE', 'SVT'],
-    ['TERMINALE', 'NSI'],
-    ['TERMINALE', 'SVT'],
+    ['TERMINALE', 'MATHEMATIQUES'],
   ] as const)(
     '%s %s remains one subject of five sessions and ten hours with two alternative cohorts',
     (level, subjectId) => {

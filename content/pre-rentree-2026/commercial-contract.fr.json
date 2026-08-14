@@ -532,10 +532,7 @@
       "subjects": [
         "MATHEMATIQUES",
         "PHYSIQUE_CHIMIE",
-        "NSI",
-        "SVT",
-        "MATHS_EXPERTES",
-        "PHILOSOPHIE"
+        "NSI"
       ],
       "subjectCount": 1,
       "audience": [
@@ -593,10 +590,7 @@
       "subjects": [
         "MATHEMATIQUES",
         "PHYSIQUE_CHIMIE",
-        "NSI",
-        "SVT",
-        "MATHS_EXPERTES",
-        "PHILOSOPHIE"
+        "NSI"
       ],
       "subjectCount": 2,
       "audience": [
@@ -654,10 +648,7 @@
       "subjects": [
         "MATHEMATIQUES",
         "PHYSIQUE_CHIMIE",
-        "NSI",
-        "SVT",
-        "MATHS_EXPERTES",
-        "PHILOSOPHIE"
+        "NSI"
       ],
       "subjectCount": 3,
       "audience": [
@@ -671,67 +662,6 @@
       ],
       "included": [
         "Trente heures dans trois matières",
-        "Cinq séances par matière",
-        "Entraînement et correction en séance"
-      ],
-      "optional": [],
-      "excluded": [
-        "Services numériques non inclus par défaut",
-        "Accompagnement annuel"
-      ],
-      "supports": [
-        "Consignes et exercices utilisés pendant les séances"
-      ],
-      "followUp": [
-        "Orientation vers les priorités de travail observées pendant le stage"
-      ],
-      "cta": "Écrire sur WhatsApp pour choisir les matières",
-      "proofIds": [
-        "PRF-PRE2026-DATES-VENUE",
-        "PRF-PRE2026-WHATSAPP",
-        "PRF-PRE2026-DEPOSIT-30",
-        "PRF-PRE2026-PREMIUM-PACKS",
-        "PRF-PRE2026-FIVE-SESSIONS",
-        "PRF-PRE2026-STRUCTURED-SESSIONS",
-        "PRF-PRE2026-PHILO-NO-PREREQUISITE",
-        "PRF-PRE2026-PHILO-MODULE-CONTENT",
-        "PRF-PRE2026-PHILO-VOLUME",
-        "PRF-PRE2026-PHILO-MATERIEL",
-        "PRF-PRE2026-TERMINALE-TWO-WINDOWS",
-        "PRF-PRE2026-TERMINALE-POOL-SIX"
-      ],
-      "publicStatus": "APPROVED",
-      "approvers": [
-        "DIRECTION_NEXUS_REUSSITE"
-      ],
-      "validatedAt": "2026-07-20",
-      "lastRevisedAt": "2026-07-27"
-    },
-    {
-      "offerId": "pre2026-terminale-pack-4",
-      "pricingId": "pre2026-pack-4",
-      "pricingKind": "PREMIUM_PACK",
-      "level": "TERMINALE",
-      "subjects": [
-        "MATHEMATIQUES",
-        "PHYSIQUE_CHIMIE",
-        "NSI",
-        "SVT",
-        "MATHS_EXPERTES",
-        "PHILOSOPHIE"
-      ],
-      "subjectCount": 4,
-      "audience": [
-        "Élèves entrant en Terminale dans le système français en Tunisie",
-        "Candidats libres selon compatibilité du parcours"
-      ],
-      "objectives": [
-        "Travailler quatre priorités de rentrée",
-        "Consolider les prérequis",
-        "Préparer les premières semaines"
-      ],
-      "included": [
-        "Quarante heures dans quatre matières",
         "Cinq séances par matière",
         "Entraînement et correction en séance"
       ],

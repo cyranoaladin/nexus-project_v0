@@ -102,10 +102,11 @@ describe('Pré-rentrée 2026 — exhaustive public itinerary matrix', () => {
       }
     }
 
-    // 92, pas 66 : Terminale passe de 5 à 6 matières (Philosophie s'ajoute au
-    // pool) — C(6,1..4) = 6+15+20+15 = 56 au lieu de C(5,1..4) = 30 pour ce
-    // niveau seul ; 3e/Seconde/Première inchangés (3+3+30). 3+3+30+56 = 92.
-    expect(combinationCount).toBe(92);
+    // 43 depuis l'arbitrage du 14/08/2026 : la Terminale retombe à 3 matières
+    // ouvertes (Maths, NSI, Physique-Chimie) après la fermeture de Maths
+    // expertes, SVT et Philosophie — C(3,1..3) = 3+3+1 = 7 pour ce niveau, au
+    // lieu de C(6,1..4) = 56 ; 3e/Seconde/Première inchangés (3+3+30).
+    expect(combinationCount).toBe(43);
     expect(actionableCount).toBeGreaterThan(0);
     expect(actionableCount).toBeLessThanOrEqual(combinationCount);
   });
