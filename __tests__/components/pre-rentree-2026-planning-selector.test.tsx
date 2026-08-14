@@ -59,13 +59,17 @@ describe('Pré-rentrée 2026 — sélecteur de planning parents', () => {
     expect(screen.queryByRole('checkbox', { name: /NSI|Physique-Chimie/i })).not.toBeInTheDocument();
   });
 
-  it('Terminale : n’affiche jamais Français, propose Maths expertes', async () => {
+  it('Terminale : n’affiche ni Français, ni les trois matières fermées le 14/08/2026', async () => {
     const user = userEvent.setup();
     renderSelector();
 
     await user.selectOptions(screen.getByLabelText('Classe de rentrée'), 'TERMINALE');
-    expect(screen.queryByRole('checkbox', { name: 'Français' })).not.toBeInTheDocument();
-    expect(screen.getByRole('checkbox', { name: 'Mathématiques expertes' })).toBeInTheDocument();
+    for (const closed of ['Français', 'Mathématiques expertes', 'SVT', 'Philosophie']) {
+      expect(screen.queryByRole('checkbox', { name: closed })).not.toBeInTheDocument();
+    }
+    for (const open of ['Mathématiques', 'NSI', 'Physique-Chimie']) {
+      expect(screen.getByRole('checkbox', { name: open })).toBeInTheDocument();
+    }
   });
 
   it('une matière cochée : recompose le planning chronologique sans exposer une salle non validée', async () => {
@@ -119,12 +123,14 @@ describe('Pré-rentrée 2026 — sélecteur de planning parents', () => {
     expect(screen.getByText('20 h')).toBeInTheDocument();
   });
 
-  it('Premium Terminale, 1 à 4 matières : volume 10/20/30/40 h', async () => {
+  it('Premium Terminale, 1 à 3 matières : volume 10/20/30 h', async () => {
+    // Le pack à 4 matières a été retiré en Terminale le 14/08/2026 : il n'y reste
+    // que trois matières ouvertes. Il demeure vendable en Première, qui en compte cinq.
     const user = userEvent.setup();
     renderSelector();
 
     await user.selectOptions(screen.getByLabelText('Classe de rentrée'), 'TERMINALE');
-    const subjectsInOrder = ['Mathématiques', 'Physique-Chimie', 'NSI', 'SVT'];
+    const subjectsInOrder = ['Mathématiques', 'Physique-Chimie', 'NSI'];
 
     for (const [index, subjectLabel] of subjectsInOrder.entries()) {
       await user.click(screen.getByRole('checkbox', { name: subjectLabel }));
@@ -133,16 +139,16 @@ describe('Pré-rentrée 2026 — sélecteur de planning parents', () => {
     }
   });
 
-  it('SCHEDULE-S5 : NSI + SVT en Terminale sont désormais compacts (cohortes alternatives, plus de simultanéité forcée)', async () => {
+  it('NSI + Mathématiques en Terminale : le dédoublement rend le parcours compact', async () => {
     const user = userEvent.setup();
     renderSelector();
 
     await user.selectOptions(screen.getByLabelText('Classe de rentrée'), 'TERMINALE');
     await user.click(screen.getByRole('checkbox', { name: 'NSI' }));
-    await user.click(screen.getByRole('checkbox', { name: 'SVT' }));
+    await user.click(screen.getByRole('checkbox', { name: 'Mathématiques' }));
 
-    // L'assignation choisit la cohorte NSI/SVT qui rend le parcours compact —
-    // ce n'est plus un conflit (voir SCHEDULE-S5-DECISION.md).
+    // L'assignation choisit celui des deux groupes de mathématiques qui rend le
+    // parcours compact — ici le groupe du matin, juste après NSI.
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
     expect(screen.getByText(/Parcours compact/i)).toBeInTheDocument();
     const availability = screen.getByRole('link', { name: 'Demander la disponibilité de ce parcours' });
@@ -150,30 +156,29 @@ describe('Pré-rentrée 2026 — sélecteur de planning parents', () => {
     expect(availability).toHaveAttribute('href', expect.stringMatching(/^https:\/\/wa\.me\/21699192829\?text=/));
   });
 
-  it('conflit détecté : NSI + Physique-Chimie + SVT ensemble en Terminale bloque la demande comme parcours confirmé', async () => {
-    // Les 3 matières scientifiques ne peuvent pas toutes être compactes ensemble :
-    // NSI et SVT n'ont que 2 blocs disponibles (C, D) et Physique-Chimie est fixée
-    // au bloc C — argument des tiroirs prouvé par solveur (SCHEDULE-S5-DECISION.md).
-    // Un parcours réel ne retient de toute façon jamais les 3 (max 2 spécialités
-    // conservées) ; ce test couvre la branche SIMULTANEOUS du moteur d'affectation.
+  it('attente excessive : NSI + Physique-Chimie en Terminale désactive la demande et l’explique', async () => {
+    // Depuis le dédoublement des mathématiques (14/08/2026), les deux groupes
+    // occupent les blocs centraux : NSI ouvre la journée, la Physique-Chimie la
+    // ferme, et les cumuler laisse 5 h 30 de battement. Aucun élève n'a souscrit
+    // cette combinaison cette session, mais le site doit refuser de la proposer
+    // plutôt que de la vendre — c'est cette branche que le test couvre.
     const user = userEvent.setup();
     renderSelector();
 
     await user.selectOptions(screen.getByLabelText('Classe de rentrée'), 'TERMINALE');
     await user.click(screen.getByRole('checkbox', { name: 'NSI' }));
     await user.click(screen.getByRole('checkbox', { name: 'Physique-Chimie' }));
-    await user.click(screen.getByRole('checkbox', { name: 'SVT' }));
 
     const alert = screen.getByRole('alert');
-    expect(within(alert).getByText(/même créneau/i)).toBeInTheDocument();
-    // Le planning reste affiché (non bloquant) : les 3 matières restent cochées.
+    expect(within(alert).getByText(/330 minutes/i)).toBeInTheDocument();
+    expect(within(alert).getByText(/attente/i)).toBeInTheDocument();
+    // Le planning reste affiché (non bloquant) : les deux matières restent cochées.
     expect(screen.getByRole('checkbox', { name: 'NSI' })).toBeChecked();
     expect(screen.getByRole('checkbox', { name: 'Physique-Chimie' })).toBeChecked();
-    expect(screen.getByRole('checkbox', { name: 'SVT' })).toBeChecked();
     expect(screen.getByRole('link', { name: 'Demander la disponibilité de ce parcours' })).toHaveAttribute('aria-disabled', 'true');
   });
 
-  it('SCHEDULE-S5 : Mathématiques + Physique-Chimie en Terminale sont désormais compacts (60 min, était 330 min avant S5)', async () => {
+  it('Mathématiques + Physique-Chimie en Terminale : 15 min d’attente (60 min avant le dédoublement)', async () => {
     const user = userEvent.setup();
     renderSelector();
 
@@ -182,7 +187,9 @@ describe('Pré-rentrée 2026 — sélecteur de planning parents', () => {
     await user.click(screen.getByRole('checkbox', { name: 'Physique-Chimie' }));
 
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
-    expect(screen.getByText(/Parcours compact.*60 min/i)).toBeInTheDocument();
+    // Le groupe de l'après-midi finit à 16 h 15, la Physique-Chimie enchaîne à
+    // 16 h 30 : le dédoublement a raccourci l'attente de 60 à 15 minutes.
+    expect(screen.getByText(/Parcours compact.*15 min/i)).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Demander la disponibilité de ce parcours' })).not.toHaveAttribute('aria-disabled', 'true');
   });
 
@@ -239,12 +246,15 @@ describe('Pré-rentrée 2026 — sélecteur de planning parents', () => {
   });
 
   it('limite le pack à quatre matières et explique pourquoi la cinquième reste décochée', async () => {
+    // Exercé en Première : depuis la fermeture des trois matières de Terminale
+    // (14/08/2026), seule la Première compte assez de matières (cinq) pour qu'une
+    // cinquième sélection puisse être refusée.
     const user = userEvent.setup();
     renderSelector();
 
-    await user.selectOptions(screen.getByLabelText('Classe de rentrée'), 'TERMINALE');
+    await user.selectOptions(screen.getByLabelText('Classe de rentrée'), 'PREMIERE');
     const checkboxes = screen.getAllByRole('checkbox');
-    expect(checkboxes).toHaveLength(6);
+    expect(checkboxes).toHaveLength(5);
     for (let index = 0; index < 4; index += 1) {
       await user.click(checkboxes[index]!);
     }
@@ -272,7 +282,7 @@ describe('Pré-rentrée 2026 — sélecteur de planning parents', () => {
     const user = userEvent.setup();
     renderSelector();
     await user.selectOptions(screen.getByLabelText('Classe de rentrée'), 'TERMINALE');
-    await user.click(screen.getByRole('checkbox', { name: 'SVT' }));
+    await user.click(screen.getByRole('checkbox', { name: 'NSI' }));
 
     expect(document.body.textContent).not.toMatch(/\b(?:M\.|Mme|Mlle|Professeur|Prof\.)\s+[A-ZÀ-Ý]/);
     expect(document.body.textContent).not.toMatch(/TEACHER_[A-Z]/);
@@ -311,28 +321,29 @@ describe('Pré-rentrée 2026 — étanchéité stages/annuel : le sélecteur n�
     },
   );
 
-  it('Mathématiques expertes n’est proposable qu’en Terminale (jamais 4e, 3e, Seconde ou Première)', async () => {
+  it('Mathématiques expertes et Philosophie ne sont proposables à aucun niveau (fermées le 14/08/2026)', async () => {
+    // Elles n'étaient ouvertes qu'en Terminale. La fermeture doit valoir partout :
+    // une case résiduelle vendrait une matière que personne n'assure.
     const user = userEvent.setup();
     renderSelector();
 
-    for (const level of ['QUATRIEME', 'TROISIEME', 'SECONDE', 'PREMIERE'] as EntryLevelCode[]) {
+    for (const level of ['QUATRIEME', 'TROISIEME', 'SECONDE', 'PREMIERE', 'TERMINALE'] as EntryLevelCode[]) {
       await user.selectOptions(screen.getByLabelText('Classe de rentrée'), level);
       expect(screen.queryByRole('checkbox', { name: 'Mathématiques expertes' })).not.toBeInTheDocument();
+      expect(screen.queryByText(/philosophie/i)).not.toBeInTheDocument();
     }
-    await user.selectOptions(screen.getByLabelText('Classe de rentrée'), 'TERMINALE');
-    expect(screen.getByRole('checkbox', { name: 'Mathématiques expertes' })).toBeInTheDocument();
   });
 
-  it('Philosophie n’est proposable qu’en Terminale (jamais 4e, 3e, Seconde ou Première) — tronc commun, jamais une spécialité', async () => {
+  it('la SVT reste proposable en Première, et nulle part ailleurs', async () => {
     const user = userEvent.setup();
     renderSelector();
 
-    for (const level of ['QUATRIEME', 'TROISIEME', 'SECONDE', 'PREMIERE'] as EntryLevelCode[]) {
+    for (const level of ['QUATRIEME', 'TROISIEME', 'SECONDE', 'TERMINALE'] as EntryLevelCode[]) {
       await user.selectOptions(screen.getByLabelText('Classe de rentrée'), level);
-      expect(screen.queryByText(/philosophie/i)).not.toBeInTheDocument();
+      expect(screen.queryByRole('checkbox', { name: 'SVT' })).not.toBeInTheDocument();
     }
-    await user.selectOptions(screen.getByLabelText('Classe de rentrée'), 'TERMINALE');
-    expect(screen.getByRole('checkbox', { name: 'Philosophie' })).toBeInTheDocument();
+    await user.selectOptions(screen.getByLabelText('Classe de rentrée'), 'PREMIERE');
+    expect(screen.getByRole('checkbox', { name: 'SVT' })).toBeInTheDocument();
   });
 });
 

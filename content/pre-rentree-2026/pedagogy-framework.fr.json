@@ -61,11 +61,6 @@
       "material": "Feuille de sujet, brouillon, trousse et calculatrice usuelle"
     },
     {
-      "moduleId": "terminale-maths-expertes",
-      "code": "POS-T-MATHEXP",
-      "material": "Feuille de sujet, brouillon, trousse et calculatrice usuelle"
-    },
-    {
       "moduleId": "terminale-physique-chimie",
       "code": "POS-T-PC",
       "material": "Feuille de sujet, brouillon, trousse et calculatrice usuelle"
@@ -79,16 +74,6 @@
       "moduleId": "premiere-svt",
       "code": "POS-1-SVT",
       "material": "Feuille de sujet, brouillon, trousse et calculatrice usuelle"
-    },
-    {
-      "moduleId": "terminale-svt",
-      "code": "POS-T-SVT",
-      "material": "Feuille de sujet, brouillon, trousse et calculatrice usuelle"
-    },
-    {
-      "moduleId": "terminale-philosophie",
-      "code": "POS-T-PHILO",
-      "material": "Feuille de sujet et brouillon ; aucun ouvrage à apporter"
     }
   ],
   "subjectPatterns": {

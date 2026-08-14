@@ -334,6 +334,18 @@
       "scope": ["troisieme-mathematiques", "troisieme-francais", "seconde-mathematiques", "seconde-francais", "premiere-mathematiques", "premiere-francais-eaf", "premiere-nsi", "premiere-physique-chimie", "terminale-mathematiques", "terminale-maths-expertes", "terminale-nsi", "terminale-physique-chimie", "premiere-svt", "terminale-svt"],
       "owner": "direction",
       "decidedAt": "2026-07-25T00:00:00Z"
+    },
+    "terminaleGroupsAndClosures2026": {
+      "status": "validated",
+      "decision": "terminale_maths_split_in_two_groups_and_three_subjects_closed",
+      "note": "Arbitrage du 14/08/2026 sur la Terminale, pris sur les effectifs constatés par l'assistante. Motif du dédoublement : plus de cinq élèves inscrits en spécialité Mathématiques, au-delà de la taille de groupe tenable ; la matière est scindée en un groupe du matin (bloc B) et un groupe de l'après-midi (bloc C). Motif des fermetures : effectif insuffisant en Mathématiques expertes, en SVT et en Philosophie — aucun élève inscrit, confirmé par l'assistante, aucun appel individuel nécessaire. La SVT reste ouverte en Première. Conséquence sur les cohortes : la cohorte de repli de Terminale NSI n'existait que pour résoudre l'incompatibilité NSI/SVT au bloc C ; la SVT étant fermée, ce conflit ne peut plus se produire et la cohorte de repli est retirée. Le compte passe de 17 à 14 modules, de 85 à 70 séances préparées, et de 20 à 16 cohortes pour 80 occurrences au calendrier.",
+      "scope": ["terminale-maths-expertes", "terminale-svt", "terminale-philosophie"],
+      "openSubjectCombinations": {
+        "note": "Combinaisons de matières réellement souscrites cette session, par niveau. Sert de garde : toute combinaison listée ici doit respecter le plafond d'attente entre deux cours. Le catalogue en autorise d'autres, non souscrites cette session — elles restent mesurées, mais n'engagent aucun élève. Ouvrir une combinaison consiste à l'ajouter ici, ce qui la soumet aussitôt au plafond.",
+        "TERMINALE": [["MATHEMATIQUES", "NSI"], ["MATHEMATIQUES", "PHYSIQUE_CHIMIE"]]
+      },
+      "owner": "direction",
+      "decidedAt": "2026-08-14T00:00:00Z"
     }
   },
   "remainingReleaseGates": []

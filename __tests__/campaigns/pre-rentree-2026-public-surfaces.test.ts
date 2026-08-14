@@ -22,7 +22,7 @@ const expectedSubjects = {
   TROISIEME: ['FRANCAIS', 'MATHEMATIQUES'],
   SECONDE: ['FRANCAIS', 'MATHEMATIQUES'],
   PREMIERE: ['FRANCAIS', 'MATHEMATIQUES', 'NSI', 'PHYSIQUE_CHIMIE', 'SVT'],
-  TERMINALE: ['MATHEMATIQUES', 'MATHS_EXPERTES', 'NSI', 'PHILOSOPHIE', 'PHYSIQUE_CHIMIE', 'SVT'],
+  TERMINALE: ['MATHEMATIQUES', 'NSI', 'PHYSIQUE_CHIMIE'],
 };
 
 describe('Pré-rentrée 2026 central public-surface adapter', () => {
@@ -45,7 +45,7 @@ describe('Pré-rentrée 2026 central public-surface adapter', () => {
     const dto = compilePreRentreeReviewSurfaceDTO();
     const canonical = getCommercialPublicOffers();
 
-    expect(dto.offers).toHaveLength(14);
+    expect(dto.offers).toHaveLength(13);
     expect(dto.offers.map((offer) => offer.offerId)).toEqual(canonical.map((offer) => offer.offerId));
     for (const offer of dto.offers) {
       const source = canonical.find((item) => item.offerId === offer.offerId);
@@ -69,15 +69,15 @@ describe('Pré-rentrée 2026 central public-surface adapter', () => {
   it('exposes a sanitized planning/program/document DTO with canonical counts', () => {
     const dto = compilePreRentreeReviewSurfaceDTO();
     expect(dto.planning.metrics).toEqual({
-      pedagogicalModuleCount: 17,
-      pedagogicalSessionTemplateCount: 85,
-      operationalCohortCount: 20,
-      scheduledSessionOccurrenceCount: 100,
+      pedagogicalModuleCount: 14,
+      preparedSessionCount: 70,
+      operationalCohortCount: 16,
+      scheduledSessionOccurrenceCount: 80,
       studentSessionsPerSubject: 5,
       studentHoursPerSubject: 10,
     });
-    expect(dto.planning.schedule).toHaveLength(100);
-    expect(dto.programs).toHaveLength(17);
+    expect(dto.planning.schedule).toHaveLength(80);
+    expect(dto.programs).toHaveLength(14);
     expect(dto.documents).toHaveLength(8);
     expect(dto.planning.roomsPubliclyConfirmed).toBe(false);
     expect(dto.planning.schedule.every((slot) => slot.room === undefined)).toBe(true);
