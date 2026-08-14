@@ -17,12 +17,6 @@ async function fillBilanForm(page: import('@playwright/test').Page, uniqueEmail?
 
   await page.getByLabel(/Prénom de l.élève/i).fill('Eleve');
   await page.locator('#studentGrade').selectOption('premiere');
-  await page.getByLabel(/Établissement/i).fill('Lycée français');
-
-  // Select a subject (checkbox)
-
-  await page.getByLabel(/Besoin principal/i).fill('Préparer une remise à niveau avant la rentrée.');
-  await page.getByLabel(/Message libre/i).fill('Besoin échange pédagogique pour clarifier les priorités.');
 
   // Accept terms
   await page.getByText(/j.accepte d.être contacté/i).click();
