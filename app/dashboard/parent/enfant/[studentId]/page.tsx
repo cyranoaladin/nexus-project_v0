@@ -2,12 +2,12 @@
 
 import { ParentCanonicalReports } from "@/components/bilans/ParentCanonicalReports";
 import { DashboardPilotage } from "@/components/dashboard/DashboardPilotage";
-import { CohortComparison } from "@/components/dashboard/parent/CohortComparison";
 import type { ParentDashboardChild } from "@/components/dashboard/parent/ChildCard";
 import { ProgressEvolutionChart } from "@/components/dashboard/parent/ProgressEvolutionChart";
 import { Button } from "@/components/ui/button";
 import { Card,CardContent,CardHeader,CardTitle } from "@/components/ui/card";
-import { ArrowLeft,Calendar,Loader2,Shield,Zap } from "lucide-react";
+import { buildWhatsAppUrl } from "@/lib/whatsapp";
+import { ArrowLeft,Calendar,Loader2,MessageCircle,Shield } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useParams,useRouter } from "next/navigation";
@@ -86,10 +86,6 @@ export default function ChildDetailPage() {
               <p className="text-[10px] uppercase tracking-wider text-neutral-500 font-bold mb-1">NexusIndex</p>
               <p className="text-2xl font-bold text-brand-accent">{childData.nexusIndex ?? '--'}</p>
             </div>
-            <div className="bg-surface-card border border-white/10 p-4 rounded-xl text-center min-w-[120px]">
-              <p className="text-[10px] uppercase tracking-wider text-neutral-500 font-bold mb-1">Position</p>
-              <p className="text-2xl font-bold text-emerald-400">Top 15%</p>
-            </div>
           </div>
         </div>
 
@@ -99,37 +95,6 @@ export default function ChildDetailPage() {
               <ParentCanonicalReports studentId={studentId} refreshSignal={reportsRefreshSignal} />
 
               <ProgressEvolutionChart data={childData.progressionHistory ?? []} />
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <CohortComparison 
-                  studentName={childData.firstName}
-                  data={[
-                    { label: 'Analyse', value: 78, isStudent: true },
-                    { label: 'Moyenne', value: 62, isStudent: false },
-                    { label: 'Algèbre', value: 85, isStudent: true },
-                    { label: 'Moyenne', value: 55, isStudent: false },
-                  ]}
-                />
-                
-                <Card className="bg-surface-card border border-white/10 shadow-premium">
-                  <CardHeader>
-                    <CardTitle className="text-white text-base flex items-center gap-2">
-                      <Zap className="w-4 h-4 text-brand-accent" />
-                      Prochaines Étapes
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="flex items-start gap-3">
-                      <div className="w-6 h-6 rounded-full bg-brand-accent/20 flex items-center justify-center text-brand-accent text-xs font-bold">1</div>
-                      <p className="text-sm text-neutral-300">Finaliser le module "Dérivation" (85% complété)</p>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <div className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-neutral-400 text-xs font-bold">2</div>
-                      <p className="text-sm text-neutral-300">Participer à la session de groupe du 12 Mai</p>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
             </div>
 
             <div className="space-y-8">
@@ -154,8 +119,20 @@ export default function ChildDetailPage() {
                       </p>
                     </div>
                   ))}
-                  <Button className="w-full bg-brand-accent hover:bg-brand-accent/90">
-                    Réserver une séance
+                  {(childData.sessions ?? []).length === 0 && (
+                    <p className="text-sm text-neutral-400">Aucune séance programmée pour le moment.</p>
+                  )}
+                  <Button asChild variant="outline" className="w-full border-white/10">
+                    <a
+                      href={buildWhatsAppUrl(
+                        `le planning de ${childData.firstName}`,
+                      )}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <MessageCircle className="w-4 h-4 mr-2" />
+                      Demander un créneau
+                    </a>
                   </Button>
                 </CardContent>
               </Card>
@@ -172,8 +149,10 @@ export default function ChildDetailPage() {
                     <p className="text-xs text-neutral-500 uppercase font-bold">Formule</p>
                     <p className="text-lg font-bold text-white">{childData.subscription ?? 'Aucune formule active'}</p>
                   </div>
-                  <Button variant="outline" className="w-full border-white/10">
-                    Gérer l'abonnement
+                  <Button asChild variant="outline" className="w-full border-white/10">
+                    <Link href="/dashboard/parent/abonnements">
+                      Voir les formules
+                    </Link>
                   </Button>
                 </CardContent>
               </Card>
