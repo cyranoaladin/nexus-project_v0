@@ -106,10 +106,11 @@ describe('Pré-rentrée landing sections', () => {
     );
   });
 
+  // Matières à deux cohortes depuis le 14/08/2026 : la SVT de Première (cohorte
+  // alternative d'origine) et les Mathématiques de Terminale (dédoublement).
   it.each([
     ['Entrée en Première', 'SVT'],
-    ['Entrée en Terminale', 'NSI'],
-    ['Entrée en Terminale', 'SVT'],
+    ['Entrée en Terminale', 'Mathématiques'],
   ])(
     'affiche %s %s comme une matière unique de 5 séances et 10 h malgré ses deux cohortes',
     async (levelLabel, subjectLabel) => {
@@ -156,9 +157,12 @@ describe('Pré-rentrée landing sections', () => {
     const windowTwo = screen.getByRole('table', { name: 'Emploi du temps — Fenêtre 2 — 24 au 28 août (Terminale)' });
     expect(within(windowTwo).getAllByRole('row')).toHaveLength(5);
     expect(windowTwo.textContent).not.toMatch(/Salle\s+\d/i);
-    expect(within(windowTwo).getByText('Mathématiques expertes')).toBeInTheDocument();
+    expect(within(windowTwo).getAllByText('Mathématiques').length).toBeGreaterThan(0);
+    expect(within(windowTwo).getByText('NSI')).toBeInTheDocument();
     expect(within(windowTwo).getByText('Physique-Chimie')).toBeInTheDocument();
-    expect(within(windowTwo).getAllByText('SVT').length).toBeGreaterThan(0);
+    // Fermées le 14/08/2026 : elles ne doivent plus apparaître à l'emploi du temps.
+    expect(within(windowTwo).queryByText('Mathématiques expertes')).not.toBeInTheDocument();
+    expect(within(windowTwo).queryByText('SVT')).not.toBeInTheDocument();
   });
 
   it('keeps teacher assignments, unvalidated room numbers and internal room organization out of the public surface', () => {

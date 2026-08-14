@@ -38,9 +38,12 @@ const CommercialContractSourceSchema = z.object({
   locale: z.literal('fr-TN'),
   validationDate: z.string().date(),
   lastRevisedAt: z.string().date(),
-  // 14 = 6 Fondations per-subject offers (4e, 3e, Seconde x Maths/Français)
-  // + 8 Premium packs (Première and Terminale x 1-4 matières).
-  offers: z.array(OfferSourceSchema).length(14),
+  // 13 = 6 Fondations per-subject offers (4e, 3e, Seconde x Maths/Français)
+  // + 7 Premium packs: Première x 1-4 matières, Terminale x 1-3 matières. Le
+  // pack Terminale à 4 matières a été retiré le 14/08/2026 : la fermeture de
+  // Maths expertes, SVT et Philosophie ne laisse que trois matières ouvertes à
+  // ce niveau, on ne peut donc plus en choisir quatre.
+  offers: z.array(OfferSourceSchema).length(13),
 }).strict().superRefine((source, context) => {
   for (const [index, offer] of source.offers.entries()) {
     if (offer.pricingKind === 'PREMIUM_PACK' && offer.subjectCount === undefined) {

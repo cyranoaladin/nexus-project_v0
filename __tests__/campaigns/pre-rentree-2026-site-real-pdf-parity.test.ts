@@ -108,10 +108,15 @@ describe('Pré-rentrée 2026 — parity between the site and the REAL public PDF
     );
   });
 
-  it('agrees on the Terminale subject pool size (§7 regeneration landed — Philosophie grew the pool from 5 to 6)', () => {
+  it('agrees on the Terminale subject pool size (arbitrage du 14/08/2026 — le pool retombe de 6 à 3)', () => {
+    // Le plafond annoncé est borné par le nombre de matières réellement ouvertes :
+    // sans cela le PDF proposerait « jusqu'à 4 matières parmi les 3 proposées ».
     const text = pdfText(TERMINALE_PDF);
-    expect(dto.subjectIdsByLevel.TERMINALE.length).toBe(6);
-    expect(text).toContain("Le pack Premium permet de choisir jusqu'à 4 matières parmi les 6 proposées pour ce niveau.");
+    expect(dto.subjectIdsByLevel.TERMINALE.length).toBe(3);
+    expect(text).toContain("Le pack Premium permet de choisir jusqu'à 3 matières parmi les 3 proposées pour ce niveau.");
+    for (const closed of ['Mathématiques expertes', 'Philosophie']) {
+      expect(text).not.toContain(closed);
+    }
   });
 
   it('KNOWN GAP (tracked, not introduced by this mission): Tarifs.pdf omits the 4 Fondations per-subject prices entirely', () => {

@@ -47,7 +47,7 @@ describe('Pré-rentrée 2026 campaign source', () => {
     // Première SVT, Terminale NSI and Terminale SVT (14 -> 17), and the 4e/
     // Philosophie mission adds 3 new single-cohort groups (17 -> 20): 4e
     // Français, 4e Mathématiques, Terminale Philosophie.
-    expect(campaign.schedule.flatMap((window) => window.slots)).toHaveLength(20);
+    expect(campaign.schedule.flatMap((window) => window.slots)).toHaveLength(16);
     // Rooms are banalized/interchangeable (no subject compatibility table) —
     // just 3 permanent room identifiers (the rendered room labels themselves
     // are covered by the live ScheduleSection tests).
@@ -82,7 +82,7 @@ describe('Pré-rentrée 2026 campaign source', () => {
   it('keeps all pedagogical fields for every module session', () => {
     const modules = getPreRentreeModules();
 
-    expect(modules).toHaveLength(17);
+    expect(modules).toHaveLength(14);
     for (const campaignModule of modules) {
       expect(campaignModule.prerequisites.length).toBeGreaterThan(0);
       expect(campaignModule.differentiation.length).toBeGreaterThan(0);

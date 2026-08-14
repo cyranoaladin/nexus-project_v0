@@ -98,13 +98,11 @@ describe('Pré-rentrée 2026 entry-level invariant', () => {
     expect(terminaleMaths?.differentiation).toMatch(
       /Maths expertes et Maths complémentaires sont des options/i,
     );
-    // Philosophie et Maths expertes coexistent désormais comme deux matières
-    // Terminale distinctes (mission 4e/Philosophie) — Philosophie ne compte
-    // jamais comme une spécialité (tronc commun, jamais dans le quota de 2).
-    const terminalePhilosophie = modulesData.modules.find((candidate) => candidate.id === 'terminale-philosophie');
-    expect(terminalePhilosophie?.title).toBe('Philosophie — Entrée en Terminale');
-    expect(terminalePhilosophie?.prerequisites).toMatch(/aucun prérequis/i);
-    expect(terminaleMathsExpertes?.title).toBe('Mathématiques expertes — Entrée en Terminale');
+    // Arbitrage du 14/08/2026 : Philosophie et Maths expertes sont fermées faute
+    // d'effectif. Aucun module ne doit subsister, sans quoi une surface publique
+    // pourrait encore les proposer.
+    expect(modulesData.modules.find((candidate) => candidate.id === 'terminale-philosophie')).toBeUndefined();
+    expect(terminaleMathsExpertes).toBeUndefined();
   });
 
   it('targets retained specialties for Terminale NSI and Physics-Chemistry', () => {

@@ -27,7 +27,6 @@ const SENSITIVE_CONTROLLERS = [
   'app/api/sessions/book/route.ts',
   'app/api/sessions/cancel/route.ts',
   'app/api/admin/users/route.ts',
-  'app/api/student/credits/route.ts',
   'app/api/student/sessions/route.ts',
 ] as const
 

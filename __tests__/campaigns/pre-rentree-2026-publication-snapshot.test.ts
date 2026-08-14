@@ -137,18 +137,18 @@ describe('Pré-rentrée 2026 canonical publication snapshot', () => {
     expect(unavailable.every((item) => item.publiclyCommitted === false)).toBe(true);
   });
 
-  it('copies all seventeen canonical modules and eighty-five sessions without editorial drift', () => {
+  it('copies all fourteen canonical modules and seventy sessions without editorial drift', () => {
     const canonical = JSON.parse(
       readFileSync(join(root, 'content/pre-rentree-2026/modules.json'), 'utf8'),
     );
     const snapshot = compilePublicationSnapshot({ repoRoot: root, repositoryCommitSha });
 
     expect(snapshot.modules).toEqual(canonical.modules);
-    expect(snapshot.modules).toHaveLength(17);
-    expect(snapshot.modules.flatMap((module) => module.sessions)).toHaveLength(85);
+    expect(snapshot.modules).toHaveLength(14);
+    expect(snapshot.modules.flatMap((module) => module.sessions)).toHaveLength(70);
   });
 
-  it('materializes seventeen positioning tests, eighty-five quick assessments and deliverables', () => {
+  it('materializes fourteen positioning tests, seventy quick assessments and deliverables', () => {
     const snapshot = compilePublicationSnapshot({ repoRoot: root, repositoryCommitSha }) as unknown as {
       pedagogy?: {
         positioningTests: Array<{
@@ -162,28 +162,29 @@ describe('Pré-rentrée 2026 canonical publication snapshot', () => {
       };
     };
 
-    expect(snapshot.pedagogy?.positioningTests).toHaveLength(17);
-    expect(snapshot.pedagogy?.positioningTests.flatMap((test) => test.questions)).toHaveLength(85);
+    expect(snapshot.pedagogy?.positioningTests).toHaveLength(14);
+    expect(snapshot.pedagogy?.positioningTests.flatMap((test) => test.questions)).toHaveLength(70);
     expect(snapshot.pedagogy?.positioningTests.every((test) => (
       test.questions.every((question) => question.prompt && question.correction && question.points > 0) &&
       Object.keys(test.rubric).length === 3 &&
       /^SAMPLE-ANON-/.test(test.anonymousSample.sampleId)
     ))).toBe(true);
-    expect(snapshot.pedagogy?.quickAssessments).toHaveLength(85);
-    expect(snapshot.pedagogy?.sessionDeliverables).toHaveLength(85);
-    expect(new Set(snapshot.pedagogy?.quickAssessments.map((item) => item.sessionRef)).size).toBe(85);
-    expect(new Set(snapshot.pedagogy?.sessionDeliverables.map((item) => item.sessionRef)).size).toBe(85);
+    expect(snapshot.pedagogy?.quickAssessments).toHaveLength(70);
+    expect(snapshot.pedagogy?.sessionDeliverables).toHaveLength(70);
+    expect(new Set(snapshot.pedagogy?.quickAssessments.map((item) => item.sessionRef)).size).toBe(70);
+    expect(new Set(snapshot.pedagogy?.sessionDeliverables.map((item) => item.sessionRef)).size).toBe(70);
     expect(snapshot.pedagogy?.sessionDeliverables.every((item) => (
       item.instructions.length >= 3 && item.expectedEvidence.length >= 2 && item.selfCheck.length >= 3
     ))).toBe(true);
   });
 
-  it('expands the canonical schedule to one hundred dated sessions (20 cohorts x 5)', () => {
+  it('expands the canonical schedule to eighty dated sessions (16 cohorts x 5)', () => {
     const snapshot = compilePublicationSnapshot({ repoRoot: root, repositoryCommitSha });
 
-    // 17 unique pedagogical modules, but 3 of them (Première SVT, Terminale NSI,
-    // Terminale SVT) have 2 alternative cohorts each (SCHEDULE-S5) = 20 cohorts.
-    expect(snapshot.schedule.sessions).toHaveLength(100);
+    // 14 unique pedagogical modules, plus 2 extra cohorts: Première SVT keeps
+    // its alternative, and Terminale Mathématiques runs two groups since the
+    // 2026-08-14 split = 16 cohorts.
+    expect(snapshot.schedule.sessions).toHaveLength(80);
     expect(snapshot.schedule.sessions[0]).toMatchObject({
       date: '2026-08-17',
       level: 'TROISIEME',
@@ -197,24 +198,23 @@ describe('Pré-rentrée 2026 canonical publication snapshot', () => {
     expect(snapshot.schedule.sessions.at(-1)).toMatchObject({
       date: '2026-08-28',
       level: 'TERMINALE',
-      subjectId: 'SVT',
+      subjectId: 'PHYSIQUE_CHIMIE',
       blockId: 'D',
       roomLabel: 'Salle 2',
       sessionNumber: 5,
-      cohortId: 'terminale-svt-d',
     });
     // Every session belonging to a subject with alternative cohorts carries a
     // cohortId; a subject with a single cohort never does.
-    const svtCohorts = new Set(
+    const mathsCohorts = new Set(
       snapshot.schedule.sessions
-        .filter((session) => session.level === 'TERMINALE' && session.subjectId === 'SVT')
+        .filter((session) => session.level === 'TERMINALE' && session.subjectId === 'MATHEMATIQUES')
         .map((session) => session.cohortId),
     );
-    expect(svtCohorts).toEqual(new Set(['terminale-svt-c', 'terminale-svt-d']));
-    const mathsSessions = snapshot.schedule.sessions.filter(
-      (session) => session.level === 'TERMINALE' && session.subjectId === 'MATHEMATIQUES',
+    expect(mathsCohorts).toEqual(new Set(['terminale-maths-matin', 'terminale-maths-apres-midi']));
+    const nsiSessions = snapshot.schedule.sessions.filter(
+      (session) => session.level === 'TERMINALE' && session.subjectId === 'NSI',
     );
-    expect(mathsSessions.every((session) => session.cohortId === undefined)).toBe(true);
+    expect(nsiSessions.every((session) => session.cohortId === undefined)).toBe(true);
   });
 
   it('selects the four canonical packs with exact amounts and neutral deposit labels', () => {

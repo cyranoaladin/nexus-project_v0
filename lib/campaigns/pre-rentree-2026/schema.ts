@@ -341,7 +341,7 @@ const CampaignModule = z.object({
 export const PreRentreeModulesSchema = z.object({
   version: z.string().min(1),
   generatedAt: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-  modules: z.array(CampaignModule).length(17),
+  modules: z.array(CampaignModule).length(14),
 });
 
 export type PreRentreeCampaignModule = z.infer<typeof CampaignModule>;

@@ -40,7 +40,10 @@ describe('Pré-rentrée 2026 canonical commercial publication contract', () => {
     });
     expect(byId.get('pre2026-seconde-mathematiques')).toMatchObject({ price: 400, deposit: 120 });
     expect(byId.get('pre2026-premiere-pack-1')).toMatchObject({ price: 480, deposit: 144, groupMax: 5 });
-    expect(byId.get('pre2026-terminale-pack-4')).toMatchObject({ price: 1800, deposit: 540, groupMax: 5 });
+    // Le pack Terminale à 4 matières a été retiré le 14/08/2026 (3 matières
+    // ouvertes seulement). Le pack Première à 4 porte désormais ce tarif.
+    expect(byId.get('pre2026-premiere-pack-4')).toMatchObject({ price: 1800, deposit: 540, groupMax: 5 });
+    expect(byId.get('pre2026-terminale-pack-4')).toBeUndefined();
   });
 
   it('records the approved 3e exception without weakening the global college floor', () => {
