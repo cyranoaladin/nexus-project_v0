@@ -77,7 +77,9 @@ export async function POST(request: NextRequest) {
     const campaignContext = synchronizePreRentreeCampaignContext({
       campaignContext: validatedData.campaignContext ?? undefined,
       studentGrade: validatedData.studentGrade,
-      subjects: validatedData.subjects,
+      // Les matières ne sont plus demandées à l'inscription : le picker les
+      // recueille après activation, filtrées par niveau.
+      subjects: validatedData.subjects ?? [],
     });
 
     // Vérifier si l'email parent existe déjà
