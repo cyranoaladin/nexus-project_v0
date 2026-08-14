@@ -34,6 +34,14 @@ test("l'espace parent ne propose plus de souscrire un abonnement ni un add-on", 
   await expect(page.getByRole('button', { name: /Changer pour/i })).toHaveCount(0);
   await expect(page.getByRole('button', { name: /Ajouter cet Add-on/i })).toHaveCount(0);
 
+  // Ni demande de crédits : le système de crédits a été retiré, et le solde
+  // affiché au parent n'a jamais conditionné la moindre réservation. Ce garde
+  // remplace l'ancien test de charte du dialogue d'achat, devenu sans objet —
+  // sans lui, le point d'entrée pourrait revenir sans que rien ne le signale.
+  await expect(page.getByRole('button', { name: /demander des crédits/i })).toHaveCount(0);
+  await expect(page.getByText(/Solde\s*:/i)).toHaveCount(0);
+  await expect(page.getByText(/crédits inclus/i)).toHaveCount(0);
+
   // À la place, le vrai chemin d'inscription est proposé.
   await expect(page.getByRole('heading', { name: /Inscrire Yasmine à un parcours/i })).toBeVisible();
   await expect(page.getByRole('link', { name: /En parler avec un conseiller/i })).toBeVisible();

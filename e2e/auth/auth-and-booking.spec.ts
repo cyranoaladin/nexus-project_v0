@@ -311,8 +311,14 @@ test.describe('Authentication & Booking Flow', () => {
       expect(bookingResponse.status(), await bookingResponse.text()).toBe(201);
     });
 
-    test('Booking fails when parent has insufficient credits', async ({ page }) => {
-      // Zero credits for ALL children to ensure the test is deterministic
+    // ATTENTION : ce spec ne tourne dans aucune configuration Playwright
+    // aujourd'hui (playwright.config.ts ignore **/auth/**, et il n'est pas
+    // promu dans playwright.auth.config.ts). Il est corrigé ici pour ne pas
+    // laisser une assertion contredisant le produit, mais il n'a pas pu être
+    // exécuté : sa promotion devra le vérifier.
+    test('Booking no longer depends on any credit balance', async ({ page }) => {
+      // Solde à zéro pour tous les enfants : depuis le retrait des crédits, cela
+      // ne doit plus rien empêcher. C'est le rattachement au foyer qui autorise.
       await setStudentCreditsByEmail(CREDS.student.email, 0);
       if (CREDS.student2?.email) {
         await setStudentCreditsByEmail(CREDS.student2.email, 0);
@@ -334,14 +340,12 @@ test.describe('Authentication & Booking Flow', () => {
           duration: slot.duration,
           type: 'INDIVIDUAL',
           modality: 'ONLINE',
-          title: 'Session test credits',
-          description: 'Credits insufficient',
-          creditsToUse: 1,
+          title: 'Session sans crédit',
+          description: 'Solde nul, réservation autorisée par le foyer',
         },
       });
 
-      expect(bookingResponse.status()).toBe(400);
-      expect(await bookingResponse.text()).toMatch(/insufficient credits/i);
+      expect(bookingResponse.status(), await bookingResponse.text()).toBe(201);
     });
 
     test('Coach cannot book their own sessions', async ({ page }) => {
