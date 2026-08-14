@@ -17,6 +17,7 @@ import {
   getOperationalSubscriptionPlan,
 } from "@/lib/operational-catalog";
 import { ArrowLeft, Check, Clock, Copy, CreditCard, Landmark } from "lucide-react";
+import { buildWhatsAppUrl } from "@/lib/whatsapp";
 import { LegalAcceptance } from "@/components/checkout/LegalAcceptance";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
@@ -324,6 +325,20 @@ function PaiementContent() {
                 </div>
               </button>
 
+              {/* Recours humain : un parent bloqué ne doit jamais rester sans issue. */}
+              <p className="mt-4 text-sm text-neutral-300">
+                Un doute, ou le virement ne passe pas ?{' '}
+                <a
+                  href={buildWhatsAppUrl('le règlement de mon inscription')}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-brand-primary underline underline-offset-2 hover:no-underline"
+                >
+                  Écrivez-nous sur WhatsApp
+                </a>{' '}
+                ou passez au centre à Mutuelleville : nous réglons cela avec vous.
+              </p>
+
               {/* Bloc légal obligatoire (conformité ClicToPay) */}
               <LegalAcceptance
                 accepted={termsAccepted}
@@ -366,7 +381,8 @@ function PaiementContent() {
                   </div>
                   <h3 className="font-semibold">Paiement Sécurisé</h3>
                   <p className="text-sm text-neutral-300">
-                    {CGV_POLICY.payment.security} Paiement par {CGV_POLICY.payment.provider} ou virement.
+                    {CGV_POLICY.payment.security} Le règlement se fait par virement bancaire
+                    ou directement au centre.
                   </p>
                 </div>
 
