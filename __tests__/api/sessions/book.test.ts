@@ -602,7 +602,11 @@ describe('POST /api/sessions/book', () => {
       expect(data.error).toBe('CONFLICT');
     });
 
-    it('should return 400 when student has insufficient credits', async () => {
+    // Le solde de crédits ne conditionne plus la réservation : la séance est
+    // incluse dans la formule annuelle. Ce qui autorise à réserver, c'est le
+    // rattachement de l'élève à un foyer — une décision humaine déjà
+    // enregistrée par l'assistante. Ces deux cas vérifient le nouveau garde-fou.
+    it("refuse la réservation si le compte élève a été remplacé par un autre", async () => {
       (prisma.$transaction as jest.Mock).mockImplementation(async (callback) => {
         const mockTx = {
           coachProfile: {
@@ -613,43 +617,23 @@ describe('POST /api/sessions/book', () => {
             })
           },
           user: {
-            findFirst: jest.fn().mockResolvedValue({
-              id: 'student-456',
-              role: 'ELEVE',
-              firstName: 'S',
-              lastName: 'T'
-            }),
-            findUnique: jest.fn().mockResolvedValue({
-              id: 'parent-123',
-              role: 'PARENT'
-            }),
-            findMany: jest.fn().mockResolvedValue([
-              { id: 'student-456', studentProfile: { parentId: 'parent-123' } }
-            ])
+            findFirst: jest.fn().mockResolvedValue({ id: 'student-456', role: 'ELEVE', firstName: 'S', lastName: 'T' })
           },
           parentProfile: {
-            findFirst: jest.fn().mockResolvedValue({
-              id: 'parent-profile-123',
-              userId: 'cm4parent123def456ghi789jkl'
-            })
+            findFirst: jest.fn().mockResolvedValue({ id: 'parent-profile-123', userId: 'cm4parent123def456ghi789jkl' })
           },
           coachAvailability: {
-            findFirst: jest.fn().mockResolvedValue({
-              isRecurring: true,
-              isAvailable: true,
-              dayOfWeek: 1  // Monday
-            })
+            findFirst: jest.fn().mockResolvedValue({ isRecurring: true, isAvailable: true, dayOfWeek: 1 })
           },
-          sessionBooking: {
-            findFirst: jest.fn().mockResolvedValue(null)
-          },
+          sessionBooking: { findFirst: jest.fn().mockResolvedValue(null) },
           student: {
             findFirst: jest.fn()
               .mockResolvedValueOnce({ id: 'student-record-456', userId: 'cm4stud456def789ghi012jklmn', parentId: 'parent-profile-123' })
-              .mockResolvedValueOnce({ id: 'student-record-456' })
-          },
-          creditTransaction: {
-            findMany: jest.fn().mockResolvedValue([]) // No credits
+              .mockResolvedValueOnce({
+                id: 'student-record-456',
+                user: { mergedIntoUserId: 'autre-compte' },
+                parent: { user: { mergedIntoUserId: null } }
+              })
           }
         };
         return callback(mockTx);
@@ -661,10 +645,49 @@ describe('POST /api/sessions/book', () => {
       });
 
       const response = await POST(request);
-      const data = await response.json();
+      expect(response.status).toBe(403);
+    });
 
-      expect(response.status).toBe(400);
-      expect(data.error).toBe('VALIDATION_ERROR');
+    it("refuse la réservation si l'élève n'est rattaché à aucun foyer actif", async () => {
+      (prisma.$transaction as jest.Mock).mockImplementation(async (callback) => {
+        const mockTx = {
+          coachProfile: {
+            findFirst: jest.fn().mockResolvedValue({
+              userId: 'coach-123',
+              subjects: ['MATHEMATIQUES'],
+              user: { id: 'coach-123', role: 'COACH', firstName: 'C', lastName: 'T' }
+            })
+          },
+          user: {
+            findFirst: jest.fn().mockResolvedValue({ id: 'student-456', role: 'ELEVE', firstName: 'S', lastName: 'T' })
+          },
+          parentProfile: {
+            findFirst: jest.fn().mockResolvedValue({ id: 'parent-profile-123', userId: 'cm4parent123def456ghi789jkl' })
+          },
+          coachAvailability: {
+            findFirst: jest.fn().mockResolvedValue({ isRecurring: true, isAvailable: true, dayOfWeek: 1 })
+          },
+          sessionBooking: { findFirst: jest.fn().mockResolvedValue(null) },
+          student: {
+            findFirst: jest.fn()
+              .mockResolvedValueOnce({ id: 'student-record-456', userId: 'cm4stud456def789ghi012jklmn', parentId: 'parent-profile-123' })
+              .mockResolvedValueOnce({
+                id: 'student-record-456',
+                user: { mergedIntoUserId: null },
+                parent: { user: { mergedIntoUserId: 'parent-fusionne' } }
+              })
+          }
+        };
+        return callback(mockTx);
+      });
+
+      const request = createMockRequest('http://localhost/api/sessions/book', {
+        method: 'POST',
+        body: JSON.stringify(validBookingData)
+      });
+
+      const response = await POST(request);
+      expect(response.status).toBe(403);
     });
   });
 
@@ -720,7 +743,7 @@ describe('POST /api/sessions/book', () => {
           student: {
             findFirst: jest.fn()
               .mockResolvedValueOnce({ id: 'student-record-456', userId: 'cm4stud456def789ghi012jklmn', parentId: 'parent-profile-123' })
-              .mockResolvedValueOnce({ id: 'student-record-456', userId: 'cm4stud456def789ghi012jklmn' })
+              .mockResolvedValueOnce({ id: 'student-record-456', userId: 'cm4stud456def789ghi012jklmn', user: { mergedIntoUserId: null }, parent: { user: { mergedIntoUserId: null } } })
           },
           coachAvailability: {
             findFirst: jest.fn().mockResolvedValue({
@@ -803,8 +826,8 @@ describe('POST /api/sessions/book', () => {
           },
           student: {
             findFirst: jest.fn()
-              .mockResolvedValueOnce({ id: 'student-record-123', userId: 'cm4student123def456ghi789jk' })
-              .mockResolvedValueOnce({ id: 'student-record-123', userId: 'cm4student123def456ghi789jk' })
+              .mockResolvedValueOnce({ id: 'student-record-123', userId: 'cm4student123def456ghi789jk', user: { mergedIntoUserId: null }, parent: { user: { mergedIntoUserId: null } } })
+              .mockResolvedValueOnce({ id: 'student-record-123', userId: 'cm4student123def456ghi789jk', user: { mergedIntoUserId: null }, parent: { user: { mergedIntoUserId: null } } })
           },
           coachAvailability: {
             findFirst: jest.fn().mockResolvedValue({
@@ -857,91 +880,8 @@ describe('POST /api/sessions/book', () => {
       expect(data.sessionId).toBe('booking-456');
     });
 
-    it('should create credit transaction when booking', async () => {
-      const mockCreditCreate = jest.fn().mockResolvedValue({
-        id: 'tx-789',
-        studentId: 'student-record-789',
-        amount: -1,
-        type: 'USAGE'
-      });
-
-      (prisma.$transaction as jest.Mock).mockImplementation(async (callback: Function) => {
-        const mockTx = {
-          coachProfile: {
-            findFirst: jest.fn().mockResolvedValue({
-              userId: 'cm4coach123def456ghi789jklm',
-              subjects: ['MATHEMATIQUES'],
-              user: { id: 'cm4coach123def456ghi789jklm', role: 'COACH', firstName: 'C', lastName: 'T' }
-            })
-          },
-          user: {
-            findFirst: jest.fn().mockResolvedValue({
-              id: 'cm4stud456def789ghi012jklmn',
-              role: 'ELEVE',
-              firstName: 'S',
-              lastName: 'T'
-            }),
-            findMany: jest.fn().mockResolvedValue([])
-          },
-          parentProfile: {
-            findFirst: jest.fn().mockResolvedValue({
-              id: 'parent-profile-789',
-              userId: 'cm4parent123def456ghi789jkl'
-            })
-          },
-          student: {
-            findFirst: jest.fn()
-              .mockResolvedValueOnce({ id: 'student-record-789', userId: 'cm4stud456def789ghi012jklmn', parentId: 'parent-profile-789' })
-              .mockResolvedValueOnce({ id: 'student-record-789', userId: 'cm4stud456def789ghi012jklmn' })
-          },
-          coachAvailability: {
-            findFirst: jest.fn().mockResolvedValue({
-              isRecurring: true,
-              isAvailable: true,
-              dayOfWeek: 1
-            })
-          },
-          sessionBooking: {
-            findFirst: jest.fn().mockResolvedValue(null),
-            create: jest.fn().mockResolvedValue({
-              id: 'booking-789',
-              status: 'SCHEDULED',
-              student: { id: 'student-789', firstName: 'S', lastName: 'T' },
-              coach: { id: 'coach-789', firstName: 'C', lastName: 'T' },
-              parent: { id: 'parent-789', firstName: 'P', lastName: 'T' }
-            })
-          },
-          creditTransaction: {
-            findMany: jest.fn().mockResolvedValue([
-              { amount: 10, expiresAt: null }
-            ]),
-            findFirst: jest.fn().mockResolvedValue(null), // No existing USAGE
-            create: mockCreditCreate
-          },
-          sessionNotification: {
-            createMany: jest.fn().mockResolvedValue({ count: 1 })
-          },
-          sessionReminder: {
-            createMany: jest.fn().mockResolvedValue({ count: 3 })
-          }
-        };
-        return callback(mockTx);
-      });
-
-      const request = createMockRequest('http://localhost/api/sessions/book', {
-        method: 'POST',
-        body: JSON.stringify(validBookingData)
-      });
-
-      await POST(request);
-
-      expect(mockCreditCreate).toHaveBeenCalledWith({
-        data: expect.objectContaining({
-          studentId: 'student-record-789',
-          type: 'USAGE',
-          amount: -1
-        })
-      });
-    });
+    // Le test « should create credit transaction when booking » est retiré :
+    // la réservation ne débite plus aucun crédit, la séance étant incluse
+    // dans la formule annuelle. L'historique déjà écrit reste intact.
   });
 });
