@@ -105,7 +105,6 @@ describe('parent children routes', () => {
           school: 'Lycée',
           createdAt: new Date('2025-01-01'),
           user: { firstName: 'Student', lastName: 'One', email: 's1@test.com' },
-          creditTransactions: [{ amount: 2 }, { amount: -1 }],
           sessions: [{ id: 'session-1' }],
         },
       ]);
@@ -115,7 +114,8 @@ describe('parent children routes', () => {
 
       expect(response.status).toBe(200);
       expect(body).toHaveLength(1);
-      expect(body[0].creditBalance).toBe(1);
+      // Le solde de crédits n'est plus exposé au parent.
+      expect(body[0].creditBalance).toBeUndefined();
       expect(body[0].upcomingSessions).toBe(1);
     });
   });

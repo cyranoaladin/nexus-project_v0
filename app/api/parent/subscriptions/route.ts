@@ -47,19 +47,10 @@ export async function GET(request: NextRequest) {
             createdAt: 'desc'
           }
         },
-        creditTransactions: {
-          orderBy: {
-            createdAt: 'desc'
-          }
-        }
       }
     });
 
     const formattedChildren = children.map((child) => {
-      const creditBalance = child.creditTransactions.reduce((total: number, transaction) => {
-        return total + transaction.amount;
-      }, 0);
-
       const activeSubscription = child.subscriptions.find((sub) => sub.status === 'ACTIVE') ||
                                 child.subscriptions.find((sub) => sub.status === 'INACTIVE') ||
                                 null;
@@ -80,7 +71,6 @@ export async function GET(request: NextRequest) {
           startDate: activeSubscription.startDate?.toISOString() ?? null,
           endDate: activeSubscription.endDate?.toISOString() ?? null,
         } : null,
-        creditBalance: creditBalance,
         ariaSubjects: [] // Placeholder for ARIA subjects
       };
     });

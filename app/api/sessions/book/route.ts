@@ -1,7 +1,6 @@
 import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive';
 export const dynamic = 'force-dynamic';
 
-import { requireFeatureApi } from '@/lib/access';
 import { ApiError,errorResponse,handleZodError,HttpStatus,successResponse } from '@/lib/api/errors';
 import { parseBody } from '@/lib/api/helpers';
 import { isErrorResponse,requireAnyRole } from '@/lib/guards';
@@ -54,9 +53,10 @@ export async function POST(req: NextRequest) {
     logger = createLogger(req, session);
     logger.info('Booking session');
 
-    // Entitlement guard: check credits_use feature
-    const denied = await requireFeatureApi('credits_use', { id: session.user.id, role: session.user.role });
-    if (denied) return denied;
+    // Le droit de réserver ne dépend plus d'un solde de crédits : il dépend du
+    // rattachement de l'élève à un foyer, vérifié dans la transaction (étape 6),
+    // au plus près de la lecture du dossier élève — sans fenêtre entre le
+    // contrôle et l'écriture.
 
     // Parse and validate input
     const validatedData = await parseBody(req, bookFullSessionSchema);
@@ -233,23 +233,27 @@ export async function POST(req: NextRequest) {
       if (conflictingSession) {
         throw ApiError.conflict('Coach already has a session at this time');
       }      // 6. Validate student record and check credit balance
+      // 6. L'élève doit être rattaché à un foyer, et son compte ne doit pas
+      //    avoir été remplacé par un autre. Le rattachement parent-élève est
+      //    une décision humaine déjà prise et enregistrée par l'assistante :
+      //    c'est lui qui autorise la réservation, plus un solde de crédits.
+      //
+      //    Le plafond réel reste la capacité des créneaux (disponibilité du
+      //    coach et refus de double réservation, étapes 4, 5 et 7). Si un
+      //    plafond par formule devient nécessaire, il se branche ici sans
+      //    toucher au reste.
       const studentRecord = await tx.student.findFirst({
-        where: { userId: validatedData.studentId }
+        where: { userId: validatedData.studentId },
+        include: { user: true, parent: { include: { user: true } } },
       });
       if (!studentRecord) {
         throw ApiError.badRequest('Student record not found');
       }
-
-      const creditTxs = await tx.creditTransaction.findMany({
-        where: {
-          studentId: studentRecord.id,
-          OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }],
-        },
-      });
-      const creditBalance = creditTxs.reduce((sum, t) => sum + (t.amount ?? 0), 0);
-      const requiredCredits = validatedData.creditsToUse ?? 1;
-      if (creditBalance < requiredCredits) {
-        throw ApiError.badRequest('Insufficient credits');
+      if (studentRecord.user.mergedIntoUserId) {
+        throw ApiError.forbidden('Ce compte élève a été remplacé par un autre.');
+      }
+      if (!studentRecord.parent || studentRecord.parent.user.mergedIntoUserId) {
+        throw ApiError.forbidden("Cet élève n'est rattaché à aucun foyer actif.");
       }
 
       // 7. Check if student already has a session at this time
@@ -294,7 +298,8 @@ export async function POST(req: NextRequest) {
           duration: validatedData.duration,
           type: validatedData.type,
           modality: validatedData.modality,
-          creditsUsed: requiredCredits,
+          // Colonne conservée (historique intact) ; plus aucun crédit n'est consommé.
+          creditsUsed: 0,
           status: 'SCHEDULED'
         },
         include: {
@@ -304,21 +309,8 @@ export async function POST(req: NextRequest) {
         }
       });
 
-      // 9. Debit credits (idempotent: skip if USAGE already exists for this session)
-      const existingUsage = await tx.creditTransaction.findFirst({
-        where: { sessionId: sessionBooking.id, type: 'USAGE' },
-      });
-      if (!existingUsage) {
-        await tx.creditTransaction.create({
-          data: {
-            studentId: studentRecord.id,
-            type: 'USAGE',
-            amount: -Math.abs(requiredCredits),
-            description: `Booking: ${validatedData.title}`,
-            sessionId: sessionBooking.id,
-          },
-        });
-      }
+      // L'ancien débit de crédits est supprimé : la séance est incluse dans la
+      // formule annuelle. L'historique déjà écrit reste intact.
 
       // Return post-commit context for side-effects (notifications, reminders)
       return {

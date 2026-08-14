@@ -12,7 +12,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { CorporateFooter } from "@/components/layout/CorporateFooter";
-import CreditPurchaseDialog from "../credit-purchase-dialog";
 import InvoiceDetailsDialog from "../invoice-details-dialog";
 
 interface Child {
@@ -31,7 +30,6 @@ interface Child {
     startDate: string | null;
     endDate: string | null;
   } | null;
-  creditBalance: number;
   ariaSubjects: string[];
 }
 
@@ -185,10 +183,6 @@ export default function AbonnementsPage() {
                       <p className="text-neutral-300">
                         {currentChild.subscriptionStatus === 'ACTIVE' ? 'Actif' : 'Inactif'}
                       </p>
-                      <span className="hidden sm:inline">•</span>
-                      <p className="text-sm text-neutral-400">
-                        Solde : {currentChild.creditBalance} crédits
-                      </p>
                     </div>
                     {currentChild.subscriptionExpiry && (
                       <p className="text-xs text-neutral-400 mt-1">
@@ -203,11 +197,6 @@ export default function AbonnementsPage() {
                         studentName={`${currentChild.firstName} ${currentChild.lastName}`}
                       />
                     )}
-                    <CreditPurchaseDialog
-                      studentId={currentChild.id}
-                      studentName={`${currentChild.firstName} ${currentChild.lastName}`}
-                      onPurchaseComplete={fetchSubscriptions}
-                    />
                     <Badge variant={currentChild.subscriptionStatus === 'ACTIVE' ? 'default' : 'outline'} className="justify-center">
                       {currentChild.subscriptionStatus === 'ACTIVE' ? 'Actif' : 'Inactif'}
                     </Badge>
