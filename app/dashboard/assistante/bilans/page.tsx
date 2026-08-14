@@ -13,6 +13,7 @@ import {
 
 import { REPORT_ANNOTATION_SECTIONS } from '@/lib/bilans/core/report-service';
 import { teacherBriefMonthlyUsage } from '@/lib/bilans/llm/teacher-brief-service';
+import { listStaffTeacherDossierGroups } from '@/lib/bilans/staff/teacher-dossier-service';
 import { prisma } from '@/lib/prisma';
 import type { TeacherBriefContent } from '@/lib/bilans/llm/teacher-brief-schema';
 
@@ -22,6 +23,7 @@ import {
   prepareUpdateInfoMessageAction,
   approveTeacherBriefAction,
   confirmWhatsAppTransmissionAction,
+  generateGroupTeacherBriefsAction,
   generateTeacherBriefAction,
   prepareWhatsAppSendAction,
   rejectReportAction,
@@ -30,6 +32,19 @@ import {
   resumeReviewAction,
   validateAndPublishReportAction,
 } from './actions';
+
+/** Libellés d'affichage pour les enums DB `Subject`/`GradeLevel` — distincts des
+ * libellés `BilanPackSubject`/`BilanPackLevel` du catalogue (lib/bilans/catalog/subjects.ts,
+ * lib/bilans/render/stage-label.ts), qui portent une nomenclature différente. */
+const DB_SUBJECT_LABELS: Readonly<Record<string, string>> = {
+  MATHEMATIQUES: 'Mathématiques', MATHS_EXPERTES: 'Mathématiques expertes', NSI: 'NSI', FRANCAIS: 'Français',
+  PHILOSOPHIE: 'Philosophie', HISTOIRE_GEO: 'Histoire-géographie', ANGLAIS: 'Anglais', ESPAGNOL: 'Espagnol',
+  PHYSIQUE_CHIMIE: 'Physique-chimie', SVT: 'SVT', SES: 'SES',
+};
+
+const DB_GRADE_LEVEL_LABELS: Readonly<Record<string, string>> = {
+  QUATRIEME: '4e', TROISIEME: '3e', SECONDE: '2de', PREMIERE: '1re', TERMINALE: 'Terminale', POSTBAC: 'Post-bac', AUTRE: 'Autre',
+};
 
 function briefStatusLabel(status: string): string {
   if (status === 'PENDING_REVIEW') return 'Généré — en attente de relecture';
@@ -134,6 +149,7 @@ export default async function CanonicalBilansReviewPage({
     if (!briefByArtifact.has(brief.reportArtifactId)) briefByArtifact.set(brief.reportArtifactId, brief);
   }
   const briefUsage = await teacherBriefMonthlyUsage();
+  const dossierGroups = await listStaffTeacherDossierGroups({ userId: session.user.id, role: session.user.role });
 
   const resolvedParams = await searchParams;
   const requestedPreview = resolvedParams.preview;
@@ -232,6 +248,63 @@ export default async function CanonicalBilansReviewPage({
         <p className="mt-3 text-xs text-slate-400">
           Assistant de rédaction enseignant — usage du mois : {briefUsage.briefs} brief{briefUsage.briefs > 1 ? 's' : ''}, {briefUsage.promptTokens + briefUsage.completionTokens} jetons (dont {briefUsage.cachedPromptTokens} en cache), ≈ {briefUsage.estimatedCostUsd.toFixed(2)} $ US.
         </p>
+
+        <section className="mt-8 rounded-2xl border border-white/10 bg-white/[0.05] p-5" aria-label="Dossiers enseignant">
+          <h2 className="text-lg font-semibold text-white">Dossier enseignant par groupe</h2>
+          <p className="mt-1 text-sm text-slate-300">
+            Un document unique par matière et niveau — vue du groupe, énoncés, détail par élève, brief enseignant, plan des 5 séances. Document strictement interne, jamais transmis aux familles.
+          </p>
+          {dossierGroups.length === 0 ? (
+            <p className="mt-4 text-sm text-slate-400">Aucun bilan éligible pour l’instant.</p>
+          ) : (
+            <div className="mt-4 space-y-3">
+              {dossierGroups.map((group) => {
+                const query = `subject=${group.subject}&level=${group.level}`;
+                const subjectLabel = DB_SUBJECT_LABELS[group.subject] ?? group.subject;
+                const levelLabel = DB_GRADE_LEVEL_LABELS[group.level] ?? group.level;
+                return (
+                  <article
+                    key={`${group.subject}-${group.level}`}
+                    className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-white/10 bg-white/[0.03] p-4"
+                  >
+                    <div>
+                      <p className="font-semibold text-white">{subjectLabel} — {levelLabel}</p>
+                      <p className="text-sm text-slate-300">
+                        {group.count} bilan{group.count > 1 ? 's' : ''} éligible{group.count > 1 ? 's' : ''}
+                        {group.briefsMissing > 0 && ` · ${group.briefsMissing} brief${group.briefsMissing > 1 ? 's' : ''} manquant${group.briefsMissing > 1 ? 's' : ''}`}
+                      </p>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <Link
+                        href={`/dashboard/assistante/bilans/teacher-dossier?${query}&format=html`}
+                        target="_blank"
+                        className="rounded-lg border border-amber-300/60 px-3 py-1.5 text-sm font-semibold text-amber-100"
+                      >
+                        Voir le dossier
+                      </Link>
+                      <Link
+                        href={`/dashboard/assistante/bilans/teacher-dossier?${query}&format=pdf`}
+                        target="_blank"
+                        className="rounded-lg border border-amber-300/60 px-3 py-1.5 text-sm font-semibold text-amber-100"
+                      >
+                        PDF
+                      </Link>
+                      {group.briefsMissing > 0 && (
+                        <form action={generateGroupTeacherBriefsAction}>
+                          <input type="hidden" name="subject" value={group.subject} />
+                          <input type="hidden" name="level" value={group.level} />
+                          <button type="submit" className="rounded-lg bg-amber-300 px-3 py-1.5 text-sm font-semibold text-slate-950">
+                            Générer les {group.briefsMissing} brief{group.briefsMissing > 1 ? 's' : ''} manquant{group.briefsMissing > 1 ? 's' : ''}
+                          </button>
+                        </form>
+                      )}
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+          )}
+        </section>
 
         {preview !== null && typeof preview === 'object' && 'audiences' in preview && (
           <section className="mt-8 rounded-3xl border border-amber-300/30 bg-amber-300/5 p-5">
