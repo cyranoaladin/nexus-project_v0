@@ -20,7 +20,6 @@ async function fillBilanForm(page: import('@playwright/test').Page, uniqueEmail?
   await page.getByLabel(/Établissement/i).fill('Lycée français');
 
   // Select a subject (checkbox)
-  await page.getByText('Mathématiques', { exact: true }).click();
 
   await page.getByLabel(/Besoin principal/i).fill('Préparer une remise à niveau avant la rentrée.');
   await page.getByLabel(/Message libre/i).fill('Besoin échange pédagogique pour clarifier les priorités.');

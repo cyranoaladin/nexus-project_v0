@@ -62,7 +62,6 @@ test.describe('REAL — Bilan Gratuit (/bilan-gratuit)', () => {
     await page.locator('#parentPhone').fill('99887766');
     await page.locator('#studentFirstName').fill('TestAudit');
     await page.locator('#studentGrade').selectOption('terminale');
-    await page.locator('label').filter({ hasText: 'Mathématiques' }).click();
     await page.locator('label').filter({ hasText: /j’accepte d’être contacté/i }).click();
 
     const submitBtn = page.getByRole('button', { name: /créer mon espace/i });
