@@ -129,9 +129,9 @@ describe('Pré-rentrée configurator logic', () => {
         configurationCount += 1;
       }
     }
-    // 95 = 3 (4e) + 3 (3e) + 3 (2de) + 30 (1re) + 56 (Tle, 6 matières dont
-    // Philosophie : C(6,1)+C(6,2)+C(6,3)+C(6,4) = 6+15+20+15).
-    expect(configurationCount).toBe(95);
+    // 46 = 3 (4e) + 3 (3e) + 3 (2de) + 30 (1re) + 7 (Tle, 3 matières ouvertes
+    // depuis le 14/08/2026 : C(3,1)+C(3,2)+C(3,3) = 3+3+1).
+    expect(configurationCount).toBe(46);
   });
 
   it('skips the profile step for both Fondations levels', () => {
@@ -225,9 +225,13 @@ describe('Pré-rentrée configurator logic', () => {
   });
 
   it('builds a 40-hour summary from DTO schedule and pack data', () => {
-    const subjects = ['MATHEMATIQUES', 'PHYSIQUE_CHIMIE', 'NSI', 'MATHS_EXPERTES'];
+    // Depuis la fermeture de Maths expertes, SVT et Philosophie (14/08/2026), la
+    // Terminale n'offre plus que trois matières : le pack à quatre ne peut plus
+    // y être exercé. La Première en compte cinq et reste le seul niveau où ce
+    // pack est réellement vendable.
+    const subjects = ['MATHEMATIQUES', 'PHYSIQUE_CHIMIE', 'NSI', 'SVT'];
     const summary = buildSelectionSummary({
-      level: 'TERMINALE',
+      level: 'PREMIERE',
       profile: { mathsOption: 'AUCUNE' },
       subjectIds: subjects,
       levels: dto.levels,
@@ -239,10 +243,11 @@ describe('Pré-rentrée configurator logic', () => {
     expect(summary.pack?.code).toBe('PACK_4');
     expect(summary.totalHours).toBe(40);
     expect(summary.sessionCount).toBe(20);
-    // Modèle fenêtres + week-end (v2) : toutes les matières Terminale tombent dans la
-    // même fenêtre 2 (24-28 août) — 5 dates partagées, pas 10 (contrairement à
-    // l'ancien modèle 2-semaines où les matières Terminale étaient réparties).
-    expect(summary.dates).toHaveLength(5);
+    // Modèle fenêtres + week-end (v2) : en Première, les quatre matières se
+    // répartissent entre la fenêtre 1 (17-21 août) et le bloc week-end qui ouvre
+    // la fenêtre 2 — d'où 10 dates distinctes, là où un niveau tenant dans une
+    // seule fenêtre n'en compterait que 5.
+    expect(summary.dates).toHaveLength(10);
     expect(summary.scheduleLines).toHaveLength(4);
     expect(summary.scheduleLines[0]?.dates).toHaveLength(5);
   });

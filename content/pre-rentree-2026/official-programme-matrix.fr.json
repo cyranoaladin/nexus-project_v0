@@ -53,13 +53,6 @@
       "applicationNote": "Le cadrage des œuvres 2026-2027 complète le programme de Première. Référence vérifiée en vigueur le 2026-07-25 : c'est bien le programme national d'œuvres pour l'année scolaire 2026-2027 (note de service du 4 juillet 2025, publiée au BO n°30 du 2025), aucune note ultérieure ne le remplace à ce jour."
     },
     {
-      "officialProgrammeId": "BO2019-LYCEE-PC-SECONDE",
-      "title": "Programme de physique-chimie de Seconde",
-      "url": "https://eduscol.education.fr/document/22663/download",
-      "publisher": "Ministère de l'Éducation nationale",
-      "applicationNote": "Programme en vigueur pour l'année scolaire 2026-2027."
-    },
-    {
       "officialProgrammeId": "BO2019-LYCEE-PC-PREMIERE",
       "title": "Programme de physique-chimie de Première générale",
       "url": "https://www.education.gouv.fr/au-bo-special-du-22-janvier-2019-programmes-d-enseignement-du-lycee-general-et-technologique-455475",
@@ -88,39 +81,11 @@
       "applicationNote": "URL corrigée le 2026-07-25 : l'ancienne page (cid59678/presentation-isn.html) pointait vers ISN, la spécialité pré-2019 remplacée par NSI, devenue obsolète. Programme en vigueur pour l'année scolaire 2026-2027."
     },
     {
-      "officialProgrammeId": "BO2019-LYCEE-SNT-SECONDE",
-      "title": "Programme de sciences numériques et technologie (SNT) de Seconde",
-      "url": "https://sti.eduscol.education.fr/textes/programme-denseignement-en-snt",
-      "publisher": "Ministère de l'Éducation nationale",
-      "applicationNote": "Référence pédagogique du module d'initiation informatique / algorithmique / SNT de Seconde ; programme SNT en vigueur pour l'année scolaire 2026-2027."
-    },
-    {
-      "officialProgrammeId": "BO2019-LYCEE-MATHEXP-TERMINALE",
-      "title": "Programme de mathématiques expertes de Terminale générale",
-      "url": "https://eduscol.education.fr/document/22201/download",
-      "publisher": "Ministère de l'Éducation nationale",
-      "applicationNote": "Programme en vigueur pour l'année scolaire 2026-2027."
-    },
-    {
       "officialProgrammeId": "BO2019-LYCEE-SVT-PREMIERE",
       "title": "Programme de sciences de la vie et de la Terre (spécialité) de Première générale",
       "url": "https://www.education.gouv.fr/au-bo-special-du-22-janvier-2019-programmes-d-enseignement-du-lycee-general-et-technologique-455475",
       "publisher": "Ministère de l'Éducation nationale",
       "applicationNote": "Programme en vigueur pour l'année scolaire 2026-2027. Publié au BO spécial n°1 du 22 janvier 2019 (programmes de Première), et non au BO spécial n°8 du 25 juillet 2019 qui ne couvre que la Terminale."
-    },
-    {
-      "officialProgrammeId": "BO2019-LYCEE-SVT-TERMINALE",
-      "title": "Programme de sciences de la vie et de la Terre (spécialité) de Terminale générale",
-      "url": "https://www.education.gouv.fr/bo/19/Special8/MENE1921252A.htm",
-      "publisher": "Ministère de l'Éducation nationale",
-      "applicationNote": "Programme en vigueur pour l'année scolaire 2026-2027. Publié au BO spécial n°8 du 25 juillet 2019 (programmes de Terminale)."
-    },
-    {
-      "officialProgrammeId": "BO2019-LYCEE-PHILO-TERMINALE",
-      "title": "Programme de philosophie de la classe terminale générale",
-      "url": "https://www.education.gouv.fr/au-bo-special-du-22-janvier-2019-programmes-d-enseignement-du-lycee-general-et-technologique-455475",
-      "publisher": "Ministère de l'Éducation nationale",
-      "applicationNote": "Programme en vigueur pour l'année scolaire 2026-2027. Publié au BO spécial n°8 du 25 juillet 2019 (programmes de Terminale) — référence à vérifier précisément par un enseignant de philosophie qualifié avant toute validation pédagogique (cf. modules.json)."
     }
   ],
   "rows": [
@@ -346,54 +311,6 @@
         5
       ],
       "alignmentSummary": "Priorités réparties sur les trois thèmes officiels du BO 2019 ; validé par un enseignant SVT qualifié (direction, 2026-07-25).",
-      "publicOfferEligible": true
-    },
-    {
-      "moduleId": "terminale-svt",
-      "level": "TERMINALE",
-      "subject": "SVT",
-      "officialProgrammeId": "BO2019-LYCEE-SVT-TERMINALE",
-      "applicationSchoolYear": "2026-2027",
-      "nexusSessionNumbers": [
-        1,
-        2,
-        3,
-        4,
-        5
-      ],
-      "alignmentSummary": "Priorités réparties sur les trois thèmes officiels du BO 2019, dont une séance dédiée au corps humain et à la santé ; validé par un enseignant SVT qualifié (direction, 2026-07-25).",
-      "publicOfferEligible": true
-    },
-    {
-      "moduleId": "terminale-maths-expertes",
-      "level": "TERMINALE",
-      "subject": "Mathématiques expertes",
-      "officialProgrammeId": "BO2019-LYCEE-MATHEXP-TERMINALE",
-      "applicationSchoolYear": "2026-2027",
-      "nexusSessionNumbers": [
-        1,
-        2,
-        3,
-        4,
-        5
-      ],
-      "alignmentSummary": "Arithmétique, congruences, nombres complexes approfondis, matrices et graphes, selon le programme de la spécialité Maths expertes.",
-      "publicOfferEligible": true
-    },
-    {
-      "moduleId": "terminale-philosophie",
-      "level": "TERMINALE",
-      "subject": "Philosophie",
-      "officialProgrammeId": "BO2019-LYCEE-PHILO-TERMINALE",
-      "applicationSchoolYear": "2026-2027",
-      "nexusSessionNumbers": [
-        1,
-        2,
-        3,
-        4,
-        5
-      ],
-      "alignmentSummary": "Découverte de la discipline (question philosophique, notion), lecture de texte, problématisation, méthode de la dissertation et de l'explication de texte — deux méthodes écrites du programme de Terminale.",
       "publicOfferEligible": true
     }
   ]

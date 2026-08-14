@@ -60,9 +60,13 @@ export type PublicPlanningPack = {
   pricingModel: 'PER_SUBJECT' | 'PACK_BY_SUBJECT_COUNT';
 };
 
-// 17 modules = 14 historical + 4e Mathématiques, 4e Français, Terminale
-// Philosophie. 20 cohorts = those 17 modules + the 3 alternative cohorts
-// (Première SVT, Terminale NSI, Terminale SVT), each scheduled over 5 days.
+// 14 modules, after the 2026-08-14 arbitration closed Terminale Maths
+// expertes, SVT and Philosophie for lack of enrolment. 16 cohorts = those 14
+// modules + 2 alternatives: Première SVT keeps its second cohort, and
+// Terminale Mathématiques was split in two (morning/afternoon) because more
+// than five students enrolled. The Terminale NSI fallback cohort existed only
+// to resolve the NSI/SVT clash on block C; Terminale SVT being closed, it has
+// no purpose left and was removed.
 // scripts/validate-stage-planning.ts recomputes all four from the live data and
 // fails on any drift, so these are a declared expectation, not a second source.
 export const PRE_RENTREE_PUBLIC_METRICS = {

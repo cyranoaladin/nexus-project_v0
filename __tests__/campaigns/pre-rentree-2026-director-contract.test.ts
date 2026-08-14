@@ -33,7 +33,7 @@ describe('Pré-rentrée 2026 director contract', () => {
       ['TROISIEME', 'FONDATIONS', 2],
       ['SECONDE', 'FONDATIONS', 2],
       ['PREMIERE', 'PREMIUM', 5],
-      ['TERMINALE', 'PREMIUM', 6],
+      ['TERMINALE', 'PREMIUM', 3],
     ]);
     expect(offers.levels.slice(0, 3).every((offer) => offer.pricing.model === 'PER_SUBJECT' && offer.capacity.max === 6)).toBe(true);
     // La 4e ouvre à 4, pas 3 — exception documentée (mission 4e/Philosophie, §5.1).
@@ -57,7 +57,7 @@ describe('Pré-rentrée 2026 director contract', () => {
     ))).toBe(true);
   });
 
-  it('publishes five entry levels, seventeen modules and eighty-five sessions', () => {
+  it('publishes five entry levels, fourteen modules and seventy sessions', () => {
     const campaign = readJson<{
       levels: Array<{ id: string }>;
       subjects: Array<{ id: string; levels: string[] }>;
@@ -73,19 +73,15 @@ describe('Pré-rentrée 2026 director contract', () => {
       'PREMIERE',
       'TERMINALE',
     ]);
-    expect(modules).toHaveLength(17);
-    expect(modules.flatMap((module) => module.sessions)).toHaveLength(85);
+    expect(modules).toHaveLength(14);
+    expect(modules.flatMap((module) => module.sessions)).toHaveLength(70);
     expect(modules.every((module) => module.sessions.length === 5)).toBe(true);
-    expect(modules).toContainEqual(expect.objectContaining({
-      id: 'terminale-maths-expertes',
-      level: 'TERMINALE',
-      subjectId: 'MATHS_EXPERTES',
-    }));
-    expect(modules).toContainEqual(expect.objectContaining({
-      id: 'terminale-philosophie',
-      level: 'TERMINALE',
-      subjectId: 'PHILOSOPHIE',
-    }));
+    // Arbitrage du 14/08/2026 : Maths expertes, SVT et Philosophie fermées en
+    // Terminale faute d'effectif. Le contrat directeur ne doit plus les publier.
+    expect(modules.some((module) => (
+      module.level === 'TERMINALE'
+      && ['MATHS_EXPERTES', 'PHILOSOPHIE', 'SVT'].includes(module.subjectId)
+    ))).toBe(false);
     expect(modules.some((module) => (
       module.level === 'TERMINALE' && module.subjectId === 'FRANCAIS'
     ))).toBe(false);

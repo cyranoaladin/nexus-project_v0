@@ -47,8 +47,8 @@ describe('Pre-Rentrée 2026 Campaign Contract', () => {
   describe('Modules', () => {
     const modules = (modulesData as any).modules;
 
-    it('has exactly 17 modules (2+2+2+5+6 par niveau, sans Seconde SNT/PC)', () => {
-      expect(modules).toHaveLength(17);
+    it('has exactly 14 modules (2+2+2+5+3 par niveau, sans Seconde SNT/PC)', () => {
+      expect(modules).toHaveLength(14);
     });
 
     it('each module has exactly 5 sessions', () => {
@@ -57,9 +57,9 @@ describe('Pre-Rentrée 2026 Campaign Contract', () => {
       }
     });
 
-    it('total sessions = 85', () => {
+    it('total sessions = 70', () => {
       const total = modules.reduce((sum: number, m: any) => sum + m.sessions.length, 0);
-      expect(total).toBe(85);
+      expect(total).toBe(70);
     });
 
     it('keeps the approved number of modules per level', () => {
@@ -71,8 +71,9 @@ describe('Pre-Rentrée 2026 Campaign Contract', () => {
       expect(byLevel.TROISIEME).toBe(2);
       expect(byLevel.SECONDE).toBe(2);
       expect(byLevel.PREMIERE).toBe(5);
-      // 6, pas 5 : Philosophie s'ajoute au pool Terminale (mission 4e/Philosophie).
-      expect(byLevel.TERMINALE).toBe(6);
+      // 3 depuis l'arbitrage du 14/08/2026 : Maths expertes, SVT et Philosophie
+      // sont fermées en Terminale faute d'effectif. Restent Maths, NSI, PC.
+      expect(byLevel.TERMINALE).toBe(3);
     });
 
     it('never uses "EAF Terminale"', () => {
@@ -89,12 +90,10 @@ describe('Pre-Rentrée 2026 Campaign Contract', () => {
       expect(modules.find((module: any) => module.id === 'seconde-physique-chimie')).toBeUndefined();
     });
 
-    it('offers a Philosophie module for Terminale (mission 4e/Philosophie, 2026-07-27)', () => {
-      const philosophie = modules.find((module: any) => module.id === 'terminale-philosophie');
-      expect(philosophie).toBeDefined();
-      expect(philosophie.level).toBe('TERMINALE');
-      expect(philosophie.subjectId).toBe('PHILOSOPHIE');
-      expect(philosophie.sessions).toHaveLength(5);
+    it('no longer offers Philosophie, Maths expertes or SVT for Terminale (arbitrage du 2026-08-14, effectif insuffisant)', () => {
+      for (const id of ['terminale-philosophie', 'terminale-maths-expertes', 'terminale-svt']) {
+        expect(modules.find((module: any) => module.id === id)).toBeUndefined();
+      }
     });
   });
 
@@ -225,14 +224,15 @@ describe('Pre-Rentrée 2026 Campaign Contract', () => {
       expect(nsi?.levels).toEqual(['PREMIERE', 'TERMINALE']);
     });
 
-    it('Terminale n’offre pas Français, mais propose Maths expertes et Philosophie', () => {
+    it('Terminale n’offre ni Français, ni Philosophie, ni Maths expertes', () => {
       const fr = campaignManifest.subjects.find(s => s.id === 'FRANCAIS');
       expect(fr?.levels).not.toContain('TERMINALE');
-      // Philosophie (mission 4e/Philosophie, 2026-07-27) : matière tronc commun
-      // de Terminale, jamais comptée comme spécialité (voir
-      // pedagogical-combinations.ts), toujours proposée à côté de Maths expertes.
-      expect(campaignManifest.subjects.find(s => s.id === 'PHILOSOPHIE')?.levels).toEqual(['TERMINALE']);
-      expect(campaignManifest.subjects.find(s => s.id === 'MATHS_EXPERTES')?.levels).toEqual(['TERMINALE']);
+      // Arbitrage du 14/08/2026 : Philosophie et Maths expertes sont fermées
+      // faute d'effectif. Elles ne sont plus rattachées à aucun niveau, donc
+      // aucune surface publique ne peut les proposer.
+      expect(campaignManifest.subjects.find(s => s.id === 'PHILOSOPHIE')?.levels ?? []).toEqual([]);
+      expect(campaignManifest.subjects.find(s => s.id === 'MATHS_EXPERTES')?.levels ?? []).toEqual([]);
+      expect(campaignManifest.subjects.find(s => s.id === 'SVT')?.levels).toEqual(['PREMIERE']);
     });
   });
 

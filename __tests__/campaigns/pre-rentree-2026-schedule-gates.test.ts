@@ -90,9 +90,12 @@ describe('Pré-rentrée 2026 — grille fenêtres + week-end : gates opérationn
       // D fait PC-1re (bloc B, weekend-window) ET PC-Tle (bloc D, fenêtre 2) : 2 séances, blocs distincts.
       expect(dTeacherSessions.length).toBe(2);
       expect(new Set(dTeacherSessions.map((s) => s.block)).size).toBe(2);
-      // E fait SVT-1re (bloc A, weekend-window) ET SVT-Tle (bloc C, fenêtre 2) : 2 séances, blocs distincts.
-      expect(eTeacherSessions.length).toBe(2);
-      expect(new Set(eTeacherSessions.map((s) => s.block)).size).toBe(2);
+      // E n'assure plus que la SVT de Première depuis la fermeture de la SVT
+      // Terminale (14/08/2026) : ses séances sortent de la fenêtre 2, donc aucune
+      // ne tombe ces trois jours-là. On le vérifie plutôt que de le supposer, sinon
+      // un retour de la SVT en fenêtre 2 passerait inaperçu.
+      expect(eTeacherSessions).toEqual([]);
+      expect(sessions.filter((s) => s.teacherRole === 'TEACHER_E_SVT').every((s) => s.level === 'PREMIERE')).toBe(true);
     }
   });
 
@@ -147,10 +150,13 @@ describe('Pré-rentrée 2026 — grille fenêtres + week-end : gates opérationn
       .filter(([key]) => key.startsWith(`${blockId}__`))
       .map(([, subjects]) => subjects);
 
-    expect(subjectsAtBlock('A').every((subjects) => subjects.size === 1 && subjects.has('MATHS_EXPERTES'))).toBe(true);
+    // Disposition arrêtée le 14/08/2026 : un seul cours par bloc, les deux
+    // groupes de mathématiques occupant B (matin) et C (après-midi). Plus aucun
+    // bloc ne porte deux matières, donc plus aucune incompatibilité de niveau.
+    expect(subjectsAtBlock('A').every((subjects) => subjects.size === 1 && subjects.has('NSI'))).toBe(true);
     expect(subjectsAtBlock('B').every((subjects) => subjects.size === 1 && subjects.has('MATHEMATIQUES'))).toBe(true);
-    expect(subjectsAtBlock('C').every((subjects) => subjects.has('NSI') && subjects.has('PHYSIQUE_CHIMIE') && subjects.has('SVT'))).toBe(true);
-    expect(subjectsAtBlock('D').every((subjects) => subjects.has('NSI') && subjects.has('SVT') && !subjects.has('PHYSIQUE_CHIMIE'))).toBe(true);
+    expect(subjectsAtBlock('C').every((subjects) => subjects.size === 1 && subjects.has('MATHEMATIQUES'))).toBe(true);
+    expect(subjectsAtBlock('D').every((subjects) => subjects.size === 1 && subjects.has('PHYSIQUE_CHIMIE'))).toBe(true);
   });
 
   it('GATE dailyLoadValid : R3 est INFORMATIVE — aucun rôle ne double-réserve un bloc (R1), la charge/jour est seulement rapportée, jamais plafonnée', () => {
@@ -200,7 +206,7 @@ describe('Pré-rentrée 2026 — complétude des modules (5 séances, 5 jours co
     // 17 modules (14 à cohorte unique + 3 à 2 cohortes : Première SVT,
     // Terminale NSI, Terminale SVT — les 3 nouveaux groupes 4e/Philosophie
     // n'ont pas de cohorte alternative) = 14 + 6 = 20 cohortes opérationnelles.
-    expect(byCohort.size).toBe(20);
+    expect(byCohort.size).toBe(16);
   });
 
   it('les 5 séances de chaque cohorte tombent sur 5 jours consécutifs (calendrier)', () => {
@@ -225,8 +231,8 @@ describe('Pré-rentrée 2026 — complétude des modules (5 séances, 5 jours co
     expect(nonConsecutive).toEqual([]);
   });
 
-  it('total des séances calendrier = 100 (20 cohortes × 5 jours)', () => {
-    expect(sessions.length).toBe(100);
+  it('total des séances calendrier = 80 (16 cohortes × 5 jours)', () => {
+    expect(sessions.length).toBe(80);
   });
 });
 
@@ -240,7 +246,7 @@ describe('Pré-rentrée 2026 — disponibilité des élèves de Terminale', () =
     expect(earliestDate >= '2026-08-24').toBe(true);
   });
 
-  it('toutes les spécialités Terminale (Maths, NSI, PC, SVT, Maths expertes) démarrent bien le 24 août ou après — Philosophie est volontairement exclue', () => {
+  it('toutes les spécialités Terminale ouvertes (Maths, NSI, PC) démarrent bien le 24 août ou après', () => {
     // Philosophie (mission 4e/Philosophie, 2026-07-27) est délibérément placée
     // en Fenêtre 1 (17-21 août), pas en Fenêtre 2 : c'est l'exigence explicite
     // "deux semaines distinctes, aucune collision possible" entre Philosophie
@@ -252,7 +258,7 @@ describe('Pré-rentrée 2026 — disponibilité des élèves de Terminale', () =
       list.push(session.date);
       bySubject.set(session.subject, list);
     }
-    expect(bySubject.size).toBe(5);
+    expect(bySubject.size).toBe(3);
     for (const [subject, dates] of bySubject) {
       const earliest = dates.sort()[0];
       expect(earliest >= '2026-08-24').toBe(true);
@@ -261,12 +267,11 @@ describe('Pré-rentrée 2026 — disponibilité des élèves de Terminale', () =
     }
   });
 
-  it('la Philosophie Terminale démarre bien en Fenêtre 1 (17 au 21 août), jamais en Fenêtre 2', () => {
-    const philoSessions = sessions.filter((s) => s.level === 'TERMINALE' && s.subject === 'PHILOSOPHIE');
-    expect(philoSessions.length).toBe(5);
-    const dates = philoSessions.map((s) => s.date).sort();
-    expect(dates[0]! >= '2026-08-17').toBe(true);
-    expect(dates.at(-1)! <= '2026-08-21').toBe(true);
+  it('la Philosophie Terminale ne figure plus au planning (fermée le 14/08/2026, effectif insuffisant)', () => {
+    // Elle occupait la Fenêtre 1, volontairement séparée des spécialités. La
+    // fermeture doit être totale : une séance résiduelle rouvrirait une semaine
+    // entière de campagne sans qu'aucun élève y soit inscrit.
+    expect(sessions.filter((s) => s.subject === 'PHILOSOPHIE')).toEqual([]);
   });
 });
 

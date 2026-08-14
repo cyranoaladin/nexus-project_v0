@@ -182,10 +182,10 @@ describe('Pré-rentrée 2026 — cohérence intégrale par niveau (JSON / catalo
     expect(violations).toEqual([]);
   });
 
-  it('tarifs : chaque offre commerciale (price/deposit/balance) correspond exactement au produit canonique référencé par pricingId, pour les 14 offres', () => {
+  it('tarifs : chaque offre commerciale (price/deposit/balance) correspond exactement au produit canonique référencé par pricingId, pour les 13 offres', () => {
     const foundationsById = new Map(pricingCanonical.pre_rentree_foundations.map((product) => [product.id, product]));
     const packsById = new Map(pricingCanonical.pre_rentree_packs.map((product) => [product.id, product]));
-    expect(commercialOffers).toHaveLength(14);
+    expect(commercialOffers).toHaveLength(13);
     for (const offer of commercialOffers) {
       const product = foundationsById.get(offer.pricingId) ?? packsById.get(offer.pricingId);
       if (!product) throw new Error(`pricingId inconnu : ${offer.pricingId} (offre ${offer.offerId})`);
