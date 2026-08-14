@@ -48,7 +48,7 @@ test.describe('Bilan Gratuit - Validation formulaire multi-etapes', () => {
     await page.locator('#parentEmail').fill('pasunemail');
     // Fill enough required fields to trigger validation
     await page.locator('#parentFirstName').fill('T');
-    await page.getByRole('button', { name: /lancer le bilan diagnostic/i }).click();
+    await page.getByRole('button', { name: /créer mon espace/i }).click();
     await expect(page.getByText(/invalide/i).first()).toBeVisible();
   });
 
@@ -62,7 +62,7 @@ test.describe('Bilan Gratuit - Validation formulaire multi-etapes', () => {
     await page.goto('/bilan-gratuit');
     await fillBilanForm(page);
 
-    const submit = page.getByRole('button', { name: /lancer le bilan diagnostic/i });
+    const submit = page.getByRole('button', { name: /créer mon espace/i });
     await submit.dblclick();
     await page.waitForTimeout(400);
 
@@ -76,7 +76,7 @@ test.describe('Bilan Gratuit - Validation formulaire multi-etapes', () => {
 
     await page.goto('/bilan-gratuit');
     await fillBilanForm(page);
-    await page.getByRole('button', { name: /lancer le bilan diagnostic/i }).click();
+    await page.getByRole('button', { name: /créer mon espace/i }).click();
 
     await expect(page).toHaveURL(/\/bilan-gratuit\/confirmation/);
   });
