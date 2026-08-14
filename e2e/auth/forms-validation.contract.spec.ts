@@ -17,13 +17,6 @@ async function fillBilanForm(page: import('@playwright/test').Page, uniqueEmail?
 
   await page.getByLabel(/Prénom de l.élève/i).fill('Eleve');
   await page.locator('#studentGrade').selectOption('premiere');
-  await page.getByLabel(/Établissement/i).fill('Lycée français');
-
-  // Select a subject (checkbox)
-  await page.getByText('Mathématiques', { exact: true }).click();
-
-  await page.getByLabel(/Besoin principal/i).fill('Préparer une remise à niveau avant la rentrée.');
-  await page.getByLabel(/Message libre/i).fill('Besoin échange pédagogique pour clarifier les priorités.');
 
   // Accept terms
   await page.getByText(/j.accepte d.être contacté/i).click();
@@ -48,7 +41,7 @@ test.describe('Bilan Gratuit - Validation formulaire multi-etapes', () => {
     await page.locator('#parentEmail').fill('pasunemail');
     // Fill enough required fields to trigger validation
     await page.locator('#parentFirstName').fill('T');
-    await page.getByRole('button', { name: /lancer le bilan diagnostic/i }).click();
+    await page.getByRole('button', { name: /créer mon espace/i }).click();
     await expect(page.getByText(/invalide/i).first()).toBeVisible();
   });
 
@@ -62,7 +55,7 @@ test.describe('Bilan Gratuit - Validation formulaire multi-etapes', () => {
     await page.goto('/bilan-gratuit');
     await fillBilanForm(page);
 
-    const submit = page.getByRole('button', { name: /lancer le bilan diagnostic/i });
+    const submit = page.getByRole('button', { name: /créer mon espace/i });
     await submit.dblclick();
     await page.waitForTimeout(400);
 
@@ -76,7 +69,7 @@ test.describe('Bilan Gratuit - Validation formulaire multi-etapes', () => {
 
     await page.goto('/bilan-gratuit');
     await fillBilanForm(page);
-    await page.getByRole('button', { name: /lancer le bilan diagnostic/i }).click();
+    await page.getByRole('button', { name: /créer mon espace/i }).click();
 
     await expect(page).toHaveURL(/\/bilan-gratuit\/confirmation/);
   });

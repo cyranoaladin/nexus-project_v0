@@ -12,7 +12,6 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { ConseillerCard, ProcessSteps } from '@/components/marketing/acadomia-inspired';
 import { buildWhatsAppUrl } from '@/lib/whatsapp';
 import { LEGAL } from '@/lib/legal';
@@ -22,25 +21,16 @@ import {
   type PreRentreeBilanPrefill,
 } from '@/lib/campaigns/pre-rentree-2026/bilan-prefill';
 
-const SUBJECTS = [
-  { value: 'MATHEMATIQUES', label: 'Mathématiques' },
-  { value: 'FRANCAIS', label: 'Français' },
-  { value: 'PHYSIQUE_CHIMIE', label: 'Physique-Chimie' },
-  { value: 'NSI', label: 'NSI' },
-  { value: 'SES', label: 'SES' },
-  { value: 'PHILOSOPHIE', label: 'Philosophie' },
-  { value: 'HISTOIRE_GEO', label: 'Histoire-Géographie' },
-  { value: 'ANGLAIS', label: 'Anglais' },
-  { value: 'SVT', label: 'SVT' },
-  { value: 'ESPAGNOL', label: 'Espagnol' },
-];
-
 const GRADES = [
+  { value: 'quatrieme', label: 'Quatrième' },
+  { value: 'troisieme', label: 'Troisième' },
   { value: 'seconde', label: 'Seconde' },
   { value: 'premiere', label: 'Première' },
   { value: 'terminale', label: 'Terminale' },
-  { value: 'troisieme', label: 'Troisième' },
 ];
+
+/** Indicatif tunisien pré-rempli : le parent ne saisit que son numéro. */
+const PHONE_PREFIX = '+216';
 
 type FormData = {
   parentFirstName: string;
@@ -49,9 +39,6 @@ type FormData = {
   parentPhone: string;
   studentFirstName: string;
   studentGrade: string;
-  studentSchool: string;
-  objectives: string;
-  difficulties: string;
   acceptTerms: boolean;
 };
 
@@ -62,9 +49,6 @@ const initialFormData: FormData = {
   parentPhone: '',
   studentFirstName: '',
   studentGrade: '',
-  studentSchool: '',
-  objectives: '',
-  difficulties: '',
   acceptTerms: false,
 };
 
@@ -93,7 +77,6 @@ export function BilanStrategiqueClient({
     ...initialFormData,
     studentGrade: prefill?.studentGrade ?? '',
   }));
-  const [selectedSubjects, setSelectedSubjects] = useState<string[]>(() => prefill?.subjects ?? []);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [honeypot, setHoneypot] = useState('');
@@ -113,12 +96,6 @@ export function BilanStrategiqueClient({
     if (!phoneRegex.test(formData.parentPhone)) nextErrors.parentPhone = 'Téléphone invalide';
     if (formData.studentFirstName.trim().length < 2) nextErrors.studentFirstName = `Prénom de l\u2019élève requis`;
     if (!formData.studentGrade) nextErrors.studentGrade = 'Classe requise';
-    if (formData.studentSchool.trim().length < 2) nextErrors.studentSchool = 'Établissement requis';
-    if (selectedSubjects.length === 0) nextErrors.subjects = 'Sélectionnez au moins une matière';
-    if (formData.objectives.trim().length < 10) nextErrors.objectives = 'Décrivez le besoin principal';
-    if (formData.difficulties.trim().length > 0 && formData.difficulties.trim().length < 10) {
-      nextErrors.difficulties = 'Ajoutez un message libre plus détaillé';
-    }
     if (!formData.acceptTerms) nextErrors.acceptTerms = 'Veuillez accepter le consentement';
 
     setErrors(nextErrors);
@@ -132,14 +109,17 @@ export function BilanStrategiqueClient({
     }
   };
 
-  const toggleSubject = (value: string) => {
-    setSelectedSubjects((prev) => {
-      const next = prev.includes(value) ? prev.filter((item) => item !== value) : [...prev, value];
-      if (errors.subjects) {
-        setErrors((current) => ({ ...current, subjects: '' }));
-      }
-      return next;
-    });
+  /** Champs encore vides, nommés — un bouton inactif doit dire pourquoi. */
+  const missingFields = (): string[] => {
+    const missing: string[] = [];
+    if (formData.parentFirstName.trim().length < 2) missing.push('votre prénom');
+    if (formData.parentLastName.trim().length < 2) missing.push('votre nom');
+    if (formData.parentPhone.trim().length < 8) missing.push('votre téléphone');
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.parentEmail)) missing.push('votre e-mail');
+    if (formData.studentFirstName.trim().length < 2) missing.push('le prénom de votre enfant');
+    if (!formData.studentGrade) missing.push('sa classe');
+    if (!formData.acceptTerms) missing.push('votre consentement');
+    return missing;
   };
 
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -151,11 +131,10 @@ export function BilanStrategiqueClient({
       const campaignContext = synchronizePreRentreeCampaignContext({
         campaignContext: prefill?.campaignContext,
         studentGrade: formData.studentGrade,
-        subjects: selectedSubjects,
+        subjects: [],
       });
       const payload = {
         ...formData,
-        subjects: selectedSubjects,
         website: honeypot,
         offerId: selectedOffer?.id,
         ...(campaignContext ? { campaignContext } : {}),
@@ -235,6 +214,7 @@ export function BilanStrategiqueClient({
                       id="parentEmail"
                       name="parentEmail"
                       type="email"
+                      inputMode="email"
                       autoComplete="email"
                       aria-invalid={Boolean(errors.parentEmail)}
                       aria-describedby={errors.parentEmail ? 'parentEmail-error' : undefined}
@@ -246,17 +226,24 @@ export function BilanStrategiqueClient({
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="parentPhone" className="text-lux-ink">Téléphone</Label>
+                    <div className="relative">
                     <Input
                       id="parentPhone"
                       name="parentPhone"
                       type="tel"
+                      inputMode="numeric"
                       autoComplete="tel"
+                      placeholder="55 123 456"
                       aria-invalid={Boolean(errors.parentPhone)}
                       aria-describedby={errors.parentPhone ? 'parentPhone-error' : undefined}
                       value={formData.parentPhone}
                       onChange={(e) => handleChange('parentPhone', e.target.value)}
-                      className="border-lux-line bg-lux-paper text-lux-ink placeholder:text-lux-slate focus-visible:ring-lux-gold"
+                      className="border-lux-line bg-lux-paper pl-14 text-lux-ink placeholder:text-lux-slate focus-visible:ring-lux-gold"
                     />
+                    <span aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm font-medium text-lux-slate">
+                      {PHONE_PREFIX}
+                    </span>
+                    </div>
                     {errors.parentPhone && <p id="parentPhone-error" role="alert" className="text-sm text-red-500">{errors.parentPhone}</p>}
                   </div>
                 </div>
@@ -295,78 +282,9 @@ export function BilanStrategiqueClient({
                     </select>
                     {errors.studentGrade && <p id="studentGrade-error" role="alert" className="text-sm text-red-500">{errors.studentGrade}</p>}
                   </div>
-                  <div className="space-y-2 md:col-span-2">
-                    <Label htmlFor="studentSchool" className="text-lux-ink">Établissement</Label>
-                    <Input
-                      id="studentSchool"
-                      name="studentSchool"
-                      aria-invalid={Boolean(errors.studentSchool)}
-                      aria-describedby={errors.studentSchool ? 'studentSchool-error' : undefined}
-                      value={formData.studentSchool}
-                      onChange={(e) => handleChange('studentSchool', e.target.value)}
-                      className="border-lux-line bg-lux-paper text-lux-ink placeholder:text-lux-slate focus-visible:ring-lux-gold"
-                    />
-                    {errors.studentSchool && <p id="studentSchool-error" role="alert" className="text-sm text-red-500">{errors.studentSchool}</p>}
-                  </div>
                 </div>
 
-                <div className="space-y-3">
-                  <div>
-                    <Label className="text-lux-ink">Matières concernées</Label>
-                    <p className="mt-1 text-sm text-lux-slate">Choisissez une ou plusieurs matières pour cadrer l’échange.</p>
-                  </div>
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    {SUBJECTS.map((subject) => (
-                      <label
-                        key={subject.value}
-                        className="flex items-center gap-3 rounded-2xl border border-lux-line/60 bg-lux-paper/70 p-3 transition-colors hover:border-lux-gold/40"
-                      >
-                        <Checkbox
-                          id={`subject-${subject.value}`}
-                          name="subjects"
-                          aria-label={subject.label}
-                          checked={selectedSubjects.includes(subject.value)}
-                          onCheckedChange={() => toggleSubject(subject.value)}
-                        />
-                        <span className="text-sm text-lux-ink">{subject.label}</span>
-                      </label>
-                    ))}
-                  </div>
-                  {errors.subjects && <p role="alert" className="text-sm text-red-500">{errors.subjects}</p>}
-                </div>
 
-                <div className="grid gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="objectives" className="text-lux-ink">Besoin principal</Label>
-                    <Textarea
-                      id="objectives"
-                      name="objectives"
-                      aria-invalid={Boolean(errors.objectives)}
-                      aria-describedby={errors.objectives ? 'objectives-error' : undefined}
-                      value={formData.objectives}
-                      onChange={(e) => handleChange('objectives', e.target.value)}
-                      rows={4}
-                      placeholder="Ex. reprendre le rythme, consolider les bases, préparer le bac ou clarifier les priorités."
-                      className="border-lux-line bg-lux-paper text-lux-ink placeholder:text-lux-slate focus-visible:ring-lux-gold"
-                    />
-                    {errors.objectives && <p id="objectives-error" role="alert" className="text-sm text-red-500">{errors.objectives}</p>}
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="difficulties" className="text-lux-ink">Message libre</Label>
-                    <Textarea
-                      id="difficulties"
-                      name="difficulties"
-                      aria-invalid={Boolean(errors.difficulties)}
-                      aria-describedby={errors.difficulties ? 'difficulties-error' : undefined}
-                      value={formData.difficulties}
-                      onChange={(e) => handleChange('difficulties', e.target.value)}
-                      rows={4}
-                      placeholder="Ajoutez les précisions utiles pour notre équipe."
-                      className="border-lux-line bg-lux-paper text-lux-ink placeholder:text-lux-slate focus-visible:ring-lux-gold"
-                    />
-                    {errors.difficulties && <p id="difficulties-error" role="alert" className="text-sm text-red-500">{errors.difficulties}</p>}
-                  </div>
-                </div>
 
                 <div className="space-y-3 rounded-2xl border border-lux-line/60 bg-lux-paper/80 p-4">
                   <label htmlFor="acceptTerms" className="flex items-start gap-3">
@@ -402,10 +320,14 @@ export function BilanStrategiqueClient({
                     aria-describedby="bilan-submit-status"
                     className="lux-cta-reserve rounded-lg px-6 py-3.5 text-sm font-semibold disabled:opacity-60"
                   >
-                    {isSubmitting ? 'Création de votre espace…' : 'Créer mon espace et lancer le bilan diagnostic'}
+                    {isSubmitting ? 'Création de votre espace…' : 'Créer mon espace'}
                   </button>
-                  <span id="bilan-submit-status" className="sr-only" role="status" aria-live="polite">
-                    {isSubmitting ? 'Envoi de la demande en cours' : ''}
+                  <span id="bilan-submit-status" role="status" aria-live="polite" className="text-sm text-lux-slate">
+                    {isSubmitting
+                      ? 'Envoi de la demande en cours'
+                      : missingFields().length > 0
+                        ? `Il manque encore : ${missingFields().join(', ')}.`
+                        : ''}
                   </span>
                   <Link
                     href="/contact"
