@@ -68,7 +68,7 @@ describe('getNextStep — PARENT', () => {
     expect(step!.priority).toBe('high');
   });
 
-  it('should return BUY_CREDITS when child has no credits', async () => {
+  it('should not block on empty credits (fictitious field, booking is ungated since #147)', async () => {
     prisma.user.findUnique.mockResolvedValue({
       id: 'u1', role: 'PARENT',
       parentProfile: {
@@ -77,10 +77,11 @@ describe('getNextStep — PARENT', () => {
       },
       student: null, coachProfile: null,
     });
+    prisma.diagnostic.count.mockResolvedValue(0);
+    prisma.sessionBooking.findFirst.mockResolvedValue(null);
 
     const step = await getNextStep('u1');
-    expect(step!.type).toBe('BUY_CREDITS');
-    expect(step!.priority).toBe('high');
+    expect(step!.type).toBe('BOOK_SESSION');
   });
 
   it('should return BOOK_SESSION when no sessions completed and no upcoming', async () => {
