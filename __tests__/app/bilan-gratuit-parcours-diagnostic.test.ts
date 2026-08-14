@@ -32,9 +32,17 @@ describe('le formulaire ouvre réellement le diagnostic', () => {
     expect(API).toMatch(/activationToken/);
   });
 
+  // Le bouton promettait « lancer le bilan diagnostic » alors qu'il crée l'espace
+  // parent : le bilan démarre après activation de l'enfant. Le libellé dit
+  // désormais ce qu'il fait réellement.
   it('annonce ce qu’il fait, plutôt qu’une demande de rappel', () => {
-    expect(FORM).toContain('lancer le bilan diagnostic');
+    expect(FORM).toContain('Créer mon espace');
     expect(FORM).not.toContain('Demander mon bilan stratégique gratuit');
+  });
+
+  it('n’exige plus les matières : elles se choisissent après activation', () => {
+    expect(FORM).not.toContain('Matières concernées');
+    expect(FORM).not.toContain('Besoin principal');
   });
 });
 
@@ -44,10 +52,13 @@ describe('la confirmation dit au parent qu’il peut commencer', () => {
     expect(CONFIRMATION).not.toMatch(/prépare votre bilan personnalisé/);
   });
 
+  // La confirmation annonçait que le parent ajouterait son enfant depuis son
+  // espace — alors qu'il vient de le déclarer. Elle décrit maintenant l'étape
+  // réelle, sans promettre de raccourci : le lien d'activation part à l'enfant.
   it('explique à quoi sert le lien reçu', () => {
     expect(CONFIRMATION).toMatch(/lien d’activation/);
-    expect(CONFIRMATION).toMatch(/mot de passe/);
-    expect(CONFIRMATION).toMatch(/bilan diagnostic en ligne/);
+    expect(CONFIRMATION).toMatch(/choisit ses matières/);
+    expect(CONFIRMATION).not.toMatch(/ajouter votre enfant depuis votre espace/);
   });
 
   it('indique que l’enfant peut passer son bilan sans attendre', () => {
