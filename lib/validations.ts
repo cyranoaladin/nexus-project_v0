@@ -32,7 +32,9 @@ export const bilanGratuitSchema = z.object({
   studentBirthDate: z.string().optional(),
 
   // Besoins et objectifs
-  subjects: z.array(z.enum(Object.values(Subject) as [string, ...string[]])).min(1, 'Sélectionnez au moins une matière'),
+  // Les matières se choisissent APRÈS activation, dans le picker filtré par niveau
+  // (CanonicalAssessmentStart). Les demander à l'inscription faisait doublon.
+  subjects: z.array(z.enum(Object.values(Subject) as [string, ...string[]])).optional(),
   currentLevel: z.string().min(1, 'Veuillez indiquer le niveau actuel').optional(),
   objectives: z.string().min(10, 'Décrivez vos objectifs (minimum 10 caractères)').optional(),
   difficulties: z.string().optional(),

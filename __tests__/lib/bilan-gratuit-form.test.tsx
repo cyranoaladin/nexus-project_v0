@@ -73,8 +73,9 @@ describe('BilanGratuitPage', () => {
     expect(screen.queryByText(/Offre repérée.*Pré-Rentrée 2026/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/Classe de rentrée/i)).not.toBeInTheDocument();
     expect(screen.getByLabelText('Classe')).toHaveValue('');
-    expect(screen.getByLabelText('Mathématiques')).not.toBeChecked();
-    expect(screen.getByLabelText('Français')).not.toBeChecked();
+    // Les matières ne sont plus demandées ici : le picker les recueille après
+    // activation, filtrées par niveau. Aucun préremplissage n'est donc possible.
+    expect(screen.queryByLabelText('Mathématiques')).toBeNull();
     expect(screen.queryByText(/Profil pédagogique/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/1 TND/)).not.toBeInTheDocument();
   });
@@ -106,12 +107,9 @@ describe('BilanGratuitPage', () => {
     fillInput('parentEmail', 'jean.dupont@example.com');
     fillInput('parentPhone', '+21699192829');
     fillInput('studentFirstName', 'Marie');
-    fillInput('studentSchool', 'Lycée Victor Hugo');
-    fillInput('objectives', 'Préparer sérieusement la rentrée scolaire');
     fireEvent.change(screen.getByLabelText('Classe'), { target: { value: 'terminale' } });
-    await user.click(screen.getByLabelText('Mathématiques'));
     await user.click(screen.getByRole('checkbox', { name: /j.*accepte/i }));
-    await user.click(screen.getByRole('button', { name: /lancer le bilan diagnostic/i }));
+    await user.click(screen.getByRole('button', { name: /créer mon espace/i }));
 
     await waitFor(() => {
       const request = mockFetch.mock.calls[0]?.[1];
@@ -141,16 +139,12 @@ describe('BilanGratuitPage', () => {
     fillInput('parentEmail', 'jean.dupont@example.com');
     fillInput('parentPhone', '+21699192829');
     fillInput('studentFirstName', 'Marie');
-    fillInput('studentSchool', 'Lycée Victor Hugo');
-    fillInput('objectives', 'Reprendre le rythme et structurer le travail');
-    fillInput('difficulties', 'Besoin d’un cadre de travail plus régulier');
 
     const gradeSelect = screen.getByLabelText('Classe');
     fireEvent.change(gradeSelect, { target: { value: 'terminale' } });
 
-    await user.click(screen.getByLabelText('Mathématiques'));
     await user.click(screen.getByRole('checkbox', { name: /j.*accepte/i }));
-    await user.click(screen.getByRole('button', { name: /lancer le bilan diagnostic/i }));
+    await user.click(screen.getByRole('button', { name: /créer mon espace/i }));
 
     await waitFor(() => {
       expect(mockFetch).toHaveBeenCalledWith(

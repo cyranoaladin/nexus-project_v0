@@ -187,19 +187,16 @@ test.describe('Landing Pré-rentrée 2026', () => {
     await page.goto('/bilan-gratuit?programme=pre-rentree-2026&pack=PACK_2&niveau=PREMIERE&matieres=MATHEMATIQUES,FRANCAIS&voie=GENERALE&profil_maths=MATHS_EDS&profil_eaf=EAF_GENERALE&projet_specialites=NSI_PHYSIQUE_CHIMIE');
     await expect(page.getByText(/Préremplissage modifiable · Pré-rentrée 2026/)).toHaveCount(0);
     await page.locator('#studentGrade').selectOption('premiere');
-    await page.getByRole('checkbox', { name: 'Mathématiques', exact: true }).click();
     await page.locator('#parentFirstName').fill('Test');
     await page.locator('#parentLastName').fill('Navigateur');
     await page.locator('#parentEmail').fill('test-navigateur@example.test');
     await page.locator('#parentPhone').fill('+21699192829');
     await page.locator('#studentFirstName').fill('Élève');
-    await page.locator('#studentSchool').fill('Établissement de test');
-    await page.locator('#objectives').fill('Préparer la rentrée avec méthode.');
     await page.getByRole('checkbox', { name: /j.*accepte/i }).click();
 
     await page.route('**/api/bilan-gratuit', (route) => route.abort());
     const requestPromise = page.waitForRequest((request) => request.url().endsWith('/api/bilan-gratuit'));
-    await page.locator('#demande-bilan form').getByRole('button', { name: /lancer le bilan diagnostic/i }).click();
+    await page.locator('#demande-bilan form').getByRole('button', { name: /créer mon espace/i }).click();
     const request = await requestPromise;
     expect(request.postDataJSON()).not.toHaveProperty('campaignContext');
   });

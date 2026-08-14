@@ -86,13 +86,13 @@ describe('Validation Schemas', () => {
       }
     });
 
-    it('should fail validation with empty subjects array', () => {
-      const invalidData = { ...validData, subjects: [] };
-      const result = bilanGratuitSchema.safeParse(invalidData);
-      expect(result.success).toBe(false);
-      if (!result.success) {
-        expect(result.error.issues[0].message).toBe('Sélectionnez au moins une matière');
-      }
+    // Décision responsable : les matières ne sont plus demandées à l'inscription.
+    // Elles se choisissent après activation, dans le picker filtré par niveau —
+    // les exiger ici faisait doublon et bloquait la conversion.
+    it('accepte une liste de matières vide, et son absence totale', () => {
+      expect(bilanGratuitSchema.safeParse({ ...validData, subjects: [] }).success).toBe(true);
+      const { subjects: _omis, ...sansMatieres } = validData;
+      expect(bilanGratuitSchema.safeParse(sansMatieres).success).toBe(true);
     });
 
     it('should fail validation with short objectives', () => {
