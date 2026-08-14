@@ -106,7 +106,7 @@ function databaseDependencies(database: GroupPlanDatabase) {
   };
 }
 
-function loadCatalog(slug: string): CpsCatalog {
+export function loadCatalog(slug: string): CpsCatalog {
   const entry = loadWaveManifest(MANIFEST_PATH).banks.find((bank) => bank.slug === slug);
   if (entry === undefined) throw new StaffGroupPlanError('GROUP_PACK_NOT_FOUND');
   const paths = typeof entry.cps === 'string' ? [entry.cps] : entry.cps;

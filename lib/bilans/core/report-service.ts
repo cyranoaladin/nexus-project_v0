@@ -45,7 +45,7 @@ type EvidenceAttemptRow = Readonly<{
  * la passation est une incohérence grave : on refuse de rendre un détail
  * potentiellement différent de ce que l'élève a réellement composé.
  */
-function buildAttemptEvidence(
+export function buildAttemptEvidence(
   attempt: EvidenceAttemptRow,
   resolvePack: PackResolver,
 ): QuestionEvidence | undefined {
