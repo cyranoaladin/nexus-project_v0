@@ -14,7 +14,10 @@
     "status": "OFFLINE_ONLY",
     "decidedAt": "2026-08-12",
     "decidedBy": "Responsable pédagogique",
-    "enrollmentChannels": ["whatsapp", "centre"],
+    "enrollmentChannels": [
+      "whatsapp",
+      "centre"
+    ],
     "note": "Inscription en ligne non ouverte pour la campagne Pré-rentrée 2026 : décision produit assumée, pas un oubli. Les familles s'inscrivent par WhatsApp ou directement au centre Nexus Réussite Mutuelleville ; la page publique reste informative. Voir lib/campaigns/pre-rentree-2026/release-gate.ts (canAcceptPreRentreeCampaignSubmission)."
   },
   "venue": {
@@ -100,23 +103,18 @@
       "id": "SVT",
       "label": "SVT",
       "levels": [
-        "PREMIERE",
-        "TERMINALE"
+        "PREMIERE"
       ]
     },
     {
       "id": "MATHS_EXPERTES",
       "label": "Mathématiques expertes",
-      "levels": [
-        "TERMINALE"
-      ]
+      "levels": []
     },
     {
       "id": "PHILOSOPHIE",
       "label": "Philosophie",
-      "levels": [
-        "TERMINALE"
-      ]
+      "levels": []
     }
   ],
   "blocks": [
@@ -228,13 +226,6 @@
           "cohortId": "premiere-svt-d",
           "alternativeGroupId": "premiere-svt",
           "isPrimary": false
-        },
-        {
-          "level": "TERMINALE",
-          "subject": "PHILOSOPHIE",
-          "block": "D",
-          "room": "salle-3",
-          "teacherRole": "TEACHER_C_FRANCAIS"
         }
       ]
     },
@@ -278,7 +269,7 @@
       "slots": [
         {
           "level": "TERMINALE",
-          "subject": "MATHS_EXPERTES",
+          "subject": "NSI",
           "block": "A",
           "room": "salle-1",
           "teacherRole": "TEACHER_A_MATHS_NSI"
@@ -288,54 +279,26 @@
           "subject": "MATHEMATIQUES",
           "block": "B",
           "room": "salle-1",
-          "teacherRole": "TEACHER_A_MATHS_NSI"
+          "teacherRole": "TEACHER_A_MATHS_NSI",
+          "cohortId": "terminale-maths-matin",
+          "alternativeGroupId": "terminale-maths",
+          "isPrimary": true
         },
         {
           "level": "TERMINALE",
-          "subject": "NSI",
+          "subject": "MATHEMATIQUES",
           "block": "C",
           "room": "salle-1",
           "teacherRole": "TEACHER_A_MATHS_NSI",
-          "cohortId": "terminale-nsi-c",
-          "alternativeGroupId": "terminale-nsi",
-          "isPrimary": true
+          "cohortId": "terminale-maths-apres-midi",
+          "alternativeGroupId": "terminale-maths"
         },
         {
           "level": "TERMINALE",
           "subject": "PHYSIQUE_CHIMIE",
-          "block": "C",
+          "block": "D",
           "room": "salle-2",
           "teacherRole": "TEACHER_D_PHYSIQUE_CHIMIE"
-        },
-        {
-          "level": "TERMINALE",
-          "subject": "SVT",
-          "block": "C",
-          "room": "salle-3",
-          "teacherRole": "TEACHER_E_SVT",
-          "cohortId": "terminale-svt-c",
-          "alternativeGroupId": "terminale-svt",
-          "isPrimary": true
-        },
-        {
-          "level": "TERMINALE",
-          "subject": "NSI",
-          "block": "D",
-          "room": "salle-1",
-          "teacherRole": "TEACHER_A_MATHS_NSI",
-          "cohortId": "terminale-nsi-d",
-          "alternativeGroupId": "terminale-nsi",
-          "isPrimary": false
-        },
-        {
-          "level": "TERMINALE",
-          "subject": "SVT",
-          "block": "D",
-          "room": "salle-2",
-          "teacherRole": "TEACHER_E_SVT",
-          "cohortId": "terminale-svt-d",
-          "alternativeGroupId": "terminale-svt",
-          "isPrimary": false
         }
       ]
     }

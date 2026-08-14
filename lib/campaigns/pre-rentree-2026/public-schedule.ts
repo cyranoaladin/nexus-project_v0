@@ -66,10 +66,10 @@ export type PublicPlanningPack = {
 // scripts/validate-stage-planning.ts recomputes all four from the live data and
 // fails on any drift, so these are a declared expectation, not a second source.
 export const PRE_RENTREE_PUBLIC_METRICS = {
-  pedagogicalModuleCount: 17,
-  pedagogicalSessionTemplateCount: 85,
-  operationalCohortCount: 20,
-  scheduledSessionOccurrenceCount: 100,
+  pedagogicalModuleCount: 14,
+  preparedSessionCount: 70,
+  operationalCohortCount: 16,
+  scheduledSessionOccurrenceCount: 80,
   studentSessionsPerSubject: 5,
   studentHoursPerSubject: 10,
 } as const;
