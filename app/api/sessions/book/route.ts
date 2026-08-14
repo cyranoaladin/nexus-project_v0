@@ -232,7 +232,8 @@ export async function POST(req: NextRequest) {
 
       if (conflictingSession) {
         throw ApiError.conflict('Coach already has a session at this time');
-      }      // 6. Validate student record and check credit balance
+      }
+
       // 6. L'élève doit être rattaché à un foyer, et son compte ne doit pas
       //    avoir été remplacé par un autre. Le rattachement parent-élève est
       //    une décision humaine déjà prise et enregistrée par l'assistante :
