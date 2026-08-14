@@ -52,8 +52,11 @@ describe('bilanGratuitSchema', () => {
     expect(bilanGratuitSchema.safeParse({ ...validData, parentPassword: '123' }).success).toBe(false);
   });
 
-  it('should reject empty subjects array', () => {
-    expect(bilanGratuitSchema.safeParse({ ...validData, subjects: [] }).success).toBe(false);
+  // Décision responsable : les matières ne sont plus demandées à l'inscription.
+  // Elles se choisissent après activation, dans le picker filtré par niveau —
+  // les exiger ici faisait doublon et bloquait la conversion.
+  it('accepte une liste de matières vide (choix reporté au picker)', () => {
+    expect(bilanGratuitSchema.safeParse({ ...validData, subjects: [] }).success).toBe(true);
   });
 
   it('should reject acceptTerms = false', () => {

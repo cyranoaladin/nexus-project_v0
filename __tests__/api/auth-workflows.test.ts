@@ -364,12 +364,12 @@ describe('bilanGratuitSchema validation', () => {
     expect(result.success).toBe(false);
   });
 
-  it('rejects empty subjects array', () => {
-    const result = bilanGratuitSchema.safeParse({
-      ...validData,
-      subjects: [],
-    });
-    expect(result.success).toBe(false);
+  // Décision responsable : les matières ne sont plus demandées à l'inscription.
+  // Elles se choisissent après activation, dans le picker filtré par niveau —
+  // les exiger ici faisait doublon et bloquait la conversion.
+  it('accepte une liste de matières vide (choix reporté au picker)', () => {
+    const result = bilanGratuitSchema.safeParse({ ...validData, subjects: [] });
+    expect(result.success).toBe(true);
   });
 
   it('rejects short objectives (<10 chars)', () => {
