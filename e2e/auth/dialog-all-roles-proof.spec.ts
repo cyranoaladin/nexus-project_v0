@@ -95,21 +95,10 @@ test('parent: add-child dialog', async ({ page }) => {
   await assertDialogCloses(page, trigger, 'parent/add-child');
 });
 
-test('parent: abonnements plan-change dialog', async ({ page }) => {
-  test.setTimeout(60000);
-  await loginAsUser(page, 'parent');
-  await page.goto(`${BASE}/dashboard/parent/abonnements`, { waitUntil: 'domcontentloaded' });
-  await page.waitForTimeout(2000);
-
-  // Click "Changer pour ..." button (any plan different from current)
-  const trigger = page.getByRole('button', { name: /Changer pour/i }).first();
-  await expect(trigger).toBeVisible({ timeout: 5000 });
-  await trigger.click();
-  await page.waitForTimeout(500);
-
-  await assertDialogCharte(page, 'parent/abonnements');
-  await assertDialogCloses(page, trigger, 'parent/abonnements');
-});
+// Le dialogue de changement de formule a été retiré avec la vente
+// d'abonnements adossés à ARIA. La conformité à la charte reste couverte sur
+// cette même page par les dialogues « achat de crédits » et « détail de
+// facture » ci-dessous : aucun trou de couverture.
 
 test('parent: paiement virement dialog', async ({ page }) => {
   test.setTimeout(60000);

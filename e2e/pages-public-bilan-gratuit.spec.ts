@@ -15,7 +15,7 @@ test.describe('Bilan Gratuit — Formulaire stratégique', () => {
   });
 
   test('(a) validation affiche erreurs sur soumission vide — clic réel', async ({ page }) => {
-    await page.locator('#demande-bilan form').getByRole('button', { name: /lancer le bilan diagnostic/i }).click();
+    await page.locator('#demande-bilan form').getByRole('button', { name: /créer mon espace/i }).click();
     await expect(page.locator('text=Prénom requis')).toBeVisible();
     await expect(page.locator('text=Email invalide')).toBeVisible();
     await expect(page.locator('text=Classe requise')).toBeVisible();
@@ -28,18 +28,16 @@ test.describe('Bilan Gratuit — Formulaire stratégique', () => {
     await page.locator('#parentPhone').fill('+21699192829');
     await page.locator('#studentFirstName').fill('Lucas');
     await page.locator('#studentGrade').selectOption({ index: 1 });
-    await page.locator('#studentSchool').fill('Lycée Gustave Flaubert');
-    await page.locator('#objectives').fill('Préparer le bac de français avec sérieux et méthode');
     await expect(page.locator('#parentEmail')).toHaveValue('pas-un-email');
     // Real click — noValidate on <form> prevents HTML5 constraint blocking
-    await page.locator('#demande-bilan form').getByRole('button', { name: /lancer le bilan diagnostic/i }).click();
+    await page.locator('#demande-bilan form').getByRole('button', { name: /créer mon espace/i }).click();
     await expect(page.locator('text=Email invalide')).toBeVisible();
     await expect(page.locator('text=Prénom requis')).not.toBeVisible();
     await expect(page.locator('text=Classe requise')).not.toBeVisible();
   });
 
   test('erreur disparaît quand email valide est saisi', async ({ page }) => {
-    await page.locator('#demande-bilan form').getByRole('button', { name: /lancer le bilan diagnostic/i }).click();
+    await page.locator('#demande-bilan form').getByRole('button', { name: /créer mon espace/i }).click();
     await expect(page.locator('text=Email invalide')).toBeVisible();
     await page.locator('#parentEmail').fill('marie@example.com');
     await expect(page.locator('text=Email invalide')).not.toBeVisible();

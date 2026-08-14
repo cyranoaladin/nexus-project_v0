@@ -158,7 +158,7 @@ test.describe('P0-D Parent onboarding without direct database bootstrap', () => 
 
     await page.goto('/bilan-gratuit')
     const signupForm = page.locator('form').filter({
-      has: page.getByRole('button', { name: /lancer le bilan diagnostic/i }),
+      has: page.getByRole('button', { name: /créer mon espace/i }),
     })
     await signupForm.getByRole('textbox', { name: 'Prénom du parent' }).fill('Parent')
     await signupForm.getByRole('textbox', { name: 'Nom du parent', exact: true }).fill('Synthétique')
@@ -166,11 +166,8 @@ test.describe('P0-D Parent onboarding without direct database bootstrap', () => 
     await signupForm.getByRole('textbox', { name: 'Téléphone' }).fill('+21699000006')
     await signupForm.getByRole('textbox', { name: /prénom de l’élève/i }).fill('Élève')
     await signupForm.getByRole('combobox', { name: 'Classe' }).selectOption('seconde')
-    await signupForm.getByRole('textbox', { name: 'Établissement' }).fill('Établissement synthétique')
-    await signupForm.getByRole('checkbox', { name: 'Mathématiques' }).check()
-    await signupForm.getByRole('textbox', { name: 'Besoin principal' }).fill('Prouver le parcours Parent sans bootstrap direct en base.')
     await signupForm.getByRole('checkbox', { name: /j’accepte d’être contacté/i }).check()
-    await signupForm.getByRole('button', { name: /lancer le bilan diagnostic/i }).click()
+    await signupForm.getByRole('button', { name: /créer mon espace/i }).click()
     await expect(page).toHaveURL(/\/bilan-gratuit\/confirmation/)
 
     const parentBeforeActivation = await prisma.user.findUniqueOrThrow({ where: { email: parentEmail } })
