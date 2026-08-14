@@ -1,5 +1,6 @@
 'use server';
 
+import type { GradeLevel, Subject } from '@prisma/client';
 import { revalidatePath } from 'next/cache';
 import { notFound, redirect } from 'next/navigation';
 import { headers } from 'next/headers';
@@ -25,6 +26,10 @@ import {
   requestTeacherBriefCorrection,
   TeacherBriefReviewError,
 } from '@/lib/bilans/staff/teacher-brief-review-service';
+import {
+  listStaffTeacherDossierArtifactIds,
+  StaffTeacherDossierError,
+} from '@/lib/bilans/staff/teacher-dossier-service';
 
 function field(formData: FormData, name: string): string {
   const value = formData.get(name);
@@ -162,6 +167,38 @@ export async function generateTeacherBriefAction(formData: FormData): Promise<vo
     revalidatePath('/dashboard/assistante/bilans');
   } catch (error) {
     if (error instanceof TeacherBriefError) notFound();
+    handleAccessError(error);
+  }
+}
+
+/**
+ * Régénère les briefs enseignant manquants pour tout un groupe (matière ×
+ * niveau) en un clic, plutôt qu'un par un. `generateTeacherBrief` est déjà
+ * idempotent (mode `ALREADY_PRESENT`) : reboucler sur des bilans déjà
+ * pourvus ne recoûte rien — le bouton est donc sûr à re-cliquer quand des
+ * bilans s'ajoutent au groupe. Séquentiel (pas de Promise.all) : le cache de
+ * prompt du modèle s'amortit d'un appel à l'autre (mesuré ~112 s/bilan,
+ * ~0,10 $/bilan), et le plafond budgétaire mensuel du service reste la seule
+ * limite.
+ */
+export async function generateGroupTeacherBriefsAction(formData: FormData): Promise<void> {
+  try {
+    const current = await actor();
+    const subject = field(formData, 'subject') as Subject;
+    const level = field(formData, 'level') as GradeLevel;
+    const artifactIds = await listStaffTeacherDossierArtifactIds(current, subject, level);
+    for (const artifactId of artifactIds) {
+      try {
+        await generateTeacherBrief({ actor: current, reportArtifactId: artifactId });
+      } catch (error) {
+        // Un bilan en échec (budget dépassé, PLANCHER, etc.) ne doit pas
+        // bloquer les autres élèves du groupe — chacun est indépendant.
+        if (!(error instanceof TeacherBriefError)) throw error;
+      }
+    }
+    revalidatePath('/dashboard/assistante/bilans');
+  } catch (error) {
+    if (error instanceof StaffTeacherDossierError && error.code === 'NOT_FOUND') notFound();
     handleAccessError(error);
   }
 }
