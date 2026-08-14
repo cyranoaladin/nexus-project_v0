@@ -177,7 +177,7 @@ describe('Next Step Engine', () => {
       expect(step?.priority).toBe('high');
     });
 
-    it('should recommend BUY_CREDITS when credits are 0', async () => {
+    it('should not block on empty credits (fictitious field, booking is ungated since #147)', async () => {
       (mockPrisma.user.findUnique as jest.Mock).mockResolvedValue(
         mockParentUser({
           parentProfile: {
@@ -189,9 +189,10 @@ describe('Next Step Engine', () => {
           },
         })
       );
+      (mockPrisma.sessionBooking.findFirst as jest.Mock).mockResolvedValue(null);
+
       const step = await getNextStep('parent-1');
-      expect(step?.type).toBe('BUY_CREDITS');
-      expect(step?.priority).toBe('high');
+      expect(step?.type).toBe('BOOK_SESSION');
     });
 
     it('should recommend BOOK_SESSION when no upcoming session and no completed sessions', async () => {

@@ -50,45 +50,6 @@ describe('SessionBookingService.bookSession', () => {
     ).rejects.toThrow('Time slot is not available');
   });
 
-  it('should throw when student has insufficient credits', async () => {
-    prisma.$transaction.mockImplementation(async (fn: any) => {
-      const tx = {
-        coachAvailability: {
-          findFirst: jest.fn().mockResolvedValue({ id: 'av-1' }),
-        },
-        sessionBooking: {
-          findFirst: jest.fn().mockResolvedValue(null), // no conflict
-          create: jest.fn(),
-        },
-        student: {
-          findFirst: jest.fn().mockResolvedValue({ id: 'stu-1', credits: 0 }),
-          update: jest.fn(),
-        },
-        creditTransaction: { create: jest.fn() },
-        user: { findMany: jest.fn().mockResolvedValue([]) },
-        sessionNotification: { createMany: jest.fn() },
-        sessionReminder: { createMany: jest.fn() },
-      };
-      return fn(tx);
-    });
-
-    await expect(
-      SessionBookingService.bookSession({
-        coachId: 'coach-1',
-        studentId: 'stu-1',
-        subject: 'MATHS' as any,
-        scheduledDate: new Date('2026-07-15'),
-        startTime: '10:00',
-        endTime: '11:00',
-        duration: 60,
-        type: 'INDIVIDUAL' as any,
-        modality: 'ONLINE' as any,
-        title: 'Maths session',
-        creditsUsed: 1,
-      })
-    ).rejects.toThrow('Insufficient credits');
-  });
-
   it('should create session, deduct credits, and create notifications', async () => {
     const mockSession = {
       id: 'sess-1',

@@ -238,9 +238,6 @@ export class SessionBookingService {
         throw new Error('Time slot is not available');
       }
 
-      // Check credits
-      await this.validateCredits(data.studentId, data.creditsUsed, tx);
-
       // Create session
       const session = await tx.sessionBooking.create({
         data: {
@@ -456,20 +453,6 @@ export class SessionBookingService {
     });
 
     return !conflict;
-  }
-
-  private static async validateCredits(
-    studentId: string,
-    creditsNeeded: number,
-    tx: Prisma.TransactionClient
-  ): Promise<void> {
-    const student = await tx.student.findFirst({
-      where: { userId: studentId }
-    });
-
-    if (!student || student.credits < creditsNeeded) {
-      throw new Error('Insufficient credits');
-    }
   }
 
   private static async createSessionNotifications(session: SessionWithRelations, tx: Prisma.TransactionClient): Promise<void> {

@@ -7,7 +7,7 @@
  * What this does NOT prove: données affichées dans la modale, soumission de formulaire.
  *
  * NOTE: This legacy focused proof keeps AddChildDialog as its single target.
- * CreditPurchaseDialog + InvoiceDetailsDialog are covered by dialog-all-roles-proof.
+ * InvoiceDetailsDialog is covered by dialog-all-roles-proof. CreditPurchaseDialog,
  * SubscriptionChangeDialog + AriaAddonDialog were vestiges (function covered
  * by abonnements/page.tsx) and have been removed.
  * This spec tests what is real, not what is imaginary.
