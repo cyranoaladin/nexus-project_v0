@@ -39,11 +39,11 @@ Created via `scripts/seed-qa-profiles.ts` (idempotent, re-runnable):
 | `qa-coach@nexus-reussite.com` | COACH | ✅ | Coach dashboard |
 | `qa-parent-nochild@nexus-test.local` | PARENT | ✅ | Empty parent dashboard |
 
-**Password**: `admin123` for all profiles.
+**Password**: `<runtime-generated>` for all profiles.
 
 ```bash
 # Seed command
-npx tsx scripts/seed-qa-profiles.ts
+NEXUS_DISPOSABLE_POSTGRES=1 npx tsx scripts/seed-qa-profiles.ts
 ```
 
 ---
@@ -234,7 +234,7 @@ Zero refactoring. Zero production code modifications. All changes are test infra
 
 ```bash
 # 1. Seed QA profiles
-npx tsx scripts/seed-qa-profiles.ts
+NEXUS_DISPOSABLE_POSTGRES=1 npx tsx scripts/seed-qa-profiles.ts
 
 # 2. Run unit tests (1939 tests)
 NODE_ENV=development npx jest --config jest.config.unit.js

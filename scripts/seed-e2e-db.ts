@@ -1,5 +1,3 @@
-import { mkdirSync, writeFileSync } from 'node:fs';
-import { dirname, resolve } from 'node:path';
 import { serializeError } from '../lib/utils/serialize-error';
 /**
  * E2E Database Seeding Script
@@ -8,7 +6,7 @@ import { serializeError } from '../lib/utils/serialize-error';
  * - Test users for each role (ADMIN, PARENT, ELEVE, COACH)
  * - Test session bookings for booking flows
  *
- * All passwords: "password123"
+ * Passwords are generated at runtime and written mode 0600
  * Run: DATABASE_URL=... npx tsx scripts/seed-e2e-db.ts
  */
 
@@ -25,7 +23,13 @@ dotenv.config({ path: path.resolve(process.cwd(), '.env.local') });
 // ── Hard guard: refuse to seed anything other than the disposable e2e database ──
 // Parsed BEFORE new PrismaClient() — no connection is made if the target is wrong.
 import { isAllowedSeedTarget } from '../lib/e2e/seed-guard';
+import {
+  assertSafeSeedTarget,
+  generateRuntimePassword,
+  writeRuntimeCredentialsManifest,
+} from '../lib/security/seed-runtime';
 
+assertSafeSeedTarget();
 const _seedTarget = isAllowedSeedTarget(process.env.DATABASE_URL ?? '');
 
 if (!_seedTarget.ok) {
@@ -71,19 +75,19 @@ async function main() {
   // =============================================================================
   // PASSWORD HASHES
   // =============================================================================
-  const hashedPassword = await bcrypt.hash('password123', 10);
-  const hashedAdmin123 = await bcrypt.hash('admin123', 10);
+  const runtimePassword = generateRuntimePassword();
+  const hashedPassword = await bcrypt.hash(runtimePassword, 12);
 
   // =============================================================================
   // PLAYWRIGHT-EXPECTED USERS (03-signin + 06-dashboards specs)
-  // These users match the emails/passwords hardcoded in Playwright E2E tests.
+  // The tests consume the runtime credentials manifest below.
   // =============================================================================
-  console.log('🎭 Creating Playwright-expected users (admin123)...');
+  console.log('🎭 Creating Playwright users with runtime credentials...');
 
   const pwAdmin = await prisma.user.create({
     data: {
       email: 'admin@nexus-reussite.com',
-      password: hashedAdmin123,
+      password: hashedPassword,
       role: UserRole.ADMIN,
       firstName: 'Admin',
       lastName: 'Nexus',
@@ -95,7 +99,7 @@ async function main() {
   const pwParent = await prisma.user.create({
     data: {
       email: 'parent@example.com',
-      password: hashedAdmin123,
+      password: hashedPassword,
       role: UserRole.PARENT,
       firstName: 'Marie',
       lastName: 'Dupont',
@@ -109,7 +113,7 @@ async function main() {
   const pwStudent = await prisma.user.create({
     data: {
       email: 'student@example.com',
-      password: hashedAdmin123,
+      password: hashedPassword,
       role: UserRole.ELEVE,
       firstName: 'Ahmed',
       lastName: 'Dupont',
@@ -132,7 +136,7 @@ async function main() {
   const pwCoach = await prisma.user.create({
     data: {
       email: 'helios@nexus-reussite.com',
-      password: hashedAdmin123,
+      password: hashedPassword,
       role: UserRole.COACH,
       firstName: 'Helios',
       lastName: 'Nexus',
@@ -152,7 +156,7 @@ async function main() {
   const pwAssistante = await prisma.user.create({
     data: {
       email: 'assistante@nexus-reussite.com',
-      password: hashedAdmin123,
+      password: hashedPassword,
       role: UserRole.ASSISTANTE,
       firstName: 'Ines',
       lastName: 'Assistante',
@@ -164,7 +168,7 @@ async function main() {
   const pwStudent2 = await prisma.user.create({
     data: {
       email: 'student2@example.com',
-      password: hashedAdmin123,
+      password: hashedPassword,
       role: UserRole.ELEVE,
       firstName: 'Karim',
       lastName: 'Dupont',
@@ -753,19 +757,20 @@ const student = await prisma.user.create({
 
   // Write credentials to file for E2E tests
   const credentials = {
-    admin: { email: `admin.${timestamp}@test.com`, password: 'password123' },
-    parent: { email: `parent.${timestamp}@test.com`, password: 'password123' },
-    student: { email: studentEmail, password: 'password123' }, // yasmine.dupont@test.com
-    student2: { email: `student2.${timestamp}@test.com`, password: 'password123' },
-    studentSurvival: { email: `student-survival.${timestamp}@test.com`, password: 'password123' },
-    coach: { email: coachEmail, password: 'password123' }, // helios@test.com
-    coach2: { email: `coach2.${timestamp}@test.com`, password: 'password123' },
-    assistante: { email: `assistante.${timestamp}@test.com`, password: 'password123' },
-    zenon: { email: 'zenon@test.com', password: 'password123' }, // For E2E booking flow
+    admin: { email: `admin.${timestamp}@test.com`, password: runtimePassword },
+    parent: { email: `parent.${timestamp}@test.com`, password: runtimePassword },
+    student: { email: studentEmail, password: runtimePassword }, // yasmine.dupont@test.com
+    student2: { email: `student2.${timestamp}@test.com`, password: runtimePassword },
+    studentSurvival: { email: `student-survival.${timestamp}@test.com`, password: runtimePassword },
+    coach: { email: coachEmail, password: runtimePassword }, // helios@test.com
+    coach2: { email: `coach2.${timestamp}@test.com`, password: runtimePassword },
+    assistante: { email: `assistante.${timestamp}@test.com`, password: runtimePassword },
+    zenon: { email: 'zenon@test.com', password: runtimePassword }, // For E2E booking flow
   };
-  const credentialsPath = resolve(process.env.E2E_CREDENTIALS_PATH ?? 'e2e/.credentials.json');
-  mkdirSync(dirname(credentialsPath), { recursive: true });
-  writeFileSync(credentialsPath, JSON.stringify(credentials, null, 2), { encoding: 'utf8', mode: 0o600 });
+  writeRuntimeCredentialsManifest(
+    process.env.E2E_CREDENTIALS_PATH ?? 'e2e/.credentials.json',
+    credentials,
+  );
   console.log('✅ Credentials manifest written');
 
   console.log('🧪 Ready for E2E tests!');

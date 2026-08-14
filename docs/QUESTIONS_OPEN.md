@@ -6,7 +6,7 @@ Ce document liste les questions bloquantes nécessitant une décision de Shark.
 |---|---|---|---|
 | Barème exact Maths STMG (pondération domaines, seuils Bloom) | Phase 2 | Ouvert | - |
 | Contenus pédagogiques STMG (exercices, corrigés, vidéos) | Phase 2/4 | Ouvert | Voir `docs/STMG_CONTENT_ROADMAP.md` |
-| Rotation des mots de passe seed `admin123` avant go-live public | Go-live | Ouvert | - |
+| Rotation des mots de passe seed `<runtime-generated>` avant go-live public | Go-live | Ouvert | - |
 | Tag `v1.0.0-dashboards-premiere` (exige confirmation explicite) | Phase 8 | En attente | - |
 
 ---

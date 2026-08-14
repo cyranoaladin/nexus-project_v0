@@ -1,15 +1,25 @@
 import { PrismaClient, UserRole, Subject, MathsLevel } from '@prisma/client';
 import bcrypt from 'bcryptjs';
+import { createHash } from 'node:crypto';
 import { serializeError } from '@/lib/utils/serialize-error';
+import {
+  assertSafeSeedTarget,
+  generateRuntimePassword,
+  writeRuntimeCredentialsManifest,
+} from '@/lib/security/seed-runtime';
 
+assertSafeSeedTarget();
 const prisma = new PrismaClient();
 
 async function main() {
   console.log('🚀 Creating Audit Test Profiles...');
 
-  const password = 'NexusTest2026!';
-  const hashedPassword = await bcrypt.hash(password, 10);
+  const password = generateRuntimePassword();
+  const hashedPassword = await bcrypt.hash(password, 12);
   const now = new Date();
+  const pendingActivationToken = generateRuntimePassword();
+  const pendingActivationTokenHash = createHash('sha256').update(pendingActivationToken).digest('hex');
+  const pendingActivationExpiry = new Date(now.getTime() + 72 * 60 * 60 * 1000);
 
   // 1. ADMIN
   await prisma.user.upsert({
@@ -164,7 +174,13 @@ async function main() {
   // 8. STUDENT (Pending)
   const studentPending = await prisma.user.upsert({
     where: { email: 'audit.student.pending@nexusreussite.academy' },
-    update: { activatedAt: null, password: hashedPassword, sessionVersion: { increment: 1 } },
+    update: {
+      activatedAt: null,
+      password: hashedPassword,
+      activationToken: pendingActivationTokenHash,
+      activationExpiry: pendingActivationExpiry,
+      sessionVersion: { increment: 1 },
+    },
     create: {
       email: 'audit.student.pending@nexusreussite.academy',
       password: hashedPassword,
@@ -172,7 +188,8 @@ async function main() {
       lastName: 'StudentPending',
       role: 'ELEVE',
       activatedAt: null,
-      activationToken: 'test-token-123',
+      activationToken: pendingActivationTokenHash,
+      activationExpiry: pendingActivationExpiry,
     },
   });
 
@@ -229,7 +246,11 @@ async function main() {
   }
 
   console.log('✅ Audit Test Profiles created successfully!');
-  console.log(`🔑 All profiles use password: ${password}`);
+  writeRuntimeCredentialsManifest(
+    process.env.AUDIT_CREDENTIALS_PATH ?? '.runtime/audit-seed-credentials.json',
+    { scope: 'audit-seed', password, pendingActivationToken },
+  );
+  console.log('🔐 Audit credentials manifest written with mode 0600.');
 }
 
 main()

@@ -1,5 +1,6 @@
 import { createId } from '@paralleldrive/cuid2';
 import { serializeError } from '@/lib/utils/serialize-error';
+import { generateRuntimePassword } from '@/lib/security/seed-runtime';
 
 async function run() {
   const baseUrl = 'http://localhost:3002';
@@ -8,7 +9,7 @@ async function run() {
   // 1. Bilan Gratuit (Inscription)
   console.log('1️⃣  Testing Bilan Gratuit Registration...');
   const parentEmail = `parent-${createId()}@test.local`;
-  const parentPassword = 'SecurePassword123!';
+  const parentPassword = generateRuntimePassword();
   
   const registrationPayload = {
     parentFirstName: "Jean",

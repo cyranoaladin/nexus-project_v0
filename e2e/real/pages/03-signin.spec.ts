@@ -1,4 +1,6 @@
 import { test, expect } from '@playwright/test';
+import { CREDS } from '@/e2e/helpers/credentials';
+import { randomBytes } from 'node:crypto';
 
 /**
  * REAL AUDIT — Sign In (/auth/signin)
@@ -40,8 +42,8 @@ test.describe('REAL — Sign In (/auth/signin)', () => {
   // REAL AUTH — Admin login
   test('CONNEXION RÉELLE — Admin → /dashboard/admin', async ({ page }) => {
     await page.goto('/auth/signin', { waitUntil: 'load' });
-    await page.getByTestId('input-email').fill('admin@nexus-reussite.com');
-    await page.getByTestId('input-password').fill('admin123');
+    await page.getByTestId('input-email').fill(CREDS.admin.email);
+    await page.getByTestId('input-password').fill(CREDS.admin.password);
     await page.getByTestId('btn-signin').click();
     await page.waitForLoadState('load');
     await page.waitForURL('**/dashboard/admin**', { timeout: 30000 });
@@ -51,8 +53,8 @@ test.describe('REAL — Sign In (/auth/signin)', () => {
   // REAL AUTH — Parent login
   test('CONNEXION RÉELLE — Parent → /dashboard/parent', async ({ page }) => {
     await page.goto('/auth/signin', { waitUntil: 'load' });
-    await page.getByTestId('input-email').fill('parent@example.com');
-    await page.getByTestId('input-password').fill('admin123');
+    await page.getByTestId('input-email').fill(CREDS.parent.email);
+    await page.getByTestId('input-password').fill(CREDS.parent.password);
     await page.getByTestId('btn-signin').click();
     await page.waitForLoadState('load');
     await page.waitForURL('**/dashboard/parent**', { timeout: 30000 });
@@ -62,8 +64,8 @@ test.describe('REAL — Sign In (/auth/signin)', () => {
   // REAL AUTH — Student login
   test('CONNEXION RÉELLE — Élève → /dashboard/eleve', async ({ page }) => {
     await page.goto('/auth/signin', { waitUntil: 'load' });
-    await page.getByTestId('input-email').fill('student@example.com');
-    await page.getByTestId('input-password').fill('admin123');
+    await page.getByTestId('input-email').fill(CREDS.student.email);
+    await page.getByTestId('input-password').fill(CREDS.student.password);
     await page.getByTestId('btn-signin').click();
     await page.waitForLoadState('load');
     await page.waitForURL('**/dashboard/eleve**', { timeout: 30000 });
@@ -73,8 +75,8 @@ test.describe('REAL — Sign In (/auth/signin)', () => {
   // REAL AUTH — Coach login
   test('CONNEXION RÉELLE — Coach → /dashboard/coach', async ({ page }) => {
     await page.goto('/auth/signin', { waitUntil: 'load' });
-    await page.getByTestId('input-email').fill('helios@nexus-reussite.com');
-    await page.getByTestId('input-password').fill('admin123');
+    await page.getByTestId('input-email').fill(CREDS.coach.email);
+    await page.getByTestId('input-password').fill(CREDS.coach.password);
     await page.getByTestId('btn-signin').click();
     await page.waitForLoadState('load');
     await page.waitForURL('**/dashboard/coach**', { timeout: 30000 });
@@ -84,8 +86,8 @@ test.describe('REAL — Sign In (/auth/signin)', () => {
   // Wrong password
   test('Mauvais password → message erreur, reste sur /auth/signin', async ({ page }) => {
     await page.goto('/auth/signin', { waitUntil: 'load' });
-    await page.getByTestId('input-email').fill('admin@nexus-reussite.com');
-    await page.getByTestId('input-password').fill('WRONG_PASSWORD');
+    await page.getByTestId('input-email').fill(CREDS.admin.email);
+    await page.getByTestId('input-password').fill(randomBytes(24).toString('base64url'));
     await page.getByTestId('btn-signin').click();
 
     const errorMsg = page.getByText(/incorrect|invalide|erreur|error|échoué/i);
@@ -97,7 +99,7 @@ test.describe('REAL — Sign In (/auth/signin)', () => {
   test('Email inexistant → message erreur générique', async ({ page }) => {
     await page.goto('/auth/signin', { waitUntil: 'load' });
     await page.getByTestId('input-email').fill('nexiste.pas@jamais.com');
-    await page.getByTestId('input-password').fill('test1234');
+    await page.getByTestId('input-password').fill(randomBytes(24).toString('base64url'));
     await page.getByTestId('btn-signin').click();
 
     await expect(page.getByText(/incorrect|invalide|erreur|error|échoué/i)).toBeVisible({ timeout: 10000 });
@@ -107,8 +109,8 @@ test.describe('REAL — Sign In (/auth/signin)', () => {
   // Role separation — Parent cannot access /dashboard/eleve
   test('Séparation rôles — Parent connecté ne peut pas accéder à /dashboard/eleve', async ({ page }) => {
     await page.goto('/auth/signin', { waitUntil: 'load' });
-    await page.getByTestId('input-email').fill('parent@example.com');
-    await page.getByTestId('input-password').fill('admin123');
+    await page.getByTestId('input-email').fill(CREDS.parent.email);
+    await page.getByTestId('input-password').fill(CREDS.parent.password);
     await page.getByTestId('btn-signin').click();
     await page.waitForLoadState('load');
     await page.waitForURL('**/dashboard/parent**', { timeout: 30000 });
@@ -122,8 +124,8 @@ test.describe('REAL — Sign In (/auth/signin)', () => {
   // Role separation — Student cannot access /dashboard/admin
   test('Séparation rôles — Élève connecté ne peut pas accéder à /dashboard/admin', async ({ page }) => {
     await page.goto('/auth/signin', { waitUntil: 'load' });
-    await page.getByTestId('input-email').fill('student@example.com');
-    await page.getByTestId('input-password').fill('admin123');
+    await page.getByTestId('input-email').fill(CREDS.student.email);
+    await page.getByTestId('input-password').fill(CREDS.student.password);
     await page.getByTestId('btn-signin').click();
     await page.waitForLoadState('load');
     await page.waitForURL('**/dashboard/eleve**', { timeout: 30000 });

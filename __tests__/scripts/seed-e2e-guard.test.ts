@@ -74,6 +74,6 @@ describe('seed-e2e-db.ts spawn guard (e2e)', () => {
     );
 
     expect(result.status).not.toBe(0);
-    expect(result.stderr + result.stdout).toContain('Refusing');
+    expect(result.stderr + result.stdout).toContain('SEED_TARGET_FORBIDDEN');
   });
 });

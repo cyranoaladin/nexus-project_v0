@@ -104,7 +104,7 @@ describe('assistant coaches', () => {
         firstName: 'A',
         lastName: 'B',
         email: 'c@test.com',
-        password: 'password123',
+        password: 'SyntheticFixture!42',
         pseudonym: 'CoachX',
         subjects: ['NOT_A_SUBJECT'],
       })
@@ -121,7 +121,7 @@ describe('assistant coaches', () => {
     (prisma.user.findUnique as jest.Mock).mockResolvedValue({ id: 'user-1' });
 
     const response = await POST(
-      makeRequest({ firstName: 'A', lastName: 'B', email: 'c@test.com', password: 'password123', pseudonym: 'CoachX' })
+      makeRequest({ firstName: 'A', lastName: 'B', email: 'c@test.com', password: 'SyntheticFixture!42', pseudonym: 'CoachX' })
     );
     const body = await response.json();
 
@@ -159,7 +159,7 @@ describe('assistant coaches', () => {
         firstName: 'A',
         lastName: 'B',
         email: 'c@test.com',
-        password: 'password123',
+        password: 'SyntheticFixture!42',
         pseudonym: 'CoachX',
         tag: 'Math',
       })
@@ -195,7 +195,7 @@ describe('assistant coaches', () => {
       firstName: 'A',
       lastName: 'B',
       email: '  COACH@EXAMPLE.TEST  ',
-      password: 'password123',
+      password: 'SyntheticFixture!42',
       pseudonym: 'CoachX',
     }));
 
