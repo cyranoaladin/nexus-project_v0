@@ -1,7 +1,9 @@
 "use client";
-import { AlertCircle,CreditCard,Loader2,LogOut,TrendingUp,Users } from "lucide-react";
+import { AlertCircle,CreditCard,Loader2,LogOut,MessageCircle,Users } from "lucide-react";
 import { signOut,useSession } from "next-auth/react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { buildWhatsAppUrl } from "@/lib/whatsapp";
 import { useCallback,useEffect,useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
@@ -191,7 +193,9 @@ export default function DashboardParent() {
                         {(dashboardData?.children || []).reduce((sum, c) => sum + (c.subscriptionDetails?.monthlyPrice || 0), 0)} TND
                       </p>
                     </div>
-                    <Button variant="outline" className="border-white/10">Gérer mes abonnements</Button>
+                    <Button asChild variant="outline" className="border-white/10">
+                      <Link href="/dashboard/parent/abonnements">Voir les formules</Link>
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
@@ -207,12 +211,21 @@ export default function DashboardParent() {
                 <div>
                   <Card className="bg-gradient-to-br from-brand-accent/20 to-surface-card border border-brand-accent/20">
                     <CardContent className="p-6">
-                      <TrendingUp className="w-8 h-8 text-brand-accent mb-4" />
-                      <h3 className="text-lg font-bold text-white mb-2">Nexus Performance</h3>
+                      <MessageCircle className="w-8 h-8 text-brand-accent mb-4" />
+                      <h3 className="text-lg font-bold text-white mb-2">Une question sur le suivi ?</h3>
                       <p className="text-sm text-neutral-300 mb-4">
-                        Le suivi s'appuie sur l'IA et l'accompagnement pédagogique pour cibler les priorités en vue du Bac.
+                        Un conseiller vous répond directement, ou vous pouvez passer au centre à
+                        Mutuelleville.
                       </p>
-                      <Button className="w-full bg-brand-accent text-surface-darker">Voir le rapport annuel</Button>
+                      <Button asChild className="w-full bg-brand-accent text-surface-darker">
+                        <a
+                          href={buildWhatsAppUrl("le suivi de mon enfant")}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          Écrire sur WhatsApp
+                        </a>
+                      </Button>
                     </CardContent>
                   </Card>
                 </div>
