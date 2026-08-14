@@ -173,7 +173,9 @@ test.describe('Parent dashboard — current production contract', () => {
 
     test('offers subscription management from billing', async ({ page }) => {
       await page.getByRole('button', { name: 'Facturation', exact: true }).click();
-      await expect(page.getByRole('button', { name: 'Gérer mes abonnements' })).toBeVisible();
+      // « Gérer mes abonnements » ne menait nulle part : remplacé par un lien réel
+      // vers la page des formules.
+      await expect(page.getByRole('link', { name: 'Voir les formules' })).toBeVisible();
     });
 
     test('does not leave child cards mounted in billing', async ({ page }) => {
@@ -183,12 +185,14 @@ test.describe('Parent dashboard — current production contract', () => {
 
     test('opens the consolidated alerts rubrique', async ({ page }) => {
       await page.getByRole('button', { name: 'Alertes', exact: true }).click();
-      await expect(page.getByRole('heading', { name: 'Nexus Performance' })).toBeVisible();
+      // Le bloc « Nexus Performance » promettait un suivi « appuyé sur l'IA » et
+      // un rapport annuel inexistant : remplacé par un recours humain réel.
+      await expect(page.getByRole('heading', { name: 'Une question sur le suivi ?' })).toBeVisible();
     });
 
-    test('offers the annual report action in alerts', async ({ page }) => {
+    test('offers a real human recourse in alerts', async ({ page }) => {
       await page.getByRole('button', { name: 'Alertes', exact: true }).click();
-      await expect(page.getByRole('button', { name: 'Voir le rapport annuel' })).toBeVisible();
+      await expect(page.getByRole('link', { name: 'Écrire sur WhatsApp' })).toBeVisible();
     });
 
     test('can return from alerts to the full children list', async ({ page }) => {
