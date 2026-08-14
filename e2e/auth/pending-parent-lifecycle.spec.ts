@@ -62,8 +62,6 @@ async function submitPublicSignup(page: import('@playwright/test').Page, email: 
   await form.getByRole('textbox', { name: 'Téléphone' }).fill('+21699000008')
   await form.getByRole('textbox', { name: /prénom de l’élève/i }).fill('Élève')
   await form.getByRole('combobox', { name: 'Classe' }).selectOption('seconde')
-  await form.getByRole('textbox', { name: 'Établissement' }).fill('Établissement synthétique')
-  await form.getByRole('textbox', { name: 'Besoin principal' }).fill('Preuve synthétique du cycle PENDING.')
   await form.getByRole('checkbox', { name: /j’accepte d’être contacté/i }).check()
   await form.getByRole('button', { name: /créer mon espace/i }).click()
   await expect(page).toHaveURL(/\/bilan-gratuit\/confirmation/)
