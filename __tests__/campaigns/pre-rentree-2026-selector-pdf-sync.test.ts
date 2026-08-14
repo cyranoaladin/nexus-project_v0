@@ -59,7 +59,8 @@ describe('Pré-rentrée 2026 — synchro sélecteur de planning ↔ PDF Planning
     expect(byLevel.get('TROISIEME')?.size).toBe(2);
     expect(byLevel.get('SECONDE')?.size).toBe(2);
     expect(byLevel.get('PREMIERE')?.size).toBe(5);
-    // 6, pas 5 : Philosophie s'ajoute au pool Terminale (mission 4e/Philosophie).
-    expect(byLevel.get('TERMINALE')?.size).toBe(6);
+    // 3 depuis l'arbitrage du 14/08/2026 : Maths, NSI, Physique-Chimie. Maths
+    // expertes, SVT et Philosophie sont fermées faute d'effectif.
+    expect(byLevel.get('TERMINALE')?.size).toBe(3);
   });
 });

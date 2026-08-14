@@ -22,7 +22,7 @@ import {
 
 export { getPreRentreeCampaign } from './campaign-source';
 
-/** Get the 17 pedagogical modules with their 85 session templates. */
+/** Get the 14 pedagogical modules with their 70 session templates. */
 export function getPreRentreeModules() {
   return PreRentreeModulesSchema.parse(modulesData).modules;
 }

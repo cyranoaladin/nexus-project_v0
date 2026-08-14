@@ -40,11 +40,11 @@ def test_economic_simulation_is_complete_but_fail_closed_without_cost_inputs(tmp
     simulation = json.loads((output / "economic-simulation.json").read_text(encoding="utf-8"))
     assert simulation["status"] == "REVIEW_INPUTS_REQUIRED"
     assert simulation["pricesModified"] is False
-    # 14 offres × 4 tailles de groupe (3/4/5/6) = 56 lignes. Mission 4e/Philosophie
-    # (2026-07-27) : ajout de 2 offres commerciales (4e Mathématiques, 4e Français)
-    # et de Philosophie en Terminale, portant commercial-contract.fr.json de 12 à 14
-    # offres.
-    assert len(simulation["rows"]) == 56
+    # 13 offres × 4 tailles de groupe (3/4/5/6) = 52 lignes. Arbitrage du
+    # 14/08/2026 : le pack Terminale à 4 matières est retiré — trois matières
+    # seulement restant ouvertes à ce niveau, il était invendable — ce qui ramène
+    # commercial-contract.fr.json de 14 à 13 offres.
+    assert len(simulation["rows"]) == 52
     assert {row["students"] for row in simulation["rows"]} == {3, 4, 5, 6}
     assert all(row["revenue"] == row["unitPrice"] * row["students"] for row in simulation["rows"])
     assert all(row["teacherCompensation"] is None for row in simulation["rows"])
@@ -57,12 +57,12 @@ def test_economic_simulation_is_complete_but_fail_closed_without_cost_inputs(tmp
 
     with (output / "economic-simulation.csv").open(encoding="utf-8", newline="") as handle:
         rows = list(csv.DictReader(handle))
-    assert len(rows) == 56
+    assert len(rows) == 52
     assert {int(row["students"]) for row in rows} == {3, 4, 5, 6}
 
     manifest = json.loads((output / "manifest.json").read_text(encoding="utf-8"))
     assert manifest["status"] == "REVIEW_INPUTS_REQUIRED"
-    assert manifest["inventory"]["simulationRows"] == 56
+    assert manifest["inventory"]["simulationRows"] == 52
     assert manifest["qa"]["blankPages"] == 0
     assert manifest["qa"]["missingFonts"] == 0
     assert manifest["qa"]["overflowFindings"] == 0

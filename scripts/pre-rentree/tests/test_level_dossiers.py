@@ -163,10 +163,15 @@ def test_incompatibilities_are_computed_not_invented(data: PreRentreeData, dossi
     # assign_itinerary, which correctly proves NSI+SVT can be COMPACT via cohort choice —
     # see test_pdf_never_claims_compatible_alongside_a_long_idle_pair below); this test only
     # guards that the coarse function still runs off real schedule data, not invented pairs.
+    # Arbitrage du 14/08/2026 : la SVT est fermée en Terminale, donc l'unique
+    # incompatibilité du niveau (NSI/SVT) disparaît avec elle, et les deux groupes
+    # de mathématiques étant alternatifs, plus aucune paire ne se chevauche. On
+    # vérifie l'absence plutôt que de retirer l'assertion : sinon une grille future
+    # pourrait réintroduire une incompatibilité sans que rien ne le signale.
     terminale_pairs = {
         frozenset((i.subject_a, i.subject_b)) for i in dossiers["TERMINALE"].incompatibilities
     }
-    assert frozenset(("NSI", "SVT")) in terminale_pairs
+    assert terminale_pairs == set()
     # Première schedule spreads subjects across non-overlapping dates -> no incompatibility.
     assert dossiers["PREMIERE"].incompatibilities == ()
     # 3e/Seconde only ever have 2 subjects on genuinely different windows -> no incompatibility.
@@ -272,7 +277,7 @@ def test_pdf_only_presents_profile_valid_combinations_as_public_itineraries(data
     # that subjects with two alternative cohorts (Première SVT, Terminale NSI/SVT) are
     # evaluated on the single best cohort a family would actually be assigned — never
     # both cohorts merged into one impossible itinerary.
-    from itinerary import assign_itinerary
+    from itinerary import MAX_STUDENT_IDLE_MINUTES, assign_itinerary
 
     for level, dossier in dossiers.items():
         html = generate_level_dossiers.build_dossier_html(dossier, data)
@@ -282,14 +287,26 @@ def test_pdf_only_presents_profile_valid_combinations_as_public_itineraries(data
             for j in range(i + 1, len(subjects)):
                 report = assign_itinerary(level, [subjects[i], subjects[j]], dated_sessions).itinerary
                 if report.status == "LONG_IDLE":
-                    pair = {subjects[i], subjects[j]}
-                    # In S5 the only remaining long-idle pairs omit the required
-                    # Mathématiques specialty while selecting Mathématiques
-                    # expertes. They are invalid profiles, not parent itineraries.
-                    assert "MATHS_EXPERTES" in pair
-                    assert "MATHEMATIQUES" not in pair
-                    assert f"{report.max_idle_minutes} minutes d'attente" not in html
+                    # Depuis le dédoublement du 14/08/2026, une paire réellement
+                    # proposable peut être longue : NSI + Physique-Chimie laisse
+                    # 5 h 30 de battement. Le dossier ne doit alors jamais la
+                    # ranger parmi les combinaisons compactes, mais l'annoncer
+                    # sous l'avertissement d'attente, chiffre à l'appui.
+                    warning = f"Attente supérieure à {MAX_STUDENT_IDLE_MINUTES} minutes le même jour"
+                    assert warning in html
+                    assert f"{report.max_idle_minutes} minutes d'attente" in html
+                    compact_marker = f"Combinaisons compactes (&lt;= {MAX_STUDENT_IDLE_MINUTES} min) :"
+                    if compact_marker in html:
+                        compact_line = html.split(compact_marker, 1)[1].split("</span>", 1)[0]
+                        labels = {
+                            generate_level_dossiers._subject_label(subjects[i]),
+                            generate_level_dossiers._subject_label(subjects[j]),
+                        }
+                        assert not labels.issubset(set(compact_line.replace(" + ", ", ").split(", ")))
         assert "toutes les autres combinaisons" not in html.casefold()
-    assert "Mathématiques expertes est proposée uniquement aux élèves qui suivent aussi la spécialité Mathématiques" in (
+    # Cette précision ne doit plus apparaître : Mathématiques expertes est fermée
+    # depuis le 14/08/2026, et un dossier qui la mentionnerait promettrait une
+    # matière que personne n'assure.
+    assert "Mathématiques expertes est proposée uniquement" not in (
         generate_level_dossiers.build_dossier_html(dossiers["TERMINALE"], data)
     )

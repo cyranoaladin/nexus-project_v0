@@ -145,10 +145,7 @@
       "subjects": [
         "MATHEMATIQUES",
         "PHYSIQUE_CHIMIE",
-        "NSI",
-        "MATHS_EXPERTES",
-        "SVT",
-        "PHILOSOPHIE"
+        "NSI"
       ],
       "pricing": {
         "model": "PACK_BY_SUBJECT_COUNT",

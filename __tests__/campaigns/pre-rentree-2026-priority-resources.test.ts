@@ -82,6 +82,7 @@ describe('Pré-rentrée 2026 priority pedagogical resources', () => {
     expect(row('seconde-mathematiques').officialProgrammeId).toBe('BO2026-LYCEE-MATHS-SECONDE');
     expect(row('premiere-mathematiques').officialProgrammeId).toBe('BO2026-LYCEE-MATHS-PREMIERE');
     expect(row('terminale-mathematiques').officialProgrammeId).toBe('BO2019-LYCEE-MATHS-TERMINALE');
-    expect(row('terminale-maths-expertes').officialProgrammeId).toBe('BO2019-LYCEE-MATHEXP-TERMINALE');
+    // Maths expertes fermée le 14/08/2026 : ni ligne, ni source officielle.
+    expect(row('terminale-maths-expertes')).toBeUndefined();
   });
 });

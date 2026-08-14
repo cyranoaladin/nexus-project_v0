@@ -58,10 +58,10 @@ def test_release_inventory_covers_all_seven_lots_and_final_assets(tmp_path: Path
     assert inventory["commits"]
     assert all(len(commit["commitSha"]) == 40 for commit in inventory["commits"])
     assert inventory["releaseMetrics"] == {
-        "pedagogicalModuleCount": 17,
-        "pedagogicalSessionTemplateCount": 85,
-        "operationalCohortCount": 20,
-        "scheduledSessionOccurrenceCount": 100,
+        "pedagogicalModuleCount": 14,
+        "pedagogicalSessionTemplateCount": 70,
+        "operationalCohortCount": 16,
+        "scheduledSessionOccurrenceCount": 80,
         "studentSessionsPerSubject": 5,
         "studentHoursPerSubject": 10,
     }

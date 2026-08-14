@@ -11,15 +11,16 @@ import {
 describe('Pré-rentrée 2026 — règles de non-cumul (calculées depuis la grille)', () => {
   const incompatibilities = computeSubjectIncompatibilities(getPreRentreeSchedule());
 
-  it('Terminale NSI et SVT sont incompatibles (bloc C, mêmes dates)', () => {
-    expect(areSubjectsIncompatible(incompatibilities, 'TERMINALE', 'NSI', 'SVT')).toBe(true);
+  // Arbitrage du 14/08/2026 : la SVT est fermée en Terminale. L'unique
+  // incompatibilité du niveau (NSI/SVT au bloc C) disparaît donc avec elle, et
+  // les deux groupes de maths étant alternatifs, aucune paire ne peut plus se
+  // chevaucher. On vérifie l'absence, sinon la fermeture d'une matière pourrait
+  // masquer une incompatibilité réellement introduite par une grille future.
+  it('Terminale ne produit plus aucune incompatibilité depuis la fermeture de la SVT', () => {
+    expect(incompatibilities.filter((entry) => entry.level === 'TERMINALE')).toEqual([]);
   });
 
-  it('Terminale Maths expertes et Physique-Chimie ne sont PAS incompatibles (bloc B vs bloc D)', () => {
-    expect(areSubjectsIncompatible(incompatibilities, 'TERMINALE', 'MATHS_EXPERTES', 'PHYSIQUE_CHIMIE')).toBe(false);
-  });
-
-  it('Terminale Maths et Physique-Chimie ne sont PAS incompatibles (bloc A vs bloc D)', () => {
+  it('Terminale Maths et Physique-Chimie ne sont PAS incompatibles (blocs B/C vs bloc D)', () => {
     expect(areSubjectsIncompatible(incompatibilities, 'TERMINALE', 'MATHEMATIQUES', 'PHYSIQUE_CHIMIE')).toBe(false);
   });
 

@@ -14,19 +14,22 @@ const dto = {
 describe('Pré-rentrée 2026 public schedule model', () => {
   it('uses the canonical 17/85/20/100 taxonomy', () => {
     expect(PRE_RENTREE_PUBLIC_METRICS).toEqual({
-      pedagogicalModuleCount: 17,
-      pedagogicalSessionTemplateCount: 85,
-      operationalCohortCount: 20,
-      scheduledSessionOccurrenceCount: 100,
+      pedagogicalModuleCount: 14,
+      preparedSessionCount: 70,
+      operationalCohortCount: 16,
+      scheduledSessionOccurrenceCount: 80,
       studentSessionsPerSubject: 5,
       studentHoursPerSubject: 10,
     });
   });
 
+  // Depuis l'arbitrage du 14/08/2026, les matières à deux cohortes sont la SVT
+  // de Première (cohorte alternative d'origine) et les Mathématiques de
+  // Terminale (dédoublement matin/après-midi). La cohorte de repli de Terminale
+  // NSI a été retirée avec la SVT Terminale qu'elle servait à éviter.
   it.each([
     ['PREMIERE', 'SVT'],
-    ['TERMINALE', 'NSI'],
-    ['TERMINALE', 'SVT'],
+    ['TERMINALE', 'MATHEMATIQUES'],
   ] as const)(
     '%s %s remains one subject of five sessions and ten hours with two alternative cohorts',
     (level, subjectId) => {

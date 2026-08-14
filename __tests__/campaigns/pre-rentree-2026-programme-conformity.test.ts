@@ -54,9 +54,11 @@ describe('Pré-rentrée 2026 official-programme conformity proposals', () => {
     expect(copy).not.toMatch(/probabilités conditionnelles/i);
   });
 
-  it('validates both SVT modules (levée du DRAFT, direction, 2026-07-25) with three-theme coverage and exact equipment wording', () => {
+  it('validates the SVT module (levée du DRAFT, direction, 2026-07-25) with three-theme coverage and exact equipment wording', () => {
+    // La SVT de Terminale a été fermée le 14/08/2026 faute d'effectif ; celle de
+    // Première reste ouverte et garde ses exigences de conformité.
     const expectedEquipment = "Calculatrice scientifique simple recommandée, non obligatoire sauf consigne de l'enseignant.";
-    for (const id of ['premiere-svt', 'terminale-svt']) {
+    for (const id of ['premiere-svt']) {
       const module = moduleById(id);
       expect(module.publicationStatus).toBe('VALIDATED');
       expect(module.equipment).toBe(expectedEquipment);
@@ -69,15 +71,12 @@ describe('Pré-rentrée 2026 official-programme conformity proposals', () => {
 
   it('SVT deliverables/methods now match their session title (livrables réalignés, direction, 2026-07-25)', () => {
     const premiereSvt = moduleById('premiere-svt');
-    const terminaleSvt = moduleById('terminale-svt');
     const s = (mod: typeof premiereSvt, number: number) => mod.sessions.find((session) => session.number === number)!;
 
     expect(s(premiereSvt, 2).deliverable).toMatch(/structure du globe|tectonique/i);
     expect(s(premiereSvt, 3).method).toMatch(/écosystème/i);
     expect(s(premiereSvt, 3).deliverable).toMatch(/écosystème/i);
     expect(s(premiereSvt, 4).deliverable).toMatch(/immunitaire|immunité/i);
-    expect(s(terminaleSvt, 2).deliverable).toMatch(/chronologie|datation/i);
-    expect(s(terminaleSvt, 4).deliverable).toMatch(/mouvement|ATP|stress/i);
   });
 
   it('states the official anticipated Maths exam in the FAQ without a result promise', () => {

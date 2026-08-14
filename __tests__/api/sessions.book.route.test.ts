@@ -122,6 +122,9 @@ function makeTransactionMocks(overrides: Partial<Record<string, any>> = {}) {
       findFirst: jest.fn().mockResolvedValue({
         id: 'student-record-1',
         userId: 'student-1',
+        // Le foyer conditionne désormais la réservation (plus le solde de crédits).
+        user: { mergedIntoUserId: null },
+        parent: { user: { mergedIntoUserId: null } },
       }),
     },
     coachAvailability: {
@@ -276,20 +279,15 @@ describe('POST /api/sessions/book', () => {
     expect(body.success).toBe(true);
     expect(body.sessionId).toBe('session-1');
 
+    // La séance est incluse dans la formule annuelle : aucun crédit n'est
+    // consommé, et aucun débit n'est écrit. La colonne est conservée à 0 pour
+    // que l'historique déjà enregistré reste lisible.
     expect(tx.sessionBooking.create).toHaveBeenCalledWith(
       expect.objectContaining({
-        data: expect.objectContaining({ creditsUsed: 2 }),
+        data: expect.objectContaining({ creditsUsed: 0 }),
       }),
     );
-    // Credit debit created inside the transaction (creditsToUse: 2 from buildPayload)
-    expect(tx.creditTransaction.create).toHaveBeenCalledTimes(1);
-    expect(tx.creditTransaction.create).toHaveBeenCalledWith({
-      data: expect.objectContaining({
-        type: 'USAGE',
-        amount: -2,
-        sessionId: 'session-1',
-      }),
-    });
+    expect(tx.creditTransaction.create).not.toHaveBeenCalled();
     // Side-effects are post-commit on prisma (not tx)
     expect(prisma.sessionNotification.createMany).toHaveBeenCalled();
     expect(prisma.sessionReminder.createMany).toHaveBeenCalled();
