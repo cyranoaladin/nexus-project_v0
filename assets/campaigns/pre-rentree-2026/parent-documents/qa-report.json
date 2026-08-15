@@ -20,7 +20,7 @@
         },
         {
           "page": 2,
-          "textCharacters": 2934,
+          "textCharacters": 2691,
           "blank": false,
           "width": 1240,
           "height": 1755
@@ -62,7 +62,7 @@
         },
         {
           "page": 2,
-          "textCharacters": 2843,
+          "textCharacters": 2600,
           "blank": false,
           "width": 1240,
           "height": 1755
@@ -223,7 +223,7 @@
       "pages": [
         {
           "page": 1,
-          "textCharacters": 1833,
+          "textCharacters": 1535,
           "blank": false,
           "width": 1240,
           "height": 1755
@@ -265,14 +265,14 @@
       "pages": [
         {
           "page": 1,
-          "textCharacters": 1875,
+          "textCharacters": 1857,
           "blank": false,
           "width": 1240,
           "height": 1755
         },
         {
           "page": 2,
-          "textCharacters": 1085,
+          "textCharacters": 1228,
           "blank": false,
           "width": 1240,
           "height": 1755
@@ -391,7 +391,7 @@
       "pages": [
         {
           "page": 1,
-          "textCharacters": 1573,
+          "textCharacters": 1544,
           "blank": false,
           "width": 1240,
           "height": 1755
@@ -433,7 +433,7 @@
       "pages": [
         {
           "page": 1,
-          "textCharacters": 1540,
+          "textCharacters": 1511,
           "blank": false,
           "width": 1240,
           "height": 1755
@@ -475,7 +475,7 @@
       "pages": [
         {
           "page": 1,
-          "textCharacters": 1471,
+          "textCharacters": 1442,
           "blank": false,
           "width": 1240,
           "height": 1755

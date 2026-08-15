@@ -32,8 +32,7 @@
         "pre2026-premiere-pack-4",
         "pre2026-terminale-pack-1",
         "pre2026-terminale-pack-2",
-        "pre2026-terminale-pack-3",
-        "pre2026-terminale-pack-4"
+        "pre2026-terminale-pack-3"
       ],
       "proofIds": [
         "PRF-PRE2026-DATES-VENUE",
@@ -62,8 +61,7 @@
         "pre2026-premiere-pack-4",
         "pre2026-terminale-pack-1",
         "pre2026-terminale-pack-2",
-        "pre2026-terminale-pack-3",
-        "pre2026-terminale-pack-4"
+        "pre2026-terminale-pack-3"
       ],
       "proofIds": [
         "PRF-PRE2026-DATES-VENUE",
@@ -137,8 +135,7 @@
       "offerIds": [
         "pre2026-terminale-pack-1",
         "pre2026-terminale-pack-2",
-        "pre2026-terminale-pack-3",
-        "pre2026-terminale-pack-4"
+        "pre2026-terminale-pack-3"
       ],
       "proofIds": [
         "PRF-PRE2026-DATES-VENUE",
@@ -295,7 +292,7 @@
     }
   ],
   "sourceVersion": "2026-parent-documents-v1",
-  "commercialContractVersion": "2026-pre-rentree-commercial-v3",
+  "commercialContractVersion": "2026-pre-rentree-commercial-v4",
   "sourceInputs": [
     "content/pre-rentree-2026/parent-documents.fr.json",
     "scripts/pre-rentree/templates/parent-document.css",
@@ -318,8 +315,8 @@
       "path": "pdf/brochure-generale.pdf",
       "role": "final-pdf",
       "format": "PDF",
-      "bytes": 306298,
-      "sha256": "ea2eba1ebe128f03ae885c086127882a8b8e2dc3464974ef9ac0dea00d654c94",
+      "bytes": 305992,
+      "sha256": "a4b46884e9ba5db4ccb986200be37ab13e2e94bbdf92a05c7279e8a60c4e4efc",
       "documentId": "brochure-generale",
       "pageCount": 2
     },
@@ -328,8 +325,8 @@
       "path": "pdf/comparatif-fondations-premium.pdf",
       "role": "final-pdf",
       "format": "PDF",
-      "bytes": 303567,
-      "sha256": "b31e0d6a294c621c5034454ee2b6b96c25d0e02e9349b83f6145023d250a4038",
+      "bytes": 303792,
+      "sha256": "24b3f0ee2f54a78e929e1846cc2a7873364ca1f33e8b8656e124762342510174",
       "documentId": "comparatif-fondations-premium",
       "pageCount": 2
     },
@@ -338,8 +335,8 @@
       "path": "pdf/conditions-reservation-acompte.pdf",
       "role": "final-pdf",
       "format": "PDF",
-      "bytes": 301022,
-      "sha256": "dedecebbe8aa330fbaad30caf9afd5a371fb105e0016cbf3d6a906d12ca5322b",
+      "bytes": 300861,
+      "sha256": "f30e1bd91777ee173445acbd701fd7558e71cebea60dfad8e7101c2eb6278d09",
       "documentId": "conditions-reservation-acompte",
       "pageCount": 2
     },
@@ -348,8 +345,8 @@
       "path": "pdf/faq-commerciale.pdf",
       "role": "final-pdf",
       "format": "PDF",
-      "bytes": 303724,
-      "sha256": "7bc9348d8d06f9f421db8156dd40c56b657f0d14afaa9c53b2cd9c474633c003",
+      "bytes": 303560,
+      "sha256": "ad65cf2993999be600349bb93dc705f5b07bba263375bb14375f1954283658bc",
       "documentId": "faq-commerciale",
       "pageCount": 2
     },
@@ -388,8 +385,8 @@
       "path": "pdf/fiche-terminale.pdf",
       "role": "final-pdf",
       "format": "PDF",
-      "bytes": 303876,
-      "sha256": "f19cf4b46ce5eadb8f8d833fc3e896fc46e48d2f92531a5db3ce768b29278629",
+      "bytes": 303271,
+      "sha256": "86499f30701d919bb2e458928f2cd3a95793a8e1e745ecc7d5cc1a76946177e3",
       "documentId": "fiche-terminale",
       "pageCount": 2
     },
@@ -398,8 +395,8 @@
       "path": "pdf/guide-parent.pdf",
       "role": "final-pdf",
       "format": "PDF",
-      "bytes": 305146,
-      "sha256": "17a041a9f920ca95340e99c138cc0bec7020883e2449f89980ae447d5e436a2f",
+      "bytes": 304836,
+      "sha256": "2e3e4d35b452a6ad7dc1a353deffcc6e333a498acc109ffce2c384b16f23c82b",
       "documentId": "guide-parent",
       "pageCount": 2
     },
@@ -438,8 +435,8 @@
       "path": "pdf/procedure-inscription.pdf",
       "role": "final-pdf",
       "format": "PDF",
-      "bytes": 301946,
-      "sha256": "48f2ad92fce38127dd23f63ba67b5033f1d141c3226b76c0b8ceae6bed210e72",
+      "bytes": 301779,
+      "sha256": "7c4c4a79f1385a5bc3d199fa3303ff1b1fd60ed31bf87a829171f8c8264395b2",
       "documentId": "procedure-inscription",
       "pageCount": 2
     },
@@ -449,7 +446,7 @@
       "role": "quality-report",
       "format": "JSON",
       "bytes": 14114,
-      "sha256": "24ed62cdb94e463d7ca30125ef0f9522381d41c68568b48f6210413431ec77b5"
+      "sha256": "de89bd12f2082625ac4ec45350e8692d622b0c96380c556cb6edfc1875404011"
     },
     {
       "assetId": "parent-accompagnements-annuels-page-01",
@@ -478,8 +475,8 @@
       "path": "rendered/brochure-generale/page-02.png",
       "role": "visual-inspection",
       "format": "PNG",
-      "bytes": 716154,
-      "sha256": "e4207ee236a6ca9fc4040691fc8abede53ca4aef858eea69786efa973825da96",
+      "bytes": 665011,
+      "sha256": "4a51bac0c11bf51d0612b7fcd6b8b34ac06c6ff48bc8411774f4f2435f67d3f4",
       "documentId": "brochure-generale",
       "width": 1240,
       "height": 1755
@@ -489,8 +486,8 @@
       "path": "rendered/comparatif-fondations-premium/page-01.png",
       "role": "visual-inspection",
       "format": "PNG",
-      "bytes": 574058,
-      "sha256": "f3c91295f5bca610bba8994d6a517ae5a3c901b6906b7f03de9266ffff5442e4",
+      "bytes": 571592,
+      "sha256": "29f61c39b8ca4d4044ece32ad91dbbaf0d42a701524873f1d2e2761ff6c005f0",
       "documentId": "comparatif-fondations-premium",
       "width": 1240,
       "height": 1755
@@ -500,8 +497,8 @@
       "path": "rendered/comparatif-fondations-premium/page-02.png",
       "role": "visual-inspection",
       "format": "PNG",
-      "bytes": 283417,
-      "sha256": "5a478cbce8baa67859714618b0d45cffda8c76d8acd3f1769f61fdd8dbc71da1",
+      "bytes": 314971,
+      "sha256": "419f772b74d99b31fb7f41426cd79876c4a1f4595601c567383b5d795a03b8b7",
       "documentId": "comparatif-fondations-premium",
       "width": 1240,
       "height": 1755
@@ -511,8 +508,8 @@
       "path": "rendered/conditions-reservation-acompte/page-01.png",
       "role": "visual-inspection",
       "format": "PNG",
-      "bytes": 470297,
-      "sha256": "4f04b5c314bd2c83373620274e88ae5244d150c72f75b31e92790917fd5475ad",
+      "bytes": 463373,
+      "sha256": "83d007a750a127aecdda6cd0a35dd8426ba863d71794a39298ee70a054ca7ed1",
       "documentId": "conditions-reservation-acompte",
       "width": 1240,
       "height": 1755
@@ -533,8 +530,8 @@
       "path": "rendered/faq-commerciale/page-01.png",
       "role": "visual-inspection",
       "format": "PNG",
-      "bytes": 513273,
-      "sha256": "9b4911607784979b8384c08e44f242fd6524bfbd35a19c32a0c839626f617dd0",
+      "bytes": 506247,
+      "sha256": "8078cf8604d8373a50daa30aff24ea6938171b9427576c783c9b10479d8873e9",
       "documentId": "faq-commerciale",
       "width": 1240,
       "height": 1755
@@ -621,8 +618,8 @@
       "path": "rendered/fiche-terminale/page-01.png",
       "role": "visual-inspection",
       "format": "PNG",
-      "bytes": 572720,
-      "sha256": "0dd22e09640e26049dfb37e92acfb4385bdb801d773e4f58622575242ee35710",
+      "bytes": 501039,
+      "sha256": "03d0efd0c18c3fc2aa612f9c4ce7780e83d110e609c435771e88891b8133228f",
       "documentId": "fiche-terminale",
       "width": 1240,
       "height": 1755
@@ -654,8 +651,8 @@
       "path": "rendered/guide-parent/page-02.png",
       "role": "visual-inspection",
       "format": "PNG",
-      "bytes": 685352,
-      "sha256": "c36117204f1dc966640d96cab898d68a0464c0a4c72b29e60ee020f2938d3dc5",
+      "bytes": 628118,
+      "sha256": "bc1ad29bb6d6ee7e91bd351509e3d113c75a4c31aa8a31ebf4dd3538a732fd2b",
       "documentId": "guide-parent",
       "width": 1240,
       "height": 1755
@@ -720,8 +717,8 @@
       "path": "rendered/procedure-inscription/page-01.png",
       "role": "visual-inspection",
       "format": "PNG",
-      "bytes": 486774,
-      "sha256": "e97404ce4a3f0005b1d9eac77958c31044df4aae78746d2bfbb5c9a045629fc3",
+      "bytes": 480684,
+      "sha256": "3d86b5d9faa76ce4f6a4428168b726f086a80cc09440b3d80ed38c3d28d76c9f",
       "documentId": "procedure-inscription",
       "width": 1240,
       "height": 1755
@@ -751,8 +748,8 @@
       "path": "sources/brochure-generale.html",
       "role": "editable-source",
       "format": "HTML",
-      "bytes": 406435,
-      "sha256": "c062d68aa5ca585d51f30ad8ff5cec2c411532cd64c277b8f380da5a35d38cfa",
+      "bytes": 406080,
+      "sha256": "8c0140db795570fa982c529f4502a0d15eec62120952c27778986175791b770d",
       "documentId": "brochure-generale"
     },
     {
@@ -760,8 +757,8 @@
       "path": "sources/comparatif-fondations-premium.html",
       "role": "editable-source",
       "format": "HTML",
-      "bytes": 404598,
-      "sha256": "b07f300e0ae0a71660b8f500636f114d000e1063c4e780cbc940faa93744b1f5",
+      "bytes": 404736,
+      "sha256": "1d14708ca3f76438476eb8de77b88b1b887f7a83faa3d7d15e3e8a53d5e8c45a",
       "documentId": "comparatif-fondations-premium"
     },
     {
@@ -769,8 +766,8 @@
       "path": "sources/conditions-reservation-acompte.html",
       "role": "editable-source",
       "format": "HTML",
-      "bytes": 403736,
-      "sha256": "8436250db0d5d667345a71d6312a5b0b8c6137431f08b8373048b490cc91f3f0",
+      "bytes": 403706,
+      "sha256": "abdab521b092fbbd7406239526b3f2a5ca0564750532fe8a3bee4eb863df2f72",
       "documentId": "conditions-reservation-acompte"
     },
     {
@@ -778,8 +775,8 @@
       "path": "sources/faq-commerciale.html",
       "role": "editable-source",
       "format": "HTML",
-      "bytes": 403916,
-      "sha256": "e71aee1694df32fcd0bef1d9c925f41da2908bf2fa6e25d66fd615ee11f14e2b",
+      "bytes": 403886,
+      "sha256": "c64be8e3de77c73a6ca2fab60690afa36c8e74ca123c2b9c01b6aad8f18b08e5",
       "documentId": "faq-commerciale"
     },
     {
@@ -814,8 +811,8 @@
       "path": "sources/fiche-terminale.html",
       "role": "editable-source",
       "format": "HTML",
-      "bytes": 404213,
-      "sha256": "f953bd4d8f60c36176886448317c49994a443f18d4928cf27b8f66b4c5eb28b5",
+      "bytes": 403796,
+      "sha256": "c65827daa6268a6e822c35113f3e296fa03496261eb13f34a17915b4dad8aabe",
       "documentId": "fiche-terminale"
     },
     {
@@ -847,8 +844,8 @@
       "path": "sources/guide-parent.html",
       "role": "editable-source",
       "format": "HTML",
-      "bytes": 406403,
-      "sha256": "8e998ff1fcfac71b75e94445dc20b0fd5c72358ba530a077b22d0d604e564504",
+      "bytes": 406048,
+      "sha256": "2b23c2d5aa7b95ebb68e60d4bd4cc8fab3cdf61ab76232037f6bbc3a0bfe8354",
       "documentId": "guide-parent"
     },
     {
@@ -883,8 +880,8 @@
       "path": "sources/procedure-inscription.html",
       "role": "editable-source",
       "format": "HTML",
-      "bytes": 403790,
-      "sha256": "aca793c3177d57d411b7cbef548d63a51f948fc42f3983d0e2a5046308c3c29a",
+      "bytes": 403760,
+      "sha256": "5c3d79f77bff880d19fc106c62d54a76e0ba28d85c4937111cef27d47a64a393",
       "documentId": "procedure-inscription"
     },
     {
@@ -892,8 +889,8 @@
       "path": "visual-review/parent-documents-contact-sheet.png",
       "role": "visual-review",
       "format": "PNG",
-      "bytes": 1411327,
-      "sha256": "562fcb11fbe7a6684f72aa4a6eb57788b656c2f737667ce3e394b4ac920fb9a8",
+      "bytes": 1394860,
+      "sha256": "b57d7083296cfc2e7299f8670bac43928265791001d0378c7dc476dfc2ced367",
       "width": 1400,
       "height": 3500
     }
