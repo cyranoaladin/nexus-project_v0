@@ -29,10 +29,15 @@ describe('Pré-rentrée 2026 omnichannel communication contract', () => {
       stories: Array<{ id: string }>;
       reels: Array<{ id: string; durationSeconds: number; captionsRequired: boolean }>;
     }>(path);
-    expect(source.publications.length).toBeGreaterThanOrEqual(13);
+    // Arbitrage du 14/08/2026 : Mathématiques expertes fermée en Terminale —
+    // la publication et la story dédiées à cette matière (« maths-expertes »)
+    // ont été retirées, faisant passer les planchers de 13 à 12 et de 12 à 11.
+    expect(source.publications.length).toBeGreaterThanOrEqual(12);
+    expect(source.publications.some((item) => item.id === 'maths-expertes')).toBe(false);
+    expect(source.stories.some((item) => item.id === 'maths-expertes')).toBe(false);
     expect(source.carousels).toHaveLength(8);
     expect(source.carousels.every((carousel) => carousel.slides.length >= 4)).toBe(true);
-    expect(source.stories.length).toBeGreaterThanOrEqual(12);
+    expect(source.stories.length).toBeGreaterThanOrEqual(11);
     expect(source.reels).toHaveLength(3);
     expect(source.reels.every((reel) => (
       reel.durationSeconds >= 20 && reel.durationSeconds <= 35 && reel.captionsRequired

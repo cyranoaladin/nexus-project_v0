@@ -147,12 +147,12 @@ export const PreRentreeCommunicationSchema = z.object({
     title: z.string().min(1),
     publicGate: PublicGate,
     text: z.string().min(1),
-  }).strict()).min(13),
+  }).strict()).min(12),
   carousels: z.array(z.object({
     id: z.string().min(1),
     slides: z.array(z.object({ title: z.string().min(1), body: z.string().min(1) }).strict()).min(4),
   }).strict()).length(8),
-  stories: z.array(z.object({ id: z.string().min(1) }).strict()).min(12),
+  stories: z.array(z.object({ id: z.string().min(1) }).strict()).min(11),
   reels: z.array(z.object({
     id: z.string().min(1),
     title: z.string().min(1),
