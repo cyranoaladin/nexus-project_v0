@@ -107,7 +107,9 @@ test.describe('Landing Pré-rentrée 2026', () => {
       ['TROISIEME', ['Mathématiques', 'Français']],
       ['SECONDE', ['Mathématiques', 'Français']],
       ['PREMIERE', ['Mathématiques', 'Physique-Chimie', 'Français — préparation à l’EAF', 'NSI', 'SVT']],
-      ['TERMINALE', ['Mathématiques', 'Physique-Chimie', 'NSI', 'SVT', 'Mathématiques expertes', 'Philosophie']],
+      // Arbitrage du 14/08/2026 : Philosophie, Mathématiques expertes et SVT
+      // sont fermées en Terminale (aucun élève inscrit).
+      ['TERMINALE', ['Mathématiques', 'Physique-Chimie', 'NSI']],
     ]);
 
     for (const [level, subjects] of expected) {
@@ -120,15 +122,18 @@ test.describe('Landing Pré-rentrée 2026', () => {
     await expect(page.getByText('EDS NSI Seconde')).toHaveCount(0);
   });
 
-  test('ouvre les dix-sept programmes publiés avec leurs cinq séances', async ({ page }) => {
+  test('ouvre les quatorze programmes publiés avec leurs cinq séances', async ({ page }) => {
     await page.goto(CAMPAIGN_PATH);
     const programs = page.locator('#programmes');
+    // Arbitrage du 14/08/2026 : Philosophie, Mathématiques expertes et SVT
+    // fermées en Terminale (aucun élève inscrit) — Terminale retombe de 6 à 3
+    // modules (Mathématiques, NSI, Physique-Chimie).
     const expected = new Map([
       ['Entrée en 4e', 2],
       ['Entrée en 3e', 2],
       ['Entrée en Seconde', 2],
       ['Entrée en Première', 5],
-      ['Entrée en Terminale', 6],
+      ['Entrée en Terminale', 3],
     ]);
 
     let checked = 0;
@@ -144,7 +149,7 @@ test.describe('Landing Pré-rentrée 2026', () => {
         checked += 1;
       }
     }
-    expect(checked).toBe(17);
+    expect(checked).toBe(14);
   });
 
   test('compose quatre matières, résout le pack 40 h et produit une demande non contractuelle', async ({ page }) => {

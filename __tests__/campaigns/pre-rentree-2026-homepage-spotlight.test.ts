@@ -45,8 +45,10 @@ describe('Pré-rentrée homepage spotlight DTO', () => {
         chipLabel: 'dès le 17 août',
       },
       entryClassesLabel: 'Entrée en 4e, 3e, Seconde, Première ou Terminale',
-      // Philosophie purgée du catalogue pré-rentrée (2026-07-24) ; Maths expertes apparaît
-      // désormais, commercial-contract.fr.json (offres Terminale) ayant été réconcilié.
+      // Philosophie et Maths expertes purgées du catalogue pré-rentrée : Philosophie
+      // le 2026-07-24, puis Maths expertes (avec SVT en Terminale, SVT restant
+      // ouverte en Première) le 2026-08-14, faute d'effectif — aucune des deux ne
+      // figure dans ce libellé agrégé.
       subjectFamiliesLabel: 'Mathématiques · Physique-Chimie · Français · NSI · SVT',
       // Per-level, never a blended "Fondations : X à Y" (mission §6.3) — the 4e's
       // 4-student floor genuinely differs from 3e/Seconde's 3.

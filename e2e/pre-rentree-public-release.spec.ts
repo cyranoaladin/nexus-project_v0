@@ -28,7 +28,9 @@ test.describe('Candidat public Pré-rentrée 2026', () => {
       ['Entrée en 3e', ['Mathématiques', 'Français']],
       ['Entrée en Seconde', ['Mathématiques', 'Français']],
       ['Entrée en Première', ['Mathématiques', 'Français — préparation à l’EAF', 'NSI', 'Physique-Chimie', 'SVT']],
-      ['Entrée en Terminale', ['Mathématiques', 'Mathématiques expertes', 'NSI', 'Physique-Chimie', 'SVT', 'Philosophie']],
+      // Arbitrage du 14/08/2026 : Philosophie, Mathématiques expertes et SVT
+      // sont fermées en Terminale (aucun élève inscrit).
+      ['Entrée en Terminale', ['Mathématiques', 'NSI', 'Physique-Chimie']],
     ]);
 
     for (const [level, subjects] of expected) {
