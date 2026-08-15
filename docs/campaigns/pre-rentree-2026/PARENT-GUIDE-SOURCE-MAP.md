@@ -12,7 +12,7 @@
 | Entrée en 3e | `/levels/0`, modules et planning `TROISIEME` | deux modules, dix séances |
 | Entrée en Seconde | `/levels/1`, modules et planning `SECONDE` | Mathématiques et Français uniquement |
 | Entrée en Première | `/levels/2`, profils, modules et planning `PREMIERE` | Mathématiques, Français EAF, NSI, Physique-Chimie et SVT |
-| Entrée en Terminale | `/levels/3`, profils, modules et planning `TERMINALE` | Mathématiques, Mathématiques expertes, NSI, Physique-Chimie et SVT |
+| Entrée en Terminale | `/levels/3`, profils, modules et planning `TERMINALE` | Mathématiques, NSI et Physique-Chimie |
 | Quatorze programmes | `/modules` | cinq séances, objectifs, notions, méthodes et livrables sans omission |
 | Planning | `/schedule`, `/campaign/operationalGates` | cohortes alternatives sans double comptage ; disponibilité à confirmer |
 | Tarifs et acompte | `/offerPricing`, `/offers/depositRate` | 30 % exact, aucun ancien arrondi |
@@ -23,5 +23,5 @@
 | Contact | `/contact`, `/cta`, `/document/qrTarget` | QR vérifié contre l’URL canonique |
 
 Chaque bloc factuel de `parent-guide.fr.json` porte des références validées à
-la compilation. Le contrat actif contient 17 modules pédagogiques, 85 séances
-modèles, 20 cohortes opérationnelles et 100 occurrences calendaires.
+la compilation. Le contrat actif contient 14 modules pédagogiques, 70 séances
+modèles, 16 cohortes opérationnelles et 80 occurrences calendaires.

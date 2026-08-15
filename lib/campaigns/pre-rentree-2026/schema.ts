@@ -200,8 +200,6 @@ const CampaignContent = z.object({
       NSI: z.object({ label: z.string().min(1), description: z.string().min(1) }),
       PHYSIQUE_CHIMIE: z.object({ label: z.string().min(1), description: z.string().min(1) }),
       SVT: z.object({ label: z.string().min(1), description: z.string().min(1) }),
-      MATHS_EXPERTES: z.object({ label: z.string().min(1), description: z.string().min(1) }),
-      PHILOSOPHIE: z.object({ label: z.string().min(1), description: z.string().min(1) }),
     }).strict(),
     preRegistrationNotice: z.string().min(1),
     noOnlinePaymentNotice: z.string().min(1),

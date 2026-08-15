@@ -96,4 +96,22 @@ describe('Pré-rentrée 2026 canonical commercial publication contract', () => {
     expect(decisions.get('DEC-PRE2026-ANNUAL-DISCOUNT')).toMatchObject({ status: 'PENDING' });
     expect(decisions.get('DEC-PRE2026-SECONDE-SNT')).toMatchObject({ status: 'CLOSED_EXCLUDED' });
   });
+
+  it('purges the Terminale Philosophie/deux-fenêtres/six-matières narrative (arbitrage du 14/08/2026)', () => {
+    const compiled = compileCommercialPublicationContract();
+    const proofById = new Map(compiled.proofs.proofs.map((proof) => [proof.proofId, proof]));
+    const allOfferProofIds = compiled.offers.flatMap((offer) => offer.proofIds);
+
+    // Les 6 proofs Philosophie/deux-fenêtres/six-matières ont été retirées du
+    // registre : aucune offre publique ne doit plus les référencer.
+    expect(allOfferProofIds.some((id) => /PHILO|TWO-WINDOWS|POOL-SIX/i.test(id))).toBe(false);
+    // Toute proofId encore référencée par une offre doit résoudre vers une
+    // preuve APPROVED du registre (aucune référence pendante).
+    expect(allOfferProofIds.every((id) => proofById.get(id)?.status === 'APPROVED')).toBe(true);
+
+    const decisions = new Map(compiled.proofs.decisions.map((decision) => [decision.decisionId, decision]));
+    expect(decisions.get('DEC-PRE2026-TERMINALE-PHILO-EXPERTES-SVT-CLOSURE')).toMatchObject({
+      status: 'CLOSED_EXCLUDED',
+    });
+  });
 });

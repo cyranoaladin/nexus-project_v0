@@ -995,10 +995,10 @@
     "funnelStage": "CONSIDERATION",
     "objective": "Orienter les familles de Terminale vers un parcours cohérent",
     "hook": "En Terminale, préparer la rentrée signifie hiérarchiser les priorités sans se disperser.",
-    "body": "Les parcours d'entrée en Terminale associent une à quatre matières parmi Mathématiques, Physique-Chimie, NSI, SVT et Mathématiques expertes. Les dix heures de chaque matière sont réparties en cinq séances. En groupe Premium de trois à cinq élèves, le travail privilégie les objectifs utiles, l'entraînement et une correction structurée.",
+    "body": "Les parcours d'entrée en Terminale associent une à trois matières parmi Mathématiques, Physique-Chimie et NSI. Les dix heures de chaque matière sont réparties en cinq séances. En groupe Premium de trois à cinq élèves, le travail privilégie les objectifs utiles, l'entraînement et une correction structurée.",
     "cta": "Vérifier le parcours de Terminale",
     "assetId": "full-post-05-entree-terminale",
-    "altText": "Visuel présentant les parcours Premium d'entrée en Terminale parmi Mathématiques, Physique-Chimie, NSI, SVT et Mathématiques expertes, de une à quatre matières et cinq séances par matière.",
+    "altText": "Visuel présentant les parcours Premium d'entrée en Terminale parmi Mathématiques, Physique-Chimie et NSI, de une à trois matières et cinq séances par matière.",
     "publicationTime": "19:00",
     "utm": {
       "source": "meta",
@@ -1014,8 +1014,7 @@
     "offerIds": [
       "pre2026-terminale-pack-1",
       "pre2026-terminale-pack-2",
-      "pre2026-terminale-pack-3",
-      "pre2026-terminale-pack-4"
+      "pre2026-terminale-pack-3"
     ],
     "pricingDisclosure": "TERMINALE",
     "whatsappPrefill": "Bonjour, mon enfant entre en Terminale et souhaite préparer [matières]. Pouvez-vous vérifier le parcours disponible ?",
@@ -1040,7 +1039,7 @@
     "funnelStage": "CONSIDERATION",
     "objective": "Recueillir les priorités du parcours Terminale",
     "hook": "En Terminale, commencez par la matière qui mérite une reprise ciblée.",
-    "body": "Cette séquence invite l'élève à hiérarchiser ses priorités, présente le format Premium de une à quatre matières et demande son profil scolaire pour confirmer les possibilités.",
+    "body": "Cette séquence invite l'élève à hiérarchiser ses priorités, présente le format Premium de une à trois matières et demande son profil scolaire pour confirmer les possibilités.",
     "cta": "Indiquer les priorités",
     "assetId": "full-story-05-terminale",
     "altText": "Séquence Story aidant les élèves de Terminale à hiérarchiser leurs matières avant de composer un pack.",
@@ -1057,8 +1056,7 @@
     "offerIds": [
       "pre2026-terminale-pack-1",
       "pre2026-terminale-pack-2",
-      "pre2026-terminale-pack-3",
-      "pre2026-terminale-pack-4"
+      "pre2026-terminale-pack-3"
     ],
     "pricingDisclosure": "TERMINALE",
     "whatsappPrefill": "Bonjour, mon enfant entre en Terminale et ses priorités sont [matières].",
@@ -1122,7 +1120,7 @@
     "funnelStage": "CONSIDERATION",
     "objective": "Aider à hiérarchiser le parcours Terminale",
     "hook": "En Terminale, mieux vaut choisir des priorités précises que multiplier les objectifs.",
-    "body": "Ce carrousel guide la composition d'un parcours d'entrée en Terminale de une à quatre matières selon les matières disponibles. Chaque matière comprend dix heures en cinq séances et le groupe Premium accueille de trois à cinq élèves.",
+    "body": "Ce carrousel guide la composition d'un parcours d'entrée en Terminale de une à trois matières selon les matières disponibles. Chaque matière comprend dix heures en cinq séances et le groupe Premium accueille de trois à cinq élèves.",
     "cta": "Construire le parcours Terminale",
     "assetId": "full-carousel-05-terminale",
     "altText": "Carrousel guidant la composition d'un parcours Premium d'entrée en Terminale selon les matières disponibles.",
@@ -1139,8 +1137,7 @@
     "offerIds": [
       "pre2026-terminale-pack-1",
       "pre2026-terminale-pack-2",
-      "pre2026-terminale-pack-3",
-      "pre2026-terminale-pack-4"
+      "pre2026-terminale-pack-3"
     ],
     "pricingDisclosure": "TERMINALE",
     "whatsappPrefill": "Bonjour, mon enfant entre en Terminale avec [spécialités/options]. Nous souhaitons vérifier les matières disponibles.",
@@ -1158,9 +1155,9 @@
       {
         "id": "02",
         "eyebrow": "PARCOURS",
-        "title": "De une à quatre matières",
+        "title": "De une à trois matières",
         "body": "Les matières sont sélectionnées uniquement parmi l'offre disponible au niveau.",
-        "altText": "Slide présentant les parcours de une à quatre matières.",
+        "altText": "Slide présentant les parcours de une à trois matières.",
         "proofIds": [
           "PRF-PRE2026-PREMIUM-PACKS"
         ]
@@ -1189,7 +1186,7 @@
         "id": "05",
         "eyebrow": "VÉRIFIER",
         "title": "Confirmez les matières",
-        "body": "Consultez les packs de une à quatre matières et indiquez le profil scolaire sur WhatsApp.",
+        "body": "Consultez les packs de une à trois matières et indiquez le profil scolaire sur WhatsApp.",
         "altText": "Slide finale avec les tarifs des packs et le CTA WhatsApp.",
         "proofIds": [
           "PRF-PRE2026-PREMIUM-PACKS",
@@ -1823,7 +1820,7 @@
       {
         "id": "03",
         "eyebrow": "PREMIUM",
-        "text": "Première et Terminale : packs de une à quatre matières.",
+        "text": "Première : packs de une à quatre matières. Terminale : packs de une à trois matières.",
         "interaction": "Lien WhatsApp",
         "durationSeconds": 7,
         "cta": "Vérifier",

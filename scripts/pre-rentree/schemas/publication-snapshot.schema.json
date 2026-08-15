@@ -1501,7 +1501,7 @@
                 ],
                 "additionalProperties": false
               },
-              "minItems": 13
+              "minItems": 12
             },
             "carousels": {
               "type": "array",
@@ -1559,7 +1559,7 @@
                 ],
                 "additionalProperties": false
               },
-              "minItems": 12
+              "minItems": 11
             },
             "reels": {
               "type": "array",

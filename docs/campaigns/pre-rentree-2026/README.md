@@ -7,8 +7,8 @@ RELEASE_STATUS=SEE data/campaigns/pre-rentree-2026.json
 CAMPAIGN_VERSION=2.1.0
 PEDAGOGICAL_MODULES=14
 PEDAGOGICAL_SESSION_TEMPLATES=70
-OPERATIONAL_COHORTS=17
-SCHEDULED_SESSION_OCCURRENCES=85
+OPERATIONAL_COHORTS=16
+SCHEDULED_SESSION_OCCURRENCES=80
 STUDENT_SESSIONS_PER_SUBJECT=5
 STUDENT_HOURS_PER_SUBJECT=10
 PUBLIC_PDF_COUNT=7
@@ -19,8 +19,8 @@ DEPLOYMENT=SEE FINAL-GO-LIVE-REPORT
 PUBLIC_DISTRIBUTION=CONTROLLED_BY_RELEASE_GATE
 ```
 
-Le candidat comprend cinq niveaux, 17 modules pédagogiques et 85 séances
-modèles. Ses 20 cohortes produisent 100 occurrences calendaires, sans augmenter
+Le candidat comprend cinq niveaux, 14 modules pédagogiques et 70 séances
+modèles. Ses 16 cohortes produisent 80 occurrences calendaires, sans augmenter
 le volume suivi par un élève : une matière reste composée de cinq séances et
 dix heures. La publication est fail-closed tant que les sources canoniques ne
 portent pas simultanément `PUBLIC_READY` et toutes les gates résolues.

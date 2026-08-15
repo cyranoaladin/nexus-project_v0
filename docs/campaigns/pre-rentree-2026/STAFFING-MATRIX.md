@@ -16,11 +16,8 @@ Cette matrice publique de gouvernance ne contient aucun nom. Les affectations r�
 | `premiere-physique-chimie` | Première | Physique-Chimie | À affecter | À affecter | À vérifier | À valider | 2 h | Validateur à affecter | Validateur à affecter |
 | `premiere-svt` | Première | SVT | À affecter | À affecter | À vérifier | À valider | 2 h | Validateur à affecter | Validateur à affecter |
 | `terminale-mathematiques` | Terminale | Mathématiques | À affecter | À affecter | À vérifier | À valider | 2 h | Validateur à affecter | Validateur à affecter |
-| `terminale-maths-expertes` | Terminale | Mathématiques expertes | À affecter | À affecter | À vérifier | À valider | 2 h | Validateur à affecter | Validateur à affecter |
 | `terminale-nsi` | Terminale | NSI | À affecter | À affecter | À vérifier | À valider | 2 h | Validateur à affecter | Validateur à affecter |
 | `terminale-physique-chimie` | Terminale | Physique-Chimie | À affecter | À affecter | À vérifier | À valider | 2 h | Validateur à affecter | Validateur à affecter |
-| `terminale-svt` | Terminale | SVT | À affecter | À affecter | À vérifier | À valider | 2 h | Validateur à affecter | Validateur à affecter |
-| `terminale-philosophie` | Terminale | Philosophie | À affecter | À affecter | À vérifier | À valider | 2 h | Validateur à affecter | Validateur à affecter |
 
 ```text
 TEACHER_ASSIGNMENTS_VALIDATED=false
@@ -33,5 +30,5 @@ DAILY_LOAD_VALID=true
 Les trois derniers contrôles portent uniquement sur le planning socle et ne valent pas validation d’affectation. La charge par enseignant est calculée et rapportée par le validateur (`scripts/validate-stage-planning.ts`) mais n’est plus une règle bloquante (mission consolidée §0.2, 2026-07-27) : un fichier de configuration ne décide plus des heures d’une personne réelle.
 
 Les cohortes alternatives sont des options de créneau et non des modules
-supplémentaires. La matrice contient exactement les 17 modules pédagogiques du
+supplémentaires. La matrice contient exactement les 14 modules pédagogiques du
 contrat canonique.
