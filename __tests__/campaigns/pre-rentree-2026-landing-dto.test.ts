@@ -25,6 +25,17 @@ describe('Pré-rentrée 2026 campaign source', () => {
     expect(campaign.content.method).toHaveLength(4);
     expect(campaign.content.faq).toHaveLength(27);
     expect(campaign.content.faq.filter((entry) => entry.published)).toHaveLength(9);
+    // Le PDF parent-facing FAQ_Parents_PreRentree2026.pdf (document_templates.py
+    // _faq()) imprime la totalité de campaign.content.faq SANS filtrer sur
+    // published — contrairement à la page web (PUBLISHED_FAQ_ORDER). Une
+    // réponse périmée non publiée finirait donc quand même entre les mains
+    // des parents. Arbitrage du 14/08/2026 : Philosophie, Maths expertes et
+    // SVT sont fermées en Terminale (aucun élève inscrit) — aucune réponse,
+    // publiée ou non, ne doit plus prétendre le contraire.
+    const allFaqText = JSON.stringify(campaign.content.faq);
+    expect(allFaqText).not.toMatch(/la philosophie se déroule pendant la fenêtre du 17 au 21 août/i);
+    expect(allFaqText).not.toMatch(/maths expertes est proposée comme matière/i);
+    expect(allFaqText).not.toMatch(/svt est proposée (en première et en terminale|pour une entrée en première ou terminale)/i);
     expect(campaign.content.practical.preRegistrationNotice).toContain('ne réserve pas une place');
     expect(campaign.content.practical.preRegistrationNotice).toContain('ne forme pas un contrat');
     expect(campaign.seo.canonical).toBe('/stages/pre-rentree-2026');

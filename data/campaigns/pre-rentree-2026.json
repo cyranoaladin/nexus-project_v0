@@ -568,7 +568,7 @@
       {
         "id": "faq-profil-maths-premiere",
         "question": "Comment choisir le profil de Mathématiques pour une entrée en Première ?",
-        "answer": "Le parent déclare Maths EDS ou Maths hors EDS pour la classe de rentrée. Le créneau est commun, puis la composition pédagogique du groupe est validée selon les profils et les effectifs. SVT est proposée pour une entrée en Première ou Terminale selon les groupes formés.",
+        "answer": "Le parent déclare Maths EDS ou Maths hors EDS pour la classe de rentrée. Le créneau est commun, puis la composition pédagogique du groupe est validée selon les profils et les effectifs. SVT est proposée pour une entrée en Première selon les groupes formés (fermée en Terminale depuis l'arbitrage du 14/08/2026, faute d'effectif).",
         "published": false
       },
       {
@@ -592,13 +592,13 @@
       {
         "id": "faq-maths-expertes-terminale",
         "question": "Le stage de pré-rentrée propose-t-il un module Maths expertes en Terminale ?",
-        "answer": "Oui. Pour l'entrée en Terminale, Maths expertes est proposée comme matière de stage à part entière, en plus des Mathématiques, du NSI, de la Physique-Chimie et de la SVT. Le Français n'est pas proposé au niveau Terminale.",
+        "answer": "Non. Maths expertes est fermée en Terminale depuis l'arbitrage du 14/08/2026 (aucun élève inscrit) : le stage de pré-rentrée en Terminale ne propose plus que Mathématiques, NSI et Physique-Chimie. Le Français n'est pas proposé au niveau Terminale.",
         "published": false
       },
       {
         "id": "faq-svt-niveaux",
         "question": "La SVT est-elle proposée, et à quels niveaux ?",
-        "answer": "La SVT est proposée en Première et en Terminale uniquement ; elle ne fait pas partie des matières de 3e et de Seconde. Elle compte comme l'une des matières du pack Premium : le parcours réunit de 1 à 4 matières au choix parmi les cinq disponibles à ces niveaux. Le seuil d'ouverture d'un groupe SVT est identique à celui des autres matières et la décision d'ouverture est communiquée au plus tard le 10 août à 18 h.",
+        "answer": "La SVT est proposée en Première uniquement (fermée en Terminale depuis l'arbitrage du 14/08/2026, faute d'effectif) ; elle ne fait pas partie des matières de 3e et de Seconde. Elle compte comme l'une des matières du pack Premium de Première : le parcours réunit de 1 à 4 matières au choix parmi les cinq disponibles à ce niveau. Le seuil d'ouverture d'un groupe SVT est identique à celui des autres matières et la décision d'ouverture est communiquée au plus tard le 10 août à 18 h.",
         "published": false
       },
       {
