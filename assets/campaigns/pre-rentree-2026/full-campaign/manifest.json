@@ -6,7 +6,7 @@
   "launchDate": "2026-07-26",
   "launchDateStatus": "SCHEDULED",
   "sourceVersion": "2026-full-campaign-v1",
-  "commercialContractVersion": "2026-pre-rentree-commercial-v3",
+  "commercialContractVersion": "2026-pre-rentree-commercial-v4",
   "inventory": {
     "publications": 13,
     "carousels": 8,
@@ -30,8 +30,8 @@
       "format": "CSV",
       "width": null,
       "height": null,
-      "bytes": 28039,
-      "sha256": "c5d9a54bb1badbba9faa654ab765a0cf701d9950fefeaaf4f136b6c2a7767428",
+      "bytes": 28006,
+      "sha256": "a2897dd5a48a375980cfdda949b0bb6b9270c3b754612e0260ee281a412f4ddb",
       "altText": "Calendrier CSV exploitable"
     },
     {
@@ -41,8 +41,8 @@
       "format": "JSON",
       "width": null,
       "height": null,
-      "bytes": 93334,
-      "sha256": "1a5edb8d374f4b36cb3c78fa8725dfdfc8058e25c783fb149538e97f2474384f",
+      "bytes": 93197,
+      "sha256": "dae3781f8a0aecf19445149c85beda42ac704a5b7ffbe4b6dde1f63d6b282284",
       "altText": "Calendrier complet jusqu'au démarrage"
     },
     {
@@ -52,8 +52,8 @@
       "format": "PDF",
       "width": null,
       "height": null,
-      "bytes": 6296524,
-      "sha256": "1025d67b328534af59117a4458002153584fcc31dbf877a08d3856b8ba11196d",
+      "bytes": 6286084,
+      "sha256": "52383981881e30ab852aca8117305794681be86e59dc42bece7a52ce887e0528",
       "altText": "Calendrier PDF complet jusqu'au démarrage"
     },
     {
@@ -547,8 +547,8 @@
       "format": "PDF",
       "width": null,
       "height": null,
-      "bytes": 443145,
-      "sha256": "bf814dc4d471b35d9b85fca41eaae7d4abe5dac2a6c2ff3453c9d4a32b6acacd",
+      "bytes": 441545,
+      "sha256": "5c4f9d22dd125f8e0cdbb9a993fc47064ee3add7771d567adb1fc7292efc381f",
       "altText": "Carrousel guidant la composition d'un parcours Premium d'entrée en Terminale selon les matières disponibles."
     },
     {
@@ -580,9 +580,9 @@
       "format": "PNG",
       "width": 1080,
       "height": 1350,
-      "bytes": 78518,
-      "sha256": "01085918eba8214a80a2633363a5bfc7d1a0f318c62dec077d514bbafca42d20",
-      "altText": "Slide présentant les parcours de une à quatre matières."
+      "bytes": 80334,
+      "sha256": "6da9ffe4a14d68651e154a13e9c8d1ca6c9ab5dc67777768b9a4aa2f5436fd6b",
+      "altText": "Slide présentant les parcours de une à trois matières."
     },
     {
       "assetId": "full-carousel-05-terminale-slide-02-webp",
@@ -591,9 +591,9 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1350,
-      "bytes": 46516,
-      "sha256": "de2670e9c5d69bef83ced0a9c92c6b14409962319149b3a559e15a321fb4fa56",
-      "altText": "Slide présentant les parcours de une à quatre matières."
+      "bytes": 45680,
+      "sha256": "6b92de9d44718d49bbbfaee3bfee4c5ab37e43324620d7a5fc09feb8741ada9a",
+      "altText": "Slide présentant les parcours de une à trois matières."
     },
     {
       "assetId": "full-carousel-05-terminale-slide-03-png",
@@ -646,8 +646,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1350,
-      "bytes": 101061,
-      "sha256": "aa7747769d8c94590f76df8b85526bfd6439386d0d22afacf058f6acd8358436",
+      "bytes": 100796,
+      "sha256": "c30b3279f2ff4d1feaf64772fd478ebbe4fb24b04d170bf860d425603392fc95",
       "altText": "Slide finale avec les tarifs des packs et le CTA WhatsApp."
     },
     {
@@ -657,8 +657,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1350,
-      "bytes": 62288,
-      "sha256": "fb14e7640edea14e78fc75d7f74deaf296c5831393ffdb745d262bd1b8f6086e",
+      "bytes": 61978,
+      "sha256": "8cc32ac6af8c5330765b7c7264e06db8497a2f493a56667a4fc2cefb9c3d17b7",
       "altText": "Slide finale avec les tarifs des packs et le CTA WhatsApp."
     },
     {
@@ -1031,8 +1031,8 @@
       "format": "JSON",
       "width": null,
       "height": null,
-      "bytes": 113152,
-      "sha256": "92b6c55ba10427ac3193b04ff2155ef849c9efbd045f407d19020fb9e8ef1276",
+      "bytes": 113009,
+      "sha256": "d1f13f3980bdf736440031535d2ee35066d94cc67a298a31db51724c20a61c98",
       "altText": "Copies éditoriales complètes de la campagne"
     },
     {
@@ -1152,9 +1152,9 @@
       "format": "PNG",
       "width": 1080,
       "height": 1350,
-      "bytes": 116568,
-      "sha256": "be12d0abf2d600a6b6ddc8239ab6b4f69a88e3792159dfe6b51df4f21377c0b5",
-      "altText": "Visuel présentant les parcours Premium d'entrée en Terminale parmi Mathématiques, Physique-Chimie, NSI, SVT et Mathématiques expertes, de une à quatre matières et cinq séances par matière."
+      "bytes": 111077,
+      "sha256": "9d480ef046526b6f60a20805053ea08e4f1b6c17587f6e0b33d0b7c57879954a",
+      "altText": "Visuel présentant les parcours Premium d'entrée en Terminale parmi Mathématiques, Physique-Chimie et NSI, de une à trois matières et cinq séances par matière."
     },
     {
       "assetId": "full-post-05-entree-terminale-webp",
@@ -1163,9 +1163,9 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1350,
-      "bytes": 79510,
-      "sha256": "44587b52497c17345f210d1d2f028fa20e8cd0f6b2e282bfc012cbd55af20ab4",
-      "altText": "Visuel présentant les parcours Premium d'entrée en Terminale parmi Mathématiques, Physique-Chimie, NSI, SVT et Mathématiques expertes, de une à quatre matières et cinq séances par matière."
+      "bytes": 75466,
+      "sha256": "117383a79dc0905fdeef7228adaafafb07d67db044b2f5202f9a6a215c15c03f",
+      "altText": "Visuel présentant les parcours Premium d'entrée en Terminale parmi Mathématiques, Physique-Chimie et NSI, de une à trois matières et cinq séances par matière."
     },
     {
       "assetId": "full-post-06-methode-nexus-png",
@@ -2021,9 +2021,9 @@
       "format": "SVG",
       "width": 1080,
       "height": 1350,
-      "bytes": 396491,
-      "sha256": "2cd5bc038684ad18a9d136e3a5b3881fd1126c3dfa11f1c7b88711f853016acf",
-      "altText": "Slide présentant les parcours de une à quatre matières."
+      "bytes": 396489,
+      "sha256": "19723336fa3298d11ee282ea3fcc32ad4b02ab120796a805a6b2d3130f48b74e",
+      "altText": "Slide présentant les parcours de une à trois matières."
     },
     {
       "assetId": "full-carousel-05-terminale-slide-03-source",
@@ -2054,8 +2054,8 @@
       "format": "SVG",
       "width": 1080,
       "height": 1350,
-      "bytes": 396659,
-      "sha256": "885b5be0cdf1faaca53a619f031dde83ac8e2486ad81e15b2e85e08086a7772a",
+      "bytes": 396658,
+      "sha256": "8e800e1cfede87ef02fcd75a0c4e4d77b29c984e963cf2b1697e8fadf3ac1b67",
       "altText": "Slide finale avec les tarifs des packs et le CTA WhatsApp."
     },
     {
@@ -2274,9 +2274,9 @@
       "format": "SVG",
       "width": 1080,
       "height": 1350,
-      "bytes": 396984,
-      "sha256": "75aedb8d59b9ff67d4ba4a987e63e5164c6ec7ec7786dddcf64d812fd71a48a6",
-      "altText": "Visuel présentant les parcours Premium d'entrée en Terminale parmi Mathématiques, Physique-Chimie, NSI, SVT et Mathématiques expertes, de une à quatre matières et cinq séances par matière."
+      "bytes": 396922,
+      "sha256": "9236f147a57b04fd5437e338f26390684e6378668e4de4b6bf39dd73914d76f8",
+      "altText": "Visuel présentant les parcours Premium d'entrée en Terminale parmi Mathématiques, Physique-Chimie et NSI, de une à trois matières et cinq séances par matière."
     },
     {
       "assetId": "full-post-06-methode-nexus-source",
@@ -2857,8 +2857,8 @@
       "format": "SVG",
       "width": 1080,
       "height": 1920,
-      "bytes": 396691,
-      "sha256": "5379f9b592f11159fd23f6d4ab11cce5d5f6eb48df223e900cad035846ab5233",
+      "bytes": 396723,
+      "sha256": "c3cd3fb5cf32317c09c6fa1dcbfebff41b12a82c54eee39a56aba166b3c91038",
       "altText": "Story tarifaire pour les packs Première et Terminale."
     },
     {
@@ -3506,8 +3506,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1920,
-      "bytes": 116248,
-      "sha256": "975abb3a856e3bf2b8f9ebaa945066d0c5d582f034973eb7134c665dd3a4d53b",
+      "bytes": 119799,
+      "sha256": "1d9fccd959695c196004e0755d1a78ba5878841d2fe5981bfbdd6938bd266ab6",
       "altText": "Story tarifaire pour les packs Première et Terminale."
     },
     {
@@ -3517,8 +3517,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1920,
-      "bytes": 72358,
-      "sha256": "4ec40eaf163d18e711d4f3bf79560682432fbd99536d7200ebe168ffaa5cb743",
+      "bytes": 76664,
+      "sha256": "b3546b52e9e25262828ce710ed1f1cccd9af544b80da704ca9f097976ae8fb52",
       "altText": "Story tarifaire pour les packs Première et Terminale."
     },
     {
@@ -3792,8 +3792,8 @@
       "format": "PNG",
       "width": 1068,
       "height": 1488,
-      "bytes": 793485,
-      "sha256": "6085aaf0547cf57f90bba6a6ae1afe4be8596507a3548d5c8b136c34fc0e206c",
+      "bytes": 793656,
+      "sha256": "4d32c4f0083db3bd46ef38c23ea1eac9d8afefca86c0beef8a4fa0ae0b7bdf48",
       "altText": "Planche de contrôle calendar"
     },
     {
@@ -3803,8 +3803,8 @@
       "format": "PNG",
       "width": 1044,
       "height": 2080,
-      "bytes": 507077,
-      "sha256": "59570c9768b01b8ede3aa22f35e232d9ffa1d7175f30a792c38c5dcc7523bc5e",
+      "bytes": 507099,
+      "sha256": "965e79af9a3564f78e5c07533b0700e69086c37fd99eb5702afa680d42795c64",
       "altText": "Planche de contrôle carousels"
     },
     {
@@ -3814,8 +3814,8 @@
       "format": "PNG",
       "width": 1000,
       "height": 1252,
-      "bytes": 369101,
-      "sha256": "e131cbb8cfc82b0df96995d946a50ad14f38a0d362b01923aa88638b754fda11",
+      "bytes": 367276,
+      "sha256": "5deaf339ea23ac070a5ce937df48ad7866c321d270ba5f0b36a8679a22e38ebf",
       "altText": "Planche de contrôle publications"
     },
     {
@@ -3836,8 +3836,8 @@
       "format": "PNG",
       "width": 1068,
       "height": 1818,
-      "bytes": 346708,
-      "sha256": "b0886ea65219f5e9ddb4a351a2338534381417e4f7db3a9276b9f9db2f6ea2de",
+      "bytes": 347561,
+      "sha256": "e791d9982d588d7a6b5f2e8a158559572f5b0ec5d9bafef9708598cd9a994287",
       "altText": "Planche de contrôle stories"
     }
   ]

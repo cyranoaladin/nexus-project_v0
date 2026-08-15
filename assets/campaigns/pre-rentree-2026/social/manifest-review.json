@@ -9,8 +9,8 @@
       "path": "REVIEW/contact-sheets/campagne-sociale.pdf",
       "role": "internal-review",
       "source": "PUBLIC/contact-sheets/campagne-sociale.pdf",
-      "bytes": 184265,
-      "sha256": "e5c6cd325826ad44fe9c270493a80fd21c1fbeea8f949acc629718f274b11ce5",
+      "bytes": 183239,
+      "sha256": "1d1b8348d530681553e438da5e8225c5adae79e3f8758d2c066b249a67ceefd5",
       "width": null,
       "height": null
     },
@@ -18,8 +18,8 @@
       "path": "REVIEW/contact-sheets/feed.png",
       "role": "internal-review",
       "source": "PUBLIC/contact-sheets/feed.png",
-      "bytes": 251374,
-      "sha256": "6585be5b14f96ca56270d435bef89425e29f37e4d87d2000976283a97ebb8818",
+      "bytes": 247290,
+      "sha256": "4eb935ec34c6d4faa9905ef06007ac1081721c1f125f775839353cf35edde8ef",
       "width": 1020,
       "height": 860
     },
@@ -63,8 +63,8 @@
       "path": "REVIEW/feed/entree-terminale.png",
       "role": "internal-review",
       "source": "PUBLIC/feed/entree-terminale.png",
-      "bytes": 123719,
-      "sha256": "2dcdd977ad428c00f168da3fbffe7725ab55cf628b12f0bf36e9ec47a89476a2",
+      "bytes": 118400,
+      "sha256": "6cb78cecfb8e0c9c6738e77fc9a9e8fb885e90dc4a485a8df4bb405aa3678e64",
       "width": 1080,
       "height": 1350
     },

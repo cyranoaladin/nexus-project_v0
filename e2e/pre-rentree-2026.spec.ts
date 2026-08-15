@@ -152,13 +152,17 @@ test.describe('Landing Pré-rentrée 2026', () => {
     expect(checked).toBe(14);
   });
 
-  test('compose quatre matières, résout le pack 40 h et produit une demande non contractuelle', async ({ page }) => {
+  test('compose quatre matières en Première, résout le pack 40 h et produit une demande non contractuelle', async ({ page }) => {
+    // Depuis l'arbitrage du 14/08/2026, la Terminale ne compte plus que 3
+    // matières (Mathématiques, NSI, Physique-Chimie) : un pack à 4 matières
+    // n'y est plus vendable. La Première reste le seul niveau à 5 matières
+    // ouvertes, donc le seul où ce parcours à 4 matières est réel.
     await page.goto(CAMPAIGN_PATH);
-    const selector = await choosePlanningSubjects(page, 'TERMINALE', [
+    const selector = await choosePlanningSubjects(page, 'PREMIERE', [
       'Mathématiques',
+      'Physique-Chimie',
       'NSI',
       'SVT',
-      'Mathématiques expertes',
     ]);
 
     await expect(selector.getByText('40 h', { exact: true })).toBeVisible();
@@ -168,10 +172,14 @@ test.describe('Landing Pré-rentrée 2026', () => {
     const whatsappHref = await whatsapp.getAttribute('href');
     expect(whatsappHref).toMatch(/^https:\/\/wa\.me\/21699192829\?text=/);
     const message = decodeURIComponent(new URL(whatsappHref ?? '').searchParams.get('text') ?? '');
-    expect(message).toContain('Niveau : Entrée en Terminale');
+    expect(message).toContain('Niveau : Entrée en Première');
     expect(message).toContain('Matières (4)');
     expect(message).toContain('sous réserve de places disponibles');
     expect(message).not.toMatch(/email|téléphone|établissement|prix|price/i);
+    // Aucune matière fermée en Terminale ne doit apparaître dans une demande
+    // Première : Philosophie et Mathématiques expertes n'existent plus au
+    // catalogue, quel que soit le niveau.
+    expect(message).not.toMatch(/philosophie|mathématiques expertes/i);
   });
 
   test('couvre le tunnel parent homepage vers landing, planning et demande de disponibilité', async ({ page }) => {
@@ -206,18 +214,20 @@ test.describe('Landing Pré-rentrée 2026', () => {
     expect(request.postDataJSON()).not.toHaveProperty('campaignContext');
   });
 
-  test('bloque une combinaison horaire réellement incompatible', async ({ page }) => {
+  test('bloque une combinaison horaire réellement incompatible (Terminale NSI + Physique-Chimie)', async ({ page }) => {
+    // Depuis l'arbitrage du 14/08/2026, Philosophie/Maths expertes/SVT sont
+    // fermées en Terminale : NSI + Physique-Chimie est la seule combinaison
+    // à deux matières restante et impose une attente réelle (>60 min, calculée
+    // par assignItinerary — voir lib/campaigns/pre-rentree-2026/itinerary.ts)
+    // entre les deux séances le 24/08. Ce n'est pas une simultanéité : le
+    // moteur classe ce cas LONG_IDLE, pas SIMULTANEOUS.
     await page.goto(CAMPAIGN_PATH);
     const selector = await choosePlanningSubjects(page, 'TERMINALE', [
-      'Mathématiques',
-      'Physique-Chimie',
       'NSI',
-      'SVT',
+      'Physique-Chimie',
     ]);
 
-    await expect(selector.getByRole('alert')).toContainText(
-      /même créneau|attente de|autre cohorte|vérification manuelle/i,
-    );
+    await expect(selector.getByRole('alert')).toContainText(/attente de/i);
     await expect(selector.getByRole('link', { name: 'Demander la disponibilité de ce parcours' }))
       .toHaveAttribute('aria-disabled', 'true');
   });

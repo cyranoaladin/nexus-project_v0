@@ -55,13 +55,23 @@ test.describe('Candidat public Pré-rentrée 2026', () => {
     await expect(premiereSvt).not.toContainText('10 séances · 20 h');
 
     await planning.getByRole('tab', { name: 'Entrée en Terminale' }).click();
-    for (const subject of ['NSI', 'SVT']) {
+    // Depuis l'arbitrage du 14/08/2026, NSI et SVT ne sont plus des cohortes
+    // alternatives Terminale (SVT est fermée, la cohorte de repli NSI qui ne
+    // servait qu'à contourner l'incompatibilité NSI/SVT a été retirée avec
+    // elle). Seule Mathématiques garde deux cohortes, dédoublée en groupe du
+    // matin et de l'après-midi faute de place dans un seul groupe.
+    const terminaleMaths = planning.getByRole('table', { name: 'Planning — Entrée en Terminale' })
+      .getByRole('row')
+      .filter({ hasText: 'Mathématiques' });
+    await expect(terminaleMaths).toContainText('5 séances · 10 h par élève');
+    await expect(terminaleMaths).toContainText('Deux créneaux possibles');
+    await expect(terminaleMaths).not.toContainText('10 séances · 20 h');
+
+    for (const subject of ['NSI', 'Physique-Chimie']) {
       const row = planning.getByRole('table', { name: 'Planning — Entrée en Terminale' })
         .getByRole('row')
         .filter({ hasText: subject });
-      await expect(row).toContainText('5 séances · 10 h par élève');
-      await expect(row).toContainText('Deux créneaux possibles');
-      await expect(row).not.toContainText('10 séances · 20 h');
+      await expect(row).not.toContainText('Deux créneaux possibles');
     }
 
     await expect(planning).toContainText('La disponibilité du groupe est confirmée par notre équipe');
@@ -69,25 +79,26 @@ test.describe('Candidat public Pré-rentrée 2026', () => {
   });
 
   test('plafonne à quatre matières et compose une demande de disponibilité non contractuelle', async ({ page }) => {
+    // Le plafond de 4 matières ne peut être exercé qu'à un niveau qui en
+    // propose plus de 4 : depuis l'arbitrage du 14/08/2026, la Terminale n'en
+    // a plus que 3 (Mathématiques, NSI, Physique-Chimie) et ne peut plus
+    // déclencher ce plafond. La Première (5 matières) est désormais le seul
+    // niveau où ce test a un sens.
     await page.goto(CAMPAIGN_PATH);
     const selector = page.locator('#planning').getByRole('region', { name: 'Composez votre planning' });
-    await selector.getByLabel('Classe de rentrée').selectOption('TERMINALE');
+    await selector.getByLabel('Classe de rentrée').selectOption('PREMIERE');
 
     const checkboxes = selector.getByRole('checkbox');
-    await expect(checkboxes).toHaveCount(6);
-    for (let index = 0; index < 6; index += 1) await checkboxes.nth(index).click();
+    await expect(checkboxes).toHaveCount(5);
+    for (let index = 0; index < 5; index += 1) await checkboxes.nth(index).click();
 
     await expect(selector.getByRole('alert')).toHaveText(
       '4 matières maximum — retirez une matière pour en ajouter une autre.',
     );
     await expect(selector.getByRole('checkbox', { checked: true })).toHaveCount(4);
-
-    // The first four canonical subjects include the documented
-    // PC + NSI + SVT collision. Replace PC with Maths expertes to exercise a
-    // normal compact four-subject route before checking the active CTA.
-    await selector.getByRole('checkbox', { name: 'Physique-Chimie' }).click();
-    await selector.getByRole('checkbox', { name: 'Mathématiques expertes' }).click();
-    await expect(selector.getByRole('checkbox', { checked: true })).toHaveCount(4);
+    // Les 4 premières matières cochées (Mathématiques, Physique-Chimie, NSI,
+    // Français) forment déjà un parcours compact — aucun échange de matière
+    // n'est nécessaire ici, à la différence de l'ancien scénario Terminale.
     await expect(selector.getByText('40 h', { exact: true })).toBeVisible();
 
     const availability = selector.getByRole('link', { name: 'Demander la disponibilité de ce parcours' });
@@ -96,7 +107,7 @@ test.describe('Candidat public Pré-rentrée 2026', () => {
     const href = await availability.getAttribute('href');
     expect(href).toMatch(/^https:\/\/wa\.me\/21699192829\?text=/);
     const message = decodeURIComponent(new URL(href ?? '').searchParams.get('text') ?? '');
-    expect(message).toContain('Niveau : Entrée en Terminale');
+    expect(message).toContain('Niveau : Entrée en Première');
     expect(message).toContain('Profil :');
     expect(message).toContain('Matières (4)');
     expect(message).toContain('Dates :');
