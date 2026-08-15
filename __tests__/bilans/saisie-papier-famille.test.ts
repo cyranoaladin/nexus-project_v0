@@ -489,7 +489,9 @@ describe('Création du foyer — activation en attente', () => {
     const { database, users } = memoryDatabase();
     const response = await handlerWith('ASSISTANTE', database)(familyRequest({
       ...BODY,
-      parentPhone: '+33 6 12 34 56 78',
+      // +33 est désormais un numéro international valide (voir plus bas) ;
+      // ce cas est invalide pour une autre raison : bien trop court.
+      parentPhone: '+33 1',
     }));
 
     expect(response.status).toBe(400);
@@ -706,5 +708,105 @@ describe('Création du foyer — activation en attente', () => {
 
     const response = await handlerWith('ASSISTANTE', database)(familyRequest());
     expect(response.status).toBe(409);
+  });
+});
+
+/**
+ * Numéros internationaux (au-delà de la Tunisie) — lib/contact/parent-phone.ts.
+ *
+ * Le défaut d'origine : `normalizeParentPhone` ne connaissait que la Tunisie,
+ * donc cette route refusait toute famille étrangère. Preuve que ce n'est plus
+ * le cas, et que le rapprochement anti-doublon fonctionne aussi sur les
+ * différentes écritures d'un même numéro international.
+ */
+describe('Création du foyer — téléphone international (Qatar +974)', () => {
+  const QATAR_BODY = {
+    parentEmail: 'Parent.Qatar@example.test',
+    parentPhone: '+97466298752',
+    parentFirstName: 'Nasser',
+    parentLastName: 'Al-Thani',
+    children: [{ firstName: 'Fatima', grade: 'Terminale' }],
+  };
+
+  it('crée un parent avec le numéro qatari, phoneNormalized sans indicatif dupliqué', async () => {
+    const { database, users, students } = memoryDatabase();
+    const response = await handlerWith('ASSISTANTE', database)(familyRequest(QATAR_BODY, 'foyer-qatar-0001'));
+
+    expect(response.status).toBe(201);
+    expect(students).toHaveLength(1);
+    expect(users.find((user) => user.role === 'PARENT')).toMatchObject({
+      phone: '+97466298752',
+      phoneNormalized: '97466298752',
+      password: null,
+      activatedAt: null,
+    });
+  });
+
+  it('conserve le téléphone d’affichage international', async () => {
+    const { database, users } = memoryDatabase();
+    await handlerWith('ASSISTANTE', database)(familyRequest(QATAR_BODY, 'foyer-qatar-0002'));
+
+    expect(users.find((user) => user.role === 'PARENT')?.phone).toBe('+97466298752');
+  });
+
+  it.each([
+    ['00974 66 29 87 52', '00 avec espaces'],
+    ['+974 66 29 87 52', '+ avec espaces'],
+    ['97466298752', 'chiffres nus'],
+  ])('remonte le même candidat anti-doublon depuis %s (%s)', async (parentPhone) => {
+    const { database, duplicateCandidates } = memoryDatabase();
+    duplicateCandidates.push({
+      id: 'parent-qatar-existant',
+      firstName: 'Nasser',
+      lastName: 'Al-Thani',
+      email: null,
+      phone: '+97466298752',
+      phoneNormalized: '97466298752',
+      mergedSources: [],
+      parentProfile: null,
+    } as never);
+
+    const response = await handlerWith('ASSISTANTE', database)(familyRequest({
+      ...QATAR_BODY,
+      parentPhone,
+      // Nom différent : seul le téléphone doit produire le signal fort ici.
+      parentFirstName: 'Autre',
+      parentLastName: 'Personne',
+    }));
+
+    expect(response.status).toBe(409);
+    const payload = await response.json() as { candidates: ReadonlyArray<{ parentUserId: string; matchStrength: string }> };
+    expect(payload.candidates).toContainEqual(expect.objectContaining({
+      parentUserId: 'parent-qatar-existant',
+      matchStrength: 'PHONE',
+    }));
+  });
+
+  it('protège la surface staff-only pour un foyer international comme pour un foyer tunisien', async () => {
+    const { database, users } = memoryDatabase();
+    const response = await handlerWith('ELEVE', database)(familyRequest(QATAR_BODY, 'foyer-qatar-staff'));
+
+    expect(response.status).toBe(404);
+    expect(users).toHaveLength(0);
+  });
+
+  it('reste idempotent sur un renvoi avec la même clé', async () => {
+    const { database, users } = memoryDatabase();
+    const key = 'foyer-qatar-idempotent';
+
+    const first = await handlerWith('ASSISTANTE', database)(familyRequest(QATAR_BODY, key));
+    const second = await handlerWith('ASSISTANTE', database)(familyRequest(QATAR_BODY, key));
+
+    expect(first.status).toBe(201);
+    expect(second.status).toBe(201);
+    expect(users.filter((user) => user.role === 'PARENT')).toHaveLength(1);
+  });
+
+  it('prépare le lien de consentement parent-enfant comme pour un foyer tunisien', async () => {
+    const { database, links } = memoryDatabase();
+    const response = await handlerWith('ASSISTANTE', database)(familyRequest(QATAR_BODY, 'foyer-qatar-consent'));
+
+    expect(response.status).toBe(201);
+    expect(links).toHaveLength(1);
   });
 });
