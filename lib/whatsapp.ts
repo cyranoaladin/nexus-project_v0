@@ -36,19 +36,25 @@ export function buildWhatsAppContactUrl(number = WHATSAPP_NUMBER): string {
 /**
  * Lien wa.me vers le téléphone d'un PARENT (envoi assisté d'un bilan).
  *
- * `phoneNormalized` est la forme canonique du dépôt : 8 chiffres tunisiens,
- * sans indicatif (lib/contact/parent-phone.ts). wa.me exige l'international
- * sans « + » : l'indicatif 216 est ajouté ici — et uniquement ici, ce
- * fichier étant la seule source autorisée de littéraux wa.me.
+ * `phoneNormalized` est la forme canonique du dépôt (lib/contact/parent-phone.ts) :
+ * soit 8 chiffres tunisiens sans indicatif (forme historique — l'indicatif 216
+ * est ajouté ici, et uniquement ici, ce fichier étant la seule source
+ * autorisée de littéraux wa.me), soit un numéro international complet
+ * (indicatif déjà inclus, utilisé tel quel). Les deux formes ne peuvent pas
+ * se confondre : parent-phone.ts garantit qu'un numéro international ne
+ * normalise jamais vers exactement 8 chiffres.
  */
 export function buildParentWhatsAppUrl(
   phoneNormalized: string,
   message: string,
 ): string {
-  if (!/^[1-9]\d{7}$/.test(phoneNormalized)) {
-    throw new Error('WHATSAPP_PARENT_PHONE_INVALID');
+  if (/^[1-9]\d{7}$/.test(phoneNormalized)) {
+    return `https://wa.me/216${phoneNormalized}?text=${encodeURIComponent(message)}`;
   }
-  return `https://wa.me/216${phoneNormalized}?text=${encodeURIComponent(message)}`;
+  if (/^[1-9]\d{8,14}$/.test(phoneNormalized)) {
+    return `https://wa.me/${phoneNormalized}?text=${encodeURIComponent(message)}`;
+  }
+  throw new Error('WHATSAPP_PARENT_PHONE_INVALID');
 }
 
 /** Expose the number for tel: links (formatted). */
