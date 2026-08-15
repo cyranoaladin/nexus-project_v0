@@ -80,6 +80,42 @@ describe('Fil guidé de saisie papier', () => {
     );
   });
 
+  it('active le bouton de création et envoie le numéro international saisi (Qatar)', async () => {
+    fetchMock.mockResolvedValue(new Response(JSON.stringify({
+      children: [{ studentId: 'student-qatar' }],
+    }), { status: 201, headers: { 'content-type': 'application/json' } }));
+    render(<PaperEntryFamilyForm />);
+
+    fireEvent.change(screen.getByLabelText('Prénom du parent'), { target: { value: 'Nasser' } });
+    fireEvent.change(screen.getByLabelText('Nom du parent'), { target: { value: 'Al-Thani' } });
+    fireEvent.change(screen.getByLabelText('Prénom de l’enfant'), { target: { value: 'Fatima' } });
+    expect(screen.getByRole('button', { name: 'Créer le foyer et continuer' })).toBeDisabled();
+
+    fireEvent.change(screen.getByLabelText('Téléphone du parent'), { target: { value: '+97466298752' } });
+    expect(screen.getByRole('button', { name: 'Créer le foyer et continuer' })).toBeEnabled();
+    fireEvent.click(screen.getByRole('button', { name: 'Créer le foyer et continuer' }));
+
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(1));
+    const request = fetchMock.mock.calls[0] as [string, RequestInit];
+    const body = JSON.parse(String(request[1].body));
+    expect(body).toMatchObject({ parentPhone: '+97466298752' });
+    expect(replace).toHaveBeenCalledWith(
+      '/dashboard/assistante/bilans/saisie-papier?studentId=student-qatar',
+    );
+  });
+
+  it('affiche une erreur claire et garde le bouton désactivé pour un numéro invalide', () => {
+    render(<PaperEntryFamilyForm />);
+
+    fireEvent.change(screen.getByLabelText('Prénom du parent'), { target: { value: 'Claire' } });
+    fireEvent.change(screen.getByLabelText('Nom du parent'), { target: { value: 'Bernard' } });
+    fireEvent.change(screen.getByLabelText('Prénom de l’enfant'), { target: { value: 'Inès' } });
+    fireEvent.change(screen.getByLabelText('Téléphone du parent'), { target: { value: '123' } });
+
+    expect(screen.getByRole('button', { name: 'Créer le foyer et continuer' })).toBeDisabled();
+    expect(screen.getByRole('alert')).toHaveTextContent('Numéro de téléphone invalide.');
+  });
+
   it('sur un même téléphone, laisse rattacher le foyer suggéré d’un clic', async () => {
     fetchMock
       .mockResolvedValueOnce(new Response(JSON.stringify({
