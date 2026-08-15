@@ -43,7 +43,6 @@ const PUBLISHED_FAQ_ORDER = [
   'faq-contenu-dix-heures',
   'faq-effectifs-groupes',
   'faq-effectifs-stage-vs-annuel',
-  'faq-philosophie-deux-fenetres',
   'faq-reservation-paiement',
   'faq-tarif-exact',
 ] as const;

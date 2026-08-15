@@ -44,11 +44,14 @@ def test_generates_review_only_communication_and_anonymous_workflow_assets(revie
     assert (communication / "Kit_WhatsApp_PreRentree2026.html").is_file()
     assert (communication / "Kit_Facebook_Instagram_PreRentree2026.html").is_file()
     manifest = json.loads((communication / "communication-manifest.json").read_text(encoding="utf-8"))
+    # Arbitrage du 14/08/2026 : Mathématiques expertes fermée en Terminale —
+    # la publication et la story "maths-expertes" ont été retirées de
+    # communication.fr.json (13 -> 12 publications, 12 -> 11 stories).
     assert manifest == {
         "WHATSAPP_SCRIPT_COUNT": 24,
-        "PUBLICATION_COUNT": 13,
+        "PUBLICATION_COUNT": 12,
         "CAROUSEL_COUNT": 8,
-        "STORY_COUNT": 12,
+        "STORY_COUNT": 11,
         "REEL_COUNT": 3,
         "PUBLICATION_AUTHORIZED": False,
     }

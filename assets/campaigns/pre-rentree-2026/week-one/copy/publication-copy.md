@@ -6,7 +6,7 @@ La rentrée ne se prépare pas en accumulant des heures au hasard. Elle se prép
 
 ## Instagram
 
-Préparer la rentrée, ce n'est pas seulement ajouter des heures de cours. C'est savoir quoi reprendre, dans quel ordre et avec quelle méthode. Dès le 17 août à Mutuelleville, les stages Nexus Réussite proposent cinq séances de deux heures par matière, en effectifs limités. 3e : Mathématiques et Français. Seconde : Mathématiques et Français. Première et Terminale : parcours de une à quatre matières selon le niveau. Objectifs clairs, entraînement et correction structurent les dix heures. Écrivez-nous sur WhatsApp pour recevoir le programme, les horaires et le tarif. Aucun paiement n'est demandé à ce stade.
+Préparer la rentrée, ce n'est pas seulement ajouter des heures de cours. C'est savoir quoi reprendre, dans quel ordre et avec quelle méthode. Dès le 17 août à Mutuelleville, les stages Nexus Réussite proposent cinq séances de deux heures par matière, en effectifs limités. 3e : Mathématiques et Français. Seconde : Mathématiques et Français. Première : parcours de une à quatre matières. Terminale : parcours de une à trois matières. Objectifs clairs, entraînement et correction structurent les dix heures. Écrivez-nous sur WhatsApp pour recevoir le programme, les horaires et le tarif. Aucun paiement n'est demandé à ce stade.
 
 ## Meta Ads
 

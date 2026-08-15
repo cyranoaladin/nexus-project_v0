@@ -29,7 +29,7 @@ Source exécutable : `content/pre-rentree-2026/capabilities.json`. Campagne
 | Stockage conforme | oui | non | non | non | non | non |
 | Processus de confidentialité | oui | non | non | non | non | non |
 
-Les 17 modules et 85 séances modèles sont matériellement générés dans
+Les 14 modules et 70 séances modèles sont matériellement générés dans
 l’artefact de revue. Cela prouve leur implémentation documentaire, pas une
 capacité nominative ni une réservation. Aucun service Premium 360 renforcé
 n’est un engagement public tant que `OPERATIONALLY_READY`, `OWNER_APPROVED` et
