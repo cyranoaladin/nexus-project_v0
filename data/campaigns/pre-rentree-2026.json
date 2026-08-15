@@ -529,14 +529,6 @@
         "SVT": {
           "label": "SVT",
           "description": "Un cahier, une trousse complète et une calculatrice. Les séances sont centrées sur la lecture de documents scientifiques, la méthode et la résolution de problèmes."
-        },
-        "MATHS_EXPERTES": {
-          "label": "Mathématiques expertes",
-          "description": "Un cahier, une trousse complète et une calculatrice scientifique."
-        },
-        "PHILOSOPHIE": {
-          "label": "Philosophie",
-          "description": "Un cahier et une trousse complète."
         }
       },
       "preRegistrationNotice": "La demande d’information est transmise sans paiement. Elle ne réserve pas une place et ne forme pas un contrat. Après qualification pédagogique, Nexus transmet une proposition de parcours et les conditions applicables.",
