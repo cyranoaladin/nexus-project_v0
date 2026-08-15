@@ -24,7 +24,7 @@ describe('Pré-rentrée 2026 campaign source', () => {
     );
     expect(campaign.content.method).toHaveLength(4);
     expect(campaign.content.faq).toHaveLength(27);
-    expect(campaign.content.faq.filter((entry) => entry.published)).toHaveLength(10);
+    expect(campaign.content.faq.filter((entry) => entry.published)).toHaveLength(9);
     expect(campaign.content.practical.preRegistrationNotice).toContain('ne réserve pas une place');
     expect(campaign.content.practical.preRegistrationNotice).toContain('ne forme pas un contrat');
     expect(campaign.seo.canonical).toBe('/stages/pre-rentree-2026');

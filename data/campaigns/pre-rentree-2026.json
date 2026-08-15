@@ -706,8 +706,8 @@
       {
         "id": "faq-philosophie-deux-fenetres",
         "question": "Comment s’articulent la Philosophie et les spécialités en Terminale ?",
-        "answer": "La Philosophie se déroule pendant la fenêtre du 17 au 21 août ; les spécialités (Mathématiques, Physique-Chimie, NSI, SVT, Mathématiques expertes) se déroulent pendant la fenêtre du 24 au 28 août. Ce sont deux semaines distinctes : aucun chevauchement n’est possible entre la Philosophie et les spécialités choisies.",
-        "published": true
+        "answer": "La Philosophie ne fait pas partie du stage de pré-rentrée 2026 en Terminale : effectif insuffisant (aucun élève inscrit), le module est fermé cette session. Seules trois spécialités sont proposées en Terminale (Mathématiques, Physique-Chimie, NSI), pendant la fenêtre du 24 au 28 août.",
+        "published": false
       }
     ],
     "publicPage": {
