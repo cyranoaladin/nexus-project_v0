@@ -17,10 +17,15 @@ describe('buildParentWhatsAppUrl', () => {
     expect(url).toContain(encodeURIComponent('Bonjour, voici : élève').replace(/%20/g, '%20'));
   });
 
-  it('refuse un téléphone hors forme normalisée tunisienne', () => {
+  it('refuse un téléphone hors forme normalisée tunisienne ou internationale', () => {
     for (const invalid of ['', '1234567', '021612345', '+21698123456', '9812345a']) {
       expect(() => buildParentWhatsAppUrl(invalid, 'x')).toThrow('WHATSAPP_PARENT_PHONE_INVALID');
     }
+  });
+
+  it('construit le lien depuis un phoneNormalized international (indicatif déjà inclus, non préfixé par 216)', () => {
+    const url = buildParentWhatsAppUrl('97466298752', 'Bonjour');
+    expect(url).toBe('https://wa.me/97466298752?text=Bonjour');
   });
 });
 
