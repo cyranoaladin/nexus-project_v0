@@ -145,18 +145,29 @@ export function PaperEntryFamilyForm() {
             className="mt-1 w-full rounded-xl border border-white/15 bg-slate-950 px-3 py-2 text-white"
           />
         </label>
-        <label className="text-sm">
-          <span className="text-slate-300">Téléphone du parent</span>
-          <input
-            type="tel"
-            inputMode="tel"
-            required
-            value={parentPhone}
-            onChange={(event) => setParentPhone(event.target.value)}
-            placeholder={LEGAL.contact.phone}
-            className="mt-1 w-full rounded-xl border border-white/15 bg-slate-950 px-3 py-2 text-white"
-          />
-        </label>
+        <div className="text-sm">
+          <label>
+            <span className="text-slate-300">Téléphone du parent</span>
+            <input
+              type="tel"
+              inputMode="tel"
+              required
+              value={parentPhone}
+              onChange={(event) => setParentPhone(event.target.value)}
+              placeholder={LEGAL.contact.phone}
+              aria-invalid={parentPhone.trim().length > 0 && !phoneIsValid}
+              className="mt-1 w-full rounded-xl border border-white/15 bg-slate-950 px-3 py-2 text-white"
+            />
+          </label>
+          <p className="mt-1 text-xs text-slate-400">
+            Numéros tunisiens et internationaux acceptés, par exemple +216… ou +974…
+          </p>
+          {parentPhone.trim().length > 0 && !phoneIsValid && (
+            <p role="alert" className="mt-1 text-xs text-red-300">
+              Numéro de téléphone invalide.
+            </p>
+          )}
+        </div>
         <label className="text-sm">
           <span className="text-slate-300">E-mail du parent (facultatif)</span>
           <input
