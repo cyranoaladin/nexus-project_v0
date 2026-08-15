@@ -43,10 +43,12 @@ describe('Pré-rentrée 2026 campaign source', () => {
     expect(JSON.stringify(packOptions)).not.toContain('pre2026-pack-');
     expect(formatCampaignStatus(campaign.status)).toBe('Informations disponibles');
     expect(campaign.schedule).toHaveLength(3);
-    // 17 modules -> 20 slots: SCHEDULE-S5 adds an alternative cohort each for
-    // Première SVT, Terminale NSI and Terminale SVT (14 -> 17), and the 4e/
-    // Philosophie mission adds 3 new single-cohort groups (17 -> 20): 4e
-    // Français, 4e Mathématiques, Terminale Philosophie.
+    // Peaked at 20 slots under the 4e/Philosophie mission; the 2026-08-14
+    // arbitration closed Philosophie, Maths expertes and SVT in Terminale
+    // (no enrolled student), bringing the operational count down to 14
+    // modules / 16 cohortes / 80 occurrences (see
+    // publication-decisions.owner.json#/decisions/terminaleGroupsAndClosures2026).
+    // Terminale now offers Mathématiques, NSI and Physique-Chimie only.
     expect(campaign.schedule.flatMap((window) => window.slots)).toHaveLength(16);
     // Rooms are banalized/interchangeable (no subject compatibility table) —
     // just 3 permanent room identifiers (the rendered room labels themselves

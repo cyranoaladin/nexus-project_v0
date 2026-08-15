@@ -136,9 +136,13 @@ describe('Pré-rentrée 2026 — grille fenêtres + week-end : gates opérationn
     // (C+C ou D+D) ou des blocs différents (C+D ou D+C) — au moins une paire de
     // cohortes reste simultanée par construction (5 matières/cohortes sur 4
     // blocs, argument des tiroirs prouvé par solveur, voir SCHEDULE-S5-DECISION.md).
-    // Scopé à Fenêtre 2 : la Philosophie (mission 4e/Philosophie) est en
-    // Fenêtre 1, bloc D — un niveau différent de contrainte (tronc commun,
-    // jamais une spécialité), sans rapport avec le layout S5 vérifié ici.
+    // Scopé à Fenêtre 2 : sous le layout S5 d'origine, la Philosophie (mission
+    // 4e/Philosophie) occupait la Fenêtre 1, bloc D — un niveau différent de
+    // contrainte (tronc commun, jamais une spécialité), sans rapport avec le
+    // layout S5 vérifié ici. Depuis l'arbitrage du 14/08/2026, la Philosophie
+    // est fermée en Terminale et n'a plus aucune séance (voir le describe
+    // « disponibilité des élèves de Terminale » ci-dessous) ; ce filtre par
+    // fenêtre reste correct mais n'exclut plus rien en pratique.
     const terminaleByBlockDay = new Map<string, Set<string>>();
     for (const session of sessions.filter((s) => s.level === 'TERMINALE' && s.windowId === 'fenetre-2')) {
       const key = `${session.block}__${session.date}`;
@@ -203,9 +207,11 @@ describe('Pré-rentrée 2026 — complétude des modules (5 séances, 5 jours co
     }
     const wrongCount = [...byCohort.entries()].filter(([, list]) => list.length !== 5);
     expect(wrongCount).toEqual([]);
-    // 17 modules (14 à cohorte unique + 3 à 2 cohortes : Première SVT,
-    // Terminale NSI, Terminale SVT — les 3 nouveaux groupes 4e/Philosophie
-    // n'ont pas de cohorte alternative) = 14 + 6 = 20 cohortes opérationnelles.
+    // Arbitrage du 14/08/2026 : Philosophie, Maths expertes et SVT fermées en
+    // Terminale (aucun élève inscrit) — la cohorte de repli Terminale NSI, qui
+    // n'existait que pour résoudre l'incompatibilité NSI/SVT, est retirée avec
+    // la fermeture de SVT. Le compte passe de 20 à 16 cohortes opérationnelles
+    // (voir publication-decisions.owner.json#/decisions/terminaleGroupsAndClosures2026).
     expect(byCohort.size).toBe(16);
   });
 
@@ -238,8 +244,10 @@ describe('Pré-rentrée 2026 — complétude des modules (5 séances, 5 jours co
 
 describe('Pré-rentrée 2026 — disponibilité des élèves de Terminale', () => {
   it('aucune séance Terminale (hors Philosophie) avant le 24 août', () => {
-    // Philosophie est volontairement en Fenêtre 1 (voir tests dédiés
-    // ci-dessous) — l'exclure ici est intentionnel, pas un relâchement du gate.
+    // Sous l'ancien layout, la Philosophie était volontairement en Fenêtre 1 ;
+    // ce filtre l'excluait pour ne pas relâcher le gate. Depuis l'arbitrage du
+    // 14/08/2026, la Philosophie est fermée en Terminale (0 séance) — le
+    // filtre ne retire donc plus rien mais reste inoffensif à conserver.
     const terminaleSessions = sessions.filter((s) => s.level === 'TERMINALE' && s.subject !== 'PHILOSOPHIE');
     expect(terminaleSessions.length).toBeGreaterThan(0);
     const earliestDate = terminaleSessions.map((s) => s.date).sort()[0];
@@ -247,11 +255,13 @@ describe('Pré-rentrée 2026 — disponibilité des élèves de Terminale', () =
   });
 
   it('toutes les spécialités Terminale ouvertes (Maths, NSI, PC) démarrent bien le 24 août ou après', () => {
-    // Philosophie (mission 4e/Philosophie, 2026-07-27) est délibérément placée
-    // en Fenêtre 1 (17-21 août), pas en Fenêtre 2 : c'est l'exigence explicite
-    // "deux semaines distinctes, aucune collision possible" entre Philosophie
-    // et les spécialités (PRF-PRE2026-TERMINALE-TWO-WINDOWS). L'inclure dans ce
-    // gate romprait donc volontairement l'invariant qu'il vérifie.
+    // Sous l'ancien layout, la Philosophie (mission 4e/Philosophie, 2026-07-27)
+    // était délibérément placée en Fenêtre 1 (17-21 août), pas en Fenêtre 2 —
+    // l'exigence "deux semaines distinctes, aucune collision possible" entre
+    // Philosophie et les spécialités. Depuis l'arbitrage du 14/08/2026, la
+    // Philosophie est fermée en Terminale (aucun élève inscrit) et le proof
+    // PRF-PRE2026-TERMINALE-TWO-WINDOWS a été retiré du registre : ce filtre
+    // ne retire donc plus rien en pratique mais reste inoffensif à conserver.
     const bySubject = new Map<string, string[]>();
     for (const session of sessions.filter((s) => s.level === 'TERMINALE' && s.subject !== 'PHILOSOPHIE')) {
       const list = bySubject.get(session.subject) ?? [];

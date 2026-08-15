@@ -15,8 +15,10 @@ import { join } from 'node:path';
 // pre2026-foundations-seconde-subject que Maths/Français) et non d'une contamination
 // annuelle. Voir SEPARATION_STAGES_ANNUEL.md et DEBTS.md.
 // Mission 4e/Philosophie (2026-07-27) : QUATRIEME (Maths+Français) s'ajoute, et
-// Philosophie rejoint le pool Terminale aux côtés de Maths expertes (tronc
-// commun, jamais une spécialité — voir pedagogical-combinations.ts).
+// Philosophie a rejoint le pool Terminale aux côtés de Maths expertes (tronc
+// commun, jamais une spécialité — voir pedagogical-combinations.ts). Arbitrage
+// du 14/08/2026 : Philosophie, Maths expertes et SVT sont fermées en Terminale
+// (aucun élève inscrit) — seules Mathématiques, NSI et Physique-Chimie restent.
 const expectedSubjects = {
   QUATRIEME: ['FRANCAIS', 'MATHEMATIQUES'],
   TROISIEME: ['FRANCAIS', 'MATHEMATIQUES'],
@@ -151,6 +153,14 @@ describe('Pré-rentrée 2026 central public-surface adapter', () => {
     const dto = compilePreRentreeReviewSurfaceDTO();
     expect(dto.faq.length).toBeGreaterThanOrEqual(6);
     expect(dto.faq.every((item) => item.question.length > 20 && item.answer.length > 60)).toBe(true);
+    // Arbitrage du 14/08/2026 : Philosophie, Maths expertes et SVT sont fermées
+    // en Terminale (aucun élève inscrit) — leur contenu narratif périmé ne doit
+    // plus apparaître dans la FAQ publique (l'id faq-philosophie-deux-fenetres
+    // n'est pas exposé sur ce DTO, qui n'expose que question/answer).
+    expect(dto.faq.some((item) => item.question === 'Comment s’articulent la Philosophie et les spécialités en Terminale ?')).toBe(false);
+    const faqText = JSON.stringify(dto.faq);
+    expect(faqText).not.toMatch(/la philosophie se déroule pendant la fenêtre du 17 au 21 août/i);
+    expect(faqText).not.toMatch(/six matières/i);
     expect(dto.contact.whatsappDisplay).toBe('99 192 829');
     expect(dto.contact.whatsappMessage).toContain('pré-rentrée 2026');
     expect(dto.contact.phoneDisplay).toBe('+216 99 19 28 29');
