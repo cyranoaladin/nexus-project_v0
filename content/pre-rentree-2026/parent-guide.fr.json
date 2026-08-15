@@ -75,7 +75,7 @@
       "blocks":[
         {"id":"semaine-une","kind":"EVIDENCED_TEXT","text":"La fenêtre 1 (17 au 21 août) regroupe Mathématiques (3e, Seconde, Première), Français (3e, Seconde, Première) et NSI (Première) selon le niveau.","evidenceRefs":["/schedule/windows/0"]},
         {"id":"semaine-deux","kind":"EVIDENCED_TEXT","text":"Le week-end et le début de la fenêtre 2 (22 au 26 août) accueillent la SVT et la Physique-Chimie en Première.","evidenceRefs":["/schedule/windows/1"]},
-        {"id":"fenetre-terminale","kind":"EVIDENCED_TEXT","text":"La fenêtre 2 (24 au 28 août) regroupe Mathématiques, Maths expertes, NSI, Physique-Chimie et SVT en Terminale.","evidenceRefs":["/schedule/windows/2"]},
+        {"id":"fenetre-terminale","kind":"EVIDENCED_TEXT","text":"La fenêtre 2 (24 au 28 août) regroupe Mathématiques, NSI et Physique-Chimie en Terminale.","evidenceRefs":["/schedule/windows/2"]},
         {"id":"planning-brouillon","kind":"EVIDENCED_TEXT","text":"Le planning est un brouillon de revue tant que les affectations de salles et d’enseignants ne sont pas validées.","evidenceRefs":["/campaign/operationalGates"]},
         {"id":"planning-detail","kind":"DYNAMIC_REFERENCE","sourceRef":"/schedule"}
       ]
