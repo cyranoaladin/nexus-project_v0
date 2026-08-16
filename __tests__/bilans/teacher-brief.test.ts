@@ -8,7 +8,6 @@ import {
   buildStudentFactsPayload,
   callTeacherBriefModel,
   estimateCostUsd,
-  generateTeacherBrief,
   resolveTeacherBriefConfig,
   teacherBriefMonthlyUsage,
 } from '@/lib/bilans/llm/teacher-brief-service';
@@ -362,139 +361,16 @@ describe('teacher-brief — appel modèle, un appel par domaine', () => {
   });
 });
 
-describe('teacher-brief — orchestration, repli, budget, idempotence', () => {
-  function database(overrides: Partial<Record<string, unknown>> = {}) {
-    const writes: string[] = [];
-    const db = {
-      teacherBrief: {
-        findFirst: jest.fn(async () => null),
-        aggregate: jest.fn(async () => ({ _sum: { estimatedCostUsd: 0 }, _count: { id: 0 } })),
-        create: jest.fn(async () => { writes.push('teacherBrief.create'); return { id: 'brief-1', version: 1 }; }),
-        updateMany: jest.fn(async () => ({ count: 0 })),
-      },
-      reportArtifact: { findUnique: jest.fn(async () => null) },
-      reportRevision: { updateMany: jest.fn(async () => { writes.push('reportRevision.updateMany'); }) },
-      reportMaterialization: { create: jest.fn(async () => { writes.push('reportMaterialization.create'); }) },
-      $transaction: jest.fn(),
-      ...overrides,
-    };
-    (db.$transaction as jest.Mock).mockImplementation(async (callback: (t: unknown) => Promise<unknown>) => callback(db));
-    return { db, writes };
-  }
-  const actor = { userId: 'assistante-1', role: 'ASSISTANTE' } as const;
-
-  it('REPLI : clé absente → PLANCHER, aucune écriture, aucune erreur bloquante', async () => {
-    const { db, writes } = database();
-    const result = await generateTeacherBrief({
-      prisma: db as never, actor, reportArtifactId: 'art-1', environment: {},
-    });
-    expect(result).toEqual({ mode: 'PLANCHER', reason: 'OPENROUTER_API_KEY_MISSING' });
-    expect(writes).toHaveLength(0);
-  });
-
-  it('REPLI : budget mensuel dépassé → PLANCHER', async () => {
-    const { db } = database({
-      teacherBrief: {
-        findFirst: jest.fn(async () => null),
-        aggregate: jest.fn(async () => ({ _sum: { estimatedCostUsd: 25 }, _count: { id: 40 } })),
-        create: jest.fn(),
-        updateMany: jest.fn(),
-      },
-    });
-    const result = await generateTeacherBrief({
-      prisma: db as never, actor, reportArtifactId: 'art-1',
-      environment: { OPENROUTER_API_KEY: 'k', NEXUS_TEACHER_BRIEF_MONTHLY_BUDGET_USD: '20' },
-    });
-    expect(result).toEqual({ mode: 'PLANCHER', reason: 'TEACHER_BRIEF_BUDGET_EXCEEDED' });
-  });
-
-  it('cache applicatif : un brief déjà présent (relu ou en attente) ne se régénère jamais', async () => {
-    const { db } = database({
-      teacherBrief: {
-        findFirst: jest.fn(async () => ({ id: 'brief-42' })),
-        aggregate: jest.fn(),
-        create: jest.fn(),
-        updateMany: jest.fn(),
-      },
-    });
-    const result = await generateTeacherBrief({
-      prisma: db as never, actor, reportArtifactId: 'art-1', environment: { OPENROUTER_API_KEY: 'k' },
-    });
-    expect(result).toEqual({ mode: 'ALREADY_PRESENT', briefId: 'brief-42' });
-  });
-
-  it('GARDE : le service brief n’écrit JAMAIS dans les révisions ni les matérialisations (élève/parents 100 % déterministes)', async () => {
-    const answers = answersAllWrongConfident();
-    const { db, writes } = database({
-      reportArtifact: {
-        findUnique: jest.fn(async () => ({
-          id: 'art-1',
-          assessmentAttempt: {
-            answers,
-            assessmentPackId: PACK.slug,
-            assessmentPackVersion: String(PACK.version),
-            assessmentPackChecksum: 'checksum-pack',
-          },
-          revisions: [{ scoreSnapshotId: 'snap-1', scoreSnapshot: { result: factSheet() } }],
-        })),
-      },
-    });
-    // Un appel par domaine : le modèle simulé renvoie le domaine demandé.
-    const fetchOk: typeof fetch = (async (_url: unknown, init?: RequestInit) => {
-      const facts = JSON.parse(JSON.parse(String(init?.body)).messages[1].content) as typeof FACTS;
-      const domaine = validBriefContent().domaines
-        .find((d) => d.domainId === facts.domainesPrioritaires[0].domainId)!;
-      return new Response(JSON.stringify({
-        choices: [{ message: { content: JSON.stringify({ version: TEACHER_BRIEF_PROMPT_VERSION, domaines: [domaine] }) } }],
-        usage: { prompt_tokens: 2_300, completion_tokens: 1_100, prompt_tokens_details: { cached_tokens: 1_710 } },
-      }), { status: 200 });
-    }) as typeof fetch;
-    const result = await generateTeacherBrief({
-      prisma: db as never, actor, reportArtifactId: 'art-1',
-      environment: { OPENROUTER_API_KEY: 'k' },
-      resolvePack: () => ({ pack: PACK, validatedPack: null as never, checksum: 'checksum-pack', path: 'x' }),
-      fetchImpl: fetchOk,
-    });
-    expect(result.mode).toBe('GENERATED');
-    expect(writes).toEqual(['teacherBrief.create']);
-    expect(writes).not.toContain('reportRevision.updateMany');
-    expect(writes).not.toContain('reportMaterialization.create');
-  });
-
-  it('REPLI : transport en erreur → PLANCHER, rien n’est écrit', async () => {
-    const answers = answersAllWrongConfident();
-    const { db, writes } = database({
-      reportArtifact: {
-        findUnique: jest.fn(async () => ({
-          id: 'art-1',
-          assessmentAttempt: {
-            answers,
-            assessmentPackId: PACK.slug,
-            assessmentPackVersion: String(PACK.version),
-            assessmentPackChecksum: 'checksum-pack',
-          },
-          revisions: [{ scoreSnapshotId: 'snap-1', scoreSnapshot: { result: factSheet() } }],
-        })),
-      },
-    });
-    const fetch500: typeof fetch = (async () => new Response('{}', { status: 500 })) as typeof fetch;
-    const result = await generateTeacherBrief({
-      prisma: db as never, actor, reportArtifactId: 'art-1',
-      environment: { OPENROUTER_API_KEY: 'k' },
-      resolvePack: () => ({ pack: PACK, validatedPack: null as never, checksum: 'checksum-pack', path: 'x' }),
-      fetchImpl: fetch500,
-    });
-    expect(result).toEqual({ mode: 'PLANCHER', reason: 'TEACHER_BRIEF_HTTP_500' });
-    expect(writes).toHaveLength(0);
-  });
-
-  it('refuse tout autre rôle que l’assistante', async () => {
-    const { db } = database();
-    await expect(generateTeacherBrief({
-      prisma: db as never, actor: { userId: 'coach', role: 'COACH' }, reportArtifactId: 'art-1',
-    })).rejects.toThrow('NOT_FOUND');
-  });
-});
+// L'orchestration (idempotence, budget, classification des échecs,
+// persistance) a été retirée de ce fichier avec la fonction
+// `generateTeacherBrief` (§10 de l'incident P0 du 2026-08-16) : elle vivait
+// dans une requête HTTP synchrone de l'assistante, sans traçabilité des
+// échecs PLANCHER ni budget atomique. Ces preuves vivent maintenant dans
+// __tests__/integration/bilans-teacher-brief-worker.test.ts, contre une
+// vraie base PostgreSQL (jamais un mock de $queryRaw pour la file
+// verrouillée FOR UPDATE SKIP LOCKED) : succès, idempotence ALREADY_PRESENT,
+// STALE_INPUT, RETRYABLE_FAILURE vs BLOCKED_FAILURE, BUDGET_BLOCKED,
+// reprise après un job LEASED orphelin.
 
 describe('teacher-brief — verrou de narration familles', () => {
   it('le worker familles reste déterministe même clé présente, tant que le flag explicite est absent', () => {

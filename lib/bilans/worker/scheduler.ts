@@ -1,5 +1,5 @@
 import { maybeSendAssistantDigest } from '../staff/notification-service';
-import { drainGenerateReportJobs, drainScoreAttemptJobs } from './drain-outbox';
+import { drainGenerateReportJobs, drainScoreAttemptJobs, drainTeacherBriefJobs } from './drain-outbox';
 
 type SchedulerState = {
   timer?: NodeJS.Timeout;
@@ -38,6 +38,12 @@ export function kickBilanWorkerDrain(): void {
     console.info(JSON.stringify({ event: 'BILAN_WORKER_SCORE_DRAIN_METRICS', ...scored }));
     const generated = await drainGenerateReportJobs();
     console.info(JSON.stringify({ event: 'BILAN_WORKER_GENERATE_REPORT_DRAIN_METRICS', ...generated }));
+    // Briefs enseignant : même worker en process (§10 de l'incident P0),
+    // jamais le worker NPC (domaine métier différent). Un seul brief à la
+    // fois par tick (limit:1 dans drainTeacherBriefJobs) tant qu'aucune
+    // preuve de charge/budget ne justifie plus.
+    const briefs = await drainTeacherBriefJobs();
+    console.info(JSON.stringify({ event: 'BILAN_WORKER_TEACHER_BRIEF_DRAIN_METRICS', ...briefs }));
     // Synthèse assistante : vérification bon marché à chaque tick, envoi au
     // plus une fois par intervalle et seulement s'il y a matière.
     const digest = await maybeSendAssistantDigest();

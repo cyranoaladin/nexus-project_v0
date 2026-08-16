@@ -7,7 +7,6 @@ import lexicon from '@/data/bilans/lexique-interdit.json';
 import modelPolicy from '@/data/bilans/model-policy.json';
 import { prisma } from '@/lib/prisma';
 
-import { resolveEnabledPack, type PackResolver } from '../api/pack-access';
 import type { FactSheet } from '../facts/fact-sheet';
 import { scanPiiFields } from '../local-first/pii';
 import {
@@ -489,148 +488,18 @@ export function assertBriefRespectsFacts(content: TeacherBriefContent, facts: Te
 }
 
 /* -------------------------------------------------------------------------- */
-/* Orchestration : idempotence, budget, repli, persistance                     */
+/* Orchestration : voir lib/bilans/worker/generate-teacher-brief-job.ts        */
 /* -------------------------------------------------------------------------- */
-
-type BriefDatabase = Pick<PrismaClient, '$transaction' | 'teacherBrief' | 'reportArtifact'>;
-
-export type GenerateBriefResult =
-  | Readonly<{ mode: 'GENERATED'; briefId: string; version: number }>
-  | Readonly<{ mode: 'ALREADY_PRESENT'; briefId: string }>
-  | Readonly<{ mode: 'PLANCHER'; reason: string }>;
-
-export async function generateTeacherBrief(input: Readonly<{
-  prisma?: BriefDatabase;
-  actor: Readonly<{ userId: string; role: string }>;
-  reportArtifactId: string;
-  resolvePack?: PackResolver;
-  environment?: Readonly<Record<string, string | undefined>>;
-  fetchImpl?: typeof fetch;
-  now?: () => Date;
-}>): Promise<GenerateBriefResult> {
-  if (input.actor.role !== 'ASSISTANTE' || !input.actor.userId.trim()) {
-    throw new TeacherBriefError('NOT_FOUND');
-  }
-  const database = input.prisma ?? prisma;
-  const now = (input.now ?? (() => new Date()))();
-
-  // Cache applicatif : un brief déjà généré (et non renvoyé en correction)
-  // ne se régénère JAMAIS.
-  const existing = await database.teacherBrief.findFirst({
-    where: { reportArtifactId: input.reportArtifactId, status: { in: ['PENDING_REVIEW', 'APPROVED'] } },
-    orderBy: { version: 'desc' },
-    select: { id: true },
-  });
-  if (existing !== null) return Object.freeze({ mode: 'ALREADY_PRESENT' as const, briefId: existing.id });
-
-  let config: TeacherBriefConfig;
-  try {
-    config = resolveTeacherBriefConfig(input.environment);
-  } catch (error) {
-    return Object.freeze({ mode: 'PLANCHER' as const, reason: (error as TeacherBriefError).code ?? 'CONFIG' });
-  }
-
-  // Budget mensuel : dépassé → repli, jamais d'erreur bloquante.
-  const monthStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
-  const spent = await database.teacherBrief.aggregate({
-    _sum: { estimatedCostUsd: true },
-    where: { createdAt: { gte: monthStart } },
-  });
-  const spentUsd = Number(spent._sum.estimatedCostUsd ?? 0);
-  if (spentUsd >= config.monthlyBudgetUsd) {
-    return Object.freeze({ mode: 'PLANCHER' as const, reason: 'TEACHER_BRIEF_BUDGET_EXCEEDED' });
-  }
-
-  const artifact = await database.reportArtifact.findUnique({
-    where: { id: input.reportArtifactId },
-    select: {
-      id: true,
-      assessmentAttempt: {
-        select: {
-          answers: true,
-          assessmentPackId: true,
-          assessmentPackVersion: true,
-          assessmentPackChecksum: true,
-        },
-      },
-      revisions: {
-        orderBy: { createdAt: 'desc' },
-        take: 1,
-        select: { scoreSnapshotId: true, scoreSnapshot: { select: { result: true } } },
-      },
-    },
-  });
-  if (artifact === null || artifact.revisions.length === 0) throw new TeacherBriefError('NOT_FOUND');
-
-  const resolvePack = input.resolvePack ?? resolveEnabledPack;
-  const resolved = resolvePack(
-    artifact.assessmentAttempt.assessmentPackId,
-    Number(artifact.assessmentAttempt.assessmentPackVersion),
-  );
-  if (resolved === null) return Object.freeze({ mode: 'PLANCHER' as const, reason: 'PACK_UNAVAILABLE' });
-  if (artifact.assessmentAttempt.assessmentPackChecksum !== resolved.checksum) {
-    return Object.freeze({ mode: 'PLANCHER' as const, reason: 'PACK_CHECKSUM_MISMATCH' });
-  }
-
-  const factSheet = artifact.revisions[0].scoreSnapshot.result as unknown as FactSheet;
-
-  let generation: TeacherBriefGeneration;
-  try {
-    const facts = buildStudentFactsPayload(
-      factSheet,
-      resolved.pack,
-      artifact.assessmentAttempt.answers,
-      resolved.pack.subject,
-    );
-    generation = await callTeacherBriefModel(config, facts, input.fetchImpl);
-  } catch (error) {
-    const code = error instanceof TeacherBriefError ? error.code : 'TEACHER_BRIEF_UNKNOWN';
-    console.error(JSON.stringify({ event: 'TEACHER_BRIEF_GENERATION_FELL_BACK', reason: code }));
-    return Object.freeze({ mode: 'PLANCHER' as const, reason: code });
-  }
-
-  const created = await database.$transaction(async (transaction) => {
-    // Régénération après correction : l'ancienne version passe SUPERSEDED,
-    // l'historique (contenu, annotations, relecture) reste intact.
-    await transaction.teacherBrief.updateMany({
-      where: { reportArtifactId: input.reportArtifactId, status: 'CORRECTION_REQUESTED' },
-      data: { status: 'SUPERSEDED' },
-    });
-    const latest = await transaction.teacherBrief.findFirst({
-      where: { reportArtifactId: input.reportArtifactId },
-      orderBy: { version: 'desc' },
-      select: { version: true },
-    });
-    return transaction.teacherBrief.create({
-      data: {
-        reportArtifactId: input.reportArtifactId,
-        scoreSnapshotId: artifact.revisions[0].scoreSnapshotId,
-        version: (latest?.version ?? 0) + 1,
-        status: 'PENDING_REVIEW',
-        content: generation.content as never,
-        promptVersion: generation.promptVersion,
-        model: generation.model,
-        promptTokens: generation.promptTokens,
-        cachedPromptTokens: generation.cachedPromptTokens,
-        completionTokens: generation.completionTokens,
-        estimatedCostUsd: generation.estimatedCostUsd,
-        generationMs: generation.generationMs,
-        createdById: input.actor.userId,
-      },
-      select: { id: true, version: true },
-    });
-  });
-  console.info(JSON.stringify({
-    event: 'TEACHER_BRIEF_GENERATED',
-    model: generation.model,
-    promptVersion: generation.promptVersion,
-    promptTokens: generation.promptTokens,
-    cachedPromptTokens: generation.cachedPromptTokens,
-    completionTokens: generation.completionTokens,
-    estimatedCostUsd: generation.estimatedCostUsd,
-  }));
-  return Object.freeze({ mode: 'GENERATED' as const, briefId: created.id, version: created.version });
-}
+// L'ancienne orchestration synchrone (`generateTeacherBrief`) a été retirée
+// (§10 de l'incident P0 du 2026-08-16) : elle exécutait l'appel LLM dans la
+// requête HTTP de l'assistante (8-10 min pour un groupe), sans traçabilité
+// des échecs PLANCHER, sans budget atomique. Sa logique — idempotence,
+// classification des échecs, persistance — vit maintenant dans
+// `processGenerateTeacherBriefJob` (job outbox, worker en process,
+// `journal des tentatives`), qui réutilise les primitives ci-dessus
+// (`buildStudentFactsPayload`, `callTeacherBriefModel`, `assertBriefRespectsFacts`).
+// Aucun double chemin : ce fichier ne contient plus que les primitives
+// stables, jamais l'orchestration complète.
 
 /** Usage cumulé du mois — compteur consultable dans le dashboard. */
 export async function teacherBriefMonthlyUsage(
