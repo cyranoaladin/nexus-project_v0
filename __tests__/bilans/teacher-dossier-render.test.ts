@@ -97,9 +97,82 @@ describe('renderTeacherDossierHtml', () => {
     expect(html).toContain('pack différent');
   });
 
-  it('signals a missing brief instead of rendering a silently empty section', () => {
+  it('signals deterministic fallback when no approved brief exists', () => {
     const html = renderTeacherDossierHtml(document());
-    expect(html).toMatch(/brief.*non disponible/i);
+    expect(html).toContain('Socle pédagogique déterministe utilisé — aucun brief enrichi validé.');
+    expect(html).toContain('Version sécurisée — tout enrichissement LLM non validé est exclu.');
+  });
+
+  it('rejects an unverified or unmarked brief with a security exception', () => {
+    const unsafeBrief = {
+      version: 'teacher-brief.v2',
+      domaines: [{ domainId: 'second-degre', erreursTypiques: [], prerequisAVerifier: [], activite: { titre: 't', objectif: 'o', materiel: 'm', deroule: [], differenciation: 'd' }, indicateurProgres: 'i' }],
+    };
+    const docWithUnsafe = document({
+      students: Object.freeze([{
+        ...document().students[0],
+        brief: unsafeBrief as never,
+        // briefSafetyMarker missing
+      }]),
+    });
+    expect(() => renderTeacherDossierHtml(docWithUnsafe)).toThrow('TEACHER_DOSSIER_UNSAFE_BRIEF_RENDER_BLOCKED');
+  });
+
+  it('demonstrates that a spread/clone of brief content without explicit briefSafetyMarker fails render', () => {
+    const safeBrief = {
+      version: 'teacher-brief.v2',
+      domaines: [{
+        domainId: 'second-degre',
+        erreursTypiques: [{ constat: 'Erreur de signe', origine: 'Formule mal apprise', itemIds: [] }],
+        prerequisAVerifier: ['Calcul algébrique'],
+        activite: { titre: 'Activité 1', objectif: 'Maîtriser le discriminant', materiel: 'Tableau', deroule: [{ nom: 'Phase 1', dureeMin: 15, consigne: 'Résoudre' }, { nom: 'P2', dureeMin: 10, consigne: 'C2' }, { nom: 'P3', dureeMin: 10, consigne: 'C3' }], differenciation: 'Calculatrice' },
+        indicateurProgres: '80% de réussite',
+      }],
+    };
+    const clonedBrief = { ...safeBrief };
+    const docWithClonedWithoutMarker = document({
+      students: Object.freeze([{
+        ...document().students[0],
+        brief: clonedBrief as never,
+        // no briefSafetyMarker on student detail!
+      }]),
+    });
+    expect(() => renderTeacherDossierHtml(docWithClonedWithoutMarker)).toThrow('TEACHER_DOSSIER_UNSAFE_BRIEF_RENDER_BLOCKED');
+  });
+
+  it('renders a verified safe brief carrying briefSafetyMarker and ensures unapproved sentinel is absent from HTML and PDF', async () => {
+    const safeBrief = {
+      version: 'teacher-brief.v2',
+      domaines: [{
+        domainId: 'second-degre',
+        erreursTypiques: [{ constat: 'Erreur de signe', origine: 'Formule mal apprise', itemIds: [] }],
+        prerequisAVerifier: ['Calcul algébrique'],
+        activite: { titre: 'Activité 1', objectif: 'Maîtriser le discriminant', materiel: 'Tableau', deroule: [{ nom: 'Phase 1', dureeMin: 15, consigne: 'Résoudre' }, { nom: 'P2', dureeMin: 10, consigne: 'C2' }, { nom: 'P3', dureeMin: 10, consigne: 'C3' }], differenciation: 'Calculatrice' },
+        indicateurProgres: '80% de réussite',
+      }],
+    };
+
+    const docWithSafe = document({
+      students: Object.freeze([{
+        ...document().students[0],
+        brief: safeBrief as never,
+        briefSafetyMarker: 'APPROVED_AND_CURRENT_VERIFIED',
+      }]),
+    });
+
+    const html = renderTeacherDossierHtml(docWithSafe);
+    expect(html).toContain('Maîtriser le discriminant');
+    const sentinel = 'SENTINELLE-BRIEF-NON-RELUE-INTERDITE-20260816';
+    expect(html).not.toContain(sentinel);
+
+    const pdfResult = await renderTeacherDossierPdf(docWithSafe);
+    expect(pdfResult.status).toBe('AVAILABLE');
+    if (pdfResult.status === 'AVAILABLE') {
+      expect(pdfResult.pdf.toString('utf-8')).not.toContain(sentinel);
+      const text = await extractPdfText(pdfResult.pdf);
+      expect(text).not.toContain(sentinel);
+      expect(text).toMatch(/Maîtriser le discriminant|second-degre/i);
+    }
   });
 
   it('flags a majority distractor as a collective error to treat at the board', () => {
@@ -120,6 +193,6 @@ describe('renderTeacherDossierPdf', () => {
     if (result.status !== 'AVAILABLE') return;
     const text = await extractPdfText(result.pdf);
     expect(text).toMatch(/confidentiel/i);
-    expect(text).toContain('x²');
+    expect(text).toContain('Socle pédagogique déterministe utilisé — aucun brief enrichi validé.');
   }, 30000);
 });

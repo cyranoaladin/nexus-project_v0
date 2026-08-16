@@ -23,6 +23,10 @@ import type { FactSheet } from '../facts/fact-sheet';
 import { SEVERITY_RANK } from '../facts/constants';
 import type { NodeProfile } from '../facts/types';
 import type { TeacherBriefContent } from '../llm/teacher-brief-schema';
+import {
+  APPROVED_BRIEF_SAFETY_MARKER,
+  assertValidTeacherDossierStudentBrief,
+} from '../staff/teacher-dossier-safety';
 import { BILAN_PRINT_BRAND, bilanPrintTokenCss } from '../render/brand';
 import { renderHtmlToPdf } from '../render/pdf';
 import {
@@ -50,8 +54,10 @@ export type DossierStudentDetail = Readonly<{
   displayName: string;
   factSheet: FactSheet;
   evidence: QuestionEvidence;
-  /** `null` quand le brief n'a pas encore été généré pour cet élève. */
+  /** `null` quand le brief n'a pas encore été généré ou n'est pas approuvé. */
   brief: TeacherBriefContent | null;
+  /** Marqueur de sécurité explicite posé uniquement par teacher-dossier-service.ts. */
+  briefSafetyMarker?: typeof APPROVED_BRIEF_SAFETY_MARKER;
 }>;
 
 export type TeacherDossierDocument = Readonly<{
@@ -117,7 +123,8 @@ function summaryPage(doc: TeacherDossierDocument): string {
   const distribution = Object.entries(analysis.profileDistribution) as [NodeProfile, number][];
   const topFragile = analysis.domains.filter((domain) => domain.profile !== 'MAITRISE' && domain.profile !== 'MAITRISE_FRAGILE').slice(0, 3);
   return `<section class="page"><header class="report-header"><img class="brand-logo" src="${BILAN_PRINT_BRAND.logos.header}" alt="Nexus Réussite"><div><p class="eyebrow">Dossier enseignant · Interne Nexus</p><h1>${text(doc.identity.stageLabel)}</h1></div></header>
-  <p class="confidential">Document strictement interne et confidentiel. Il contient les noms réels et les profils pédagogiques des élèves. Il ne doit jamais être transmis aux familles ni aux élèves.</p>
+  <p class="confidential">Document strictly interne et confidentiel. Il contient les noms réels et les profils pédagogiques des élèves. Il ne doit jamais être transmis aux familles ni aux élèves.</p>
+  <p class="collective"><strong>Version sécurisée — tout enrichissement LLM non validé est exclu.</strong></p>
   <h2>Fiche récapitulative</h2>
   ${headerGrid(doc.identity, doc.header, doc.students.length)}
   <div class="summary-grid">
@@ -190,7 +197,7 @@ function sectionE(doc: TeacherDossierDocument): string {
   const blocks = fragile.map((domain) => {
     const brief = briefForDomain(doc.students, domain.domainId);
     if (brief === null) {
-      return `<article class="item-block"><h3>${text(domain.domainId)}</h3><p><em>Brief enseignant non disponible pour ce domaine — génère-le via le bouton dédié du dashboard assistante.</em></p></article>`;
+      return `<article class="item-block"><h3>${text(domain.domainId)}</h3><p><em>Socle pédagogique déterministe utilisé — aucun brief enrichi validé.</em></p></article>`;
     }
     return `<article class="item-block"><h3>${text(domain.domainId)}</h3>
     <p><strong>Erreurs typiques attendues :</strong></p><ul>${brief.erreursTypiques.map((erreur) => `<li>${text(erreur.constat)} — <em>${text(erreur.origine)}</em></li>`).join('')}</ul>
@@ -229,6 +236,11 @@ function sectionG(doc: TeacherDossierDocument): string {
 
 export function renderTeacherDossierHtml(doc: TeacherDossierDocument): string {
   const identity = assertRenderIdentity(doc.identity);
+
+  for (const student of doc.students) {
+    assertValidTeacherDossierStudentBrief(student);
+  }
+
   const html = `${summaryPage(doc)}${tocPage()}${sectionB(doc)}${sectionC(doc.evidenceCatalog)}${sectionD(doc.students)}${sectionE(doc)}${sectionF(doc)}${sectionG(doc)}`;
   return `<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${text(identity.stageLabel)} · DOSSIER ENSEIGNANT</title><style>${styleSheet()}</style></head><body><main class="document" data-audience="STAFF" data-template="${TEACHER_DOSSIER_HTML_VERSION}">${html}</main></body></html>`;
 }

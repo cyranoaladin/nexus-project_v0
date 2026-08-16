@@ -2,12 +2,14 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 import { loadBilanPack } from '@/lib/bilans/catalog/load-pack';
+import { TeacherBriefOperationsSuspendedError } from '@/lib/bilans/staff/teacher-brief-operations';
 import {
   assertBriefRespectsFacts,
   buildStableSystemPrompt,
   buildStudentFactsPayload,
   callTeacherBriefModel,
   estimateCostUsd,
+  executeTeacherBriefGenerationInternal,
   generateTeacherBrief,
   resolveTeacherBriefConfig,
   teacherBriefMonthlyUsage,
@@ -385,7 +387,7 @@ describe('teacher-brief — orchestration, repli, budget, idempotence', () => {
 
   it('REPLI : clé absente → PLANCHER, aucune écriture, aucune erreur bloquante', async () => {
     const { db, writes } = database();
-    const result = await generateTeacherBrief({
+    const result = await executeTeacherBriefGenerationInternal({
       prisma: db as never, actor, reportArtifactId: 'art-1', environment: {},
     });
     expect(result).toEqual({ mode: 'PLANCHER', reason: 'OPENROUTER_API_KEY_MISSING' });
@@ -401,7 +403,7 @@ describe('teacher-brief — orchestration, repli, budget, idempotence', () => {
         updateMany: jest.fn(),
       },
     });
-    const result = await generateTeacherBrief({
+    const result = await executeTeacherBriefGenerationInternal({
       prisma: db as never, actor, reportArtifactId: 'art-1',
       environment: { OPENROUTER_API_KEY: 'k', NEXUS_TEACHER_BRIEF_MONTHLY_BUDGET_USD: '20' },
     });
@@ -417,7 +419,7 @@ describe('teacher-brief — orchestration, repli, budget, idempotence', () => {
         updateMany: jest.fn(),
       },
     });
-    const result = await generateTeacherBrief({
+    const result = await executeTeacherBriefGenerationInternal({
       prisma: db as never, actor, reportArtifactId: 'art-1', environment: { OPENROUTER_API_KEY: 'k' },
     });
     expect(result).toEqual({ mode: 'ALREADY_PRESENT', briefId: 'brief-42' });
@@ -449,7 +451,7 @@ describe('teacher-brief — orchestration, repli, budget, idempotence', () => {
         usage: { prompt_tokens: 2_300, completion_tokens: 1_100, prompt_tokens_details: { cached_tokens: 1_710 } },
       }), { status: 200 });
     }) as typeof fetch;
-    const result = await generateTeacherBrief({
+    const result = await executeTeacherBriefGenerationInternal({
       prisma: db as never, actor, reportArtifactId: 'art-1',
       environment: { OPENROUTER_API_KEY: 'k' },
       resolvePack: () => ({ pack: PACK, validatedPack: null as never, checksum: 'checksum-pack', path: 'x' }),
@@ -478,7 +480,7 @@ describe('teacher-brief — orchestration, repli, budget, idempotence', () => {
       },
     });
     const fetch500: typeof fetch = (async () => new Response('{}', { status: 500 })) as typeof fetch;
-    const result = await generateTeacherBrief({
+    const result = await executeTeacherBriefGenerationInternal({
       prisma: db as never, actor, reportArtifactId: 'art-1',
       environment: { OPENROUTER_API_KEY: 'k' },
       resolvePack: () => ({ pack: PACK, validatedPack: null as never, checksum: 'checksum-pack', path: 'x' }),
@@ -490,9 +492,17 @@ describe('teacher-brief — orchestration, repli, budget, idempotence', () => {
 
   it('refuse tout autre rôle que l’assistante', async () => {
     const { db } = database();
-    await expect(generateTeacherBrief({
+    await expect(executeTeacherBriefGenerationInternal({
       prisma: db as never, actor: { userId: 'coach', role: 'COACH' }, reportArtifactId: 'art-1',
     })).rejects.toThrow('NOT_FOUND');
+  });
+
+  it('le point d’entrée public generateTeacherBrief refuse TOUJOURS l’exécution pendant la suspension', async () => {
+    const { db, writes } = database();
+    await expect(generateTeacherBrief({
+      prisma: db as never, actor, reportArtifactId: 'art-1', environment: {},
+    })).rejects.toThrow(TeacherBriefOperationsSuspendedError);
+    expect(writes).toHaveLength(0);
   });
 });
 

@@ -303,6 +303,11 @@ function assertStaff(actor: Readonly<{ userId: string; role: string }>): void {
   }
 }
 
+import {
+  teacherBriefOperationsAreSuspended,
+  TEACHER_BRIEF_SUSPENSION_CODE,
+} from './teacher-brief-operations';
+
 /** Aperçu lecture seule : ce qui changerait, et ce que la régénération coûte. */
 export async function prepareReportRegeneration(input: Readonly<{
   prisma?: RegenDatabase;
@@ -323,6 +328,7 @@ export async function prepareReportRegeneration(input: Readonly<{
   });
 
   const profilesChanged = loaded.changes.length > 0;
+  const suspended = teacherBriefOperationsAreSuspended();
   return Object.freeze({
     revisionId: loaded.revision.id,
     reportArtifactId: loaded.revision.reportArtifact.id,
@@ -335,7 +341,7 @@ export async function prepareReportRegeneration(input: Readonly<{
     publishedAt: loaded.revision.reportArtifact.publishedAt,
     changes: loaded.changes,
     profilesChanged,
-    briefWillRegenerate: profilesChanged && activeBrief !== null,
+    briefWillRegenerate: !suspended && profilesChanged && activeBrief !== null,
   });
 }
 
@@ -469,7 +475,15 @@ export async function executeReportRegeneration(input: Readonly<{
   let briefOutcome: Readonly<{ regenerated: boolean; reason: string | null; promptVersion: string | null; model: string | null }> =
     Object.freeze({ regenerated: false, reason: 'PROFILS_INCHANGES', promptVersion: null, model: null });
   if (loaded.changes.length > 0) {
-    const activeBrief = await database.teacherBrief.findFirst({
+    if (teacherBriefOperationsAreSuspended()) {
+      briefOutcome = Object.freeze({
+        regenerated: false,
+        reason: TEACHER_BRIEF_SUSPENSION_CODE,
+        promptVersion: null,
+        model: null,
+      });
+    } else {
+      const activeBrief = await database.teacherBrief.findFirst({
       where: { reportArtifactId: artifact.id, status: { in: ['PENDING_REVIEW', 'APPROVED'] } },
       orderBy: { version: 'desc' },
       select: { id: true },
@@ -517,6 +531,7 @@ export async function executeReportRegeneration(input: Readonly<{
         briefOutcome = Object.freeze({ regenerated: false, reason: 'BRIEF_REGENERATION_FAILED', promptVersion: null, model: null });
       }
     }
+  }
   }
 
   // 5. Trace append-only — l'issue réelle du brief y figure.
