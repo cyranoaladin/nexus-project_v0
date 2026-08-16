@@ -12,8 +12,10 @@ import {
 } from '@/lib/bilans/staff/review-service';
 
 import { REPORT_ANNOTATION_SECTIONS } from '@/lib/bilans/core/report-service';
-import { teacherBriefMonthlyUsage } from '@/lib/bilans/llm/teacher-brief-service';
+import { teacherBriefMonthlyUsage, resolveTeacherBriefConfig, TeacherBriefError } from '@/lib/bilans/llm/teacher-brief-service';
+import { readBudgetSnapshot } from '@/lib/bilans/llm/teacher-brief-budget';
 import { listStaffTeacherDossierGroups } from '@/lib/bilans/staff/teacher-dossier-service';
+import { REVIEW_MOTIF_CODES } from '@/lib/bilans/staff/teacher-brief-review-service';
 import { prisma } from '@/lib/prisma';
 import type { TeacherBriefContent } from '@/lib/bilans/llm/teacher-brief-schema';
 
@@ -32,6 +34,27 @@ import {
   resumeReviewAction,
   validateAndPublishReportAction,
 } from './actions';
+
+/** Le budget par défaut ne doit jamais rester invisible (§11) — même sans clé configurée, le plafond effectif est affiché. */
+function resolveTeacherBriefConfigSafely(): Readonly<{ monthlyBudgetUsd: number }> {
+  try {
+    return resolveTeacherBriefConfig();
+  } catch (error) {
+    if (error instanceof TeacherBriefError) return { monthlyBudgetUsd: 20 };
+    throw error;
+  }
+}
+
+const REVIEW_MOTIF_OPTIONS = REVIEW_MOTIF_CODES.map((code) => ({
+  code,
+  label: code.replaceAll('_', ' ').toLowerCase().replace(/^./, (letter) => letter.toUpperCase()),
+}));
+
+const COMPLETENESS_TIER_LABELS: Readonly<Record<string, string>> = {
+  SOCLE_DETERMINISTE: 'Socle déterministe',
+  ENRICHI_SECURISE_PARTIEL: 'Enrichi sécurisé partiel',
+  ENRICHI_COMPLET: 'Enrichi complet',
+};
 
 /** Libellés d'affichage pour les enums DB `Subject`/`GradeLevel` — distincts des
  * libellés `BilanPackSubject`/`BilanPackLevel` du catalogue (lib/bilans/catalog/subjects.ts,
@@ -139,7 +162,7 @@ export default async function CanonicalBilansReviewPage({
     orderBy: { version: 'desc' },
     select: {
       id: true, reportArtifactId: true, status: true, version: true, content: true,
-      editedContent: true, promptVersion: true, model: true, reviewedAt: true,
+      approvedContent: true, promptVersion: true, model: true, reviewedAt: true,
       reviewedBy: { select: { firstName: true, lastName: true } },
       annotations: { select: { section: true, remark: true, createdAt: true }, orderBy: { createdAt: 'asc' } },
     },
@@ -149,7 +172,11 @@ export default async function CanonicalBilansReviewPage({
     if (!briefByArtifact.has(brief.reportArtifactId)) briefByArtifact.set(brief.reportArtifactId, brief);
   }
   const briefUsage = await teacherBriefMonthlyUsage();
-  const dossierGroups = await listStaffTeacherDossierGroups({ userId: session.user.id, role: session.user.role });
+  const teacherBriefConfig = resolveTeacherBriefConfigSafely();
+  const budgetSnapshot = await readBudgetSnapshot(teacherBriefConfig.monthlyBudgetUsd);
+  const dossierGroups = session.user.role === 'ASSISTANTE' || session.user.role === 'ADMIN'
+    ? await listStaffTeacherDossierGroups({ userId: session.user.id, role: session.user.role })
+    : [];
 
   const resolvedParams = await searchParams;
   const requestedPreview = resolvedParams.preview;
@@ -246,7 +273,8 @@ export default async function CanonicalBilansReviewPage({
         </section>
 
         <p className="mt-3 text-xs text-slate-400">
-          Assistant de rédaction enseignant — usage du mois : {briefUsage.briefs} brief{briefUsage.briefs > 1 ? 's' : ''}, {briefUsage.promptTokens + briefUsage.completionTokens} jetons (dont {briefUsage.cachedPromptTokens} en cache), ≈ {briefUsage.estimatedCostUsd.toFixed(2)} $ US.
+          Assistant de rédaction enseignant — usage du mois : {briefUsage.briefs} brief{briefUsage.briefs > 1 ? 's' : ''}, {briefUsage.promptTokens + briefUsage.completionTokens} jetons (dont {briefUsage.cachedPromptTokens} en cache).
+          Budget — plafond {budgetSnapshot.budgetUsd.toFixed(2)} $ · dépensé {budgetSnapshot.spentUsd.toFixed(2)} $ · réservé {budgetSnapshot.reservedUsd.toFixed(2)} $ · disponible {budgetSnapshot.availableUsd.toFixed(2)} $ US.
         </p>
 
         <section className="mt-8 rounded-2xl border border-white/10 bg-white/[0.05] p-5" aria-label="Dossiers enseignant">
@@ -262,43 +290,47 @@ export default async function CanonicalBilansReviewPage({
                 const query = `subject=${group.subject}&level=${group.level}`;
                 const subjectLabel = DB_SUBJECT_LABELS[group.subject] ?? group.subject;
                 const levelLabel = DB_GRADE_LEVEL_LABELS[group.level] ?? group.level;
+                const hasActiveBatch = group.queuedCount + group.processingCount > 0;
                 return (
                   <article
                     key={`${group.subject}-${group.level}`}
-                    className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-white/10 bg-white/[0.03] p-4"
+                    className="rounded-xl border border-white/10 bg-white/[0.03] p-4"
                   >
-                    <div>
-                      <p className="font-semibold text-white">{subjectLabel} — {levelLabel}</p>
-                      <p className="text-sm text-slate-300">
-                        {group.count} bilan{group.count > 1 ? 's' : ''} éligible{group.count > 1 ? 's' : ''}
-                        {group.briefsMissing > 0 && ` · ${group.briefsMissing} brief${group.briefsMissing > 1 ? 's' : ''} manquant${group.briefsMissing > 1 ? 's' : ''}`}
-                      </p>
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <div>
+                        <p className="font-semibold text-white">{subjectLabel} — {levelLabel}</p>
+                        <p className="text-xs text-slate-400">{COMPLETENESS_TIER_LABELS[group.completenessTier]}</p>
+                      </div>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <Link href={`/dashboard/assistante/bilans/teacher-dossier?${query}&format=html`} target="_blank" className="rounded-lg border border-amber-300/60 px-3 py-1.5 text-sm font-semibold text-amber-100">
+                          Voir le dossier sécurisé
+                        </Link>
+                        <Link href={`/dashboard/assistante/bilans/teacher-dossier?${query}&format=pdf`} target="_blank" className="rounded-lg border border-amber-300/60 px-3 py-1.5 text-sm font-semibold text-amber-100">
+                          PDF sécurisé
+                        </Link>
+                        {group.toGenerateCount > 0 && session.user.role === 'ASSISTANTE' && (
+                          <form action={generateGroupTeacherBriefsAction}>
+                            <input type="hidden" name="subject" value={group.subject} />
+                            <input type="hidden" name="level" value={group.level} />
+                            <button type="submit" disabled={hasActiveBatch} className="rounded-lg bg-amber-300 px-3 py-1.5 text-sm font-semibold text-slate-950 disabled:cursor-not-allowed disabled:opacity-40">
+                              {hasActiveBatch ? 'Génération en cours…' : `Générer ${group.toGenerateCount} brief${group.toGenerateCount > 1 ? 's' : ''} actionnable${group.toGenerateCount > 1 ? 's' : ''}`}
+                            </button>
+                          </form>
+                        )}
+                      </div>
                     </div>
-                    <div className="flex flex-wrap items-center gap-2">
-                      <Link
-                        href={`/dashboard/assistante/bilans/teacher-dossier?${query}&format=html`}
-                        target="_blank"
-                        className="rounded-lg border border-amber-300/60 px-3 py-1.5 text-sm font-semibold text-amber-100"
-                      >
-                        Voir le dossier
-                      </Link>
-                      <Link
-                        href={`/dashboard/assistante/bilans/teacher-dossier?${query}&format=pdf`}
-                        target="_blank"
-                        className="rounded-lg border border-amber-300/60 px-3 py-1.5 text-sm font-semibold text-amber-100"
-                      >
-                        PDF
-                      </Link>
-                      {group.briefsMissing > 0 && (
-                        <form action={generateGroupTeacherBriefsAction}>
-                          <input type="hidden" name="subject" value={group.subject} />
-                          <input type="hidden" name="level" value={group.level} />
-                          <button type="submit" className="rounded-lg bg-amber-300 px-3 py-1.5 text-sm font-semibold text-slate-950">
-                            Générer les {group.briefsMissing} brief{group.briefsMissing > 1 ? 's' : ''} manquant{group.briefsMissing > 1 ? 's' : ''}
-                          </button>
-                        </form>
-                      )}
-                    </div>
+                    <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-1 text-xs text-slate-300 sm:grid-cols-4">
+                      <div><dt className="text-slate-500">Éligibles</dt><dd>{group.eligibleCount}</dd></div>
+                      <div><dt className="text-slate-500">En file</dt><dd>{group.queuedCount}</dd></div>
+                      <div><dt className="text-slate-500">En cours</dt><dd>{group.processingCount}</dd></div>
+                      <div><dt className="text-slate-500">À relire</dt><dd>{group.toReviewCount}</dd></div>
+                      <div><dt className="text-slate-500">Corrections demandées</dt><dd>{group.correctionRequestedCount}</dd></div>
+                      <div><dt className="text-slate-500">Approuvés</dt><dd>{group.approvedCount}</dd></div>
+                      <div><dt className="text-slate-500">Socle déterministe</dt><dd>{group.socleDeterministeCount}</dd></div>
+                      <div><dt className="text-slate-500">Briefs obsolètes</dt><dd>{group.staleBriefCount}</dd></div>
+                      {group.retryableFailureCount > 0 && <div><dt className="text-slate-500">Échecs retentés</dt><dd>{group.retryableFailureCount}</dd></div>}
+                      {group.blockedFailureCount > 0 && <div><dt className="text-red-300">Blocages — action requise</dt><dd className="text-red-200">{group.blockedFailureCount}</dd></div>}
+                    </dl>
                   </article>
                 );
               })}
@@ -623,32 +655,32 @@ export default async function CanonicalBilansReviewPage({
 
                   {(() => {
                     const brief = briefByArtifact.get(revision.reportArtifact.id);
-                    const briefContent = brief?.content as TeacherBriefContent | undefined;
+                    const briefContent = (brief?.approvedContent ?? brief?.content) as TeacherBriefContent | undefined;
                     return (
                       <section className="border-t border-indigo-300/20 bg-indigo-300/5 px-6 py-5">
                         <h3 className="font-semibold text-indigo-100">Brief enseignant (document interne)</h3>
                         <p className="mt-1 text-xs text-slate-400">
-                          Préparation de séance rédigée par l’assistant de rédaction à partir du diagnostic déterministe, relue avant tout usage. Jamais transmis aux familles.
+                          Préparation de séance rédigée par l’assistant de rédaction à partir du diagnostic déterministe. Seul un brief APPROUVÉ peut atteindre le dossier enseignant — jamais transmis aux familles.
                         </p>
                         {brief === undefined ? (
+                          session.user.role === 'ASSISTANTE' && (
                           <form action={generateTeacherBriefAction} className="mt-3">
                             <input type="hidden" name="artifactId" value={revision.reportArtifact.id} />
                             <button type="submit" className="rounded-xl border border-indigo-300 px-4 py-2.5 text-sm font-semibold text-indigo-100">
-                              Générer le brief enseignant
+                              Mettre en file la génération du brief
                             </button>
                             <p className="mt-2 text-xs text-slate-500">
-                              Si l’assistant de rédaction est indisponible, le document interne Nexus déterministe reste la référence.
+                              Traitement en tâche de fond (quelques minutes) — actualisez la page pour voir le résultat. Si l’assistant de rédaction est indisponible, le document interne Nexus déterministe reste la référence.
                             </p>
                           </form>
+                          )
                         ) : (
                           <div className="mt-3 space-y-3">
                             <p className="text-sm">
                               <span className="rounded-full bg-indigo-300/15 px-3 py-1 text-xs font-semibold text-indigo-100">{briefStatusLabel(brief.status)}</span>
                               <span className="ml-3 text-xs text-slate-400">v{brief.version} · {brief.promptVersion} · {brief.model}{brief.reviewedAt ? ` · relu le ${dateLabel(brief.reviewedAt)}` : ''}</span>
                             </p>
-                            {brief.editedContent ? (
-                              <div className="whitespace-pre-wrap rounded-2xl border border-white/10 bg-black/30 p-4 text-xs leading-5 text-slate-200">{brief.editedContent}</div>
-                            ) : briefContent !== undefined && (
+                            {briefContent !== undefined && (
                               <div className="whitespace-pre-wrap rounded-2xl border border-white/10 bg-black/30 p-4 text-xs leading-5 text-slate-200">{renderBriefText(briefContent)}</div>
                             )}
                             {brief.annotations.length > 0 && (
@@ -658,15 +690,18 @@ export default async function CanonicalBilansReviewPage({
                                 ))}
                               </ul>
                             )}
-                            {brief.status === 'PENDING_REVIEW' && (
+                            {brief.status === 'PENDING_REVIEW' && session.user.role === 'ASSISTANTE' && (
                               <div className="grid gap-3 lg:grid-cols-2">
                                 <form action={approveTeacherBriefAction} className="rounded-2xl border border-emerald-300/20 bg-emerald-300/5 p-4">
                                   <input type="hidden" name="briefId" value={brief.id} />
                                   <label className="block text-xs font-semibold text-white">Motif de validation</label>
-                                  <input name="motif" required minLength={5} className="mt-2 w-full rounded-xl border border-white/15 bg-slate-950 px-3 py-2 text-sm text-white" />
-                                  <label className="mt-3 block text-xs font-semibold text-white">Correction manuelle (facultative — elle prime sur le texte généré)</label>
-                                  <textarea name="editedContent" className="mt-2 min-h-16 w-full rounded-xl border border-white/15 bg-slate-950 p-3 text-xs text-white" placeholder="Laisser vide pour valider le texte généré tel quel." />
-                                  <button type="submit" className="mt-3 rounded-xl bg-emerald-500 px-4 py-2 text-sm font-semibold text-slate-950">Valider le brief</button>
+                                  <select name="motifCode" required className="mt-2 w-full rounded-xl border border-white/15 bg-slate-950 px-3 py-2 text-sm text-white">
+                                    {REVIEW_MOTIF_OPTIONS.map((option) => <option key={option.code} value={option.code}>{option.label}</option>)}
+                                  </select>
+                                  <label className="mt-3 block text-xs font-semibold text-white">Commentaire (facultatif)</label>
+                                  <input name="freeComment" className="mt-2 w-full rounded-xl border border-white/15 bg-slate-950 px-3 py-2 text-sm text-white" />
+                                  <button type="submit" className="mt-3 rounded-xl bg-emerald-500 px-4 py-2 text-sm font-semibold text-slate-950">Valider sans modification</button>
+                                  <p className="mt-2 text-xs text-slate-500">Édition structurée du contenu : voir la file de relecture dédiée (à venir — non modifiable en texte libre ici, par sécurité).</p>
                                 </form>
                                 <form action={requestTeacherBriefCorrectionAction} className="rounded-2xl border border-sky-300/20 bg-sky-300/5 p-4">
                                   <input type="hidden" name="briefId" value={brief.id} />
@@ -675,16 +710,18 @@ export default async function CanonicalBilansReviewPage({
                                   <label className="mt-3 block text-xs font-semibold text-white">Remarque</label>
                                   <textarea name="remark" required minLength={5} className="mt-2 min-h-12 w-full rounded-xl border border-white/15 bg-slate-950 p-3 text-xs text-white" />
                                   <label className="mt-3 block text-xs font-semibold text-white">Motif</label>
-                                  <input name="motif" required minLength={5} className="mt-2 w-full rounded-xl border border-white/15 bg-slate-950 px-3 py-2 text-sm text-white" />
+                                  <select name="motifCode" required className="mt-2 w-full rounded-xl border border-white/15 bg-slate-950 px-3 py-2 text-sm text-white">
+                                    {REVIEW_MOTIF_OPTIONS.map((option) => <option key={option.code} value={option.code}>{option.label}</option>)}
+                                  </select>
                                   <button type="submit" className="mt-3 rounded-xl border border-sky-300 px-4 py-2 text-sm font-semibold text-sky-100">Demander une régénération</button>
                                 </form>
                               </div>
                             )}
-                            {brief.status === 'CORRECTION_REQUESTED' && (
+                            {brief.status === 'CORRECTION_REQUESTED' && session.user.role === 'ASSISTANTE' && (
                               <form action={generateTeacherBriefAction}>
                                 <input type="hidden" name="artifactId" value={revision.reportArtifact.id} />
                                 <button type="submit" className="rounded-xl border border-indigo-300 px-4 py-2.5 text-sm font-semibold text-indigo-100">
-                                  Régénérer le brief (nouvelle version, historique conservé)
+                                  Reprendre — mettre en file la régénération (nouvelle version, historique conservé)
                                 </button>
                               </form>
                             )}
