@@ -14,7 +14,7 @@ import { buildDeterministicReports } from '../render/report';
 import { buildPreRentreeStageLabel } from '../render/stage-label';
 import { prepareReportPassationPresentation } from '../render/passation-presentation';
 import type { RenderIdentity } from '../render/render-identity';
-import { generateTeacherBrief, type GenerateBriefResult } from '../llm/teacher-brief-service';
+import { enqueueTeacherBriefGeneration } from '../llm/teacher-brief-enqueue';
 import { requestTeacherBriefCorrection } from './teacher-brief-review-service';
 
 /**
@@ -463,9 +463,13 @@ export async function executeReportRegeneration(input: Readonly<{
     return revision;
   });
 
-  // 4. Brief enseignant : régénéré si les profils ont changé — un brief ancré
-  //    sur un diagnostic obsolète ferait préparer la mauvaise séance. Repli
-  //    PLANCHER : indisponible → le bilan est régénéré sans brief, jamais bloqué.
+  // 4. Brief enseignant : mis en file de régénération si les profils ont
+  //    changé — un brief ancré sur un diagnostic obsolète ferait préparer la
+  //    mauvaise séance (§5/§10 de l'incident P0). Plus d'appel LLM synchrone
+  //    ici : `briefRegenerated` signifie désormais "mis en file", pas
+  //    "généré avec succès" — le résultat réel arrive via le worker et le
+  //    journal des tentatives (`TeacherBriefAttempt`), consultable par
+  //    `reportArtifactId`.
   let briefOutcome: Readonly<{ regenerated: boolean; reason: string | null; promptVersion: string | null; model: string | null }> =
     Object.freeze({ regenerated: false, reason: 'PROFILS_INCHANGES', promptVersion: null, model: null });
   if (loaded.changes.length > 0) {
@@ -481,38 +485,15 @@ export async function executeReportRegeneration(input: Readonly<{
         await requestTeacherBriefCorrection({
           actor: { userId: input.actor.userId, role: 'ASSISTANTE' },
           briefId: activeBrief.id,
-          motif: `Profils régénérés (génération ${created.generation}) — ${motif}`,
+          motifCode: 'AUTRE',
+          freeComment: `Profils régénérés (génération ${created.generation}) — ${motif}`,
           annotation: {
             section: 'autre',
             remark: 'Brief obsolète : les profils du bilan ont été régénérés sous la règle courante.',
           },
         });
-        const result: GenerateBriefResult = await generateTeacherBrief({
-          actor: { userId: input.actor.userId, role: 'ASSISTANTE' },
-          reportArtifactId: artifact.id,
-          environment: input.environment,
-          fetchImpl: input.fetchImpl,
-          now: input.now,
-        });
-        if (result.mode === 'GENERATED') {
-          const generated = await database.teacherBrief.findUnique({
-            where: { id: result.briefId },
-            select: { promptVersion: true, model: true },
-          });
-          briefOutcome = Object.freeze({
-            regenerated: true,
-            reason: null,
-            promptVersion: generated?.promptVersion ?? null,
-            model: generated?.model ?? null,
-          });
-        } else {
-          briefOutcome = Object.freeze({
-            regenerated: false,
-            reason: result.mode === 'PLANCHER' ? result.reason : result.mode,
-            promptVersion: null,
-            model: null,
-          });
-        }
+        await enqueueTeacherBriefGeneration(artifact.id, loaded.revision.scoreSnapshotId, input.actor.userId);
+        briefOutcome = Object.freeze({ regenerated: true, reason: 'MIS_EN_FILE', promptVersion: null, model: null });
       } catch {
         briefOutcome = Object.freeze({ regenerated: false, reason: 'BRIEF_REGENERATION_FAILED', promptVersion: null, model: null });
       }
