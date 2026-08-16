@@ -35,6 +35,8 @@ function assertMotif(motif: string): string {
   return value;
 }
 
+import { assertTeacherBriefOperationsEnabled } from './teacher-brief-operations';
+
 export async function approveTeacherBrief(input: Readonly<{
   prisma?: ReviewDatabase;
   actor: Actor;
@@ -44,6 +46,7 @@ export async function approveTeacherBrief(input: Readonly<{
   editedContent?: string;
   now?: () => Date;
 }>) {
+  assertTeacherBriefOperationsEnabled();
   const database = input.prisma ?? prisma;
   const reviewerId = assertAssistante(input.actor);
   const motif = assertMotif(input.motif);
@@ -81,6 +84,7 @@ export async function requestTeacherBriefCorrection(input: Readonly<{
   annotation: Readonly<{ section: string; remark: string }>;
   now?: () => Date;
 }>) {
+  assertTeacherBriefOperationsEnabled();
   const database = input.prisma ?? prisma;
   const reviewerId = assertAssistante(input.actor);
   const motif = assertMotif(input.motif);
