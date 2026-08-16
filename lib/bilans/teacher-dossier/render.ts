@@ -46,12 +46,34 @@ export type DossierHeaderInput = Readonly<{
   stageDates?: string;
 }>;
 
+/**
+ * Marqueur de sûreté OBLIGATOIRE dès que `brief` n'est pas `null` — défense
+ * en profondeur, couche 3 (assertion dans le renderer). Les couches 1
+ * (filtrage dans la requête) et 2 (vérification dans le service) vivent dans
+ * `staff/teacher-dossier-service.ts` : seul un brief APPROVED et rattaché au
+ * scoreSnapshot COURANT du bilan peut porter ce marqueur. Le renderer ne
+ * fait pas confiance à l'appelant : il vérifie lui-même ce marqueur avant de
+ * rendre le moindre octet de contenu LLM (voir `assertBriefSafeForTeacher`).
+ */
+export const TEACHER_BRIEF_SAFETY_MARKER = 'HUMAN_APPROVED_CURRENT' as const;
+
 export type DossierStudentDetail = Readonly<{
   displayName: string;
   factSheet: FactSheet;
   evidence: QuestionEvidence;
-  /** `null` quand le brief n'a pas encore été généré pour cet élève. */
+  /** `null` quand aucun brief APPROVED et courant n'existe pour cet élève (jamais un brief PENDING_REVIEW/CORRECTION_REQUESTED/SUPERSEDED, jamais un brief obsolète). */
   brief: TeacherBriefContent | null;
+  /** Présent et égal à `TEACHER_BRIEF_SAFETY_MARKER` si et seulement si `brief` n'est pas `null`. Vérifié par `assertBriefSafeForTeacher`. */
+  briefSafetyMarker?: typeof TEACHER_BRIEF_SAFETY_MARKER;
+}>;
+
+export type DossierCompletenessTier = 'SOCLE_DETERMINISTE' | 'ENRICHI_SECURISE_PARTIEL' | 'ENRICHI_COMPLET';
+
+export type DossierCompleteness = Readonly<{
+  tier: DossierCompletenessTier;
+  studentsIncluded: number;
+  briefsApproved: number;
+  socleOnlyCount: number;
 }>;
 
 export type TeacherDossierDocument = Readonly<{
@@ -65,7 +87,23 @@ export type TeacherDossierDocument = Readonly<{
   sessionPlan: DossierSessionPlan | null;
   evidenceCatalog: QuestionEvidence;
   generatedAt: string;
+  completeness: DossierCompleteness;
 }>;
+
+/**
+ * Couche 3 de la défense en profondeur (§2 de l'incident P0). Lève
+ * `TEACHER_DOSSIER_UNSAFE_BRIEF_RENDER_BLOCKED` si un `brief` non nul se
+ * présente sans le marqueur de sûreté — c'est-à-dire si les couches 1/2 ont
+ * été contournées, mal appelées, ou modifiées sans mettre à jour cette
+ * garde. Jamais de contenu LLM non marqué ne doit atteindre le HTML/PDF.
+ */
+export function assertBriefSafeForTeacher(students: readonly DossierStudentDetail[]): void {
+  for (const student of students) {
+    if (student.brief !== null && student.briefSafetyMarker !== TEACHER_BRIEF_SAFETY_MARKER) {
+      throw new Error('TEACHER_DOSSIER_UNSAFE_BRIEF_RENDER_BLOCKED');
+    }
+  }
+}
 
 function escapeHtml(value: unknown): string {
   return String(value).replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#39;');
@@ -112,12 +150,25 @@ function headerGrid(identity: RenderIdentity, header: DossierHeaderInput, effect
   </dl>`;
 }
 
+const COMPLETENESS_LABELS: Readonly<Record<DossierCompletenessTier, string>> = Object.freeze({
+  SOCLE_DETERMINISTE: 'Socle déterministe',
+  ENRICHI_SECURISE_PARTIEL: 'Enrichi sécurisé partiel',
+  ENRICHI_COMPLET: 'Enrichi complet',
+});
+
+function completenessBlock(completeness: DossierCompleteness, generatedAt: string): string {
+  return `<section><h3>Complétude du dossier</h3>
+  <p><strong>${text(COMPLETENESS_LABELS[completeness.tier])}</strong> — généré le ${text(generatedAt)}.</p>
+  <p>${completeness.studentsIncluded} élève(s) inclus · ${completeness.briefsApproved} brief(s) enseignant approuvé(s) · ${completeness.socleOnlyCount} élève(s) servi(s) uniquement par le socle déterministe.</p></section>`;
+}
+
 function summaryPage(doc: TeacherDossierDocument): string {
   const { analysis } = doc;
   const distribution = Object.entries(analysis.profileDistribution) as [NodeProfile, number][];
   const topFragile = analysis.domains.filter((domain) => domain.profile !== 'MAITRISE' && domain.profile !== 'MAITRISE_FRAGILE').slice(0, 3);
   return `<section class="page"><header class="report-header"><img class="brand-logo" src="${BILAN_PRINT_BRAND.logos.header}" alt="Nexus Réussite"><div><p class="eyebrow">Dossier enseignant · Interne Nexus</p><h1>${text(doc.identity.stageLabel)}</h1></div></header>
   <p class="confidential">Document strictement interne et confidentiel. Il contient les noms réels et les profils pédagogiques des élèves. Il ne doit jamais être transmis aux familles ni aux élèves.</p>
+  ${completenessBlock(doc.completeness, doc.generatedAt)}
   <h2>Fiche récapitulative</h2>
   ${headerGrid(doc.identity, doc.header, doc.students.length)}
   <div class="summary-grid">
@@ -185,6 +236,12 @@ function briefForDomain(students: readonly DossierStudentDetail[], domainId: str
   return null;
 }
 
+/**
+ * Phrase sobre, fixe, jamais paramétrée par du contenu généré : elle ne doit
+ * jamais pouvoir laisser croire qu'un brief non relu a été approuvé.
+ */
+const SOCLE_ONLY_NOTICE = 'Socle pédagogique déterministe utilisé — aucun brief enrichi validé.';
+
 function sectionE(doc: TeacherDossierDocument): string {
   const fragile = doc.analysis.domains.filter((domain) => domain.profile !== 'MAITRISE' && domain.profile !== 'MAITRISE_FRAGILE');
   const blocks = fragile.map((domain) => {
@@ -198,7 +255,9 @@ function sectionE(doc: TeacherDossierDocument): string {
     <p><strong>Activité :</strong> ${text(brief.activite.titre)} — ${text(brief.activite.objectif)}</p>
     <p><strong>Indicateur de progrès :</strong> ${text(brief.indicateurProgres)}</p></article>`;
   }).join('');
-  return `<section class="page"><p class="eyebrow">Section E</p><h1>Brief enseignant</h1>${blocks.length === 0 ? '<p>Aucun domaine prioritaire identifié pour ce groupe.</p>' : blocks}${footer()}</section>`;
+  const socleOnlyStudents = doc.students.filter((student) => student.brief === null);
+  const socleNotice = socleOnlyStudents.length === 0 ? '' : `<article class="item-block"><h3>Élèves sans brief enrichi validé</h3><ul>${socleOnlyStudents.map((student) => `<li>${text(student.displayName)} — ${SOCLE_ONLY_NOTICE}</li>`).join('')}</ul></article>`;
+  return `<section class="page"><p class="eyebrow">Section E</p><h1>Brief enseignant</h1>${blocks.length === 0 ? '<p>Aucun domaine prioritaire identifié pour ce groupe.</p>' : blocks}${socleNotice}${footer()}</section>`;
 }
 
 function sectionF(doc: TeacherDossierDocument): string {
@@ -228,6 +287,7 @@ function sectionG(doc: TeacherDossierDocument): string {
 }
 
 export function renderTeacherDossierHtml(doc: TeacherDossierDocument): string {
+  assertBriefSafeForTeacher(doc.students);
   const identity = assertRenderIdentity(doc.identity);
   const html = `${summaryPage(doc)}${tocPage()}${sectionB(doc)}${sectionC(doc.evidenceCatalog)}${sectionD(doc.students)}${sectionE(doc)}${sectionF(doc)}${sectionG(doc)}`;
   return `<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${text(identity.stageLabel)} · DOSSIER ENSEIGNANT</title><style>${styleSheet()}</style></head><body><main class="document" data-audience="STAFF" data-template="${TEACHER_DOSSIER_HTML_VERSION}">${html}</main></body></html>`;

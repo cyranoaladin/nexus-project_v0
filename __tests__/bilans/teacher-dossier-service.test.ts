@@ -111,20 +111,49 @@ describe('buildStaffTeacherDossierDocument', () => {
 
 describe('listStaffTeacherDossierGroups', () => {
   it('rejects a non-staff actor', async () => {
-    await expect(listStaffTeacherDossierGroups({ userId: 'user-1', role: 'ELEVE' }, { reportArtifact: { findMany: jest.fn() } } as never))
-      .rejects.toEqual(expect.objectContaining<Partial<StaffTeacherDossierError>>({ code: 'NOT_FOUND' }));
+    await expect(listStaffTeacherDossierGroups(
+      { userId: 'user-1', role: 'ELEVE' },
+      { reportArtifact: { findMany: jest.fn() }, jobOutbox: { findMany: jest.fn() }, teacherBriefAttempt: { findMany: jest.fn() } } as never,
+    )).rejects.toEqual(expect.objectContaining<Partial<StaffTeacherDossierError>>({ code: 'NOT_FOUND' }));
   });
 
-  it('groups by subject and level, counting bilans without a brief', async () => {
+  it('groups by subject and level, with distinct, non-ambiguous counters (§12 de l’incident P0)', async () => {
     const findMany = jest.fn(async () => [
-      { assessmentAttempt: { subject: 'MATHEMATIQUES', gradeLevel: 'TERMINALE' }, teacherBriefs: [] },
-      { assessmentAttempt: { subject: 'MATHEMATIQUES', gradeLevel: 'TERMINALE' }, teacherBriefs: [{ id: 'brief-1' }] },
-      { assessmentAttempt: { subject: 'FRANCAIS', gradeLevel: 'SECONDE' }, teacherBriefs: [] },
+      // MATHEMATIQUES/TERMINALE : un brief APPROVED et courant (snapshot identique).
+      {
+        id: 'art-approved', assessmentAttempt: { subject: 'MATHEMATIQUES', gradeLevel: 'TERMINALE' },
+        revisions: [{ scoreSnapshotId: 'snap-1' }],
+        teacherBriefs: [{ status: 'APPROVED', scoreSnapshotId: 'snap-1' }],
+      },
+      // MATHEMATIQUES/TERMINALE : jamais généré => actionnable.
+      {
+        id: 'art-never', assessmentAttempt: { subject: 'MATHEMATIQUES', gradeLevel: 'TERMINALE' },
+        revisions: [{ scoreSnapshotId: 'snap-2' }],
+        teacherBriefs: [],
+      },
+      // FRANCAIS/SECONDE : PENDING_REVIEW => à relire, jamais "manquant".
+      {
+        id: 'art-pending', assessmentAttempt: { subject: 'FRANCAIS', gradeLevel: 'SECONDE' },
+        revisions: [{ scoreSnapshotId: 'snap-3' }],
+        teacherBriefs: [{ status: 'PENDING_REVIEW', scoreSnapshotId: 'snap-3' }],
+      },
     ]);
-    const groups = await listStaffTeacherDossierGroups({ userId: 'user-1', role: 'ADMIN' }, { reportArtifact: { findMany } } as never);
-    expect(groups).toEqual([
-      { subject: 'FRANCAIS', level: 'SECONDE', count: 1, briefsMissing: 1 },
-      { subject: 'MATHEMATIQUES', level: 'TERMINALE', count: 2, briefsMissing: 1 },
-    ]);
+    const jobOutboxFindMany = jest.fn(async () => []);
+    const teacherBriefAttemptFindMany = jest.fn(async () => []);
+    const database = { reportArtifact: { findMany }, jobOutbox: { findMany: jobOutboxFindMany }, teacherBriefAttempt: { findMany: teacherBriefAttemptFindMany } };
+
+    const groups = await listStaffTeacherDossierGroups({ userId: 'user-1', role: 'ADMIN' }, database as never);
+
+    const maths = groups.find((g) => g.subject === 'MATHEMATIQUES' && g.level === 'TERMINALE')!;
+    expect(maths.eligibleCount).toBe(2);
+    expect(maths.approvedCount).toBe(1);
+    expect(maths.toGenerateCount).toBe(1);
+    expect(maths.completenessTier).toBe('ENRICHI_SECURISE_PARTIEL');
+
+    const francais = groups.find((g) => g.subject === 'FRANCAIS' && g.level === 'SECONDE')!;
+    expect(francais.eligibleCount).toBe(1);
+    expect(francais.toReviewCount).toBe(1);
+    expect(francais.toGenerateCount).toBe(0);
+    expect(francais.approvedCount).toBe(0);
   });
 });
