@@ -6,6 +6,7 @@ import { prisma } from '@/lib/prisma';
 
 import { processScoreAttemptJob } from './score-job';
 import { processGenerateReportJob } from './generate-report-job';
+import { processGenerateTeacherBriefJob } from './generate-teacher-brief-job';
 
 type DrainDatabase = Pick<PrismaClient, '$transaction' | '$queryRaw' | 'user' | 'notification'>;
 type DrainLogger = Readonly<{
@@ -74,7 +75,7 @@ function leaseDuration(value: number | undefined): number {
 
 async function claimJobs(
   database: DrainDatabase,
-  jobType: 'SCORE_ATTEMPT' | 'GENERATE_REPORT',
+  jobType: 'SCORE_ATTEMPT' | 'GENERATE_REPORT' | 'GENERATE_TEACHER_BRIEF',
   input: Readonly<{ limit: number; owner: string; now: Date; leaseExpiresAt: Date }>,
 ): Promise<readonly string[]> {
   return database.$transaction(async (transaction) => {
@@ -142,7 +143,7 @@ async function ensureQuarantineAlert(
 }
 
 async function drainJobs(
-  jobType: 'SCORE_ATTEMPT' | 'GENERATE_REPORT',
+  jobType: 'SCORE_ATTEMPT' | 'GENERATE_REPORT' | 'GENERATE_TEACHER_BRIEF',
   ownerPrefix: string,
   eventPrefix: string,
   defaults: DrainDependencies,
@@ -209,4 +210,23 @@ export async function drainGenerateReportJobs(
   dependencies: Partial<DrainDependencies> = {},
 ) {
   return drainJobs('GENERATE_REPORT', 'a88-manual', 'A88', defaultGenerateReportDependencies, options, dependencies);
+}
+
+const defaultGenerateTeacherBriefDependencies: DrainDependencies = {
+  prisma,
+  processJob: processGenerateTeacherBriefJob,
+  now: () => new Date(),
+  logger: defaultLogger,
+};
+
+/**
+ * Concurrence volontairement limitée à 1 génération de brief à la fois
+ * (§10 de l'incident P0, tant qu'aucune preuve de charge/budget ne justifie
+ * plus) : `limit: 1` par défaut, distinct du défaut ×10 des autres files.
+ */
+export async function drainTeacherBriefJobs(
+  options: DrainScoreAttemptJobsOptions = {},
+  dependencies: Partial<DrainDependencies> = {},
+) {
+  return drainJobs('GENERATE_TEACHER_BRIEF', 'a90-manual', 'A90', defaultGenerateTeacherBriefDependencies, { limit: 1, ...options }, dependencies);
 }
