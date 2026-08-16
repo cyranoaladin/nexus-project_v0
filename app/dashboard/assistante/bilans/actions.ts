@@ -30,6 +30,7 @@ import {
   listStaffTeacherDossierArtifactIds,
   StaffTeacherDossierError,
 } from '@/lib/bilans/staff/teacher-dossier-service';
+import { assertTeacherBriefOperationsEnabled } from '@/lib/bilans/staff/teacher-brief-operations';
 
 function field(formData: FormData, name: string): string {
   const value = formData.get(name);
@@ -159,6 +160,7 @@ export async function confirmWhatsAppTransmissionAction(formData: FormData): Pro
 }
 
 export async function generateTeacherBriefAction(formData: FormData): Promise<void> {
+  assertTeacherBriefOperationsEnabled();
   try {
     await generateTeacherBrief({
       actor: await actor(),
@@ -182,6 +184,7 @@ export async function generateTeacherBriefAction(formData: FormData): Promise<vo
  * limite.
  */
 export async function generateGroupTeacherBriefsAction(formData: FormData): Promise<void> {
+  assertTeacherBriefOperationsEnabled();
   try {
     const current = await actor();
     const subject = field(formData, 'subject') as Subject;
@@ -204,6 +207,7 @@ export async function generateGroupTeacherBriefsAction(formData: FormData): Prom
 }
 
 export async function approveTeacherBriefAction(formData: FormData): Promise<void> {
+  assertTeacherBriefOperationsEnabled();
   try {
     const edited = field(formData, 'editedContent').trim();
     await approveTeacherBrief({
@@ -220,6 +224,7 @@ export async function approveTeacherBriefAction(formData: FormData): Promise<voi
 }
 
 export async function requestTeacherBriefCorrectionAction(formData: FormData): Promise<void> {
+  assertTeacherBriefOperationsEnabled();
   try {
     await requestTeacherBriefCorrection({
       actor: await actor(),

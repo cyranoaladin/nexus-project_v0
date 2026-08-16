@@ -53,8 +53,11 @@ type DossierFormat = 'html' | 'pdf';
 /** Statuts de bilan éligibles au dossier : validés par relecture ou déjà publiés — jamais DRAFT/ARCHIVED/REJECTED. */
 const ELIGIBLE_ARTIFACT_STATUSES: ReportArtifactStatus[] = ['PENDING_REVIEW', 'PUBLISHED'];
 
-/** Statuts de brief exploitables : en relecture ou déjà approuvés — jamais REJECTED. */
-const USABLE_BRIEF_STATUSES: string[] = ['PENDING_REVIEW', 'APPROVED'];
+/** Statuts de brief candidats au dossier enseignant : STRICTEMENT APPROVED (hotfix P0 fail-closed). */
+const APPROVED_BRIEF_STATUS = 'APPROVED' as const;
+
+import { APPROVED_BRIEF_SAFETY_MARKER } from './teacher-dossier-safety';
+export { APPROVED_BRIEF_SAFETY_MARKER };
 
 const candidateSelection = {
   id: true,
@@ -71,13 +74,12 @@ const candidateSelection = {
   revisions: {
     orderBy: { createdAt: 'desc' as const },
     take: 1,
-    select: { content: true, scoreSnapshot: { select: { result: true } } },
+    select: { content: true, scoreSnapshotId: true, scoreSnapshot: { select: { result: true } } },
   },
   teacherBriefs: {
-    where: { status: { in: USABLE_BRIEF_STATUSES } },
+    where: { status: APPROVED_BRIEF_STATUS },
     orderBy: { version: 'desc' as const },
-    take: 1,
-    select: { content: true, editedContent: true },
+    select: { id: true, version: true, status: true, scoreSnapshotId: true, content: true, editedContent: true },
   },
 };
 
@@ -130,14 +132,38 @@ function assertStaff(actor: DossierActor): void {
   if (!isStaffRole(actor.role) || !actor.userId.trim()) throw new StaffTeacherDossierError('NOT_FOUND');
 }
 
-function briefContent(row: DossierCandidateRow['teacherBriefs'][number] | undefined): TeacherBriefContent | null {
+export function selectApprovedBrief(
+  briefs: readonly DossierCandidateRow['teacherBriefs'][number][],
+  currentScoreSnapshotId: string | undefined,
+): DossierCandidateRow['teacherBriefs'][number] | undefined {
+  if (currentScoreSnapshotId === undefined || briefs.length === 0) return undefined;
+  return briefs.find(
+    (b) => b.status === APPROVED_BRIEF_STATUS && b.scoreSnapshotId === currentScoreSnapshotId,
+  );
+}
+
+function briefContent(
+  row: DossierCandidateRow['teacherBriefs'][number] | undefined,
+): TeacherBriefContent | null {
   if (row === undefined) return null;
+  if (row.status !== APPROVED_BRIEF_STATUS) return null;
+
   const edited = row.editedContent?.trim();
-  const raw = edited !== undefined && edited.length > 0
-    ? (() => { try { return JSON.parse(edited); } catch { return null; } })()
-    : row.content;
+  let raw: unknown = null;
+  if (edited !== undefined && edited.length > 0) {
+    try {
+      raw = JSON.parse(edited);
+    } catch {
+      return null;
+    }
+  } else {
+    raw = row.content;
+  }
+
   const parsed = teacherBriefSchema.safeParse(raw);
-  return parsed.success ? parsed.data : null;
+  if (!parsed.success) return null;
+
+  return parsed.data;
 }
 
 type ResolvedCandidate = Readonly<{
@@ -145,6 +171,7 @@ type ResolvedCandidate = Readonly<{
   factSheet: FactSheet;
   evidence: QuestionEvidence;
   brief: TeacherBriefContent | null;
+  briefSafetyMarker?: typeof APPROVED_BRIEF_SAFETY_MARKER;
   packId: string;
   packVersion: number;
 }>;
@@ -191,9 +218,16 @@ function resolveCandidates(
       continue;
     }
     const packVersion = Number(row.assessmentAttempt.assessmentPackVersion);
+    const selectedBrief = selectApprovedBrief(row.teacherBriefs, revision.scoreSnapshotId);
+    const parsedBrief = briefContent(selectedBrief);
     resolved.push(Object.freeze({
-      displayName, factSheet, evidence, brief: briefContent(row.teacherBriefs[0]),
-      packId: row.assessmentAttempt.assessmentPackId, packVersion,
+      displayName,
+      factSheet,
+      evidence,
+      brief: parsedBrief,
+      ...(parsedBrief !== null ? { briefSafetyMarker: APPROVED_BRIEF_SAFETY_MARKER } : {}),
+      packId: row.assessmentAttempt.assessmentPackId,
+      packVersion,
     }));
   }
   return Object.freeze({ resolved: Object.freeze(resolved), excluded: Object.freeze(excluded) });
@@ -229,7 +263,7 @@ export async function buildStaffTeacherDossierDocument(
   if (enabled === null) throw new StaffTeacherDossierError('NOT_FOUND');
 
   const students: readonly DossierStudentDetail[] = Object.freeze(included.map((candidate) => Object.freeze({
-    displayName: candidate.displayName, factSheet: candidate.factSheet, evidence: candidate.evidence, brief: candidate.brief,
+    displayName: candidate.displayName, factSheet: candidate.factSheet, evidence: candidate.evidence, brief: candidate.brief, briefSafetyMarker: candidate.briefSafetyMarker,
   })));
   const members: readonly DossierMember[] = students;
   const analysis = buildDossierGroupAnalysis(members);
@@ -280,7 +314,7 @@ export async function listStaffTeacherDossierGroups(
     where: { status: { in: ELIGIBLE_ARTIFACT_STATUSES } },
     select: {
       assessmentAttempt: { select: { subject: true, gradeLevel: true } },
-      teacherBriefs: { where: { status: { in: USABLE_BRIEF_STATUSES } }, select: { id: true }, take: 1 },
+      teacherBriefs: { where: { status: APPROVED_BRIEF_STATUS }, select: { id: true }, take: 1 },
     },
   });
   const groups = new Map<string, { subject: Subject; level: GradeLevel; count: number; briefsMissing: number }>();
