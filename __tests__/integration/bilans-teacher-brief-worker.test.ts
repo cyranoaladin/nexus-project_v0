@@ -238,6 +238,41 @@ describe('A90 — worker asynchrone de génération de brief enseignant', () => 
     await prisma.jobOutbox.delete({ where: { id: job.id } });
   });
 
+  test('coût partiel : un domaine facturé avec succès reste compté même si le domaine suivant échoue (§7)', async () => {
+    const { artifactId, scoreSnapshotId } = await seedReportArtifact('partial-cost');
+    const job = await seedTeacherBriefJob(artifactId, scoreSnapshotId);
+    let call = 0;
+    const flaky: typeof fetch = (async (_url: unknown, init?: RequestInit) => {
+      call += 1;
+      if (call >= 2) return new Response(JSON.stringify({ choices: [{ message: { content: 'not json' } }] }), { status: 200 });
+      const body = JSON.parse(String(init?.body)) as { messages: { content: unknown }[] };
+      const facts = JSON.parse(String(body.messages[1].content)) as { domainesPrioritaires: FactsDomain[] };
+      const domain = validDomainResponse(facts.domainesPrioritaires[0]);
+      return new Response(JSON.stringify({
+        choices: [{ message: { content: JSON.stringify({ version: TEACHER_BRIEF_PROMPT_VERSION, domaines: [domain] }) } }],
+        usage: { prompt_tokens: 2000, completion_tokens: 1000, prompt_tokens_details: { cached_tokens: 1500 } },
+      }), { status: 200 });
+    }) as typeof fetch;
+
+    await expect(processGenerateTeacherBriefJob(job.id, jobDependencies(flaky))).rejects.toThrow('TEACHER_BRIEF_INVALID_JSON');
+
+    const attempt = await prisma.teacherBriefAttempt.findFirstOrThrow({ where: { reportArtifactId: artifactId } });
+    expect(attempt.result).toBe('RETRYABLE_FAILURE');
+    // Le premier domaine a bien été facturé (tokens réels, coût > 0) — pas
+    // un coût à zéro silencieux malgré l'échec global de la tentative.
+    expect(Number(attempt.promptTokens)).toBe(0); // agrégat global non recalculé sur échec (voir domainOutcomes pour le détail)
+    expect(Number(attempt.estimatedCostUsd)).toBeGreaterThan(0);
+    expect(attempt.domainsProcessed).toBeGreaterThanOrEqual(1);
+    const outcomes = attempt.domainOutcomes as unknown as { outcome: string; costUsd: number | null }[];
+    expect(outcomes[0].outcome).toBe('OK');
+    expect(outcomes[0].costUsd).toBeGreaterThan(0);
+    expect(outcomes.some((entry) => entry.outcome !== 'OK')).toBe(true);
+    // Même raison que le test RETRYABLE_FAILURE ci-dessus : un job FAILED
+    // reste réclamable, à retirer pour ne pas polluer le test de reprise
+    // après job orphelin plus loin dans ce fichier.
+    await prisma.jobOutbox.delete({ where: { id: job.id } });
+  });
+
   test('BLOCKED_FAILURE : terme interdit dans la sortie => job COMPLETED, jamais retenté automatiquement', async () => {
     const { artifactId, scoreSnapshotId } = await seedReportArtifact('blocked');
     const job = await seedTeacherBriefJob(artifactId, scoreSnapshotId);

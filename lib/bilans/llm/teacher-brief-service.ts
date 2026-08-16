@@ -283,7 +283,7 @@ export type TeacherBriefGeneration = Readonly<{
 }>;
 
 /** Usage brut d'un appel unitaire, avant agrégation. */
-type DomainCallOutcome = Readonly<{
+export type DomainCallOutcome = Readonly<{
   domaine: TeacherBriefContent['domaines'][number];
   promptTokens: number;
   cachedPromptTokens: number;
@@ -295,8 +295,14 @@ type DomainCallOutcome = Readonly<{
  * prompt (consignes + schéma + lexique) est identique d'un appel à l'autre :
  * elle est mise en cache par le fournisseur, si bien que le surcoût d'un
  * appel supplémentaire porte presque uniquement sur les jetons de sortie.
+ *
+ * Exportée (en plus de `callTeacherBriefModel`) pour que l'appelant puisse
+ * comptabiliser le coût RÉEL domaine par domaine même en cas d'échec
+ * partiel (§7 de l'incident P0 du 2026-08-16) : un premier domaine facturé
+ * reste compté même si un domaine suivant échoue — voir
+ * `lib/bilans/worker/generate-teacher-brief-job.ts`.
  */
-async function callTeacherBriefDomain(
+export async function callTeacherBriefDomain(
   config: TeacherBriefConfig,
   facts: TeacherBriefFactsPayload,
   fetchImpl: typeof fetch,
