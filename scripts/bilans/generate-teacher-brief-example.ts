@@ -18,8 +18,10 @@ import {
 } from '@/lib/bilans/llm/teacher-brief-service';
 import { resolveEnabledPack } from '@/lib/bilans/api/pack-access';
 import type { FactSheet } from '@/lib/bilans/facts/fact-sheet';
+import { assertTeacherBriefOperationsEnabled } from '@/lib/bilans/staff/teacher-brief-operations';
 
 async function main(): Promise<number> {
+  assertTeacherBriefOperationsEnabled();
   const artifactId = process.argv[2];
   if (!artifactId) {
     process.stderr.write('Usage: generate-teacher-brief-example.ts <reportArtifactId>\n');

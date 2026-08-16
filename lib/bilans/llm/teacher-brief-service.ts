@@ -499,7 +499,7 @@ export type GenerateBriefResult =
   | Readonly<{ mode: 'ALREADY_PRESENT'; briefId: string }>
   | Readonly<{ mode: 'PLANCHER'; reason: string }>;
 
-export async function generateTeacherBrief(input: Readonly<{
+export async function executeTeacherBriefGenerationInternal(input: Readonly<{
   prisma?: BriefDatabase;
   actor: Readonly<{ userId: string; role: string }>;
   reportArtifactId: string;
@@ -651,4 +651,19 @@ export async function teacherBriefMonthlyUsage(
     completionTokens: aggregate._sum.completionTokens ?? 0,
     estimatedCostUsd: Number(aggregate._sum.estimatedCostUsd ?? 0),
   });
+}
+
+import { assertTeacherBriefOperationsEnabled } from '../staff/teacher-brief-operations';
+
+export async function generateTeacherBrief(input: Readonly<{
+  prisma?: BriefDatabase;
+  actor: Readonly<{ userId: string; role: string }>;
+  reportArtifactId: string;
+  resolvePack?: PackResolver;
+  environment?: Readonly<Record<string, string | undefined>>;
+  fetchImpl?: typeof fetch;
+  now?: () => Date;
+}>): Promise<GenerateBriefResult> {
+  assertTeacherBriefOperationsEnabled();
+  return executeTeacherBriefGenerationInternal(input);
 }

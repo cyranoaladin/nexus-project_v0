@@ -14,6 +14,7 @@ import {
 import { REPORT_ANNOTATION_SECTIONS } from '@/lib/bilans/core/report-service';
 import { teacherBriefMonthlyUsage } from '@/lib/bilans/llm/teacher-brief-service';
 import { listStaffTeacherDossierGroups } from '@/lib/bilans/staff/teacher-dossier-service';
+import { TEACHER_BRIEF_OPERATIONS_SUSPENDED } from '@/lib/bilans/staff/teacher-brief-operations';
 import { prisma } from '@/lib/prisma';
 import type { TeacherBriefContent } from '@/lib/bilans/llm/teacher-brief-schema';
 
@@ -249,10 +250,18 @@ export default async function CanonicalBilansReviewPage({
           Assistant de rédaction enseignant — usage du mois : {briefUsage.briefs} brief{briefUsage.briefs > 1 ? 's' : ''}, {briefUsage.promptTokens + briefUsage.completionTokens} jetons (dont {briefUsage.cachedPromptTokens} en cache), ≈ {briefUsage.estimatedCostUsd.toFixed(2)} $ US.
         </p>
 
+        {TEACHER_BRIEF_OPERATIONS_SUSPENDED && (
+          <section className="mt-8 rounded-2xl border border-amber-400/40 bg-amber-400/10 p-5" data-testid="brief-operations-suspended-banner">
+            <p className="font-semibold text-amber-100">
+              Génération et relecture des briefs temporairement suspendues pour sécurisation. Les dossiers déterministes HTML et PDF restent disponibles.
+            </p>
+          </section>
+        )}
+
         <section className="mt-8 rounded-2xl border border-white/10 bg-white/[0.05] p-5" aria-label="Dossiers enseignant">
           <h2 className="text-lg font-semibold text-white">Dossier enseignant par groupe</h2>
           <p className="mt-1 text-sm text-slate-300">
-            Un document unique par matière et niveau — vue du groupe, énoncés, détail par élève, brief enseignant, plan des 5 séances. Document strictement interne, jamais transmis aux familles.
+            Un document unique par matière et niveau — vue du groupe, énoncés, détail par élève, brief enseignant, plan des 5 séances. Document strictly interne, jamais transmis aux familles.
           </p>
           {dossierGroups.length === 0 ? (
             <p className="mt-4 text-sm text-slate-400">Aucun bilan éligible pour l’instant.</p>
@@ -271,7 +280,11 @@ export default async function CanonicalBilansReviewPage({
                       <p className="font-semibold text-white">{subjectLabel} — {levelLabel}</p>
                       <p className="text-sm text-slate-300">
                         {group.count} bilan{group.count > 1 ? 's' : ''} éligible{group.count > 1 ? 's' : ''}
-                        {group.briefsMissing > 0 && ` · ${group.briefsMissing} brief${group.briefsMissing > 1 ? 's' : ''} manquant${group.briefsMissing > 1 ? 's' : ''}`}
+                        {TEACHER_BRIEF_OPERATIONS_SUSPENDED ? (
+                          ' · Dossier sécurisé disponible — enrichissement suspendu'
+                        ) : (
+                          group.briefsMissing > 0 && ` · ${group.briefsMissing} brief${group.briefsMissing > 1 ? 's' : ''} manquant${group.briefsMissing > 1 ? 's' : ''}`
+                        )}
                       </p>
                     </div>
                     <div className="flex flex-wrap items-center gap-2">
@@ -289,7 +302,7 @@ export default async function CanonicalBilansReviewPage({
                       >
                         PDF
                       </Link>
-                      {group.briefsMissing > 0 && (
+                      {!TEACHER_BRIEF_OPERATIONS_SUSPENDED && group.briefsMissing > 0 && (
                         <form action={generateGroupTeacherBriefsAction}>
                           <input type="hidden" name="subject" value={group.subject} />
                           <input type="hidden" name="level" value={group.level} />
@@ -631,15 +644,21 @@ export default async function CanonicalBilansReviewPage({
                           Préparation de séance rédigée par l’assistant de rédaction à partir du diagnostic déterministe, relue avant tout usage. Jamais transmis aux familles.
                         </p>
                         {brief === undefined ? (
-                          <form action={generateTeacherBriefAction} className="mt-3">
-                            <input type="hidden" name="artifactId" value={revision.reportArtifact.id} />
-                            <button type="submit" className="rounded-xl border border-indigo-300 px-4 py-2.5 text-sm font-semibold text-indigo-100">
-                              Générer le brief enseignant
-                            </button>
-                            <p className="mt-2 text-xs text-slate-500">
-                              Si l’assistant de rédaction est indisponible, le document interne Nexus déterministe reste la référence.
+                          TEACHER_BRIEF_OPERATIONS_SUSPENDED ? (
+                            <p className="mt-3 text-xs text-amber-200" data-testid="brief-generation-suspended-notice">
+                              Génération des briefs temporairement suspendue — le dossier déterministe reste disponible.
                             </p>
-                          </form>
+                          ) : (
+                            <form action={generateTeacherBriefAction} className="mt-3">
+                              <input type="hidden" name="artifactId" value={revision.reportArtifact.id} />
+                              <button type="submit" className="rounded-xl border border-indigo-300 px-4 py-2.5 text-sm font-semibold text-indigo-100">
+                                Générer le brief enseignant
+                              </button>
+                              <p className="mt-2 text-xs text-slate-500">
+                                Si l’assistant de rédaction est indisponible, le document interne Nexus déterministe reste la référence.
+                              </p>
+                            </form>
+                          )
                         ) : (
                           <div className="mt-3 space-y-3">
                             <p className="text-sm">
@@ -659,34 +678,46 @@ export default async function CanonicalBilansReviewPage({
                               </ul>
                             )}
                             {brief.status === 'PENDING_REVIEW' && (
-                              <div className="grid gap-3 lg:grid-cols-2">
-                                <form action={approveTeacherBriefAction} className="rounded-2xl border border-emerald-300/20 bg-emerald-300/5 p-4">
-                                  <input type="hidden" name="briefId" value={brief.id} />
-                                  <label className="block text-xs font-semibold text-white">Motif de validation</label>
-                                  <input name="motif" required minLength={5} className="mt-2 w-full rounded-xl border border-white/15 bg-slate-950 px-3 py-2 text-sm text-white" />
-                                  <label className="mt-3 block text-xs font-semibold text-white">Correction manuelle (facultative — elle prime sur le texte généré)</label>
-                                  <textarea name="editedContent" className="mt-2 min-h-16 w-full rounded-xl border border-white/15 bg-slate-950 p-3 text-xs text-white" placeholder="Laisser vide pour valider le texte généré tel quel." />
-                                  <button type="submit" className="mt-3 rounded-xl bg-emerald-500 px-4 py-2 text-sm font-semibold text-slate-950">Valider le brief</button>
-                                </form>
-                                <form action={requestTeacherBriefCorrectionAction} className="rounded-2xl border border-sky-300/20 bg-sky-300/5 p-4">
-                                  <input type="hidden" name="briefId" value={brief.id} />
-                                  <label className="block text-xs font-semibold text-white">Section concernée</label>
-                                  <input name="section" required className="mt-2 w-full rounded-xl border border-white/15 bg-slate-950 px-3 py-2 text-sm text-white" placeholder="ex. : activité du domaine trigonométrie" />
-                                  <label className="mt-3 block text-xs font-semibold text-white">Remarque</label>
-                                  <textarea name="remark" required minLength={5} className="mt-2 min-h-12 w-full rounded-xl border border-white/15 bg-slate-950 p-3 text-xs text-white" />
-                                  <label className="mt-3 block text-xs font-semibold text-white">Motif</label>
-                                  <input name="motif" required minLength={5} className="mt-2 w-full rounded-xl border border-white/15 bg-slate-950 px-3 py-2 text-sm text-white" />
-                                  <button type="submit" className="mt-3 rounded-xl border border-sky-300 px-4 py-2 text-sm font-semibold text-sky-100">Demander une régénération</button>
-                                </form>
-                              </div>
+                              TEACHER_BRIEF_OPERATIONS_SUSPENDED ? (
+                                <p className="mt-2 text-xs text-amber-200" data-testid="brief-review-suspended-notice">
+                                  Relecture et validation des briefs temporairement suspendues pour sécurisation (statut non relu).
+                                </p>
+                              ) : (
+                                <div className="grid gap-3 lg:grid-cols-2">
+                                  <form action={approveTeacherBriefAction} className="rounded-2xl border border-emerald-300/20 bg-emerald-300/5 p-4">
+                                    <input type="hidden" name="briefId" value={brief.id} />
+                                    <label className="block text-xs font-semibold text-white">Motif de validation</label>
+                                    <input name="motif" required minLength={5} className="mt-2 w-full rounded-xl border border-white/15 bg-slate-950 px-3 py-2 text-sm text-white" />
+                                    <label className="mt-3 block text-xs font-semibold text-white">Correction manuelle (facultative — elle prime sur le texte généré)</label>
+                                    <textarea name="editedContent" className="mt-2 min-h-16 w-full rounded-xl border border-white/15 bg-slate-950 p-3 text-xs text-white" placeholder="Laisser vide pour valider le texte généré tel quel." />
+                                    <button type="submit" className="mt-3 rounded-xl bg-emerald-500 px-4 py-2 text-sm font-semibold text-slate-950">Valider le brief</button>
+                                  </form>
+                                  <form action={requestTeacherBriefCorrectionAction} className="rounded-2xl border border-sky-300/20 bg-sky-300/5 p-4">
+                                    <input type="hidden" name="briefId" value={brief.id} />
+                                    <label className="block text-xs font-semibold text-white">Section concernée</label>
+                                    <input name="section" required className="mt-2 w-full rounded-xl border border-white/15 bg-slate-950 px-3 py-2 text-sm text-white" placeholder="ex. : activité du domaine trigonométrie" />
+                                    <label className="mt-3 block text-xs font-semibold text-white">Remarque</label>
+                                    <textarea name="remark" required minLength={5} className="mt-2 min-h-12 w-full rounded-xl border border-white/15 bg-slate-950 p-3 text-xs text-white" />
+                                    <label className="mt-3 block text-xs font-semibold text-white">Motif</label>
+                                    <input name="motif" required minLength={5} className="mt-2 w-full rounded-xl border border-white/15 bg-slate-950 px-3 py-2 text-sm text-white" />
+                                    <button type="submit" className="mt-3 rounded-xl border border-sky-300 px-4 py-2 text-sm font-semibold text-sky-100">Demander une régénération</button>
+                                  </form>
+                                </div>
+                              )
                             )}
                             {brief.status === 'CORRECTION_REQUESTED' && (
-                              <form action={generateTeacherBriefAction}>
-                                <input type="hidden" name="artifactId" value={revision.reportArtifact.id} />
-                                <button type="submit" className="rounded-xl border border-indigo-300 px-4 py-2.5 text-sm font-semibold text-indigo-100">
-                                  Régénérer le brief (nouvelle version, historique conservé)
-                                </button>
-                              </form>
+                              TEACHER_BRIEF_OPERATIONS_SUSPENDED ? (
+                                <p className="mt-2 text-xs text-amber-200">
+                                  Régénération du brief suspendue.
+                                </p>
+                              ) : (
+                                <form action={generateTeacherBriefAction}>
+                                  <input type="hidden" name="artifactId" value={revision.reportArtifact.id} />
+                                  <button type="submit" className="rounded-xl border border-indigo-300 px-4 py-2.5 text-sm font-semibold text-indigo-100">
+                                    Régénérer le brief (nouvelle version, historique conservé)
+                                  </button>
+                                </form>
+                              )
                             )}
                           </div>
                         )}
