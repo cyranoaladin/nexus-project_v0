@@ -5,8 +5,10 @@ import type { DossierGroupAnalysis, DossierSessionPlan } from '@/lib/bilans/teac
 import {
   renderTeacherDossierHtml,
   renderTeacherDossierPdf,
+  TEACHER_BRIEF_SAFETY_MARKER,
   type TeacherDossierDocument,
 } from '@/lib/bilans/teacher-dossier/render';
+import type { TeacherBriefContent } from '@/lib/bilans/llm/teacher-brief-schema';
 
 const identity: RenderIdentity = Object.freeze({
   displayName: 'Terminale — Mathématiques', level: 'TERMINALE', subject: 'MATHS', date: '2026-08-14',
@@ -64,8 +66,37 @@ function document(overrides: Partial<TeacherDossierDocument> = {}): TeacherDossi
     })]),
     excludedStudents: Object.freeze([]),
     analysis, sessionPlan, evidenceCatalog: evidence, generatedAt: '2026-08-14',
+    completeness: Object.freeze({ tier: 'SOCLE_DETERMINISTE', studentsIncluded: 1, briefsApproved: 0, socleOnlyCount: 1 }),
     ...overrides,
   });
+}
+
+const SENTINEL_UNAPPROVED_TEXT = 'SENTINELLE-CONTENU-NON-RELU-JAMAIS-RENDU-7f3c9a';
+
+function approvedBriefContent(): TeacherBriefContent {
+  return {
+    version: 'teacher-brief.v2',
+    domaines: [{
+      domainId: 'second-degre',
+      erreursTypiques: [{ constat: 'Constat approuvé.', origine: 'Origine approuvée.', itemIds: [] }],
+      prerequisAVerifier: ['Prérequis approuvé.'],
+      activite: {
+        titre: 'Activité approuvée', objectif: 'Objectif approuvé.', materiel: 'Matériel.',
+        deroule: [
+          { nom: 'Phase 1', dureeMin: 10, consigne: 'Consigne 1.' },
+          { nom: 'Phase 2', dureeMin: 10, consigne: 'Consigne 2.' },
+          { nom: 'Phase 3', dureeMin: 10, consigne: 'Consigne 3.' },
+        ],
+        differenciation: 'Différenciation.',
+      },
+      indicateurProgres: 'Indicateur approuvé.',
+    }],
+  };
+}
+
+function sentinelBriefContent(): TeacherBriefContent {
+  const content = approvedBriefContent();
+  return { ...content, domaines: [{ ...content.domaines[0], indicateurProgres: SENTINEL_UNAPPROVED_TEXT }] };
 }
 
 describe('renderTeacherDossierHtml', () => {
@@ -113,6 +144,74 @@ describe('renderTeacherDossierHtml', () => {
   });
 });
 
+describe('renderTeacherDossierHtml — défense en profondeur, couche 3 (§2 de l’incident P0)', () => {
+  it('un brief non nul SANS marqueur de sûreté fait échouer le rendu (jamais silencieusement omis, jamais rendu)', () => {
+    const doc = document({
+      students: Object.freeze([Object.freeze({
+        ...document().students[0], brief: sentinelBriefContent(), // pas de briefSafetyMarker
+      })]),
+    });
+    expect(() => renderTeacherDossierHtml(doc)).toThrow('TEACHER_DOSSIER_UNSAFE_BRIEF_RENDER_BLOCKED');
+  });
+
+  it('un brief avec le marqueur de sûreté correct est rendu normalement', () => {
+    const doc = document({
+      students: Object.freeze([Object.freeze({
+        ...document().students[0], brief: approvedBriefContent(), briefSafetyMarker: TEACHER_BRIEF_SAFETY_MARKER,
+      })]),
+      completeness: Object.freeze({ tier: 'ENRICHI_COMPLET', studentsIncluded: 1, briefsApproved: 1, socleOnlyCount: 0 }),
+    });
+    expect(() => renderTeacherDossierHtml(doc)).not.toThrow();
+  });
+
+  it('la sentinelle de contenu non relu est absente octet par octet du HTML si le marqueur manque (le rendu échoue avant impression)', () => {
+    const doc = document({
+      students: Object.freeze([Object.freeze({
+        ...document().students[0], brief: sentinelBriefContent(),
+      })]),
+    });
+    let html = '';
+    try {
+      html = renderTeacherDossierHtml(doc);
+    } catch {
+      // attendu — le test porte sur l'ABSENCE de la sentinelle dans tout html produit avant l'exception.
+    }
+    expect(html).not.toContain(SENTINEL_UNAPPROVED_TEXT);
+  });
+
+  it('affiche la complétude SOCLE_DETERMINISTE et la phrase sobre par élève sans brief approuvé', () => {
+    const html = renderTeacherDossierHtml(document());
+    expect(html).toContain('Socle déterministe');
+    expect(html).toContain('Socle pédagogique déterministe utilisé — aucun brief enrichi validé.');
+    expect(html).not.toMatch(/en attente de relecture|pending.review/i);
+  });
+
+  it('affiche la complétude ENRICHI_SECURISE_PARTIEL quand certains élèves ont un brief approuvé et d’autres non', () => {
+    const withBrief = Object.freeze({ ...document().students[0], displayName: 'Ahmed Ben M’Rad', brief: approvedBriefContent(), briefSafetyMarker: TEACHER_BRIEF_SAFETY_MARKER });
+    const withoutBrief = Object.freeze({ ...document().students[0], displayName: 'Sonia Gharbi', brief: null });
+    const html = renderTeacherDossierHtml(document({
+      students: Object.freeze([withBrief, withoutBrief]),
+      completeness: Object.freeze({ tier: 'ENRICHI_SECURISE_PARTIEL', studentsIncluded: 2, briefsApproved: 1, socleOnlyCount: 1 }),
+    }));
+    expect(html).toContain('Enrichi sécurisé partiel');
+    expect(html).toContain('Sonia Gharbi');
+    expect(html).toContain('Socle pédagogique déterministe utilisé');
+  });
+
+  it('affiche la complétude ENRICHI_COMPLET quand chaque élève inclus a un brief approuvé', () => {
+    const html = renderTeacherDossierHtml(document({
+      students: Object.freeze([Object.freeze({ ...document().students[0], brief: approvedBriefContent(), briefSafetyMarker: TEACHER_BRIEF_SAFETY_MARKER })]),
+      completeness: Object.freeze({ tier: 'ENRICHI_COMPLET', studentsIncluded: 1, briefsApproved: 1, socleOnlyCount: 0 }),
+    }));
+    expect(html).toContain('Enrichi complet');
+  });
+
+  it('ne rend jamais une formulation laissant croire qu’un contenu non relu a été approuvé', () => {
+    const html = renderTeacherDossierHtml(document());
+    expect(html).not.toMatch(/approuvé\s+automatiquement|validé\s+par\s+défaut/i);
+  });
+});
+
 describe('renderTeacherDossierPdf', () => {
   it('renders a real A4 PDF whose extracted text carries the confidential banner and correct math glyphs', async () => {
     const result = await renderTeacherDossierPdf(document());
@@ -121,5 +220,24 @@ describe('renderTeacherDossierPdf', () => {
     const text = await extractPdfText(result.pdf);
     expect(text).toMatch(/confidentiel/i);
     expect(text).toContain('x²');
+  }, 30000);
+
+  it('un brief APPROUVÉ correctement marqué apparaît dans le texte extrait du PDF, jamais un brief non marqué', async () => {
+    const doc = document({
+      students: Object.freeze([Object.freeze({ ...document().students[0], brief: approvedBriefContent(), briefSafetyMarker: TEACHER_BRIEF_SAFETY_MARKER })]),
+      completeness: Object.freeze({ tier: 'ENRICHI_COMPLET', studentsIncluded: 1, briefsApproved: 1, socleOnlyCount: 0 }),
+    });
+    const result = await renderTeacherDossierPdf(doc);
+    expect(result.status).toBe('AVAILABLE');
+    if (result.status !== 'AVAILABLE') return;
+    const text = await extractPdfText(result.pdf);
+    expect(text).toContain('Indicateur approuvé');
+  }, 30000);
+
+  it('rejette la génération PDF (jamais silencieuse) quand un brief non nul manque son marqueur de sûreté', async () => {
+    const doc = document({
+      students: Object.freeze([Object.freeze({ ...document().students[0], brief: sentinelBriefContent() })]),
+    });
+    await expect(renderTeacherDossierPdf(doc)).rejects.toThrow('TEACHER_DOSSIER_UNSAFE_BRIEF_RENDER_BLOCKED');
   }, 30000);
 });
