@@ -6,12 +6,16 @@ import { prisma } from '@/lib/prisma';
 import { resolveEnabledPack, type PackResolver } from '../api/pack-access';
 import type { FactSheet } from '../facts/fact-sheet';
 import {
+  assertBriefRespectsFacts,
   buildStudentFactsPayload,
-  callTeacherBriefModel,
+  callTeacherBriefDomain,
+  estimateCostUsd,
   resolveTeacherBriefConfig,
   TeacherBriefError,
   type TeacherBriefConfig,
+  type TeacherBriefFactsPayload,
 } from '../llm/teacher-brief-service';
+import { teacherBriefSchema, TEACHER_BRIEF_PROMPT_VERSION } from '../llm/teacher-brief-schema';
 import { reserveBudget, regularizeBudget, releaseBudget } from '../llm/teacher-brief-budget';
 import { BRIEF_STATUSES_BLOCKING_DUPLICATE_GENERATION } from '../staff/teacher-brief-status';
 
@@ -347,15 +351,53 @@ export async function processGenerateTeacherBriefJob(
     return { jobId, result: 'BUDGET_BLOCKED' };
   }
 
+  // Appel domaine par domaine (pas `callTeacherBriefModel` en un bloc) : un
+  // premier domaine facturé reste compté même si un domaine suivant échoue
+  // (§7 de l'incident P0) — jamais un coût réel sous-estimé.
+  const domainOutcomes: DomainOutcomeLog[] = [];
+  let partialCostUsd = 0;
   try {
-    const generation = await callTeacherBriefModel(config, facts, dependencies.fetchImpl);
+    const outcomes: Array<{ domaine: unknown; promptTokens: number; cachedPromptTokens: number; completionTokens: number }> = [];
+    for (const domaine of facts.domainesPrioritaires) {
+      const singleDomainFacts: TeacherBriefFactsPayload = Object.freeze({
+        eleve: facts.eleve, matiere: facts.matiere, domainesPrioritaires: Object.freeze([domaine]),
+      });
+      try {
+        const outcome = await callTeacherBriefDomain(config, singleDomainFacts, dependencies.fetchImpl);
+        outcomes.push(outcome);
+        const costUsd = estimateCostUsd(config.model, outcome);
+        partialCostUsd += costUsd;
+        domainOutcomes.push({
+          domainId: domaine.domainId, outcome: 'OK',
+          promptTokens: outcome.promptTokens, cachedPromptTokens: outcome.cachedPromptTokens, completionTokens: outcome.completionTokens,
+          costUsd,
+        });
+      } catch (domainError) {
+        const domainCode = domainError instanceof TeacherBriefError ? domainError.code : 'TEACHER_BRIEF_UNKNOWN';
+        domainOutcomes.push({ domainId: domaine.domainId, outcome: domainCode, promptTokens: 0, cachedPromptTokens: 0, completionTokens: 0, costUsd: null });
+        throw domainError;
+      }
+    }
+
+    const assembled = teacherBriefSchema.safeParse({
+      version: TEACHER_BRIEF_PROMPT_VERSION,
+      domaines: outcomes.map((outcome) => outcome.domaine),
+    });
+    if (!assembled.success) throw new TeacherBriefError('TEACHER_BRIEF_ASSEMBLY_REJECTED');
+    assertBriefRespectsFacts(assembled.data, facts);
+
+    const generation = {
+      content: assembled.data,
+      promptTokens: outcomes.reduce((total, o) => total + o.promptTokens, 0),
+      cachedPromptTokens: outcomes.reduce((total, o) => total + o.cachedPromptTokens, 0),
+      completionTokens: outcomes.reduce((total, o) => total + o.completionTokens, 0),
+      estimatedCostUsd: partialCostUsd,
+      generationMs: dependencies.now().getTime() - startedAt.getTime(),
+      model: config.model,
+      promptVersion: TEACHER_BRIEF_PROMPT_VERSION,
+    };
     const finishedAt = dependencies.now();
     await dependencies.regularizeBudget(reservationUsd, generation.estimatedCostUsd, { now: dependencies.now });
-
-    const domainOutcomes: DomainOutcomeLog[] = facts.domainesPrioritaires.map((domain) => ({
-      domainId: domain.domainId, outcome: 'OK',
-      promptTokens: 0, cachedPromptTokens: 0, completionTokens: 0, costUsd: null,
-    }));
 
     await dependencies.prisma.$transaction(async (transaction) => {
       await transaction.teacherBrief.updateMany({
@@ -399,21 +441,24 @@ export async function processGenerateTeacherBriefJob(
     const finishedAt = dependencies.now();
     const code = error instanceof TeacherBriefError ? error.code : 'TEACHER_BRIEF_UNKNOWN';
     const classification = classifyFailure(code);
-    // Coût inconnu par défaut sur un échec réseau/timeout AVANT réponse —
-    // jamais compté à zéro silencieusement (§7). Un JSON/schéma rejeté a
-    // bien reçu une réponse facturée : coût connu, ici prudemment à zéro
-    // faute d'API exposant l'usage partiel sur rejet — documenté comme
-    // limite connue (voir ADR).
+    // Coût inconnu UNIQUEMENT sur un échec réseau/timeout AVANT toute
+    // réponse (aucun usage exploitable) — jamais compté à zéro
+    // silencieusement (§7). Dans tous les autres cas, `partialCostUsd`
+    // porte le coût RÉEL des domaines effectivement facturés avant l'échec
+    // (0 si le tout premier appel a échoué, > 0 si un domaine précédent a
+    // réussi) — jamais une sous-estimation.
     const costUnknown = code === 'TEACHER_BRIEF_TIMEOUT' || code === 'TEACHER_BRIEF_NETWORK';
+    const domainsProcessed = domainOutcomes.filter((entry) => entry.outcome === 'OK').length;
     await dependencies.releaseBudget(reservationUsd, { now: dependencies.now });
+    if (partialCostUsd > 0) await dependencies.regularizeBudget(0, partialCostUsd, { now: dependencies.now });
     await dependencies.prisma.$transaction(async (transaction) => {
       await persistAttempt(transaction, {
         reportArtifactId: claim.reportArtifactId, expectedScoreSnapshotId: claim.currentScoreSnapshotId, jobId,
         subject: claim.subject, gradeLevel: claim.gradeLevel, actorId: claim.actorId, model: config.model, promptVersion: 'n/a',
         startedAt, finishedAt, result: classification, causeCode: code, retryCount: 0,
         promptTokens: 0, cachedPromptTokens: 0, completionTokens: 0,
-        estimatedCostUsd: costUnknown ? null : 0, costUnknown,
-        domainsRequested, domainsProcessed: 0, domainOutcomes: [],
+        estimatedCostUsd: costUnknown ? null : partialCostUsd, costUnknown,
+        domainsRequested, domainsProcessed, domainOutcomes,
       });
       if (classification === 'RETRYABLE_FAILURE') {
         await transaction.jobOutbox.update({
