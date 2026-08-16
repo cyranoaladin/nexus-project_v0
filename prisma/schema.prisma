@@ -231,14 +231,15 @@ model User {
   coachStudentAssignmentsCreated CoachStudentAssignment[] @relation("CoachStudentAssignmentAssignedBy")
 
   // Canonical bilan reviews performed by this user (ASSISTANTE)
-  bilanReportReviews ReportReview[]
-  reportShareLinksReceived ReportShareLink[] @relation("ReportShareLinkRecipient")
-  teacherBriefsReviewed  TeacherBrief[] @relation("TeacherBriefReviewer")
-  teacherBriefsCreated   TeacherBrief[] @relation("TeacherBriefCreator")
-  teacherBriefAnnotations TeacherBriefAnnotation[] @relation("TeacherBriefAnnotationAuthor")
-  reportShareLinksCreated  ReportShareLink[] @relation("ReportShareLinkCreator")
-  reportTransmissionsReceived  ReportTransmission[] @relation("ReportTransmissionRecipient")
-  reportTransmissionsConfirmed ReportTransmission[] @relation("ReportTransmissionConfirmer")
+  bilanReportReviews           ReportReview[]
+  reportShareLinksReceived     ReportShareLink[]        @relation("ReportShareLinkRecipient")
+  teacherBriefsReviewed        TeacherBrief[]           @relation("TeacherBriefReviewer")
+  teacherBriefsCreated         TeacherBrief[]           @relation("TeacherBriefCreator")
+  teacherBriefAnnotations      TeacherBriefAnnotation[] @relation("TeacherBriefAnnotationAuthor")
+  teacherBriefAttempts         TeacherBriefAttempt[]    @relation("TeacherBriefAttemptActor")
+  reportShareLinksCreated      ReportShareLink[]        @relation("ReportShareLinkCreator")
+  reportTransmissionsReceived  ReportTransmission[]     @relation("ReportTransmissionRecipient")
+  reportTransmissionsConfirmed ReportTransmission[]     @relation("ReportTransmissionConfirmer")
 
   // Paper bilan copies transcribed by this user (ASSISTANTE or ADMIN)
   bilanPaperEntries CanonicalAssessmentAttempt[] @relation("CanonicalAttemptPaperEntry")
@@ -250,16 +251,16 @@ model User {
   candidateDiagnosticAuditLogs         CandidateDiagnosticAuditLog[] @relation("CandidateDiagnosticAuditActor")
 
   // 2FA TOTP (Admin only)
-  totpSecret      String? // AES-256-GCM encrypted, format: v1:iv:tag:ciphertext
-  totpEnabledAt   DateTime? // non-null = 2FA active (canonical check)
-  totpBackupCodes String? // JSON array of hashed backup codes
-  totpLastUsedAt  DateTime? // last successful TOTP verification
+  totpSecret                   String? // AES-256-GCM encrypted, format: v1:iv:tag:ciphertext
+  totpEnabledAt                DateTime? // non-null = 2FA active (canonical check)
+  totpBackupCodes              String? // JSON array of hashed backup codes
+  totpLastUsedAt               DateTime? // last successful TOTP verification
+  reportRegenerationsRequested ReportRegeneration[] @relation("ReportRegenerationsRequested")
 
   @@index([role])
   @@index([phoneNormalized])
   @@index([mergedIntoUserId])
   @@map("users")
-  reportRegenerationsRequested ReportRegeneration[] @relation("ReportRegenerationsRequested")
 }
 
 // Profil Parent
@@ -1472,6 +1473,7 @@ enum CanonicalJobType {
   PUBLISH_REPORT
   SEND_NOTIFICATION
   SEND_EMAIL
+  GENERATE_TEACHER_BRIEF
 }
 
 enum CanonicalNotificationEventType {
@@ -1591,12 +1593,11 @@ model ScoreSnapshot {
   evidenceItems   EvidenceItem[]
   reportRevisions ReportRevision[]
 
-  createdAt DateTime @default(now())
+  createdAt     DateTime       @default(now())
+  teacherBriefs TeacherBrief[]
 
   @@unique([assessmentAttemptId])
   @@index([assessmentAttemptId, scoredAt])
-  teacherBriefs TeacherBrief[]
-
   @@map("canonical_score_snapshots")
 }
 
@@ -1630,9 +1631,10 @@ model ReportArtifact {
 
   revisions ReportRevision[] @relation("ReportArtifactRevisions")
 
-  shareLinks    ReportShareLink[]
-  transmissions ReportTransmission[]
-  teacherBriefs TeacherBrief[]
+  shareLinks           ReportShareLink[]
+  transmissions        ReportTransmission[]
+  teacherBriefs        TeacherBrief[]
+  teacherBriefAttempts TeacherBriefAttempt[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -1687,22 +1689,22 @@ model ReportRevision {
 /// profils constaté. L'historique intégral des révisions est conservé —
 /// cette table dit pourquoi une nouvelle génération existe.
 model ReportRegeneration {
-  id             String         @id @default(cuid())
-  fromRevisionId String
-  fromRevision   ReportRevision @relation("RegenerationFromRevision", fields: [fromRevisionId], references: [id], onDelete: Restrict)
-  toRevisionId   String
-  toRevision     ReportRevision @relation("RegenerationToRevision", fields: [toRevisionId], references: [id], onDelete: Restrict)
-  requestedById  String
-  requestedBy    User           @relation("ReportRegenerationsRequested", fields: [requestedById], references: [id], onDelete: Restrict)
-  motif          String
+  id                  String         @id @default(cuid())
+  fromRevisionId      String
+  fromRevision        ReportRevision @relation("RegenerationFromRevision", fields: [fromRevisionId], references: [id], onDelete: Restrict)
+  toRevisionId        String
+  toRevision          ReportRevision @relation("RegenerationToRevision", fields: [toRevisionId], references: [id], onDelete: Restrict)
+  requestedById       String
+  requestedBy         User           @relation("ReportRegenerationsRequested", fields: [requestedById], references: [id], onDelete: Restrict)
+  motif               String
   engineVersionBefore String
   engineVersionAfter  String
-  briefRegenerated    Boolean  @default(false)
+  briefRegenerated    Boolean        @default(false)
   briefPromptVersion  String?
   briefModel          String?
   profileDiff         Json
-  wasPublished        Boolean  @default(false)
-  createdAt           DateTime @default(now())
+  wasPublished        Boolean        @default(false)
+  createdAt           DateTime       @default(now())
 
   @@index([toRevisionId])
   @@index([createdAt])
@@ -1829,37 +1831,60 @@ model ReportTransmission {
   @@map("canonical_report_transmissions")
 }
 
+// Statuts stricts d'un brief enseignant. AUCUNE valeur libre : seul APPROVED
+// appartient à la sémantique "sûr pour l'enseignant" (voir
+// lib/bilans/staff/teacher-brief-status.ts pour les regroupements nommés).
+// Transitions autorisées, appliquées par service + trigger SQL + tests :
+//   PENDING_REVIEW → APPROVED
+//   PENDING_REVIEW → CORRECTION_REQUESTED
+//   CORRECTION_REQUESTED → SUPERSEDED (régénération réussie)
+// APPROVED et SUPERSEDED sont terminaux.
+enum TeacherBriefStatus {
+  PENDING_REVIEW
+  APPROVED
+  CORRECTION_REQUESTED
+  SUPERSEDED
+}
+
 // Bilan enseignant enrichi (LLM, relecture obligatoire). Document INTERNE :
 // jamais transmis aux familles, jamais éligible aux liens signés. Contenu,
 // provenance et usage immuables (trigger) ; régénération = nouvelle version.
 model TeacherBrief {
-  id                 String    @id @default(cuid())
+  id                 String             @id @default(cuid())
   reportArtifactId   String
-  reportArtifact     ReportArtifact @relation(fields: [reportArtifactId], references: [id], onDelete: Restrict)
+  reportArtifact     ReportArtifact     @relation(fields: [reportArtifactId], references: [id], onDelete: Restrict)
   scoreSnapshotId    String
-  scoreSnapshot      ScoreSnapshot  @relation(fields: [scoreSnapshotId], references: [id], onDelete: Restrict)
+  scoreSnapshot      ScoreSnapshot      @relation(fields: [scoreSnapshotId], references: [id], onDelete: Restrict)
   version            Int
-  status             String    @default("PENDING_REVIEW")
+  status             TeacherBriefStatus @default(PENDING_REVIEW)
   content            Json
-  editedContent      String?   @db.Text
+  /**
+   * Correction manuelle approuvée, structurée (même schéma que `content`),
+   * posée UNE SEULE FOIS au moment de l'approbation — jamais un textarea de
+   * texte libre. Remplace l'ancien `editedContent: String?` (JSON.parse
+   * défensif côté lecture) : un contenu approuvé est TOUJOURS un JSON
+   * structuré valide, jamais une chaîne à re-parser.
+   */
+  approvedContent    Json?
   promptVersion      String
   model              String
   promptTokens       Int
-  cachedPromptTokens Int       @default(0)
+  cachedPromptTokens Int                @default(0)
   completionTokens   Int
-  estimatedCostUsd   Decimal   @db.Decimal(10, 6)
+  estimatedCostUsd   Decimal            @db.Decimal(10, 6)
   generationMs       Int
   reviewedById       String?
-  reviewedBy         User?     @relation("TeacherBriefReviewer", fields: [reviewedById], references: [id], onDelete: Restrict)
+  reviewedBy         User?              @relation("TeacherBriefReviewer", fields: [reviewedById], references: [id], onDelete: Restrict)
   reviewedAt         DateTime?
-  reviewMotif        String?   @db.Text
+  reviewMotif        String?            @db.Text
   createdById        String
-  createdBy          User      @relation("TeacherBriefCreator", fields: [createdById], references: [id], onDelete: Restrict)
-  createdAt          DateTime  @default(now())
+  createdBy          User               @relation("TeacherBriefCreator", fields: [createdById], references: [id], onDelete: Restrict)
+  createdAt          DateTime           @default(now())
 
   annotations TeacherBriefAnnotation[]
 
   @@unique([reportArtifactId, version])
+  @@index([reportArtifactId, status])
   @@index([status, createdAt])
   @@map("canonical_teacher_briefs")
 }
@@ -1876,6 +1901,92 @@ model TeacherBriefAnnotation {
 
   @@index([teacherBriefId, createdAt])
   @@map("canonical_teacher_brief_annotations")
+}
+
+// Résultat terminal d'une tentative de génération — un par clic idempotent
+// traité (via le job outbox), PAS un par appel réseau (voir `domainOutcomes`
+// pour le détail par domaine). Journal append-only : jamais réécrit, jamais
+// supprimé. Permet la corrélation par bilan, la distinction
+// permanent/transitoire, et un calcul de coût qui inclut les tentatives
+// ratées.
+enum TeacherBriefAttemptResult {
+  GENERATED
+  ALREADY_PRESENT
+  DETERMINISTIC_ONLY
+  RETRYABLE_FAILURE
+  BLOCKED_FAILURE
+  BUDGET_BLOCKED
+  STALE_INPUT
+  CANCELLED_BEFORE_START
+}
+
+// Journal canonique, append-only, d'une tentative de génération de brief.
+// Aucune PII, aucun contenu pédagogique : uniquement identifiants opaques,
+// codes de cause, et compteurs numériques.
+model TeacherBriefAttempt {
+  id                      String                    @id @default(cuid())
+  reportArtifactId        String
+  reportArtifact          ReportArtifact            @relation(fields: [reportArtifactId], references: [id], onDelete: Restrict)
+  /**
+   * Snapshot ATTENDU au moment de la tentative — sert à détecter le STALE_INPUT (pas de FK : le snapshot attendu peut ne plus être le courant).
+   */
+  expectedScoreSnapshotId String
+  jobId                   String?
+  subject                 Subject
+  gradeLevel              GradeLevel
+  actorId                 String
+  actor                   User                      @relation("TeacherBriefAttemptActor", fields: [actorId], references: [id], onDelete: Restrict)
+  model                   String
+  promptVersion           String
+  startedAt               DateTime
+  finishedAt              DateTime
+  result                  TeacherBriefAttemptResult
+  /**
+   * Code de cause non sensible (ex. TEACHER_BRIEF_SCHEMA_REJECTED). Jamais de contenu pédagogique ni de PII.
+   */
+  causeCode               String?
+  retryCount              Int                       @default(0)
+  promptTokens            Int                       @default(0)
+  cachedPromptTokens      Int                       @default(0)
+  completionTokens        Int                       @default(0)
+  /**
+   * Coût estimé réellement engagé pour CETTE tentative, y compris les appels
+   * de domaine facturés puis perdus (schéma rejeté, JSON invalide, etc.).
+   * NULL uniquement quand le fournisseur n'a renvoyé aucun usage exploitable
+   * (ex. timeout réseau avant réponse) — jamais silencieusement à zéro :
+   * voir `costUnknown`.
+   */
+  estimatedCostUsd        Decimal?                  @db.Decimal(10, 6)
+  costUnknown             Boolean                   @default(false)
+  durationMs              Int
+  domainsRequested        Int
+  domainsProcessed        Int
+  /**
+   * Un élément par appel de domaine : [{domainId, outcome, promptTokens, cachedPromptTokens, completionTokens, costUsd}]. Aucune PII, aucun contenu pédagogique — uniquement des identifiants de domaine du référentiel.
+   */
+  domainOutcomes          Json
+  source                  String                    @default("LIVE")
+  createdAt               DateTime                  @default(now())
+
+  @@index([reportArtifactId, createdAt])
+  @@index([result, createdAt])
+  @@index([jobId])
+  @@map("canonical_teacher_brief_attempts")
+}
+
+// Budget mensuel atomique (§11) : une ligne par mois calendaire. Toute
+// réservation/régularisation passe par une unique instruction UPDATE
+// conditionnelle (voir lib/bilans/llm/teacher-brief-budget.ts) — jamais de
+// lecture non verrouillée suivie d'un appel, jamais de course entre deux
+// batches concurrents.
+model TeacherBriefMonthlyBudget {
+  monthStart  DateTime @id @db.Date
+  budgetUsd   Decimal  @db.Decimal(10, 2)
+  spentUsd    Decimal  @default(0) @db.Decimal(10, 6)
+  reservedUsd Decimal  @default(0) @db.Decimal(10, 6)
+  updatedAt   DateTime @updatedAt
+
+  @@map("canonical_teacher_brief_monthly_budgets")
 }
 
 model JobOutbox {

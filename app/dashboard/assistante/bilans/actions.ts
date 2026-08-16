@@ -20,16 +20,18 @@ import {
 import type { ReportAnnotationSection, ReportReviewAnnotationInput } from '@/lib/bilans/core/report-service';
 import { ReportTransmissionError, confirmWhatsAppTransmission } from '@/lib/bilans/staff/transmission-service';
 import { prepareWhatsAppSend, WhatsAppSendError } from '@/lib/bilans/staff/whatsapp-send-service';
-import { generateTeacherBrief, TeacherBriefError } from '@/lib/bilans/llm/teacher-brief-service';
+import { enqueueTeacherBriefGeneration } from '@/lib/bilans/llm/teacher-brief-enqueue';
 import {
   approveTeacherBrief,
   requestTeacherBriefCorrection,
   TeacherBriefReviewError,
+  type ReviewMotifCode,
 } from '@/lib/bilans/staff/teacher-brief-review-service';
 import {
-  listStaffTeacherDossierArtifactIds,
+  listStaffTeacherDossierActionableArtifactIds,
   StaffTeacherDossierError,
 } from '@/lib/bilans/staff/teacher-dossier-service';
+import { prisma } from '@/lib/prisma';
 
 function field(formData: FormData, name: string): string {
   const value = formData.get(name);
@@ -158,43 +160,58 @@ export async function confirmWhatsAppTransmissionAction(formData: FormData): Pro
   }
 }
 
+/**
+ * ADMIN : consultation et supervision en lecture seule uniquement (§14 de
+ * l'incident P0) — aucune génération, aucune relecture tant qu'une
+ * délégation explicite n'a pas été décidée. Refusé côté serveur, jamais
+ * seulement caché côté UI.
+ */
+function assertAssistanteOnly(current: Readonly<{ role: string }>): void {
+  if (current.role !== 'ASSISTANTE') notFound();
+}
+
+/**
+ * Met en file la génération — jamais d'appel LLM synchrone dans cette
+ * requête (§10 de l'incident P0). Répond en dessous de la seconde : une
+ * seule écriture `INSERT ... ON CONFLICT DO NOTHING` dans le job outbox.
+ */
 export async function generateTeacherBriefAction(formData: FormData): Promise<void> {
   try {
-    await generateTeacherBrief({
-      actor: await actor(),
-      reportArtifactId: field(formData, 'artifactId'),
+    const current = await actor();
+    assertAssistanteOnly(current);
+    const reportArtifactId = field(formData, 'artifactId');
+    const artifact = await prisma.reportArtifact.findUnique({
+      where: { id: reportArtifactId },
+      select: { revisions: { orderBy: { createdAt: 'desc' }, take: 1, select: { scoreSnapshotId: true } } },
     });
+    const expectedScoreSnapshotId = artifact?.revisions[0]?.scoreSnapshotId;
+    if (expectedScoreSnapshotId === undefined) notFound();
+    await enqueueTeacherBriefGeneration(reportArtifactId, expectedScoreSnapshotId, current.userId);
     revalidatePath('/dashboard/assistante/bilans');
   } catch (error) {
-    if (error instanceof TeacherBriefError) notFound();
     handleAccessError(error);
   }
 }
 
 /**
- * Régénère les briefs enseignant manquants pour tout un groupe (matière ×
- * niveau) en un clic, plutôt qu'un par un. `generateTeacherBrief` est déjà
- * idempotent (mode `ALREADY_PRESENT`) : reboucler sur des bilans déjà
- * pourvus ne recoûte rien — le bouton est donc sûr à re-cliquer quand des
- * bilans s'ajoutent au groupe. Séquentiel (pas de Promise.all) : le cache de
- * prompt du modèle s'amortit d'un appel à l'autre (mesuré ~112 s/bilan,
- * ~0,10 $/bilan), et le plafond budgétaire mensuel du service reste la seule
- * limite.
+ * Met en file la génération des briefs enseignant RÉELLEMENT ACTIONNABLES
+ * (`listStaffTeacherDossierActionableArtifactIds` — jamais un brief déjà
+ * PENDING_REVIEW/APPROVED-courant, jamais un DETERMINISTIC_ONLY, jamais un
+ * bilan déjà en file) pour tout un groupe (matière × niveau) en un clic.
+ * Chaque insertion est individuellement idempotente (`idempotencyKey`
+ * unique) : répond en dessous de la seconde, sans appeler le moindre
+ * modèle — le worker en process (`lib/bilans/worker/scheduler.ts`) traite
+ * la file séquentiellement, un brief à la fois (§10).
  */
 export async function generateGroupTeacherBriefsAction(formData: FormData): Promise<void> {
   try {
     const current = await actor();
+    assertAssistanteOnly(current);
     const subject = field(formData, 'subject') as Subject;
     const level = field(formData, 'level') as GradeLevel;
-    const artifactIds = await listStaffTeacherDossierArtifactIds(current, subject, level);
-    for (const artifactId of artifactIds) {
-      try {
-        await generateTeacherBrief({ actor: current, reportArtifactId: artifactId });
-      } catch (error) {
-        // Un bilan en échec (budget dépassé, PLANCHER, etc.) ne doit pas
-        // bloquer les autres élèves du groupe — chacun est indépendant.
-        if (!(error instanceof TeacherBriefError)) throw error;
-      }
+    const targets = await listStaffTeacherDossierActionableArtifactIds(current, subject, level);
+    for (const target of targets) {
+      await enqueueTeacherBriefGeneration(target.reportArtifactId, target.expectedScoreSnapshotId, current.userId);
     }
     revalidatePath('/dashboard/assistante/bilans');
   } catch (error) {
@@ -205,12 +222,23 @@ export async function generateGroupTeacherBriefsAction(formData: FormData): Prom
 
 export async function approveTeacherBriefAction(formData: FormData): Promise<void> {
   try {
-    const edited = field(formData, 'editedContent').trim();
+    const current = await actor();
+    assertAssistanteOnly(current);
+    const approvedContentRaw = field(formData, 'approvedContentJson').trim();
+    let approvedContent: unknown;
+    if (approvedContentRaw) {
+      try {
+        approvedContent = JSON.parse(approvedContentRaw);
+      } catch {
+        notFound();
+      }
+    }
     await approveTeacherBrief({
-      actor: await actor(),
+      actor: current,
       briefId: field(formData, 'briefId'),
-      motif: field(formData, 'motif'),
-      ...(edited ? { editedContent: edited } : {}),
+      motifCode: field(formData, 'motifCode') as ReviewMotifCode,
+      freeComment: field(formData, 'freeComment'),
+      ...(approvedContent !== undefined ? { approvedContent } : {}),
     });
     revalidatePath('/dashboard/assistante/bilans');
   } catch (error) {
@@ -221,10 +249,13 @@ export async function approveTeacherBriefAction(formData: FormData): Promise<voi
 
 export async function requestTeacherBriefCorrectionAction(formData: FormData): Promise<void> {
   try {
+    const current = await actor();
+    assertAssistanteOnly(current);
     await requestTeacherBriefCorrection({
-      actor: await actor(),
+      actor: current,
       briefId: field(formData, 'briefId'),
-      motif: field(formData, 'motif'),
+      motifCode: field(formData, 'motifCode') as ReviewMotifCode,
+      freeComment: field(formData, 'freeComment'),
       annotation: {
         section: field(formData, 'section'),
         remark: field(formData, 'remark'),
