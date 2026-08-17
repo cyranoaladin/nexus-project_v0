@@ -7,6 +7,7 @@ import { getDiagnosticForActor, actorRole } from '@/lib/diagnostics/candidat-lib
 import { isModuleComplete } from '@/lib/diagnostics/candidat-libre/progression';
 import { requireVerifiedParentalConsent } from '@/lib/diagnostics/candidat-libre/consent-gate.server';
 import { isStudentAdultAt, requiredModuleKeysForDossier } from '@/lib/diagnostics/candidat-libre/module-scoping';
+import { noteStudentActivity } from '@/lib/rgpd/last-activity.server';
 import { guardCandidateDiagnosticFeature, guardCandidateDiagnosticForStudent } from '@/lib/diagnostics/candidat-libre/feature-flag';
 
 interface Params { params: Promise<{ diagnosticId: string }> }
@@ -73,5 +74,8 @@ export async function POST(request: Request, { params }: Params) {
     });
   });
 
+  await noteStudentActivity({
+    diagnosticId, activity: 'DOSSIER_SOUMIS', actorRole: sessionOrError.user.role,
+  });
   return NextResponse.json({ success: true, status: 'IN_REVIEW', submittedAt: now.toISOString() });
 }
