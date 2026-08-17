@@ -1,0 +1,32 @@
+{
+  "schemaVersion": "nexus-data-integrity-audit-v1",
+  "auditedAt": "2026-07-31T15:59:51+01:00",
+  "releaseSha": "11e0dce93e9f1d4c79824f9cccd0a467dde4f11b",
+  "execution": {
+    "databaseTarget": "CONFIGURED_TARGET_REDACTED",
+    "transactionMode": "READ ONLY",
+    "statementTimeoutSeconds": 15,
+    "productionWriteCount": 0,
+    "piiRowOutputCount": 0
+  },
+  "counts": {
+    "USER_WITHOUT_EXPECTED_PROFILE_COUNT": 0,
+    "ELEVE_USER_WITHOUT_STUDENT_COUNT": 0,
+    "STUDENT_WITHOUT_USER_COUNT": 0,
+    "PARENT_PROFILE_WITHOUT_USER_COUNT": 0,
+    "STUDENT_WITHOUT_VALID_PARENT_COUNT": 0,
+    "DUPLICATE_NORMALIZED_EMAIL_COUNT": 0,
+    "UNACTIVATED_USER_EXPIRED_TOKEN_COUNT": 5,
+    "ACTIVATION_TOKEN_WITHOUT_OUTBOX_COUNT": 6,
+    "STAGE_RESERVATION_WITHOUT_STUDENT_COUNT": 1,
+    "CONTACT_LEAD_DUPLICATE_COUNT": 2,
+    "ORPHAN_PUBLICATION_COUNT": 0
+  },
+  "interpretation": {
+    "structuralProfileOrphans": "NONE_OBSERVED",
+    "activationLifecycle": "REMEDIATION_REQUIRED",
+    "stageReservationWithoutStudent": "LEGACY_FLOW_REVIEW_REQUIRED_NOT_ASSUMED_ORPHAN",
+    "contactLeadDuplicates": "DEDUPLICATION_POLICY_REQUIRED",
+    "publicationIntegrity": "NO_ORPHAN_OBSERVED"
+  }
+}
