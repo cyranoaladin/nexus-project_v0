@@ -44,7 +44,10 @@
     },
     "grand_oral_policy": {
       "included_sessions": 4,
-      "session_duration_minutes": 60,
+      "session_duration_minutes": 120,
+      "total_hours_max": 8,
+      "note_focus_bac": "Terminale Libre — Focus Bac : ces 8 h forment l'enveloppe annuelle dédiée Grand Oral, en complément de la structure régulière EDS/philosophie (20 h/mois).",
+      "note_integrale": "Terminale Libre — Intégrale : ces 8 h sont comprises dans le plafond mensuel de 30 h/mois ; elles ne s'ajoutent pas au-delà de ce plafond.",
       "applies_to_offer_ids": [
         "terminale-libre-focus-bac",
         "terminale-libre-integrale"

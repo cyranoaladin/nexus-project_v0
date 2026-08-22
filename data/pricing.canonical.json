@@ -47,7 +47,10 @@
     },
     "grand_oral_policy": {
       "included_sessions": 4,
-      "session_duration_minutes": 60,
+      "session_duration_minutes": 120,
+      "total_hours_max": 8,
+      "note_focus_bac": "Terminale Libre — Focus Bac : ces 8 h forment l'enveloppe annuelle dédiée Grand Oral, en complément de la structure régulière EDS/philosophie (20 h/mois).",
+      "note_integrale": "Terminale Libre — Intégrale : ces 8 h sont comprises dans le plafond mensuel de 30 h/mois ; elles ne s'ajoutent pas au-delà de ce plafond.",
       "applies_to_offer_ids": ["terminale-libre-focus-bac", "terminale-libre-integrale"]
     }
   },
@@ -387,7 +390,7 @@
         "Bilan diagnostique initial",
         "Analyse de la situation réglementaire",
         "Carte des épreuves et calendrier personnalisé",
-        "Accompagnement administratif Cyclades",
+        "Appui aux démarches Cyclades (sans se substituer à l’inscription officielle)",
         "Espace élève et espace parent",
         "Plan de travail et suivi des échéances",
         "Bilans périodiques et synthèse parent"
@@ -503,7 +506,7 @@
         "Enseignement de spécialité 1 : 8 h/mois",
         "Enseignement de spécialité 2 : 8 h/mois",
         "Philosophie : 4 h/mois",
-        "Grand Oral : préparation progressive incluse, séances bornées (politique Nexus)",
+        "Grand Oral : préparation progressive incluse, 8 h maximum sur l’année (4 séances de 2 h)",
         "Diagnostic et plateforme ARIA",
         "Espace parent et suivi des échéances"
       ]
@@ -531,7 +534,8 @@
       "last_installment": 1690,
       "included": [
         "Jusqu’à 30 h/mois réparties selon le diagnostic",
-        "Les 2 enseignements de spécialité, Philosophie, Grand Oral",
+        "Les 2 enseignements de spécialité, Philosophie",
+        "Grand Oral : 8 h maximum sur l’année, comprises dans le plafond de 30 h/mois",
         "Histoire-Géographie, LVA/LVB, Enseignement scientifique selon besoin",
         "Évaluations ponctuelles réellement requises",
         "Diagnostic et plateforme ARIA",
