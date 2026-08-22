@@ -13,6 +13,7 @@
     "subject": {
       "enum": [
         "MATHS",
+        "MATHS_COMPLEMENTAIRES",
         "MATHS_EXPERTES",
         "NSI",
         "PHYSIQUE_CHIMIE",
@@ -24,6 +25,16 @@
     "version": { "type": "integer", "minimum": 1 },
     "status": { "enum": ["DRAFT", "PUBLISHED", "ARCHIVED"] },
     "targetDurationMin": { "type": "integer", "minimum": 10, "maximum": 60 },
+    "delivery": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["online", "paperEntry", "fixedPaperForm"],
+      "properties": {
+        "online": { "type": "boolean" },
+        "paperEntry": { "type": "boolean" },
+        "fixedPaperForm": { "type": "boolean" }
+      }
+    },
     "items": {
       "type": "array",
       "minItems": 12,
