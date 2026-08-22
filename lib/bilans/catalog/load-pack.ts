@@ -20,6 +20,13 @@ const ROOT = process.cwd();
 const FIXTURE_REVIEWER = /fixture|jamais un enseignant|test[-_ ]only/i;
 const MAX_CORRECT_ANSWER_POSITION_PERCENT = 40;
 
+const deliverySchema = z.object({
+  online: z.boolean(),
+  paperEntry: z.boolean(),
+  fixedPaperForm: z.boolean(),
+}).strict();
+const DEFAULT_DELIVERY = Object.freeze({ online: true, paperEntry: true, fixedPaperForm: false });
+
 const promptFilesSchema = z.object({
   preAnalysis: promptRefSchema,
   eleve: promptRefSchema,
@@ -85,6 +92,7 @@ const packSchema = z.object({
     validatedBy: z.string().trim().min(1).nullable(),
     validatedAt: z.string().datetime({ offset: true }).nullable(),
   }).strict(),
+  delivery: deliverySchema.default(DEFAULT_DELIVERY),
   questionnaire: z.object({
     targetDurationMin: z.number().int().positive(),
     confidenceScale: z.object({
@@ -127,20 +135,33 @@ const packSchema = z.object({
   if (pack.questionnaire.items.some(({ domainId }) => !domains.has(domainId))) {
     context.addIssue({ code: z.ZodIssueCode.custom, path: ['questionnaire', 'items'], message: 'Question domain is outside scoring domains' });
   }
-  const positionCounts: number[] = [];
-  for (const item of pack.questionnaire.items) {
-    const correctPosition = item.options.findIndex(({ isCorrect }) => isCorrect);
-    if (correctPosition >= 0) positionCounts[correctPosition] = (positionCounts[correctPosition] ?? 0) + 1;
+
+  const fixedPaperOnly = pack.delivery.fixedPaperForm && !pack.delivery.online && pack.delivery.paperEntry;
+  if (pack.delivery.fixedPaperForm && !fixedPaperOnly) {
+    context.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['delivery'],
+      message: 'fixedPaperForm requires online=false and paperEntry=true',
+    });
   }
-  for (const [position, count] of positionCounts.entries()) {
-    if (count * 100 > pack.questionnaire.items.length * MAX_CORRECT_ANSWER_POSITION_PERCENT) {
-      context.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ['questionnaire', 'items'],
-        message: `PACK_CORRECT_ANSWER_POSITION_BIAS:${String.fromCharCode(65 + position)}:${count}/${pack.questionnaire.items.length}>40%`,
-      });
+
+  if (!fixedPaperOnly) {
+    const positionCounts: number[] = [];
+    for (const item of pack.questionnaire.items) {
+      const correctPosition = item.options.findIndex(({ isCorrect }) => isCorrect);
+      if (correctPosition >= 0) positionCounts[correctPosition] = (positionCounts[correctPosition] ?? 0) + 1;
+    }
+    for (const [position, count] of positionCounts.entries()) {
+      if (count * 100 > pack.questionnaire.items.length * MAX_CORRECT_ANSWER_POSITION_PERCENT) {
+        context.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['questionnaire', 'items'],
+          message: `PACK_CORRECT_ANSWER_POSITION_BIAS:${String.fromCharCode(65 + position)}:${count}/${pack.questionnaire.items.length}>40%`,
+        });
+      }
     }
   }
+
   if (pack.status === 'DRAFT' && (pack.review.validatedBy !== null || pack.review.validatedAt !== null)) {
     context.addIssue({ code: z.ZodIssueCode.custom, path: ['review'], message: 'A draft pack cannot carry pedagogical approval' });
   }
