@@ -1,0 +1,61 @@
+schemaVersion: nexus-cps-catalog/v1
+slug: prerequis-maths-vers-terminale-complementaires-v1
+version: 1
+nodes:
+- id: 1re.maths-complementaires.suites-evolutions
+  label: Suites et évolutions discrètes
+  sourceLevel: PREMIERE
+  targetLevel: TERMINALE
+  sequenceOrder: 1
+  pedagogicalRationale: Les modèles d’évolution sont un axe structurant de mathématiques complémentaires. Le test vérifie
+    ici la capacité à exploiter une récurrence affine sous hypothèse de convergence et à modéliser une baisse multiplicative
+    ; il ne faut pas transformer l’item de limite en exigence de théorème déjà acquis.
+- id: 1re.maths-complementaires.derivation
+  label: Dérivation, variations et tangente
+  sourceLevel: PREMIERE
+  targetLevel: TERMINALE
+  sequenceOrder: 2
+  pedagogicalRationale: 'La dérivation de Première reste un prérequis central pour les modèles définis par une fonction :
+    lecture du nombre dérivé, calcul d’une dérivée et interprétation locale des variations.'
+- id: 1re.maths-complementaires.exponentielle
+  label: Fonction exponentielle
+  sourceLevel: PREMIERE
+  targetLevel: TERMINALE
+  sequenceOrder: 3
+  pedagogicalRationale: Les propriétés algébriques, la positivité et le sens de variation de l’exponentielle sont nécessaires
+    aux modèles de croissance et de décroissance étudiés en Terminale.
+- id: terminale.maths-complementaires.logarithme-reperage
+  label: Logarithme — repérage anticipé
+  sourceLevel: TERMINALE
+  targetLevel: TERMINALE
+  sequenceOrder: 4
+  pedagogicalRationale: 'Le logarithme appartient au programme de Terminale. Ces deux items du test papier servent uniquement
+    de repérage anticipé : une erreur ne doit jamais être formulée comme une lacune de Première.'
+- id: 1re.maths-complementaires.second-degre
+  label: Second degré et signe d’un trinôme
+  sourceLevel: PREMIERE
+  targetLevel: TERMINALE
+  sequenceOrder: 5
+  pedagogicalRationale: La résolution et le signe d’un trinôme soutiennent l’étude de fonctions, les variations et de nombreux
+    modèles en Terminale.
+- id: 1re.maths-complementaires.probabilites-conditionnelles
+  label: Probabilités conditionnelles et indépendance
+  sourceLevel: PREMIERE
+  targetLevel: TERMINALE
+  sequenceOrder: 6
+  pedagogicalRationale: L’indépendance et le raisonnement conditionnel sont indispensables aux thèmes d’inférence bayésienne
+    et de répétition d’expériences indépendantes.
+- id: 1re.maths-complementaires.variables-aleatoires
+  label: Loi binomiale et espérance
+  sourceLevel: PREMIERE
+  targetLevel: TERMINALE
+  sequenceOrder: 7
+  pedagogicalRationale: La loi binomiale et l’espérance donnent les automatismes nécessaires à la modélisation probabiliste
+    et à l’échantillonnage.
+- id: seconde.maths-complementaires.taux-evolution
+  label: Taux d’évolution et évolutions successives
+  sourceLevel: SECONDE
+  targetLevel: TERMINALE
+  sequenceOrder: 8
+  pedagogicalRationale: Les pourcentages multiplicatifs et les taux d’évolution sont des automatismes transversaux des modèles
+    économiques, démographiques et scientifiques du programme.
