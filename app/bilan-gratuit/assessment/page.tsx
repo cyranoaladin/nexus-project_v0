@@ -26,7 +26,7 @@ export default async function BilanAssessmentPage({
       select: { gradeLevel: true },
     });
     const packs = listEnabledPacks()
-      .filter(({ pack }) => student !== null && pack.level === student.gradeLevel)
+      .filter(({ pack }) => student !== null && pack.level === student.gradeLevel && pack.delivery.online)
       .map(({ pack }) => ({
         slug: pack.slug,
         label: `${bilanPackLevelLabel(pack.level)} · ${bilanPackSubjectLabel(pack.subject)}`,
