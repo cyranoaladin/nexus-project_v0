@@ -1,0 +1,13 @@
+schemaVersion: 1
+slug: entree-terminale-maths-complementaires-v1
+packVersion: 1
+sourceChecksum: 9c6ae9dc0cfd1efdf9f3b866e3ea82c070d3dd4d1870ca821a68ebdaad8da600
+promptChecksums:
+  preAnalysis: f24978daa971618ac21ed33e4f654b74e98cd823b2ee273f87aca1183f517218
+  eleve: e3cfcadd68d4ce6cce2eefbf36573857da000d91283f47a37e8f21019df4c35d
+  parents: f5834dbab15543490c2cecb851aa98f7023098a5b2d8692a2b35b590670c0795
+  nexus: 2923d602f37b398bc4e566f5c1bef0475a7f4fc66f6c4ed05334cf3cc67d82c5
+  verifier: dd43acd06d49abea63c096a05c467ee83d8165775e103ef0dd10592127854131
+validatedBy: cmomnwolx0001mi0u8m8zj53w
+validatedAt: 2026-08-22T23:30:00.000Z
+qualification: Responsable pedagogique, validateur Mathematiques et NSI
