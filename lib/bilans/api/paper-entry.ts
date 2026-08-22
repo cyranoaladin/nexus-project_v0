@@ -19,6 +19,7 @@ import {
 } from './idempotency';
 import {
   assertAttemptPackEnabled,
+  assertPackDeliveryEnabled,
   resolveEnabledPack,
   type EnabledBilanPack,
   type PackResolver,
@@ -243,7 +244,10 @@ export function createPaperEntryHandler(
       const now = dependencies.now();
 
       const student = await resolveEnteredStudent(dependencies.prisma, input.studentId);
-      const enabled = assertAttemptPackEnabled({ assessmentPackId: input.packSlug }, dependencies.resolvePack);
+      const enabled = assertPackDeliveryEnabled(
+        assertAttemptPackEnabled({ assessmentPackId: input.packSlug }, dependencies.resolvePack),
+        'paperEntry',
+      );
       const answers = buildPaperEntryAnswers(enabled, input.answers);
       const seed = dependencies.generateSeed();
 
