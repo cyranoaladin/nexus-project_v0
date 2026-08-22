@@ -259,6 +259,12 @@ export default function OffresPage() {
             <h2 className="mt-2 text-2xl md:text-3xl">Parcours candidats libres</h2>
             <div className="lux-filet-gold mt-3 w-16" />
             <p className="mt-3 text-sm text-lux-slate">Les éléments inclus et les modalités sont détaillés sur chaque offre ci-dessous.</p>
+            <Link
+              href="/devis-bac"
+              className="mt-4 inline-flex min-h-[44px] items-center rounded-lg border-[1.5px] border-lux-ink px-5 py-2.5 text-sm font-semibold text-lux-ink transition-all hover:bg-lux-ink hover:text-lux-ivory lux-focus"
+            >
+              Calculer mon accompagnement personnalisé
+            </Link>
           </div>
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {libreOffers.map((o) => {

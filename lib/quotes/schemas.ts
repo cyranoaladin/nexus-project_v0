@@ -11,6 +11,15 @@
 
 import type { Subject } from '@prisma/client';
 
+/**
+ * Sentinel priority score for lines that must never be dropped by the
+ * optimizer (Pilotage, a matched canonical pack). Deliberately a large
+ * finite number, not Infinity/-Infinity — JSON.stringify silently turns
+ * both into `null`, which would corrupt every API response and DB row
+ * carrying this field.
+ */
+export const ALWAYS_INCLUDED_PRIORITY_SCORE = Number.MAX_SAFE_INTEGER;
+
 export type CandidateLevel = 'premiere' | 'terminale';
 
 export type SubjectId =

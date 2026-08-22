@@ -1,4 +1,5 @@
 import { decideModality, applyGroupAvailability } from '@/lib/quotes/group-availability';
+import { ALWAYS_INCLUDED_PRIORITY_SCORE } from '@/lib/quotes/schemas';
 import type { RecommendedLine } from '@/lib/quotes/schemas';
 
 describe('decideModality — CDC §22 thresholds', () => {
@@ -60,7 +61,7 @@ describe('applyGroupAvailability — never promises a place that does not exist,
       modality: 'PILOTAGE',
       hoursPerMonth: 0,
       unitPriceMonthly: 150,
-      priorityScore: Infinity,
+      priorityScore: ALWAYS_INCLUDED_PRIORITY_SCORE,
       priorityLabel: 'haute',
       reason: 'Socle',
     };

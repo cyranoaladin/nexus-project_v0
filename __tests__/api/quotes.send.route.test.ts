@@ -29,7 +29,7 @@ describe('POST /api/quotes/[id]/send', () => {
 
   test('rejects a non-staff caller with the guard\'s own response', async () => {
     mockRequireAnyRole.mockResolvedValue(new Response('forbidden', { status: 403 }));
-    const res = await POST(makeRequest(), { params: { id: 'quote-1' } });
+    const res = await POST(makeRequest(), { params: Promise.resolve({ id: 'quote-1' }) });
     expect(res.status).toBe(403);
     expect(mockTransition).not.toHaveBeenCalled();
   });
@@ -37,7 +37,7 @@ describe('POST /api/quotes/[id]/send', () => {
   test('staff (ADMIN/ASSISTANTE) can send, transitions to DEVIS_ENVOYE', async () => {
     mockRequireAnyRole.mockResolvedValue({ user: { id: 'staff-1', role: 'ASSISTANTE' } });
     mockTransition.mockResolvedValue({ status: 'DEVIS_ENVOYE', sentAt: new Date() });
-    const res = await POST(makeRequest({ note: 'envoyé par whatsapp' }), { params: { id: 'quote-1' } });
+    const res = await POST(makeRequest({ note: 'envoyé par whatsapp' }), { params: Promise.resolve({ id: 'quote-1' }) });
     expect(res.status).toBe(200);
     expect(mockTransition).toHaveBeenCalledWith(
       expect.objectContaining({ quoteId: 'quote-1', toStatus: 'DEVIS_ENVOYE', actorUserId: 'staff-1' }),
@@ -47,7 +47,7 @@ describe('POST /api/quotes/[id]/send', () => {
   test('an invalid transition (already sent) resolves to 409, not 500', async () => {
     mockRequireAnyRole.mockResolvedValue({ user: { id: 'staff-1', role: 'ADMIN' } });
     mockTransition.mockRejectedValue(new Error('Invalid quote status transition: INSCRIT -> DEVIS_ENVOYE'));
-    const res = await POST(makeRequest(), { params: { id: 'quote-1' } });
+    const res = await POST(makeRequest(), { params: Promise.resolve({ id: 'quote-1' }) });
     expect(res.status).toBe(409);
   });
 });

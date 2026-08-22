@@ -15,6 +15,7 @@ import {
   canConnectToTestDb,
 } from '../setup/test-database';
 import { createQuote, getQuoteByPublicToken, transitionQuoteStatus, reviseQuote } from '@/lib/quotes/persistence.server';
+import { ALWAYS_INCLUDED_PRIORITY_SCORE } from '@/lib/quotes/schemas';
 import type { QuoteScenario } from '@/lib/quotes/schemas';
 
 const prisma = testPrisma;
@@ -28,7 +29,7 @@ const scenario: QuoteScenario = {
       modality: 'PILOTAGE',
       hoursPerMonth: 0,
       unitPriceMonthly: 150,
-      priorityScore: Infinity,
+      priorityScore: ALWAYS_INCLUDED_PRIORITY_SCORE,
       priorityLabel: 'haute',
       reason: 'Socle',
     },

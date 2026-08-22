@@ -15,7 +15,14 @@ import { projectDiagnostic, type RawDomainScores } from './diagnostic';
 import { scoreSubjects } from './priority';
 import { buildIdealRecommendation } from './pricing';
 import { optimizeForBudget } from './optimizer';
-import type { BudgetInput, QuoteScenario, RecommendationResult, ScenarioTier, SituationInput } from './schemas';
+import {
+  ALWAYS_INCLUDED_PRIORITY_SCORE,
+  type BudgetInput,
+  type QuoteScenario,
+  type RecommendationResult,
+  type ScenarioTier,
+  type SituationInput,
+} from './schemas';
 
 const SCENARIO_TIER_BY_STRATEGY: Record<BudgetInput['strategy'], ScenarioTier> = {
   RESPECT_BUDGET: 'ESSENTIEL',
@@ -106,7 +113,7 @@ export function buildRecommendation(input: BuildRecommendationInput): Recommenda
             modality: 'PACK',
             hoursPerMonth: null,
             unitPriceMonthly: pack.monthlyPrice,
-            priorityScore: Number.POSITIVE_INFINITY,
+            priorityScore: ALWAYS_INCLUDED_PRIORITY_SCORE,
             priorityLabel: 'haute',
             reason: `Ce parcours combiné (${pack.monthlyPrice} TND/mois) couvre les mêmes besoins que la somme des modules équivalents (${optimized.monthlyTotal} TND/mois) pour un tarif identique ou inférieur.`,
             offerId: pack.offerId,
