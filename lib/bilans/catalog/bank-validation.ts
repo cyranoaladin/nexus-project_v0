@@ -27,6 +27,11 @@ export type SourceBank = Readonly<{
   version: number;
   status: string;
   targetDurationMin: number;
+  delivery?: Readonly<{
+    online: boolean;
+    paperEntry: boolean;
+    fixedPaperForm: boolean;
+  }>;
   items: readonly Readonly<{
     id: string;
     nodeCpsId: string;
@@ -77,6 +82,12 @@ function failure(
   return Object.freeze({ slug: bank.slug, rule, path, message });
 }
 
+function isFixedPaperOnlyForm(bank: SourceBank): boolean {
+  return bank.delivery?.fixedPaperForm === true
+    && bank.delivery.online === false
+    && bank.delivery.paperEntry === true;
+}
+
 export function validateBankSource(bank: SourceBank, catalog: CpsCatalog): BankValidationFailure[] {
   const failures: BankValidationFailure[] = [];
   const ids = new Set<string>();
@@ -84,6 +95,15 @@ export function validateBankSource(bank: SourceBank, catalog: CpsCatalog): BankV
   const catalogIds = new Set(catalog.nodes.map(({ id }) => id));
   const correctPositions: number[] = [];
   const forbiddenTerms = Object.values(lexique.categories).flat();
+
+  if (bank.delivery?.fixedPaperForm === true && !isFixedPaperOnlyForm(bank)) {
+    failures.push(failure(
+      bank,
+      'V14',
+      '$.delivery',
+      'fixedPaperForm requires online=false and paperEntry=true',
+    ));
+  }
 
   if (catalog.nodes.length !== catalogIds.size) {
     failures.push(failure(bank, 'V2', '$.catalog.nodes', 'CPS_NODE_ID_DUPLICATE'));
@@ -164,9 +184,16 @@ export function validateBankSource(bank: SourceBank, catalog: CpsCatalog): BankV
   if (totalSeconds > bank.targetDurationMin * 60) {
     failures.push(failure(bank, 'V11', '$.targetDurationMin', `${totalSeconds}s exceeds ${bank.targetDurationMin * 60}s`));
   }
-  for (const [position, count] of correctPositions.entries()) {
-    if (count * 100 > bank.items.length * 40) {
-      failures.push(failure(bank, 'V14', '$.items', `correct answer position ${String.fromCharCode(65 + position)}=${count}/${bank.items.length}>40%`));
+
+  // V14 protects interactive/online forms from a biased answer-position pattern.
+  // A fixed paper form is already printed: reordering its A/B/C/D options in the
+  // digital bank would silently break transcription. Such a form is accepted only
+  // when it is explicitly paper-only; all online-capable banks keep the V14 gate.
+  if (!isFixedPaperOnlyForm(bank)) {
+    for (const [position, count] of correctPositions.entries()) {
+      if (count * 100 > bank.items.length * 40) {
+        failures.push(failure(bank, 'V14', '$.items', `correct answer position ${String.fromCharCode(65 + position)}=${count}/${bank.items.length}>40%`));
+      }
     }
   }
   return failures;
