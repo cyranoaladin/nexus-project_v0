@@ -117,4 +117,48 @@ describe('POST /api/quotes (create)', () => {
       true,
     );
   });
+
+  describe('staff path (existingContactLeadId)', () => {
+    const staffBody = {
+      idempotencyKey: 'idem-key-staff-0001',
+      situation: validBody.situation,
+      budget: validBody.budget,
+      scenarioTier: 'RECOMMANDE',
+      existingContactLeadId: 'lead-existing-1',
+    };
+
+    test('rejects existingContactLeadId with no session at all', async () => {
+      mockRequireAuth.mockResolvedValue(new Response('unauthorized', { status: 401 }));
+      const res = await POST(makeRequest(staffBody));
+      expect(res.status).toBe(401);
+      expect(mockCreateQuote).not.toHaveBeenCalled();
+    });
+
+    test('rejects existingContactLeadId from a non-staff role (e.g. PARENT)', async () => {
+      mockRequireAuth.mockResolvedValue({ user: { id: 'parent-1', role: 'PARENT' } });
+      const res = await POST(makeRequest(staffBody));
+      expect(res.status).toBe(403);
+      expect(mockCreateQuote).not.toHaveBeenCalled();
+    });
+
+    test('ASSISTANTE can create a quote for an existing lead without re-capturing PII', async () => {
+      mockRequireAuth.mockResolvedValue({ user: { id: 'staff-1', role: 'ASSISTANTE' } });
+      const res = await POST(makeRequest(staffBody));
+      expect(res.status).toBe(200);
+      expect(mockCaptureLead).not.toHaveBeenCalled();
+      expect(mockCreateQuote).toHaveBeenCalledWith(
+        expect.objectContaining({
+          contactLeadId: 'lead-existing-1',
+          source: 'STAFF_WORKSPACE',
+          createdByUserId: 'staff-1',
+        }),
+      );
+    });
+
+    test('rejects a payload with neither contact nor existingContactLeadId', async () => {
+      const { contact: _contact, ...withoutContact } = validBody;
+      const res = await POST(makeRequest(withoutContact));
+      expect(res.status).toBe(400);
+    });
+  });
 });

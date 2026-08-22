@@ -38,10 +38,17 @@ const requestSchema = z
     diagnosticId: z.string().trim().min(1).max(80).optional(),
     budget: budgetSchema,
     scenarioTier: z.enum(['ESSENTIEL', 'RECOMMANDE', 'COMPLET']),
-    contact: contactSchema,
+    // Public flow: fresh PII, captured via captureContactLead.
+    contact: contactSchema.optional(),
+    // Staff flow (ADMIN/ASSISTANTE only, verified below): the lead already
+    // exists — no PII re-capture, no consent checkbox to fake.
+    existingContactLeadId: z.string().trim().min(1).max(80).optional(),
     studentId: z.string().trim().min(1).max(80).optional(),
   })
-  .strict();
+  .strict()
+  .refine((v) => v.contact != null || v.existingContactLeadId != null, {
+    message: 'Either contact or existingContactLeadId is required',
+  });
 
 export async function POST(request: Request) {
   const blocked = await guardSensitiveRateLimit(request, {
@@ -63,25 +70,36 @@ export async function POST(request: Request) {
   }
   const input = parsed.data;
 
-  const identityBlocked = await guardSensitiveRateLimit(request, {
-    scope: 'quotes-create',
-    identity: input.contact.email,
-    dimensions: ['identity'],
-  });
-  if (identityBlocked) return identityBlocked;
+  if (input.contact) {
+    const identityBlocked = await guardSensitiveRateLimit(request, {
+      scope: 'quotes-create',
+      identity: input.contact.email,
+      dimensions: ['identity'],
+    });
+    if (identityBlocked) return identityBlocked;
+  }
 
   // studentId is never trusted blindly — a signed-in parent must own it,
   // an ELEVE must be it, and an anonymous caller (no session) may not
   // attach one at all (CDC §43: "ne jamais accepter un studentId
-  // arbitraire sans ownership").
+  // arbitraire sans ownership"). existingContactLeadId is staff-only —
+  // never accepted from an unauthenticated caller.
   let verifiedStudentId: string | undefined;
+  let verifiedStaffUserId: string | undefined;
   let diagnosticDomainScores: RawDomainScores | null = null;
   let overconfidentDomainKeys: Set<string> | undefined;
 
-  if (input.studentId || input.diagnosticId) {
+  if (input.studentId || input.diagnosticId || input.existingContactLeadId) {
     const session = await requireAuth();
     if (isErrorResponse(session)) {
       return NextResponse.json({ error: 'ownership_verification_required' }, { status: 401 });
+    }
+
+    if (input.existingContactLeadId) {
+      if (session.user.role !== UserRole.ADMIN && session.user.role !== UserRole.ASSISTANTE) {
+        return NextResponse.json({ error: 'forbidden' }, { status: 403 });
+      }
+      verifiedStaffUserId = session.user.id;
     }
 
     if (input.studentId) {
@@ -132,31 +150,37 @@ export async function POST(request: Request) {
   }
 
   let contactLeadId: string;
-  try {
-    const lead = await captureContactLead({
-      name: input.contact.parentName,
-      email: input.contact.email,
-      phone: input.contact.whatsapp,
-      profile: 'candidat_individuel',
-      interest: `Devis Bac ${input.situation.level === 'premiere' ? 'Première' : 'Terminale'} — ${input.contact.studentFirstName}`,
-      source: 'devis-bac',
-      notes: `Scénario retenu: ${scenario.tier} — ${scenario.monthlyTotal} TND/mois`,
-      type: 'contact',
-      consent: true,
-    });
-    contactLeadId = lead.id;
-  } catch (error) {
-    if (error instanceof ContactLeadValidationError) {
-      return NextResponse.json({ error: error.code }, { status: 400 });
+  if (verifiedStaffUserId && input.existingContactLeadId) {
+    contactLeadId = input.existingContactLeadId;
+  } else if (input.contact) {
+    try {
+      const lead = await captureContactLead({
+        name: input.contact.parentName,
+        email: input.contact.email,
+        phone: input.contact.whatsapp,
+        profile: 'candidat_individuel',
+        interest: `Devis Bac ${input.situation.level === 'premiere' ? 'Première' : 'Terminale'} — ${input.contact.studentFirstName}`,
+        source: 'devis-bac',
+        notes: `Scénario retenu: ${scenario.tier} — ${scenario.monthlyTotal} TND/mois`,
+        type: 'contact',
+        consent: true,
+      });
+      contactLeadId = lead.id;
+    } catch (error) {
+      if (error instanceof ContactLeadValidationError) {
+        return NextResponse.json({ error: error.code }, { status: 400 });
+      }
+      console.error('[quotes/create] lead capture error', serializeError(error));
+      return NextResponse.json({ error: 'lead_capture_failed' }, { status: 500 });
     }
-    console.error('[quotes/create] lead capture error', serializeError(error));
-    return NextResponse.json({ error: 'lead_capture_failed' }, { status: 500 });
+  } else {
+    return NextResponse.json({ error: 'invalid_payload' }, { status: 400 });
   }
 
   try {
     const result = await createQuote({
       idempotencyKey: input.idempotencyKey,
-      source: 'PUBLIC_SIMULATOR',
+      source: verifiedStaffUserId ? 'STAFF_WORKSPACE' : 'PUBLIC_SIMULATOR',
       contactLeadId,
       studentId: verifiedStudentId,
       diagnosticId: input.diagnosticId,
@@ -165,6 +189,7 @@ export async function POST(request: Request) {
       budget: input.budget.monthlyBudgetTnd,
       strategy: input.budget.strategy,
       scenario,
+      createdByUserId: verifiedStaffUserId,
     });
 
     return NextResponse.json(
