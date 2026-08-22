@@ -1,0 +1,138 @@
+/**
+ * Top-level orchestration of the quote domain engine (CDC §13/§17/§21).
+ *
+ * Combines exam-profile + diagnostic + priority + pricing + optimizer +
+ * pack-matching into the three scenarios shown to the family: ESSENTIEL
+ * (strict budget), RECOMMANDE (Nexus's balanced pick), COMPLET (the
+ * pedagogically ideal parcours, uncapped). Pure, no React, no DB — every
+ * price comes from lib/pricing.ts, every regulatory fact from
+ * lib/exams/catalog.ts.
+ */
+import { getAnnualOffer, getFullPricingData, type AnnualOffer } from '@/lib/pricing';
+import { requireExamPolicy } from '@/lib/exams/catalog';
+import { buildExamProfile, getExamPolicyVersion } from './exam-profile';
+import { projectDiagnostic, type RawDomainScores } from './diagnostic';
+import { scoreSubjects } from './priority';
+import { buildIdealRecommendation } from './pricing';
+import { optimizeForBudget } from './optimizer';
+import type { BudgetInput, QuoteScenario, RecommendationResult, ScenarioTier, SituationInput } from './schemas';
+
+const SCENARIO_TIER_BY_STRATEGY: Record<BudgetInput['strategy'], ScenarioTier> = {
+  RESPECT_BUDGET: 'ESSENTIEL',
+  BEST_BALANCE: 'RECOMMANDE',
+  MOST_COMPLETE: 'COMPLET',
+};
+
+interface PackMatch {
+  offerId: string;
+  title: string;
+  monthlyPrice: number;
+}
+
+/**
+ * A sur-mesure combination is replaced by a fixed canonical pack when the
+ * pack covers at least the regular hours needed AND costs the same or
+ * less (CDC §21). Never reconstructs a price — only compares canonical
+ * numbers already validated by __tests__/lib/candidat-individuel-pricing.test.ts.
+ */
+export function matchCanonicalPack(
+  level: SituationInput['level'],
+  regularHoursNeeded: number,
+  surMesureMonthlyTotal: number,
+): PackMatch | null {
+  const candidateIds =
+    level === 'premiere'
+      ? ['premiere-libre-cap-anticipees', 'premiere-libre-renforcee']
+      : ['terminale-libre-focus-bac', 'terminale-libre-integrale'];
+
+  const candidates = candidateIds
+    .map((id) => getAnnualOffer(id))
+    .filter((o): o is AnnualOffer => o != null && o.installment_amount != null)
+    .filter((o) => (o.hours_per_month ?? 0) >= regularHoursNeeded)
+    .sort((a, b) => (a.installment_amount ?? 0) - (b.installment_amount ?? 0));
+
+  const best = candidates[0];
+  if (!best || best.installment_amount == null) return null;
+  if (best.installment_amount > surMesureMonthlyTotal) return null;
+
+  return { offerId: best.id, title: best.title, monthlyPrice: best.installment_amount };
+}
+
+export interface BuildRecommendationInput {
+  situation: SituationInput;
+  /** Raw per-domain diagnostic scores, or null when no bilan has been done yet. */
+  diagnosticDomainScores: RawDomainScores | null;
+  overconfidentDomainKeys?: Set<string>;
+  budget: BudgetInput;
+  /** 1-10 (September=1 .. June=10). Defaults to a full year. */
+  monthsRemaining?: number;
+}
+
+export function buildRecommendation(input: BuildRecommendationInput): RecommendationResult {
+  const policy = requireExamPolicy(input.situation.examSession);
+  const profile = buildExamProfile(input.situation);
+  const foundationalSubjects = new Set(
+    profile.filter((p) => p.defaultCandidateForRegularSupport).map((p) => p.subject),
+  );
+  const diagnosticResults = projectDiagnostic(
+    input.situation,
+    input.diagnosticDomainScores ?? {},
+    input.overconfidentDomainKeys,
+  );
+  const priorities = scoreSubjects(profile, diagnosticResults, input.monthsRemaining);
+  const ideal = buildIdealRecommendation(priorities, foundationalSubjects);
+
+  const strategies: BudgetInput['strategy'][] = ['RESPECT_BUDGET', 'BEST_BALANCE', 'MOST_COMPLETE'];
+
+  const scenarios: QuoteScenario[] = strategies.map((strategy) => {
+    const optimized = optimizeForBudget(ideal.lines, input.budget.monthlyBudgetTnd, strategy);
+    const notRecommended = [...ideal.notRecommended, ...optimized.droppedForBudget];
+
+    const regularHoursNeeded = optimized.lines
+      .filter((l) => l.modality === 'GROUPE' && l.hoursPerMonth != null)
+      .reduce((sum, l) => sum + (l.hoursPerMonth ?? 0), 0);
+    const pack = matchCanonicalPack(input.situation.level, regularHoursNeeded, optimized.monthlyTotal);
+
+    if (pack) {
+      const monthlyTotal = pack.monthlyPrice;
+      return {
+        tier: SCENARIO_TIER_BY_STRATEGY[strategy],
+        lines: [
+          {
+            subject: 'pack',
+            label: pack.title,
+            modality: 'PACK',
+            hoursPerMonth: null,
+            unitPriceMonthly: pack.monthlyPrice,
+            priorityScore: Number.POSITIVE_INFINITY,
+            priorityLabel: 'haute',
+            reason: `Ce parcours combiné (${pack.monthlyPrice} TND/mois) couvre les mêmes besoins que la somme des modules équivalents (${optimized.monthlyTotal} TND/mois) pour un tarif identique ou inférieur.`,
+            offerId: pack.offerId,
+          },
+        ],
+        notRecommended,
+        monthlyTotal,
+        grandTotal: monthlyTotal * 10,
+        months: 10,
+        matchedOfferId: pack.offerId,
+      };
+    }
+
+    return {
+      tier: SCENARIO_TIER_BY_STRATEGY[strategy],
+      lines: optimized.lines,
+      notRecommended,
+      monthlyTotal: optimized.monthlyTotal,
+      grandTotal: optimized.monthlyTotal * 10,
+      months: 10,
+      matchedOfferId: null,
+    };
+  });
+
+  return {
+    pricingVersion: getFullPricingData().version,
+    examPolicyVersion: getExamPolicyVersion(policy),
+    examSession: input.situation.examSession,
+    scenarios,
+  };
+}
