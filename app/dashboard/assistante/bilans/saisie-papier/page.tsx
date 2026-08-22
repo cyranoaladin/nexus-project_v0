@@ -110,7 +110,7 @@ export default async function SaisiePapierPage({
 
   const packsForStudent = selected === null
     ? []
-    : listEnabledPacks().filter(({ pack }) => pack.level === selected.gradeLevel);
+    : listEnabledPacks().filter(({ pack }) => pack.level === selected.gradeLevel && pack.delivery.paperEntry);
 
   const chosenPack = packSlug.trim().length > 0
     ? packsForStudent.find(({ pack }) => pack.slug === packSlug) ?? null
