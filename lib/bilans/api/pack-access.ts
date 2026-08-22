@@ -7,18 +7,50 @@ import {
   type BilanPack,
 } from '@/lib/bilans/catalog/load-pack';
 import type { ValidatedPack } from '@/lib/bilans/validators/contracts';
-import { loadWaveManifest } from '@/lib/bilans/catalog/wave-manifest';
+import { loadWaveManifest, type WaveBankEntry } from '@/lib/bilans/catalog/wave-manifest';
 
 import { CanonicalApiError } from './errors';
 
-const ACTIVE_PACK_MANIFEST = 'data/bilans/banks/wave1.manifest.json';
+const STABLE_PACK_MANIFEST = 'data/bilans/banks/wave1.manifest.json';
 
-export function listResolvablePackSlugs(): readonly string[] {
-  return Object.freeze(loadWaveManifest(ACTIVE_PACK_MANIFEST).banks.map(({ slug }) => slug).sort());
+/**
+ * Les vagues additionnelles sont découvertes uniquement quand le pack qui les
+ * porte est explicitement activé. Cela permet d'ajouter une matière sans
+ * rouvrir ni réécrire la vague 1 déjà qualifiée et ses preuves versionnées.
+ */
+const OPTIONAL_PACK_MANIFESTS = Object.freeze([
+  Object.freeze({
+    manifest: 'data/bilans/banks/wave2.manifest.json',
+    activationSlug: 'entree-terminale-maths-complementaires-v1',
+  }),
+] as const);
+
+function catalogEntries(
+  environment: Readonly<Record<string, string | undefined>> = process.env,
+): readonly WaveBankEntry[] {
+  const stable = loadWaveManifest(STABLE_PACK_MANIFEST).banks;
+  const optional = OPTIONAL_PACK_MANIFESTS.flatMap(({ manifest, activationSlug }) => (
+    environment[packFeatureFlagName(activationSlug)] === 'true'
+      ? loadWaveManifest(manifest).banks
+      : []
+  ));
+  const entries = [...stable, ...optional];
+  const slugs = entries.map(({ slug }) => slug);
+  if (new Set(slugs).size !== slugs.length) throw new Error('PACK_CATALOG_DUPLICATE_SLUG');
+  return Object.freeze(entries);
 }
 
-export function resolveCatalogPackPath(slug: string): string | null {
-  return loadWaveManifest(ACTIVE_PACK_MANIFEST).banks.find((entry) => entry.slug === slug)?.output ?? null;
+export function listResolvablePackSlugs(
+  environment: Readonly<Record<string, string | undefined>> = process.env,
+): readonly string[] {
+  return Object.freeze(catalogEntries(environment).map(({ slug }) => slug).sort());
+}
+
+export function resolveCatalogPackPath(
+  slug: string,
+  environment: Readonly<Record<string, string | undefined>> = process.env,
+): string | null {
+  return catalogEntries(environment).find((entry) => entry.slug === slug)?.output ?? null;
 }
 
 type PackActivationCandidate = Readonly<{
@@ -64,7 +96,7 @@ export function resolveEnabledPack(
   version?: number,
   environment: Readonly<Record<string, string | undefined>> = process.env,
 ): EnabledBilanPack | null {
-  const packPath = resolveCatalogPackPath(slug);
+  const packPath = resolveCatalogPackPath(slug, environment);
   if (packPath === null) return null;
 
   try {
@@ -82,7 +114,7 @@ export function resolveEnabledPack(
 export function listEnabledPacks(
   environment: Readonly<Record<string, string | undefined>> = process.env,
 ): readonly EnabledBilanPack[] {
-  return Object.freeze(listResolvablePackSlugs().flatMap((slug) => {
+  return Object.freeze(listResolvablePackSlugs(environment).flatMap((slug) => {
     const enabled = resolveEnabledPack(slug, undefined, environment);
     return enabled === null ? [] : [enabled];
   }));
