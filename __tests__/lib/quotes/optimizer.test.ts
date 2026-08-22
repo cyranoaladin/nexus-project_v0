@@ -1,4 +1,5 @@
 import { optimizeForBudget, BEST_BALANCE_OVERFLOW_TOLERANCE_PCT } from '@/lib/quotes/optimizer';
+import { ALWAYS_INCLUDED_PRIORITY_SCORE } from '@/lib/quotes/schemas';
 import type { RecommendedLine } from '@/lib/quotes/schemas';
 
 const pilotage: RecommendedLine = {
@@ -7,7 +8,7 @@ const pilotage: RecommendedLine = {
   modality: 'PILOTAGE',
   hoursPerMonth: 0,
   unitPriceMonthly: 150,
-  priorityScore: Infinity,
+  priorityScore: ALWAYS_INCLUDED_PRIORITY_SCORE,
   priorityLabel: 'haute',
   reason: 'Socle',
 };

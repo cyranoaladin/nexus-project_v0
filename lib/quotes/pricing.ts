@@ -7,7 +7,7 @@
  */
 import { getCandidatIndividuelModules, getRules } from '@/lib/pricing';
 import type { SubjectPriority } from './priority';
-import type { NotRecommendedSubject, RecommendedLine } from './schemas';
+import { ALWAYS_INCLUDED_PRIORITY_SCORE, type NotRecommendedSubject, type RecommendedLine } from './schemas';
 
 /**
  * Priority -> hour volume decision table. A documented, centralized
@@ -70,7 +70,7 @@ export function buildIdealRecommendation(
       modality: 'PILOTAGE',
       hoursPerMonth: 0,
       unitPriceMonthly: modules.pilotage.price_monthly,
-      priorityScore: Number.POSITIVE_INFINITY, // always included, never dropped by the optimizer
+      priorityScore: ALWAYS_INCLUDED_PRIORITY_SCORE,
       priorityLabel: 'haute',
       reason: 'Cadrage stratégique, calendrier et suivi — socle de tout parcours candidat individuel.',
     },

@@ -14,11 +14,12 @@ import { serializeError } from '@/lib/utils/serialize-error';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET(request: NextRequest, { params }: { params: { token: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ token: string }> }) {
   const blocked = await guardSensitiveRateLimit(request, { scope: 'quotes-public-read', dimensions: ['ip'] });
   if (blocked) return blocked;
 
-  const token = params.token?.trim();
+  const { token: rawToken } = await params;
+  const token = rawToken?.trim();
   if (!token || token.length > 200) {
     return NextResponse.json({ error: 'invalid_token' }, { status: 400 });
   }

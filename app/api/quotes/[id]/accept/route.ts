@@ -13,7 +13,9 @@ export const dynamic = 'force-dynamic';
 
 const bodySchema = z.object({ token: z.string().trim().min(1).max(200) }).strict();
 
-export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+
   const blocked = await guardSensitiveRateLimit(request, { scope: 'quotes-accept', dimensions: ['ip'] });
   if (blocked) return blocked;
 
@@ -29,7 +31,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
   }
 
   const { quote } = await getQuoteByPublicToken(parsed.data.token);
-  if (!quote || quote.id !== params.id) {
+  if (!quote || quote.id !== id) {
     // Deliberately the same response whether the token is wrong or just
     // doesn't match this quote id — never confirm which part failed.
     return NextResponse.json({ error: 'invalid_token' }, { status: 404 });

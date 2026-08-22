@@ -14,7 +14,8 @@ export const dynamic = 'force-dynamic';
 
 const bodySchema = z.object({ note: z.string().trim().max(500).optional() }).strict();
 
-export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const session = await requireAnyRole([UserRole.ADMIN, UserRole.ASSISTANTE]);
   if (isErrorResponse(session)) return session;
 
@@ -40,7 +41,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
 
   try {
     const quote = await transitionQuoteStatus({
-      quoteId: params.id,
+      quoteId: id,
       toStatus: 'DEVIS_ENVOYE',
       actorUserId: session.user.id,
       note: parsed.data.note,

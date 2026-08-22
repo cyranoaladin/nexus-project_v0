@@ -22,7 +22,7 @@ describe('GET /api/quotes/public/[token]', () => {
 
   test('returns 404 for a token that does not resolve', async () => {
     mockLookup.mockResolvedValue({ quote: null, reason: 'NOT_FOUND' });
-    const res = await GET(makeRequest('does-not-exist'), { params: { token: 'does-not-exist' } });
+    const res = await GET(makeRequest('does-not-exist'), { params: Promise.resolve({ token: 'does-not-exist' }) });
     expect(res.status).toBe(404);
   });
 
@@ -58,7 +58,7 @@ describe('GET /api/quotes/public/[token]', () => {
     });
     mockTransition.mockResolvedValue({});
 
-    const res = await GET(makeRequest('valid-token'), { params: { token: 'valid-token' } });
+    const res = await GET(makeRequest('valid-token'), { params: Promise.resolve({ token: 'valid-token' }) });
     expect(res.status).toBe(200);
     const json = await res.json();
 
@@ -88,7 +88,7 @@ describe('GET /api/quotes/public/[token]', () => {
     });
     mockTransition.mockResolvedValue({});
 
-    await GET(makeRequest('valid-token'), { params: { token: 'valid-token' } });
+    await GET(makeRequest('valid-token'), { params: Promise.resolve({ token: 'valid-token' }) });
     expect(mockTransition).toHaveBeenCalledWith(
       expect.objectContaining({ quoteId: 'quote-1', toStatus: 'DEVIS_CONSULTE' }),
     );
@@ -113,13 +113,13 @@ describe('GET /api/quotes/public/[token]', () => {
     });
     mockTransition.mockRejectedValue(new Error('boom'));
 
-    const res = await GET(makeRequest('valid-token'), { params: { token: 'valid-token' } });
+    const res = await GET(makeRequest('valid-token'), { params: Promise.resolve({ token: 'valid-token' }) });
     expect(res.status).toBe(200);
   });
 
   test('sets Cache-Control: private, no-store', async () => {
     mockLookup.mockResolvedValue({ quote: null, reason: 'NOT_FOUND' });
-    const res = await GET(makeRequest('x'), { params: { token: 'x' } });
+    const res = await GET(makeRequest('x'), { params: Promise.resolve({ token: 'x' }) });
     expect(res.headers.get('Cache-Control')).toMatch(/no-store/);
   });
 });

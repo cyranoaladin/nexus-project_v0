@@ -68,6 +68,8 @@ const MIGRATED_PUBLIC_PAGES = [
   'app/recommandation/page.tsx',
   'app/recommandation/RecommandationClient.tsx',
   'app/equipe/page.tsx',
+  'app/devis-bac/page.tsx',
+  'app/devis/[token]/page.tsx',
 ];
 
 // Public shared components (chrome) already migrated
