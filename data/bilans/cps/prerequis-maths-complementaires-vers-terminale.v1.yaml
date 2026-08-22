@@ -1,0 +1,59 @@
+# Catalogue CPS — prérequis et bridge vers Terminale, mathématiques complémentaires
+schemaVersion: nexus-cps-catalog/v1
+slug: prerequis-maths-complementaires-vers-terminale-v1
+version: 1
+nodes:
+- id: 1re.maths-complementaires-prerequis.suites.modeles-discrets
+  label: Suites et modèles d’évolution discrets
+  sourceLevel: PREMIERE
+  targetLevel: TERMINALE
+  sequenceOrder: 1
+  pedagogicalRationale: Les suites et les évolutions multiplicatives de Première structurent les modèles discrets mobilisés dès le début de mathématiques complémentaires.
+- id: 1re.maths-complementaires-prerequis.derivation.variations-fonctions
+  label: 'Dérivation : variations et comportement des fonctions'
+  sourceLevel: PREMIERE
+  targetLevel: TERMINALE
+  sequenceOrder: 2
+  pedagogicalRationale: Le lien entre dérivée, sens de variation et comportement des fonctions est indispensable pour exploiter des modèles fonctionnels en Terminale.
+- id: 1re.maths-complementaires-prerequis.derivation.nombre-derive-formules
+  label: 'Dérivation : nombre dérivé et formules usuelles'
+  sourceLevel: PREMIERE
+  targetLevel: TERMINALE
+  sequenceOrder: 3
+  pedagogicalRationale: Lire un nombre dérivé et appliquer les formules de dérivation usuelles conditionnent les études de fonctions et les optimisations de Terminale.
+- id: 1re.maths-complementaires-prerequis.exponentielle.regles-image
+  label: 'Fonction exponentielle : règles de calcul et image'
+  sourceLevel: PREMIERE
+  targetLevel: TERMINALE
+  sequenceOrder: 4
+  pedagogicalRationale: La positivité et les règles algébriques de l’exponentielle sont des prérequis directs pour les modèles de croissance et de décroissance.
+- id: terminale.maths-complementaires.exponentielle.logarithme-familiarisation
+  label: 'Logarithme : familiarisation avant installation en Terminale'
+  sourceLevel: TERMINALE
+  targetLevel: TERMINALE
+  sequenceOrder: 5
+  pedagogicalRationale: Ces deux items sondent uniquement une éventuelle familiarité avec le logarithme avant son installation en Terminale ; ils ne doivent jamais être interprétés comme une lacune de Première.
+- id: 1re.maths-complementaires-prerequis.second-degre.signe-racines
+  label: 'Second degré : racines et signe d’un trinôme'
+  sourceLevel: PREMIERE
+  targetLevel: TERMINALE
+  sequenceOrder: 6
+  pedagogicalRationale: Le signe d’un trinôme et l’existence de racines interviennent dans l’étude de variations, d’inéquations et de modèles fonctionnels en Terminale.
+- id: 1re.maths-complementaires-prerequis.probabilites.conditionnement-independance
+  label: Probabilités conditionnelles et indépendance
+  sourceLevel: PREMIERE
+  targetLevel: TERMINALE
+  sequenceOrder: 7
+  pedagogicalRationale: Le conditionnement et l’indépendance sont nécessaires pour raisonner sur des tests, des arbres et des situations probabilistes plus élaborées.
+- id: 1re.maths-complementaires-prerequis.probabilites.variables-aleatoires-esperance
+  label: Variables aléatoires, loi binomiale et espérance
+  sourceLevel: PREMIERE
+  targetLevel: TERMINALE
+  sequenceOrder: 8
+  pedagogicalRationale: L’espérance et le modèle binomial fournissent le socle des répétitions d’expériences et des raisonnements probabilistes de Terminale.
+- id: 1re.maths-complementaires-prerequis.pourcentages.evolutions-successives
+  label: Pourcentages et évolutions successives
+  sourceLevel: PREMIERE
+  targetLevel: TERMINALE
+  sequenceOrder: 9
+  pedagogicalRationale: Les coefficients multiplicateurs et taux d’évolution sont indispensables pour modéliser des phénomènes économiques, démographiques et scientifiques.
