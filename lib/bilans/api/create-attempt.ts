@@ -35,6 +35,10 @@ const SUBJECTS: Readonly<Record<string, Subject>> = {
   MATHS: 'MATHEMATIQUES',
   MATHEMATIQUES: 'MATHEMATIQUES',
   MATHS_EXPERTES: 'MATHS_EXPERTES',
+  // L'option « maths complémentaires » reste stockée sous la discipline large
+  // MATHEMATIQUES ; l'identité exacte est portée par assessmentPackId/version.
+  // On évite ainsi d'élargir l'enum Prisma Subject à une option de programme.
+  MATHS_COMPLEMENTAIRES: 'MATHEMATIQUES',
   NSI: 'NSI',
   FRANCAIS: 'FRANCAIS',
   PHILOSOPHIE: 'PHILOSOPHIE',
