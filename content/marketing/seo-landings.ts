@@ -105,12 +105,12 @@ export const seoLandings = {
     ],
     relatedLinks: relatedLinksFor('/candidat-libre-bac-francais'),
     offerRefs: [
-      { type: 'annual', id: '1re-libre-essentiel' },
-      { type: 'annual', id: '1re-libre-accomp' },
-      { type: 'annual', id: 'term-libre-online' },
-      { type: 'annual', id: 'term-libre-mixte' },
-      { type: 'annual', id: 'term-libre-premium' },
-      { type: 'pack', id: 'pass-candidat-libre' },
+      { type: 'annual', id: 'libre-pilotage' },
+      { type: 'annual', id: 'libre-sur-mesure' },
+      { type: 'annual', id: 'premiere-libre-cap-anticipees' },
+      { type: 'annual', id: 'premiere-libre-renforcee' },
+      { type: 'annual', id: 'terminale-libre-focus-bac' },
+      { type: 'annual', id: 'terminale-libre-integrale' },
     ],
     faq: [
       {
@@ -195,9 +195,8 @@ export const seoLandings = {
       { type: 'annual', id: '1re-double-secu' },
       { type: 'annual', id: 'term-duo' },
       { type: 'annual', id: 'term-excellence' },
-      { type: 'annual', id: 'term-libre-mixte' },
+      { type: 'annual', id: 'terminale-libre-focus-bac' },
       { type: 'pack', id: 'pass-intensifs-term' },
-      { type: 'pack', id: 'pass-candidat-libre' },
     ],
     faq: [
       {
@@ -284,7 +283,7 @@ export const seoLandings = {
     offerRefs: [
       { type: 'ponctuel', id: 'cap-eaf' },
       { type: 'annual', id: '1re-eaf' },
-      { type: 'annual', id: '1re-libre-accomp' },
+      { type: 'annual', id: 'premiere-libre-cap-anticipees' },
       { type: 'pack', id: 'pass-cap-bac-1re' },
     ],
     faq: [
@@ -371,7 +370,7 @@ export const seoLandings = {
     offerRefs: [
       { type: 'ponctuel', id: 'studio-grand-oral' },
       { type: 'annual', id: 'term-duo' },
-      { type: 'annual', id: 'term-libre-mixte' },
+      { type: 'annual', id: 'terminale-libre-focus-bac' },
       { type: 'pack', id: 'pass-go-sprint' },
     ],
     faq: [

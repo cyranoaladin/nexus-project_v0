@@ -50,6 +50,12 @@ export interface Rules {
     global_cap_pct: number;
     note: string;
   };
+  /** Bounded Grand Oral prep policy — no offer may promise unlimited hours. */
+  grand_oral_policy: {
+    included_sessions: number;
+    session_duration_minutes: number;
+    applies_to_offer_ids: string[];
+  };
 }
 
 export interface AnnualOffer {
@@ -59,10 +65,22 @@ export interface AnnualOffer {
   audience?: string[];
   /** Controls how pricing renders: 'monthly_first' (default for tutorat), 'annual' (plateforme) */
   pricing_display?: 'monthly_first' | 'annual';
+  /**
+   * Effectif family for group-size invariants. 'candidat_individuel' allows
+   * group_max up to 6 (min 3); every other offer (default 'standard') stays
+   * capped at 5. See __tests__/lib/business-model-invariants.test.ts.
+   */
+  effectif_family?: 'standard' | 'candidat_individuel';
+  /** 'fixed' (default) shows the price as-is; 'from' prefixes it with "dès". */
+  price_qualifier?: 'fixed' | 'from';
   title: string;
   subjects: string;
   hours_per_week: number | null;
   hours_per_year: number | null;
+  /** Monthly hour envelope for candidat individuel offers (September→June cadence). */
+  hours_per_month?: number | null;
+  /** True when hours_per_month is a ceiling ("jusqu'à"), not a committed weekly volume. */
+  hours_per_month_is_ceiling?: boolean;
   group_max: number | null;
   group_min_open: number | null;
   price_annual: number | null;
@@ -150,6 +168,35 @@ export interface Pack {
   deposit_deductible_to_annual: boolean;
   deposit_carryover: boolean;
   payment: { deposit: number; solde_schedule: number[] };
+}
+
+/** Modular building blocks for the "sur mesure" candidat individuel devis engine. */
+export interface CandidatIndividuelModules {
+  min_group_open: number;
+  max_group_size: number;
+  pilotage: { id: string; title: string; price_monthly: number };
+  petit_groupe: Array<{
+    hours_per_month: number;
+    price_per_student_monthly: number;
+    group_min_open: number;
+    group_max: number;
+  }>;
+  duo: { price_per_hour_per_student: number };
+  individuel: { price_per_hour_min: number; floor_type: string };
+}
+
+/** A program without a fixed price — devis-only, subject to eligibility review. */
+export interface IndicativeProgram {
+  id: string;
+  level: string;
+  track: string;
+  title: string;
+  subtitle: string;
+  pricing_display: 'devis';
+  price_monthly_min: number;
+  price_monthly_max: number;
+  eligibility_requires_human_review: boolean;
+  depends_on: string[];
 }
 
 export interface CarteNexus {
@@ -286,6 +333,8 @@ export interface PricingData {
   ponctuel_offers: PonctuelOffer[];
   coaching: CoachingOffer[];
   packs: Pack[];
+  candidat_individuel_modules: CandidatIndividuelModules;
+  indicative_programs: IndicativeProgram[];
   special_programs: SpecialProgram[];
   pre_rentree_packs: PreRentreePack[];
   pre_rentree_foundations: PreRentreeFoundationsProduct[];
@@ -498,6 +547,18 @@ export function getPacks(): Pack[] {
 
 export function getPack(id: string): Pack | undefined {
   return data.packs.find((p) => p.id === id);
+}
+
+export function getCandidatIndividuelModules(): CandidatIndividuelModules {
+  return data.candidat_individuel_modules;
+}
+
+export function getIndicativePrograms(): IndicativeProgram[] {
+  return data.indicative_programs;
+}
+
+export function getIndicativeProgram(id: string): IndicativeProgram | undefined {
+  return data.indicative_programs.find((p) => p.id === id);
 }
 
 export function getCarte(): CarteNexus {

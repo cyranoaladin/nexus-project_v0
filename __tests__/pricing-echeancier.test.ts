@@ -96,11 +96,12 @@ describe('Échéancier integrity', () => {
   });
 
   describe('effectif invariants', () => {
-    test('no group_max > 5 in any offer', () => {
+    test('no group_max > 5 in any offer, except candidat individuel family (<= 6)', () => {
       const all = getAllOffers();
       for (const o of all) {
         if (o.group_max != null) {
-          expect(o.group_max).toBeLessThanOrEqual(5);
+          const max = o.effectif_family === 'candidat_individuel' ? 6 : 5;
+          expect(o.group_max).toBeLessThanOrEqual(max);
         }
       }
     });
