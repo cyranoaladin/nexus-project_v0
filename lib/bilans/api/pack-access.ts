@@ -27,6 +27,8 @@ type PackActivationCandidate = Readonly<{
   review: Readonly<{ validatedBy: string | null; validatedAt: string | null }>;
 }>;
 
+export type PackDeliveryChannel = 'online' | 'paperEntry';
+
 export type EnabledBilanPack = Readonly<{
   pack: BilanPack;
   validatedPack: ValidatedPack;
@@ -57,6 +59,18 @@ export function isPackEnabled(
     && pack.review.validatedAt.trim().length > 0
     && environment[packFeatureFlagName(pack.slug)] === 'true'
   );
+}
+
+export function isPackDeliveryEnabled(pack: BilanPack, channel: PackDeliveryChannel): boolean {
+  return pack.delivery[channel];
+}
+
+export function assertPackDeliveryEnabled(
+  enabled: EnabledBilanPack,
+  channel: PackDeliveryChannel,
+): EnabledBilanPack {
+  if (!isPackDeliveryEnabled(enabled.pack, channel)) throw CanonicalApiError.notFound();
+  return enabled;
 }
 
 export function resolveEnabledPack(
