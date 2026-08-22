@@ -1,0 +1,58 @@
+schemaVersion: nexus-cps-catalog/v1
+slug: 1re-maths-vers-terminale-complementaires-v1
+version: 1
+nodes:
+  - id: 1re.maths-complementaires.suites.modele-affine-seuil
+    sequenceOrder: 1
+    label: "Suites, modèles d’évolution et recherche de seuil"
+    sourceLevel: PREMIERE
+    targetLevel: TERMINALE
+    pedagogicalRationale: "Le programme de mathématiques complémentaires s’appuie sur la spécialité de Première. Les suites et les évolutions à taux constant sont réinvesties dans les modèles d’évolution ; la notion de limite est abordée intuitivement en Première et approfondie en Terminale."
+  - id: 1re.maths-complementaires.derivation.extremum-tangente
+    sequenceOrder: 2
+    label: "Dérivation : extremums et tangente"
+    sourceLevel: PREMIERE
+    targetLevel: TERMINALE
+    pedagogicalRationale: "Le nombre dérivé comme coefficient directeur, le signe de la dérivée et les variations sont des automatismes de Première indispensables aux modèles définis par une fonction d’une variable."
+  - id: 1re.maths-complementaires.fonctions.produit-et-exponentielle
+    sequenceOrder: 3
+    label: "Calcul sur les fonctions : produit et exponentielle"
+    sourceLevel: PREMIERE
+    targetLevel: TERMINALE
+    pedagogicalRationale: "La dérivation d’un produit et les propriétés algébriques de l’exponentielle sont des techniques de Première réinvesties dans l’étude des fonctions et des modèles d’évolution."
+  - id: 1re.maths-complementaires.exponentielle.positivite-variations
+    sequenceOrder: 4
+    label: "Exponentielle : image, positivité et variations"
+    sourceLevel: PREMIERE
+    targetLevel: TERMINALE
+    pedagogicalRationale: "La stricte positivité et le sens de variation des fonctions exponentielles prolongent directement le travail de Première et préparent les modèles continus de Terminale."
+  - id: terminale.maths-complementaires.logarithme.proprietes-inequations
+    sequenceOrder: 5
+    label: "Pont vers la Terminale : logarithme, propriétés et inéquations"
+    sourceLevel: TERMINALE
+    targetLevel: TERMINALE
+    pedagogicalRationale: "Le logarithme népérien est une connaissance nouvelle de mathématiques complémentaires, introduite comme réciproque de l’exponentielle étudiée en Première. Ces deux items sont donc des items de pont diagnostique et ne doivent jamais être interprétés comme un prérequis déjà exigible en fin de Première."
+  - id: 1re.maths-complementaires.second-degre.signe-solutions
+    sequenceOrder: 6
+    label: "Second degré : signe et solutions réelles"
+    sourceLevel: PREMIERE
+    targetLevel: TERMINALE
+    pedagogicalRationale: "Le second degré reste un outil de calcul et de lecture de signe utile pour l’étude de fonctions et les problèmes d’optimisation, même lorsqu’il n’est plus un chapitre autonome."
+  - id: terminale.maths-complementaires.probabilites.independance-bayes
+    sequenceOrder: 7
+    label: "Probabilités : indépendance et pont vers l’inférence bayésienne"
+    sourceLevel: TERMINALE
+    targetLevel: TERMINALE
+    pedagogicalRationale: "L’indépendance et les probabilités conditionnelles réactivent la Première ; l’inversion d’un conditionnement et l’inférence bayésienne constituent un thème explicite de mathématiques complémentaires. L’item de dépistage est donc un pont diagnostique, pas une exigence de fin de Première."
+  - id: terminale.maths-complementaires.esperance.binomiale-jeu
+    sequenceOrder: 8
+    label: "Variables aléatoires : espérance et pont vers la loi binomiale"
+    sourceLevel: TERMINALE
+    targetLevel: TERMINALE
+    pedagogicalRationale: "L’espérance d’une variable aléatoire discrète réactive la Première ; le schéma de Bernoulli et la loi binomiale sont des contenus de mathématiques complémentaires. La question binomiale sert de repère de départ et ne doit pas être présentée comme un prérequis déjà enseigné."
+  - id: 1re.maths-complementaires.evolutions.taux-successifs
+    sequenceOrder: 9
+    label: "Évolutions : taux, coefficients multiplicateurs et évolutions successives"
+    sourceLevel: PREMIERE
+    targetLevel: TERMINALE
+    pedagogicalRationale: "Les taux d’évolution, coefficients multiplicateurs et évolutions successives sont des automatismes nécessaires aux modèles économiques, démographiques et financiers mobilisés dans l’option."
