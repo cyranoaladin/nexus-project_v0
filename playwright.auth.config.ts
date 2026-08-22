@@ -17,7 +17,6 @@ export default defineConfig({
     'dialog-all-roles-proof.spec.ts',
     'parent-subscription-sale-closed.spec.ts',
     'assistante-subscription-approval-invariants.spec.ts',
-    'assistante-devis-catalog.spec.ts',
     'initial-student-activation.spec.ts',
     'canonical-attempt-level-guard.spec.ts',
     'parent-canonical-report-access.spec.ts',

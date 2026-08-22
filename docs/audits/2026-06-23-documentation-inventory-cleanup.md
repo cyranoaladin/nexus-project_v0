@@ -30,7 +30,7 @@ Le dépôt contenait plusieurs familles documentaires : guides opérationnels ac
 - Supprimer les tombstones tarifaires remplacés par la procédure canonique.
 - Conserver `docs/PROCEDURE_Integration_pricing_canonical.md`, car c'est la procédure active pour le catalogue.
 - Conserver les audits datés et rapports sécurité pour preuve historique.
-- Ne pas supprimer `src/static-pages/assistante-devis-v3/`, car des routes applicatives actives le servent encore.
+- ~~Ne pas supprimer `src/static-pages/assistante-devis-v3/`~~ — **obsolète** : le tunnel candidat individuel (`feat/candidat-individuel-pricing-devis-v2`) a remplacé `/dashboard/assistante/devis` par une interface React typée (`components/dashboard/assistante/DevisWorkspace.tsx`) consommant `lib/quotes/*`. L'outil statique, ses routes de service (`app/dashboard/assistante/devis/app`, `assets/[file]`) et `lib/assistante-devis-catalog.ts` ont été supprimés.
 - Ne pas supprimer `Nexus_Reussite_Accueil.html`, car `next.config.mjs` le référence encore.
 
 ## Fichiers supprimés
