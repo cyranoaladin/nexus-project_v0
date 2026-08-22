@@ -34,6 +34,9 @@ const requestSchema = z.object({ packSlug: z.string().min(1) }).strict();
 const SUBJECTS: Readonly<Record<string, Subject>> = {
   MATHS: 'MATHEMATIQUES',
   MATHEMATIQUES: 'MATHEMATIQUES',
+  // Le domaine Prisma historique ne distingue pas l'option complémentaire.
+  // L'identité fine reste portée par assessmentPackId/curriculumId et par le pack.
+  MATHS_COMPLEMENTAIRES: 'MATHEMATIQUES',
   MATHS_EXPERTES: 'MATHS_EXPERTES',
   NSI: 'NSI',
   FRANCAIS: 'FRANCAIS',
