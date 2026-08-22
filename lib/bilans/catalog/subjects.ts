@@ -1,5 +1,6 @@
 export const BILAN_PACK_SUBJECTS = [
   'MATHS',
+  'MATHS_COMPLEMENTAIRES',
   'MATHS_EXPERTES',
   'NSI',
   'FRANCAIS',
@@ -15,6 +16,7 @@ export type BilanPackSubject = (typeof BILAN_PACK_SUBJECTS)[number];
 
 export const BILAN_PACK_SUBJECT_LABELS: Readonly<Record<BilanPackSubject, string>> = Object.freeze({
   MATHS: 'Mathématiques',
+  MATHS_COMPLEMENTAIRES: 'Mathématiques complémentaires',
   MATHS_EXPERTES: 'Mathématiques expertes',
   NSI: 'NSI',
   FRANCAIS: 'Français',
