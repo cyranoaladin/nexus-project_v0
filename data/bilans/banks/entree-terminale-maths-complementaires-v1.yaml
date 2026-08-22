@@ -1,0 +1,503 @@
+# Banque de positionnement — Mathématiques complémentaires, entrée en Terminale
+# Source pédagogique : test papier Nexus Réussite, session 2026 (18 QCM, 25 min).
+# Les identifiants d'options A/B/C/D sont ceux de la copie imprimée.
+# L'ordre du tableau `options` est volontairement équilibré pour le garde-fou V14 ;
+# l'écran de saisie papier rétablit l'ordre imprimé par identifiant stable A→D.
+#
+# Q9–Q10 portent sur le logarithme : ce sont des items de familiarisation/bridge
+# vers la Terminale, et non des prérequis de Première dans le programme 2019.
+# Q14 conserve fidèlement le libellé papier de l'option B ; la correction signale
+# explicitement l'incohérence du mot « Non » avec la probabilité calculée (> 50 %).
+slug: entree-terminale-maths-complementaires-v1
+level: TERMINALE
+subject: MATHS_COMPLEMENTAIRES
+version: 1
+status: DRAFT
+targetDurationMin: 25
+items:
+- id: MCO-MAT-SUI-01
+  nodeCpsId: 1re.maths-complementaires-prerequis.suites.modeles-discrets
+  type: QCM_SIMPLE
+  difficulty: 2
+  targetTimeSec: 75
+  statement: Une suite (uₙ) est définie par u₀ = 5 et, pour tout n, uₙ₊₁ = 0,8 uₙ + 3. On admet qu'elle converge. Quelle est sa limite ?
+  options:
+  - key: B
+    label: '15'
+    correct: true
+  - key: A
+    label: '0'
+    correct: false
+    distractorRationale: Confond la limite avec une éventuelle valeur nulle sans utiliser la relation de récurrence.
+  - key: C
+    label: '3'
+    correct: false
+    distractorRationale: Prend le terme ajouté 3 pour la limite sans résoudre l'équation vérifiée par une limite éventuelle.
+  - key: D
+    label: Elle tend vers +∞ car on ajoute 3 à chaque étape
+    correct: false
+    distractorRationale: Raisonne comme pour une suite obtenue par additions successives et oublie le facteur 0,8.
+  shortCorrection: Si la suite converge vers ℓ, alors ℓ = 0,8ℓ + 3. Donc 0,2ℓ = 3 et ℓ = 15.
+  tags:
+  - suites
+  - recurrence
+  - limite
+- id: MCO-MAT-SUI-02
+  nodeCpsId: 1re.maths-complementaires-prerequis.suites.modeles-discrets
+  type: QCM_SIMPLE
+  difficulty: 3
+  targetTimeSec: 90
+  statement: Une population diminue de 12 % par an. Au bout de combien d'années aura-t-elle perdu au moins la moitié de son effectif ?
+  options:
+  - key: A
+    label: 4 ans
+    correct: false
+    distractorRationale: 'Sous-estime le nombre d''années : après 4 ans il reste 0,88⁴, soit environ 60 % de l''effectif initial.'
+  - key: B
+    label: 6 ans
+    correct: true
+  - key: C
+    label: 5 ans
+    correct: false
+    distractorRationale: 'S''arrête un an trop tôt : après 5 ans il reste encore environ 52,8 % de l''effectif initial.'
+  - key: D
+    label: 8 ans, car 12 × 8 = 96 % ≈ 100 %
+    correct: false
+    distractorRationale: Additionne les baisses successives alors qu'elles s'appliquent chaque année à un effectif déjà diminué.
+  shortCorrection: 'Après n années, la proportion restante est 0,88ⁿ. On a 0,88⁵ ≈ 0,528 > 0,5 et 0,88⁶ ≈ 0,464 ≤ 0,5 : il faut 6 ans.'
+  tags:
+  - suites
+  - evolution
+  - pourcentages
+- id: MCO-MAT-VAR-01
+  nodeCpsId: 1re.maths-complementaires-prerequis.derivation.variations-fonctions
+  type: QCM_SIMPLE
+  difficulty: 2
+  targetTimeSec: 70
+  statement: Soit f définie sur ℝ par f(x) = x³ − 3x. Que peut-on affirmer en x = 0 ?
+  options:
+  - key: A
+    label: f admet un maximum local
+    correct: false
+    distractorRationale: Attribue un extremum à x = 0 sans étudier le signe de la dérivée de part et d'autre.
+  - key: B
+    label: f admet un minimum local
+    correct: false
+    distractorRationale: Attribue un extremum à x = 0 sans étudier le signe de la dérivée de part et d'autre.
+  - key: C
+    label: f n'admet ni maximum ni minimum local en 0
+    correct: true
+  - key: D
+    label: On ne peut pas conclure sans calculer f″(0)
+    correct: false
+    distractorRationale: Pense qu'une dérivée seconde est nécessaire, alors que f'(0) suffit déjà ici à exclure un extremum.
+  shortCorrection: 'f''(x) = 3x² − 3, donc f''(0) = −3 ≠ 0. Un extremum local intérieur d''une fonction dérivable doit avoir une dérivée nulle : il n''y en a pas en 0.'
+  tags:
+  - derivation
+  - variations
+  - extremum
+- id: MCO-MAT-DER-01
+  nodeCpsId: 1re.maths-complementaires-prerequis.derivation.nombre-derive-formules
+  type: QCM_SIMPLE
+  difficulty: 1
+  targetTimeSec: 45
+  statement: La tangente à la courbe de f au point d'abscisse 2 a pour équation y = −3x + 7. Que vaut f′(2) ?
+  options:
+  - key: A
+    label: '7'
+    correct: false
+    distractorRationale: Confond l'ordonnée à l'origine de la tangente avec son coefficient directeur.
+  - key: B
+    label: '1'
+    correct: false
+    distractorRationale: Choisit une valeur sans relier le nombre dérivé au coefficient directeur de la tangente.
+  - key: D
+    label: −3x + 7
+    correct: false
+    distractorRationale: Donne l'équation entière de la tangente au lieu de son coefficient directeur.
+  - key: C
+    label: −3
+    correct: true
+  shortCorrection: Le nombre dérivé f′(2) est le coefficient directeur de la tangente en x = 2. Dans y = −3x + 7, ce coefficient vaut −3.
+  tags:
+  - derivation
+  - tangente
+  - nombre-derive
+- id: MCO-MAT-DER-02
+  nodeCpsId: 1re.maths-complementaires-prerequis.derivation.nombre-derive-formules
+  type: QCM_SIMPLE
+  difficulty: 2
+  targetTimeSec: 70
+  statement: Soit f(x) = (2x + 1)(x − 3). Quelle est l'expression de f′(x) ?
+  options:
+  - key: B
+    label: 4x − 5
+    correct: true
+  - key: A
+    label: '2'
+    correct: false
+    distractorRationale: Ne dérive que le premier facteur et oublie la formule de dérivation d'un produit.
+  - key: C
+    label: 2x − 6
+    correct: false
+    distractorRationale: Dérive le produit comme si seul x − 3 variait ou développe de façon incomplète.
+  - key: D
+    label: (2)(1) = 2
+    correct: false
+    distractorRationale: Multiplie les dérivées des deux facteurs, ce qui n'est pas la formule de dérivation d'un produit.
+  shortCorrection: Avec u = 2x + 1 et v = x − 3, f' = u'v + uv' = 2(x − 3) + (2x + 1) = 4x − 5.
+  tags:
+  - derivation
+  - produit
+  - calcul
+- id: MCO-MAT-EXP-01
+  nodeCpsId: 1re.maths-complementaires-prerequis.exponentielle.regles-image
+  type: QCM_SIMPLE
+  difficulty: 1
+  targetTimeSec: 45
+  statement: 'Pour tout réel x, l''expression e²ˣ × e⁻ˣ est égale à :'
+  options:
+  - key: A
+    label: e⁻²ˣ
+    correct: false
+    distractorRationale: Soustrait ou change les signes des exposants de façon incorrecte.
+  - key: B
+    label: eˣ
+    correct: true
+  - key: C
+    label: e⁻ˣ
+    correct: false
+    distractorRationale: Ne combine pas correctement les exposants 2x et −x.
+  - key: D
+    label: 2eˣ
+    correct: false
+    distractorRationale: Transforme à tort le coefficient 2 de l'exposant en facteur multiplicatif.
+  shortCorrection: Pour une même base, eᵃ × eᵇ = eᵃ⁺ᵇ. Ainsi e²ˣ × e⁻ˣ = e²ˣ⁻ˣ = eˣ.
+  tags:
+  - exponentielle
+  - calcul
+  - puissances
+- id: MCO-MAT-EXP-02
+  nodeCpsId: 1re.maths-complementaires-prerequis.exponentielle.regles-image
+  type: QCM_SIMPLE
+  difficulty: 1
+  targetTimeSec: 45
+  statement: 'L''équation eˣ = −2 admet :'
+  options:
+  - key: A
+    label: une solution négative
+    correct: false
+    distractorRationale: Suppose que l'exponentielle peut prendre des valeurs négatives lorsque x est négatif.
+  - key: B
+    label: deux solutions
+    correct: false
+    distractorRationale: Assimile l'équation à une équation du second degré ou suppose deux branches.
+  - key: C
+    label: aucune solution
+    correct: true
+  - key: D
+    label: une solution, x = ln(−2)
+    correct: false
+    distractorRationale: Utilise le logarithme sur une valeur négative, hors de son domaine réel.
+  shortCorrection: 'Pour tout réel x, eˣ est strictement positif. Il ne peut donc jamais être égal à −2 : l''équation n''a aucune solution réelle.'
+  tags:
+  - exponentielle
+  - image
+  - equation
+- id: MCO-MAT-VAR-02
+  nodeCpsId: 1re.maths-complementaires-prerequis.derivation.variations-fonctions
+  type: QCM_SIMPLE
+  difficulty: 2
+  targetTimeSec: 50
+  statement: Soit f(x) = e⁻⁰′⁵ˣ. Que peut-on dire de f sur ℝ ?
+  options:
+  - key: A
+    label: Elle est croissante et positive
+    correct: false
+    distractorRationale: Reconnaît la positivité mais inverse le sens de variation associé à un exposant affine de coefficient négatif.
+  - key: C
+    label: Elle est décroissante et devient négative pour x grand
+    correct: false
+    distractorRationale: Suppose qu'une exponentielle décroissante finit par devenir négative.
+  - key: D
+    label: Elle est décroissante et s'annule en +∞
+    correct: false
+    distractorRationale: Confond une limite nulle en +∞ avec l'existence d'une valeur finie où la fonction s'annule.
+  - key: B
+    label: Elle est décroissante et strictement positive
+    correct: true
+  shortCorrection: L'exponentielle est toujours strictement positive. Comme −0,5x décroît avec x et que l'exponentielle est croissante, f est décroissante sur ℝ.
+  tags:
+  - exponentielle
+  - variations
+  - positivite
+- id: MCO-MAT-LOG-01
+  nodeCpsId: terminale.maths-complementaires.exponentielle.logarithme-familiarisation
+  type: QCM_SIMPLE
+  difficulty: 1
+  targetTimeSec: 50
+  statement: 'Pour a > 0 et b > 0, l''expression ln(a) + ln(b) est égale à :'
+  options:
+  - key: B
+    label: ln(ab)
+    correct: true
+  - key: A
+    label: ln(a + b)
+    correct: false
+    distractorRationale: Transporte à tort l'addition extérieure à l'intérieur du logarithme.
+  - key: C
+    label: ln(a) × ln(b)
+    correct: false
+    distractorRationale: Remplace une somme de logarithmes par leur produit.
+  - key: D
+    label: 2 ln(ab)
+    correct: false
+    distractorRationale: Ajoute un facteur 2 qui n'apparaît pas dans la propriété du logarithme d'un produit.
+  shortCorrection: Pour a > 0 et b > 0, la propriété du logarithme d'un produit donne ln(ab) = ln(a) + ln(b). Cet item sert de familiarisation à une notion de Terminale.
+  tags:
+  - logarithme
+  - familiarisation
+  - terminale
+- id: MCO-MAT-LOG-02
+  nodeCpsId: terminale.maths-complementaires.exponentielle.logarithme-familiarisation
+  type: QCM_SIMPLE
+  difficulty: 2
+  targetTimeSec: 70
+  statement: 'On résout l''inéquation ln(x) ≤ 2. L''ensemble des solutions est :'
+  options:
+  - key: A
+    label: ']−∞ ; e²]'
+    correct: false
+    distractorRationale: Oublie que le logarithme n'est défini que pour x > 0.
+  - key: B
+    label: ']0 ; e²]'
+    correct: true
+  - key: C
+    label: '[e² ; +∞['
+    correct: false
+    distractorRationale: Inverse le sens de l'inégalité alors que ln est strictement croissante.
+  - key: D
+    label: ']0 ; 2]'
+    correct: false
+    distractorRationale: Confond la borne e² avec 2.
+  shortCorrection: Le domaine impose x > 0. Comme ln est strictement croissante, ln(x) ≤ 2 équivaut à x ≤ e². On obtient ]0 ; e²]. Item de familiarisation Terminale.
+  tags:
+  - logarithme
+  - inequation
+  - familiarisation
+- id: MCO-MAT-DEG-01
+  nodeCpsId: 1re.maths-complementaires-prerequis.second-degre.signe-racines
+  type: QCM_SIMPLE
+  difficulty: 2
+  targetTimeSec: 80
+  statement: Soit f(x) = −2x² + 8x − 6. Quel est le signe de f(x) sur ℝ ?
+  options:
+  - key: A
+    label: Positif sur ℝ
+    correct: false
+    distractorRationale: Suppose le trinôme de signe constant sans rechercher ses racines.
+  - key: B
+    label: Négatif sur ℝ
+    correct: false
+    distractorRationale: Se fie au coefficient dominant négatif sans tenir compte des changements de signe aux racines.
+  - key: C
+    label: Positif sur ]1 ; 3[, négatif à l'extérieur
+    correct: true
+  - key: D
+    label: Négatif sur ]1 ; 3[, positif à l'extérieur
+    correct: false
+    distractorRationale: Inverse la règle du signe d'un trinôme dont le coefficient dominant est négatif.
+  shortCorrection: 'f(x) = −2(x − 1)(x − 3). Le coefficient dominant est négatif : f est positive entre les racines 1 et 3, et négative à l''extérieur.'
+  tags:
+  - second-degre
+  - signe
+  - racines
+- id: MCO-MAT-DEG-02
+  nodeCpsId: 1re.maths-complementaires-prerequis.second-degre.signe-racines
+  type: QCM_SIMPLE
+  difficulty: 2
+  targetTimeSec: 60
+  statement: 'L''équation x² + 4x + 5 = 0 admet :'
+  options:
+  - key: A
+    label: deux solutions distinctes
+    correct: false
+    distractorRationale: Suppose qu'une équation du second degré a toujours deux solutions réelles.
+  - key: B
+    label: une solution double
+    correct: false
+    distractorRationale: Conclut à une solution double sans vérifier que le discriminant est nul.
+  - key: D
+    label: deux solutions, x = −4 et x = −5
+    correct: false
+    distractorRationale: Prend directement les coefficients pour des racines.
+  - key: C
+    label: aucune solution réelle
+    correct: true
+  shortCorrection: Le discriminant vaut Δ = 4² − 4 × 1 × 5 = 16 − 20 = −4 < 0. L'équation n'admet donc aucune solution réelle.
+  tags:
+  - second-degre
+  - discriminant
+  - equation
+- id: MCO-MAT-PRO-01
+  nodeCpsId: 1re.maths-complementaires-prerequis.probabilites.conditionnement-independance
+  type: QCM_SIMPLE
+  difficulty: 2
+  targetTimeSec: 70
+  statement: 'A et B sont deux événements avec P(A) = 0,4 et P(B) = 0,5. On sait que P(A ∩ B) = 0,2. A et B sont :'
+  options:
+  - key: B
+    label: indépendants
+    correct: true
+  - key: A
+    label: incompatibles
+    correct: false
+    distractorRationale: 'Confond intersection non nulle et incompatibilité : des événements incompatibles auraient une intersection de probabilité nulle.'
+  - key: C
+    label: ni l'un ni l'autre
+    correct: false
+    distractorRationale: Ne vérifie pas le critère P(A ∩ B) = P(A)P(B), pourtant satisfait ici.
+  - key: D
+    label: incompatibles et indépendants
+    correct: false
+    distractorRationale: Associe deux propriétés incompatibles avec P(A ∩ B) = 0,2.
+  shortCorrection: 'P(A)P(B) = 0,4 × 0,5 = 0,2 = P(A ∩ B). Le critère d''indépendance est satisfait : A et B sont indépendants.'
+  tags:
+  - probabilites
+  - independance
+  - intersection
+- id: MCO-MAT-PRO-02
+  nodeCpsId: 1re.maths-complementaires-prerequis.probabilites.conditionnement-independance
+  type: QCM_SIMPLE
+  difficulty: 3
+  targetTimeSec: 120
+  statement: Dans une population, 3 % des personnes sont porteuses d'un virus. Un test est positif chez 95 % des porteurs et chez 2 % des non-porteurs. Une personne testée positive est-elle probablement porteuse ?
+  options:
+  - key: A
+    label: Oui, à 95 %
+    correct: false
+    distractorRationale: Confond la sensibilité P(test positif | porteur) avec la probabilité inverse P(porteur | test positif).
+  - key: B
+    label: 'Non : la probabilité qu''elle soit porteuse est d''environ 59 %'
+    correct: true
+  - key: C
+    label: Oui, à environ 97 %
+    correct: false
+    distractorRationale: Additionne ou combine les pourcentages sans appliquer la formule des probabilités conditionnelles.
+  - key: D
+    label: On ne peut pas conclure sans connaître la taille de la population
+    correct: false
+    distractorRationale: 'La taille absolue de la population n''est pas nécessaire : les proportions suffisent pour calculer la probabilité conditionnelle.'
+  shortCorrection: P(porteur | +) = 0,03×0,95 /(0,03×0,95 + 0,97×0,02) ≈ 59,5 %. La valeur visée est B ; le mot « Non » imprimé est incohérent avec une probabilité > 50 % et ne doit pas être interprété.
+  tags:
+  - probabilites
+  - conditionnement
+  - bayes
+- id: MCO-MAT-ESP-01
+  nodeCpsId: 1re.maths-complementaires-prerequis.probabilites.variables-aleatoires-esperance
+  type: QCM_SIMPLE
+  difficulty: 1
+  targetTimeSec: 45
+  statement: X suit une loi binomiale de paramètres n = 10 et p = 0,3. Que vaut E(X) ?
+  options:
+  - key: A
+    label: 0,3
+    correct: false
+    distractorRationale: Confond l'espérance de la loi binomiale avec le paramètre p.
+  - key: B
+    label: '10'
+    correct: false
+    distractorRationale: Confond l'espérance avec le nombre d'épreuves n.
+  - key: C
+    label: '3'
+    correct: true
+  - key: D
+    label: 2,1
+    correct: false
+    distractorRationale: Utilise une expression erronée au lieu de np.
+  shortCorrection: Pour une loi binomiale de paramètres n et p, l'espérance vaut E(X) = np. Ici E(X) = 10 × 0,3 = 3.
+  tags:
+  - probabilites
+  - binomiale
+  - esperance
+- id: MCO-MAT-ESP-02
+  nodeCpsId: 1re.maths-complementaires-prerequis.probabilites.variables-aleatoires-esperance
+  type: QCM_SIMPLE
+  difficulty: 2
+  targetTimeSec: 60
+  statement: Un jeu rapporte 10 € avec probabilité 0,2 et fait perdre 5 € avec probabilité 0,8. Quelle est l'espérance de gain ?
+  options:
+  - key: A
+    label: +5 €
+    correct: false
+    distractorRationale: Soustrait simplement la perte au gain sans pondérer par les probabilités.
+  - key: C
+    label: +2 €
+    correct: false
+    distractorRationale: Ne tient compte que du gain pondéré 10 × 0,2 et oublie la perte pondérée.
+  - key: D
+    label: '0 € : les gains et les pertes se compensent'
+    correct: false
+    distractorRationale: Suppose une compensation parce qu'il y a un gain et une perte, sans calculer l'espérance.
+  - key: B
+    label: −2 €
+    correct: true
+  shortCorrection: L'espérance vaut 10×0,2 + (−5)×0,8 = 2 − 4 = −2 €. Le jeu fait perdre 2 € en moyenne par partie sur un grand nombre de répétitions.
+  tags:
+  - probabilites
+  - esperance
+  - variable-aleatoire
+- id: MCO-MAT-EVO-01
+  nodeCpsId: 1re.maths-complementaires-prerequis.pourcentages.evolutions-successives
+  type: QCM_SIMPLE
+  difficulty: 1
+  targetTimeSec: 45
+  statement: 'Un prix augmente de 20 %, puis baisse de 20 %. Par rapport au prix initial, il a :'
+  options:
+  - key: B
+    label: baissé de 4 %
+    correct: true
+  - key: A
+    label: retrouvé sa valeur initiale
+    correct: false
+    distractorRationale: Additionne +20 % et −20 % au lieu de multiplier les coefficients multiplicateurs.
+  - key: C
+    label: augmenté de 4 %
+    correct: false
+    distractorRationale: Obtient le bon écart absolu mais lui attribue le mauvais signe.
+  - key: D
+    label: baissé de 40 %
+    correct: false
+    distractorRationale: Additionne les valeurs absolues des deux taux successifs.
+  shortCorrection: 'Les coefficients multiplicateurs se multiplient : 1,20 × 0,80 = 0,96. La valeur finale représente 96 % de la valeur initiale, soit une baisse de 4 %.'
+  tags:
+  - pourcentages
+  - evolutions
+  - coefficients
+- id: MCO-MAT-EVO-02
+  nodeCpsId: 1re.maths-complementaires-prerequis.pourcentages.evolutions-successives
+  type: QCM_SIMPLE
+  difficulty: 1
+  targetTimeSec: 45
+  statement: Une valeur passe de 250 à 300. Quel est le taux d'évolution ?
+  options:
+  - key: A
+    label: +50 %
+    correct: false
+    distractorRationale: Prend l'augmentation absolue 50 pour un pourcentage.
+  - key: B
+    label: +20 %
+    correct: true
+  - key: C
+    label: +16,7 %
+    correct: false
+    distractorRationale: Divise l'augmentation par la valeur finale 300 au lieu de la valeur initiale 250.
+  - key: D
+    label: +1,2 %
+    correct: false
+    distractorRationale: Confond coefficient multiplicateur 1,2 et taux d'évolution 20 %.
+  shortCorrection: Le taux d'évolution vaut (300 − 250)/250 = 50/250 = 0,20, soit +20 %.
+  tags:
+  - pourcentages
+  - evolutions
+  - taux
