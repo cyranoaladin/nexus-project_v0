@@ -477,9 +477,9 @@ const enjeux = [
     title: 'Candidat libre — un vrai cadre pour préparer seul.',
     text: `Préparer le bac en candidat libre demande de l\u2019organisation, un accompagnement administratif (cellule Cyclades) et des conditions d\u2019entraînement réalistes. L\u2019enjeu\u00A0: structurer l\u2019année, sécuriser l\u2019inscription et s\u2019entraîner dans les conditions de l\u2019examen.`,
     goals: [
-      { label: 'Un parcours dédié', href: '/offres#term-libre-mixte' },
-      { label: 'Inscription & administratif', href: '/offres#pass-candidat-libre' },
-      { label: `S\u2019entraîner pour de vrai`, href: '/offres#pass-candidat-libre' },
+      { label: 'Un parcours dédié', href: '/offres#section-libre' },
+      { label: 'Inscription & administratif', href: '/candidat-libre-bac-francais' },
+      { label: `S\u2019entraîner pour de vrai`, href: '/candidat-libre-bac-francais' },
     ],
   },
 ];
