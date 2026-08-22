@@ -62,7 +62,12 @@ export function isPackEnabled(
 }
 
 export function isPackDeliveryEnabled(pack: BilanPack, channel: PackDeliveryChannel): boolean {
-  return pack.delivery[channel];
+  // `delivery` est désormais normalisé par loadBilanPack. Le fallback conserve
+  // cependant la compatibilité des fixtures et fakes plus anciens qui
+  // construisent encore un BilanPack à la main : avant l'introduction des
+  // canaux, un pack était utilisable en ligne ET en saisie papier.
+  const delivery = (pack as BilanPack & Readonly<{ delivery?: BilanPack['delivery'] }>).delivery;
+  return delivery?.[channel] ?? true;
 }
 
 export function assertPackDeliveryEnabled(
