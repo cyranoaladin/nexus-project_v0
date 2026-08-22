@@ -134,6 +134,7 @@ export const CANONICAL_WORKER_PACK: BilanPack = {
     validatedBy: 'FIXTURE - JAMAIS UN ENSEIGNANT',
     validatedAt: '1970-01-01T00:00:00.000Z',
   },
+  delivery: { online: true, paperEntry: true, fixedPaperForm: false },
   questionnaire: {
     targetDurationMin: 20,
     confidenceScale: { levels: 4, labels: ['Je devine', 'Peu sûr', 'Assez sûr', 'Certain'] },
