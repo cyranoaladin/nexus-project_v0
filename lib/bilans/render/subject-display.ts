@@ -23,6 +23,15 @@ const POLICY: Readonly<Record<BilanPackSubject, SubjectDisplayPolicy>> = Object.
     ],
     fallbackLabel: 'Autres repères mathématiques',
   },
+  MATHS_COMPLEMENTAIRES: {
+    tableNoun: 'domaines',
+    groups: [
+      { label: 'Analyse et modèles', terms: ['suite', 'evolution', 'derivation', 'exponentielle', 'logarithme', 'second-degre'] },
+      { label: 'Probabilités et décision', terms: ['probabilite', 'variable-aleatoire', 'binomiale', 'esperance'] },
+      { label: 'Automatismes quantitatifs', terms: ['taux', 'pourcentage'] },
+    ],
+    fallbackLabel: 'Autres repères de mathématiques complémentaires',
+  },
   MATHS_EXPERTES: {
     tableNoun: 'domaines',
     groups: [
