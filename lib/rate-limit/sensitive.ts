@@ -53,6 +53,13 @@ export const SENSITIVE_RATE_LIMIT_POLICIES = {
   // Page d'arrivée famille : le POST de consentement écrit un état RGPD,
   // il se limite comme une écriture sensible.
   'bilan-share-consent': { ipPreset: 'writeIp' },
+  // Devis candidat individuel (bac général) — moteur de recommandation
+  // partagé (lib/quotes/*).
+  'quotes-recommend': { ipPreset: 'readIp' },
+  'quotes-create': { ipPreset: 'writeIp', identityPreset: 'emailIdentity' },
+  'quotes-public-read': { ipPreset: 'readIp' },
+  'quotes-send': { ipPreset: 'expensiveIp', identityPreset: 'expensiveIdentity' },
+  'quotes-accept': { ipPreset: 'writeIp' },
 } as const satisfies Record<string, SensitivePolicy>
 
 export type SensitiveRateLimitScope = keyof typeof SENSITIVE_RATE_LIMIT_POLICIES

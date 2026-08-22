@@ -9,8 +9,8 @@
  * lib/exams/catalog.ts.
  */
 import { getAnnualOffer, getFullPricingData, type AnnualOffer } from '@/lib/pricing';
-import { requireExamPolicy } from '@/lib/exams/catalog';
-import { buildExamProfile, getExamPolicyVersion } from './exam-profile';
+import { requireExamPolicy, type EligibilityAnswers } from '@/lib/exams/catalog';
+import { buildExamProfile, checkBacAccelereEligibility, getExamPolicyVersion } from './exam-profile';
 import { projectDiagnostic, type RawDomainScores } from './diagnostic';
 import { scoreSubjects } from './priority';
 import { buildIdealRecommendation } from './pricing';
@@ -66,6 +66,8 @@ export interface BuildRecommendationInput {
   budget: BudgetInput;
   /** 1-10 (September=1 .. June=10). Defaults to a full year. */
   monthsRemaining?: number;
+  /** Answers to the Article 3 same-session ("Bac accéléré") eligibility conditions, if the candidate asked about it. */
+  bacAccelereEligibilityAnswers?: EligibilityAnswers;
 }
 
 export function buildRecommendation(input: BuildRecommendationInput): RecommendationResult {
@@ -129,10 +131,15 @@ export function buildRecommendation(input: BuildRecommendationInput): Recommenda
     };
   });
 
+  const bacAccelereEligibility = input.bacAccelereEligibilityAnswers
+    ? checkBacAccelereEligibility(input.situation.examSession, input.bacAccelereEligibilityAnswers)
+    : undefined;
+
   return {
     pricingVersion: getFullPricingData().version,
     examPolicyVersion: getExamPolicyVersion(policy),
     examSession: input.situation.examSession,
     scenarios,
+    bacAccelereEligibility,
   };
 }
