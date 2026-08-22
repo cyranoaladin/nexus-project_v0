@@ -14,6 +14,7 @@
       "enum": [
         "MATHS",
         "MATHS_EXPERTES",
+        "MATHS_COMPLEMENTAIRES",
         "NSI",
         "PHYSIQUE_CHIMIE",
         "SVT",
