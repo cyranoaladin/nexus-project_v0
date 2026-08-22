@@ -48,7 +48,7 @@ export const seoLandings = {
     path: '/candidat-libre-bac-francais',
     title: 'Candidat libre au bac français en Tunisie',
     intro:
-      'Passer le bac français en candidat libre depuis la Tunisie demande un cadre précis : le candidat individuel ne dispose pas de contrôle continu et doit organiser les démarches administratives, les épreuves ponctuelles, les épreuves anticipées et les épreuves terminales. Nexus Réussite accompagne cette préparation avec une méthode structurée, des entraînements en conditions, un suivi parent lisible et une cellule d’appui Cyclades selon la formule retenue.',
+      'Passer le bac français en candidat libre depuis la Tunisie demande un cadre précis : le candidat individuel ne dispose pas de contrôle continu et doit organiser les démarches administratives, les épreuves ponctuelles, les épreuves anticipées et les épreuves terminales. Nexus Réussite accompagne cette préparation avec une méthode structurée, des entraînements en conditions, un suivi parent lisible et un appui à l’organisation des démarches Cyclades selon la formule retenue — sans se substituer à l’inscription officielle.',
     jsonLdName: 'Préparation au bac français en candidat libre en Tunisie',
     primaryCtaHref: '/bilan-gratuit',
     metadata: metadata(

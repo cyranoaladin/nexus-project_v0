@@ -50,10 +50,16 @@ export interface Rules {
     global_cap_pct: number;
     note: string;
   };
-  /** Bounded Grand Oral prep policy — no offer may promise unlimited hours. */
+  /**
+   * Bounded Grand Oral prep policy — no offer may promise unlimited hours.
+   * 4 séances × 2h = 8h max/an, direction-approved (not a placeholder).
+   */
   grand_oral_policy: {
     included_sessions: number;
     session_duration_minutes: number;
+    total_hours_max: number;
+    note_focus_bac: string;
+    note_integrale: string;
     applies_to_offer_ids: string[];
   };
 }

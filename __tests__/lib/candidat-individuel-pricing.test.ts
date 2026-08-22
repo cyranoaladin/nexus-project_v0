@@ -128,12 +128,30 @@ describe('T17.4 — Bac accéléré is indicative, not a closed offer', () => {
   });
 });
 
-describe('T17.5 — Grand Oral policy is bounded, not unlimited', () => {
-  test('grand_oral_policy.included_sessions is a finite number > 0', () => {
+describe('T17.5 — Grand Oral policy is bounded, not unlimited (direction-approved)', () => {
+  test('4 sessions x 2h = 8h max/year, applies to Focus Bac and Intégrale', () => {
     const policy = getRules().grand_oral_policy;
-    expect(policy.included_sessions).toBeGreaterThan(0);
-    expect(Number.isFinite(policy.included_sessions)).toBe(true);
+    expect(policy.included_sessions).toBe(4);
+    expect(policy.session_duration_minutes).toBe(120);
+    expect(policy.included_sessions * (policy.session_duration_minutes / 60)).toBe(policy.total_hours_max);
+    expect(policy.total_hours_max).toBe(8);
     expect(policy.applies_to_offer_ids).toContain('terminale-libre-focus-bac');
     expect(policy.applies_to_offer_ids).toContain('terminale-libre-integrale');
+  });
+
+  test('Intégrale: the 8h are inside the 30h/month ceiling, not additional', () => {
+    const integrale = getAnnualOffer('terminale-libre-integrale')!;
+    expect(integrale.hours_per_month_is_ceiling).toBe(true);
+    expect(integrale.hours_per_month).toBe(30);
+    const policy = getRules().grand_oral_policy;
+    expect(policy.note_integrale.toLowerCase()).toContain('30 h/mois');
+  });
+
+  test('Focus Bac: the 8h are the dedicated annual Grand Oral envelope, on top of the 20h/month regular structure', () => {
+    const focusBac = getAnnualOffer('terminale-libre-focus-bac')!;
+    expect(focusBac.hours_per_month).toBe(20);
+    expect(focusBac.hours_per_month_is_ceiling).toBeUndefined();
+    const policy = getRules().grand_oral_policy;
+    expect(policy.note_focus_bac.toLowerCase()).toContain('20 h/mois');
   });
 });
