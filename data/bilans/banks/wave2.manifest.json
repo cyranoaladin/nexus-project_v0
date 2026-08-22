@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "nexus-bilan-bank-wave/v1",
+  "wave": "vague-2-maths-complementaires-2026",
+  "expectedActiveBanks": 1,
+  "expectedItems": 18,
+  "banks": [
+    {
+      "slug": "entree-terminale-maths-complementaires-v1",
+      "source": "data/bilans/banks/entree-terminale-maths-complementaires-v1.yaml",
+      "cps": "data/bilans/cps/prerequis-maths-complementaires-vers-terminale.v1.yaml",
+      "promptDirectory": "content/bilans/prompts/entree-terminale-maths-complementaires-v1",
+      "output": "data/bilans/banks/entree-terminale-maths-complementaires-v1.json"
+    }
+  ],
+  "historical": []
+}
