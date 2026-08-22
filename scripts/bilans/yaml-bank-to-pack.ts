@@ -187,6 +187,7 @@ export function buildPack(options: {
     version: source.version,
     status: approval.status,
     review: approval.review,
+    ...(source.delivery === undefined ? {} : { delivery: source.delivery }),
     questionnaire: {
       targetDurationMin: source.targetDurationMin,
       confidenceScale: template.questionnaire.confidenceScale,
