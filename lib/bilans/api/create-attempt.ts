@@ -19,6 +19,7 @@ import {
 } from './idempotency';
 import {
   assertAttemptPackEnabled,
+  assertPackDeliveryEnabled,
   resolveEnabledPack,
   type PackResolver,
 } from './pack-access';
@@ -34,6 +35,7 @@ const requestSchema = z.object({ packSlug: z.string().min(1) }).strict();
 const SUBJECTS: Readonly<Record<string, Subject>> = {
   MATHS: 'MATHEMATIQUES',
   MATHEMATIQUES: 'MATHEMATIQUES',
+  MATHS_COMPLEMENTAIRES: 'MATHEMATIQUES',
   MATHS_EXPERTES: 'MATHS_EXPERTES',
   NSI: 'NSI',
   FRANCAIS: 'FRANCAIS',
@@ -114,9 +116,12 @@ export function createCreateAttemptHandler(
       const input = await requestBody(request);
       const session = await dependencies.authenticate();
       const student = await resolveSessionStudent(session, dependencies.prisma as never);
-      const enabled = assertAttemptPackEnabled(
-        { assessmentPackId: input.packSlug },
-        dependencies.resolvePack,
+      const enabled = assertPackDeliveryEnabled(
+        assertAttemptPackEnabled(
+          { assessmentPackId: input.packSlug },
+          dependencies.resolvePack,
+        ),
+        'online',
       );
       const gradeLevel = assertStudentPackLevel(student.gradeLevel, enabled.pack.level);
 
