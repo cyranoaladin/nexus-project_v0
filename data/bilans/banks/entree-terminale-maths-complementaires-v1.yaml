@@ -335,7 +335,7 @@ items:
     correct: false
     distractorRationale: La taille absolue de la population n’est pas nécessaire lorsque les proportions et probabilités conditionnelles
       sont connues.
-- id: ETL-MCO-VA-01
+- id: ETL-MCO-VAR-01
   nodeCpsId: 1re.maths-complementaires.variables-aleatoires
   type: QCM_SIMPLE
   difficulty: 1
@@ -358,7 +358,7 @@ items:
     label: 2,1
     correct: false
     distractorRationale: Utilise une expression incorrecte combinant n et p.
-- id: ETL-MCO-VA-02
+- id: ETL-MCO-VAR-02
   nodeCpsId: 1re.maths-complementaires.variables-aleatoires
   type: QCM_SIMPLE
   difficulty: 2
