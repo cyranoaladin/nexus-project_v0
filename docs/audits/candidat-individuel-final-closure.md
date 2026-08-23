@@ -23,11 +23,24 @@ de production.
 - Les branches applicatives de révision de devis sans écrivain ont été retirées.
   Les colonnes Prisma déjà créées par la migration additive restent mappées :
   les supprimer imposerait une migration destructive hors périmètre.
+- Les qualificatifs tarifaires, volumes annuels et clauses Grand Oral affichés
+  par le catalogue, la recommandation et le PDF restent issus du catalogue
+  canonique. L'Intégrale est un plafond de 300 h incluant le Grand Oral ; le
+  Focus Bac distingue ses 200 h régulières de l'enveloppe Grand Oral.
+- La création publique du lead, de son intention de notification et du devis
+  est atomique. Un rejeu concurrent perdant est entièrement annulé ; un rejeu
+  détecté est rejeté sans associer l'identité d'un devis persistant à un
+  scénario recalculé.
+- L'espace assistante fige le lead et consomme le scénario, la situation et la
+  validité renvoyés par le serveur avant de produire le PDF. Une modification
+  postérieure des champs du workspace ne peut plus altérer ce document.
 
 ## Fichiers modifiés
 
 Le service de lecture familiale, la persistance de consultation, les projections
-devis, les gardes d'architecture et les tests associés.
+devis, les surfaces publiques du catalogue et de recommandation, l'adaptateur
+PDF, la transaction de création lead/devis, les gardes d'architecture et les
+tests associés.
 
 ## Tests exécutés
 

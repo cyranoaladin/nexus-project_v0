@@ -7,12 +7,25 @@
  * existing row, never a duplicate).
  */
 import 'server-only';
-import type { Quote, QuoteLine, QuoteSource, QuoteStrategy, QuoteStatus, ContactLeadStatus } from '@prisma/client';
+import {
+  Prisma,
+  type ContactLeadStatus,
+  type Quote,
+  type QuoteLine,
+  type QuoteSource,
+  type QuoteStatus,
+  type QuoteStrategy,
+} from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { buildQuoteContextSnapshot, generateQuotePublicToken } from './snapshot.server';
 import { canTransition } from './status';
 import { hashToken } from '@/lib/invoice/access-token';
 import type { QuoteScenario } from './schemas';
+import {
+  captureContactLeadInTransaction,
+  notifyContactLeadCaptureCommitted,
+  type ContactLeadInput,
+} from '@/lib/crm/contact-leads';
 
 export interface CreateQuoteInput {
   idempotencyKey: string;
@@ -26,6 +39,8 @@ export interface CreateQuoteInput {
   strategy: QuoteStrategy;
   scenario: QuoteScenario;
   createdByUserId?: string;
+  /** Public-flow PII, captured atomically with the Quote and its outbox intent. */
+  contact?: ContactLeadInput;
 }
 
 export interface CreateQuoteResult {
@@ -43,70 +58,93 @@ export interface CreateQuoteResult {
 }
 
 export async function createQuote(input: CreateQuoteInput): Promise<CreateQuoteResult> {
-  const existing = await prisma.quote.findUnique({
-    where: { idempotencyKey: input.idempotencyKey },
-    include: { lines: true },
-  });
-  if (existing) {
-    return { quote: existing, rawToken: null, alreadyExisted: true };
-  }
+  try {
+    const outcome = await prisma.$transaction(async (tx) => {
+      const existing = await tx.quote.findUnique({
+        where: { idempotencyKey: input.idempotencyKey },
+        include: { lines: true },
+      });
+      if (existing) {
+        return {
+          result: { quote: existing, rawToken: null, alreadyExisted: true } satisfies CreateQuoteResult,
+          contactCaptured: false,
+        };
+      }
 
-  const snapshot = buildQuoteContextSnapshot(input.examSession);
-  const token = generateQuotePublicToken();
-
-  const quote = await prisma.$transaction(async (tx) => {
-    const created = await tx.quote.create({
-      data: {
-        publicTokenHash: token.tokenHash,
-        publicTokenExpiresAt: token.expiresAt,
-        idempotencyKey: input.idempotencyKey,
-        status: 'ESTIMATION',
-        source: input.source,
-        contactLeadId: input.contactLeadId,
-        studentId: input.studentId,
-        diagnosticId: input.diagnosticId,
-        diagnosticChecksum: input.diagnosticChecksum,
-        examSession: input.examSession,
-        pricingVersion: snapshot.pricingVersion,
-        examPolicyVersion: snapshot.examPolicyVersion,
-        budget: input.budget,
-        strategy: input.strategy,
-        matchedOfferId: input.scenario.matchedOfferId,
-        monthlyTotal: input.scenario.monthlyTotal,
-        grandTotal: input.scenario.grandTotal,
-        validUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30-day estimation validity
-        createdByUserId: input.createdByUserId,
-        lines: {
-          create: input.scenario.lines.map((line, index) => ({
-            subject: line.label,
-            modality: line.modality,
-            hoursPerMonth: line.hoursPerMonth,
-            unitPrice: line.unitPriceMonthly,
-            months: input.scenario.months,
-            lineTotal: line.unitPriceMonthly * input.scenario.months,
-            offerId: line.offerId,
-            priority: line.priorityLabel,
-            reason: line.reason,
-            sortOrder: index,
-          })),
+      const snapshot = buildQuoteContextSnapshot(input.examSession);
+      const token = generateQuotePublicToken();
+      const capturedLead = input.contact
+        ? await captureContactLeadInTransaction(tx, input.contact)
+        : null;
+      const created = await tx.quote.create({
+        data: {
+          publicTokenHash: token.tokenHash,
+          publicTokenExpiresAt: token.expiresAt,
+          idempotencyKey: input.idempotencyKey,
+          status: 'ESTIMATION',
+          source: input.source,
+          contactLeadId: capturedLead?.id ?? input.contactLeadId,
+          studentId: input.studentId,
+          diagnosticId: input.diagnosticId,
+          diagnosticChecksum: input.diagnosticChecksum,
+          examSession: input.examSession,
+          pricingVersion: snapshot.pricingVersion,
+          examPolicyVersion: snapshot.examPolicyVersion,
+          budget: input.budget,
+          strategy: input.strategy,
+          matchedOfferId: input.scenario.matchedOfferId,
+          monthlyTotal: input.scenario.monthlyTotal,
+          grandTotal: input.scenario.grandTotal,
+          validUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30-day estimation validity
+          createdByUserId: input.createdByUserId,
+          lines: {
+            create: input.scenario.lines.map((line, index) => ({
+              subject: line.label,
+              modality: line.modality,
+              hoursPerMonth: line.hoursPerMonth,
+              unitPrice: line.unitPriceMonthly,
+              months: input.scenario.months,
+              lineTotal: line.unitPriceMonthly * input.scenario.months,
+              offerId: line.offerId,
+              priority: line.priorityLabel,
+              reason: line.reason,
+              sortOrder: index,
+            })),
+          },
         },
-      },
-      include: { lines: true },
+        include: { lines: true },
+      });
+
+      await tx.quoteAuditLog.create({
+        data: {
+          quoteId: created.id,
+          action: 'CREATED',
+          actorUserId: input.createdByUserId,
+          afterSnapshot: { status: created.status, monthlyTotal: created.monthlyTotal },
+        },
+      });
+
+      return {
+        result: { quote: created, rawToken: token.rawToken, alreadyExisted: false } satisfies CreateQuoteResult,
+        contactCaptured: capturedLead != null,
+      };
     });
 
-    await tx.quoteAuditLog.create({
-      data: {
-        quoteId: created.id,
-        action: 'CREATED',
-        actorUserId: input.createdByUserId,
-        afterSnapshot: { status: created.status, monthlyTotal: created.monthlyTotal },
-      },
-    });
-
-    return created;
-  });
-
-  return { quote, rawToken: token.rawToken, alreadyExisted: false };
+    if (outcome.contactCaptured) notifyContactLeadCaptureCommitted();
+    return outcome.result;
+  } catch (error) {
+    const target = error instanceof Prisma.PrismaClientKnownRequestError
+      ? String(error.meta?.target ?? '').toLowerCase()
+      : '';
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002' && target.includes('idempotency')) {
+      const existing = await prisma.quote.findUnique({
+        where: { idempotencyKey: input.idempotencyKey },
+        include: { lines: true },
+      });
+      if (existing) return { quote: existing, rawToken: null, alreadyExisted: true };
+    }
+    throw error;
+  }
 }
 
 export interface QuoteLookupResult {

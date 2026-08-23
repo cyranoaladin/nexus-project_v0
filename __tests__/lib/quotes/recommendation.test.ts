@@ -298,6 +298,7 @@ describe('buildRecommendation — pack plus avantageux que la somme des modules'
     // 680+680=1360/mois sur-mesure, which Focus Bac (1290) or Intégrale
     // (1690, covers up to 30h) can undercut or match depending on total hours.
     expect(complet.matchedOfferId).not.toBeNull();
+    expect(complet.includedFeatures).toEqual(expect.arrayContaining([expect.stringMatching(/Grand Oral/i)]));
   });
 
   test('matchCanonicalPack returns null when the sur-mesure total is already cheaper than any pack', () => {

@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import OffresPage from '@/app/offres/page';
 import { CGV_POLICY } from '@/lib/cgv-policy';
 import { LEGAL } from '@/lib/legal';
@@ -57,6 +57,25 @@ describe('OffresPage', () => {
 
     expect(screen.getAllByRole('link', { name: /demander cette offre/i }).length).toBeGreaterThan(0);
     expect(screen.getAllByRole('link', { name: /poser une question/i }).length).toBeGreaterThan(0);
+  });
+
+  it('renders candidat individuel qualifiers and Grand Oral ceilings from the canonical catalogue', () => {
+    render(<OffresPage />);
+
+    const surMesure = screen.getByRole('heading', { name: 'Nexus Libre — Sur mesure' }).closest('div.relative.flex');
+    expect(surMesure).not.toBeNull();
+    expect(within(surMesure as HTMLElement).getByTestId('price-primary')).toHaveTextContent(/à partir de\s*620/i);
+    expect(within(surMesure as HTMLElement).getByTestId('price-secondary')).toHaveTextContent(/total à partir de\s*6[\s\u00a0]*200/i);
+
+    const focus = screen.getByRole('heading', { name: 'Terminale Libre — Focus Bac' }).closest('div.relative.flex');
+    expect(focus).not.toBeNull();
+    expect(within(focus as HTMLElement).getByText(/200 h régulières/i)).toBeInTheDocument();
+    expect(within(focus as HTMLElement).getByText(/grand oral.*8 h maximum/i)).toBeInTheDocument();
+
+    const integrale = screen.getByRole('heading', { name: 'Terminale Libre — Intégrale' }).closest('div.relative.flex');
+    expect(integrale).not.toBeNull();
+    expect(within(integrale as HTMLElement).getByTestId('metric-total-value')).toHaveTextContent(/jusqu’à\s*300\s*h/i);
+    expect(within(integrale as HTMLElement).getByText(/grand oral.*comprises? dans le plafond/i)).toBeInTheDocument();
   });
 
   it('surfaces fail-closed payment guidance without exposing ClicToPay or bank identifiers publicly', () => {

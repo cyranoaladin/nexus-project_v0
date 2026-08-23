@@ -45,6 +45,8 @@ export interface RecommendationOffer {
   price_annual: number | null;
   included: string[];
   pricing_display?: 'monthly_first' | 'annual';
+  price_qualifier?: 'fixed' | 'from';
+  hours_per_month_is_ceiling?: boolean;
   payment?: { deposit: number; installments: number[]; lastInstallment: number; depositPct: number };
   normalizedLevel: string | null;
 }
@@ -123,22 +125,29 @@ const LEVEL_LABELS: Record<string, string> = {
  * the static offer page (CDC §7: converge instead of duplicating).
  */
 function isCandidatIndividuelBacGeneral(offer: RecommendationOffer): boolean {
-  return offer.track === 'libre' && (offer.normalizedLevel === 'premiere' || offer.normalizedLevel === 'terminale');
+  return offer.track === 'libre' && (
+    offer.level === 'tous' || offer.normalizedLevel === 'premiere' || offer.normalizedLevel === 'terminale'
+  );
 }
 
 function buildOfferCard(offer: RecommendationOffer): ExamCardProps {
   const price = offer.price_annual ?? 0;
   const personalized = isCandidatIndividuelBacGeneral(offer);
   return {
-    eyebrow: `${LEVEL_LABELS[offer.normalizedLevel ?? ''] ?? offer.level} · ${offer.track === 'libre' ? 'Candidat libre' : 'Parcours présentiel'}`,
+    eyebrow: offer.level === 'tous'
+      ? 'Candidat individuel'
+      : `${LEVEL_LABELS[offer.normalizedLevel ?? ''] ?? offer.level} · ${offer.track === 'libre' ? 'Candidat individuel' : 'Parcours présentiel'}`,
     title: offer.title,
     subtitle: offer.subjects,
     price,
     pricingDisplay: offer.pricing_display ?? undefined,
+    priceQualifier: offer.price_qualifier ?? undefined,
     hoursPerWeek: offer.hours_per_week ?? undefined,
     totalHours: offer.hours_per_year ?? undefined,
-    groupMax: offer.group_max ?? 5,
-    groupMinOpen: offer.group_min_open ?? 3,
+    totalHoursIsCeiling: offer.hours_per_month_is_ceiling ?? false,
+    effectifType: offer.group_max == null ? 'none' : 'groupe',
+    groupMax: offer.group_max ?? undefined,
+    groupMinOpen: offer.group_min_open ?? undefined,
     payment: offer.payment,
     features: offer.included,
     ctaText: personalized ? 'Obtenir mon devis personnalisé' : 'Voir l\'offre',
@@ -204,9 +213,11 @@ export function buildRecommendationOutcome(
       return { cards: [], emptyState: { title: 'Sélectionnez un niveau', message: 'Nous avons besoin du niveau de l\'élève pour vous orienter vers les parcours annuels adaptés.', actions } };
     }
     const offers = track === 'libre'
-      ? data.offers.filter((o) => o.track === 'libre' && o.normalizedLevel === level)
+      ? level === 'premiere' || level === 'terminale'
+        ? data.offers.filter((o) => o.track === 'libre' && (o.level === 'tous' || o.normalizedLevel === level))
+        : []
       : data.offers.filter((o) => o.normalizedLevel === level);
-    const cards = offers.slice(0, 3).map(buildOfferCard);
+    const cards = (track === 'libre' ? offers : offers.slice(0, 3)).map(buildOfferCard);
     if (cards.length === 0) {
       return { cards: [], emptyState: { title: 'Aucune formule trouvée', message: 'Nous n\'avons pas de formule publiée correspondant exactement à ce niveau pour le moment. Un bilan gratuit permet de vous orienter vers la meilleure alternative.', actions } };
     }

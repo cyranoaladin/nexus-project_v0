@@ -39,6 +39,8 @@ function buildRecommendationData(): RecommendationData {
         subjects: offer.subjects, hours_per_week: offer.hours_per_week, hours_per_year: offer.hours_per_year,
         group_max: offer.group_max, group_min_open: offer.group_min_open, price_annual: offer.price_annual,
         included: offer.included, pricing_display: offer.pricing_display,
+        price_qualifier: offer.price_qualifier,
+        hours_per_month_is_ceiling: offer.hours_per_month_is_ceiling,
         payment: payment ? { ...payment, depositPct: rules.payment.deposit_pct_annual } : undefined,
         normalizedLevel: normalizePricingLevel(offer.level),
       };
