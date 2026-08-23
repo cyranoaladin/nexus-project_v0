@@ -37,7 +37,10 @@ export default function DevisBacPage() {
       </section>
 
       <section className="bg-lux-paper px-4 py-12 md:px-6">
-        <div className="mx-auto max-w-3xl rounded-2xl border border-lux-line bg-lux-white p-6 shadow-md shadow-lux-ink/5 md:p-10">
+        <div
+          data-testid="devis-wizard"
+          className="mx-auto max-w-3xl rounded-2xl border border-lux-line bg-lux-white p-6 shadow-md shadow-lux-ink/5 md:p-10"
+        >
           <DevisWizard />
         </div>
         <p className="mx-auto mt-6 max-w-3xl text-center text-xs text-lux-slate">
