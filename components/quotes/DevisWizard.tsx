@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 import type { Subject } from '@prisma/client';
 import { buildWhatsAppUrl } from '@/lib/whatsapp';
+import { fmtTND } from '@/components/premium/format';
 import { ScenarioCard } from './ScenarioCard';
 import type { BudgetStrategy, RecommendationResult, ScenarioTier } from '@/lib/quotes/schemas';
 import { BUDGET_SLIDER_TND } from '@/lib/quotes/ui-config';
@@ -22,6 +23,11 @@ const LANGUAGE_LABELS: Partial<Record<Subject, string>> = { ANGLAIS: 'Anglais', 
 const LANGUAGE_OPTIONS = Object.keys(LANGUAGE_LABELS) as Subject[];
 
 const SUPPORTED_SESSION = 2027;
+const TIER_BY_STRATEGY: Record<BudgetStrategy, ScenarioTier> = {
+  RESPECT_BUDGET: 'ESSENTIEL',
+  BEST_BALANCE: 'RECOMMANDE',
+  MOST_COMPLETE: 'COMPLET',
+};
 
 type Level = 'premiere' | 'terminale';
 type Statut = 'candidat_individuel' | 'cned_libre' | 'autre';
@@ -139,6 +145,17 @@ export function DevisWizard() {
   const [piiError, setPiiError] = useState<string | null>(null);
 
   const step = STEPS[stepIndex];
+  const selectedScenario = useMemo(
+    () => result?.scenarios.find((scenario) => scenario.tier === selectedTier),
+    [result, selectedTier],
+  );
+  const pilotageMonthly = useMemo(
+    () =>
+      result?.scenarios
+        .flatMap((scenario) => scenario.lines)
+        .find((line) => line.modality === 'PILOTAGE')?.unitPriceMonthly,
+    [result],
+  );
 
   const update = useCallback(<K extends keyof WizardState>(key: K, value: WizardState[K]) => {
     setState((prev) => ({ ...prev, [key]: value }));
@@ -186,12 +203,7 @@ export function DevisWizard() {
       if (!res.ok) throw new Error('recommendation_failed');
       const json = await res.json();
       setResult(json.result as RecommendationResult);
-      const tierByStrategy: Record<BudgetStrategy, ScenarioTier> = {
-        RESPECT_BUDGET: 'ESSENTIEL',
-        BEST_BALANCE: 'RECOMMANDE',
-        MOST_COMPLETE: 'COMPLET',
-      };
-      setSelectedTier(tierByStrategy[state.strategy]);
+      setSelectedTier(TIER_BY_STRATEGY[state.strategy]);
     } catch {
       setError("Une erreur est survenue lors du calcul de l'estimation. Réessayez.");
     } finally {
@@ -503,19 +515,29 @@ export function DevisWizard() {
                 </div>
               )}
 
-              <div className="grid gap-6 md:grid-cols-3">
-                {result.scenarios.map((scenario) => (
-                  <button
-                    key={scenario.tier}
-                    type="button"
-                    onClick={() => setSelectedTier(scenario.tier)}
-                    className={`text-left lux-focus rounded-2xl ${selectedTier === scenario.tier ? 'ring-2 ring-lux-ink ring-offset-2' : ''}`}
-                    aria-pressed={selectedTier === scenario.tier}
-                  >
-                    <ScenarioCard scenario={scenario} featured={scenario.tier === 'RECOMMANDE'} />
-                  </button>
-                ))}
+              <div className="mb-6">
+                <h2 className="text-2xl font-fraunces text-lux-ink md:text-3xl">Estimation provisoire</h2>
+                <p className="mt-3 max-w-3xl text-sm leading-relaxed text-lux-slate md:text-base">
+                  Cette estimation est établie à partir de votre situation scolaire, des épreuves à préparer et du
+                  budget indiqué. Le bilan Nexus permettra ensuite d’affiner les matières, les volumes et le parcours
+                  recommandé.
+                </p>
               </div>
+
+              {pilotageMonthly != null && state.budget < pilotageMonthly && (
+                <p
+                  role="alert"
+                  className="mb-6 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm leading-relaxed text-amber-950"
+                >
+                  Aucun accompagnement complet ne peut respecter ce budget. Le coût incompressible du Pilotage Nexus
+                  est de {fmtTND(pilotageMonthly)} par mois.
+                </p>
+              )}
+              {selectedScenario && (
+                <div className="mx-auto max-w-xl">
+                  <ScenarioCard scenario={selectedScenario} featured={selectedScenario.tier === 'RECOMMANDE'} />
+                </div>
+              )}
 
               {!showPiiForm ? (
                 <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
