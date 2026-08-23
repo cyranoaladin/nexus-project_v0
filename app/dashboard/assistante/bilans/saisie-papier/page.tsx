@@ -9,7 +9,6 @@ import { listEnabledPacks } from '@/lib/bilans/api/pack-access';
 import { bilanPackSubjectLabel } from '@/lib/bilans/catalog/subjects';
 import { bilanPackLevelLabel } from '@/lib/bilans/render/stage-label';
 import { isStaffRole } from '@/lib/bilans/saisie-papier/access';
-import { paperEntryRequiresConfidence } from '@/lib/bilans/saisie-papier/entry';
 import { projectPaperEntryItems } from '@/lib/bilans/saisie-papier/projection';
 import {
   isVisiblePaperEntryHousehold,
@@ -166,7 +165,6 @@ export default async function SaisiePapierPage({
               packSlug={chosenPack.pack.slug}
               packTitle={packLabel(chosenPack.pack.level, chosenPack.pack.subject)}
               items={projectPaperEntryItems(chosenPack)}
-              confidenceRequired={paperEntryRequiresConfidence(chosenPack.pack.slug)}
               childSelectionHref={search.length > 0
                 ? `/dashboard/assistante/bilans/saisie-papier?q=${encodeURIComponent(search)}`
                 : '/dashboard/assistante/bilans/saisie-papier'}
