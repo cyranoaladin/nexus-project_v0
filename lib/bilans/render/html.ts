@@ -199,6 +199,8 @@ const STATUS_PRESENTATION = Object.freeze({
   NON_TRAITE: { label: 'Non traitée', className: 'qa-blank' },
 });
 
+const MATHS_COMPLEMENTAIRES_PACK_SLUG = 'entree-terminale-maths-complementaires-v1';
+
 function evidenceAnswerRows(
   evidence: QuestionEvidence,
   item: EvidenceItem,
@@ -223,7 +225,9 @@ function evidenceAnswerRows(
     ? `<p class="qa-rationale">D’où vient l’erreur : ${T(chosen.distractorRationale)}</p>`
     : '';
   const correction = `<p class="qa-explain">Ce qu’il faut retenir : ${T(item.shortCorrection)}</p>`;
-  const techId = audience === 'NEXUS' ? ` <span class="qa-id">${T(item.itemId)}</span>` : '';
+  const techId = audience === 'NEXUS' && evidence.packSlug !== MATHS_COMPLEMENTAIRES_PACK_SLUG
+    ? ` <span class="qa-id">${T(item.itemId)}</span>`
+    : '';
 
   return `<article class="qa-item ${presentation.className}">
     <p class="qa-head"><span class="qa-status">${T(presentation.label)}</span> <span class="qa-confidence">${T(confidenceText)}</span>${techId}</p>
