@@ -32,20 +32,20 @@ function sha256(content: string): string {
 }
 
 describe('wave 1 active banks', () => {
-  it('contains exactly seventeen complete banks, 306 globally unique items and 153 CPS references', () => {
-    expect(ACTIVE).toHaveLength(17);
+  it('contains exactly eighteen complete banks, 324 globally unique items and 161 CPS references', () => {
+    expect(ACTIVE).toHaveLength(18);
     const ids = ACTIVE.flatMap(({ bank }) => bank.items.map(({ id }) => id));
     const nodes = ACTIVE.flatMap(({ bank }) => bank.items.map(({ nodeCpsId }) => nodeCpsId));
-    expect(ids).toHaveLength(306);
-    expect(new Set(ids).size).toBe(306);
-    expect(nodes).toHaveLength(306);
-    expect(new Set(nodes).size).toBe(153);
-    expect(ACTIVE.reduce((sum, { catalog }) => sum + catalog.nodes.length, 0)).toBe(153);
+    expect(ids).toHaveLength(324);
+    expect(new Set(ids).size).toBe(324);
+    expect(nodes).toHaveLength(324);
+    expect(new Set(nodes).size).toBe(161);
+    expect(ACTIVE.reduce((sum, { catalog }) => sum + catalog.nodes.length, 0)).toBe(161);
     expect(validateBankCollection(ACTIVE)).toEqual([]);
   });
 
   it('keeps every expected active bank reviewer-validated and activatable', () => {
-    expect(MANIFEST.expectedActiveBanks).toBe(17);
+    expect(MANIFEST.expectedActiveBanks).toBe(18);
     expect(MANIFEST.banks).toHaveLength(MANIFEST.expectedActiveBanks);
 
     for (const { entry } of ACTIVE) {
@@ -59,12 +59,13 @@ describe('wave 1 active banks', () => {
     }
   });
 
-  it('contains the seven declared disciplines and keeps the two mathematics subjects distinct', () => {
+  it('contains the eight declared disciplines and keeps the three mathematics subjects distinct', () => {
     expect([...new Set(ACTIVE.map(({ bank }) => bank.subject))].sort()).toEqual([
-      'FRANCAIS', 'MATHS', 'MATHS_EXPERTES', 'NSI', 'PHILOSOPHIE', 'PHYSIQUE_CHIMIE', 'SVT',
+      'FRANCAIS', 'MATHS', 'MATHS_COMPLEMENTAIRES', 'MATHS_EXPERTES', 'NSI', 'PHILOSOPHIE', 'PHYSIQUE_CHIMIE', 'SVT',
     ]);
     expect(ACTIVE.find(({ entry }) => entry.slug === 'entree-terminale-maths-v1')?.bank.subject).toBe('MATHS');
     expect(ACTIVE.find(({ entry }) => entry.slug === 'entree-terminale-maths-expertes-v1')?.bank.subject).toBe('MATHS_EXPERTES');
+    expect(ACTIVE.find(({ entry }) => entry.slug === 'entree-terminale-maths-complementaires-v1')?.bank.subject).toBe('MATHS_COMPLEMENTAIRES');
   });
 
   it('keeps mathematics and mathematics-expert CPS nodes disjoint', () => {
@@ -76,13 +77,16 @@ describe('wave 1 active banks', () => {
   });
 
   it.each(ACTIVE)('$entry.slug satisfies V1-V14 and preserves its validated review state', ({ entry, bank, catalog }) => {
+    // Every wave-1 bank targets 9 CPS nodes, except maths complémentaires
+    // (Terminale), whose CPS catalog deliberately covers 8 diagnostic domains.
+    const expectedNodes = entry.slug === 'entree-terminale-maths-complementaires-v1' ? 8 : 9;
     expect(bank.items).toHaveLength(18);
-    expect(new Set(bank.items.map(({ nodeCpsId }) => nodeCpsId)).size).toBe(9);
+    expect(new Set(bank.items.map(({ nodeCpsId }) => nodeCpsId)).size).toBe(expectedNodes);
     expect(Object.hasOwn(bank, 'review')).toBe(false);
     const distribution = [0, 0, 0, 0];
     for (const current of bank.items) distribution[current.options!.findIndex(({ correct }) => correct)] += 1;
     expect(distribution).toEqual([5, 5, 4, 4]);
-    expect(catalog.nodes).toHaveLength(9);
+    expect(catalog.nodes).toHaveLength(expectedNodes);
     expect([...catalog.nodes].sort((left, right) => left.sequenceOrder - right.sequenceOrder).map(({ id }) => id)).toEqual([...new Set(bank.items.map(({ nodeCpsId }) => nodeCpsId))]);
 
     const pack = loadBilanPack(entry.output);
@@ -174,12 +178,13 @@ describe('wave 1 active banks', () => {
     expect(nodes.has('1re.svt.immunite.reponse-innee-adaptative')).toBe(true);
   });
 
-  it('renders a complete dashboard with seventeen active and two historical banks', () => {
+  it('renders a complete dashboard with eighteen active and two historical banks', () => {
     const rows = buildDashboard(MANIFEST_PATH);
-    expect(rows.filter(({ kind }) => kind === 'ACTIVE')).toHaveLength(17);
+    expect(rows.filter(({ kind }) => kind === 'ACTIVE')).toHaveLength(18);
     expect(rows.filter(({ kind }) => kind === 'HISTORIQUE')).toHaveLength(2);
-    expect(rows.filter(({ kind }) => kind === 'ACTIVE').every(({ complete, total, nodes, status, signature, anomalies }) =>
-      complete === 18 && total === 18 && nodes === 9
+    expect(rows.filter(({ kind }) => kind === 'ACTIVE').every(({ slug, complete, total, nodes, status, signature, anomalies }) =>
+      complete === 18 && total === 18
+        && nodes === (slug === 'entree-terminale-maths-complementaires-v1' ? 8 : 9)
         && status === 'VALIDATED' && signature === 'SIGNE'
         && anomalies.length === 0,
     )).toBe(true);
@@ -187,7 +192,7 @@ describe('wave 1 active banks', () => {
       'scripts/bilans/check-pack-completeness.ts', '--all', '--manifest', MANIFEST_PATH,
     ], { cwd: process.cwd(), encoding: 'utf8' });
     expect(command.status).toBe(0);
-    expect(command.stdout).toContain('BANK_DASHBOARD=17:ACTIVE:0:BLOCKING');
+    expect(command.stdout).toContain('BANK_DASHBOARD=18:ACTIVE:0:BLOCKING');
     expect(command.stdout).toContain('maths-terminale-bilan-v1');
     expect(command.stdout).toContain('entree-terminale-maths-probabilites');
   });

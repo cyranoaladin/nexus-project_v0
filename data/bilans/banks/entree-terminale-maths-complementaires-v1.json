@@ -1,0 +1,1074 @@
+{
+  "slug": "entree-terminale-maths-complementaires-v1",
+  "level": "TERMINALE",
+  "subject": "MATHS_COMPLEMENTAIRES",
+  "version": 1,
+  "status": "VALIDATED",
+  "review": {
+    "validatedBy": "cmomnwolx0001mi0u8m8zj53w",
+    "validatedAt": "2026-08-22T23:30:00.000Z"
+  },
+  "questionnaire": {
+    "targetDurationMin": 25,
+    "confidenceScale": {
+      "levels": 4,
+      "labels": [
+        "je devine",
+        "peu sûr",
+        "plutôt sûr",
+        "certain"
+      ]
+    },
+    "items": [
+      {
+        "id": "ETL-MCO-SUI-01",
+        "subject": "MATHS_COMPLEMENTAIRES",
+        "category": "Suites et évolutions discrètes",
+        "domainId": "suites-evolutions",
+        "nodeCpsId": "1re.maths-complementaires.suites-evolutions",
+        "difficulty": 2,
+        "targetTimeSec": 70,
+        "shortCorrection": "Si uₙ converge vers L, alors L = 0,8L + 3. Donc 0,2L = 3 et L = 15.",
+        "weight": 2,
+        "competencies": [
+          "1re.maths-complementaires.suites-evolutions"
+        ],
+        "questionText": "Une suite (uₙ) est définie par u₀ = 5 et, pour tout n, uₙ₊₁ = 0,8 uₙ + 3. On admet qu'elle converge. Quelle est sa limite ?",
+        "options": [
+          {
+            "id": "B",
+            "text": "15",
+            "isCorrect": true
+          },
+          {
+            "id": "A",
+            "text": "0",
+            "isCorrect": false,
+            "distractorRationale": "Confond convergence et convergence vers zéro sans exploiter la relation de récurrence."
+          },
+          {
+            "id": "C",
+            "text": "3",
+            "isCorrect": false,
+            "distractorRationale": "Prend le terme ajouté dans la récurrence pour la limite."
+          },
+          {
+            "id": "D",
+            "text": "Elle tend vers +∞ car on ajoute 3 à chaque étape",
+            "isCorrect": false,
+            "distractorRationale": "Ignore le facteur 0,8 qui amortit la suite et empêche l’addition de 3 de s’accumuler linéairement."
+          }
+        ],
+        "explanation": "Si uₙ converge vers L, alors L = 0,8L + 3. Donc 0,2L = 3 et L = 15."
+      },
+      {
+        "id": "ETL-MCO-SUI-02",
+        "subject": "MATHS_COMPLEMENTAIRES",
+        "category": "Suites et évolutions discrètes",
+        "domainId": "suites-evolutions",
+        "nodeCpsId": "1re.maths-complementaires.suites-evolutions",
+        "difficulty": 2,
+        "targetTimeSec": 85,
+        "shortCorrection": "On cherche le premier n tel que 0,88ⁿ ≤ 0,5. Or 0,88⁵ ≈ 0,528 et 0,88⁶ ≈ 0,464 : il faut 6 ans.",
+        "weight": 2,
+        "competencies": [
+          "1re.maths-complementaires.suites-evolutions"
+        ],
+        "questionText": "Une population diminue de 12 % par an. Au bout de combien d'années aura-t-elle perdu au moins la moitié de son effectif ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "4 ans",
+            "isCorrect": false,
+            "distractorRationale": "Sous-estime l’effet cumulé : 0,88⁴ reste supérieur à 0,5."
+          },
+          {
+            "id": "B",
+            "text": "6 ans",
+            "isCorrect": true
+          },
+          {
+            "id": "C",
+            "text": "5 ans",
+            "isCorrect": false,
+            "distractorRationale": "Après cinq ans, 0,88⁵ ≈ 0,528 : la perte reste légèrement inférieure à la moitié."
+          },
+          {
+            "id": "D",
+            "text": "8 ans, car 12 × 8 = 96 % ≈ 100 %",
+            "isCorrect": false,
+            "distractorRationale": "Additionne les pourcentages annuels au lieu de composer les coefficients multiplicateurs."
+          }
+        ],
+        "explanation": "On cherche le premier n tel que 0,88ⁿ ≤ 0,5. Or 0,88⁵ ≈ 0,528 et 0,88⁶ ≈ 0,464 : il faut 6 ans."
+      },
+      {
+        "id": "ETL-MCO-DER-01",
+        "subject": "MATHS_COMPLEMENTAIRES",
+        "category": "Dérivation, variations et tangente",
+        "domainId": "derivation",
+        "nodeCpsId": "1re.maths-complementaires.derivation",
+        "difficulty": 2,
+        "targetTimeSec": 70,
+        "shortCorrection": "f′(x) = 3x² − 3, donc f′(0) = −3 ≠ 0. Il n'y a ni maximum ni minimum local en 0.",
+        "weight": 2,
+        "competencies": [
+          "1re.maths-complementaires.derivation"
+        ],
+        "questionText": "Soit f définie sur ℝ par f(x) = x³ − 3x. Que peut-on affirmer en x = 0 ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "f admet un maximum local",
+            "isCorrect": false,
+            "distractorRationale": "Assimile la valeur x = 0 à un extremum sans vérifier le nombre dérivé."
+          },
+          {
+            "id": "B",
+            "text": "f admet un minimum local",
+            "isCorrect": false,
+            "distractorRationale": "Assimile la valeur x = 0 à un extremum sans vérifier le nombre dérivé."
+          },
+          {
+            "id": "C",
+            "text": "f n'admet ni maximum ni minimum local en 0",
+            "isCorrect": true
+          },
+          {
+            "id": "D",
+            "text": "On ne peut pas conclure sans calculer f″(0)",
+            "isCorrect": false,
+            "distractorRationale": "Cherche une dérivée seconde alors que f′(0) suffit déjà à exclure un extremum local."
+          }
+        ],
+        "explanation": "f′(x) = 3x² − 3, donc f′(0) = −3 ≠ 0. Il n'y a ni maximum ni minimum local en 0."
+      },
+      {
+        "id": "ETL-MCO-DER-02",
+        "subject": "MATHS_COMPLEMENTAIRES",
+        "category": "Dérivation, variations et tangente",
+        "domainId": "derivation",
+        "nodeCpsId": "1re.maths-complementaires.derivation",
+        "difficulty": 1,
+        "targetTimeSec": 45,
+        "shortCorrection": "Le nombre dérivé f′(2) est le coefficient directeur de la tangente en x = 2, donc f′(2) = −3.",
+        "weight": 1,
+        "competencies": [
+          "1re.maths-complementaires.derivation"
+        ],
+        "questionText": "La tangente à la courbe de f au point d'abscisse 2 a pour équation y = −3x + 7. Que vaut f′(2) ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "7",
+            "isCorrect": false,
+            "distractorRationale": "Prend l’ordonnée à l’origine de la tangente pour le nombre dérivé."
+          },
+          {
+            "id": "B",
+            "text": "1",
+            "isCorrect": false,
+            "distractorRationale": "Confond la forme affine de la tangente avec une pente unitaire."
+          },
+          {
+            "id": "D",
+            "text": "−3x + 7",
+            "isCorrect": false,
+            "distractorRationale": "Donne l’équation complète de la tangente au lieu de son coefficient directeur."
+          },
+          {
+            "id": "C",
+            "text": "−3",
+            "isCorrect": true
+          }
+        ],
+        "explanation": "Le nombre dérivé f′(2) est le coefficient directeur de la tangente en x = 2, donc f′(2) = −3."
+      },
+      {
+        "id": "ETL-MCO-DER-03",
+        "subject": "MATHS_COMPLEMENTAIRES",
+        "category": "Dérivation, variations et tangente",
+        "domainId": "derivation",
+        "nodeCpsId": "1re.maths-complementaires.derivation",
+        "difficulty": 2,
+        "targetTimeSec": 70,
+        "shortCorrection": "Par la règle du produit, f′(x)=2(x−3)+(2x+1)×1=4x−5.",
+        "weight": 2,
+        "competencies": [
+          "1re.maths-complementaires.derivation"
+        ],
+        "questionText": "Soit f(x) = (2x + 1)(x − 3). Quelle est l'expression de f′(x) ?",
+        "options": [
+          {
+            "id": "B",
+            "text": "4x − 5",
+            "isCorrect": true
+          },
+          {
+            "id": "A",
+            "text": "2",
+            "isCorrect": false,
+            "distractorRationale": "Dérive seulement le premier facteur et oublie la règle du produit."
+          },
+          {
+            "id": "C",
+            "text": "2x − 6",
+            "isCorrect": false,
+            "distractorRationale": "Dérive partiellement le produit et omet le terme issu du second facteur."
+          },
+          {
+            "id": "D",
+            "text": "(2)(1) = 2",
+            "isCorrect": false,
+            "distractorRationale": "Multiplie les dérivées des facteurs : applique à tort (uv)′ = u′v′."
+          }
+        ],
+        "explanation": "Par la règle du produit, f′(x)=2(x−3)+(2x+1)×1=4x−5."
+      },
+      {
+        "id": "ETL-MCO-EXP-01",
+        "subject": "MATHS_COMPLEMENTAIRES",
+        "category": "Fonction exponentielle",
+        "domainId": "exponentielle",
+        "nodeCpsId": "1re.maths-complementaires.exponentielle",
+        "difficulty": 1,
+        "targetTimeSec": 40,
+        "shortCorrection": "On additionne les exposants : e^(2x) × e^(−x) = e^(2x−x) = e^x.",
+        "weight": 1,
+        "competencies": [
+          "1re.maths-complementaires.exponentielle"
+        ],
+        "questionText": "Pour tout réel x, l'expression e²ˣ × e⁻ˣ est égale à :",
+        "options": [
+          {
+            "id": "A",
+            "text": "e⁻²ˣ",
+            "isCorrect": false,
+            "distractorRationale": "Multiplie ou inverse incorrectement les exposants au lieu de les additionner."
+          },
+          {
+            "id": "B",
+            "text": "eˣ",
+            "isCorrect": true
+          },
+          {
+            "id": "C",
+            "text": "e⁻ˣ",
+            "isCorrect": false,
+            "distractorRationale": "Conserve seulement le second facteur et oublie l’addition des exposants."
+          },
+          {
+            "id": "D",
+            "text": "2eˣ",
+            "isCorrect": false,
+            "distractorRationale": "Transforme à tort le coefficient 2 de l’exposant en facteur multiplicatif extérieur."
+          }
+        ],
+        "explanation": "On additionne les exposants : e^(2x) × e^(−x) = e^(2x−x) = e^x."
+      },
+      {
+        "id": "ETL-MCO-EXP-02",
+        "subject": "MATHS_COMPLEMENTAIRES",
+        "category": "Fonction exponentielle",
+        "domainId": "exponentielle",
+        "nodeCpsId": "1re.maths-complementaires.exponentielle",
+        "difficulty": 1,
+        "targetTimeSec": 40,
+        "shortCorrection": "Pour tout réel x, e^x > 0. L'équation e^x = −2 n'a donc aucune solution réelle.",
+        "weight": 1,
+        "competencies": [
+          "1re.maths-complementaires.exponentielle"
+        ],
+        "questionText": "L'équation eˣ = −2 admet :",
+        "options": [
+          {
+            "id": "A",
+            "text": "une solution négative",
+            "isCorrect": false,
+            "distractorRationale": "Suppose qu’un exposant négatif rend l’exponentielle négative."
+          },
+          {
+            "id": "B",
+            "text": "deux solutions",
+            "isCorrect": false,
+            "distractorRationale": "Traite l’équation comme une équation polynomiale pouvant couper deux fois l’axe."
+          },
+          {
+            "id": "C",
+            "text": "aucune solution",
+            "isCorrect": true
+          },
+          {
+            "id": "D",
+            "text": "une solution, x = ln(−2)",
+            "isCorrect": false,
+            "distractorRationale": "Utilise un logarithme d’un nombre négatif, non défini dans ℝ."
+          }
+        ],
+        "explanation": "Pour tout réel x, e^x > 0. L'équation e^x = −2 n'a donc aucune solution réelle."
+      },
+      {
+        "id": "ETL-MCO-EXP-03",
+        "subject": "MATHS_COMPLEMENTAIRES",
+        "category": "Fonction exponentielle",
+        "domainId": "exponentielle",
+        "nodeCpsId": "1re.maths-complementaires.exponentielle",
+        "difficulty": 2,
+        "targetTimeSec": 60,
+        "shortCorrection": "Comme −0,5 < 0, x ↦ e^(−0,5x) est décroissante. Une exponentielle reste strictement positive sur ℝ.",
+        "weight": 2,
+        "competencies": [
+          "1re.maths-complementaires.exponentielle"
+        ],
+        "questionText": "Soit f(x) = e⁻⁰′⁵ˣ. Que peut-on dire de f sur ℝ ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Elle est croissante et positive",
+            "isCorrect": false,
+            "distractorRationale": "Repère la positivité mais oublie que le coefficient de x dans l’exposant est négatif."
+          },
+          {
+            "id": "C",
+            "text": "Elle est décroissante et devient négative pour x grand",
+            "isCorrect": false,
+            "distractorRationale": "Confond une limite vers zéro avec un passage sous zéro."
+          },
+          {
+            "id": "D",
+            "text": "Elle est décroissante et s'annule en +∞",
+            "isCorrect": false,
+            "distractorRationale": "Confond tendre vers zéro et atteindre zéro."
+          },
+          {
+            "id": "B",
+            "text": "Elle est décroissante et strictement positive",
+            "isCorrect": true
+          }
+        ],
+        "explanation": "Comme −0,5 < 0, x ↦ e^(−0,5x) est décroissante. Une exponentielle reste strictement positive sur ℝ."
+      },
+      {
+        "id": "ETL-MCO-LOG-01",
+        "subject": "MATHS_COMPLEMENTAIRES",
+        "category": "Logarithme — repérage anticipé",
+        "domainId": "logarithme-reperage",
+        "nodeCpsId": "terminale.maths-complementaires.logarithme-reperage",
+        "difficulty": 1,
+        "targetTimeSec": 40,
+        "shortCorrection": "Pour a>0 et b>0, ln(ab)=ln(a)+ln(b). Cet item est un repérage anticipé d'une notion de Terminale.",
+        "weight": 1,
+        "competencies": [
+          "terminale.maths-complementaires.logarithme-reperage"
+        ],
+        "questionText": "Pour a > 0 et b > 0, l'expression ln(a) + ln(b) est égale à :",
+        "options": [
+          {
+            "id": "B",
+            "text": "ln(ab)",
+            "isCorrect": true
+          },
+          {
+            "id": "A",
+            "text": "ln(a + b)",
+            "isCorrect": false,
+            "distractorRationale": "Confond la propriété du logarithme d’un produit avec une somme à l’intérieur du logarithme."
+          },
+          {
+            "id": "C",
+            "text": "ln(a) × ln(b)",
+            "isCorrect": false,
+            "distractorRationale": "Transforme une somme de logarithmes en produit sans propriété correspondante."
+          },
+          {
+            "id": "D",
+            "text": "2 ln(ab)",
+            "isCorrect": false,
+            "distractorRationale": "Ajoute un facteur 2 qui n’intervient pas dans la propriété du produit."
+          }
+        ],
+        "explanation": "Pour a>0 et b>0, ln(ab)=ln(a)+ln(b). Cet item est un repérage anticipé d'une notion de Terminale."
+      },
+      {
+        "id": "ETL-MCO-LOG-02",
+        "subject": "MATHS_COMPLEMENTAIRES",
+        "category": "Logarithme — repérage anticipé",
+        "domainId": "logarithme-reperage",
+        "nodeCpsId": "terminale.maths-complementaires.logarithme-reperage",
+        "difficulty": 2,
+        "targetTimeSec": 65,
+        "shortCorrection": "Le domaine impose x>0. Comme ln est croissante, ln(x)≤2 équivaut à x≤e² : solutions ]0 ; e²]. Repérage anticipé.",
+        "weight": 2,
+        "competencies": [
+          "terminale.maths-complementaires.logarithme-reperage"
+        ],
+        "questionText": "On résout l'inéquation ln(x) ≤ 2. L'ensemble des solutions est :",
+        "options": [
+          {
+            "id": "A",
+            "text": "]−∞ ; e²]",
+            "isCorrect": false,
+            "distractorRationale": "Oublie que ln(x) n’est défini que pour x > 0."
+          },
+          {
+            "id": "B",
+            "text": "]0 ; e²]",
+            "isCorrect": true
+          },
+          {
+            "id": "C",
+            "text": "[e² ; +∞[",
+            "isCorrect": false,
+            "distractorRationale": "Inverse le sens de l’inéquation alors que ln est strictement croissante."
+          },
+          {
+            "id": "D",
+            "text": "]0 ; 2]",
+            "isCorrect": false,
+            "distractorRationale": "Remplace e² par 2 lors du passage à l’exponentielle."
+          }
+        ],
+        "explanation": "Le domaine impose x>0. Comme ln est croissante, ln(x)≤2 équivaut à x≤e² : solutions ]0 ; e²]. Repérage anticipé."
+      },
+      {
+        "id": "ETL-MCO-SDG-01",
+        "subject": "MATHS_COMPLEMENTAIRES",
+        "category": "Second degré et signe d’un trinôme",
+        "domainId": "second-degre",
+        "nodeCpsId": "1re.maths-complementaires.second-degre",
+        "difficulty": 2,
+        "targetTimeSec": 70,
+        "shortCorrection": "f(x)=−2(x−1)(x−3). Le coefficient dominant est négatif : f est positive entre les racines 1 et 3, négative à l’extérieur.",
+        "weight": 2,
+        "competencies": [
+          "1re.maths-complementaires.second-degre"
+        ],
+        "questionText": "Soit f(x) = −2x² + 8x − 6. Quel est le signe de f(x) sur ℝ ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Positif sur ℝ",
+            "isCorrect": false,
+            "distractorRationale": "Ignore les racines et le signe du coefficient dominant."
+          },
+          {
+            "id": "B",
+            "text": "Négatif sur ℝ",
+            "isCorrect": false,
+            "distractorRationale": "S’appuie uniquement sur le coefficient dominant négatif sans étudier les racines."
+          },
+          {
+            "id": "C",
+            "text": "Positif sur ]1 ; 3[, négatif à l'extérieur",
+            "isCorrect": true
+          },
+          {
+            "id": "D",
+            "text": "Négatif sur ]1 ; 3[, positif à l'extérieur",
+            "isCorrect": false,
+            "distractorRationale": "Inverse la règle du signe d’un trinôme de coefficient dominant négatif."
+          }
+        ],
+        "explanation": "f(x)=−2(x−1)(x−3). Le coefficient dominant est négatif : f est positive entre les racines 1 et 3, négative à l’extérieur."
+      },
+      {
+        "id": "ETL-MCO-SDG-02",
+        "subject": "MATHS_COMPLEMENTAIRES",
+        "category": "Second degré et signe d’un trinôme",
+        "domainId": "second-degre",
+        "nodeCpsId": "1re.maths-complementaires.second-degre",
+        "difficulty": 1,
+        "targetTimeSec": 55,
+        "shortCorrection": "Le discriminant vaut Δ = 4² − 4×1×5 = −4 < 0. Il n'y a aucune solution réelle.",
+        "weight": 1,
+        "competencies": [
+          "1re.maths-complementaires.second-degre"
+        ],
+        "questionText": "L'équation x² + 4x + 5 = 0 admet :",
+        "options": [
+          {
+            "id": "A",
+            "text": "deux solutions distinctes",
+            "isCorrect": false,
+            "distractorRationale": "Suppose qu’un trinôme du second degré possède toujours deux solutions réelles."
+          },
+          {
+            "id": "B",
+            "text": "une solution double",
+            "isCorrect": false,
+            "distractorRationale": "Conclut à Δ = 0 sans calculer le discriminant."
+          },
+          {
+            "id": "D",
+            "text": "deux solutions, x = −4 et x = −5",
+            "isCorrect": false,
+            "distractorRationale": "Lit les coefficients comme s’ils donnaient directement les racines."
+          },
+          {
+            "id": "C",
+            "text": "aucune solution réelle",
+            "isCorrect": true
+          }
+        ],
+        "explanation": "Le discriminant vaut Δ = 4² − 4×1×5 = −4 < 0. Il n'y a aucune solution réelle."
+      },
+      {
+        "id": "ETL-MCO-PRO-01",
+        "subject": "MATHS_COMPLEMENTAIRES",
+        "category": "Probabilités conditionnelles et indépendance",
+        "domainId": "probabilites-conditionnelles",
+        "nodeCpsId": "1re.maths-complementaires.probabilites-conditionnelles",
+        "difficulty": 2,
+        "targetTimeSec": 65,
+        "shortCorrection": "P(A)P(B)=0,4×0,5=0,2=P(A∩B). Les événements A et B sont donc indépendants.",
+        "weight": 2,
+        "competencies": [
+          "1re.maths-complementaires.probabilites-conditionnelles"
+        ],
+        "questionText": "A et B sont deux événements avec P(A) = 0,4 et P(B) = 0,5. On sait que P(A ∩ B) = 0,2. A et B sont :",
+        "options": [
+          {
+            "id": "B",
+            "text": "indépendants",
+            "isCorrect": true
+          },
+          {
+            "id": "A",
+            "text": "incompatibles",
+            "isCorrect": false,
+            "distractorRationale": "Confond indépendance et incompatibilité ; deux événements incompatibles auraient une intersection de probabilité nulle."
+          },
+          {
+            "id": "C",
+            "text": "ni l'un ni l'autre",
+            "isCorrect": false,
+            "distractorRationale": "Ne compare pas P(A∩B) au produit P(A)P(B)."
+          },
+          {
+            "id": "D",
+            "text": "incompatibles et indépendants",
+            "isCorrect": false,
+            "distractorRationale": "Assimile deux notions distinctes ; ici P(A∩B) est non nulle."
+          }
+        ],
+        "explanation": "P(A)P(B)=0,4×0,5=0,2=P(A∩B). Les événements A et B sont donc indépendants."
+      },
+      {
+        "id": "ETL-MCO-PRO-02",
+        "subject": "MATHS_COMPLEMENTAIRES",
+        "category": "Probabilités conditionnelles et indépendance",
+        "domainId": "probabilites-conditionnelles",
+        "nodeCpsId": "1re.maths-complementaires.probabilites-conditionnelles",
+        "difficulty": 3,
+        "targetTimeSec": 100,
+        "shortCorrection": "Le calcul bayésien donne environ 59,5 %. La clé papier B est conservée pour sa valeur numérique ; le mot « Non » du PDF est incohérent et ne doit pas être interprété pédagogiquement.",
+        "weight": 3,
+        "competencies": [
+          "1re.maths-complementaires.probabilites-conditionnelles"
+        ],
+        "questionText": "Dans une population, 3 % des personnes sont porteuses d'un virus. Un test est positif chez 95 % des porteurs et chez 2 % des non-porteurs. Une personne testée positive est-elle probablement porteuse ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Oui, à 95 %",
+            "isCorrect": false,
+            "distractorRationale": "Confond la sensibilité P(test positif | porteur) avec la probabilité inverse P(porteur | test positif)."
+          },
+          {
+            "id": "B",
+            "text": "Non : la probabilité qu'elle soit porteuse est d'environ 59 %",
+            "isCorrect": true
+          },
+          {
+            "id": "C",
+            "text": "Oui, à environ 97 %",
+            "isCorrect": false,
+            "distractorRationale": "Additionne ou mélange les pourcentages sans appliquer la formule des probabilités totales et Bayes."
+          },
+          {
+            "id": "D",
+            "text": "On ne peut pas conclure sans connaître la taille de la population",
+            "isCorrect": false,
+            "distractorRationale": "La taille absolue de la population n’est pas nécessaire lorsque les proportions et probabilités conditionnelles sont connues."
+          }
+        ],
+        "explanation": "Le calcul bayésien donne environ 59,5 %. La clé papier B est conservée pour sa valeur numérique ; le mot « Non » du PDF est incohérent et ne doit pas être interprété pédagogiquement."
+      },
+      {
+        "id": "ETL-MCO-VAR-01",
+        "subject": "MATHS_COMPLEMENTAIRES",
+        "category": "Loi binomiale et espérance",
+        "domainId": "variables-aleatoires",
+        "nodeCpsId": "1re.maths-complementaires.variables-aleatoires",
+        "difficulty": 1,
+        "targetTimeSec": 40,
+        "shortCorrection": "Pour X ~ B(n,p), E(X)=np. Ici E(X)=10×0,3=3.",
+        "weight": 1,
+        "competencies": [
+          "1re.maths-complementaires.variables-aleatoires"
+        ],
+        "questionText": "X suit une loi binomiale de paramètres n = 10 et p = 0,3. Que vaut E(X) ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "0,3",
+            "isCorrect": false,
+            "distractorRationale": "Prend le paramètre p pour l’espérance de la loi binomiale."
+          },
+          {
+            "id": "B",
+            "text": "10",
+            "isCorrect": false,
+            "distractorRationale": "Prend le paramètre n pour l’espérance."
+          },
+          {
+            "id": "C",
+            "text": "3",
+            "isCorrect": true
+          },
+          {
+            "id": "D",
+            "text": "2,1",
+            "isCorrect": false,
+            "distractorRationale": "Utilise une expression incorrecte combinant n et p."
+          }
+        ],
+        "explanation": "Pour X ~ B(n,p), E(X)=np. Ici E(X)=10×0,3=3."
+      },
+      {
+        "id": "ETL-MCO-VAR-02",
+        "subject": "MATHS_COMPLEMENTAIRES",
+        "category": "Loi binomiale et espérance",
+        "domainId": "variables-aleatoires",
+        "nodeCpsId": "1re.maths-complementaires.variables-aleatoires",
+        "difficulty": 2,
+        "targetTimeSec": 60,
+        "shortCorrection": "L'espérance vaut 10×0,2 + (−5)×0,8 = 2 − 4 = −2 €.",
+        "weight": 2,
+        "competencies": [
+          "1re.maths-complementaires.variables-aleatoires"
+        ],
+        "questionText": "Un jeu rapporte 10 € avec probabilité 0,2 et fait perdre 5 € avec probabilité 0,8. Quelle est l'espérance de gain ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "+5 €",
+            "isCorrect": false,
+            "distractorRationale": "Soustrait simplement perte et gain sans pondérer par les probabilités."
+          },
+          {
+            "id": "C",
+            "text": "+2 €",
+            "isCorrect": false,
+            "distractorRationale": "Calcule seulement la contribution du gain et oublie la contribution négative."
+          },
+          {
+            "id": "D",
+            "text": "0 € : les gains et les pertes se compensent",
+            "isCorrect": false,
+            "distractorRationale": "Suppose une compensation sans calculer la moyenne pondérée."
+          },
+          {
+            "id": "B",
+            "text": "−2 €",
+            "isCorrect": true
+          }
+        ],
+        "explanation": "L'espérance vaut 10×0,2 + (−5)×0,8 = 2 − 4 = −2 €."
+      },
+      {
+        "id": "ETL-MCO-TAU-01",
+        "subject": "MATHS_COMPLEMENTAIRES",
+        "category": "Taux d’évolution et évolutions successives",
+        "domainId": "taux-evolution",
+        "nodeCpsId": "seconde.maths-complementaires.taux-evolution",
+        "difficulty": 1,
+        "targetTimeSec": 45,
+        "shortCorrection": "Le coefficient global est 1,20×0,80=0,96. Le prix final représente 96 % du prix initial : baisse de 4 %.",
+        "weight": 1,
+        "competencies": [
+          "seconde.maths-complementaires.taux-evolution"
+        ],
+        "questionText": "Un prix augmente de 20 %, puis baisse de 20 %. Par rapport au prix initial, il a :",
+        "options": [
+          {
+            "id": "B",
+            "text": "baissé de 4 %",
+            "isCorrect": true
+          },
+          {
+            "id": "A",
+            "text": "retrouvé sa valeur initiale",
+            "isCorrect": false,
+            "distractorRationale": "Additionne +20 % et −20 % au lieu de composer les coefficients multiplicateurs."
+          },
+          {
+            "id": "C",
+            "text": "augmenté de 4 %",
+            "isCorrect": false,
+            "distractorRationale": "Trouve l’écart de 4 % mais inverse son signe."
+          },
+          {
+            "id": "D",
+            "text": "baissé de 40 %",
+            "isCorrect": false,
+            "distractorRationale": "Additionne les amplitudes des deux variations sans tenir compte de leur sens ni de leur composition."
+          }
+        ],
+        "explanation": "Le coefficient global est 1,20×0,80=0,96. Le prix final représente 96 % du prix initial : baisse de 4 %."
+      },
+      {
+        "id": "ETL-MCO-TAU-02",
+        "subject": "MATHS_COMPLEMENTAIRES",
+        "category": "Taux d’évolution et évolutions successives",
+        "domainId": "taux-evolution",
+        "nodeCpsId": "seconde.maths-complementaires.taux-evolution",
+        "difficulty": 1,
+        "targetTimeSec": 45,
+        "shortCorrection": "Le taux d'évolution est (300−250)/250 = 50/250 = 0,20, soit +20 %.",
+        "weight": 1,
+        "competencies": [
+          "seconde.maths-complementaires.taux-evolution"
+        ],
+        "questionText": "Une valeur passe de 250 à 300. Quel est le taux d'évolution ?",
+        "options": [
+          {
+            "id": "A",
+            "text": "+50 %",
+            "isCorrect": false,
+            "distractorRationale": "Confond l’augmentation absolue de 50 avec un pourcentage de 50 %."
+          },
+          {
+            "id": "B",
+            "text": "+20 %",
+            "isCorrect": true
+          },
+          {
+            "id": "C",
+            "text": "+16,7 %",
+            "isCorrect": false,
+            "distractorRationale": "Rapporte l’augmentation à la valeur finale 300 au lieu de la valeur initiale 250."
+          },
+          {
+            "id": "D",
+            "text": "+1,2 %",
+            "isCorrect": false,
+            "distractorRationale": "Confond le coefficient multiplicateur 1,2 avec un taux exprimé en pourcentage."
+          }
+        ],
+        "explanation": "Le taux d'évolution est (300−250)/250 = 50/250 = 0,20, soit +20 %."
+      }
+    ]
+  },
+  "scoring": {
+    "engine": "facts.v1.0.1",
+    "domains": [
+      "suites-evolutions",
+      "derivation",
+      "exponentielle",
+      "logarithme-reperage",
+      "second-degre",
+      "probabilites-conditionnelles",
+      "variables-aleatoires",
+      "taux-evolution"
+    ]
+  },
+  "reporting": {
+    "rag": {
+      "enabled": false,
+      "decisionRef": "A56 — corpus RAG Terminale absent",
+      "sources": [],
+      "topK": 0
+    },
+    "promptFiles": {
+      "preAnalysis": {
+        "path": "content/bilans/prompts/entree-terminale-maths-complementaires-v1/pre-analysis.md",
+        "checksum": "f24978daa971618ac21ed33e4f654b74e98cd823b2ee273f87aca1183f517218"
+      },
+      "eleve": {
+        "path": "content/bilans/prompts/entree-terminale-maths-complementaires-v1/eleve.md",
+        "checksum": "e3cfcadd68d4ce6cce2eefbf36573857da000d91283f47a37e8f21019df4c35d"
+      },
+      "parents": {
+        "path": "content/bilans/prompts/entree-terminale-maths-complementaires-v1/parents.md",
+        "checksum": "f5834dbab15543490c2cecb851aa98f7023098a5b2d8692a2b35b590670c0795"
+      },
+      "nexus": {
+        "path": "content/bilans/prompts/entree-terminale-maths-complementaires-v1/nexus.md",
+        "checksum": "2923d602f37b398bc4e566f5c1bef0475a7f4fc66f6c4ed05334cf3cc67d82c5"
+      },
+      "verifier": {
+        "path": "content/bilans/prompts/entree-terminale-maths-complementaires-v1/verifier.md",
+        "checksum": "dd43acd06d49abea63c096a05c467ee83d8165775e103ef0dd10592127854131"
+      }
+    },
+    "outputSchemas": {
+      "preAnalysis": {
+        "type": "object",
+        "properties": {
+          "synthese": {
+            "type": "string",
+            "minLength": 1
+          },
+          "forcesPercues": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "craintes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "required": [
+          "synthese",
+          "forcesPercues",
+          "craintes"
+        ],
+        "additionalProperties": false
+      },
+      "eleve": {
+        "type": "object",
+        "properties": {
+          "accroche": {
+            "type": "string",
+            "minLength": 1
+          },
+          "forces": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "minItems": 3,
+            "maxItems": 3
+          },
+          "priorites": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "domainId": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "titre": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "pourquoi": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "comment": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "domainId",
+                "titre",
+                "pourquoi",
+                "comment"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "maxItems": 8
+          },
+          "microPlan": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "action": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "dureeMin": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              },
+              "required": [
+                "action",
+                "dureeMin"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "maxItems": 5
+          },
+          "motDeFin": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "accroche",
+          "forces",
+          "priorites",
+          "microPlan",
+          "motDeFin"
+        ],
+        "additionalProperties": false
+      },
+      "parents": {
+        "type": "object",
+        "properties": {
+          "cadre": {
+            "type": "string",
+            "minLength": 1
+          },
+          "pointsAppui": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "domainId": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "texte": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "domainId",
+                "texte"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "maxItems": 8
+          },
+          "priorites": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "domainId": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "titre": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "ceQuiSeraFait": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "domainId",
+                "titre",
+                "ceQuiSeraFait"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "maxItems": 8
+          },
+          "etapeSuivante": {
+            "type": "object",
+            "properties": {
+              "texte": {
+                "type": "string",
+                "minLength": 1
+              },
+              "cta": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "texte",
+              "cta"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "cadre",
+          "pointsAppui",
+          "priorites",
+          "etapeSuivante"
+        ],
+        "additionalProperties": false
+      },
+      "nexus": {
+        "type": "object",
+        "properties": {
+          "syntheseProfil": {
+            "type": "string",
+            "minLength": 1
+          },
+          "diagnosticPedagogique": {
+            "type": "string",
+            "minLength": 1
+          },
+          "planQuatreSemaines": {
+            "type": "string",
+            "minLength": 1
+          },
+          "alertes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "ragReferences": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "required": [
+          "syntheseProfil",
+          "diagnosticPedagogique",
+          "planQuatreSemaines",
+          "alertes",
+          "ragReferences"
+        ],
+        "additionalProperties": false
+      },
+      "verifier": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "type": "boolean"
+          },
+          "violations": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "required": [
+          "ok",
+          "violations"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "validation": {
+    "lexiconPath": "data/bilans/lexique-interdit.json",
+    "forbidDigits": [
+      "eleve",
+      "parents"
+    ]
+  }
+}
