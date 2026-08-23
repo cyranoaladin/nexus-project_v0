@@ -16,6 +16,131 @@ const terminaleDeuxEds: SituationInput = {
   specialites: ['MATHEMATIQUES', 'NSI'],
 };
 
+const premiereMathsFrancais: SituationInput = {
+  level: 'premiere',
+  examSession: 2027,
+  specialites: ['MATHEMATIQUES', 'FRANCAIS'],
+};
+
+const budgetsSansBilan = [100, 150, 250, 400, 600, 1200, 1290, 1690, 3000] as const;
+
+type ScenarioExpectation = {
+  monthlyTotal: number;
+  lines: Array<[subject: string, hoursPerMonth: number | null, unitPriceMonthly: number]>;
+  notRecommendedSubjects: string[];
+};
+
+const premiereSansBilanByBudget: Record<(typeof budgetsSansBilan)[number], [number, number, number]> = {
+  100: [150, 150, 650],
+  150: [150, 150, 650],
+  250: [150, 150, 650],
+  400: [400, 400, 650],
+  600: [400, 650, 650],
+  1200: [650, 650, 650],
+  1290: [650, 650, 650],
+  1690: [650, 650, 650],
+  3000: [650, 650, 650],
+};
+
+const terminaleSansBilanByBudget: Record<(typeof budgetsSansBilan)[number], [number, number, number]> = {
+  100: [150, 150, 1044],
+  150: [150, 150, 1044],
+  250: [150, 150, 1044],
+  400: [400, 400, 1044],
+  600: [544, 650, 1044],
+  1200: [1044, 1044, 1044],
+  1290: [1044, 1044, 1044],
+  1690: [1044, 1044, 1044],
+  3000: [1044, 1044, 1044],
+};
+
+const premiereScenarioByMonthlyTotal: Record<number, ScenarioExpectation> = {
+  150: {
+    monthlyTotal: 150,
+    lines: [['pilotage', 0, 150]],
+    notRecommendedSubjects: ['francais', 'maths-anticipees'],
+  },
+  400: {
+    monthlyTotal: 400,
+    lines: [
+      ['pilotage', 0, 150],
+      ['francais', 4, 250],
+    ],
+    notRecommendedSubjects: ['maths-anticipees'],
+  },
+  650: {
+    monthlyTotal: 650,
+    lines: [
+      ['pilotage', 0, 150],
+      ['francais', 4, 250],
+      ['maths-anticipees', 4, 250],
+    ],
+    notRecommendedSubjects: [],
+  },
+};
+
+const terminaleAlwaysNotRecommended = ['enseignement-scientifique', 'histoire-geographie', 'lva', 'lvb'];
+const terminaleScenarioByMonthlyTotal: Record<number, ScenarioExpectation> = {
+  150: {
+    monthlyTotal: 150,
+    lines: [['pilotage', 0, 150]],
+    notRecommendedSubjects: [...terminaleAlwaysNotRecommended, 'eds1', 'eds2', 'grand-oral', 'philosophie'],
+  },
+  400: {
+    monthlyTotal: 400,
+    lines: [
+      ['pilotage', 0, 150],
+      ['eds1', 4, 250],
+    ],
+    notRecommendedSubjects: [...terminaleAlwaysNotRecommended, 'eds2', 'grand-oral', 'philosophie'],
+  },
+  544: {
+    monthlyTotal: 544,
+    lines: [
+      ['pilotage', 0, 150],
+      ['eds1', 4, 250],
+      ['grand-oral', null, 144],
+    ],
+    notRecommendedSubjects: [...terminaleAlwaysNotRecommended, 'eds2', 'philosophie'],
+  },
+  650: {
+    monthlyTotal: 650,
+    lines: [
+      ['pilotage', 0, 150],
+      ['eds1', 4, 250],
+      ['eds2', 4, 250],
+    ],
+    notRecommendedSubjects: [...terminaleAlwaysNotRecommended, 'grand-oral', 'philosophie'],
+  },
+  1044: {
+    monthlyTotal: 1044,
+    lines: [
+      ['pilotage', 0, 150],
+      ['eds1', 4, 250],
+      ['eds2', 4, 250],
+      ['philosophie', 4, 250],
+      ['grand-oral', null, 144],
+    ],
+    notRecommendedSubjects: terminaleAlwaysNotRecommended,
+  },
+};
+
+function expectScenarioToMatchCharacterization(
+  scenario: ReturnType<typeof buildRecommendation>['scenarios'][number],
+  expectation: ScenarioExpectation,
+) {
+  expect(scenario.monthlyTotal).toBe(expectation.monthlyTotal);
+  expect(scenario.grandTotal).toBe(expectation.monthlyTotal * 10);
+  expect(scenario.months).toBe(10);
+  expect(scenario.matchedOfferId).toBeNull();
+  expect(scenario.lines.map((line) => [line.subject, line.hoursPerMonth, line.unitPriceMonthly])).toEqual(
+    expectation.lines,
+  );
+  expect(scenario.notRecommended.map((line) => line.subject).sort()).toEqual(
+    [...expectation.notRecommendedSubjects].sort(),
+  );
+}
+
 describe('buildRecommendation — sans bilan (no diagnostic yet)', () => {
   test('every subject resolves NON_EVALUE and still produces a usable estimation', () => {
     const result = buildRecommendation({
@@ -29,6 +154,47 @@ describe('buildRecommendation — sans bilan (no diagnostic yet)', () => {
       expect(scenario.monthlyTotal).toBeGreaterThan(0);
     }
   });
+
+  test.each([
+    ['Première', premiereMathsFrancais, premiereSansBilanByBudget, premiereScenarioByMonthlyTotal],
+    ['Terminale avec deux EDS', terminaleDeuxEds, terminaleSansBilanByBudget, terminaleScenarioByMonthlyTotal],
+  ] as const)(
+    '%s : la matrice budgétaire sans bilan reste reproductible et respecte les invariants',
+    (_label, situation, expectedTotalsByBudget, expectedScenarioByMonthlyTotal) => {
+      const completeTotals = new Set<number>();
+
+      for (const budget of budgetsSansBilan) {
+        const result = buildRecommendation({
+          situation,
+          diagnosticDomainScores: null,
+          budget: { monthlyBudgetTnd: budget, strategy: 'BEST_BALANCE' },
+        });
+        const [essentiel, recommande, complet] = result.scenarios;
+        const [expectedEssentiel, expectedRecommande, expectedComplet] = expectedTotalsByBudget[budget];
+
+        expect(result.scenarios.map((scenario) => scenario.tier)).toEqual(['ESSENTIEL', 'RECOMMANDE', 'COMPLET']);
+        expectScenarioToMatchCharacterization(essentiel, expectedScenarioByMonthlyTotal[expectedEssentiel]);
+        expectScenarioToMatchCharacterization(recommande, expectedScenarioByMonthlyTotal[expectedRecommande]);
+        expectScenarioToMatchCharacterization(complet, expectedScenarioByMonthlyTotal[expectedComplet]);
+
+        if (budget < 150) {
+          expect(essentiel.monthlyTotal).toBe(150);
+          expect(essentiel.lines).toHaveLength(1);
+          expect(essentiel.lines[0].modality).toBe('PILOTAGE');
+        } else {
+          expect(essentiel.monthlyTotal).toBeLessThanOrEqual(budget);
+        }
+        if (budget >= 150) {
+          expect(recommande.monthlyTotal).toBeLessThanOrEqual(Math.round(budget * 1.1));
+        }
+        expect(complet.monthlyTotal).toBeGreaterThanOrEqual(essentiel.monthlyTotal);
+        expect(complet.monthlyTotal).toBeGreaterThanOrEqual(recommande.monthlyTotal);
+        completeTotals.add(complet.monthlyTotal);
+      }
+
+      expect(completeTotals.size).toBe(1);
+    },
+  );
 });
 
 describe('buildRecommendation — avec bilan, matière solide non vendue', () => {
