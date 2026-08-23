@@ -175,13 +175,18 @@ describe('Saisie papier — certitude absente', () => {
   });
 });
 
-describe('Saisie papier MCO — certitude obligatoire sur une réponse cochée', () => {
-  it('rejette une réponse cochée sans certitude', () => {
-    expect(() => buildPaperEntryAnswers(MCO_ENABLED_PACK, [{
+describe('Saisie papier MCO — certitude absente sur la copie', () => {
+  it('accepte et conserve une réponse cochée sans certitude', () => {
+    const stored = buildPaperEntryAnswers(MCO_ENABLED_PACK, [{
       itemId: MCO_ITEM.id,
       optionId: MCO_ITEM.options[0].id,
       confidence: null,
-    }])).toThrow('PAPER_ENTRY_CONFIDENCE_REQUIRED');
+    }]);
+
+    expect(stored[MCO_ITEM.id]).toEqual({
+      optionId: MCO_ITEM.options[0].id,
+      confidence: null,
+    });
   });
 
   it('autorise toujours une question déclarée sans réponse', () => {

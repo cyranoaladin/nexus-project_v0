@@ -21,7 +21,6 @@ export type PaperEntryGridProps = Readonly<{
   packTitle: string;
   items: readonly PaperEntryGridItem[];
   childSelectionHref?: string;
-  confidenceRequired?: boolean;
 }>;
 
 /** `undefined` : la case n'a pas encore été traitée par le saisisseur. */
@@ -43,7 +42,6 @@ export function PaperEntryGrid({
   packTitle,
   items,
   childSelectionHref = '/dashboard/assistante/bilans/saisie-papier',
-  confidenceRequired = false,
 }: PaperEntryGridProps) {
   const router = useRouter();
   // 'SANS_REPONSE' : l'élève n'a pas répondu — un état que la saisissante
@@ -64,12 +62,9 @@ export function PaperEntryGrid({
   const untouchedConfidence = useMemo(
     () => items.filter((item) => (
       options[item.id] !== 'SANS_REPONSE'
-      && (
-        confidences[item.id] === undefined
-        || (confidenceRequired && confidences[item.id] === 'ABSENTE')
-      )
+      && confidences[item.id] === undefined
     )),
-    [items, options, confidences, confidenceRequired],
+    [items, options, confidences],
   );
   const absentConfidence = useMemo(
     () => items.filter((item) => options[item.id] !== 'SANS_REPONSE' && confidences[item.id] === 'ABSENTE'),
@@ -136,12 +131,8 @@ export function PaperEntryGrid({
         </p>
         <p className="mt-4 max-w-3xl text-sm leading-6 text-slate-300">
           Reportez, pour chaque question, la réponse entourée sur la copie et la certitude cochée par l’élève.
-          {confidenceRequired ? (
-            <> Pour ce questionnaire, chaque réponse cochée doit avoir une certitude de 1 à 4.</>
-          ) : (
-            <> Si une case de certitude manque sur la copie, choisissez «&nbsp;Absente de la copie&nbsp;» :
-              n’en devinez jamais une.</>
-          )}
+          {' '}Si une case de certitude manque sur la copie, choisissez «&nbsp;Absente de la copie&nbsp;» :
+          n’en devinez jamais une.
         </p>
       </div>
 
@@ -231,25 +222,23 @@ export function PaperEntryGrid({
                       {level}
                     </label>
                   ))}
-                  {!confidenceRequired && (
-                    <label
-                      className={`cursor-pointer rounded-xl border px-3 py-2 text-sm ${
-                        confidence === 'ABSENTE'
-                          ? 'border-slate-300 bg-white/10 text-white'
-                          : 'border-dashed border-white/20 text-slate-400'
-                      }`}
-                    >
-                      <input
-                        type="radio"
-                        className="sr-only"
-                        name={`confidence-${item.id}`}
-                        value="ABSENTE"
-                        checked={confidence === 'ABSENTE'}
-                        onChange={() => setConfidences((current) => ({ ...current, [item.id]: 'ABSENTE' }))}
-                      />
-                      Absente de la copie
-                    </label>
-                  )}
+                  <label
+                    className={`cursor-pointer rounded-xl border px-3 py-2 text-sm ${
+                      confidence === 'ABSENTE'
+                        ? 'border-slate-300 bg-white/10 text-white'
+                        : 'border-dashed border-white/20 text-slate-400'
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      className="sr-only"
+                      name={`confidence-${item.id}`}
+                      value="ABSENTE"
+                      checked={confidence === 'ABSENTE'}
+                      onChange={() => setConfidences((current) => ({ ...current, [item.id]: 'ABSENTE' }))}
+                    />
+                    Absente de la copie
+                  </label>
                 </div>
               </fieldset>
             </li>
@@ -264,7 +253,7 @@ export function PaperEntryGrid({
               <>Réponse manquante&nbsp;: {missingOption.map(({ position }) => `Q${position}`).join(', ')}. </>
             )}
             {untouchedConfidence.length > 0 && (
-              <>{confidenceRequired ? 'Certitude obligatoire manquante' : 'Certitude non traitée'}&nbsp;:{' '}
+              <>Certitude non traitée&nbsp;:{' '}
                 {untouchedConfidence.map(({ position }) => `Q${position}`).join(', ')}.</>
             )}
           </p>

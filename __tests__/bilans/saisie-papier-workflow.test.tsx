@@ -221,14 +221,13 @@ describe('Fil guidé de saisie papier', () => {
     expect(screen.getByRole('button', { name: 'Valider la saisie papier' })).toBeEnabled();
   });
 
-  it('exige une certitude 1–4 pour une réponse cochée lorsque le pack le demande', () => {
+  it('permet de déclarer la certitude absente sur une réponse MCO cochée', () => {
     render(
       <PaperEntryGrid
         studentId="student-mco"
         studentName="Élève MCO"
         packSlug="entree-terminale-maths-complementaires-v1"
         packTitle="Terminale · Mathématiques complémentaires"
-        confidenceRequired
         items={[{
           id: 'q1',
           position: 1,
@@ -238,12 +237,11 @@ describe('Fil guidé de saisie papier', () => {
       />,
     );
 
-    expect(screen.queryByRole('radio', { name: 'Absente de la copie' })).not.toBeInTheDocument();
     const submit = screen.getByRole('button', { name: 'Valider la saisie papier' });
     expect(submit).toBeDisabled();
     fireEvent.click(screen.getByRole('radio', { name: 'A Réponse A' }));
     expect(submit).toBeDisabled();
-    fireEvent.click(screen.getByRole('radio', { name: '4' }));
+    fireEvent.click(screen.getByRole('radio', { name: 'Absente de la copie' }));
     expect(submit).toBeEnabled();
   });
 

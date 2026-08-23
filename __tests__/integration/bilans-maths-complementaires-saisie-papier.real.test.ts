@@ -154,7 +154,8 @@ function buildCopyB(): PaperCopy {
   copy['ETL-MCO-LOG-02'] = { optionId: correctLetter('ETL-MCO-LOG-02'), confidence: 2 };
   // Une question laissée sans réponse sur la copie.
   copy['ETL-MCO-VAR-01'] = { optionId: null, confidence: null };
-  copy['ETL-MCO-TAU-02'] = { optionId: correctLetter('ETL-MCO-TAU-02'), confidence: 2 };
+  // Réponse cochée, mais aucune case de certitude cochée sur la copie.
+  copy['ETL-MCO-TAU-02'] = { optionId: correctLetter('ETL-MCO-TAU-02'), confidence: null };
   return copy;
 }
 
@@ -495,20 +496,6 @@ describe('Mathématiques complémentaires — chaîne copie papier → bilan sur
       expect(response.status).toBe(400);
     });
 
-    test('réponse cochée sans certitude → 400 PAPER_ENTRY_CONFIDENCE_REQUIRED, rien n’est écrit', async () => {
-      const before = await prisma.canonicalAssessmentAttempt.count({ where: { studentId } });
-      const response = await paperHandler(staffUserId)(paperRequest(`${PREFIX}g-7b`, {
-        studentId, packSlug: PACK_SLUG,
-        answers: answersFromCopy(copy).map((answer) => (
-          answer.itemId === 'ETL-MCO-SUI-01' ? { ...answer, confidence: null } : answer
-        )),
-      }));
-      expect(response.status).toBe(400);
-      expect((await response.json() as { error: { code: string } }).error.code)
-        .toBe('PAPER_ENTRY_CONFIDENCE_REQUIRED');
-      expect(await prisma.canonicalAssessmentAttempt.count({ where: { studentId } })).toBe(before);
-    });
-
     test('un parent ou un élève n’atteint pas la route → 404', async () => {
       const asParent = await paperHandler(parentUserId, 'PARENT')(paperRequest(`${PREFIX}g-8`, {
         studentId, packSlug: PACK_SLUG, answers: answersFromCopy(copy),
@@ -681,7 +668,7 @@ describe('Mathématiques complémentaires — chaîne copie papier → bilan sur
     let factSheet: FactSheet;
     let revisionId: string;
 
-    test('la copie est enregistrée avec sa question sans réponse et ses certitudes 1–4', async () => {
+    test('la copie est enregistrée avec sa question sans réponse et sa certitude absente', async () => {
       const response = await paperHandler(staffUserId)(paperRequest(`${PREFIX}B-1`, {
         studentId: studentBId, packSlug: PACK_SLUG, answers: answersFromCopy(copy),
       }));
@@ -690,7 +677,7 @@ describe('Mathématiques complémentaires — chaîne copie papier → bilan sur
       const attempt = await prisma.canonicalAssessmentAttempt.findUniqueOrThrow({ where: { id: attemptId } });
       const answers = attempt.answers as Record<string, { optionId: string | null; confidence: number | null }>;
       expect(answers['ETL-MCO-VAR-01']).toEqual({ optionId: null, confidence: null });
-      expect(answers['ETL-MCO-TAU-02']).toEqual({ optionId: correctLetter('ETL-MCO-TAU-02'), confidence: 2 });
+      expect(answers['ETL-MCO-TAU-02']).toEqual({ optionId: correctLetter('ETL-MCO-TAU-02'), confidence: null });
       expect(answers['ETL-MCO-PRO-02']).toEqual({ optionId: 'A', confidence: 4 });
     });
 
@@ -713,7 +700,8 @@ describe('Mathématiques complémentaires — chaîne copie papier → bilan sur
       expect(byId['probabilites-conditionnelles'].profile).toBe('ERREUR_CONFIANTE');
       expect(byId['logarithme-reperage'].profile).toBe('LACUNE_CONSCIENTE');
       expect(byId['variables-aleatoires'].profile).toBe('MAITRISE_FRAGILE');
-      // TAU-01 sûr (poids 1) et TAU-02 peu sûr (poids 1) : masses égales → MAITRISE.
+      // TAU-01 sûr (poids 1) et TAU-02 sans certitude, classée non sûre par le
+      // modèle canonique actuel (poids 1) : masses égales → MAITRISE.
       expect(byId['taux-evolution'].profile).toBe('MAITRISE');
       expect(byId['exponentielle'].profile).toBe('MAITRISE');
       expect(byId['second-degre'].profile).toBe('MAITRISE');
@@ -733,7 +721,7 @@ describe('Mathématiques complémentaires — chaîne copie papier → bilan sur
         expect(payload.isConfident).toBe(want.isConfident);
         expect(payload.answered).toBe(want.answered);
       }
-      // Certitude 2 : la réponse juste reste classée comme maîtrise fragile.
+      // Certitude absente : la réponse juste garde le profil canonique actuel de maîtrise fragile.
       const tau = evidence.find(({ sourceKey }) => sourceKey === 'ETL-MCO-TAU-02')!.payload as { profile: string };
       expect(tau.profile).toBe('MAITRISE_FRAGILE');
     });
