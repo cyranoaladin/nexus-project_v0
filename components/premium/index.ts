@@ -4,7 +4,6 @@ export { CarteNexusCard } from './CarteNexusCard';
 export { ComparisonTable, type ComparisonRow } from './ComparisonTable';
 export { FAQAccordion, type FAQItem } from './FAQAccordion';
 export { MethodSection } from './MethodSection';
-export { ForWhoSection } from './ForWhoSection';
 export { HeroSection } from './HeroSection';
 export { RecommendationWizard } from './RecommendationWizard';
 export { fmtTND, fmtPrice, fmtMonthly, fmtDesMonthly, fmtGroup, fmtDiscount } from './format';

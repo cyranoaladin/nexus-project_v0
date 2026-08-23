@@ -17,7 +17,6 @@ const publicMarketingFiles = [
   'components/marketing/LandingNiche.tsx',
   'components/marketing/OfferDetailDialog.tsx',
   'components/marketing/MobileStickyBar.tsx',
-  'components/premium/ForWhoSection.tsx',
   'components/premium/HeroSection.tsx',
   'content/social-proof.json',
   'content/team.json',
