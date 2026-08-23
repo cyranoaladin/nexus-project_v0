@@ -22,6 +22,8 @@ function buildTestData(): RecommendationData {
         subjects: offer.subjects, hours_per_week: offer.hours_per_week, hours_per_year: offer.hours_per_year,
         group_max: offer.group_max, group_min_open: offer.group_min_open, price_annual: offer.price_annual,
         included: offer.included, pricing_display: offer.pricing_display,
+        price_qualifier: offer.price_qualifier,
+        hours_per_month_is_ceiling: offer.hours_per_month_is_ceiling,
         payment: payment ? { ...payment, depositPct: rules.payment.deposit_pct_annual } : undefined,
         normalizedLevel: normalizePricingLevel(offer.level),
       };
@@ -91,5 +93,41 @@ describe('recommendation engine', () => {
         expect(card.ctaHref).toBe('/devis-bac');
       }
     }
+  });
+
+  it('preserves canonical price and annual-volume qualifiers on candidat individuel cards', () => {
+    const data = buildTestData();
+    const expectedTitles = {
+      premiere: [
+        'Nexus Libre — Pilotage',
+        'Nexus Libre — Sur mesure',
+        'Première Libre — Cap Anticipées',
+        'Première Libre — Renforcée',
+      ],
+      terminale: [
+        'Nexus Libre — Pilotage',
+        'Nexus Libre — Sur mesure',
+        'Terminale Libre — Focus Bac',
+        'Terminale Libre — Intégrale',
+      ],
+    } as const;
+
+    for (const level of ['premiere', 'terminale'] as const) {
+      const outcome = buildRecommendationOutcome({ need: 'annual', track: 'libre', level }, data);
+      expect(outcome.cards.map((card) => card.title)).toEqual(expectedTitles[level]);
+      expect(outcome.cards.find((card) => card.title === 'Nexus Libre — Sur mesure')?.priceQualifier).toBe('from');
+    }
+
+    const terminale = buildRecommendationOutcome({ need: 'annual', track: 'libre', level: 'terminale' }, data);
+    expect(terminale.cards.find((card) => card.title === 'Nexus Libre — Pilotage')).toEqual(
+      expect.objectContaining({ effectifType: 'none', eyebrow: 'Candidat individuel' }),
+    );
+    expect(terminale.cards.find((card) => card.title === 'Terminale Libre — Intégrale')?.totalHoursIsCeiling).toBe(true);
+  });
+
+  it.each(['seconde', 'troisieme'])('does not route %s pupils to the Bac candidat-individuel wizard', (level) => {
+    const outcome = buildRecommendationOutcome({ need: 'annual', track: 'libre', level }, buildTestData());
+    expect(outcome.cards).toHaveLength(0);
+    expect(outcome.emptyState?.title).toContain('Aucune formule');
   });
 });

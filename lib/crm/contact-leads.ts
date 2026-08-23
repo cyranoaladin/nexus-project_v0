@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import type { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { enqueueEmailIntent } from '@/lib/email/outbox';
 import { kickEmailOutboxDrain } from '@/lib/email/outbox-scheduler';
@@ -41,6 +42,8 @@ export class ContactLeadValidationError extends Error {
 
 export type ContactLeadInput = z.input<typeof contactLeadPayloadSchema>;
 
+type ContactLeadTransaction = Pick<Prisma.TransactionClient, 'contactLead' | 'jobOutbox'>;
+
 function getLeadNotificationRecipient(): string {
   return (
     process.env.CRM_LEAD_NOTIFICATION_EMAIL ||
@@ -51,7 +54,7 @@ function getLeadNotificationRecipient(): string {
   );
 }
 
-export async function captureContactLead(payload: unknown) {
+function parseContactLeadPayload(payload: unknown) {
   const rawPayload = payload as Record<string, unknown> | null;
   const rawName = String(rawPayload?.name ?? '').trim();
   const rawEmail = String(rawPayload?.email ?? '').trim();
@@ -70,45 +73,57 @@ export async function captureContactLead(payload: unknown) {
     throw new ContactLeadValidationError('missing_required');
   }
 
-  const lead = await prisma.$transaction(async (tx) => {
-    const created = await tx.contactLead.create({
-      data: {
-        name: data.name,
-        email: data.email,
-        phone: data.phone,
-        profile: data.profile,
-        interest: data.interest,
-        urgency: data.urgency,
-        source: data.source,
-        status: 'NEW',
-        notes: data.notes,
-      },
-    });
-    const template = contactLeadNotification({
-      id: created.id,
-      name: created.name,
-      email: created.email,
-      phone: created.phone,
-      profile: created.profile,
-      interest: created.interest,
-      urgency: created.urgency,
-      source: created.source,
-      createdAt: created.createdAt,
-    });
-    await enqueueEmailIntent(tx, {
-      aggregateType: 'CONTACT_LEAD',
-      aggregateId: created.id,
-      messageType: 'TRANSACTIONAL_NOTIFICATION',
-      dedupeKey: created.id,
-      to: getLeadNotificationRecipient(),
-      subject: template.subject,
-      html: template.html,
-      text: template.text,
-      replyTo: created.email,
-    });
-    return created;
-  });
-  kickEmailOutboxDrain();
+  return data;
+}
 
+/** Create the lead and its notification intent inside the caller's transaction. */
+export async function captureContactLeadInTransaction(transaction: ContactLeadTransaction, payload: unknown) {
+  const data = parseContactLeadPayload(payload);
+  const created = await transaction.contactLead.create({
+    data: {
+      name: data.name,
+      email: data.email,
+      phone: data.phone,
+      profile: data.profile,
+      interest: data.interest,
+      urgency: data.urgency,
+      source: data.source,
+      status: 'NEW',
+      notes: data.notes,
+    },
+  });
+  const template = contactLeadNotification({
+    id: created.id,
+    name: created.name,
+    email: created.email,
+    phone: created.phone,
+    profile: created.profile,
+    interest: created.interest,
+    urgency: created.urgency,
+    source: created.source,
+    createdAt: created.createdAt,
+  });
+  await enqueueEmailIntent(transaction, {
+    aggregateType: 'CONTACT_LEAD',
+    aggregateId: created.id,
+    messageType: 'TRANSACTIONAL_NOTIFICATION',
+    dedupeKey: created.id,
+    to: getLeadNotificationRecipient(),
+    subject: template.subject,
+    html: template.html,
+    text: template.text,
+    replyTo: created.email,
+  });
+  return created;
+}
+
+/** Call only after the transaction containing the outbox row has committed. */
+export function notifyContactLeadCaptureCommitted(): void {
+  kickEmailOutboxDrain();
+}
+
+export async function captureContactLead(payload: unknown) {
+  const lead = await prisma.$transaction((transaction) => captureContactLeadInTransaction(transaction, payload));
+  notifyContactLeadCaptureCommitted();
   return lead;
 }

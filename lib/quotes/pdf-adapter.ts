@@ -68,11 +68,12 @@ function buildInstallments(scenario: QuoteScenario): QuotePDFData['offer']['ech'
 }
 
 function buildIncludedLines(scenario: QuoteScenario): string[] {
-  return scenario.lines.map((line) =>
+  const lines = scenario.lines.map((line) =>
     line.hoursPerMonth != null && line.hoursPerMonth > 0
       ? `${line.label} — ${line.hoursPerMonth} h/mois`
       : line.label,
   );
+  return [...lines, ...(scenario.includedFeatures ?? [])];
 }
 
 export function buildQuotePdfData(input: QuotePdfAdapterInput): QuotePDFData {

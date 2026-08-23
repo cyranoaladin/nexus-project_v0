@@ -78,6 +78,7 @@ export function DevisWorkspace() {
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<RecommendationResult | null>(null);
   const [marginByTier, setMarginByTier] = useState<Record<string, MarginComputation> | null>(null);
+  const calculationEpochRef = useRef(0);
 
   const [creating, setCreating] = useState(false);
   const [createdQuote, setCreatedQuote] = useState<{
@@ -85,6 +86,8 @@ export function DevisWorkspace() {
     token: string | null;
     scenario: QuoteScenario;
     situation: SituationInput;
+    validUntil: Date;
+    lead: Pick<ContactLeadSearchResult, 'name' | 'email' | 'phone'> | null;
   } | null>(null);
   const [createError, setCreateError] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
@@ -105,6 +108,14 @@ export function DevisWorkspace() {
     specialites,
     diagnosticId: diagnosticId || undefined,
   };
+
+  useEffect(() => {
+    calculationEpochRef.current += 1;
+    setResult(null);
+    setMarginByTier(null);
+    setLoading(false);
+    setError(null);
+  }, [level, eds1, eds2, budget, strategy, diagnosticId]);
 
   // Debounced lead search — fires 300ms after the user stops typing, only
   // once there's enough signal (2+ chars) to avoid a full-table scan on
@@ -171,6 +182,7 @@ export function DevisWorkspace() {
   }
 
   async function handleCalculate() {
+    const calculationEpoch = calculationEpochRef.current;
     setLoading(true);
     setError(null);
     setCreatedQuote(null);
@@ -196,6 +208,7 @@ export function DevisWorkspace() {
       ]);
       if (!recRes.ok) throw new Error('recommend_failed');
       const recJson = await recRes.json();
+      if (calculationEpoch !== calculationEpochRef.current) return;
       setResult(recJson.result as RecommendationResult);
 
       if (marginRes.ok) {
@@ -205,9 +218,10 @@ export function DevisWorkspace() {
         setMarginByTier(null);
       }
     } catch {
+      if (calculationEpoch !== calculationEpochRef.current) return;
       setError('Erreur lors du calcul. Réessayez.');
     } finally {
-      setLoading(false);
+      if (calculationEpoch === calculationEpochRef.current) setLoading(false);
     }
   }
 
@@ -240,8 +254,12 @@ export function DevisWorkspace() {
       setCreatedQuote({
         quoteId: json.quoteId,
         token: json.token,
-        scenario,
-        situation: { level, examSession: SUPPORTED_SESSION, specialites: situation.specialites },
+        scenario: json.scenario as QuoteScenario,
+        situation: json.situation as SituationInput,
+        validUntil: new Date(json.validUntil as string),
+        lead: selectedLead
+          ? { name: selectedLead.name, email: selectedLead.email, phone: selectedLead.phone }
+          : null,
       });
     } catch {
       setCreateError('Impossible de créer le devis. Vérifiez les identifiants saisis.');
@@ -268,21 +286,16 @@ export function DevisWorkspace() {
     setPdfDownloading(true);
     setPdfError(null);
     try {
-      // The create response doesn't echo validUntil back — the persistence
-      // layer always sets it to 30 days from creation (createQuote in
-      // lib/quotes/persistence.server.ts), so it's reproduced here rather
-      // than adding a round-trip just to read it back.
-      const validUntil = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
       const payload = buildQuotePdfData({
         situation: createdQuote.situation,
         scenario: createdQuote.scenario,
         quoteId: createdQuote.quoteId,
-        validUntil,
+        validUntil: createdQuote.validUntil,
         advisorName:
           [session?.user?.firstName, session?.user?.lastName].filter(Boolean).join(' ') || 'Nexus Réussite',
-        leadName: selectedLead?.name ?? 'Non renseigné',
-        leadEmail: selectedLead?.email ?? '',
-        leadPhone: selectedLead?.phone ?? '',
+        leadName: createdQuote.lead?.name ?? 'Non renseigné',
+        leadEmail: createdQuote.lead?.email ?? '',
+        leadPhone: createdQuote.lead?.phone ?? '',
       });
       const res = await fetch('/api/assistante/quotes/pdf', {
         method: 'POST',
@@ -361,8 +374,8 @@ export function DevisWorkspace() {
             </>
           )}
           <div className="space-y-2">
-            <Label>Budget mensuel (TND)</Label>
-            <Input type="number" value={budget} onChange={(e) => setBudget(Number(e.target.value))} min={0} />
+            <Label htmlFor="quote-monthly-budget">Budget mensuel (TND)</Label>
+            <Input id="quote-monthly-budget" type="number" value={budget} onChange={(e) => setBudget(Number(e.target.value))} min={0} />
           </div>
           <div className="space-y-2">
             <Label>Stratégie</Label>
