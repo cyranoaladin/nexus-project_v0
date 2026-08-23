@@ -1,0 +1,106 @@
+{
+  "session": 2027,
+  "track": "bac_general",
+  "validFrom": "2026-08-01",
+  "validUntil": null,
+  "lastVerifiedAt": "2026-08-22",
+  "verifiedBy": "regulatory-research-pass",
+  "sources": [
+    {
+      "label": "Introduction de l'épreuve anticipée de mathématiques (EAM) au baccalauréat général",
+      "url": "https://www.education.gouv.fr/",
+      "note": "Décret n°2025-513 et arrêté du 10 juin 2025 : nouvelle épreuve anticipée de mathématiques, coefficient 2, première session concernée juin 2026 (candidats de Première), diplôme délivré à compter de la session 2027."
+    },
+    {
+      "label": "Réduction du coefficient du Grand Oral (voie générale) de 10 à 8",
+      "url": "https://www.education.gouv.fr/",
+      "note": "Conséquence directe de l'introduction de l'EAM (coef 2) : le Grand Oral passe de coefficient 10 à coefficient 8 pour préserver la répartition 60 % anticipées+terminales / 40 % ponctuelles."
+    },
+    {
+      "label": "Épreuves ponctuelles des candidats individuels (EMC, tronc commun)",
+      "url": "https://www.education.gouv.fr/bo/2025/Hebdo48",
+      "note": "Bulletin officiel MENE2531481N — coefficient EMC = 2 pour les évaluations ponctuelles."
+    },
+    {
+      "label": "Conservation des notes du baccalauréat",
+      "url": "https://eduscol.education.gouv.fr/5655",
+      "note": "Notes >= 10/20 conservées pendant les 5 sessions suivant la première tentative, sur demande à chaque réinscription."
+    },
+    {
+      "label": "Candidats autorisés à présenter anticipées et terminales à la même session (Article 3)",
+      "url": "https://www.legifrance.gouv.fr/loda/article_lc/LEGIARTI000037208154",
+      "note": "Arrêté du 16 juillet 2018, article 3 — texte consulté directement (source primaire), verbatim repris dans candidatIndividuelRules.sameSessionEligibility."
+    },
+    {
+      "label": "EPS obligatoire, épreuve ponctuelle des candidats individuels",
+      "url": "https://www.siec.education.fr/",
+      "note": "Arrêté du 21 décembre 2011 — coefficient 6, contrôle en cours de formation ou examen ponctuel terminal selon la situation du candidat."
+    },
+    {
+      "label": "Institut français de Tunisie — inscriptions candidats individuels",
+      "url": "https://institutfrancais-tunisie.com/examens-concours",
+      "note": "Circuit Cyclades, dépôt de dossier et frais à l'IFT, académie de rattachement Aix-Marseille. Dates et frais non publiés de façon stable : à reconfirmer chaque session directement auprès de l'IFT."
+    }
+  ],
+  "epreuves": [
+    { "id": "eaf-ecrit", "label": "Français écrit", "type": "anticipe", "coefficient": 5, "timing": "fin_premiere" },
+    { "id": "eaf-oral", "label": "Français oral", "type": "anticipe", "coefficient": 5, "timing": "fin_premiere" },
+    { "id": "eam", "label": "Mathématiques anticipées (EAM)", "type": "anticipe", "coefficient": 2, "timing": "fin_premiere", "introducedSession": 2027 },
+    { "id": "eds1", "label": "Enseignement de spécialité 1 (conservé)", "type": "terminal", "coefficient": 16, "timing": "fin_terminale" },
+    { "id": "eds2", "label": "Enseignement de spécialité 2 (conservé)", "type": "terminal", "coefficient": 16, "timing": "fin_terminale" },
+    { "id": "philosophie", "label": "Philosophie", "type": "terminal", "coefficient": 8, "timing": "fin_terminale" },
+    { "id": "grand-oral", "label": "Grand Oral", "type": "terminal", "coefficient": 8, "timing": "fin_terminale", "note": "Coefficient réduit de 10 à 8 depuis la session 2027, en conséquence de l'introduction de l'EAM." },
+    { "id": "histoire-geographie", "label": "Histoire-Géographie", "type": "ponctuel", "coefficient": 6, "timing": "selon_modalite" },
+    { "id": "lva", "label": "Langue vivante A", "type": "ponctuel", "coefficient": 6, "timing": "selon_modalite" },
+    { "id": "lvb", "label": "Langue vivante B", "type": "ponctuel", "coefficient": 6, "timing": "selon_modalite" },
+    { "id": "enseignement-scientifique", "label": "Enseignement scientifique", "type": "ponctuel", "coefficient": 6, "timing": "selon_modalite" },
+    { "id": "eps", "label": "Éducation physique et sportive", "type": "ponctuel", "coefficient": 6, "timing": "selon_modalite", "note": "Contrôle en cours de formation ou examen ponctuel terminal selon la situation du candidat (arrêté du 21 décembre 2011)." },
+    { "id": "emc", "label": "Enseignement moral et civique", "type": "ponctuel", "coefficient": 2, "timing": "selon_modalite" },
+    { "id": "specialite-abandonnee", "label": "Spécialité de première non poursuivie en terminale", "type": "ponctuel", "coefficient": 8, "timing": "selon_modalite", "note": "Épreuve ponctuelle sur le programme de première." }
+  ],
+  "totalCoefficient": 100,
+  "candidatIndividuelRules": {
+    "controleContinuReplacedBy": "evaluations_ponctuelles",
+    "ponctuellesModality": {
+      "choiceGranularity": "global_not_per_subject",
+      "chosenAtRegistrationLevel": "premiere",
+      "options": [
+        { "id": "A", "label": "Ponctuelles regroupées en fin de cycle terminal" },
+        { "id": "B", "label": "Ponctuelles réparties entre la fin de première et la fin de terminale" }
+      ],
+      "note": "Le choix de modalité ne change QUE le moment où les épreuves ponctuelles sont passées. L'EAF et l'EAM restent des épreuves anticipées passées en fin de Première quelle que soit la modalité choisie. Une modalité 'regroupée en fin de cycle' n'implique PAS que le candidat prépare et passe anticipées et terminales la même année — voir sameSessionEligibility, qui est un dispositif distinct et beaucoup plus restrictif."
+    },
+    "noteConservation": {
+      "thresholdOutOf20": 10,
+      "validSessions": 5,
+      "note": "Notes >= 10/20 conservées pendant les 5 sessions suivant la première tentative, sur demande explicite à chaque réinscription."
+    },
+    "sameSessionEligibility": {
+      "sourceArticle": "Article 3, arrêté du 16 juillet 2018",
+      "sourceUrl": "https://www.legifrance.gouv.fr/loda/article_lc/LEGIARTI000037208154",
+      "generalRule": "Anticipées et terminales sont normalement présentées lors de deux sessions différentes (cycle de deux ans). La présentation à la même session est une exception nommément encadrée, pas une conséquence du choix de modalité des ponctuelles.",
+      "conditions": [
+        { "id": "age20", "label": "Candidat âgé d'au moins 20 ans au 31 décembre de l'année de l'examen", "autoCheckable": true },
+        { "id": "enfant_charge", "label": "Candidat ayant un enfant à charge au moment de l'inscription", "autoCheckable": true },
+        { "id": "retour_formation", "label": "Candidat de retour en formation initiale", "autoCheckable": false },
+        { "id": "force_majeure", "label": "Empêchement pour force majeure dûment constatée lors d'une inscription antérieure aux épreuves anticipées", "autoCheckable": false },
+        { "id": "residence_temporaire_etranger_premiere", "label": "Candidat résidant temporairement à l'étranger au niveau de la classe de première", "autoCheckable": false },
+        { "id": "residence_permanente_sans_centre", "label": "Candidat résidant de façon permanente à l'étranger dans un pays sans centre d'examen, ou avec un centre trop éloigné de sa résidence", "autoCheckable": false, "note": "La Tunisie dispose d'un centre d'examen (Institut français de Tunisie, académie de rattachement Aix-Marseille) : cette condition ne s'applique en général PAS à un candidat résidant en Tunisie, sauf argument de centre trop éloigné tranché au cas par cas par l'académie — jamais déductible automatiquement." },
+        { "id": "echec_anterieur", "label": "Candidat ayant déjà échoué au baccalauréat général ou technologique et se représentant", "autoCheckable": true },
+        { "id": "anticipees_non_reinscrit", "label": "Candidat ayant présenté les épreuves anticipées mais non réinscrit l'année suivante", "autoCheckable": false },
+        { "id": "deja_titulaire_bac", "label": "Candidat déjà titulaire d'un baccalauréat général, technologique, professionnel, d'un BT ou d'un BTA", "autoCheckable": true },
+        { "id": "diplome_etranger_comparable", "label": "Candidat titulaire d'un diplôme étranger sanctionnant des études d'un niveau et d'une durée comparables aux études secondaires françaises", "autoCheckable": true, "note": "Cas fréquent pour des candidats scolarisés en Tunisie hors système français." },
+        { "id": "changement_voie_serie_terminale", "label": "Candidat ayant changé de voie ou de série au niveau de la classe de terminale", "autoCheckable": false }
+      ],
+      "engineRule": "ELIGIBLE uniquement si au moins une condition avec autoCheckable=true est confirmée positivement par les réponses du candidat. Dans tous les autres cas : ELIGIBILITY_REQUIRES_HUMAN_REVIEW. Ne jamais déduire l'éligibilité de la seule résidence en Tunisie, ni du choix de modalité des évaluations ponctuelles, ni d'aucune règle non listée ici."
+    }
+  },
+  "tunisiaSpecific": {
+    "registrationPortal": "Cyclades",
+    "academieDeRattachement": "Aix-Marseille",
+    "localContact": "Institut français de Tunisie (IFT) — bureau.examens@institutfrancais-tunisie.com",
+    "registrationWindowNote": "Fenêtre d'inscription généralement mi-octobre à mi-novembre — à reconfirmer chaque session directement auprès de l'IFT, jamais affichée comme définitive.",
+    "feesNote": "Frais non publiés officiellement de façon stable — à confirmer directement auprès de l'IFT avant tout engagement commercial.",
+    "confidence": "UNCERTAIN"
+  }
+}

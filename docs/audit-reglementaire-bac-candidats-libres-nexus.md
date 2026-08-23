@@ -1,8 +1,10 @@
 # Audit réglementaire — Bac français, candidats libres, Nexus Réussite (2026/2027)
 
 > **Usage interne — document de travail.** Ne pas diffuser sans validation direction.  
-> Dernière mise à jour : juin 2026  
+> Dernière mise à jour : 22 août 2026 (revalidation réglementaire live — voir corrections ci-dessous)  
 > Responsable : équipe pédagogique Nexus Réussite
+>
+> **Source canonique versionnée** : les coefficients et règles ci-dessous sont maintenant encodés et testés dans `data/exams/bac-general-2027.json` (schéma `lib/exams/schema.ts`, chargeur `lib/exams/catalog.ts`, tests `__tests__/lib/exams-catalog.test.ts`). Ce document reste la trace narrative de l'audit ; en cas de divergence, le JSON versionné fait foi et doit être corrigé en premier.
 
 ---
 
@@ -27,9 +29,9 @@
 
 - **Épreuves de spécialité (EDS)** : 2 spécialités conservées en Terminale, coef 16 chacune (total 32). Passées en mars pour les scolarisés.
 - **Philosophie** : coef 8, épreuve terminale en juin.
-- **Grand Oral** : coef 10, épreuve orale en juin portant sur les 2 spécialités de Terminale.
-- **Tronc commun** (histoire-géo, LVA, LVB, enseignement scientifique, EMC, EPS) : coef 30 total, en contrôle continu pour les scolarisés.
-- **Épreuves anticipées (Première)** : EAF français écrit (coef 5) + oral (coef 5) ; EAM maths anticipée (coef 2). Passées en fin de Première.
+- **Grand Oral** : **coef 8 à partir de la session 2027** (⚠️ correction — précédemment noté coef 10 dans cette version du document ; le coef 10 restait exact pour les sessions antérieures à 2027). La réduction de 10 à 8 est la conséquence directe de l'introduction de l'EAM (voir ci-dessous) : décret n°2025-513 et arrêté du 10 juin 2025. Épreuve orale en juin portant sur les 2 spécialités de Terminale.
+- **Tronc commun ponctuel** (histoire-géo, LVA, LVB, enseignement scientifique, EPS) : coef 6 chacune (total 30), **+ EMC coef 2** (BO MENE2531481N) **+ spécialité abandonnée coef 8** = 40 au total pour les candidats individuels. Pour les scolarisés, ce même bloc est évalué en contrôle continu.
+- **Épreuves anticipées (Première)** : EAF français écrit (coef 5) + oral (coef 5) ; **EAM (épreuve anticipée de mathématiques, coef 2) — nouvelle épreuve, introduite à partir de la session 2027, première passation juin 2026 pour les élèves de Première. Ne pas confondre avec la réforme 2021 : l'EAM ne préexistait pas.** Passées en fin de Première.
 
 ### Spécialité abandonnée en fin de Première
 
@@ -83,17 +85,39 @@
 | Frais d'inscription IFT (montant, modes de paiement) | À vérifier | Site IFT ou contact direct |
 | Liste précise des pièces du dossier | À vérifier | Site IFT |
 | Modalité A/B : applicabilité et options effectives | À vérifier | Textes académie + IFT |
-| Épreuves EPS candidats libres : épreuve passée comment ? | À préciser | BO + IFT |
+| Épreuves EPS candidats libres : épreuve passée comment ? | **Résolu** — épreuve ponctuelle obligatoire, coef 6, contrôle en cours de formation ou examen ponctuel terminal selon la situation du candidat (arrêté du 21 décembre 2011) | siec.education.fr |
 | Langue vivante C / option éventuelle | À préciser | BO + convocation |
 | DNB candidats libres : conditions exactes | À préciser | BO + académie |
+
+### Présentation des épreuves anticipées et terminales à la même session ("Bac accéléré")
+
+> **Point critique, absent des versions précédentes de ce document.** Le moteur de devis Nexus ne doit jamais déclarer un candidat éligible à une préparation sur une seule session sur la base d'une hypothèse approximative — voir CDC §11.
+
+- **Règle générale** : anticipées et terminales sont présentées à deux sessions différentes (cycle de deux ans). Le choix de modalité A/B des ponctuelles ne change **que** le calendrier des ponctuelles, jamais celui des anticipées, et n'ouvre **pas** d'éligibilité à une préparation en un an.
+- **Exception nommément encadrée** : article 3 de l'arrêté du 16 juillet 2018 (source primaire consultée directement : legifrance.gouv.fr/loda/article_lc/LEGIARTI000037208154). Autorise à présenter anticipées + terminales à la même session les candidats remplissant l'une des conditions suivantes :
+  - âgé d'au moins 20 ans au 31 décembre de l'année de l'examen ;
+  - ayant un enfant à charge à l'inscription ;
+  - de retour en formation initiale ;
+  - empêché par force majeure dûment constatée lors d'une inscription antérieure aux anticipées ;
+  - résidant temporairement à l'étranger au niveau de la classe de première ;
+  - résidant **de façon permanente** à l'étranger dans un pays **sans centre d'examen**, ou avec un centre trop éloigné de sa résidence ;
+  - ayant déjà échoué au bac général ou technologique et se représentant ;
+  - ayant présenté les anticipées sans se réinscrire l'année suivante ;
+  - déjà titulaire d'un bac général, technologique, professionnel, BT ou BTA ;
+  - titulaire d'un diplôme étranger comparable aux études secondaires françaises ;
+  - ayant changé de voie ou de série en terminale.
+- **Cas Tunisie — à ne jamais généraliser** : la Tunisie dispose d'un centre d'examen (Institut français de Tunisie, académie de rattachement Aix-Marseille). La clause "pays sans centre d'examen" ne s'applique donc **pas** automatiquement à un candidat résidant en Tunisie. Un argument de "centre trop éloigné" reste possible mais relève d'une décision au cas par cas de l'académie, jamais d'une déduction automatique. Les conditions les plus pertinentes pour le public Nexus restent : âge ≥ 20 ans, diplôme étranger déjà obtenu, échec antérieur au bac, déjà titulaire d'un autre bac.
+- **Implémentation** : ce dispositif est encodé dans `data/exams/bac-general-2027.json` → `candidatIndividuelRules.sameSessionEligibility`, avec un indicateur `autoCheckable` par condition. Le moteur ne conclut `ELIGIBLE` que sur une condition auto-vérifiable confirmée positivement ; toute autre situation renvoie `ELIGIBILITY_REQUIRES_HUMAN_REVIEW`.
 
 ---
 
 ## 5. Prudence — Épreuves Anticipées de Mathématiques (EAM)
 
-- L'EAM (coef 2) est une épreuve relativement récente (généralisée 2021).
-- Pour les candidats libres : **conditions de passation à confirmer** selon l'académie.
-- Coefficient 2 : impact modéré sur la note finale, mais signal de sérieux pour Parcoursup.
+- **Correction (22 août 2026)** : l'EAM n'est **pas** une épreuve de la réforme 2021. C'est une épreuve **nouvelle**, introduite à partir de la session 2027 (décret n°2025-513, arrêté du 10 juin 2025), première passation en juin 2026 pour les élèves alors en Première. La version précédente de ce document ("généralisée 2021") mélangeait l'EAM avec l'EAF/le Grand Oral de la réforme 2021 — c'est faux et corrigé ici.
+- Coefficient 2. Écrit de 2h, sans calculatrice, en fin de Première.
+- Programme : celui de la spécialité mathématiques de Première pour les élèves qui l'ont suivie, sinon celui de "mathématiques spécifique" intégré à l'enseignement scientifique.
+- Conséquence directe : réduction du coefficient du Grand Oral de 10 à 8 (voir §2) pour préserver la répartition 60 % anticipées+terminales / 40 % ponctuelles.
+- Pour les candidats individuels : **conditions de passation à confirmer** selon l'académie et l'IFT chaque année.
 - Nexus accompagne la préparation mais **ne garantit pas les conditions d'inscription officielle**.
 
 ---

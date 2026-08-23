@@ -22,13 +22,22 @@ beforeAll(() => {
   data = getFullPricingData();
 });
 
-// ── T1: Effectif — group_max ≤ 5 everywhere ──
+// ── T1: Effectif — group_max ≤ 5, except candidat individuel (≤ 6) ──
 
-describe('T1 — Effectif group_max ≤ 5', () => {
-  test('annual offers with group_max must be ≤ 5', () => {
+describe('T1 — Effectif group_max per family', () => {
+  test('standard annual offers have group_max ≤ 5', () => {
     for (const offer of data.offers) {
-      if (offer.group_max != null) {
+      if (offer.group_max != null && offer.effectif_family !== 'candidat_individuel') {
         expect(offer.group_max).toBeLessThanOrEqual(5);
+      }
+    }
+  });
+
+  test('candidat individuel annual offers have 3 ≤ group_max ≤ 6', () => {
+    for (const offer of data.offers) {
+      if (offer.effectif_family === 'candidat_individuel' && offer.group_max != null) {
+        expect(offer.group_max).toBeLessThanOrEqual(6);
+        expect(offer.group_min_open).toBeGreaterThanOrEqual(3);
       }
     }
   });
@@ -280,8 +289,8 @@ describe('T10 — JSON completeness (anti-hardcode enabler)', () => {
     expect(data.coaching).toHaveLength(6);
   });
 
-  test('packs has 6 entries', () => {
-    expect(data.packs).toHaveLength(6);
+  test('packs has 5 entries', () => {
+    expect(data.packs).toHaveLength(5);
   });
 
   test('carte_nexus exists with price 290', () => {

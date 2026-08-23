@@ -1,0 +1,110 @@
+import type { Metadata } from 'next';
+import { notFound } from 'next/navigation';
+import { Check } from 'lucide-react';
+import { CorporateNavbar } from '@/components/layout/CorporateNavbar';
+import { CorporateFooter } from '@/components/layout/CorporateFooter';
+import { fmtTND } from '@/components/premium/format';
+import { getQuoteByPublicToken } from '@/lib/quotes/persistence.server';
+import { AcceptQuoteButton } from '@/components/quotes/AcceptQuoteButton';
+
+export const dynamic = 'force-dynamic';
+
+export const metadata: Metadata = {
+  title: 'Votre devis Nexus Réussite',
+  robots: { index: false, follow: false },
+};
+
+const STATUS_LABELS: Record<string, string> = {
+  ESTIMATION: 'Estimation provisoire',
+  BILAN_A_FAIRE: 'En attente de votre bilan',
+  BILAN_TERMINE: 'Bilan terminé',
+  DEVIS_ENVOYE: 'Devis envoyé',
+  DEVIS_CONSULTE: 'Devis consulté',
+  A_RAPPELER: 'À rappeler',
+  ACCEPTE: 'Accepté',
+  REFUSE: 'Refusé',
+  INSCRIT: 'Inscription confirmée',
+  EXPIRE: 'Expiré',
+};
+
+const MODALITY_LABELS: Record<string, string> = {
+  PILOTAGE: 'Pilotage',
+  GROUPE: 'Petit groupe',
+  DUO: 'Duo',
+  INDIVIDUEL: 'Individuel',
+  PACK: 'Parcours combiné',
+};
+
+export default async function DevisTokenPage({ params }: { params: Promise<{ token: string }> }) {
+  const { token } = await params;
+  const { quote } = await getQuoteByPublicToken(token);
+  if (!quote) notFound();
+
+  const canAccept = quote.status === 'DEVIS_ENVOYE' || quote.status === 'DEVIS_CONSULTE' || quote.status === 'A_RAPPELER';
+
+  return (
+    <main className="luxury" id="main-content">
+      <CorporateNavbar />
+
+      <section className="bg-lux-ink px-4 py-14 pt-28 md:px-6">
+        <div className="mx-auto max-w-3xl">
+          <span className="lux-eyebrow text-lux-gold-wash">{STATUS_LABELS[quote.status] ?? quote.status}</span>
+          <h1 className="mt-3 text-3xl font-light text-lux-ivory md:text-4xl">Votre devis Nexus Réussite</h1>
+          <p className="mt-3 text-sm text-lux-on-dark-muted">
+            Session {quote.examSession} · Valable jusqu'au{' '}
+            {new Date(quote.validUntil).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
+          </p>
+        </div>
+      </section>
+
+      <section className="bg-lux-paper px-4 py-12 md:px-6">
+        <div className="mx-auto max-w-3xl rounded-2xl border border-lux-line bg-lux-white p-6 shadow-md shadow-lux-ink/5 md:p-10">
+          <div className="flex items-baseline gap-2">
+            <span className="lux-price text-3xl font-bold text-lux-ink">{fmtTND(quote.monthlyTotal)}</span>
+            <span className="text-sm font-medium text-lux-slate">/ mois</span>
+          </div>
+          <p className="mt-1 text-sm text-lux-slate">
+            10 mensualités · Total annuel {fmtTND(quote.grandTotal)}
+          </p>
+
+          <div className="mt-6 space-y-3 border-t border-lux-line/50 pt-6">
+            {quote.lines
+              .slice()
+              .sort((a, b) => a.sortOrder - b.sortOrder)
+              .map((line) => (
+                <div key={line.id} className="flex items-start gap-2">
+                  <Check className="mt-0.5 h-4 w-4 flex-shrink-0 text-lux-gold" />
+                  <div>
+                    <p className="text-sm font-semibold text-lux-ink">
+                      {line.subject}
+                      {line.hoursPerMonth != null && line.hoursPerMonth > 0 && (
+                        <span className="ml-1 font-normal text-lux-slate">— {line.hoursPerMonth} h/mois</span>
+                      )}
+                    </p>
+                    <p className="text-xs text-lux-slate">
+                      {MODALITY_LABELS[line.modality] ?? line.modality}
+                      {line.modality !== 'PILOTAGE' && line.modality !== 'PACK' ? ` · ${fmtTND(line.unitPrice)}/mois` : ''}
+                    </p>
+                    <p className="mt-0.5 text-xs text-lux-slate">{line.reason}</p>
+                  </div>
+                </div>
+              ))}
+          </div>
+
+          {canAccept && (
+            <div className="mt-8 border-t border-lux-line/50 pt-6">
+              <AcceptQuoteButton quoteId={quote.id} token={token} />
+            </div>
+          )}
+
+          <p className="mt-6 text-xs text-lux-slate">
+            Ce devis engage Nexus Réussite selon les modalités habituelles (constitution des groupes, seuils
+            d'ouverture). Il n'engage pas de règlement avant votre confirmation.
+          </p>
+        </div>
+      </section>
+
+      <CorporateFooter />
+    </main>
+  );
+}

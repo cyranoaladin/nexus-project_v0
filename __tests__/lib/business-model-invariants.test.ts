@@ -11,12 +11,27 @@ import { getFullPricingData } from '@/lib/pricing';
 const data = getFullPricingData();
 
 // ── Groupes ──
+// Standard families stay capped at 5. Candidat individuel is its own family,
+// capped at 6 (min 3) — see AnnualOffer.effectif_family in lib/pricing.ts.
+// This is a per-family invariant, not a blanket relaxation: every other
+// family (stages, scolarisé, ponctuel, coaching) is still asserted at 5.
 
-describe('T16.1 — Groupes <= 5', () => {
-  test('every annual offer has group_max <= 5', () => {
+describe('T16.1 — Groupes <= 5, sauf famille candidat individuel <= 6', () => {
+  test('every standard annual offer has group_max <= 5', () => {
     for (const o of data.offers) {
-      if (o.group_max != null) {
+      if (o.group_max != null && o.effectif_family !== 'candidat_individuel') {
         expect(o.group_max).toBeLessThanOrEqual(5);
+      }
+    }
+  });
+
+  test('every candidat individuel annual offer has 3 <= group_max <= 6', () => {
+    const candidatIndividuelOffers = data.offers.filter((o) => o.effectif_family === 'candidat_individuel');
+    expect(candidatIndividuelOffers.length).toBeGreaterThan(0);
+    for (const o of candidatIndividuelOffers) {
+      if (o.group_max != null) {
+        expect(o.group_max).toBeLessThanOrEqual(6);
+        expect(o.group_min_open).toBe(3);
       }
     }
   });
@@ -24,6 +39,22 @@ describe('T16.1 — Groupes <= 5', () => {
   test('every stage format has group_max <= 5', () => {
     for (const f of data.stage_formats) {
       expect(f.group_max).toBeLessThanOrEqual(5);
+    }
+  });
+
+  test('every ponctuel offer with group_max has group_max <= 5', () => {
+    for (const p of data.ponctuel_offers) {
+      if (p.group_max != null) {
+        expect(p.group_max).toBeLessThanOrEqual(5);
+      }
+    }
+  });
+
+  test('every coaching group offer with group_max has group_max <= 5', () => {
+    for (const c of data.coaching) {
+      if (c.group_max != null) {
+        expect(c.group_max).toBeLessThanOrEqual(5);
+      }
     }
   });
 });
@@ -54,8 +85,11 @@ describe('T16.3 — Échéancier somme == annuel', () => {
       expect(total).toBe(o.price_annual);
       checked++;
     }
-    // 26 annual offers have deposit+installments (4 without: 2nde-coaching + 3 plateformes)
-    expect(checked).toBe(26);
+    // 27 annual offers have deposit+installments (4 without: 2nde-coaching + 3 plateformes).
+    // 21 legacy scolarisé/libre offers + 6 new candidat individuel offers (deposit: 0 counts,
+    // since 0 !== null) = 27. See __tests__/lib/candidat-individuel-pricing.test.ts for the
+    // explicit per-offer amounts.
+    expect(checked).toBe(27);
   });
 
   test('stage format deposit + solde == price_per_student', () => {
