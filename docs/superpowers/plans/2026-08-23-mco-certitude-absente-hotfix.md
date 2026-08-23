@@ -203,6 +203,8 @@ Run:
 set -euo pipefail
 MCO_DB_CONTAINER="nexus-mco-postgres-$(date -u +%Y%m%dT%H%M%SZ)-$$"
 case "$MCO_DB_CONTAINER" in nexus-mco-postgres-[0-9]*-*) ;; *) exit 64 ;; esac
+MCO_DB_AUTH="$(openssl rand -hex 24)"
+test -n "$MCO_DB_AUTH"
 cleanup_mco_db() {
   docker rm -f "$MCO_DB_CONTAINER" >/dev/null 2>&1 || true
 }
@@ -212,14 +214,14 @@ docker run -d \
   --name "$MCO_DB_CONTAINER" \
   --tmpfs /var/lib/postgresql/data:rw,noexec,nosuid,size=512m \
   -e POSTGRES_USER=nexus_user \
-  -e POSTGRES_PASSWORD=test_password_change_in_real_prod \
+  -e POSTGRES_PASSWORD="${MCO_DB_AUTH}" \
   -e POSTGRES_DB=nexus_disposable_mco_test \
   -p 127.0.0.1::5432 \
   pgvector/pgvector:pg15 >/dev/null
 
 MCO_DB_PORT="$(docker port "$MCO_DB_CONTAINER" 5432/tcp | sed -E 's/.*:([0-9]+)$/\1/')"
 test "$MCO_DB_PORT" -ge 1024
-MCO_TEST_DATABASE_URL="postgresql://nexus_user:test_password_change_in_real_prod@127.0.0.1:${MCO_DB_PORT}/nexus_disposable_mco_test?schema=public"
+MCO_TEST_DATABASE_URL="postgresql://nexus_user:${MCO_DB_AUTH}@127.0.0.1:${MCO_DB_PORT}/nexus_disposable_mco_test?schema=public"
 
 for attempt in $(seq 1 30); do
   docker exec "$MCO_DB_CONTAINER" pg_isready -U nexus_user -d nexus_disposable_mco_test >/dev/null && break
