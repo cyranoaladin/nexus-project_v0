@@ -203,6 +203,17 @@ describe('SEO landings T1.1 guard', () => {
     expect(annualIncluded.some((item) => item.includes('Bacs blancs'))).toBe(true);
   });
 
+  test('the "Nexus remplace-t-il l’inscription officielle" FAQ names the actual exam authority, not just Cyclades', () => {
+    // Nexus must never be read as the registration/exam authority (mission
+    // directive on the Cyclades claim): the disclaimer has to name who
+    // actually owns the official inscription, not stop at "Cyclades".
+    const landing = seoLandings['/candidat-libre-bac-francais'];
+    const item = landing.faq.find((entry) => entry.question.includes('remplace-t-il l’inscription officielle'));
+    expect(item).toBeDefined();
+    expect(item!.answer).toMatch(/académie|rectorat|autorité d.examen/i);
+    expect(item!.answer).toContain('Cyclades');
+  });
+
   test.each(LANDINGS)('$path renders sections, related links, offer cards and FAQ from page props', ({ Page, path }) => {
     const landing = seoLandings[path];
     const { container } = render(React.createElement(Page));
