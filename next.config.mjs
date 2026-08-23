@@ -7,9 +7,6 @@ const nextConfig = {
   // Fix workspace root warning from multiple lockfiles
   outputFileTracingRoot: process.cwd(),
   outputFileTracingIncludes: {
-    '/': [
-      './src/static-pages/assistante-devis-v3/**/*',
-    ],
     '/*': [
       './data/bilans/banks/*.json',
       './data/bilans/cps/*.yaml',

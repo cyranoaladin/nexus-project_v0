@@ -51,7 +51,9 @@ describe('Pré-rentrée 2026 canonical publication snapshot', () => {
     ], { cwd: root })).not.toThrow();
     expect(snapshot.provenance.campaign.version).toBe('2.1.0');
     expect(snapshot.provenance.modules.version).toBe('2026-pre-rentree-v5-planning-windows');
-    expect(snapshot.provenance.pricing.version).toBe('2026-2027.5');
+    // Pricing version bumped to 2026-2027.6 for the candidat individuel offer
+    // refresh; pre_rentree_packs / pre_rentree_foundations are unchanged.
+    expect(snapshot.provenance.pricing.version).toBe('2026-2027.6');
     expect(snapshot.provenance.parentGuide.version).toBe('2026-parent-guide-fr-v4');
     expect(Object.values(snapshot.provenance).every((source) => /^[a-f0-9]{64}$/.test(source.sha256))).toBe(true);
     expect(Object.keys(snapshot.provenance)).toEqual(expect.arrayContaining([
