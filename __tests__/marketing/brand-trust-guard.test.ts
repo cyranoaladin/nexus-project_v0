@@ -11,7 +11,23 @@ const recursiveScanRoots = [
   'data/pricing.canonical.json',
 ];
 
-const retiredLabelScanRoots = ['app', 'components', 'content', 'lib', 'data'];
+const retiredLabelScanRoots = [
+  'app',
+  'components',
+  'content',
+  'lib',
+  'data',
+  'context',
+  'hooks',
+  'src',
+  'types',
+  'services',
+  'programmes',
+  'auth.ts',
+  'auth.config.ts',
+  'middleware.ts',
+  'instrumentation.ts',
+];
 const retiredLabelExcludedPathPrefixes = ['data/bilans/banks/_archive/'];
 
 const deadFabricationArtifacts = [
@@ -24,6 +40,7 @@ const deadFabricationArtifacts = [
 ];
 
 const scannedExtensions = new Set(['.ts', '.tsx', '.json', '.md', '.mdx', '.js']);
+const retiredLabelScannedExtensions = new Set([...scannedExtensions, '.yaml', '.yml']);
 
 const excludedDirectories = new Set([
   '.next',
@@ -146,12 +163,19 @@ function sourceFor(file: string): string {
   );
 }
 
-function listScannedFiles(target: string): string[] {
+function rawSourceFor(file: string): string {
+  return readFileSync(join(root, file), 'utf8');
+}
+
+function listScannedFiles(
+  target: string,
+  extensions: ReadonlySet<string> = scannedExtensions,
+): string[] {
   const absolute = join(root, target);
   if (!existsSync(absolute)) return [];
   const stat = statSync(absolute);
   if (stat.isFile()) {
-    return scannedExtensions.has(extname(target)) ? [target] : [];
+    return extensions.has(extname(target)) ? [target] : [];
   }
 
   const files: string[] = [];
@@ -160,8 +184,8 @@ function listScannedFiles(target: string): string[] {
     const child = `${target}/${entry}`;
     const childStat = statSync(join(root, child));
     if (childStat.isDirectory()) {
-      files.push(...listScannedFiles(child));
-    } else if (scannedExtensions.has(extname(child))) {
+      files.push(...listScannedFiles(child, extensions));
+    } else if (extensions.has(extname(child))) {
       files.push(child);
     }
   }
@@ -180,12 +204,14 @@ function matchingFiles(
   patterns: RegExp[],
   scanRoots = recursiveScanRoots,
   excludeFile: (file: string) => boolean = isAllowlisted,
+  extensions: ReadonlySet<string> = scannedExtensions,
+  readSource: (file: string) => string = sourceFor,
 ): string[] {
   return scanRoots
-    .flatMap(listScannedFiles)
+    .flatMap((scanRoot) => listScannedFiles(scanRoot, extensions))
     .filter((file, index, files) => files.indexOf(file) === index)
     .filter((file) => !excludeFile(file))
-    .filter((file) => patterns.some((pattern) => pattern.test(sourceFor(file))));
+    .filter((file) => patterns.some((pattern) => pattern.test(readSource(file))));
 }
 
 describe('Lot 1 T1.2 brand trust guardrails', () => {
@@ -256,7 +282,64 @@ describe('Lot 1 T1.2 brand trust guardrails', () => {
       retiredCandidatIndividuelLabels,
       retiredLabelScanRoots,
       isRetiredLabelExcluded,
+      retiredLabelScannedExtensions,
+      rawSourceFor,
     )).toEqual([]);
+  });
+
+  test('retired-label scan discovers active YAML and excludes only the exact bank archive', () => {
+    const files = listScannedFiles('data', retiredLabelScannedExtensions);
+    const programmeFiles = listScannedFiles('programmes', retiredLabelScannedExtensions);
+
+    expect(files).toContain('data/bilans/banks/entree-premiere-maths-v1.yaml');
+    expect(programmeFiles).toEqual(expect.arrayContaining([
+      'programmes/generated/maths_premiere.skills.generated.json',
+      'programmes/mapping/maths_premiere.skills.map.yml',
+    ]));
+    expect(retiredLabelScannedExtensions.has('.json')).toBe(true);
+    expect(retiredLabelScannedExtensions.has('.yaml')).toBe(true);
+    expect(retiredLabelScannedExtensions.has('.yml')).toBe(true);
+    expect(isRetiredLabelExcluded('data/bilans/banks/_archive/legacy.yaml')).toBe(true);
+    expect(isRetiredLabelExcluded('data/bilans/banks/_archive-active/current.yaml')).toBe(false);
+  });
+
+  test('retired-label scan reads raw prompt counter-examples', () => {
+    const file = 'content/bilans/prompts/entree-premiere-nsi-v1/parents.md';
+    const counterExample = /bases autodidactes à corriger/u;
+
+    expect(sourceFor(file)).not.toMatch(counterExample);
+    expect(rawSourceFor(file)).toMatch(counterExample);
+    expect(matchingFiles(
+      [counterExample],
+      [file],
+      isRetiredLabelExcluded,
+      retiredLabelScannedExtensions,
+      rawSourceFor,
+    )).toEqual([file]);
+  });
+
+  test('retired-label scan covers every active runtime root and entrypoint', () => {
+    const requiredRuntimeRoots = [
+      'context',
+      'hooks',
+      'src',
+      'types',
+      'services',
+      'programmes',
+      'auth.ts',
+      'auth.config.ts',
+      'middleware.ts',
+      'instrumentation.ts',
+    ];
+
+    expect(retiredLabelScanRoots.filter((path) => !existsSync(join(root, path)))).toEqual([]);
+    expect(retiredLabelScanRoots).toEqual(expect.arrayContaining(requiredRuntimeRoots));
+    expect(retiredLabelScanRoots).not.toEqual(expect.arrayContaining([
+      '__tests__',
+      'academic-luxury-design',
+      'docs',
+      'rapport_audit',
+    ]));
   });
 
   test('retired-label scan includes active docs routes and files from the trust allowlist', () => {
