@@ -46,7 +46,6 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         monthlyTotal: quote.monthlyTotal,
         grandTotal: quote.grandTotal,
         validUntil: quote.validUntil,
-        revisionNumber: quote.revisionNumber,
         lines: quote.lines
           .sort((a, b) => a.sortOrder - b.sortOrder)
           .map((line) => ({

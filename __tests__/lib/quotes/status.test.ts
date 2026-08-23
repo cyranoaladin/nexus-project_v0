@@ -1,4 +1,4 @@
-import { canTransition, isTerminalStatus } from '@/lib/quotes/status';
+import { canTransition } from '@/lib/quotes/status';
 
 describe('canTransition — server-controlled transitions only (CDC §25)', () => {
   test('ESTIMATION can move forward to BILAN_A_FAIRE, BILAN_TERMINE, DEVIS_ENVOYE, or EXPIRE', () => {
@@ -18,13 +18,6 @@ describe('canTransition — server-controlled transitions only (CDC §25)', () =
   test('ACCEPTE can only move to INSCRIT', () => {
     expect(canTransition('ACCEPTE', 'INSCRIT')).toBe(true);
     expect(canTransition('ACCEPTE', 'REFUSE')).toBe(false);
-  });
-
-  test('REFUSE, INSCRIT, EXPIRE are terminal', () => {
-    expect(isTerminalStatus('REFUSE')).toBe(true);
-    expect(isTerminalStatus('INSCRIT')).toBe(true);
-    expect(isTerminalStatus('EXPIRE')).toBe(true);
-    expect(isTerminalStatus('ESTIMATION')).toBe(false);
   });
 
   test('cannot transition out of a terminal status', () => {

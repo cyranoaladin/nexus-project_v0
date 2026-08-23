@@ -1,7 +1,6 @@
 import 'server-only';
 
-import { getQuoteByPublicToken, transitionQuoteStatus, type QuoteLookupResult } from './persistence.server';
-import { canTransition } from './status';
+import { getQuoteByPublicToken, markQuoteConsultedIfSent, type QuoteLookupResult } from './persistence.server';
 import { serializeError } from '@/lib/utils/serialize-error';
 
 /**
@@ -11,10 +10,16 @@ import { serializeError } from '@/lib/utils/serialize-error';
  */
 export async function getQuoteForFamilyView(rawToken: string): Promise<QuoteLookupResult> {
   const result = await getQuoteByPublicToken(rawToken);
-  if (!result.quote || !canTransition(result.quote.status, 'DEVIS_CONSULTE')) return result;
+  if (!result.quote || result.quote.status !== 'DEVIS_ENVOYE') return result;
 
   try {
-    await transitionQuoteStatus({ quoteId: result.quote.id, toStatus: 'DEVIS_CONSULTE' });
+    const consultedAt = await markQuoteConsultedIfSent(result.quote.id);
+    if (consultedAt) {
+      return {
+        ...result,
+        quote: { ...result.quote, status: 'DEVIS_CONSULTE', consultedAt },
+      };
+    }
   } catch (error) {
     console.error('[quotes/public-view] auto-consult transition failed', serializeError(error));
   }

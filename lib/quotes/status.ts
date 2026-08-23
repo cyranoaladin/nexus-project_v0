@@ -22,7 +22,3 @@ export function canTransition(from: QuoteStatus, to: QuoteStatus): boolean {
   if (from === to) return false;
   return TRANSITIONS[from].includes(to);
 }
-
-export function isTerminalStatus(status: QuoteStatus): boolean {
-  return TRANSITIONS[status].length === 0;
-}
