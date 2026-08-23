@@ -8,7 +8,7 @@
  * in place — reviseQuote() always creates a new row.
  */
 import 'server-only';
-import type { Quote, QuoteLine, QuoteSource, QuoteStrategy, QuoteStatus } from '@prisma/client';
+import type { Quote, QuoteLine, QuoteSource, QuoteStrategy, QuoteStatus, ContactLeadStatus } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { buildQuoteContextSnapshot, generateQuotePublicToken } from './snapshot.server';
 import { canTransition, requiresRevisionOnEdit } from './status';
@@ -264,5 +264,85 @@ export async function reviseQuote(input: ReviseQuoteInput): Promise<Quote & { li
     });
 
     return revision;
+  });
+}
+
+export interface ContactLeadSearchResult {
+  id: string;
+  name: string;
+  email: string;
+  phone: string | null;
+  status: ContactLeadStatus;
+}
+
+/**
+ * Staff-only lookup backing the "lead search" typeahead in the assistante
+ * workspace (replaces pasting a raw ContactLead id by hand). Returns only
+ * the fields the workspace needs to identify and pre-fill a lead — never
+ * `notes` (freeform internal text). Capped at 10 rows: an internal
+ * lookup-as-you-type, not a paginated CRM listing.
+ */
+export async function searchContactLeads(query: string): Promise<ContactLeadSearchResult[]> {
+  return prisma.contactLead.findMany({
+    where: {
+      OR: [
+        { name: { contains: query, mode: 'insensitive' } },
+        { email: { contains: query, mode: 'insensitive' } },
+        { phone: { contains: query, mode: 'insensitive' } },
+      ],
+    },
+    select: { id: true, name: true, email: true, phone: true, status: true },
+    orderBy: { createdAt: 'desc' },
+    take: 10,
+  });
+}
+
+export interface QuoteHistoryEntry {
+  id: string;
+  status: QuoteStatus;
+  monthlyTotal: number;
+  grandTotal: number;
+  examSession: number;
+  revisionNumber: number;
+  previousRevisionId: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+  validUntil: Date;
+}
+
+/**
+ * Staff-only "historique des devis" for a given lead and/or student.
+ * Explicitly selects a narrow, non-sensitive field set — teacher cost and
+ * margin are never columns on Quote/QuoteLine at all (see the model
+ * comment in prisma/schema.prisma), so there is nothing to accidentally
+ * over-select here, but the explicit `select` keeps it that way even if
+ * the model grows fields later.
+ */
+export async function listQuotesForLeadOrStudent(input: {
+  contactLeadId?: string;
+  studentId?: string;
+}): Promise<QuoteHistoryEntry[]> {
+  const conditions = [
+    input.contactLeadId ? { contactLeadId: input.contactLeadId } : null,
+    input.studentId ? { studentId: input.studentId } : null,
+  ].filter((c): c is { contactLeadId: string } | { studentId: string } => c != null);
+
+  if (conditions.length === 0) return [];
+
+  return prisma.quote.findMany({
+    where: { OR: conditions },
+    select: {
+      id: true,
+      status: true,
+      monthlyTotal: true,
+      grandTotal: true,
+      examSession: true,
+      revisionNumber: true,
+      previousRevisionId: true,
+      createdAt: true,
+      updatedAt: true,
+      validUntil: true,
+    },
+    orderBy: { createdAt: 'desc' },
   });
 }

@@ -60,6 +60,7 @@ describe('S3 final distributed rate-limit contract', () => {
       'bilan-share-consent',
       'candidate-document-upload',
       'quotes-recommend', 'quotes-create', 'quotes-public-read', 'quotes-send', 'quotes-accept',
+      'quotes-lead-search', 'quotes-history-read',
     ]
     expect(Object.keys(SENSITIVE_RATE_LIMIT_POLICIES).sort()).toEqual(expectedScopes.sort())
     for (const policy of Object.values(SENSITIVE_RATE_LIMIT_POLICIES)) {

@@ -60,6 +60,12 @@ export const SENSITIVE_RATE_LIMIT_POLICIES = {
   'quotes-public-read': { ipPreset: 'readIp' },
   'quotes-send': { ipPreset: 'expensiveIp', identityPreset: 'expensiveIdentity' },
   'quotes-accept': { ipPreset: 'writeIp' },
+  // Staff-only lead typeahead and quote-history lookup in the assistante
+  // workspace (components/dashboard/assistante/DevisWorkspace.tsx) — read
+  // traffic from an authenticated internal user, same tier as the other
+  // staff read endpoints (admin-stats, student-credits).
+  'quotes-lead-search': { ipPreset: 'readIp', identityPreset: 'readIdentity' },
+  'quotes-history-read': { ipPreset: 'readIp', identityPreset: 'readIdentity' },
 } as const satisfies Record<string, SensitivePolicy>
 
 export type SensitiveRateLimitScope = keyof typeof SENSITIVE_RATE_LIMIT_POLICIES
