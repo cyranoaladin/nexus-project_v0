@@ -221,6 +221,51 @@ describe('Fil guidé de saisie papier', () => {
     expect(screen.getByRole('button', { name: 'Valider la saisie papier' })).toBeEnabled();
   });
 
+  it('exige une certitude 1–4 pour une réponse cochée lorsque le pack le demande', () => {
+    render(
+      <PaperEntryGrid
+        studentId="student-mco"
+        studentName="Élève MCO"
+        packSlug="entree-terminale-maths-complementaires-v1"
+        packTitle="Terminale · Mathématiques complémentaires"
+        confidenceRequired
+        items={[{
+          id: 'q1',
+          position: 1,
+          prompt: 'Question test',
+          options: [{ id: 'A', label: 'Réponse A' }],
+        }]}
+      />,
+    );
+
+    expect(screen.queryByRole('radio', { name: 'Absente de la copie' })).not.toBeInTheDocument();
+    const submit = screen.getByRole('button', { name: 'Valider la saisie papier' });
+    expect(submit).toBeDisabled();
+    fireEvent.click(screen.getByRole('radio', { name: 'A Réponse A' }));
+    expect(submit).toBeDisabled();
+    fireEvent.click(screen.getByRole('radio', { name: '4' }));
+    expect(submit).toBeEnabled();
+  });
+
+  it('conserve le choix de certitude absente par défaut pour les autres packs', () => {
+    render(
+      <PaperEntryGrid
+        studentId="student-generic"
+        studentName="Élève Test"
+        packSlug="entree-seconde-maths-v1"
+        packTitle="Entrée en Seconde · Mathématiques"
+        items={[{
+          id: 'q1',
+          position: 1,
+          prompt: 'Question test',
+          options: [{ id: 'A', label: 'Réponse A' }],
+        }]}
+      />,
+    );
+
+    expect(screen.getByRole('radio', { name: 'Absente de la copie' })).toBeInTheDocument();
+  });
+
   it('actualise la recherche après un court délai tout en gardant un envoi GET', () => {
     jest.useFakeTimers();
     render(<PaperEntryStudentSearch initialQuery="" />);

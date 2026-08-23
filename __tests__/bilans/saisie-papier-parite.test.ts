@@ -12,6 +12,7 @@ import {
   mergeAttemptAnswers,
   type AttemptAnswerPatch,
 } from '@/lib/bilans/api/answer-merge';
+import { packFeatureFlagName, resolveEnabledPack } from '@/lib/bilans/api/pack-access';
 import { assertAttemptComplete } from '@/lib/bilans/api/submission-core';
 import { buildPaperEntryAnswers } from '@/lib/bilans/saisie-papier/entry';
 import { buildWorkerScoring } from '@/lib/bilans/worker/scoring';
@@ -22,6 +23,12 @@ import {
 } from './fixtures/canonical-worker';
 
 const ITEMS = CANONICAL_WORKER_PACK.questionnaire.items;
+const MCO_PACK_SLUG = 'entree-terminale-maths-complementaires-v1';
+const MCO_ENABLED_PACK = resolveEnabledPack(MCO_PACK_SLUG, undefined, {
+  [packFeatureFlagName(MCO_PACK_SLUG)]: 'true',
+});
+if (MCO_ENABLED_PACK === null) throw new Error('MCO_PACK_NOT_RESOLVED');
+const MCO_ITEM = MCO_ENABLED_PACK.pack.questionnaire.items[0];
 const STARTED_AT = new Date('2026-08-08T09:00:00.000Z');
 const SUBMITTED_AT = new Date('2026-08-08T09:18:00.000Z');
 
@@ -165,6 +172,32 @@ describe('Saisie papier — certitude absente', () => {
     for (const item of ITEMS.slice(1)) {
       expect((stored[item.id] as { confidence: unknown }).confidence).toBeNull();
     }
+  });
+});
+
+describe('Saisie papier MCO — certitude obligatoire sur une réponse cochée', () => {
+  it('rejette une réponse cochée sans certitude', () => {
+    expect(() => buildPaperEntryAnswers(MCO_ENABLED_PACK, [{
+      itemId: MCO_ITEM.id,
+      optionId: MCO_ITEM.options[0].id,
+      confidence: null,
+    }])).toThrow('PAPER_ENTRY_CONFIDENCE_REQUIRED');
+  });
+
+  it('autorise toujours une question déclarée sans réponse', () => {
+    expect(() => buildPaperEntryAnswers(MCO_ENABLED_PACK, [{
+      itemId: MCO_ITEM.id,
+      optionId: null,
+      confidence: null,
+    }])).not.toThrow();
+  });
+
+  it('préserve la certitude nullable des autres packs papier', () => {
+    expect(() => buildPaperEntryAnswers(CANONICAL_WORKER_ENABLED_PACK, [{
+      itemId: ITEMS[0].id,
+      optionId: ITEMS[0].options[0].id,
+      confidence: null,
+    }])).not.toThrow();
   });
 });
 
