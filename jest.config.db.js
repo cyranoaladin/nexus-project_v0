@@ -26,6 +26,17 @@ const customJestConfig = {
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/$1',
   },
+  // Without this, Jest's haste-map scans every git worktree under
+  // .worktrees/ too and finds N duplicate "@prisma/client" manual mocks
+  // with the same haste name — it then non-deterministically resolves
+  // @prisma/client to whichever worktree's own node_modules/.prisma/client
+  // it happens to pick, which can be missing models this worktree's schema
+  // has (e.g. a model added here but not yet regenerated elsewhere).
+  // jest.unit.config.js already excludes .worktrees/ for the same reason.
+  modulePathIgnorePatterns: [
+    '<rootDir>/.next/',
+    '<rootDir>/.worktrees/',
+  ],
   testMatch: [
     '<rootDir>/__tests__/concurrency/**/*.test.(js|ts|tsx)',
     '<rootDir>/__tests__/database/**/*.test.(js|ts|tsx)',

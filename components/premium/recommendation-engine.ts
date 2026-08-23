@@ -116,8 +116,19 @@ const LEVEL_LABELS: Record<string, string> = {
   troisieme: 'Troisième',
 };
 
+/**
+ * Candidat individuel (libre) at Première/Terminale is exactly the
+ * population the dedicated quote engine (lib/quotes/*, /devis-bac) now
+ * serves with a personalized, priced estimation — point there instead of
+ * the static offer page (CDC §7: converge instead of duplicating).
+ */
+function isCandidatIndividuelBacGeneral(offer: RecommendationOffer): boolean {
+  return offer.track === 'libre' && (offer.normalizedLevel === 'premiere' || offer.normalizedLevel === 'terminale');
+}
+
 function buildOfferCard(offer: RecommendationOffer): ExamCardProps {
   const price = offer.price_annual ?? 0;
+  const personalized = isCandidatIndividuelBacGeneral(offer);
   return {
     eyebrow: `${LEVEL_LABELS[offer.normalizedLevel ?? ''] ?? offer.level} · ${offer.track === 'libre' ? 'Candidat libre' : 'Parcours présentiel'}`,
     title: offer.title,
@@ -130,8 +141,8 @@ function buildOfferCard(offer: RecommendationOffer): ExamCardProps {
     groupMinOpen: offer.group_min_open ?? 3,
     payment: offer.payment,
     features: offer.included,
-    ctaText: 'Voir l\'offre',
-    ctaHref: '/offres',
+    ctaText: personalized ? 'Obtenir mon devis personnalisé' : 'Voir l\'offre',
+    ctaHref: personalized ? '/devis-bac' : '/offres',
   };
 }
 

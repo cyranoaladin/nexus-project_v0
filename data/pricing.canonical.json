@@ -1,5 +1,5 @@
 {
-  "version": "2026-2027.5",
+  "version": "2026-2027.6",
   "_note": "SOURCE DE VÉRITÉ UNIQUE des prix, effectifs, acomptes et échéanciers Nexus Réussite. Aucun montant TND ne doit être codé en dur dans les composants ou pages. Toute modification doit repasser le validateur pricing-canonical-validator.test.ts. Après modification, régénérer les extraits client : node scripts/generate-pricing-client-data.js",
   "currency": "TND",
   "rules": {
@@ -44,6 +44,14 @@
       "cumulable": false,
       "global_cap_pct": 20,
       "note": "Non cumulables sauf décision exceptionnelle de la direction ; le plafond global de 20% maintient le prix/élève/heure au-dessus du plancher."
+    },
+    "grand_oral_policy": {
+      "included_sessions": 4,
+      "session_duration_minutes": 120,
+      "total_hours_max": 8,
+      "note_focus_bac": "Terminale Libre — Focus Bac : ces 8 h forment l'enveloppe annuelle dédiée Grand Oral, en complément de la structure régulière EDS/philosophie (20 h/mois).",
+      "note_integrale": "Terminale Libre — Intégrale : ces 8 h sont comprises dans le plafond mensuel de 30 h/mois ; elles ne s'ajoutent pas au-delà de ce plafond.",
+      "applies_to_offer_ids": ["terminale-libre-focus-bac", "terminale-libre-integrale"]
     }
   },
   "offers": [
@@ -360,125 +368,178 @@
       ]
     },
     {
-      "id": "1re-libre-essentiel",
-      "level": "premiere",
+      "id": "libre-pilotage",
+      "level": "tous",
       "track": "libre",
-      "title": "Première Libre Essentiel",
-      "subjects": "EAF + Maths + tronc, en ligne",
+      "audience": ["candidat_individuel"],
+      "title": "Nexus Libre — Pilotage",
+      "subjects": "Cadrage stratégique, sans cours hebdomadaire",
       "hours_per_week": null,
       "hours_per_year": null,
+      "hours_per_month": 0,
       "group_max": null,
       "group_min_open": null,
-      "price_annual": 1900,
+      "price_annual": 1500,
       "price_per_student_hour": null,
       "equiv_per_2h_session": null,
-      "deposit": 570,
-      "n_installments": 9,
+      "deposit": 0,
+      "n_installments": 10,
       "installment_amount": 150,
-      "last_installment": 130,
+      "last_installment": 150,
       "included": [
-        "EAF + Maths + tronc commun en ligne",
-        "Plateforme ARIA",
-        "Bilans de progression réguliers"
+        "Bilan diagnostique initial",
+        "Analyse de la situation réglementaire",
+        "Carte des épreuves et calendrier personnalisé",
+        "Appui aux démarches Cyclades (sans se substituer à l’inscription officielle)",
+        "Espace élève et espace parent",
+        "Plan de travail et suivi des échéances",
+        "Bilans périodiques et synthèse parent"
       ]
     },
     {
-      "id": "1re-libre-accomp",
+      "id": "libre-sur-mesure",
+      "level": "tous",
+      "track": "libre",
+      "audience": ["candidat_individuel"],
+      "effectif_family": "candidat_individuel",
+      "price_qualifier": "from",
+      "title": "Nexus Libre — Sur mesure",
+      "subjects": "Pilotage Nexus + 1 module régulier de 8 h/mois en petit groupe",
+      "hours_per_week": null,
+      "hours_per_year": null,
+      "hours_per_month": 8,
+      "group_max": 6,
+      "group_min_open": 3,
+      "price_annual": 6200,
+      "price_per_student_hour": null,
+      "equiv_per_2h_session": null,
+      "deposit": 0,
+      "n_installments": 10,
+      "installment_amount": 620,
+      "last_installment": 620,
+      "included": [
+        "Pilotage Nexus complet",
+        "1 module régulier de 8 h/mois en petit groupe (3 à 6 élèves)",
+        "Matière déterminée selon le bilan diagnostique",
+        "Espace parent et suivi des échéances",
+        "Modules supplémentaires disponibles selon les besoins identifiés"
+      ]
+    },
+    {
+      "id": "premiere-libre-cap-anticipees",
       "level": "premiere",
       "track": "libre",
-      "title": "Première Libre Accompagnée",
-      "subjects": "Présentiel + plateforme",
+      "audience": ["candidat_individuel"],
+      "effectif_family": "candidat_individuel",
+      "title": "Première Libre — Cap Anticipées",
+      "subjects": "Français / EAF 8 h/mois + Mathématiques anticipées 4 h/mois",
       "hours_per_week": null,
-      "hours_per_year": null,
-      "group_max": 5,
-      "group_min_open": 3,
-      "price_annual": 4900,
-      "price_per_student_hour": null,
-      "equiv_per_2h_session": null,
-      "deposit": 1470,
-      "n_installments": 9,
-      "installment_amount": 380,
-      "last_installment": 390,
-      "included": [
-        "Présentiel hebdomadaire en groupe réduit",
-        "Plateforme ARIA + espace parent",
-        "Carte d'examen personnalisée",
-        "Bilans de progression réguliers"
-      ]
-    },
-    {
-      "id": "term-libre-online",
-      "level": "terminale",
-      "track": "libre",
-      "title": "Terminale Libre Online",
-      "subjects": "100 % en ligne",
-      "hours_per_week": null,
-      "hours_per_year": null,
-      "group_max": 5,
-      "group_min_open": 3,
-      "price_annual": 2900,
-      "price_per_student_hour": null,
-      "equiv_per_2h_session": null,
-      "deposit": 870,
-      "n_installments": 9,
-      "installment_amount": 225,
-      "last_installment": 230,
-      "included": [
-        "Spécialités + Grand Oral + tronc commun en ligne",
-        "Plateforme ARIA",
-        "Bilans de progression réguliers"
-      ]
-    },
-    {
-      "id": "term-libre-mixte",
-      "level": "terminale",
-      "track": "libre",
-      "title": "Terminale Libre Mixte",
-      "subjects": "Présentiel + plateforme",
-      "hours_per_week": 4,
       "hours_per_year": 120,
-      "group_max": 5,
+      "hours_per_month": 12,
+      "group_max": 6,
       "group_min_open": 3,
       "price_annual": 7900,
       "price_per_student_hour": null,
       "equiv_per_2h_session": null,
-      "deposit": 2370,
-      "n_installments": 9,
-      "installment_amount": 614,
-      "last_installment": 618,
+      "deposit": 0,
+      "n_installments": 10,
+      "installment_amount": 790,
+      "last_installment": 790,
       "included": [
-        "Spécialités, Grand Oral, tronc commun selon carte d'examen",
-        "Présentiel hebdomadaire en groupe réduit",
-        "Bacs blancs en conditions réelles + correction détaillée",
-        "Carte d'examen personnalisée",
-        "Bulletin trimestriel Nexus + conseil de classe individuel",
-        "Plateforme ARIA + espace parent",
-        "Accompagnement Parcoursup et orientation"
+        "Pilotage Nexus complet",
+        "Français / EAF : 8 h/mois (écrit et oral)",
+        "Mathématiques anticipées : 4 h/mois",
+        "Diagnostic et plateforme ARIA",
+        "Espace parent et suivi des échéances",
+        "Bilans périodiques"
       ]
     },
     {
-      "id": "term-libre-premium",
-      "level": "terminale",
+      "id": "premiere-libre-renforcee",
+      "level": "premiere",
       "track": "libre",
-      "title": "Terminale Libre Premium",
-      "subjects": "+ coaching",
+      "audience": ["candidat_individuel"],
+      "effectif_family": "candidat_individuel",
+      "title": "Première Libre — Renforcée",
+      "subjects": "Cap Anticipées + 8 h/mois supplémentaires selon diagnostic",
       "hours_per_week": null,
-      "hours_per_year": null,
-      "group_max": 5,
+      "hours_per_year": 200,
+      "hours_per_month": 20,
+      "group_max": 6,
       "group_min_open": 3,
-      "price_annual": 9900,
+      "price_annual": 11900,
       "price_per_student_hour": null,
       "equiv_per_2h_session": null,
-      "deposit": 2970,
-      "n_installments": 9,
-      "installment_amount": 770,
-      "last_installment": 770,
+      "deposit": 0,
+      "n_installments": 10,
+      "installment_amount": 1190,
+      "last_installment": 1190,
       "included": [
-        "Tout le parcours Mixte en groupe réduit",
-        "Coaching individuel et suivi parent renforcé",
-        "6 h d'urgence en ligne incluses",
-        "Priorité de planification sur les stages",
-        "Préparation Parcoursup : dossier et entretiens optimisés"
+        "Tout le parcours Cap Anticipées (12 h/mois)",
+        "8 h/mois supplémentaires réparties selon le diagnostic et la carte d'examen",
+        "Diagnostic et plateforme ARIA",
+        "Espace parent et suivi des échéances",
+        "Bilans périodiques"
+      ]
+    },
+    {
+      "id": "terminale-libre-focus-bac",
+      "level": "terminale",
+      "track": "libre",
+      "audience": ["candidat_individuel"],
+      "effectif_family": "candidat_individuel",
+      "title": "Terminale Libre — Focus Bac",
+      "subjects": "EDS 1 8 h/mois + EDS 2 8 h/mois + Philosophie 4 h/mois",
+      "hours_per_week": null,
+      "hours_per_year": 200,
+      "hours_per_month": 20,
+      "group_max": 6,
+      "group_min_open": 3,
+      "price_annual": 12900,
+      "price_per_student_hour": null,
+      "equiv_per_2h_session": null,
+      "deposit": 0,
+      "n_installments": 10,
+      "installment_amount": 1290,
+      "last_installment": 1290,
+      "included": [
+        "Enseignement de spécialité 1 : 8 h/mois",
+        "Enseignement de spécialité 2 : 8 h/mois",
+        "Philosophie : 4 h/mois",
+        "Grand Oral : préparation progressive incluse, 8 h maximum sur l’année (4 séances de 2 h)",
+        "Diagnostic et plateforme ARIA",
+        "Espace parent et suivi des échéances"
+      ]
+    },
+    {
+      "id": "terminale-libre-integrale",
+      "level": "terminale",
+      "track": "libre",
+      "audience": ["candidat_individuel"],
+      "effectif_family": "candidat_individuel",
+      "title": "Terminale Libre — Intégrale",
+      "subjects": "Jusqu’à 30 h/mois réparties selon le diagnostic",
+      "hours_per_week": null,
+      "hours_per_year": 300,
+      "hours_per_month": 30,
+      "hours_per_month_is_ceiling": true,
+      "group_max": 6,
+      "group_min_open": 3,
+      "price_annual": 16900,
+      "price_per_student_hour": null,
+      "equiv_per_2h_session": null,
+      "deposit": 0,
+      "n_installments": 10,
+      "installment_amount": 1690,
+      "last_installment": 1690,
+      "included": [
+        "Jusqu’à 30 h/mois réparties selon le diagnostic",
+        "Les 2 enseignements de spécialité, Philosophie",
+        "Grand Oral : 8 h maximum sur l’année, comprises dans le plafond de 30 h/mois",
+        "Histoire-Géographie, LVA/LVB, Enseignement scientifique selon besoin",
+        "Évaluations ponctuelles réellement requises",
+        "Diagnostic et plateforme ARIA",
+        "Espace parent et suivi des échéances"
       ]
     },
     {
@@ -1496,54 +1557,50 @@
           525
         ]
       }
+    }
+  ],
+  "candidat_individuel_modules": {
+    "min_group_open": 3,
+    "max_group_size": 6,
+    "pilotage": {
+      "id": "module-pilotage",
+      "title": "Pilotage Nexus",
+      "price_monthly": 150
     },
+    "petit_groupe": [
+      { "hours_per_month": 4, "price_per_student_monthly": 250, "group_min_open": 3, "group_max": 6 },
+      { "hours_per_month": 8, "price_per_student_monthly": 470, "group_min_open": 3, "group_max": 6 },
+      { "hours_per_month": 12, "price_per_student_monthly": 680, "group_min_open": 3, "group_max": 6 }
+    ],
+    "duo": {
+      "price_per_hour_per_student": 90
+    },
+    "individuel": {
+      "price_per_hour_min": 180,
+      "floor_type": "coaching_1to1"
+    }
+  },
+  "indicative_programs": [
     {
-      "id": "pass-candidat-libre",
-      "title": "Pass Candidat Libre",
-      "public": "Libre",
-      "components": [
-        {
-          "type": "coaching",
-          "id": "diagnostic",
-          "qty": 1,
-          "value_override": 100
-        },
-        {
-          "type": "stage",
-          "format_id": "intensif-renfort",
-          "edition_id": "toussaint",
-          "qty": 1
-        },
-        {
-          "type": "stage",
-          "format_id": "intensif-renfort",
-          "edition_id": "fevrier",
-          "qty": 1
-        },
-        {
-          "type": "ponctuel",
-          "id": "epreuve-blanche",
-          "qty": 3
-        },
-        {
-          "type": "service",
-          "label": "Cellule Cyclades",
-          "qty": 1,
-          "value_override": 0
-        }
-      ],
-      "price": 1690,
-      "deposit_deductible_to_annual": true,
-      "deposit_carryover": true,
-      "payment": {
-        "deposit": 290,
-        "solde_schedule": [
-          350,
-          350,
-          350,
-          350
-        ]
-      }
+      "id": "bac-accelere",
+      "level": "terminale",
+      "track": "libre",
+      "title": "Parcours Bac accéléré",
+      "subtitle": "Parcours sur une seule session — sous réserve d'éligibilité réglementaire.",
+      "pricing_display": "devis",
+      "price_monthly_min": 1700,
+      "price_monthly_max": 2700,
+      "eligibility_requires_human_review": true,
+      "depends_on": [
+        "éligibilité réglementaire",
+        "session visée",
+        "épreuves à présenter",
+        "notes déjà acquises ou conservées",
+        "enseignements de spécialité",
+        "résultats du diagnostic",
+        "budget familial",
+        "volume d'heures retenu"
+      ]
     }
   ],
   "special_programs": [

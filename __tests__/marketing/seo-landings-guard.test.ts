@@ -10,7 +10,7 @@ import CandidatLibreBacFrancaisPage from '@/app/candidat-libre-bac-francais/page
 import GrandOralPage from '@/app/grand-oral/page';
 import PreparationBacFrancaisTunisPage from '@/app/preparation-bac-francais-tunis/page';
 import ReussirEafPage from '@/app/reussir-eaf/page';
-import { getAllOffers, getAnnualOffer, getPack, getPacks, getPonctuelOffer } from '@/lib/pricing';
+import { getAllOffers, getAnnualOffer, getPack, getPonctuelOffer } from '@/lib/pricing';
 
 const usePathnameMock = jest.fn();
 
@@ -188,20 +188,30 @@ describe('SEO landings T1.1 guard', () => {
 
   test('landing service claims map to canonical included entries or pack services', () => {
     const annualIncluded = getAllOffers().flatMap((offer) => offer.included);
-    const packServices = getPacks().flatMap((pack) =>
-      pack.components
-        .filter((component) => component.type === 'service')
-        .map((component) => component.label ?? ''),
-    );
     const candidatLibreText = landingText(seoLandings['/candidat-libre-bac-francais']);
     const hubText = landingText(seoLandings['/preparation-bac-francais-tunis']);
 
     expect(candidatLibreText).toContain('Cyclades');
     expect(candidatLibreText).toContain('épreuves blanches selon la formule');
     expect(hubText).toContain('ARIA complète le travail humain');
-    expect(packServices).toContain('Cellule Cyclades');
+    // The Cyclades administrative support claim used to live on the
+    // pass-candidat-libre pack (removed — see CDC §6/§39, old candidat-libre
+    // catalog retired). It now lives on the Pilotage offer that every
+    // candidat individuel parcours includes.
+    expect(annualIncluded.some((item) => item.includes('Cyclades'))).toBe(true);
     expect(annualIncluded.some((item) => item.includes('Plateforme ARIA'))).toBe(true);
     expect(annualIncluded.some((item) => item.includes('Bacs blancs'))).toBe(true);
+  });
+
+  test('the "Nexus remplace-t-il l’inscription officielle" FAQ names the actual exam authority, not just Cyclades', () => {
+    // Nexus must never be read as the registration/exam authority (mission
+    // directive on the Cyclades claim): the disclaimer has to name who
+    // actually owns the official inscription, not stop at "Cyclades".
+    const landing = seoLandings['/candidat-libre-bac-francais'];
+    const item = landing.faq.find((entry) => entry.question.includes('remplace-t-il l’inscription officielle'));
+    expect(item).toBeDefined();
+    expect(item!.answer).toMatch(/académie|rectorat|autorité d.examen/i);
+    expect(item!.answer).toContain('Cyclades');
   });
 
   test.each(LANDINGS)('$path renders sections, related links, offer cards and FAQ from page props', ({ Page, path }) => {

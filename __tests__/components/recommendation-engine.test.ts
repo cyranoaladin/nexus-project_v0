@@ -81,4 +81,15 @@ describe('recommendation engine', () => {
     const outcome = buildRecommendationOutcome({ need: 'annual', track: 'scolarise', level: 'Première' }, data);
     expect(outcome.cards.length).toBeGreaterThan(0);
   });
+
+  it('routes candidat individuel (libre) Première/Terminale to the personalized quote wizard instead of the static offer page', () => {
+    const data = buildTestData();
+    for (const level of ['premiere', 'terminale'] as const) {
+      const outcome = buildRecommendationOutcome({ need: 'annual', track: 'libre', level }, data);
+      expect(outcome.cards.length).toBeGreaterThan(0);
+      for (const card of outcome.cards) {
+        expect(card.ctaHref).toBe('/devis-bac');
+      }
+    }
+  });
 });

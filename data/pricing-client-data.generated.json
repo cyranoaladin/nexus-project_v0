@@ -41,6 +41,17 @@
       "cumulable": false,
       "global_cap_pct": 20,
       "note": "Non cumulables sauf décision exceptionnelle de la direction ; le plafond global de 20% maintient le prix/élève/heure au-dessus du plancher."
+    },
+    "grand_oral_policy": {
+      "included_sessions": 4,
+      "session_duration_minutes": 120,
+      "total_hours_max": 8,
+      "note_focus_bac": "Terminale Libre — Focus Bac : ces 8 h forment l'enveloppe annuelle dédiée Grand Oral, en complément de la structure régulière EDS/philosophie (20 h/mois).",
+      "note_integrale": "Terminale Libre — Intégrale : ces 8 h sont comprises dans le plafond mensuel de 30 h/mois ; elles ne s'ajoutent pas au-delà de ce plafond.",
+      "applies_to_offer_ids": [
+        "terminale-libre-focus-bac",
+        "terminale-libre-integrale"
+      ]
     }
   },
   "reperes_tarifaires": {
@@ -152,44 +163,52 @@
       "last_installment": 376
     },
     {
-      "id": "1re-libre-essentiel",
-      "price_annual": 1900,
-      "deposit": 570,
-      "n_installments": 9,
+      "id": "libre-pilotage",
+      "price_annual": 1500,
+      "deposit": 0,
+      "n_installments": 10,
       "installment_amount": 150,
-      "last_installment": 130
+      "last_installment": 150
     },
     {
-      "id": "1re-libre-accomp",
-      "price_annual": 4900,
-      "deposit": 1470,
-      "n_installments": 9,
-      "installment_amount": 380,
-      "last_installment": 390
+      "id": "libre-sur-mesure",
+      "price_annual": 6200,
+      "deposit": 0,
+      "n_installments": 10,
+      "installment_amount": 620,
+      "last_installment": 620
     },
     {
-      "id": "term-libre-online",
-      "price_annual": 2900,
-      "deposit": 870,
-      "n_installments": 9,
-      "installment_amount": 225,
-      "last_installment": 230
-    },
-    {
-      "id": "term-libre-mixte",
+      "id": "premiere-libre-cap-anticipees",
       "price_annual": 7900,
-      "deposit": 2370,
-      "n_installments": 9,
-      "installment_amount": 614,
-      "last_installment": 618
+      "deposit": 0,
+      "n_installments": 10,
+      "installment_amount": 790,
+      "last_installment": 790
     },
     {
-      "id": "term-libre-premium",
-      "price_annual": 9900,
-      "deposit": 2970,
-      "n_installments": 9,
-      "installment_amount": 770,
-      "last_installment": 770
+      "id": "premiere-libre-renforcee",
+      "price_annual": 11900,
+      "deposit": 0,
+      "n_installments": 10,
+      "installment_amount": 1190,
+      "last_installment": 1190
+    },
+    {
+      "id": "terminale-libre-focus-bac",
+      "price_annual": 12900,
+      "deposit": 0,
+      "n_installments": 10,
+      "installment_amount": 1290,
+      "last_installment": 1290
+    },
+    {
+      "id": "terminale-libre-integrale",
+      "price_annual": 16900,
+      "deposit": 0,
+      "n_installments": 10,
+      "installment_amount": 1690,
+      "last_installment": 1690
     },
     {
       "id": "plateforme-autonomie",
