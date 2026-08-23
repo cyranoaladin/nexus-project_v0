@@ -193,16 +193,12 @@ function VerifiableSection() {
 
 // ── FAQ ──
 
-function getFaqItems(rules: { group_max: number; group_min_open: Record<string, number> }): FAQItem[] {
-  const groupMax = rules.group_max;
-  const lyceeMin = rules.group_min_open.lycee;
-  const collegeMin = rules.group_min_open.college;
-
+function getFaqItems(): FAQItem[] {
   return [
   {
-    question: `Comment fonctionnent les groupes de ${groupMax} maximum ?`,
+    question: 'Comment sont constitués les groupes ?',
     answer:
-      `Chaque groupe est limité à ${groupMax} élèves afin de préserver un suivi personnalisé. Le groupe est ouvert dès ${lyceeMin} inscrits au lycée et ${collegeMin} au Brevet. Si le seuil n’est pas atteint, l’acompte est intégralement remboursé.`,
+      'Les effectifs sont volontairement réduits et précisés sur chaque offre. Le seuil d’ouverture et la capacité maximale varient selon le niveau et le parcours. Si un groupe ne peut pas ouvrir, tout acompte éventuellement versé est intégralement remboursé.',
   },
   {
     question: 'Qui sont les enseignants ?',
@@ -212,7 +208,7 @@ function getFaqItems(rules: { group_max: number; group_min_open: Record<string, 
   {
     question: 'Comment fonctionne l’échéancier de paiement ?',
     answer:
-      'Un acompte de 30 % est versé à la réservation, puis le solde est réparti en mensualités. L’acompte d’un stage ou Pass est déductible si vous souscrivez ensuite un parcours annuel.',
+      'Les modalités de règlement dépendent de l’offre. Certains parcours et stages prévoient un acompte ; les parcours destinés aux candidats individuels sont proposés sans acompte, avec des mensualités égales. L’échéancier complet est affiché sur chaque offre avant validation.',
   },
   {
     question: 'Qu’est-ce que la plateforme ARIA ?',
@@ -220,9 +216,9 @@ function getFaqItems(rules: { group_max: number; group_min_open: Record<string, 
       'ARIA est notre plateforme numérique avec des ressources, parcours de révision, fiches et exercices. Elle complète l’accompagnement humain et s’utilise selon la formule choisie.',
   },
   {
-    question: 'Proposez-vous un accompagnement pour les candidats libres ?',
+    question: 'Proposez-vous un accompagnement pour les candidats individuels ?',
     answer:
-      'Oui, nous avons des parcours dédiés aux candidats libres (Essentiel, Mixte, Premium) avec cellule Cyclades intégrée pour l’accompagnement administratif. Le Pass Candidat Libre regroupe diagnostic, stages et épreuves blanches.',
+      'Oui. Nexus Réussite propose des parcours dédiés aux candidats individuels, couramment appelés candidats libres, construits selon leur niveau, leur carte d’épreuves et leur diagnostic. Selon la formule retenue, l’accompagnement peut associer le pilotage du parcours, le suivi des échéances, l’appui aux démarches Cyclades, des enseignements en petit groupe, la plateforme ARIA et des bilans réguliers. Nexus Réussite accompagne les démarches sans se substituer à l’inscription officielle auprès de l’autorité d’examen.',
   },
   ];
 }
@@ -230,7 +226,7 @@ function getFaqItems(rules: { group_max: number; group_min_open: Record<string, 
 // ── Main ──
 
 export function HomePageClient({ campaign }: { campaign?: PreRentreeHomepageSpotlightDTO }) {
-  const faqItems = getFaqItems(getRules());
+  const faqItems = getFaqItems();
 
   return (
     <main className="luxury" id="main-content">
