@@ -46,7 +46,14 @@ describe('Échéancier reconciliation — canonical payment data', () => {
         if (!schedule) return;
 
         const { deposit, installments, lastInstallment } = schedule;
-        expect(deposit).toBeGreaterThan(0);
+        // Candidat individuel offers (audience: ['candidat_individuel']) use a
+        // 0-deposit / 10-equal-installments model by design — see CDC §6. Every other
+        // family still requires a strictly positive acompte.
+        if (offer.audience?.includes('candidat_individuel')) {
+          expect(deposit).toBe(0);
+        } else {
+          expect(deposit).toBeGreaterThan(0);
+        }
 
         const regularSum = installments.slice(0, -1).reduce((sum, v) => sum + v, 0);
         const total = deposit + regularSum + lastInstallment;

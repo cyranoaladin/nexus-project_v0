@@ -158,7 +158,7 @@ export default function OffresPage() {
           <div className="mt-5 inline-flex flex-wrap gap-2 text-sm text-lux-on-dark-muted">
             <span className="rounded-full border border-lux-line/40 bg-white/5 px-3 py-1">Capacité précisée par offre</span>
             <span className="rounded-full border border-lux-line/40 bg-white/5 px-3 py-1">Tarifs en TND</span>
-            <span className="rounded-full border border-lux-line/40 bg-white/5 px-3 py-1">Acompte 30 %</span>
+            <span className="rounded-full border border-lux-line/40 bg-white/5 px-3 py-1">Modalités de règlement précisées sur chaque offre</span>
             <span className="rounded-full border border-lux-line/40 bg-white/5 px-3 py-1">Échéanciers transparents</span>
           </div>
           <div className="mt-8 grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
@@ -259,6 +259,12 @@ export default function OffresPage() {
             <h2 className="mt-2 text-2xl md:text-3xl">Parcours candidats libres</h2>
             <div className="lux-filet-gold mt-3 w-16" />
             <p className="mt-3 text-sm text-lux-slate">Les éléments inclus et les modalités sont détaillés sur chaque offre ci-dessous.</p>
+            <Link
+              href="/devis-bac"
+              className="mt-4 inline-flex min-h-[44px] items-center rounded-lg border-[1.5px] border-lux-ink px-5 py-2.5 text-sm font-semibold text-lux-ink transition-all hover:bg-lux-ink hover:text-lux-ivory lux-focus"
+            >
+              Calculer mon accompagnement personnalisé
+            </Link>
           </div>
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {libreOffers.map((o) => {
@@ -266,6 +272,11 @@ export default function OffresPage() {
               if (price == null) return null;
               const displayLevel = o.level === 'premiere' ? 'Première' : o.level === 'terminale' ? 'Terminale' : o.level;
               const payment = getAnnualOfferPaymentSchedule(o);
+              // depositPct is computed per-offer, never assumed: the candidat
+              // individuel family has 0 % acompte (10 mensualités identiques),
+              // while other libre offers may still use the global annual rate.
+              const depositPct =
+                payment && price ? Math.round((payment.deposit / price) * 100) : rules.payment.deposit_pct_annual;
               return (
                 <div key={o.id} id={o.id} className="scroll-mt-28">
                   <ExamCard
@@ -274,10 +285,10 @@ export default function OffresPage() {
                     subtitle={o.subjects}
                     price={price}
                     pricingDisplay={o.pricing_display ?? undefined}
-                    groupMax={o.group_max ?? rules.group_max}
-                    groupMinOpen={o.group_min_open ?? rules.group_min_open.online_live}
-                    effectifType="groupe"
-                    payment={payment ? { ...payment, depositPct: rules.payment.deposit_pct_annual } : undefined}
+                    groupMax={o.group_max ?? undefined}
+                    groupMinOpen={o.group_min_open ?? undefined}
+                    effectifType={o.group_max != null ? 'groupe' : 'none'}
+                    payment={payment ? { ...payment, depositPct } : undefined}
                     ctaText="Demander cette offre"
                     ctaHref={buildWhatsAppUrl(o.title)}
                   />

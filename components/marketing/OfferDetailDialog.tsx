@@ -117,7 +117,8 @@ export function OfferDetailDialog({ offer, onClose }: OfferDetailDialogProps) {
     firstInstallment != null &&
     offer.payment.installments != null &&
     offer.payment.installments.length > 0;
-  const depositPctLabel = offer.payment?.depositPct != null ? ` (${offer.payment.depositPct}\u00A0%)` : '';
+  const noDeposit = offer.payment != null && offer.payment.deposit === 0;
+  const depositPctLabel = !noDeposit && offer.payment?.depositPct != null ? ` (${offer.payment.depositPct}\u00A0%)` : '';
   const lastInstallmentLabel =
     lastInstallment != null && lastInstallment !== firstInstallment
       ? `, dernière à ${fmtTND(lastInstallment)}`
@@ -189,10 +190,12 @@ export function OfferDetailDialog({ offer, onClose }: OfferDetailDialogProps) {
                   <span className="lux-price text-2xl text-lux-ink">
                     {fmtTND(firstInstallment)}
                   </span>
-                  <span className="text-sm font-medium text-lux-slate">/ mois hors acompte</span>
+                  <span className="text-sm font-medium text-lux-slate">{noDeposit ? '/ mois' : '/ mois hors acompte'}</span>
                 </div>
                 <p className="mt-1 text-sm text-lux-slate">
-                  Acompte {fmtTND(offer.payment!.deposit)}{depositPctLabel}, puis {offer.payment!.installments!.length} mensualité{offer.payment!.installments!.length > 1 ? 's' : ''} ({fmtTND(firstInstallment)}{lastInstallmentLabel}). Total {fmtTND(offer.price)} / an.
+                  {noDeposit
+                    ? `${offer.payment!.installments!.length} mensualités identiques, pas d’acompte (${fmtTND(firstInstallment)}${lastInstallmentLabel}). Total ${fmtTND(offer.price)} / an.`
+                    : `Acompte ${fmtTND(offer.payment!.deposit)}${depositPctLabel}, puis ${offer.payment!.installments!.length} mensualité${offer.payment!.installments!.length > 1 ? 's' : ''} (${fmtTND(firstInstallment)}${lastInstallmentLabel}). Total ${fmtTND(offer.price)} / an.`}
                 </p>
               </>
             ) : (
@@ -216,7 +219,7 @@ export function OfferDetailDialog({ offer, onClose }: OfferDetailDialogProps) {
                 Échéancier
               </p>
               <div className="space-y-2 font-dm-sans text-sm">
-                <Row label="Acompte" value={fmtTND(offer.payment.deposit)} />
+                <Row label="Acompte" value={noDeposit ? 'Aucun' : fmtTND(offer.payment.deposit)} />
                 {offer.payment.installments &&
                   offer.payment.installments.length > 0 && (
                     <Row

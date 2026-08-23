@@ -6,7 +6,7 @@
     "wiredIntoCi": true,
     "validator": "scripts/security/validate-brace-expansion-attestation.mjs",
     "approvalRequired": true,
-    "approvalReference": "Repository owner authorization dated 2026-08-07 (re-attestation after js-yaml/pdfjs-dist npm audit fix changed the lockfile digest; brace-expansion itself unchanged -- versions, integrity and dependency paths re-verified identical)"
+    "approvalReference": "Repository owner (Alaeddine Ben Rhouma) authorization given live in the PR #160 session on 2026-08-23, via an explicit AskUserQuestion choice (\"I approve renewing it now\") after being told exactly why the lockfile digest changed (deepmerge-ts 7.1.5->8.0.2 override, GHSA-ggr8-5vv4-36mx) and that brace-expansion itself would be mechanically re-verified, not assumed. brace-expansion versions, integrity, dependency paths and source digests re-verified byte-for-byte identical to the 2026-08-07 attestation. Note for the next re-attestation: a live OSV scan on 2026-08-23 no longer flags brace-expansion at all (0 findings) -- this may mean the SCANNER_METADATA_CORRECTED revocation condition has occurred and this attestation could be retired rather than renewed again; re-check before the next lockfile-driven renewal."
   },
   "advisory": {
     "id": "GHSA-mh99-v99m-4gvg",
@@ -25,12 +25,12 @@
   "lockfileEvidence": {
     "path": "package-lock.json",
     "algorithm": "SHA-256",
-    "digest": "5c06c916c402a9d9cf9844255f7c244462e89b33ac9a830bd542a4809f32d111",
+    "digest": "3659d1ebe6cd8e70732bd2b8e0b39ff0d18748b54667448991c64c26a2d5f300",
     "verification": {
       "command": "npm ci",
-      "verifiedOn": "2026-08-07",
-      "digestBeforeInstall": "5c06c916c402a9d9cf9844255f7c244462e89b33ac9a830bd542a4809f32d111",
-      "digestAfterInstall": "5c06c916c402a9d9cf9844255f7c244462e89b33ac9a830bd542a4809f32d111",
+      "verifiedOn": "2026-08-23",
+      "digestBeforeInstall": "3659d1ebe6cd8e70732bd2b8e0b39ff0d18748b54667448991c64c26a2d5f300",
+      "digestAfterInstall": "3659d1ebe6cd8e70732bd2b8e0b39ff0d18748b54667448991c64c26a2d5f300",
       "unchanged": true
     }
   },
@@ -142,7 +142,7 @@
   "runtimeGraphEvidence": {
     "schema": "nexus-runtime-component-set-recursive/v1",
     "digestAlgorithm": "SHA-256",
-    "digest": "2bb3673d01e86ee3520f0035804cb9ecefee0c3be0750adc660e06dfee417d2b",
+    "digest": "97c6a5767b2f83f1a52a799bbb8b4ef9ceb2471c088e6bf2553dfae5ac59ad51",
     "componentCount": 550,
     "canonicalization": {
       "traversal": "components and nested components recursively",
@@ -169,8 +169,8 @@
     "format": "CycloneDX 1.6",
     "componentCount": 523,
     "algorithm": "SHA-256",
-    "digest": "1e5b2f60bf51caa4d298545895e6f78d2a939b3eec875714f6ba5798cfa620ad",
-    "regeneratedOn": "2026-08-08",
+    "digest": "b415b8d5f598cefa3b7cc6953b083e4eb50f0ee516a4488ca2a38d8220fa1052",
+    "regeneratedOn": "2026-08-23",
     "blocking": false,
     "note": "Raw CycloneDX digest retained for audit only; validation binds to runtimeGraphEvidence."
   },
@@ -203,8 +203,8 @@
     "unexpectedAdvisoriesAllowed": false
   },
   "validity": {
-    "createdOn": "2026-08-07",
-    "expiresOn": "2026-08-21",
+    "createdOn": "2026-08-23",
+    "expiresOn": "2026-09-06",
     "revocationConditions": [
       "LOCKFILE_DIGEST_CHANGED",
       "PACKAGE_VERSION_CHANGED",
@@ -221,5 +221,5 @@
       "EXPIRY_REACHED"
     ]
   },
-  "approvalReference": "Régénération autorisée explicitement par le responsable dans la consigne de déblocage CI de la PR #104 : « Si l'attestation est invalidée par le changement de lockfile du fix ci-dessus → régénérer avec les vrais outils du dépôt. » Cause : bump nanoid 3.3.16 → 3.3.18 (GHSA-2v37-7h3g-55p8)."
+  "approvalReference": "Régénération autorisée explicitement par le responsable (Alaeddine Ben Rhouma) en direct dans la session PR #160, le 2026-08-23, via une question posée explicitement (AskUserQuestion) — choix retenu : « I approve renewing it now ». Cause de l'invalidation : ajout de deepmerge-ts en overrides (7.1.5 → 8.0.2, GHSA-ggr8-5vv4-36mx) pour rendre le job Dependency Integrity vert ; brace-expansion lui-même re-vérifié octet pour octet identique (versions, integrity, chemins de dépendance, digests source) avant régénération des empreintes. Constat à signaler pour le prochain cycle : un scan OSV en direct le 2026-08-23 ne remonte plus brace-expansion du tout (0 finding) — condition de révocation SCANNER_METADATA_CORRECTED potentiellement atteinte ; envisager de retirer cette attestation plutôt que de la renouveler une nouvelle fois."
 }

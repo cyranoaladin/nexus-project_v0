@@ -53,10 +53,11 @@ describe('Rendered prices match canonical — by offer', () => {
       }
     });
 
-    test('every priced offer has group_max <= 5', () => {
+    test('every priced offer has group_max <= 5, except candidat individuel (<= 6)', () => {
       for (const o of priced) {
         if (o.group_max != null) {
-          expect(o.group_max).toBeLessThanOrEqual(5);
+          const max = o.effectif_family === 'candidat_individuel' ? 6 : 5;
+          expect(o.group_max).toBeLessThanOrEqual(max);
         }
       }
     });

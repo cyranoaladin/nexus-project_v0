@@ -90,6 +90,7 @@ export function ExamCard(props: ExamCardProps) {
   const ctaHref = 'ctaHref' in props ? props.ctaHref : undefined;
   const ctaAction = 'onCta' in props ? props.onCta : undefined;
   const hideCta = 'hideCta' in props && props.hideCta;
+  const noDeposit = payment != null && payment.deposit === 0;
   return (
     <div
       className={`@container relative flex flex-col overflow-hidden rounded-2xl transition-all duration-300 ${
@@ -171,13 +172,15 @@ export function ExamCard(props: ExamCardProps) {
           firstInstallment != null &&
           payment.installments != null &&
           payment.installments.length > 0;
-        const depositPctLabel = payment?.depositPct != null ? ` (${payment.depositPct}\u00A0%)` : '';
+        const depositPctLabel = !noDeposit && payment?.depositPct != null ? ` (${payment.depositPct}\u00A0%)` : '';
         const lastInstallmentLabel =
           lastInstallment != null && lastInstallment !== firstInstallment
             ? `, dernière à ${fmtTND(lastInstallment)}`
             : '';
         const scheduleLabel = hasInstallments
-          ? `Acompte ${fmtTND(payment.deposit)}${depositPctLabel}, puis ${payment.installments!.length} mensualité${payment.installments!.length > 1 ? 's' : ''} (${fmtTND(firstInstallment)}${lastInstallmentLabel})`
+          ? noDeposit
+            ? `${payment.installments!.length} mensualités identiques, pas d’acompte (${fmtTND(firstInstallment)}${lastInstallmentLabel})`
+            : `Acompte ${fmtTND(payment.deposit)}${depositPctLabel}, puis ${payment.installments!.length} mensualité${payment.installments!.length > 1 ? 's' : ''} (${fmtTND(firstInstallment)}${lastInstallmentLabel})`
           : undefined;
         const mode = pricingDisplay ?? (hasInstallments ? 'monthly_first' : 'total');
 
@@ -189,7 +192,9 @@ export function ExamCard(props: ExamCardProps) {
                   <span data-testid="price-primary" className="lux-price text-2xl font-bold text-lux-ink">
                     {fmtPrice(firstInstallment)}&nbsp;TND
                   </span>
-                  <span className="text-sm font-medium text-lux-slate">/&nbsp;mois hors acompte</span>
+                  <span className="text-sm font-medium text-lux-slate">
+                    {noDeposit ? '/ mois' : '/ mois hors acompte'}
+                  </span>
                 </div>
                 <p data-testid="price-secondary" className="mt-1 text-sm text-lux-slate">
                   {scheduleLabel}. Total {fmtTND(price)}&nbsp;/&nbsp;an.
@@ -233,12 +238,21 @@ export function ExamCard(props: ExamCardProps) {
             Échéancier
           </p>
           <div className="space-y-2 font-dm-sans text-sm">
-            <div data-testid="echeancier-acompte" className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-0.5">
-              <span className="text-lux-slate">Acompte</span>
-              <span data-testid="echeancier-acompte-value" className="lux-price font-semibold text-lux-ink whitespace-nowrap">
-                {fmtTND(payment.deposit)}
-              </span>
-            </div>
+            {noDeposit ? (
+              <div data-testid="echeancier-acompte" className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-0.5">
+                <span className="text-lux-slate">Acompte</span>
+                <span data-testid="echeancier-acompte-value" className="font-semibold text-lux-ink whitespace-nowrap">
+                  Aucun
+                </span>
+              </div>
+            ) : (
+              <div data-testid="echeancier-acompte" className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-0.5">
+                <span className="text-lux-slate">Acompte</span>
+                <span data-testid="echeancier-acompte-value" className="lux-price font-semibold text-lux-ink whitespace-nowrap">
+                  {fmtTND(payment.deposit)}
+                </span>
+              </div>
+            )}
             {payment.installments && payment.installments.length > 0 && (
               <div data-testid="echeancier-mensualites" className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-0.5">
                 <span className="text-lux-slate whitespace-nowrap">

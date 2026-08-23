@@ -48,7 +48,7 @@ export const seoLandings = {
     path: '/candidat-libre-bac-francais',
     title: 'Candidat libre au bac français en Tunisie',
     intro:
-      'Passer le bac français en candidat libre depuis la Tunisie demande un cadre précis : le candidat individuel ne dispose pas de contrôle continu et doit organiser les démarches administratives, les épreuves ponctuelles, les épreuves anticipées et les épreuves terminales. Nexus Réussite accompagne cette préparation avec une méthode structurée, des entraînements en conditions, un suivi parent lisible et une cellule d’appui Cyclades selon la formule retenue.',
+      'Passer le bac français en candidat libre depuis la Tunisie demande un cadre précis : le candidat individuel ne dispose pas de contrôle continu et doit organiser les démarches administratives, les épreuves ponctuelles, les épreuves anticipées et les épreuves terminales. Nexus Réussite accompagne cette préparation avec une méthode structurée, des entraînements en conditions, un suivi parent lisible et un appui à l’organisation des démarches Cyclades selon la formule retenue — sans se substituer à l’inscription officielle.',
     jsonLdName: 'Préparation au bac français en candidat libre en Tunisie',
     primaryCtaHref: '/bilan-gratuit',
     metadata: metadata(
@@ -105,12 +105,12 @@ export const seoLandings = {
     ],
     relatedLinks: relatedLinksFor('/candidat-libre-bac-francais'),
     offerRefs: [
-      { type: 'annual', id: '1re-libre-essentiel' },
-      { type: 'annual', id: '1re-libre-accomp' },
-      { type: 'annual', id: 'term-libre-online' },
-      { type: 'annual', id: 'term-libre-mixte' },
-      { type: 'annual', id: 'term-libre-premium' },
-      { type: 'pack', id: 'pass-candidat-libre' },
+      { type: 'annual', id: 'libre-pilotage' },
+      { type: 'annual', id: 'libre-sur-mesure' },
+      { type: 'annual', id: 'premiere-libre-cap-anticipees' },
+      { type: 'annual', id: 'premiere-libre-renforcee' },
+      { type: 'annual', id: 'terminale-libre-focus-bac' },
+      { type: 'annual', id: 'terminale-libre-integrale' },
     ],
     faq: [
       {
@@ -126,7 +126,7 @@ export const seoLandings = {
       {
         question: 'Nexus remplace-t-il l’inscription officielle ?',
         answer:
-          'Non. Nexus accompagne l’organisation et la préparation, mais l’inscription officielle relève du candidat, de sa famille, de Cyclades et des consignes communiquées pour la session.',
+          'Non. Nexus accompagne l’organisation et la préparation, mais l’inscription officielle et les informations définitives relèvent du candidat, de sa famille, de Cyclades et de l’autorité d’examen compétente (académie/rectorat).',
       },
       {
         question: 'Comment préparer le français en candidat libre ?',
@@ -195,9 +195,8 @@ export const seoLandings = {
       { type: 'annual', id: '1re-double-secu' },
       { type: 'annual', id: 'term-duo' },
       { type: 'annual', id: 'term-excellence' },
-      { type: 'annual', id: 'term-libre-mixte' },
+      { type: 'annual', id: 'terminale-libre-focus-bac' },
       { type: 'pack', id: 'pass-intensifs-term' },
-      { type: 'pack', id: 'pass-candidat-libre' },
     ],
     faq: [
       {
@@ -284,7 +283,7 @@ export const seoLandings = {
     offerRefs: [
       { type: 'ponctuel', id: 'cap-eaf' },
       { type: 'annual', id: '1re-eaf' },
-      { type: 'annual', id: '1re-libre-accomp' },
+      { type: 'annual', id: 'premiere-libre-cap-anticipees' },
       { type: 'pack', id: 'pass-cap-bac-1re' },
     ],
     faq: [
@@ -371,7 +370,7 @@ export const seoLandings = {
     offerRefs: [
       { type: 'ponctuel', id: 'studio-grand-oral' },
       { type: 'annual', id: 'term-duo' },
-      { type: 'annual', id: 'term-libre-mixte' },
+      { type: 'annual', id: 'terminale-libre-focus-bac' },
       { type: 'pack', id: 'pass-go-sprint' },
     ],
     faq: [

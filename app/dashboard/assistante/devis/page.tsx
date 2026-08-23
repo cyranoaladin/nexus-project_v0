@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import { UserRole } from '@prisma/client';
 
 import { auth } from '@/auth';
+import { DevisWorkspace } from '@/components/dashboard/assistante/DevisWorkspace';
 
 export const metadata = {
   title: 'Assistant devis | Nexus Réussite',
@@ -30,7 +31,7 @@ export default async function AssistanteDevisPage() {
             Usage interne
           </p>
           <h1 className="mt-1 text-xl font-semibold text-white md:text-2xl">
-            Assistant conseil & devis
+            Assistant conseil & devis — candidat individuel
           </h1>
           <p className="mt-1 text-sm text-neutral-400">
             Interface confidentielle réservée à l&apos;équipe Nexus Réussite.
@@ -41,11 +42,7 @@ export default async function AssistanteDevisPage() {
         </span>
       </div>
 
-      <iframe
-        title="Assistant conseil et devis Nexus Réussite"
-        src="/dashboard/assistante/devis/app"
-        className="h-[calc(100vh-14rem)] min-h-[760px] w-full rounded-micro border border-white/10 bg-white"
-      />
+      <DevisWorkspace />
     </div>
   );
 }
