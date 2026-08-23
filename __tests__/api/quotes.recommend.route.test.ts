@@ -84,6 +84,21 @@ describe('POST /api/quotes/recommend', () => {
     expect(res.status).toBe(429);
   });
 
+  test('the response body never leaks teacher-cost/margin fields (CDC §55: anti-leak)', async () => {
+    const res = await POST(
+      makeRequest({
+        situation: validSituation,
+        budget: { monthlyBudgetTnd: 1000, strategy: 'MOST_COMPLETE' },
+      }),
+    );
+    expect(res.status).toBe(200);
+    const json = await res.json();
+    const serialized = JSON.stringify(json).toLowerCase();
+    for (const forbidden of ['teachercost', 'costprice', 'grossmargin', 'marginpct', 'internalfloor']) {
+      expect(serialized).not.toContain(forbidden);
+    }
+  });
+
   test('an unsupported exam session resolves to a 400, not a 500 crash', async () => {
     const res = await POST(
       makeRequest({
