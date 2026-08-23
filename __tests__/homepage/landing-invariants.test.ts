@@ -95,6 +95,18 @@ describe('Landing page business invariants', () => {
     expect(homeClient).not.toMatch(/groupes? de \d+\s*(élèves)?\s*maximum/i);
   });
 
+  // Codex review on PR #162 caught that this file has two OTHER spots
+  // (PricingReperesSection, getVerifiableItems) that also rendered the
+  // global rules.group_max as a blanket "Groupes de N max" claim — missed
+  // by the digit-only regex above because they interpolated ${groupMax}
+  // rather than containing a literal number. Scan for both forms, and
+  // confirm the file no longer even reads group_max from getRules().
+  test('homepage never states a single group-size cap anywhere on the page (literal or interpolated)', () => {
+    expect(homeClient).not.toMatch(/groupes? de \s*(\d+|\$\{[^}]*\}|\{[^}]*\})\s*(élèves|max)/i);
+    expect(homeClient).not.toContain('group_max');
+    expect(homeClient).not.toContain('getRules');
+  });
+
   test('homepage FAQ payment answer states modalities depend on the offer, not a universal 30% acompte', () => {
     expect(homeClient).toContain('Les modalités de règlement dépendent de l’offre');
     expect(homeClient).toContain('candidats individuels sont proposés sans acompte');
