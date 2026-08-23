@@ -8,15 +8,16 @@
 
 `READY FOR URGENT PAPER ENTRY`
 
-Ce verdict porte sur le runtime local vérifié. Aucun déploiement, SSH, push, merge ou changement de variable de production n'a été effectué. Le flag de production est resté inchangé.
+Ce verdict porte sur le runtime local vérifié pour le nouveau hotfix de certitude absente. Son déploiement n'a pas encore été effectué au moment de cette mise à jour.
 
 ## Base et état Git
 
 - Worktree : `/home/alaeddine/Bureau/nexus-project_v0-maths-complementaires-runtime`.
 - Branche : `feat/maths-complementaires-runtime-bilans`.
-- HEAD testé : `e32137e5371d951d26c21fd90275cacaf32a56da`.
-- `origin/main` observé : `4bc6f4ebf165edc88c8f3ac7da405a569e028850` (deux commits candidats/offres sans rapport avec ce hotfix, non intégrés).
-- Aucun commit, push, merge ou déploiement.
+- Base du hotfix : `origin/main` au SHA `72bea0bd`.
+- HEAD avant commit produit : `188ef436` (spécification et plan approuvés).
+- Le runtime MCO antérieur a été mergé par la PR #170 et déployé au SHA `e7294102`; le flag MCO a ensuite été réactivé en production sans activer la narration LLM.
+- Aucun push, merge ou déploiement du présent hotfix de certitude absente n'a encore été effectué.
 - `.tmp-mco-ui/` était préexistant et a été préservé.
 
 ## Architecture réellement exercée
@@ -29,23 +30,24 @@ La narration familiale LLM a été explicitement absente de l'environnement de t
 
 - `ETL-MCO-PRO-02` : la banque et la bonne réponse canonique `optionId B` sont inchangées. La projection humaine affiche « Oui : la probabilité qu’elle soit porteuse est d’environ 59,5 % » et une explication bayésienne correcte. La formulation « Non : … 59 % » et les notes éditoriales internes sont absentes des trois audiences.
 - Logarithme : les restitutions parlent uniquement de « repérage anticipé de Terminale » ; les tests de contrat interdisent les formulations de lacune/prérequis de Première ou de notion censée être maîtrisée l'année précédente.
-- Confiance : pour `entree-terminale-maths-complementaires-v1`, une réponse cochée sans certitude est refusée avec `PAPER_ENTRY_CONFIDENCE_REQUIRED`. L'UI ne rend pas « Absente de la copie » et bloque la soumission tant que chaque réponse cochée n'a pas une certitude 1–4. Une vraie non-réponse `null/null` reste autorisée.
+- Confiance : pour `entree-terminale-maths-complementaires-v1`, chaque question propose désormais 1/2/3/4 et « Absente de la copie ». Une réponse cochée avec ce dernier choix conserve son `optionId` et enregistre `confidence:null`. Une vraie non-réponse reste `optionId:null, confidence:null`; lui associer une certitude reste interdit. Une certitude non traitée bloque toujours la soumission.
+- Limite acceptée pour l'urgence : le moteur canonique générique conserve sa sémantique actuelle pour `confidence:null` et la classe comme non sûre dans la calibration. Ce hotfix n'introduit aucun nouveau calcul et ne modifie ni score de connaissances, ni FactSheet, ni worker.
 - Identifiants techniques : `ETL-MCO-*`, `MATHS_COMPLEMENTAIRES` et `logarithme-reperage` ne sont pas exposés dans les documents humains.
 - Scoring : aucun fichier de banque, contenu/checksum ou moteur de scoring n'a changé. Les tests recalculent l'attendu depuis les `isCorrect` de la banque et le comparent au snapshot canonique. L'ordre interne `[B,A,C,D]` de `ETL-MCO-SUI-01` reste intact tandis que la copie affiche A/B/C/D et score par ID.
 
 ## Parcours navigateur réel
 
-Sur un serveur Next local et un PostgreSQL 15 jetables isolés, avec uniquement un compte `ASSISTANTE` et un foyer synthétiques :
+Le parcours navigateur complet antérieur a validé le câblage réel jusqu'à la publication. Le présent hotfix ajoute les preuves ciblées suivantes sur la page réelle et le composant de saisie :
 
 - connexion ASSISTANTE ;
 - création du foyer et de l'élève Terminale via l'UI ;
 - sélection « Terminale · Mathématiques complémentaires » ;
 - 18 lignes, chacune avec A/B/C/D dans cet ordre ;
-- aucune option de confiance absente ;
-- bouton inactif après une réponse choisie sans confiance ;
-- bouton actif après 18 certitudes valides ;
+- chaque ligne propose 1/2/3/4 et « Absente de la copie » ; la page MCO réelle rend exactement 18 radios « Absente de la copie » ;
+- bouton inactif après une réponse choisie sans confiance traitée ;
+- bouton actif lorsque chaque réponse cochée possède une certitude 1–4 ou « Absente de la copie » ;
 - POST de saisie HTTP 201 ;
-- DB : provenance `SAISIE_PAPIER`, sujet `MATHEMATIQUES`, bon pack, 18 réponses et 18 confiances ;
+- DB : provenance `SAISIE_PAPIER`, sujet `MATHEMATIQUES`, bon pack, 18 réponses, avec conservation d'un `optionId` lorsque sa certitude est `null` ;
 - score et rapport créés par les workers canoniques ;
 - `REPORT_PENDING_REVIEW` / `PENDING_REVIEW` visible ;
 - trois HTML et trois PDF prévisualisés ;
@@ -59,7 +61,7 @@ Le scheduler du serveur `next dev` isolé n'a pas dépilé le job dans la fenêt
 ## Scénarios PostgreSQL
 
 - Scénario A : 18 réponses justes, tentative idempotente, score global 100, scores/domaines/calibration conformes à l'attendu indépendant, rapport déterministe revu et publié.
-- Scénario B : erreurs volontaires en suites, dérivation, probabilités conditionnelles (`ETL-MCO-PRO-02` choisi A), logarithme, plus une non-réponse. Scores, profils, priorités, calibration, texte ETL et statut logarithme conformes.
+- Scénario B : erreurs volontaires en suites, dérivation, probabilités conditionnelles (`ETL-MCO-PRO-02` choisi A), logarithme, plus une non-réponse et une réponse correcte `ETL-MCO-TAU-02` dont la certitude est absente. L'`optionId` est conservé, `confidence:null` est persisté et le score de connaissances attendu reste inchangé. Scores, profils, priorités, calibration canonique actuelle, texte ETL et statut logarithme sont conformes.
 
 ## PDF / HTML
 
@@ -67,15 +69,17 @@ Six PDF ont été extraits et les 20 pages du scénario B ont été rasterisées
 
 ## Vérifications exécutées
 
-- 9 suites Jest unitaires ciblées : **58 PASS / 0 FAIL**.
-- Intégration PostgreSQL MCO réelle : **22 PASS / 0 FAIL**.
+- TDD RED du hotfix : **34 PASS / 2 FAIL**, les deux causes attendues uniquement (absence de la radio sur la page MCO et rejet serveur `PAPER_ENTRY_CONFIDENCE_REQUIRED`).
+- TDD GREEN ciblé : **5 suites / 44 PASS / 0 FAIL**.
+- Intégration PostgreSQL MCO réelle après hotfix : **1 suite / 21 PASS / 0 FAIL**.
+- Préflight Playwright Chromium : **PASS**.
 - `npm run typecheck` : **PASS**, sortie 0.
-- ESLint ciblé sur runtime et tests du hotfix : **PASS**, sortie 0.
-- `npm run lint` complet : **PASS**, sortie 0 ; 30 avertissements préexistants, tous dans le module `candidat-libre` hors périmètre.
-- `npm run build` : **PASS**, sortie 0 ; 93 pages générées, traces valides, audit artifact valide, standalone valide, aucune donnée runtime incluse. Un premier essai avait échoué pendant `Collecting page data` à cause d'un `next dev` concurrent écrivant dans le même `.next` ; après arrêt contrôlé de ce serveur, le build frais complet a réussi.
+- `npm run lint` : **PASS**, sortie 0 ; 30 avertissements préexistants dans `candidat-libre`, hors périmètre.
+- `npm run build` : **PASS**, sortie 0 ; 93 pages générées, traces et artefact standalone validés, aucune donnée runtime incluse.
 - `git diff --check` : **PASS**.
 - Diff banque JSON, contenu/checksum et scoring : **vide**.
-- Playwright ciblé : création foyer/élève, saisie, blocage confiance, publication et statut final vérifiés.
+- Revue de conformité indépendante : **APPROVED**.
+- Revue qualité indépendante : **APPROVED**, avec un commentaire de test obsolète corrigé.
 
 ## Estimation opérationnelle de saisie
 
@@ -83,7 +87,9 @@ Estimation prudente : **4 à 6 minutes par copie** pour une assistante entraîn�
 
 ## Ressources temporaires et données
 
-- Conteneur créé : `nexus-mco-finalverify-a63d9f25`, sans mount/bind, stockage PostgreSQL en `tmpfs`.
+- Conteneur du nouveau hotfix : `nexus-mco-postgres-20260823T214544Z-3904621`, sans volume partagé, stockage PostgreSQL en `tmpfs`.
+- Sa suppression et son absence ont été vérifiées après les **21 tests PASS** ; toutes ses données synthétiques sont détruites.
+- Conteneur de la vérification antérieure : `nexus-mco-finalverify-a63d9f25`, sans mount/bind, stockage PostgreSQL en `tmpfs`.
 - Avant destruction finale, les tables tentative/rapport étaient revenues à zéro après le test d'intégration ; seuls les comptes/élèves synthétiques UI subsistaient dans cette base jetable.
 - Le conteneur a été supprimé et son absence vérifiée : toutes les données synthétiques qu'il contenait sont détruites.
 - Le serveur local 3219 a été arrêté.
@@ -94,8 +100,9 @@ Estimation prudente : **4 à 6 minutes par copie** pour une assistante entraîn�
 
 ## Risques et actions avant une vraie copie
 
-- L'activation du flag en production et l'état du worker de production restent des décisions opérateur hors de cette mission ; vérifier ces deux points au moment autorisé.
-- Le hotfix reste local et non commité. Il doit être revu puis intégré selon le processus normal avant usage production.
+- Le flag MCO est actuellement activé en production ; la narration LLM doit rester désactivée et le worker actif lors du déploiement.
+- Le hotfix reste local à ce stade. Il doit passer la PR, la CI et l'approbation GitHub avant usage production.
+- Après déploiement, effectuer un smoke authentifié sans soumission : Terminale → Mathématiques complémentaires → 18 questions → présence de 1/2/3/4 + « Absente de la copie » et blocage d'une certitude non traitée.
 - Conserver la narration LLM désactivée pour ce parcours urgent et la revue au rôle ASSISTANTE.
 
 ## Rollback
