@@ -14,7 +14,12 @@ import {
   createTestStudent,
   canConnectToTestDb,
 } from '../setup/test-database';
-import { createQuote, getQuoteByPublicToken, transitionQuoteStatus, reviseQuote } from '@/lib/quotes/persistence.server';
+import {
+  createQuote,
+  getQuoteByPublicToken,
+  markQuoteConsultedIfSent,
+  transitionQuoteStatus,
+} from '@/lib/quotes/persistence.server';
 import { ALWAYS_INCLUDED_PRIORITY_SCORE } from '@/lib/quotes/schemas';
 import type { QuoteScenario } from '@/lib/quotes/schemas';
 
@@ -186,7 +191,7 @@ describe('Quote persistence', () => {
     ).rejects.toThrow(/Invalid quote status transition/);
   });
 
-  test('reviseQuote mutates in place before send, but creates a new row after send (never silently changes what the family already saw)', async () => {
+  test('markQuoteConsultedIfSent is atomic and never overwrites A_RAPPELER', async () => {
     if (!dbAvailable) return;
     const { parentProfile } = await createTestParent();
     const { student } = await createTestStudent(parentProfile.id);
@@ -200,28 +205,18 @@ describe('Quote persistence', () => {
       scenario,
     });
 
-    const editedScenario: QuoteScenario = { ...scenario, monthlyTotal: 900, grandTotal: 9000 };
-
-    // Before send: in-place edit, same id.
-    const editedInPlace = await reviseQuote({ quoteId: created.quote.id, scenario: editedScenario, actorUserId: 'staff-1' });
-    expect(editedInPlace.id).toBe(created.quote.id);
-    expect(editedInPlace.monthlyTotal).toBe(900);
-
-    // After send: a new revision row, original untouched.
     await transitionQuoteStatus({ quoteId: created.quote.id, toStatus: 'DEVIS_ENVOYE' });
-    const revised = await reviseQuote({
-      quoteId: created.quote.id,
-      scenario: { ...scenario, monthlyTotal: 1000, grandTotal: 10000 },
-      actorUserId: 'staff-1',
-    });
+    expect(await markQuoteConsultedIfSent(created.quote.id)).toBeInstanceOf(Date);
 
-    expect(revised.id).not.toBe(created.quote.id);
-    expect(revised.previousRevisionId).toBe(created.quote.id);
-    expect(revised.revisionNumber).toBe(2);
-    expect(revised.status).toBe('ESTIMATION');
+    const consulted = await prisma.quote.findUniqueOrThrow({ where: { id: created.quote.id } });
+    expect(consulted.status).toBe('DEVIS_CONSULTE');
+    expect(consulted.consultedAt).not.toBeNull();
 
-    const original = await prisma.quote.findUniqueOrThrow({ where: { id: created.quote.id } });
-    expect(original.monthlyTotal).toBe(900); // untouched by the revision
-    expect(original.status).toBe('DEVIS_ENVOYE');
+    await transitionQuoteStatus({ quoteId: created.quote.id, toStatus: 'A_RAPPELER' });
+    expect(await markQuoteConsultedIfSent(created.quote.id)).toBeNull();
+
+    const stillFollowUp = await prisma.quote.findUniqueOrThrow({ where: { id: created.quote.id } });
+    expect(stillFollowUp.status).toBe('A_RAPPELER');
   });
+
 });
