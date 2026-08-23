@@ -68,4 +68,44 @@ describe('Landing page business invariants', () => {
     expect(homeClient.indexOf('<PreRentreeCampaignSpotlight')).toBeLessThan(homeClient.indexOf('<HeroSection'));
     expect(homeClient.indexOf('<PreRentreeCampaignSpotlight')).toBeLessThan(homeClient.indexOf('<LevelRouter'));
   });
+
+  // Regression guard for the homepage FAQ (candidat-individuel offer retirement):
+  // these three answers used to name retired offers and present acompte/
+  // effectif rules as universal, which stopped matching the canonical
+  // catalog once the candidat-individuel offers shipped.
+  test('homepage FAQ does not name any retired candidat-libre offer', () => {
+    const retiredLabels = [
+      'Première Libre Essentiel',
+      'Première Libre Accompagnée',
+      'Terminale Libre Online',
+      'Terminale Libre Mixte',
+      'Terminale Libre Premium',
+      'Essentiel, Mixte, Premium',
+      'Pass Candidat Libre',
+    ];
+    for (const label of retiredLabels) {
+      expect(homeClient).not.toContain(label);
+    }
+  });
+
+  test('homepage FAQ group answer varies by offer instead of stating a universal headcount cap', () => {
+    expect(homeClient).toContain('Comment sont constitués les groupes');
+    expect(homeClient).toContain('varient selon le niveau et le parcours');
+    // No literal "groupes de N ... maximum" phrasing presented as a fixed rule.
+    expect(homeClient).not.toMatch(/groupes? de \d+\s*(élèves)?\s*maximum/i);
+  });
+
+  test('homepage FAQ payment answer states modalities depend on the offer, not a universal 30% acompte', () => {
+    expect(homeClient).toContain('Les modalités de règlement dépendent de l’offre');
+    expect(homeClient).toContain('candidats individuels sont proposés sans acompte');
+    expect(homeClient).not.toContain(
+      'Un acompte de 30 % est versé à la réservation, puis le solde est réparti en mensualités.',
+    );
+  });
+
+  test('homepage FAQ uses "candidat individuel" terminology and keeps the Cyclades non-substitution disclaimer', () => {
+    expect(homeClient).toContain('Proposez-vous un accompagnement pour les candidats individuels');
+    expect(homeClient).toContain('appui aux démarches Cyclades');
+    expect(homeClient).toContain('sans se substituer à l’inscription officielle');
+  });
 });
