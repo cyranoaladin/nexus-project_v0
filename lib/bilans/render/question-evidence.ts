@@ -1,4 +1,5 @@
 import type { BilanPack } from '../catalog/load-pack';
+import { projectHumanFacingEvidenceItem } from './human-facing-evidence';
 
 /**
  * Détail des réponses d'une passation : chaque item du pack rapproché de la
@@ -72,7 +73,7 @@ export function buildQuestionEvidence(pack: BilanPack, answers: unknown): Questi
       distractorRationale: option.distractorRationale ?? null,
     }));
     const chosenExists = answer.optionId !== null && options.some(({ id }) => id === answer.optionId);
-    return Object.freeze({
+    return projectHumanFacingEvidenceItem(pack.slug, Object.freeze({
       itemId: item.id,
       domainId: item.domainId,
       category: item.category,
@@ -81,7 +82,7 @@ export function buildQuestionEvidence(pack: BilanPack, answers: unknown): Questi
       shortCorrection: item.shortCorrection,
       chosenOptionId: chosenExists ? answer.optionId : null,
       confidence: answer.confidence,
-    });
+    }));
   });
 
   return Object.freeze({

@@ -19,11 +19,16 @@ import type { EnabledBilanPack } from '../api/pack-access';
 
 export const SAISIE_PAPIER_PROVENANCE = 'SAISIE_PAPIER' as const;
 
+export function paperEntryRequiresConfidence(packSlug: string): boolean {
+  return packSlug === 'entree-terminale-maths-complementaires-v1';
+}
+
 /**
  * Une ligne de la copie. La certitude est normalement renseignée par l'élève
- * et l'écran de saisie la demande pour chaque item ; `null` reste admis pour la
- * case qui manquerait sur une copie donnée. Il n'y a pas de valeur par défaut :
- * une certitude absente est enregistrée comme absente, jamais devinée.
+ * et l'écran de saisie la demande pour chaque item. Les packs peuvent rendre
+ * cette valeur obligatoire ; ailleurs, `null` reste admis pour la case qui
+ * manquerait sur une copie donnée. Il n'y a pas de valeur par défaut : une
+ * certitude absente est enregistrée comme absente, jamais devinée.
  */
 export type PaperEntryAnswer = Readonly<{
   itemId: string;
@@ -51,7 +56,15 @@ export function buildPaperEntryAnswers(
   entries: readonly PaperEntryAnswer[],
 ): Record<string, Prisma.JsonValue> {
   assertNoDuplicateItem(entries);
+  const confidenceRequired = paperEntryRequiresConfidence(enabled.pack.slug);
   for (const entry of entries) {
+    if (
+      confidenceRequired
+      && entry.optionId !== null
+      && entry.confidence === null
+    ) {
+      throw CanonicalApiError.badRequest('PAPER_ENTRY_CONFIDENCE_REQUIRED');
+    }
     // Une absence de réponse n'a pas de certitude : en accepter une serait
     // inventer une donnée que la copie ne porte pas.
     if (entry.optionId === null && entry.confidence !== null) {
