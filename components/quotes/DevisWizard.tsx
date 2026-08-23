@@ -7,6 +7,7 @@ import type { Subject } from '@prisma/client';
 import { buildWhatsAppUrl } from '@/lib/whatsapp';
 import { ScenarioCard } from './ScenarioCard';
 import type { BudgetStrategy, RecommendationResult, ScenarioTier } from '@/lib/quotes/schemas';
+import { BUDGET_SLIDER_TND } from '@/lib/quotes/ui-config';
 
 // ── Subject labels (kept in sync with lib/quotes/exam-profile.ts's SUBJECT_LABELS) ──
 const SUBJECT_LABELS: Partial<Record<Subject, string>> = {
@@ -434,9 +435,9 @@ export function DevisWizard() {
             <div className="px-1">
               <input
                 type="range"
-                min={300}
-                max={3000}
-                step={50}
+                min={BUDGET_SLIDER_TND.sliderMinTnd}
+                max={BUDGET_SLIDER_TND.sliderMaxTnd}
+                step={BUDGET_SLIDER_TND.sliderStepTnd}
                 value={state.budget}
                 onChange={(e) => update('budget', Number(e.target.value))}
                 aria-label="Budget mensuel en TND"
@@ -445,8 +446,8 @@ export function DevisWizard() {
               <div className="mt-3 flex items-center gap-3">
                 <input
                   type="number"
-                  min={0}
-                  max={20000}
+                  min={BUDGET_SLIDER_TND.inputMinTnd}
+                  max={BUDGET_SLIDER_TND.inputMaxTnd}
                   value={state.budget}
                   onChange={(e) => update('budget', Math.max(0, Number(e.target.value)))}
                   className="min-h-[44px] w-32 rounded-lg border-2 border-lux-line bg-lux-white px-3 text-sm"

@@ -5,6 +5,7 @@
  */
 import { z } from 'zod';
 import { Subject } from '@prisma/client';
+import { BUDGET_SLIDER_TND } from './ui-config';
 
 export const subjectEnum = z.nativeEnum(Subject);
 
@@ -21,7 +22,7 @@ export const situationSchema = z
 
 export const budgetSchema = z
   .object({
-    monthlyBudgetTnd: z.number().int().min(0).max(20000),
+    monthlyBudgetTnd: z.number().int().min(BUDGET_SLIDER_TND.inputMinTnd).max(BUDGET_SLIDER_TND.inputMaxTnd),
     strategy: z.enum(['RESPECT_BUDGET', 'BEST_BALANCE', 'MOST_COMPLETE']),
   })
   .strict();
