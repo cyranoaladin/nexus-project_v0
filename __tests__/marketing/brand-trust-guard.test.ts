@@ -12,6 +12,7 @@ const recursiveScanRoots = [
 ];
 
 const retiredLabelScanRoots = ['app', 'components', 'content', 'lib', 'data'];
+const retiredLabelExcludedPathPrefixes = ['data/bilans/banks/_archive/'];
 
 const deadFabricationArtifacts = [
   'components/ui/testimonials-section.tsx',
@@ -26,14 +27,7 @@ const scannedExtensions = new Set(['.ts', '.tsx', '.json', '.md', '.mdx', '.js']
 
 const excludedDirectories = new Set([
   '.next',
-  '__tests__',
-  '_archive',
-  'academic-luxury-design',
-  'archive',
-  'archives',
-  'docs',
   'node_modules',
-  'rapport_audit',
 ]);
 
 const forbiddenTrustClaims = [
@@ -178,11 +172,19 @@ function isAllowlisted(file: string): boolean {
   return scanAllowlist.some((entry) => entry.file === file);
 }
 
-function matchingFiles(patterns: RegExp[], scanRoots = recursiveScanRoots): string[] {
+function isRetiredLabelExcluded(file: string): boolean {
+  return retiredLabelExcludedPathPrefixes.some((prefix) => file.startsWith(prefix));
+}
+
+function matchingFiles(
+  patterns: RegExp[],
+  scanRoots = recursiveScanRoots,
+  excludeFile: (file: string) => boolean = isAllowlisted,
+): string[] {
   return scanRoots
     .flatMap(listScannedFiles)
     .filter((file, index, files) => files.indexOf(file) === index)
-    .filter((file) => !isAllowlisted(file))
+    .filter((file) => !excludeFile(file))
     .filter((file) => patterns.some((pattern) => pattern.test(sourceFor(file))));
 }
 
@@ -250,7 +252,24 @@ describe('Lot 1 T1.2 brand trust guardrails', () => {
   });
 
   test('runtime sources do not expose retired candidat individuel labels', () => {
-    expect(matchingFiles(retiredCandidatIndividuelLabels, retiredLabelScanRoots)).toEqual([]);
+    expect(matchingFiles(
+      retiredCandidatIndividuelLabels,
+      retiredLabelScanRoots,
+      isRetiredLabelExcluded,
+    )).toEqual([]);
+  });
+
+  test('retired-label scan includes active docs routes and files from the trust allowlist', () => {
+    const files = matchingFiles(
+      [/Documentation Interne \(Read-only\)/u, /Le Vendeur ne garantit pas/u],
+      retiredLabelScanRoots,
+      isRetiredLabelExcluded,
+    );
+
+    expect(files).toEqual(expect.arrayContaining([
+      'app/dashboard/assistante/docs/page.tsx',
+      'app/conditions-generales/page.tsx',
+    ]));
   });
 
   test('famille page remains a server component', () => {
