@@ -8,13 +8,13 @@
  */
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
-import { requireAuth, requireParentOwnsStudent, isErrorResponse } from '@/lib/guards';
+import { requireAuth, requireParentOwnsStudent, requireAnyRole, isErrorResponse } from '@/lib/guards';
 import { UserRole } from '@prisma/client';
 import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive';
 import { buildRecommendation } from '@/lib/quotes/recommendation';
 import { loadRawDomainScores } from '@/lib/quotes/diagnostic.server';
 import { computeDiagnosticChecksum, projectDiagnostic, type RawDomainScores } from '@/lib/quotes/diagnostic';
-import { createQuote } from '@/lib/quotes/persistence.server';
+import { createQuote, listQuotesForLeadOrStudent } from '@/lib/quotes/persistence.server';
 import { situationSchema, budgetSchema } from '@/lib/quotes/http-schemas';
 import { captureContactLead, ContactLeadValidationError } from '@/lib/crm/contact-leads';
 import { serializeError } from '@/lib/utils/serialize-error';
@@ -48,6 +48,15 @@ const requestSchema = z
   .strict()
   .refine((v) => v.contact != null || v.existingContactLeadId != null, {
     message: 'Either contact or existingContactLeadId is required',
+  });
+
+const historyQuerySchema = z
+  .object({
+    contactLeadId: z.string().trim().min(1).max(80).optional(),
+    studentId: z.string().trim().min(1).max(80).optional(),
+  })
+  .refine((v) => v.contactLeadId != null || v.studentId != null, {
+    message: 'contactLeadId or studentId is required',
   });
 
 export async function POST(request: Request) {
@@ -204,5 +213,53 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error('[quotes/create] persistence error', serializeError(error));
     return NextResponse.json({ error: 'quote_creation_failed' }, { status: 500 });
+  }
+}
+
+/**
+ * GET /api/quotes?contactLeadId=...|studentId=... — staff-only "historique
+ * des devis" for the assistante workspace. Read-only, narrow field set (see
+ * listQuotesForLeadOrStudent) — no cost/margin data, never has been.
+ */
+export async function GET(request: Request) {
+  const session = await requireAnyRole([UserRole.ADMIN, UserRole.ASSISTANTE]);
+  if (isErrorResponse(session)) return session;
+
+  const blocked = await guardSensitiveRateLimit(request, {
+    scope: 'quotes-history-read',
+    identity: session.user.id,
+  });
+  if (blocked) return blocked;
+
+  const url = new URL(request.url);
+  const parsed = historyQuerySchema.safeParse({
+    contactLeadId: url.searchParams.get('contactLeadId') ?? undefined,
+    studentId: url.searchParams.get('studentId') ?? undefined,
+  });
+  if (!parsed.success) {
+    return NextResponse.json({ error: 'invalid_query' }, { status: 400 });
+  }
+
+  try {
+    const found = await listQuotesForLeadOrStudent(parsed.data);
+    // Re-project explicitly rather than trust the persistence layer's
+    // `select` alone — defense in depth against a future accidental
+    // over-select of a cost/margin field.
+    const quotes = found.map((quote) => ({
+      id: quote.id,
+      status: quote.status,
+      monthlyTotal: quote.monthlyTotal,
+      grandTotal: quote.grandTotal,
+      examSession: quote.examSession,
+      revisionNumber: quote.revisionNumber,
+      previousRevisionId: quote.previousRevisionId,
+      createdAt: quote.createdAt,
+      updatedAt: quote.updatedAt,
+      validUntil: quote.validUntil,
+    }));
+    return NextResponse.json({ quotes }, { headers: { 'Cache-Control': 'private, no-store' } });
+  } catch (error) {
+    console.error('[quotes] GET error', serializeError(error));
+    return NextResponse.json({ error: 'history_lookup_failed' }, { status: 400 });
   }
 }

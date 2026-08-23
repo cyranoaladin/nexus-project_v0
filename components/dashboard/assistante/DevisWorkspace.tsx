@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { useSession } from 'next-auth/react';
 import type { Subject } from '@prisma/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -15,8 +16,10 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Loader2 } from 'lucide-react';
-import type { RecommendationResult, ScenarioTier } from '@/lib/quotes/schemas';
+import type { RecommendationResult, ScenarioTier, QuoteScenario, SituationInput } from '@/lib/quotes/schemas';
 import type { MarginComputation } from '@/lib/quotes/margin.server';
+import type { ContactLeadSearchResult, QuoteHistoryEntry } from '@/lib/quotes/persistence.server';
+import { buildQuotePdfData } from '@/lib/quotes/pdf-adapter';
 
 const SUBJECT_OPTIONS: { value: Subject; label: string }[] = [
   { value: 'MATHEMATIQUES', label: 'Mathématiques' },
@@ -34,13 +37,40 @@ const GATE_BADGE: Record<string, { label: string; variant: 'success' | 'destruct
   BLOCKED: { label: 'Validation direction requise', variant: 'destructive' },
 };
 
+const QUOTE_STATUS_LABELS: Record<string, string> = {
+  ESTIMATION: 'Estimation',
+  BILAN_A_FAIRE: 'Bilan à faire',
+  BILAN_TERMINE: 'Bilan terminé',
+  DEVIS_ENVOYE: 'Devis envoyé',
+  DEVIS_CONSULTE: 'Devis consulté',
+  A_RAPPELER: 'À rappeler',
+  ACCEPTE: 'Accepté',
+  REFUSE: 'Refusé',
+  INSCRIT: 'Inscrit',
+  EXPIRE: 'Expiré',
+};
+
+function formatDateShort(value: string): string {
+  return new Date(value).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+}
+
 export function DevisWorkspace() {
+  const { data: session } = useSession();
   const [level, setLevel] = useState<'premiere' | 'terminale'>('terminale');
   const [eds1, setEds1] = useState<Subject>('MATHEMATIQUES');
   const [eds2, setEds2] = useState<Subject>('NSI');
   const [budget, setBudget] = useState(1200);
   const [strategy, setStrategy] = useState<'RESPECT_BUDGET' | 'BEST_BALANCE' | 'MOST_COMPLETE'>('BEST_BALANCE');
-  const [existingContactLeadId, setExistingContactLeadId] = useState('');
+
+  // Lead search (typeahead) replaces pasting a raw ContactLead id by hand.
+  const [leadQuery, setLeadQuery] = useState('');
+  const [leadResults, setLeadResults] = useState<ContactLeadSearchResult[]>([]);
+  const [leadSearching, setLeadSearching] = useState(false);
+  const [selectedLead, setSelectedLead] = useState<ContactLeadSearchResult | null>(null);
+  const [manualLeadId, setManualLeadId] = useState('');
+  const [useManualLeadId, setUseManualLeadId] = useState(false);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   const [studentId, setStudentId] = useState('');
   const [diagnosticId, setDiagnosticId] = useState('');
 
@@ -50,16 +80,95 @@ export function DevisWorkspace() {
   const [marginByTier, setMarginByTier] = useState<Record<string, MarginComputation> | null>(null);
 
   const [creating, setCreating] = useState(false);
-  const [createdQuote, setCreatedQuote] = useState<{ quoteId: string; token: string | null } | null>(null);
+  const [createdQuote, setCreatedQuote] = useState<{
+    quoteId: string;
+    token: string | null;
+    scenario: QuoteScenario;
+    situation: SituationInput;
+  } | null>(null);
   const [createError, setCreateError] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
+  const [pdfDownloading, setPdfDownloading] = useState(false);
+  const [pdfError, setPdfError] = useState<string | null>(null);
+
+  const [history, setHistory] = useState<QuoteHistoryEntry[] | null>(null);
+  const [historyLoading, setHistoryLoading] = useState(false);
+
+  const existingContactLeadId = useManualLeadId ? manualLeadId.trim() : (selectedLead?.id ?? '');
+
+  const specialites: [Subject, Subject] =
+    level === 'terminale' ? [eds1, eds2] : ['MATHEMATIQUES', 'FRANCAIS'];
 
   const situation = {
     level,
     examSession: SUPPORTED_SESSION,
-    specialites: level === 'terminale' ? [eds1, eds2] : (['MATHEMATIQUES', 'FRANCAIS'] as [Subject, Subject]),
+    specialites,
     diagnosticId: diagnosticId || undefined,
   };
+
+  // Debounced lead search — fires 300ms after the user stops typing, only
+  // once there's enough signal (2+ chars) to avoid a full-table scan on
+  // every keystroke (ContactLead.name has no index).
+  useEffect(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    if (useManualLeadId || leadQuery.trim().length < 2) {
+      setLeadResults([]);
+      return;
+    }
+    debounceRef.current = setTimeout(async () => {
+      setLeadSearching(true);
+      try {
+        const res = await fetch(`/api/quotes/leads/search?q=${encodeURIComponent(leadQuery.trim())}`);
+        if (res.ok) {
+          const json = await res.json();
+          setLeadResults(json.leads as ContactLeadSearchResult[]);
+        } else {
+          setLeadResults([]);
+        }
+      } catch {
+        setLeadResults([]);
+      } finally {
+        setLeadSearching(false);
+      }
+    }, 300);
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, [leadQuery, useManualLeadId]);
+
+  function handleSelectLead(lead: ContactLeadSearchResult) {
+    setSelectedLead(lead);
+    setLeadQuery('');
+    setLeadResults([]);
+    setHistory(null);
+  }
+
+  function handleClearLead() {
+    setSelectedLead(null);
+    setManualLeadId('');
+    setHistory(null);
+  }
+
+  async function handleLoadHistory() {
+    if (!existingContactLeadId && !studentId.trim()) return;
+    setHistoryLoading(true);
+    try {
+      const params = new URLSearchParams();
+      if (existingContactLeadId) params.set('contactLeadId', existingContactLeadId);
+      if (studentId.trim()) params.set('studentId', studentId.trim());
+      const res = await fetch(`/api/quotes?${params.toString()}`);
+      if (res.ok) {
+        const json = await res.json();
+        setHistory(json.quotes as QuoteHistoryEntry[]);
+      } else {
+        setHistory([]);
+      }
+    } catch {
+      setHistory([]);
+    } finally {
+      setHistoryLoading(false);
+    }
+  }
 
   async function handleCalculate() {
     setLoading(true);
@@ -103,10 +212,13 @@ export function DevisWorkspace() {
   }
 
   async function handleCreate(tier: ScenarioTier) {
-    if (!existingContactLeadId.trim()) {
-      setCreateError('Renseignez l’identifiant du lead (ContactLead) avant de créer le devis.');
+    if (!existingContactLeadId) {
+      setCreateError('Sélectionnez un lead (recherche ou identifiant manuel) avant de créer le devis.');
       return;
     }
+    const scenario = result?.scenarios.find((s) => s.tier === tier);
+    if (!scenario) return;
+
     setCreating(true);
     setCreateError(null);
     try {
@@ -119,13 +231,18 @@ export function DevisWorkspace() {
           diagnosticId: diagnosticId || undefined,
           budget: { monthlyBudgetTnd: budget, strategy },
           scenarioTier: tier,
-          existingContactLeadId: existingContactLeadId.trim(),
+          existingContactLeadId,
           studentId: studentId.trim() || undefined,
         }),
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error ?? 'quote_creation_failed');
-      setCreatedQuote({ quoteId: json.quoteId, token: json.token });
+      setCreatedQuote({
+        quoteId: json.quoteId,
+        token: json.token,
+        scenario,
+        situation: { level, examSession: SUPPORTED_SESSION, specialites: situation.specialites },
+      });
     } catch {
       setCreateError('Impossible de créer le devis. Vérifiez les identifiants saisis.');
     } finally {
@@ -143,6 +260,50 @@ export function DevisWorkspace() {
       setCreateError("Erreur lors de l'envoi du devis.");
     } finally {
       setSending(false);
+    }
+  }
+
+  async function handleDownloadPdf() {
+    if (!createdQuote) return;
+    setPdfDownloading(true);
+    setPdfError(null);
+    try {
+      // The create response doesn't echo validUntil back — the persistence
+      // layer always sets it to 30 days from creation (createQuote in
+      // lib/quotes/persistence.server.ts), so it's reproduced here rather
+      // than adding a round-trip just to read it back.
+      const validUntil = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+      const payload = buildQuotePdfData({
+        situation: createdQuote.situation,
+        scenario: createdQuote.scenario,
+        quoteId: createdQuote.quoteId,
+        validUntil,
+        advisorName:
+          [session?.user?.firstName, session?.user?.lastName].filter(Boolean).join(' ') || 'Nexus Réussite',
+        leadName: selectedLead?.name ?? 'Non renseigné',
+        leadEmail: selectedLead?.email ?? '',
+        leadPhone: selectedLead?.phone ?? '',
+      });
+      const res = await fetch('/api/assistante/quotes/pdf', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) throw new Error('pdf_failed');
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `Devis-Nexus-${createdQuote.quoteId}.pdf`;
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch {
+      setPdfError('Impossible de générer le PDF.');
+    } finally {
+      setPdfDownloading(false);
     }
   }
 
@@ -224,16 +385,105 @@ export function DevisWorkspace() {
             <Label>ID élève (optionnel)</Label>
             <Input value={studentId} onChange={(e) => setStudentId(e.target.value)} placeholder="cku..." />
           </div>
+
           <div className="space-y-2 md:col-span-2">
-            <Label>ID lead existant (ContactLead) — requis pour créer le devis</Label>
-            <Input
-              value={existingContactLeadId}
-              onChange={(e) => setExistingContactLeadId(e.target.value)}
-              placeholder="cku..."
-            />
+            <div className="flex items-center justify-between">
+              <Label>Lead (ContactLead) — requis pour créer le devis</Label>
+              <button
+                type="button"
+                className="text-xs text-muted-foreground underline"
+                onClick={() => {
+                  setUseManualLeadId((v) => !v);
+                  setSelectedLead(null);
+                  setLeadQuery('');
+                  setLeadResults([]);
+                }}
+              >
+                {useManualLeadId ? 'Revenir à la recherche' : 'Saisir un identifiant manuellement'}
+              </button>
+            </div>
+
+            {useManualLeadId ? (
+              <Input
+                value={manualLeadId}
+                onChange={(e) => setManualLeadId(e.target.value)}
+                placeholder="cku..."
+              />
+            ) : selectedLead ? (
+              <div className="flex items-center justify-between rounded border p-2 text-sm">
+                <span>
+                  {selectedLead.name} — {selectedLead.email}
+                  {selectedLead.phone ? ` — ${selectedLead.phone}` : ''}
+                </span>
+                <Button size="sm" variant="ghost" onClick={handleClearLead}>
+                  Changer
+                </Button>
+              </div>
+            ) : (
+              <div className="relative">
+                <Input
+                  value={leadQuery}
+                  onChange={(e) => setLeadQuery(e.target.value)}
+                  placeholder="Rechercher par nom, email ou téléphone…"
+                />
+                {leadSearching && <p className="mt-1 text-xs text-muted-foreground">Recherche…</p>}
+                {leadResults.length > 0 && (
+                  <ul className="absolute z-10 mt-1 w-full space-y-1 rounded border bg-white p-1 shadow">
+                    {leadResults.map((lead) => (
+                      <li key={lead.id}>
+                        <button
+                          type="button"
+                          className="w-full rounded px-2 py-1 text-left text-sm hover:bg-muted"
+                          onClick={() => handleSelectLead(lead)}
+                        >
+                          {lead.name} — {lead.email}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
+
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={handleLoadHistory}
+        disabled={historyLoading || (!existingContactLeadId && !studentId.trim())}
+      >
+        {historyLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+        Voir l’historique des devis
+      </Button>
+
+      {history && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Historique des devis</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {history.length === 0 ? (
+              <p className="text-sm text-muted-foreground">Aucun devis existant pour ce lead/élève.</p>
+            ) : (
+              <ul className="space-y-2 text-sm">
+                {history.map((quote) => (
+                  <li key={quote.id} className="flex items-center justify-between rounded border p-2">
+                    <span>
+                      {formatDateShort(String(quote.createdAt))} — {QUOTE_STATUS_LABELS[quote.status] ?? quote.status}
+                      {quote.revisionNumber > 1 ? ` (révision ${quote.revisionNumber})` : ''}
+                    </span>
+                    <span className="font-medium">
+                      {quote.monthlyTotal} TND/mois — {quote.grandTotal} TND/an
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       <Button onClick={handleCalculate} disabled={loading}>
         {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
@@ -307,11 +557,16 @@ export function DevisWorkspace() {
                 Voir la page famille
               </a>
             )}
-            <div>
+            <div className="flex flex-wrap gap-2">
               <Button size="sm" onClick={handleSend} disabled={sending}>
                 {sending ? 'Envoi…' : 'Envoyer le devis'}
               </Button>
+              <Button size="sm" variant="outline" onClick={handleDownloadPdf} disabled={pdfDownloading}>
+                {pdfDownloading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                Télécharger le PDF
+              </Button>
             </div>
+            {pdfError && <p className="text-sm text-red-500">{pdfError}</p>}
           </CardContent>
         </Card>
       )}
