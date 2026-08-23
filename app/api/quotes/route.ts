@@ -251,8 +251,6 @@ export async function GET(request: Request) {
       monthlyTotal: quote.monthlyTotal,
       grandTotal: quote.grandTotal,
       examSession: quote.examSession,
-      revisionNumber: quote.revisionNumber,
-      previousRevisionId: quote.previousRevisionId,
       createdAt: quote.createdAt,
       updatedAt: quote.updatedAt,
       validUntil: quote.validUntil,

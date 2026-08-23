@@ -472,7 +472,6 @@ export function DevisWorkspace() {
                   <li key={quote.id} className="flex items-center justify-between rounded border p-2">
                     <span>
                       {formatDateShort(String(quote.createdAt))} — {QUOTE_STATUS_LABELS[quote.status] ?? quote.status}
-                      {quote.revisionNumber > 1 ? ` (révision ${quote.revisionNumber})` : ''}
                     </span>
                     <span className="font-medium">
                       {quote.monthlyTotal} TND/mois — {quote.grandTotal} TND/an
