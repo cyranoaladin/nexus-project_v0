@@ -11,6 +11,8 @@ const recursiveScanRoots = [
   'data/pricing.canonical.json',
 ];
 
+const retiredLabelScanRoots = ['app', 'components', 'content', 'lib', 'data'];
+
 const deadFabricationArtifacts = [
   'components/ui/testimonials-section.tsx',
   'components/sections/testimonials-section.tsx',
@@ -24,7 +26,14 @@ const scannedExtensions = new Set(['.ts', '.tsx', '.json', '.md', '.mdx', '.js']
 
 const excludedDirectories = new Set([
   '.next',
+  '__tests__',
+  '_archive',
+  'academic-luxury-design',
+  'archive',
+  'archives',
+  'docs',
   'node_modules',
+  'rapport_audit',
 ]);
 
 const forbiddenTrustClaims = [
@@ -65,6 +74,16 @@ const brandRangeClaims = [
   /Studio Flex/i,
   /Académies Nexus/i,
   /bac-garanti/i,
+];
+
+const retiredCandidatIndividuelLabels = [
+  /Première Libre Essentiel/u,
+  /Première Libre Accompagnée/u,
+  /Terminale Libre Online/u,
+  /Terminale Libre Mixte/u,
+  /Terminale Libre Premium/u,
+  /Essentiel, Mixte, Premium/u,
+  /Pass Candidat Libre/u,
 ];
 
 const invalidGroupMinOpenReads = [
@@ -159,8 +178,8 @@ function isAllowlisted(file: string): boolean {
   return scanAllowlist.some((entry) => entry.file === file);
 }
 
-function matchingFiles(patterns: RegExp[]): string[] {
-  return recursiveScanRoots
+function matchingFiles(patterns: RegExp[], scanRoots = recursiveScanRoots): string[] {
+  return scanRoots
     .flatMap(listScannedFiles)
     .filter((file, index, files) => files.indexOf(file) === index)
     .filter((file) => !isAllowlisted(file))
@@ -228,6 +247,10 @@ describe('Lot 1 T1.2 brand trust guardrails', () => {
 
   test('recursive scan does not expose result guarantees or aggressive claims outside the documented allowlist', () => {
     expect(matchingFiles(forbiddenTrustClaims)).toEqual([]);
+  });
+
+  test('runtime sources do not expose retired candidat individuel labels', () => {
+    expect(matchingFiles(retiredCandidatIndividuelLabels, retiredLabelScanRoots)).toEqual([]);
   });
 
   test('famille page remains a server component', () => {
