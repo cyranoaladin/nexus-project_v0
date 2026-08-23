@@ -13,7 +13,6 @@ import {
 } from '@/components/premium';
 import {
   getReperes,
-  getRules,
 } from '@/lib/pricing-client';
 import {
   EnjeuxNiveau,
@@ -67,7 +66,6 @@ function LevelRouter() {
 
 function PricingReperesSection() {
   const reperes = getReperes();
-  const rules = getRules();
 
   const anchors = [
     {
@@ -102,7 +100,7 @@ function PricingReperesSection() {
           </h2>
           <div className="lux-filet-gold mx-auto mt-3 w-16" />
           <p className="mx-auto mt-3 max-w-xl text-base text-lux-slate">
-            Groupes de {rules.group_max} max, ouverture dès {rules.group_min_open.lycee}.
+            Groupes réduits, capacité précisée sur chaque offre.
             Tous les tarifs en TND.
           </p>
         </div>
@@ -145,11 +143,11 @@ function PricingReperesSection() {
 
 // ── Confiance vérifiable (fusionnée AccompagnementInclus + TrustSection) ──
 
-function getVerifiableItems(groupMax: number): string[] {
+function getVerifiableItems(): string[] {
   return [
   'Enseignants expérimentés, en exercice dans le système français',
   'Corrections sur grilles officielles du baccalauréat et bacs blancs',
-  `Groupes de ${groupMax} élèves maximum — suivi individualisé`,
+  'Groupes réduits, effectif précisé sur chaque offre — suivi individualisé',
   'Transparence tarifaire : tous les prix publics, en TND',
   'Accès à la plateforme ARIA — ressources et révisions en continu',
   'Bilans réguliers et suivi parent en temps réel',
@@ -160,8 +158,7 @@ function getVerifiableItems(groupMax: number): string[] {
 }
 
 function VerifiableSection() {
-  const { group_max: groupMax } = getRules();
-  const verifiableItems = getVerifiableItems(groupMax);
+  const verifiableItems = getVerifiableItems();
 
   return (
     <section className="bg-lux-paper px-4 py-14 md:py-20 md:px-6">
