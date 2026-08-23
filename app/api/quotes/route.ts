@@ -16,7 +16,7 @@ import { loadRawDomainScores } from '@/lib/quotes/diagnostic.server';
 import { computeDiagnosticChecksum, projectDiagnostic, type RawDomainScores } from '@/lib/quotes/diagnostic';
 import { createQuote, listQuotesForLeadOrStudent } from '@/lib/quotes/persistence.server';
 import { situationSchema, budgetSchema } from '@/lib/quotes/http-schemas';
-import { captureContactLead, ContactLeadValidationError } from '@/lib/crm/contact-leads';
+import { ContactLeadValidationError } from '@/lib/crm/contact-leads';
 import { serializeError } from '@/lib/utils/serialize-error';
 
 export const dynamic = 'force-dynamic';
@@ -158,31 +158,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'scenario_not_found' }, { status: 400 });
   }
 
-  let contactLeadId: string;
-  if (verifiedStaffUserId && input.existingContactLeadId) {
-    contactLeadId = input.existingContactLeadId;
-  } else if (input.contact) {
-    try {
-      const lead = await captureContactLead({
-        name: input.contact.parentName,
-        email: input.contact.email,
-        phone: input.contact.whatsapp,
-        profile: 'candidat_individuel',
-        interest: `Devis Bac ${input.situation.level === 'premiere' ? 'Première' : 'Terminale'} — ${input.contact.studentFirstName}`,
-        source: 'devis-bac',
-        notes: `Scénario retenu: ${scenario.tier} — ${scenario.monthlyTotal} TND/mois`,
-        type: 'contact',
-        consent: true,
-      });
-      contactLeadId = lead.id;
-    } catch (error) {
-      if (error instanceof ContactLeadValidationError) {
-        return NextResponse.json({ error: error.code }, { status: 400 });
-      }
-      console.error('[quotes/create] lead capture error', serializeError(error));
-      return NextResponse.json({ error: 'lead_capture_failed' }, { status: 500 });
-    }
-  } else {
+  if (!input.contact && !(verifiedStaffUserId && input.existingContactLeadId)) {
     return NextResponse.json({ error: 'invalid_payload' }, { status: 400 });
   }
 
@@ -190,7 +166,20 @@ export async function POST(request: Request) {
     const result = await createQuote({
       idempotencyKey: input.idempotencyKey,
       source: verifiedStaffUserId ? 'STAFF_WORKSPACE' : 'PUBLIC_SIMULATOR',
-      contactLeadId,
+      contactLeadId: verifiedStaffUserId ? input.existingContactLeadId : undefined,
+      contact: !verifiedStaffUserId && input.contact
+        ? {
+            name: input.contact.parentName,
+            email: input.contact.email,
+            phone: input.contact.whatsapp,
+            profile: 'candidat_individuel',
+            interest: `Devis Bac ${input.situation.level === 'premiere' ? 'Première' : 'Terminale'} — ${input.contact.studentFirstName}`,
+            source: 'devis-bac',
+            notes: `Scénario retenu: ${scenario.tier} — ${scenario.monthlyTotal} TND/mois`,
+            type: 'contact',
+            consent: true,
+          }
+        : undefined,
       studentId: verifiedStudentId,
       diagnosticId: input.diagnosticId,
       diagnosticChecksum,
@@ -201,16 +190,33 @@ export async function POST(request: Request) {
       createdByUserId: verifiedStaffUserId,
     });
 
+    // The persisted Quote does not snapshot the complete SituationInput. A
+    // replay with a reused key therefore cannot safely echo the newly
+    // recomputed situation/scenario beside the identity of an older quote.
+    // Fail closed: the caller must issue a fresh creation request/key.
+    if (result.alreadyExisted) {
+      return NextResponse.json(
+        { error: 'idempotency_key_reused' },
+        { status: 409, headers: { 'Cache-Control': 'no-store' } },
+      );
+    }
+
     return NextResponse.json(
       {
         ok: true,
         quoteId: result.quote.id,
         token: result.rawToken,
         alreadyExisted: result.alreadyExisted,
+        scenario,
+        situation: input.situation,
+        validUntil: result.quote.validUntil.toISOString(),
       },
       { headers: { 'Cache-Control': 'no-store' } },
     );
   } catch (error) {
+    if (error instanceof ContactLeadValidationError) {
+      return NextResponse.json({ error: error.code }, { status: 400 });
+    }
     console.error('[quotes/create] persistence error', serializeError(error));
     return NextResponse.json({ error: 'quote_creation_failed' }, { status: 500 });
   }

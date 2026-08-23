@@ -1,4 +1,5 @@
 import { buildQuotePdfData } from '@/lib/quotes/pdf-adapter';
+import { matchCanonicalPack } from '@/lib/quotes/recommendation';
 import type { QuoteScenario, SituationInput } from '@/lib/quotes/schemas';
 
 const situation: SituationInput = {
@@ -85,6 +86,50 @@ describe('buildQuotePdfData', () => {
       leadPhone: '+21699000000',
     });
     expect(data.offer.inc).toEqual(['Mathématiques — 8 h/mois', 'Pilotage Nexus']);
+  });
+
+  test('includes the canonical Focus and Intégrale Grand Oral clauses for matched packs', () => {
+    const focusPack = matchCanonicalPack('terminale', 20, 1290);
+    const integralePack = matchCanonicalPack('terminale', 21, 1690);
+    expect(focusPack?.offerId).toBe('terminale-libre-focus-bac');
+    expect(integralePack?.offerId).toBe('terminale-libre-integrale');
+
+    const focus = buildQuotePdfData({
+      situation,
+      scenario: scenario({
+        matchedOfferId: focusPack!.offerId,
+        includedFeatures: focusPack!.includedFeatures,
+      }),
+      quoteId: 'quote-focus',
+      validUntil: new Date('2027-03-01T00:00:00Z'),
+      advisorName: 'Assistante Nexus',
+      leadName: 'Jean Dupont',
+      leadEmail: 'jean@example.com',
+      leadPhone: '+21699000000',
+    });
+    expect(focus.offer.inc).toEqual(expect.arrayContaining([
+      '200 h régulières',
+      expect.stringMatching(/8 h.*en complément/i),
+    ]));
+
+    const integrale = buildQuotePdfData({
+      situation,
+      scenario: scenario({
+        matchedOfferId: integralePack!.offerId,
+        includedFeatures: integralePack!.includedFeatures,
+      }),
+      quoteId: 'quote-integrale',
+      validUntil: new Date('2027-03-01T00:00:00Z'),
+      advisorName: 'Assistante Nexus',
+      leadName: 'Jean Dupont',
+      leadEmail: 'jean@example.com',
+      leadPhone: '+21699000000',
+    });
+    expect(integrale.offer.inc).toEqual(expect.arrayContaining([
+      '300 h maximum',
+      expect.stringMatching(/Grand Oral.*comprises dans le plafond/i),
+    ]));
+    expect(integrale.offer.inc.join(' ')).not.toMatch(/308\s*h/i);
   });
 
   test('never contains a teacher-cost/margin key', () => {

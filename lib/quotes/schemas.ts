@@ -108,6 +108,8 @@ export interface QuoteScenario {
   grandTotal: number;
   months: number;
   matchedOfferId: string | null;
+  /** Canonical public inclusions copied when a scenario matches a packaged offer. */
+  includedFeatures?: string[];
 }
 
 export type BacAccelereEligibilityOutcome =
