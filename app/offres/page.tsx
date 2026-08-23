@@ -285,10 +285,14 @@ export default function OffresPage() {
                     subtitle={o.subjects}
                     price={price}
                     pricingDisplay={o.pricing_display ?? undefined}
+                    priceQualifier={o.price_qualifier ?? undefined}
+                    totalHours={o.hours_per_year ?? undefined}
+                    totalHoursIsCeiling={o.hours_per_month_is_ceiling ?? false}
                     groupMax={o.group_max ?? undefined}
                     groupMinOpen={o.group_min_open ?? undefined}
                     effectifType={o.group_max != null ? 'groupe' : 'none'}
                     payment={payment ? { ...payment, depositPct } : undefined}
+                    features={o.included}
                     ctaText="Demander cette offre"
                     ctaHref={buildWhatsAppUrl(o.title)}
                   />

@@ -138,6 +138,37 @@ describe('Quote persistence', () => {
     expect(allQuotes).toBe(1);
   });
 
+  test('public quote creation atomically deduplicates the lead and notification under concurrent retries', async () => {
+    if (!dbAvailable) return;
+    const idempotencyKey = randomUUID();
+    const input = {
+      idempotencyKey,
+      source: 'PUBLIC_SIMULATOR' as const,
+      examSession: 2027,
+      budget: 700,
+      strategy: 'BEST_BALANCE' as const,
+      scenario,
+      contact: {
+        name: 'Parent Retry',
+        email: `retry-${idempotencyKey}@example.com`,
+        phone: '+21699000000',
+        profile: 'candidat_individuel',
+        interest: 'Devis Bac',
+        source: 'devis-bac',
+        notes: 'Test idempotence',
+        type: 'contact',
+        consent: true,
+      },
+    };
+
+    const [first, second] = await Promise.all([createQuote(input), createQuote(input)]);
+    expect([first.alreadyExisted, second.alreadyExisted].sort()).toEqual([false, true]);
+    expect(first.quote.id).toBe(second.quote.id);
+    expect(await prisma.quote.count()).toBe(1);
+    expect(await prisma.contactLead.count({ where: { email: input.contact.email } })).toBe(1);
+    expect(await prisma.jobOutbox.count({ where: { aggregateType: 'CONTACT_LEAD' } })).toBe(1);
+  });
+
   test('getQuoteByPublicToken resolves the raw token and never leaks cost/margin', async () => {
     if (!dbAvailable) return;
     const { parentProfile } = await createTestParent();
