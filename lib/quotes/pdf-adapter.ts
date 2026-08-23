@@ -6,13 +6,36 @@
  * lives in the assistante workspace's own state (the computed scenario,
  * the selected lead, the created quote's id/validUntil).
  */
+import type { Subject } from '@prisma/client';
 import type { QuotePDFData } from '@/lib/quote/pdf';
 import type { QuoteScenario, SituationInput } from './schemas';
-import { SUBJECT_LABELS } from './exam-profile';
 
 const LEVEL_LABELS: Record<SituationInput['level'], string> = {
   premiere: 'Première',
   terminale: 'Terminale',
+};
+
+/**
+ * Duplicated from lib/quotes/exam-profile.ts's SUBJECT_LABELS (same reason
+ * components/quotes/DevisWizard.tsx duplicates it): exam-profile.ts also
+ * value-imports lib/exams/catalog.ts, which has `import 'server-only'` at
+ * module scope. This adapter is imported directly (as a value, for
+ * buildQuotePdfData) by the client component DevisWorkspace.tsx, so pulling
+ * in exam-profile.ts here would drag the server-only module into the
+ * client bundle and fail the build — keep in sync manually.
+ */
+const SUBJECT_LABELS: Record<Subject, string> = {
+  MATHEMATIQUES: 'Mathématiques',
+  MATHS_EXPERTES: 'Mathématiques expertes',
+  NSI: 'NSI',
+  FRANCAIS: 'Français',
+  PHILOSOPHIE: 'Philosophie',
+  HISTOIRE_GEO: 'Histoire-Géographie',
+  ANGLAIS: 'Anglais',
+  ESPAGNOL: 'Espagnol',
+  PHYSIQUE_CHIMIE: 'Physique-Chimie',
+  SVT: 'SVT',
+  SES: 'SES',
 };
 
 export interface QuotePdfAdapterInput {
