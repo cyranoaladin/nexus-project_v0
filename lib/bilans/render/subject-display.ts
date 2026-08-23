@@ -26,8 +26,11 @@ const POLICY: Readonly<Record<BilanPackSubject, SubjectDisplayPolicy>> = Object.
   MATHS_COMPLEMENTAIRES: {
     tableNoun: 'domaines',
     groups: [
-      { label: 'Analyse et modèles', terms: ['suite', 'evolution', 'derivation', 'exponentielle', 'logarithme', 'second-degre'] },
-      { label: 'Probabilités et décision', terms: ['probabilite', 'variable-aleatoire', 'binomiale', 'esperance'] },
+      // « suite » couvre `suites-evolutions` ; « evolution » seul capturerait
+      // aussi `taux-evolution`, qui relève des automatismes quantitatifs.
+      { label: 'Analyse et modèles', terms: ['suite', 'derivation', 'exponentielle', 'logarithme', 'second-degre'] },
+      // « variable » couvre `variables-aleatoires` (identifiant au pluriel).
+      { label: 'Probabilités et décision', terms: ['probabilite', 'variable', 'binomiale', 'esperance'] },
       { label: 'Automatismes quantitatifs', terms: ['taux', 'pourcentage'] },
     ],
     fallbackLabel: 'Autres repères de mathématiques complémentaires',
