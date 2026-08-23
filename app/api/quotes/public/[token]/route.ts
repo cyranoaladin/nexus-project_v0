@@ -8,9 +8,7 @@
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive';
-import { getQuoteByPublicToken, transitionQuoteStatus } from '@/lib/quotes/persistence.server';
-import { canTransition } from '@/lib/quotes/status';
-import { serializeError } from '@/lib/utils/serialize-error';
+import { getQuoteForFamilyView } from '@/lib/quotes/public-view.server';
 
 export const dynamic = 'force-dynamic';
 
@@ -24,20 +22,12 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     return NextResponse.json({ error: 'invalid_token' }, { status: 400 });
   }
 
-  const { quote } = await getQuoteByPublicToken(token);
+  const { quote } = await getQuoteForFamilyView(token);
   if (!quote) {
     return NextResponse.json(
       { error: 'not_found' },
       { status: 404, headers: { 'Cache-Control': 'private, no-store' } },
     );
-  }
-
-  if (canTransition(quote.status, 'DEVIS_CONSULTE')) {
-    try {
-      await transitionQuoteStatus({ quoteId: quote.id, toStatus: 'DEVIS_CONSULTE' });
-    } catch (error) {
-      console.error('[quotes/public] auto-consult transition failed', serializeError(error));
-    }
   }
 
   // Public projection: only family-facing fields. No pricingVersion/
