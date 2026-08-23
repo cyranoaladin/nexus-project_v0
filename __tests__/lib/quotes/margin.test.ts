@@ -1,5 +1,7 @@
 import { computeMargin, type CommercialCostPolicy } from '@/lib/quotes/margin.server';
-import type { RecommendedLine, RecommendationResult, QuoteScenario } from '@/lib/quotes/schemas';
+import { buildRecommendation } from '@/lib/quotes/recommendation';
+import type { RecommendedLine } from '@/lib/quotes/schemas';
+import type { SituationInput } from '@/lib/quotes/schemas';
 
 const fixturePolicy: CommercialCostPolicy = {
   teacherCostPerHourTnd: 100, // fictional fixture, not the real confidential policy
@@ -62,23 +64,40 @@ describe('computeMargin — CDC §10 gates', () => {
 });
 
 describe('T19 — Anti-leak: no cost/margin field ever appears in the public quote DTOs', () => {
-  test('RecommendationResult and QuoteScenario shapes have no cost/margin keys', () => {
-    const scenario: QuoteScenario = {
-      tier: 'RECOMMANDE',
-      lines: [],
-      notRecommended: [],
-      monthlyTotal: 100,
-      grandTotal: 1000,
-      months: 10,
-      matchedOfferId: null,
-    };
-    const result: RecommendationResult = {
-      pricingVersion: 'test',
-      examPolicyVersion: 'test',
-      examSession: 2027,
-      scenarios: [scenario],
-    };
-    const forbiddenKeys = ['teacherCost', 'cost', 'margin', 'marginPct', 'grossMargin', 'internalFloor', 'contribution'];
+  const forbiddenKeys = ['teacherCost', 'costPrice', 'cost', 'margin', 'marginPct', 'grossMargin', 'internalFloor', 'contribution'];
+
+  const terminaleDeuxEds: SituationInput = {
+    level: 'terminale',
+    examSession: 2027,
+    specialites: ['MATHEMATIQUES', 'NSI'],
+  };
+
+  // Regression guard: a hand-built literal object can't catch a real
+  // consumer (e.g. buildRecommendation, or a future field added to
+  // RecommendedLine/QuoteScenario) accidentally spreading cost/margin data
+  // into the public shape. This exercises the actual pipeline that backs
+  // /api/quotes/recommend, across every scenario tier and diagnostic state.
+  test('buildRecommendation output (no bilan) never serializes a forbidden key', () => {
+    const result = buildRecommendation({
+      situation: terminaleDeuxEds,
+      diagnosticDomainScores: null,
+      budget: { monthlyBudgetTnd: 2000, strategy: 'MOST_COMPLETE' },
+    });
+    const json = JSON.stringify(result).toLowerCase();
+    for (const key of forbiddenKeys) {
+      expect(json).not.toContain(key.toLowerCase());
+    }
+  });
+
+  test('buildRecommendation output (with bilan) never serializes a forbidden key', () => {
+    const result = buildRecommendation({
+      situation: terminaleDeuxEds,
+      diagnosticDomainScores: {
+        mathematiques: { points: 92, maxPoints: 100, percentage: 92 },
+        nsi: { points: 20, maxPoints: 100, percentage: 20 },
+      },
+      budget: { monthlyBudgetTnd: 1200, strategy: 'BEST_BALANCE' },
+    });
     const json = JSON.stringify(result).toLowerCase();
     for (const key of forbiddenKeys) {
       expect(json).not.toContain(key.toLowerCase());

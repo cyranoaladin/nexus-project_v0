@@ -126,7 +126,7 @@ export const seoLandings = {
       {
         question: 'Nexus remplace-t-il l’inscription officielle ?',
         answer:
-          'Non. Nexus accompagne l’organisation et la préparation, mais l’inscription officielle relève du candidat, de sa famille, de Cyclades et des consignes communiquées pour la session.',
+          'Non. Nexus accompagne l’organisation et la préparation, mais l’inscription officielle et les informations définitives relèvent du candidat, de sa famille, de Cyclades et de l’autorité d’examen compétente (académie/rectorat).',
       },
       {
         question: 'Comment préparer le français en candidat libre ?',
