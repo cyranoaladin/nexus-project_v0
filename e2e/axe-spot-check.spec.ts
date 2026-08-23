@@ -13,6 +13,7 @@ const publicPages = [
   '/stages',
   '/ressources',
   '/recommandation',
+  '/devis-bac',
   '/mentions-legales',
   '/conditions-generales',
   '/politique-confidentialite',
