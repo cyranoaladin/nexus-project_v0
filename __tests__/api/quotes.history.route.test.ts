@@ -59,8 +59,6 @@ describe('GET /api/quotes (history)', () => {
         monthlyTotal: 620,
         grandTotal: 6200,
         examSession: 2027,
-        revisionNumber: 1,
-        previousRevisionId: null,
         createdAt: new Date('2027-01-01'),
         updatedAt: new Date('2027-01-01'),
         validUntil: new Date('2027-02-01'),
@@ -70,6 +68,8 @@ describe('GET /api/quotes (history)', () => {
     expect(res.status).toBe(200);
     const json = await res.json();
     expect(json.quotes).toHaveLength(1);
+    expect(json.quotes[0]).not.toHaveProperty('revisionNumber');
+    expect(json.quotes[0]).not.toHaveProperty('previousRevisionId');
     expect(mockListQuotes).toHaveBeenCalledWith({ contactLeadId: 'lead-1', studentId: undefined });
   });
 
@@ -82,8 +82,6 @@ describe('GET /api/quotes (history)', () => {
         monthlyTotal: 620,
         grandTotal: 6200,
         examSession: 2027,
-        revisionNumber: 1,
-        previousRevisionId: null,
         createdAt: new Date('2027-01-01'),
         updatedAt: new Date('2027-01-01'),
         validUntil: new Date('2027-02-01'),

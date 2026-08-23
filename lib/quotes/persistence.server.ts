@@ -161,6 +161,33 @@ export async function transitionQuoteStatus(input: TransitionStatusInput): Promi
   });
 }
 
+/**
+ * Records the first family consultation without a read/write race.
+ * The conditional update is the authority: if staff changed the status after
+ * the public lookup, their newer state is preserved and no audit row is added.
+ */
+export async function markQuoteConsultedIfSent(quoteId: string): Promise<Date | null> {
+  return prisma.$transaction(async (tx) => {
+    const now = new Date();
+    const updated = await tx.quote.updateMany({
+      where: { id: quoteId, status: 'DEVIS_ENVOYE' },
+      data: { status: 'DEVIS_CONSULTE', consultedAt: now },
+    });
+    if (updated.count !== 1) return null;
+
+    await tx.quoteAuditLog.create({
+      data: {
+        quoteId,
+        action: 'STATUS_CHANGE',
+        beforeSnapshot: { status: 'DEVIS_ENVOYE' },
+        afterSnapshot: { status: 'DEVIS_CONSULTE' },
+        note: 'Première consultation du lien familial',
+      },
+    });
+    return now;
+  });
+}
+
 export interface ContactLeadSearchResult {
   id: string;
   name: string;
@@ -197,8 +224,6 @@ export interface QuoteHistoryEntry {
   monthlyTotal: number;
   grandTotal: number;
   examSession: number;
-  revisionNumber: number;
-  previousRevisionId: string | null;
   createdAt: Date;
   updatedAt: Date;
   validUntil: Date;
@@ -231,8 +256,6 @@ export async function listQuotesForLeadOrStudent(input: {
       monthlyTotal: true,
       grandTotal: true,
       examSession: true,
-      revisionNumber: true,
-      previousRevisionId: true,
       createdAt: true,
       updatedAt: true,
       validUntil: true,

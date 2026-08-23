@@ -14,7 +14,12 @@ import {
   createTestStudent,
   canConnectToTestDb,
 } from '../setup/test-database';
-import { createQuote, getQuoteByPublicToken, transitionQuoteStatus } from '@/lib/quotes/persistence.server';
+import {
+  createQuote,
+  getQuoteByPublicToken,
+  markQuoteConsultedIfSent,
+  transitionQuoteStatus,
+} from '@/lib/quotes/persistence.server';
 import { ALWAYS_INCLUDED_PRIORITY_SCORE } from '@/lib/quotes/schemas';
 import type { QuoteScenario } from '@/lib/quotes/schemas';
 
@@ -184,6 +189,34 @@ describe('Quote persistence', () => {
     await expect(
       transitionQuoteStatus({ quoteId: created.quote.id, toStatus: 'BILAN_A_FAIRE' }),
     ).rejects.toThrow(/Invalid quote status transition/);
+  });
+
+  test('markQuoteConsultedIfSent is atomic and never overwrites A_RAPPELER', async () => {
+    if (!dbAvailable) return;
+    const { parentProfile } = await createTestParent();
+    const { student } = await createTestStudent(parentProfile.id);
+    const created = await createQuote({
+      idempotencyKey: randomUUID(),
+      source: 'STAFF_WORKSPACE',
+      studentId: student.id,
+      examSession: 2027,
+      budget: 700,
+      strategy: 'BEST_BALANCE',
+      scenario,
+    });
+
+    await transitionQuoteStatus({ quoteId: created.quote.id, toStatus: 'DEVIS_ENVOYE' });
+    expect(await markQuoteConsultedIfSent(created.quote.id)).toBeInstanceOf(Date);
+
+    const consulted = await prisma.quote.findUniqueOrThrow({ where: { id: created.quote.id } });
+    expect(consulted.status).toBe('DEVIS_CONSULTE');
+    expect(consulted.consultedAt).not.toBeNull();
+
+    await transitionQuoteStatus({ quoteId: created.quote.id, toStatus: 'A_RAPPELER' });
+    expect(await markQuoteConsultedIfSent(created.quote.id)).toBeNull();
+
+    const stillFollowUp = await prisma.quote.findUniqueOrThrow({ where: { id: created.quote.id } });
+    expect(stillFollowUp.status).toBe('A_RAPPELER');
   });
 
 });
