@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { DevisWizard } from '@/components/quotes/DevisWizard';
 import type { BudgetStrategy, QuoteScenario, RecommendationResult, ScenarioTier } from '@/lib/quotes/schemas';
@@ -42,17 +42,8 @@ function makeRecommendation(pilotageMonthly = 150): RecommendationResult {
   };
 }
 
-async function reachResult(
-  strategy: BudgetStrategy,
-  budget = 800,
-  recommendation = makeRecommendation(),
-) {
+async function reachBudgetStep() {
   const user = userEvent.setup();
-  global.fetch = jest.fn().mockResolvedValue({
-    ok: true,
-    json: async () => ({ result: recommendation }),
-  }) as jest.Mock;
-
   render(<DevisWizard />);
   await user.click(screen.getByText('Première', { exact: true }));
   await user.click(screen.getByText('Candidat individuel', { exact: true }));
@@ -60,6 +51,19 @@ async function reachResult(
   await user.click(screen.getByRole('button', { name: 'Continuer' }));
   await user.click(screen.getByRole('button', { name: 'Continuer' }));
   await user.click(screen.getByRole('button', { name: 'Continuer' }));
+  return user;
+}
+
+async function reachResult(
+  strategy: BudgetStrategy,
+  budget = 800,
+  recommendation = makeRecommendation(),
+) {
+  global.fetch = jest.fn().mockResolvedValue({
+    ok: true,
+    json: async () => ({ result: recommendation }),
+  }) as jest.Mock;
+  const user = await reachBudgetStep();
 
   const strategyLabel: Record<BudgetStrategy, string> = {
     RESPECT_BUDGET: 'Respecter strictement mon budget',
@@ -73,6 +77,17 @@ async function reachResult(
   await user.click(screen.getByRole('button', { name: 'Voir mon estimation' }));
 
   await screen.findByRole('heading', { name: 'Estimation provisoire' });
+}
+
+async function submitDetailedQuote() {
+  const user = userEvent.setup();
+  await user.click(screen.getByRole('button', { name: 'Recevoir mon devis détaillé' }));
+  await user.type(screen.getByLabelText('Votre nom'), 'Parent Test');
+  await user.type(screen.getByLabelText('Prénom du candidat'), 'Élève');
+  await user.type(screen.getByLabelText('Numéro WhatsApp'), '99192829');
+  await user.type(screen.getByLabelText('Email'), 'test@example.com');
+  await user.click(screen.getByText("J'accepte d'être recontacté(e) par Nexus Réussite au sujet de ce devis."));
+  await user.click(screen.getByRole('button', { name: 'Recevoir mon devis' }));
 }
 
 describe('DevisWizard — estimation provisoire sans bilan', () => {
@@ -110,18 +125,67 @@ describe('DevisWizard — estimation provisoire sans bilan', () => {
       ok: true,
       json: async () => ({ token: 'quote-test-token' }),
     });
-    const user = userEvent.setup();
-
-    await user.click(screen.getByRole('button', { name: 'Recevoir mon devis détaillé' }));
-    await user.type(screen.getByLabelText('Votre nom'), 'Parent Test');
-    await user.type(screen.getByLabelText('Prénom du candidat'), 'Élève');
-    await user.type(screen.getByLabelText('Numéro WhatsApp'), '99192829');
-    await user.type(screen.getByLabelText('Email'), 'test@example.com');
-    await user.click(screen.getByText("J'accepte d'être recontacté(e) par Nexus Réussite au sujet de ce devis."));
-    await user.click(screen.getByRole('button', { name: 'Recevoir mon devis' }));
+    await submitDetailedQuote();
 
     await waitFor(() => expect(global.fetch).toHaveBeenCalledTimes(2));
     const [, options] = (global.fetch as jest.Mock).mock.calls[1];
     expect(JSON.parse(options.body)).toMatchObject({ scenarioTier: 'COMPLET' });
+  });
+
+  test('fige la recommandation pendant une réponse différée et réutilise exactement son snapshot', async () => {
+    let resolveFirstRecommendation!: (response: Response) => void;
+    const firstRecommendation = new Promise<Response>((resolve) => {
+      resolveFirstRecommendation = resolve;
+    });
+    let recommendationCalls = 0;
+    const fetchMock = jest.fn((url: string, options?: RequestInit) => {
+      void options;
+      if (url === '/api/quotes/recommend') {
+        recommendationCalls += 1;
+        if (recommendationCalls === 1) return firstRecommendation;
+        return Promise.resolve({
+          ok: true,
+          json: async () => ({ result: makeRecommendation() }),
+        } as Response);
+      }
+      return Promise.resolve({
+        ok: true,
+        json: async () => ({ token: 'quote-race-test-token' }),
+      } as Response);
+    });
+    global.fetch = fetchMock as unknown as typeof fetch;
+    const user = await reachBudgetStep();
+    const budgetInput = screen.getByLabelText('Budget mensuel, saisie libre');
+    const budgetSlider = screen.getByLabelText('Budget mensuel en TND');
+    const mostComplete = screen.getByRole('radio', { name: /Préparation la plus complète utile/ });
+    const submitRecommendation = screen.getByRole('button', { name: 'Voir mon estimation' });
+
+    await user.clear(budgetInput);
+    await user.type(budgetInput, '800');
+    await user.click(submitRecommendation);
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(1));
+
+    expect(budgetInput).toBeDisabled();
+    expect(budgetSlider).toBeDisabled();
+    expect(mostComplete).toBeDisabled();
+    expect(submitRecommendation).toBeDisabled();
+    fireEvent.click(mostComplete);
+    fireEvent.click(submitRecommendation);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+
+    resolveFirstRecommendation({
+      ok: true,
+      json: async () => ({ result: makeRecommendation() }),
+    } as Response);
+    await screen.findByTestId('scenario-card-recommande');
+
+    await submitDetailedQuote();
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
+    const [, options] = fetchMock.mock.calls[1];
+    expect(options?.body).toEqual(expect.any(String));
+    expect(JSON.parse(options!.body as string)).toMatchObject({
+      budget: { monthlyBudgetTnd: 800, strategy: 'BEST_BALANCE' },
+      scenarioTier: 'RECOMMANDE',
+    });
   });
 });
