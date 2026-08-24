@@ -55,6 +55,10 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         currency: quote.currency,
         monthlyTotal: quote.monthlyTotal,
         grandTotal: quote.grandTotal,
+        // Nullable: devis émis avant D4 (modèle 0% d'acompte) n'ont pas ces
+        // valeurs — jamais reconstituées, affichées comme état historique.
+        deposit: quote.deposit,
+        lastInstallmentAmount: quote.lastInstallmentAmount,
         validUntil: quote.validUntil,
         revisionNumber: quote.revisionNumber,
         lines: quote.lines

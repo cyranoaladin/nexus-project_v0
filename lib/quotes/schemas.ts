@@ -104,10 +104,15 @@ export interface QuoteScenario {
   tier: ScenarioTier;
   lines: RecommendedLine[];
   notRecommended: NotRecommendedSubject[];
+  /** Regular monthly installment amount (post-acompte) — décision D4. Not grandTotal/months. */
   monthlyTotal: number;
   grandTotal: number;
   months: number;
   matchedOfferId: string | null;
+  /** Acompte (décision D4 — 25% de grandTotal, arrondi). */
+  deposit: number;
+  /** Dernière mensualité, absorbe l'écart d'arrondi — égale à monthlyTotal sauf reliquat. */
+  lastInstallmentAmount: number;
 }
 
 export type BacAccelereEligibilityOutcome =

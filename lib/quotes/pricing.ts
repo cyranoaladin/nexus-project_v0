@@ -126,3 +126,37 @@ export function buildIdealRecommendation(
 
   return { lines, notRecommended };
 }
+
+/**
+ * Candidat-libre échéancier — 25% d'acompte + 10 mensualités, la dernière
+ * absorbant l'écart d'arrondi (décision D4, docs/audit-devis-candidats-
+ * libres.md §5, tranchée définitivement par la mission finale du
+ * 2026-08-24). Distinct du modèle générique du catalogue (30% + 9,
+ * lib/pricing.ts computeSchedule/computeDeposit) : le candidat libre a son
+ * propre taux et son propre nombre de mensualités, mais réutilise la même
+ * convention d'arrondi (rounding_tnd) pour rester cohérent avec le reste
+ * du catalogue plutôt que d'inventer une deuxième règle d'arrondi.
+ *
+ * Invariant garanti par construction : deposit + installmentAmount ×
+ * (nInstallments - 1) + lastInstallmentAmount === totalNet, toujours,
+ * jamais un écart d'un dinar (vérifié par test, voir
+ * __tests__/lib/quotes/pricing.test.ts).
+ */
+export const CANDIDAT_LIBRE_DEPOSIT_PCT = 25;
+export const CANDIDAT_LIBRE_N_INSTALLMENTS = 10;
+
+export interface CandidatLibreSchedule {
+  deposit: number;
+  installmentAmount: number;
+  lastInstallmentAmount: number;
+  nInstallments: number;
+}
+
+export function computeCandidatLibreSchedule(totalNet: number): CandidatLibreSchedule {
+  const { rounding_tnd } = getRules().payment;
+  const deposit = Math.round((totalNet * CANDIDAT_LIBRE_DEPOSIT_PCT) / 100 / rounding_tnd) * rounding_tnd;
+  const remaining = totalNet - deposit;
+  const installmentAmount = Math.floor(remaining / CANDIDAT_LIBRE_N_INSTALLMENTS);
+  const lastInstallmentAmount = remaining - installmentAmount * (CANDIDAT_LIBRE_N_INSTALLMENTS - 1);
+  return { deposit, installmentAmount, lastInstallmentAmount, nInstallments: CANDIDAT_LIBRE_N_INSTALLMENTS };
+}

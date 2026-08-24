@@ -1518,8 +1518,17 @@ model Quote {
   matchedOfferId String?
 
   currency     String @default("TND")
-  monthlyTotal Int // TND — sum of active lines for a standard month
-  grandTotal   Int // TND — monthlyTotal x months billed
+  monthlyTotal Int // TND — regular monthly installment amount (post-acompte, décision D4)
+  grandTotal   Int // TND — total annual price
+
+  /// Acompte (décision D4 — 25% de grandTotal, arrondi). Nullable : les
+  /// devis émis avant D4 (modèle 0% d'acompte) n'ont pas cette valeur —
+  /// affichée comme un état historique explicite, jamais reconstituée.
+  deposit Int?
+
+  /// Dernière mensualité (absorbe l'écart d'arrondi) — égale à monthlyTotal
+  /// sauf reliquat. Même règle de nullabilité que deposit.
+  lastInstallmentAmount Int?
 
   validUntil DateTime
 

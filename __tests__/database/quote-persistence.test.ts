@@ -49,6 +49,8 @@ const scenario: QuoteScenario = {
   grandTotal: 6200,
   months: 10,
   matchedOfferId: null,
+  deposit: 1550,
+  lastInstallmentAmount: 620,
 };
 
 describe('Quote persistence', () => {
