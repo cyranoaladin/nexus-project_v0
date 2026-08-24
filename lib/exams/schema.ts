@@ -67,6 +67,8 @@ const noteConservationSchema = z
     thresholdOutOf20: z.number().int().min(0).max(20),
     validSessions: z.number().int().positive(),
     note: z.string().trim().min(1),
+    perteDeMention: z.literal(true),
+    sourceMention: z.string().trim().min(1),
   })
   .strict();
 

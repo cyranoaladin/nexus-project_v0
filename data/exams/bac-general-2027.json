@@ -78,7 +78,9 @@
     "noteConservation": {
       "thresholdOutOf20": 10,
       "validSessions": 5,
-      "note": "Notes >= 10/20 conservées pendant les 5 sessions suivant la première tentative, sur demande explicite à chaque réinscription."
+      "note": "Notes >= 10/20 conservées pendant les 5 sessions suivant la première tentative, sur demande explicite à chaque réinscription.",
+      "perteDeMention": true,
+      "sourceMention": "Articles D. 334-13 et D. 336-13 du code de l'éducation — aucune mention ne peut être attribuée au candidat qui demande la conservation de notes d'épreuves terminales."
     },
     "sameSessionEligibility": {
       "sourceArticle": "Article 3, arrêté du 16 juillet 2018",
