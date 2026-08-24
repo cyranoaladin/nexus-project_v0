@@ -358,7 +358,8 @@ model Student {
   candidateDiagnosticConsents CandidateDiagnosticConsent[]
 
   // Devis candidat individuel (bac général)
-  quotes Quote[]
+  quotes           Quote[]
+  profilsCandidats ProfilCandidat[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -1276,7 +1277,8 @@ model ContactLead {
   createdAt DateTime          @default(now())
   updatedAt DateTime          @updatedAt
 
-  quotes Quote[]
+  quotes           Quote[]
+  profilsCandidats ProfilCandidat[]
 
   @@index([email])
   @@index([status])
@@ -1302,6 +1304,95 @@ model ContactLead {
 // persistés ici, pour garantir structurellement qu'aucune projection
 // publique de Quote/QuoteLine ne peut les exposer.
 // ═══════════════════════════════════════════════════════════════════════════
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Profil candidat individuel (bac général) — faits bruts, pas de parcours
+//
+// ProfilCandidat porte uniquement les faits académiques et réglementaires
+// déclarés par la famille — jamais un ParcoursType. La classification en
+// parcours (P1→P12) reste un point ouvert, non tranché par la direction :
+// voir docs/candidat-individuel/reconstruction-parcours-p1-p12.md §10.
+// Tant que ce point n'est pas arbitré, seuls les champs qui existent déjà
+// ailleurs dans le moteur (lib/quotes/schemas.ts SituationInput, le
+// référentiel lib/exams/ du Lot 1) sont repris ici — aucun champ "au cas
+// où" pour un parcours pas encore défini.
+//
+// Séparé de Quote (et non des colonnes dessus) parce qu'il est mutable et
+// vit plus longtemps qu'un devis : une même famille peut générer plusieurs
+// devis/révisions depuis un même profil (décision D2,
+// docs/audit-devis-candidats-libres.md §5).
+// ═══════════════════════════════════════════════════════════════════════════
+
+enum CandidateLevel {
+  PREMIERE
+  TERMINALE
+}
+
+/// Modalité de passation des évaluations ponctuelles — voir
+/// data/exams/bac-general-2027.json (coefficientParModalite) et le Lot 1.
+enum Modalite {
+  A
+  B
+}
+
+/// Les deux seules branches déclaratives codées par le Lot 1
+/// (candidatIndividuelRules.basculeScolaireVersIndividuel) pour un candidat
+/// qui bascule du statut scolarisé vers le statut individuel en cours de
+/// cycle. Non renseigné = jamais scolarisé / pas concerné.
+enum BrancheBascule {
+  CONSERVATION_MOYENNES_PREMIERE
+  RENONCIATION_MOYENNES_PREMIERE
+}
+
+model ProfilCandidat {
+  id String @id @default(cuid())
+
+  contactLeadId String?
+  contactLead   ContactLead? @relation(fields: [contactLeadId], references: [id], onDelete: SetNull)
+  studentId     String?
+  student       Student?     @relation(fields: [studentId], references: [id], onDelete: SetNull)
+
+  level       CandidateLevel
+  examSession Int
+  modalite    Modalite
+
+  // Deux spécialités conservées en terminale (colonnes distinctes, pas un
+  // tableau, pour garder au niveau DB la garantie "exactement 2" que porte
+  // déjà le type SituationInput.specialites: [Subject, Subject]).
+  specialite1          Subject
+  specialite2          Subject
+  specialiteAbandonnee Subject?
+  langueA              Subject?
+  langueB              Subject?
+
+  estRedoublant             Boolean @default(false)
+  estTitulaireBacDejaObtenu Boolean @default(false)
+
+  /// null = jamais scolarisé / non concerné par une bascule.
+  brancheBascule BrancheBascule?
+
+  /// Renseigné uniquement pour un second groupe (rattrapage) — bornes 8-10
+  /// déjà codées Lot 1 (candidatIndividuelRules.secondGroupe).
+  moyenneRattrapage Int?
+
+  /// Codes déjà validés par lib/exams/options.ts (validateOptionsSelection).
+  optionsTerminale String[] @default([])
+
+  /// {epreuveId, note, sessionObtention}[] — consommé par
+  /// resolveConservedNoteCoefficient (lib/exams/catalog.ts). La perte de
+  /// mention se déduit de ce tableau non vide (isMentionEligible), ce n'est
+  /// délibérément pas une colonne séparée.
+  notesConservees Json?
+
+  quotes Quote[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([contactLeadId])
+  @@index([studentId])
+  @@map("profils_candidats")
+}
 
 enum QuoteStatus {
   ESTIMATION
@@ -1358,6 +1449,13 @@ model Quote {
   studentId     String?
   student       Student?     @relation(fields: [studentId], references: [id], onDelete: SetNull)
 
+  // Profil candidat (faits académiques/réglementaires bruts, décision D2) —
+  // nullable : un devis peut préexister à tout profil sauvegardé, et un
+  // profil peut produire plusieurs devis/révisions (docs/audit-devis-
+  // candidats-libres.md §5 D2).
+  profilId String?
+  profil   ProfilCandidat? @relation(fields: [profilId], references: [id], onDelete: SetNull)
+
   // Diagnostic linkage — loose coupling via a stable checksum, not a hard FK
   // into the isolated candidate-libre diagnostic feature (CandidateDiagnostic
   // lives in its own bounded context; the quote domain consumes a projection
@@ -1369,6 +1467,17 @@ model Quote {
   examSession       Int
   pricingVersion    String
   examPolicyVersion String
+
+  /// Carte d'examen (épreuve par épreuve, statuts A_PRESENTER/CONSERVEE/
+  /// DISPENSEE/RECONDUITE — Lot 3) figée avec cette révision. Reste NULL
+  /// tant que genererCarteExamen n'existe pas (Lot 3) ; colonne ajoutée
+  /// maintenant pour que la migration Quote reste unique (décision D2).
+  snapshotCarte Json?
+
+  /// Sous-ensemble sourcé du référentiel réglementaire (lib/exams/) ayant
+  /// servi à produire ce devis, figé avec cette révision — jamais recalculé
+  /// après envoi, sur le même principe que pricingVersion/examPolicyVersion.
+  snapshotRegles Json?
 
   budget   Int // TND/month, family-declared budget ceiling
   strategy QuoteStrategy
@@ -1405,6 +1514,7 @@ model Quote {
   @@index([status])
   @@index([contactLeadId])
   @@index([studentId])
+  @@index([profilId])
   @@index([createdAt])
   @@map("quotes")
 }
