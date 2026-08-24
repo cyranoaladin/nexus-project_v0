@@ -1,0 +1,20 @@
+{
+  "session": 2028,
+  "track": "bac_general",
+  "status": "SKELETON_UNCONFIRMED",
+  "validFrom": null,
+  "validUntil": null,
+  "lastVerifiedAt": "2026-08-24",
+  "verifiedBy": "lot1-scaffold-not-a-source",
+  "sources": [
+    {
+      "label": "Aucune source consultée — squelette de session non confirmée",
+      "url": "https://eduscol.education.gouv.fr/5694",
+      "note": "Placeholder délibérément vide (ne jamais inventer une règle). À compléter dès que les textes de la session 2028 seront publiés."
+    }
+  ],
+  "epreuves": [],
+  "totalCoefficient": 0,
+  "candidatIndividuelRules": "À_VERIFIER",
+  "tunisiaSpecific": "À_VERIFIER"
+}

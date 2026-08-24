@@ -14,6 +14,7 @@ import {
   checkSameSessionEligibility,
 } from '@/lib/exams/catalog';
 import { examPolicySchema } from '@/lib/exams/schema';
+import { requireResolved } from '@/lib/exams/a-verifier';
 import bacGeneral2027 from '@/data/exams/bac-general-2027.json';
 
 describe('T18.1 — Schema validation', () => {
@@ -107,7 +108,7 @@ describe('T18.3 — Fail closed on unknown session', () => {
   });
 
   test('getSupportedSessions lists exactly the registered sessions', () => {
-    expect(getSupportedSessions()).toEqual([2027]);
+    expect(getSupportedSessions()).toEqual([2026, 2027, 2028]);
   });
 
   test('getEpreuve returns undefined for an unknown epreuve id, never a guess', () => {
@@ -118,19 +119,21 @@ describe('T18.3 — Fail closed on unknown session', () => {
 
 describe('T18.4 — Ponctuelles modality never implies same-session eligibility', () => {
   const policy = requireExamPolicy(2027);
+  const rules = requireResolved(policy.candidatIndividuelRules, 'session 2027 candidatIndividuelRules');
 
   test('the modality note explicitly rejects the "regroupées en fin de cycle = Bac en un an" conflation', () => {
-    const note = policy.candidatIndividuelRules.ponctuellesModality.note;
+    const note = rules.ponctuellesModality.note;
     expect(note).toMatch(/n'implique PAS/i);
   });
 
   test('modality choice is global (not per-subject)', () => {
-    expect(policy.candidatIndividuelRules.ponctuellesModality.choiceGranularity).toBe('global_not_per_subject');
+    expect(rules.ponctuellesModality.choiceGranularity).toBe('global_not_per_subject');
   });
 });
 
 describe('T18.5 — Same-session eligibility (Article 3) — deterministic engine', () => {
   const policy = requireExamPolicy(2027);
+  const rules = requireResolved(policy.candidatIndividuelRules, 'session 2027 candidatIndividuelRules');
 
   test('confirming an auto-checkable condition (age >= 20) resolves ELIGIBLE', () => {
     const result = checkSameSessionEligibility(policy, { age20: true });
@@ -147,7 +150,7 @@ describe('T18.5 — Same-session eligibility (Article 3) — deterministic engin
 
   test('all auto-checkable conditions explicitly answered false resolves the standard two-session path', () => {
     const allFalse = Object.fromEntries(
-      policy.candidatIndividuelRules.sameSessionEligibility.conditions
+      rules.sameSessionEligibility.conditions
         .filter((c) => c.autoCheckable)
         .map((c) => [c.id, false]),
     );
@@ -162,7 +165,7 @@ describe('T18.5 — Same-session eligibility (Article 3) — deterministic engin
 
   test('flagging a non-auto-checkable condition (force majeure) NEVER resolves ELIGIBLE on its own', () => {
     const allAutoFalse = Object.fromEntries(
-      policy.candidatIndividuelRules.sameSessionEligibility.conditions
+      rules.sameSessionEligibility.conditions
         .filter((c) => c.autoCheckable)
         .map((c) => [c.id, false]),
     );
@@ -171,7 +174,7 @@ describe('T18.5 — Same-session eligibility (Article 3) — deterministic engin
   });
 
   test('residence in Tunisia alone is documented as NOT sufficient — no condition auto-approves on residence alone', () => {
-    const residenceCondition = policy.candidatIndividuelRules.sameSessionEligibility.conditions.find(
+    const residenceCondition = rules.sameSessionEligibility.conditions.find(
       (c) => c.id === 'residence_permanente_sans_centre',
     );
     expect(residenceCondition?.autoCheckable).toBe(false);
@@ -179,7 +182,7 @@ describe('T18.5 — Same-session eligibility (Article 3) — deterministic engin
   });
 
   test('at least one auto-checkable condition exists (schema-enforced, re-asserted here)', () => {
-    const autoCheckable = policy.candidatIndividuelRules.sameSessionEligibility.conditions.filter(
+    const autoCheckable = rules.sameSessionEligibility.conditions.filter(
       (c) => c.autoCheckable,
     );
     expect(autoCheckable.length).toBeGreaterThan(0);
@@ -188,10 +191,11 @@ describe('T18.5 — Same-session eligibility (Article 3) — deterministic engin
 
 describe('T18.6 — Note conservation and EPS (previously unconfirmed rows)', () => {
   const policy = requireExamPolicy(2027);
+  const rules = requireResolved(policy.candidatIndividuelRules, 'session 2027 candidatIndividuelRules');
 
   test('grades >= 10/20 are kept for 5 sessions', () => {
-    expect(policy.candidatIndividuelRules.noteConservation.thresholdOutOf20).toBe(10);
-    expect(policy.candidatIndividuelRules.noteConservation.validSessions).toBe(5);
+    expect(rules.noteConservation.thresholdOutOf20).toBe(10);
+    expect(rules.noteConservation.validSessions).toBe(5);
   });
 
   test('EPS is a ponctuelle with coefficient 6, not left unconfirmed', () => {
