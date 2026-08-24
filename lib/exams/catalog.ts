@@ -60,6 +60,10 @@ export function getEpreuve(policy: ExamPolicy, id: string) {
   return policy.epreuves.find((e) => e.id === id);
 }
 
+export function hasPracticalPartDispensation(policy: ExamPolicy, specialiteCode: string): boolean {
+  return policy.candidatIndividuelRules.dispensePartiePratique.specialitesConcernees.includes(specialiteCode);
+}
+
 // ── Same-session ("Bac accéléré") eligibility ──
 //
 // This is the single point of truth for the Article 3 exception. It must

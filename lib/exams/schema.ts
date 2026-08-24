@@ -89,12 +89,21 @@ const sameSessionEligibilitySchema = z
   })
   .strict();
 
+const dispensePartiePratiqueSchema = z
+  .object({
+    specialitesConcernees: z.array(z.string().trim().min(1)).min(1),
+    sourceArticle: z.string().trim().min(1),
+    note: z.string().trim().min(1),
+  })
+  .strict();
+
 const candidatIndividuelRulesSchema = z
   .object({
     controleContinuReplacedBy: z.literal('evaluations_ponctuelles'),
     ponctuellesModality: ponctuellesModalitySchema,
     noteConservation: noteConservationSchema,
     sameSessionEligibility: sameSessionEligibilitySchema,
+    dispensePartiePratique: dispensePartiePratiqueSchema,
   })
   .strict();
 
