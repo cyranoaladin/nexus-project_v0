@@ -159,3 +159,42 @@ export function checkSameSessionEligibility(
 
   return { outcome: 'NOT_ELIGIBLE_STANDARD_TWO_SESSION_PATH' };
 }
+
+// ── Conserved-note coefficient across sessions (redoublant) ──
+
+export type ConservedNoteCoefficientResult =
+  | { outcome: 'RESOLVED'; coefficient: number }
+  | { outcome: 'COEFFICIENT_REQUIRES_HUMAN_REVIEW'; reason: string };
+
+/**
+ * Whether a conserved note keeps its original session's coefficient or
+ * takes the representation session's coefficient is NOT settled — see
+ * docs/audit-devis-candidats-libres.md §5 (D6). This function never
+ * guesses: when the two sessions disagree on a coefficient, it fails
+ * closed to human review, exactly like checkSameSessionEligibility does
+ * for non-auto-checkable conditions.
+ */
+export function resolveConservedNoteCoefficient(input: {
+  epreuveId: string;
+  sessionObtention: number;
+  sessionRepresentation: number;
+}): ConservedNoteCoefficientResult {
+  const policyObtention = requireExamPolicy(input.sessionObtention);
+  const policyRepresentation = requireExamPolicy(input.sessionRepresentation);
+  const epObtention = getEpreuve(policyObtention, input.epreuveId);
+  const epRepresentation = getEpreuve(policyRepresentation, input.epreuveId);
+
+  if (!epObtention || !epRepresentation) {
+    return {
+      outcome: 'COEFFICIENT_REQUIRES_HUMAN_REVIEW',
+      reason: `Épreuve ${input.epreuveId} introuvable dans l'une des deux sessions (${input.sessionObtention}/${input.sessionRepresentation}).`,
+    };
+  }
+  if (epObtention.coefficient !== epRepresentation.coefficient) {
+    return {
+      outcome: 'COEFFICIENT_REQUIRES_HUMAN_REVIEW',
+      reason: `Coefficient divergent pour ${input.epreuveId} entre la session ${input.sessionObtention} (${epObtention.coefficient}) et la session ${input.sessionRepresentation} (${epRepresentation.coefficient}) — non tranché réglementairement, confirmation Bureau des examens requise.`,
+    };
+  }
+  return { outcome: 'RESOLVED', coefficient: epRepresentation.coefficient };
+}
