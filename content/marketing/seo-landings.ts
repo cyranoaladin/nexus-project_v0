@@ -91,7 +91,7 @@ export const seoLandings = {
       {
         heading: 'Points de vigilance propres aux candidats libres',
         body: [
-          'Certaines règles changent le travail concret. En NSI, physique-chimie et SVT, le candidat individuel est généralement dispensé des épreuves pratiques : la note de spécialité repose alors sur l’écrit, ramené sur 20. En français, le descriptif de lectures et de textes n’est pas fourni par un professeur de classe : il doit être construit, organisé et présenté dans un format conforme aux attentes de l’oral.',
+          'Certaines règles changent le travail concret. En NSI, physique-chimie, sciences de l’ingénieur et SVT, le candidat individuel est généralement dispensé des épreuves pratiques : la note de spécialité repose alors sur l’écrit, ramené sur 20. En français, le descriptif de lectures et de textes n’est pas fourni par un professeur de classe : il doit être construit, organisé et présenté dans un format conforme aux attentes de l’oral.',
           'Les inscriptions passent généralement par Cyclades et par le circuit indiqué par l’Institut français de Tunisie. Les dates, pièces justificatives, frais éventuels, modalités EPS et options doivent être confirmés chaque année. Nexus Réussite accompagne l’organisation et la préparation, sans se substituer à l’inscription officielle ni à la convocation.',
         ],
       },
@@ -137,6 +137,11 @@ export const seoLandings = {
         question: 'Peut-on préparer à distance depuis la Tunisie ?',
         answer:
           'Oui, certaines formules sont en ligne ou mixtes. Le bilan gratuit permet de vérifier le format adapté à la situation familiale, au calendrier et aux spécialités choisies.',
+      },
+      {
+        question: 'Conserver une note d’épreuve fait-il perdre la mention ?',
+        answer:
+          'Oui. Un candidat qui demande la conservation d’une note d’épreuve terminale (seuil 10/20, valable les 5 sessions suivant la première tentative) ne peut se voir attribuer aucune mention lors de la session où il utilise cette conservation, en application des articles D. 334-13 et D. 336-13 du code de l’éducation. C’est un arbitrage à peser avant de la demander, en particulier pour un redoublant qui viserait une mention.',
       },
     ],
   },

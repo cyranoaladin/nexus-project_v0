@@ -214,6 +214,30 @@ describe('SEO landings T1.1 guard', () => {
     expect(item!.answer).toContain('Cyclades');
   });
 
+  test('the practical-part dispensation claim names all four specialités confirmed in lib/exams (NSI/PC/SI/SVT), not three', () => {
+    // Lot 1 (data/exams/bac-general-2027.json, candidatIndividuelRules.dispensePartiePratique,
+    // arrêté du 22 juillet 2019) confirms four specialités, not three — "sciences de
+    // l'ingénieur" was missing from this landing page's prose.
+    const landing = seoLandings['/candidat-libre-bac-francais'];
+    const text = landingText(landing);
+    expect(text).toContain('NSI');
+    expect(text).toContain('physique-chimie');
+    expect(text.toLowerCase()).toContain("sciences de l’ingénieur");
+    expect(text).toContain('SVT');
+  });
+
+  test('the FAQ discloses that requesting note conservation forfeits the mention (D. 334-13 / D. 336-13)', () => {
+    // Central arbitration from the brief (§2.8), now codified in Lot 1
+    // (candidatIndividuelRules.noteConservation.perteDeMention) — a
+    // redoublant deciding whether to conserve a note needs this fact
+    // before choosing, not just the 10/20-over-5-sessions threshold.
+    const landing = seoLandings['/candidat-libre-bac-francais'];
+    const item = landing.faq.find((entry) => /mention/i.test(entry.question));
+    expect(item).toBeDefined();
+    expect(item!.answer).toMatch(/mention/i);
+    expect(item!.answer).toMatch(/D\.\s?334-13|D\.\s?336-13/);
+  });
+
   test.each(LANDINGS)('$path renders sections, related links, offer cards and FAQ from page props', ({ Page, path }) => {
     const landing = seoLandings[path];
     const { container } = render(React.createElement(Page));
