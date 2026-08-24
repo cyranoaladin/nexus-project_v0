@@ -99,6 +99,40 @@ const dispensePartiePratiqueSchema = z
   })
   .strict();
 
+const basculeScolaireSchema = z
+  .object({
+    branches: z
+      .array(
+        z
+          .object({
+            id: z.enum(['conservation_moyennes_premiere', 'renonciation_moyennes_premiere']),
+            label: z.string().trim().min(1),
+            consequence: z.string().trim().min(1),
+          })
+          .strict(),
+      )
+      .length(2),
+    sourceNote: z.string().trim().min(1),
+  })
+  .strict();
+
+const dispensesTitulaireBacSchema = z
+  .object({
+    sourceArticle: z.string().trim().min(1),
+    perimetre: z.literal('declaratif'),
+    note: z.string().trim().min(1),
+  })
+  .strict();
+
+const secondGroupeSchema = z
+  .object({
+    moyenneMin: z.number().min(0).max(20),
+    moyenneMax: z.number().min(0).max(20),
+    nombreDisciplines: z.number().int().positive(),
+    note: z.string().trim().min(1),
+  })
+  .strict();
+
 const candidatIndividuelRulesSchema = z
   .object({
     controleContinuReplacedBy: z.literal('evaluations_ponctuelles'),
@@ -106,6 +140,9 @@ const candidatIndividuelRulesSchema = z
     noteConservation: noteConservationSchema,
     sameSessionEligibility: sameSessionEligibilitySchema,
     dispensePartiePratique: dispensePartiePratiqueSchema,
+    basculeScolaireVersIndividuel: basculeScolaireSchema,
+    dispensesTitulaireBac: dispensesTitulaireBacSchema,
+    secondGroupe: secondGroupeSchema,
   })
   .strict();
 

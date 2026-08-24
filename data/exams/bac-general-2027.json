@@ -105,6 +105,32 @@
       "specialitesConcernees": ["NSI", "PHYSIQUE_CHIMIE", "SCIENCES_INGENIEUR", "SVT"],
       "sourceArticle": "Arrêté du 22 juillet 2019 modifié — nature et durée des épreuves terminales",
       "note": "Le candidat individuel ne présente pas la partie pratique des épreuves terminales de spécialité en NSI, physique-chimie, sciences de l'ingénieur et SVT. La note repose sur le seul écrit, ramenée sur 20."
+    },
+    "basculeScolaireVersIndividuel": {
+      "branches": [
+        {
+          "id": "conservation_moyennes_premiere",
+          "label": "Conservation des moyennes annuelles de première",
+          "consequence": "Le candidat présente les évaluations ponctuelles uniquement sur le programme de terminale."
+        },
+        {
+          "id": "renonciation_moyennes_premiere",
+          "label": "Renonciation aux moyennes de première",
+          "consequence": "Le candidat s'inscrit sur le programme du cycle terminal pour l'ensemble des évaluations ponctuelles et présente une évaluation ponctuelle sur le programme de première de la spécialité non poursuivie."
+        }
+      ],
+      "sourceNote": "Note de service NOR MENE2523745N — situations particulières, dispenses, conservation."
+    },
+    "dispensesTitulaireBac": {
+      "sourceArticle": "Arrêté du 14 mai 2020",
+      "perimetre": "declaratif",
+      "note": "Le candidat déjà titulaire du baccalauréat déclare ses dispenses obtenues ; le périmètre facturable est réduit en conséquence."
+    },
+    "secondGroupe": {
+      "moyenneMin": 8,
+      "moyenneMax": 10,
+      "nombreDisciplines": 2,
+      "note": "Épreuves orales de rattrapage, deux disciplines au choix parmi les épreuves du premier groupe. Fenêtre très courte après publication des résultats."
     }
   },
   "tunisiaSpecific": {
