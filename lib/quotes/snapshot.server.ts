@@ -7,7 +7,7 @@
  */
 import 'server-only';
 import { getFullPricingData } from '@/lib/pricing';
-import { requireExamPolicy } from '@/lib/exams/catalog';
+import { assertSessionSellable, requireExamPolicy } from '@/lib/exams/catalog';
 import { generateRawToken, hashToken, computeExpiresAt } from '@/lib/invoice/access-token';
 
 export interface QuoteContextSnapshot {
@@ -16,6 +16,7 @@ export interface QuoteContextSnapshot {
 }
 
 export function buildQuoteContextSnapshot(examSession: number): QuoteContextSnapshot {
+  assertSessionSellable(examSession);
   const pricing = getFullPricingData();
   const examPolicy = requireExamPolicy(examSession);
   return {
