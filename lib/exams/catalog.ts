@@ -64,6 +64,14 @@ export function hasPracticalPartDispensation(policy: ExamPolicy, specialiteCode:
   return policy.candidatIndividuelRules.dispensePartiePratique.specialitesConcernees.includes(specialiteCode);
 }
 
+export function isMentionEligible(
+  policy: ExamPolicy,
+  input: { hasRequestedNoteConservation: boolean },
+): boolean {
+  if (input.hasRequestedNoteConservation) return !policy.candidatIndividuelRules.noteConservation.perteDeMention;
+  return true;
+}
+
 // ── Same-session ("Bac accéléré") eligibility ──
 //
 // This is the single point of truth for the Article 3 exception. It must
