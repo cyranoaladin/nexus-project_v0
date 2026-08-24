@@ -55,3 +55,11 @@ describe('T-resolver — coefficient d\'une note conservée entre sessions (À_V
     expect(result.outcome === 'RESOLVED' && result.coefficient).toBe(8);
   });
 });
+
+describe('T-resolver — tunisiaSpecific.verifieLe et alerte de fraîcheur', () => {
+  test('verifieLe est une date ISO exploitable par le back-office pour l\'alerte 6 mois', () => {
+    const policy = requireExamPolicy(2027);
+    if (policy.tunisiaSpecific === 'À_VERIFIER') throw new Error('unexpected skeleton');
+    expect(policy.tunisiaSpecific.verifieLe).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+  });
+});

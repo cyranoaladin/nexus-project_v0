@@ -154,6 +154,7 @@ const tunisiaSpecificSchema = z
     registrationWindowNote: z.string().trim().min(1),
     feesNote: z.string().trim().min(1),
     confidence: z.enum(['CONFIRMED', 'LIKELY', 'UNCERTAIN']),
+    verifieLe: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   })
   .strict();
 
