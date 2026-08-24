@@ -1,4 +1,4 @@
-import { getExamPolicy, requireExamPolicy, getSupportedSessions, getSessionStatus, assertSessionSellable } from '@/lib/exams/catalog';
+import { getExamPolicy, requireExamPolicy, getSupportedSessions, getSessionStatus, assertSessionSellable, resolveConservedNoteCoefficient } from '@/lib/exams/catalog';
 
 describe('T-resolver — résolution multi-session', () => {
   test('getSupportedSessions inclut 2026, 2027 et 2028', () => {
@@ -31,5 +31,27 @@ describe('T-resolver — résolution multi-session', () => {
 
   test('session inconnue: getExamPolicy retourne null (comportement fail-closed préexistant, non régressé)', () => {
     expect(getExamPolicy(2099)).toBeNull();
+  });
+});
+
+describe('T-resolver — coefficient d\'une note conservée entre sessions (À_VERIFIER, fail-closed)', () => {
+  test('une note conservée dont le coefficient diverge entre la session d\'obtention et la session de représentation force une révision humaine', () => {
+    const result = resolveConservedNoteCoefficient({
+      epreuveId: 'grand-oral',
+      sessionObtention: 2026,
+      sessionRepresentation: 2027,
+    });
+    expect(result.outcome).toBe('COEFFICIENT_REQUIRES_HUMAN_REVIEW');
+    expect(result.reason).toMatch(/10.*8|8.*10/);
+  });
+
+  test('une note conservée dont le coefficient est identique entre les deux sessions résout sans ambiguïté', () => {
+    const result = resolveConservedNoteCoefficient({
+      epreuveId: 'philosophie',
+      sessionObtention: 2026,
+      sessionRepresentation: 2027,
+    });
+    expect(result.outcome).toBe('RESOLVED');
+    expect(result.outcome === 'RESOLVED' && result.coefficient).toBe(8);
   });
 });
