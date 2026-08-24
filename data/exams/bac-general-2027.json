@@ -98,6 +98,11 @@
         { "id": "changement_voie_serie_terminale", "label": "Candidat ayant changé de voie ou de série au niveau de la classe de terminale", "autoCheckable": false }
       ],
       "engineRule": "ELIGIBLE uniquement si au moins une condition avec autoCheckable=true est confirmée positivement par les réponses du candidat. Dans tous les autres cas : ELIGIBILITY_REQUIRES_HUMAN_REVIEW. Ne jamais déduire l'éligibilité de la seule résidence en Tunisie, ni du choix de modalité des évaluations ponctuelles, ni d'aucune règle non listée ici."
+    },
+    "dispensePartiePratique": {
+      "specialitesConcernees": ["NSI", "PHYSIQUE_CHIMIE", "SCIENCES_INGENIEUR", "SVT"],
+      "sourceArticle": "Arrêté du 22 juillet 2019 modifié — nature et durée des épreuves terminales",
+      "note": "Le candidat individuel ne présente pas la partie pratique des épreuves terminales de spécialité en NSI, physique-chimie, sciences de l'ingénieur et SVT. La note repose sur le seul écrit, ramenée sur 20."
     }
   },
   "tunisiaSpecific": {
