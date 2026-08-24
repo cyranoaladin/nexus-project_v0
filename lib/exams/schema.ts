@@ -188,13 +188,20 @@ export const examPolicySchema = z
         message: `duplicate epreuve ids: ${duplicates.join(', ')}`,
       });
     }
-    if (policy.status !== 'SKELETON_UNCONFIRMED' && policy.epreuves.length > 0) {
-      const sumCoefficients = policy.epreuves.reduce((sum, e) => sum + e.coefficient, 0);
-      if (sumCoefficients !== policy.totalCoefficient) {
+    if (policy.status !== 'SKELETON_UNCONFIRMED') {
+      if (policy.epreuves.length === 0) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          message: `sum of epreuve coefficients (${sumCoefficients}) !== totalCoefficient (${policy.totalCoefficient})`,
+          message: `session ${policy.session} has status ${policy.status} but an empty epreuves array — only a SKELETON_UNCONFIRMED session may have zero épreuves`,
         });
+      } else {
+        const sumCoefficients = policy.epreuves.reduce((sum, e) => sum + e.coefficient, 0);
+        if (sumCoefficients !== policy.totalCoefficient) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: `sum of epreuve coefficients (${sumCoefficients}) !== totalCoefficient (${policy.totalCoefficient})`,
+          });
+        }
       }
     }
     for (const ep of policy.epreuves) {

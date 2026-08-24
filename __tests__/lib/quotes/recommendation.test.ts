@@ -204,7 +204,17 @@ describe('buildRecommendation — session réglementaire inconnue (fail closed)'
         diagnosticDomainScores: null,
         budget: { monthlyBudgetTnd: 1000, strategy: 'BEST_BALANCE' },
       }),
-    ).toThrow(/No exam policy registered/);
+    ).toThrow(/not sellable/);
+  });
+
+  test('a registered but non-sellable session (historical or unconfirmed skeleton) also throws rather than pricing it', () => {
+    expect(() =>
+      buildRecommendation({
+        situation: { ...terminaleDeuxEds, examSession: 2026 },
+        diagnosticDomainScores: null,
+        budget: { monthlyBudgetTnd: 1000, strategy: 'BEST_BALANCE' },
+      }),
+    ).toThrow(/HISTORICAL_READONLY/);
   });
 });
 
